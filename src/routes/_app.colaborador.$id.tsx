@@ -192,7 +192,7 @@ function CollaboratorPage() {
     },
   });
 
-  if (!collab) return <div className="text-sm text-muted-foreground">A carregar…</div>;
+  if (!collab || !draft) return <div className="text-sm text-muted-foreground">A carregar…</div>;
 
   const tabValue = activeTab || (snapshots[0]?.id ?? "resumo");
 
