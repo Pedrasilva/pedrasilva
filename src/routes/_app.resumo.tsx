@@ -122,8 +122,8 @@ function ResumoPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Kpi title="Total Projecto (VBG)" value={fmtEUR(totalProjecto)} />
-        <Kpi title="Total Backoffice (VBG)" value={fmtEUR(totalBackoffice)} />
+        <Kpi title="Total Equipa Projecto (VBG)" value={fmtEUR(totalProjecto)} />
+        <Kpi title="Total Equipa Backoffice (VBG)" value={fmtEUR(totalBackoffice)} />
         <Kpi title="Total RH (VBG)" value={fmtEUR(totalGeral)} highlight />
       </div>
 
@@ -131,7 +131,7 @@ function ResumoPage() {
         <CardHeader className="pb-2 flex-row items-end justify-between gap-4">
           <div>
             <CardDescription>
-              Valor BO / hora — cota a distribuir por colaborador de Projecto
+              Valor BO / hora — cota a distribuir por colaborador da Equipa Projecto
             </CardDescription>
             <CardTitle className="text-3xl tabular-nums text-primary">
               {fmtEUR(valorBO.valorHora)}
@@ -289,7 +289,7 @@ function ProjectoCard({
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell className="text-right font-semibold">Total Projecto (VBG)</TableCell>
+              <TableCell className="text-right font-semibold">Total Equipa Projecto (VBG)</TableCell>
               <TableCell className="text-right tabular-nums font-semibold">
                 {fmtEUR(totalEff)}
               </TableCell>
@@ -395,7 +395,7 @@ function BackofficeCard({ rows }: { rows: Row[] }) {
           <TableFooter>
             <TableRow>
               <TableCell colSpan={5} className="text-right font-semibold">
-                Total Backoffice (VBG)
+                Total Equipa Backoffice (VBG)
               </TableCell>
               <TableCell className="text-right tabular-nums font-semibold">
                 {fmtEUR(totalEff)}
