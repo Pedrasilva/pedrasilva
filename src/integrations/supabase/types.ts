@@ -55,11 +55,14 @@ export type Database = {
           created_at: string
           data_nascimento: string | null
           departamento: Database["public"]["Enums"]["department"]
+          dias_ferias_anuais: number
+          email: string | null
           id: string
           inicio_carreira: string | null
           margem_lucro_pct_override: number | null
           nome: string
           numero_colaborador: string | null
+          saldo_ferias_anterior: number
           situacao_contractual: string | null
           updated_at: string
         }
@@ -67,11 +70,14 @@ export type Database = {
           created_at?: string
           data_nascimento?: string | null
           departamento?: Database["public"]["Enums"]["department"]
+          dias_ferias_anuais?: number
+          email?: string | null
           id?: string
           inicio_carreira?: string | null
           margem_lucro_pct_override?: number | null
           nome: string
           numero_colaborador?: string | null
+          saldo_ferias_anterior?: number
           situacao_contractual?: string | null
           updated_at?: string
         }
@@ -79,11 +85,14 @@ export type Database = {
           created_at?: string
           data_nascimento?: string | null
           departamento?: Database["public"]["Enums"]["department"]
+          dias_ferias_anuais?: number
+          email?: string | null
           id?: string
           inicio_carreira?: string | null
           margem_lucro_pct_override?: number | null
           nome?: string
           numero_colaborador?: string | null
+          saldo_ferias_anterior?: number
           situacao_contractual?: string | null
           updated_at?: string
         }
@@ -166,14 +175,93 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vacation_requests: {
+        Row: {
+          aprovado_em: string | null
+          aprovado_por: string | null
+          collaborator_id: string
+          created_at: string
+          data_fim: string
+          data_inicio: string
+          dias_uteis: number
+          estado: string
+          id: string
+          notas: string | null
+          updated_at: string
+        }
+        Insert: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          collaborator_id: string
+          created_at?: string
+          data_fim: string
+          data_inicio: string
+          dias_uteis?: number
+          estado?: string
+          id?: string
+          notas?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          collaborator_id?: string
+          created_at?: string
+          data_fim?: string
+          data_inicio?: string
+          dias_uteis?: number
+          estado?: string
+          id?: string
+          notas?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vacation_requests_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_my_collaborator_id: { Args: never; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "user"
       department: "Projecto" | "Backoffice"
     }
     CompositeTypes: {
@@ -302,6 +390,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "user"],
       department: ["Projecto", "Backoffice"],
     },
   },
