@@ -11,6 +11,7 @@ function AppLayout() {
   const items = [
     { to: "/", label: "Colaboradores", icon: Users, match: (p: string) => p === "/" || p.startsWith("/colaborador") },
     { to: "/resumo", label: "Resumo geral", icon: BarChart3, match: (p: string) => p.startsWith("/resumo") },
+    { to: "/valor-bo", label: "Valor BO/hora", icon: Calculator, match: (p: string) => p.startsWith("/valor-bo") },
   ] as const;
 
   return (
