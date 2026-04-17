@@ -209,7 +209,7 @@ function ProjectoCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Projecto</CardTitle>
+        <CardTitle className="text-base">Equipa Projecto</CardTitle>
         <CardDescription>
           {rows.length} colaborador(es) · custo/hora = (VBG + cota BO) ÷ ({diasUteis}×{horasDia})
           h, depois ×1.20 (desperdício) e × (1 + margem)
@@ -314,9 +314,9 @@ function BackofficeCard({ rows }: { rows: Row[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Backoffice</CardTitle>
+        <CardTitle className="text-base">Equipa Backoffice</CardTitle>
         <CardDescription>
-          {rows.length} colaborador(es) · entra como cota fixa nos custos de Projecto
+          {rows.length} colaborador(es) · entra como cota fixa nos custos da Equipa Projecto
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0 overflow-x-auto">
