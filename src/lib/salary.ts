@@ -26,11 +26,14 @@ export type Collaborator = {
   id: string;
   numero_colaborador: string | null;
   nome: string;
+  email: string | null;
   data_nascimento: string | null;
   inicio_carreira: string | null;
   situacao_contractual: string | null;
   departamento: "Projecto" | "Backoffice";
   margem_lucro_pct_override: number | null;
+  dias_ferias_anuais: number;
+  saldo_ferias_anterior: number;
 };
 
 export function computeSnapshot(s: Snapshot) {

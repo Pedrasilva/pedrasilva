@@ -110,11 +110,14 @@ function CollaboratorPage() {
     return (
       draft.nome !== collab.nome ||
       (draft.numero_colaborador ?? "") !== (collab.numero_colaborador ?? "") ||
+      (draft.email ?? "") !== (collab.email ?? "") ||
       draft.departamento !== collab.departamento ||
       (draft.situacao_contractual ?? "") !== (collab.situacao_contractual ?? "") ||
       (draft.data_nascimento ?? "") !== (collab.data_nascimento ?? "") ||
       (draft.inicio_carreira ?? "") !== (collab.inicio_carreira ?? "") ||
-      (draft.margem_lucro_pct_override ?? null) !== (collab.margem_lucro_pct_override ?? null)
+      (draft.margem_lucro_pct_override ?? null) !== (collab.margem_lucro_pct_override ?? null) ||
+      draft.dias_ferias_anuais !== collab.dias_ferias_anuais ||
+      draft.saldo_ferias_anterior !== collab.saldo_ferias_anterior
     );
   }, [collab, draft]);
 
@@ -139,11 +142,14 @@ function CollaboratorPage() {
     updateCollab.mutate({
       nome: draft.nome,
       numero_colaborador: draft.numero_colaborador || null,
+      email: draft.email?.trim().toLowerCase() || null,
       departamento: draft.departamento,
       situacao_contractual: draft.situacao_contractual || null,
       data_nascimento: draft.data_nascimento || null,
       inicio_carreira: draft.inicio_carreira || null,
       margem_lucro_pct_override: draft.margem_lucro_pct_override,
+      dias_ferias_anuais: draft.dias_ferias_anuais,
+      saldo_ferias_anterior: draft.saldo_ferias_anterior,
     });
   };
 
@@ -316,6 +322,33 @@ function CollaboratorPage() {
                 className="input-yellow"
                 value={draft.inicio_carreira ?? ""}
                 onChange={(e) => setField("inicio_carreira", e.target.value || null)}
+              />
+            </Field>
+            <Field label="Email (login Google)">
+              <Input
+                type="email"
+                placeholder="nome@empresa.com"
+                className="input-yellow"
+                value={draft.email ?? ""}
+                onChange={(e) => setField("email", e.target.value || null)}
+              />
+            </Field>
+            <Field label="Dias de férias / ano">
+              <Input
+                type="number"
+                min={0}
+                className="input-yellow tabular-nums"
+                value={draft.dias_ferias_anuais ?? 22}
+                onChange={(e) => setField("dias_ferias_anuais", Number(e.target.value) || 0)}
+              />
+            </Field>
+            <Field label="Saldo férias anterior">
+              <Input
+                type="number"
+                min={0}
+                className="input-yellow tabular-nums"
+                value={draft.saldo_ferias_anterior ?? 0}
+                onChange={(e) => setField("saldo_ferias_anterior", Number(e.target.value) || 0)}
               />
             </Field>
             {draft.departamento === "Projecto" && (

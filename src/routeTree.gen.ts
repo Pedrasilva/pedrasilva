@@ -9,12 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as AppValorBoRouteImport } from './routes/_app.valor-bo'
 import { Route as AppResumoRouteImport } from './routes/_app.resumo'
+import { Route as AppFeriasRouteImport } from './routes/_app.ferias'
 import { Route as AppColaboradorIdRouteImport } from './routes/_app.colaborador.$id'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
@@ -34,6 +41,11 @@ const AppResumoRoute = AppResumoRouteImport.update({
   path: '/resumo',
   getParentRoute: () => AppRoute,
 } as any)
+const AppFeriasRoute = AppFeriasRouteImport.update({
+  id: '/ferias',
+  path: '/ferias',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppColaboradorIdRoute = AppColaboradorIdRouteImport.update({
   id: '/colaborador/$id',
   path: '/colaborador/$id',
@@ -42,11 +54,15 @@ const AppColaboradorIdRoute = AppColaboradorIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/login': typeof LoginRoute
+  '/ferias': typeof AppFeriasRoute
   '/resumo': typeof AppResumoRoute
   '/valor-bo': typeof AppValorBoRoute
   '/colaborador/$id': typeof AppColaboradorIdRoute
 }
 export interface FileRoutesByTo {
+  '/login': typeof LoginRoute
+  '/ferias': typeof AppFeriasRoute
   '/resumo': typeof AppResumoRoute
   '/valor-bo': typeof AppValorBoRoute
   '/': typeof AppIndexRoute
@@ -55,6 +71,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
+  '/login': typeof LoginRoute
+  '/_app/ferias': typeof AppFeriasRoute
   '/_app/resumo': typeof AppResumoRoute
   '/_app/valor-bo': typeof AppValorBoRoute
   '/_app/': typeof AppIndexRoute
@@ -62,12 +80,20 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/resumo' | '/valor-bo' | '/colaborador/$id'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/ferias'
+    | '/resumo'
+    | '/valor-bo'
+    | '/colaborador/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/resumo' | '/valor-bo' | '/' | '/colaborador/$id'
+  to: '/login' | '/ferias' | '/resumo' | '/valor-bo' | '/' | '/colaborador/$id'
   id:
     | '__root__'
     | '/_app'
+    | '/login'
+    | '/_app/ferias'
     | '/_app/resumo'
     | '/_app/valor-bo'
     | '/_app/'
@@ -76,10 +102,18 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app': {
       id: '/_app'
       path: ''
@@ -108,6 +142,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppResumoRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/ferias': {
+      id: '/_app/ferias'
+      path: '/ferias'
+      fullPath: '/ferias'
+      preLoaderRoute: typeof AppFeriasRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/colaborador/$id': {
       id: '/_app/colaborador/$id'
       path: '/colaborador/$id'
@@ -119,6 +160,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppFeriasRoute: typeof AppFeriasRoute
   AppResumoRoute: typeof AppResumoRoute
   AppValorBoRoute: typeof AppValorBoRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -126,6 +168,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppFeriasRoute: AppFeriasRoute,
   AppResumoRoute: AppResumoRoute,
   AppValorBoRoute: AppValorBoRoute,
   AppIndexRoute: AppIndexRoute,
@@ -136,7 +179,17 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
