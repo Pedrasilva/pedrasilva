@@ -226,13 +226,16 @@ function ProjectoCard({
               <TableHead className="text-right">×1.20</TableHead>
               <TableHead className="text-right">Margem</TableHead>
               <TableHead className="text-right text-primary">Venda/h</TableHead>
+              <TableHead className="text-right">@ 30%</TableHead>
+              <TableHead className="text-right">@ 50%</TableHead>
+              <TableHead className="text-right">@ 100%</TableHead>
               <TableHead className="w-8"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={11} className="text-center text-muted-foreground py-8">
                   Sem colaboradores neste departamento.
                 </TableCell>
               </TableRow>
@@ -242,14 +245,25 @@ function ProjectoCard({
               const c = ref ? computeSnapshot(ref) : null;
               const margem = r.collab.margem_lucro_pct_override ?? margemGlobal;
               const isOverride = r.collab.margem_lucro_pct_override != null;
-              const p = c
-                ? computePricing({
+              const baseArgs = c
+                ? {
                     vbgColaborador: c.custoVBG,
                     cotaBoAnual: cotaBo,
                     diasUteis,
                     horasDia,
-                    margemLucroPct: margem,
-                  })
+                  }
+                : null;
+              const p = baseArgs
+                ? computePricing({ ...baseArgs, margemLucroPct: margem })
+                : null;
+              const p30 = baseArgs
+                ? computePricing({ ...baseArgs, margemLucroPct: 0.3 })
+                : null;
+              const p50 = baseArgs
+                ? computePricing({ ...baseArgs, margemLucroPct: 0.5 })
+                : null;
+              const p100 = baseArgs
+                ? computePricing({ ...baseArgs, margemLucroPct: 1.0 })
                 : null;
               return (
                 <TableRow key={r.collab.id}>
@@ -278,6 +292,15 @@ function ProjectoCard({
                   <TableCell className="text-right tabular-nums font-semibold text-primary">
                     {p ? fmtEUR(p.vendaHora) : "—"}
                   </TableCell>
+                  <TableCell className="text-right tabular-nums text-muted-foreground">
+                    {p30 ? fmtEUR(p30.vendaHora) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums text-muted-foreground">
+                    {p50 ? fmtEUR(p50.vendaHora) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums text-muted-foreground">
+                    {p100 ? fmtEUR(p100.vendaHora) : "—"}
+                  </TableCell>
                   <TableCell>
                     <Link to="/colaborador/$id" params={{ id: r.collab.id }}>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -293,7 +316,7 @@ function ProjectoCard({
               <TableCell className="text-right tabular-nums font-semibold">
                 {fmtEUR(totalEff)}
               </TableCell>
-              <TableCell colSpan={6} />
+              <TableCell colSpan={9} />
             </TableRow>
           </TableFooter>
         </Table>
