@@ -8,6 +8,7 @@ import {
   fmtEUR,
   fmtDate,
 } from "@/lib/salary";
+import { computeValorBO } from "./_app.valor-bo";
 import {
   Card,
   CardContent,
