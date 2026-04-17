@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,7 +52,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Plus, Trash2, BarChart3 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, BarChart3, Save } from "lucide-react";
 import { toast } from "sonner";
 import { SnapshotForm } from "@/components/SnapshotForm";
 import { ResumoCompare } from "@/components/ResumoCompare";
@@ -100,13 +100,52 @@ function CollaboratorPage() {
     },
   });
 
+  const [draft, setDraft] = useState<Collaborator | null>(null);
+  useEffect(() => {
+    if (collab) setDraft(collab);
+  }, [collab]);
+
+  const isDirty = useMemo(() => {
+    if (!collab || !draft) return false;
+    return (
+      draft.nome !== collab.nome ||
+      (draft.numero_colaborador ?? "") !== (collab.numero_colaborador ?? "") ||
+      draft.departamento !== collab.departamento ||
+      (draft.situacao_contractual ?? "") !== (collab.situacao_contractual ?? "") ||
+      (draft.data_nascimento ?? "") !== (collab.data_nascimento ?? "") ||
+      (draft.inicio_carreira ?? "") !== (collab.inicio_carreira ?? "") ||
+      (draft.margem_lucro_pct_override ?? null) !== (collab.margem_lucro_pct_override ?? null)
+    );
+  }, [collab, draft]);
+
   const updateCollab = useMutation({
     mutationFn: async (patch: Partial<Collaborator>) => {
       const { error } = await supabase.from("collaborators").update(patch).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["collaborator", id] }),
+    onSuccess: () => {
+      toast.success("Alterações guardadas");
+      qc.invalidateQueries({ queryKey: ["collaborator", id] });
+      qc.invalidateQueries({ queryKey: ["collaborators"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
+
+  const setField = <K extends keyof Collaborator>(k: K, v: Collaborator[K]) =>
+    setDraft((d) => (d ? { ...d, [k]: v } : d));
+
+  const handleSave = () => {
+    if (!draft) return;
+    updateCollab.mutate({
+      nome: draft.nome,
+      numero_colaborador: draft.numero_colaborador || null,
+      departamento: draft.departamento,
+      situacao_contractual: draft.situacao_contractual || null,
+      data_nascimento: draft.data_nascimento || null,
+      inicio_carreira: draft.inicio_carreira || null,
+      margem_lucro_pct_override: draft.margem_lucro_pct_override,
+    });
+  };
 
   const createSnap = useMutation({
     mutationFn: async () => {
@@ -153,7 +192,7 @@ function CollaboratorPage() {
     },
   });
 
-  if (!collab) return <div className="text-sm text-muted-foreground">A carregar…</div>;
+  if (!collab || !draft) return <div className="text-sm text-muted-foreground">A carregar…</div>;
 
   const tabValue = activeTab || (snapshots[0]?.id ?? "resumo");
 
@@ -193,33 +232,48 @@ function CollaboratorPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Dados do colaborador</CardTitle>
-          <CardDescription>Campos a amarelo são editáveis.</CardDescription>
+        <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
+          <div className="space-y-1.5">
+            <CardTitle className="text-base">Dados do colaborador</CardTitle>
+            <CardDescription>
+              Campos a amarelo são editáveis. As alterações só são guardadas ao clicar em Guardar.
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            {isDirty && (
+              <span className="text-xs text-muted-foreground">Alterações por guardar</span>
+            )}
+            <Button
+              size="sm"
+              onClick={handleSave}
+              disabled={!isDirty || updateCollab.isPending}
+            >
+              <Save className="h-4 w-4" />
+              {updateCollab.isPending ? "A guardar…" : "Guardar"}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <Field label="Nome">
               <Input
                 className="input-yellow"
-                defaultValue={collab.nome}
-                onBlur={(e) => updateCollab.mutate({ nome: e.target.value })}
+                value={draft.nome}
+                onChange={(e) => setField("nome", e.target.value)}
               />
             </Field>
             <Field label="Nº colaborador">
               <Input
                 className="input-yellow"
-                defaultValue={collab.numero_colaborador ?? ""}
-                onBlur={(e) =>
-                  updateCollab.mutate({ numero_colaborador: e.target.value || null })
-                }
+                value={draft.numero_colaborador ?? ""}
+                onChange={(e) => setField("numero_colaborador", e.target.value || null)}
               />
             </Field>
             <Field label="Departamento">
               <Select
-                value={collab.departamento}
+                value={draft.departamento}
                 onValueChange={(v) =>
-                  updateCollab.mutate({ departamento: v as "Projecto" | "Backoffice" })
+                  setField("departamento", v as "Projecto" | "Backoffice")
                 }
               >
                 <SelectTrigger className="input-yellow">
@@ -233,10 +287,8 @@ function CollaboratorPage() {
             </Field>
             <Field label="Situação contractual">
               <Select
-                value={collab.situacao_contractual ?? ""}
-                onValueChange={(v) =>
-                  updateCollab.mutate({ situacao_contractual: v || null })
-                }
+                value={draft.situacao_contractual ?? ""}
+                onValueChange={(v) => setField("situacao_contractual", v || null)}
               >
                 <SelectTrigger className="input-yellow">
                   <SelectValue placeholder="Seleccionar…" />
@@ -254,39 +306,36 @@ function CollaboratorPage() {
               <Input
                 type="date"
                 className="input-yellow"
-                defaultValue={collab.data_nascimento ?? ""}
-                onBlur={(e) =>
-                  updateCollab.mutate({ data_nascimento: e.target.value || null })
-                }
+                value={draft.data_nascimento ?? ""}
+                onChange={(e) => setField("data_nascimento", e.target.value || null)}
               />
             </Field>
             <Field label="Início de carreira">
               <Input
                 type="date"
                 className="input-yellow"
-                defaultValue={collab.inicio_carreira ?? ""}
-                onBlur={(e) =>
-                  updateCollab.mutate({ inicio_carreira: e.target.value || null })
-                }
+                value={draft.inicio_carreira ?? ""}
+                onChange={(e) => setField("inicio_carreira", e.target.value || null)}
               />
             </Field>
-            {collab.departamento === "Projecto" && (
+            {draft.departamento === "Projecto" && (
               <Field label="Margem lucro override (%)">
                 <Input
                   type="number"
                   step="0.5"
                   placeholder="usa global"
                   className="input-yellow tabular-nums"
-                  defaultValue={
-                    collab.margem_lucro_pct_override != null
-                      ? (collab.margem_lucro_pct_override * 100).toString()
+                  value={
+                    draft.margem_lucro_pct_override != null
+                      ? (draft.margem_lucro_pct_override * 100).toString()
                       : ""
                   }
-                  onBlur={(e) => {
+                  onChange={(e) => {
                     const v = e.target.value.trim();
-                    updateCollab.mutate({
-                      margem_lucro_pct_override: v === "" ? null : Number(v) / 100,
-                    });
+                    setField(
+                      "margem_lucro_pct_override",
+                      v === "" ? null : Number(v) / 100,
+                    );
                   }}
                 />
               </Field>
