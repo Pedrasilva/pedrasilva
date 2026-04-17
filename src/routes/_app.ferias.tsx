@@ -258,21 +258,57 @@ function FeriasPage() {
                   </Select>
                 </div>
               )}
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Data início</Label>
-                <Input
-                  type="date"
-                  value={newReq.data_inicio}
-                  onChange={(e) => setNewReq((f) => ({ ...f, data_inicio: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Data fim</Label>
-                <Input
-                  type="date"
-                  value={newReq.data_fim}
-                  onChange={(e) => setNewReq((f) => ({ ...f, data_fim: e.target.value }))}
-                />
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label className="text-xs text-muted-foreground">Período de férias</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !newReq.data_inicio && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarDays className="mr-2 h-4 w-4" />
+                      {newReq.data_inicio && newReq.data_fim ? (
+                        <>
+                          {format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: pt })}
+                          {" → "}
+                          {format(new Date(newReq.data_fim + "T00:00:00"), "d MMM yyyy", { locale: pt })}
+                        </>
+                      ) : newReq.data_inicio ? (
+                        <>
+                          {format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: pt })}
+                          {" → escolher fim…"}
+                        </>
+                      ) : (
+                        <span>Seleccionar datas…</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="range"
+                      numberOfMonths={2}
+                      locale={pt}
+                      weekStartsOn={1}
+                      defaultMonth={newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : new Date()}
+                      selected={
+                        {
+                          from: newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : undefined,
+                          to: newReq.data_fim ? new Date(newReq.data_fim + "T00:00:00") : undefined,
+                        } as DateRange
+                      }
+                      onSelect={(range: DateRange | undefined) => {
+                        setNewReq((f) => ({
+                          ...f,
+                          data_inicio: range?.from ? format(range.from, "yyyy-MM-dd") : "",
+                          data_fim: range?.to ? format(range.to, "yyyy-MM-dd") : "",
+                        }));
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
                 <Label className="text-xs text-muted-foreground">Notas (opcional)</Label>
