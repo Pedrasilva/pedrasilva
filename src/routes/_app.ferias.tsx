@@ -53,6 +53,31 @@ export const Route = createFileRoute("/_app/ferias")({
   component: FeriasPage,
 });
 
+type AbsenceType =
+  | "ferias"
+  | "casamento"
+  | "falecimento_familiar"
+  | "assistencia_filho"
+  | "nascimento_filho"
+  | "trabalhador_estudante"
+  | "doacao_sangue"
+  | "autorizada_paga"
+  | "autorizada_nao_paga";
+
+const ABSENCE_TYPES: { value: AbsenceType; label: string; paga: boolean; descontaFerias: boolean }[] = [
+  { value: "ferias", label: "Férias", paga: true, descontaFerias: true },
+  { value: "casamento", label: "Casamento (15 dias, paga)", paga: true, descontaFerias: false },
+  { value: "falecimento_familiar", label: "Falecimento de familiar (paga)", paga: true, descontaFerias: false },
+  { value: "assistencia_filho", label: "Assistência a filho (paga até limite legal)", paga: true, descontaFerias: false },
+  { value: "nascimento_filho", label: "Nascimento de filho / licença parental (paga)", paga: true, descontaFerias: false },
+  { value: "trabalhador_estudante", label: "Trabalhador-estudante (paga até limite)", paga: true, descontaFerias: false },
+  { value: "doacao_sangue", label: "Dádiva de sangue (paga)", paga: true, descontaFerias: false },
+  { value: "autorizada_paga", label: "Outra ausência autorizada — paga", paga: true, descontaFerias: false },
+  { value: "autorizada_nao_paga", label: "Outra ausência autorizada — não paga", paga: false, descontaFerias: false },
+];
+
+const absenceLabel = (t: AbsenceType) => ABSENCE_TYPES.find((x) => x.value === t)?.label ?? t;
+
 type VacationRequest = {
   id: string;
   collaborator_id: string;
@@ -60,6 +85,7 @@ type VacationRequest = {
   data_fim: string;
   dias_uteis: number;
   estado: "pendente" | "aprovada" | "rejeitada";
+  tipo: AbsenceType;
   notas: string | null;
   aprovado_por: string | null;
   aprovado_em: string | null;
@@ -111,6 +137,7 @@ function FeriasPage() {
         (r) =>
           r.collaborator_id === focusCollab.id &&
           r.estado === "aprovada" &&
+          r.tipo === "ferias" &&
           new Date(r.data_inicio).getFullYear() === currentYear,
       )
       .reduce((sum, r) => sum + (r.dias_uteis || 0), 0);
@@ -123,6 +150,7 @@ function FeriasPage() {
         (r) =>
           r.collaborator_id === focusCollab.id &&
           r.estado === "pendente" &&
+          r.tipo === "ferias" &&
           new Date(r.data_inicio).getFullYear() === currentYear,
       )
       .reduce((sum, r) => sum + (r.dias_uteis || 0), 0);
@@ -133,8 +161,15 @@ function FeriasPage() {
 
   // Novo pedido
   const [newOpen, setNewOpen] = useState(false);
-  const [newReq, setNewReq] = useState({
+  const [newReq, setNewReq] = useState<{
+    collaborator_id: string;
+    tipo: AbsenceType;
+    data_inicio: string;
+    data_fim: string;
+    notas: string;
+  }>({
     collaborator_id: "",
+    tipo: "ferias",
     data_inicio: "",
     data_fim: "",
     notas: "",
@@ -153,6 +188,7 @@ function FeriasPage() {
       if (dias <= 0) throw new Error("Período inválido");
       const { error } = await supabase.from("vacation_requests").insert({
         collaborator_id: collab_id,
+        tipo: newReq.tipo,
         data_inicio: newReq.data_inicio,
         data_fim: newReq.data_fim,
         dias_uteis: dias,
@@ -165,7 +201,7 @@ function FeriasPage() {
       toast.success("Pedido criado");
       qc.invalidateQueries({ queryKey: ["vacation_requests"] });
       setNewOpen(false);
-      setNewReq({ collaborator_id: "", data_inicio: "", data_fim: "", notas: "" });
+      setNewReq({ collaborator_id: "", tipo: "ferias", data_inicio: "", data_fim: "", notas: "" });
     },
     onError: (e: Error) => toast.error(e.message),
   });
