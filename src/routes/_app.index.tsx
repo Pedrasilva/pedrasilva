@@ -156,8 +156,8 @@ function ListPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Projecto">Projecto</SelectItem>
-                    <SelectItem value="Backoffice">Backoffice</SelectItem>
+                    <SelectItem value="Projecto">Equipa Projecto</SelectItem>
+                    <SelectItem value="Backoffice">Equipa Backoffice</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -217,12 +217,12 @@ function ListPage() {
       ) : (
         <div className="space-y-6">
           <DepartmentSection
-            title="Projecto"
+            title="Equipa Projecto"
             icon={<Briefcase className="h-4 w-4" />}
             list={projecto}
           />
           <DepartmentSection
-            title="Backoffice"
+            title="Equipa Backoffice"
             icon={<Building2 className="h-4 w-4" />}
             list={backoffice}
           />

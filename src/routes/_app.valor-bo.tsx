@@ -162,8 +162,8 @@ function ValorBOPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Valor BO / hora</h1>
         <p className="text-sm text-muted-foreground">
-          Cálculo do valor de referência de venda à hora, distribuindo o custo de Back Office e
-          custos operacionais pelos colaboradores de Projecto.
+          Cálculo do valor de referência de venda à hora, distribuindo o custo da Equipa Backoffice e
+          custos operacionais pelos colaboradores da Equipa Projecto.
         </p>
       </div>
 
@@ -242,9 +242,9 @@ function ValorBOPage() {
             </TableHeader>
             <TableBody>
               <Row code="D3" label="Custos operacionais anuais (manual)" value={fmtEUR(Number(draft.custos_operacionais_anual))} />
-              <Row code="D4" label={`Custo total Backoffice — VBG (${backoffice.length} colab.)`} value={fmtEUR(custoBackoffice)} />
-              <Row code="D5" label={`Custo total Projecto — VBG (${projecto.length} colab.)`} value={fmtEUR(custoProjecto)} />
-              <Row code="D11" label="Nº colaboradores Projecto" value={String(projecto.length)} />
+              <Row code="D4" label={`Custo total Equipa Backoffice — VBG (${backoffice.length} colab.)`} value={fmtEUR(custoBackoffice)} />
+              <Row code="D5" label={`Custo total Equipa Projecto — VBG (${projecto.length} colab.)`} value={fmtEUR(custoProjecto)} />
+              <Row code="D11" label="Nº colaboradores Equipa Projecto" value={String(projecto.length)} />
               <Row code="D13" label="Dias úteis" value={String(draft.dias_uteis)} />
               <Row code="D14" label="Total a distribuir (D3 + D4)" value={fmtEUR(result.totalAnual)} bold />
               <Row code="D15" label="Por colaborador / ano" value={fmtEUR(result.porColabAno)} />

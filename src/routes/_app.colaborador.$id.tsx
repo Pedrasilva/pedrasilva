@@ -226,8 +226,8 @@ function CollaboratorPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Projecto">Projecto</SelectItem>
-                  <SelectItem value="Backoffice">Backoffice</SelectItem>
+                  <SelectItem value="Projecto">Equipa Projecto</SelectItem>
+                  <SelectItem value="Backoffice">Equipa Backoffice</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
