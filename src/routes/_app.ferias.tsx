@@ -251,12 +251,12 @@ function FeriasPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-            <CalendarDays className="h-6 w-6" /> Mapa de Férias
+            <CalendarDays className="h-6 w-6" /> Mapa de Férias e Ausências
           </h1>
           <p className="text-sm text-muted-foreground">
             {isAdmin
-              ? "Aprove ou rejeite pedidos da equipa de Projecto."
-              : "Consulte o seu saldo e marque os seus períodos de férias."}
+              ? "Aprove ou rejeite pedidos de férias e outras ausências da equipa."
+              : "Consulte o saldo de férias e marque férias ou outras ausências autorizadas."}
           </p>
         </div>
         <Dialog open={newOpen} onOpenChange={setNewOpen}>
