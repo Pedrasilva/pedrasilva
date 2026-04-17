@@ -30,6 +30,7 @@ export type Collaborator = {
   inicio_carreira: string | null;
   situacao_contractual: string | null;
   departamento: "Projecto" | "Backoffice";
+  margem_lucro_pct_override: number | null;
 };
 
 export function computeSnapshot(s: Snapshot) {
