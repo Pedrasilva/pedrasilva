@@ -267,10 +267,11 @@ function FeriasPage() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Marcação de férias</DialogTitle>
+              <DialogTitle>Marcação de ausência</DialogTitle>
               <DialogDescription>
-                Indique as datas pretendidas. O número de dias úteis (seg–sex) é calculado
-                automaticamente.
+                Indique o tipo de ausência e o período. O número de dias úteis (seg–sex) é
+                calculado automaticamente. Apenas pedidos do tipo <em>Férias</em> descontam do
+                saldo anual.
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
