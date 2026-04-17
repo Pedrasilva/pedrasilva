@@ -59,6 +59,23 @@ function ResumoPage() {
     },
   });
 
+  const { data: boSettings } = useQuery({
+    queryKey: ["bo-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("bo_settings")
+        .select("*")
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data as {
+        custos_operacionais_anual: number;
+        dias_uteis: number;
+        horas_dia: number;
+      } | null;
+    },
+  });
+
   const rows: Row[] = collaborators.map((c) => {
     const sns = snapshots.filter((s) => s.collaborator_id === c.id);
     const effective = sns.find((s) => s.is_effective) ?? null;
@@ -72,6 +89,15 @@ function ResumoPage() {
   const totalProjecto = sumVBG(projecto);
   const totalBackoffice = sumVBG(backoffice);
   const totalGeral = totalProjecto + totalBackoffice;
+
+  const valorBO = computeValorBO({
+    custosOperacionais: Number(boSettings?.custos_operacionais_anual ?? 0),
+    custoBackoffice: totalBackoffice,
+    custoProjecto: totalProjecto,
+    numColaboradoresProjecto: projecto.length,
+    diasUteis: Number(boSettings?.dias_uteis ?? 220),
+    horasDia: Number(boSettings?.horas_dia ?? 8),
+  });
 
   return (
     <div className="space-y-6">
@@ -87,6 +113,23 @@ function ResumoPage() {
         <Kpi title="Total Backoffice (VBG)" value={fmtEUR(totalBackoffice)} />
         <Kpi title="Total RH (VBG)" value={fmtEUR(totalGeral)} highlight />
       </div>
+
+      <Card className="border-primary">
+        <CardHeader className="pb-2 flex-row items-end justify-between gap-4">
+          <div>
+            <CardDescription>Valor BO / hora — referência de venda</CardDescription>
+            <CardTitle className="text-3xl tabular-nums text-primary">
+              {fmtEUR(valorBO.valorHora)}
+            </CardTitle>
+          </div>
+          <Link
+            to="/valor-bo"
+            className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+          >
+            Editar parâmetros →
+          </Link>
+        </CardHeader>
+      </Card>
 
       <DeptCard title="Projecto" rows={projecto} />
       <DeptCard title="Backoffice" rows={backoffice} />
