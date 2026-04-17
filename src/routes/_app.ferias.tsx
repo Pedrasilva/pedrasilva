@@ -455,6 +455,7 @@ function FeriasPage() {
               <TableHeader>
                 <TableRow>
                   {isAdmin && <TableHead>Colaborador</TableHead>}
+                  <TableHead>Tipo</TableHead>
                   <TableHead>Início</TableHead>
                   <TableHead>Fim</TableHead>
                   <TableHead className="text-right">Dias</TableHead>
@@ -467,6 +468,7 @@ function FeriasPage() {
                 {visibleRequests.map((r) => (
                   <TableRow key={r.id}>
                     {isAdmin && <TableCell>{collabName(r.collaborator_id)}</TableCell>}
+                    <TableCell className="text-xs">{absenceLabel(r.tipo)}</TableCell>
                     <TableCell>{r.data_inicio}</TableCell>
                     <TableCell>{r.data_fim}</TableCell>
                     <TableCell className="text-right tabular-nums">{r.dias_uteis}</TableCell>
