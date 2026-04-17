@@ -1,6 +1,6 @@
 import { Link, Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
-import { Users, BarChart3 } from "lucide-react";
+import { Users, BarChart3, Calculator } from "lucide-react";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
