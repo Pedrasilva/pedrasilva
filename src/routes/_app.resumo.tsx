@@ -6,7 +6,6 @@ import {
   type Snapshot,
   computeSnapshot,
   fmtEUR,
-  fmtDate,
 } from "@/lib/salary";
 import { computeValorBO } from "./_app.valor-bo";
 import { computePricing, cotaBoPorColabProjecto, TAXA_DESPERDICIO } from "@/lib/pricing";
@@ -117,7 +116,7 @@ function ResumoPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Resumo geral</h1>
         <p className="text-sm text-muted-foreground">
-          Última ficha efectiva vs. proposta, agrupado por departamento.
+          Formato espelhado do mapa Excel — Equipa Backoffice + Equipa Projecto.
         </p>
       </div>
 
@@ -151,14 +150,16 @@ function ResumoPage() {
         </CardHeader>
       </Card>
 
-      <ProjectoCard
+      <RhTable title="Equipa Backoffice" rows={backoffice} totalLabel="Equipa Backoffice" />
+      <RhTable title="Equipa Projecto" rows={projecto} totalLabel="Equipa produção" />
+
+      <PricingTable
         rows={projecto}
         cotaBo={cotaBo}
         diasUteis={diasUteis}
         horasDia={horasDia}
         margemGlobal={margemGlobal}
       />
-      <BackofficeCard rows={backoffice} />
     </div>
   );
 }
@@ -189,7 +190,146 @@ function Kpi({
   );
 }
 
-function ProjectoCard({
+function anosCarreira(inicio: string | null): string {
+  if (!inicio) return "—";
+  const start = new Date(inicio);
+  if (isNaN(start.getTime())) return "—";
+  const now = new Date();
+  let anos = now.getFullYear() - start.getFullYear();
+  const m = now.getMonth() - start.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < start.getDate())) anos -= 1;
+  return `${anos} anos`;
+}
+
+function RhTable({
+  title,
+  rows,
+  totalLabel,
+}: {
+  title: string;
+  rows: Row[];
+  totalLabel: string;
+}) {
+  // Totais sobre VBG e Bruto anual (como no Excel)
+  let totalBrutoAnual = 0;
+  let totalVbg = 0;
+  rows.forEach((r) => {
+    const ref = r.effective ?? r.proposed;
+    if (!ref) return;
+    const c = computeSnapshot(ref);
+    totalBrutoAnual += c.brutoAnual;
+    totalVbg += c.custoVBG;
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">{title}</CardTitle>
+        <CardDescription>
+          {rows.length} colaborador(es) · valores baseados na ficha efectiva (ou proposta se não houver efectiva)
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0 overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nº colab.</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>Cód.</TableHead>
+              <TableHead className="text-right">Bruto anual</TableHead>
+              <TableHead className="text-right">Base contractual</TableHead>
+              <TableHead className="text-right">Bruto mensal</TableHead>
+              <TableHead className="text-right">Alimentação</TableHead>
+              <TableHead className="text-right">Ajudas de custo</TableHead>
+              <TableHead className="text-right">Líquido mensal</TableHead>
+              <TableHead className="text-right">Benefícios anual</TableHead>
+              <TableHead className="text-right font-semibold">VBG</TableHead>
+              <TableHead className="text-right">Anos</TableHead>
+              <TableHead className="w-8"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={13} className="text-center text-muted-foreground py-8">
+                  Sem colaboradores neste departamento.
+                </TableCell>
+              </TableRow>
+            )}
+            {rows.map((r, idx) => {
+              const ref = r.effective ?? r.proposed;
+              const c = ref ? computeSnapshot(ref) : null;
+              return (
+                <TableRow key={r.collab.id}>
+                  <TableCell className="text-muted-foreground tabular-nums">
+                    {r.collab.numero_colaborador ?? "—"}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    <Link to="/colaborador/$id" params={{ id: r.collab.id }}>
+                      {r.collab.nome}
+                    </Link>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground tabular-nums">
+                    {idx + 1}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {c ? fmtEUR(c.brutoAnual) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {c ? fmtEUR(c.base) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {c ? fmtEUR(c.brutoMensal) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {c ? fmtEUR(c.alimentacaoMensal) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {c ? fmtEUR(c.ajudasMensal) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {c ? fmtEUR(c.liquidoTotalMensal) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {c ? fmtEUR(c.beneficiosAnual) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums font-semibold">
+                    {c ? fmtEUR(c.custoVBG) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground tabular-nums">
+                    {anosCarreira(r.collab.inicio_carreira)}
+                  </TableCell>
+                  <TableCell>
+                    <Link to="/colaborador/$id" params={{ id: r.collab.id }}>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={3} className="font-semibold">
+                {totalLabel}
+              </TableCell>
+              <TableCell className="text-right tabular-nums font-semibold">
+                {fmtEUR(totalBrutoAnual)}
+              </TableCell>
+              <TableCell colSpan={6} />
+              <TableCell className="text-right tabular-nums font-semibold">
+                {fmtEUR(totalVbg)}
+              </TableCell>
+              <TableCell colSpan={2} />
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
+
+function PricingTable({
   rows,
   cotaBo,
   diasUteis,
@@ -202,17 +342,13 @@ function ProjectoCard({
   horasDia: number;
   margemGlobal: number;
 }) {
-  const totalEff = rows.reduce(
-    (acc, r) => acc + (r.effective ? computeSnapshot(r.effective).custoVBG : 0),
-    0,
-  );
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Equipa Projecto</CardTitle>
+        <CardTitle className="text-base">Pricing — Equipa Projecto</CardTitle>
         <CardDescription>
-          {rows.length} colaborador(es) · custo/hora = (VBG + cota BO) ÷ ({diasUteis}×{horasDia})
-          h, depois ×1.20 (desperdício) e × (1 + margem)
+          Custo/hora = (VBG + cota BO) ÷ ({diasUteis}×{horasDia}) h, depois ×1.20 (desperdício) e × (1
+          + margem)
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0 overflow-x-auto">
@@ -229,14 +365,13 @@ function ProjectoCard({
               <TableHead className="text-right">@ 30%</TableHead>
               <TableHead className="text-right">@ 50%</TableHead>
               <TableHead className="text-right">@ 100%</TableHead>
-              <TableHead className="w-8"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={11} className="text-center text-muted-foreground py-8">
-                  Sem colaboradores neste departamento.
+                <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
+                  Sem colaboradores.
                 </TableCell>
               </TableRow>
             )}
@@ -246,25 +381,12 @@ function ProjectoCard({
               const margem = r.collab.margem_lucro_pct_override ?? margemGlobal;
               const isOverride = r.collab.margem_lucro_pct_override != null;
               const baseArgs = c
-                ? {
-                    vbgColaborador: c.custoVBG,
-                    cotaBoAnual: cotaBo,
-                    diasUteis,
-                    horasDia,
-                  }
+                ? { vbgColaborador: c.custoVBG, cotaBoAnual: cotaBo, diasUteis, horasDia }
                 : null;
-              const p = baseArgs
-                ? computePricing({ ...baseArgs, margemLucroPct: margem })
-                : null;
-              const p30 = baseArgs
-                ? computePricing({ ...baseArgs, margemLucroPct: 0.3 })
-                : null;
-              const p50 = baseArgs
-                ? computePricing({ ...baseArgs, margemLucroPct: 0.5 })
-                : null;
-              const p100 = baseArgs
-                ? computePricing({ ...baseArgs, margemLucroPct: 1.0 })
-                : null;
+              const p = baseArgs ? computePricing({ ...baseArgs, margemLucroPct: margem }) : null;
+              const p30 = baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 0.3 }) : null;
+              const p50 = baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 0.5 }) : null;
+              const p100 = baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 1.0 }) : null;
               return (
                 <TableRow key={r.collab.id}>
                   <TableCell className="font-medium">
@@ -301,134 +423,10 @@ function ProjectoCard({
                   <TableCell className="text-right tabular-nums text-muted-foreground">
                     {p100 ? fmtEUR(p100.vendaHora) : "—"}
                   </TableCell>
-                  <TableCell>
-                    <Link to="/colaborador/$id" params={{ id: r.collab.id }}>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </Link>
-                  </TableCell>
                 </TableRow>
               );
             })}
           </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell className="text-right font-semibold">Total Equipa Projecto (VBG)</TableCell>
-              <TableCell className="text-right tabular-nums font-semibold">
-                {fmtEUR(totalEff)}
-              </TableCell>
-              <TableCell colSpan={9} />
-            </TableRow>
-          </TableFooter>
-        </Table>
-      </CardContent>
-    </Card>
-  );
-}
-
-function BackofficeCard({ rows }: { rows: Row[] }) {
-  const totalEff = rows.reduce(
-    (acc, r) => acc + (r.effective ? computeSnapshot(r.effective).custoVBG : 0),
-    0,
-  );
-  const totalProp = rows.reduce(
-    (acc, r) => acc + (r.proposed ? computeSnapshot(r.proposed).custoVBG : 0),
-    0,
-  );
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Equipa Backoffice</CardTitle>
-        <CardDescription>
-          {rows.length} colaborador(es) · entra como cota fixa nos custos da Equipa Projecto
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="p-0 overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Colaborador</TableHead>
-              <TableHead>Ref. efectiva</TableHead>
-              <TableHead className="text-right">Bruto Anual</TableHead>
-              <TableHead className="text-right">Bruto Mensal</TableHead>
-              <TableHead className="text-right">Líquido/mês</TableHead>
-              <TableHead className="text-right">Custo VBG</TableHead>
-              <TableHead className="text-right">Δ Proposto</TableHead>
-              <TableHead className="w-8"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                  Sem colaboradores neste departamento.
-                </TableCell>
-              </TableRow>
-            )}
-            {rows.map((r) => {
-              const ref = r.effective ?? r.proposed;
-              const c = ref ? computeSnapshot(ref) : null;
-              const cP = r.proposed ? computeSnapshot(r.proposed) : null;
-              const delta =
-                cP && r.effective ? cP.custoVBG - computeSnapshot(r.effective).custoVBG : null;
-              return (
-                <TableRow key={r.collab.id}>
-                  <TableCell className="font-medium">
-                    <Link to="/colaborador/$id" params={{ id: r.collab.id }}>
-                      {r.collab.nome}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {r.effective ? fmtDate(r.effective.reference_date) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.brutoAnual) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.brutoMensal) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.liquidoTotalMensal) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums font-medium">
-                    {c ? fmtEUR(c.custoVBG) : "—"}
-                  </TableCell>
-                  <TableCell
-                    className={
-                      "text-right tabular-nums " +
-                      (delta == null
-                        ? "text-muted-foreground"
-                        : delta > 0
-                          ? "text-positive"
-                          : delta < 0
-                            ? "text-negative"
-                            : "")
-                    }
-                  >
-                    {delta == null ? "—" : (delta > 0 ? "+" : "") + fmtEUR(delta)}
-                  </TableCell>
-                  <TableCell>
-                    <Link to="/colaborador/$id" params={{ id: r.collab.id }}>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={5} className="text-right font-semibold">
-                Total Equipa Backoffice (VBG)
-              </TableCell>
-              <TableCell className="text-right tabular-nums font-semibold">
-                {fmtEUR(totalEff)}
-              </TableCell>
-              <TableCell className="text-right tabular-nums font-semibold">
-                {totalProp ? fmtEUR(totalProp - totalEff) : "—"}
-              </TableCell>
-              <TableCell />
-            </TableRow>
-          </TableFooter>
         </Table>
       </CardContent>
     </Card>
