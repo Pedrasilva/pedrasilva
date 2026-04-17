@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
+import { Route as AppValorBoRouteImport } from './routes/_app.valor-bo'
 import { Route as AppResumoRouteImport } from './routes/_app.resumo'
 import { Route as AppColaboradorIdRouteImport } from './routes/_app.colaborador.$id'
 
@@ -21,6 +22,11 @@ const AppRoute = AppRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppValorBoRoute = AppValorBoRouteImport.update({
+  id: '/valor-bo',
+  path: '/valor-bo',
   getParentRoute: () => AppRoute,
 } as any)
 const AppResumoRoute = AppResumoRouteImport.update({
@@ -37,10 +43,12 @@ const AppColaboradorIdRoute = AppColaboradorIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/resumo': typeof AppResumoRoute
+  '/valor-bo': typeof AppValorBoRoute
   '/colaborador/$id': typeof AppColaboradorIdRoute
 }
 export interface FileRoutesByTo {
   '/resumo': typeof AppResumoRoute
+  '/valor-bo': typeof AppValorBoRoute
   '/': typeof AppIndexRoute
   '/colaborador/$id': typeof AppColaboradorIdRoute
 }
@@ -48,15 +56,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/_app/resumo': typeof AppResumoRoute
+  '/_app/valor-bo': typeof AppValorBoRoute
   '/_app/': typeof AppIndexRoute
   '/_app/colaborador/$id': typeof AppColaboradorIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/resumo' | '/colaborador/$id'
+  fullPaths: '/' | '/resumo' | '/valor-bo' | '/colaborador/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/resumo' | '/' | '/colaborador/$id'
-  id: '__root__' | '/_app' | '/_app/resumo' | '/_app/' | '/_app/colaborador/$id'
+  to: '/resumo' | '/valor-bo' | '/' | '/colaborador/$id'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/_app/resumo'
+    | '/_app/valor-bo'
+    | '/_app/'
+    | '/_app/colaborador/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -79,6 +94,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/valor-bo': {
+      id: '/_app/valor-bo'
+      path: '/valor-bo'
+      fullPath: '/valor-bo'
+      preLoaderRoute: typeof AppValorBoRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/resumo': {
       id: '/_app/resumo'
       path: '/resumo'
@@ -98,12 +120,14 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppResumoRoute: typeof AppResumoRoute
+  AppValorBoRoute: typeof AppValorBoRoute
   AppIndexRoute: typeof AppIndexRoute
   AppColaboradorIdRoute: typeof AppColaboradorIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppResumoRoute: AppResumoRoute,
+  AppValorBoRoute: AppValorBoRoute,
   AppIndexRoute: AppIndexRoute,
   AppColaboradorIdRoute: AppColaboradorIdRoute,
 }
