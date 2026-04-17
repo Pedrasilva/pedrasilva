@@ -100,13 +100,52 @@ function CollaboratorPage() {
     },
   });
 
+  const [draft, setDraft] = useState<Collaborator | null>(null);
+  useEffect(() => {
+    if (collab) setDraft(collab);
+  }, [collab]);
+
+  const isDirty = useMemo(() => {
+    if (!collab || !draft) return false;
+    return (
+      draft.nome !== collab.nome ||
+      (draft.numero_colaborador ?? "") !== (collab.numero_colaborador ?? "") ||
+      draft.departamento !== collab.departamento ||
+      (draft.situacao_contractual ?? "") !== (collab.situacao_contractual ?? "") ||
+      (draft.data_nascimento ?? "") !== (collab.data_nascimento ?? "") ||
+      (draft.inicio_carreira ?? "") !== (collab.inicio_carreira ?? "") ||
+      (draft.margem_lucro_pct_override ?? null) !== (collab.margem_lucro_pct_override ?? null)
+    );
+  }, [collab, draft]);
+
   const updateCollab = useMutation({
     mutationFn: async (patch: Partial<Collaborator>) => {
       const { error } = await supabase.from("collaborators").update(patch).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["collaborator", id] }),
+    onSuccess: () => {
+      toast.success("Alterações guardadas");
+      qc.invalidateQueries({ queryKey: ["collaborator", id] });
+      qc.invalidateQueries({ queryKey: ["collaborators"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
+
+  const setField = <K extends keyof Collaborator>(k: K, v: Collaborator[K]) =>
+    setDraft((d) => (d ? { ...d, [k]: v } : d));
+
+  const handleSave = () => {
+    if (!draft) return;
+    updateCollab.mutate({
+      nome: draft.nome,
+      numero_colaborador: draft.numero_colaborador || null,
+      departamento: draft.departamento,
+      situacao_contractual: draft.situacao_contractual || null,
+      data_nascimento: draft.data_nascimento || null,
+      inicio_carreira: draft.inicio_carreira || null,
+      margem_lucro_pct_override: draft.margem_lucro_pct_override,
+    });
+  };
 
   const createSnap = useMutation({
     mutationFn: async () => {
