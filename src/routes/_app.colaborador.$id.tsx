@@ -260,6 +260,27 @@ function CollaboratorPage() {
                 }
               />
             </Field>
+            {collab.departamento === "Projecto" && (
+              <Field label="Margem lucro override (%)">
+                <Input
+                  type="number"
+                  step="0.5"
+                  placeholder="usa global"
+                  className="input-yellow tabular-nums"
+                  defaultValue={
+                    collab.margem_lucro_pct_override != null
+                      ? (collab.margem_lucro_pct_override * 100).toString()
+                      : ""
+                  }
+                  onBlur={(e) => {
+                    const v = e.target.value.trim();
+                    updateCollab.mutate({
+                      margem_lucro_pct_override: v === "" ? null : Number(v) / 100,
+                    });
+                  }}
+                />
+              </Field>
+            )}
           </div>
         </CardContent>
       </Card>
