@@ -232,13 +232,23 @@ function CollaboratorPage() {
               </Select>
             </Field>
             <Field label="Situação contractual">
-              <Input
-                className="input-yellow"
-                defaultValue={collab.situacao_contractual ?? ""}
-                onBlur={(e) =>
-                  updateCollab.mutate({ situacao_contractual: e.target.value || null })
+              <Select
+                value={collab.situacao_contractual ?? ""}
+                onValueChange={(v) =>
+                  updateCollab.mutate({ situacao_contractual: v || null })
                 }
-              />
+              >
+                <SelectTrigger className="input-yellow">
+                  <SelectValue placeholder="Seleccionar…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Contrato sem termo">Contrato sem termo</SelectItem>
+                  <SelectItem value="Contrato com termo">Contrato com termo</SelectItem>
+                  <SelectItem value="Contrato de tempo indeterminado">
+                    Contrato de tempo indeterminado
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </Field>
             <Field label="Data de nascimento">
               <Input
