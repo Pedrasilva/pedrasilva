@@ -14,7 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      collaborators: {
+        Row: {
+          created_at: string
+          data_nascimento: string | null
+          departamento: Database["public"]["Enums"]["department"]
+          id: string
+          inicio_carreira: string | null
+          nome: string
+          numero_colaborador: string | null
+          situacao_contractual: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_nascimento?: string | null
+          departamento?: Database["public"]["Enums"]["department"]
+          id?: string
+          inicio_carreira?: string | null
+          nome: string
+          numero_colaborador?: string | null
+          situacao_contractual?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_nascimento?: string | null
+          departamento?: Database["public"]["Enums"]["department"]
+          id?: string
+          inicio_carreira?: string | null
+          nome?: string
+          numero_colaborador?: string | null
+          situacao_contractual?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      salary_snapshots: {
+        Row: {
+          ajudas_custo_anual: number
+          beneficio_carro: number
+          beneficio_ticket: number
+          collaborator_id: string
+          created_at: string
+          dias_uteis: number
+          id: string
+          irs_pct: number
+          is_effective: boolean
+          label: string
+          meses_pagos: number
+          notas: string | null
+          outros_beneficios: number
+          premio_associado: number
+          reference_date: string
+          ss_atelier_pct: number
+          ss_colaborador_pct: number
+          subsidio_alimentacao_diario: number
+          updated_at: string
+          valor_base: number
+        }
+        Insert: {
+          ajudas_custo_anual?: number
+          beneficio_carro?: number
+          beneficio_ticket?: number
+          collaborator_id: string
+          created_at?: string
+          dias_uteis?: number
+          id?: string
+          irs_pct?: number
+          is_effective?: boolean
+          label: string
+          meses_pagos?: number
+          notas?: string | null
+          outros_beneficios?: number
+          premio_associado?: number
+          reference_date: string
+          ss_atelier_pct?: number
+          ss_colaborador_pct?: number
+          subsidio_alimentacao_diario?: number
+          updated_at?: string
+          valor_base?: number
+        }
+        Update: {
+          ajudas_custo_anual?: number
+          beneficio_carro?: number
+          beneficio_ticket?: number
+          collaborator_id?: string
+          created_at?: string
+          dias_uteis?: number
+          id?: string
+          irs_pct?: number
+          is_effective?: boolean
+          label?: string
+          meses_pagos?: number
+          notas?: string | null
+          outros_beneficios?: number
+          premio_associado?: number
+          reference_date?: string
+          ss_atelier_pct?: number
+          ss_colaborador_pct?: number
+          subsidio_alimentacao_diario?: number
+          updated_at?: string
+          valor_base?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salary_snapshots_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +135,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      department: "Projecto" | "Backoffice"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +262,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      department: ["Projecto", "Backoffice"],
+    },
   },
 } as const
