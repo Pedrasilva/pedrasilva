@@ -59,6 +59,10 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-input-yellow: var(--input-yellow);
+  --color-input-yellow-foreground: var(--input-yellow-foreground);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
 }
 
 :root {
@@ -95,6 +99,10 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
+  --input-yellow: oklch(0.96 0.16 100);
+  --input-yellow-foreground: oklch(0.25 0.05 80);
+  --positive: oklch(0.55 0.15 150);
+  --negative: oklch(0.55 0.2 25);
 }
 
 .dark {
@@ -130,6 +138,10 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+  --input-yellow: oklch(0.7 0.18 95);
+  --input-yellow-foreground: oklch(0.15 0.02 80);
+  --positive: oklch(0.7 0.15 150);
+  --negative: oklch(0.7 0.2 25);
 }
 
 @layer base {
@@ -141,4 +153,15 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+}
+
+/* Inputs editáveis (células amarelas do Excel) */
+.input-yellow {
+  background-color: var(--color-input-yellow) !important;
+  color: var(--color-input-yellow-foreground) !important;
+  border-color: oklch(from var(--color-input-yellow) calc(l - 0.2) c h) !important;
+}
+.input-yellow:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 1px;
 }
