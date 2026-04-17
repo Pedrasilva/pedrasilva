@@ -208,6 +208,7 @@ export type Database = {
           estado: string
           id: string
           notas: string | null
+          tipo: Database["public"]["Enums"]["absence_type"]
           updated_at: string
         }
         Insert: {
@@ -221,6 +222,7 @@ export type Database = {
           estado?: string
           id?: string
           notas?: string | null
+          tipo?: Database["public"]["Enums"]["absence_type"]
           updated_at?: string
         }
         Update: {
@@ -234,6 +236,7 @@ export type Database = {
           estado?: string
           id?: string
           notas?: string | null
+          tipo?: Database["public"]["Enums"]["absence_type"]
           updated_at?: string
         }
         Relationships: [
@@ -261,6 +264,16 @@ export type Database = {
       }
     }
     Enums: {
+      absence_type:
+        | "ferias"
+        | "casamento"
+        | "falecimento_familiar"
+        | "assistencia_filho"
+        | "nascimento_filho"
+        | "trabalhador_estudante"
+        | "doacao_sangue"
+        | "autorizada_paga"
+        | "autorizada_nao_paga"
       app_role: "admin" | "user"
       department: "Projecto" | "Backoffice"
     }
@@ -390,6 +403,17 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      absence_type: [
+        "ferias",
+        "casamento",
+        "falecimento_familiar",
+        "assistencia_filho",
+        "nascimento_filho",
+        "trabalhador_estudante",
+        "doacao_sangue",
+        "autorizada_paga",
+        "autorizada_nao_paga",
+      ],
       app_role: ["admin", "user"],
       department: ["Projecto", "Backoffice"],
     },
