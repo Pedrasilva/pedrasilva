@@ -52,7 +52,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Plus, Trash2, BarChart3 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, BarChart3, Save } from "lucide-react";
 import { toast } from "sonner";
 import { SnapshotForm } from "@/components/SnapshotForm";
 import { ResumoCompare } from "@/components/ResumoCompare";
