@@ -296,7 +296,25 @@ function FeriasPage() {
                 </div>
               )}
               <div className="space-y-1.5 sm:col-span-2">
-                <Label className="text-xs text-muted-foreground">Período de férias</Label>
+                <Label className="text-xs text-muted-foreground">Tipo de ausência</Label>
+                <Select
+                  value={newReq.tipo}
+                  onValueChange={(v) => setNewReq((f) => ({ ...f, tipo: v as AbsenceType }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ABSENCE_TYPES.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>
+                        {t.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label className="text-xs text-muted-foreground">Período</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
