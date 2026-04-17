@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      bo_settings: {
+        Row: {
+          created_at: string
+          custos_operacionais_anual: number
+          dias_uteis: number
+          horas_dia: number
+          id: string
+          notas: string | null
+          singleton: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custos_operacionais_anual?: number
+          dias_uteis?: number
+          horas_dia?: number
+          id?: string
+          notas?: string | null
+          singleton?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custos_operacionais_anual?: number
+          dias_uteis?: number
+          horas_dia?: number
+          id?: string
+          notas?: string | null
+          singleton?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       collaborators: {
         Row: {
           created_at: string
