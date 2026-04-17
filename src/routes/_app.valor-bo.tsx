@@ -37,6 +37,7 @@ type BoSettings = {
   custos_operacionais_anual: number;
   dias_uteis: number;
   horas_dia: number;
+  margem_lucro_pct: number;
   notas: string | null;
 };
 
@@ -106,6 +107,7 @@ function ValorBOPage() {
           custos_operacionais_anual: Number(s.custos_operacionais_anual),
           dias_uteis: Number(s.dias_uteis),
           horas_dia: Number(s.horas_dia),
+          margem_lucro_pct: Number(s.margem_lucro_pct),
           notas: s.notas,
         })
         .eq("id", s.id);
@@ -201,6 +203,21 @@ function ValorBOPage() {
               value={draft.horas_dia}
               onChange={(e) => setDraft({ ...draft, horas_dia: Number(e.target.value) })}
             />
+          </div>
+          <div className="space-y-1">
+            <Label>Margem de lucro global (%)</Label>
+            <Input
+              type="number"
+              step="0.5"
+              className="input-yellow tabular-nums"
+              value={(Number(draft.margem_lucro_pct) * 100).toFixed(2)}
+              onChange={(e) =>
+                setDraft({ ...draft, margem_lucro_pct: Number(e.target.value) / 100 })
+              }
+            />
+            <p className="text-xs text-muted-foreground">
+              Aplicada por defeito a todos os colaboradores de Projecto. Pode ser sobreposta na ficha individual.
+            </p>
           </div>
           <div className="sm:col-span-3">
             <Button onClick={() => save.mutate(draft)} disabled={save.isPending}>

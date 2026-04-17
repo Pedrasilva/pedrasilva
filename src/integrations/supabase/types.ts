@@ -21,6 +21,7 @@ export type Database = {
           dias_uteis: number
           horas_dia: number
           id: string
+          margem_lucro_pct: number
           notas: string | null
           singleton: boolean
           updated_at: string
@@ -31,6 +32,7 @@ export type Database = {
           dias_uteis?: number
           horas_dia?: number
           id?: string
+          margem_lucro_pct?: number
           notas?: string | null
           singleton?: boolean
           updated_at?: string
@@ -41,6 +43,7 @@ export type Database = {
           dias_uteis?: number
           horas_dia?: number
           id?: string
+          margem_lucro_pct?: number
           notas?: string | null
           singleton?: boolean
           updated_at?: string
@@ -54,6 +57,7 @@ export type Database = {
           departamento: Database["public"]["Enums"]["department"]
           id: string
           inicio_carreira: string | null
+          margem_lucro_pct_override: number | null
           nome: string
           numero_colaborador: string | null
           situacao_contractual: string | null
@@ -65,6 +69,7 @@ export type Database = {
           departamento?: Database["public"]["Enums"]["department"]
           id?: string
           inicio_carreira?: string | null
+          margem_lucro_pct_override?: number | null
           nome: string
           numero_colaborador?: string | null
           situacao_contractual?: string | null
@@ -76,6 +81,7 @@ export type Database = {
           departamento?: Database["public"]["Enums"]["department"]
           id?: string
           inicio_carreira?: string | null
+          margem_lucro_pct_override?: number | null
           nome?: string
           numero_colaborador?: string | null
           situacao_contractual?: string | null

@@ -1,0 +1,43 @@
+// Cálculo do preço de venda à hora por colaborador de Projecto.
+//
+// Fluxo (acordado com o utilizador):
+//   1. Cota de BO por colaborador de Projecto = (custos operacionais + VBG total Backoffice) / Nº colab. Projecto
+//   2. Custo total anual do colaborador = VBG_próprio + cota_BO
+//   3. Custo / hora = custo_total_anual / (dias_uteis × horas_dia)
+//   4. Custo / hora com desperdício = custo/hora × 1.20 (taxa de desperdício de 20%)
+//   5. Venda / hora = custo/hora_desperdício × (1 + margem_lucro)
+//      A margem é a global (bo_settings.margem_lucro_pct) excepto se o colaborador
+//      tiver um override (collaborators.margem_lucro_pct_override).
+
+export const TAXA_DESPERDICIO = 0.2; // 20%
+
+export type PricingInputs = {
+  vbgColaborador: number;
+  cotaBoAnual: number;
+  diasUteis: number;
+  horasDia: number;
+  margemLucroPct: number; // 0.25 = 25%
+};
+
+export function computePricing(args: PricingInputs) {
+  const custoAnual = args.vbgColaborador + args.cotaBoAnual;
+  const horasAno = Math.max(1, args.diasUteis * args.horasDia);
+  const custoHora = custoAnual / horasAno;
+  const custoHoraDesperdicio = custoHora * (1 + TAXA_DESPERDICIO);
+  const vendaHora = custoHoraDesperdicio * (1 + args.margemLucroPct);
+  return {
+    custoAnual,
+    custoHora,
+    custoHoraDesperdicio,
+    vendaHora,
+  };
+}
+
+export function cotaBoPorColabProjecto(args: {
+  custosOperacionais: number;
+  custoBackofficeVbg: number;
+  numColabProjecto: number;
+}) {
+  if (args.numColabProjecto <= 0) return 0;
+  return (args.custosOperacionais + args.custoBackofficeVbg) / args.numColabProjecto;
+}
