@@ -1,6 +1,9 @@
-import { Link, Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
+import { Link, Outlet, createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Users, BarChart3, Calculator } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { Users, BarChart3, Calculator, CalendarDays, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -8,17 +11,41 @@ export const Route = createFileRoute("/_app")({
 
 function AppLayout() {
   const loc = useLocation();
+  const navigate = useNavigate();
+  const { session, loading, isAdmin, user, signOut } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !session) navigate({ to: "/login" });
+  }, [loading, session, navigate]);
+
+  if (loading || !session) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
+        A carregar…
+      </div>
+    );
+  }
+
   const items = [
-    { to: "/", label: "Colaboradores", icon: Users, match: (p: string) => p === "/" || p.startsWith("/colaborador") },
-    { to: "/resumo", label: "Resumo geral", icon: BarChart3, match: (p: string) => p.startsWith("/resumo") },
-    { to: "/valor-bo", label: "Valor BO/hora", icon: Calculator, match: (p: string) => p.startsWith("/valor-bo") },
+    {
+      to: "/",
+      label: "Colaboradores",
+      icon: Users,
+      match: (p: string) => p === "/" || p.startsWith("/colaborador"),
+      adminOnly: true,
+    },
+    { to: "/ferias", label: "Férias", icon: CalendarDays, match: (p: string) => p.startsWith("/ferias"), adminOnly: false },
+    { to: "/resumo", label: "Resumo geral", icon: BarChart3, match: (p: string) => p.startsWith("/resumo"), adminOnly: true },
+    { to: "/valor-bo", label: "Valor BO/hora", icon: Calculator, match: (p: string) => p.startsWith("/valor-bo"), adminOnly: true },
   ] as const;
+
+  const visible = items.filter((it) => !it.adminOnly || isAdmin);
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to={isAdmin ? "/" : "/ferias"} className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold">
               S
             </div>
@@ -28,7 +55,7 @@ function AppLayout() {
             </div>
           </Link>
           <nav className="flex items-center gap-1">
-            {items.map((it) => {
+            {visible.map((it) => {
               const Icon = it.icon;
               const active = it.match(loc.pathname);
               return (
@@ -47,6 +74,17 @@ function AppLayout() {
                 </Link>
               );
             })}
+            <div className="ml-2 hidden items-center gap-2 border-l pl-2 sm:flex">
+              <span className="max-w-[160px] truncate text-xs text-muted-foreground" title={user?.email ?? ""}>
+                {user?.email}
+              </span>
+              <Button variant="ghost" size="sm" onClick={() => signOut()}>
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+            <Button variant="ghost" size="sm" className="sm:hidden" onClick={() => signOut()}>
+              <LogOut className="h-4 w-4" />
+            </Button>
           </nav>
         </div>
       </header>
