@@ -117,7 +117,8 @@ function CollaboratorPage() {
       (draft.inicio_carreira ?? "") !== (collab.inicio_carreira ?? "") ||
       (draft.margem_lucro_pct_override ?? null) !== (collab.margem_lucro_pct_override ?? null) ||
       draft.dias_ferias_anuais !== collab.dias_ferias_anuais ||
-      draft.saldo_ferias_anterior !== collab.saldo_ferias_anterior
+      draft.saldo_ferias_anterior !== collab.saldo_ferias_anterior ||
+      (draft.dias_ferias_extra ?? 0) !== (collab.dias_ferias_extra ?? 0)
     );
   }, [collab, draft]);
 
@@ -150,6 +151,7 @@ function CollaboratorPage() {
       margem_lucro_pct_override: draft.margem_lucro_pct_override,
       dias_ferias_anuais: draft.dias_ferias_anuais,
       saldo_ferias_anterior: draft.saldo_ferias_anterior,
+      dias_ferias_extra: draft.dias_ferias_extra ?? 0,
     });
   };
 
@@ -354,6 +356,15 @@ function CollaboratorPage() {
                 className="input-yellow tabular-nums"
                 value={draft.saldo_ferias_anterior ?? 0}
                 onChange={(e) => setField("saldo_ferias_anterior", Number(e.target.value) || 0)}
+              />
+            </Field>
+            <Field label="Dias férias extra (atribuídos)">
+              <Input
+                type="number"
+                min={0}
+                className="input-yellow tabular-nums"
+                value={draft.dias_ferias_extra ?? 0}
+                onChange={(e) => setField("dias_ferias_extra", Number(e.target.value) || 0)}
               />
             </Field>
             {draft.departamento === "Projecto" && (
