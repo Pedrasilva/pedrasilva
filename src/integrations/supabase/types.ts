@@ -184,6 +184,107 @@ export type Database = {
         }
         Relationships: []
       }
+      companies: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          industria: string | null
+          morada: string | null
+          nome: string
+          notas: string | null
+          status: Database["public"]["Enums"]["company_status"]
+          telefone: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          industria?: string | null
+          morada?: string | null
+          nome: string
+          notas?: string | null
+          status?: Database["public"]["Enums"]["company_status"]
+          telefone?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          industria?: string | null
+          morada?: string | null
+          nome?: string
+          notas?: string | null
+          status?: Database["public"]["Enums"]["company_status"]
+          telefone?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      contacts: {
+        Row: {
+          apelido: string | null
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          notas: string | null
+          posicao: string | null
+          primeiro_nome: string
+          telefone: string | null
+          telemovel: string | null
+          titulo: string | null
+          updated_at: string
+        }
+        Insert: {
+          apelido?: string | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          notas?: string | null
+          posicao?: string | null
+          primeiro_nome: string
+          telefone?: string | null
+          telemovel?: string | null
+          titulo?: string | null
+          updated_at?: string
+        }
+        Update: {
+          apelido?: string | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          notas?: string | null
+          posicao?: string | null
+          primeiro_nome?: string
+          telefone?: string | null
+          telemovel?: string | null
+          titulo?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       holidays: {
         Row: {
           created_at: string
@@ -258,6 +359,69 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      projects: {
+        Row: {
+          codigo: string | null
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          data_fim: string | null
+          data_inicio: string | null
+          id: string
+          nome: string
+          notas: string | null
+          orcamento: number | null
+          responsavel_id: string | null
+          status: Database["public"]["Enums"]["project_status"]
+          updated_at: string
+        }
+        Insert: {
+          codigo?: string | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          nome: string
+          notas?: string | null
+          orcamento?: number | null
+          responsavel_id?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          updated_at?: string
+        }
+        Update: {
+          codigo?: string | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          nome?: string
+          notas?: string | null
+          orcamento?: number | null
+          responsavel_id?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_responsavel_id_fkey"
+            columns: ["responsavel_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       salary_snapshots: {
         Row: {
@@ -458,8 +622,15 @@ export type Database = {
         | "autorizada_nao_paga"
       app_role: "admin" | "user"
       benefit_category: "carro" | "ticket" | "premio" | "outros"
+      company_status: "activo" | "prospecto" | "inactivo"
       department: "Projecto" | "Backoffice"
       expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
+      project_status:
+        | "proposta"
+        | "em_curso"
+        | "pausado"
+        | "concluido"
+        | "cancelado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -600,8 +771,16 @@ export const Constants = {
       ],
       app_role: ["admin", "user"],
       benefit_category: ["carro", "ticket", "premio", "outros"],
+      company_status: ["activo", "prospecto", "inactivo"],
       department: ["Projecto", "Backoffice"],
       expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
+      project_status: [
+        "proposta",
+        "em_curso",
+        "pausado",
+        "concluido",
+        "cancelado",
+      ],
     },
   },
 } as const
