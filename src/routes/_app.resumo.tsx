@@ -306,7 +306,7 @@ function RhTable({
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={3} className="font-semibold">
+              <TableCell colSpan={2} className="font-semibold">
                 {totalLabel}
               </TableCell>
               <TableCell className="text-right tabular-nums font-semibold">
