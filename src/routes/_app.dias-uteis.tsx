@@ -146,11 +146,12 @@ function DiasUteisPage() {
         if (uErr) throw uErr;
         updated += count ?? 0;
       }
-      // Atualizar bo_settings (singleton) com a base sem férias
+      // Atualizar bo_settings (singleton) com o valor LÍQUIDO (já com 22 dias de férias descontados)
+      // — usado em /resumo, /valor-bo e Pricing como denominador anual de horas produtivas.
       if (bo?.id) {
         const { error: bErr } = await supabase
           .from("bo_settings")
-          .update({ dias_uteis: breakdown.diasUteisBase })
+          .update({ dias_uteis: breakdown.diasUteisLiquidos(22) })
           .eq("id", bo.id);
         if (bErr) throw bErr;
       }
