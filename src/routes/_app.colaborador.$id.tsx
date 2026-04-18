@@ -8,6 +8,7 @@ import {
   defaultSnapshot,
   fmtDate,
 } from "@/lib/salary";
+import { ESTADOS_CIVIS, LOCALIZACOES } from "@/lib/irs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -118,7 +119,13 @@ function CollaboratorPage() {
       (draft.margem_lucro_pct_override ?? null) !== (collab.margem_lucro_pct_override ?? null) ||
       draft.dias_ferias_anuais !== collab.dias_ferias_anuais ||
       draft.saldo_ferias_anterior !== collab.saldo_ferias_anterior ||
-      (draft.dias_ferias_extra ?? 0) !== (collab.dias_ferias_extra ?? 0)
+      (draft.dias_ferias_extra ?? 0) !== (collab.dias_ferias_extra ?? 0) ||
+      draft.localizacao !== collab.localizacao ||
+      draft.estado_civil !== collab.estado_civil ||
+      draft.numero_titulares !== collab.numero_titulares ||
+      draft.numero_dependentes !== collab.numero_dependentes ||
+      draft.dependentes_com_deficiencia !== collab.dependentes_com_deficiencia ||
+      draft.ano_fiscal !== collab.ano_fiscal
     );
   }, [collab, draft]);
 
@@ -152,6 +159,12 @@ function CollaboratorPage() {
       dias_ferias_anuais: draft.dias_ferias_anuais,
       saldo_ferias_anterior: draft.saldo_ferias_anterior,
       dias_ferias_extra: draft.dias_ferias_extra ?? 0,
+      localizacao: draft.localizacao,
+      estado_civil: draft.estado_civil,
+      numero_titulares: draft.numero_titulares,
+      numero_dependentes: draft.numero_dependentes,
+      dependentes_com_deficiencia: draft.dependentes_com_deficiencia,
+      ano_fiscal: draft.ano_fiscal,
     });
   };
 
@@ -393,6 +406,82 @@ function CollaboratorPage() {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Agregado familiar e contexto fiscal</CardTitle>
+          <CardDescription>
+            Estes valores são usados no cálculo automático de IRS de todas as fichas deste colaborador.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <Field label="Localização">
+              <Select
+                value={draft.localizacao}
+                onValueChange={(v) => setField("localizacao", v)}
+              >
+                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {LOCALIZACOES.map((l) => (
+                    <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="Estado civil">
+              <Select
+                value={draft.estado_civil}
+                onValueChange={(v) => setField("estado_civil", v)}
+              >
+                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ESTADOS_CIVIS.map((e) => (
+                    <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="Nº titulares">
+              <Input
+                type="number"
+                min={1}
+                max={2}
+                className="input-yellow tabular-nums"
+                value={draft.numero_titulares}
+                onChange={(e) => setField("numero_titulares", Number(e.target.value) || 1)}
+              />
+            </Field>
+            <Field label="Nº dependentes">
+              <Input
+                type="number"
+                min={0}
+                className="input-yellow tabular-nums"
+                value={draft.numero_dependentes}
+                onChange={(e) => setField("numero_dependentes", Number(e.target.value) || 0)}
+              />
+            </Field>
+            <Field label="Dep. com deficiência">
+              <Input
+                type="number"
+                min={0}
+                className="input-yellow tabular-nums"
+                value={draft.dependentes_com_deficiencia}
+                onChange={(e) => setField("dependentes_com_deficiencia", Number(e.target.value) || 0)}
+              />
+            </Field>
+            <Field label="Ano fiscal">
+              <Input
+                type="number"
+                min={2020}
+                className="input-yellow tabular-nums"
+                value={draft.ano_fiscal}
+                onChange={(e) => setField("ano_fiscal", Number(e.target.value) || 2026)}
+              />
+            </Field>
+          </div>
+        </CardContent>
+      </Card>
+
       <div>
         <Tabs value={tabValue} onValueChange={setActiveTab}>
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -500,7 +589,7 @@ function CollaboratorPage() {
 
           {snapshots.map((s) => (
             <TabsContent key={s.id} value={s.id} className="mt-4">
-              <SnapshotForm snapshot={s} />
+              <SnapshotForm snapshot={s} collaborator={collab} />
             </TabsContent>
           ))}
 

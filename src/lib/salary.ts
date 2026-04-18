@@ -43,6 +43,13 @@ export type Collaborator = {
   dias_ferias_anuais: number;
   saldo_ferias_anterior: number;
   dias_ferias_extra: number;
+  // Agregado familiar (contexto fiscal partilhado por todas as fichas)
+  localizacao: string;
+  estado_civil: string;
+  numero_titulares: number;
+  numero_dependentes: number;
+  dependentes_com_deficiencia: number;
+  ano_fiscal: number;
 };
 
 export function computeSnapshot(s: Snapshot) {

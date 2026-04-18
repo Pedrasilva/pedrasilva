@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { computeSnapshot, fmtEUR, type Snapshot } from "@/lib/salary";
+import { computeSnapshot, fmtEUR, type Collaborator, type Snapshot } from "@/lib/salary";
 import { calcIrs, loadBrackets, pickTabela } from "@/lib/irs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,38 +13,53 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Save, Trash2 } from "lucide-react";
+import { Save, Trash2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { HighlightCard } from "./snapshot/HighlightCard";
-import { FamilySection } from "./snapshot/FamilySection";
 import { SimulationTab } from "./snapshot/SimulationTab";
 import { LiquidoTab } from "./snapshot/LiquidoTab";
 import { BrutoTab } from "./snapshot/BrutoTab";
 import { FieldStacked } from "./snapshot/inputs";
 
-type Props = { snapshot: Snapshot };
+type Props = { snapshot: Snapshot; collaborator: Collaborator };
 
+const TABELA_LABEL: Record<string, string> = {
+  nao_casado: "Não casado",
+  casado_unico_titular: "Casado · único titular",
+  casado_dois_titulares: "Casado · dois titulares",
+};
 
-export function SnapshotForm({ snapshot }: Props) {
+export function SnapshotForm({ snapshot, collaborator }: Props) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Snapshot>(snapshot);
 
   useEffect(() => setDraft(snapshot), [snapshot]);
 
-  const tabela = pickTabela(draft.estado_civil, draft.numero_titulares);
+  // Contexto fiscal vem do colaborador
+  const tabela = pickTabela(collaborator.estado_civil, collaborator.numero_titulares);
   const { data: brackets = [] } = useQuery({
-    queryKey: ["irs", draft.ano_fiscal, draft.localizacao, tabela],
-    queryFn: () => loadBrackets(draft.ano_fiscal, draft.localizacao, tabela),
+    queryKey: ["irs", collaborator.ano_fiscal, collaborator.localizacao, tabela],
+    queryFn: () => loadBrackets(collaborator.ano_fiscal, collaborator.localizacao, tabela),
   });
 
   const irsAuto = useMemo(
-    () => calcIrs(draft.valor_base || 0, brackets, draft.numero_dependentes),
-    [draft.valor_base, draft.numero_dependentes, brackets],
+    () => calcIrs(draft.valor_base || 0, brackets, collaborator.numero_dependentes),
+    [draft.valor_base, collaborator.numero_dependentes, brackets],
   );
 
+  // Snapshot efectivo herda os valores do colaborador para cálculo
   const draftEffective = useMemo<Snapshot>(
-    () => (draft.irs_calculado_auto ? { ...draft, irs_pct: irsAuto.irs_pct_efectiva } : draft),
-    [draft, irsAuto.irs_pct_efectiva],
+    () => ({
+      ...draft,
+      localizacao: collaborator.localizacao,
+      estado_civil: collaborator.estado_civil,
+      numero_titulares: collaborator.numero_titulares,
+      numero_dependentes: collaborator.numero_dependentes,
+      dependentes_com_deficiencia: collaborator.dependentes_com_deficiencia,
+      ano_fiscal: collaborator.ano_fiscal,
+      irs_pct: draft.irs_calculado_auto ? irsAuto.irs_pct_efectiva : draft.irs_pct,
+    }),
+    [draft, collaborator, irsAuto.irs_pct_efectiva],
   );
 
   const c = computeSnapshot(draftEffective);
@@ -56,8 +71,6 @@ export function SnapshotForm({ snapshot }: Props) {
         reference_date: draft.reference_date,
         is_effective: draft.is_effective,
         notas: draft.notas,
-        localizacao: draft.localizacao,
-        estado_civil: draft.estado_civil,
         irs_calculado_auto: draft.irs_calculado_auto,
         irs_pct: draft.irs_calculado_auto ? irsAuto.irs_pct_efectiva : Number(draft.irs_pct) || 0,
         valor_base: Number(draft.valor_base) || 0,
@@ -71,10 +84,13 @@ export function SnapshotForm({ snapshot }: Props) {
         beneficio_ticket: Number(draft.beneficio_ticket) || 0,
         premio_associado: Number(draft.premio_associado) || 0,
         outros_beneficios: Number(draft.outros_beneficios) || 0,
-        numero_titulares: Number(draft.numero_titulares) || 1,
-        numero_dependentes: Number(draft.numero_dependentes) || 0,
-        dependentes_com_deficiencia: Number(draft.dependentes_com_deficiencia) || 0,
-        ano_fiscal: Number(draft.ano_fiscal) || 2026,
+        // Espelha o agregado familiar do colaborador para manter o histórico consistente
+        localizacao: collaborator.localizacao,
+        estado_civil: collaborator.estado_civil,
+        numero_titulares: collaborator.numero_titulares,
+        numero_dependentes: collaborator.numero_dependentes,
+        dependentes_com_deficiencia: collaborator.dependentes_com_deficiencia,
+        ano_fiscal: collaborator.ano_fiscal,
       };
       const { error } = await supabase.from("salary_snapshots").update(patch).eq("id", snapshot.id);
       if (error) throw error;
@@ -166,10 +182,33 @@ export function SnapshotForm({ snapshot }: Props) {
           } />
       </div>
 
-      {/* Agregado familiar */}
+      {/* Cálculo automático IRS — usa contexto do colaborador */}
       <Card>
         <CardContent className="pt-6">
-          <FamilySection draft={draft} set={set} irsAuto={irsAuto} />
+          <div className="rounded-lg border border-[var(--sage)]/30 bg-[color-mix(in_oklab,var(--sage)_6%,transparent)] p-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-[var(--sage)]" />
+                <div>
+                  <div className="text-sm font-medium">Cálculo automático de IRS</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    Tabela: {TABELA_LABEL[tabela]} · {collaborator.localizacao} · {collaborator.ano_fiscal}
+                    {" · "}
+                    <span className="italic">contexto do colaborador</span>
+                  </div>
+                </div>
+              </div>
+              <Switch checked={draft.irs_calculado_auto}
+                onCheckedChange={(v) => set("irs_calculado_auto", v)} />
+            </div>
+            {draft.irs_calculado_auto && (
+              <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[11px]">
+                <Mini label="Taxa marginal" value={`${(irsAuto.taxa_marginal * 100).toFixed(1)}%`} />
+                <Mini label="Parcela a abater" value={fmtEUR(irsAuto.parcela_abater)} />
+                <Mini label="IRS mensal" value={fmtEUR(irsAuto.irs_mensal)} />
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 
@@ -190,6 +229,15 @@ export function SnapshotForm({ snapshot }: Props) {
           <BrutoTab draft={draftEffective} />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function Mini({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-border/60 bg-background/60 px-2 py-1.5">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="font-mono text-xs font-semibold tabular-nums">{value}</div>
     </div>
   );
 }

@@ -52,49 +52,67 @@ export type Database = {
       }
       collaborators: {
         Row: {
+          ano_fiscal: number
           created_at: string
           data_nascimento: string | null
           departamento: Database["public"]["Enums"]["department"]
+          dependentes_com_deficiencia: number
           dias_ferias_anuais: number
           dias_ferias_extra: number
           email: string | null
+          estado_civil: string
           id: string
           inicio_carreira: string | null
+          localizacao: string
           margem_lucro_pct_override: number | null
           nome: string
           numero_colaborador: string | null
+          numero_dependentes: number
+          numero_titulares: number
           saldo_ferias_anterior: number
           situacao_contractual: string | null
           updated_at: string
         }
         Insert: {
+          ano_fiscal?: number
           created_at?: string
           data_nascimento?: string | null
           departamento?: Database["public"]["Enums"]["department"]
+          dependentes_com_deficiencia?: number
           dias_ferias_anuais?: number
           dias_ferias_extra?: number
           email?: string | null
+          estado_civil?: string
           id?: string
           inicio_carreira?: string | null
+          localizacao?: string
           margem_lucro_pct_override?: number | null
           nome: string
           numero_colaborador?: string | null
+          numero_dependentes?: number
+          numero_titulares?: number
           saldo_ferias_anterior?: number
           situacao_contractual?: string | null
           updated_at?: string
         }
         Update: {
+          ano_fiscal?: number
           created_at?: string
           data_nascimento?: string | null
           departamento?: Database["public"]["Enums"]["department"]
+          dependentes_com_deficiencia?: number
           dias_ferias_anuais?: number
           dias_ferias_extra?: number
           email?: string | null
+          estado_civil?: string
           id?: string
           inicio_carreira?: string | null
+          localizacao?: string
           margem_lucro_pct_override?: number | null
           nome?: string
           numero_colaborador?: string | null
+          numero_dependentes?: number
+          numero_titulares?: number
           saldo_ferias_anterior?: number
           situacao_contractual?: string | null
           updated_at?: string
