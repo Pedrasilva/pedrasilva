@@ -57,7 +57,7 @@ export function SnapshotForm({ snapshot }: Props) {
 
   const save = useMutation({
     mutationFn: async () => {
-      const patch: Record<string, unknown> = {
+      const patch = {
         label: draft.label,
         reference_date: draft.reference_date,
         is_effective: draft.is_effective,
@@ -66,8 +66,22 @@ export function SnapshotForm({ snapshot }: Props) {
         estado_civil: draft.estado_civil,
         irs_calculado_auto: draft.irs_calculado_auto,
         irs_pct: draft.irs_calculado_auto ? irsAuto.irs_pct_efectiva : Number(draft.irs_pct) || 0,
+        valor_base: Number(draft.valor_base) || 0,
+        ss_atelier_pct: Number(draft.ss_atelier_pct) || 0,
+        ss_colaborador_pct: Number(draft.ss_colaborador_pct) || 0,
+        meses_pagos: Number(draft.meses_pagos) || 14,
+        subsidio_alimentacao_diario: Number(draft.subsidio_alimentacao_diario) || 0,
+        dias_uteis: Number(draft.dias_uteis) || 0,
+        ajudas_custo_anual: Number(draft.ajudas_custo_anual) || 0,
+        beneficio_carro: Number(draft.beneficio_carro) || 0,
+        beneficio_ticket: Number(draft.beneficio_ticket) || 0,
+        premio_associado: Number(draft.premio_associado) || 0,
+        outros_beneficios: Number(draft.outros_beneficios) || 0,
+        numero_titulares: Number(draft.numero_titulares) || 1,
+        numero_dependentes: Number(draft.numero_dependentes) || 0,
+        dependentes_com_deficiencia: Number(draft.dependentes_com_deficiencia) || 0,
+        ano_fiscal: Number(draft.ano_fiscal) || 2026,
       };
-      for (const k of numericKeys) patch[k] = Number(draft[k]) || 0;
       const { error } = await supabase.from("salary_snapshots").update(patch).eq("id", snapshot.id);
       if (error) throw error;
     },
