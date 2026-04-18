@@ -126,14 +126,19 @@ export function computeSnapshot(s: Snapshot) {
 
 export type Computed = ReturnType<typeof computeSnapshot>;
 
-export const fmtEUR = (n: number | null | undefined) =>
-  n == null || isNaN(n)
-    ? "—"
-    : new Intl.NumberFormat("pt-PT", {
-        style: "currency",
-        currency: "EUR",
-        maximumFractionDigits: 2,
-      }).format(n);
+export const fmtEUR = (n: number | null | undefined) => {
+  if (n == null || isNaN(n)) return "—";
+  // Força separador de milhares e espaço antes de € consistentes (NBSP)
+  // pt-PT mistura espaços normais/narrow conforme o agrupamento → desalinha colunas tabular-nums.
+  return new Intl.NumberFormat("pt-PT", {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+    .format(n)
+    .replace(/[\s\u202F\u00A0]/g, "\u00A0");
+};
 
 export const fmtPct = (n: number) =>
   new Intl.NumberFormat("pt-PT", {
