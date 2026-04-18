@@ -70,7 +70,10 @@ export function computeSnapshot(s: Snapshot) {
   const baseMensal12 = baseAnual / 12;
   const ssAtelier12 = ssAtelierAnual / 12;
   const brutoMensal = baseMensal12 + ssAtelier12 + alimentacaoMensal + ajudasMensal;
-  const brutoAnual = brutoMensal * 12; // D41 = C41*12 (mantém fórmula original)
+  // D41 = C41*12 + D37 (inclui benefícios anuais — alinhado com Excel original)
+  const beneficiosAnualTmp =
+    s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios;
+  const brutoAnual = brutoMensal * 12 + beneficiosAnualTmp;
 
   // Líquido total mensal (líquido + alimentação + ajudas)
   const liquidoTotalMensal = liquido12m + alimentacaoMensal + ajudasMensal;
