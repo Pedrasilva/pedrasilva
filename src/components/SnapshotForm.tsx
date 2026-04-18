@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Save, Trash2, Sparkles, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { HighlightCard } from "./snapshot/HighlightCard";
+import { ValueChainSummary } from "./snapshot/ValueChainSummary";
 import { SimulationTab } from "./snapshot/SimulationTab";
 import { LiquidoTab } from "./snapshot/LiquidoTab";
 import { BrutoTab } from "./snapshot/BrutoTab";
@@ -192,22 +192,8 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         </CardHeader>
       </Card>
 
-      {/* Cards de destaque */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <HighlightCard label="Líquido total mensal" tone="sage"
-          value={fmtEUR(c.liquidoTotalMensal)}
-          hint="Inclui alimentação e ajudas" />
-        <HighlightCard label="Custo empregador (VBG)" tone="clay"
-          value={fmtEUR(c.custoVBG)}
-          hint="Total anual com SS, benefícios e ajudas" />
-        <HighlightCard label="Retenção IRS mensal"
-          value={fmtEUR(c.irsMensal)}
-          hint={
-            draft.irs_calculado_auto
-              ? `Auto · marginal ${(irsAuto.taxa_marginal * 100).toFixed(1)}% · efectiva ${(irsAuto.irs_pct_efectiva * 100).toFixed(2)}%`
-              : `Manual · ${(draft.irs_pct * 100).toFixed(1)}%`
-          } />
-      </div>
+      {/* Cadeia de valor: Custo empregador → Colaborador / Estado */}
+      <ValueChainSummary c={c} />
 
       {/* Cálculo automático IRS — usa contexto do colaborador */}
       <Card>
