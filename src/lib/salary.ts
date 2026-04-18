@@ -167,7 +167,7 @@ export function defaultSnapshot(
     irs_pct: 0,
     meses_pagos: 14,
     subsidio_alimentacao_diario: 0,
-    dias_uteis: 220,
+    dias_uteis: 230,
     ajudas_custo_anual: 0,
     beneficio_carro: 0,
     beneficio_ticket: 0,

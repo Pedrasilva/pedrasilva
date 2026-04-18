@@ -146,11 +146,12 @@ function DiasUteisPage() {
         if (uErr) throw uErr;
         updated += count ?? 0;
       }
-      // Atualizar bo_settings (singleton) com a base sem férias
+      // Atualizar bo_settings (singleton) com o valor LÍQUIDO (já com 22 dias de férias descontados)
+      // — usado em /resumo, /valor-bo e Pricing como denominador anual de horas produtivas.
       if (bo?.id) {
         const { error: bErr } = await supabase
           .from("bo_settings")
-          .update({ dias_uteis: breakdown.diasUteisBase })
+          .update({ dias_uteis: breakdown.diasUteisLiquidos(22) })
           .eq("id", bo.id);
         if (bErr) throw bErr;
       }
@@ -206,8 +207,9 @@ function DiasUteisPage() {
                   <AlertDialogDescription>
                     Vai atualizar o campo <strong>dias úteis</strong> de todas as fichas com data
                     de referência em {year}, descontando os dias de férias anuais de cada
-                    colaborador. Atualiza também as definições BO ({breakdown.diasUteisBase} dias
-                    base, sem descontar férias).
+                    colaborador. As definições BO ficam com{" "}
+                    <strong>{breakdown.diasUteisLiquidos(22)} dias</strong> (já com 22 dias de
+                    férias descontados — usado em /resumo, /valor-bo e Pricing).
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -227,10 +229,11 @@ function DiasUteisPage() {
         <Kpi label="Dias do ano" value={breakdown.diasAno} />
         <Kpi label="Sábados + Domingos" value={`− ${breakdown.fimDeSemana}`} />
         <Kpi label="Feriados em dia útil" value={`− ${breakdown.feriadosUteis}`} />
-        <Kpi label="Dias úteis (base)" value={breakdown.diasUteisBase} highlight />
+        <Kpi label="Dias úteis (base)" value={breakdown.diasUteisBase} />
         <Kpi
           label="Após 22 dias férias"
           value={breakdown.diasUteisLiquidos(22)}
+          highlight
         />
       </div>
 
