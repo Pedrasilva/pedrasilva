@@ -63,6 +63,11 @@
   --color-input-yellow-foreground: var(--input-yellow-foreground);
   --color-positive: var(--positive);
   --color-negative: var(--negative);
+  /* v2 — warm editorial palette */
+  --color-cream: var(--cream);
+  --color-clay: var(--clay);
+  --color-sage: var(--sage);
+  --color-ink: var(--ink);
 }
 
 :root {
@@ -103,6 +108,11 @@
   --input-yellow-foreground: oklch(0.25 0.05 80);
   --positive: oklch(0.55 0.15 150);
   --negative: oklch(0.55 0.2 25);
+  /* v2 — warm editorial */
+  --cream: oklch(0.97 0.02 80);
+  --clay: oklch(0.55 0.13 35);
+  --sage: oklch(0.62 0.07 150);
+  --ink: oklch(0.22 0.02 60);
 }
 
 .dark {
@@ -142,6 +152,10 @@
   --input-yellow-foreground: oklch(0.15 0.02 80);
   --positive: oklch(0.7 0.15 150);
   --negative: oklch(0.7 0.2 25);
+  --cream: oklch(0.25 0.02 80);
+  --clay: oklch(0.7 0.13 35);
+  --sage: oklch(0.7 0.07 150);
+  --ink: oklch(0.95 0.01 60);
 }
 
 @layer base {
