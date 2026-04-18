@@ -36,7 +36,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, ChevronRight, Briefcase, Building2 } from "lucide-react";
+import { Plus, ChevronRight, Briefcase, Building2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { toast } from "sonner";
 import type { Collaborator } from "@/lib/salary";
 
@@ -232,6 +232,9 @@ function ListPage() {
   );
 }
 
+type SortKey = "nome" | "numero" | "situacao";
+type SortDir = "asc" | "desc";
+
 function DepartmentSection({
   title,
   icon,
@@ -241,6 +244,46 @@ function DepartmentSection({
   icon: React.ReactNode;
   list: Collaborator[];
 }) {
+  const [sortKey, setSortKey] = useState<SortKey>("nome");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const toggleSort = (k: SortKey) => {
+    if (k === sortKey) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(k);
+      setSortDir("asc");
+    }
+  };
+
+  const sorted = [...list].sort((a, b) => {
+    const dir = sortDir === "asc" ? 1 : -1;
+    if (sortKey === "nome") {
+      return a.nome.localeCompare(b.nome, "pt", { sensitivity: "base" }) * dir;
+    }
+    if (sortKey === "numero") {
+      // Tenta numérico; cai para string. Vazios sempre no fim.
+      const av = a.numero_colaborador ?? "";
+      const bv = b.numero_colaborador ?? "";
+      if (!av && !bv) return 0;
+      if (!av) return 1;
+      if (!bv) return -1;
+      const an = Number(av);
+      const bn = Number(bv);
+      if (Number.isFinite(an) && Number.isFinite(bn)) return (an - bn) * dir;
+      return av.localeCompare(bv, "pt", { numeric: true }) * dir;
+    }
+    // situacao — agrupar por situação, depois nome para estabilidade
+    const as = a.situacao_contractual ?? "";
+    const bs = b.situacao_contractual ?? "";
+    if (!as && !bs) return a.nome.localeCompare(b.nome, "pt");
+    if (!as) return 1;
+    if (!bs) return -1;
+    const cmp = as.localeCompare(bs, "pt", { sensitivity: "base" });
+    if (cmp !== 0) return cmp * dir;
+    return a.nome.localeCompare(b.nome, "pt");
+  });
+
   return (
     <Card>
       <CardHeader className="flex-row items-center justify-between">
@@ -252,20 +295,20 @@ function DepartmentSection({
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        {list.length === 0 ? (
+        {sorted.length === 0 ? (
           <div className="px-6 py-6 text-sm text-muted-foreground">Sem colaboradores.</div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Nº</TableHead>
-                <TableHead>Situação</TableHead>
+                <SortableHead label="Nome" sortKey="nome" current={sortKey} dir={sortDir} onClick={toggleSort} />
+                <SortableHead label="Nº" sortKey="numero" current={sortKey} dir={sortDir} onClick={toggleSort} />
+                <SortableHead label="Situação" sortKey="situacao" current={sortKey} dir={sortDir} onClick={toggleSort} />
                 <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {list.map((c) => (
+              {sorted.map((c) => (
                 <TableRow key={c.id} className="cursor-pointer">
                   <TableCell className="font-medium">
                     <Link to="/colaborador/$id" params={{ id: c.id }}>
@@ -290,5 +333,37 @@ function DepartmentSection({
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function SortableHead({
+  label,
+  sortKey,
+  current,
+  dir,
+  onClick,
+}: {
+  label: string;
+  sortKey: SortKey;
+  current: SortKey;
+  dir: SortDir;
+  onClick: (k: SortKey) => void;
+}) {
+  const active = sortKey === current;
+  const Icon = !active ? ArrowUpDown : dir === "asc" ? ArrowUp : ArrowDown;
+  return (
+    <TableHead>
+      <button
+        type="button"
+        onClick={() => onClick(sortKey)}
+        className={`inline-flex items-center gap-1 select-none hover:text-foreground transition-colors ${
+          active ? "text-foreground" : "text-muted-foreground"
+        }`}
+        aria-sort={active ? (dir === "asc" ? "ascending" : "descending") : "none"}
+      >
+        {label}
+        <Icon className="h-3 w-3 opacity-70" />
+      </button>
+    </TableHead>
   );
 }
