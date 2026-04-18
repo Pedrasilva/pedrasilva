@@ -165,3 +165,67 @@
   outline: 2px solid var(--color-ring);
   outline-offset: 1px;
 }
+
+/* Impressão / Exportar PDF da ficha do colaborador */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  body {
+    background: white !important;
+  }
+  /* Esconde tudo excepto a área marcada para impressão */
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    color: black !important;
+    background: white !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  /* Mostra todos os snapshots em vez de apenas o tab activo */
+  .print-area [data-slot="tabs-list"],
+  .print-area [role="tablist"] {
+    display: none !important;
+  }
+  .print-area [data-slot="tabs-content"],
+  .print-area [role="tabpanel"] {
+    display: block !important;
+    page-break-before: always;
+    margin-top: 0 !important;
+  }
+  .print-area [data-slot="tabs-content"]:first-of-type,
+  .print-area [role="tabpanel"]:first-of-type {
+    page-break-before: auto;
+  }
+  /* Inputs ficam com aspecto de texto plano */
+  .print-area input,
+  .print-area textarea,
+  .print-area [data-slot="select-trigger"] {
+    border: none !important;
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  .print-area .input-yellow {
+    background: #fffbe6 !important;
+    border: 1px solid #e5d99a !important;
+    padding: 2px 4px !important;
+  }
+  .print-area button {
+    display: none !important;
+  }
+}
