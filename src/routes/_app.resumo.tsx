@@ -507,14 +507,14 @@ function RhTable({
               <SortHead label="Nome" k="nome" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
               <TableHead>Cód.</TableHead>
               <SortHead align="right" label="Bruto anual" k="brutoAnual" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="Base contractual" k="base" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="Bruto mensal" k="brutoMensal" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="Alimentação" k="alimentacao" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="Ajudas de custo" k="ajudas" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="Líquido mensal" k="liquido" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="Benefícios anual" k="beneficios" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <TableHead className="text-right">Base contractual</TableHead>
+              <TableHead className="text-right">Bruto mensal</TableHead>
+              <TableHead className="text-right">Alimentação</TableHead>
+              <TableHead className="text-right">Ajudas de custo</TableHead>
+              <TableHead className="text-right">Líquido mensal</TableHead>
+              <TableHead className="text-right">Benefícios anual</TableHead>
               <SortHead align="right" label="VBG" k="vbg" sortKey={sortKey} dir={sortDir} onClick={toggleSort} bold />
-              <SortHead align="right" label="Anos" k="anos" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <TableHead className="text-right">Anos</TableHead>
               <TableHead className="w-8"></TableHead>
             </TableRow>
           </TableHeader>
