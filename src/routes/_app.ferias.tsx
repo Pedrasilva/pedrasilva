@@ -132,10 +132,6 @@ function FeriasPage() {
   });
 
   const holidayDates = useMemo(() => new Set(holidays.map((h) => h.data)), [holidays]);
-  const holidayByDate = useMemo(
-    () => new Map(holidays.map((h) => [h.data, h])),
-    [holidays],
-  );
   const holidayDateObjects = useMemo(
     () => holidays.map((h) => new Date(h.data + "T00:00:00")),
     [holidays],
