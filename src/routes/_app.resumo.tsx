@@ -332,14 +332,16 @@ function PricingTable({
   cotaBo,
   diasUteis,
   horasDia,
-  margemGlobal,
 }: {
   rows: Row[];
   cotaBo: number;
   diasUteis: number;
   horasDia: number;
-  margemGlobal: number;
+  margemGlobal?: number;
 }) {
+  const [customPct, setCustomPct] = useState<number>(75);
+  const customMargem = customPct / 100;
+
   return (
     <Card>
       <CardHeader>
@@ -358,17 +360,30 @@ function PricingTable({
               <TableHead className="text-right">+ Cota BO</TableHead>
               <TableHead className="text-right">Custo/h</TableHead>
               <TableHead className="text-right">×1.20</TableHead>
-              <TableHead className="text-right">Margem</TableHead>
-              <TableHead className="text-right text-primary">Venda/h</TableHead>
               <TableHead className="text-right">@ 30%</TableHead>
               <TableHead className="text-right">@ 50%</TableHead>
               <TableHead className="text-right">@ 100%</TableHead>
+              <TableHead className="text-right text-primary">
+                <div className="flex items-center justify-end gap-1.5">
+                  <span>@</span>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={500}
+                    step={1}
+                    value={customPct}
+                    onChange={(e) => setCustomPct(Number(e.target.value) || 0)}
+                    className="h-7 w-16 text-right tabular-nums"
+                  />
+                  <span>%</span>
+                </div>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
                   Sem colaboradores.
                 </TableCell>
               </TableRow>
@@ -376,15 +391,15 @@ function PricingTable({
             {rows.map((r) => {
               const ref = r.effective ?? r.proposed;
               const c = ref ? computeSnapshot(ref) : null;
-              const margem = r.collab.margem_lucro_pct_override ?? margemGlobal;
-              const isOverride = r.collab.margem_lucro_pct_override != null;
               const baseArgs = c
                 ? { vbgColaborador: c.custoVBG, cotaBoAnual: cotaBo, diasUteis, horasDia }
                 : null;
-              const p = baseArgs ? computePricing({ ...baseArgs, margemLucroPct: margem }) : null;
               const p30 = baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 0.3 }) : null;
               const p50 = baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 0.5 }) : null;
               const p100 = baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 1.0 }) : null;
+              const pCustom = baseArgs
+                ? computePricing({ ...baseArgs, margemLucroPct: customMargem })
+                : null;
               return (
                 <TableRow key={r.collab.id}>
                   <TableCell className="font-medium">
@@ -399,18 +414,10 @@ function PricingTable({
                     {fmtEUR(cotaBo)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {p ? fmtEUR(p.custoHora) : "—"}
+                    {p30 ? fmtEUR(p30.custoHora) : "—"}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {p ? fmtEUR(p.custoHoraDesperdicio) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    <span className={isOverride ? "font-semibold text-primary" : ""}>
-                      {(margem * 100).toFixed(1)}%
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums font-semibold text-primary">
-                    {p ? fmtEUR(p.vendaHora) : "—"}
+                    {p30 ? fmtEUR(p30.custoHoraDesperdicio) : "—"}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
                     {p30 ? fmtEUR(p30.vendaHora) : "—"}
@@ -420,6 +427,9 @@ function PricingTable({
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
                     {p100 ? fmtEUR(p100.vendaHora) : "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums font-semibold text-primary">
+                    {pCustom ? fmtEUR(pCustom.vendaHora) : "—"}
                   </TableCell>
                 </TableRow>
               );
