@@ -152,6 +152,21 @@ function ResumoPage() {
         </CardHeader>
       </Card>
 
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <RatioCard
+          title="Custo operacional / Total RH"
+          numerator={custosOp}
+          denominator={totalGeral}
+          hint="Peso dos custos operacionais sobre o custo total de recursos humanos (VBG)."
+        />
+        <RatioCard
+          title="(Custo operacional + Backoffice) / Equipa Projecto"
+          numerator={custosOp + totalBackoffice}
+          denominator={totalProjecto}
+          hint="Quanto a estrutura (operacional + backoffice) representa face ao custo da equipa de produção."
+        />
+      </div>
+
       <RhTable title="Equipa Backoffice" rows={backoffice} totalLabel="Equipa Backoffice" />
       <RhTable title="Equipa Projecto" rows={projecto} totalLabel="Equipa produção" />
 
