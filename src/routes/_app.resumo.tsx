@@ -563,8 +563,8 @@ function PricingTable({
           <TableHeader>
             <TableRow>
               <TableHead>Colaborador</TableHead>
-              <TableHead className="text-right">VBG</TableHead>
-              <TableHead className="text-right">+ Cota BO</TableHead>
+              <TableHead className="text-right">VBG/h</TableHead>
+              <TableHead className="text-right">+ Cota BO/h</TableHead>
               <TableHead className="text-right">Custo/h</TableHead>
               <TableHead className="text-right">×1.20</TableHead>
               <TableHead className="text-right">@ 30%</TableHead>
