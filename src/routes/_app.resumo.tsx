@@ -182,14 +182,14 @@ function ResumoPage() {
                 {/* Barra empilhada com percentagens dentro */}
                 <div className="flex h-9 w-full overflow-hidden rounded-md bg-muted text-xs font-semibold text-white">
                   <div
-                    className="flex items-center justify-center bg-primary"
+                    className="flex items-center justify-center bg-clay-complement"
                     style={{ width: `${pctRH}%` }}
                     title={`Recursos Humanos: ${pctRH.toFixed(1)}%`}
                   >
                     {pctRH >= 8 && `${pctRH.toFixed(1)}%`}
                   </div>
                   <div
-                    className="flex items-center justify-center bg-[var(--clay,oklch(0.65_0.13_40))]"
+                    className="flex items-center justify-center bg-clay"
                     style={{ width: `${pctOp}%` }}
                     title={`Custo Operacional: ${pctOp.toFixed(1)}%`}
                   >
@@ -199,13 +199,13 @@ function ResumoPage() {
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <RatioRow
-                    color="bg-primary"
+                    color="bg-clay-complement"
                     label="Recursos Humanos (VBG)"
                     value={totalGeral}
                     pct={pctRH}
                   />
                   <RatioRow
-                    color="bg-[var(--clay,oklch(0.65_0.13_40))]"
+                    color="bg-clay"
                     label="Custo Operacional"
                     value={custosOp}
                     pct={pctOp}
