@@ -381,6 +381,11 @@ function FeriasPage() {
                       locale={pt}
                       weekStartsOn={1}
                       defaultMonth={newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : new Date()}
+                      modifiers={{ holiday: holidayDateObjects }}
+                      modifiersClassNames={{
+                        holiday:
+                          "relative text-destructive font-semibold after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-destructive",
+                      }}
                       selected={
                         {
                           from: newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : undefined,
@@ -395,6 +400,10 @@ function FeriasPage() {
                         }));
                       }}
                     />
+                    <div className="border-t px-3 py-2 text-[11px] text-muted-foreground">
+                      <span className="mr-1 inline-block h-2 w-2 rounded-full bg-destructive align-middle" />
+                      Feriados (não contam como dias úteis)
+                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
@@ -406,8 +415,27 @@ function FeriasPage() {
                   onChange={(e) => setNewReq((f) => ({ ...f, notas: e.target.value }))}
                 />
               </div>
-              <div className="sm:col-span-2 rounded-md bg-muted px-3 py-2 text-sm">
-                Dias úteis: <span className="font-semibold">{dias}</span>
+              <div className="sm:col-span-2 space-y-2 rounded-md bg-muted px-3 py-2 text-sm">
+                <div>
+                  Dias úteis: <span className="font-semibold">{dias}</span>
+                  {feriadosNoPeriodo.length > 0 && (
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      ({feriadosNoPeriodo.length} feriado(s) excluído(s))
+                    </span>
+                  )}
+                </div>
+                {feriadosNoPeriodo.length > 0 && (
+                  <ul className="space-y-0.5 text-xs text-muted-foreground">
+                    {feriadosNoPeriodo.map((h) => (
+                      <li key={h.id} className="flex items-center gap-2">
+                        <span className="inline-block h-1.5 w-1.5 rounded-full bg-destructive" />
+                        {format(new Date(h.data + "T00:00:00"), "EEE, d MMM", { locale: pt })}
+                        {" — "}
+                        {h.nome}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
             <DialogFooter>
