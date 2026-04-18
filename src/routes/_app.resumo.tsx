@@ -27,7 +27,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 
 export const Route = createFileRoute("/_app/resumo")({
   component: ResumoPage,
@@ -410,6 +410,49 @@ function anosCarreira(inicio: string | null): string {
   return `${anos} anos`;
 }
 
+type RhSortKey =
+  | "nome"
+  | "brutoAnual"
+  | "base"
+  | "brutoMensal"
+  | "alimentacao"
+  | "ajudas"
+  | "liquido"
+  | "beneficios"
+  | "vbg"
+  | "anos";
+
+function rhValue(r: Row, k: RhSortKey): number | string | null {
+  const ref = r.effective ?? r.proposed;
+  const c = ref ? computeSnapshot(ref) : null;
+  switch (k) {
+    case "nome":
+      return r.collab.nome;
+    case "brutoAnual":
+      return c?.brutoAnual ?? null;
+    case "base":
+      return c?.base ?? null;
+    case "brutoMensal":
+      return c?.brutoMensal ?? null;
+    case "alimentacao":
+      return c?.alimentacaoMensal ?? null;
+    case "ajudas":
+      return c?.ajudasMensal ?? null;
+    case "liquido":
+      return c?.liquidoTotalMensal ?? null;
+    case "beneficios":
+      return c?.beneficiosAnual ?? null;
+    case "vbg":
+      return c?.custoVBG ?? null;
+    case "anos": {
+      if (!r.collab.inicio_carreira) return null;
+      const start = new Date(r.collab.inicio_carreira);
+      if (isNaN(start.getTime())) return null;
+      return Date.now() - start.getTime();
+    }
+  }
+}
+
 function RhTable({
   title,
   rows,
@@ -419,6 +462,25 @@ function RhTable({
   rows: Row[];
   totalLabel: string;
 }) {
+  const [sortKey, setSortKey] = useState<RhSortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const toggleSort = (k: RhSortKey) => {
+    if (sortKey === k) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(k);
+      setSortDir(k === "nome" ? "asc" : "desc");
+    }
+  };
+
+  const sortedRows = sortKey
+    ? [...rows].sort((a, b) => {
+        const av = rhValue(a, sortKey);
+        const bv = rhValue(b, sortKey);
+        return compareValues(av, bv, sortDir);
+      })
+    : rows;
+
   // Totais sobre VBG e Bruto anual (como no Excel)
   let totalBrutoAnual = 0;
   let totalVbg = 0;
@@ -442,29 +504,29 @@ function RhTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nome</TableHead>
+              <SortHead label="Nome" k="nome" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
               <TableHead>Cód.</TableHead>
-              <TableHead className="text-right">Bruto anual</TableHead>
-              <TableHead className="text-right">Base contractual</TableHead>
-              <TableHead className="text-right">Bruto mensal</TableHead>
-              <TableHead className="text-right">Alimentação</TableHead>
-              <TableHead className="text-right">Ajudas de custo</TableHead>
-              <TableHead className="text-right">Líquido mensal</TableHead>
-              <TableHead className="text-right">Benefícios anual</TableHead>
-              <TableHead className="text-right font-semibold">VBG</TableHead>
-              <TableHead className="text-right">Anos</TableHead>
+              <SortHead align="right" label="Bruto anual" k="brutoAnual" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="Base contractual" k="base" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="Bruto mensal" k="brutoMensal" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="Alimentação" k="alimentacao" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="Ajudas de custo" k="ajudas" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="Líquido mensal" k="liquido" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="Benefícios anual" k="beneficios" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="VBG" k="vbg" sortKey={sortKey} dir={sortDir} onClick={toggleSort} bold />
+              <SortHead align="right" label="Anos" k="anos" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
               <TableHead className="w-8"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.length === 0 && (
+            {sortedRows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={12} className="text-center text-muted-foreground py-8">
                   Sem colaboradores neste departamento.
                 </TableCell>
               </TableRow>
             )}
-            {rows.map((r, idx) => {
+            {sortedRows.map((r, idx) => {
               const ref = r.effective ?? r.proposed;
               const c = ref ? computeSnapshot(ref) : null;
               return (
@@ -548,6 +610,48 @@ function PricingTable({
 }) {
   const [customPct, setCustomPct] = useState<number>(75);
   const customMargem = customPct / 100;
+  const [sortKey, setSortKey] = useState<PricingSortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  const toggleSort = (k: PricingSortKey) => {
+    if (sortKey === k) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(k);
+      setSortDir(k === "nome" ? "asc" : "desc");
+    }
+  };
+
+  const totalH = diasUteis * horasDia;
+  const cotaBoH = totalH > 0 ? cotaBo / totalH : 0;
+
+  const computeRow = (r: Row) => {
+    const ref = r.effective ?? r.proposed;
+    const c = ref ? computeSnapshot(ref) : null;
+    const baseArgs = c
+      ? { vbgColaborador: c.custoVBG, cotaBoAnual: cotaBo, diasUteis, horasDia }
+      : null;
+    return {
+      c,
+      vbgH: c && totalH > 0 ? c.custoVBG / totalH : null,
+      cotaBoH,
+      p30: baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 0.3 }) : null,
+      p50: baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 0.5 }) : null,
+      p100: baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 1.0 }) : null,
+      pCustom: baseArgs
+        ? computePricing({ ...baseArgs, margemLucroPct: customMargem })
+        : null,
+    };
+  };
+
+  const sortedRows = sortKey
+    ? [...rows].sort((a, b) => {
+        const ra = computeRow(a);
+        const rb = computeRow(b);
+        const av = pricingValue(a, ra, sortKey);
+        const bv = pricingValue(b, rb, sortKey);
+        return compareValues(av, bv, sortDir);
+      })
+    : rows;
 
   return (
     <Card>
@@ -562,17 +666,32 @@ function PricingTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Colaborador</TableHead>
-              <TableHead className="text-right">VBG/h</TableHead>
-              <TableHead className="text-right">+ Cota BO/h</TableHead>
-              <TableHead className="text-right">Custo/h</TableHead>
-              <TableHead className="text-right">×1.20</TableHead>
-              <TableHead className="text-right">@ 30%</TableHead>
-              <TableHead className="text-right">@ 50%</TableHead>
-              <TableHead className="text-right">@ 100%</TableHead>
+              <SortHead label="Colaborador" k="nome" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="VBG/h" k="vbgH" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="+ Cota BO/h" k="cotaBoH" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="Custo/h" k="custoH" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="×1.20" k="custoHDesp" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="@ 30%" k="venda30" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="@ 50%" k="venda50" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="@ 100%" k="venda100" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
               <TableHead className="text-right text-primary">
                 <div className="flex items-center justify-end gap-1.5">
-                  <span>@</span>
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("vendaCustom")}
+                    className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+                  >
+                    <span>@</span>
+                    {sortKey === "vendaCustom" ? (
+                      sortDir === "asc" ? (
+                        <ArrowUp className="h-3 w-3 opacity-70" />
+                      ) : (
+                        <ArrowDown className="h-3 w-3 opacity-70" />
+                      )
+                    ) : (
+                      <ArrowUpDown className="h-3 w-3 opacity-50" />
+                    )}
+                  </button>
                   <Input
                     type="number"
                     min={0}
@@ -588,25 +707,15 @@ function PricingTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.length === 0 && (
+            {sortedRows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
                   Sem colaboradores.
                 </TableCell>
               </TableRow>
             )}
-            {rows.map((r) => {
-              const ref = r.effective ?? r.proposed;
-              const c = ref ? computeSnapshot(ref) : null;
-              const baseArgs = c
-                ? { vbgColaborador: c.custoVBG, cotaBoAnual: cotaBo, diasUteis, horasDia }
-                : null;
-              const p30 = baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 0.3 }) : null;
-              const p50 = baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 0.5 }) : null;
-              const p100 = baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 1.0 }) : null;
-              const pCustom = baseArgs
-                ? computePricing({ ...baseArgs, margemLucroPct: customMargem })
-                : null;
+            {sortedRows.map((r) => {
+              const { c, p30, p50, p100, pCustom } = computeRow(r);
               return (
                 <TableRow key={r.collab.id}>
                   <TableCell className="font-medium">
@@ -615,10 +724,10 @@ function PricingTable({
                     </Link>
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.custoVBG / (diasUteis * horasDia)) : "—"}
+                    {c ? fmtEUR(c.custoVBG / totalH) : "—"}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
-                    {fmtEUR(cotaBo / (diasUteis * horasDia))}
+                    {fmtEUR(cotaBoH)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {p30 ? fmtEUR(p30.custoHora) : "—"}
@@ -645,5 +754,110 @@ function PricingTable({
         </Table>
       </CardContent>
     </Card>
+  );
+}
+
+// ============== Sorting helpers (shared) ==============
+
+type SortDir = "asc" | "desc";
+
+type PricingSortKey =
+  | "nome"
+  | "vbgH"
+  | "cotaBoH"
+  | "custoH"
+  | "custoHDesp"
+  | "venda30"
+  | "venda50"
+  | "venda100"
+  | "vendaCustom";
+
+function pricingValue(
+  r: Row,
+  pre: ReturnType<
+    (r: Row) => {
+      c: ReturnType<typeof computeSnapshot> | null;
+      vbgH: number | null;
+      cotaBoH: number;
+      p30: ReturnType<typeof computePricing> | null;
+      p50: ReturnType<typeof computePricing> | null;
+      p100: ReturnType<typeof computePricing> | null;
+      pCustom: ReturnType<typeof computePricing> | null;
+    }
+  >,
+  k: PricingSortKey,
+): number | string | null {
+  switch (k) {
+    case "nome":
+      return r.collab.nome;
+    case "vbgH":
+      return pre.vbgH;
+    case "cotaBoH":
+      return pre.cotaBoH;
+    case "custoH":
+      return pre.p30?.custoHora ?? null;
+    case "custoHDesp":
+      return pre.p30?.custoHoraDesperdicio ?? null;
+    case "venda30":
+      return pre.p30?.vendaHora ?? null;
+    case "venda50":
+      return pre.p50?.vendaHora ?? null;
+    case "venda100":
+      return pre.p100?.vendaHora ?? null;
+    case "vendaCustom":
+      return pre.pCustom?.vendaHora ?? null;
+  }
+}
+
+function compareValues(
+  a: number | string | null,
+  b: number | string | null,
+  dir: SortDir,
+): number {
+  // null/undefined sempre no fim
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  const mult = dir === "asc" ? 1 : -1;
+  if (typeof a === "string" && typeof b === "string") {
+    return a.localeCompare(b, "pt", { sensitivity: "base" }) * mult;
+  }
+  return ((a as number) - (b as number)) * mult;
+}
+
+function SortHead<K extends string>({
+  label,
+  k,
+  sortKey,
+  dir,
+  onClick,
+  align = "left",
+  bold = false,
+}: {
+  label: string;
+  k: K;
+  sortKey: K | null;
+  dir: SortDir;
+  onClick: (k: K) => void;
+  align?: "left" | "right";
+  bold?: boolean;
+}) {
+  const active = sortKey === k;
+  const Icon = !active ? ArrowUpDown : dir === "asc" ? ArrowUp : ArrowDown;
+  return (
+    <TableHead className={align === "right" ? "text-right" : ""}>
+      <button
+        type="button"
+        onClick={() => onClick(k)}
+        className={`inline-flex items-center gap-1 select-none hover:text-foreground transition-colors ${
+          active ? "text-foreground" : "text-muted-foreground"
+        } ${bold ? "font-semibold" : ""}`}
+        aria-sort={active ? (dir === "asc" ? "ascending" : "descending") : "none"}
+      >
+        {align === "right" && <Icon className={`h-3 w-3 ${active ? "opacity-70" : "opacity-50"}`} />}
+        {label}
+        {align === "left" && <Icon className={`h-3 w-3 ${active ? "opacity-70" : "opacity-50"}`} />}
+      </button>
+    </TableHead>
   );
 }
