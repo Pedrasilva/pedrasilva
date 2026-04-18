@@ -156,6 +156,7 @@
   --negative: oklch(0.7 0.2 25);
   --cream: oklch(0.25 0.02 80);
   --clay: oklch(0.7 0.13 35);
+  --clay-complement: oklch(0.7 0.13 215);
   --sage: oklch(0.7 0.07 150);
   --ink: oklch(0.95 0.01 60);
 }
