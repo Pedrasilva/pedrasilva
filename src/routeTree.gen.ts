@@ -15,6 +15,7 @@ import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as AppValorBoRouteImport } from './routes/_app.valor-bo'
 import { Route as AppResumoRouteImport } from './routes/_app.resumo'
 import { Route as AppFeriasRouteImport } from './routes/_app.ferias'
+import { Route as AppDiasUteisRouteImport } from './routes/_app.dias-uteis'
 import { Route as AppColaboradorIdRouteImport } from './routes/_app.colaborador.$id'
 
 const LoginRoute = LoginRouteImport.update({
@@ -46,6 +47,11 @@ const AppFeriasRoute = AppFeriasRouteImport.update({
   path: '/ferias',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDiasUteisRoute = AppDiasUteisRouteImport.update({
+  id: '/dias-uteis',
+  path: '/dias-uteis',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppColaboradorIdRoute = AppColaboradorIdRouteImport.update({
   id: '/colaborador/$id',
   path: '/colaborador/$id',
@@ -55,6 +61,7 @@ const AppColaboradorIdRoute = AppColaboradorIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
+  '/dias-uteis': typeof AppDiasUteisRoute
   '/ferias': typeof AppFeriasRoute
   '/resumo': typeof AppResumoRoute
   '/valor-bo': typeof AppValorBoRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/dias-uteis': typeof AppDiasUteisRoute
   '/ferias': typeof AppFeriasRoute
   '/resumo': typeof AppResumoRoute
   '/valor-bo': typeof AppValorBoRoute
@@ -72,6 +80,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/_app/dias-uteis': typeof AppDiasUteisRoute
   '/_app/ferias': typeof AppFeriasRoute
   '/_app/resumo': typeof AppResumoRoute
   '/_app/valor-bo': typeof AppValorBoRoute
@@ -83,16 +92,25 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/dias-uteis'
     | '/ferias'
     | '/resumo'
     | '/valor-bo'
     | '/colaborador/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/ferias' | '/resumo' | '/valor-bo' | '/' | '/colaborador/$id'
+  to:
+    | '/login'
+    | '/dias-uteis'
+    | '/ferias'
+    | '/resumo'
+    | '/valor-bo'
+    | '/'
+    | '/colaborador/$id'
   id:
     | '__root__'
     | '/_app'
     | '/login'
+    | '/_app/dias-uteis'
     | '/_app/ferias'
     | '/_app/resumo'
     | '/_app/valor-bo'
@@ -149,6 +167,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFeriasRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/dias-uteis': {
+      id: '/_app/dias-uteis'
+      path: '/dias-uteis'
+      fullPath: '/dias-uteis'
+      preLoaderRoute: typeof AppDiasUteisRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/colaborador/$id': {
       id: '/_app/colaborador/$id'
       path: '/colaborador/$id'
@@ -160,6 +185,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppDiasUteisRoute: typeof AppDiasUteisRoute
   AppFeriasRoute: typeof AppFeriasRoute
   AppResumoRoute: typeof AppResumoRoute
   AppValorBoRoute: typeof AppValorBoRoute
@@ -168,6 +194,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppDiasUteisRoute: AppDiasUteisRoute,
   AppFeriasRoute: AppFeriasRoute,
   AppResumoRoute: AppResumoRoute,
   AppValorBoRoute: AppValorBoRoute,

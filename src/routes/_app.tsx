@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Users, BarChart3, Calculator, CalendarDays, LogOut } from "lucide-react";
+import { Users, BarChart3, Calculator, CalendarDays, CalendarCheck, LogOut } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 
 export const Route = createFileRoute("/_app")({
@@ -36,6 +36,7 @@ function AppLayout() {
       adminOnly: true,
     },
     { to: "/ferias", label: "Férias", icon: CalendarDays, match: (p: string) => p.startsWith("/ferias"), adminOnly: false },
+    { to: "/dias-uteis", label: "Dias úteis", icon: CalendarCheck, match: (p: string) => p.startsWith("/dias-uteis"), adminOnly: true },
     { to: "/resumo", label: "Resumo geral", icon: BarChart3, match: (p: string) => p.startsWith("/resumo"), adminOnly: true },
     { to: "/valor-bo", label: "Valor BO/hora", icon: Calculator, match: (p: string) => p.startsWith("/valor-bo"), adminOnly: true },
   ] as const;
