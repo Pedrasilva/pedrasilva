@@ -229,10 +229,11 @@ function DiasUteisPage() {
         <Kpi label="Dias do ano" value={breakdown.diasAno} />
         <Kpi label="Sábados + Domingos" value={`− ${breakdown.fimDeSemana}`} />
         <Kpi label="Feriados em dia útil" value={`− ${breakdown.feriadosUteis}`} />
-        <Kpi label="Dias úteis (base)" value={breakdown.diasUteisBase} highlight />
+        <Kpi label="Dias úteis (base)" value={breakdown.diasUteisBase} />
         <Kpi
           label="Após 22 dias férias"
           value={breakdown.diasUteisLiquidos(22)}
+          highlight
         />
       </div>
 
