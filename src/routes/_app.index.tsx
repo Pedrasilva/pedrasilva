@@ -314,12 +314,12 @@ function DepartmentSection({
             </TableHeader>
             <TableBody>
               {sorted.map((c) => (
-                <TableRow key={c.id} className="cursor-pointer">
-                  <TableCell className="font-medium">
-                    <Link to="/colaborador/$id" params={{ id: c.id }}>
-                      {c.nome}
-                    </Link>
-                  </TableCell>
+                <TableRow
+                  key={c.id}
+                  className="cursor-pointer hover:bg-muted/40"
+                  onClick={() => navigate({ to: "/colaborador/$id", params: { id: c.id } })}
+                >
+                  <TableCell className="font-medium">{c.nome}</TableCell>
                   <TableCell className="text-muted-foreground">
                     {c.numero_colaborador || "—"}
                   </TableCell>
@@ -327,9 +327,7 @@ function DepartmentSection({
                     {c.situacao_contractual || "—"}
                   </TableCell>
                   <TableCell>
-                    <Link to="/colaborador/$id" params={{ id: c.id }}>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </Link>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </TableCell>
                 </TableRow>
               ))}
