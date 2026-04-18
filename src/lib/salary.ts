@@ -135,7 +135,7 @@ export const fmtEUR = (n: number | null | undefined) => {
     currency: "EUR",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-    useGrouping: "always",
+    useGrouping: true,
   })
     .format(n)
     .replace(/[\s\u202F\u00A0]/g, "\u00A0");
