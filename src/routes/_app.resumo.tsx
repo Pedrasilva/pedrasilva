@@ -256,31 +256,28 @@ function Kpi({
   );
 }
 
-function RatioCard({
-  title,
-  numerator,
-  denominator,
-  hint,
+function RatioRow({
+  color,
+  label,
+  value,
+  pct,
 }: {
-  title: string;
-  numerator: number;
-  denominator: number;
-  hint?: string;
+  color: string;
+  label: string;
+  value: number;
+  pct: number;
 }) {
-  const pct = denominator > 0 ? (numerator / denominator) * 100 : null;
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardDescription>{title}</CardDescription>
-        <CardTitle className="text-2xl tabular-nums">
-          {pct == null ? "—" : `${pct.toFixed(1)}%`}
-        </CardTitle>
-        <p className="mt-1 text-xs text-muted-foreground tabular-nums">
-          {fmtEUR(numerator)} ÷ {fmtEUR(denominator)}
-        </p>
-        {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
-      </CardHeader>
-    </Card>
+    <div className="flex items-center justify-between gap-3 rounded-md border px-4 py-3">
+      <div className="flex items-center gap-2 min-w-0">
+        <span className={`h-3 w-3 shrink-0 rounded-sm ${color}`} />
+        <span className="text-sm font-medium truncate">{label}</span>
+      </div>
+      <div className="text-right shrink-0">
+        <div className="text-base font-semibold tabular-nums">{pct.toFixed(1)}%</div>
+        <div className="text-xs text-muted-foreground tabular-nums">{fmtEUR(value)}</div>
+      </div>
+    </div>
   );
 }
 
