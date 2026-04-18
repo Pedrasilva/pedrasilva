@@ -24,12 +24,6 @@ import { FieldStacked } from "./snapshot/inputs";
 
 type Props = { snapshot: Snapshot };
 
-const numericKeys = [
-  "valor_base", "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos",
-  "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual",
-  "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios",
-  "numero_titulares", "numero_dependentes", "dependentes_com_deficiencia", "ano_fiscal",
-] as const;
 
 export function SnapshotForm({ snapshot }: Props) {
   const qc = useQueryClient();
