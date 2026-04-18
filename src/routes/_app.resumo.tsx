@@ -583,7 +583,7 @@ function RhTable({
               <TableCell className="text-right tabular-nums font-semibold">
                 {fmtEUR(totalVbg)}
               </TableCell>
-              <TableCell colSpan={2} />
+              <TableCell colSpan={1} />
             </TableRow>
           </TableFooter>
         </Table>
