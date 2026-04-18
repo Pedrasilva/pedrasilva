@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_app")({
 function AppLayout() {
   const loc = useLocation();
   const navigate = useNavigate();
-  const { session, loading, isAdmin, user, signOut } = useAuth();
+  const { session, loading, isAdmin, isRealAdmin, viewAsUser, setViewAsUser, user, signOut } = useAuth();
 
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/login" });
