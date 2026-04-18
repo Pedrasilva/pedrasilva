@@ -507,14 +507,14 @@ function RhTable({
               <SortHead label="Nome" k="nome" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
               <TableHead>Cód.</TableHead>
               <SortHead align="right" label="Bruto anual" k="brutoAnual" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="Base contractual" k="base" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="Bruto mensal" k="brutoMensal" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="Alimentação" k="alimentacao" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="Ajudas de custo" k="ajudas" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="Líquido mensal" k="liquido" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="Benefícios anual" k="beneficios" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <TableHead className="text-right">Base contractual</TableHead>
+              <TableHead className="text-right">Bruto mensal</TableHead>
+              <TableHead className="text-right">Alimentação</TableHead>
+              <TableHead className="text-right">Ajudas de custo</TableHead>
+              <TableHead className="text-right">Líquido mensal</TableHead>
+              <TableHead className="text-right">Benefícios anual</TableHead>
               <SortHead align="right" label="VBG" k="vbg" sortKey={sortKey} dir={sortDir} onClick={toggleSort} bold />
-              <SortHead align="right" label="Anos" k="anos" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <TableHead className="text-right">Anos</TableHead>
               <TableHead className="w-8"></TableHead>
             </TableRow>
           </TableHeader>
@@ -667,31 +667,16 @@ function PricingTable({
           <TableHeader>
             <TableRow>
               <SortHead label="Colaborador" k="nome" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="VBG/h" k="vbgH" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="+ Cota BO/h" k="cotaBoH" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="Custo/h" k="custoH" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="×1.20" k="custoHDesp" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="@ 30%" k="venda30" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="@ 50%" k="venda50" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortHead align="right" label="@ 100%" k="venda100" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <TableHead className="text-right">VBG/h</TableHead>
+              <TableHead className="text-right">+ Cota BO/h</TableHead>
+              <TableHead className="text-right">Custo/h</TableHead>
+              <TableHead className="text-right">×1.20</TableHead>
+              <TableHead className="text-right">@ 30%</TableHead>
+              <TableHead className="text-right">@ 50%</TableHead>
+              <TableHead className="text-right">@ 100%</TableHead>
               <TableHead className="text-right text-primary">
                 <div className="flex items-center justify-end gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => toggleSort("vendaCustom")}
-                    className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
-                  >
-                    <span>@</span>
-                    {sortKey === "vendaCustom" ? (
-                      sortDir === "asc" ? (
-                        <ArrowUp className="h-3 w-3 opacity-70" />
-                      ) : (
-                        <ArrowDown className="h-3 w-3 opacity-70" />
-                      )
-                    ) : (
-                      <ArrowUpDown className="h-3 w-3 opacity-50" />
-                    )}
-                  </button>
+                  <span>@</span>
                   <Input
                     type="number"
                     min={0}
