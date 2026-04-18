@@ -233,7 +233,6 @@ function RhTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nº colab.</TableHead>
               <TableHead>Nome</TableHead>
               <TableHead>Cód.</TableHead>
               <TableHead className="text-right">Bruto anual</TableHead>
