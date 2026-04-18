@@ -244,6 +244,7 @@ function DepartmentSection({
   icon: React.ReactNode;
   list: Collaborator[];
 }) {
+  const navigate = useNavigate();
   const [sortKey, setSortKey] = useState<SortKey>("nome");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
