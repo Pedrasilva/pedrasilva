@@ -56,6 +56,7 @@ export type Database = {
           data_nascimento: string | null
           departamento: Database["public"]["Enums"]["department"]
           dias_ferias_anuais: number
+          dias_ferias_extra: number
           email: string | null
           id: string
           inicio_carreira: string | null
@@ -71,6 +72,7 @@ export type Database = {
           data_nascimento?: string | null
           departamento?: Database["public"]["Enums"]["department"]
           dias_ferias_anuais?: number
+          dias_ferias_extra?: number
           email?: string | null
           id?: string
           inicio_carreira?: string | null
@@ -86,6 +88,7 @@ export type Database = {
           data_nascimento?: string | null
           departamento?: Database["public"]["Enums"]["department"]
           dias_ferias_anuais?: number
+          dias_ferias_extra?: number
           email?: string | null
           id?: string
           inicio_carreira?: string | null

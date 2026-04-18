@@ -175,7 +175,10 @@ function FeriasPage() {
       .reduce((sum, r) => sum + (r.dias_uteis || 0), 0);
   }, [requests, focusCollab, currentYear]);
 
-  const totalDisponivel = (focusCollab?.dias_ferias_anuais ?? 0) + (focusCollab?.saldo_ferias_anterior ?? 0);
+  const totalDisponivel =
+    (focusCollab?.dias_ferias_anuais ?? 0) +
+    (focusCollab?.saldo_ferias_anterior ?? 0) +
+    (focusCollab?.dias_ferias_extra ?? 0);
   const saldoAtual = totalDisponivel - usedThisYear - pendingThisYear;
 
   // Novo pedido

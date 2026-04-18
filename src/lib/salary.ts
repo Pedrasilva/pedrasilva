@@ -42,6 +42,7 @@ export type Collaborator = {
   margem_lucro_pct_override: number | null;
   dias_ferias_anuais: number;
   saldo_ferias_anterior: number;
+  dias_ferias_extra: number;
 };
 
 export function computeSnapshot(s: Snapshot) {

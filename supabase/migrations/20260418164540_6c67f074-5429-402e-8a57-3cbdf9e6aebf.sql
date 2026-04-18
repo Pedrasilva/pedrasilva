@@ -1,0 +1,1 @@
+ALTER TABLE public.collaborators ADD COLUMN dias_ferias_extra integer NOT NULL DEFAULT 0;
