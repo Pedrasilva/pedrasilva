@@ -213,6 +213,67 @@ function ResumoPage() {
                   </span>
                   .
                 </p>
+
+                {/* Segunda leitura: Produção vs Estrutura */}
+                {(() => {
+                  const estrutura = totalBackoffice + custosOp;
+                  const pctProj = totalAtelier > 0 ? (totalProjecto / totalAtelier) * 100 : 0;
+                  const pctEstr = totalAtelier > 0 ? (estrutura / totalAtelier) * 100 : 0;
+                  return (
+                    <div className="space-y-3 pt-2 border-t">
+                      <div className="flex items-baseline justify-between">
+                        <h4 className="text-sm font-medium">
+                          Produção vs Estrutura
+                        </h4>
+                        <span className="text-xs text-muted-foreground">
+                          Estrutura = Backoffice + Operacional
+                        </span>
+                      </div>
+                      <div className="flex h-9 w-full overflow-hidden rounded-md bg-muted text-xs font-semibold text-white">
+                        <div
+                          className="flex items-center justify-center bg-[var(--sage,oklch(0.6_0.08_150))]"
+                          style={{ width: `${pctProj}%` }}
+                          title={`Recursos Projecto: ${pctProj.toFixed(1)}%`}
+                        >
+                          {pctProj >= 8 && `${pctProj.toFixed(1)}%`}
+                        </div>
+                        <div
+                          className="flex items-center justify-center bg-[var(--clay,oklch(0.65_0.13_40))]"
+                          style={{ width: `${pctEstr}%` }}
+                          title={`Estrutura: ${pctEstr.toFixed(1)}%`}
+                        >
+                          {pctEstr >= 8 && `${pctEstr.toFixed(1)}%`}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <RatioRow
+                          color="bg-[var(--sage,oklch(0.6_0.08_150))]"
+                          label="Recursos Projecto"
+                          value={totalProjecto}
+                          pct={pctProj}
+                        />
+                        <RatioRow
+                          color="bg-[var(--clay,oklch(0.65_0.13_40))]"
+                          label="Backoffice + Operacional"
+                          value={estrutura}
+                          pct={pctEstr}
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        A produção representa{" "}
+                        <span className="font-medium text-foreground">
+                          {pctProj.toFixed(1)}%
+                        </span>{" "}
+                        do custo total; a estrutura (Backoffice {fmtEUR(totalBackoffice)} +
+                        Operacional {fmtEUR(custosOp)}) representa{" "}
+                        <span className="font-medium text-foreground">
+                          {pctEstr.toFixed(1)}%
+                        </span>
+                        .
+                      </p>
+                    </div>
+                  );
+                })()}
               </>
             );
           })()}
