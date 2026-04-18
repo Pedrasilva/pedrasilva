@@ -48,6 +48,7 @@ import { CalendarDays, Plus, Check, X, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { countWeekdays } from "@/lib/dates";
 import type { Collaborator } from "@/lib/salary";
+import type { Holiday } from "@/lib/workdays";
 
 export const Route = createFileRoute("/_app/ferias")({
   component: FeriasPage,
@@ -118,6 +119,28 @@ function FeriasPage() {
     },
   });
 
+  const { data: holidays = [] } = useQuery({
+    queryKey: ["holidays"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("holidays")
+        .select("*")
+        .order("data", { ascending: true });
+      if (error) throw error;
+      return data as Holiday[];
+    },
+  });
+
+  const holidayDates = useMemo(() => new Set(holidays.map((h) => h.data)), [holidays]);
+  const holidayByDate = useMemo(
+    () => new Map(holidays.map((h) => [h.data, h])),
+    [holidays],
+  );
+  const holidayDateObjects = useMemo(
+    () => holidays.map((h) => new Date(h.data + "T00:00:00")),
+    [holidays],
+  );
+
   // Find own collaborator (by email)
   const myCollab = useMemo(
     () => collaborators.find((c) => c.email && user?.email && c.email.toLowerCase() === user.email.toLowerCase()) ?? null,
@@ -176,9 +199,19 @@ function FeriasPage() {
   });
 
   const dias = useMemo(
-    () => countWeekdays(newReq.data_inicio, newReq.data_fim),
-    [newReq.data_inicio, newReq.data_fim],
+    () => countWeekdays(newReq.data_inicio, newReq.data_fim, holidayDates),
+    [newReq.data_inicio, newReq.data_fim, holidayDates],
   );
+
+  // Lista de feriados que caem dentro do período seleccionado (em dias úteis)
+  const feriadosNoPeriodo = useMemo(() => {
+    if (!newReq.data_inicio || !newReq.data_fim) return [];
+    return holidays.filter((h) => {
+      if (h.data < newReq.data_inicio || h.data > newReq.data_fim) return false;
+      const wd = new Date(h.data + "T00:00:00").getDay();
+      return wd !== 0 && wd !== 6;
+    });
+  }, [holidays, newReq.data_inicio, newReq.data_fim]);
 
   const createReq = useMutation({
     mutationFn: async () => {
