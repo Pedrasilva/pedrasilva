@@ -514,14 +514,13 @@ function RhTable({
               <TableHead className="text-right">Líquido mensal</TableHead>
               <TableHead className="text-right">Benefícios anual</TableHead>
               <SortHead align="right" label="VBG" k="vbg" sortKey={sortKey} dir={sortDir} onClick={toggleSort} bold />
-              <TableHead className="text-right">Anos</TableHead>
               <TableHead className="w-8"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedRows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={12} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={11} className="text-center text-muted-foreground py-8">
                   Sem colaboradores neste departamento.
                 </TableCell>
               </TableRow>
@@ -563,9 +562,6 @@ function RhTable({
                   <TableCell className="text-right tabular-nums font-semibold">
                     {c ? fmtEUR(c.custoVBG) : "—"}
                   </TableCell>
-                  <TableCell className="text-right text-muted-foreground tabular-nums">
-                    {anosCarreira(r.collab.inicio_carreira)}
-                  </TableCell>
                   <TableCell>
                     <Link to="/colaborador/$id" params={{ id: r.collab.id }}>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -587,7 +583,7 @@ function RhTable({
               <TableCell className="text-right tabular-nums font-semibold">
                 {fmtEUR(totalVbg)}
               </TableCell>
-              <TableCell colSpan={2} />
+              <TableCell colSpan={1} />
             </TableRow>
           </TableFooter>
         </Table>
