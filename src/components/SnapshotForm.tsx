@@ -268,3 +268,28 @@ function Mini({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+function SaveStatus({
+  isDirty, isSaving, lastSavedAt,
+}: { isDirty: boolean; isSaving: boolean; lastSavedAt: Date | null }) {
+  if (isSaving) {
+    return (
+      <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+        <Loader2 className="h-3 w-3 animate-spin" /> A guardar…
+      </span>
+    );
+  }
+  if (isDirty) {
+    return (
+      <span className="text-[11px] text-[var(--clay)]">Alterações por guardar…</span>
+    );
+  }
+  if (lastSavedAt) {
+    return (
+      <span className="flex items-center gap-1 text-[11px] text-[var(--sage)]">
+        <Check className="h-3 w-3" /> Guardado {lastSavedAt.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
+      </span>
+    );
+  }
+  return <span className="text-[11px] text-muted-foreground">Sem alterações</span>;
+}
