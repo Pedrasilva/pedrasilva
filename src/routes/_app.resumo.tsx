@@ -152,20 +152,69 @@ function ResumoPage() {
         </CardHeader>
       </Card>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <RatioCard
-          title="Custo operacional / Total RH"
-          numerator={custosOp}
-          denominator={totalGeral}
-          hint="Peso dos custos operacionais sobre o custo total de recursos humanos (VBG)."
-        />
-        <RatioCard
-          title="(Custo operacional + Backoffice) / Equipa Projecto"
-          numerator={custosOp + totalBackoffice}
-          denominator={totalProjecto}
-          hint="Quanto a estrutura (operacional + backoffice) representa face ao custo da equipa de produção."
-        />
-      </div>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Composição do custo total do atelier</CardTitle>
+          <CardDescription>
+            Custo total = Recursos Humanos (VBG) + Custo Operacional ={" "}
+            <span className="font-medium tabular-nums text-foreground">
+              {fmtEUR(totalGeral + custosOp)}
+            </span>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Barra empilhada */}
+          {(() => {
+            const totalAtelier = totalGeral + custosOp;
+            const pctRH = totalAtelier > 0 ? (totalGeral / totalAtelier) * 100 : 0;
+            const pctOp = totalAtelier > 0 ? (custosOp / totalAtelier) * 100 : 0;
+            const ratio = custosOp > 0 ? totalGeral / custosOp : null;
+            return (
+              <>
+                <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="bg-primary"
+                    style={{ width: `${pctRH}%` }}
+                    title={`RH: ${pctRH.toFixed(1)}%`}
+                  />
+                  <div
+                    className="bg-[var(--clay,oklch(0.65_0.13_40))]"
+                    style={{ width: `${pctOp}%` }}
+                    title={`Operacional: ${pctOp.toFixed(1)}%`}
+                  />
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <RatioRow
+                    color="bg-primary"
+                    label="Recursos Humanos (VBG)"
+                    value={totalGeral}
+                    pct={pctRH}
+                  />
+                  <RatioRow
+                    color="bg-[var(--clay,oklch(0.65_0.13_40))]"
+                    label="Custo Operacional"
+                    value={custosOp}
+                    pct={pctOp}
+                  />
+                </div>
+                <div className="rounded-md border bg-muted/30 px-4 py-3 text-sm">
+                  <span className="text-muted-foreground">Rácio </span>
+                  <span className="font-medium">RH : Operacional</span>
+                  <span className="text-muted-foreground"> = </span>
+                  <span className="tabular-nums font-semibold">
+                    {ratio == null ? "—" : `${ratio.toFixed(2)} : 1`}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {" "}
+                    — por cada 1 € em custos operacionais, o atelier gasta{" "}
+                    {ratio == null ? "—" : `${ratio.toFixed(2)} €`} em recursos humanos.
+                  </span>
+                </div>
+              </>
+            );
+          })()}
+        </CardContent>
+      </Card>
 
       <RhTable title="Equipa Backoffice" rows={backoffice} totalLabel="Equipa Backoffice" />
       <RhTable title="Equipa Projecto" rows={projecto} totalLabel="Equipa produção" />
@@ -207,31 +256,28 @@ function Kpi({
   );
 }
 
-function RatioCard({
-  title,
-  numerator,
-  denominator,
-  hint,
+function RatioRow({
+  color,
+  label,
+  value,
+  pct,
 }: {
-  title: string;
-  numerator: number;
-  denominator: number;
-  hint?: string;
+  color: string;
+  label: string;
+  value: number;
+  pct: number;
 }) {
-  const pct = denominator > 0 ? (numerator / denominator) * 100 : null;
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardDescription>{title}</CardDescription>
-        <CardTitle className="text-2xl tabular-nums">
-          {pct == null ? "—" : `${pct.toFixed(1)}%`}
-        </CardTitle>
-        <p className="mt-1 text-xs text-muted-foreground tabular-nums">
-          {fmtEUR(numerator)} ÷ {fmtEUR(denominator)}
-        </p>
-        {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
-      </CardHeader>
-    </Card>
+    <div className="flex items-center justify-between gap-3 rounded-md border px-4 py-3">
+      <div className="flex items-center gap-2 min-w-0">
+        <span className={`h-3 w-3 shrink-0 rounded-sm ${color}`} />
+        <span className="text-sm font-medium truncate">{label}</span>
+      </div>
+      <div className="text-right shrink-0">
+        <div className="text-base font-semibold tabular-nums">{pct.toFixed(1)}%</div>
+        <div className="text-xs text-muted-foreground tabular-nums">{fmtEUR(value)}</div>
+      </div>
+    </div>
   );
 }
 
