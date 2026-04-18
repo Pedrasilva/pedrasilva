@@ -101,7 +101,8 @@ export function SalaryDonut({
   liquidoTotalMensal?: number;
   periodLabel?: "mensal" | "anual";
 }) {
-  const empregadorTotal = (ssAtelierMensal ?? 0) + irs + ssColaborador;
+  const ssAtelier = ssAtelierMensal ?? 0;
+  const empregadorTotal = ssAtelier + irs + ssColaborador;
   return (
     <div className="space-y-4">
       <CompositionDonut
@@ -109,8 +110,9 @@ export function SalaryDonut({
         centerValue={brutoMensalGlobal}
         slices={[
           { name: "Líquido", value: liquido, color: "var(--sage)" },
-          { name: "SS Colaborador", value: ssColaborador, color: "var(--clay)" },
+          { name: "SS Colaborador (11%)", value: ssColaborador, color: "var(--clay)" },
           { name: "IRS", value: irs, color: "oklch(0.65 0.13 50)" },
+          { name: "SS Atelier (23,75%)", value: ssAtelier, color: "oklch(0.55 0.13 30)" },
         ]}
       />
       {(ssAtelierMensal !== undefined || liquidoTotalMensal !== undefined) && (
