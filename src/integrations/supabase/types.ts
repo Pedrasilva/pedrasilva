@@ -125,20 +125,72 @@ export type Database = {
         }
         Relationships: []
       }
+      irs_tax_brackets: {
+        Row: {
+          ano_fiscal: number
+          created_at: string
+          id: string
+          localizacao: string
+          notas: string | null
+          numero_dependentes: number
+          parcela_abater: number
+          rendimento_max: number | null
+          rendimento_min: number
+          tabela: string
+          taxa: number
+          updated_at: string
+        }
+        Insert: {
+          ano_fiscal: number
+          created_at?: string
+          id?: string
+          localizacao: string
+          notas?: string | null
+          numero_dependentes?: number
+          parcela_abater?: number
+          rendimento_max?: number | null
+          rendimento_min: number
+          tabela: string
+          taxa: number
+          updated_at?: string
+        }
+        Update: {
+          ano_fiscal?: number
+          created_at?: string
+          id?: string
+          localizacao?: string
+          notas?: string | null
+          numero_dependentes?: number
+          parcela_abater?: number
+          rendimento_max?: number | null
+          rendimento_min?: number
+          tabela?: string
+          taxa?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       salary_snapshots: {
         Row: {
           ajudas_custo_anual: number
+          ano_fiscal: number
           beneficio_carro: number
           beneficio_ticket: number
           collaborator_id: string
           created_at: string
+          dependentes_com_deficiencia: number
           dias_uteis: number
+          estado_civil: string
           id: string
+          irs_calculado_auto: boolean
           irs_pct: number
           is_effective: boolean
           label: string
+          localizacao: string
           meses_pagos: number
           notas: string | null
+          numero_dependentes: number
+          numero_titulares: number
           outros_beneficios: number
           premio_associado: number
           reference_date: string
@@ -150,17 +202,24 @@ export type Database = {
         }
         Insert: {
           ajudas_custo_anual?: number
+          ano_fiscal?: number
           beneficio_carro?: number
           beneficio_ticket?: number
           collaborator_id: string
           created_at?: string
+          dependentes_com_deficiencia?: number
           dias_uteis?: number
+          estado_civil?: string
           id?: string
+          irs_calculado_auto?: boolean
           irs_pct?: number
           is_effective?: boolean
           label: string
+          localizacao?: string
           meses_pagos?: number
           notas?: string | null
+          numero_dependentes?: number
+          numero_titulares?: number
           outros_beneficios?: number
           premio_associado?: number
           reference_date: string
@@ -172,17 +231,24 @@ export type Database = {
         }
         Update: {
           ajudas_custo_anual?: number
+          ano_fiscal?: number
           beneficio_carro?: number
           beneficio_ticket?: number
           collaborator_id?: string
           created_at?: string
+          dependentes_com_deficiencia?: number
           dias_uteis?: number
+          estado_civil?: string
           id?: string
+          irs_calculado_auto?: boolean
           irs_pct?: number
           is_effective?: boolean
           label?: string
+          localizacao?: string
           meses_pagos?: number
           notas?: string | null
+          numero_dependentes?: number
+          numero_titulares?: number
           outros_beneficios?: number
           premio_associado?: number
           reference_date?: string
