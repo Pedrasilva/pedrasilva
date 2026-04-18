@@ -5,7 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 type AuthCtx = {
   session: Session | null;
   user: User | null;
+  /** True effective admin permission (role + not impersonating). Use this for gating UI. */
   isAdmin: boolean;
+  /** Real role from DB, ignoring impersonation. Use only to show the impersonation toggle. */
+  isRealAdmin: boolean;
+  /** Whether the admin is currently viewing the app as a regular collaborator. */
+  viewAsUser: boolean;
+  setViewAsUser: (v: boolean) => void;
   loading: boolean;
   signOut: () => Promise<void>;
 };
@@ -14,24 +20,40 @@ const Ctx = createContext<AuthCtx>({
   session: null,
   user: null,
   isAdmin: false,
+  isRealAdmin: false,
+  viewAsUser: false,
+  setViewAsUser: () => {},
   loading: true,
   signOut: async () => {},
 });
 
+const VIEW_AS_KEY = "psa.viewAsUser";
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isRealAdmin, setIsRealAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [viewAsUser, setViewAsUserState] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.sessionStorage.getItem(VIEW_AS_KEY) === "1";
+  });
+
+  const setViewAsUser = (v: boolean) => {
+    setViewAsUserState(v);
+    if (typeof window !== "undefined") {
+      if (v) window.sessionStorage.setItem(VIEW_AS_KEY, "1");
+      else window.sessionStorage.removeItem(VIEW_AS_KEY);
+    }
+  };
 
   useEffect(() => {
-    // Set up listener BEFORE getSession (per Supabase guidance)
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       if (s?.user) {
-        // Defer role fetch to avoid deadlocks
         setTimeout(() => fetchRole(s.user.id), 0);
       } else {
-        setIsAdmin(false);
+        setIsRealAdmin(false);
+        setViewAsUser(false);
       }
     });
 
@@ -49,15 +71,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .from("user_roles")
       .select("role")
       .eq("user_id", userId);
-    setIsAdmin(!!data?.some((r) => r.role === "admin"));
+    setIsRealAdmin(!!data?.some((r) => r.role === "admin"));
   }
 
   const signOut = async () => {
+    setViewAsUser(false);
     await supabase.auth.signOut();
   };
 
+  const isAdmin = isRealAdmin && !viewAsUser;
+
   return (
-    <Ctx.Provider value={{ session, user: session?.user ?? null, isAdmin, loading, signOut }}>
+    <Ctx.Provider
+      value={{
+        session,
+        user: session?.user ?? null,
+        isAdmin,
+        isRealAdmin,
+        viewAsUser,
+        setViewAsUser,
+        loading,
+        signOut,
+      }}
+    >
       {children}
     </Ctx.Provider>
   );

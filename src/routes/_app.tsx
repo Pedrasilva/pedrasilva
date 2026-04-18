@@ -19,8 +19,11 @@ import {
   CalendarCheck,
   LogOut,
   Settings,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -29,7 +32,7 @@ export const Route = createFileRoute("/_app")({
 function AppLayout() {
   const loc = useLocation();
   const navigate = useNavigate();
-  const { session, loading, isAdmin, user, signOut } = useAuth();
+  const { session, loading, isAdmin, isRealAdmin, viewAsUser, setViewAsUser, user, signOut } = useAuth();
 
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/login" });
@@ -142,6 +145,31 @@ function AppLayout() {
                   })}
                 </DropdownMenuContent>
               </DropdownMenu>
+            )}
+
+            {isRealAdmin && (
+              <Button
+                variant={viewAsUser ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewAsUser(!viewAsUser)}
+                className="ml-2 gap-2"
+                title={
+                  viewAsUser
+                    ? "A ver como colaborador. Clique para voltar ao modo admin."
+                    : "Pré-visualizar a app como um colaborador (sem permissões de admin)"
+                }
+              >
+                {viewAsUser ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                <span className="hidden md:inline">
+                  {viewAsUser ? "Sair da vista colaborador" : "Ver como colaborador"}
+                </span>
+              </Button>
+            )}
+
+            {viewAsUser && (
+              <Badge variant="secondary" className="ml-2 hidden md:inline-flex">
+                Modo colaborador
+              </Badge>
             )}
 
             <div className="ml-2 hidden items-center gap-2 border-l pl-2 sm:flex">
