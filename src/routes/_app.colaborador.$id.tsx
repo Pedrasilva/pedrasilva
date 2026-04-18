@@ -470,13 +470,19 @@ function CollaboratorPage() {
               />
             </Field>
             <Field label="Ano fiscal">
-              <Input
-                type="number"
-                min={2020}
-                className="input-yellow tabular-nums"
-                value={draft.ano_fiscal}
-                onChange={(e) => setField("ano_fiscal", Number(e.target.value) || 2026)}
-              />
+              <Select
+                value={String(draft.ano_fiscal)}
+                onValueChange={(v) => setField("ano_fiscal", Number(v))}
+              >
+                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {[2023, 2024, 2025, 2026].map((y) => (
+                    <SelectItem key={y} value={String(y)}>
+                      {y}{y !== 2026 ? " · sem tabela IRS" : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Field>
           </div>
         </CardContent>
