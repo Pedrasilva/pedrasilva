@@ -20,6 +20,14 @@ export type Snapshot = {
   premio_associado: number;
   outros_beneficios: number;
   notas: string | null;
+  // v2 — agregado familiar e cálculo automático IRS
+  localizacao: string;
+  estado_civil: string;
+  numero_titulares: number;
+  numero_dependentes: number;
+  dependentes_com_deficiencia: number;
+  ano_fiscal: number;
+  irs_calculado_auto: boolean;
 };
 
 export type Collaborator = {
@@ -142,7 +150,7 @@ export function defaultSnapshot(
     valor_base: 0,
     ss_atelier_pct: 0.2375,
     ss_colaborador_pct: 0.11,
-    irs_pct: 0.135,
+    irs_pct: 0,
     meses_pagos: 14,
     subsidio_alimentacao_diario: 0,
     dias_uteis: 220,
@@ -152,5 +160,12 @@ export function defaultSnapshot(
     premio_associado: 0,
     outros_beneficios: 0,
     notas: null,
+    localizacao: "continente",
+    estado_civil: "solteiro",
+    numero_titulares: 1,
+    numero_dependentes: 0,
+    dependentes_com_deficiencia: 0,
+    ano_fiscal: 2026,
+    irs_calculado_auto: true,
   };
 }
