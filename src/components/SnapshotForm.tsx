@@ -146,8 +146,8 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
 
   return (
     <div className="space-y-5">
-      {/* Cabeçalho */}
-      <Card className="border-[var(--clay)]/30 bg-[color-mix(in_oklab,var(--cream)_30%,transparent)]">
+      {/* Cabeçalho sticky com estado de gravação */}
+      <Card className="sticky top-2 z-20 border-[var(--clay)]/30 bg-[color-mix(in_oklab,var(--cream)_60%,var(--background))] shadow-sm backdrop-blur supports-[backdrop-filter]:bg-[color-mix(in_oklab,var(--cream)_45%,var(--background))]">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 flex-1">
             <FieldStacked label="Etiqueta">
@@ -168,8 +168,9 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
               </div>
             </FieldStacked>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => save.mutate()} disabled={save.isPending}>
+          <div className="flex items-center gap-2">
+            <SaveStatus isDirty={isDirty} isSaving={save.isPending} lastSavedAt={lastSavedAt} />
+            <Button onClick={() => save.mutate()} disabled={save.isPending || !isDirty}>
               <Save className="h-4 w-4" /> Guardar
             </Button>
             <AlertDialog>
