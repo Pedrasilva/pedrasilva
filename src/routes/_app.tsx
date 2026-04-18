@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
+import { QuickCreateMenu } from "@/components/QuickCreateMenu";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
