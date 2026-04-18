@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { computeSnapshot, fmtEUR, type Snapshot } from "@/lib/salary";
 import { CompositionDonut } from "./SalaryDonut";
 
 export function BrutoTab({ draft }: { draft: Snapshot }) {
   const c = computeSnapshot(draft);
+  const [period, setPeriod] = useState<"anual" | "mensal">("anual");
   const rows = [
     { label: "Base mensal (anualizada/12)", value: c.baseMensal12 },
     { label: "+ SS Atelier mensal (anualizada/12)", value: c.ssAtelier12 },
