@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      benefit_expenses: {
+        Row: {
+          ano_fiscal: number
+          aprovado_em: string | null
+          aprovado_por: string | null
+          categoria: Database["public"]["Enums"]["benefit_category"]
+          collaborator_id: string
+          created_at: string
+          data_despesa: string
+          descricao: string
+          estado: Database["public"]["Enums"]["expense_status"]
+          foto_path: string | null
+          id: string
+          notas_aprovacao: string | null
+          notas_colaborador: string | null
+          pago_em: string | null
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          ano_fiscal?: number
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          categoria: Database["public"]["Enums"]["benefit_category"]
+          collaborator_id: string
+          created_at?: string
+          data_despesa: string
+          descricao: string
+          estado?: Database["public"]["Enums"]["expense_status"]
+          foto_path?: string | null
+          id?: string
+          notas_aprovacao?: string | null
+          notas_colaborador?: string | null
+          pago_em?: string | null
+          updated_at?: string
+          valor: number
+        }
+        Update: {
+          ano_fiscal?: number
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          categoria?: Database["public"]["Enums"]["benefit_category"]
+          collaborator_id?: string
+          created_at?: string
+          data_despesa?: string
+          descricao?: string
+          estado?: Database["public"]["Enums"]["expense_status"]
+          foto_path?: string | null
+          id?: string
+          notas_aprovacao?: string | null
+          notas_colaborador?: string | null
+          pago_em?: string | null
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_expenses_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bo_settings: {
         Row: {
           created_at: string
@@ -392,7 +457,9 @@ export type Database = {
         | "autorizada_paga"
         | "autorizada_nao_paga"
       app_role: "admin" | "user"
+      benefit_category: "carro" | "ticket" | "premio" | "outros"
       department: "Projecto" | "Backoffice"
+      expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -532,7 +599,9 @@ export const Constants = {
         "autorizada_nao_paga",
       ],
       app_role: ["admin", "user"],
+      benefit_category: ["carro", "ticket", "premio", "outros"],
       department: ["Projecto", "Backoffice"],
+      expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
     },
   },
 } as const
