@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtEUR, type Collaborator, type Snapshot } from "@/lib/salary";
@@ -13,7 +13,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Save, Trash2, Sparkles } from "lucide-react";
+import { Save, Trash2, Sparkles, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { HighlightCard } from "./snapshot/HighlightCard";
 import { SimulationTab } from "./snapshot/SimulationTab";
@@ -29,11 +29,25 @@ const TABELA_LABEL: Record<string, string> = {
   casado_dois_titulares: "Casado · dois titulares",
 };
 
+const TRACKED_FIELDS: (keyof Snapshot)[] = [
+  "label", "reference_date", "is_effective", "notas",
+  "irs_calculado_auto", "irs_pct", "valor_base",
+  "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos",
+  "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual",
+  "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios",
+];
+
 export function SnapshotForm({ snapshot, collaborator }: Props) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Snapshot>(snapshot);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
   useEffect(() => setDraft(snapshot), [snapshot]);
+
+  const isDirty = useMemo(
+    () => TRACKED_FIELDS.some((k) => (draft[k] ?? null) !== (snapshot[k] ?? null)),
+    [draft, snapshot],
+  );
 
   // Contexto fiscal vem do colaborador
   const tabela = pickTabela(collaborator.estado_civil, collaborator.numero_titulares);
@@ -96,12 +110,24 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Ficha guardada");
+      setLastSavedAt(new Date());
       qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(`Erro a guardar: ${e.message}`),
   });
+
+  // Auto-save com debounce de 1s
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!isDirty || save.isPending) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => save.mutate(), 1000);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft, isDirty]);
 
   const remove = useMutation({
     mutationFn: async () => {
@@ -120,8 +146,8 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
 
   return (
     <div className="space-y-5">
-      {/* Cabeçalho */}
-      <Card className="border-[var(--clay)]/30 bg-[color-mix(in_oklab,var(--cream)_30%,transparent)]">
+      {/* Cabeçalho sticky com estado de gravação */}
+      <Card className="sticky top-2 z-20 border-[var(--clay)]/30 bg-[color-mix(in_oklab,var(--cream)_60%,var(--background))] shadow-sm backdrop-blur supports-[backdrop-filter]:bg-[color-mix(in_oklab,var(--cream)_45%,var(--background))]">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 flex-1">
             <FieldStacked label="Etiqueta">
@@ -142,8 +168,9 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
               </div>
             </FieldStacked>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => save.mutate()} disabled={save.isPending}>
+          <div className="flex items-center gap-2">
+            <SaveStatus isDirty={isDirty} isSaving={save.isPending} lastSavedAt={lastSavedAt} />
+            <Button onClick={() => save.mutate()} disabled={save.isPending || !isDirty}>
               <Save className="h-4 w-4" /> Guardar
             </Button>
             <AlertDialog>
@@ -240,4 +267,29 @@ function Mini({ label, value }: { label: string; value: string }) {
       <div className="font-mono text-xs font-semibold tabular-nums">{value}</div>
     </div>
   );
+}
+
+function SaveStatus({
+  isDirty, isSaving, lastSavedAt,
+}: { isDirty: boolean; isSaving: boolean; lastSavedAt: Date | null }) {
+  if (isSaving) {
+    return (
+      <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+        <Loader2 className="h-3 w-3 animate-spin" /> A guardar…
+      </span>
+    );
+  }
+  if (isDirty) {
+    return (
+      <span className="text-[11px] text-[var(--clay)]">Alterações por guardar…</span>
+    );
+  }
+  if (lastSavedAt) {
+    return (
+      <span className="flex items-center gap-1 text-[11px] text-[var(--sage)]">
+        <Check className="h-3 w-3" /> Guardado {lastSavedAt.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
+      </span>
+    );
+  }
+  return <span className="text-[11px] text-muted-foreground">Sem alterações</span>;
 }
