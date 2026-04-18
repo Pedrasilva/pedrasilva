@@ -286,12 +286,17 @@ function DepartmentSection({
 
   return (
     <Card>
-      <CardHeader className="flex-row items-center justify-between">
-        <div>
-          <CardTitle className="flex items-center gap-2 text-base">
-            {icon} {title}
+      <CardHeader className="flex-row items-center justify-between border-b bg-muted/30">
+        <div className="space-y-1">
+          <CardTitle className="flex items-center gap-2.5 text-lg font-semibold tracking-tight">
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
+              {icon}
+            </span>
+            {title}
           </CardTitle>
-          <CardDescription>{list.length} colaborador(es)</CardDescription>
+          <CardDescription className="pl-[42px] text-[11px] uppercase tracking-[0.14em]">
+            {list.length} colaborador(es)
+          </CardDescription>
         </div>
       </CardHeader>
       <CardContent className="p-0">
