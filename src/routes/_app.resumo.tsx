@@ -224,6 +224,28 @@ function ResumoPage() {
                   .
                 </p>
 
+                {/* Custo / hora produtiva — Caso 1 (toda a equipa) */}
+                <div className="rounded-md border bg-muted/30 px-3 py-2 text-xs space-y-1">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <span className="text-muted-foreground">
+                      Horas produtivas (toda a equipa: {numTotalEquipa} colab. ×{" "}
+                      {diasUteis} dias × {horasDia} h)
+                    </span>
+                    <span className="font-medium tabular-nums text-foreground">
+                      {fmtH(horasCaso1)} h/ano
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <span className="text-muted-foreground">
+                      Custo por hora produtiva ({fmtEUR(totalAtelier)} ÷{" "}
+                      {fmtH(horasCaso1)} h)
+                    </span>
+                    <span className="font-semibold tabular-nums text-primary">
+                      {fmtEUR(custoHoraCaso1)}/h
+                    </span>
+                  </div>
+                </div>
+
                 {/* Segunda leitura: Produção vs Estrutura */}
                 {(() => {
                   const estrutura = totalBackoffice + custosOp;
