@@ -8,6 +8,7 @@ import {
   defaultSnapshot,
   fmtDate,
 } from "@/lib/salary";
+import { ESTADOS_CIVIS, LOCALIZACOES } from "@/lib/irs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
