@@ -167,6 +167,16 @@ function ResumoPage() {
             const totalAtelier = totalGeral + custosOp;
             const pctRH = totalAtelier > 0 ? (totalGeral / totalAtelier) * 100 : 0;
             const pctOp = totalAtelier > 0 ? (custosOp / totalAtelier) * 100 : 0;
+
+            // Horas produtivas brutas (dias × horas), diferentes por caso
+            const numTotalEquipa = projecto.length + backoffice.length;
+            const horasCaso1 = numTotalEquipa * diasUteis * horasDia; // RH vs CO → toda a equipa
+            const horasCaso2 = projecto.length * diasUteis * horasDia; // Produção vs Estrutura → só Projecto
+            const custoHoraCaso1 = horasCaso1 > 0 ? totalAtelier / horasCaso1 : 0;
+            const custoHoraCaso2 = horasCaso2 > 0 ? totalAtelier / horasCaso2 : 0;
+            const fmtH = (n: number) =>
+              new Intl.NumberFormat("pt-PT", { maximumFractionDigits: 0 }).format(n);
+
             return (
               <>
                 {/* Barra empilhada com percentagens dentro */}
@@ -213,6 +223,28 @@ function ResumoPage() {
                   </span>
                   .
                 </p>
+
+                {/* Custo / hora produtiva — Caso 1 (toda a equipa) */}
+                <div className="rounded-md border bg-muted/30 px-3 py-2 text-xs space-y-1">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <span className="text-muted-foreground">
+                      Horas produtivas (toda a equipa: {numTotalEquipa} colab. ×{" "}
+                      {diasUteis} dias × {horasDia} h)
+                    </span>
+                    <span className="font-medium tabular-nums text-foreground">
+                      {fmtH(horasCaso1)} h/ano
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <span className="text-muted-foreground">
+                      Custo por hora produtiva ({fmtEUR(totalAtelier)} ÷{" "}
+                      {fmtH(horasCaso1)} h)
+                    </span>
+                    <span className="font-semibold tabular-nums text-primary">
+                      {fmtEUR(custoHoraCaso1)}/h
+                    </span>
+                  </div>
+                </div>
 
                 {/* Segunda leitura: Produção vs Estrutura */}
                 {(() => {
@@ -271,6 +303,28 @@ function ResumoPage() {
                         </span>
                         .
                       </p>
+
+                      {/* Custo / hora produtiva — Caso 2 (só Projecto) */}
+                      <div className="rounded-md border bg-muted/30 px-3 py-2 text-xs space-y-1">
+                        <div className="flex flex-wrap items-baseline justify-between gap-2">
+                          <span className="text-muted-foreground">
+                            Horas produtivas (só Projecto: {projecto.length} colab. ×{" "}
+                            {diasUteis} dias × {horasDia} h)
+                          </span>
+                          <span className="font-medium tabular-nums text-foreground">
+                            {fmtH(horasCaso2)} h/ano
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap items-baseline justify-between gap-2">
+                          <span className="text-muted-foreground">
+                            Custo por hora produtiva ({fmtEUR(totalAtelier)} ÷{" "}
+                            {fmtH(horasCaso2)} h)
+                          </span>
+                          <span className="font-semibold tabular-nums text-[var(--sage,oklch(0.6_0.08_150))]">
+                            {fmtEUR(custoHoraCaso2)}/h
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   );
                 })()}
