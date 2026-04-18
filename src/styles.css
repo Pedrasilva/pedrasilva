@@ -112,6 +112,7 @@
   /* v2 — warm editorial */
   --cream: oklch(0.97 0.02 80);
   --clay: oklch(0.55 0.13 35);
+  --clay-complement: oklch(0.55 0.13 215);
   --sage: oklch(0.62 0.07 150);
   --ink: oklch(0.22 0.02 60);
 }
