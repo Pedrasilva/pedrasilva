@@ -19,8 +19,11 @@ import {
   CalendarCheck,
   LogOut,
   Settings,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
