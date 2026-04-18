@@ -554,8 +554,8 @@ function PricingTable({
       <CardHeader>
         <CardTitle className="text-base">Pricing — Equipa Projecto</CardTitle>
         <CardDescription>
-          Custo/hora = (VBG + cota BO) ÷ ({diasUteis}×{horasDia}) h, depois ×1.20 (desperdício) e × (1
-          + margem)
+          VBG/h e Cota BO/h = valor anual ÷ ({diasUteis}×{horasDia}) h. Custo/h soma os dois,
+          depois ×1.20 (desperdício) e × (1 + margem).
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0 overflow-x-auto">
@@ -563,8 +563,8 @@ function PricingTable({
           <TableHeader>
             <TableRow>
               <TableHead>Colaborador</TableHead>
-              <TableHead className="text-right">VBG</TableHead>
-              <TableHead className="text-right">+ Cota BO</TableHead>
+              <TableHead className="text-right">VBG/h</TableHead>
+              <TableHead className="text-right">+ Cota BO/h</TableHead>
               <TableHead className="text-right">Custo/h</TableHead>
               <TableHead className="text-right">×1.20</TableHead>
               <TableHead className="text-right">@ 30%</TableHead>
@@ -615,10 +615,10 @@ function PricingTable({
                     </Link>
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.custoVBG) : "—"}
+                    {c ? fmtEUR(c.custoVBG / (diasUteis * horasDia)) : "—"}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
-                    {fmtEUR(cotaBo)}
+                    {fmtEUR(cotaBo / (diasUteis * horasDia))}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {p30 ? fmtEUR(p30.custoHora) : "—"}
