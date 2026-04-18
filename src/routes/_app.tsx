@@ -3,7 +3,23 @@ import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Users, BarChart3, Calculator, CalendarDays, CalendarCheck, LogOut } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Users,
+  BarChart3,
+  Calculator,
+  CalendarDays,
+  CalendarCheck,
+  LogOut,
+  Settings,
+} from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 
 export const Route = createFileRoute("/_app")({
@@ -36,12 +52,16 @@ function AppLayout() {
       adminOnly: true,
     },
     { to: "/ferias", label: "Férias", icon: CalendarDays, match: (p: string) => p.startsWith("/ferias"), adminOnly: false },
-    { to: "/dias-uteis", label: "Dias úteis", icon: CalendarCheck, match: (p: string) => p.startsWith("/dias-uteis"), adminOnly: true },
     { to: "/resumo", label: "Resumo geral", icon: BarChart3, match: (p: string) => p.startsWith("/resumo"), adminOnly: true },
-    { to: "/valor-bo", label: "Valor BO/hora", icon: Calculator, match: (p: string) => p.startsWith("/valor-bo"), adminOnly: true },
+  ] as const;
+
+  const settingsItems = [
+    { to: "/valor-bo", label: "Valor BO/hora", icon: Calculator, match: (p: string) => p.startsWith("/valor-bo") },
+    { to: "/dias-uteis", label: "Dias úteis", icon: CalendarCheck, match: (p: string) => p.startsWith("/dias-uteis") },
   ] as const;
 
   const visible = items.filter((it) => !it.adminOnly || isAdmin);
+  const settingsActive = isAdmin && settingsItems.some((s) => s.match(loc.pathname));
 
   return (
     <div className="min-h-screen bg-background">
@@ -78,6 +98,52 @@ function AppLayout() {
                 </Link>
               );
             })}
+
+            {isAdmin && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                      settingsActive
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground hover:bg-accent",
+                    )}
+                    aria-label="Definições"
+                  >
+                    <Settings
+                      className={cn(
+                        "h-4 w-4 transition-transform duration-300 hover:rotate-45",
+                      )}
+                    />
+                    <span className="hidden sm:inline">Definições</span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Configuração</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {settingsItems.map((s) => {
+                    const Icon = s.icon;
+                    const active = s.match(loc.pathname);
+                    return (
+                      <DropdownMenuItem key={s.to} asChild>
+                        <Link
+                          to={s.to}
+                          className={cn(
+                            "flex w-full cursor-pointer items-center gap-2",
+                            active && "bg-accent font-medium",
+                          )}
+                        >
+                          <Icon className="h-4 w-4" />
+                          {s.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
             <div className="ml-2 hidden items-center gap-2 border-l pl-2 sm:flex">
               <span className="max-w-[160px] truncate text-xs text-muted-foreground" title={user?.email ?? ""}>
                 {user?.email}
