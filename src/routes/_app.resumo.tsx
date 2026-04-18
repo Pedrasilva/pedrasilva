@@ -163,26 +163,30 @@ function ResumoPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Barra empilhada */}
           {(() => {
             const totalAtelier = totalGeral + custosOp;
             const pctRH = totalAtelier > 0 ? (totalGeral / totalAtelier) * 100 : 0;
             const pctOp = totalAtelier > 0 ? (custosOp / totalAtelier) * 100 : 0;
-            const ratio = custosOp > 0 ? totalGeral / custosOp : null;
             return (
               <>
-                <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted">
+                {/* Barra empilhada com percentagens dentro */}
+                <div className="flex h-9 w-full overflow-hidden rounded-md bg-muted text-xs font-semibold text-white">
                   <div
-                    className="bg-primary"
+                    className="flex items-center justify-center bg-primary"
                     style={{ width: `${pctRH}%` }}
-                    title={`RH: ${pctRH.toFixed(1)}%`}
-                  />
+                    title={`Recursos Humanos: ${pctRH.toFixed(1)}%`}
+                  >
+                    {pctRH >= 8 && `${pctRH.toFixed(1)}%`}
+                  </div>
                   <div
-                    className="bg-[var(--clay,oklch(0.65_0.13_40))]"
+                    className="flex items-center justify-center bg-[var(--clay,oklch(0.65_0.13_40))]"
                     style={{ width: `${pctOp}%` }}
-                    title={`Operacional: ${pctOp.toFixed(1)}%`}
-                  />
+                    title={`Custo Operacional: ${pctOp.toFixed(1)}%`}
+                  >
+                    {pctOp >= 8 && `${pctOp.toFixed(1)}%`}
+                  </div>
                 </div>
+
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <RatioRow
                     color="bg-primary"
@@ -197,19 +201,18 @@ function ResumoPage() {
                     pct={pctOp}
                   />
                 </div>
-                <div className="rounded-md border bg-muted/30 px-4 py-3 text-sm">
-                  <span className="text-muted-foreground">Rácio </span>
-                  <span className="font-medium">RH : Operacional</span>
-                  <span className="text-muted-foreground"> = </span>
-                  <span className="tabular-nums font-semibold">
-                    {ratio == null ? "—" : `${ratio.toFixed(2)} : 1`}
+
+                <p className="text-xs text-muted-foreground">
+                  Do custo total do atelier ({fmtEUR(totalAtelier)} = 100%),{" "}
+                  <span className="font-medium text-foreground">
+                    {pctRH.toFixed(1)}% são Recursos Humanos
+                  </span>{" "}
+                  e{" "}
+                  <span className="font-medium text-foreground">
+                    {pctOp.toFixed(1)}% Custo Operacional
                   </span>
-                  <span className="text-muted-foreground">
-                    {" "}
-                    — por cada 1 € em custos operacionais, o atelier gasta{" "}
-                    {ratio == null ? "—" : `${ratio.toFixed(2)} €`} em recursos humanos.
-                  </span>
-                </div>
+                  .
+                </p>
               </>
             );
           })()}
