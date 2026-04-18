@@ -118,7 +118,13 @@ function CollaboratorPage() {
       (draft.margem_lucro_pct_override ?? null) !== (collab.margem_lucro_pct_override ?? null) ||
       draft.dias_ferias_anuais !== collab.dias_ferias_anuais ||
       draft.saldo_ferias_anterior !== collab.saldo_ferias_anterior ||
-      (draft.dias_ferias_extra ?? 0) !== (collab.dias_ferias_extra ?? 0)
+      (draft.dias_ferias_extra ?? 0) !== (collab.dias_ferias_extra ?? 0) ||
+      draft.localizacao !== collab.localizacao ||
+      draft.estado_civil !== collab.estado_civil ||
+      draft.numero_titulares !== collab.numero_titulares ||
+      draft.numero_dependentes !== collab.numero_dependentes ||
+      draft.dependentes_com_deficiencia !== collab.dependentes_com_deficiencia ||
+      draft.ano_fiscal !== collab.ano_fiscal
     );
   }, [collab, draft]);
 
@@ -152,6 +158,12 @@ function CollaboratorPage() {
       dias_ferias_anuais: draft.dias_ferias_anuais,
       saldo_ferias_anterior: draft.saldo_ferias_anterior,
       dias_ferias_extra: draft.dias_ferias_extra ?? 0,
+      localizacao: draft.localizacao,
+      estado_civil: draft.estado_civil,
+      numero_titulares: draft.numero_titulares,
+      numero_dependentes: draft.numero_dependentes,
+      dependentes_com_deficiencia: draft.dependentes_com_deficiencia,
+      ano_fiscal: draft.ano_fiscal,
     });
   };
 
