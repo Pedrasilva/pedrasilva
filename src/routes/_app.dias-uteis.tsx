@@ -207,8 +207,9 @@ function DiasUteisPage() {
                   <AlertDialogDescription>
                     Vai atualizar o campo <strong>dias úteis</strong> de todas as fichas com data
                     de referência em {year}, descontando os dias de férias anuais de cada
-                    colaborador. Atualiza também as definições BO ({breakdown.diasUteisBase} dias
-                    base, sem descontar férias).
+                    colaborador. As definições BO ficam com{" "}
+                    <strong>{breakdown.diasUteisLiquidos(22)} dias</strong> (já com 22 dias de
+                    férias descontados — usado em /resumo, /valor-bo e Pricing).
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
