@@ -110,12 +110,24 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Ficha guardada");
+      setLastSavedAt(new Date());
       qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(`Erro a guardar: ${e.message}`),
   });
+
+  // Auto-save com debounce de 1s
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!isDirty || save.isPending) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => save.mutate(), 1000);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft, isDirty]);
 
   const remove = useMutation({
     mutationFn: async () => {
