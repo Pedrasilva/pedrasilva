@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
+import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
 import { Route as AppValorBoRouteImport } from './routes/_app.valor-bo'
 import { Route as AppResumoRouteImport } from './routes/_app.resumo'
 import { Route as AppFeriasRouteImport } from './routes/_app.ferias'
 import { Route as AppDiasUteisRouteImport } from './routes/_app.dias-uteis'
+import { Route as AppBeneficiosRouteImport } from './routes/_app.beneficios'
 import { Route as AppColaboradorIdRouteImport } from './routes/_app.colaborador.$id'
 
 const LoginRoute = LoginRouteImport.update({
@@ -31,6 +33,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const ApiNotifyExpenseRoute = ApiNotifyExpenseRouteImport.update({
+  id: '/api/notify-expense',
+  path: '/api/notify-expense',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppValorBoRoute = AppValorBoRouteImport.update({
   id: '/valor-bo',
@@ -52,6 +59,11 @@ const AppDiasUteisRoute = AppDiasUteisRouteImport.update({
   path: '/dias-uteis',
   getParentRoute: () => AppRoute,
 } as any)
+const AppBeneficiosRoute = AppBeneficiosRouteImport.update({
+  id: '/beneficios',
+  path: '/beneficios',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppColaboradorIdRoute = AppColaboradorIdRouteImport.update({
   id: '/colaborador/$id',
   path: '/colaborador/$id',
@@ -61,18 +73,22 @@ const AppColaboradorIdRoute = AppColaboradorIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
+  '/beneficios': typeof AppBeneficiosRoute
   '/dias-uteis': typeof AppDiasUteisRoute
   '/ferias': typeof AppFeriasRoute
   '/resumo': typeof AppResumoRoute
   '/valor-bo': typeof AppValorBoRoute
+  '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/colaborador/$id': typeof AppColaboradorIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/beneficios': typeof AppBeneficiosRoute
   '/dias-uteis': typeof AppDiasUteisRoute
   '/ferias': typeof AppFeriasRoute
   '/resumo': typeof AppResumoRoute
   '/valor-bo': typeof AppValorBoRoute
+  '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
   '/colaborador/$id': typeof AppColaboradorIdRoute
 }
@@ -80,10 +96,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/_app/beneficios': typeof AppBeneficiosRoute
   '/_app/dias-uteis': typeof AppDiasUteisRoute
   '/_app/ferias': typeof AppFeriasRoute
   '/_app/resumo': typeof AppResumoRoute
   '/_app/valor-bo': typeof AppValorBoRoute
+  '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
   '/_app/colaborador/$id': typeof AppColaboradorIdRoute
 }
@@ -92,28 +110,34 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/beneficios'
     | '/dias-uteis'
     | '/ferias'
     | '/resumo'
     | '/valor-bo'
+    | '/api/notify-expense'
     | '/colaborador/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/beneficios'
     | '/dias-uteis'
     | '/ferias'
     | '/resumo'
     | '/valor-bo'
+    | '/api/notify-expense'
     | '/'
     | '/colaborador/$id'
   id:
     | '__root__'
     | '/_app'
     | '/login'
+    | '/_app/beneficios'
     | '/_app/dias-uteis'
     | '/_app/ferias'
     | '/_app/resumo'
     | '/_app/valor-bo'
+    | '/api/notify-expense'
     | '/_app/'
     | '/_app/colaborador/$id'
   fileRoutesById: FileRoutesById
@@ -121,6 +145,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ApiNotifyExpenseRoute: typeof ApiNotifyExpenseRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -145,6 +170,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/api/notify-expense': {
+      id: '/api/notify-expense'
+      path: '/api/notify-expense'
+      fullPath: '/api/notify-expense'
+      preLoaderRoute: typeof ApiNotifyExpenseRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_app/valor-bo': {
       id: '/_app/valor-bo'
@@ -174,6 +206,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDiasUteisRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/beneficios': {
+      id: '/_app/beneficios'
+      path: '/beneficios'
+      fullPath: '/beneficios'
+      preLoaderRoute: typeof AppBeneficiosRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/colaborador/$id': {
       id: '/_app/colaborador/$id'
       path: '/colaborador/$id'
@@ -185,6 +224,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppBeneficiosRoute: typeof AppBeneficiosRoute
   AppDiasUteisRoute: typeof AppDiasUteisRoute
   AppFeriasRoute: typeof AppFeriasRoute
   AppResumoRoute: typeof AppResumoRoute
@@ -194,6 +234,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppBeneficiosRoute: AppBeneficiosRoute,
   AppDiasUteisRoute: AppDiasUteisRoute,
   AppFeriasRoute: AppFeriasRoute,
   AppResumoRoute: AppResumoRoute,
@@ -207,7 +248,17 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
+  ApiNotifyExpenseRoute: ApiNotifyExpenseRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
