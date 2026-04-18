@@ -303,6 +303,28 @@ function ResumoPage() {
                         </span>
                         .
                       </p>
+
+                      {/* Custo / hora produtiva — Caso 2 (só Projecto) */}
+                      <div className="rounded-md border bg-muted/30 px-3 py-2 text-xs space-y-1">
+                        <div className="flex flex-wrap items-baseline justify-between gap-2">
+                          <span className="text-muted-foreground">
+                            Horas produtivas (só Projecto: {projecto.length} colab. ×{" "}
+                            {diasUteis} dias × {horasDia} h)
+                          </span>
+                          <span className="font-medium tabular-nums text-foreground">
+                            {fmtH(horasCaso2)} h/ano
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap items-baseline justify-between gap-2">
+                          <span className="text-muted-foreground">
+                            Custo por hora produtiva ({fmtEUR(totalAtelier)} ÷{" "}
+                            {fmtH(horasCaso2)} h)
+                          </span>
+                          <span className="font-semibold tabular-nums text-[var(--sage,oklch(0.6_0.08_150))]">
+                            {fmtEUR(custoHoraCaso2)}/h
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   );
                 })()}
