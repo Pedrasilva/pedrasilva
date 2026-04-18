@@ -21,6 +21,7 @@ import {
   Settings,
   Eye,
   EyeOff,
+  Wallet,
 } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +56,7 @@ function AppLayout() {
       adminOnly: true,
     },
     { to: "/ferias", label: "Férias", icon: CalendarDays, match: (p: string) => p.startsWith("/ferias"), adminOnly: false },
+    { to: "/beneficios", label: "Benefícios", icon: Wallet, match: (p: string) => p.startsWith("/beneficios"), adminOnly: false },
     { to: "/resumo", label: "Resumo geral", icon: BarChart3, match: (p: string) => p.startsWith("/resumo"), adminOnly: true },
   ] as const;
 
