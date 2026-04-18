@@ -48,6 +48,9 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
             liquido={c.liquido14m}
             ssColaborador={c.ssColaboradorMensal}
             irs={c.irsMensal}
+            brutoMensalGlobal={c.brutoMensal}
+            ssAtelierMensal={c.ssAtelier12}
+            liquidoTotalMensal={c.liquidoTotalMensal}
           />
         </CardContent>
       </Card>

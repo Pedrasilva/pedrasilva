@@ -88,19 +88,78 @@ export function SalaryDonut({
   liquido,
   ssColaborador,
   irs,
+  brutoMensalGlobal,
+  ssAtelierMensal,
+  liquidoTotalMensal,
 }: {
   liquido: number;
   ssColaborador: number;
   irs: number;
+  brutoMensalGlobal?: number;
+  ssAtelierMensal?: number;
+  liquidoTotalMensal?: number;
+}) {
+  const empregadorTotal = (ssAtelierMensal ?? 0) + irs + ssColaborador;
+  return (
+    <div className="space-y-4">
+      <CompositionDonut
+        centerLabel="Bruto mensal global"
+        centerValue={brutoMensalGlobal}
+        slices={[
+          { name: "Líquido", value: liquido, color: "var(--sage)" },
+          { name: "SS Colaborador", value: ssColaborador, color: "var(--clay)" },
+          { name: "IRS", value: irs, color: "oklch(0.65 0.13 50)" },
+        ]}
+      />
+      {(ssAtelierMensal !== undefined || liquidoTotalMensal !== undefined) && (
+        <div className="rounded-md border border-border/60 bg-muted/30 p-3 text-xs space-y-2">
+          <p className="text-muted-foreground leading-relaxed">
+            Do bruto mensal global, o empregador entrega ao Estado e o colaborador
+            leva para casa:
+          </p>
+          <div className="space-y-1">
+            <Row
+              label="Empregador → Estado (SS Atelier + IRS + SS Colab.)"
+              value={fmtEUR(empregadorTotal)}
+              color="oklch(0.65 0.13 50)"
+            />
+            <Row
+              label="Colaborador → para casa (líquido + subs. + ajudas)"
+              value={fmtEUR(liquidoTotalMensal ?? liquido)}
+              color="var(--sage)"
+              strong
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Row({
+  label,
+  value,
+  color,
+  strong,
+}: {
+  label: string;
+  value: string;
+  color: string;
+  strong?: boolean;
 }) {
   return (
-    <CompositionDonut
-      centerLabel="Bruto mensal"
-      slices={[
-        { name: "Líquido", value: liquido, color: "var(--sage)" },
-        { name: "SS Colaborador", value: ssColaborador, color: "var(--clay)" },
-        { name: "IRS", value: irs, color: "oklch(0.65 0.13 50)" },
-      ]}
-    />
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex min-w-0 items-center gap-2">
+        <span
+          aria-hidden
+          className="h-2.5 w-2.5 shrink-0 rounded-sm"
+          style={{ background: color }}
+        />
+        <span className="truncate">{label}</span>
+      </div>
+      <span className={`font-mono tabular-nums ${strong ? "font-semibold" : ""}`}>
+        {value}
+      </span>
+    </div>
   );
 }
