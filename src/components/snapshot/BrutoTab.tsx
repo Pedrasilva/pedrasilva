@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { computeSnapshot, fmtEUR, type Snapshot } from "@/lib/salary";
 import { CompositionDonut } from "./SalaryDonut";
 
 export function BrutoTab({ draft }: { draft: Snapshot }) {
   const c = computeSnapshot(draft);
+  const [period, setPeriod] = useState<"anual" | "mensal">("anual");
   const rows = [
     { label: "Base mensal (anualizada/12)", value: c.baseMensal12 },
     { label: "+ SS Atelier mensal (anualizada/12)", value: c.ssAtelier12 },
@@ -24,6 +27,19 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
     { name: "Ajudas de custo", value: draft.ajudas_custo_anual, color: "oklch(0.65 0.13 50)" },
     { name: "Benefícios", value: c.beneficiosAnual, color: "oklch(0.55 0.10 200)" },
   ];
+
+  const monthlySlices = [
+    { name: "Base mensal", value: c.baseMensal12, color: "var(--sage)" },
+    { name: "SS Atelier", value: c.ssAtelier12, color: "var(--clay)" },
+    { name: "Subsídio alimentação", value: c.alimentacaoMensal, color: "oklch(0.75 0.10 80)" },
+    { name: "Ajudas de custo", value: c.ajudasMensal, color: "oklch(0.65 0.13 50)" },
+    { name: "Benefícios", value: c.beneficiosMensal, color: "oklch(0.55 0.10 200)" },
+  ];
+
+  const isAnual = period === "anual";
+  const slices = isAnual ? annualSlices : monthlySlices;
+  const centerLabel = isAnual ? "Custo VBG" : "Custo VBG mensal";
+  const centerValue = isAnual ? c.custoVBG : c.custoVBG / 12;
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
@@ -47,15 +63,25 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
         </CardContent>
       </Card>
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Composição anual</CardTitle>
-          <CardDescription>Custo RH (VBG) decomposto.</CardDescription>
+        <CardHeader className="space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle className="text-base">Composição {isAnual ? "anual" : "mensal"}</CardTitle>
+              <CardDescription>Custo RH (VBG) decomposto.</CardDescription>
+            </div>
+            <Tabs value={period} onValueChange={(v) => setPeriod(v as "anual" | "mensal")}>
+              <TabsList className="h-8">
+                <TabsTrigger value="anual" className="h-6 px-2 text-xs">Anual</TabsTrigger>
+                <TabsTrigger value="mensal" className="h-6 px-2 text-xs">Mensal</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
         </CardHeader>
         <CardContent>
           <CompositionDonut
-            centerLabel="Custo VBG"
-            centerValue={c.custoVBG}
-            slices={annualSlices}
+            centerLabel={centerLabel}
+            centerValue={centerValue}
+            slices={slices}
           />
         </CardContent>
       </Card>
