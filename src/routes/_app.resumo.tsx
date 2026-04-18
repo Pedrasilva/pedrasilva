@@ -562,9 +562,6 @@ function RhTable({
                   <TableCell className="text-right tabular-nums font-semibold">
                     {c ? fmtEUR(c.custoVBG) : "—"}
                   </TableCell>
-                  <TableCell className="text-right text-muted-foreground tabular-nums">
-                    {anosCarreira(r.collab.inicio_carreira)}
-                  </TableCell>
                   <TableCell>
                     <Link to="/colaborador/$id" params={{ id: r.collab.id }}>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
