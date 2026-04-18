@@ -152,6 +152,21 @@ function ResumoPage() {
         </CardHeader>
       </Card>
 
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <RatioCard
+          title="Custo operacional / Total RH"
+          numerator={custosOp}
+          denominator={totalGeral}
+          hint="Peso dos custos operacionais sobre o custo total de recursos humanos (VBG)."
+        />
+        <RatioCard
+          title="(Custo operacional + Backoffice) / Equipa Projecto"
+          numerator={custosOp + totalBackoffice}
+          denominator={totalProjecto}
+          hint="Quanto a estrutura (operacional + backoffice) representa face ao custo da equipa de produção."
+        />
+      </div>
+
       <RhTable title="Equipa Backoffice" rows={backoffice} totalLabel="Equipa Backoffice" />
       <RhTable title="Equipa Projecto" rows={projecto} totalLabel="Equipa produção" />
 
@@ -187,6 +202,34 @@ function Kpi({
       <CardHeader className="pb-2">
         <CardDescription>{title}</CardDescription>
         <CardTitle className="text-2xl tabular-nums">{value}</CardTitle>
+      </CardHeader>
+    </Card>
+  );
+}
+
+function RatioCard({
+  title,
+  numerator,
+  denominator,
+  hint,
+}: {
+  title: string;
+  numerator: number;
+  denominator: number;
+  hint?: string;
+}) {
+  const pct = denominator > 0 ? (numerator / denominator) * 100 : null;
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardDescription>{title}</CardDescription>
+        <CardTitle className="text-2xl tabular-nums">
+          {pct == null ? "—" : `${pct.toFixed(1)}%`}
+        </CardTitle>
+        <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+          {fmtEUR(numerator)} ÷ {fmtEUR(denominator)}
+        </p>
+        {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
       </CardHeader>
     </Card>
   );
