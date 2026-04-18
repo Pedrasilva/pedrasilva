@@ -147,6 +147,31 @@ function AppLayout() {
               </DropdownMenu>
             )}
 
+            {isRealAdmin && (
+              <Button
+                variant={viewAsUser ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewAsUser(!viewAsUser)}
+                className="ml-2 gap-2"
+                title={
+                  viewAsUser
+                    ? "A ver como colaborador. Clique para voltar ao modo admin."
+                    : "Pré-visualizar a app como um colaborador (sem permissões de admin)"
+                }
+              >
+                {viewAsUser ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                <span className="hidden md:inline">
+                  {viewAsUser ? "Sair da vista colaborador" : "Ver como colaborador"}
+                </span>
+              </Button>
+            )}
+
+            {viewAsUser && (
+              <Badge variant="secondary" className="ml-2 hidden md:inline-flex">
+                Modo colaborador
+              </Badge>
+            )}
+
             <div className="ml-2 hidden items-center gap-2 border-l pl-2 sm:flex">
               <span className="max-w-[160px] truncate text-xs text-muted-foreground" title={user?.email ?? ""}>
                 {user?.email}
