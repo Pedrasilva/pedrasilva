@@ -52,7 +52,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Plus, Trash2, BarChart3, Save } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, BarChart3, Save, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { SnapshotForm } from "@/components/SnapshotForm";
 import { ResumoCompare } from "@/components/ResumoCompare";
@@ -203,10 +203,10 @@ function CollaboratorPage() {
   const tabValue = activeTab || (snapshots[0]?.id ?? "resumo");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 print-area">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
-          <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+          <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground no-print">
             <ArrowLeft className="h-3 w-3" /> Voltar
           </Link>
           <h1 className="text-2xl font-semibold tracking-tight">{collab.nome}</h1>
@@ -214,27 +214,32 @@ function CollaboratorPage() {
             {collab.departamento} · {collab.numero_colaborador || "sem nº"} · {collab.situacao_contractual || "—"}
           </p>
         </div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Trash2 className="h-4 w-4" /> Eliminar colaborador
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Eliminar colaborador</AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta acção remove o colaborador e todas as suas fichas.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={() => deleteCollab.mutate()}>
-                Eliminar
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <div className="flex items-center gap-2 no-print">
+          <Button variant="outline" size="sm" onClick={() => window.print()}>
+            <Printer className="h-4 w-4" /> Imprimir / PDF
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Trash2 className="h-4 w-4" /> Eliminar colaborador
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Eliminar colaborador</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta acção remove o colaborador e todas as suas fichas.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={() => deleteCollab.mutate()}>
+                  Eliminar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
 
       <Card>
