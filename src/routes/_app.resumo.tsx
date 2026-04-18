@@ -167,6 +167,16 @@ function ResumoPage() {
             const totalAtelier = totalGeral + custosOp;
             const pctRH = totalAtelier > 0 ? (totalGeral / totalAtelier) * 100 : 0;
             const pctOp = totalAtelier > 0 ? (custosOp / totalAtelier) * 100 : 0;
+
+            // Horas produtivas brutas (dias × horas), diferentes por caso
+            const numTotalEquipa = projecto.length + backoffice.length;
+            const horasCaso1 = numTotalEquipa * diasUteis * horasDia; // RH vs CO → toda a equipa
+            const horasCaso2 = projecto.length * diasUteis * horasDia; // Produção vs Estrutura → só Projecto
+            const custoHoraCaso1 = horasCaso1 > 0 ? totalAtelier / horasCaso1 : 0;
+            const custoHoraCaso2 = horasCaso2 > 0 ? totalAtelier / horasCaso2 : 0;
+            const fmtH = (n: number) =>
+              new Intl.NumberFormat("pt-PT", { maximumFractionDigits: 0 }).format(n);
+
             return (
               <>
                 {/* Barra empilhada com percentagens dentro */}
