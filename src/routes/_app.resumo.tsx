@@ -615,10 +615,10 @@ function PricingTable({
                     </Link>
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.custoVBG) : "—"}
+                    {c ? fmtEUR(c.custoVBG / (diasUteis * horasDia)) : "—"}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
-                    {fmtEUR(cotaBo)}
+                    {fmtEUR(cotaBo / (diasUteis * horasDia))}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {p30 ? fmtEUR(p30.custoHora) : "—"}
