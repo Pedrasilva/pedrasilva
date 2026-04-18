@@ -250,7 +250,7 @@ function RhTable({
           <TableBody>
             {rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={13} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={12} className="text-center text-muted-foreground py-8">
                   Sem colaboradores neste departamento.
                 </TableCell>
               </TableRow>
@@ -260,9 +260,6 @@ function RhTable({
               const c = ref ? computeSnapshot(ref) : null;
               return (
                 <TableRow key={r.collab.id}>
-                  <TableCell className="text-muted-foreground tabular-nums">
-                    {r.collab.numero_colaborador ?? "—"}
-                  </TableCell>
                   <TableCell className="font-medium">
                     <Link to="/colaborador/$id" params={{ id: r.collab.id }}>
                       {r.collab.nome}
