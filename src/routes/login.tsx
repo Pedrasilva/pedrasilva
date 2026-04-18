@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import logoPsa from "@/assets/logo-psa.png";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -37,10 +38,12 @@ function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold">
-            S
-          </div>
-          <CardTitle>Cálculo Salarial</CardTitle>
+          <img
+            src={logoPsa}
+            alt="Pedra Silva Architects"
+            className="mx-auto mb-3 h-12 w-auto object-contain"
+          />
+          <CardTitle>PSA Recursos Humanos</CardTitle>
           <CardDescription>Inicie sessão com a sua conta Google da empresa</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">

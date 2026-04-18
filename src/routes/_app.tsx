@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Users, BarChart3, Calculator, CalendarDays, LogOut } from "lucide-react";
+import logoPsa from "@/assets/logo-psa.png";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -45,13 +46,15 @@ function AppLayout() {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <Link to={isAdmin ? "/" : "/ferias"} className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold">
-              S
-            </div>
-            <div className="leading-tight">
-              <div className="text-sm font-semibold">Cálculo Salarial</div>
-              <div className="text-[11px] text-muted-foreground">Recursos Humanos</div>
+          <Link to={isAdmin ? "/" : "/ferias"} className="flex items-center gap-3">
+            <img
+              src={logoPsa}
+              alt="Pedra Silva Architects"
+              className="h-9 w-auto object-contain"
+            />
+            <div className="hidden leading-tight border-l pl-3 sm:block">
+              <div className="text-sm font-semibold">PSA Recursos Humanos</div>
+              <div className="text-[11px] text-muted-foreground">Cálculo salarial</div>
             </div>
           </Link>
           <nav className="flex items-center gap-1">
