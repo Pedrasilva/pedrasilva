@@ -1,12 +1,27 @@
-import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtEUR, type Snapshot } from "@/lib/salary";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  calcIrs,
+  loadBrackets,
+  pickTabela,
+  ESTADOS_CIVIS,
+  LOCALIZACOES,
+} from "@/lib/irs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,8 +33,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Save, Trash2 } from "lucide-react";
+import { Save, Trash2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 type Props = { snapshot: Snapshot };
 
@@ -36,6 +52,10 @@ const numericKeys = [
   "beneficio_ticket",
   "premio_associado",
   "outros_beneficios",
+  "numero_titulares",
+  "numero_dependentes",
+  "dependentes_com_deficiencia",
+  "ano_fiscal",
 ] as const;
 
 export function SnapshotForm({ snapshot }: Props) {
@@ -44,7 +64,28 @@ export function SnapshotForm({ snapshot }: Props) {
 
   useEffect(() => setDraft(snapshot), [snapshot]);
 
-  const c = computeSnapshot(draft);
+  // Carrega escalões IRS para o ano/local/tabela do draft
+  const tabela = pickTabela(draft.estado_civil, draft.numero_titulares);
+  const { data: brackets = [] } = useQuery({
+    queryKey: ["irs", draft.ano_fiscal, draft.localizacao, tabela],
+    queryFn: () => loadBrackets(draft.ano_fiscal, draft.localizacao, tabela),
+  });
+
+  // Cálculo IRS automático sobre o valor base mensal
+  const irsAuto = useMemo(
+    () => calcIrs(draft.valor_base || 0, brackets, draft.numero_dependentes),
+    [draft.valor_base, draft.numero_dependentes, brackets],
+  );
+
+  // Aplica IRS automático ao draft (taxa efectiva) se modo auto activo
+  const draftEffective = useMemo<Snapshot>(() => {
+    if (draft.irs_calculado_auto) {
+      return { ...draft, irs_pct: irsAuto.irs_pct_efectiva };
+    }
+    return draft;
+  }, [draft, irsAuto.irs_pct_efectiva]);
+
+  const c = computeSnapshot(draftEffective);
 
   const save = useMutation({
     mutationFn: async () => {
@@ -53,8 +94,16 @@ export function SnapshotForm({ snapshot }: Props) {
         reference_date: draft.reference_date,
         is_effective: draft.is_effective,
         notas: draft.notas,
+        localizacao: draft.localizacao,
+        estado_civil: draft.estado_civil,
+        irs_calculado_auto: draft.irs_calculado_auto,
+        // Persistir taxa efectiva calculada quando em modo auto
+        irs_pct: draft.irs_calculado_auto ? irsAuto.irs_pct_efectiva : Number(draft.irs_pct) || 0,
       };
-      for (const k of numericKeys) (patch as Record<string, number>)[k] = Number(draft[k]) || 0;
+      for (const k of numericKeys) {
+        if (k === "irs_pct") continue;
+        (patch as Record<string, number>)[k] = Number(draft[k]) || 0;
+      }
       const { error } = await supabase
         .from("salary_snapshots")
         .update(patch)
