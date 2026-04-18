@@ -134,6 +134,7 @@ export type Database = {
           notas: string | null
           numero_dependentes: number
           parcela_abater: number
+          parcela_adicional_por_dependente: number
           rendimento_max: number | null
           rendimento_min: number
           tabela: string
@@ -148,6 +149,7 @@ export type Database = {
           notas?: string | null
           numero_dependentes?: number
           parcela_abater?: number
+          parcela_adicional_por_dependente?: number
           rendimento_max?: number | null
           rendimento_min: number
           tabela: string
@@ -162,6 +164,7 @@ export type Database = {
           notas?: string | null
           numero_dependentes?: number
           parcela_abater?: number
+          parcela_adicional_por_dependente?: number
           rendimento_max?: number | null
           rendimento_min?: number
           tabela?: string
