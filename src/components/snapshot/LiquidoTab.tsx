@@ -1,9 +1,15 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { computeSnapshot, fmtEUR, type Snapshot } from "@/lib/salary";
 import { SalaryDonut } from "./SalaryDonut";
 
 export function LiquidoTab({ draft }: { draft: Snapshot }) {
   const c = computeSnapshot(draft);
+  const [period, setPeriod] = useState<"mensal" | "anual">("mensal");
+  const isAnual = period === "anual";
+  const mult = isAnual ? c.meses : 1;
+
   const rows = [
     { label: "Valor base mensal", value: c.base },
     { label: "− SS Colaborador (mensal)", value: -c.ssColaboradorMensal },
@@ -40,17 +46,29 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
         </CardContent>
       </Card>
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Composição mensal</CardTitle>
+        <CardHeader className="space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle className="text-base">Composição {isAnual ? "anual" : "mensal"}</CardTitle>
+              <CardDescription>Bruto decomposto.</CardDescription>
+            </div>
+            <Tabs value={period} onValueChange={(v) => setPeriod(v as "mensal" | "anual")}>
+              <TabsList className="h-8">
+                <TabsTrigger value="mensal" className="h-6 px-2 text-xs">Mensal</TabsTrigger>
+                <TabsTrigger value="anual" className="h-6 px-2 text-xs">Anual</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
         </CardHeader>
         <CardContent>
           <SalaryDonut
-            liquido={c.liquido14m}
-            ssColaborador={c.ssColaboradorMensal}
-            irs={c.irsMensal}
-            brutoMensalGlobal={c.brutoMensal}
-            ssAtelierMensal={c.ssAtelier12}
-            liquidoTotalMensal={c.liquidoTotalMensal}
+            liquido={c.liquido14m * mult}
+            ssColaborador={c.ssColaboradorMensal * mult}
+            irs={c.irsMensal * mult}
+            brutoMensalGlobal={isAnual ? c.brutoMensal * c.meses : c.brutoMensal}
+            ssAtelierMensal={c.ssAtelier12 * mult}
+            liquidoTotalMensal={c.liquidoTotalMensal * mult}
+            periodLabel={isAnual ? "anual" : "mensal"}
           />
         </CardContent>
       </Card>

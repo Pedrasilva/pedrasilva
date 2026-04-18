@@ -91,6 +91,7 @@ export function SalaryDonut({
   brutoMensalGlobal,
   ssAtelierMensal,
   liquidoTotalMensal,
+  periodLabel = "mensal",
 }: {
   liquido: number;
   ssColaborador: number;
@@ -98,12 +99,13 @@ export function SalaryDonut({
   brutoMensalGlobal?: number;
   ssAtelierMensal?: number;
   liquidoTotalMensal?: number;
+  periodLabel?: "mensal" | "anual";
 }) {
   const empregadorTotal = (ssAtelierMensal ?? 0) + irs + ssColaborador;
   return (
     <div className="space-y-4">
       <CompositionDonut
-        centerLabel="Bruto mensal global"
+        centerLabel={periodLabel === "anual" ? "Bruto anual global" : "Bruto mensal global"}
         centerValue={brutoMensalGlobal}
         slices={[
           { name: "Líquido", value: liquido, color: "var(--sage)" },
