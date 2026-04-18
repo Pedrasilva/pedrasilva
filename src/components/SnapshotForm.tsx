@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtEUR, type Collaborator, type Snapshot } from "@/lib/salary";
@@ -13,7 +13,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Save, Trash2, Sparkles } from "lucide-react";
+import { Save, Trash2, Sparkles, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { HighlightCard } from "./snapshot/HighlightCard";
 import { SimulationTab } from "./snapshot/SimulationTab";
@@ -29,11 +29,25 @@ const TABELA_LABEL: Record<string, string> = {
   casado_dois_titulares: "Casado · dois titulares",
 };
 
+const TRACKED_FIELDS: (keyof Snapshot)[] = [
+  "label", "reference_date", "is_effective", "notas",
+  "irs_calculado_auto", "irs_pct", "valor_base",
+  "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos",
+  "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual",
+  "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios",
+];
+
 export function SnapshotForm({ snapshot, collaborator }: Props) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Snapshot>(snapshot);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
   useEffect(() => setDraft(snapshot), [snapshot]);
+
+  const isDirty = useMemo(
+    () => TRACKED_FIELDS.some((k) => (draft[k] ?? null) !== (snapshot[k] ?? null)),
+    [draft, snapshot],
+  );
 
   // Contexto fiscal vem do colaborador
   const tabela = pickTabela(collaborator.estado_civil, collaborator.numero_titulares);
