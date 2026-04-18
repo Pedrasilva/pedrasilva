@@ -208,16 +208,14 @@ export function SnapshotForm({ snapshot }: Props) {
               />
             </Row>
             <Row label="Dias úteis (ano)">
-              <NumIn
-                value={draft.dias_uteis}
-                onChange={(n) => set("dias_uteis", n)}
-                step={1}
-              />
+              <div className="flex h-9 items-center justify-end rounded-md border bg-muted px-3 text-right text-sm tabular-nums text-muted-foreground">
+                {draft.dias_uteis}
+              </div>
             </Row>
             <p className="text-[11px] text-muted-foreground">
-              Valor calculado em <strong>Dias úteis</strong> (menu principal). Pode ser sincronizado
-              em massa a partir dessa página, mas continua editável aqui caso precises de ajustar
-              pontualmente.
+              Valor calculado em <strong>Definições → Dias úteis</strong> e propagado a todas as
+              fichas. Para o alterar, edita a tabela de feriados/dias úteis e clica em "Aplicar a
+              todas as fichas".
             </p>
             <Calc label="Total anual" value={fmtEUR(c.alimentacaoAnual)} />
             <Calc label="Média mensal" value={fmtEUR(c.alimentacaoMensal)} />
