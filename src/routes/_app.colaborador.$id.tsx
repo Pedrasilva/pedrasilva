@@ -589,7 +589,7 @@ function CollaboratorPage() {
 
           {snapshots.map((s) => (
             <TabsContent key={s.id} value={s.id} className="mt-4">
-              <SnapshotForm snapshot={s} />
+              <SnapshotForm snapshot={s} collaborator={collab} />
             </TabsContent>
           ))}
 
