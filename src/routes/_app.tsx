@@ -150,6 +150,8 @@ function AppLayout() {
               </DropdownMenu>
             )}
 
+            {isAdmin && <QuickCreateMenu />}
+
             {isRealAdmin && (
               <Button
                 variant={viewAsUser ? "default" : "outline"}
