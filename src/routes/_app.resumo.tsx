@@ -410,6 +410,49 @@ function anosCarreira(inicio: string | null): string {
   return `${anos} anos`;
 }
 
+type RhSortKey =
+  | "nome"
+  | "brutoAnual"
+  | "base"
+  | "brutoMensal"
+  | "alimentacao"
+  | "ajudas"
+  | "liquido"
+  | "beneficios"
+  | "vbg"
+  | "anos";
+
+function rhValue(r: Row, k: RhSortKey): number | string | null {
+  const ref = r.effective ?? r.proposed;
+  const c = ref ? computeSnapshot(ref) : null;
+  switch (k) {
+    case "nome":
+      return r.collab.nome;
+    case "brutoAnual":
+      return c?.brutoAnual ?? null;
+    case "base":
+      return c?.base ?? null;
+    case "brutoMensal":
+      return c?.brutoMensal ?? null;
+    case "alimentacao":
+      return c?.alimentacaoMensal ?? null;
+    case "ajudas":
+      return c?.ajudasMensal ?? null;
+    case "liquido":
+      return c?.liquidoTotalMensal ?? null;
+    case "beneficios":
+      return c?.beneficiosAnual ?? null;
+    case "vbg":
+      return c?.custoVBG ?? null;
+    case "anos": {
+      if (!r.collab.inicio_carreira) return null;
+      const start = new Date(r.collab.inicio_carreira);
+      if (isNaN(start.getTime())) return null;
+      return Date.now() - start.getTime();
+    }
+  }
+}
+
 function RhTable({
   title,
   rows,
@@ -419,6 +462,25 @@ function RhTable({
   rows: Row[];
   totalLabel: string;
 }) {
+  const [sortKey, setSortKey] = useState<RhSortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const toggleSort = (k: RhSortKey) => {
+    if (sortKey === k) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(k);
+      setSortDir(k === "nome" ? "asc" : "desc");
+    }
+  };
+
+  const sortedRows = sortKey
+    ? [...rows].sort((a, b) => {
+        const av = rhValue(a, sortKey);
+        const bv = rhValue(b, sortKey);
+        return compareValues(av, bv, sortDir);
+      })
+    : rows;
+
   // Totais sobre VBG e Bruto anual (como no Excel)
   let totalBrutoAnual = 0;
   let totalVbg = 0;
@@ -442,29 +504,29 @@ function RhTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nome</TableHead>
+              <SortHead label="Nome" k="nome" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
               <TableHead>Cód.</TableHead>
-              <TableHead className="text-right">Bruto anual</TableHead>
-              <TableHead className="text-right">Base contractual</TableHead>
-              <TableHead className="text-right">Bruto mensal</TableHead>
-              <TableHead className="text-right">Alimentação</TableHead>
-              <TableHead className="text-right">Ajudas de custo</TableHead>
-              <TableHead className="text-right">Líquido mensal</TableHead>
-              <TableHead className="text-right">Benefícios anual</TableHead>
-              <TableHead className="text-right font-semibold">VBG</TableHead>
-              <TableHead className="text-right">Anos</TableHead>
+              <SortHead align="right" label="Bruto anual" k="brutoAnual" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="Base contractual" k="base" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="Bruto mensal" k="brutoMensal" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="Alimentação" k="alimentacao" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="Ajudas de custo" k="ajudas" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="Líquido mensal" k="liquido" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="Benefícios anual" k="beneficios" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortHead align="right" label="VBG" k="vbg" sortKey={sortKey} dir={sortDir} onClick={toggleSort} bold />
+              <SortHead align="right" label="Anos" k="anos" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
               <TableHead className="w-8"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.length === 0 && (
+            {sortedRows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={12} className="text-center text-muted-foreground py-8">
                   Sem colaboradores neste departamento.
                 </TableCell>
               </TableRow>
             )}
-            {rows.map((r, idx) => {
+            {sortedRows.map((r, idx) => {
               const ref = r.effective ?? r.proposed;
               const c = ref ? computeSnapshot(ref) : null;
               return (
