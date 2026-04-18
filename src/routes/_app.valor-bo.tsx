@@ -187,12 +187,12 @@ function ValorBOPage() {
           </div>
           <div className="space-y-1">
             <Label>Dias úteis (D13)</Label>
-            <Input
-              type="number"
-              className="input-yellow tabular-nums"
-              value={draft.dias_uteis}
-              onChange={(e) => setDraft({ ...draft, dias_uteis: Number(e.target.value) })}
-            />
+            <div className="flex h-9 items-center justify-end rounded-md border bg-muted px-3 text-right text-sm tabular-nums text-muted-foreground">
+              {draft.dias_uteis}
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Definido em <strong>Definições → Dias úteis</strong>.
+            </p>
           </div>
           <div className="space-y-1">
             <Label>Horas / dia</Label>
