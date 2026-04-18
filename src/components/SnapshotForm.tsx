@@ -214,6 +214,11 @@ export function SnapshotForm({ snapshot }: Props) {
                 step={1}
               />
             </Row>
+            <p className="text-[11px] text-muted-foreground">
+              Valor calculado em <strong>Dias úteis</strong> (menu principal). Pode ser sincronizado
+              em massa a partir dessa página, mas continua editável aqui caso precises de ajustar
+              pontualmente.
+            </p>
             <Calc label="Total anual" value={fmtEUR(c.alimentacaoAnual)} />
             <Calc label="Média mensal" value={fmtEUR(c.alimentacaoMensal)} />
           </CardContent>
