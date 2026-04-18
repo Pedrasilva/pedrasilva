@@ -554,8 +554,8 @@ function PricingTable({
       <CardHeader>
         <CardTitle className="text-base">Pricing — Equipa Projecto</CardTitle>
         <CardDescription>
-          Custo/hora = (VBG + cota BO) ÷ ({diasUteis}×{horasDia}) h, depois ×1.20 (desperdício) e × (1
-          + margem)
+          VBG/h e Cota BO/h = valor anual ÷ ({diasUteis}×{horasDia}) h. Custo/h soma os dois,
+          depois ×1.20 (desperdício) e × (1 + margem).
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0 overflow-x-auto">
