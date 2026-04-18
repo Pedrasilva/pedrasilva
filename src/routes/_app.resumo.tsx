@@ -207,6 +207,34 @@ function Kpi({
   );
 }
 
+function RatioCard({
+  title,
+  numerator,
+  denominator,
+  hint,
+}: {
+  title: string;
+  numerator: number;
+  denominator: number;
+  hint?: string;
+}) {
+  const pct = denominator > 0 ? (numerator / denominator) * 100 : null;
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardDescription>{title}</CardDescription>
+        <CardTitle className="text-2xl tabular-nums">
+          {pct == null ? "—" : `${pct.toFixed(1)}%`}
+        </CardTitle>
+        <p className="mt-1 text-xs text-muted-foreground tabular-nums">
+          {fmtEUR(numerator)} ÷ {fmtEUR(denominator)}
+        </p>
+        {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+      </CardHeader>
+    </Card>
+  );
+}
+
 function anosCarreira(inicio: string | null): string {
   if (!inicio) return "—";
   const start = new Date(inicio);
