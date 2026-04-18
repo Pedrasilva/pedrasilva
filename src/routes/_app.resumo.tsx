@@ -514,7 +514,6 @@ function RhTable({
               <TableHead className="text-right">Líquido mensal</TableHead>
               <TableHead className="text-right">Benefícios anual</TableHead>
               <SortHead align="right" label="VBG" k="vbg" sortKey={sortKey} dir={sortDir} onClick={toggleSort} bold />
-              <TableHead className="text-right">Anos</TableHead>
               <TableHead className="w-8"></TableHead>
             </TableRow>
           </TableHeader>
