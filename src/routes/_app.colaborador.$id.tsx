@@ -405,6 +405,82 @@ function CollaboratorPage() {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Agregado familiar e contexto fiscal</CardTitle>
+          <CardDescription>
+            Estes valores são usados no cálculo automático de IRS de todas as fichas deste colaborador.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <Field label="Localização">
+              <Select
+                value={draft.localizacao}
+                onValueChange={(v) => setField("localizacao", v)}
+              >
+                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {LOCALIZACOES.map((l) => (
+                    <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="Estado civil">
+              <Select
+                value={draft.estado_civil}
+                onValueChange={(v) => setField("estado_civil", v)}
+              >
+                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ESTADOS_CIVIS.map((e) => (
+                    <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="Nº titulares">
+              <Input
+                type="number"
+                min={1}
+                max={2}
+                className="input-yellow tabular-nums"
+                value={draft.numero_titulares}
+                onChange={(e) => setField("numero_titulares", Number(e.target.value) || 1)}
+              />
+            </Field>
+            <Field label="Nº dependentes">
+              <Input
+                type="number"
+                min={0}
+                className="input-yellow tabular-nums"
+                value={draft.numero_dependentes}
+                onChange={(e) => setField("numero_dependentes", Number(e.target.value) || 0)}
+              />
+            </Field>
+            <Field label="Dep. com deficiência">
+              <Input
+                type="number"
+                min={0}
+                className="input-yellow tabular-nums"
+                value={draft.dependentes_com_deficiencia}
+                onChange={(e) => setField("dependentes_com_deficiencia", Number(e.target.value) || 0)}
+              />
+            </Field>
+            <Field label="Ano fiscal">
+              <Input
+                type="number"
+                min={2020}
+                className="input-yellow tabular-nums"
+                value={draft.ano_fiscal}
+                onChange={(e) => setField("ano_fiscal", Number(e.target.value) || 2026)}
+              />
+            </Field>
+          </div>
+        </CardContent>
+      </Card>
+
       <div>
         <Tabs value={tabValue} onValueChange={setActiveTab}>
           <div className="flex flex-wrap items-center justify-between gap-2">
