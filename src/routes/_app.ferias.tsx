@@ -145,6 +145,8 @@ function FeriasPage() {
 
   // Saldos do colaborador actual (ou colaborador seleccionado pelo admin)
   const [selectedCollabId, setSelectedCollabId] = useState<string>("");
+  // Admins, por defeito, vêem apenas os seus próprios pedidos. Podem alternar para "Todos".
+  const [adminScope, setAdminScope] = useState<"meus" | "todos">("meus");
   const focusCollab = isAdmin
     ? collaborators.find((c) => c.id === selectedCollabId) ?? myCollab
     : myCollab;
@@ -269,12 +271,17 @@ function FeriasPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  // Lista a mostrar: admin vê tudo (com filtro opcional); user vê só os seus
+  // Lista a mostrar:
+  // - User normal: vê só os seus (RLS já restringe).
+  // - Admin: por defeito só os seus; pode alternar para "Todos" (com filtro opcional por colaborador).
   const visibleRequests = useMemo(() => {
-    if (!isAdmin) return requests; // RLS já restringe
+    if (!isAdmin) return requests;
+    if (adminScope === "meus") {
+      return myCollab ? requests.filter((r) => r.collaborator_id === myCollab.id) : [];
+    }
     if (!selectedCollabId) return requests;
     return requests.filter((r) => r.collaborator_id === selectedCollabId);
-  }, [requests, isAdmin, selectedCollabId]);
+  }, [requests, isAdmin, adminScope, myCollab, selectedCollabId]);
 
   const collabName = (id: string) => collaborators.find((c) => c.id === id)?.nome ?? "—";
 
@@ -500,10 +507,44 @@ function FeriasPage() {
 
       {/* Pedidos */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
           <CardTitle className="text-base">
-            {isAdmin ? "Todos os pedidos" : "Os meus pedidos"}
+            {isAdmin
+              ? adminScope === "meus"
+                ? "Os meus pedidos"
+                : selectedCollabId
+                  ? `Pedidos de ${collabName(selectedCollabId)}`
+                  : "Todos os pedidos"
+              : "Os meus pedidos"}
           </CardTitle>
+          {isAdmin && (
+            <div className="inline-flex rounded-md border p-0.5 text-xs">
+              <button
+                type="button"
+                onClick={() => setAdminScope("meus")}
+                className={cn(
+                  "rounded-sm px-2.5 py-1 transition-colors",
+                  adminScope === "meus"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                Só os meus
+              </button>
+              <button
+                type="button"
+                onClick={() => setAdminScope("todos")}
+                className={cn(
+                  "rounded-sm px-2.5 py-1 transition-colors",
+                  adminScope === "todos"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                Todos
+              </button>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -514,7 +555,7 @@ function FeriasPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  {isAdmin && <TableHead>Colaborador</TableHead>}
+                  {isAdmin && adminScope === "todos" && <TableHead>Colaborador</TableHead>}
                   <TableHead>Tipo</TableHead>
                   <TableHead>Início</TableHead>
                   <TableHead>Fim</TableHead>
@@ -527,7 +568,7 @@ function FeriasPage() {
               <TableBody>
                 {visibleRequests.map((r) => (
                   <TableRow key={r.id}>
-                    {isAdmin && <TableCell>{collabName(r.collaborator_id)}</TableCell>}
+                    {isAdmin && adminScope === "todos" && <TableCell>{collabName(r.collaborator_id)}</TableCell>}
                     <TableCell className="text-xs">{absenceLabel(r.tipo)}</TableCell>
                     <TableCell>{r.data_inicio}</TableCell>
                     <TableCell>{r.data_fim}</TableCell>
