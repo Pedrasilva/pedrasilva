@@ -145,11 +145,13 @@ function FeriasPage() {
 
   // Saldos do colaborador actual (ou colaborador seleccionado pelo admin)
   const [selectedCollabId, setSelectedCollabId] = useState<string>("");
-  // Admins, por defeito, vêem apenas os seus próprios pedidos. Podem alternar para "Todos".
-  const [adminScope, setAdminScope] = useState<"meus" | "todos">("meus");
-  const focusCollab = isAdmin
-    ? collaborators.find((c) => c.id === selectedCollabId) ?? myCollab
-    : myCollab;
+  // Admins têm 3 modos: ver só os seus, ver por colaborador individual, ou calendário anual de toda a equipa.
+  const [adminScope, setAdminScope] = useState<"meus" | "colaborador" | "calendario">("meus");
+  const [calendarYear, setCalendarYear] = useState<number>(currentYear);
+  const focusCollab =
+    isAdmin && adminScope === "colaborador"
+      ? collaborators.find((c) => c.id === selectedCollabId) ?? myCollab
+      : myCollab;
 
   const usedThisYear = useMemo(() => {
     if (!focusCollab) return 0;
