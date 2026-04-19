@@ -56,6 +56,7 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
   const cr = right ? computeSnapshot(right) : null;
 
   const rows: Array<{ label: string; l: number | null; r: number | null; pct?: boolean }> = [
+    { label: "Valor base mensal", l: left?.valor_base ?? null, r: right?.valor_base ?? null },
     { label: "Bruto anual", l: cl?.brutoAnual ?? null, r: cr?.brutoAnual ?? null },
     { label: "Bruto mensal", l: cl?.brutoMensal ?? null, r: cr?.brutoMensal ?? null },
     { label: "Valor base x meses", l: cl?.baseAnual ?? null, r: cr?.baseAnual ?? null },
