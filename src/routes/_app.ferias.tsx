@@ -145,11 +145,13 @@ function FeriasPage() {
 
   // Saldos do colaborador actual (ou colaborador seleccionado pelo admin)
   const [selectedCollabId, setSelectedCollabId] = useState<string>("");
-  // Admins, por defeito, vêem apenas os seus próprios pedidos. Podem alternar para "Todos".
-  const [adminScope, setAdminScope] = useState<"meus" | "todos">("meus");
-  const focusCollab = isAdmin
-    ? collaborators.find((c) => c.id === selectedCollabId) ?? myCollab
-    : myCollab;
+  // Admins têm 3 modos: ver só os seus, ver por colaborador individual, ou calendário anual de toda a equipa.
+  const [adminScope, setAdminScope] = useState<"meus" | "colaborador" | "calendario">("meus");
+  const [calendarYear, setCalendarYear] = useState<number>(currentYear);
+  const focusCollab =
+    isAdmin && adminScope === "colaborador"
+      ? collaborators.find((c) => c.id === selectedCollabId) ?? myCollab
+      : myCollab;
 
   const usedThisYear = useMemo(() => {
     if (!focusCollab) return 0;
@@ -272,15 +274,23 @@ function FeriasPage() {
   });
 
   // Lista a mostrar:
-  // - User normal: vê só os seus (RLS já restringe).
-  // - Admin: por defeito só os seus; pode alternar para "Todos" (com filtro opcional por colaborador).
+  // - User normal: vê só os seus (RLS já restringe, mas filtramos no cliente como defesa em profundidade).
+  // - Admin "meus": só os próprios pedidos do admin.
+  // - Admin "colaborador": pedidos do colaborador seleccionado.
+  // - Admin "calendario": todos os pedidos (consumidos pelo calendário anual).
   const visibleRequests = useMemo(() => {
-    if (!isAdmin) return requests;
+    if (!isAdmin) {
+      return myCollab ? requests.filter((r) => r.collaborator_id === myCollab.id) : [];
+    }
     if (adminScope === "meus") {
       return myCollab ? requests.filter((r) => r.collaborator_id === myCollab.id) : [];
     }
-    if (!selectedCollabId) return requests;
-    return requests.filter((r) => r.collaborator_id === selectedCollabId);
+    if (adminScope === "colaborador") {
+      if (!selectedCollabId) return [];
+      return requests.filter((r) => r.collaborator_id === selectedCollabId);
+    }
+    // calendario
+    return requests;
   }, [requests, isAdmin, adminScope, myCollab, selectedCollabId]);
 
   const collabName = (id: string) => collaborators.find((c) => c.id === id)?.nome ?? "—";
@@ -465,8 +475,8 @@ function FeriasPage() {
         </Card>
       )}
 
-      {/* Saldo */}
-      {focusCollab && (
+      {/* Saldo (escondido no modo Calendário) */}
+      {focusCollab && !(isAdmin && adminScope === "calendario") && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
@@ -477,7 +487,7 @@ function FeriasPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isAdmin && (
+            {isAdmin && adminScope === "colaborador" && (
               <div className="mb-4 max-w-sm">
                 <Label className="text-xs text-muted-foreground">Ver saldo de…</Label>
                 <Select value={selectedCollabId} onValueChange={setSelectedCollabId}>
@@ -505,16 +515,18 @@ function FeriasPage() {
         </Card>
       )}
 
-      {/* Pedidos */}
+      {/* Pedidos / Calendário */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
           <CardTitle className="text-base">
             {isAdmin
               ? adminScope === "meus"
                 ? "Os meus pedidos"
-                : selectedCollabId
-                  ? `Pedidos de ${collabName(selectedCollabId)}`
-                  : "Todos os pedidos"
+                : adminScope === "colaborador"
+                  ? selectedCollabId
+                    ? `Pedidos de ${collabName(selectedCollabId)}`
+                    : "Seleccione um colaborador"
+                  : `Calendário anual da equipa · ${calendarYear}`
               : "Os meus pedidos"}
           </CardTitle>
           {isAdmin && (
@@ -533,21 +545,59 @@ function FeriasPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setAdminScope("todos")}
+                onClick={() => setAdminScope("colaborador")}
                 className={cn(
                   "rounded-sm px-2.5 py-1 transition-colors",
-                  adminScope === "todos"
+                  adminScope === "colaborador"
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                Todos
+                Por colaborador
+              </button>
+              <button
+                type="button"
+                onClick={() => setAdminScope("calendario")}
+                className={cn(
+                  "rounded-sm px-2.5 py-1 transition-colors",
+                  adminScope === "calendario"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                Calendário anual
               </button>
             </div>
           )}
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {isAdmin && adminScope === "colaborador" && !selectedCollabId && (
+            <div className="mb-4 max-w-sm">
+              <Label className="text-xs text-muted-foreground">Colaborador</Label>
+              <Select value={selectedCollabId} onValueChange={setSelectedCollabId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar colaborador…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {collaborators.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {isAdmin && adminScope === "calendario" ? (
+            <YearCalendar
+              year={calendarYear}
+              onYearChange={setCalendarYear}
+              requests={requests}
+              collaborators={collaborators}
+              holidayDates={holidayDates}
+            />
+          ) : isLoading ? (
             <div className="text-sm text-muted-foreground">A carregar…</div>
           ) : visibleRequests.length === 0 ? (
             <div className="text-sm text-muted-foreground">Sem pedidos.</div>
@@ -555,7 +605,6 @@ function FeriasPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  {isAdmin && adminScope === "todos" && <TableHead>Colaborador</TableHead>}
                   <TableHead>Tipo</TableHead>
                   <TableHead>Início</TableHead>
                   <TableHead>Fim</TableHead>
@@ -568,7 +617,6 @@ function FeriasPage() {
               <TableBody>
                 {visibleRequests.map((r) => (
                   <TableRow key={r.id}>
-                    {isAdmin && adminScope === "todos" && <TableCell>{collabName(r.collaborator_id)}</TableCell>}
                     <TableCell className="text-xs">{absenceLabel(r.tipo)}</TableCell>
                     <TableCell>{r.data_inicio}</TableCell>
                     <TableCell>{r.data_fim}</TableCell>
@@ -638,4 +686,156 @@ function EstadoBadge({ estado }: { estado: VacationRequest["estado"] }) {
   }[estado];
   const labels = { pendente: "Pendente", aprovada: "Aprovada", rejeitada: "Rejeitada" }[estado];
   return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${styles}`}>{labels}</span>;
+}
+
+function YearCalendar({
+  year,
+  onYearChange,
+  requests,
+  collaborators,
+  holidayDates,
+}: {
+  year: number;
+  onYearChange: (y: number) => void;
+  requests: VacationRequest[];
+  collaborators: Collaborator[];
+  holidayDates: Set<string>;
+}) {
+  const byDay = useMemo(() => {
+    const map = new Map<string, { collaborator_id: string; estado: VacationRequest["estado"] }[]>();
+    for (const r of requests) {
+      if (r.tipo !== "ferias") continue;
+      if (r.estado === "rejeitada") continue;
+      const start = new Date(r.data_inicio + "T00:00:00");
+      const end = new Date(r.data_fim + "T00:00:00");
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        if (d.getFullYear() !== year) continue;
+        const key = format(d, "yyyy-MM-dd");
+        const arr = map.get(key) ?? [];
+        arr.push({ collaborator_id: r.collaborator_id, estado: r.estado });
+        map.set(key, arr);
+      }
+    }
+    return map;
+  }, [requests, year]);
+
+  const collabColor = (id: string) => {
+    let h = 0;
+    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360;
+    return `hsl(${h} 70% 55%)`;
+  };
+  const collabName = (id: string) => collaborators.find((c) => c.id === id)?.nome ?? "—";
+
+  const months = Array.from({ length: 12 }, (_, i) => i);
+  const monthLabel = (m: number) => format(new Date(year, m, 1), "LLLL", { locale: pt });
+
+  const presentCollabIds = useMemo(() => {
+    const ids = new Set<string>();
+    byDay.forEach((arr) => arr.forEach((e) => ids.add(e.collaborator_id)));
+    return Array.from(ids);
+  }, [byDay]);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        <div className="inline-flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => onYearChange(year - 1)}>
+            ←
+          </Button>
+          <div className="min-w-[5rem] text-center text-sm font-medium tabular-nums">{year}</div>
+          <Button variant="outline" size="sm" onClick={() => onYearChange(year + 1)}>
+            →
+          </Button>
+        </div>
+        {presentCollabIds.length > 0 && (
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
+            {presentCollabIds.map((id) => (
+              <span key={id} className="inline-flex items-center gap-1.5">
+                <span
+                  className="inline-block h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: collabColor(id) }}
+                />
+                {collabName(id)}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {months.map((m) => {
+          const firstOfMonth = new Date(year, m, 1);
+          const daysInMonth = new Date(year, m + 1, 0).getDate();
+          const startWeekday = (firstOfMonth.getDay() + 6) % 7;
+          const cells: (number | null)[] = [
+            ...Array(startWeekday).fill(null),
+            ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+          ];
+          return (
+            <div key={m} className="rounded-md border p-2">
+              <div className="mb-1 px-1 text-xs font-semibold capitalize">{monthLabel(m)}</div>
+              <div className="grid grid-cols-7 gap-0.5 text-[10px] text-muted-foreground">
+                {["S", "T", "Q", "Q", "S", "S", "D"].map((d, i) => (
+                  <div key={i} className="text-center">{d}</div>
+                ))}
+              </div>
+              <div className="mt-0.5 grid grid-cols-7 gap-0.5">
+                {cells.map((day, idx) => {
+                  if (day === null) return <div key={idx} className="aspect-square" />;
+                  const dateStr = format(new Date(year, m, day), "yyyy-MM-dd");
+                  const wd = new Date(year, m, day).getDay();
+                  const isWeekend = wd === 0 || wd === 6;
+                  const isHoliday = holidayDates.has(dateStr);
+                  const entries = byDay.get(dateStr) ?? [];
+                  const tooltip =
+                    entries.length > 0
+                      ? entries
+                          .map(
+                            (e) => `${collabName(e.collaborator_id)}${e.estado === "pendente" ? " (pendente)" : ""}`,
+                          )
+                          .join("\n")
+                      : "";
+                  return (
+                    <div
+                      key={idx}
+                      title={tooltip}
+                      className={cn(
+                        "relative flex aspect-square flex-col items-center justify-start rounded-sm px-0.5 pt-0.5 text-[10px] tabular-nums",
+                        isWeekend && "text-muted-foreground/60",
+                        isHoliday && "text-destructive font-semibold",
+                        !isWeekend && !isHoliday && "bg-muted/30",
+                      )}
+                    >
+                      <span>{day}</span>
+                      {entries.length > 0 && (
+                        <div className="mt-auto flex w-full flex-wrap justify-center gap-[1px] pb-0.5">
+                          {entries.slice(0, 4).map((e, i) => (
+                            <span
+                              key={i}
+                              className={cn(
+                                "h-1.5 w-1.5 rounded-full",
+                                e.estado === "pendente" && "ring-1 ring-offset-[1px] ring-offset-background ring-current",
+                              )}
+                              style={{ backgroundColor: collabColor(e.collaborator_id) }}
+                            />
+                          ))}
+                          {entries.length > 4 && (
+                            <span className="text-[8px] leading-none">+{entries.length - 4}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="text-[11px] text-muted-foreground">
+        Cada ponto representa um colaborador com férias nesse dia. Pontos com anel são pedidos pendentes.
+      </div>
+    </div>
+  );
 }
