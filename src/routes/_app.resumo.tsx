@@ -30,6 +30,8 @@ import { Input } from "@/components/ui/input";
 import { ChevronRight, ArrowUp, ArrowDown, ArrowUpDown, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AdminOnly } from "@/components/AdminOnly";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ResumoComparativoTab } from "@/components/ResumoComparativoTab";
 
 export const Route = createFileRoute("/_app/resumo")({
   component: () => (
