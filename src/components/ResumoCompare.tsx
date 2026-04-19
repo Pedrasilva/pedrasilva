@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtDate, fmtEUR, type Snapshot } from "@/lib/salary";
 import {
   Card,
