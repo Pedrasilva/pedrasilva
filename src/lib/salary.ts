@@ -28,7 +28,44 @@ export type Snapshot = {
   dependentes_com_deficiencia: number;
   ano_fiscal: number;
   irs_calculado_auto: boolean;
+  // Regime de pagamento dos subsídios de férias e Natal
+  subsidios_modo: SubsidiosModo;
 };
+
+export type SubsidiosModo = "tradicional" | "duodecimos_50" | "duodecimos_100";
+
+export const SUBSIDIOS_MODO_OPTIONS: { value: SubsidiosModo; label: string; hint: string }[] = [
+  {
+    value: "tradicional",
+    label: "Tradicional · 14 meses",
+    hint: "Recebo os dois subsídios por inteiro (Junho e Novembro).",
+  },
+  {
+    value: "duodecimos_50",
+    label: "50% em duodécimos · 13 meses",
+    hint: "Metade de cada subsídio diluída nos 12 meses; a outra metade paga por inteiro.",
+  },
+  {
+    value: "duodecimos_100",
+    label: "100% em duodécimos · 12 meses",
+    hint: "Subsídios totalmente diluídos nos 12 meses.",
+  },
+];
+
+export function mesesFromSubsidios(modo: SubsidiosModo): number {
+  switch (modo) {
+    case "duodecimos_100": return 12;
+    case "duodecimos_50": return 13;
+    case "tradicional":
+    default: return 14;
+  }
+}
+
+export function subsidiosFromMeses(meses: number): SubsidiosModo {
+  if (meses <= 12) return "duodecimos_100";
+  if (meses === 13) return "duodecimos_50";
+  return "tradicional";
+}
 
 export type Collaborator = {
   id: string;
@@ -54,7 +91,11 @@ export type Collaborator = {
 
 export function computeSnapshot(s: Snapshot) {
   const base = s.valor_base || 0;
-  const meses = s.meses_pagos || 14;
+  // O regime de subsídios determina os meses pagos. Mantemos meses_pagos como
+  // fallback legado para fichas antigas sem subsidios_modo definido.
+  const meses = s.subsidios_modo
+    ? mesesFromSubsidios(s.subsidios_modo)
+    : (s.meses_pagos || 14);
 
   // Bloco 1 — Base contractual
   const ssAtelierMensal = base * s.ss_atelier_pct;
@@ -179,5 +220,6 @@ export function defaultSnapshot(
     dependentes_com_deficiencia: 0,
     ano_fiscal: 2026,
     irs_calculado_auto: true,
+    subsidios_modo: "tradicional",
   };
 }

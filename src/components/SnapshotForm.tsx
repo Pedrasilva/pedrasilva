@@ -32,7 +32,7 @@ const TABELA_LABEL: Record<string, string> = {
 const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "label", "reference_date", "is_effective", "notas",
   "irs_calculado_auto", "irs_pct", "valor_base",
-  "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos",
+  "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos", "subsidios_modo",
   "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual",
   "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios",
 ];
@@ -91,6 +91,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         ss_atelier_pct: Number(draft.ss_atelier_pct) || 0,
         ss_colaborador_pct: Number(draft.ss_colaborador_pct) || 0,
         meses_pagos: Number(draft.meses_pagos) || 14,
+        subsidios_modo: draft.subsidios_modo ?? "tradicional",
         subsidio_alimentacao_diario: Number(draft.subsidio_alimentacao_diario) || 0,
         dias_uteis: Number(draft.dias_uteis) || 0,
         ajudas_custo_anual: Number(draft.ajudas_custo_anual) || 0,
