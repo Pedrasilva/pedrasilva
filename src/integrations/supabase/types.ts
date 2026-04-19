@@ -360,6 +360,36 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_allowance_rates: {
+        Row: {
+          ano: number
+          created_at: string
+          id: string
+          notas: string | null
+          updated_at: string
+          valor_cartao: number
+          valor_dinheiro: number
+        }
+        Insert: {
+          ano: number
+          created_at?: string
+          id?: string
+          notas?: string | null
+          updated_at?: string
+          valor_cartao?: number
+          valor_dinheiro?: number
+        }
+        Update: {
+          ano?: number
+          created_at?: string
+          id?: string
+          notas?: string | null
+          updated_at?: string
+          valor_cartao?: number
+          valor_dinheiro?: number
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           codigo: string | null
