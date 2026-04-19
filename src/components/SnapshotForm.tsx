@@ -56,19 +56,33 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
   });
   const brackets = irsTableData.brackets;
 
-  const { data: mealRate } = useQuery({
-    queryKey: ["meal-allowance-rate", collaborator.ano_fiscal],
+  // O subsídio de alimentação varia por ano civil — usamos o ano da data de referência da ficha
+  const refYear = useMemo(() => {
+    const y = Number((draft.reference_date ?? "").slice(0, 4));
+    return Number.isFinite(y) && y > 1900 ? y : new Date().getFullYear();
+  }, [draft.reference_date]);
+
+  const { data: mealRates = [] } = useQuery({
+    queryKey: ["meal-allowance-rates-all"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("meal_allowance_rates")
         .select("ano, valor_cartao, valor_dinheiro")
-        .eq("ano", collaborator.ano_fiscal)
-        .maybeSingle();
+        .order("ano", { ascending: true });
       if (error) throw error;
-      return data as { ano: number; valor_cartao: number; valor_dinheiro: number } | null;
+      return (data ?? []) as { ano: number; valor_cartao: number; valor_dinheiro: number }[];
     },
   });
-  const mealDaily = Number(mealRate?.valor_cartao ?? 0);
+
+  const mealDaily = useMemo(() => {
+    if (mealRates.length === 0) return 0;
+    // Match exato do ano; senão usa o último ano <= refYear (ou o mais antigo se nenhum couber)
+    const exact = mealRates.find((r) => r.ano === refYear);
+    if (exact) return Number(exact.valor_cartao);
+    const earlier = mealRates.filter((r) => r.ano <= refYear).sort((a, b) => b.ano - a.ano)[0];
+    if (earlier) return Number(earlier.valor_cartao);
+    return Number(mealRates[0].valor_cartao);
+  }, [mealRates, refYear]);
 
   const irsAuto = useMemo(
     () => calcIrs(draft.valor_base || 0, brackets, collaborator.numero_dependentes),
