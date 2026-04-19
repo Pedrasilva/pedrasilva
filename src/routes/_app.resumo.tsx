@@ -260,29 +260,6 @@ function Kpi({
   );
 }
 
-function RatioRow({
-  color,
-  label,
-  value,
-  pct,
-}: {
-  color: string;
-  label: string;
-  value: number;
-  pct: number;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3 rounded-md border px-4 py-3">
-      <div className="flex items-center gap-2 min-w-0">
-        <span className={`h-3 w-3 shrink-0 rounded-sm ${color}`} />
-        <span className="text-sm font-medium truncate">{label}</span>
-      </div>
-      <div className="text-right shrink-0">
-        <div className="text-base font-semibold tabular-nums">{pct.toFixed(1)}%</div>
-        <div className="text-xs text-muted-foreground tabular-nums">{fmtEUR(value)}</div>
-      </div>
-    </div>
-  );
 }
 
 function CompositionView({
