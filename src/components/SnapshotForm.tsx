@@ -109,7 +109,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         ss_colaborador_pct: Number(draft.ss_colaborador_pct) || 0,
         meses_pagos: Number(draft.meses_pagos) || 14,
         subsidios_modo: draft.subsidios_modo ?? "tradicional",
-        subsidio_alimentacao_diario: Number(draft.subsidio_alimentacao_diario) || 0,
+        subsidio_alimentacao_diario: mealDaily,
         dias_uteis: Number(draft.dias_uteis) || 0,
         ajudas_custo_anual: Number(draft.ajudas_custo_anual) || 0,
         beneficio_carro: Number(draft.beneficio_carro) || 0,
