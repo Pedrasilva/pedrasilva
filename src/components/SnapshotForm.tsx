@@ -216,11 +216,19 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                 onCheckedChange={(v) => set("irs_calculado_auto", v)} />
             </div>
             {draft.irs_calculado_auto && (
-              <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[11px]">
-                <Mini label="Taxa marginal" value={`${(irsAuto.taxa_marginal * 100).toFixed(1)}%`} />
-                <Mini label="Parcela a abater" value={fmtEUR(irsAuto.parcela_abater)} />
-                <Mini label="IRS mensal" value={fmtEUR(irsAuto.irs_mensal)} />
-              </div>
+              <>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-center text-[11px] sm:grid-cols-4">
+                  <Mini label="Taxa marginal" value={`${(irsAuto.taxa_marginal * 100).toFixed(1)}%`} />
+                  <Mini label="Parcela a abater" value={fmtEUR(irsAuto.parcela_abater)} />
+                  <Mini label="IRS mensal" value={fmtEUR(irsAuto.irs_mensal)} />
+                  <Mini label="% IRS efectiva" value={`${(irsAuto.irs_pct_efectiva * 100).toFixed(2)}%`} />
+                </div>
+                {brackets.length === 0 && (
+                  <div className="mt-3 rounded-md border border-[var(--clay)]/40 bg-[color-mix(in_oklab,var(--clay)_8%,transparent)] px-3 py-2 text-[11px] text-[var(--clay)]">
+                    Não há tabela de retenção IRS carregada para <strong>{collaborator.ano_fiscal}</strong> ({collaborator.localizacao} · {TABELA_LABEL[tabela]}). Os valores aparecem a zero. Actualiza o ano fiscal do colaborador para 2026 ou carrega as tabelas em falta.
+                  </div>
+                )}
+              </>
             )}
           </div>
         </CardContent>
