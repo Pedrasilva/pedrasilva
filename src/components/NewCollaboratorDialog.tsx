@@ -240,6 +240,64 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
               }
             />
           </div>
+
+          <aside className="rounded-lg border bg-muted/30 p-3">
+            <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <Users className="h-3.5 w-3.5" />
+              Já registados ({existing.length})
+            </div>
+            <div className="relative mb-2">
+              <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                placeholder="Filtrar…"
+                className="h-8 pl-7 text-xs"
+              />
+            </div>
+            {duplicateEmail && (
+              <div className="mb-2 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-[11px] text-destructive">
+                Já existe ficha com este email:{" "}
+                <strong>{duplicateEmail.nome}</strong>
+              </div>
+            )}
+            <ScrollArea className="h-[320px] pr-2">
+              {filtered.length === 0 ? (
+                <div className="py-6 text-center text-xs text-muted-foreground">
+                  {existing.length === 0
+                    ? "Sem colaboradores."
+                    : "Nenhum resultado."}
+                </div>
+              ) : (
+                <ul className="space-y-1">
+                  {filtered.map((c) => (
+                    <li
+                      key={c.id}
+                      className="rounded-md border bg-background px-2 py-1.5 text-xs"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="truncate font-medium">{c.nome}</span>
+                        <Badge
+                          variant="secondary"
+                          className="shrink-0 text-[10px]"
+                        >
+                          {c.departamento === "Backoffice" ? "BO" : "Proj"}
+                        </Badge>
+                      </div>
+                      {(c.email || c.numero_colaborador) && (
+                        <div className="truncate text-[10px] text-muted-foreground">
+                          {c.numero_colaborador && (
+                            <>#{c.numero_colaborador} · </>
+                          )}
+                          {c.email ?? "sem email"}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </ScrollArea>
+          </aside>
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => setOpen(false)}>
