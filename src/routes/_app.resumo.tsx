@@ -143,7 +143,6 @@ function ResumoPage() {
       </div>
 
       <ValorBoCard
-        valorHora={valorBO.valorHora}
         cotaBo={cotaBo}
         margemGlobal={margemGlobal}
         totalAtelier={totalAtelier}
@@ -241,76 +240,71 @@ function Kpi({
 }
 
 function ValorBoCard({
-  valorHora,
   cotaBo,
   margemGlobal,
   totalAtelier,
   diasUteis,
   horasDia,
 }: {
-  valorHora: number;
   cotaBo: number;
   margemGlobal: number;
   totalAtelier: number;
   diasUteis: number;
   horasDia: number;
 }) {
-  const [unidade, setUnidade] = useState<"dia" | "hora" | "minuto">("hora");
   const precoDia = diasUteis > 0 ? totalAtelier / diasUteis : 0;
   const precoHora = diasUteis > 0 && horasDia > 0 ? totalAtelier / (diasUteis * horasDia) : 0;
   const precoMinuto = precoHora / 60;
-  const cfg = {
-    dia: { value: precoDia, hint: `Custo total do atelier ÷ ${diasUteis} dias úteis` },
-    hora: { value: valorHora, hint: `Cota a distribuir por colaborador da Equipa Projecto` },
-    minuto: { value: precoMinuto, hint: `Custo total do atelier ÷ (${diasUteis} × ${horasDia} h × 60 min)` },
-  } as const;
-  const current = cfg[unidade];
+  const precoSegundo = precoMinuto / 60;
+
+  const cells: { label: string; value: number; unit: string }[] = [
+    { label: "Valor / dia", value: precoDia, unit: "dia" },
+    { label: "Valor / hora", value: precoHora, unit: "hora" },
+    { label: "Valor / minuto", value: precoMinuto, unit: "min" },
+    { label: "Valor / segundo", value: precoSegundo, unit: "seg" },
+  ];
+
   return (
     <Card className="border-primary">
-      <CardHeader className="pb-3 flex-row items-end justify-between gap-4">
+      <CardHeader className="pb-2 flex-row items-start justify-between gap-4">
         <div className="min-w-0">
-          <CardDescription>{current.hint}</CardDescription>
-          <CardTitle className="text-3xl tabular-nums text-primary">
-            {fmtEUR(current.value)}
-            <span className="ml-2 text-sm font-normal text-muted-foreground">
-              / {unidade}
-            </span>
-          </CardTitle>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Cota BO/colab/ano: {fmtEUR(cotaBo)} · Margem global:{" "}
-            {(margemGlobal * 100).toFixed(1)}% · Desperdício:{" "}
-            {(TAXA_DESPERDICIO * 100).toFixed(0)}%
-          </p>
+          <CardTitle className="text-base">Custo do atelier por unidade de tempo</CardTitle>
+          <CardDescription>
+            Custo total ({fmtEUR(totalAtelier)}) ÷ {diasUteis} dias úteis × {horasDia} h/dia
+          </CardDescription>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <div className="inline-flex rounded-md border bg-background p-0.5 text-xs">
-            {(["dia", "hora", "minuto"] as const).map((u) => (
-              <button
-                key={u}
-                type="button"
-                onClick={() => setUnidade(u)}
-                className={
-                  "rounded px-2.5 py-1 capitalize transition-colors " +
-                  (unidade === u
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground")
-                }
-              >
-                {u}
-              </button>
-            ))}
-          </div>
-          <Link
-            to="/valor-bo"
-            className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
-          >
-            Editar parâmetros →
-          </Link>
-        </div>
+        <Link
+          to="/valor-bo"
+          className="shrink-0 text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+        >
+          Editar parâmetros →
+        </Link>
       </CardHeader>
+      <CardContent className="pt-0">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {cells.map((c) => (
+            <div
+              key={c.unit}
+              className="rounded-lg border bg-muted/30 p-3"
+            >
+              <div className="text-xs text-muted-foreground">{c.label}</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums text-primary">
+                {fmtEUR(c.value)}
+              </div>
+              <div className="text-[11px] text-muted-foreground">por {c.unit}</div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-[11px] text-muted-foreground">
+          Cota BO/colab/ano: {fmtEUR(cotaBo)} · Margem global:{" "}
+          {(margemGlobal * 100).toFixed(1)}% · Desperdício:{" "}
+          {(TAXA_DESPERDICIO * 100).toFixed(0)}%
+        </p>
+      </CardContent>
     </Card>
   );
 }
+
 
 function CompositionView({
   title,
