@@ -450,7 +450,6 @@ export type Database = {
           ss_atelier_pct: number
           ss_colaborador_pct: number
           subsidio_alimentacao_diario: number
-          subsidios_modo: Database["public"]["Enums"]["subsidios_modo"]
           updated_at: string
           valor_base: number
         }
@@ -480,7 +479,6 @@ export type Database = {
           ss_atelier_pct?: number
           ss_colaborador_pct?: number
           subsidio_alimentacao_diario?: number
-          subsidios_modo?: Database["public"]["Enums"]["subsidios_modo"]
           updated_at?: string
           valor_base?: number
         }
@@ -510,7 +508,6 @@ export type Database = {
           ss_atelier_pct?: number
           ss_colaborador_pct?: number
           subsidio_alimentacao_diario?: number
-          subsidios_modo?: Database["public"]["Enums"]["subsidios_modo"]
           updated_at?: string
           valor_base?: number
         }
@@ -650,7 +647,6 @@ export type Database = {
         | "pausado"
         | "concluido"
         | "cancelado"
-      subsidios_modo: "tradicional" | "duodecimos_50" | "duodecimos_100"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -801,7 +797,6 @@ export const Constants = {
         "concluido",
         "cancelado",
       ],
-      subsidios_modo: ["tradicional", "duodecimos_50", "duodecimos_100"],
     },
   },
 } as const
