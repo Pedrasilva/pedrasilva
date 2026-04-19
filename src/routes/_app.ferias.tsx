@@ -274,15 +274,23 @@ function FeriasPage() {
   });
 
   // Lista a mostrar:
-  // - User normal: vê só os seus (RLS já restringe).
-  // - Admin: por defeito só os seus; pode alternar para "Todos" (com filtro opcional por colaborador).
+  // - User normal: vê só os seus (RLS já restringe, mas filtramos no cliente como defesa em profundidade).
+  // - Admin "meus": só os próprios pedidos do admin.
+  // - Admin "colaborador": pedidos do colaborador seleccionado.
+  // - Admin "calendario": todos os pedidos (consumidos pelo calendário anual).
   const visibleRequests = useMemo(() => {
-    if (!isAdmin) return requests;
+    if (!isAdmin) {
+      return myCollab ? requests.filter((r) => r.collaborator_id === myCollab.id) : [];
+    }
     if (adminScope === "meus") {
       return myCollab ? requests.filter((r) => r.collaborator_id === myCollab.id) : [];
     }
-    if (!selectedCollabId) return requests;
-    return requests.filter((r) => r.collaborator_id === selectedCollabId);
+    if (adminScope === "colaborador") {
+      if (!selectedCollabId) return [];
+      return requests.filter((r) => r.collaborator_id === selectedCollabId);
+    }
+    // calendario
+    return requests;
   }, [requests, isAdmin, adminScope, myCollab, selectedCollabId]);
 
   const collabName = (id: string) => collaborators.find((c) => c.id === id)?.nome ?? "—";
