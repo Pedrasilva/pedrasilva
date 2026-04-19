@@ -200,7 +200,7 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                     <TableRow className="bg-muted/30">
                       <TableCell className="font-medium" rowSpan={METRICS.length + 1}>
                         <Link
-                          to="/colaborador/$id"
+                          to="/hr/colaborador/$id"
                           params={{ id: row.collab.id }}
                           className="inline-flex items-center gap-1 hover:underline"
                         >

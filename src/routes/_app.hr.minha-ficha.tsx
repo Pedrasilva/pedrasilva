@@ -24,7 +24,7 @@ import { LiquidoTab } from "@/components/snapshot/LiquidoTab";
 import { BrutoTab } from "@/components/snapshot/BrutoTab";
 import { CircleAlert, FileText } from "lucide-react";
 
-export const Route = createFileRoute("/_app/minha-ficha")({
+export const Route = createFileRoute("/_app/hr/minha-ficha")({
   component: MinhaFichaPage,
 });
 
@@ -202,7 +202,7 @@ function MinhaFichaPage() {
         <FileText className="mr-1 inline h-3 w-3" />
         Esta página é apenas de consulta. Para qualquer alteração contacte o
         Backoffice. Em caso de dúvida visite a secção de{" "}
-        <Link to="/beneficios" className="underline underline-offset-2">
+        <Link to="/hr/beneficios" className="underline underline-offset-2">
           Benefícios
         </Link>
         .

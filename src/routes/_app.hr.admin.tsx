@@ -35,7 +35,7 @@ type UserRow = {
   collaborator_departamento: string | null;
 };
 
-export const Route = createFileRoute("/_app/admin")({
+export const Route = createFileRoute("/_app/hr/admin")({
   component: () => (
     <AdminOnly>
       <AdminPage />
@@ -141,7 +141,7 @@ function AdminPage() {
                       <TableCell>
                         {u.collaborator_id ? (
                           <Link
-                            to="/colaborador/$id"
+                            to="/hr/colaborador/$id"
                             params={{ id: u.collaborator_id }}
                             className="inline-flex items-center gap-1 text-sm hover:underline"
                           >

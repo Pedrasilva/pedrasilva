@@ -29,7 +29,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AdminOnly } from "@/components/AdminOnly";
 
-export const Route = createFileRoute("/_app/valor-bo")({
+export const Route = createFileRoute("/_app/hr/valor-bo")({
   component: () => (
     <AdminOnly>
       <ValorBOPage />

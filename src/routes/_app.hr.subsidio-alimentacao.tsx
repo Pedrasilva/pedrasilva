@@ -27,7 +27,7 @@ type Rate = {
   notas: string | null;
 };
 
-export const Route = createFileRoute("/_app/subsidio-alimentacao")({
+export const Route = createFileRoute("/_app/hr/subsidio-alimentacao")({
   component: () => (
     <AdminOnly>
       <SubsidioAlimentacaoPage />

@@ -48,7 +48,7 @@ import {
 } from "@/lib/workdays";
 import { fmtDate } from "@/lib/salary";
 
-export const Route = createFileRoute("/_app/dias-uteis")({
+export const Route = createFileRoute("/_app/hr/dias-uteis")({
   component: DiasUteisPage,
 });
 
