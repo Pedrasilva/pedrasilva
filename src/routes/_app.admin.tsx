@@ -81,15 +81,24 @@ function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-          <Shield className="h-5 w-5" /> Administração
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Gestão de permissões. O <em>departamento</em> (Backoffice/Projecto) é
-          apenas etiqueta organizacional — não atribui automaticamente
-          permissões de admin.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
+            <Shield className="h-5 w-5" /> Administração
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Gestão de permissões e colaboradores. O <em>departamento</em>{" "}
+            (Backoffice/Projecto) é apenas etiqueta organizacional — não
+            atribui automaticamente permissões de admin.
+          </p>
+        </div>
+        <NewCollaboratorDialog
+          trigger={
+            <Button>
+              <Plus className="h-4 w-4" /> Novo colaborador
+            </Button>
+          }
+        />
       </div>
 
       <Card>
