@@ -240,6 +240,77 @@ function Kpi({
   );
 }
 
+function ValorBoCard({
+  valorHora,
+  cotaBo,
+  margemGlobal,
+  totalAtelier,
+  diasUteis,
+  horasDia,
+}: {
+  valorHora: number;
+  cotaBo: number;
+  margemGlobal: number;
+  totalAtelier: number;
+  diasUteis: number;
+  horasDia: number;
+}) {
+  const [unidade, setUnidade] = useState<"dia" | "hora" | "minuto">("hora");
+  const precoDia = diasUteis > 0 ? totalAtelier / diasUteis : 0;
+  const precoHora = diasUteis > 0 && horasDia > 0 ? totalAtelier / (diasUteis * horasDia) : 0;
+  const precoMinuto = precoHora / 60;
+  const cfg = {
+    dia: { value: precoDia, hint: `Custo total do atelier ÷ ${diasUteis} dias úteis` },
+    hora: { value: valorHora, hint: `Cota a distribuir por colaborador da Equipa Projecto` },
+    minuto: { value: precoMinuto, hint: `Custo total do atelier ÷ (${diasUteis} × ${horasDia} h × 60 min)` },
+  } as const;
+  const current = cfg[unidade];
+  return (
+    <Card className="border-primary">
+      <CardHeader className="pb-3 flex-row items-end justify-between gap-4">
+        <div className="min-w-0">
+          <CardDescription>{current.hint}</CardDescription>
+          <CardTitle className="text-3xl tabular-nums text-primary">
+            {fmtEUR(current.value)}
+            <span className="ml-2 text-sm font-normal text-muted-foreground">
+              / {unidade}
+            </span>
+          </CardTitle>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Cota BO/colab/ano: {fmtEUR(cotaBo)} · Margem global:{" "}
+            {(margemGlobal * 100).toFixed(1)}% · Desperdício:{" "}
+            {(TAXA_DESPERDICIO * 100).toFixed(0)}%
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <div className="inline-flex rounded-md border bg-background p-0.5 text-xs">
+            {(["dia", "hora", "minuto"] as const).map((u) => (
+              <button
+                key={u}
+                type="button"
+                onClick={() => setUnidade(u)}
+                className={
+                  "rounded px-2.5 py-1 capitalize transition-colors " +
+                  (unidade === u
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground")
+                }
+              >
+                {u}
+              </button>
+            ))}
+          </div>
+          <Link
+            to="/valor-bo"
+            className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+          >
+            Editar parâmetros →
+          </Link>
+        </div>
+      </CardHeader>
+    </Card>
+  );
+}
 
 function CompositionView({
   title,
