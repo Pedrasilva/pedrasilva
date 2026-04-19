@@ -92,7 +92,7 @@ function ListPage() {
       toast.success("Colaborador criado");
       qc.invalidateQueries({ queryKey: ["collaborators"] });
       setOpen(false);
-      navigate({ to: "/colaborador/$id", params: { id: c.id } });
+      navigate({ to: "/hr/colaborador/$id", params: { id: c.id } });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -318,7 +318,7 @@ function DepartmentSection({
                 <TableRow
                   key={c.id}
                   className="cursor-pointer hover:bg-muted/40"
-                  onClick={() => navigate({ to: "/colaborador/$id", params: { id: c.id } })}
+                  onClick={() => navigate({ to: "/hr/colaborador/$id", params: { id: c.id } })}
                 >
                   <TableCell className="font-medium">{c.nome}</TableCell>
                   <TableCell className="text-muted-foreground">

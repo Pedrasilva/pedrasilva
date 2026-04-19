@@ -62,7 +62,7 @@ export function ViewAsPicker({ variant = "desktop" }: { variant?: "desktop" | "m
     setViewAsUser(true);
     setViewAsCollaboratorId(id);
     setOpen(false);
-    navigate({ to: "/minha-ficha" });
+    navigate({ to: "/hr/minha-ficha" });
   };
 
   const handleExit = () => {

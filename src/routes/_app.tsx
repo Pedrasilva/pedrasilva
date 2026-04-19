@@ -67,23 +67,51 @@ function AppLayout() {
 
   const items = [
     {
-      to: "/",
-      label: "Colaboradores",
+      to: "/" as const,
+      label: "Hub",
       icon: Users,
-      match: (p: string) => p === "/" || p.startsWith("/colaborador"),
+      match: (p: string) => p === "/",
       adminOnly: true,
     },
-    { to: "/minha-ficha", label: "Minha ficha", icon: UserIcon, match: (p: string) => p.startsWith("/minha-ficha"), adminOnly: false },
-    { to: "/ferias", label: "Férias", icon: CalendarDays, match: (p: string) => p.startsWith("/ferias"), adminOnly: false },
-    { to: "/beneficios", label: "Benefícios", icon: Wallet, match: (p: string) => p.startsWith("/beneficios"), adminOnly: false },
-    { to: "/resumo", label: "Resumo geral", icon: BarChart3, match: (p: string) => p.startsWith("/resumo"), adminOnly: true },
+    {
+      to: "/hr/minha-ficha" as const,
+      label: "Minha ficha",
+      icon: UserIcon,
+      match: (p: string) => p.startsWith("/hr/minha-ficha"),
+      adminOnly: false,
+    },
+    {
+      to: "/hr/ferias" as const,
+      label: "Férias",
+      icon: CalendarDays,
+      match: (p: string) => p.startsWith("/hr/ferias"),
+      adminOnly: false,
+    },
+    {
+      to: "/hr/beneficios" as const,
+      label: "Benefícios",
+      icon: Wallet,
+      match: (p: string) => p.startsWith("/hr/beneficios"),
+      adminOnly: false,
+    },
+    {
+      to: "/hr" as const,
+      label: "Colaboradores",
+      icon: Users,
+      // /hr (sem /minha-ficha, /ferias…) e /hr/colaborador/* e /hr/resumo
+      match: (p: string) =>
+        p === "/hr" ||
+        p.startsWith("/hr/colaborador") ||
+        p.startsWith("/hr/resumo"),
+      adminOnly: true,
+    },
   ] as const;
 
   const settingsItems = [
-    { to: "/admin", label: "Administração", icon: Shield, match: (p: string) => p.startsWith("/admin") },
-    { to: "/valor-bo", label: "Valor BO/hora", icon: Calculator, match: (p: string) => p.startsWith("/valor-bo") },
-    { to: "/dias-uteis", label: "Dias úteis", icon: CalendarCheck, match: (p: string) => p.startsWith("/dias-uteis") },
-    { to: "/subsidio-alimentacao", label: "Subsídio alimentação", icon: Utensils, match: (p: string) => p.startsWith("/subsidio-alimentacao") },
+    { to: "/hr/admin" as const, label: "Administração", icon: Shield, match: (p: string) => p.startsWith("/hr/admin") },
+    { to: "/hr/valor-bo" as const, label: "Valor BO/hora", icon: Calculator, match: (p: string) => p.startsWith("/hr/valor-bo") },
+    { to: "/hr/dias-uteis" as const, label: "Dias úteis", icon: CalendarCheck, match: (p: string) => p.startsWith("/hr/dias-uteis") },
+    { to: "/hr/subsidio-alimentacao" as const, label: "Subsídio alimentação", icon: Utensils, match: (p: string) => p.startsWith("/hr/subsidio-alimentacao") },
   ] as const;
 
   const visible = items.filter((it) => !it.adminOnly || isAdmin);
@@ -97,7 +125,7 @@ function AppLayout() {
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6">
           {/* Brand */}
           <Link
-            to={isAdmin ? "/" : "/ferias"}
+            to={isAdmin ? "/" : "/hr/minha-ficha"}
             className="flex items-center gap-3 shrink-0"
           >
             <img
