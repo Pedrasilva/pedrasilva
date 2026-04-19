@@ -63,7 +63,7 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
             {rows.map((r) => (
               <div
                 key={r.label}
-                className={`flex items-baseline justify-between py-2 ${r.strong ? "font-semibold" : ""} ${r.accent ? "text-[var(--sage)]" : ""}`}
+                className={`flex items-baseline justify-between py-2 ${r.strong ? "font-semibold" : ""} ${r.accent ? "text-[var(--sage)]" : ""} ${r.muted ? "text-muted-foreground" : ""}`}
               >
                 <span className="text-sm">{r.label}</span>
                 <span className="font-mono tabular-nums">
