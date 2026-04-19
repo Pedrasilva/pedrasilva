@@ -240,6 +240,7 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
               }
             />
           </div>
+          </div>
 
           <aside className="rounded-lg border bg-muted/30 p-3">
             <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
