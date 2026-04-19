@@ -475,8 +475,8 @@ function FeriasPage() {
         </Card>
       )}
 
-      {/* Saldo */}
-      {focusCollab && (
+      {/* Saldo (escondido no modo Calendário) */}
+      {focusCollab && !(isAdmin && adminScope === "calendario") && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
@@ -487,7 +487,7 @@ function FeriasPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isAdmin && (
+            {isAdmin && adminScope === "colaborador" && (
               <div className="mb-4 max-w-sm">
                 <Label className="text-xs text-muted-foreground">Ver saldo de…</Label>
                 <Select value={selectedCollabId} onValueChange={setSelectedCollabId}>
@@ -515,16 +515,18 @@ function FeriasPage() {
         </Card>
       )}
 
-      {/* Pedidos */}
+      {/* Pedidos / Calendário */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
           <CardTitle className="text-base">
             {isAdmin
               ? adminScope === "meus"
                 ? "Os meus pedidos"
-                : selectedCollabId
-                  ? `Pedidos de ${collabName(selectedCollabId)}`
-                  : "Todos os pedidos"
+                : adminScope === "colaborador"
+                  ? selectedCollabId
+                    ? `Pedidos de ${collabName(selectedCollabId)}`
+                    : "Seleccione um colaborador"
+                  : `Calendário anual da equipa · ${calendarYear}`
               : "Os meus pedidos"}
           </CardTitle>
           {isAdmin && (
@@ -543,21 +545,59 @@ function FeriasPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setAdminScope("todos")}
+                onClick={() => setAdminScope("colaborador")}
                 className={cn(
                   "rounded-sm px-2.5 py-1 transition-colors",
-                  adminScope === "todos"
+                  adminScope === "colaborador"
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                Todos
+                Por colaborador
+              </button>
+              <button
+                type="button"
+                onClick={() => setAdminScope("calendario")}
+                className={cn(
+                  "rounded-sm px-2.5 py-1 transition-colors",
+                  adminScope === "calendario"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                Calendário anual
               </button>
             </div>
           )}
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {isAdmin && adminScope === "colaborador" && !selectedCollabId && (
+            <div className="mb-4 max-w-sm">
+              <Label className="text-xs text-muted-foreground">Colaborador</Label>
+              <Select value={selectedCollabId} onValueChange={setSelectedCollabId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar colaborador…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {collaborators.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {isAdmin && adminScope === "calendario" ? (
+            <YearCalendar
+              year={calendarYear}
+              onYearChange={setCalendarYear}
+              requests={requests}
+              collaborators={collaborators}
+              holidayDates={holidayDates}
+            />
+          ) : isLoading ? (
             <div className="text-sm text-muted-foreground">A carregar…</div>
           ) : visibleRequests.length === 0 ? (
             <div className="text-sm text-muted-foreground">Sem pedidos.</div>
@@ -565,7 +605,6 @@ function FeriasPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  {isAdmin && adminScope === "todos" && <TableHead>Colaborador</TableHead>}
                   <TableHead>Tipo</TableHead>
                   <TableHead>Início</TableHead>
                   <TableHead>Fim</TableHead>
@@ -578,7 +617,6 @@ function FeriasPage() {
               <TableBody>
                 {visibleRequests.map((r) => (
                   <TableRow key={r.id}>
-                    {isAdmin && adminScope === "todos" && <TableCell>{collabName(r.collaborator_id)}</TableCell>}
                     <TableCell className="text-xs">{absenceLabel(r.tipo)}</TableCell>
                     <TableCell>{r.data_inicio}</TableCell>
                     <TableCell>{r.data_fim}</TableCell>
