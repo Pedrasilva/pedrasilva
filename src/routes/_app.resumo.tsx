@@ -143,7 +143,6 @@ function ResumoPage() {
       </div>
 
       <ValorBoCard
-        valorHora={valorBO.valorHora}
         cotaBo={cotaBo}
         margemGlobal={margemGlobal}
         totalAtelier={totalAtelier}
