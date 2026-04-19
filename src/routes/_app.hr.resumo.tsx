@@ -8,7 +8,7 @@ import {
   computeSnapshot,
   fmtEUR,
 } from "@/lib/salary";
-import { computeValorBO } from "./_app.valor-bo";
+import { computeValorBO } from "./_app.hr.valor-bo";
 import { computePricing, cotaBoPorColabProjecto, TAXA_DESPERDICIO } from "@/lib/pricing";
 import {
   Card,
