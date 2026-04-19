@@ -82,6 +82,7 @@ function AppLayout() {
     { to: "/admin", label: "Administração", icon: Shield, match: (p: string) => p.startsWith("/admin") },
     { to: "/valor-bo", label: "Valor BO/hora", icon: Calculator, match: (p: string) => p.startsWith("/valor-bo") },
     { to: "/dias-uteis", label: "Dias úteis", icon: CalendarCheck, match: (p: string) => p.startsWith("/dias-uteis") },
+    { to: "/subsidio-alimentacao", label: "Subsídio alimentação", icon: Utensils, match: (p: string) => p.startsWith("/subsidio-alimentacao") },
   ] as const;
 
   const visible = items.filter((it) => !it.adminOnly || isAdmin);
