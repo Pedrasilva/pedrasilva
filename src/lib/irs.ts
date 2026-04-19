@@ -34,6 +34,12 @@ export type IrsResultado = {
   bracket?: IrsBracket;
 };
 
+export type IrsLoadResult = {
+  brackets: IrsBracket[];
+  resolvedYear: number | null;
+  isFallback: boolean;
+};
+
 /** Determina a tabela IRS aplicável consoante o agregado. */
 export function pickTabela(estado_civil: string, numero_titulares: number): IrsTabela {
   if (estado_civil === "casado" || estado_civil === "uniao_facto") {
@@ -42,26 +48,88 @@ export function pickTabela(estado_civil: string, numero_titulares: number): IrsT
   return "nao_casado";
 }
 
-const cache = new Map<string, IrsBracket[]>();
+const cache = new Map<string, IrsLoadResult>();
 
-export async function loadBrackets(
+function pickClosestYear(requestedYear: number, years: number[]): number {
+  return years.reduce((bestYear, currentYear) => {
+    const bestDiff = Math.abs(bestYear - requestedYear);
+    const currentDiff = Math.abs(currentYear - requestedYear);
+
+    if (currentDiff < bestDiff) return currentYear;
+    if (currentDiff === bestDiff && currentYear > bestYear) return currentYear;
+    return bestYear;
+  }, years[0]);
+}
+
+export async function loadBracketsWithMeta(
   ano_fiscal: number,
   localizacao: string,
   tabela: IrsTabela,
-): Promise<IrsBracket[]> {
+): Promise<IrsLoadResult> {
   const key = `${ano_fiscal}|${localizacao}|${tabela}`;
-  if (cache.has(key)) return cache.get(key)!;
-  const { data, error } = await supabase
+  const cached = cache.get(key);
+  if (cached) return cached;
+
+  const { data: exactData, error: exactError } = await supabase
     .from("irs_tax_brackets")
     .select("*")
     .eq("ano_fiscal", ano_fiscal)
     .eq("localizacao", localizacao)
     .eq("tabela", tabela)
     .order("rendimento_min", { ascending: true });
-  if (error) throw error;
-  const list = (data ?? []) as IrsBracket[];
-  cache.set(key, list);
-  return list;
+
+  if (exactError) throw exactError;
+
+  const exactBrackets = (exactData ?? []) as IrsBracket[];
+  if (exactBrackets.length > 0) {
+    const exactResult: IrsLoadResult = {
+      brackets: exactBrackets,
+      resolvedYear: ano_fiscal,
+      isFallback: false,
+    };
+    cache.set(key, exactResult);
+    return exactResult;
+  }
+
+  const { data: fallbackData, error: fallbackError } = await supabase
+    .from("irs_tax_brackets")
+    .select("*")
+    .eq("localizacao", localizacao)
+    .eq("tabela", tabela)
+    .order("ano_fiscal", { ascending: true })
+    .order("rendimento_min", { ascending: true });
+
+  if (fallbackError) throw fallbackError;
+
+  const allBrackets = (fallbackData ?? []) as IrsBracket[];
+  if (allBrackets.length === 0) {
+    const emptyResult: IrsLoadResult = {
+      brackets: [],
+      resolvedYear: null,
+      isFallback: false,
+    };
+    cache.set(key, emptyResult);
+    return emptyResult;
+  }
+
+  const availableYears = [...new Set(allBrackets.map((br) => br.ano_fiscal))];
+  const resolvedYear = pickClosestYear(ano_fiscal, availableYears);
+  const fallbackResult: IrsLoadResult = {
+    brackets: allBrackets.filter((br) => br.ano_fiscal === resolvedYear),
+    resolvedYear,
+    isFallback: resolvedYear !== ano_fiscal,
+  };
+  cache.set(key, fallbackResult);
+  return fallbackResult;
+}
+
+export async function loadBrackets(
+  ano_fiscal: number,
+  localizacao: string,
+  tabela: IrsTabela,
+): Promise<IrsBracket[]> {
+  const { brackets } = await loadBracketsWithMeta(ano_fiscal, localizacao, tabela);
+  return brackets;
 }
 
 /** Calcula IRS dado um rendimento bruto mensal e os escalões já carregados. */

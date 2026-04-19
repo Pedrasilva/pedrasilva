@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtEUR, type Collaborator, type Snapshot } from "@/lib/salary";
-import { calcIrs, loadBrackets, pickTabela } from "@/lib/irs";
+import { calcIrs, loadBracketsWithMeta, pickTabela } from "@/lib/irs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -49,14 +49,13 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     [draft, snapshot],
   );
 
-  // Contexto fiscal vem do colaborador
   const tabela = pickTabela(collaborator.estado_civil, collaborator.numero_titulares);
-  const { data: brackets = [] } = useQuery({
+  const { data: irsTableData = { brackets: [], resolvedYear: collaborator.ano_fiscal, isFallback: false } } = useQuery({
     queryKey: ["irs", collaborator.ano_fiscal, collaborator.localizacao, tabela],
-    queryFn: () => loadBrackets(collaborator.ano_fiscal, collaborator.localizacao, tabela),
+    queryFn: () => loadBracketsWithMeta(collaborator.ano_fiscal, collaborator.localizacao, tabela),
   });
+  const brackets = irsTableData.brackets;
 
-  // Valor diário do subsídio de alimentação — gerido nas Definições por ano
   const { data: mealRate } = useQuery({
     queryKey: ["meal-allowance-rate", collaborator.ano_fiscal],
     queryFn: async () => {
@@ -76,7 +75,6 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     [draft.valor_base, collaborator.numero_dependentes, brackets],
   );
 
-  // Snapshot efectivo herda os valores do colaborador para cálculo
   const draftEffective = useMemo<Snapshot>(
     () => ({
       ...draft,
@@ -87,7 +85,6 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       dependentes_com_deficiencia: collaborator.dependentes_com_deficiencia,
       ano_fiscal: collaborator.ano_fiscal,
       irs_pct: draft.irs_calculado_auto ? irsAuto.irs_pct_efectiva : draft.irs_pct,
-      // Valor diário vem sempre da tabela centralizada (em cartão)
       subsidio_alimentacao_diario: mealDaily,
     }),
     [draft, collaborator, irsAuto.irs_pct_efectiva, mealDaily],
@@ -116,7 +113,6 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         beneficio_ticket: Number(draft.beneficio_ticket) || 0,
         premio_associado: Number(draft.premio_associado) || 0,
         outros_beneficios: Number(draft.outros_beneficios) || 0,
-        // Espelha o agregado familiar do colaborador para manter o histórico consistente
         localizacao: collaborator.localizacao,
         estado_civil: collaborator.estado_civil,
         numero_titulares: collaborator.numero_titulares,
@@ -135,7 +131,6 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     onError: (e: Error) => toast.error(`Erro a guardar: ${e.message}`),
   });
 
-  // Auto-save com debounce de 1s
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!isDirty || save.isPending) return;
@@ -144,7 +139,6 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draft, isDirty]);
 
   const remove = useMutation({
@@ -164,7 +158,6 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
 
   return (
     <div className="space-y-5">
-      {/* Cabeçalho sticky com estado de gravação */}
       <Card className="sticky top-2 z-20 border-[var(--clay)]/30 bg-[color-mix(in_oklab,var(--cream)_60%,var(--background))] shadow-sm backdrop-blur supports-[backdrop-filter]:bg-[color-mix(in_oklab,var(--cream)_45%,var(--background))]">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 flex-1">
@@ -210,10 +203,8 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         </CardHeader>
       </Card>
 
-      {/* Cadeia de valor: Custo empregador → Colaborador / Estado */}
       <ValueChainSummary c={c} />
 
-      {/* Cálculo automático IRS — usa contexto do colaborador */}
       <Card>
         <CardContent className="pt-6">
           <div className="rounded-lg border border-[var(--sage)]/30 bg-[color-mix(in_oklab,var(--sage)_6%,transparent)] p-3">
@@ -223,7 +214,8 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                 <div>
                   <div className="text-sm font-medium">Cálculo automático de IRS</div>
                   <div className="text-[11px] text-muted-foreground">
-                    Tabela: {TABELA_LABEL[tabela]} · {collaborator.localizacao} · {collaborator.ano_fiscal}
+                    Tabela: {TABELA_LABEL[tabela]} · {collaborator.localizacao} · {irsTableData.resolvedYear ?? collaborator.ano_fiscal}
+                    {irsTableData.isFallback ? " · fallback automático" : ""}
                     {" · "}
                     <span className="italic">contexto do colaborador</span>
                   </div>
@@ -240,9 +232,14 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                   <Mini label="IRS mensal" value={fmtEUR(irsAuto.irs_mensal)} />
                   <Mini label="% IRS efectiva" value={`${(irsAuto.irs_pct_efectiva * 100).toFixed(2)}%`} />
                 </div>
+                {irsTableData.isFallback && brackets.length > 0 && (
+                  <div className="mt-3 rounded-md border border-[var(--sage)]/40 bg-[color-mix(in_oklab,var(--sage)_8%,transparent)] px-3 py-2 text-[11px] text-[var(--sage)]">
+                    Não existe tabela de retenção IRS carregada para <strong>{collaborator.ano_fiscal}</strong>. Foi usada automaticamente a tabela mais próxima disponível: <strong>{irsTableData.resolvedYear}</strong>.
+                  </div>
+                )}
                 {brackets.length === 0 && (
                   <div className="mt-3 rounded-md border border-[var(--clay)]/40 bg-[color-mix(in_oklab,var(--clay)_8%,transparent)] px-3 py-2 text-[11px] text-[var(--clay)]">
-                    Não há tabela de retenção IRS carregada para <strong>{collaborator.ano_fiscal}</strong> ({collaborator.localizacao} · {TABELA_LABEL[tabela]}). Os valores aparecem a zero. Actualiza o ano fiscal do colaborador para 2026 ou carrega as tabelas em falta.
+                    Não há tabela de retenção IRS carregada para {collaborator.localizacao} · {TABELA_LABEL[tabela]}. Os valores aparecem a zero até existirem tabelas disponíveis.
                   </div>
                 )}
               </>
@@ -251,7 +248,6 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         </CardContent>
       </Card>
 
-      {/* Tabs */}
       <Tabs defaultValue="simulacao">
         <TabsList>
           <TabsTrigger value="simulacao">Simulação</TabsTrigger>
