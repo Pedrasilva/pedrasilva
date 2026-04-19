@@ -30,6 +30,7 @@ import {
   EyeOff,
   Wallet,
   Menu,
+  Shield,
   User as UserIcon,
 } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
@@ -79,6 +80,7 @@ function AppLayout() {
   ] as const;
 
   const settingsItems = [
+    { to: "/admin", label: "Administração", icon: Shield, match: (p: string) => p.startsWith("/admin") },
     { to: "/valor-bo", label: "Valor BO/hora", icon: Calculator, match: (p: string) => p.startsWith("/valor-bo") },
     { to: "/dias-uteis", label: "Dias úteis", icon: CalendarCheck, match: (p: string) => p.startsWith("/dias-uteis") },
   ] as const;
