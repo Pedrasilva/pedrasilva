@@ -29,9 +29,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { ChevronRight, ArrowUp, ArrowDown, ArrowUpDown, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AdminOnly } from "@/components/AdminOnly";
 
 export const Route = createFileRoute("/_app/resumo")({
-  component: ResumoPage,
+  component: () => (
+    <AdminOnly>
+      <ResumoPage />
+    </AdminOnly>
+  ),
 });
 
 type Row = {
