@@ -197,8 +197,8 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                 const hasEff = !!row.effective;
                 const hasProp = !!row.proposed;
                 return (
-                  <>
-                    <TableRow key={row.collab.id} className="bg-muted/30">
+                  <Fragment key={row.collab.id}>
+                    <TableRow className="bg-muted/30">
                       <TableCell className="font-medium" rowSpan={METRICS.length + 1}>
                         <Link
                           to="/colaborador/$id"
