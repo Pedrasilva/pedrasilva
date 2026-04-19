@@ -507,10 +507,44 @@ function FeriasPage() {
 
       {/* Pedidos */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
           <CardTitle className="text-base">
-            {isAdmin ? "Todos os pedidos" : "Os meus pedidos"}
+            {isAdmin
+              ? adminScope === "meus"
+                ? "Os meus pedidos"
+                : selectedCollabId
+                  ? `Pedidos de ${collabName(selectedCollabId)}`
+                  : "Todos os pedidos"
+              : "Os meus pedidos"}
           </CardTitle>
+          {isAdmin && (
+            <div className="inline-flex rounded-md border p-0.5 text-xs">
+              <button
+                type="button"
+                onClick={() => setAdminScope("meus")}
+                className={cn(
+                  "rounded-sm px-2.5 py-1 transition-colors",
+                  adminScope === "meus"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                Só os meus
+              </button>
+              <button
+                type="button"
+                onClick={() => setAdminScope("todos")}
+                className={cn(
+                  "rounded-sm px-2.5 py-1 transition-colors",
+                  adminScope === "todos"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                Todos
+              </button>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           {isLoading ? (
