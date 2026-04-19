@@ -113,6 +113,20 @@ function ResumoPage() {
     numColabProjecto: projecto.length,
   });
 
+  const totalAtelier = totalGeral + custosOp;
+  const pctRH = totalAtelier > 0 ? (totalGeral / totalAtelier) * 100 : 0;
+  const pctOp = totalAtelier > 0 ? (custosOp / totalAtelier) * 100 : 0;
+  const estrutura = totalBackoffice + custosOp;
+  const pctProj = totalAtelier > 0 ? (totalProjecto / totalAtelier) * 100 : 0;
+  const pctEstr = totalAtelier > 0 ? (estrutura / totalAtelier) * 100 : 0;
+  const numTotalEquipa = projecto.length + backoffice.length;
+  const horasCaso1 = numTotalEquipa * diasUteis * horasDia;
+  const horasCaso2 = projecto.length * diasUteis * horasDia;
+  const custoHoraCaso1 = horasCaso1 > 0 ? totalAtelier / horasCaso1 : 0;
+  const custoHoraCaso2 = horasCaso2 > 0 ? totalAtelier / horasCaso2 : 0;
+  const fmtH = (n: number) =>
+    new Intl.NumberFormat("pt-PT", { maximumFractionDigits: 0 }).format(n);
+
   return (
     <div className="space-y-6">
       <div>
@@ -125,7 +139,7 @@ function ResumoPage() {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Kpi title="Total Equipa Projecto (VBG)" value={fmtEUR(totalProjecto)} />
         <Kpi title="Total Equipa Backoffice (VBG)" value={fmtEUR(totalBackoffice)} />
-        <Kpi title="Custo total anual do atelier" value={fmtEUR(totalGeral + custosOp)} highlight />
+        <Kpi title="Custo total anual do atelier" value={fmtEUR(totalAtelier)} highlight />
       </div>
 
       <Card className="border-primary">
@@ -158,65 +172,46 @@ function ResumoPage() {
           <CardDescription>
             Custo total = Recursos Humanos (VBG) + Custo Operacional ={" "}
             <span className="font-medium tabular-nums text-foreground">
-              {fmtEUR(totalGeral + custosOp)}
+              {fmtEUR(totalAtelier)}
             </span>
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
-          {(() => {
-            const totalAtelier = totalGeral + custosOp;
-            const pctRH = totalAtelier > 0 ? (totalGeral / totalAtelier) * 100 : 0;
-            const pctOp = totalAtelier > 0 ? (custosOp / totalAtelier) * 100 : 0;
-            const estrutura = totalBackoffice + custosOp;
-            const pctProj = totalAtelier > 0 ? (totalProjecto / totalAtelier) * 100 : 0;
-            const pctEstr = totalAtelier > 0 ? (estrutura / totalAtelier) * 100 : 0;
-
-            const numTotalEquipa = projecto.length + backoffice.length;
-            const horasCaso1 = numTotalEquipa * diasUteis * horasDia;
-            const horasCaso2 = projecto.length * diasUteis * horasDia;
-            const custoHoraCaso1 = horasCaso1 > 0 ? totalAtelier / horasCaso1 : 0;
-            const custoHoraCaso2 = horasCaso2 > 0 ? totalAtelier / horasCaso2 : 0;
-            const fmtH = (n: number) =>
-              new Intl.NumberFormat("pt-PT", { maximumFractionDigits: 0 }).format(n);
-
-            return (
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                <CompositionView
-                  title="Recursos Humanos vs Operacional"
-                  bar={[
-                    { color: "bg-clay-complement", pct: pctRH, title: `Recursos Humanos: ${pctRH.toFixed(1)}%` },
-                    { color: "bg-clay", pct: pctOp, title: `Custo Operacional: ${pctOp.toFixed(1)}%` },
-                  ]}
-                  rows={[
-                    { color: "bg-clay-complement", label: "Recursos Humanos (VBG)", value: totalGeral, pct: pctRH },
-                    { color: "bg-clay", label: "Custo Operacional", value: custosOp, pct: pctOp },
-                  ]}
-                  hoursLabel={`Toda a equipa (${numTotalEquipa} × ${diasUteis} × ${horasDia} h)`}
-                  hours={horasCaso1}
-                  costPerHour={custoHoraCaso1}
-                  costColor="text-primary"
-                  fmtH={fmtH}
-                />
-                <CompositionView
-                  title="Produção vs Estrutura"
-                  subtitle="Estrutura = Backoffice + Operacional"
-                  bar={[
-                    { color: "bg-[var(--sage,oklch(0.6_0.08_150))]", pct: pctProj, title: `Recursos Projecto: ${pctProj.toFixed(1)}%` },
-                    { color: "bg-[var(--clay,oklch(0.65_0.13_40))]", pct: pctEstr, title: `Estrutura: ${pctEstr.toFixed(1)}%` },
-                  ]}
-                  rows={[
-                    { color: "bg-[var(--sage,oklch(0.6_0.08_150))]", label: "Recursos Projecto", value: totalProjecto, pct: pctProj },
-                    { color: "bg-[var(--clay,oklch(0.65_0.13_40))]", label: `Backoffice (${fmtEUR(totalBackoffice)}) + Operacional (${fmtEUR(custosOp)})`, value: estrutura, pct: pctEstr },
-                  ]}
-                  hoursLabel={`Só Projecto (${projecto.length} × ${diasUteis} × ${horasDia} h)`}
-                  hours={horasCaso2}
-                  costPerHour={custoHoraCaso2}
-                  costColor="text-[var(--sage,oklch(0.6_0.08_150))]"
-                  fmtH={fmtH}
-                />
-              </div>
-            );
-          })()}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <CompositionView
+              title="Recursos Humanos vs Operacional"
+              bar={[
+                { color: "bg-clay-complement", pct: pctRH, title: `Recursos Humanos: ${pctRH.toFixed(1)}%` },
+                { color: "bg-clay", pct: pctOp, title: `Custo Operacional: ${pctOp.toFixed(1)}%` },
+              ]}
+              rows={[
+                { color: "bg-clay-complement", label: "Recursos Humanos (VBG)", value: totalGeral, pct: pctRH },
+                { color: "bg-clay", label: "Custo Operacional", value: custosOp, pct: pctOp },
+              ]}
+              hoursLabel={`Toda a equipa (${numTotalEquipa} × ${diasUteis} × ${horasDia} h)`}
+              hours={horasCaso1}
+              costPerHour={custoHoraCaso1}
+              costColor="text-primary"
+              fmtH={fmtH}
+            />
+            <CompositionView
+              title="Produção vs Estrutura"
+              subtitle="Estrutura = Backoffice + Operacional"
+              bar={[
+                { color: "bg-sage", pct: pctProj, title: `Recursos Projecto: ${pctProj.toFixed(1)}%` },
+                { color: "bg-clay", pct: pctEstr, title: `Estrutura: ${pctEstr.toFixed(1)}%` },
+              ]}
+              rows={[
+                { color: "bg-sage", label: "Recursos Projecto", value: totalProjecto, pct: pctProj },
+                { color: "bg-clay", label: `Backoffice (${fmtEUR(totalBackoffice)}) + Operacional (${fmtEUR(custosOp)})`, value: estrutura, pct: pctEstr },
+              ]}
+              hoursLabel={`Só Projecto (${projecto.length} × ${diasUteis} × ${horasDia} h)`}
+              hours={horasCaso2}
+              costPerHour={custoHoraCaso2}
+              costColor="text-sage"
+              fmtH={fmtH}
+            />
+          </div>
         </CardContent>
       </Card>
 
