@@ -30,6 +30,8 @@ import { Input } from "@/components/ui/input";
 import { ChevronRight, ArrowUp, ArrowDown, ArrowUpDown, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AdminOnly } from "@/components/AdminOnly";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ResumoComparativoTab } from "@/components/ResumoComparativoTab";
 
 export const Route = createFileRoute("/_app/resumo")({
   component: () => (
@@ -170,79 +172,92 @@ function ResumoPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Kpi title="Total Equipa Projecto (VBG)" value={fmtEUR(totalProjecto)} />
-        <Kpi title="Total Equipa Backoffice (VBG)" value={fmtEUR(totalBackoffice)} />
-        <Kpi title="Custo total anual do atelier" value={fmtEUR(totalAtelier)} highlight />
-      </div>
+      <Tabs defaultValue="geral" className="space-y-4">
+        <TabsList className="no-print">
+          <TabsTrigger value="geral">Geral</TabsTrigger>
+          <TabsTrigger value="comparativo">Comparativo</TabsTrigger>
+        </TabsList>
 
-      <ValorBoCard
-        cotaBo={cotaBo}
-        margemGlobal={margemGlobal}
-        totalAtelier={totalAtelier}
-        diasUteis={diasUteis}
-        horasDia={horasDia}
-      />
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Composição do custo total do atelier</CardTitle>
-          <CardDescription>
-            Custo total = Recursos Humanos (VBG) + Custo Operacional ={" "}
-            <span className="font-medium tabular-nums text-foreground">
-              {fmtEUR(totalAtelier)}
-            </span>
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <CompositionView
-              title="Recursos Humanos vs Operacional"
-              bar={[
-                { color: "bg-clay-complement", pct: pctRH, title: `Recursos Humanos: ${pctRH.toFixed(1)}%` },
-                { color: "bg-clay", pct: pctOp, title: `Custo Operacional: ${pctOp.toFixed(1)}%` },
-              ]}
-              rows={[
-                { color: "bg-clay-complement", label: "Recursos Humanos (VBG)", value: totalGeral, pct: pctRH },
-                { color: "bg-clay", label: "Custo Operacional", value: custosOp, pct: pctOp },
-              ]}
-              hoursLabel={`Toda a equipa (${numTotalEquipa} × ${diasUteis} × ${horasDia} h)`}
-              hours={horasCaso1}
-              costPerHour={custoHoraCaso1}
-              costColor="text-primary"
-              fmtH={fmtH}
-            />
-            <CompositionView
-              title="Produção vs Estrutura"
-              subtitle="Estrutura = Backoffice + Operacional"
-              bar={[
-                { color: "bg-sage", pct: pctProj, title: `Recursos Projecto: ${pctProj.toFixed(1)}%` },
-                { color: "bg-clay", pct: pctEstr, title: `Estrutura: ${pctEstr.toFixed(1)}%` },
-              ]}
-              rows={[
-                { color: "bg-sage", label: "Recursos Projecto", value: totalProjecto, pct: pctProj },
-                { color: "bg-clay", label: `Backoffice (${fmtEUR(totalBackoffice)}) + Operacional (${fmtEUR(custosOp)})`, value: estrutura, pct: pctEstr },
-              ]}
-              hoursLabel={`Só Projecto (${projecto.length} × ${diasUteis} × ${horasDia} h)`}
-              hours={horasCaso2}
-              costPerHour={custoHoraCaso2}
-              costColor="text-sage"
-              fmtH={fmtH}
-            />
+        <TabsContent value="geral" className="space-y-6">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <Kpi title="Total Equipa Projecto (VBG)" value={fmtEUR(totalProjecto)} />
+            <Kpi title="Total Equipa Backoffice (VBG)" value={fmtEUR(totalBackoffice)} />
+            <Kpi title="Custo total anual do atelier" value={fmtEUR(totalAtelier)} highlight />
           </div>
-        </CardContent>
-      </Card>
 
-      <RhTable title="Equipa Backoffice" rows={backoffice} totalLabel="Equipa Backoffice" />
-      <RhTable title="Equipa Projecto" rows={projecto} totalLabel="Equipa produção" />
+          <ValorBoCard
+            cotaBo={cotaBo}
+            margemGlobal={margemGlobal}
+            totalAtelier={totalAtelier}
+            diasUteis={diasUteis}
+            horasDia={horasDia}
+          />
 
-      <PricingTable
-        rows={projecto}
-        cotaBo={cotaBo}
-        diasUteis={diasUteis}
-        horasDia={horasDia}
-        margemGlobal={margemGlobal}
-      />
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Composição do custo total do atelier</CardTitle>
+              <CardDescription>
+                Custo total = Recursos Humanos (VBG) + Custo Operacional ={" "}
+                <span className="font-medium tabular-nums text-foreground">
+                  {fmtEUR(totalAtelier)}
+                </span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <CompositionView
+                  title="Recursos Humanos vs Operacional"
+                  bar={[
+                    { color: "bg-clay-complement", pct: pctRH, title: `Recursos Humanos: ${pctRH.toFixed(1)}%` },
+                    { color: "bg-clay", pct: pctOp, title: `Custo Operacional: ${pctOp.toFixed(1)}%` },
+                  ]}
+                  rows={[
+                    { color: "bg-clay-complement", label: "Recursos Humanos (VBG)", value: totalGeral, pct: pctRH },
+                    { color: "bg-clay", label: "Custo Operacional", value: custosOp, pct: pctOp },
+                  ]}
+                  hoursLabel={`Toda a equipa (${numTotalEquipa} × ${diasUteis} × ${horasDia} h)`}
+                  hours={horasCaso1}
+                  costPerHour={custoHoraCaso1}
+                  costColor="text-primary"
+                  fmtH={fmtH}
+                />
+                <CompositionView
+                  title="Produção vs Estrutura"
+                  subtitle="Estrutura = Backoffice + Operacional"
+                  bar={[
+                    { color: "bg-sage", pct: pctProj, title: `Recursos Projecto: ${pctProj.toFixed(1)}%` },
+                    { color: "bg-clay", pct: pctEstr, title: `Estrutura: ${pctEstr.toFixed(1)}%` },
+                  ]}
+                  rows={[
+                    { color: "bg-sage", label: "Recursos Projecto", value: totalProjecto, pct: pctProj },
+                    { color: "bg-clay", label: `Backoffice (${fmtEUR(totalBackoffice)}) + Operacional (${fmtEUR(custosOp)})`, value: estrutura, pct: pctEstr },
+                  ]}
+                  hoursLabel={`Só Projecto (${projecto.length} × ${diasUteis} × ${horasDia} h)`}
+                  hours={horasCaso2}
+                  costPerHour={custoHoraCaso2}
+                  costColor="text-sage"
+                  fmtH={fmtH}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <RhTable title="Equipa Backoffice" rows={backoffice} totalLabel="Equipa Backoffice" />
+          <RhTable title="Equipa Projecto" rows={projecto} totalLabel="Equipa produção" />
+
+          <PricingTable
+            rows={projecto}
+            cotaBo={cotaBo}
+            diasUteis={diasUteis}
+            horasDia={horasDia}
+            margemGlobal={margemGlobal}
+          />
+        </TabsContent>
+
+        <TabsContent value="comparativo">
+          <ResumoComparativoTab rows={rows} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
