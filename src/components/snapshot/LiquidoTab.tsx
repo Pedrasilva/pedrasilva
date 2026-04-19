@@ -21,7 +21,6 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
   // Subsídio mensal "teórico" (sempre o valor líquido de um mês de salário)
   const subsidioFeriasMensal = c.liquido14m;
   const subsidioNatalMensal = c.liquido14m;
-  const subsidiosMensalTotal = subsidioFeriasMensal + subsidioNatalMensal;
 
   // Líquido base apresentado: o que falta para fechar c.liquido12m depois de somar os subsídios
   // tradicional (meses=14): liquido12m = liquido14m × 14/12 → base = liquido14m × (14/12) − 2×liquido14m = liquido14m × (−10/12) ❌
