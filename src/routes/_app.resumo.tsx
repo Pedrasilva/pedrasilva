@@ -285,6 +285,74 @@ function RatioRow({
   );
 }
 
+function CompositionView({
+  title,
+  subtitle,
+  bar,
+  rows,
+  hoursLabel,
+  hours,
+  costPerHour,
+  costColor,
+  fmtH,
+}: {
+  title: string;
+  subtitle?: string;
+  bar: { color: string; pct: number; title: string }[];
+  rows: { color: string; label: string; value: number; pct: number }[];
+  hoursLabel: string;
+  hours: number;
+  costPerHour: number;
+  costColor: string;
+  fmtH: (n: number) => string;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-baseline justify-between gap-2">
+        <h4 className="text-sm font-medium">{title}</h4>
+        {subtitle && <span className="text-[11px] text-muted-foreground">{subtitle}</span>}
+      </div>
+      <div className="flex h-7 w-full overflow-hidden rounded-md bg-muted text-[11px] font-semibold text-white">
+        {bar.map((b, i) => (
+          <div
+            key={i}
+            className={`flex items-center justify-center ${b.color}`}
+            style={{ width: `${b.pct}%` }}
+            title={b.title}
+          >
+            {b.pct >= 8 && `${b.pct.toFixed(1)}%`}
+          </div>
+        ))}
+      </div>
+      <div className="space-y-1.5">
+        {rows.map((r, i) => (
+          <div
+            key={i}
+            className="flex items-center justify-between gap-3 rounded-md border px-3 py-1.5"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className={`h-2.5 w-2.5 shrink-0 rounded-sm ${r.color}`} />
+              <span className="text-xs font-medium truncate">{r.label}</span>
+            </div>
+            <div className="flex items-baseline gap-2 shrink-0 tabular-nums">
+              <span className="text-xs text-muted-foreground">{fmtEUR(r.value)}</span>
+              <span className="text-sm font-semibold">{r.pct.toFixed(1)}%</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 rounded-md border bg-muted/30 px-3 py-1.5 text-[11px]">
+        <span className="text-muted-foreground">{hoursLabel}</span>
+        <span className="tabular-nums">
+          <span className="font-medium text-foreground">{fmtH(hours)} h/ano</span>
+          <span className="text-muted-foreground"> · </span>
+          <span className={`font-semibold ${costColor}`}>{fmtEUR(costPerHour)}/h</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function anosCarreira(inicio: string | null): string {
   if (!inicio) return "—";
   const start = new Date(inicio);
