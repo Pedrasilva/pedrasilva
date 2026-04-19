@@ -178,8 +178,6 @@ function AppLayout() {
 
           {/* Acções à direita */}
           <div className="flex items-center gap-1.5">
-            {isAdmin && <QuickCreateMenu />}
-
             {viewAsUser && (
               <Badge variant="secondary" className="hidden md:inline-flex">
                 Modo colaborador
