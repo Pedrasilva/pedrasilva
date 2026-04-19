@@ -390,6 +390,326 @@ export type Database = {
         }
         Relationships: []
       }
+      pm_allocations: {
+        Row: {
+          created_at: string
+          end_date: string
+          hours_per_day: number
+          id: string
+          resource_id: string
+          stage_id: string
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          hours_per_day?: number
+          id?: string
+          resource_id: string
+          stage_id: string
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          hours_per_day?: number
+          id?: string
+          resource_id?: string
+          stage_id?: string
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_allocations_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_allocations_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_projects: {
+        Row: {
+          client: string | null
+          color: string
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["pm_project_status"]
+          updated_at: string
+        }
+        Insert: {
+          client?: string | null
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["pm_project_status"]
+          updated_at?: string
+        }
+        Update: {
+          client?: string | null
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["pm_project_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pm_resources: {
+        Row: {
+          collaborator_id: string | null
+          color: string
+          created_at: string
+          hourly_rate: number
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          role: string | null
+          team: string
+          updated_at: string
+          weekly_capacity: number
+        }
+        Insert: {
+          collaborator_id?: string | null
+          color?: string
+          created_at?: string
+          hourly_rate?: number
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          role?: string | null
+          team?: string
+          updated_at?: string
+          weekly_capacity?: number
+        }
+        Update: {
+          collaborator_id?: string | null
+          color?: string
+          created_at?: string
+          hourly_rate?: number
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          role?: string | null
+          team?: string
+          updated_at?: string
+          weekly_capacity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_resources_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_stage_dependencies: {
+        Row: {
+          created_at: string
+          id: string
+          lag_days: number
+          predecessor_id: string
+          successor_id: string
+          type: Database["public"]["Enums"]["pm_dep_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lag_days?: number
+          predecessor_id: string
+          successor_id: string
+          type?: Database["public"]["Enums"]["pm_dep_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lag_days?: number
+          predecessor_id?: string
+          successor_id?: string
+          type?: Database["public"]["Enums"]["pm_dep_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_stage_dependencies_predecessor_id_fkey"
+            columns: ["predecessor_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_stage_dependencies_successor_id_fkey"
+            columns: ["successor_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_stages: {
+        Row: {
+          budget: number
+          color: string
+          created_at: string
+          end_date: string
+          id: string
+          name: string
+          project_id: string
+          sort_order: number
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          budget?: number
+          color?: string
+          created_at?: string
+          end_date: string
+          id?: string
+          name: string
+          project_id: string
+          sort_order?: number
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          budget?: number
+          color?: string
+          created_at?: string
+          end_date?: string
+          id?: string
+          name?: string
+          project_id?: string
+          sort_order?: number
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_stages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_tasks: {
+        Row: {
+          activated_at: string | null
+          allocation_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          name: string
+          status: Database["public"]["Enums"]["pm_task_status"]
+          updated_at: string
+        }
+        Insert: {
+          activated_at?: string | null
+          allocation_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          status?: Database["public"]["Enums"]["pm_task_status"]
+          updated_at?: string
+        }
+        Update: {
+          activated_at?: string | null
+          allocation_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          status?: Database["public"]["Enums"]["pm_task_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_tasks_allocation_id_fkey"
+            columns: ["allocation_id"]
+            isOneToOne: true
+            referencedRelation: "pm_allocations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_time_entries: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          entry_date: string
+          hours: number
+          id: string
+          notes: string | null
+          source: string
+          started_at: string | null
+          task_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          entry_date: string
+          hours?: number
+          id?: string
+          notes?: string | null
+          source?: string
+          started_at?: string | null
+          task_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          entry_date?: string
+          hours?: number
+          id?: string
+          notes?: string | null
+          source?: string
+          started_at?: string | null
+          task_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_time_entries_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "pm_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           codigo: string | null
@@ -674,6 +994,9 @@ export type Database = {
       company_status: "activo" | "prospecto" | "inactivo"
       department: "Projecto" | "Backoffice"
       expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
+      pm_dep_type: "FS" | "SS" | "FF" | "SF"
+      pm_project_status: "active" | "paused" | "archived"
+      pm_task_status: "pending" | "active" | "paused" | "done"
       project_status:
         | "proposta"
         | "em_curso"
@@ -824,6 +1147,9 @@ export const Constants = {
       company_status: ["activo", "prospecto", "inactivo"],
       department: ["Projecto", "Backoffice"],
       expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
+      pm_dep_type: ["FS", "SS", "FF", "SF"],
+      pm_project_status: ["active", "paused", "archived"],
+      pm_task_status: ["pending", "active", "paused", "done"],
       project_status: [
         "proposta",
         "em_curso",
