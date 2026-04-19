@@ -35,12 +35,14 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
     { label: "− IRS (mensal)", value: -c.irsMensal },
     { label: "= Líquido base mensal (12 meses)", value: liquidoBase12, strong: true },
     {
-      label: `+ Subsídio de férias (${modoHint}, ÷12)`,
+      label: `+ Subsídio de férias (${modoHint})`,
       value: subsidioFeriasMensal,
+      muted: subsidioFeriasMensal === 0,
     },
     {
-      label: `+ Subsídio de Natal (${modoHint}, ÷12)`,
+      label: `+ Subsídio de Natal (${modoHint})`,
       value: subsidioNatalMensal,
+      muted: subsidioNatalMensal === 0,
     },
     { label: "= Líquido mensal médio (com subsídios)", value: c.liquido12m, strong: true },
     { label: "+ Subsídio alimentação mensal", value: c.alimentacaoMensal },
