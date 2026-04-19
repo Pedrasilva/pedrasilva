@@ -92,7 +92,7 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
     { label: "Bruto mensal", l: cl?.brutoMensal ?? null, r: cr?.brutoMensal ?? null },
     { label: "Valor base x meses", l: cl?.baseAnual ?? null, r: cr?.baseAnual ?? null },
     { label: "Líquido mensal (12)", l: cl?.liquido12m ?? null, r: cr?.liquido12m ?? null },
-    { label: "Subsídio alimentação diário", l: left?.subsidio_alimentacao_diario ?? null, r: right?.subsidio_alimentacao_diario ?? null },
+    { label: "Subsídio alimentação diário", l: leftEffective?.subsidio_alimentacao_diario ?? null, r: rightEffective?.subsidio_alimentacao_diario ?? null },
     { label: "Subsídio alimentação mensal", l: cl?.alimentacaoMensal ?? null, r: cr?.alimentacaoMensal ?? null },
     { label: "Ajudas de custo (anual)", l: left?.ajudas_custo_anual ?? null, r: right?.ajudas_custo_anual ?? null },
     { label: "Ajudas de custo (mensal)", l: cl?.ajudasMensal ?? null, r: cr?.ajudasMensal ?? null },
