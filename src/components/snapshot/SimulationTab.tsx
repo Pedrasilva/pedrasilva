@@ -1,5 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { computeSnapshot, fmtEUR, type Snapshot } from "@/lib/salary";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  computeSnapshot,
+  fmtEUR,
+  mesesFromSubsidios,
+  SUBSIDIOS_MODO_OPTIONS,
+  type Snapshot,
+  type SubsidiosModo,
+} from "@/lib/salary";
 import { CalcRow, FieldRow, NumIn } from "./inputs";
 
 type Setter = <K extends keyof Snapshot>(k: K, v: Snapshot[K]) => void;
@@ -16,8 +30,30 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
           <FieldRow label="Valor base mensal">
             <NumIn value={draft.valor_base} onChange={(n) => set("valor_base", n)} />
           </FieldRow>
-          <FieldRow label="Meses pagos">
-            <NumIn value={draft.meses_pagos} onChange={(n) => set("meses_pagos", n)} step={1} />
+          <FieldRow label="Subsídios férias e Natal">
+            <Select
+              value={draft.subsidios_modo ?? "tradicional"}
+              onValueChange={(v) => {
+                const modo = v as SubsidiosModo;
+                set("subsidios_modo", modo);
+                // Mantém meses_pagos sincronizado para compatibilidade
+                set("meses_pagos", mesesFromSubsidios(modo));
+              }}
+            >
+              <SelectTrigger className="input-yellow h-9 text-left">
+                <SelectValue placeholder="Selecionar regime" />
+              </SelectTrigger>
+              <SelectContent>
+                {SUBSIDIOS_MODO_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    <div className="flex flex-col">
+                      <span className="text-sm">{opt.label}</span>
+                      <span className="text-[11px] text-muted-foreground">{opt.hint}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </FieldRow>
           <FieldRow label="SS atelier (%)">
             <NumIn value={draft.ss_atelier_pct * 100} step={0.01} suffix="%"
