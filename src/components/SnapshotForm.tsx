@@ -56,6 +56,21 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     queryFn: () => loadBrackets(collaborator.ano_fiscal, collaborator.localizacao, tabela),
   });
 
+  // Valor diário do subsídio de alimentação — gerido nas Definições por ano
+  const { data: mealRate } = useQuery({
+    queryKey: ["meal-allowance-rate", collaborator.ano_fiscal],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("meal_allowance_rates")
+        .select("ano, valor_cartao, valor_dinheiro")
+        .eq("ano", collaborator.ano_fiscal)
+        .maybeSingle();
+      if (error) throw error;
+      return data as { ano: number; valor_cartao: number; valor_dinheiro: number } | null;
+    },
+  });
+  const mealDaily = Number(mealRate?.valor_cartao ?? 0);
+
   const irsAuto = useMemo(
     () => calcIrs(draft.valor_base || 0, brackets, collaborator.numero_dependentes),
     [draft.valor_base, collaborator.numero_dependentes, brackets],
@@ -72,8 +87,10 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       dependentes_com_deficiencia: collaborator.dependentes_com_deficiencia,
       ano_fiscal: collaborator.ano_fiscal,
       irs_pct: draft.irs_calculado_auto ? irsAuto.irs_pct_efectiva : draft.irs_pct,
+      // Valor diário vem sempre da tabela centralizada (em cartão)
+      subsidio_alimentacao_diario: mealDaily,
     }),
-    [draft, collaborator, irsAuto.irs_pct_efectiva],
+    [draft, collaborator, irsAuto.irs_pct_efectiva, mealDaily],
   );
 
   const c = computeSnapshot(draftEffective);
