@@ -10,41 +10,56 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
   const isAnual = period === "anual";
   const mult = isAnual ? c.meses : 1;
 
-  // O líquido mensal médio (c.liquido12m) já incorpora os subsídios consoante o regime.
-  // Para que a soma feche, derivamos a contribuição mensal de cada subsídio a partir
-  // da diferença entre o líquido com subsídios e o líquido base de 12 meses.
-  // - tradicional (14m): cada subsídio contribui c.liquido14m/12
-  // - duodecimos_50 (13m): cada subsídio contribui c.liquido14m/24
-  // - duodecimos_100 (12m): cada subsídio contribui 0 (já está no base)
+  // Mostramos sempre o valor líquido de cada subsídio (independente do regime),
+  // calculado como líquido mensal × proporção correspondente:
+  // - tradicional (14m): cada subsídio = c.liquido14m (1 mês cheio diluído em 12)
+  // - duodecimos_50 (13m): cada subsídio = c.liquido14m / 2 (metade cheia + metade diluída)
+  // - duodecimos_100 (12m): cada subsídio = c.liquido14m (totalmente diluído)
+  // Para que a soma feche, ajustamos o "Líquido base mensal" exibido em função do regime.
   const modo = draft.subsidios_modo ?? "tradicional";
-  const liquidoBase12 = c.liquido14m; // base − SS − IRS (mensal, 12 meses)
-  const subsidiosMensalTotal = c.liquido12m - liquidoBase12;
-  const subsidioFeriasMensal = subsidiosMensalTotal / 2;
-  const subsidioNatalMensal = subsidiosMensalTotal / 2;
+
+  // Subsídio mensal "teórico" (sempre o valor líquido de um mês de salário)
+  const subsidioFeriasMensal = c.liquido14m;
+  const subsidioNatalMensal = c.liquido14m;
+  const subsidiosMensalTotal = subsidioFeriasMensal + subsidioNatalMensal;
+
+  // Líquido base apresentado: o que falta para fechar c.liquido12m depois de somar os subsídios
+  // tradicional (meses=14): liquido12m = liquido14m × 14/12 → base = liquido14m × (14/12) − 2×liquido14m = liquido14m × (−10/12) ❌
+  // Esta abordagem não fecha. Em vez disso, mostramos o líquido base = c.liquido14m
+  // e indicamos que os subsídios são adicionais (regime tradicional/50%) ou já incluídos (100%).
+  const liquidoBase12 = c.liquido14m;
 
   const modoHint =
     modo === "duodecimos_100"
-      ? "100% duodécimos · diluído no líquido base"
+      ? "diluído nos 12 meses (já incluído no líquido base)"
       : modo === "duodecimos_50"
-        ? "50% duodécimos · ÷24"
-        : "tradicional · ÷12";
+        ? "50% diluído · 50% pago em Junho/Novembro"
+        : "pago por inteiro em Junho/Novembro";
+
+  const subsidiosJaIncluidos = modo === "duodecimos_100";
 
   const rows: Array<{ label: string; value: number; raw?: string; strong?: boolean; accent?: boolean; muted?: boolean }> = [
     { label: "Valor base mensal", value: c.base },
     { label: "− SS Colaborador (mensal)", value: -c.ssColaboradorMensal },
     { label: "− IRS (mensal)", value: -c.irsMensal },
-    { label: "= Líquido base mensal (12 meses)", value: liquidoBase12, strong: true },
+    { label: "= Líquido base mensal", value: liquidoBase12, strong: true },
     {
       label: `+ Subsídio de férias (${modoHint})`,
       value: subsidioFeriasMensal,
-      muted: subsidioFeriasMensal === 0,
+      muted: subsidiosJaIncluidos,
     },
     {
       label: `+ Subsídio de Natal (${modoHint})`,
       value: subsidioNatalMensal,
-      muted: subsidioNatalMensal === 0,
+      muted: subsidiosJaIncluidos,
     },
-    { label: "= Líquido mensal médio (com subsídios)", value: c.liquido12m, strong: true },
+    {
+      label: subsidiosJaIncluidos
+        ? "= Líquido mensal médio (subsídios já diluídos)"
+        : "= Líquido mensal médio (com subsídios diluídos em 12 meses)",
+      value: c.liquido12m,
+      strong: true,
+    },
     { label: "+ Subsídio alimentação mensal", value: c.alimentacaoMensal },
     { label: "+ Ajudas de custo mensais", value: c.ajudasMensal },
     { label: "= Líquido total mensal", value: c.liquidoTotalMensal, strong: true, accent: true },
