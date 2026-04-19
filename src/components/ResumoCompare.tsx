@@ -44,6 +44,32 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
   const left = snapshots.find((s) => s.id === leftId) ?? lastEffective;
   const right = snapshots.find((s) => s.id === rightId) ?? lastProposed;
 
+  // Tabela centralizada de subsídio de alimentação — aplicada em runtime
+  // (mesmo padrão que SnapshotForm) para que o resumo reflicta sempre a tabela
+  // configurada nas Definições, baseado no ano da reference_date de cada ficha.
+  const { data: mealRates = [] } = useQuery({
+    queryKey: ["meal-allowance-rates-all"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("meal_allowance_rates")
+        .select("ano, valor_cartao")
+        .order("ano", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as { ano: number; valor_cartao: number }[];
+    },
+  });
+
+  const mealDailyFor = (s: Snapshot | undefined): number => {
+    if (!s || mealRates.length === 0) return s?.subsidio_alimentacao_diario ?? 0;
+    const y = Number((s.reference_date ?? "").slice(0, 4));
+    const refYear = Number.isFinite(y) && y > 1900 ? y : new Date().getFullYear();
+    const exact = mealRates.find((r) => r.ano === refYear);
+    if (exact) return Number(exact.valor_cartao);
+    const earlier = mealRates.filter((r) => r.ano <= refYear).sort((a, b) => b.ano - a.ano)[0];
+    if (earlier) return Number(earlier.valor_cartao);
+    return Number(mealRates[0].valor_cartao);
+  };
+
   if (!left && !right) {
     return (
       <Card>
@@ -54,8 +80,11 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
     );
   }
 
-  const cl = left ? computeSnapshot(left) : null;
-  const cr = right ? computeSnapshot(right) : null;
+  const leftEffective = left ? { ...left, subsidio_alimentacao_diario: mealDailyFor(left) } : null;
+  const rightEffective = right ? { ...right, subsidio_alimentacao_diario: mealDailyFor(right) } : null;
+
+  const cl = leftEffective ? computeSnapshot(leftEffective) : null;
+  const cr = rightEffective ? computeSnapshot(rightEffective) : null;
 
   const rows: Array<{ label: string; l: number | null; r: number | null; pct?: boolean }> = [
     { label: "Valor base mensal", l: left?.valor_base ?? null, r: right?.valor_base ?? null },
