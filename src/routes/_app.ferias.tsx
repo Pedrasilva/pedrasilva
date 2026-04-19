@@ -145,6 +145,8 @@ function FeriasPage() {
 
   // Saldos do colaborador actual (ou colaborador seleccionado pelo admin)
   const [selectedCollabId, setSelectedCollabId] = useState<string>("");
+  // Admins, por defeito, vêem apenas os seus próprios pedidos. Podem alternar para "Todos".
+  const [adminScope, setAdminScope] = useState<"meus" | "todos">("meus");
   const focusCollab = isAdmin
     ? collaborators.find((c) => c.id === selectedCollabId) ?? myCollab
     : myCollab;
