@@ -23,15 +23,36 @@ function ProjectsPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Construction className="h-5 w-5 text-muted-foreground" />
-            <CardTitle>Em construção</CardTitle>
+            <CardTitle>Fase 3 em curso — fundação pronta</CardTitle>
           </div>
           <CardDescription>
-            O conteúdo deste módulo virá da migração do projecto Stagecraft (Gantt, alocação de
-            recursos, timesheets) para dentro deste ecosistema.
+            Migração do Stagecraft para o ecosistema. Base de dados (Fase 2) já está pronta com
+            as tabelas pm_projects, pm_stages, pm_resources, pm_allocations, pm_tasks,
+            pm_time_entries e pm_stage_dependencies.
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          Próximo passo: criar as tabelas necessárias na base de dados e migrar UI/lógica.
+        <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <p>
+            <strong className="text-foreground">Já portado nesta fase:</strong>
+          </p>
+          <ul className="list-disc space-y-1 pl-5">
+            <li>
+              Camada de dados completa em <code className="text-xs">src/lib/projects/</code>:
+              hooks use-planner, use-tasks e use-timesheet, todos adaptados para as tabelas
+              pm_*.
+            </li>
+            <li>
+              Utilitários: gantt-utils, dependencies (cascata FS/SS/FF/SF), overload e
+              time-format.
+            </li>
+            <li>Tokens CSS para o canvas Gantt e medidor de orçamento (light + dark).</li>
+          </ul>
+          <p className="pt-2">
+            <strong className="text-foreground">Próximo passo:</strong> portar componentes UI
+            (gantt-chart, resource-pool, dialogs, editors) e criar as rotas
+            /projects/$projectId, /projects/gantt, /projects/resources, /projects/timesheet e
+            /projects/my-tasks.
+          </p>
         </CardContent>
       </Card>
     </div>

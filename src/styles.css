@@ -69,6 +69,14 @@
   --color-clay-complement: var(--clay-complement);
   --color-sage: var(--sage);
   --color-ink: var(--ink);
+  /* Projects module — Gantt canvas + budget meter */
+  --color-canvas: var(--canvas);
+  --color-canvas-line: var(--canvas-line);
+  --color-canvas-line-strong: var(--canvas-line-strong);
+  --color-budget: var(--budget);
+  --color-budget-spent: var(--budget-spent);
+  --color-budget-over: var(--budget-over);
+  --font-display: "Fraunces", "Times New Roman", serif;
 }
 
 :root {
@@ -115,6 +123,13 @@
   --clay-complement: oklch(0.55 0.13 215);
   --sage: oklch(0.62 0.07 150);
   --ink: oklch(0.22 0.02 60);
+  /* Projects module — Gantt canvas */
+  --canvas: oklch(0.975 0.006 90);
+  --canvas-line: oklch(0.91 0.008 90);
+  --canvas-line-strong: oklch(0.78 0.01 90);
+  --budget: oklch(0.93 0.06 100);
+  --budget-spent: oklch(0.62 0.16 145);
+  --budget-over: oklch(0.58 0.22 25);
 }
 
 .dark {
@@ -159,6 +174,31 @@
   --clay-complement: oklch(0.7 0.13 215);
   --sage: oklch(0.7 0.07 150);
   --ink: oklch(0.95 0.01 60);
+  /* Projects module — Gantt canvas (dark) */
+  --canvas: oklch(0.18 0.012 250);
+  --canvas-line: oklch(0.26 0.014 250);
+  --canvas-line-strong: oklch(0.36 0.014 250);
+  --budget: oklch(0.32 0.04 100);
+  --budget-spent: oklch(0.62 0.16 145);
+  --budget-over: oklch(0.62 0.22 25);
+}
+
+/* Projects module — Gantt canvas grid background */
+.gantt-canvas-bg {
+  background-image:
+    linear-gradient(to right, var(--color-canvas-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-canvas-line) 1px, transparent 1px);
+  background-size: var(--day-width, 32px) 100%, 100% 56px;
+}
+.gantt-week-marker {
+  background-image: linear-gradient(to right, var(--color-canvas-line-strong) 1px, transparent 1px);
+  background-size: calc(var(--day-width, 32px) * 7) 100%;
+}
+.bg-canvas { background-color: var(--color-canvas); }
+.bg-budget { background-color: var(--color-budget); }
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
 }
 
 @layer base {
