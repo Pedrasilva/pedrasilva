@@ -10,14 +10,43 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
   const isAnual = period === "anual";
   const mult = isAnual ? c.meses : 1;
 
-  const rows = [
+  // Decomposição dos subsídios de férias e Natal consoante o regime:
+  // - tradicional (14m): subsídios pagos por inteiro (ambos = 1× líquido mensal cada)
+  // - duodecimos_50 (13m): metade diluída + metade por inteiro (cada subsídio = 0.5× líquido)
+  // - duodecimos_100 (12m): totalmente diluídos (nada por inteiro extra)
+  const modo = draft.subsidios_modo ?? "tradicional";
+  const subsidioFeriasAnual =
+    modo === "duodecimos_100" ? 0 : modo === "duodecimos_50" ? c.liquido14m * 0.5 : c.liquido14m;
+  const subsidioNatalAnual = subsidioFeriasAnual;
+  const subsidioFeriasMensal = subsidioFeriasAnual / 12;
+  const subsidioNatalMensal = subsidioNatalAnual / 12;
+
+  const modoLabel =
+    modo === "duodecimos_100"
+      ? "100% duodécimos"
+      : modo === "duodecimos_50"
+        ? "50% duodécimos"
+        : "tradicional";
+
+  // Líquido base de 12 meses (sem subsídios), para deixar claro o que entra
+  const liquidoBase12 = c.liquido14m; // mesma fórmula: base − SS − IRS
+
+  const rows: Array<{ label: string; value: number; raw?: string; strong?: boolean; accent?: boolean; muted?: boolean }> = [
     { label: "Valor base mensal", value: c.base },
     { label: "− SS Colaborador (mensal)", value: -c.ssColaboradorMensal },
     { label: "− IRS (mensal)", value: -c.irsMensal },
-    { label: "= Líquido (por mês de pagamento)", value: c.liquido14m, strong: true },
-    { label: "× Meses pagos", value: c.meses, raw: `${c.meses}` },
-    { label: "= Líquido anual", value: c.liquidoAnual, strong: true },
-    { label: "÷ 12 (Líquido mensal médio)", value: c.liquido12m },
+    { label: "= Líquido base mensal (12 meses)", value: liquidoBase12, strong: true },
+    {
+      label: `+ Subsídio de férias (${modoLabel}, ÷12)`,
+      value: subsidioFeriasMensal,
+      muted: subsidioFeriasMensal === 0,
+    },
+    {
+      label: `+ Subsídio de Natal (${modoLabel}, ÷12)`,
+      value: subsidioNatalMensal,
+      muted: subsidioNatalMensal === 0,
+    },
+    { label: "= Líquido mensal médio (com subsídios)", value: c.liquido12m, strong: true },
     { label: "+ Subsídio alimentação mensal", value: c.alimentacaoMensal },
     { label: "+ Ajudas de custo mensais", value: c.ajudasMensal },
     { label: "= Líquido total mensal", value: c.liquidoTotalMensal, strong: true, accent: true },
@@ -34,7 +63,7 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
             {rows.map((r) => (
               <div
                 key={r.label}
-                className={`flex items-baseline justify-between py-2 ${r.strong ? "font-semibold" : ""} ${r.accent ? "text-[var(--sage)]" : ""}`}
+                className={`flex items-baseline justify-between py-2 ${r.strong ? "font-semibold" : ""} ${r.accent ? "text-[var(--sage)]" : ""} ${r.muted ? "text-muted-foreground" : ""}`}
               >
                 <span className="text-sm">{r.label}</span>
                 <span className="font-mono tabular-nums">
