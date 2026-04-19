@@ -125,7 +125,7 @@ function ResumoPage() {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Kpi title="Total Equipa Projecto (VBG)" value={fmtEUR(totalProjecto)} />
         <Kpi title="Total Equipa Backoffice (VBG)" value={fmtEUR(totalBackoffice)} />
-        <Kpi title="Total RH (VBG)" value={fmtEUR(totalGeral)} highlight />
+        <Kpi title="Custo total anual do atelier" value={fmtEUR(totalGeral + custosOp)} highlight />
       </div>
 
       <Card className="border-primary">
