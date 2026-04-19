@@ -29,19 +29,18 @@ export const Route = createFileRoute("/_app/minha-ficha")({
 });
 
 function MinhaFichaPage() {
-  const { user } = useAuth();
+  const { user, viewAsCollaboratorId } = useAuth();
   const email = user?.email ?? null;
 
-  // 1. Procura o colaborador pelo email da sessão
+  // 1. Procura o colaborador: por id (se admin a impersonar) ou pelo email da sessão
   const { data: collaborator, isLoading: loadingCollab } = useQuery({
-    queryKey: ["my-collaborator", email],
-    enabled: !!email,
+    queryKey: ["my-collaborator", viewAsCollaboratorId ?? email],
+    enabled: !!(viewAsCollaboratorId || email),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("collaborators")
-        .select("*")
-        .eq("email", email!)
-        .maybeSingle();
+      const q = supabase.from("collaborators").select("*");
+      const { data, error } = viewAsCollaboratorId
+        ? await q.eq("id", viewAsCollaboratorId).maybeSingle()
+        : await q.eq("email", email!).maybeSingle();
       if (error) throw error;
       return data as Collaborator | null;
     },
