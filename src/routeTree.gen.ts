@@ -14,6 +14,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
 import { Route as AppValorBoRouteImport } from './routes/_app.valor-bo'
+import { Route as AppSubsidioAlimentacaoRouteImport } from './routes/_app.subsidio-alimentacao'
 import { Route as AppResumoRouteImport } from './routes/_app.resumo'
 import { Route as AppMinhaFichaRouteImport } from './routes/_app.minha-ficha'
 import { Route as AppFeriasRouteImport } from './routes/_app.ferias'
@@ -44,6 +45,11 @@ const ApiNotifyExpenseRoute = ApiNotifyExpenseRouteImport.update({
 const AppValorBoRoute = AppValorBoRouteImport.update({
   id: '/valor-bo',
   path: '/valor-bo',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSubsidioAlimentacaoRoute = AppSubsidioAlimentacaoRouteImport.update({
+  id: '/subsidio-alimentacao',
+  path: '/subsidio-alimentacao',
   getParentRoute: () => AppRoute,
 } as any)
 const AppResumoRoute = AppResumoRouteImport.update({
@@ -91,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/ferias': typeof AppFeriasRoute
   '/minha-ficha': typeof AppMinhaFichaRoute
   '/resumo': typeof AppResumoRoute
+  '/subsidio-alimentacao': typeof AppSubsidioAlimentacaoRoute
   '/valor-bo': typeof AppValorBoRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/colaborador/$id': typeof AppColaboradorIdRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/ferias': typeof AppFeriasRoute
   '/minha-ficha': typeof AppMinhaFichaRoute
   '/resumo': typeof AppResumoRoute
+  '/subsidio-alimentacao': typeof AppSubsidioAlimentacaoRoute
   '/valor-bo': typeof AppValorBoRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/_app/ferias': typeof AppFeriasRoute
   '/_app/minha-ficha': typeof AppMinhaFichaRoute
   '/_app/resumo': typeof AppResumoRoute
+  '/_app/subsidio-alimentacao': typeof AppSubsidioAlimentacaoRoute
   '/_app/valor-bo': typeof AppValorBoRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/ferias'
     | '/minha-ficha'
     | '/resumo'
+    | '/subsidio-alimentacao'
     | '/valor-bo'
     | '/api/notify-expense'
     | '/colaborador/$id'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/ferias'
     | '/minha-ficha'
     | '/resumo'
+    | '/subsidio-alimentacao'
     | '/valor-bo'
     | '/api/notify-expense'
     | '/'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/_app/ferias'
     | '/_app/minha-ficha'
     | '/_app/resumo'
+    | '/_app/subsidio-alimentacao'
     | '/_app/valor-bo'
     | '/api/notify-expense'
     | '/_app/'
@@ -207,6 +219,13 @@ declare module '@tanstack/react-router' {
       path: '/valor-bo'
       fullPath: '/valor-bo'
       preLoaderRoute: typeof AppValorBoRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/subsidio-alimentacao': {
+      id: '/_app/subsidio-alimentacao'
+      path: '/subsidio-alimentacao'
+      fullPath: '/subsidio-alimentacao'
+      preLoaderRoute: typeof AppSubsidioAlimentacaoRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/resumo': {
@@ -268,6 +287,7 @@ interface AppRouteChildren {
   AppFeriasRoute: typeof AppFeriasRoute
   AppMinhaFichaRoute: typeof AppMinhaFichaRoute
   AppResumoRoute: typeof AppResumoRoute
+  AppSubsidioAlimentacaoRoute: typeof AppSubsidioAlimentacaoRoute
   AppValorBoRoute: typeof AppValorBoRoute
   AppIndexRoute: typeof AppIndexRoute
   AppColaboradorIdRoute: typeof AppColaboradorIdRoute
@@ -280,6 +300,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppFeriasRoute: AppFeriasRoute,
   AppMinhaFichaRoute: AppMinhaFichaRoute,
   AppResumoRoute: AppResumoRoute,
+  AppSubsidioAlimentacaoRoute: AppSubsidioAlimentacaoRoute,
   AppValorBoRoute: AppValorBoRoute,
   AppIndexRoute: AppIndexRoute,
   AppColaboradorIdRoute: AppColaboradorIdRoute,
@@ -295,3 +316,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
