@@ -1,60 +1,91 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Briefcase, ArrowLeft, Construction } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Briefcase, Users, ListChecks, CalendarClock, GanttChartSquare } from "lucide-react";
+import { NewProjectDialog } from "@/components/projects/NewProjectDialog";
+import { useProjects } from "@/lib/projects/use-planner";
 
 export const Route = createFileRoute("/_app/projects")({
   component: ProjectsPage,
 });
 
 function ProjectsPage() {
+  const { data: projects, isLoading } = useProjects();
+
   return (
-    <div className="space-y-6">
-      <div className="space-y-1">
-        <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-3 w-3" /> Hub
-        </Link>
-        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-          <Briefcase className="h-6 w-6 text-primary" /> Projects
-        </h1>
-        <p className="text-sm text-muted-foreground">Gestão de projectos, recursos e timesheets.</p>
+    <div className="mx-auto w-full max-w-[1400px] px-6 py-8">
+      <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="h-3 w-3" /> Início
+      </Link>
+
+      <div className="mt-3 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Studio</p>
+          <h1 className="font-display text-3xl font-semibold tracking-tight flex items-center gap-2">
+            <Briefcase className="h-7 w-7" /> Projectos
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+            Estrutura criada. Componentes Gantt, alocações, dependências e equipa prontos.
+            As rotas filhas ficam por activar nas próximas iterações.
+          </p>
+        </div>
+        <NewProjectDialog />
       </div>
 
-      <Card>
+      <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <NavCard icon={GanttChartSquare} title="Gantt global" description="Todos os projectos numa só timeline" />
+        <NavCard icon={Users} title="Equipa" description="Recursos, tarifas e capacidade" />
+        <NavCard icon={ListChecks} title="Minhas tarefas" description="Aceitar e fechar tarefas" />
+        <NavCard icon={CalendarClock} title="Timesheet" description="Lançar horas semanais" />
+      </div>
+
+      <Card className="mt-6">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <Construction className="h-5 w-5 text-muted-foreground" />
-            <CardTitle>Fase 3 em curso — fundação pronta</CardTitle>
-          </div>
-          <CardDescription>
-            Migração do Stagecraft para o ecosistema. Base de dados (Fase 2) já está pronta com
-            as tabelas pm_projects, pm_stages, pm_resources, pm_allocations, pm_tasks,
-            pm_time_entries e pm_stage_dependencies.
-          </CardDescription>
+          <CardTitle className="text-base">Projectos {projects ? `(${projects.length})` : ""}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            <strong className="text-foreground">Já portado nesta fase:</strong>
-          </p>
-          <ul className="list-disc space-y-1 pl-5">
-            <li>
-              Camada de dados completa em <code className="text-xs">src/lib/projects/</code>:
-              hooks use-planner, use-tasks e use-timesheet, todos adaptados para as tabelas
-              pm_*.
-            </li>
-            <li>
-              Utilitários: gantt-utils, dependencies (cascata FS/SS/FF/SF), overload e
-              time-format.
-            </li>
-            <li>Tokens CSS para o canvas Gantt e medidor de orçamento (light + dark).</li>
-          </ul>
-          <p className="pt-2">
-            <strong className="text-foreground">Próximo passo:</strong> portar componentes UI
-            (gantt-chart, resource-pool, dialogs, editors) e criar as rotas
-            /projects/$projectId, /projects/gantt, /projects/resources, /projects/timesheet e
-            /projects/my-tasks.
-          </p>
+        <CardContent>
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground">A carregar…</p>
+          ) : !projects?.length ? (
+            <p className="text-sm text-muted-foreground">Sem projectos ainda. Cria o primeiro acima.</p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {projects.map((p) => (
+                <li key={p.id} className="flex items-center gap-3 py-3">
+                  <div className="h-3 w-3 rounded-full" style={{ backgroundColor: p.color }} />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{p.name}</p>
+                    {p.client && <p className="text-xs text-muted-foreground">{p.client}</p>}
+                  </div>
+                  <span className="text-xs text-muted-foreground">{p.status}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function NavCard({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: typeof Briefcase;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Card className="opacity-70">
+      <CardContent className="flex items-start gap-3 p-4">
+        <Icon className="h-5 w-5 text-primary" />
+        <div className="min-w-0 flex-1">
+          <p className="font-medium">{title}</p>
+          <p className="text-xs text-muted-foreground">{description}</p>
+          <p className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">Rota por activar</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
