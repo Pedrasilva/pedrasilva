@@ -1,10 +1,12 @@
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
@@ -21,8 +23,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, Search, Users } from "lucide-react";
 import { toast } from "sonner";
+
+type ExistingCollab = {
+  id: string;
+  nome: string;
+  email: string | null;
+  numero_colaborador: string | null;
+  departamento: "Projecto" | "Backoffice";
+};
 
 const collaboratorSchema = z.object({
   nome: z.string().trim().min(1, "Nome obrigatório").max(200),
@@ -61,6 +71,38 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(EMPTY);
+  const [filter, setFilter] = useState("");
+
+  const { data: existing = [] } = useQuery({
+    queryKey: ["collaborators-existing-list"],
+    enabled: open,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("collaborators")
+        .select("id, nome, email, numero_colaborador, departamento")
+        .order("nome");
+      if (error) throw error;
+      return (data ?? []) as ExistingCollab[];
+    },
+  });
+
+  const filtered = useMemo(() => {
+    const q = filter.trim().toLowerCase();
+    if (!q) return existing;
+    return existing.filter(
+      (c) =>
+        c.nome.toLowerCase().includes(q) ||
+        (c.email ?? "").toLowerCase().includes(q) ||
+        (c.numero_colaborador ?? "").toLowerCase().includes(q),
+    );
+  }, [existing, filter]);
+
+  const duplicateEmail = useMemo(() => {
+    const email = form.email.trim().toLowerCase();
+    if (!email) return null;
+    return existing.find((c) => (c.email ?? "").toLowerCase() === email) ?? null;
+  }, [existing, form.email]);
+
 
   const create = useMutation({
     mutationFn: async () => {
@@ -103,7 +145,7 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Novo colaborador</DialogTitle>
           <DialogDescription>
@@ -112,7 +154,8 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
             ficha automaticamente.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_260px]">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2 space-y-1.5">
             <Label>Nome *</Label>
             <Input
@@ -197,6 +240,65 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
               }
             />
           </div>
+          </div>
+
+          <aside className="rounded-lg border bg-muted/30 p-3">
+            <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <Users className="h-3.5 w-3.5" />
+              Já registados ({existing.length})
+            </div>
+            <div className="relative mb-2">
+              <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                placeholder="Filtrar…"
+                className="h-8 pl-7 text-xs"
+              />
+            </div>
+            {duplicateEmail && (
+              <div className="mb-2 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-[11px] text-destructive">
+                Já existe ficha com este email:{" "}
+                <strong>{duplicateEmail.nome}</strong>
+              </div>
+            )}
+            <ScrollArea className="h-[320px] pr-2">
+              {filtered.length === 0 ? (
+                <div className="py-6 text-center text-xs text-muted-foreground">
+                  {existing.length === 0
+                    ? "Sem colaboradores."
+                    : "Nenhum resultado."}
+                </div>
+              ) : (
+                <ul className="space-y-1">
+                  {filtered.map((c) => (
+                    <li
+                      key={c.id}
+                      className="rounded-md border bg-background px-2 py-1.5 text-xs"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="truncate font-medium">{c.nome}</span>
+                        <Badge
+                          variant="secondary"
+                          className="shrink-0 text-[10px]"
+                        >
+                          {c.departamento === "Backoffice" ? "BO" : "Proj"}
+                        </Badge>
+                      </div>
+                      {(c.email || c.numero_colaborador) && (
+                        <div className="truncate text-[10px] text-muted-foreground">
+                          {c.numero_colaborador && (
+                            <>#{c.numero_colaborador} · </>
+                          )}
+                          {c.email ?? "sem email"}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </ScrollArea>
+          </aside>
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => setOpen(false)}>
