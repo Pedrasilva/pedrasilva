@@ -19,6 +19,7 @@ import { Route as AppMinhaFichaRouteImport } from './routes/_app.minha-ficha'
 import { Route as AppFeriasRouteImport } from './routes/_app.ferias'
 import { Route as AppDiasUteisRouteImport } from './routes/_app.dias-uteis'
 import { Route as AppBeneficiosRouteImport } from './routes/_app.beneficios'
+import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as AppColaboradorIdRouteImport } from './routes/_app.colaborador.$id'
 
 const LoginRoute = LoginRouteImport.update({
@@ -70,6 +71,11 @@ const AppBeneficiosRoute = AppBeneficiosRouteImport.update({
   path: '/beneficios',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppColaboradorIdRoute = AppColaboradorIdRouteImport.update({
   id: '/colaborador/$id',
   path: '/colaborador/$id',
@@ -79,6 +85,7 @@ const AppColaboradorIdRoute = AppColaboradorIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
+  '/admin': typeof AppAdminRoute
   '/beneficios': typeof AppBeneficiosRoute
   '/dias-uteis': typeof AppDiasUteisRoute
   '/ferias': typeof AppFeriasRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/admin': typeof AppAdminRoute
   '/beneficios': typeof AppBeneficiosRoute
   '/dias-uteis': typeof AppDiasUteisRoute
   '/ferias': typeof AppFeriasRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/_app/admin': typeof AppAdminRoute
   '/_app/beneficios': typeof AppBeneficiosRoute
   '/_app/dias-uteis': typeof AppDiasUteisRoute
   '/_app/ferias': typeof AppFeriasRoute
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/admin'
     | '/beneficios'
     | '/dias-uteis'
     | '/ferias'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/admin'
     | '/beneficios'
     | '/dias-uteis'
     | '/ferias'
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/login'
+    | '/_app/admin'
     | '/_app/beneficios'
     | '/_app/dias-uteis'
     | '/_app/ferias'
@@ -232,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBeneficiosRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/colaborador/$id': {
       id: '/_app/colaborador/$id'
       path: '/colaborador/$id'
@@ -243,6 +262,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppAdminRoute: typeof AppAdminRoute
   AppBeneficiosRoute: typeof AppBeneficiosRoute
   AppDiasUteisRoute: typeof AppDiasUteisRoute
   AppFeriasRoute: typeof AppFeriasRoute
@@ -254,6 +274,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAdminRoute: AppAdminRoute,
   AppBeneficiosRoute: AppBeneficiosRoute,
   AppDiasUteisRoute: AppDiasUteisRoute,
   AppFeriasRoute: AppFeriasRoute,
@@ -274,3 +295,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
