@@ -105,7 +105,6 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
     });
   }, [filtered, mealRates]);
 
-  // Totais para a métrica seleccionada (apenas colaboradores com ambas as fichas)
   const totals = useMemo(() => {
     let eff = 0;
     let prop = 0;
