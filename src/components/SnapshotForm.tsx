@@ -32,6 +32,7 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos",
   "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual",
   "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios",
+  "subsidios_modo",
 ];
 
 export function SnapshotForm({ snapshot, collaborator }: Props) {
@@ -95,6 +96,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         beneficio_ticket: Number(draft.beneficio_ticket) || 0,
         premio_associado: Number(draft.premio_associado) || 0,
         outros_beneficios: Number(draft.outros_beneficios) || 0,
+        subsidios_modo: draft.subsidios_modo ?? "tradicional",
         // Espelha o agregado familiar do colaborador para manter o histórico consistente
         localizacao: collaborator.localizacao,
         estado_civil: collaborator.estado_civil,
@@ -222,23 +224,8 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         </CardContent>
       </Card>
 
-      {/* Tabs */}
-      <Tabs defaultValue="simulacao">
-        <TabsList>
-          <TabsTrigger value="simulacao">Simulação</TabsTrigger>
-          <TabsTrigger value="liquido">Visão Líquido</TabsTrigger>
-          <TabsTrigger value="bruto">Visão Bruto</TabsTrigger>
-        </TabsList>
-        <TabsContent value="simulacao">
-          <SimulationTab draft={draftEffective} set={set} />
-        </TabsContent>
-        <TabsContent value="liquido">
-          <LiquidoTab draft={draftEffective} />
-        </TabsContent>
-        <TabsContent value="bruto">
-          <BrutoTab draft={draftEffective} />
-        </TabsContent>
-      </Tabs>
+      {/* Painel principal: inputs (esquerda) + resultados (direita) */}
+      <SnapshotPanel draft={draftEffective} set={set} mode="edit" />
     </div>
   );
 }
