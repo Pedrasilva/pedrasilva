@@ -86,8 +86,9 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
         </CardHeader>
         <CardContent className="space-y-3">
           <FieldRow label="Valor diário">
-            <NumIn value={draft.subsidio_alimentacao_diario}
-              onChange={(n) => set("subsidio_alimentacao_diario", n)} />
+            <div className="flex h-9 items-center justify-end rounded-md border bg-muted px-3 text-right text-sm tabular-nums text-muted-foreground">
+              {fmtEUR(draft.subsidio_alimentacao_diario)}
+            </div>
           </FieldRow>
           <FieldRow label="Dias úteis (ano)">
             <div className="flex h-9 items-center justify-end rounded-md border bg-muted px-3 text-right text-sm tabular-nums text-muted-foreground">
