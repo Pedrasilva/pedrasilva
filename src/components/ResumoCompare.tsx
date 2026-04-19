@@ -87,10 +87,10 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
   const cr = rightEffective ? computeSnapshot(rightEffective) : null;
 
   const rows: Array<{ label: string; l: number | null; r: number | null; pct?: boolean }> = [
-    { label: "Valor base mensal", l: left?.valor_base ?? null, r: right?.valor_base ?? null },
     { label: "Bruto anual", l: cl?.brutoAnual ?? null, r: cr?.brutoAnual ?? null },
     { label: "Bruto mensal", l: cl?.brutoMensal ?? null, r: cr?.brutoMensal ?? null },
-    { label: "Valor base x meses", l: cl?.baseAnual ?? null, r: cr?.baseAnual ?? null },
+    { label: "Valor base x 14 meses", l: cl?.baseAnual ?? null, r: cr?.baseAnual ?? null },
+    { label: "Valor base mensal", l: left?.valor_base ?? null, r: right?.valor_base ?? null },
     { label: "Líquido mensal (12)", l: cl?.liquido12m ?? null, r: cr?.liquido12m ?? null },
     { label: "Subsídio alimentação diário", l: leftEffective?.subsidio_alimentacao_diario ?? null, r: rightEffective?.subsidio_alimentacao_diario ?? null },
     { label: "Subsídio alimentação mensal", l: cl?.alimentacaoMensal ?? null, r: cr?.alimentacaoMensal ?? null },
