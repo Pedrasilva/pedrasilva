@@ -145,7 +145,7 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Novo colaborador</DialogTitle>
           <DialogDescription>
@@ -154,7 +154,8 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
             ficha automaticamente.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_260px]">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2 space-y-1.5">
             <Label>Nome *</Label>
             <Input
