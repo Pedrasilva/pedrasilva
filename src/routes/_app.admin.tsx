@@ -20,8 +20,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Shield, ExternalLink, AlertCircle } from "lucide-react";
+import { Shield, ExternalLink, AlertCircle, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { NewCollaboratorDialog } from "@/components/NewCollaboratorDialog";
 
 type UserRow = {
   user_id: string;
