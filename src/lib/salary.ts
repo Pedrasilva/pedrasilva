@@ -1,6 +1,8 @@
 // Cálculos salariais — espelham as fórmulas do Excel original.
 // Inputs (células amarelas) → outputs (células com fórmula).
 
+export type SubsidiosModo = "tradicional" | "duodecimos_50" | "duodecimos_100";
+
 export type Snapshot = {
   id: string;
   collaborator_id: string;
@@ -28,6 +30,8 @@ export type Snapshot = {
   dependentes_com_deficiencia: number;
   ano_fiscal: number;
   irs_calculado_auto: boolean;
+  // v3 — modo de pagamento dos subsídios (duodécimos)
+  subsidios_modo: SubsidiosModo;
 };
 
 export type Collaborator = {
@@ -52,11 +56,27 @@ export type Collaborator = {
   ano_fiscal: number;
 };
 
+export const SUBSIDIOS_MODO_LABEL: Record<SubsidiosModo, string> = {
+  tradicional: "Tradicional (14 meses)",
+  duodecimos_50: "Duodécimos a 50%",
+  duodecimos_100: "Duodécimos a 100%",
+};
+
+export const SUBSIDIOS_MODO_DESC: Record<SubsidiosModo, string> = {
+  tradicional:
+    "Subsídios de férias e Natal pagos integralmente em Junho e Novembro (14 ordenados).",
+  duodecimos_50:
+    "Metade de cada subsídio diluída pelos 12 meses do ano; a outra metade paga em Junho e Novembro.",
+  duodecimos_100:
+    "Subsídios de férias e Natal totalmente diluídos pelos 12 meses do ano (sem extras em Jun/Nov).",
+};
+
 export function computeSnapshot(s: Snapshot) {
   const base = s.valor_base || 0;
   const meses = s.meses_pagos || 14;
+  const modo: SubsidiosModo = s.subsidios_modo ?? "tradicional";
 
-  // Bloco 1 — Base contractual
+  // Bloco 1 — Base contractual (cálculo "puro" por mês de pagamento)
   const ssAtelierMensal = base * s.ss_atelier_pct;
   const ssColaboradorMensal = base * s.ss_colaborador_pct;
   const irsMensal = base * s.irs_pct;
@@ -65,9 +85,33 @@ export function computeSnapshot(s: Snapshot) {
   const ssColaboradorAnual = ssColaboradorMensal * meses;
   const irsAnual = irsMensal * meses;
 
-  const liquido14m = base - ssColaboradorMensal - irsMensal; // por mês de pagamento (14)
+  const liquido14m = base - ssColaboradorMensal - irsMensal; // por mês de pagamento
   const liquidoAnual = liquido14m * meses;
   const liquido12m = liquidoAnual / 12;
+
+  // --- Decomposição "12 ordenados + subsídios" para vista pedagógica
+  // Assume meses = 12 (ordenados) + nº subsídios (0, 1 ou 2)
+  const subsidiosCount = Math.max(0, meses - 12);
+  // Fração do subsídio diluída por mês (em duodécimos)
+  const fraccaoDuodecimos =
+    modo === "tradicional" ? 0 : modo === "duodecimos_50" ? 0.5 : 1;
+  // Subsídio "extra" pago no mês de Jun/Nov (parte não diluída)
+  const fraccaoExtra = 1 - fraccaoDuodecimos;
+
+  // Líquido base (12 meses de ordenado)
+  const liquidoOrdenado = liquido14m; // por mês de ordenado é igual ao base líquido
+  // Parte do subsídio que entra todos os meses (em duodécimos)
+  const liquidoSubsidiosDiluidoMes =
+    (subsidiosCount * fraccaoDuodecimos * liquido14m) / 12;
+  // Mês "normal" (sem subsídio extra)
+  const liquidoMesNormal = liquidoOrdenado + liquidoSubsidiosDiluidoMes;
+  // Mês com subsídio (Jun/Nov) — recebe o ordenado + a parte extra do subsídio
+  const liquidoSubsidioExtra = fraccaoExtra * liquido14m;
+  const liquidoMesComSubsidio = liquidoOrdenado + liquidoSubsidiosDiluidoMes + liquidoSubsidioExtra;
+
+  // Equivalente para o BRUTO
+  const brutoMesNormal = base + (subsidiosCount * fraccaoDuodecimos * base) / 12;
+  const brutoMesComSubsidio = brutoMesNormal + fraccaoExtra * base;
 
   // Bloco 2 — Subsídio alimentação
   const alimentacaoAnual = s.subsidio_alimentacao_diario * s.dias_uteis;
@@ -82,11 +126,9 @@ export function computeSnapshot(s: Snapshot) {
   const beneficiosMensal = beneficiosAnual / 12;
 
   // Resumo Bruto
-  // C41 = E15 + E14 + D26 + D30  (mensal: base12m + ssAtelier12m + alimentacao + ajudas)
   const baseMensal12 = baseAnual / 12;
   const ssAtelier12 = ssAtelierAnual / 12;
   const brutoMensal = baseMensal12 + ssAtelier12 + alimentacaoMensal + ajudasMensal;
-  // D41 = C41*12 + D37 (inclui benefícios anuais — alinhado com Excel original)
   const beneficiosAnualTmp =
     s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios;
   const brutoAnual = brutoMensal * 12 + beneficiosAnualTmp;
@@ -97,9 +139,19 @@ export function computeSnapshot(s: Snapshot) {
   // VBG / Custo total RH (incluindo benefícios)
   const custoVBG = brutoAnual + beneficiosAnual + s.ajudas_custo_anual;
 
+  // Take-home "do bolso" — líquido + alimentação + ajudas, separando mês normal vs com subsídio
+  const takeHomeMesNormal = liquidoMesNormal + alimentacaoMensal + ajudasMensal;
+  const takeHomeMesComSubsidio = liquidoMesComSubsidio + alimentacaoMensal + ajudasMensal;
+
+  // % retenção efectiva (IRS+SS sobre o bruto base)
+  const totalDescontosAnuais = ssColaboradorAnual + irsAnual;
+  const pctRetencao = baseAnual > 0 ? totalDescontosAnuais / baseAnual : 0;
+
   return {
     base,
     meses,
+    modo,
+    subsidiosCount,
     ssAtelierMensal,
     ssColaboradorMensal,
     irsMensal,
@@ -110,6 +162,15 @@ export function computeSnapshot(s: Snapshot) {
     liquido14m,
     liquidoAnual,
     liquido12m,
+    // decomposição duodécimos
+    liquidoMesNormal,
+    liquidoMesComSubsidio,
+    liquidoSubsidioExtra,
+    brutoMesNormal,
+    brutoMesComSubsidio,
+    fraccaoDuodecimos,
+    fraccaoExtra,
+    // outros
     alimentacaoAnual,
     alimentacaoMensal,
     ajudasMensal,
@@ -121,6 +182,9 @@ export function computeSnapshot(s: Snapshot) {
     brutoAnual,
     liquidoTotalMensal,
     custoVBG,
+    takeHomeMesNormal,
+    takeHomeMesComSubsidio,
+    pctRetencao,
   };
 }
 
@@ -179,5 +243,6 @@ export function defaultSnapshot(
     dependentes_com_deficiencia: 0,
     ano_fiscal: 2026,
     irs_calculado_auto: true,
+    subsidios_modo: "tradicional",
   };
 }

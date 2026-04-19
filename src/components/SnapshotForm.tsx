@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
@@ -16,9 +15,7 @@ import {
 import { Save, Trash2, Sparkles, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ValueChainSummary } from "./snapshot/ValueChainSummary";
-import { SimulationTab } from "./snapshot/SimulationTab";
-import { LiquidoTab } from "./snapshot/LiquidoTab";
-import { BrutoTab } from "./snapshot/BrutoTab";
+import { SnapshotPanel } from "./snapshot/SnapshotPanel";
 import { FieldStacked } from "./snapshot/inputs";
 
 type Props = { snapshot: Snapshot; collaborator: Collaborator };
