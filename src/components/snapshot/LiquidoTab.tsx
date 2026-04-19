@@ -10,23 +10,25 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
   const isAnual = period === "anual";
   const mult = isAnual ? c.meses : 1;
 
-  // Decomposição dos subsídios de férias e Natal consoante o regime:
-  // - tradicional (14m): subsídios pagos por inteiro (ambos = 1× líquido mensal cada)
-  // - duodecimos_50 (13m): metade diluída + metade por inteiro (cada subsídio = 0.5× líquido)
-  // - duodecimos_100 (12m): totalmente diluídos (nada por inteiro extra)
+  // Cada subsídio (férias e Natal) corresponde, por inteiro, a 1× líquido mensal base.
+  // O regime apenas determina como esse valor é distribuído ao longo do ano:
+  // - tradicional (14m): pago por inteiro num único mês (1× cada)
+  // - duodecimos_50 (13m): metade diluída nos 12 meses + metade por inteiro
+  // - duodecimos_100 (12m): totalmente diluído nos 12 meses
   const modo = draft.subsidios_modo ?? "tradicional";
-  const subsidioFeriasAnual =
-    modo === "duodecimos_100" ? 0 : modo === "duodecimos_50" ? c.liquido14m * 0.5 : c.liquido14m;
-  const subsidioNatalAnual = subsidioFeriasAnual;
+  const subsidioInteiro = c.liquido14m; // valor de referência de cada subsídio (1× líquido mensal)
+  const subsidioFeriasAnual = subsidioInteiro;
+  const subsidioNatalAnual = subsidioInteiro;
+  // Valor mensal médio que cada subsídio contribui (sempre liquido14m / 12, pois o anual é o mesmo)
   const subsidioFeriasMensal = subsidioFeriasAnual / 12;
   const subsidioNatalMensal = subsidioNatalAnual / 12;
 
-  const modoLabel =
+  const modoHint =
     modo === "duodecimos_100"
-      ? "100% duodécimos"
+      ? "100% duodécimos · diluído nos 12 meses"
       : modo === "duodecimos_50"
-        ? "50% duodécimos"
-        : "tradicional";
+        ? "50% duodécimos · metade diluída, metade por inteiro"
+        : "tradicional · pago por inteiro";
 
   // Líquido base de 12 meses (sem subsídios), para deixar claro o que entra
   const liquidoBase12 = c.liquido14m; // mesma fórmula: base − SS − IRS
@@ -37,14 +39,12 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
     { label: "− IRS (mensal)", value: -c.irsMensal },
     { label: "= Líquido base mensal (12 meses)", value: liquidoBase12, strong: true },
     {
-      label: `+ Subsídio de férias (${modoLabel}, ÷12)`,
+      label: `+ Subsídio de férias (${modoHint}, ÷12)`,
       value: subsidioFeriasMensal,
-      muted: subsidioFeriasMensal === 0,
     },
     {
-      label: `+ Subsídio de Natal (${modoLabel}, ÷12)`,
+      label: `+ Subsídio de Natal (${modoHint}, ÷12)`,
       value: subsidioNatalMensal,
-      muted: subsidioNatalMensal === 0,
     },
     { label: "= Líquido mensal médio (com subsídios)", value: c.liquido12m, strong: true },
     { label: "+ Subsídio alimentação mensal", value: c.alimentacaoMensal },
