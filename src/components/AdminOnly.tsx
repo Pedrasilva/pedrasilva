@@ -28,7 +28,7 @@ export function AdminOnly({ children }: { children: ReactNode }) {
             Esta página contém informação confidencial e está reservada à
             equipa Backoffice. Se precisa de consultar a sua ficha salarial,
             visite{" "}
-            <Link to="/minha-ficha" className="underline underline-offset-2">
+            <Link to="/hr/minha-ficha" className="underline underline-offset-2">
               Minha ficha
             </Link>
             .

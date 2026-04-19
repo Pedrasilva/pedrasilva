@@ -141,7 +141,7 @@ function AdminPage() {
                       <TableCell>
                         {u.collaborator_id ? (
                           <Link
-                            to="/colaborador/$id"
+                            to="/hr/colaborador/$id"
                             params={{ id: u.collaborator_id }}
                             className="inline-flex items-center gap-1 text-sm hover:underline"
                           >

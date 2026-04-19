@@ -323,7 +323,7 @@ function ValorBoCard({
           </CardDescription>
         </div>
         <Link
-          to="/valor-bo"
+          to="/hr/valor-bo"
           className="shrink-0 text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
         >
           Editar parâmetros →
@@ -555,7 +555,7 @@ function RhTable({
               return (
                 <TableRow key={r.collab.id}>
                   <TableCell className="font-medium">
-                    <Link to="/colaborador/$id" params={{ id: r.collab.id }}>
+                    <Link to="/hr/colaborador/$id" params={{ id: r.collab.id }}>
                       {r.collab.nome}
                     </Link>
                   </TableCell>
@@ -587,7 +587,7 @@ function RhTable({
                     {c ? fmtEUR(c.custoVBG) : "—"}
                   </TableCell>
                   <TableCell>
-                    <Link to="/colaborador/$id" params={{ id: r.collab.id }}>
+                    <Link to="/hr/colaborador/$id" params={{ id: r.collab.id }}>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     </Link>
                   </TableCell>
@@ -724,7 +724,7 @@ function PricingTable({
               return (
                 <TableRow key={r.collab.id}>
                   <TableCell className="font-medium">
-                    <Link to="/colaborador/$id" params={{ id: r.collab.id }}>
+                    <Link to="/hr/colaborador/$id" params={{ id: r.collab.id }}>
                       {r.collab.nome}
                     </Link>
                   </TableCell>

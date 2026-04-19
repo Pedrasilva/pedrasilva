@@ -202,7 +202,7 @@ function MinhaFichaPage() {
         <FileText className="mr-1 inline h-3 w-3" />
         Esta página é apenas de consulta. Para qualquer alteração contacte o
         Backoffice. Em caso de dúvida visite a secção de{" "}
-        <Link to="/beneficios" className="underline underline-offset-2">
+        <Link to="/hr/beneficios" className="underline underline-offset-2">
           Benefícios
         </Link>
         .
