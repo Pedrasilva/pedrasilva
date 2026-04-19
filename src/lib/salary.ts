@@ -128,17 +128,15 @@ export type Computed = ReturnType<typeof computeSnapshot>;
 
 export const fmtEUR = (n: number | null | undefined) => {
   if (n == null || isNaN(n)) return "—";
-  // Força separador de milhares para TODOS os valores (pt-PT só agrupa ≥10.000 por defeito)
-  // e normaliza espaços (NBSP) para alinhar colunas tabular-nums.
-  return new Intl.NumberFormat("pt-PT", {
-    style: "currency",
-    currency: "EUR",
+  // Formato: 1 234,56€ — espaço fino como separador de milhares, vírgula decimal, € colado.
+  const formatted = new Intl.NumberFormat("pt-PT", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
     useGrouping: true,
   })
     .format(n)
     .replace(/[\s\u202F\u00A0]/g, "\u00A0");
+  return `${formatted}€`;
 };
 
 export const fmtPct = (n: number) =>
