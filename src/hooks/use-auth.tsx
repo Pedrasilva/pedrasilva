@@ -12,6 +12,9 @@ type AuthCtx = {
   /** Whether the admin is currently viewing the app as a regular collaborator. */
   viewAsUser: boolean;
   setViewAsUser: (v: boolean) => void;
+  /** When in viewAsUser mode, the id of the collaborator being impersonated (if chosen). */
+  viewAsCollaboratorId: string | null;
+  setViewAsCollaboratorId: (id: string | null) => void;
   loading: boolean;
   signOut: () => Promise<void>;
 };
@@ -23,11 +26,14 @@ const Ctx = createContext<AuthCtx>({
   isRealAdmin: false,
   viewAsUser: false,
   setViewAsUser: () => {},
+  viewAsCollaboratorId: null,
+  setViewAsCollaboratorId: () => {},
   loading: true,
   signOut: async () => {},
 });
 
 const VIEW_AS_KEY = "psa.viewAsUser";
+const VIEW_AS_ID_KEY = "psa.viewAsCollaboratorId";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -37,12 +43,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return false;
     return window.sessionStorage.getItem(VIEW_AS_KEY) === "1";
   });
+  const [viewAsCollaboratorId, setViewAsCollaboratorIdState] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return window.sessionStorage.getItem(VIEW_AS_ID_KEY);
+  });
 
   const setViewAsUser = (v: boolean) => {
     setViewAsUserState(v);
     if (typeof window !== "undefined") {
       if (v) window.sessionStorage.setItem(VIEW_AS_KEY, "1");
-      else window.sessionStorage.removeItem(VIEW_AS_KEY);
+      else {
+        window.sessionStorage.removeItem(VIEW_AS_KEY);
+        window.sessionStorage.removeItem(VIEW_AS_ID_KEY);
+      }
+    }
+    if (!v) setViewAsCollaboratorIdState(null);
+  };
+
+  const setViewAsCollaboratorId = (id: string | null) => {
+    setViewAsCollaboratorIdState(id);
+    if (typeof window !== "undefined") {
+      if (id) window.sessionStorage.setItem(VIEW_AS_ID_KEY, id);
+      else window.sessionStorage.removeItem(VIEW_AS_ID_KEY);
     }
   };
 
@@ -90,6 +112,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isRealAdmin,
         viewAsUser,
         setViewAsUser,
+        viewAsCollaboratorId,
+        setViewAsCollaboratorId,
         loading,
         signOut,
       }}

@@ -35,6 +35,7 @@ import {
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
 import { QuickCreateMenu } from "@/components/QuickCreateMenu";
+import { ViewAsPicker } from "@/components/ViewAsPicker";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -184,21 +185,7 @@ function AppLayout() {
               </Badge>
             )}
 
-            {isRealAdmin && (
-              <Button
-                variant={viewAsUser ? "default" : "ghost"}
-                size="icon"
-                onClick={() => setViewAsUser(!viewAsUser)}
-                title={
-                  viewAsUser
-                    ? "A ver como colaborador. Clique para voltar ao modo admin."
-                    : "Pré-visualizar a app como um colaborador (sem permissões de admin)"
-                }
-                className="hidden md:inline-flex"
-              >
-                {viewAsUser ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
-            )}
+            <ViewAsPicker variant="desktop" />
 
             {/* Menu de utilizador (desktop) */}
             <DropdownMenu>
@@ -296,15 +283,7 @@ function AppLayout() {
 
                   <div className="my-3 border-t" />
 
-                  {isRealAdmin && (
-                    <button
-                      onClick={() => setViewAsUser(!viewAsUser)}
-                      className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent"
-                    >
-                      {viewAsUser ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      {viewAsUser ? "Sair da vista colaborador" : "Ver como colaborador"}
-                    </button>
-                  )}
+                  {isRealAdmin && <ViewAsPicker variant="mobile" />}
 
                   <button
                     onClick={() => signOut()}
