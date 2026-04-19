@@ -71,6 +71,7 @@ function AppLayout() {
       match: (p: string) => p === "/" || p.startsWith("/colaborador"),
       adminOnly: true,
     },
+    { to: "/minha-ficha", label: "Minha ficha", icon: UserIcon, match: (p: string) => p.startsWith("/minha-ficha"), adminOnly: false },
     { to: "/ferias", label: "Férias", icon: CalendarDays, match: (p: string) => p.startsWith("/ferias"), adminOnly: false },
     { to: "/beneficios", label: "Benefícios", icon: Wallet, match: (p: string) => p.startsWith("/beneficios"), adminOnly: false },
     { to: "/resumo", label: "Resumo geral", icon: BarChart3, match: (p: string) => p.startsWith("/resumo"), adminOnly: true },
