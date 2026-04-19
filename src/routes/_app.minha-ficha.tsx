@@ -82,7 +82,7 @@ function MinhaFichaPage() {
 
   if (!collaborator) {
     return (
-      <Card className="border-amber-300 bg-amber-50/50">
+      <Card className="border-clay/40">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <CircleAlert className="h-4 w-4" /> Ficha não encontrada
@@ -253,7 +253,7 @@ function SnapshotReadOnly({
           </div>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Mini label="Bruto mensal" value={fmtEUR(c.brutoMensalGlobal)} />
+          <Mini label="Bruto mensal" value={fmtEUR(c.brutoMensal)} />
           <Mini label="Líquido mensal" value={fmtEUR(c.liquido14m)} />
           <Mini label="Líquido anual" value={fmtEUR(c.liquidoAnual)} />
           <Mini label="Custo empregador (anual)" value={fmtEUR(c.custoVBG)} />
