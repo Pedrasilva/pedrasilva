@@ -555,7 +555,7 @@ function FeriasPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  {isAdmin && <TableHead>Colaborador</TableHead>}
+                  {isAdmin && adminScope === "todos" && <TableHead>Colaborador</TableHead>}
                   <TableHead>Tipo</TableHead>
                   <TableHead>Início</TableHead>
                   <TableHead>Fim</TableHead>
