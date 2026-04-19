@@ -71,6 +71,38 @@ export function NewCollaboratorDialog({ trigger, onCreated }: Props) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(EMPTY);
+  const [filter, setFilter] = useState("");
+
+  const { data: existing = [] } = useQuery({
+    queryKey: ["collaborators-existing-list"],
+    enabled: open,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("collaborators")
+        .select("id, nome, email, numero_colaborador, departamento")
+        .order("nome");
+      if (error) throw error;
+      return (data ?? []) as ExistingCollab[];
+    },
+  });
+
+  const filtered = useMemo(() => {
+    const q = filter.trim().toLowerCase();
+    if (!q) return existing;
+    return existing.filter(
+      (c) =>
+        c.nome.toLowerCase().includes(q) ||
+        (c.email ?? "").toLowerCase().includes(q) ||
+        (c.numero_colaborador ?? "").toLowerCase().includes(q),
+    );
+  }, [existing, filter]);
+
+  const duplicateEmail = useMemo(() => {
+    const email = form.email.trim().toLowerCase();
+    if (!email) return null;
+    return existing.find((c) => (c.email ?? "").toLowerCase() === email) ?? null;
+  }, [existing, form.email]);
+
 
   const create = useMutation({
     mutationFn: async () => {
