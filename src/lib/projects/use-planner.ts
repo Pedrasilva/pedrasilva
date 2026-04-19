@@ -339,7 +339,15 @@ export type ResourceInput = {
 export function useCreateResource() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: ResourceInput): Promise<Resource> => {
+    mutationFn: async (
+      input: ResourceInput & {
+        email?: string | null;
+        active?: boolean;
+        cost_rate?: number;
+        sale_rate?: number;
+        rate_effective_from?: string;
+      },
+    ): Promise<Resource> => {
       const { data, error } = await supabase
         .from("pm_resources")
         .insert(input as never)
@@ -349,6 +357,98 @@ export function useCreateResource() {
       return data;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["pm_resources"] }),
+  });
+}
+
+// ---------- RESOURCE RATES (time-versioned cost & sale) ----------
+
+export type ResourceRate = {
+  id: string;
+  resource_id: string;
+  effective_from: string;
+  cost_rate: number;
+  sale_rate: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export function useResourceRates(resourceId: string | undefined) {
+  return useQuery({
+    queryKey: ["pm_resource-rates", resourceId],
+    queryFn: async (): Promise<ResourceRate[]> => {
+      if (!resourceId) return [];
+      const { data, error } = await supabase
+        .from("pm_resource_rates")
+        .select("*")
+        .eq("resource_id", resourceId)
+        .order("effective_from", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as ResourceRate[];
+    },
+    enabled: !!resourceId,
+  });
+}
+
+export function useCreateResourceRate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      resource_id: string;
+      effective_from: string;
+      cost_rate: number;
+      sale_rate: number;
+    }): Promise<ResourceRate> => {
+      const { data, error } = await supabase
+        .from("pm_resource_rates")
+        .insert(input as never)
+        .select()
+        .single();
+      if (error) throw error;
+      return data as unknown as ResourceRate;
+    },
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: ["pm_resource-rates", vars.resource_id] });
+      qc.invalidateQueries({ queryKey: ["pm_resources"] });
+    },
+  });
+}
+
+export function useUpdateResourceRate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      patch,
+    }: {
+      id: string;
+      resource_id: string;
+      patch: Partial<Pick<ResourceRate, "effective_from" | "cost_rate" | "sale_rate">>;
+    }): Promise<ResourceRate> => {
+      const { data, error } = await supabase
+        .from("pm_resource_rates")
+        .update(patch as never)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data as unknown as ResourceRate;
+    },
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: ["pm_resource-rates", vars.resource_id] });
+    },
+  });
+}
+
+export function useDeleteResourceRate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id }: { id: string; resource_id: string }) => {
+      const { error } = await supabase.from("pm_resource_rates").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: ["pm_resource-rates", vars.resource_id] });
+    },
   });
 }
 
