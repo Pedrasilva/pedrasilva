@@ -35,7 +35,6 @@ import {
 } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
-import { QuickCreateMenu } from "@/components/QuickCreateMenu";
 import { ViewAsPicker } from "@/components/ViewAsPicker";
 
 export const Route = createFileRoute("/_app")({
@@ -179,8 +178,6 @@ function AppLayout() {
 
           {/* Acções à direita */}
           <div className="flex items-center gap-1.5">
-            {isAdmin && <QuickCreateMenu />}
-
             {viewAsUser && (
               <Badge variant="secondary" className="hidden md:inline-flex">
                 Modo colaborador
