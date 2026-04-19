@@ -153,7 +153,7 @@ function ResumoPage() {
       </Card>
 
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-2">
           <CardTitle className="text-base">Composição do custo total do atelier</CardTitle>
           <CardDescription>
             Custo total = Recursos Humanos (VBG) + Custo Operacional ={" "}
@@ -162,173 +162,59 @@ function ResumoPage() {
             </span>
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="pt-0">
           {(() => {
             const totalAtelier = totalGeral + custosOp;
             const pctRH = totalAtelier > 0 ? (totalGeral / totalAtelier) * 100 : 0;
             const pctOp = totalAtelier > 0 ? (custosOp / totalAtelier) * 100 : 0;
+            const estrutura = totalBackoffice + custosOp;
+            const pctProj = totalAtelier > 0 ? (totalProjecto / totalAtelier) * 100 : 0;
+            const pctEstr = totalAtelier > 0 ? (estrutura / totalAtelier) * 100 : 0;
 
-            // Horas produtivas brutas (dias × horas), diferentes por caso
             const numTotalEquipa = projecto.length + backoffice.length;
-            const horasCaso1 = numTotalEquipa * diasUteis * horasDia; // RH vs CO → toda a equipa
-            const horasCaso2 = projecto.length * diasUteis * horasDia; // Produção vs Estrutura → só Projecto
+            const horasCaso1 = numTotalEquipa * diasUteis * horasDia;
+            const horasCaso2 = projecto.length * diasUteis * horasDia;
             const custoHoraCaso1 = horasCaso1 > 0 ? totalAtelier / horasCaso1 : 0;
             const custoHoraCaso2 = horasCaso2 > 0 ? totalAtelier / horasCaso2 : 0;
             const fmtH = (n: number) =>
               new Intl.NumberFormat("pt-PT", { maximumFractionDigits: 0 }).format(n);
 
             return (
-              <>
-                {/* Barra empilhada com percentagens dentro */}
-                <div className="flex h-9 w-full overflow-hidden rounded-md bg-muted text-xs font-semibold text-white">
-                  <div
-                    className="flex items-center justify-center bg-clay-complement"
-                    style={{ width: `${pctRH}%` }}
-                    title={`Recursos Humanos: ${pctRH.toFixed(1)}%`}
-                  >
-                    {pctRH >= 8 && `${pctRH.toFixed(1)}%`}
-                  </div>
-                  <div
-                    className="flex items-center justify-center bg-clay"
-                    style={{ width: `${pctOp}%` }}
-                    title={`Custo Operacional: ${pctOp.toFixed(1)}%`}
-                  >
-                    {pctOp >= 8 && `${pctOp.toFixed(1)}%`}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <RatioRow
-                    color="bg-clay-complement"
-                    label="Recursos Humanos (VBG)"
-                    value={totalGeral}
-                    pct={pctRH}
-                  />
-                  <RatioRow
-                    color="bg-clay"
-                    label="Custo Operacional"
-                    value={custosOp}
-                    pct={pctOp}
-                  />
-                </div>
-
-                <p className="text-xs text-muted-foreground">
-                  Do custo total do atelier ({fmtEUR(totalAtelier)} = 100%),{" "}
-                  <span className="font-medium text-foreground">
-                    {pctRH.toFixed(1)}% são Recursos Humanos
-                  </span>{" "}
-                  e{" "}
-                  <span className="font-medium text-foreground">
-                    {pctOp.toFixed(1)}% Custo Operacional
-                  </span>
-                  .
-                </p>
-
-                {/* Custo / hora produtiva — Caso 1 (toda a equipa) */}
-                <div className="rounded-md border bg-muted/30 px-3 py-2 text-xs space-y-1">
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <span className="text-muted-foreground">
-                      Horas produtivas (toda a equipa: {numTotalEquipa} colab. ×{" "}
-                      {diasUteis} dias × {horasDia} h)
-                    </span>
-                    <span className="font-medium tabular-nums text-foreground">
-                      {fmtH(horasCaso1)} h/ano
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <span className="text-muted-foreground">
-                      Custo por hora produtiva ({fmtEUR(totalAtelier)} ÷{" "}
-                      {fmtH(horasCaso1)} h)
-                    </span>
-                    <span className="font-semibold tabular-nums text-primary">
-                      {fmtEUR(custoHoraCaso1)}/h
-                    </span>
-                  </div>
-                </div>
-
-                {/* Segunda leitura: Produção vs Estrutura */}
-                {(() => {
-                  const estrutura = totalBackoffice + custosOp;
-                  const pctProj = totalAtelier > 0 ? (totalProjecto / totalAtelier) * 100 : 0;
-                  const pctEstr = totalAtelier > 0 ? (estrutura / totalAtelier) * 100 : 0;
-                  return (
-                    <div className="space-y-3 pt-2 border-t">
-                      <div className="flex items-baseline justify-between">
-                        <h4 className="text-sm font-medium">
-                          Produção vs Estrutura
-                        </h4>
-                        <span className="text-xs text-muted-foreground">
-                          Estrutura = Backoffice + Operacional
-                        </span>
-                      </div>
-                      <div className="flex h-9 w-full overflow-hidden rounded-md bg-muted text-xs font-semibold text-white">
-                        <div
-                          className="flex items-center justify-center bg-[var(--sage,oklch(0.6_0.08_150))]"
-                          style={{ width: `${pctProj}%` }}
-                          title={`Recursos Projecto: ${pctProj.toFixed(1)}%`}
-                        >
-                          {pctProj >= 8 && `${pctProj.toFixed(1)}%`}
-                        </div>
-                        <div
-                          className="flex items-center justify-center bg-[var(--clay,oklch(0.65_0.13_40))]"
-                          style={{ width: `${pctEstr}%` }}
-                          title={`Estrutura: ${pctEstr.toFixed(1)}%`}
-                        >
-                          {pctEstr >= 8 && `${pctEstr.toFixed(1)}%`}
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <RatioRow
-                          color="bg-[var(--sage,oklch(0.6_0.08_150))]"
-                          label="Recursos Projecto"
-                          value={totalProjecto}
-                          pct={pctProj}
-                        />
-                        <RatioRow
-                          color="bg-[var(--clay,oklch(0.65_0.13_40))]"
-                          label="Backoffice + Operacional"
-                          value={estrutura}
-                          pct={pctEstr}
-                        />
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        A produção representa{" "}
-                        <span className="font-medium text-foreground">
-                          {pctProj.toFixed(1)}%
-                        </span>{" "}
-                        do custo total; a estrutura (Backoffice {fmtEUR(totalBackoffice)} +
-                        Operacional {fmtEUR(custosOp)}) representa{" "}
-                        <span className="font-medium text-foreground">
-                          {pctEstr.toFixed(1)}%
-                        </span>
-                        .
-                      </p>
-
-                      {/* Custo / hora produtiva — Caso 2 (só Projecto) */}
-                      <div className="rounded-md border bg-muted/30 px-3 py-2 text-xs space-y-1">
-                        <div className="flex flex-wrap items-baseline justify-between gap-2">
-                          <span className="text-muted-foreground">
-                            Horas produtivas (só Projecto: {projecto.length} colab. ×{" "}
-                            {diasUteis} dias × {horasDia} h)
-                          </span>
-                          <span className="font-medium tabular-nums text-foreground">
-                            {fmtH(horasCaso2)} h/ano
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap items-baseline justify-between gap-2">
-                          <span className="text-muted-foreground">
-                            Custo por hora produtiva ({fmtEUR(totalAtelier)} ÷{" "}
-                            {fmtH(horasCaso2)} h)
-                          </span>
-                          <span className="font-semibold tabular-nums text-[var(--sage,oklch(0.6_0.08_150))]">
-                            {fmtEUR(custoHoraCaso2)}/h
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </>
+              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <CompositionView
+                  title="Recursos Humanos vs Operacional"
+                  bar={[
+                    { color: "bg-clay-complement", pct: pctRH, title: `Recursos Humanos: ${pctRH.toFixed(1)}%` },
+                    { color: "bg-clay", pct: pctOp, title: `Custo Operacional: ${pctOp.toFixed(1)}%` },
+                  ]}
+                  rows={[
+                    { color: "bg-clay-complement", label: "Recursos Humanos (VBG)", value: totalGeral, pct: pctRH },
+                    { color: "bg-clay", label: "Custo Operacional", value: custosOp, pct: pctOp },
+                  ]}
+                  hoursLabel={`Toda a equipa (${numTotalEquipa} × ${diasUteis} × ${horasDia} h)`}
+                  hours={horasCaso1}
+                  costPerHour={custoHoraCaso1}
+                  costColor="text-primary"
+                  fmtH={fmtH}
+                />
+                <CompositionView
+                  title="Produção vs Estrutura"
+                  subtitle="Estrutura = Backoffice + Operacional"
+                  bar={[
+                    { color: "bg-[var(--sage,oklch(0.6_0.08_150))]", pct: pctProj, title: `Recursos Projecto: ${pctProj.toFixed(1)}%` },
+                    { color: "bg-[var(--clay,oklch(0.65_0.13_40))]", pct: pctEstr, title: `Estrutura: ${pctEstr.toFixed(1)}%` },
+                  ]}
+                  rows={[
+                    { color: "bg-[var(--sage,oklch(0.6_0.08_150))]", label: "Recursos Projecto", value: totalProjecto, pct: pctProj },
+                    { color: "bg-[var(--clay,oklch(0.65_0.13_40))]", label: `Backoffice (${fmtEUR(totalBackoffice)}) + Operacional (${fmtEUR(custosOp)})`, value: estrutura, pct: pctEstr },
+                  ]}
+                  hoursLabel={`Só Projecto (${projecto.length} × ${diasUteis} × ${horasDia} h)`}
+                  hours={horasCaso2}
+                  costPerHour={custoHoraCaso2}
+                  costColor="text-[var(--sage,oklch(0.6_0.08_150))]"
+                  fmtH={fmtH}
+                />
+              </div>
             );
           })()}
         </CardContent>
@@ -374,26 +260,70 @@ function Kpi({
   );
 }
 
-function RatioRow({
-  color,
-  label,
-  value,
-  pct,
+
+function CompositionView({
+  title,
+  subtitle,
+  bar,
+  rows,
+  hoursLabel,
+  hours,
+  costPerHour,
+  costColor,
+  fmtH,
 }: {
-  color: string;
-  label: string;
-  value: number;
-  pct: number;
+  title: string;
+  subtitle?: string;
+  bar: { color: string; pct: number; title: string }[];
+  rows: { color: string; label: string; value: number; pct: number }[];
+  hoursLabel: string;
+  hours: number;
+  costPerHour: number;
+  costColor: string;
+  fmtH: (n: number) => string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-md border px-4 py-3">
-      <div className="flex items-center gap-2 min-w-0">
-        <span className={`h-3 w-3 shrink-0 rounded-sm ${color}`} />
-        <span className="text-sm font-medium truncate">{label}</span>
+    <div className="space-y-2">
+      <div className="flex items-baseline justify-between gap-2">
+        <h4 className="text-sm font-medium">{title}</h4>
+        {subtitle && <span className="text-[11px] text-muted-foreground">{subtitle}</span>}
       </div>
-      <div className="text-right shrink-0">
-        <div className="text-base font-semibold tabular-nums">{pct.toFixed(1)}%</div>
-        <div className="text-xs text-muted-foreground tabular-nums">{fmtEUR(value)}</div>
+      <div className="flex h-7 w-full overflow-hidden rounded-md bg-muted text-[11px] font-semibold text-white">
+        {bar.map((b, i) => (
+          <div
+            key={i}
+            className={`flex items-center justify-center ${b.color}`}
+            style={{ width: `${b.pct}%` }}
+            title={b.title}
+          >
+            {b.pct >= 8 && `${b.pct.toFixed(1)}%`}
+          </div>
+        ))}
+      </div>
+      <div className="space-y-1.5">
+        {rows.map((r, i) => (
+          <div
+            key={i}
+            className="flex items-center justify-between gap-3 rounded-md border px-3 py-1.5"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className={`h-2.5 w-2.5 shrink-0 rounded-sm ${r.color}`} />
+              <span className="text-xs font-medium truncate">{r.label}</span>
+            </div>
+            <div className="flex items-baseline gap-2 shrink-0 tabular-nums">
+              <span className="text-xs text-muted-foreground">{fmtEUR(r.value)}</span>
+              <span className="text-sm font-semibold">{r.pct.toFixed(1)}%</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 rounded-md border bg-muted/30 px-3 py-1.5 text-[11px]">
+        <span className="text-muted-foreground">{hoursLabel}</span>
+        <span className="tabular-nums">
+          <span className="font-medium text-foreground">{fmtH(hours)} h/ano</span>
+          <span className="text-muted-foreground"> · </span>
+          <span className={`font-semibold ${costColor}`}>{fmtEUR(costPerHour)}/h</span>
+        </span>
       </div>
     </div>
   );
