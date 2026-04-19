@@ -7,18 +7,95 @@ import { CompositionDonut } from "./SalaryDonut";
 export function BrutoTab({ draft }: { draft: Snapshot }) {
   const c = computeSnapshot(draft);
   const [period, setPeriod] = useState<"anual" | "mensal">("anual");
-  const rows = [
-    { label: "Base mensal (anualizada/12)", value: c.baseMensal12 },
-    { label: "+ SS Atelier mensal (anualizada/12)", value: c.ssAtelier12 },
+
+  // Estrutura por regime (espelha Visão Líquido):
+  // - tradicional (14m): custo base + subsídios pagos por inteiro em Jun/Nov
+  // - duodecimos_50 (13m): metade diluída em duodécimos + metade paga por inteiro
+  // - duodecimos_100 (12m): subsídios totalmente diluídos em duodécimos
+  const modo = draft.subsidios_modo ?? "tradicional";
+
+  // Custo bruto da empresa para UM mês de salário (base + SS Atelier)
+  // Equivale a UM subsídio do ponto de vista do custo total
+  const custoMesBase = c.base + c.ssAtelierMensal;
+
+  // Duodécimos mensais do custo bruto (parte dos subsídios diluída em 12 meses)
+  const duodecimosBrutoMensal =
+    modo === "duodecimos_100"
+      ? (custoMesBase * 2) / 12
+      : modo === "duodecimos_50"
+        ? custoMesBase / 12
+        : 0;
+
+  // Subsídio pago por inteiro (custo bruto, Junho/Novembro)
+  const subsidioBrutoInteiro =
+    modo === "duodecimos_100"
+      ? 0
+      : modo === "duodecimos_50"
+        ? custoMesBase / 2
+        : custoMesBase;
+
+  const brutoBaseMensal = custoMesBase;
+  const brutoMensalMedio = brutoBaseMensal + duodecimosBrutoMensal;
+
+  const rows: Array<{ label: string; value: number; strong?: boolean; accent?: boolean; muted?: boolean }> = [
+    { label: "Valor base mensal", value: c.base },
+    { label: "+ SS Atelier (mensal)", value: c.ssAtelierMensal },
+    { label: "= Custo base mensal", value: brutoBaseMensal, strong: true },
+  ];
+
+  if (modo === "duodecimos_100") {
+    rows.push({
+      label: "+ Duodécimos (subsídios férias + Natal diluídos em 12 meses)",
+      value: duodecimosBrutoMensal,
+    });
+  } else if (modo === "duodecimos_50") {
+    rows.push(
+      {
+        label: "+ Duodécimos (50% dos subsídios diluídos em 12 meses)",
+        value: duodecimosBrutoMensal,
+      },
+      {
+        label: "+ Subsídio de férias (50% pago por inteiro em Junho)",
+        value: subsidioBrutoInteiro,
+        muted: true,
+      },
+      {
+        label: "+ Subsídio de Natal (50% pago por inteiro em Novembro)",
+        value: subsidioBrutoInteiro,
+        muted: true,
+      },
+    );
+  } else {
+    rows.push(
+      {
+        label: "+ Subsídio de férias (pago por inteiro em Junho)",
+        value: subsidioBrutoInteiro,
+        muted: true,
+      },
+      {
+        label: "+ Subsídio de Natal (pago por inteiro em Novembro)",
+        value: subsidioBrutoInteiro,
+        muted: true,
+      },
+    );
+  }
+
+  rows.push(
+    {
+      label: "= Custo bruto mensal médio",
+      value: brutoMensalMedio,
+      strong: true,
+    },
     { label: "+ Subsídio alimentação mensal", value: c.alimentacaoMensal },
     { label: "+ Ajudas de custo mensais", value: c.ajudasMensal },
-    { label: "= Bruto mensal (custo equivalente)", value: c.brutoMensal, strong: true },
-    { label: "× 12", value: c.brutoMensal * 12 },
-    { label: "+ Benefícios anuais", value: c.beneficiosAnual },
-    { label: "= Bruto anual", value: c.brutoAnual, strong: true },
-    { label: "+ Ajudas de custo anuais", value: draft.ajudas_custo_anual },
-    { label: "= Custo total RH (VBG)", value: c.custoVBG, strong: true, accent: true },
-  ];
+    { label: "+ Benefícios mensais", value: c.beneficiosMensal },
+    {
+      label: "= Custo total RH mensal (VBG)",
+      value: brutoMensalMedio + c.alimentacaoMensal + c.ajudasMensal + c.beneficiosMensal,
+      strong: true,
+      accent: true,
+    },
+  );
 
   const annualSlices = [
     { name: "Base anual", value: c.baseMensal12 * 12, color: "var(--sage)" },
@@ -53,7 +130,7 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
             {rows.map((r) => (
               <div
                 key={r.label}
-                className={`flex items-baseline justify-between py-2 ${r.strong ? "font-semibold" : ""} ${r.accent ? "text-[var(--clay)]" : ""}`}
+                className={`flex items-baseline justify-between py-2 ${r.strong ? "font-semibold" : ""} ${r.accent ? "text-[var(--clay)]" : ""} ${r.muted ? "text-muted-foreground" : ""}`}
               >
                 <span className="text-sm">{r.label}</span>
                 <span className="font-mono tabular-nums">{fmtEUR(r.value)}</span>
