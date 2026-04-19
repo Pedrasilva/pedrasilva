@@ -15,6 +15,7 @@ import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
 import { Route as AppValorBoRouteImport } from './routes/_app.valor-bo'
 import { Route as AppResumoRouteImport } from './routes/_app.resumo'
+import { Route as AppMinhaFichaRouteImport } from './routes/_app.minha-ficha'
 import { Route as AppFeriasRouteImport } from './routes/_app.ferias'
 import { Route as AppDiasUteisRouteImport } from './routes/_app.dias-uteis'
 import { Route as AppBeneficiosRouteImport } from './routes/_app.beneficios'
@@ -49,6 +50,11 @@ const AppResumoRoute = AppResumoRouteImport.update({
   path: '/resumo',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMinhaFichaRoute = AppMinhaFichaRouteImport.update({
+  id: '/minha-ficha',
+  path: '/minha-ficha',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppFeriasRoute = AppFeriasRouteImport.update({
   id: '/ferias',
   path: '/ferias',
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/beneficios': typeof AppBeneficiosRoute
   '/dias-uteis': typeof AppDiasUteisRoute
   '/ferias': typeof AppFeriasRoute
+  '/minha-ficha': typeof AppMinhaFichaRoute
   '/resumo': typeof AppResumoRoute
   '/valor-bo': typeof AppValorBoRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/beneficios': typeof AppBeneficiosRoute
   '/dias-uteis': typeof AppDiasUteisRoute
   '/ferias': typeof AppFeriasRoute
+  '/minha-ficha': typeof AppMinhaFichaRoute
   '/resumo': typeof AppResumoRoute
   '/valor-bo': typeof AppValorBoRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   '/_app/beneficios': typeof AppBeneficiosRoute
   '/_app/dias-uteis': typeof AppDiasUteisRoute
   '/_app/ferias': typeof AppFeriasRoute
+  '/_app/minha-ficha': typeof AppMinhaFichaRoute
   '/_app/resumo': typeof AppResumoRoute
   '/_app/valor-bo': typeof AppValorBoRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
     | '/beneficios'
     | '/dias-uteis'
     | '/ferias'
+    | '/minha-ficha'
     | '/resumo'
     | '/valor-bo'
     | '/api/notify-expense'
@@ -123,6 +133,7 @@ export interface FileRouteTypes {
     | '/beneficios'
     | '/dias-uteis'
     | '/ferias'
+    | '/minha-ficha'
     | '/resumo'
     | '/valor-bo'
     | '/api/notify-expense'
@@ -135,6 +146,7 @@ export interface FileRouteTypes {
     | '/_app/beneficios'
     | '/_app/dias-uteis'
     | '/_app/ferias'
+    | '/_app/minha-ficha'
     | '/_app/resumo'
     | '/_app/valor-bo'
     | '/api/notify-expense'
@@ -192,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppResumoRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/minha-ficha': {
+      id: '/_app/minha-ficha'
+      path: '/minha-ficha'
+      fullPath: '/minha-ficha'
+      preLoaderRoute: typeof AppMinhaFichaRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/ferias': {
       id: '/_app/ferias'
       path: '/ferias'
@@ -227,6 +246,7 @@ interface AppRouteChildren {
   AppBeneficiosRoute: typeof AppBeneficiosRoute
   AppDiasUteisRoute: typeof AppDiasUteisRoute
   AppFeriasRoute: typeof AppFeriasRoute
+  AppMinhaFichaRoute: typeof AppMinhaFichaRoute
   AppResumoRoute: typeof AppResumoRoute
   AppValorBoRoute: typeof AppValorBoRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -237,6 +257,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppBeneficiosRoute: AppBeneficiosRoute,
   AppDiasUteisRoute: AppDiasUteisRoute,
   AppFeriasRoute: AppFeriasRoute,
+  AppMinhaFichaRoute: AppMinhaFichaRoute,
   AppResumoRoute: AppResumoRoute,
   AppValorBoRoute: AppValorBoRoute,
   AppIndexRoute: AppIndexRoute,
