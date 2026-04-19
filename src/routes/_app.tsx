@@ -32,6 +32,7 @@ import {
   Menu,
   Shield,
   User as UserIcon,
+  Utensils,
 } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
