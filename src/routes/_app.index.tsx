@@ -41,7 +41,7 @@ const MODULES: ModuleDef[] = [
     subtitle: "Projectos & Recursos",
     description: "Gestão de projectos, alocação de equipa, gantt e timesheets.",
     icon: Briefcase,
-    ready: false,
+    ready: true,
   },
 ];
 
