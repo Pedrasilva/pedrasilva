@@ -568,7 +568,7 @@ function FeriasPage() {
               <TableBody>
                 {visibleRequests.map((r) => (
                   <TableRow key={r.id}>
-                    {isAdmin && <TableCell>{collabName(r.collaborator_id)}</TableCell>}
+                    {isAdmin && adminScope === "todos" && <TableCell>{collabName(r.collaborator_id)}</TableCell>}
                     <TableCell className="text-xs">{absenceLabel(r.tipo)}</TableCell>
                     <TableCell>{r.data_inicio}</TableCell>
                     <TableCell>{r.data_fim}</TableCell>
