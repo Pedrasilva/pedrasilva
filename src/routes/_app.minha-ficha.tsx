@@ -18,10 +18,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ValueChainSummary } from "@/components/snapshot/ValueChainSummary";
-import { LiquidoTab } from "@/components/snapshot/LiquidoTab";
-import { BrutoTab } from "@/components/snapshot/BrutoTab";
+import { SnapshotPanel } from "@/components/snapshot/SnapshotPanel";
 import { CircleAlert, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/_app/minha-ficha")({
@@ -261,18 +259,7 @@ function SnapshotReadOnly({
 
       <ValueChainSummary c={c} />
 
-      <Tabs defaultValue="liquido">
-        <TabsList>
-          <TabsTrigger value="liquido">Visão Líquido</TabsTrigger>
-          <TabsTrigger value="bruto">Visão Bruto</TabsTrigger>
-        </TabsList>
-        <TabsContent value="liquido">
-          <LiquidoTab draft={draftEffective} />
-        </TabsContent>
-        <TabsContent value="bruto">
-          <BrutoTab draft={draftEffective} />
-        </TabsContent>
-      </Tabs>
+      <SnapshotPanel draft={draftEffective} mode="readonly" />
     </div>
   );
 }
