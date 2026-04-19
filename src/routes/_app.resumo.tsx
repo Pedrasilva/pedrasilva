@@ -260,7 +260,6 @@ function Kpi({
   );
 }
 
-}
 
 function CompositionView({
   title,
