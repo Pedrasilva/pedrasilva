@@ -608,6 +608,22 @@ export type Database = {
         }
         Returns: boolean
       }
+      list_users_with_roles: {
+        Args: never
+        Returns: {
+          collaborator_departamento: string
+          collaborator_id: string
+          collaborator_nome: string
+          created_at: string
+          email: string
+          is_admin: boolean
+          user_id: string
+        }[]
+      }
+      set_user_admin: {
+        Args: { _is_admin: boolean; _user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       absence_type:
