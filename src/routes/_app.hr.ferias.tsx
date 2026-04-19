@@ -50,7 +50,7 @@ import { countWeekdays } from "@/lib/dates";
 import type { Collaborator } from "@/lib/salary";
 import type { Holiday } from "@/lib/workdays";
 
-export const Route = createFileRoute("/_app/ferias")({
+export const Route = createFileRoute("/_app/hr/ferias")({
   component: FeriasPage,
 });
 

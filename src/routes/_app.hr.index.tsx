@@ -40,7 +40,7 @@ import { Plus, ChevronRight, Briefcase, Building2, ArrowUp, ArrowDown, ArrowUpDo
 import { toast } from "sonner";
 import type { Collaborator } from "@/lib/salary";
 
-export const Route = createFileRoute("/_app/")({
+export const Route = createFileRoute("/_app/hr/")({
   component: ListPage,
 });
 

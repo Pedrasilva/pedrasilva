@@ -58,7 +58,7 @@ import { toast } from "sonner";
 import { SnapshotForm } from "@/components/SnapshotForm";
 import { ResumoCompare } from "@/components/ResumoCompare";
 
-export const Route = createFileRoute("/_app/colaborador/$id")({
+export const Route = createFileRoute("/_app/hr/colaborador/$id")({
   component: CollaboratorPage,
 });
 

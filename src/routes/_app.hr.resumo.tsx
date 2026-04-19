@@ -33,7 +33,7 @@ import { AdminOnly } from "@/components/AdminOnly";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResumoComparativoTab } from "@/components/ResumoComparativoTab";
 
-export const Route = createFileRoute("/_app/resumo")({
+export const Route = createFileRoute("/_app/hr/resumo")({
   component: () => (
     <AdminOnly>
       <ResumoPage />

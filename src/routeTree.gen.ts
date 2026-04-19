@@ -11,17 +11,17 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
-import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
-import { Route as AppValorBoRouteImport } from './routes/_app.valor-bo'
-import { Route as AppSubsidioAlimentacaoRouteImport } from './routes/_app.subsidio-alimentacao'
-import { Route as AppResumoRouteImport } from './routes/_app.resumo'
-import { Route as AppMinhaFichaRouteImport } from './routes/_app.minha-ficha'
-import { Route as AppFeriasRouteImport } from './routes/_app.ferias'
-import { Route as AppDiasUteisRouteImport } from './routes/_app.dias-uteis'
-import { Route as AppBeneficiosRouteImport } from './routes/_app.beneficios'
-import { Route as AppAdminRouteImport } from './routes/_app.admin'
-import { Route as AppColaboradorIdRouteImport } from './routes/_app.colaborador.$id'
+import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
+import { Route as AppHrValorBoRouteImport } from './routes/_app.hr.valor-bo'
+import { Route as AppHrSubsidioAlimentacaoRouteImport } from './routes/_app.hr.subsidio-alimentacao'
+import { Route as AppHrResumoRouteImport } from './routes/_app.hr.resumo'
+import { Route as AppHrMinhaFichaRouteImport } from './routes/_app.hr.minha-ficha'
+import { Route as AppHrFeriasRouteImport } from './routes/_app.hr.ferias'
+import { Route as AppHrDiasUteisRouteImport } from './routes/_app.hr.dias-uteis'
+import { Route as AppHrBeneficiosRouteImport } from './routes/_app.hr.beneficios'
+import { Route as AppHrAdminRouteImport } from './routes/_app.hr.admin'
+import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -32,150 +32,155 @@ const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRoute,
-} as any)
 const ApiNotifyExpenseRoute = ApiNotifyExpenseRouteImport.update({
   id: '/api/notify-expense',
   path: '/api/notify-expense',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppValorBoRoute = AppValorBoRouteImport.update({
-  id: '/valor-bo',
-  path: '/valor-bo',
+const AppHrIndexRoute = AppHrIndexRouteImport.update({
+  id: '/hr/',
+  path: '/hr/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppSubsidioAlimentacaoRoute = AppSubsidioAlimentacaoRouteImport.update({
-  id: '/subsidio-alimentacao',
-  path: '/subsidio-alimentacao',
+const AppHrValorBoRoute = AppHrValorBoRouteImport.update({
+  id: '/hr/valor-bo',
+  path: '/hr/valor-bo',
   getParentRoute: () => AppRoute,
 } as any)
-const AppResumoRoute = AppResumoRouteImport.update({
-  id: '/resumo',
-  path: '/resumo',
+const AppHrSubsidioAlimentacaoRoute =
+  AppHrSubsidioAlimentacaoRouteImport.update({
+    id: '/hr/subsidio-alimentacao',
+    path: '/hr/subsidio-alimentacao',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppHrResumoRoute = AppHrResumoRouteImport.update({
+  id: '/hr/resumo',
+  path: '/hr/resumo',
   getParentRoute: () => AppRoute,
 } as any)
-const AppMinhaFichaRoute = AppMinhaFichaRouteImport.update({
-  id: '/minha-ficha',
-  path: '/minha-ficha',
+const AppHrMinhaFichaRoute = AppHrMinhaFichaRouteImport.update({
+  id: '/hr/minha-ficha',
+  path: '/hr/minha-ficha',
   getParentRoute: () => AppRoute,
 } as any)
-const AppFeriasRoute = AppFeriasRouteImport.update({
-  id: '/ferias',
-  path: '/ferias',
+const AppHrFeriasRoute = AppHrFeriasRouteImport.update({
+  id: '/hr/ferias',
+  path: '/hr/ferias',
   getParentRoute: () => AppRoute,
 } as any)
-const AppDiasUteisRoute = AppDiasUteisRouteImport.update({
-  id: '/dias-uteis',
-  path: '/dias-uteis',
+const AppHrDiasUteisRoute = AppHrDiasUteisRouteImport.update({
+  id: '/hr/dias-uteis',
+  path: '/hr/dias-uteis',
   getParentRoute: () => AppRoute,
 } as any)
-const AppBeneficiosRoute = AppBeneficiosRouteImport.update({
-  id: '/beneficios',
-  path: '/beneficios',
+const AppHrBeneficiosRoute = AppHrBeneficiosRouteImport.update({
+  id: '/hr/beneficios',
+  path: '/hr/beneficios',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAdminRoute = AppAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const AppHrAdminRoute = AppHrAdminRouteImport.update({
+  id: '/hr/admin',
+  path: '/hr/admin',
   getParentRoute: () => AppRoute,
 } as any)
-const AppColaboradorIdRoute = AppColaboradorIdRouteImport.update({
-  id: '/colaborador/$id',
-  path: '/colaborador/$id',
+const AppHrColaboradorIdRoute = AppHrColaboradorIdRouteImport.update({
+  id: '/hr/colaborador/$id',
+  path: '/hr/colaborador/$id',
   getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AppIndexRoute
+  '/': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
-  '/admin': typeof AppAdminRoute
-  '/beneficios': typeof AppBeneficiosRoute
-  '/dias-uteis': typeof AppDiasUteisRoute
-  '/ferias': typeof AppFeriasRoute
-  '/minha-ficha': typeof AppMinhaFichaRoute
-  '/resumo': typeof AppResumoRoute
-  '/subsidio-alimentacao': typeof AppSubsidioAlimentacaoRoute
-  '/valor-bo': typeof AppValorBoRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
-  '/colaborador/$id': typeof AppColaboradorIdRoute
+  '/hr/admin': typeof AppHrAdminRoute
+  '/hr/beneficios': typeof AppHrBeneficiosRoute
+  '/hr/dias-uteis': typeof AppHrDiasUteisRoute
+  '/hr/ferias': typeof AppHrFeriasRoute
+  '/hr/minha-ficha': typeof AppHrMinhaFichaRoute
+  '/hr/resumo': typeof AppHrResumoRoute
+  '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
+  '/hr/valor-bo': typeof AppHrValorBoRoute
+  '/hr/': typeof AppHrIndexRoute
+  '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
-  '/admin': typeof AppAdminRoute
-  '/beneficios': typeof AppBeneficiosRoute
-  '/dias-uteis': typeof AppDiasUteisRoute
-  '/ferias': typeof AppFeriasRoute
-  '/minha-ficha': typeof AppMinhaFichaRoute
-  '/resumo': typeof AppResumoRoute
-  '/subsidio-alimentacao': typeof AppSubsidioAlimentacaoRoute
-  '/valor-bo': typeof AppValorBoRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
-  '/': typeof AppIndexRoute
-  '/colaborador/$id': typeof AppColaboradorIdRoute
+  '/hr/admin': typeof AppHrAdminRoute
+  '/hr/beneficios': typeof AppHrBeneficiosRoute
+  '/hr/dias-uteis': typeof AppHrDiasUteisRoute
+  '/hr/ferias': typeof AppHrFeriasRoute
+  '/hr/minha-ficha': typeof AppHrMinhaFichaRoute
+  '/hr/resumo': typeof AppHrResumoRoute
+  '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
+  '/hr/valor-bo': typeof AppHrValorBoRoute
+  '/hr': typeof AppHrIndexRoute
+  '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
-  '/_app/admin': typeof AppAdminRoute
-  '/_app/beneficios': typeof AppBeneficiosRoute
-  '/_app/dias-uteis': typeof AppDiasUteisRoute
-  '/_app/ferias': typeof AppFeriasRoute
-  '/_app/minha-ficha': typeof AppMinhaFichaRoute
-  '/_app/resumo': typeof AppResumoRoute
-  '/_app/subsidio-alimentacao': typeof AppSubsidioAlimentacaoRoute
-  '/_app/valor-bo': typeof AppValorBoRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
-  '/_app/': typeof AppIndexRoute
-  '/_app/colaborador/$id': typeof AppColaboradorIdRoute
+  '/_app/hr/admin': typeof AppHrAdminRoute
+  '/_app/hr/beneficios': typeof AppHrBeneficiosRoute
+  '/_app/hr/dias-uteis': typeof AppHrDiasUteisRoute
+  '/_app/hr/ferias': typeof AppHrFeriasRoute
+  '/_app/hr/minha-ficha': typeof AppHrMinhaFichaRoute
+  '/_app/hr/resumo': typeof AppHrResumoRoute
+  '/_app/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
+  '/_app/hr/valor-bo': typeof AppHrValorBoRoute
+  '/_app/hr/': typeof AppHrIndexRoute
+  '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/login'
-    | '/admin'
-    | '/beneficios'
-    | '/dias-uteis'
-    | '/ferias'
-    | '/minha-ficha'
-    | '/resumo'
-    | '/subsidio-alimentacao'
-    | '/valor-bo'
     | '/api/notify-expense'
-    | '/colaborador/$id'
+    | '/hr/admin'
+    | '/hr/beneficios'
+    | '/hr/dias-uteis'
+    | '/hr/ferias'
+    | '/hr/minha-ficha'
+    | '/hr/resumo'
+    | '/hr/subsidio-alimentacao'
+    | '/hr/valor-bo'
+    | '/hr/'
+    | '/hr/colaborador/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/login'
-    | '/admin'
-    | '/beneficios'
-    | '/dias-uteis'
-    | '/ferias'
-    | '/minha-ficha'
-    | '/resumo'
-    | '/subsidio-alimentacao'
-    | '/valor-bo'
-    | '/api/notify-expense'
     | '/'
-    | '/colaborador/$id'
+    | '/login'
+    | '/api/notify-expense'
+    | '/hr/admin'
+    | '/hr/beneficios'
+    | '/hr/dias-uteis'
+    | '/hr/ferias'
+    | '/hr/minha-ficha'
+    | '/hr/resumo'
+    | '/hr/subsidio-alimentacao'
+    | '/hr/valor-bo'
+    | '/hr'
+    | '/hr/colaborador/$id'
   id:
     | '__root__'
     | '/_app'
     | '/login'
-    | '/_app/admin'
-    | '/_app/beneficios'
-    | '/_app/dias-uteis'
-    | '/_app/ferias'
-    | '/_app/minha-ficha'
-    | '/_app/resumo'
-    | '/_app/subsidio-alimentacao'
-    | '/_app/valor-bo'
     | '/api/notify-expense'
-    | '/_app/'
-    | '/_app/colaborador/$id'
+    | '/_app/hr/admin'
+    | '/_app/hr/beneficios'
+    | '/_app/hr/dias-uteis'
+    | '/_app/hr/ferias'
+    | '/_app/hr/minha-ficha'
+    | '/_app/hr/resumo'
+    | '/_app/hr/subsidio-alimentacao'
+    | '/_app/hr/valor-bo'
+    | '/_app/hr/'
+    | '/_app/hr/colaborador/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -200,13 +205,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/': {
-      id: '/_app/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/api/notify-expense': {
       id: '/api/notify-expense'
       path: '/api/notify-expense'
@@ -214,96 +212,103 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiNotifyExpenseRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/valor-bo': {
-      id: '/_app/valor-bo'
-      path: '/valor-bo'
-      fullPath: '/valor-bo'
-      preLoaderRoute: typeof AppValorBoRouteImport
+    '/_app/hr/': {
+      id: '/_app/hr/'
+      path: '/hr'
+      fullPath: '/hr/'
+      preLoaderRoute: typeof AppHrIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/subsidio-alimentacao': {
-      id: '/_app/subsidio-alimentacao'
-      path: '/subsidio-alimentacao'
-      fullPath: '/subsidio-alimentacao'
-      preLoaderRoute: typeof AppSubsidioAlimentacaoRouteImport
+    '/_app/hr/valor-bo': {
+      id: '/_app/hr/valor-bo'
+      path: '/hr/valor-bo'
+      fullPath: '/hr/valor-bo'
+      preLoaderRoute: typeof AppHrValorBoRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/resumo': {
-      id: '/_app/resumo'
-      path: '/resumo'
-      fullPath: '/resumo'
-      preLoaderRoute: typeof AppResumoRouteImport
+    '/_app/hr/subsidio-alimentacao': {
+      id: '/_app/hr/subsidio-alimentacao'
+      path: '/hr/subsidio-alimentacao'
+      fullPath: '/hr/subsidio-alimentacao'
+      preLoaderRoute: typeof AppHrSubsidioAlimentacaoRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/minha-ficha': {
-      id: '/_app/minha-ficha'
-      path: '/minha-ficha'
-      fullPath: '/minha-ficha'
-      preLoaderRoute: typeof AppMinhaFichaRouteImport
+    '/_app/hr/resumo': {
+      id: '/_app/hr/resumo'
+      path: '/hr/resumo'
+      fullPath: '/hr/resumo'
+      preLoaderRoute: typeof AppHrResumoRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/ferias': {
-      id: '/_app/ferias'
-      path: '/ferias'
-      fullPath: '/ferias'
-      preLoaderRoute: typeof AppFeriasRouteImport
+    '/_app/hr/minha-ficha': {
+      id: '/_app/hr/minha-ficha'
+      path: '/hr/minha-ficha'
+      fullPath: '/hr/minha-ficha'
+      preLoaderRoute: typeof AppHrMinhaFichaRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/dias-uteis': {
-      id: '/_app/dias-uteis'
-      path: '/dias-uteis'
-      fullPath: '/dias-uteis'
-      preLoaderRoute: typeof AppDiasUteisRouteImport
+    '/_app/hr/ferias': {
+      id: '/_app/hr/ferias'
+      path: '/hr/ferias'
+      fullPath: '/hr/ferias'
+      preLoaderRoute: typeof AppHrFeriasRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/beneficios': {
-      id: '/_app/beneficios'
-      path: '/beneficios'
-      fullPath: '/beneficios'
-      preLoaderRoute: typeof AppBeneficiosRouteImport
+    '/_app/hr/dias-uteis': {
+      id: '/_app/hr/dias-uteis'
+      path: '/hr/dias-uteis'
+      fullPath: '/hr/dias-uteis'
+      preLoaderRoute: typeof AppHrDiasUteisRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/admin': {
-      id: '/_app/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AppAdminRouteImport
+    '/_app/hr/beneficios': {
+      id: '/_app/hr/beneficios'
+      path: '/hr/beneficios'
+      fullPath: '/hr/beneficios'
+      preLoaderRoute: typeof AppHrBeneficiosRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/colaborador/$id': {
-      id: '/_app/colaborador/$id'
-      path: '/colaborador/$id'
-      fullPath: '/colaborador/$id'
-      preLoaderRoute: typeof AppColaboradorIdRouteImport
+    '/_app/hr/admin': {
+      id: '/_app/hr/admin'
+      path: '/hr/admin'
+      fullPath: '/hr/admin'
+      preLoaderRoute: typeof AppHrAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/hr/colaborador/$id': {
+      id: '/_app/hr/colaborador/$id'
+      path: '/hr/colaborador/$id'
+      fullPath: '/hr/colaborador/$id'
+      preLoaderRoute: typeof AppHrColaboradorIdRouteImport
       parentRoute: typeof AppRoute
     }
   }
 }
 
 interface AppRouteChildren {
-  AppAdminRoute: typeof AppAdminRoute
-  AppBeneficiosRoute: typeof AppBeneficiosRoute
-  AppDiasUteisRoute: typeof AppDiasUteisRoute
-  AppFeriasRoute: typeof AppFeriasRoute
-  AppMinhaFichaRoute: typeof AppMinhaFichaRoute
-  AppResumoRoute: typeof AppResumoRoute
-  AppSubsidioAlimentacaoRoute: typeof AppSubsidioAlimentacaoRoute
-  AppValorBoRoute: typeof AppValorBoRoute
-  AppIndexRoute: typeof AppIndexRoute
-  AppColaboradorIdRoute: typeof AppColaboradorIdRoute
+  AppHrAdminRoute: typeof AppHrAdminRoute
+  AppHrBeneficiosRoute: typeof AppHrBeneficiosRoute
+  AppHrDiasUteisRoute: typeof AppHrDiasUteisRoute
+  AppHrFeriasRoute: typeof AppHrFeriasRoute
+  AppHrMinhaFichaRoute: typeof AppHrMinhaFichaRoute
+  AppHrResumoRoute: typeof AppHrResumoRoute
+  AppHrSubsidioAlimentacaoRoute: typeof AppHrSubsidioAlimentacaoRoute
+  AppHrValorBoRoute: typeof AppHrValorBoRoute
+  AppHrIndexRoute: typeof AppHrIndexRoute
+  AppHrColaboradorIdRoute: typeof AppHrColaboradorIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppAdminRoute: AppAdminRoute,
-  AppBeneficiosRoute: AppBeneficiosRoute,
-  AppDiasUteisRoute: AppDiasUteisRoute,
-  AppFeriasRoute: AppFeriasRoute,
-  AppMinhaFichaRoute: AppMinhaFichaRoute,
-  AppResumoRoute: AppResumoRoute,
-  AppSubsidioAlimentacaoRoute: AppSubsidioAlimentacaoRoute,
-  AppValorBoRoute: AppValorBoRoute,
-  AppIndexRoute: AppIndexRoute,
-  AppColaboradorIdRoute: AppColaboradorIdRoute,
+  AppHrAdminRoute: AppHrAdminRoute,
+  AppHrBeneficiosRoute: AppHrBeneficiosRoute,
+  AppHrDiasUteisRoute: AppHrDiasUteisRoute,
+  AppHrFeriasRoute: AppHrFeriasRoute,
+  AppHrMinhaFichaRoute: AppHrMinhaFichaRoute,
+  AppHrResumoRoute: AppHrResumoRoute,
+  AppHrSubsidioAlimentacaoRoute: AppHrSubsidioAlimentacaoRoute,
+  AppHrValorBoRoute: AppHrValorBoRoute,
+  AppHrIndexRoute: AppHrIndexRoute,
+  AppHrColaboradorIdRoute: AppHrColaboradorIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

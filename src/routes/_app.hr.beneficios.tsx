@@ -55,7 +55,7 @@ import {
 } from "@/lib/benefits";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_app/beneficios")({
+export const Route = createFileRoute("/_app/hr/beneficios")({
   component: BeneficiosPage,
 });
 

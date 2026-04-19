@@ -35,7 +35,7 @@ type UserRow = {
   collaborator_departamento: string | null;
 };
 
-export const Route = createFileRoute("/_app/admin")({
+export const Route = createFileRoute("/_app/hr/admin")({
   component: () => (
     <AdminOnly>
       <AdminPage />

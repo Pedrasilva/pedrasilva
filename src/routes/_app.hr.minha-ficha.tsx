@@ -24,7 +24,7 @@ import { LiquidoTab } from "@/components/snapshot/LiquidoTab";
 import { BrutoTab } from "@/components/snapshot/BrutoTab";
 import { CircleAlert, FileText } from "lucide-react";
 
-export const Route = createFileRoute("/_app/minha-ficha")({
+export const Route = createFileRoute("/_app/hr/minha-ficha")({
   component: MinhaFichaPage,
 });
 
