@@ -256,7 +256,7 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                         </TableRow>
                       );
                     })}
-                  </>
+                  </Fragment>
                 );
               })}
             </TableBody>
