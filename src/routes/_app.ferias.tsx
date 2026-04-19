@@ -271,12 +271,17 @@ function FeriasPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  // Lista a mostrar: admin vê tudo (com filtro opcional); user vê só os seus
+  // Lista a mostrar:
+  // - User normal: vê só os seus (RLS já restringe).
+  // - Admin: por defeito só os seus; pode alternar para "Todos" (com filtro opcional por colaborador).
   const visibleRequests = useMemo(() => {
-    if (!isAdmin) return requests; // RLS já restringe
+    if (!isAdmin) return requests;
+    if (adminScope === "meus") {
+      return myCollab ? requests.filter((r) => r.collaborator_id === myCollab.id) : [];
+    }
     if (!selectedCollabId) return requests;
     return requests.filter((r) => r.collaborator_id === selectedCollabId);
-  }, [requests, isAdmin, selectedCollabId]);
+  }, [requests, isAdmin, adminScope, myCollab, selectedCollabId]);
 
   const collabName = (id: string) => collaborators.find((c) => c.id === id)?.nome ?? "—";
 
