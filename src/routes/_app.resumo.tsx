@@ -142,29 +142,14 @@ function ResumoPage() {
         <Kpi title="Custo total anual do atelier" value={fmtEUR(totalAtelier)} highlight />
       </div>
 
-      <Card className="border-primary">
-        <CardHeader className="pb-2 flex-row items-end justify-between gap-4">
-          <div>
-            <CardDescription>
-              Valor BO / hora — cota a distribuir por colaborador da Equipa Projecto
-            </CardDescription>
-            <CardTitle className="text-3xl tabular-nums text-primary">
-              {fmtEUR(valorBO.valorHora)}
-            </CardTitle>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Cota BO/colab/ano: {fmtEUR(cotaBo)} · Margem global:{" "}
-              {(margemGlobal * 100).toFixed(1)}% · Desperdício:{" "}
-              {(TAXA_DESPERDICIO * 100).toFixed(0)}%
-            </p>
-          </div>
-          <Link
-            to="/valor-bo"
-            className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
-          >
-            Editar parâmetros →
-          </Link>
-        </CardHeader>
-      </Card>
+      <ValorBoCard
+        valorHora={valorBO.valorHora}
+        cotaBo={cotaBo}
+        margemGlobal={margemGlobal}
+        totalAtelier={totalAtelier}
+        diasUteis={diasUteis}
+        horasDia={horasDia}
+      />
 
       <Card>
         <CardHeader className="pb-2">
