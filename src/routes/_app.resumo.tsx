@@ -27,7 +27,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { ChevronRight, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { ChevronRight, ArrowUp, ArrowDown, ArrowUpDown, Printer } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_app/resumo")({
   component: ResumoPage,
@@ -127,13 +128,41 @@ function ResumoPage() {
   const fmtH = (n: number) =>
     new Intl.NumberFormat("pt-PT", { maximumFractionDigits: 0 }).format(n);
 
+  const handlePrint = () => {
+    const styleId = "print-landscape-style";
+    let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
+    if (!styleEl) {
+      styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      styleEl.textContent = "@media print { @page { size: A4 landscape; margin: 10mm; } }";
+      document.head.appendChild(styleEl);
+    }
+    const cleanup = () => {
+      styleEl?.remove();
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    window.print();
+  };
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Resumo geral</h1>
-        <p className="text-sm text-muted-foreground">
-          Formato espelhado do mapa Excel — Equipa Backoffice + Equipa Projecto.
-        </p>
+    <div className="space-y-6 print-area">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Resumo geral</h1>
+          <p className="text-sm text-muted-foreground">
+            Formato espelhado do mapa Excel — Equipa Backoffice + Equipa Projecto.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handlePrint}
+          className="no-print shrink-0"
+        >
+          <Printer className="mr-2 h-4 w-4" />
+          Exportar PDF
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
