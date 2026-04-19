@@ -63,7 +63,13 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
             <NumIn value={draft.ss_colaborador_pct * 100} step={0.01} suffix="%"
               onChange={(n) => set("ss_colaborador_pct", n / 100)} />
           </FieldRow>
-          {!draft.irs_calculado_auto && (
+          {draft.irs_calculado_auto ? (
+            <FieldRow label="IRS automático (%)">
+              <div className="flex h-9 items-center justify-end rounded-md border bg-muted px-3 text-right text-sm tabular-nums text-muted-foreground">
+                {(draft.irs_pct * 100).toFixed(2)}%
+              </div>
+            </FieldRow>
+          ) : (
             <FieldRow label="IRS manual (%)">
               <NumIn value={draft.irs_pct * 100} step={0.1} suffix="%"
                 onChange={(n) => set("irs_pct", n / 100)} />
