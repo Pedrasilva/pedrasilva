@@ -2,16 +2,10 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Compass,
   Users,
-  ListChecks,
   LogOut,
-  Clock,
-  Plus,
-  Eye,
-  Timer,
-  LayoutGrid,
   CalendarDays,
-  Calendar,
   ChevronDown,
+  LayoutGrid,
   GanttChartSquare,
   FolderKanban,
   Briefcase,
@@ -91,61 +85,6 @@ export function AppShell({ children, active }: Props) {
                   <DropdownMenuItem onClick={() => navigate({ to: "/projects/gantt" })}>
                     <GanttChartSquare className="mr-2 h-4 w-4 text-muted-foreground" />
                     GG - Global Gantt
-                  </DropdownMenuItem>
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 transition-colors data-[state=open]:bg-accent data-[state=open]:text-foreground ${
-                  active === "tasks" || active === "timesheet"
-                    ? "bg-accent text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Clock className="h-3.5 w-3.5" />
-                Time
-                <ChevronDown className="h-3 w-3 opacity-60" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-60 p-0">
-                <div className="bg-primary px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-foreground">
-                  Time
-                </div>
-                <div className="p-1">
-                  <DropdownMenuItem onClick={() => navigate({ to: "/projects/timesheet" })}>
-                    <Plus className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Log Time
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate({ to: "/projects/my-tasks" })}>
-                    <ListChecks className="mr-2 h-4 w-4 text-muted-foreground" />
-                    My Tasks
-                  </DropdownMenuItem>
-                  <DropdownMenuItem disabled>
-                    <Timer className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Active Timers
-                    <span className="ml-auto text-[10px] text-muted-foreground">soon</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem disabled>
-                    <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Show/Hide Timers
-                  </DropdownMenuItem>
-                </div>
-                <div className="bg-accent/60 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Timesheets
-                </div>
-                <div className="p-1">
-                  <DropdownMenuItem onClick={() => navigate({ to: "/projects/timesheet" })}>
-                    <LayoutGrid className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Overview
-                  </DropdownMenuItem>
-                  <DropdownMenuItem disabled>
-                    <CalendarDays className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Daily
-                    <span className="ml-auto text-[10px] text-muted-foreground">soon</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate({ to: "/projects/timesheet" })}>
-                    <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Weekly
                   </DropdownMenuItem>
                 </div>
               </DropdownMenuContent>
