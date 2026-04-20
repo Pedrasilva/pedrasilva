@@ -668,9 +668,9 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                 <span className="font-mono">{workingDays(aS, aE)} dias úteis</span>
                                 <span className="text-muted-foreground">Esforço</span>
                                 <span className="font-mono">{Number(a.hours_per_day)}h/dia · {workingDays(aS, aE) * Number(a.hours_per_day)}h total</span>
-                                <span className="text-muted-foreground">Tarifa</span>
-                                <span className="font-mono">{euros(Number(a.resource.hourly_rate))}/h</span>
-                                <span className="text-muted-foreground">Custo</span>
+                                <span className="text-muted-foreground">Custo/h</span>
+                                <span className="font-mono">{euros(costRate)}/h</span>
+                                <span className="text-muted-foreground">Custo total</span>
                                 <span className="font-mono font-semibold">{euros(cost)}</span>
                               </div>
                               {isOver && (
