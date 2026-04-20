@@ -20,6 +20,7 @@ interface Props {
 
 export function PerformanceTable({ projects, stages, resources, loading }: Props) {
   const [metric, setMetric] = useState<Metric>("Budget (hrs)");
+  const { data: defaultRates } = useDefaultResourceRates();
 
   const rows = useMemo(() => {
     const byResource = new Map<
