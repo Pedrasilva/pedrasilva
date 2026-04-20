@@ -14,6 +14,7 @@ import {
   type ProjectStatus,
 } from "@/lib/projects/use-planner";
 import { allocationCost, euros } from "@/lib/projects/gantt-utils";
+import { useDefaultResourceRates, effectiveCostRate } from "@/lib/projects/use-default-rates";
 import { ArrowUpRight, Trash2, ZoomIn, ZoomOut, CircleDot, PauseCircle, Archive } from "lucide-react";
 import { toast } from "sonner";
 import type { Project } from "@/lib/projects/types";
@@ -32,6 +33,7 @@ function GlobalGanttPage() {
   const { data: projects, isLoading } = useProjects();
   const { data: allStages } = useAllStages();
   const { data: resources } = useResources();
+  const { data: defaultRates } = useDefaultResourceRates();
   const del = useDeleteProject();
   const updateProject = useUpdateProject();
   const navigate = useNavigate();
@@ -86,17 +88,18 @@ function GlobalGanttPage() {
       const cur = m.get(s.project_id) ?? { cost: 0, budget: 0 };
       cur.budget += Number(s.budget);
       for (const a of s.allocations) {
+        const costRate = effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates);
         cur.cost += allocationCost({
           start_date: a.start_date,
           end_date: a.end_date,
           hours_per_day: Number(a.hours_per_day),
-          hourly_rate: Number(a.resource.hourly_rate),
+          hourly_rate: costRate,
         });
       }
       m.set(s.project_id, cur);
     }
     return m;
-  }, [allStages]);
+  }, [allStages, defaultRates]);
 
   return (
     <AppShell active="projects">

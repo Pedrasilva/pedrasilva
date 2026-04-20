@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { addMonths, format, isSameMonth, parseISO, startOfMonth } from "date-fns";
 import type { Project, StageWithAllocations } from "@/lib/projects/types";
 import { allocationCost, allocationHours, euros } from "@/lib/projects/gantt-utils";
+import { useDefaultResourceRates, effectiveSaleRate } from "@/lib/projects/use-default-rates";
 import { cn } from "@/lib/utils";
 
 type Mode = "Created" | "Commenced" | "Due" | "Completed";
@@ -16,6 +17,7 @@ interface Props {
 export function ProjectValueChart({ projects, stages, loading }: Props) {
   const [mode, setMode] = useState<Mode>("Created");
   const [unit, setUnit] = useState<Unit>("Hours");
+  const { data: defaultRates } = useDefaultResourceRates();
 
   const stagesByProject = useMemo(() => {
     const m = new Map<string, StageWithAllocations[]>();
@@ -44,7 +46,7 @@ export function ProjectValueChart({ projects, stages, loading }: Props) {
             start_date: a.start_date,
             end_date: a.end_date,
             hours_per_day: Number(a.hours_per_day),
-            hourly_rate: Number(a.resource.hourly_rate),
+            hourly_rate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates),
           });
           hours += allocationHours({
             start_date: a.start_date,
@@ -62,7 +64,7 @@ export function ProjectValueChart({ projects, stages, loading }: Props) {
         hours,
       };
     });
-  }, [projects, stagesByProject]);
+  }, [projects, stagesByProject, defaultRates]);
 
   const buckets = useMemo(() => {
     const now = new Date();

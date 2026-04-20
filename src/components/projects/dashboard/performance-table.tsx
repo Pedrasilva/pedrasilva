@@ -2,6 +2,11 @@ import { useMemo, useState } from "react";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import type { Project, Resource, StageWithAllocations } from "@/lib/projects/types";
 import { allocationCost, allocationHours, euros } from "@/lib/projects/gantt-utils";
+import {
+  useDefaultResourceRates,
+  effectiveCostRate,
+  effectiveSaleRate,
+} from "@/lib/projects/use-default-rates";
 import { cn } from "@/lib/utils";
 
 type Metric = "Value" | "Budget (hrs)" | "Number of Projects";
@@ -15,6 +20,7 @@ interface Props {
 
 export function PerformanceTable({ projects, stages, resources, loading }: Props) {
   const [metric, setMetric] = useState<Metric>("Budget (hrs)");
+  const { data: defaultRates } = useDefaultResourceRates();
 
   const rows = useMemo(() => {
     const byResource = new Map<
@@ -54,7 +60,7 @@ export function PerformanceTable({ projects, stages, resources, loading }: Props
                 start_date: al.start_date,
                 end_date: al.end_date,
                 hours_per_day: Number(al.hours_per_day),
-                hourly_rate: Number(al.resource.hourly_rate),
+                hourly_rate: effectiveCostRate(al.resource.cost_rate, al.resource.id, defaultRates),
               }),
             0,
           ),
@@ -104,7 +110,7 @@ export function PerformanceTable({ projects, stages, resources, loading }: Props
         };
         cur.active += 1;
         cur.hours += hours;
-        cur.value += hours * Number(res.hourly_rate);
+        cur.value += hours * effectiveSaleRate(res.hourly_rate, res.id, defaultRates);
         if (budgetTone === "good") cur.onBudgetGood += 1;
         else if (budgetTone === "warn") cur.onBudgetWarn += 1;
         else cur.onBudgetBad += 1;
@@ -116,7 +122,7 @@ export function PerformanceTable({ projects, stages, resources, loading }: Props
     }
 
     return Array.from(byResource.values()).sort((a, b) => b.value - a.value);
-  }, [projects, stages, resources]);
+  }, [projects, stages, resources, defaultRates]);
 
   return (
     <section className="rounded-lg border border-border bg-card">

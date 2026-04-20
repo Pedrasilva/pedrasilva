@@ -103,3 +103,27 @@ export function effectiveSaleRate(
   if (m > 0) return m;
   return defaults?.get(resourceId)?.sale ?? 0;
 }
+
+// Helper: devolve o custo/h efectivo. Se houver cost_rate manual > 0, usa-o.
+// Senão, cai no custo/h calculado no HR (custoHoraDesperdicio).
+export function effectiveCostRate(
+  manualCost: number | null | undefined,
+  resourceId: string,
+  defaults: Map<string, DefaultRateInfo> | undefined,
+): number {
+  const m = Number(manualCost ?? 0);
+  if (m > 0) return m;
+  return defaults?.get(resourceId)?.cost ?? 0;
+}
+
+// Devolve ambos os rates efectivos para um recurso de Projecto.
+// resource pode trazer hourly_rate (venda) e cost_rate (custo) manuais.
+export function effectiveRates(
+  resource: { id: string; hourly_rate?: number | null; cost_rate?: number | null },
+  defaults: Map<string, DefaultRateInfo> | undefined,
+): { sale: number; cost: number } {
+  return {
+    sale: effectiveSaleRate(resource.hourly_rate, resource.id, defaults),
+    cost: effectiveCostRate(resource.cost_rate, resource.id, defaults),
+  };
+}

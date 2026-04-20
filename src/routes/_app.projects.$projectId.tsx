@@ -7,6 +7,7 @@ import { ResourcePool } from "@/components/projects/resource-pool";
 import { NewStageDialog } from "@/components/projects/new-stage-dialog";
 import { useProjectDetail, useResources } from "@/lib/projects/use-planner";
 import { allocationCost, euros } from "@/lib/projects/gantt-utils";
+import { useDefaultResourceRates, effectiveCostRate } from "@/lib/projects/use-default-rates";
 import { ArrowLeft, ZoomIn, ZoomOut } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
@@ -17,6 +18,7 @@ function ProjectDetail() {
   const { projectId } = Route.useParams();
   const { data, isLoading, error } = useProjectDetail(projectId);
   const { data: resources } = useResources();
+  const { data: defaultRates } = useDefaultResourceRates();
   const [dayWidth, setDayWidth] = useState(36);
   const navigate = useNavigate();
 
@@ -65,7 +67,7 @@ function ProjectDetail() {
             start_date: a.start_date,
             end_date: a.end_date,
             hours_per_day: Number(a.hours_per_day),
-            hourly_rate: Number(a.resource.hourly_rate),
+            hourly_rate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates),
           }),
         0,
       )

@@ -9,6 +9,11 @@ import { ProjectValueChart } from "@/components/projects/dashboard/project-value
 import { PerformanceTable } from "@/components/projects/dashboard/performance-table";
 import { useProjects, useAllStages, useResources, type ProjectStatus } from "@/lib/projects/use-planner";
 import { allocationCost, allocationHours, workingDays } from "@/lib/projects/gantt-utils";
+import {
+  useDefaultResourceRates,
+  effectiveCostRate,
+  effectiveSaleRate,
+} from "@/lib/projects/use-default-rates";
 import { supabase } from "@/integrations/supabase/client";
 import type { StageWithAllocations } from "@/lib/projects/types";
 import { Search, Plus, Clock, Briefcase, CalendarDays, Inbox } from "lucide-react";
@@ -45,6 +50,7 @@ function DashboardPage() {
   const { data: allStages, isLoading: sLoading } = useAllStages();
   const { data: resources } = useResources();
   const { data: invoices } = useAllInvoices();
+  const { data: defaultRates } = useDefaultResourceRates();
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | "all">("active");
   const [query, setQuery] = useState("");
 
@@ -98,11 +104,12 @@ function DashboardPage() {
       for (const a of s.allocations) {
         const aStart = parseISO(a.start_date);
         const aEnd = parseISO(a.end_date);
-        const cost = allocationCost({
+        const saleRate = effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates);
+        const value = allocationCost({
           start_date: a.start_date,
           end_date: a.end_date,
           hours_per_day: Number(a.hours_per_day),
-          hourly_rate: Number(a.resource.hourly_rate),
+          hourly_rate: saleRate,
         });
         const hours = allocationHours({
           start_date: a.start_date,
@@ -111,7 +118,7 @@ function DashboardPage() {
         });
         if (inProgress && aStart <= today && aEnd >= today) {
           wipHours += hours;
-          wipValue += cost;
+          wipValue += value;
           if (aEnd >= today) {
             const remDays = workingDays(today.toISOString().slice(0, 10), a.end_date);
             remainingHours += remDays * Number(a.hours_per_day);
@@ -120,7 +127,7 @@ function DashboardPage() {
         if (aStart <= today && aEnd >= today) {
           if (![0, 6].includes(today.getDay())) {
             todayHours += Number(a.hours_per_day);
-            todayValue += Number(a.hours_per_day) * Number(a.resource.hourly_rate);
+            todayValue += Number(a.hours_per_day) * saleRate;
           }
         }
         if (
@@ -170,7 +177,7 @@ function DashboardPage() {
       approvedUninvoicedHours: approvedUninvoiced > 0 ? Math.round(approvedUninvoiced / 100) : 0,
       approvedUninvoicedValue: approvedUninvoiced,
     };
-  }, [allStages, invoices]);
+  }, [allStages, invoices, defaultRates]);
 
   const scorecardRows: ScorecardRow[] = useMemo(() => {
     const today = new Date();
@@ -187,7 +194,7 @@ function DashboardPage() {
                 start_date: al.start_date,
                 end_date: al.end_date,
                 hours_per_day: Number(al.hours_per_day),
-                hourly_rate: Number(al.resource.hourly_rate),
+                hourly_rate: effectiveCostRate(al.resource.cost_rate, al.resource.id, defaultRates),
               }),
             0,
           ),
@@ -217,7 +224,7 @@ function DashboardPage() {
         activityTone,
       };
     });
-  }, [filteredProjects, stagesByProject, invoicedByProject]);
+  }, [filteredProjects, stagesByProject, invoicedByProject, defaultRates]);
 
   return (
     <AppShell active="projects">

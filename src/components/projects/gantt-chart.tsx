@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, startOfWeek } from "date-fns";
 import type { Resource, StageWithAllocations } from "@/lib/projects/types";
 import { allocationCost, dayCount, euros, workingDays } from "@/lib/projects/gantt-utils";
+import { useDefaultResourceRates, effectiveCostRate } from "@/lib/projects/use-default-rates";
 import {
   useCreateAllocation,
   useUpdateAllocation,
@@ -64,6 +65,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
   const createAlloc = useCreateAllocation();
   const createDep = useCreateDependency();
   const { data: deps } = useStageDependencies();
+  const { data: defaultRates } = useDefaultResourceRates();
 
   const resourceMap = useMemo(() => new Map(resources.map((r) => [r.id, r])), [resources]);
 
@@ -390,7 +392,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                 start_date: aS,
                 end_date: aE,
                 hours_per_day: Number(a.hours_per_day),
-                hourly_rate: Number(a.resource.hourly_rate),
+                hourly_rate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates),
               });
             }
             const budget = Number(stage.budget);
@@ -536,11 +538,12 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                   const aE = aDraft?.end ?? a.end_date;
                   const aX = differenceInCalendarDays(new Date(aS), origin) * dayWidth;
                   const aW = dayCount(aS, aE) * dayWidth;
+                  const costRate = effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates);
                   const cost = allocationCost({
                     start_date: aS,
                     end_date: aE,
                     hours_per_day: Number(a.hours_per_day),
-                    hourly_rate: Number(a.resource.hourly_rate),
+                    hourly_rate: costRate,
                   });
                   const top = STAGE_ROW_H + idx * (ALLOC_ROW_H + 4);
                   const r = resourceMap.get(a.resource_id);
@@ -665,9 +668,9 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                 <span className="font-mono">{workingDays(aS, aE)} dias úteis</span>
                                 <span className="text-muted-foreground">Esforço</span>
                                 <span className="font-mono">{Number(a.hours_per_day)}h/dia · {workingDays(aS, aE) * Number(a.hours_per_day)}h total</span>
-                                <span className="text-muted-foreground">Tarifa</span>
-                                <span className="font-mono">{euros(Number(a.resource.hourly_rate))}/h</span>
-                                <span className="text-muted-foreground">Custo</span>
+                                <span className="text-muted-foreground">Custo/h</span>
+                                <span className="font-mono">{euros(costRate)}/h</span>
+                                <span className="text-muted-foreground">Custo total</span>
                                 <span className="font-mono font-semibold">{euros(cost)}</span>
                               </div>
                               {isOver && (
