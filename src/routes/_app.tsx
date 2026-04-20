@@ -135,11 +135,16 @@ function AppLayout() {
               alt="Pedra Silva Architects"
               className="h-8 w-auto object-contain"
             />
-            <div className="hidden leading-tight border-l pl-3 lg:block">
-              <div className="text-sm font-semibold whitespace-nowrap">PSA · Recursos Humanos</div>
-              <div className="text-[11px] text-muted-foreground">Cálculo salarial</div>
-            </div>
+            {isHrArea && (
+              <div className="hidden leading-tight border-l pl-3 lg:block">
+                <div className="text-sm font-semibold whitespace-nowrap">PSA · Recursos Humanos</div>
+                <div className="text-[11px] text-muted-foreground">Cálculo salarial</div>
+              </div>
+            )}
           </Link>
+
+          {/* Nav principal — só na área HR */}
+          {isHrArea && (
 
           {/* Nav principal — visível em md+ */}
           <nav className="hidden md:flex items-center gap-0.5 ml-2">
