@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { addMonths, format, isSameMonth, parseISO, startOfMonth } from "date-fns";
 import type { Project, StageWithAllocations } from "@/lib/projects/types";
 import { allocationCost, allocationHours, euros } from "@/lib/projects/gantt-utils";
+import { useDefaultResourceRates, effectiveSaleRate } from "@/lib/projects/use-default-rates";
 import { cn } from "@/lib/utils";
 
 type Mode = "Created" | "Commenced" | "Due" | "Completed";
