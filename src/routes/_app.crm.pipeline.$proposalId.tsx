@@ -172,7 +172,7 @@ function ProposalDetail() {
         <div className="flex flex-wrap gap-2">
           {alreadyConverted ? (
             <Button asChild variant="outline" size="sm">
-              <Link to="/projects/$projectId" params={{ projectId: current.pm_project_id ?? "" }}>
+              <Link to="/projects/$projectId" params={{ projectId: String(current.pm_project_id ?? "") }}>
                 <Rocket className="h-4 w-4 mr-1" /> Ver projecto
               </Link>
             </Button>
