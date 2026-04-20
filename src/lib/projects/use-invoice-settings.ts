@@ -5,20 +5,21 @@ import type { Database } from "@/integrations/supabase/types";
 export type InvoiceSettings = Database["public"]["Tables"]["pm_invoice_settings"]["Row"];
 export type InvoiceSettingsUpdate = Database["public"]["Tables"]["pm_invoice_settings"]["Update"];
 
-export function useInvoiceSettings() {
+export function useInvoiceSettings(projectId: string) {
   return useQuery({
-    queryKey: ["pm_invoice_settings"],
+    queryKey: ["pm_invoice_settings", projectId],
+    enabled: !!projectId,
     queryFn: async (): Promise<InvoiceSettings> => {
       const { data, error } = await supabase
         .from("pm_invoice_settings")
         .select("*")
-        .eq("singleton", true)
+        .eq("project_id", projectId)
         .maybeSingle();
       if (error) throw error;
       if (data) return data;
       const { data: created, error: insErr } = await supabase
         .from("pm_invoice_settings")
-        .insert({ singleton: true, company_name: "" })
+        .insert({ project_id: projectId, singleton: false, company_name: "" })
         .select("*")
         .single();
       if (insErr) throw insErr;
@@ -27,21 +28,21 @@ export function useInvoiceSettings() {
   });
 }
 
-export function useUpdateInvoiceSettings() {
+export function useUpdateInvoiceSettings(projectId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (patch: InvoiceSettingsUpdate) => {
       const { data, error } = await supabase
         .from("pm_invoice_settings")
         .update(patch)
-        .eq("singleton", true)
+        .eq("project_id", projectId)
         .select("*")
         .single();
       if (error) throw error;
       return data;
     },
     onSuccess: (data) => {
-      qc.setQueryData(["pm_invoice_settings"], data);
+      qc.setQueryData(["pm_invoice_settings", projectId], data);
     },
   });
 }

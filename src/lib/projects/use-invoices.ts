@@ -46,18 +46,15 @@ export function useInvoiceWithItems(invoiceId: string | null) {
   });
 }
 
-export function useNextInvoiceNumber() {
+export function useNextInvoiceNumber(projectId: string) {
   return useQuery({
-    queryKey: ["pm_next-invoice-number"],
+    queryKey: ["pm_next-invoice-number", projectId],
     queryFn: async () => {
-      const { data: settings } = await supabase
-        .from("pm_invoice_settings")
-        .select("invoice_prefix, next_invoice_number")
-        .eq("singleton", true)
-        .maybeSingle();
-      const prefix = settings?.invoice_prefix ?? "INV";
-      const next = settings?.next_invoice_number ?? 1;
-      return `${prefix}-${String(next).padStart(4, "0")}`;
+      const { count } = await supabase
+        .from("pm_invoices")
+        .select("id", { count: "exact", head: true });
+      const next = (count ?? 0) + 1;
+      return `#${100 + next}`;
     },
   });
 }
@@ -84,23 +81,11 @@ export function useCreateInvoice(projectId: string) {
         const { error: e2 } = await supabase.from("pm_invoice_items").insert(rows);
         if (e2) throw e2;
       }
-      // bump invoice number sequence
-      const { data: settings } = await supabase
-        .from("pm_invoice_settings")
-        .select("id, next_invoice_number")
-        .eq("singleton", true)
-        .maybeSingle();
-      if (settings) {
-        await supabase
-          .from("pm_invoice_settings")
-          .update({ next_invoice_number: (settings.next_invoice_number ?? 1) + 1 })
-          .eq("id", settings.id);
-      }
       return inv as Invoice;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["pm_invoices", projectId] });
-      qc.invalidateQueries({ queryKey: ["pm_next-invoice-number"] });
+      qc.invalidateQueries({ queryKey: ["pm_next-invoice-number", projectId] });
     },
   });
 }

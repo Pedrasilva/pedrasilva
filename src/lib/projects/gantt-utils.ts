@@ -35,8 +35,16 @@ export function fmt(d: string | Date): string {
   return format(toDate(d), "MMM d");
 }
 
+export function fmtShort(d: string | Date): string {
+  return format(toDate(d), "d");
+}
+
+export function fmtMonth(d: string | Date): string {
+  return format(toDate(d), "MMM yyyy");
+}
+
 export function euros(n: number): string {
-  return new Intl.NumberFormat("pt-PT", {
+  return new Intl.NumberFormat("en-EU", {
     style: "currency",
     currency: "EUR",
     maximumFractionDigits: 0,
