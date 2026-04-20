@@ -110,7 +110,7 @@ export function PerformanceTable({ projects, stages, resources, loading }: Props
         };
         cur.active += 1;
         cur.hours += hours;
-        cur.value += hours * Number(res.hourly_rate);
+        cur.value += hours * effectiveSaleRate(res.hourly_rate, res.id, defaultRates);
         if (budgetTone === "good") cur.onBudgetGood += 1;
         else if (budgetTone === "warn") cur.onBudgetWarn += 1;
         else cur.onBudgetBad += 1;
