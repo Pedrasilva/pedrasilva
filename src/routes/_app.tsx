@@ -225,7 +225,7 @@ function AppLayout() {
 
             <ViewAsPicker variant="desktop" />
 
-            
+            {showQuickCreate && <QuickCreateMenu />}
 
             {/* Menu de utilizador (desktop) */}
             <DropdownMenu>

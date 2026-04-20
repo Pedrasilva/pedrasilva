@@ -30,91 +30,53 @@ type Sheet =
   | "company" | "contact" | "project"
   | "expense" | "request";
 
-type Variant = "full" | "time" | "icon";
-
-export function QuickCreateMenu({
-  variant = "full",
-}: {
-  variant?: Variant;
-} = {}) {
+export function QuickCreateMenu() {
   const [sheet, setSheet] = useState<Sheet>(null);
-
-  const trigger =
-    variant === "time" ? (
-      <button
-        type="button"
-        aria-label="Registar tempo"
-        title="Registar tempo"
-        className="flex h-8 w-8 items-center justify-center rounded-md bg-muted text-foreground transition hover:bg-accent"
-      >
-        <Clock className="h-4 w-4" />
-      </button>
-    ) : variant === "icon" ? (
-      <button
-        type="button"
-        aria-label="Criar novo"
-        title="Criar entrada"
-        className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground transition hover:opacity-90"
-      >
-        <Plus className="h-4 w-4" />
-      </button>
-    ) : (
-      <Button
-        size="sm"
-        className="ml-1 gap-1.5"
-        aria-label="Criar novo"
-        title="Criar entrada"
-      >
-        <Plus className="h-4 w-4" />
-        <span className="hidden md:inline">Novo</span>
-      </Button>
-    );
-
-  const showTime = variant === "full" || variant === "icon" || variant === "time";
-  const showRest = variant === "full" || variant === "icon";
 
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>
+          <Button
+            size="sm"
+            className="ml-1 gap-1.5"
+            aria-label="Criar novo"
+            title="Criar entrada"
+          >
+            <Plus className="h-4 w-4" />
+            <span className="hidden md:inline">Novo</span>
+          </Button>
+        </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel className="bg-primary/10 text-primary -mx-1 -mt-1 mb-1 rounded-sm px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider">
-            {variant === "time" ? "Tempo" : "Criar"}
+            Criar
           </DropdownMenuLabel>
-          {showTime && (
-            <>
-              <DropdownMenuItem onClick={() => setSheet("logTime")} className="gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" /> Registar tempo
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSheet("startTimer")} className="gap-2">
-                <Play className="h-4 w-4 text-muted-foreground" /> Iniciar timer
-              </DropdownMenuItem>
-            </>
-          )}
-          {showRest && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setSheet("task")} className="gap-2">
-                <CheckSquare className="h-4 w-4 text-muted-foreground" /> Tarefa
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setSheet("company")} className="gap-2">
-                <Building2 className="h-4 w-4 text-muted-foreground" /> Empresa
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSheet("contact")} className="gap-2">
-                <User className="h-4 w-4 text-muted-foreground" /> Contacto
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSheet("project")} className="gap-2">
-                <Briefcase className="h-4 w-4 text-muted-foreground" /> Projecto
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSheet("expense")} className="gap-2">
-                <Receipt className="h-4 w-4 text-muted-foreground" /> Despesa
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSheet("request")} className="gap-2">
-                <CalendarDays className="h-4 w-4 text-muted-foreground" /> Pedido (férias/ausência)
-              </DropdownMenuItem>
-            </>
-          )}
+          <DropdownMenuItem onClick={() => setSheet("logTime")} className="gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" /> Registar tempo
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("startTimer")} className="gap-2">
+            <Play className="h-4 w-4 text-muted-foreground" /> Iniciar timer
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setSheet("task")} className="gap-2">
+            <CheckSquare className="h-4 w-4 text-muted-foreground" /> Tarefa
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setSheet("company")} className="gap-2">
+            <Building2 className="h-4 w-4 text-muted-foreground" /> Empresa
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("contact")} className="gap-2">
+            <User className="h-4 w-4 text-muted-foreground" /> Contacto
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("project")} className="gap-2">
+            <Briefcase className="h-4 w-4 text-muted-foreground" /> Projecto
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("expense")} className="gap-2">
+            <Receipt className="h-4 w-4 text-muted-foreground" /> Despesa
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("request")} className="gap-2">
+            <CalendarDays className="h-4 w-4 text-muted-foreground" /> Pedido (férias/ausência)
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
