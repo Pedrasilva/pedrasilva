@@ -207,6 +207,7 @@ function AppLayout() {
               </DropdownMenu>
             )}
           </nav>
+          )}
 
           {/* Spacer */}
           <div className="flex-1" />
