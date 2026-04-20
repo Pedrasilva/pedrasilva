@@ -18,6 +18,7 @@ function ProjectDetail() {
   const { projectId } = Route.useParams();
   const { data, isLoading, error } = useProjectDetail(projectId);
   const { data: resources } = useResources();
+  const { data: defaultRates } = useDefaultResourceRates();
   const [dayWidth, setDayWidth] = useState(36);
   const navigate = useNavigate();
 
