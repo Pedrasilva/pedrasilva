@@ -46,7 +46,7 @@ export function ProjectValueChart({ projects, stages, loading }: Props) {
             start_date: a.start_date,
             end_date: a.end_date,
             hours_per_day: Number(a.hours_per_day),
-            hourly_rate: Number(a.resource.hourly_rate),
+            hourly_rate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates),
           });
           hours += allocationHours({
             start_date: a.start_date,
@@ -64,7 +64,7 @@ export function ProjectValueChart({ projects, stages, loading }: Props) {
         hours,
       };
     });
-  }, [projects, stagesByProject]);
+  }, [projects, stagesByProject, defaultRates]);
 
   const buckets = useMemo(() => {
     const now = new Date();
