@@ -177,7 +177,7 @@ function DashboardPage() {
       approvedUninvoicedHours: approvedUninvoiced > 0 ? Math.round(approvedUninvoiced / 100) : 0,
       approvedUninvoicedValue: approvedUninvoiced,
     };
-  }, [allStages, invoices]);
+  }, [allStages, invoices, defaultRates]);
 
   const scorecardRows: ScorecardRow[] = useMemo(() => {
     const today = new Date();
