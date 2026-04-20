@@ -143,10 +143,8 @@ function AppLayout() {
             )}
           </Link>
 
-          {/* Nav principal — só na área HR */}
+          {/* Nav principal — só na área HR, visível em md+ */}
           {isHrArea && (
-
-          {/* Nav principal — visível em md+ */}
           <nav className="hidden md:flex items-center gap-0.5 ml-2">
             {visible.map((it) => {
               const Icon = it.icon;
