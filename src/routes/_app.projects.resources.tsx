@@ -140,7 +140,20 @@ function ResourcesPage() {
                         {TEAM_LABEL[rTeam]}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right font-mono">{euros(Number(r.hourly_rate))}/h</td>
+                    <td className="px-4 py-3 text-right font-mono">
+                      {Number(r.hourly_rate) > 0 ? (
+                        `${euros(Number(r.hourly_rate))}/h`
+                      ) : defaultRates?.get(r.id)?.sale ? (
+                        <span
+                          className="text-muted-foreground italic"
+                          title="Sugestão automática @ 50% do Resumo Comparativo do HR (sem rate definido)"
+                        >
+                          {euros(defaultRates.get(r.id)!.sale)}/h*
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right font-mono">{Number(r.weekly_capacity)} h/wk</td>
                     <td className="px-4 py-3 text-center">
                       <Switch
