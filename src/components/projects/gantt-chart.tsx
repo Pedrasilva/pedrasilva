@@ -65,6 +65,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
   const createAlloc = useCreateAllocation();
   const createDep = useCreateDependency();
   const { data: deps } = useStageDependencies();
+  const { data: defaultRates } = useDefaultResourceRates();
 
   const resourceMap = useMemo(() => new Map(resources.map((r) => [r.id, r])), [resources]);
 
