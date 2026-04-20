@@ -168,7 +168,7 @@ function ProjectDetail() {
 
         <TabsContent value="stream" className="mt-4">
           <div className="rounded-lg border border-border bg-card">
-            <StreamTabView project={project} stages={stages} />
+            <StreamTabView projectId={project.id} stages={stages} />
           </div>
         </TabsContent>
 
@@ -180,7 +180,7 @@ function ProjectDetail() {
 
         <TabsContent value="rates" className="mt-4">
           <div className="rounded-lg border border-border bg-card">
-            <RatesTabView project={project} resources={resources ?? []} />
+            <RatesTabView project={project} />
           </div>
         </TabsContent>
       </Tabs>
