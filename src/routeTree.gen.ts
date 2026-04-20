@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
+import { Route as AppProjectsRouteImport } from './routes/_app.projects'
 import { Route as AppCrmRouteImport } from './routes/_app.crm'
 import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
 import { Route as AppHrValorBoRouteImport } from './routes/_app.hr.valor-bo'
@@ -43,6 +44,11 @@ const ApiNotifyExpenseRoute = ApiNotifyExpenseRouteImport.update({
   id: '/api/notify-expense',
   path: '/api/notify-expense',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppProjectsRoute = AppProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppCrmRoute = AppCrmRouteImport.update({
   id: '/crm',
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
   '/crm': typeof AppCrmRoute
+  '/projects': typeof AppProjectsRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/crm': typeof AppCrmRoute
+  '/projects': typeof AppProjectsRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
   '/hr/admin': typeof AppHrAdminRoute
@@ -138,6 +146,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/crm': typeof AppCrmRoute
+  '/_app/projects': typeof AppProjectsRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
   '/_app/hr/admin': typeof AppHrAdminRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/crm'
+    | '/projects'
     | '/api/notify-expense'
     | '/hr/admin'
     | '/hr/beneficios'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/crm'
+    | '/projects'
     | '/api/notify-expense'
     | '/'
     | '/hr/admin'
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/login'
     | '/_app/crm'
+    | '/_app/projects'
     | '/api/notify-expense'
     | '/_app/'
     | '/_app/hr/admin'
@@ -238,6 +250,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/notify-expense'
       preLoaderRoute: typeof ApiNotifyExpenseRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/projects': {
+      id: '/_app/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof AppProjectsRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/crm': {
       id: '/_app/crm'
@@ -321,6 +340,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppCrmRoute: typeof AppCrmRoute
+  AppProjectsRoute: typeof AppProjectsRoute
   AppIndexRoute: typeof AppIndexRoute
   AppHrAdminRoute: typeof AppHrAdminRoute
   AppHrBeneficiosRoute: typeof AppHrBeneficiosRoute
@@ -336,6 +356,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppCrmRoute: AppCrmRoute,
+  AppProjectsRoute: AppProjectsRoute,
   AppIndexRoute: AppIndexRoute,
   AppHrAdminRoute: AppHrAdminRoute,
   AppHrBeneficiosRoute: AppHrBeneficiosRoute,
@@ -359,3 +380,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
