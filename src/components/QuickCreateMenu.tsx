@@ -17,10 +17,18 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Plus, Building2, User, Briefcase } from "lucide-react";
+import {
+  Plus, Building2, User, Briefcase,
+  StickyNote, Mail, Users as UsersIcon, CheckSquare,
+  Receipt, CalendarDays,
+} from "lucide-react";
 import { toast } from "sonner";
 
-type Sheet = null | "company" | "contact" | "project";
+type Sheet =
+  | null
+  | "note" | "email" | "meeting" | "task"
+  | "company" | "contact" | "project"
+  | "expense" | "request";
 
 export function QuickCreateMenu() {
   const [sheet, setSheet] = useState<Sheet>(null);
@@ -33,30 +41,58 @@ export function QuickCreateMenu() {
             size="sm"
             className="ml-1 gap-1.5"
             aria-label="Criar novo"
-            title="Criar empresa, contacto ou projecto"
+            title="Criar entrada"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden md:inline">Novo</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>Criar novo</DropdownMenuLabel>
+          <DropdownMenuLabel className="bg-primary/10 text-primary -mx-1 -mt-1 mb-1 rounded-sm px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider">
+            Criar
+          </DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setSheet("note")} className="gap-2">
+            <StickyNote className="h-4 w-4 text-muted-foreground" /> Nota
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("email")} className="gap-2">
+            <Mail className="h-4 w-4 text-muted-foreground" /> Email
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("meeting")} className="gap-2">
+            <UsersIcon className="h-4 w-4 text-muted-foreground" /> Reunião
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("task")} className="gap-2">
+            <CheckSquare className="h-4 w-4 text-muted-foreground" /> Tarefa
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setSheet("company")} className="gap-2">
-            <Building2 className="h-4 w-4" /> Empresa
+            <Building2 className="h-4 w-4 text-muted-foreground" /> Empresa
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("contact")} className="gap-2">
-            <User className="h-4 w-4" /> Contacto
+            <User className="h-4 w-4 text-muted-foreground" /> Contacto
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("project")} className="gap-2">
-            <Briefcase className="h-4 w-4" /> Projecto
+            <Briefcase className="h-4 w-4 text-muted-foreground" /> Projecto
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("expense")} className="gap-2">
+            <Receipt className="h-4 w-4 text-muted-foreground" /> Despesa
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("request")} className="gap-2">
+            <CalendarDays className="h-4 w-4 text-muted-foreground" /> Pedido (férias/ausência)
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <ActivityDialog
+        open={sheet === "note" || sheet === "email" || sheet === "meeting"}
+        kind={sheet === "email" ? "email" : sheet === "meeting" ? "reuniao" : "nota"}
+        onClose={() => setSheet(null)}
+      />
+      <TaskDialog open={sheet === "task"} onClose={() => setSheet(null)} />
       <CompanyDialog open={sheet === "company"} onClose={() => setSheet(null)} />
       <ContactDialog open={sheet === "contact"} onClose={() => setSheet(null)} />
       <ProjectDialog open={sheet === "project"} onClose={() => setSheet(null)} />
+      <ExpenseDialog open={sheet === "expense"} onClose={() => setSheet(null)} />
+      <RequestDialog open={sheet === "request"} onClose={() => setSheet(null)} />
     </>
   );
 }
