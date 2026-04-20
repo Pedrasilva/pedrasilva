@@ -122,7 +122,7 @@ export function PerformanceTable({ projects, stages, resources, loading }: Props
     }
 
     return Array.from(byResource.values()).sort((a, b) => b.value - a.value);
-  }, [projects, stages, resources]);
+  }, [projects, stages, resources, defaultRates]);
 
   return (
     <section className="rounded-lg border border-border bg-card">
