@@ -7,6 +7,7 @@ import { ResourcePool } from "@/components/projects/resource-pool";
 import { NewStageDialog } from "@/components/projects/new-stage-dialog";
 import { useProjectDetail, useResources } from "@/lib/projects/use-planner";
 import { allocationCost, euros } from "@/lib/projects/gantt-utils";
+import { useDefaultResourceRates, effectiveCostRate } from "@/lib/projects/use-default-rates";
 import { ArrowLeft, ZoomIn, ZoomOut } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
