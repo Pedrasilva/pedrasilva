@@ -862,3 +862,241 @@ function RequestDialog({ open, onClose }: { open: boolean; onClose: () => void }
     </Dialog>
   );
 }
+
+// ─────────────────────────────────────────────
+// Tempo — partilhado: query de alocações + helper para obter task_id
+// ─────────────────────────────────────────────
+type AllocationLite = {
+  id: string;
+  pm_stages: { name: string; pm_projects: { name: string } | null } | null;
+  pm_resources: { name: string } | null;
+};
+
+function useAllocations(open: boolean) {
+  return useQuery({
+    queryKey: ["allocations-lite"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pm_allocations")
+        .select("id, pm_stages(name, pm_projects(name)), pm_resources(name)")
+        .order("start_date", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return (data ?? []) as AllocationLite[];
+    },
+    enabled: open,
+  });
+}
+
+async function getTaskIdForAllocation(allocationId: string): Promise<string> {
+  const { data, error } = await supabase
+    .from("pm_tasks")
+    .select("id")
+    .eq("allocation_id", allocationId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Esta alocação não tem tarefa associada.");
+  return data.id;
+}
+
+function AllocationOptions({ allocations }: { allocations: AllocationLite[] }) {
+  return (
+    <>
+      {allocations.map((a) => {
+        const proj = a.pm_stages?.pm_projects?.name ?? "—";
+        const stage = a.pm_stages?.name ?? "—";
+        const res = a.pm_resources?.name ?? "—";
+        return (
+          <SelectItem key={a.id} value={a.id}>
+            {proj} · {stage} · {res}
+          </SelectItem>
+        );
+      })}
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Registar tempo (manual)
+// ─────────────────────────────────────────────
+const logTimeSchema = z.object({
+  allocation_id: z.string().uuid("Escolhe uma alocação"),
+  entry_date: z.string().min(1, "Data obrigatória"),
+  hours: z.number().positive("Horas > 0").max(24, "Máx 24h"),
+  notes: z.string().trim().max(2000).optional().or(z.literal("")),
+});
+
+function LogTimeDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const qc = useQueryClient();
+  const { data: allocations = [] } = useAllocations(open);
+  const today = new Date().toISOString().slice(0, 10);
+
+  const [form, setForm] = useState({
+    allocation_id: "",
+    entry_date: today,
+    hours: "" as string,
+    notes: "",
+  });
+  const reset = () => setForm({ allocation_id: "", entry_date: today, hours: "", notes: "" });
+
+  const create = useMutation({
+    mutationFn: async () => {
+      const parsed = logTimeSchema.parse({
+        ...form,
+        hours: form.hours ? Number(form.hours) : NaN,
+      });
+      const { data: userRes, error: userErr } = await supabase.auth.getUser();
+      if (userErr) throw userErr;
+      const uid = userRes.user?.id;
+      if (!uid) throw new Error("Sessão expirada.");
+      const taskId = await getTaskIdForAllocation(parsed.allocation_id);
+      const { error } = await supabase.from("pm_time_entries").insert({
+        task_id: taskId,
+        user_id: uid,
+        entry_date: parsed.entry_date,
+        hours: parsed.hours,
+        notes: parsed.notes || null,
+        source: "manual",
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Tempo registado");
+      qc.invalidateQueries({ queryKey: ["pm_time_entries"] });
+      reset();
+      onClose();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" /> Registar tempo
+          </DialogTitle>
+          <DialogDescription>
+            Lança horas numa alocação (projecto · fase · recurso).
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Alocação *" full>
+            <Select value={form.allocation_id || ""}
+              onValueChange={(v) => setForm((f) => ({ ...f, allocation_id: v }))}>
+              <SelectTrigger className="input-yellow">
+                <SelectValue placeholder={allocations.length ? "Escolher…" : "Sem alocações disponíveis"} />
+              </SelectTrigger>
+              <SelectContent>
+                <AllocationOptions allocations={allocations} />
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Data *">
+            <Input type="date" className="input-yellow" value={form.entry_date}
+              onChange={(e) => setForm((f) => ({ ...f, entry_date: e.target.value }))} />
+          </Field>
+          <Field label="Horas *">
+            <Input type="number" step="0.25" min="0" className="input-yellow" value={form.hours}
+              onChange={(e) => setForm((f) => ({ ...f, hours: e.target.value }))} />
+          </Field>
+          <Field label="Notas" full>
+            <Textarea className="input-yellow" rows={3} value={form.notes}
+              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
+          </Field>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button onClick={() => create.mutate()}
+            disabled={create.isPending || !form.allocation_id || !form.hours}>
+            Registar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Iniciar timer (cria entry com started_at = now, hours = 0)
+// ─────────────────────────────────────────────
+const startTimerSchema = z.object({
+  allocation_id: z.string().uuid("Escolhe uma alocação"),
+  notes: z.string().trim().max(2000).optional().or(z.literal("")),
+});
+
+function StartTimerDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const qc = useQueryClient();
+  const { data: allocations = [] } = useAllocations(open);
+
+  const [form, setForm] = useState({ allocation_id: "", notes: "" });
+  const reset = () => setForm({ allocation_id: "", notes: "" });
+
+  const create = useMutation({
+    mutationFn: async () => {
+      const parsed = startTimerSchema.parse(form);
+      const { data: userRes, error: userErr } = await supabase.auth.getUser();
+      if (userErr) throw userErr;
+      const uid = userRes.user?.id;
+      if (!uid) throw new Error("Sessão expirada.");
+      const taskId = await getTaskIdForAllocation(parsed.allocation_id);
+      const now = new Date();
+      const { error } = await supabase.from("pm_time_entries").insert({
+        task_id: taskId,
+        user_id: uid,
+        entry_date: now.toISOString().slice(0, 10),
+        hours: 0,
+        started_at: now.toISOString(),
+        notes: parsed.notes || null,
+        source: "timer",
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Timer iniciado");
+      qc.invalidateQueries({ queryKey: ["pm_time_entries"] });
+      reset();
+      onClose();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Play className="h-5 w-5" /> Iniciar timer
+          </DialogTitle>
+          <DialogDescription>
+            Começa a contar tempo agora. Pára-o depois na página de timesheet.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-1 gap-3">
+          <Field label="Alocação *">
+            <Select value={form.allocation_id || ""}
+              onValueChange={(v) => setForm((f) => ({ ...f, allocation_id: v }))}>
+              <SelectTrigger className="input-yellow">
+                <SelectValue placeholder={allocations.length ? "Escolher…" : "Sem alocações disponíveis"} />
+              </SelectTrigger>
+              <SelectContent>
+                <AllocationOptions allocations={allocations} />
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Notas">
+            <Textarea className="input-yellow" rows={3} value={form.notes}
+              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
+          </Field>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button onClick={() => create.mutate()}
+            disabled={create.isPending || !form.allocation_id}>
+            Iniciar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
