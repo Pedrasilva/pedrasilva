@@ -1,12 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { addDays, differenceInCalendarDays } from "date-fns";
-import { ArrowLeft, ZoomIn, ZoomOut } from "lucide-react";
+import { ArrowLeft, ZoomIn, ZoomOut, GanttChartSquare, BarChart3, Receipt, Coins, Activity } from "lucide-react";
 import { useProjectDetail, useResources } from "@/lib/projects/use-planner";
 import { allocationCost, euros } from "@/lib/projects/gantt-utils";
 import { GanttChart } from "@/components/projects/GanttChart";
 import { ResourcePool } from "@/components/projects/ResourcePool";
 import { NewStageDialog } from "@/components/projects/NewStageDialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { InsightsTabView } from "@/components/projects/dashboard/InsightsTabView";
+import { BillingTabView } from "@/components/projects/dashboard/BillingTabView";
+import { RatesTabView } from "@/components/projects/dashboard/RatesTabView";
+import { StreamTabView } from "@/components/projects/dashboard/StreamTabView";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
   component: ProjectDetail,
@@ -17,6 +22,7 @@ function ProjectDetail() {
   const { data, isLoading, error } = useProjectDetail(projectId);
   const { data: resources } = useResources();
   const [dayWidth, setDayWidth] = useState(36);
+  const [tab, setTab] = useState("gantt");
 
   const { origin, totalDays } = useMemo(() => {
     if (!data?.stages.length) {
@@ -87,44 +93,97 @@ function ProjectDetail() {
               <span className="text-muted-foreground"> / {euros(totalBudget)}</span>
             </p>
           </div>
-          <NewStageDialog
-            projectId={project.id}
-            defaultStart={project.start_date}
-            nextOrder={stages.length}
-          />
-          <div className="flex items-center gap-1 rounded-md border border-border p-1">
-            <button onClick={() => setDayWidth((w) => Math.max(14, w - 4))} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground" aria-label="Reduzir zoom">
-              <ZoomOut className="h-4 w-4" />
-            </button>
-            <button onClick={() => setDayWidth((w) => Math.min(72, w + 4))} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground" aria-label="Aumentar zoom">
-              <ZoomIn className="h-4 w-4" />
-            </button>
-          </div>
         </div>
       </div>
 
-      <div className="mt-4 flex gap-0" style={{ height: "calc(100vh - 240px)" }}>
-        <div className="flex-1 overflow-auto rounded-lg border border-border bg-card">
-          {stages.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-center">
-              <div>
-                <p className="font-display text-2xl text-muted-foreground">Sem fases ainda</p>
-                <p className="mt-1 text-sm text-muted-foreground">Adicione a primeira fase para começar.</p>
+      <Tabs value={tab} onValueChange={setTab} className="mt-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <TabsList>
+            <TabsTrigger value="gantt" className="gap-1.5">
+              <GanttChartSquare className="h-3.5 w-3.5" /> Gantt
+            </TabsTrigger>
+            <TabsTrigger value="insights" className="gap-1.5">
+              <BarChart3 className="h-3.5 w-3.5" /> Insights
+            </TabsTrigger>
+            <TabsTrigger value="stream" className="gap-1.5">
+              <Activity className="h-3.5 w-3.5" /> Stream
+            </TabsTrigger>
+            <TabsTrigger value="billing" className="gap-1.5">
+              <Receipt className="h-3.5 w-3.5" /> Facturação
+            </TabsTrigger>
+            <TabsTrigger value="rates" className="gap-1.5">
+              <Coins className="h-3.5 w-3.5" /> Tarifas
+            </TabsTrigger>
+          </TabsList>
+
+          {tab === "gantt" && (
+            <div className="flex items-center gap-3">
+              <NewStageDialog
+                projectId={project.id}
+                defaultStart={project.start_date}
+                nextOrder={stages.length}
+              />
+              <div className="flex items-center gap-1 rounded-md border border-border p-1">
+                <button onClick={() => setDayWidth((w) => Math.max(14, w - 4))} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground" aria-label="Reduzir zoom">
+                  <ZoomOut className="h-4 w-4" />
+                </button>
+                <button onClick={() => setDayWidth((w) => Math.min(72, w + 4))} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground" aria-label="Aumentar zoom">
+                  <ZoomIn className="h-4 w-4" />
+                </button>
               </div>
             </div>
-          ) : (
-            <GanttChart
-              projectId={project.id}
-              stages={stagesWithProject}
-              origin={origin}
-              totalDays={totalDays}
-              dayWidth={dayWidth}
-              resources={resources ?? []}
-            />
           )}
         </div>
-        <ResourcePool resources={resources ?? []} />
-      </div>
+
+        <TabsContent value="gantt" className="mt-4">
+          <div className="flex gap-0" style={{ height: "calc(100vh - 320px)" }}>
+            <div className="flex-1 overflow-auto rounded-lg border border-border bg-card">
+              {stages.length === 0 ? (
+                <div className="flex h-full items-center justify-center text-center">
+                  <div>
+                    <p className="font-display text-2xl text-muted-foreground">Sem fases ainda</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Adicione a primeira fase para começar.</p>
+                  </div>
+                </div>
+              ) : (
+                <GanttChart
+                  projectId={project.id}
+                  stages={stagesWithProject}
+                  origin={origin}
+                  totalDays={totalDays}
+                  dayWidth={dayWidth}
+                  resources={resources ?? []}
+                />
+              )}
+            </div>
+            <ResourcePool resources={resources ?? []} />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="insights" className="mt-4">
+          <div className="rounded-lg border border-border bg-card">
+            <InsightsTabView projectId={project.id} />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="stream" className="mt-4">
+          <div className="rounded-lg border border-border bg-card">
+            <StreamTabView projectId={project.id} stages={stages} />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="billing" className="mt-4">
+          <div className="rounded-lg border border-border bg-card">
+            <BillingTabView project={project} stages={stages} />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="rates" className="mt-4">
+          <div className="rounded-lg border border-border bg-card">
+            <RatesTabView project={project} />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
