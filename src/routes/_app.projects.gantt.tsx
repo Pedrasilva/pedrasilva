@@ -33,6 +33,7 @@ function GlobalGanttPage() {
   const { data: projects, isLoading } = useProjects();
   const { data: allStages } = useAllStages();
   const { data: resources } = useResources();
+  const { data: defaultRates } = useDefaultResourceRates();
   const del = useDeleteProject();
   const updateProject = useUpdateProject();
   const navigate = useNavigate();
