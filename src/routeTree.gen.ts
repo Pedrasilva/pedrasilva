@@ -16,6 +16,7 @@ import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expens
 import { Route as AppCrmRouteImport } from './routes/_app.crm'
 import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
+import { Route as AppCrmIndexRouteImport } from './routes/_app.crm.index'
 import { Route as AppProjectsTimesheetRouteImport } from './routes/_app.projects.timesheet'
 import { Route as AppProjectsResourcesRouteImport } from './routes/_app.projects.resources'
 import { Route as AppProjectsMyTasksRouteImport } from './routes/_app.projects.my-tasks'
@@ -29,6 +30,8 @@ import { Route as AppHrFeriasRouteImport } from './routes/_app.hr.ferias'
 import { Route as AppHrDiasUteisRouteImport } from './routes/_app.hr.dias-uteis'
 import { Route as AppHrBeneficiosRouteImport } from './routes/_app.hr.beneficios'
 import { Route as AppHrAdminRouteImport } from './routes/_app.hr.admin'
+import { Route as AppCrmContactsRouteImport } from './routes/_app.crm.contacts'
+import { Route as AppCrmCompaniesRouteImport } from './routes/_app.crm.companies'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
 
@@ -65,6 +68,11 @@ const AppHrIndexRoute = AppHrIndexRouteImport.update({
   id: '/hr/',
   path: '/hr/',
   getParentRoute: () => AppRoute,
+} as any)
+const AppCrmIndexRoute = AppCrmIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppCrmRoute,
 } as any)
 const AppProjectsTimesheetRoute = AppProjectsTimesheetRouteImport.update({
   id: '/projects/timesheet',
@@ -132,6 +140,16 @@ const AppHrAdminRoute = AppHrAdminRouteImport.update({
   path: '/hr/admin',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCrmContactsRoute = AppCrmContactsRouteImport.update({
+  id: '/contacts',
+  path: '/contacts',
+  getParentRoute: () => AppCrmRoute,
+} as any)
+const AppCrmCompaniesRoute = AppCrmCompaniesRouteImport.update({
+  id: '/companies',
+  path: '/companies',
+  getParentRoute: () => AppCrmRoute,
+} as any)
 const AppProjectsResourcesResourceIdRoute =
   AppProjectsResourcesResourceIdRouteImport.update({
     id: '/$resourceId',
@@ -147,8 +165,10 @@ const AppHrColaboradorIdRoute = AppHrColaboradorIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
-  '/crm': typeof AppCrmRoute
+  '/crm': typeof AppCrmRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
+  '/crm/companies': typeof AppCrmCompaniesRoute
+  '/crm/contacts': typeof AppCrmContactsRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
   '/hr/dias-uteis': typeof AppHrDiasUteisRoute
@@ -162,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/projects/my-tasks': typeof AppProjectsMyTasksRoute
   '/projects/resources': typeof AppProjectsResourcesRouteWithChildren
   '/projects/timesheet': typeof AppProjectsTimesheetRoute
+  '/crm/': typeof AppCrmIndexRoute
   '/hr/': typeof AppHrIndexRoute
   '/projects/': typeof AppProjectsIndexRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
@@ -169,9 +190,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/crm': typeof AppCrmRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
+  '/crm/companies': typeof AppCrmCompaniesRoute
+  '/crm/contacts': typeof AppCrmContactsRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
   '/hr/dias-uteis': typeof AppHrDiasUteisRoute
@@ -185,6 +207,7 @@ export interface FileRoutesByTo {
   '/projects/my-tasks': typeof AppProjectsMyTasksRoute
   '/projects/resources': typeof AppProjectsResourcesRouteWithChildren
   '/projects/timesheet': typeof AppProjectsTimesheetRoute
+  '/crm': typeof AppCrmIndexRoute
   '/hr': typeof AppHrIndexRoute
   '/projects': typeof AppProjectsIndexRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
@@ -194,9 +217,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
-  '/_app/crm': typeof AppCrmRoute
+  '/_app/crm': typeof AppCrmRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/crm/companies': typeof AppCrmCompaniesRoute
+  '/_app/crm/contacts': typeof AppCrmContactsRoute
   '/_app/hr/admin': typeof AppHrAdminRoute
   '/_app/hr/beneficios': typeof AppHrBeneficiosRoute
   '/_app/hr/dias-uteis': typeof AppHrDiasUteisRoute
@@ -210,6 +235,7 @@ export interface FileRoutesById {
   '/_app/projects/my-tasks': typeof AppProjectsMyTasksRoute
   '/_app/projects/resources': typeof AppProjectsResourcesRouteWithChildren
   '/_app/projects/timesheet': typeof AppProjectsTimesheetRoute
+  '/_app/crm/': typeof AppCrmIndexRoute
   '/_app/hr/': typeof AppHrIndexRoute
   '/_app/projects/': typeof AppProjectsIndexRoute
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
@@ -222,6 +248,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/crm'
     | '/api/notify-expense'
+    | '/crm/companies'
+    | '/crm/contacts'
     | '/hr/admin'
     | '/hr/beneficios'
     | '/hr/dias-uteis'
@@ -235,6 +263,7 @@ export interface FileRouteTypes {
     | '/projects/my-tasks'
     | '/projects/resources'
     | '/projects/timesheet'
+    | '/crm/'
     | '/hr/'
     | '/projects/'
     | '/hr/colaborador/$id'
@@ -242,9 +271,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
-    | '/crm'
     | '/api/notify-expense'
     | '/'
+    | '/crm/companies'
+    | '/crm/contacts'
     | '/hr/admin'
     | '/hr/beneficios'
     | '/hr/dias-uteis'
@@ -258,6 +288,7 @@ export interface FileRouteTypes {
     | '/projects/my-tasks'
     | '/projects/resources'
     | '/projects/timesheet'
+    | '/crm'
     | '/hr'
     | '/projects'
     | '/hr/colaborador/$id'
@@ -269,6 +300,8 @@ export interface FileRouteTypes {
     | '/_app/crm'
     | '/api/notify-expense'
     | '/_app/'
+    | '/_app/crm/companies'
+    | '/_app/crm/contacts'
     | '/_app/hr/admin'
     | '/_app/hr/beneficios'
     | '/_app/hr/dias-uteis'
@@ -282,6 +315,7 @@ export interface FileRouteTypes {
     | '/_app/projects/my-tasks'
     | '/_app/projects/resources'
     | '/_app/projects/timesheet'
+    | '/_app/crm/'
     | '/_app/hr/'
     | '/_app/projects/'
     | '/_app/hr/colaborador/$id'
@@ -344,6 +378,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/hr/'
       preLoaderRoute: typeof AppHrIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/_app/crm/': {
+      id: '/_app/crm/'
+      path: '/'
+      fullPath: '/crm/'
+      preLoaderRoute: typeof AppCrmIndexRouteImport
+      parentRoute: typeof AppCrmRoute
     }
     '/_app/projects/timesheet': {
       id: '/_app/projects/timesheet'
@@ -436,6 +477,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHrAdminRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/crm/contacts': {
+      id: '/_app/crm/contacts'
+      path: '/contacts'
+      fullPath: '/crm/contacts'
+      preLoaderRoute: typeof AppCrmContactsRouteImport
+      parentRoute: typeof AppCrmRoute
+    }
+    '/_app/crm/companies': {
+      id: '/_app/crm/companies'
+      path: '/companies'
+      fullPath: '/crm/companies'
+      preLoaderRoute: typeof AppCrmCompaniesRouteImport
+      parentRoute: typeof AppCrmRoute
+    }
     '/_app/projects/resources/$resourceId': {
       id: '/_app/projects/resources/$resourceId'
       path: '/$resourceId'
@@ -453,6 +508,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppCrmRouteChildren {
+  AppCrmCompaniesRoute: typeof AppCrmCompaniesRoute
+  AppCrmContactsRoute: typeof AppCrmContactsRoute
+  AppCrmIndexRoute: typeof AppCrmIndexRoute
+}
+
+const AppCrmRouteChildren: AppCrmRouteChildren = {
+  AppCrmCompaniesRoute: AppCrmCompaniesRoute,
+  AppCrmContactsRoute: AppCrmContactsRoute,
+  AppCrmIndexRoute: AppCrmIndexRoute,
+}
+
+const AppCrmRouteWithChildren =
+  AppCrmRoute._addFileChildren(AppCrmRouteChildren)
+
 interface AppProjectsResourcesRouteChildren {
   AppProjectsResourcesResourceIdRoute: typeof AppProjectsResourcesResourceIdRoute
 }
@@ -465,7 +535,7 @@ const AppProjectsResourcesRouteWithChildren =
   AppProjectsResourcesRoute._addFileChildren(AppProjectsResourcesRouteChildren)
 
 interface AppRouteChildren {
-  AppCrmRoute: typeof AppCrmRoute
+  AppCrmRoute: typeof AppCrmRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppHrAdminRoute: typeof AppHrAdminRoute
   AppHrBeneficiosRoute: typeof AppHrBeneficiosRoute
@@ -486,7 +556,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppCrmRoute: AppCrmRoute,
+  AppCrmRoute: AppCrmRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppHrAdminRoute: AppHrAdminRoute,
   AppHrBeneficiosRoute: AppHrBeneficiosRoute,
@@ -516,3 +586,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
