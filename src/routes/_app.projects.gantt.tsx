@@ -14,6 +14,7 @@ import {
   type ProjectStatus,
 } from "@/lib/projects/use-planner";
 import { allocationCost, euros } from "@/lib/projects/gantt-utils";
+import { useDefaultResourceRates, effectiveCostRate } from "@/lib/projects/use-default-rates";
 import { ArrowUpRight, Trash2, ZoomIn, ZoomOut, CircleDot, PauseCircle, Archive } from "lucide-react";
 import { toast } from "sonner";
 import type { Project } from "@/lib/projects/types";
