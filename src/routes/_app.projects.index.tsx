@@ -50,6 +50,7 @@ function DashboardPage() {
   const { data: allStages, isLoading: sLoading } = useAllStages();
   const { data: resources } = useResources();
   const { data: invoices } = useAllInvoices();
+  const { data: defaultRates } = useDefaultResourceRates();
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | "all">("active");
   const [query, setQuery] = useState("");
 
