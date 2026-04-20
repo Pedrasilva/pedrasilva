@@ -224,7 +224,7 @@ function DashboardPage() {
         activityTone,
       };
     });
-  }, [filteredProjects, stagesByProject, invoicedByProject]);
+  }, [filteredProjects, stagesByProject, invoicedByProject, defaultRates]);
 
   return (
     <AppShell active="projects">
