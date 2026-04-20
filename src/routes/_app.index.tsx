@@ -31,9 +31,9 @@ const MODULES: ModuleDef[] = [
     to: "/crm",
     title: "CRM",
     subtitle: "Clientes & Contactos",
-    description: "Empresas, contactos e relacionamento comercial.",
+    description: "Empresas, contactos, propostas e pipeline comercial.",
     icon: Building2,
-    ready: false,
+    ready: true,
   },
   {
     to: "/projects",

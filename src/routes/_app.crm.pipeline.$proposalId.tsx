@@ -172,14 +172,14 @@ function ProposalDetail() {
         <div className="flex flex-wrap gap-2">
           {alreadyConverted ? (
             <Button asChild variant="outline" size="sm">
-              <Link to="/projects/$projectId" params={{ projectId: current.pm_project_id! }}>
+              <Link to="/projects/$projectId" params={{ projectId: current.pm_project_id ?? "" }}>
                 <Rocket className="h-4 w-4 mr-1" /> Ver projecto
               </Link>
             </Button>
           ) : (
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" size="sm" className="border-emerald-500/40 text-emerald-700 hover:bg-emerald-50">
+                <Button variant="outline" size="sm">
                   <Rocket className="h-4 w-4 mr-1" /> Converter em projecto
                 </Button>
               </AlertDialogTrigger>
