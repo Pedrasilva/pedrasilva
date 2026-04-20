@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, startOfWeek } from "date-fns";
 import type { Resource, StageWithAllocations } from "@/lib/projects/types";
 import { allocationCost, dayCount, euros, workingDays } from "@/lib/projects/gantt-utils";
+import { useDefaultResourceRates, effectiveCostRate } from "@/lib/projects/use-default-rates";
 import {
   useCreateAllocation,
   useUpdateAllocation,
