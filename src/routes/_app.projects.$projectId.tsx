@@ -87,7 +87,11 @@ function ProjectDetail() {
               <span className="text-muted-foreground"> / {euros(totalBudget)}</span>
             </p>
           </div>
-          <NewStageDialog projectId={project.id} />
+          <NewStageDialog
+            projectId={project.id}
+            defaultStart={project.start_date}
+            nextOrder={stages.length}
+          />
           <div className="flex items-center gap-1 rounded-md border border-border p-1">
             <button onClick={() => setDayWidth((w) => Math.max(14, w - 4))} className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground" aria-label="Reduzir zoom">
               <ZoomOut className="h-4 w-4" />
