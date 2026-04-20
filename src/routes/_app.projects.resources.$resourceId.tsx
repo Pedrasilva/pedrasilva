@@ -12,7 +12,8 @@ import {
   useUpdateResource,
   type ResourceTeam,
 } from "@/lib/projects/use-planner";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { useDefaultResourceRates } from "@/lib/projects/use-default-rates";
+import { ArrowLeft, Trash2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import type { Resource } from "@/lib/projects/types";
 
@@ -38,10 +39,12 @@ function ResourceDetailPage() {
   const { resourceId } = Route.useParams();
   const navigate = useNavigate();
   const { data: resources } = useResources();
+  const { data: defaultRates } = useDefaultResourceRates();
   const update = useUpdateResource();
   const del = useDeleteResource();
 
   const member = (resources ?? []).find((r) => r.id === resourceId) as FullResource | undefined;
+  const defaultRate = defaultRates?.get(resourceId)?.sale;
 
   const [form, setForm] = useState({
     name: "",
@@ -49,7 +52,7 @@ function ResourceDetailPage() {
     team: "project" as ResourceTeam,
     email: "",
     phone: "",
-    hourly_rate: 100,
+    hourly_rate: 0,
     weekly_capacity: 40,
     color: PALETTE[0],
     notes: "",
@@ -58,19 +61,21 @@ function ResourceDetailPage() {
 
   useEffect(() => {
     if (!member) return;
+    const stored = Number(member.hourly_rate ?? 0);
     setForm({
       name: member.name ?? "",
       role: member.role ?? "",
       team: ((member.team as ResourceTeam) ?? "project"),
       email: member.email ?? "",
       phone: member.phone ?? "",
-      hourly_rate: Number(member.hourly_rate ?? 100),
+      // Se não tem rate definido, pré-preenche com o default do HR @ 50%
+      hourly_rate: stored > 0 ? stored : Number(defaultRate ?? 0),
       weekly_capacity: Number(member.weekly_capacity ?? 40),
       color: member.color ?? PALETTE[0],
       notes: member.notes ?? "",
       active: member.active ?? true,
     });
-  }, [member?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [member?.id, defaultRate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!resources) {
     return (
@@ -240,6 +245,17 @@ function ResourceDetailPage() {
                   value={form.hourly_rate}
                   onChange={(e) => setForm({ ...form, hourly_rate: Number(e.target.value) })}
                 />
+                {defaultRate != null && defaultRate > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, hourly_rate: defaultRate })}
+                    className="mt-1.5 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                    title="Valor de venda @ 50% calculado no Resumo Comparativo do HR"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    Sugestão HR @ 50%: {defaultRate.toFixed(2)}€/h
+                  </button>
+                )}
               </Field>
             </div>
           </Section>

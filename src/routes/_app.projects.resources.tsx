@@ -9,6 +9,7 @@ import {
   useUpdateResource,
   type ResourceTeam,
 } from "@/lib/projects/use-planner";
+import { useDefaultResourceRates } from "@/lib/projects/use-default-rates";
 import { ChevronRight, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { euros } from "@/lib/projects/gantt-utils";
@@ -29,6 +30,7 @@ type FullResource = Resource & { team?: string | null; active?: boolean };
 
 function ResourcesPage() {
   const { data: resources } = useResources();
+  const { data: defaultRates } = useDefaultResourceRates();
   const update = useUpdateResource();
   const del = useDeleteResource();
 
@@ -138,7 +140,20 @@ function ResourcesPage() {
                         {TEAM_LABEL[rTeam]}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right font-mono">{euros(Number(r.hourly_rate))}/h</td>
+                    <td className="px-4 py-3 text-right font-mono">
+                      {Number(r.hourly_rate) > 0 ? (
+                        `${euros(Number(r.hourly_rate))}/h`
+                      ) : defaultRates?.get(r.id)?.sale ? (
+                        <span
+                          className="text-muted-foreground italic"
+                          title="Sugestão automática @ 50% do Resumo Comparativo do HR (sem rate definido)"
+                        >
+                          {euros(defaultRates.get(r.id)!.sale)}/h*
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right font-mono">{Number(r.weekly_capacity)} h/wk</td>
                     <td className="px-4 py-3 text-center">
                       <Switch
@@ -178,6 +193,10 @@ function ResourcesPage() {
             </tbody>
           </table>
         </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          * Rate sugerido automaticamente a partir do Resumo Comparativo do HR (venda @ 50%) quando o
+          recurso ainda não tem rate definido. Edite o recurso para fixar um valor.
+        </p>
       </div>
     </AppShell>
   );
