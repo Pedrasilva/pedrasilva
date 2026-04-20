@@ -19,6 +19,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
+import { QuickCreateMenu } from "@/components/QuickCreateMenu";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -161,24 +162,8 @@ export function AppShell({ children, active }: Props) {
               Team
             </Link>
             <div className="mx-2 flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => navigate({ to: "/projects" })}
-                className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground transition hover:opacity-90"
-                aria-label="New"
-                title="New"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate({ to: "/projects/timesheet" })}
-                className="flex h-8 w-8 items-center justify-center rounded-md bg-muted text-foreground transition hover:bg-accent"
-                aria-label="Timesheet"
-                title="Timesheet"
-              >
-                <Clock className="h-4 w-4" />
-              </button>
+              <QuickCreateMenu variant="icon" />
+              <QuickCreateMenu variant="time" />
               <button
                 type="button"
                 onClick={() => navigate({ to: "/projects" })}
