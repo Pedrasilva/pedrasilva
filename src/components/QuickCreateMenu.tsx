@@ -19,14 +19,13 @@ import {
 } from "@/components/ui/select";
 import {
   Plus, Building2, User, Briefcase,
-  StickyNote, Mail, Users as UsersIcon, CheckSquare,
-  Receipt, CalendarDays,
+  CheckSquare, Receipt, CalendarDays,
 } from "lucide-react";
 import { toast } from "sonner";
 
 type Sheet =
   | null
-  | "note" | "email" | "meeting" | "task"
+  | "task"
   | "company" | "contact" | "project"
   | "expense" | "request";
 
@@ -51,15 +50,6 @@ export function QuickCreateMenu() {
           <DropdownMenuLabel className="bg-primary/10 text-primary -mx-1 -mt-1 mb-1 rounded-sm px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider">
             Criar
           </DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => setSheet("note")} className="gap-2">
-            <StickyNote className="h-4 w-4 text-muted-foreground" /> Nota
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSheet("email")} className="gap-2">
-            <Mail className="h-4 w-4 text-muted-foreground" /> Email
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSheet("meeting")} className="gap-2">
-            <UsersIcon className="h-4 w-4 text-muted-foreground" /> Reunião
-          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("task")} className="gap-2">
             <CheckSquare className="h-4 w-4 text-muted-foreground" /> Tarefa
           </DropdownMenuItem>
@@ -82,11 +72,6 @@ export function QuickCreateMenu() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ActivityDialog
-        open={sheet === "note" || sheet === "email" || sheet === "meeting"}
-        kind={sheet === "email" ? "email" : sheet === "meeting" ? "reuniao" : "nota"}
-        onClose={() => setSheet(null)}
-      />
       <TaskDialog open={sheet === "task"} onClose={() => setSheet(null)} />
       <CompanyDialog open={sheet === "company"} onClose={() => setSheet(null)} />
       <ContactDialog open={sheet === "contact"} onClose={() => setSheet(null)} />
@@ -547,141 +532,6 @@ function Field({
       <Label className="text-xs text-muted-foreground">{label}</Label>
       {children}
     </div>
-  );
-}
-
-// ─────────────────────────────────────────────
-// Actividade CRM (Nota / Email / Reunião)
-// ─────────────────────────────────────────────
-type ActKind = "nota" | "email" | "reuniao";
-const activitySchema = z.object({
-  tipo: z.enum(["nota", "email", "reuniao", "chamada", "outro"]),
-  resumo: z.string().trim().min(1, "Resumo obrigatório").max(200),
-  detalhes: z.string().trim().max(4000).optional().or(z.literal("")),
-  company_id: z.string().uuid().nullable().optional(),
-  contact_id: z.string().uuid().nullable().optional(),
-});
-
-function ActivityDialog({
-  open, kind, onClose,
-}: { open: boolean; kind: ActKind; onClose: () => void }) {
-  const qc = useQueryClient();
-  const { data: companies = [] } = useQuery({
-    queryKey: ["companies-lite"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("companies").select("id, nome").order("nome");
-      if (error) throw error;
-      return data as { id: string; nome: string }[];
-    },
-    enabled: open,
-  });
-  const { data: contacts = [] } = useQuery({
-    queryKey: ["contacts-lite"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("contacts").select("id, primeiro_nome, apelido").order("primeiro_nome");
-      if (error) throw error;
-      return data as { id: string; primeiro_nome: string; apelido: string | null }[];
-    },
-    enabled: open,
-  });
-
-  const [form, setForm] = useState({
-    resumo: "", detalhes: "",
-    company_id: "" as string | "",
-    contact_id: "" as string | "",
-  });
-
-  const reset = () => setForm({ resumo: "", detalhes: "", company_id: "", contact_id: "" });
-
-  const titleByKind: Record<ActKind, string> = {
-    nota: "Nova nota",
-    email: "Registar email",
-    reuniao: "Registar reunião",
-  };
-  const IconByKind = kind === "email" ? Mail : kind === "reuniao" ? UsersIcon : StickyNote;
-
-  const create = useMutation({
-    mutationFn: async () => {
-      const parsed = activitySchema.parse({
-        tipo: kind,
-        resumo: form.resumo,
-        detalhes: form.detalhes,
-        company_id: form.company_id || null,
-        contact_id: form.contact_id || null,
-      });
-      const { error } = await supabase.from("crm_activities").insert({
-        tipo: parsed.tipo,
-        resumo: parsed.resumo,
-        detalhes: parsed.detalhes || null,
-        company_id: parsed.company_id ?? null,
-        contact_id: parsed.contact_id ?? null,
-      });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Actividade registada");
-      qc.invalidateQueries({ queryKey: ["crm_activities"] });
-      reset();
-      onClose();
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <IconByKind className="h-5 w-5" /> {titleByKind[kind]}
-          </DialogTitle>
-          <DialogDescription>Fica registado na timeline da empresa/contacto.</DialogDescription>
-        </DialogHeader>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Resumo *" full>
-            <Input className="input-yellow" value={form.resumo}
-              onChange={(e) => setForm((f) => ({ ...f, resumo: e.target.value }))} />
-          </Field>
-          <Field label="Empresa">
-            <Select value={form.company_id || "none"}
-              onValueChange={(v) => setForm((f) => ({ ...f, company_id: v === "none" ? "" : v }))}>
-              <SelectTrigger className="input-yellow"><SelectValue placeholder="—" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">—</SelectItem>
-                {companies.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Contacto">
-            <Select value={form.contact_id || "none"}
-              onValueChange={(v) => setForm((f) => ({ ...f, contact_id: v === "none" ? "" : v }))}>
-              <SelectTrigger className="input-yellow"><SelectValue placeholder="—" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">—</SelectItem>
-                {contacts.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {[c.primeiro_nome, c.apelido].filter(Boolean).join(" ")}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Detalhes" full>
-            <Textarea className="input-yellow" rows={4} value={form.detalhes}
-              onChange={(e) => setForm((f) => ({ ...f, detalhes: e.target.value }))} />
-          </Field>
-        </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
-          <Button onClick={() => create.mutate()} disabled={create.isPending || !form.resumo.trim()}>
-            Guardar
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   );
 }
 
