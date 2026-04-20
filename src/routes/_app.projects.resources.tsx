@@ -30,6 +30,7 @@ type FullResource = Resource & { team?: string | null; active?: boolean };
 
 function ResourcesPage() {
   const { data: resources } = useResources();
+  const { data: defaultRates } = useDefaultResourceRates();
   const update = useUpdateResource();
   const del = useDeleteResource();
 
