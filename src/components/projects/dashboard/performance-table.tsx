@@ -2,6 +2,11 @@ import { useMemo, useState } from "react";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import type { Project, Resource, StageWithAllocations } from "@/lib/projects/types";
 import { allocationCost, allocationHours, euros } from "@/lib/projects/gantt-utils";
+import {
+  useDefaultResourceRates,
+  effectiveCostRate,
+  effectiveSaleRate,
+} from "@/lib/projects/use-default-rates";
 import { cn } from "@/lib/utils";
 
 type Metric = "Value" | "Budget (hrs)" | "Number of Projects";
