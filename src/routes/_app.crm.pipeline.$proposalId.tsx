@@ -132,7 +132,7 @@ function ProposalDetail() {
       toast.success("Proposta convertida em projecto");
       qc.invalidateQueries({ queryKey: ["fee_proposal", proposalId] });
       qc.invalidateQueries({ queryKey: ["fee_proposals"] });
-      navigate({ to: "/projects/$projectId", params: { projectId } });
+      if (projectId) navigate({ to: "/projects/$projectId", params: { projectId } });
     },
     onError: (e: Error) => toast.error(e.message),
   });
