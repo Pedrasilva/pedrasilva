@@ -9,6 +9,11 @@ import { ProjectValueChart } from "@/components/projects/dashboard/project-value
 import { PerformanceTable } from "@/components/projects/dashboard/performance-table";
 import { useProjects, useAllStages, useResources, type ProjectStatus } from "@/lib/projects/use-planner";
 import { allocationCost, allocationHours, workingDays } from "@/lib/projects/gantt-utils";
+import {
+  useDefaultResourceRates,
+  effectiveCostRate,
+  effectiveSaleRate,
+} from "@/lib/projects/use-default-rates";
 import { supabase } from "@/integrations/supabase/client";
 import type { StageWithAllocations } from "@/lib/projects/types";
 import { Search, Plus, Clock, Briefcase, CalendarDays, Inbox } from "lucide-react";
