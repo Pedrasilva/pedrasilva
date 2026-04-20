@@ -99,11 +99,17 @@ function AppLayout() {
       to: "/hr" as const,
       label: "Colaboradores",
       icon: Users,
-      // /hr (sem /minha-ficha, /ferias…) e /hr/colaborador/* e /hr/resumo
+      // /hr (sem /minha-ficha, /ferias…) e /hr/colaborador/*
       match: (p: string) =>
         p === "/hr" ||
-        p.startsWith("/hr/colaborador") ||
-        p.startsWith("/hr/resumo"),
+        p.startsWith("/hr/colaborador"),
+      adminOnly: true,
+    },
+    {
+      to: "/hr/resumo" as const,
+      label: "Resumo comparativo",
+      icon: BarChart3,
+      match: (p: string) => p.startsWith("/hr/resumo"),
       adminOnly: true,
     },
   ] as const;
