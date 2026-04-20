@@ -245,6 +245,17 @@ function ResourceDetailPage() {
                   value={form.hourly_rate}
                   onChange={(e) => setForm({ ...form, hourly_rate: Number(e.target.value) })}
                 />
+                {defaultRate != null && defaultRate > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, hourly_rate: defaultRate })}
+                    className="mt-1.5 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                    title="Valor de venda @ 50% calculado no Resumo Comparativo do HR"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    Sugestão HR @ 50%: {defaultRate.toFixed(2)}€/h
+                  </button>
+                )}
               </Field>
             </div>
           </Section>
