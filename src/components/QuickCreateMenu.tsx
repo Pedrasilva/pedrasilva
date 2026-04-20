@@ -50,15 +50,6 @@ export function QuickCreateMenu() {
           <DropdownMenuLabel className="bg-primary/10 text-primary -mx-1 -mt-1 mb-1 rounded-sm px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider">
             Criar
           </DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => setSheet("note")} className="gap-2">
-            <StickyNote className="h-4 w-4 text-muted-foreground" /> Nota
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSheet("email")} className="gap-2">
-            <Mail className="h-4 w-4 text-muted-foreground" /> Email
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSheet("meeting")} className="gap-2">
-            <UsersIcon className="h-4 w-4 text-muted-foreground" /> Reunião
-          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("task")} className="gap-2">
             <CheckSquare className="h-4 w-4 text-muted-foreground" /> Tarefa
           </DropdownMenuItem>
