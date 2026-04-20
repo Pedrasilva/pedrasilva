@@ -392,7 +392,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                 start_date: aS,
                 end_date: aE,
                 hours_per_day: Number(a.hours_per_day),
-                hourly_rate: Number(a.resource.hourly_rate),
+                hourly_rate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates),
               });
             }
             const budget = Number(stage.budget);
