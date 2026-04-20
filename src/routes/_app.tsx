@@ -37,6 +37,7 @@ import {
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
 import { ViewAsPicker } from "@/components/ViewAsPicker";
+import { QuickCreateMenu } from "@/components/QuickCreateMenu";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -118,6 +119,8 @@ function AppLayout() {
   const settingsActive = isAdmin && settingsItems.some((s) => s.match(loc.pathname));
   // Cabeçalho/nav de HR só aparece nas rotas /hr.
   const isHrArea = loc.pathname.startsWith("/hr");
+  // Quick Create só em CRM e Projects.
+  const showQuickCreate = loc.pathname.startsWith("/crm") || loc.pathname.startsWith("/projects");
 
   const userInitial = (user?.email ?? "?").charAt(0).toUpperCase();
 
@@ -221,6 +224,8 @@ function AppLayout() {
             )}
 
             <ViewAsPicker variant="desktop" />
+
+            {showQuickCreate && <QuickCreateMenu />}
 
             {/* Menu de utilizador (desktop) */}
             <DropdownMenu>
