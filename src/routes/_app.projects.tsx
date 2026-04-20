@@ -1,11 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Briefcase, Search, GanttChartSquare, Users, ListChecks, CalendarClock, ArrowLeft } from "lucide-react";
+import {
+  Briefcase,
+  Search,
+  GanttChartSquare,
+  Users,
+  ListChecks,
+  CalendarClock,
+  ArrowLeft,
+} from "lucide-react";
 import { NewProjectDialog } from "@/components/projects/NewProjectDialog";
-import { useProjects, useAllStages, useAllAllocations } from "@/lib/projects/use-planner";
+import { useProjects, useAllStages, useAllAllocations, useResources } from "@/lib/projects/use-planner";
 import { allocationCost, allocationHours, euros } from "@/lib/projects/gantt-utils";
 import { ProjectCard } from "@/components/projects/dashboard/ProjectCard";
 import { KpiStrip, type KpiStripData } from "@/components/projects/dashboard/KpiStrip";
+import { PerformanceTable } from "@/components/projects/dashboard/PerformanceTable";
+import { ProjectScorecard, type ScorecardRow } from "@/components/projects/dashboard/ProjectScorecard";
+import { ProjectValueChart } from "@/components/projects/dashboard/ProjectValueChart";
 import type { StageWithAllocations } from "@/lib/projects/types";
 
 export const Route = createFileRoute("/_app/projects")({
@@ -16,6 +27,7 @@ function ProjectsPage() {
   const { data: projects, isLoading } = useProjects();
   const { data: stages } = useAllStages();
   const { data: allocs } = useAllAllocations();
+  const { data: resources } = useResources();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "paused" | "archived">("active");
 
@@ -80,6 +92,54 @@ function ProjectsPage() {
     };
   }, [allocs]);
 
+  const scorecardRows = useMemo<ScorecardRow[]>(() => {
+    return (projects ?? []).map((project) => {
+      const projectStages = stagesByProject.get(project.id) ?? [];
+      const budget = projectStages.reduce((sum, stage) => sum + Number(stage.budget), 0);
+      const invoiced = 0;
+      const cost = projectStages.reduce(
+        (sum, stage) =>
+          sum +
+          stage.allocations.reduce(
+            (acc, alloc) =>
+              acc +
+              allocationCost({
+                start_date: alloc.start_date,
+                end_date: alloc.end_date,
+                hours_per_day: Number(alloc.hours_per_day),
+                hourly_rate: Number(alloc.resource.hourly_rate),
+              }),
+            0,
+          ),
+        0,
+      );
+      const usagePct = budget > 0 ? cost / budget : 0;
+      const endDates = projectStages.map((stage) => new Date(stage.end_date).getTime());
+      const dueTone: ScorecardRow["dueTone"] =
+        endDates.length === 0
+          ? "none"
+          : Math.max(...endDates) < Date.now()
+            ? "bad"
+            : usagePct > 0.85
+              ? "warn"
+              : "ok";
+      const allocCount = projectStages.reduce((sum, stage) => sum + stage.allocations.length, 0);
+      const activityTone: ScorecardRow["activityTone"] =
+        allocCount === 0 ? "none" : allocCount < 2 ? "warn" : "ok";
+
+      return {
+        project,
+        manager: project.client || "Sem cliente",
+        managerSub: project.status,
+        budget,
+        invoiced,
+        usagePct,
+        dueTone,
+        activityTone,
+      };
+    });
+  }, [projects, stagesByProject]);
+
   return (
     <div className="mx-auto w-full max-w-[1400px] px-6 py-8">
       <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
@@ -138,6 +198,20 @@ function ProjectsPage() {
         <div className="text-xs text-muted-foreground">
           {filteredProjects.length} {filteredProjects.length === 1 ? "projecto" : "projectos"}
         </div>
+      </div>
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <ProjectScorecard rows={scorecardRows} loading={isLoading} />
+        <ProjectValueChart projects={filteredProjects} stages={stages ?? []} loading={isLoading} />
+      </div>
+
+      <div className="mt-6">
+        <PerformanceTable
+          projects={filteredProjects}
+          stages={stages ?? []}
+          resources={resources ?? []}
+          loading={isLoading}
+        />
       </div>
 
       <div className="mt-6 space-y-4">
