@@ -67,7 +67,7 @@ function ProjectDetail() {
             start_date: a.start_date,
             end_date: a.end_date,
             hours_per_day: Number(a.hours_per_day),
-            hourly_rate: Number(a.resource.hourly_rate),
+            hourly_rate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates),
           }),
         0,
       )
