@@ -19,14 +19,13 @@ import {
 } from "@/components/ui/select";
 import {
   Plus, Building2, User, Briefcase,
-  StickyNote, Mail, Users as UsersIcon, CheckSquare,
-  Receipt, CalendarDays,
+  CheckSquare, Receipt, CalendarDays,
 } from "lucide-react";
 import { toast } from "sonner";
 
 type Sheet =
   | null
-  | "note" | "email" | "meeting" | "task"
+  | "task"
   | "company" | "contact" | "project"
   | "expense" | "request";
 
