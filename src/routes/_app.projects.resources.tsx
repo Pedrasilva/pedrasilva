@@ -9,6 +9,7 @@ import {
   useUpdateResource,
   type ResourceTeam,
 } from "@/lib/projects/use-planner";
+import { useDefaultResourceRates } from "@/lib/projects/use-default-rates";
 import { ChevronRight, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { euros } from "@/lib/projects/gantt-utils";
