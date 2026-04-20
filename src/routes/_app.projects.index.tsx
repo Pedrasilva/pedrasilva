@@ -194,7 +194,7 @@ function DashboardPage() {
                 start_date: al.start_date,
                 end_date: al.end_date,
                 hours_per_day: Number(al.hours_per_day),
-                hourly_rate: Number(al.resource.hourly_rate),
+                hourly_rate: effectiveCostRate(al.resource.cost_rate, al.resource.id, defaultRates),
               }),
             0,
           ),
