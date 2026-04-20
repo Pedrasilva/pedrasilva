@@ -72,11 +72,6 @@ export function QuickCreateMenu() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ActivityDialog
-        open={sheet === "note" || sheet === "email" || sheet === "meeting"}
-        kind={sheet === "email" ? "email" : sheet === "meeting" ? "reuniao" : "nota"}
-        onClose={() => setSheet(null)}
-      />
       <TaskDialog open={sheet === "task"} onClose={() => setSheet(null)} />
       <CompanyDialog open={sheet === "company"} onClose={() => setSheet(null)} />
       <ContactDialog open={sheet === "contact"} onClose={() => setSheet(null)} />
