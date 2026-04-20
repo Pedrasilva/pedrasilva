@@ -17,10 +17,18 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Plus, Building2, User, Briefcase } from "lucide-react";
+import {
+  Plus, Building2, User, Briefcase,
+  StickyNote, Mail, Users as UsersIcon, CheckSquare,
+  Receipt, CalendarDays,
+} from "lucide-react";
 import { toast } from "sonner";
 
-type Sheet = null | "company" | "contact" | "project";
+type Sheet =
+  | null
+  | "note" | "email" | "meeting" | "task"
+  | "company" | "contact" | "project"
+  | "expense" | "request";
 
 export function QuickCreateMenu() {
   const [sheet, setSheet] = useState<Sheet>(null);
@@ -33,30 +41,58 @@ export function QuickCreateMenu() {
             size="sm"
             className="ml-1 gap-1.5"
             aria-label="Criar novo"
-            title="Criar empresa, contacto ou projecto"
+            title="Criar entrada"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden md:inline">Novo</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>Criar novo</DropdownMenuLabel>
+          <DropdownMenuLabel className="bg-primary/10 text-primary -mx-1 -mt-1 mb-1 rounded-sm px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider">
+            Criar
+          </DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setSheet("note")} className="gap-2">
+            <StickyNote className="h-4 w-4 text-muted-foreground" /> Nota
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("email")} className="gap-2">
+            <Mail className="h-4 w-4 text-muted-foreground" /> Email
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("meeting")} className="gap-2">
+            <UsersIcon className="h-4 w-4 text-muted-foreground" /> Reunião
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("task")} className="gap-2">
+            <CheckSquare className="h-4 w-4 text-muted-foreground" /> Tarefa
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setSheet("company")} className="gap-2">
-            <Building2 className="h-4 w-4" /> Empresa
+            <Building2 className="h-4 w-4 text-muted-foreground" /> Empresa
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("contact")} className="gap-2">
-            <User className="h-4 w-4" /> Contacto
+            <User className="h-4 w-4 text-muted-foreground" /> Contacto
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("project")} className="gap-2">
-            <Briefcase className="h-4 w-4" /> Projecto
+            <Briefcase className="h-4 w-4 text-muted-foreground" /> Projecto
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("expense")} className="gap-2">
+            <Receipt className="h-4 w-4 text-muted-foreground" /> Despesa
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("request")} className="gap-2">
+            <CalendarDays className="h-4 w-4 text-muted-foreground" /> Pedido (férias/ausência)
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <ActivityDialog
+        open={sheet === "note" || sheet === "email" || sheet === "meeting"}
+        kind={sheet === "email" ? "email" : sheet === "meeting" ? "reuniao" : "nota"}
+        onClose={() => setSheet(null)}
+      />
+      <TaskDialog open={sheet === "task"} onClose={() => setSheet(null)} />
       <CompanyDialog open={sheet === "company"} onClose={() => setSheet(null)} />
       <ContactDialog open={sheet === "contact"} onClose={() => setSheet(null)} />
       <ProjectDialog open={sheet === "project"} onClose={() => setSheet(null)} />
+      <ExpenseDialog open={sheet === "expense"} onClose={() => setSheet(null)} />
+      <RequestDialog open={sheet === "request"} onClose={() => setSheet(null)} />
     </>
   );
 }
@@ -511,5 +547,458 @@ function Field({
       <Label className="text-xs text-muted-foreground">{label}</Label>
       {children}
     </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Actividade CRM (Nota / Email / Reunião)
+// ─────────────────────────────────────────────
+type ActKind = "nota" | "email" | "reuniao";
+const activitySchema = z.object({
+  tipo: z.enum(["nota", "email", "reuniao", "chamada", "outro"]),
+  resumo: z.string().trim().min(1, "Resumo obrigatório").max(200),
+  detalhes: z.string().trim().max(4000).optional().or(z.literal("")),
+  company_id: z.string().uuid().nullable().optional(),
+  contact_id: z.string().uuid().nullable().optional(),
+});
+
+function ActivityDialog({
+  open, kind, onClose,
+}: { open: boolean; kind: ActKind; onClose: () => void }) {
+  const qc = useQueryClient();
+  const { data: companies = [] } = useQuery({
+    queryKey: ["companies-lite"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("companies").select("id, nome").order("nome");
+      if (error) throw error;
+      return data as { id: string; nome: string }[];
+    },
+    enabled: open,
+  });
+  const { data: contacts = [] } = useQuery({
+    queryKey: ["contacts-lite"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contacts").select("id, primeiro_nome, apelido").order("primeiro_nome");
+      if (error) throw error;
+      return data as { id: string; primeiro_nome: string; apelido: string | null }[];
+    },
+    enabled: open,
+  });
+
+  const [form, setForm] = useState({
+    resumo: "", detalhes: "",
+    company_id: "" as string | "",
+    contact_id: "" as string | "",
+  });
+
+  const reset = () => setForm({ resumo: "", detalhes: "", company_id: "", contact_id: "" });
+
+  const titleByKind: Record<ActKind, string> = {
+    nota: "Nova nota",
+    email: "Registar email",
+    reuniao: "Registar reunião",
+  };
+  const IconByKind = kind === "email" ? Mail : kind === "reuniao" ? UsersIcon : StickyNote;
+
+  const create = useMutation({
+    mutationFn: async () => {
+      const parsed = activitySchema.parse({
+        tipo: kind,
+        resumo: form.resumo,
+        detalhes: form.detalhes,
+        company_id: form.company_id || null,
+        contact_id: form.contact_id || null,
+      });
+      const { error } = await supabase.from("crm_activities").insert({
+        tipo: parsed.tipo,
+        resumo: parsed.resumo,
+        detalhes: parsed.detalhes || null,
+        company_id: parsed.company_id ?? null,
+        contact_id: parsed.contact_id ?? null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Actividade registada");
+      qc.invalidateQueries({ queryKey: ["crm_activities"] });
+      reset();
+      onClose();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <IconByKind className="h-5 w-5" /> {titleByKind[kind]}
+          </DialogTitle>
+          <DialogDescription>Fica registado na timeline da empresa/contacto.</DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Resumo *" full>
+            <Input className="input-yellow" value={form.resumo}
+              onChange={(e) => setForm((f) => ({ ...f, resumo: e.target.value }))} />
+          </Field>
+          <Field label="Empresa">
+            <Select value={form.company_id || "none"}
+              onValueChange={(v) => setForm((f) => ({ ...f, company_id: v === "none" ? "" : v }))}>
+              <SelectTrigger className="input-yellow"><SelectValue placeholder="—" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">—</SelectItem>
+                {companies.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Contacto">
+            <Select value={form.contact_id || "none"}
+              onValueChange={(v) => setForm((f) => ({ ...f, contact_id: v === "none" ? "" : v }))}>
+              <SelectTrigger className="input-yellow"><SelectValue placeholder="—" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">—</SelectItem>
+                {contacts.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {[c.primeiro_nome, c.apelido].filter(Boolean).join(" ")}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Detalhes" full>
+            <Textarea className="input-yellow" rows={4} value={form.detalhes}
+              onChange={(e) => setForm((f) => ({ ...f, detalhes: e.target.value }))} />
+          </Field>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button onClick={() => create.mutate()} disabled={create.isPending || !form.resumo.trim()}>
+            Guardar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Tarefa (pm_tasks ligada a uma allocation existente)
+// ─────────────────────────────────────────────
+const taskSchema = z.object({
+  name: z.string().trim().min(1, "Nome obrigatório").max(200),
+  allocation_id: z.string().uuid("Escolhe uma alocação"),
+});
+
+function TaskDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const qc = useQueryClient();
+  const { data: allocations = [] } = useQuery({
+    queryKey: ["allocations-lite"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pm_allocations")
+        .select("id, stage_id, resource_id, pm_stages(name, project_id, pm_projects(name)), pm_resources(name)")
+        .order("start_date", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return (data ?? []) as Array<{
+        id: string;
+        stage_id: string;
+        resource_id: string;
+        pm_stages: { name: string; project_id: string; pm_projects: { name: string } | null } | null;
+        pm_resources: { name: string } | null;
+      }>;
+    },
+    enabled: open,
+  });
+
+  const [form, setForm] = useState({ name: "", allocation_id: "" });
+  const reset = () => setForm({ name: "", allocation_id: "" });
+
+  const create = useMutation({
+    mutationFn: async () => {
+      const parsed = taskSchema.parse(form);
+      const { error } = await supabase.from("pm_tasks").insert({
+        name: parsed.name,
+        allocation_id: parsed.allocation_id,
+        status: "pending",
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Tarefa criada");
+      qc.invalidateQueries({ queryKey: ["pm_tasks"] });
+      reset();
+      onClose();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <CheckSquare className="h-5 w-5" /> Nova tarefa
+          </DialogTitle>
+          <DialogDescription>
+            Liga a uma alocação existente (projecto · fase · recurso).
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-1 gap-3">
+          <Field label="Nome *">
+            <Input className="input-yellow" value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+          </Field>
+          <Field label="Alocação *">
+            <Select value={form.allocation_id || ""}
+              onValueChange={(v) => setForm((f) => ({ ...f, allocation_id: v }))}>
+              <SelectTrigger className="input-yellow">
+                <SelectValue placeholder={allocations.length ? "Escolher…" : "Sem alocações disponíveis"} />
+              </SelectTrigger>
+              <SelectContent>
+                {allocations.map((a) => {
+                  const proj = a.pm_stages?.pm_projects?.name ?? "—";
+                  const stage = a.pm_stages?.name ?? "—";
+                  const res = a.pm_resources?.name ?? "—";
+                  return (
+                    <SelectItem key={a.id} value={a.id}>
+                      {proj} · {stage} · {res}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </Field>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button onClick={() => create.mutate()}
+            disabled={create.isPending || !form.name.trim() || !form.allocation_id}>
+            Criar tarefa
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Despesa (benefit_expenses do utilizador autenticado)
+// ─────────────────────────────────────────────
+const expenseSchema = z.object({
+  categoria: z.enum(["carro", "ticket", "premio", "outros"]),
+  data_despesa: z.string().min(1, "Data obrigatória"),
+  valor: z.number().positive("Valor > 0"),
+  descricao: z.string().trim().min(1, "Descrição obrigatória").max(500),
+  notas_colaborador: z.string().trim().max(2000).optional().or(z.literal("")),
+});
+
+function ExpenseDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const qc = useQueryClient();
+  const today = new Date().toISOString().slice(0, 10);
+
+  const [form, setForm] = useState({
+    categoria: "outros" as "carro" | "ticket" | "premio" | "outros",
+    data_despesa: today,
+    valor: "" as string,
+    descricao: "",
+    notas_colaborador: "",
+  });
+
+  const reset = () => setForm({
+    categoria: "outros", data_despesa: today, valor: "", descricao: "", notas_colaborador: "",
+  });
+
+  const create = useMutation({
+    mutationFn: async () => {
+      const parsed = expenseSchema.parse({
+        ...form,
+        valor: form.valor ? Number(form.valor) : NaN,
+      });
+      // Obter o collaborator_id do utilizador actual
+      const { data: collabId, error: rpcErr } = await supabase.rpc("get_my_collaborator_id");
+      if (rpcErr) throw rpcErr;
+      if (!collabId) throw new Error("O teu utilizador não está ligado a nenhum colaborador.");
+      const { error } = await supabase.from("benefit_expenses").insert({
+        collaborator_id: collabId,
+        categoria: parsed.categoria,
+        data_despesa: parsed.data_despesa,
+        valor: parsed.valor,
+        descricao: parsed.descricao,
+        notas_colaborador: parsed.notas_colaborador || null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Despesa submetida");
+      qc.invalidateQueries({ queryKey: ["benefit_expenses"] });
+      reset();
+      onClose();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Receipt className="h-5 w-5" /> Nova despesa
+          </DialogTitle>
+          <DialogDescription>Submete uma despesa para aprovação.</DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Categoria">
+            <Select value={form.categoria}
+              onValueChange={(v) => setForm((f) => ({ ...f, categoria: v as typeof form.categoria }))}>
+              <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="carro">Carro</SelectItem>
+                <SelectItem value="ticket">Ticket</SelectItem>
+                <SelectItem value="premio">Prémio</SelectItem>
+                <SelectItem value="outros">Outros</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Data *">
+            <Input type="date" className="input-yellow" value={form.data_despesa}
+              onChange={(e) => setForm((f) => ({ ...f, data_despesa: e.target.value }))} />
+          </Field>
+          <Field label="Valor (€) *">
+            <Input type="number" step="0.01" min={0}
+              className="input-yellow tabular-nums" value={form.valor}
+              onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))} />
+          </Field>
+          <Field label="Descrição *" full>
+            <Input className="input-yellow" value={form.descricao}
+              onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))} />
+          </Field>
+          <Field label="Notas" full>
+            <Textarea className="input-yellow" rows={3} value={form.notas_colaborador}
+              onChange={(e) => setForm((f) => ({ ...f, notas_colaborador: e.target.value }))} />
+          </Field>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button onClick={() => create.mutate()}
+            disabled={create.isPending || !form.descricao.trim() || !form.valor}>
+            Submeter
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Pedido (vacation_requests do utilizador autenticado)
+// ─────────────────────────────────────────────
+const requestSchema = z.object({
+  tipo: z.enum([
+    "ferias", "casamento", "falecimento_familiar", "assistencia_filho",
+    "nascimento_filho", "trabalhador_estudante", "doacao_sangue",
+    "autorizada_paga", "autorizada_nao_paga",
+  ]),
+  data_inicio: z.string().min(1, "Data início obrigatória"),
+  data_fim: z.string().min(1, "Data fim obrigatória"),
+  notas: z.string().trim().max(2000).optional().or(z.literal("")),
+});
+
+function RequestDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const qc = useQueryClient();
+  const today = new Date().toISOString().slice(0, 10);
+
+  const [form, setForm] = useState({
+    tipo: "ferias" as
+      | "ferias" | "casamento" | "falecimento_familiar" | "assistencia_filho"
+      | "nascimento_filho" | "trabalhador_estudante" | "doacao_sangue"
+      | "autorizada_paga" | "autorizada_nao_paga",
+    data_inicio: today, data_fim: today, notas: "",
+  });
+
+  const reset = () => setForm({
+    tipo: "ferias", data_inicio: today, data_fim: today, notas: "",
+  });
+
+  const create = useMutation({
+    mutationFn: async () => {
+      const parsed = requestSchema.parse(form);
+      if (parsed.data_fim < parsed.data_inicio) {
+        throw new Error("Data fim antes da data início.");
+      }
+      const { data: collabId, error: rpcErr } = await supabase.rpc("get_my_collaborator_id");
+      if (rpcErr) throw rpcErr;
+      if (!collabId) throw new Error("O teu utilizador não está ligado a nenhum colaborador.");
+      const { error } = await supabase.from("vacation_requests").insert({
+        collaborator_id: collabId,
+        tipo: parsed.tipo,
+        data_inicio: parsed.data_inicio,
+        data_fim: parsed.data_fim,
+        notas: parsed.notas || null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Pedido submetido");
+      qc.invalidateQueries({ queryKey: ["vacation_requests"] });
+      reset();
+      onClose();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <CalendarDays className="h-5 w-5" /> Novo pedido
+          </DialogTitle>
+          <DialogDescription>Férias ou outras ausências.</DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Tipo" full>
+            <Select value={form.tipo}
+              onValueChange={(v) => setForm((f) => ({ ...f, tipo: v as typeof form.tipo }))}>
+              <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ferias">Férias</SelectItem>
+                <SelectItem value="casamento">Casamento</SelectItem>
+                <SelectItem value="falecimento_familiar">Falecimento familiar</SelectItem>
+                <SelectItem value="assistencia_filho">Assistência a filho</SelectItem>
+                <SelectItem value="nascimento_filho">Nascimento de filho</SelectItem>
+                <SelectItem value="trabalhador_estudante">Trabalhador-estudante</SelectItem>
+                <SelectItem value="doacao_sangue">Doação de sangue</SelectItem>
+                <SelectItem value="autorizada_paga">Autorizada (paga)</SelectItem>
+                <SelectItem value="autorizada_nao_paga">Autorizada (não paga)</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Início *">
+            <Input type="date" className="input-yellow" value={form.data_inicio}
+              onChange={(e) => setForm((f) => ({ ...f, data_inicio: e.target.value }))} />
+          </Field>
+          <Field label="Fim *">
+            <Input type="date" className="input-yellow" value={form.data_fim}
+              onChange={(e) => setForm((f) => ({ ...f, data_fim: e.target.value }))} />
+          </Field>
+          <Field label="Notas" full>
+            <Textarea className="input-yellow" rows={3} value={form.notas}
+              onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))} />
+          </Field>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button onClick={() => create.mutate()}
+            disabled={create.isPending || !form.data_inicio || !form.data_fim}>
+            Submeter
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
