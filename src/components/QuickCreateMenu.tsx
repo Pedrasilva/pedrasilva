@@ -51,6 +51,13 @@ export function QuickCreateMenu() {
           <DropdownMenuLabel className="bg-primary/10 text-primary -mx-1 -mt-1 mb-1 rounded-sm px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider">
             Criar
           </DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setSheet("logTime")} className="gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" /> Registar tempo
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("startTimer")} className="gap-2">
+            <Play className="h-4 w-4 text-muted-foreground" /> Iniciar timer
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setSheet("task")} className="gap-2">
             <CheckSquare className="h-4 w-4 text-muted-foreground" /> Tarefa
           </DropdownMenuItem>
@@ -73,6 +80,8 @@ export function QuickCreateMenu() {
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <LogTimeDialog open={sheet === "logTime"} onClose={() => setSheet(null)} />
+      <StartTimerDialog open={sheet === "startTimer"} onClose={() => setSheet(null)} />
       <TaskDialog open={sheet === "task"} onClose={() => setSheet(null)} />
       <CompanyDialog open={sheet === "company"} onClose={() => setSheet(null)} />
       <ContactDialog open={sheet === "contact"} onClose={() => setSheet(null)} />
