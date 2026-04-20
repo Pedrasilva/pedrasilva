@@ -27,8 +27,8 @@ function NewInvoicePage() {
   const { projectId } = Route.useParams();
   const navigate = useNavigate();
   const { data: detail } = useProjectDetail(projectId);
-  const { data: settings } = useInvoiceSettings();
-  const { data: nextNumber } = useNextInvoiceNumber();
+  const { data: settings } = useInvoiceSettings(projectId);
+  const { data: nextNumber } = useNextInvoiceNumber(projectId);
   const create = useCreateInvoice(projectId);
   const download = useDownloadInvoicePdf(projectId);
 
