@@ -20,12 +20,13 @@ import {
 import {
   Plus, Building2, User, Briefcase,
   CheckSquare, Receipt, CalendarDays,
+  Clock, Play,
 } from "lucide-react";
 import { toast } from "sonner";
 
 type Sheet =
   | null
-  | "task"
+  | "task" | "logTime" | "startTimer"
   | "company" | "contact" | "project"
   | "expense" | "request";
 
