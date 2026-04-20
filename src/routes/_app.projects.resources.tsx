@@ -193,6 +193,10 @@ function ResourcesPage() {
             </tbody>
           </table>
         </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          * Rate sugerido automaticamente a partir do Resumo Comparativo do HR (venda @ 50%) quando o
+          recurso ainda não tem rate definido. Edite o recurso para fixar um valor.
+        </p>
       </div>
     </AppShell>
   );
