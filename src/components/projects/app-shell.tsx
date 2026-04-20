@@ -5,7 +5,6 @@ import {
   ListChecks,
   LogOut,
   Clock,
-  Plus,
   Eye,
   Timer,
   LayoutGrid,
@@ -19,6 +18,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
+import { QuickCreateMenu } from "@/components/QuickCreateMenu";
 import {
   DropdownMenu,
   DropdownMenuContent,
