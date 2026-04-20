@@ -116,6 +116,8 @@ function AppLayout() {
 
   const visible = items.filter((it) => !it.adminOnly || isAdmin);
   const settingsActive = isAdmin && settingsItems.some((s) => s.match(loc.pathname));
+  // Cabeçalho/nav de HR só aparece nas rotas /hr (e na raiz "/" do hub HR).
+  const isHrArea = loc.pathname === "/" || loc.pathname.startsWith("/hr");
 
   const userInitial = (user?.email ?? "?").charAt(0).toUpperCase();
 
@@ -133,13 +135,16 @@ function AppLayout() {
               alt="Pedra Silva Architects"
               className="h-8 w-auto object-contain"
             />
-            <div className="hidden leading-tight border-l pl-3 lg:block">
-              <div className="text-sm font-semibold whitespace-nowrap">PSA · Recursos Humanos</div>
-              <div className="text-[11px] text-muted-foreground">Cálculo salarial</div>
-            </div>
+            {isHrArea && (
+              <div className="hidden leading-tight border-l pl-3 lg:block">
+                <div className="text-sm font-semibold whitespace-nowrap">PSA · Recursos Humanos</div>
+                <div className="text-[11px] text-muted-foreground">Cálculo salarial</div>
+              </div>
+            )}
           </Link>
 
-          {/* Nav principal — visível em md+ */}
+          {/* Nav principal — só na área HR, visível em md+ */}
+          {isHrArea && (
           <nav className="hidden md:flex items-center gap-0.5 ml-2">
             {visible.map((it) => {
               const Icon = it.icon;
@@ -202,6 +207,7 @@ function AppLayout() {
               </DropdownMenu>
             )}
           </nav>
+          )}
 
           {/* Spacer */}
           <div className="flex-1" />
