@@ -116,6 +116,8 @@ function AppLayout() {
 
   const visible = items.filter((it) => !it.adminOnly || isAdmin);
   const settingsActive = isAdmin && settingsItems.some((s) => s.match(loc.pathname));
+  // Cabeçalho/nav de HR só aparece nas rotas /hr (e na raiz "/" do hub HR).
+  const isHrArea = loc.pathname === "/" || loc.pathname.startsWith("/hr");
 
   const userInitial = (user?.email ?? "?").charAt(0).toUpperCase();
 
