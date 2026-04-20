@@ -390,6 +390,119 @@ export type Database = {
         }
         Relationships: []
       }
+      pm_activities: {
+        Row: {
+          author_resource_id: string | null
+          body: string | null
+          created_at: string
+          id: string
+          logged_date: string | null
+          logged_hours: number
+          project_id: string
+          stage_id: string | null
+          task_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_resource_id?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          logged_date?: string | null
+          logged_hours?: number
+          project_id: string
+          stage_id?: string | null
+          task_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_resource_id?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          logged_date?: string | null
+          logged_hours?: number
+          project_id?: string
+          stage_id?: string | null
+          task_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_activities_author_resource_id_fkey"
+            columns: ["author_resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_activities_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_activities_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_activities_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "pm_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_activity_replies: {
+        Row: {
+          activity_id: string
+          author_resource_id: string | null
+          body: string
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          activity_id: string
+          author_resource_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          activity_id?: string
+          author_resource_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_activity_replies_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "pm_activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_activity_replies_author_resource_id_fkey"
+            columns: ["author_resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_allocations: {
         Row: {
           created_at: string
@@ -434,6 +547,50 @@ export type Database = {
             columns: ["stage_id"]
             isOneToOne: false
             referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_expenses: {
+        Row: {
+          created_at: string
+          description: string
+          expense_date: string | null
+          id: string
+          notes: string | null
+          project_id: string
+          purchase_price: number
+          sale_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          expense_date?: string | null
+          id?: string
+          notes?: string | null
+          project_id: string
+          purchase_price?: number
+          sale_price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          expense_date?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string
+          purchase_price?: number
+          sale_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_expenses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
             referencedColumns: ["id"]
           },
         ]
@@ -499,14 +656,25 @@ export type Database = {
           company_phone: string | null
           created_at: string
           default_notes: string | null
+          file_name: string | null
           iban: string | null
           id: string
           invoice_prefix: string
           next_invoice_number: number
           payment_terms_days: number
+          project_id: string | null
           singleton: boolean
           updated_at: string
           vat_rate: number
+          wd_amount: boolean
+          wd_date: boolean
+          wd_description: boolean
+          wd_group_by: string
+          wd_hours: boolean
+          wd_include_non_billable: boolean
+          wd_owner: boolean
+          wd_rate: boolean
+          wd_subject: boolean
         }
         Insert: {
           bank_name?: string | null
@@ -517,14 +685,25 @@ export type Database = {
           company_phone?: string | null
           created_at?: string
           default_notes?: string | null
+          file_name?: string | null
           iban?: string | null
           id?: string
           invoice_prefix?: string
           next_invoice_number?: number
           payment_terms_days?: number
+          project_id?: string | null
           singleton?: boolean
           updated_at?: string
           vat_rate?: number
+          wd_amount?: boolean
+          wd_date?: boolean
+          wd_description?: boolean
+          wd_group_by?: string
+          wd_hours?: boolean
+          wd_include_non_billable?: boolean
+          wd_owner?: boolean
+          wd_rate?: boolean
+          wd_subject?: boolean
         }
         Update: {
           bank_name?: string | null
@@ -535,22 +714,45 @@ export type Database = {
           company_phone?: string | null
           created_at?: string
           default_notes?: string | null
+          file_name?: string | null
           iban?: string | null
           id?: string
           invoice_prefix?: string
           next_invoice_number?: number
           payment_terms_days?: number
+          project_id?: string | null
           singleton?: boolean
           updated_at?: string
           vat_rate?: number
+          wd_amount?: boolean
+          wd_date?: boolean
+          wd_description?: boolean
+          wd_group_by?: string
+          wd_hours?: boolean
+          wd_include_non_billable?: boolean
+          wd_owner?: boolean
+          wd_rate?: boolean
+          wd_subject?: boolean
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pm_invoice_settings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pm_invoices: {
         Row: {
+          bill_to_address: string | null
+          bill_to_email: string | null
+          bill_to_name: string | null
           client_address: string | null
           client_name: string
           client_nif: string | null
+          contact_name: string | null
           created_at: string
           due_date: string | null
           id: string
@@ -559,16 +761,23 @@ export type Database = {
           paid_date: string | null
           project_id: string
           raised_date: string
+          reference: string | null
           status: Database["public"]["Enums"]["pm_invoice_status"]
           subtotal: number
+          tax_rate: number
+          title: string | null
           total: number
           updated_at: string
           vat_amount: number
         }
         Insert: {
+          bill_to_address?: string | null
+          bill_to_email?: string | null
+          bill_to_name?: string | null
           client_address?: string | null
           client_name?: string
           client_nif?: string | null
+          contact_name?: string | null
           created_at?: string
           due_date?: string | null
           id?: string
@@ -577,16 +786,23 @@ export type Database = {
           paid_date?: string | null
           project_id: string
           raised_date?: string
+          reference?: string | null
           status?: Database["public"]["Enums"]["pm_invoice_status"]
           subtotal?: number
+          tax_rate?: number
+          title?: string | null
           total?: number
           updated_at?: string
           vat_amount?: number
         }
         Update: {
+          bill_to_address?: string | null
+          bill_to_email?: string | null
+          bill_to_name?: string | null
           client_address?: string | null
           client_name?: string
           client_nif?: string | null
+          contact_name?: string | null
           created_at?: string
           due_date?: string | null
           id?: string
@@ -595,8 +811,11 @@ export type Database = {
           paid_date?: string | null
           project_id?: string
           raised_date?: string
+          reference?: string | null
           status?: Database["public"]["Enums"]["pm_invoice_status"]
           subtotal?: number
+          tax_rate?: number
+          title?: string | null
           total?: number
           updated_at?: string
           vat_amount?: number
@@ -607,6 +826,95 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_materials: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          notes: string | null
+          project_id: string
+          purchase_price: number
+          quantity: number
+          sale_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          notes?: string | null
+          project_id: string
+          purchase_price?: number
+          quantity?: number
+          sale_price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          notes?: string | null
+          project_id?: string
+          purchase_price?: number
+          quantity?: number
+          sale_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_materials_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_project_rate_overrides: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          project_id: string
+          project_rate: number
+          resource_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          project_id: string
+          project_rate?: number
+          resource_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          project_id?: string
+          project_rate?: number
+          resource_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_project_rate_overrides_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_project_rate_overrides_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
             referencedColumns: ["id"]
           },
         ]
@@ -653,6 +961,7 @@ export type Database = {
           created_at: string
           effective_from: string
           id: string
+          notes: string | null
           resource_id: string
           sale_rate: number
           updated_at: string
@@ -662,6 +971,7 @@ export type Database = {
           created_at?: string
           effective_from: string
           id?: string
+          notes?: string | null
           resource_id: string
           sale_rate?: number
           updated_at?: string
@@ -671,6 +981,7 @@ export type Database = {
           created_at?: string
           effective_from?: string
           id?: string
+          notes?: string | null
           resource_id?: string
           sale_rate?: number
           updated_at?: string
