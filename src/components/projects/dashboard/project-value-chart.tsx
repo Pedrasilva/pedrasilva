@@ -17,6 +17,7 @@ interface Props {
 export function ProjectValueChart({ projects, stages, loading }: Props) {
   const [mode, setMode] = useState<Mode>("Created");
   const [unit, setUnit] = useState<Unit>("Hours");
+  const { data: defaultRates } = useDefaultResourceRates();
 
   const stagesByProject = useMemo(() => {
     const m = new Map<string, StageWithAllocations[]>();
