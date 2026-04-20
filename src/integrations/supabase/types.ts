@@ -285,6 +285,143 @@ export type Database = {
           },
         ]
       }
+      crm_activities: {
+        Row: {
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          data_actividade: string
+          detalhes: string | null
+          id: string
+          proposal_id: string | null
+          resumo: string
+          tipo: Database["public"]["Enums"]["crm_activity_type"]
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_actividade?: string
+          detalhes?: string | null
+          id?: string
+          proposal_id?: string | null
+          resumo: string
+          tipo?: Database["public"]["Enums"]["crm_activity_type"]
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_actividade?: string
+          detalhes?: string | null
+          id?: string
+          proposal_id?: string | null
+          resumo?: string
+          tipo?: Database["public"]["Enums"]["crm_activity_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_activities_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_activities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_activities_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fee_proposals: {
+        Row: {
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          data_decisao: string | null
+          data_proposta: string | null
+          id: string
+          notas: string | null
+          pipeline_status: Database["public"]["Enums"]["proposal_status"]
+          pm_project_id: string | null
+          probabilidade: number
+          titulo: string
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_decisao?: string | null
+          data_proposta?: string | null
+          id?: string
+          notas?: string | null
+          pipeline_status?: Database["public"]["Enums"]["proposal_status"]
+          pm_project_id?: string | null
+          probabilidade?: number
+          titulo: string
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_decisao?: string | null
+          data_proposta?: string | null
+          id?: string
+          notas?: string | null
+          pipeline_status?: Database["public"]["Enums"]["proposal_status"]
+          pm_project_id?: string | null
+          probabilidade?: number
+          titulo?: string
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_proposals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_proposals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_proposals_pm_project_id_fkey"
+            columns: ["pm_project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       holidays: {
         Row: {
           created_at: string
@@ -1533,6 +1670,7 @@ export type Database = {
       app_role: "admin" | "user"
       benefit_category: "carro" | "ticket" | "premio" | "outros"
       company_status: "activo" | "prospecto" | "inactivo"
+      crm_activity_type: "chamada" | "email" | "reuniao" | "nota" | "outro"
       department: "Projecto" | "Backoffice"
       expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
       pm_dep_type: "FS" | "SS" | "FF" | "SF"
@@ -1545,6 +1683,12 @@ export type Database = {
         | "pausado"
         | "concluido"
         | "cancelado"
+      proposal_status:
+        | "lead"
+        | "proposta_enviada"
+        | "negociacao"
+        | "ganho"
+        | "perdido"
       subsidios_modo: "tradicional" | "duodecimos_50" | "duodecimos_100"
     }
     CompositeTypes: {
@@ -1687,6 +1831,7 @@ export const Constants = {
       app_role: ["admin", "user"],
       benefit_category: ["carro", "ticket", "premio", "outros"],
       company_status: ["activo", "prospecto", "inactivo"],
+      crm_activity_type: ["chamada", "email", "reuniao", "nota", "outro"],
       department: ["Projecto", "Backoffice"],
       expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
       pm_dep_type: ["FS", "SS", "FF", "SF"],
@@ -1699,6 +1844,13 @@ export const Constants = {
         "pausado",
         "concluido",
         "cancelado",
+      ],
+      proposal_status: [
+        "lead",
+        "proposta_enviada",
+        "negociacao",
+        "ganho",
+        "perdido",
       ],
       subsidios_modo: ["tradicional", "duodecimos_50", "duodecimos_100"],
     },
