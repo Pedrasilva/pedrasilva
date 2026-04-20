@@ -104,11 +104,12 @@ function DashboardPage() {
       for (const a of s.allocations) {
         const aStart = parseISO(a.start_date);
         const aEnd = parseISO(a.end_date);
-        const cost = allocationCost({
+        const saleRate = effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates);
+        const value = allocationCost({
           start_date: a.start_date,
           end_date: a.end_date,
           hours_per_day: Number(a.hours_per_day),
-          hourly_rate: Number(a.resource.hourly_rate),
+          hourly_rate: saleRate,
         });
         const hours = allocationHours({
           start_date: a.start_date,
@@ -117,7 +118,7 @@ function DashboardPage() {
         });
         if (inProgress && aStart <= today && aEnd >= today) {
           wipHours += hours;
-          wipValue += cost;
+          wipValue += value;
           if (aEnd >= today) {
             const remDays = workingDays(today.toISOString().slice(0, 10), a.end_date);
             remainingHours += remDays * Number(a.hours_per_day);
@@ -126,7 +127,7 @@ function DashboardPage() {
         if (aStart <= today && aEnd >= today) {
           if (![0, 6].includes(today.getDay())) {
             todayHours += Number(a.hours_per_day);
-            todayValue += Number(a.hours_per_day) * Number(a.resource.hourly_rate);
+            todayValue += Number(a.hours_per_day) * saleRate;
           }
         }
         if (
