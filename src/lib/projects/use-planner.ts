@@ -14,7 +14,7 @@ import { computeCascade, type StageDependency, type DepType } from "@/lib/projec
 
 export function useProjects() {
   return useQuery({
-    queryKey: ["pm_projects"],
+    queryKey: ["pm-projects"],
     queryFn: async (): Promise<Project[]> => {
       const { data, error } = await supabase
         .from("pm_projects")
@@ -35,15 +35,11 @@ export function useCreateProject() {
       color?: string;
       start_date: string;
     }): Promise<Project> => {
-      const { data, error } = await supabase
-        .from("pm_projects")
-        .insert(input)
-        .select()
-        .single();
+      const { data, error } = await supabase.from("pm_projects").insert(input).select().single();
       if (error) throw error;
       return data;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm_projects"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-projects"] }),
   });
 }
 
@@ -54,7 +50,7 @@ export function useDeleteProject() {
       const { error } = await supabase.from("pm_projects").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm_projects"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-projects"] }),
   });
 }
 
@@ -80,17 +76,17 @@ export function useUpdateProject() {
       return data;
     },
     onSuccess: (_d, vars) => {
-      qc.invalidateQueries({ queryKey: ["pm_projects"] });
-      qc.invalidateQueries({ queryKey: ["pm_project", vars.id] });
+      qc.invalidateQueries({ queryKey: ["pm-projects"] });
+      qc.invalidateQueries({ queryKey: ["pm-project", vars.id] });
     },
   });
 }
 
-// ---------- PROJECT DETAIL ----------
+// ---------- PROJECT DETAIL (stages + allocations) ----------
 
 export function useProjectDetail(projectId: string) {
   return useQuery({
-    queryKey: ["pm_project", projectId],
+    queryKey: ["pm-project", projectId],
     queryFn: async (): Promise<{ project: Project; stages: StageWithAllocations[] }> => {
       const [{ data: project, error: pErr }, { data: stages, error: sErr }] = await Promise.all([
         supabase.from("pm_projects").select("*").eq("id", projectId).single(),
@@ -110,7 +106,7 @@ export function useProjectDetail(projectId: string) {
 
 export function useAllStages() {
   return useQuery({
-    queryKey: ["pm_stages-all"],
+    queryKey: ["pm-stages-all"],
     queryFn: async (): Promise<StageWithAllocations[]> => {
       const { data, error } = await supabase
         .from("pm_stages")
@@ -141,8 +137,8 @@ export function useCreateStage() {
       return data;
     },
     onSuccess: (_d, vars) => {
-      qc.invalidateQueries({ queryKey: ["pm_project", vars.project_id] });
-      qc.invalidateQueries({ queryKey: ["pm_stages-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-project", vars.project_id] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
     },
   });
 }
@@ -168,8 +164,8 @@ export function useUpdateStage() {
       return data;
     },
     onSuccess: (_d, vars) => {
-      qc.invalidateQueries({ queryKey: ["pm_project", vars.projectId] });
-      qc.invalidateQueries({ queryKey: ["pm_stages-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-project", vars.projectId] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
     },
   });
 }
@@ -181,6 +177,7 @@ export function useUpdateStageWithCascade() {
       id,
       start_date,
       end_date,
+      projectId: _projectId,
     }: {
       id: string;
       start_date: string;
@@ -212,9 +209,9 @@ export function useUpdateStageWithCascade() {
       return { updatedIds: Array.from(updates.keys()) };
     },
     onSuccess: (_d, vars) => {
-      qc.invalidateQueries({ queryKey: ["pm_project", vars.projectId] });
-      qc.invalidateQueries({ queryKey: ["pm_stages-all"] });
-      qc.invalidateQueries({ queryKey: ["pm_stage-dependencies"] });
+      qc.invalidateQueries({ queryKey: ["pm-project", vars.projectId] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] });
     },
   });
 }
@@ -227,17 +224,17 @@ export function useDeleteStage() {
       if (error) throw error;
     },
     onSuccess: (_d, vars) => {
-      qc.invalidateQueries({ queryKey: ["pm_project", vars.projectId] });
-      qc.invalidateQueries({ queryKey: ["pm_stages-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-project", vars.projectId] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
     },
   });
 }
 
-// ---------- DEPENDENCIES ----------
+// ---------- STAGE DEPENDENCIES ----------
 
 export function useStageDependencies() {
   return useQuery({
-    queryKey: ["pm_stage-dependencies"],
+    queryKey: ["pm-stage-dependencies"],
     queryFn: async (): Promise<StageDependency[]> => {
       const { data, error } = await supabase.from("pm_stage_dependencies").select("*");
       if (error) throw error;
@@ -268,7 +265,7 @@ export function useCreateDependency() {
       if (error) throw error;
       return data as unknown as StageDependency;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm_stage-dependencies"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] }),
   });
 }
 
@@ -291,7 +288,7 @@ export function useUpdateDependency() {
       if (error) throw error;
       return data as unknown as StageDependency;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm_stage-dependencies"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] }),
   });
 }
 
@@ -302,7 +299,7 @@ export function useDeleteDependency() {
       const { error } = await supabase.from("pm_stage_dependencies").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm_stage-dependencies"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] }),
   });
 }
 
@@ -310,7 +307,7 @@ export function useDeleteDependency() {
 
 export function useResources() {
   return useQuery({
-    queryKey: ["pm_resources"],
+    queryKey: ["pm-resources"],
     queryFn: async (): Promise<Resource[]> => {
       const { data, error } = await supabase
         .from("pm_resources")
@@ -331,9 +328,10 @@ export type ResourceInput = {
   weekly_capacity: number;
   color?: string;
   team?: ResourceTeam;
+  email?: string | null;
   phone?: string | null;
   notes?: string | null;
-  collaborator_id?: string | null;
+  active?: boolean;
 };
 
 export function useCreateResource() {
@@ -341,26 +339,63 @@ export function useCreateResource() {
   return useMutation({
     mutationFn: async (
       input: ResourceInput & {
-        email?: string | null;
-        active?: boolean;
         cost_rate?: number;
         sale_rate?: number;
         rate_effective_from?: string;
       },
     ): Promise<Resource> => {
+      const { cost_rate, sale_rate, rate_effective_from, ...resourceInput } = input;
       const { data, error } = await supabase
         .from("pm_resources")
-        .insert(input as never)
+        .insert(resourceInput as never)
+        .select()
+        .single();
+      if (error) throw error;
+
+      if (cost_rate != null && sale_rate != null) {
+        const { error: rErr } = await supabase.from("pm_resource_rates").insert({
+          resource_id: data.id,
+          effective_from: rate_effective_from ?? new Date().toISOString().slice(0, 10),
+          cost_rate,
+          sale_rate,
+        });
+        if (rErr) throw rErr;
+      }
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-resources"] }),
+  });
+}
+
+export function useUpdateResource() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, patch }: { id: string; patch: Partial<ResourceInput> }): Promise<Resource> => {
+      const { data, error } = await supabase
+        .from("pm_resources")
+        .update(patch as never)
+        .eq("id", id)
         .select()
         .single();
       if (error) throw error;
       return data;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm_resources"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-resources"] }),
   });
 }
 
-// ---------- RESOURCE RATES (time-versioned cost & sale) ----------
+export function useDeleteResource() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("pm_resources").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-resources"] }),
+  });
+}
+
+// ---------- RESOURCE RATES ----------
 
 export type ResourceRate = {
   id: string;
@@ -368,13 +403,14 @@ export type ResourceRate = {
   effective_from: string;
   cost_rate: number;
   sale_rate: number;
+  notes: string | null;
   created_at: string;
   updated_at: string;
 };
 
 export function useResourceRates(resourceId: string | undefined) {
   return useQuery({
-    queryKey: ["pm_resource-rates", resourceId],
+    queryKey: ["pm-resource-rates", resourceId],
     queryFn: async (): Promise<ResourceRate[]> => {
       if (!resourceId) return [];
       const { data, error } = await supabase
@@ -397,18 +433,19 @@ export function useCreateResourceRate() {
       effective_from: string;
       cost_rate: number;
       sale_rate: number;
+      notes?: string | null;
     }): Promise<ResourceRate> => {
       const { data, error } = await supabase
         .from("pm_resource_rates")
-        .insert(input as never)
+        .insert(input)
         .select()
         .single();
       if (error) throw error;
       return data as unknown as ResourceRate;
     },
     onSuccess: (_d, vars) => {
-      qc.invalidateQueries({ queryKey: ["pm_resource-rates", vars.resource_id] });
-      qc.invalidateQueries({ queryKey: ["pm_resources"] });
+      qc.invalidateQueries({ queryKey: ["pm-resource-rates", vars.resource_id] });
+      qc.invalidateQueries({ queryKey: ["pm-resources"] });
     },
   });
 }
@@ -422,7 +459,7 @@ export function useUpdateResourceRate() {
     }: {
       id: string;
       resource_id: string;
-      patch: Partial<Pick<ResourceRate, "effective_from" | "cost_rate" | "sale_rate">>;
+      patch: Partial<Pick<ResourceRate, "effective_from" | "cost_rate" | "sale_rate" | "notes">>;
     }): Promise<ResourceRate> => {
       const { data, error } = await supabase
         .from("pm_resource_rates")
@@ -434,7 +471,7 @@ export function useUpdateResourceRate() {
       return data as unknown as ResourceRate;
     },
     onSuccess: (_d, vars) => {
-      qc.invalidateQueries({ queryKey: ["pm_resource-rates", vars.resource_id] });
+      qc.invalidateQueries({ queryKey: ["pm-resource-rates", vars.resource_id] });
     },
   });
 }
@@ -447,36 +484,8 @@ export function useDeleteResourceRate() {
       if (error) throw error;
     },
     onSuccess: (_d, vars) => {
-      qc.invalidateQueries({ queryKey: ["pm_resource-rates", vars.resource_id] });
+      qc.invalidateQueries({ queryKey: ["pm-resource-rates", vars.resource_id] });
     },
-  });
-}
-
-export function useUpdateResource() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, patch }: { id: string; patch: Partial<ResourceInput> }): Promise<Resource> => {
-      const { data, error } = await supabase
-        .from("pm_resources")
-        .update(patch as never)
-        .eq("id", id)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm_resources"] }),
-  });
-}
-
-export function useDeleteResource() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("pm_resources").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm_resources"] }),
   });
 }
 
@@ -489,7 +498,7 @@ export type AllocationFull = Allocation & {
 
 export function useAllAllocations() {
   return useQuery({
-    queryKey: ["pm_allocations-all"],
+    queryKey: ["pm-allocations-all"],
     queryFn: async (): Promise<AllocationFull[]> => {
       const { data, error } = await supabase
         .from("pm_allocations")
@@ -521,9 +530,9 @@ export function useCreateAllocation() {
       return data as unknown as AllocationWithResource;
     },
     onSuccess: (_d, vars) => {
-      qc.invalidateQueries({ queryKey: ["pm_project", vars.projectId] });
-      qc.invalidateQueries({ queryKey: ["pm_allocations-all"] });
-      qc.invalidateQueries({ queryKey: ["pm_stages-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-project", vars.projectId] });
+      qc.invalidateQueries({ queryKey: ["pm-allocations-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
     },
   });
 }
@@ -549,9 +558,9 @@ export function useUpdateAllocation() {
       return data;
     },
     onSuccess: (_d, vars) => {
-      qc.invalidateQueries({ queryKey: ["pm_project", vars.projectId] });
-      qc.invalidateQueries({ queryKey: ["pm_allocations-all"] });
-      qc.invalidateQueries({ queryKey: ["pm_stages-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-project", vars.projectId] });
+      qc.invalidateQueries({ queryKey: ["pm-allocations-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
     },
   });
 }
@@ -564,9 +573,9 @@ export function useDeleteAllocation() {
       if (error) throw error;
     },
     onSuccess: (_d, vars) => {
-      qc.invalidateQueries({ queryKey: ["pm_project", vars.projectId] });
-      qc.invalidateQueries({ queryKey: ["pm_allocations-all"] });
-      qc.invalidateQueries({ queryKey: ["pm_stages-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-project", vars.projectId] });
+      qc.invalidateQueries({ queryKey: ["pm-allocations-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
     },
   });
 }

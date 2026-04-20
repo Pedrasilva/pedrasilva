@@ -38,10 +38,7 @@ export function snapToWorkingDay(date: Date): Date {
 const ymd = (d: Date) => format(d, "yyyy-MM-dd");
 const parse = (s: string) => parseISO(s);
 
-export function requiredSuccessorStart(
-  pred: StageBounds,
-  dep: StageDependency,
-): Date {
+export function requiredSuccessorStart(pred: StageBounds, dep: StageDependency): Date {
   const predStart = parse(pred.start_date);
   const predEnd = parse(pred.end_date);
   let anchor: Date;
@@ -134,7 +131,8 @@ export function computeCascade(
         }
       }
 
-      if (newStart > succStart) {
+      const requiredStart = newStart;
+      if (requiredStart > succStart) {
         const shiftedStart = ymd(newStart);
         const shiftedEnd = ymd(newEnd);
         const prev = updated.get(succ.id);
@@ -158,10 +156,8 @@ export function depEndpoints(
   succ: { x: number; y: number; w: number; h: number },
   type: DepType,
 ): { from: { x: number; y: number }; to: { x: number; y: number } } {
-  const fromX =
-    type === "FS" || type === "FF" ? pred.x + pred.w : pred.x;
-  const toX =
-    type === "FS" || type === "SF" ? succ.x : succ.x + succ.w;
+  const fromX = type === "FS" || type === "FF" ? pred.x + pred.w : pred.x;
+  const toX = type === "FS" || type === "SF" ? succ.x : succ.x + succ.w;
   return {
     from: { x: fromX, y: pred.y + pred.h / 2 },
     to: { x: toX, y: succ.y + succ.h / 2 },

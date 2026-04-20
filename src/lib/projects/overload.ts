@@ -10,11 +10,6 @@ export interface AllocationLite {
   hours_per_day: number;
 }
 
-/**
- * For each (resource, working day) tally the total hours allocated across all
- * stages and projects. Returns a map keyed by `${resource_id}|${yyyy-MM-dd}`.
- * Weekends are excluded.
- */
 export function buildLoadMap(allocations: AllocationLite[]): Map<string, number> {
   const load = new Map<string, number>();
   for (const a of allocations) {
@@ -31,10 +26,6 @@ export function buildLoadMap(allocations: AllocationLite[]): Map<string, number>
   return load;
 }
 
-/**
- * Returns the set of allocation IDs that touch at least one over-limit day
- * (>8h for that resource on that working day, summed across all projects).
- */
 export function overloadedAllocationIds(allocations: AllocationLite[]): Set<string> {
   const load = buildLoadMap(allocations);
   const bad = new Set<string>();
@@ -55,10 +46,6 @@ export function overloadedAllocationIds(allocations: AllocationLite[]): Set<stri
   return bad;
 }
 
-/**
- * Per-allocation summary: peak daily hours touched by this allocation
- * (across all projects on overlapping days) and how many days are over.
- */
 export function allocationOverload(
   allocation: AllocationLite,
   load: Map<string, number>,

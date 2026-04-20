@@ -1,4 +1,3 @@
-/** Format decimal hours as "6h05" / "6h30". Empty string for 0. */
 export function formatHM(hours: number): string {
   if (!hours || hours <= 0) return "";
   const totalMinutes = Math.round(hours * 60);
@@ -7,13 +6,14 @@ export function formatHM(hours: number): string {
   return `${h}h${m.toString().padStart(2, "0")}`;
 }
 
-/** Parse "6h05", "6h", "6:30", "6.5", "90m", "6" → decimal hours. */
 export function parseHM(input: string): number | null {
   const s = input.trim().toLowerCase().replace(",", ".");
   if (s === "") return 0;
 
   const minutesOnly = s.match(/^(\d+)\s*m$/);
-  if (minutesOnly) return Number(minutesOnly[1]) / 60;
+  if (minutesOnly) {
+    return Number(minutesOnly[1]) / 60;
+  }
 
   const hm = s.match(/^(\d+)\s*[h:]\s*(\d{0,2})$/);
   if (hm) {
@@ -23,7 +23,9 @@ export function parseHM(input: string): number | null {
     return h + m / 60;
   }
 
-  if (/^\d+(\.\d+)?$/.test(s)) return Number(s);
+  if (/^\d+(\.\d+)?$/.test(s)) {
+    return Number(s);
+  }
 
   return null;
 }
