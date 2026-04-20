@@ -13,9 +13,14 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
-import { Route as AppProjectsRouteImport } from './routes/_app.projects'
 import { Route as AppCrmRouteImport } from './routes/_app.crm'
+import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
+import { Route as AppProjectsTimesheetRouteImport } from './routes/_app.projects.timesheet'
+import { Route as AppProjectsResourcesRouteImport } from './routes/_app.projects.resources'
+import { Route as AppProjectsMyTasksRouteImport } from './routes/_app.projects.my-tasks'
+import { Route as AppProjectsGanttRouteImport } from './routes/_app.projects.gantt'
+import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
 import { Route as AppHrValorBoRouteImport } from './routes/_app.hr.valor-bo'
 import { Route as AppHrSubsidioAlimentacaoRouteImport } from './routes/_app.hr.subsidio-alimentacao'
 import { Route as AppHrResumoRouteImport } from './routes/_app.hr.resumo'
@@ -45,19 +50,44 @@ const ApiNotifyExpenseRoute = ApiNotifyExpenseRouteImport.update({
   path: '/api/notify-expense',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppProjectsRoute = AppProjectsRouteImport.update({
-  id: '/projects',
-  path: '/projects',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppCrmRoute = AppCrmRouteImport.update({
   id: '/crm',
   path: '/crm',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppHrIndexRoute = AppHrIndexRouteImport.update({
   id: '/hr/',
   path: '/hr/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProjectsTimesheetRoute = AppProjectsTimesheetRouteImport.update({
+  id: '/projects/timesheet',
+  path: '/projects/timesheet',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProjectsResourcesRoute = AppProjectsResourcesRouteImport.update({
+  id: '/projects/resources',
+  path: '/projects/resources',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProjectsMyTasksRoute = AppProjectsMyTasksRouteImport.update({
+  id: '/projects/my-tasks',
+  path: '/projects/my-tasks',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProjectsGanttRoute = AppProjectsGanttRouteImport.update({
+  id: '/projects/gantt',
+  path: '/projects/gantt',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProjectsProjectIdRoute = AppProjectsProjectIdRouteImport.update({
+  id: '/projects/$projectId',
+  path: '/projects/$projectId',
   getParentRoute: () => AppRoute,
 } as any)
 const AppHrValorBoRoute = AppHrValorBoRouteImport.update({
@@ -111,7 +141,6 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
   '/crm': typeof AppCrmRoute
-  '/projects': typeof AppProjectsRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
@@ -121,13 +150,18 @@ export interface FileRoutesByFullPath {
   '/hr/resumo': typeof AppHrResumoRoute
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
+  '/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/projects/gantt': typeof AppProjectsGanttRoute
+  '/projects/my-tasks': typeof AppProjectsMyTasksRoute
+  '/projects/resources': typeof AppProjectsResourcesRoute
+  '/projects/timesheet': typeof AppProjectsTimesheetRoute
   '/hr/': typeof AppHrIndexRoute
+  '/projects/': typeof AppProjectsIndexRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/crm': typeof AppCrmRoute
-  '/projects': typeof AppProjectsRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
   '/hr/admin': typeof AppHrAdminRoute
@@ -138,7 +172,13 @@ export interface FileRoutesByTo {
   '/hr/resumo': typeof AppHrResumoRoute
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
+  '/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/projects/gantt': typeof AppProjectsGanttRoute
+  '/projects/my-tasks': typeof AppProjectsMyTasksRoute
+  '/projects/resources': typeof AppProjectsResourcesRoute
+  '/projects/timesheet': typeof AppProjectsTimesheetRoute
   '/hr': typeof AppHrIndexRoute
+  '/projects': typeof AppProjectsIndexRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
 }
 export interface FileRoutesById {
@@ -146,7 +186,6 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/crm': typeof AppCrmRoute
-  '/_app/projects': typeof AppProjectsRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
   '/_app/hr/admin': typeof AppHrAdminRoute
@@ -157,7 +196,13 @@ export interface FileRoutesById {
   '/_app/hr/resumo': typeof AppHrResumoRoute
   '/_app/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/_app/hr/valor-bo': typeof AppHrValorBoRoute
+  '/_app/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/_app/projects/gantt': typeof AppProjectsGanttRoute
+  '/_app/projects/my-tasks': typeof AppProjectsMyTasksRoute
+  '/_app/projects/resources': typeof AppProjectsResourcesRoute
+  '/_app/projects/timesheet': typeof AppProjectsTimesheetRoute
   '/_app/hr/': typeof AppHrIndexRoute
+  '/_app/projects/': typeof AppProjectsIndexRoute
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
 }
 export interface FileRouteTypes {
@@ -166,7 +211,6 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/crm'
-    | '/projects'
     | '/api/notify-expense'
     | '/hr/admin'
     | '/hr/beneficios'
@@ -176,13 +220,18 @@ export interface FileRouteTypes {
     | '/hr/resumo'
     | '/hr/subsidio-alimentacao'
     | '/hr/valor-bo'
+    | '/projects/$projectId'
+    | '/projects/gantt'
+    | '/projects/my-tasks'
+    | '/projects/resources'
+    | '/projects/timesheet'
     | '/hr/'
+    | '/projects/'
     | '/hr/colaborador/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/crm'
-    | '/projects'
     | '/api/notify-expense'
     | '/'
     | '/hr/admin'
@@ -193,14 +242,19 @@ export interface FileRouteTypes {
     | '/hr/resumo'
     | '/hr/subsidio-alimentacao'
     | '/hr/valor-bo'
+    | '/projects/$projectId'
+    | '/projects/gantt'
+    | '/projects/my-tasks'
+    | '/projects/resources'
+    | '/projects/timesheet'
     | '/hr'
+    | '/projects'
     | '/hr/colaborador/$id'
   id:
     | '__root__'
     | '/_app'
     | '/login'
     | '/_app/crm'
-    | '/_app/projects'
     | '/api/notify-expense'
     | '/_app/'
     | '/_app/hr/admin'
@@ -211,7 +265,13 @@ export interface FileRouteTypes {
     | '/_app/hr/resumo'
     | '/_app/hr/subsidio-alimentacao'
     | '/_app/hr/valor-bo'
+    | '/_app/projects/$projectId'
+    | '/_app/projects/gantt'
+    | '/_app/projects/my-tasks'
+    | '/_app/projects/resources'
+    | '/_app/projects/timesheet'
     | '/_app/hr/'
+    | '/_app/projects/'
     | '/_app/hr/colaborador/$id'
   fileRoutesById: FileRoutesById
 }
@@ -251,13 +311,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiNotifyExpenseRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/projects': {
-      id: '/_app/projects'
-      path: '/projects'
-      fullPath: '/projects'
-      preLoaderRoute: typeof AppProjectsRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/crm': {
       id: '/_app/crm'
       path: '/crm'
@@ -265,11 +318,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCrmRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/projects/': {
+      id: '/_app/projects/'
+      path: '/projects'
+      fullPath: '/projects/'
+      preLoaderRoute: typeof AppProjectsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/hr/': {
       id: '/_app/hr/'
       path: '/hr'
       fullPath: '/hr/'
       preLoaderRoute: typeof AppHrIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/timesheet': {
+      id: '/_app/projects/timesheet'
+      path: '/projects/timesheet'
+      fullPath: '/projects/timesheet'
+      preLoaderRoute: typeof AppProjectsTimesheetRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/resources': {
+      id: '/_app/projects/resources'
+      path: '/projects/resources'
+      fullPath: '/projects/resources'
+      preLoaderRoute: typeof AppProjectsResourcesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/my-tasks': {
+      id: '/_app/projects/my-tasks'
+      path: '/projects/my-tasks'
+      fullPath: '/projects/my-tasks'
+      preLoaderRoute: typeof AppProjectsMyTasksRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/gantt': {
+      id: '/_app/projects/gantt'
+      path: '/projects/gantt'
+      fullPath: '/projects/gantt'
+      preLoaderRoute: typeof AppProjectsGanttRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/$projectId': {
+      id: '/_app/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof AppProjectsProjectIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/hr/valor-bo': {
@@ -340,7 +435,6 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppCrmRoute: typeof AppCrmRoute
-  AppProjectsRoute: typeof AppProjectsRoute
   AppIndexRoute: typeof AppIndexRoute
   AppHrAdminRoute: typeof AppHrAdminRoute
   AppHrBeneficiosRoute: typeof AppHrBeneficiosRoute
@@ -350,13 +444,18 @@ interface AppRouteChildren {
   AppHrResumoRoute: typeof AppHrResumoRoute
   AppHrSubsidioAlimentacaoRoute: typeof AppHrSubsidioAlimentacaoRoute
   AppHrValorBoRoute: typeof AppHrValorBoRoute
+  AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRoute
+  AppProjectsGanttRoute: typeof AppProjectsGanttRoute
+  AppProjectsMyTasksRoute: typeof AppProjectsMyTasksRoute
+  AppProjectsResourcesRoute: typeof AppProjectsResourcesRoute
+  AppProjectsTimesheetRoute: typeof AppProjectsTimesheetRoute
   AppHrIndexRoute: typeof AppHrIndexRoute
+  AppProjectsIndexRoute: typeof AppProjectsIndexRoute
   AppHrColaboradorIdRoute: typeof AppHrColaboradorIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCrmRoute: AppCrmRoute,
-  AppProjectsRoute: AppProjectsRoute,
   AppIndexRoute: AppIndexRoute,
   AppHrAdminRoute: AppHrAdminRoute,
   AppHrBeneficiosRoute: AppHrBeneficiosRoute,
@@ -366,7 +465,13 @@ const AppRouteChildren: AppRouteChildren = {
   AppHrResumoRoute: AppHrResumoRoute,
   AppHrSubsidioAlimentacaoRoute: AppHrSubsidioAlimentacaoRoute,
   AppHrValorBoRoute: AppHrValorBoRoute,
+  AppProjectsProjectIdRoute: AppProjectsProjectIdRoute,
+  AppProjectsGanttRoute: AppProjectsGanttRoute,
+  AppProjectsMyTasksRoute: AppProjectsMyTasksRoute,
+  AppProjectsResourcesRoute: AppProjectsResourcesRoute,
+  AppProjectsTimesheetRoute: AppProjectsTimesheetRoute,
   AppHrIndexRoute: AppHrIndexRoute,
+  AppProjectsIndexRoute: AppProjectsIndexRoute,
   AppHrColaboradorIdRoute: AppHrColaboradorIdRoute,
 }
 
@@ -380,3 +485,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
