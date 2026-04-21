@@ -28,9 +28,10 @@ type Row = {
   proposed: Snapshot | null;
 };
 
-type MetricKey = "liquido" | "alimentacao" | "ajudas" | "beneficios" | "custoVBG";
+type MetricKey = "valorBase" | "liquido" | "alimentacao" | "ajudas" | "beneficios" | "custoVBG";
 
 const METRICS: { key: MetricKey; label: string; help: string }[] = [
+  { key: "valorBase", label: "Valor base mensal", help: "Vencimento base mensal contratual" },
   { key: "liquido", label: "Líquido total mensal", help: "Líquido base + ajudas + alimentação" },
   { key: "alimentacao", label: "Subsídio alimentação (mensal)", help: "Diário × dias úteis / 12" },
   { key: "ajudas", label: "Ajudas de custo (mensal)", help: "Anual / 12" },
@@ -43,6 +44,8 @@ function valueFor(snap: Snapshot | null, key: MetricKey, mealDaily: number): num
   const eff = { ...snap, subsidio_alimentacao_diario: mealDaily || snap.subsidio_alimentacao_diario };
   const c = computeSnapshot(eff);
   switch (key) {
+    case "valorBase":
+      return snap.valor_base ?? 0;
     case "liquido":
       return c.liquidoTotalMensal;
     case "alimentacao":
@@ -125,6 +128,36 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
     return { actual, proposto, delta, pct, comProposta, total: filtered.length };
   }, [filtered]);
 
+  // Comparação global do Valor Base — mensal e anual (×14 meses).
+  const valorBaseGlobal = useMemo(() => {
+    let actualMensal = 0;
+    let propostoMensal = 0;
+    let comProposta = 0;
+    for (const r of filtered) {
+      const eff = r.effective?.valor_base ?? 0;
+      const prop = r.proposed?.valor_base ?? eff;
+      actualMensal += eff;
+      propostoMensal += prop;
+      if (r.proposed) comProposta += 1;
+    }
+    const actualAnual = actualMensal * 14;
+    const propostoAnual = propostoMensal * 14;
+    const deltaMensal = propostoMensal - actualMensal;
+    const deltaAnual = propostoAnual - actualAnual;
+    const pct = actualMensal > 0 ? deltaMensal / actualMensal : null;
+    return {
+      actualMensal,
+      propostoMensal,
+      actualAnual,
+      propostoAnual,
+      deltaMensal,
+      deltaAnual,
+      pct,
+      comProposta,
+      total: filtered.length,
+    };
+  }, [filtered]);
+
   const totals = useMemo(() => {
     let eff = 0;
     let prop = 0;
@@ -185,6 +218,77 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                     {m.label}
                   </button>
                 ))}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-primary">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Valor base global — Actual vs Proposto</CardTitle>
+          <CardDescription>
+            Soma do vencimento base de todos os colaboradores ({valorBaseGlobal.comProposta} de{" "}
+            {valorBaseGlobal.total} com ficha proposta). Quem não tem proposta conta com o valor
+            actual. Anual = base × 14 meses.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <div className="text-xs text-muted-foreground">Base mensal — actual</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">
+                {fmtEUR(valorBaseGlobal.actualMensal)}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Anual: {fmtEUR(valorBaseGlobal.actualAnual)}
+              </div>
+            </div>
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <div className="text-xs text-muted-foreground">Base mensal — proposto</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">
+                {fmtEUR(valorBaseGlobal.propostoMensal)}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Anual: {fmtEUR(valorBaseGlobal.propostoAnual)}
+              </div>
+            </div>
+            <div
+              className={
+                "rounded-lg border p-3 " +
+                (valorBaseGlobal.deltaMensal > 0
+                  ? "border-negative/40 bg-negative/5"
+                  : valorBaseGlobal.deltaMensal < 0
+                    ? "border-positive/40 bg-positive/5"
+                    : "bg-muted/30")
+              }
+            >
+              <div className="text-xs text-muted-foreground">Aumento mensal</div>
+              <div
+                className={
+                  "mt-1 text-2xl font-semibold tabular-nums " +
+                  (valorBaseGlobal.deltaMensal > 0
+                    ? "text-negative"
+                    : valorBaseGlobal.deltaMensal < 0
+                      ? "text-positive"
+                      : "")
+                }
+              >
+                {(valorBaseGlobal.deltaMensal > 0 ? "+" : "") + fmtEUR(valorBaseGlobal.deltaMensal)}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Anual (×14):{" "}
+                {(valorBaseGlobal.deltaAnual > 0 ? "+" : "") + fmtEUR(valorBaseGlobal.deltaAnual)}
+                {valorBaseGlobal.pct != null && (
+                  <>
+                    {" · "}
+                    {(valorBaseGlobal.deltaMensal > 0 ? "+" : "") +
+                      new Intl.NumberFormat("pt-PT", {
+                        style: "percent",
+                        maximumFractionDigits: 2,
+                      }).format(valorBaseGlobal.pct)}
+                  </>
+                )}
               </div>
             </div>
           </div>
