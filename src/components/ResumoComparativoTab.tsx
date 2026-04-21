@@ -128,6 +128,36 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
     return { actual, proposto, delta, pct, comProposta, total: filtered.length };
   }, [filtered]);
 
+  // Comparação global do Valor Base — mensal e anual (×14 meses).
+  const valorBaseGlobal = useMemo(() => {
+    let actualMensal = 0;
+    let propostoMensal = 0;
+    let comProposta = 0;
+    for (const r of filtered) {
+      const eff = r.effective?.valor_base ?? 0;
+      const prop = r.proposed?.valor_base ?? eff;
+      actualMensal += eff;
+      propostoMensal += prop;
+      if (r.proposed) comProposta += 1;
+    }
+    const actualAnual = actualMensal * 14;
+    const propostoAnual = propostoMensal * 14;
+    const deltaMensal = propostoMensal - actualMensal;
+    const deltaAnual = propostoAnual - actualAnual;
+    const pct = actualMensal > 0 ? deltaMensal / actualMensal : null;
+    return {
+      actualMensal,
+      propostoMensal,
+      actualAnual,
+      propostoAnual,
+      deltaMensal,
+      deltaAnual,
+      pct,
+      comProposta,
+      total: filtered.length,
+    };
+  }, [filtered]);
+
   const totals = useMemo(() => {
     let eff = 0;
     let prop = 0;
