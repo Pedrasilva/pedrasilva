@@ -28,9 +28,10 @@ type Row = {
   proposed: Snapshot | null;
 };
 
-type MetricKey = "liquido" | "alimentacao" | "ajudas" | "beneficios" | "custoVBG";
+type MetricKey = "valorBase" | "liquido" | "alimentacao" | "ajudas" | "beneficios" | "custoVBG";
 
 const METRICS: { key: MetricKey; label: string; help: string }[] = [
+  { key: "valorBase", label: "Valor base mensal", help: "Vencimento base mensal contratual" },
   { key: "liquido", label: "Líquido total mensal", help: "Líquido base + ajudas + alimentação" },
   { key: "alimentacao", label: "Subsídio alimentação (mensal)", help: "Diário × dias úteis / 12" },
   { key: "ajudas", label: "Ajudas de custo (mensal)", help: "Anual / 12" },
@@ -43,6 +44,8 @@ function valueFor(snap: Snapshot | null, key: MetricKey, mealDaily: number): num
   const eff = { ...snap, subsidio_alimentacao_diario: mealDaily || snap.subsidio_alimentacao_diario };
   const c = computeSnapshot(eff);
   switch (key) {
+    case "valorBase":
+      return snap.valor_base ?? 0;
     case "liquido":
       return c.liquidoTotalMensal;
     case "alimentacao":
