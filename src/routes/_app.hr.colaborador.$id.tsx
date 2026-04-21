@@ -62,6 +62,7 @@ import { ArrowLeft, Plus, Trash2, BarChart3, Save, Printer, ChevronDown } from "
 import { toast } from "sonner";
 import { SnapshotForm } from "@/components/SnapshotForm";
 import { ResumoCompare } from "@/components/ResumoCompare";
+import { CollaboratorPhotoUploader } from "@/components/CollaboratorPhotoUploader";
 
 import { PermissionGate } from "@/components/PermissionGate";
 
@@ -233,14 +234,24 @@ function CollaboratorPage() {
   return (
     <div className="space-y-6 print-area">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="space-y-1">
-          <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground no-print">
-            <ArrowLeft className="h-3 w-3" /> Voltar
-          </Link>
-          <h1 className="text-2xl font-semibold tracking-tight">{collab.nome}</h1>
-          <p className="text-sm text-muted-foreground">
-            {collab.departamento} · {collab.numero_colaborador || "sem nº"} · {collab.situacao_contractual || "—"}
-          </p>
+        <div className="flex items-end gap-4">
+          <div className="no-print">
+            <CollaboratorPhotoUploader
+              collaboratorId={collab.id}
+              name={collab.nome}
+              fotoPath={collab.foto_path}
+              size={88}
+            />
+          </div>
+          <div className="space-y-1">
+            <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground no-print">
+              <ArrowLeft className="h-3 w-3" /> Voltar
+            </Link>
+            <h1 className="text-2xl font-semibold tracking-tight">{collab.nome}</h1>
+            <p className="text-sm text-muted-foreground">
+              {collab.departamento} · {collab.numero_colaborador || "sem nº"} · {collab.situacao_contractual || "—"}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2 no-print">
           <Button variant="outline" size="sm" onClick={() => window.print()}>
