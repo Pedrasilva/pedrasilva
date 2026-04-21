@@ -99,28 +99,37 @@ export function computeSnapshot(s: Snapshot) {
 
   // Bloco 1 — Base contractual
   // A SS e o IRS incidem sobre o valor efectivamente pago em cada mês.
-  // Em regime de duodécimos, o valor mensal pago = base + parte diluída dos
-  // subsídios; a SS/IRS devem reflectir essa base alargada.
-  // - tradicional (14m): mensal = base; subsídios pagos por inteiro tributados
-  //   no mês de pagamento (Junho/Novembro). Anual SS = base × 14 × ss_pct.
-  // - duodécimos 50% (13m): mensal = base + (2 × base × 0.5)/12 = base × 13/12;
-  //   metade restante de cada subsídio paga por inteiro. Anual = base × 13.
-  // - duodécimos 100% (12m): mensal = base × 14/12; nada pago por inteiro.
-  //   Anual = base × 14 (mantém a paridade anual com o tradicional).
-  const baseAnual = base * meses; // total anual de remuneração base sujeita a SS/IRS
-  const baseMensalTributavel = baseAnual / 12; // base efectiva mensal para SS/IRS
+  // - tradicional (14m): base mensal tributada = valor_base; os subsídios
+  //   são pagos por inteiro em Jun/Nov e tributados nesses meses.
+  //   Anual SS = base × 14 × ss_pct.
+  // - duodécimos 50% (13m): base mensal tributada = base + (50% × base × 2)/12
+  //   = base × 13/12; metade restante paga por inteiro em Jun/Nov.
+  //   Anual SS = base × 13 × ss_pct.
+  // - duodécimos 100% (12m): base mensal tributada = base × 14/12;
+  //   nada pago por inteiro. Anual SS = base × 14 × ss_pct.
+  const modo = s.subsidios_modo ?? subsidiosFromMeses(meses);
+  const duodecimosFactor =
+    modo === "duodecimos_100" ? 2 / 12 : modo === "duodecimos_50" ? 1 / 12 : 0;
+  const baseMensalTributavel = base * (1 + duodecimosFactor);
+
+  // Total anual de remuneração base sujeita a SS/IRS:
+  // tradicional → base × 14 (12 meses + 2 subsídios inteiros)
+  // duodecimos_50 → base × 13 (12 mensais alargados + 1 subsídio inteiro)
+  // duodecimos_100 → base × 14 (12 mensais alargados, sem subsídios inteiros)
+  const baseAnual = base * meses;
 
   const ssAtelierMensal = baseMensalTributavel * s.ss_atelier_pct;
   const ssColaboradorMensal = baseMensalTributavel * s.ss_colaborador_pct;
   const irsMensal = baseMensalTributavel * s.irs_pct;
-  const ssAtelierAnual = ssAtelierMensal * 12;
-  const ssColaboradorAnual = ssColaboradorMensal * 12;
-  const irsAnual = irsMensal * 12;
+  const ssAtelierAnual = baseAnual * s.ss_atelier_pct;
+  const ssColaboradorAnual = baseAnual * s.ss_colaborador_pct;
+  const irsAnual = baseAnual * s.irs_pct;
 
-  // Líquido "por mês de pagamento" — usado pelo LiquidoTab como referência do
-  // que entra na conta num mês típico (já com SS/IRS sobre a base alargada).
+  // Líquido "por mês típico" — base mensal tributável menos descontos sobre ela.
+  // No tradicional ≡ liquido de um mês normal (14 vezes no ano).
+  // Em duodécimos ≡ liquido mensal médio (com a parte diluída já incluída).
   const liquido14m = baseMensalTributavel - ssColaboradorMensal - irsMensal;
-  const liquidoAnual = liquido14m * 12;
+  const liquidoAnual = baseAnual - ssColaboradorAnual - irsAnual;
   const liquido12m = liquidoAnual / 12;
 
   // Bloco 2 — Subsídio alimentação
