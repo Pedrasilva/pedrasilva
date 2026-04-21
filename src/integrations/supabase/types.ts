@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      benefit_balances: {
+        Row: {
+          categoria: Database["public"]["Enums"]["benefit_category"]
+          collaborator_id: string
+          created_at: string
+          id: string
+          notas: string | null
+          saldo_inicial: number
+          updated_at: string
+        }
+        Insert: {
+          categoria: Database["public"]["Enums"]["benefit_category"]
+          collaborator_id: string
+          created_at?: string
+          id?: string
+          notas?: string | null
+          saldo_inicial?: number
+          updated_at?: string
+        }
+        Update: {
+          categoria?: Database["public"]["Enums"]["benefit_category"]
+          collaborator_id?: string
+          created_at?: string
+          id?: string
+          notas?: string | null
+          saldo_inicial?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_balances_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       benefit_expenses: {
         Row: {
           ano_fiscal: number
@@ -72,6 +110,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "benefit_expenses_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      benefit_yearly_credits: {
+        Row: {
+          ano_fiscal: number
+          categoria: Database["public"]["Enums"]["benefit_category"]
+          collaborator_id: string
+          created_at: string
+          id: string
+          notas: string | null
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          ano_fiscal: number
+          categoria: Database["public"]["Enums"]["benefit_category"]
+          collaborator_id: string
+          created_at?: string
+          id?: string
+          notas?: string | null
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          ano_fiscal?: number
+          categoria?: Database["public"]["Enums"]["benefit_category"]
+          collaborator_id?: string
+          created_at?: string
+          id?: string
+          notas?: string | null
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_yearly_credits_collaborator_id_fkey"
             columns: ["collaborator_id"]
             isOneToOne: false
             referencedRelation: "collaborators"
