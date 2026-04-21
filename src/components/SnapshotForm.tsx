@@ -88,8 +88,8 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
   }, [mealRates, refYear]);
 
   const irsAuto = useMemo(
-    () => calcIrs(draft.valor_base || 0, brackets, collaborator.numero_dependentes),
-    [draft.valor_base, collaborator.numero_dependentes, brackets],
+    () => calcIrs(draft.valor_base || 0, brackets, draft.numero_dependentes),
+    [draft.valor_base, draft.numero_dependentes, brackets],
   );
 
   const effectiveMealDaily = draft.subsidio_alimentacao_manual
@@ -99,16 +99,10 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
   const draftEffective = useMemo<Snapshot>(
     () => ({
       ...draft,
-      localizacao: collaborator.localizacao,
-      estado_civil: collaborator.estado_civil,
-      numero_titulares: collaborator.numero_titulares,
-      numero_dependentes: collaborator.numero_dependentes,
-      dependentes_com_deficiencia: collaborator.dependentes_com_deficiencia,
-      ano_fiscal: collaborator.ano_fiscal,
       irs_pct: draft.irs_calculado_auto ? irsAuto.irs_pct_efectiva : draft.irs_pct,
       subsidio_alimentacao_diario: effectiveMealDaily,
     }),
-    [draft, collaborator, irsAuto.irs_pct_efectiva, effectiveMealDaily],
+    [draft, irsAuto.irs_pct_efectiva, effectiveMealDaily],
   );
 
   const c = computeSnapshot(draftEffective);
