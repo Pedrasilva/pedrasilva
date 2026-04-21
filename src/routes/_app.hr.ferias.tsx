@@ -50,8 +50,14 @@ import { countWeekdays } from "@/lib/dates";
 import type { Collaborator } from "@/lib/salary";
 import type { Holiday } from "@/lib/workdays";
 
+import { PermissionGate } from "@/components/PermissionGate";
+
 export const Route = createFileRoute("/_app/hr/ferias")({
-  component: FeriasPage,
+  component: () => (
+    <PermissionGate permission="hr.ferias.own">
+      <FeriasPage />
+    </PermissionGate>
+  ),
 });
 
 type AbsenceType =

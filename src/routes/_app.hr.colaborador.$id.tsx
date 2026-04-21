@@ -58,8 +58,14 @@ import { toast } from "sonner";
 import { SnapshotForm } from "@/components/SnapshotForm";
 import { ResumoCompare } from "@/components/ResumoCompare";
 
+import { PermissionGate } from "@/components/PermissionGate";
+
 export const Route = createFileRoute("/_app/hr/colaborador/$id")({
-  component: CollaboratorPage,
+  component: () => (
+    <PermissionGate permission="hr.colaboradores">
+      <CollaboratorPage />
+    </PermissionGate>
+  ),
 });
 
 function CollaboratorPage() {

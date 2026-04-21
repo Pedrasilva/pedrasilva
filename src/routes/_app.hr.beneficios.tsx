@@ -75,8 +75,14 @@ const sb = supabase as unknown as {
 
 const CATS: BenefitCategory[] = ["carro", "ticket", "premio", "outros"];
 
+import { PermissionGate } from "@/components/PermissionGate";
+
 export const Route = createFileRoute("/_app/hr/beneficios")({
-  component: BeneficiosPage,
+  component: () => (
+    <PermissionGate permission="hr.beneficios.own">
+      <BeneficiosPage />
+    </PermissionGate>
+  ),
 });
 
 function BeneficiosPage() {
