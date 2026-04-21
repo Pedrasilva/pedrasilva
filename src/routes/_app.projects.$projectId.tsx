@@ -47,6 +47,10 @@ import {
   ListChecks,
   Mail,
   TrendingUp,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
@@ -66,6 +70,8 @@ function ProjectDetail() {
 
   const [tab, setTab] = useState<TabKey>("overview");
   const [dayWidth, setDayWidth] = useState(36);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [poolOpen, setPoolOpen] = useState(true);
 
   // Real time entries for this project (per stage via allocation→stage)
   const { data: timeRows } = useQuery({
@@ -246,13 +252,30 @@ function ProjectDetail() {
 
   return (
     <AppShell active="projects">
-      <div className="mx-auto w-full max-w-[1600px] px-6 pt-6">
-        <Link
-          to="/projects"
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-3 w-3" /> Todos os projectos
-        </Link>
+      <div className="mx-auto w-full max-w-[1800px] px-4 pt-6 sm:px-6 2xl:px-10">
+        <div className="flex items-center justify-between gap-3">
+          <Link
+            to="/projects"
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-3 w-3" /> Todos os projectos
+          </Link>
+          <button
+            onClick={() => setSidebarOpen((v) => !v)}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
+            aria-label={sidebarOpen ? "Esconder painel lateral" : "Mostrar painel lateral"}
+          >
+            {sidebarOpen ? (
+              <>
+                <PanelLeftClose className="h-3.5 w-3.5" /> Esconder painel
+              </>
+            ) : (
+              <>
+                <PanelLeftOpen className="h-3.5 w-3.5" /> Mostrar painel
+              </>
+            )}
+          </button>
+        </div>
 
         {/* Header ------------------------------------------------------- */}
         <div className="mt-3 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-4">
@@ -273,10 +296,7 @@ function ProjectDetail() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <StatusToggle
-              current={project.status}
-              onChange={setStatus}
-            />
+            <StatusToggle current={project.status} onChange={setStatus} />
             <NewStageDialog
               projectId={project.id}
               defaultStart={
@@ -293,9 +313,14 @@ function ProjectDetail() {
         </div>
 
         {/* Body 2-col layout ------------------------------------------- */}
-        <div className="mt-6 grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <div
+          className={cn(
+            "mt-6 grid gap-6",
+            sidebarOpen ? "lg:grid-cols-[300px_minmax(0,1fr)]" : "lg:grid-cols-1",
+          )}
+        >
           {/* Sidebar ---------------------------------------------------- */}
-          <aside className="space-y-6">
+          <aside className={cn("space-y-6", !sidebarOpen && "hidden")}>
             <SidebarSection title="Detalhes">
               <DetailRow label="Cliente" value={project.client ?? "—"} />
               <DetailRow
@@ -461,23 +486,40 @@ function ProjectDetail() {
 
             {tab === "schedule" && (
               <div className="mt-4">
-                <div className="mb-3 flex items-center justify-end gap-1 rounded-md border border-border p-1 w-fit ml-auto">
+                <div className="mb-3 flex items-center justify-end gap-2">
                   <button
-                    onClick={() => setDayWidth((w) => Math.max(16, w - 6))}
-                    className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
-                    aria-label="Zoom out"
+                    onClick={() => setPoolOpen((v) => !v)}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
+                    aria-label={poolOpen ? "Esconder team pool" : "Mostrar team pool"}
                   >
-                    <ZoomOut className="h-4 w-4" />
+                    {poolOpen ? (
+                      <>
+                        <PanelRightClose className="h-3.5 w-3.5" /> Esconder team pool
+                      </>
+                    ) : (
+                      <>
+                        <PanelRightOpen className="h-3.5 w-3.5" /> Mostrar team pool
+                      </>
+                    )}
                   </button>
-                  <button
-                    onClick={() => setDayWidth((w) => Math.min(80, w + 6))}
-                    className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
-                    aria-label="Zoom in"
-                  >
-                    <ZoomIn className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-1 rounded-md border border-border p-1">
+                    <button
+                      onClick={() => setDayWidth((w) => Math.max(16, w - 6))}
+                      className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                      aria-label="Zoom out"
+                    >
+                      <ZoomOut className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setDayWidth((w) => Math.min(80, w + 6))}
+                      className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                      aria-label="Zoom in"
+                    >
+                      <ZoomIn className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex h-[calc(100vh-360px)] gap-0">
+                <div className="flex h-[calc(100vh-320px)] min-h-[520px] gap-0">
                   <div className="flex-1 overflow-auto rounded-lg border border-border bg-canvas">
                     {stages.length === 0 ? (
                       <div className="flex h-full items-center justify-center">
@@ -504,7 +546,7 @@ function ProjectDetail() {
                       />
                     )}
                   </div>
-                  <ResourcePool resources={resources ?? []} />
+                  {poolOpen && <ResourcePool resources={resources ?? []} />}
                 </div>
               </div>
             )}
