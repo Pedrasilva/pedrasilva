@@ -179,7 +179,7 @@ function AppLayout() {
               );
             })}
 
-            {isAdmin && (
+            {isRealAdmin && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
