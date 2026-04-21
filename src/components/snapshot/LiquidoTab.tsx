@@ -11,57 +11,58 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
   const mult = isAnual ? c.meses : 1;
 
   // Estrutura por regime:
-  // - tradicional (14m): líquido base = liquido14m; subsídios pagos por inteiro em Jun/Nov;
-  //   média mensal = liquido12m (= liquido14m × 14/12, inclui duodécimos teóricos).
-  // - duodecimos_50 (13m): metade de cada subsídio diluída → linha "duodécimos" mensal;
-  //   metade paga por inteiro em Jun/Nov.
-  // - duodecimos_100 (12m): subsídios totalmente diluídos → linha "duodécimos" mensal;
+  // - tradicional (14m): base mensal tributada = valor_base; subsídios pagos
+  //   por inteiro em Jun/Nov (também tributados nesses meses).
+  // - duodecimos_50 (13m): base mensal tributada = valor_base + 50% subsídios/12;
+  //   metade restante de cada subsídio paga por inteiro em Jun/Nov.
+  // - duodecimos_100 (12m): base mensal tributada = valor_base + 100% subsídios/12;
   //   nada pago por inteiro.
+  // A SS e o IRS já são calculados sobre a base mensal tributável (c.baseMensalTributavel).
   const modo = draft.subsidios_modo ?? "tradicional";
 
-  // Valor líquido de UM subsídio inteiro (= um mês de líquido)
-  const subsidioInteiro = c.liquido14m;
+  // Parte dos subsídios diluída na base mensal (= baseMensalTributavel − valor_base)
+  const duodecimosMensal = c.baseMensalTributavel - c.base;
 
-  // Duodécimos mensais (parte dos subsídios diluída em 12 meses)
-  // tradicional: 0 (pagos por inteiro)
-  // 50%: (2 × subsidioInteiro × 0.5) / 12 = subsidioInteiro / 12
-  // 100%: (2 × subsidioInteiro) / 12 = subsidioInteiro / 6
-  const duodecimosMensal =
-    modo === "duodecimos_100"
-      ? (subsidioInteiro * 2) / 12
-      : modo === "duodecimos_50"
-        ? subsidioInteiro / 12
-        : 0;
+  // Valor líquido de UM subsídio inteiro pago em Jun/Nov (mesmo cálculo da base mensal)
+  const subsidioInteiroLiquido = c.base * (1 - draft.ss_colaborador_pct - draft.irs_pct);
 
   // Subsídio pago por inteiro (Junho/Novembro), valor por subsídio
   const subsidioPagoInteiro =
     modo === "duodecimos_100"
       ? 0
       : modo === "duodecimos_50"
-        ? subsidioInteiro / 2
-        : subsidioInteiro;
+        ? subsidioInteiroLiquido / 2
+        : subsidioInteiroLiquido;
 
-  const liquidoBaseMensal = c.liquido14m;
-  const liquidoMensalMedio = liquidoBaseMensal + duodecimosMensal;
+  const liquidoMensalMedio = c.liquido14m;
 
   const rows: Array<{ label: string; value: number; raw?: string; strong?: boolean; accent?: boolean; muted?: boolean }> = [
     { label: "Valor base mensal", value: c.base },
-    { label: "− SS Colaborador (mensal)", value: -c.ssColaboradorMensal },
-    { label: "− IRS (mensal)", value: -c.irsMensal },
-    { label: "= Líquido base mensal", value: liquidoBaseMensal, strong: true },
   ];
 
-  if (modo === "duodecimos_100") {
+  if (duodecimosMensal > 0.005) {
     rows.push({
-      label: "+ Duodécimos (subsídios férias + Natal diluídos em 12 meses)",
+      label:
+        modo === "duodecimos_100"
+          ? "+ Duodécimos (subsídios férias + Natal diluídos em 12 meses)"
+          : "+ Duodécimos (50% dos subsídios diluídos em 12 meses)",
       value: duodecimosMensal,
     });
-  } else if (modo === "duodecimos_50") {
+    rows.push({
+      label: "= Base mensal tributável",
+      value: c.baseMensalTributavel,
+      strong: true,
+    });
+  }
+
+  rows.push(
+    { label: "− SS Colaborador (mensal)", value: -c.ssColaboradorMensal },
+    { label: "− IRS (mensal)", value: -c.irsMensal },
+    { label: "= Líquido mensal médio", value: liquidoMensalMedio, strong: true },
+  );
+
+  if (modo === "duodecimos_50") {
     rows.push(
-      {
-        label: "+ Duodécimos (50% dos subsídios diluídos em 12 meses)",
-        value: duodecimosMensal,
-      },
       {
         label: "+ Subsídio de férias (50% pago por inteiro em Junho)",
         value: subsidioPagoInteiro,
@@ -73,7 +74,7 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
         muted: true,
       },
     );
-  } else {
+  } else if (modo === "tradicional") {
     rows.push(
       {
         label: "+ Subsídio de férias (pago por inteiro em Junho)",
@@ -89,11 +90,6 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
   }
 
   rows.push(
-    {
-      label: "= Líquido mensal médio",
-      value: liquidoMensalMedio,
-      strong: true,
-    },
     { label: "+ Subsídio alimentação mensal", value: c.alimentacaoMensal },
     { label: "+ Ajudas de custo mensais", value: c.ajudasMensal },
     {
