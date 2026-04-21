@@ -38,13 +38,13 @@ export function QuickCreateMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            size="sm"
-            className="ml-1 gap-1.5"
+            size="icon"
+            variant="default"
+            className="ml-1 h-9 w-9"
             aria-label="Criar novo"
             title="Criar entrada"
           >
             <Plus className="h-4 w-4" />
-            <span className="hidden md:inline">Novo</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
