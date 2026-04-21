@@ -76,6 +76,7 @@ export type Collaborator = {
   numero_colaborador: string | null;
   nome: string;
   email: string | null;
+  foto_path: string | null;
   data_nascimento: string | null;
   inicio_carreira: string | null;
   situacao_contractual: string | null;
