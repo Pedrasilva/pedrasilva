@@ -2,6 +2,8 @@ import { Link, Outlet, createFileRoute, useLocation, useNavigate } from "@tansta
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { useMyPermissions } from "@/hooks/use-permissions";
+import type { PermissionKey } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
