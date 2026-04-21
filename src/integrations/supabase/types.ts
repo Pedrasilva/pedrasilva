@@ -1642,6 +1642,27 @@ export type Database = {
           },
         ]
       }
+      user_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          permission_key: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permission_key: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permission_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1722,12 +1743,29 @@ export type Database = {
     }
     Functions: {
       get_my_collaborator_id: { Args: never; Returns: string }
+      has_permission: {
+        Args: { _key: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      list_users_with_permissions: {
+        Args: never
+        Returns: {
+          collaborator_id: string
+          collaborator_nome: string
+          email: string
+          is_admin: boolean
+          is_super_admin: boolean
+          permissions: string[]
+          user_id: string
+        }[]
       }
       list_users_with_roles: {
         Args: never
@@ -1744,6 +1782,10 @@ export type Database = {
       pm_get_my_resource_id: { Args: never; Returns: string }
       set_user_admin: {
         Args: { _is_admin: boolean; _user_id: string }
+        Returns: undefined
+      }
+      set_user_permission: {
+        Args: { _granted: boolean; _key: string; _user_id: string }
         Returns: undefined
       }
     }
