@@ -252,56 +252,43 @@ function ProjectDetail() {
 
   return (
     <AppShell active="projects">
-      <div className="mx-auto w-full max-w-[1600px] px-6 pt-6">
-        <Link
-          to="/projects"
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-3 w-3" /> Todos os projectos
-        </Link>
+      <div className="mx-auto w-full max-w-[1800px] px-4 pt-6 sm:px-6 2xl:px-10">
+        <div className="flex items-center justify-between gap-3">
+          <Link
+            to="/projects"
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-3 w-3" /> Todos os projectos
+          </Link>
+          <button
+            onClick={() => setSidebarOpen((v) => !v)}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
+            aria-label={sidebarOpen ? "Esconder painel lateral" : "Mostrar painel lateral"}
+          >
+            {sidebarOpen ? (
+              <>
+                <PanelLeftClose className="h-3.5 w-3.5" /> Esconder painel
+              </>
+            ) : (
+              <>
+                <PanelLeftOpen className="h-3.5 w-3.5" /> Mostrar painel
+              </>
+            )}
+          </button>
+        </div>
 
         {/* Header ------------------------------------------------------- */}
         <div className="mt-3 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-4">
-          <div className="min-w-0">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-              {project.client ?? "Cliente"} · Projecto
-            </div>
-            <div className="mt-1 flex items-center gap-3">
-              <div
-                className="h-3 w-3 rounded-full"
-                style={{ backgroundColor: project.color }}
-              />
-              <h1 className="font-display text-3xl font-semibold tracking-tight truncate">
-                {project.name}
-              </h1>
-              <StatusBadge status={project.status} />
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusToggle
-              current={project.status}
-              onChange={setStatus}
-            />
-            <NewStageDialog
-              projectId={project.id}
-              defaultStart={
-                stages.length
-                  ? format(
-                      addDays(new Date(stages[stages.length - 1].end_date), 1),
-                      "yyyy-MM-dd",
-                    )
-                  : project.start_date
-              }
-              nextOrder={(stages[stages.length - 1]?.sort_order ?? 0) + 1}
-            />
-          </div>
-        </div>
-
+...
         {/* Body 2-col layout ------------------------------------------- */}
-        <div className="mt-6 grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <div
+          className={cn(
+            "mt-6 grid gap-6",
+            sidebarOpen ? "lg:grid-cols-[300px_minmax(0,1fr)]" : "lg:grid-cols-1",
+          )}
+        >
           {/* Sidebar ---------------------------------------------------- */}
-          <aside className="space-y-6">
+          <aside className={cn("space-y-6", !sidebarOpen && "hidden")}>
             <SidebarSection title="Detalhes">
               <DetailRow label="Cliente" value={project.client ?? "—"} />
               <DetailRow
