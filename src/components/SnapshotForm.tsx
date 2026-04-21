@@ -255,12 +255,12 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                 </div>
                 {irsTableData.isFallback && brackets.length > 0 && (
                   <div className="mt-3 rounded-md border border-[var(--sage)]/40 bg-[color-mix(in_oklab,var(--sage)_8%,transparent)] px-3 py-2 text-[11px] text-[var(--sage)]">
-                    Não existe tabela de retenção IRS carregada para <strong>{collaborator.ano_fiscal}</strong>. Foi usada automaticamente a tabela mais próxima disponível: <strong>{irsTableData.resolvedYear}</strong>.
+                    Não existe tabela de retenção IRS carregada para <strong>{draft.ano_fiscal}</strong>. Foi usada automaticamente a tabela mais próxima disponível: <strong>{irsTableData.resolvedYear}</strong>.
                   </div>
                 )}
                 {brackets.length === 0 && (
                   <div className="mt-3 rounded-md border border-[var(--clay)]/40 bg-[color-mix(in_oklab,var(--clay)_8%,transparent)] px-3 py-2 text-[11px] text-[var(--clay)]">
-                    Não há tabela de retenção IRS carregada para {collaborator.localizacao} · {TABELA_LABEL[tabela]}. Os valores aparecem a zero até existirem tabelas disponíveis.
+                    Não há tabela de retenção IRS carregada para {draft.localizacao} · {TABELA_LABEL[tabela]}. Os valores aparecem a zero até existirem tabelas disponíveis.
                   </div>
                 )}
               </>
