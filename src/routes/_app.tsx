@@ -77,7 +77,7 @@ function AppLayout() {
       label: "Hub",
       icon: Users,
       match: (p: string) => p === "/",
-      show: isAdmin,
+      show: isRealAdmin,
     },
     {
       to: "/hr/minha-ficha" as const,
@@ -114,7 +114,7 @@ function AppLayout() {
       label: "Resumo comparativo",
       icon: BarChart3,
       match: (p: string) => p.startsWith("/hr/resumo"),
-      show: isAdmin,
+      show: isRealAdmin,
     },
   ] as const;
 
