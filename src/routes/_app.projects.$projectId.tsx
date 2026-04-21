@@ -298,9 +298,12 @@ function ProjectDetail() {
                 className="h-3 w-3 rounded-full"
                 style={{ backgroundColor: project.color }}
               />
-              <h1 className="font-display text-3xl font-semibold tracking-tight truncate">
-                {project.name}
-              </h1>
+              <EditableProjectName
+                name={project.name}
+                onRename={(name) =>
+                  updateProject.mutateAsync({ id: project.id, patch: { name } })
+                }
+              />
               <StatusBadge status={project.status} />
             </div>
           </div>
@@ -627,6 +630,71 @@ function ProjectDetail() {
 }
 
 // ===== Subcomponents =====================================================
+
+function EditableProjectName({
+  name,
+  onRename,
+}: {
+  name: string;
+  onRename: (next: string) => Promise<unknown>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(name);
+  const [saving, setSaving] = useState(false);
+
+  const commit = async () => {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed === name) {
+      setValue(name);
+      setEditing(false);
+      return;
+    }
+    try {
+      setSaving(true);
+      await onRename(trimmed);
+      setEditing(false);
+    } catch {
+      setValue(name);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        value={value}
+        disabled={saving}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            void commit();
+          } else if (e.key === "Escape") {
+            setValue(name);
+            setEditing(false);
+          }
+        }}
+        className="font-display min-w-0 flex-1 rounded-md border border-border bg-background px-2 py-0.5 text-3xl font-semibold tracking-tight text-foreground focus:border-primary focus:outline-none"
+      />
+    );
+  }
+
+  return (
+    <h1
+      onDoubleClick={() => {
+        setValue(name);
+        setEditing(true);
+      }}
+      title="Duplo clique para renomear"
+      className="font-display cursor-text truncate text-3xl font-semibold tracking-tight"
+    >
+      {name}
+    </h1>
+  );
+}
 
 function StatusBadge({ status }: { status: string }) {
   const tone =
