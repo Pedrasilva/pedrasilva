@@ -298,9 +298,13 @@ function ProjectDetail() {
                 className="h-3 w-3 rounded-full"
                 style={{ backgroundColor: project.color }}
               />
-              <h1 className="font-display text-3xl font-semibold tracking-tight truncate">
-                {project.name}
-              </h1>
+              <EditableProjectName
+                projectId={project.id}
+                name={project.name}
+                onRename={(name) =>
+                  updateProject.mutateAsync({ id: project.id, name })
+                }
+              />
               <StatusBadge status={project.status} />
             </div>
           </div>
