@@ -85,11 +85,39 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
           <CardTitle className="text-base">Subsídio alimentação</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <FieldRow label="Valor diário">
-            <div className="flex h-9 items-center justify-end rounded-md border bg-muted px-3 text-right text-sm tabular-nums text-muted-foreground">
-              {fmtEUR(draft.subsidio_alimentacao_diario)}
+          <FieldRow label="Definir manualmente">
+            <div className="flex h-9 items-center justify-end gap-2">
+              <Switch
+                checked={draft.subsidio_alimentacao_manual}
+                onCheckedChange={(v) => {
+                  set("subsidio_alimentacao_manual", v);
+                  // Quando activa o modo manual pela primeira vez, semeia com o valor
+                  // actual da tabela para evitar saltar para 0€.
+                  if (v && (!draft.subsidio_alimentacao_diario_manual || draft.subsidio_alimentacao_diario_manual === 0)) {
+                    set("subsidio_alimentacao_diario_manual", draft.subsidio_alimentacao_diario);
+                  }
+                }}
+              />
+              <span className="text-[11px] text-muted-foreground">
+                {draft.subsidio_alimentacao_manual ? "Valor manual" : "Tabela anual"}
+              </span>
             </div>
           </FieldRow>
+          {draft.subsidio_alimentacao_manual ? (
+            <FieldRow label="Valor diário (manual)">
+              <NumIn
+                value={draft.subsidio_alimentacao_diario_manual}
+                step={0.01}
+                onChange={(n) => set("subsidio_alimentacao_diario_manual", n)}
+              />
+            </FieldRow>
+          ) : (
+            <FieldRow label="Valor diário (tabela)">
+              <div className="flex h-9 items-center justify-end rounded-md border bg-muted px-3 text-right text-sm tabular-nums text-muted-foreground">
+                {fmtEUR(draft.subsidio_alimentacao_diario)}
+              </div>
+            </FieldRow>
+          )}
           <FieldRow label="Dias úteis (ano)">
             <div className="flex h-9 items-center justify-end rounded-md border bg-muted px-3 text-right text-sm tabular-nums text-muted-foreground">
               {draft.dias_uteis}
