@@ -51,6 +51,14 @@ import {
   PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
+  ChevronRight,
+  ChevronDown,
+  Search,
+  ArrowUpDown,
+  Plus,
+  MoreVertical,
+  Pencil,
+  UserPlus,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
@@ -467,12 +475,6 @@ function ProjectDetail() {
 
             {tab === "overview" && (
               <div className="mt-4 rounded-lg border border-border bg-card">
-                <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
-                  <h2 className="text-sm font-semibold">Milestones &amp; Tasks</h2>
-                  <div className="text-xs text-muted-foreground">
-                    {stages.length} fases
-                  </div>
-                </div>
                 <MilestonesTable
                   stages={stages}
                   invoiced={invoicedTotal}
@@ -480,6 +482,7 @@ function ProjectDetail() {
                   stageCost={stageCost}
                   stageLoggedHours={stageLoggedHours}
                   stagePlannedHours={stagePlannedHours}
+                  defaultRates={defaultRates}
                 />
               </div>
             )}
