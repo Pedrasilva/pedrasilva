@@ -1312,8 +1312,8 @@ function InsightsPanel({
   const services = {
     budget: totalBudget,
     value: earnedValue,
-    cost: totalCost,
-    profit: earnedValue - totalCost,
+    cost: loggedCost,
+    profit: totalBudget - loggedCost,
     invoiced: invoicedTotal,
   };
   const empty = { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 };
