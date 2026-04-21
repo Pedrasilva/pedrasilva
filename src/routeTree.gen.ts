@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
+import { Route as AppHrRouteImport } from './routes/_app.hr'
 import { Route as AppCrmRouteImport } from './routes/_app.crm'
 import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
@@ -57,6 +58,11 @@ const ApiNotifyExpenseRoute = ApiNotifyExpenseRouteImport.update({
   path: '/api/notify-expense',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppHrRoute = AppHrRouteImport.update({
+  id: '/hr',
+  path: '/hr',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCrmRoute = AppCrmRouteImport.update({
   id: '/crm',
   path: '/crm',
@@ -68,9 +74,9 @@ const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AppHrIndexRoute = AppHrIndexRouteImport.update({
-  id: '/hr/',
-  path: '/hr/',
-  getParentRoute: () => AppRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppHrRoute,
 } as any)
 const AppCrmIndexRoute = AppCrmIndexRouteImport.update({
   id: '/',
@@ -103,45 +109,45 @@ const AppProjectsProjectIdRoute = AppProjectsProjectIdRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AppHrValorBoRoute = AppHrValorBoRouteImport.update({
-  id: '/hr/valor-bo',
-  path: '/hr/valor-bo',
-  getParentRoute: () => AppRoute,
+  id: '/valor-bo',
+  path: '/valor-bo',
+  getParentRoute: () => AppHrRoute,
 } as any)
 const AppHrSubsidioAlimentacaoRoute =
   AppHrSubsidioAlimentacaoRouteImport.update({
-    id: '/hr/subsidio-alimentacao',
-    path: '/hr/subsidio-alimentacao',
-    getParentRoute: () => AppRoute,
+    id: '/subsidio-alimentacao',
+    path: '/subsidio-alimentacao',
+    getParentRoute: () => AppHrRoute,
   } as any)
 const AppHrResumoRoute = AppHrResumoRouteImport.update({
-  id: '/hr/resumo',
-  path: '/hr/resumo',
-  getParentRoute: () => AppRoute,
+  id: '/resumo',
+  path: '/resumo',
+  getParentRoute: () => AppHrRoute,
 } as any)
 const AppHrMinhaFichaRoute = AppHrMinhaFichaRouteImport.update({
-  id: '/hr/minha-ficha',
-  path: '/hr/minha-ficha',
-  getParentRoute: () => AppRoute,
+  id: '/minha-ficha',
+  path: '/minha-ficha',
+  getParentRoute: () => AppHrRoute,
 } as any)
 const AppHrFeriasRoute = AppHrFeriasRouteImport.update({
-  id: '/hr/ferias',
-  path: '/hr/ferias',
-  getParentRoute: () => AppRoute,
+  id: '/ferias',
+  path: '/ferias',
+  getParentRoute: () => AppHrRoute,
 } as any)
 const AppHrDiasUteisRoute = AppHrDiasUteisRouteImport.update({
-  id: '/hr/dias-uteis',
-  path: '/hr/dias-uteis',
-  getParentRoute: () => AppRoute,
+  id: '/dias-uteis',
+  path: '/dias-uteis',
+  getParentRoute: () => AppHrRoute,
 } as any)
 const AppHrBeneficiosRoute = AppHrBeneficiosRouteImport.update({
-  id: '/hr/beneficios',
-  path: '/hr/beneficios',
-  getParentRoute: () => AppRoute,
+  id: '/beneficios',
+  path: '/beneficios',
+  getParentRoute: () => AppHrRoute,
 } as any)
 const AppHrAdminRoute = AppHrAdminRouteImport.update({
-  id: '/hr/admin',
-  path: '/hr/admin',
-  getParentRoute: () => AppRoute,
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppHrRoute,
 } as any)
 const AppCrmPipelineRoute = AppCrmPipelineRouteImport.update({
   id: '/pipeline',
@@ -165,9 +171,9 @@ const AppProjectsResourcesResourceIdRoute =
     getParentRoute: () => AppProjectsResourcesRoute,
   } as any)
 const AppHrColaboradorIdRoute = AppHrColaboradorIdRouteImport.update({
-  id: '/hr/colaborador/$id',
-  path: '/hr/colaborador/$id',
-  getParentRoute: () => AppRoute,
+  id: '/colaborador/$id',
+  path: '/colaborador/$id',
+  getParentRoute: () => AppHrRoute,
 } as any)
 const AppCrmPipelineProposalIdRoute =
   AppCrmPipelineProposalIdRouteImport.update({
@@ -186,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
   '/crm': typeof AppCrmRouteWithChildren
+  '/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/crm/contacts': typeof AppCrmContactsRoute
@@ -244,6 +251,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/crm': typeof AppCrmRouteWithChildren
+  '/_app/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
   '/_app/crm/companies': typeof AppCrmCompaniesRouteWithChildren
@@ -276,6 +284,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/crm'
+    | '/hr'
     | '/api/notify-expense'
     | '/crm/companies'
     | '/crm/contacts'
@@ -333,6 +342,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/login'
     | '/_app/crm'
+    | '/_app/hr'
     | '/api/notify-expense'
     | '/_app/'
     | '/_app/crm/companies'
@@ -396,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiNotifyExpenseRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/hr': {
+      id: '/_app/hr'
+      path: '/hr'
+      fullPath: '/hr'
+      preLoaderRoute: typeof AppHrRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/crm': {
       id: '/_app/crm'
       path: '/crm'
@@ -412,10 +429,10 @@ declare module '@tanstack/react-router' {
     }
     '/_app/hr/': {
       id: '/_app/hr/'
-      path: '/hr'
+      path: '/'
       fullPath: '/hr/'
       preLoaderRoute: typeof AppHrIndexRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppHrRoute
     }
     '/_app/crm/': {
       id: '/_app/crm/'
@@ -461,59 +478,59 @@ declare module '@tanstack/react-router' {
     }
     '/_app/hr/valor-bo': {
       id: '/_app/hr/valor-bo'
-      path: '/hr/valor-bo'
+      path: '/valor-bo'
       fullPath: '/hr/valor-bo'
       preLoaderRoute: typeof AppHrValorBoRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppHrRoute
     }
     '/_app/hr/subsidio-alimentacao': {
       id: '/_app/hr/subsidio-alimentacao'
-      path: '/hr/subsidio-alimentacao'
+      path: '/subsidio-alimentacao'
       fullPath: '/hr/subsidio-alimentacao'
       preLoaderRoute: typeof AppHrSubsidioAlimentacaoRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppHrRoute
     }
     '/_app/hr/resumo': {
       id: '/_app/hr/resumo'
-      path: '/hr/resumo'
+      path: '/resumo'
       fullPath: '/hr/resumo'
       preLoaderRoute: typeof AppHrResumoRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppHrRoute
     }
     '/_app/hr/minha-ficha': {
       id: '/_app/hr/minha-ficha'
-      path: '/hr/minha-ficha'
+      path: '/minha-ficha'
       fullPath: '/hr/minha-ficha'
       preLoaderRoute: typeof AppHrMinhaFichaRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppHrRoute
     }
     '/_app/hr/ferias': {
       id: '/_app/hr/ferias'
-      path: '/hr/ferias'
+      path: '/ferias'
       fullPath: '/hr/ferias'
       preLoaderRoute: typeof AppHrFeriasRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppHrRoute
     }
     '/_app/hr/dias-uteis': {
       id: '/_app/hr/dias-uteis'
-      path: '/hr/dias-uteis'
+      path: '/dias-uteis'
       fullPath: '/hr/dias-uteis'
       preLoaderRoute: typeof AppHrDiasUteisRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppHrRoute
     }
     '/_app/hr/beneficios': {
       id: '/_app/hr/beneficios'
-      path: '/hr/beneficios'
+      path: '/beneficios'
       fullPath: '/hr/beneficios'
       preLoaderRoute: typeof AppHrBeneficiosRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppHrRoute
     }
     '/_app/hr/admin': {
       id: '/_app/hr/admin'
-      path: '/hr/admin'
+      path: '/admin'
       fullPath: '/hr/admin'
       preLoaderRoute: typeof AppHrAdminRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppHrRoute
     }
     '/_app/crm/pipeline': {
       id: '/_app/crm/pipeline'
@@ -545,10 +562,10 @@ declare module '@tanstack/react-router' {
     }
     '/_app/hr/colaborador/$id': {
       id: '/_app/hr/colaborador/$id'
-      path: '/hr/colaborador/$id'
+      path: '/colaborador/$id'
       fullPath: '/hr/colaborador/$id'
       preLoaderRoute: typeof AppHrColaboradorIdRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppHrRoute
     }
     '/_app/crm/pipeline/$proposalId': {
       id: '/_app/crm/pipeline/$proposalId'
@@ -608,6 +625,34 @@ const AppCrmRouteChildren: AppCrmRouteChildren = {
 const AppCrmRouteWithChildren =
   AppCrmRoute._addFileChildren(AppCrmRouteChildren)
 
+interface AppHrRouteChildren {
+  AppHrAdminRoute: typeof AppHrAdminRoute
+  AppHrBeneficiosRoute: typeof AppHrBeneficiosRoute
+  AppHrDiasUteisRoute: typeof AppHrDiasUteisRoute
+  AppHrFeriasRoute: typeof AppHrFeriasRoute
+  AppHrMinhaFichaRoute: typeof AppHrMinhaFichaRoute
+  AppHrResumoRoute: typeof AppHrResumoRoute
+  AppHrSubsidioAlimentacaoRoute: typeof AppHrSubsidioAlimentacaoRoute
+  AppHrValorBoRoute: typeof AppHrValorBoRoute
+  AppHrIndexRoute: typeof AppHrIndexRoute
+  AppHrColaboradorIdRoute: typeof AppHrColaboradorIdRoute
+}
+
+const AppHrRouteChildren: AppHrRouteChildren = {
+  AppHrAdminRoute: AppHrAdminRoute,
+  AppHrBeneficiosRoute: AppHrBeneficiosRoute,
+  AppHrDiasUteisRoute: AppHrDiasUteisRoute,
+  AppHrFeriasRoute: AppHrFeriasRoute,
+  AppHrMinhaFichaRoute: AppHrMinhaFichaRoute,
+  AppHrResumoRoute: AppHrResumoRoute,
+  AppHrSubsidioAlimentacaoRoute: AppHrSubsidioAlimentacaoRoute,
+  AppHrValorBoRoute: AppHrValorBoRoute,
+  AppHrIndexRoute: AppHrIndexRoute,
+  AppHrColaboradorIdRoute: AppHrColaboradorIdRoute,
+}
+
+const AppHrRouteWithChildren = AppHrRoute._addFileChildren(AppHrRouteChildren)
+
 interface AppProjectsResourcesRouteChildren {
   AppProjectsResourcesResourceIdRoute: typeof AppProjectsResourcesResourceIdRoute
 }
@@ -621,44 +666,26 @@ const AppProjectsResourcesRouteWithChildren =
 
 interface AppRouteChildren {
   AppCrmRoute: typeof AppCrmRouteWithChildren
+  AppHrRoute: typeof AppHrRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
-  AppHrAdminRoute: typeof AppHrAdminRoute
-  AppHrBeneficiosRoute: typeof AppHrBeneficiosRoute
-  AppHrDiasUteisRoute: typeof AppHrDiasUteisRoute
-  AppHrFeriasRoute: typeof AppHrFeriasRoute
-  AppHrMinhaFichaRoute: typeof AppHrMinhaFichaRoute
-  AppHrResumoRoute: typeof AppHrResumoRoute
-  AppHrSubsidioAlimentacaoRoute: typeof AppHrSubsidioAlimentacaoRoute
-  AppHrValorBoRoute: typeof AppHrValorBoRoute
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRoute
   AppProjectsGanttRoute: typeof AppProjectsGanttRoute
   AppProjectsMyTasksRoute: typeof AppProjectsMyTasksRoute
   AppProjectsResourcesRoute: typeof AppProjectsResourcesRouteWithChildren
   AppProjectsTimesheetRoute: typeof AppProjectsTimesheetRoute
-  AppHrIndexRoute: typeof AppHrIndexRoute
   AppProjectsIndexRoute: typeof AppProjectsIndexRoute
-  AppHrColaboradorIdRoute: typeof AppHrColaboradorIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCrmRoute: AppCrmRouteWithChildren,
+  AppHrRoute: AppHrRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
-  AppHrAdminRoute: AppHrAdminRoute,
-  AppHrBeneficiosRoute: AppHrBeneficiosRoute,
-  AppHrDiasUteisRoute: AppHrDiasUteisRoute,
-  AppHrFeriasRoute: AppHrFeriasRoute,
-  AppHrMinhaFichaRoute: AppHrMinhaFichaRoute,
-  AppHrResumoRoute: AppHrResumoRoute,
-  AppHrSubsidioAlimentacaoRoute: AppHrSubsidioAlimentacaoRoute,
-  AppHrValorBoRoute: AppHrValorBoRoute,
   AppProjectsProjectIdRoute: AppProjectsProjectIdRoute,
   AppProjectsGanttRoute: AppProjectsGanttRoute,
   AppProjectsMyTasksRoute: AppProjectsMyTasksRoute,
   AppProjectsResourcesRoute: AppProjectsResourcesRouteWithChildren,
   AppProjectsTimesheetRoute: AppProjectsTimesheetRoute,
-  AppHrIndexRoute: AppHrIndexRoute,
   AppProjectsIndexRoute: AppProjectsIndexRoute,
-  AppHrColaboradorIdRoute: AppHrColaboradorIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
