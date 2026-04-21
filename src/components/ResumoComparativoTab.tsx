@@ -107,6 +107,24 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
     });
   }, [filtered, mealRates]);
 
+  // Comparação global Bruto Anual (todos os colaboradores filtrados).
+  // Quando não há ficha proposta, assume-se o valor actual (sem alteração).
+  const brutoGlobal = useMemo(() => {
+    let actual = 0;
+    let proposto = 0;
+    let comProposta = 0;
+    for (const r of filtered) {
+      const eff = r.effective ? computeSnapshot(r.effective).brutoAnual : 0;
+      const prop = r.proposed ? computeSnapshot(r.proposed).brutoAnual : eff;
+      actual += eff;
+      proposto += prop;
+      if (r.proposed) comProposta += 1;
+    }
+    const delta = proposto - actual;
+    const pct = actual > 0 ? delta / actual : null;
+    return { actual, proposto, delta, pct, comProposta, total: filtered.length };
+  }, [filtered]);
+
   const totals = useMemo(() => {
     let eff = 0;
     let prop = 0;
