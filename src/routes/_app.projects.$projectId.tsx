@@ -557,33 +557,19 @@ function ProjectDetail() {
             )}
 
             {tab === "insights" && (
-              <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <KpiCard
-                  icon={Receipt}
-                  label="Faturado"
-                  value={euros(invoicedTotal)}
-                  hint={`${invoices?.filter((i) => i.status !== "cancelled").length ?? 0} faturas`}
-                />
-                <KpiCard
-                  icon={Clock}
-                  label="Horas registadas"
-                  value={`${totalLoggedHours.toFixed(1)}h`}
-                  hint={`de ${totalPlannedHours.toFixed(0)}h planeadas`}
-                />
-                <KpiCard
-                  icon={UsersIcon}
-                  label="Equipa"
-                  value={`${team.length}`}
-                  hint="alocados"
-                />
-                <KpiCard
-                  icon={TrendingUp}
-                  label="Margem (custo / orç.)"
-                  value={`${Math.round(overall * 100)}%`}
-                  hint={overallOver ? "acima do orçamento" : "dentro do orçamento"}
-                  tone={overallOver ? "danger" : "ok"}
-                />
-              </div>
+              <InsightsPanel
+                stages={stages}
+                invoices={invoices ?? []}
+                invoicedTotal={invoicedTotal}
+                totalBudget={totalBudget}
+                totalCost={totalCost}
+                totalLoggedHours={totalLoggedHours}
+                totalPlannedHours={totalPlannedHours}
+                stageLoggedHours={stageLoggedHours}
+                stagePlannedHours={stagePlannedHours}
+                defaultRates={defaultRates}
+                activities={activities ?? []}
+              />
             )}
 
             {tab === "stream" && (
