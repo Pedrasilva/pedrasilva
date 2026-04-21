@@ -279,7 +279,39 @@ function ProjectDetail() {
 
         {/* Header ------------------------------------------------------- */}
         <div className="mt-3 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-4">
-...
+          <div className="min-w-0">
+            <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+              {project.client ?? "Cliente"} · Projecto
+            </div>
+            <div className="mt-1 flex items-center gap-3">
+              <div
+                className="h-3 w-3 rounded-full"
+                style={{ backgroundColor: project.color }}
+              />
+              <h1 className="font-display text-3xl font-semibold tracking-tight truncate">
+                {project.name}
+              </h1>
+              <StatusBadge status={project.status} />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusToggle current={project.status} onChange={setStatus} />
+            <NewStageDialog
+              projectId={project.id}
+              defaultStart={
+                stages.length
+                  ? format(
+                      addDays(new Date(stages[stages.length - 1].end_date), 1),
+                      "yyyy-MM-dd",
+                    )
+                  : project.start_date
+              }
+              nextOrder={(stages[stages.length - 1]?.sort_order ?? 0) + 1}
+            />
+          </div>
+        </div>
+
         {/* Body 2-col layout ------------------------------------------- */}
         <div
           className={cn(
