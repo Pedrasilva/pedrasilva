@@ -74,14 +74,6 @@ function HubPage() {
     return MODULES.filter((m) => m.anyOf.some((k) => permissions.has(k)));
   }, [isAdmin, permissions]);
 
-  // Se só tem acesso à própria ficha, vai directo para lá.
-  useEffect(() => {
-    if (loading) return;
-    if (!isAdmin && visible.length === 1 && visible[0].to === "/hr") {
-      navigate({ to: "/hr/minha-ficha" });
-    }
-  }, [loading, isAdmin, visible, navigate]);
-
   if (loading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
@@ -105,7 +97,7 @@ function HubPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Ecosistema PSA</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Hub PSA</h1>
         <p className="text-sm text-muted-foreground">
           {isAdmin
             ? "Escolha um módulo. Todos partilham autenticação e dados."
