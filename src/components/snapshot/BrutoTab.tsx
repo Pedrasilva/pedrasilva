@@ -18,7 +18,6 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
   // Parte dos subsídios diluída na base mensal
   const duodecimosMensal = c.baseMensalTributavel - c.base;
   const ssAtelierSobreBase = c.base * draft.ss_atelier_pct;
-  const ssAtelierSobreDuodecimos = duodecimosMensal * draft.ss_atelier_pct;
 
   // Custo bruto da empresa para UM subsídio inteiro (pago em Jun/Nov)
   const custoSubsidioInteiro = c.base + ssAtelierSobreBase;
