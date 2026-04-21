@@ -79,6 +79,8 @@ function CollaboratorPage() {
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState<string>("");
   const [newOpen, setNewOpen] = useState(false);
+  const [dadosOpen, setDadosOpen] = useState(false);
+  const [agregadoOpen, setAgregadoOpen] = useState(false);
   const [newForm, setNewForm] = useState({
     label: "Proposto",
     reference_date: new Date().toISOString().slice(0, 10),
