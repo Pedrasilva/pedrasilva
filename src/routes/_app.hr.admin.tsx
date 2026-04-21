@@ -168,9 +168,12 @@ function AdminPage() {
           <PermissionsMatrix
             users={users}
             isLoading={isLoading}
-            onToggle={(userId, key, granted) =>
-              setPermission.mutate({ userId, key, granted })
-            }
+            onSave={async (changes) => {
+              // changes: { userId, key, granted }[]
+              for (const c of changes) {
+                await setPermission.mutateAsync(c);
+              }
+            }}
           />
         </TabsContent>
 
