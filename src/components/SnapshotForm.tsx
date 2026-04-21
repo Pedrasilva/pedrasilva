@@ -2,18 +2,20 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtEUR, type Collaborator, type Snapshot } from "@/lib/salary";
-import { calcIrs, loadBracketsWithMeta, pickTabela } from "@/lib/irs";
+import { calcIrs, ESTADOS_CIVIS, loadBracketsWithMeta, LOCALIZACOES, pickTabela } from "@/lib/irs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Save, Trash2, Sparkles, Check, Loader2 } from "lucide-react";
+import { Save, Trash2, Sparkles, Check, Loader2, Lock, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { ValueChainSummary } from "./snapshot/ValueChainSummary";
 import { SimulationTab } from "./snapshot/SimulationTab";
@@ -41,7 +43,7 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "dependentes_com_deficiencia", "ano_fiscal",
 ];
 
-export function SnapshotForm({ snapshot, collaborator: _collaborator }: Props) {
+export function SnapshotForm({ snapshot, collaborator }: Props) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Snapshot>(snapshot);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
@@ -225,6 +227,94 @@ export function SnapshotForm({ snapshot, collaborator: _collaborator }: Props) {
       </Card>
 
       <ValueChainSummary c={c} />
+
+      <Card>
+        <CardContent className="pt-6 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Lock className="h-4 w-4 text-[var(--clay)]" />
+              <div>
+                <div className="text-sm font-medium">Agregado familiar (trancado nesta ficha)</div>
+                <div className="text-[11px] text-muted-foreground">
+                  Estes valores são guardados no histórico desta ficha e só mudam aqui.
+                </div>
+              </div>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                set("localizacao", collaborator.localizacao);
+                set("estado_civil", collaborator.estado_civil);
+                set("numero_titulares", collaborator.numero_titulares);
+                set("numero_dependentes", collaborator.numero_dependentes);
+                set("dependentes_com_deficiencia", collaborator.dependentes_com_deficiencia);
+                set("ano_fiscal", collaborator.ano_fiscal);
+              }}
+            >
+              <Copy className="h-3.5 w-3.5" /> Copiar do colaborador
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            <FieldStacked label="Localização">
+              <Select value={draft.localizacao} onValueChange={(v) => set("localizacao", v)}>
+                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {LOCALIZACOES.map((l) => (
+                    <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldStacked>
+            <FieldStacked label="Estado civil">
+              <Select value={draft.estado_civil} onValueChange={(v) => set("estado_civil", v)}>
+                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ESTADOS_CIVIS.map((e) => (
+                    <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldStacked>
+            <FieldStacked label="Nº titulares">
+              <Input
+                type="number" min={1} max={2}
+                className="input-yellow tabular-nums"
+                value={draft.numero_titulares}
+                onChange={(e) => set("numero_titulares", Number(e.target.value) || 1)}
+              />
+            </FieldStacked>
+            <FieldStacked label="Nº dependentes">
+              <Input
+                type="number" min={0}
+                className="input-yellow tabular-nums"
+                value={draft.numero_dependentes}
+                onChange={(e) => set("numero_dependentes", Number(e.target.value) || 0)}
+              />
+            </FieldStacked>
+            <FieldStacked label="Dep. c/ deficiência">
+              <Input
+                type="number" min={0}
+                className="input-yellow tabular-nums"
+                value={draft.dependentes_com_deficiencia}
+                onChange={(e) => set("dependentes_com_deficiencia", Number(e.target.value) || 0)}
+              />
+            </FieldStacked>
+            <FieldStacked label="Ano fiscal">
+              <Input
+                type="number" min={2000} max={2100}
+                className="input-yellow tabular-nums"
+                value={draft.ano_fiscal}
+                onChange={(e) => set("ano_fiscal", Number(e.target.value) || new Date().getFullYear())}
+              />
+            </FieldStacked>
+          </div>
+          <Label className="block text-[11px] text-muted-foreground">
+            Editar o agregado na página do colaborador <strong>não</strong> altera fichas existentes — só fichas novas.
+          </Label>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="pt-6">
