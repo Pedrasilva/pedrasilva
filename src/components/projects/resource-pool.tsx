@@ -3,6 +3,7 @@ import { addDays, format, startOfWeek } from "date-fns";
 import type { Resource } from "@/lib/projects/types";
 import { useAllAllocations } from "@/lib/projects/use-planner";
 import { allocationHours, euros } from "@/lib/projects/gantt-utils";
+import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { AlertTriangle, GripVertical } from "lucide-react";
 
 interface Props {
@@ -73,7 +74,12 @@ export function ResourcePool({ resources }: Props) {
             >
               <div className="flex items-center gap-2">
                 <GripVertical className="h-4 w-4 text-muted-foreground opacity-50 group-hover:opacity-100" />
-                <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: r.color }} />
+                <CollaboratorAvatar
+                  collaboratorId={r.collaborator_id}
+                  name={r.name}
+                  color={r.color}
+                  size={26}
+                />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{r.name}</p>
                   {r.role && <p className="truncate text-[11px] text-muted-foreground">{r.role}</p>}

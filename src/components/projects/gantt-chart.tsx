@@ -13,6 +13,7 @@ import {
 } from "@/lib/projects/use-planner";
 import { AllocationEditor } from "@/components/projects/allocation-editor";
 import { StageDependencyEditor } from "@/components/projects/stage-dependency-editor";
+import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { toast } from "sonner";
 import { Trash2, GripVertical, AlertTriangle } from "lucide-react";
 import { allocationOverload, buildLoadMap, DAILY_LIMIT_HOURS } from "@/lib/projects/overload";
@@ -604,7 +605,12 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                   >
                                     <GripVertical className="h-3 w-3" />
                                   </span>
-                                  <div className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />
+                                  <CollaboratorAvatar
+                                    collaboratorId={a.resource.collaborator_id}
+                                    name={a.resource.name}
+                                    color={color}
+                                    size={18}
+                                  />
                                   <span className="truncate font-medium">{a.resource.name}</span>
                                   <span className="shrink-0 text-[10px] text-muted-foreground">
                                     {Number(a.hours_per_day)}h/d
@@ -653,7 +659,12 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                           <TooltipContent side="top" align="start" className="max-w-xs p-0">
                             <div className="space-y-1.5 p-2.5 text-xs">
                               <div className="flex items-center gap-2 border-b border-border/50 pb-1.5">
-                                <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
+                                <CollaboratorAvatar
+                                  collaboratorId={a.resource.collaborator_id}
+                                  name={a.resource.name}
+                                  color={color}
+                                  size={24}
+                                />
                                 <span className="font-display text-sm font-semibold">{a.resource.name}</span>
                                 {a.resource.role && (
                                   <span className="text-[10px] text-muted-foreground">{a.resource.role}</span>
