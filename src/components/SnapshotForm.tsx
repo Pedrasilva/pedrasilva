@@ -34,6 +34,7 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "irs_calculado_auto", "irs_pct", "valor_base",
   "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos", "subsidios_modo",
   "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual",
+  "subsidio_alimentacao_manual", "subsidio_alimentacao_diario_manual",
   "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios",
 ];
 
