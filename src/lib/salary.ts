@@ -247,5 +247,7 @@ export function defaultSnapshot(
     ano_fiscal: 2026,
     irs_calculado_auto: true,
     subsidios_modo: "tradicional",
+    subsidio_alimentacao_manual: false,
+    subsidio_alimentacao_diario_manual: 0,
   };
 }
