@@ -219,137 +219,163 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         </CardHeader>
       </Card>
 
-      <ValueChainSummary c={c} />
-
       <Card>
-        <CardContent className="pt-6 space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Lock className="h-4 w-4 text-[var(--clay)]" />
-              <div>
-                <div className="text-sm font-medium">Agregado familiar (trancado nesta ficha)</div>
-                <div className="text-[11px] text-muted-foreground">
-                  Estes valores são guardados no histórico desta ficha e só mudam aqui.
-                </div>
-              </div>
-            </div>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                set("localizacao", collaborator.localizacao);
-                set("estado_civil", collaborator.estado_civil);
-                set("numero_titulares", collaborator.numero_titulares);
-                set("numero_dependentes", collaborator.numero_dependentes);
-                set("dependentes_com_deficiencia", collaborator.dependentes_com_deficiencia);
-                set("ano_fiscal", collaborator.ano_fiscal);
-              }}
-            >
-              <Copy className="h-3.5 w-3.5" /> Copiar do colaborador
-            </Button>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            <FieldStacked label="Localização">
-              <Select value={draft.localizacao} onValueChange={(v) => set("localizacao", v)}>
-                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {LOCALIZACOES.map((l) => (
-                    <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FieldStacked>
-            <FieldStacked label="Estado civil">
-              <Select value={draft.estado_civil} onValueChange={(v) => set("estado_civil", v)}>
-                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {ESTADOS_CIVIS.map((e) => (
-                    <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FieldStacked>
-            <FieldStacked label="Nº titulares">
-              <Input
-                type="number" min={1} max={2}
-                className="input-yellow tabular-nums"
-                value={draft.numero_titulares}
-                onChange={(e) => set("numero_titulares", Number(e.target.value) || 1)}
-              />
-            </FieldStacked>
-            <FieldStacked label="Nº dependentes">
-              <Input
-                type="number" min={0}
-                className="input-yellow tabular-nums"
-                value={draft.numero_dependentes}
-                onChange={(e) => set("numero_dependentes", Number(e.target.value) || 0)}
-              />
-            </FieldStacked>
-            <FieldStacked label="Dep. c/ deficiência">
-              <Input
-                type="number" min={0}
-                className="input-yellow tabular-nums"
-                value={draft.dependentes_com_deficiencia}
-                onChange={(e) => set("dependentes_com_deficiencia", Number(e.target.value) || 0)}
-              />
-            </FieldStacked>
-            <FieldStacked label="Ano fiscal">
-              <Input
-                type="number" min={2000} max={2100}
-                className="input-yellow tabular-nums"
-                value={draft.ano_fiscal}
-                onChange={(e) => set("ano_fiscal", Number(e.target.value) || new Date().getFullYear())}
-              />
-            </FieldStacked>
-          </div>
-          <Label className="block text-[11px] text-muted-foreground">
-            Editar o agregado na página do colaborador <strong>não</strong> altera fichas existentes — só fichas novas.
-          </Label>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="pt-6">
-          <div className="rounded-lg border border-[var(--sage)]/30 bg-[color-mix(in_oklab,var(--sage)_6%,transparent)] p-3">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-[var(--sage)]" />
-                <div>
-                  <div className="text-sm font-medium">Cálculo automático de IRS</div>
+        <Collapsible open={contextOpen} onOpenChange={setContextOpen}>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer">
+              <button
+                type="button"
+                className="flex w-full items-center gap-2 text-left"
+                aria-expanded={contextOpen}
+              >
+                <ChevronDown
+                  className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${
+                    contextOpen ? "rotate-0" : "-rotate-90"
+                  }`}
+                />
+                <Layers className="h-4 w-4 text-muted-foreground" />
+                <div className="space-y-0.5">
+                  <div className="text-sm font-medium">Cadeia de valor, agregado familiar e IRS</div>
                   <div className="text-[11px] text-muted-foreground">
-                    Tabela: {TABELA_LABEL[tabela]} · {draft.localizacao} · {irsTableData.resolvedYear ?? draft.ano_fiscal}
-                    {irsTableData.isFallback ? " · fallback automático" : ""}
-                    {" · "}
-                    <span className="italic">contexto trancado na ficha</span>
+                    Resumo da distribuição do custo, contexto fiscal trancado nesta ficha e cálculo automático de IRS.
                   </div>
+                </div>
+              </button>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="space-y-4 pt-0">
+              <ValueChainSummary c={c} />
+
+              <div className="rounded-lg border bg-card">
+                <div className="space-y-3 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <Lock className="h-4 w-4 text-[var(--clay)]" />
+                      <div>
+                        <div className="text-sm font-medium">Agregado familiar (trancado nesta ficha)</div>
+                        <div className="text-[11px] text-muted-foreground">
+                          Estes valores são guardados no histórico desta ficha e só mudam aqui.
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        set("localizacao", collaborator.localizacao);
+                        set("estado_civil", collaborator.estado_civil);
+                        set("numero_titulares", collaborator.numero_titulares);
+                        set("numero_dependentes", collaborator.numero_dependentes);
+                        set("dependentes_com_deficiencia", collaborator.dependentes_com_deficiencia);
+                        set("ano_fiscal", collaborator.ano_fiscal);
+                      }}
+                    >
+                      <Copy className="h-3.5 w-3.5" /> Copiar do colaborador
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                    <FieldStacked label="Localização">
+                      <Select value={draft.localizacao} onValueChange={(v) => set("localizacao", v)}>
+                        <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {LOCALIZACOES.map((l) => (
+                            <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FieldStacked>
+                    <FieldStacked label="Estado civil">
+                      <Select value={draft.estado_civil} onValueChange={(v) => set("estado_civil", v)}>
+                        <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {ESTADOS_CIVIS.map((e) => (
+                            <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FieldStacked>
+                    <FieldStacked label="Nº titulares">
+                      <Input
+                        type="number" min={1} max={2}
+                        className="input-yellow tabular-nums"
+                        value={draft.numero_titulares}
+                        onChange={(e) => set("numero_titulares", Number(e.target.value) || 1)}
+                      />
+                    </FieldStacked>
+                    <FieldStacked label="Nº dependentes">
+                      <Input
+                        type="number" min={0}
+                        className="input-yellow tabular-nums"
+                        value={draft.numero_dependentes}
+                        onChange={(e) => set("numero_dependentes", Number(e.target.value) || 0)}
+                      />
+                    </FieldStacked>
+                    <FieldStacked label="Dep. c/ deficiência">
+                      <Input
+                        type="number" min={0}
+                        className="input-yellow tabular-nums"
+                        value={draft.dependentes_com_deficiencia}
+                        onChange={(e) => set("dependentes_com_deficiencia", Number(e.target.value) || 0)}
+                      />
+                    </FieldStacked>
+                    <FieldStacked label="Ano fiscal">
+                      <Input
+                        type="number" min={2000} max={2100}
+                        className="input-yellow tabular-nums"
+                        value={draft.ano_fiscal}
+                        onChange={(e) => set("ano_fiscal", Number(e.target.value) || new Date().getFullYear())}
+                      />
+                    </FieldStacked>
+                  </div>
+                  <Label className="block text-[11px] text-muted-foreground">
+                    Editar o agregado na página do colaborador <strong>não</strong> altera fichas existentes — só fichas novas.
+                  </Label>
                 </div>
               </div>
-              <Switch checked={draft.irs_calculado_auto}
-                onCheckedChange={(v) => set("irs_calculado_auto", v)} />
-            </div>
-            {draft.irs_calculado_auto && (
-              <>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-center text-[11px] sm:grid-cols-4">
-                  <Mini label="Taxa marginal" value={`${(irsAuto.taxa_marginal * 100).toFixed(1)}%`} />
-                  <Mini label="Parcela a abater" value={fmtEUR(irsAuto.parcela_abater)} />
-                  <Mini label="IRS mensal" value={fmtEUR(irsAuto.irs_mensal)} />
-                  <Mini label="% IRS efectiva" value={`${(irsAuto.irs_pct_efectiva * 100).toFixed(2)}%`} />
+
+              <div className="rounded-lg border border-[var(--sage)]/30 bg-[color-mix(in_oklab,var(--sage)_6%,transparent)] p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-[var(--sage)]" />
+                    <div>
+                      <div className="text-sm font-medium">Cálculo automático de IRS</div>
+                      <div className="text-[11px] text-muted-foreground">
+                        Tabela: {TABELA_LABEL[tabela]} · {draft.localizacao} · {irsTableData.resolvedYear ?? draft.ano_fiscal}
+                        {irsTableData.isFallback ? " · fallback automático" : ""}
+                        {" · "}
+                        <span className="italic">contexto trancado na ficha</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Switch checked={draft.irs_calculado_auto}
+                    onCheckedChange={(v) => set("irs_calculado_auto", v)} />
                 </div>
-                {irsTableData.isFallback && brackets.length > 0 && (
-                  <div className="mt-3 rounded-md border border-[var(--sage)]/40 bg-[color-mix(in_oklab,var(--sage)_8%,transparent)] px-3 py-2 text-[11px] text-[var(--sage)]">
-                    Não existe tabela de retenção IRS carregada para <strong>{draft.ano_fiscal}</strong>. Foi usada automaticamente a tabela mais próxima disponível: <strong>{irsTableData.resolvedYear}</strong>.
-                  </div>
+                {draft.irs_calculado_auto && (
+                  <>
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-center text-[11px] sm:grid-cols-4">
+                      <Mini label="Taxa marginal" value={`${(irsAuto.taxa_marginal * 100).toFixed(1)}%`} />
+                      <Mini label="Parcela a abater" value={fmtEUR(irsAuto.parcela_abater)} />
+                      <Mini label="IRS mensal" value={fmtEUR(irsAuto.irs_mensal)} />
+                      <Mini label="% IRS efectiva" value={`${(irsAuto.irs_pct_efectiva * 100).toFixed(2)}%`} />
+                    </div>
+                    {irsTableData.isFallback && brackets.length > 0 && (
+                      <div className="mt-3 rounded-md border border-[var(--sage)]/40 bg-[color-mix(in_oklab,var(--sage)_8%,transparent)] px-3 py-2 text-[11px] text-[var(--sage)]">
+                        Não existe tabela de retenção IRS carregada para <strong>{draft.ano_fiscal}</strong>. Foi usada automaticamente a tabela mais próxima disponível: <strong>{irsTableData.resolvedYear}</strong>.
+                      </div>
+                    )}
+                    {brackets.length === 0 && (
+                      <div className="mt-3 rounded-md border border-[var(--clay)]/40 bg-[color-mix(in_oklab,var(--clay)_8%,transparent)] px-3 py-2 text-[11px] text-[var(--clay)]">
+                        Não há tabela de retenção IRS carregada para {draft.localizacao} · {TABELA_LABEL[tabela]}. Os valores aparecem a zero até existirem tabelas disponíveis.
+                      </div>
+                    )}
+                  </>
                 )}
-                {brackets.length === 0 && (
-                  <div className="mt-3 rounded-md border border-[var(--clay)]/40 bg-[color-mix(in_oklab,var(--clay)_8%,transparent)] px-3 py-2 text-[11px] text-[var(--clay)]">
-                    Não há tabela de retenção IRS carregada para {draft.localizacao} · {TABELA_LABEL[tabela]}. Os valores aparecem a zero até existirem tabelas disponíveis.
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </CardContent>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
       </Card>
 
       <Tabs defaultValue="simulacao">
