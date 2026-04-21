@@ -1477,6 +1477,8 @@ export type Database = {
           ss_atelier_pct: number
           ss_colaborador_pct: number
           subsidio_alimentacao_diario: number
+          subsidio_alimentacao_diario_manual: number
+          subsidio_alimentacao_manual: boolean
           subsidios_modo: Database["public"]["Enums"]["subsidios_modo"]
           updated_at: string
           valor_base: number
@@ -1507,6 +1509,8 @@ export type Database = {
           ss_atelier_pct?: number
           ss_colaborador_pct?: number
           subsidio_alimentacao_diario?: number
+          subsidio_alimentacao_diario_manual?: number
+          subsidio_alimentacao_manual?: boolean
           subsidios_modo?: Database["public"]["Enums"]["subsidios_modo"]
           updated_at?: string
           valor_base?: number
@@ -1537,6 +1541,8 @@ export type Database = {
           ss_atelier_pct?: number
           ss_colaborador_pct?: number
           subsidio_alimentacao_diario?: number
+          subsidio_alimentacao_diario_manual?: number
+          subsidio_alimentacao_manual?: boolean
           subsidios_modo?: Database["public"]["Enums"]["subsidios_modo"]
           updated_at?: string
           valor_base?: number
