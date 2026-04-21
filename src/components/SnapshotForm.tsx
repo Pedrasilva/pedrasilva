@@ -34,6 +34,7 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "irs_calculado_auto", "irs_pct", "valor_base",
   "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos", "subsidios_modo",
   "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual",
+  "subsidio_alimentacao_manual", "subsidio_alimentacao_diario_manual",
   "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios",
 ];
 
@@ -89,6 +90,10 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     [draft.valor_base, collaborator.numero_dependentes, brackets],
   );
 
+  const effectiveMealDaily = draft.subsidio_alimentacao_manual
+    ? Number(draft.subsidio_alimentacao_diario_manual) || 0
+    : mealDaily;
+
   const draftEffective = useMemo<Snapshot>(
     () => ({
       ...draft,
@@ -99,9 +104,9 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       dependentes_com_deficiencia: collaborator.dependentes_com_deficiencia,
       ano_fiscal: collaborator.ano_fiscal,
       irs_pct: draft.irs_calculado_auto ? irsAuto.irs_pct_efectiva : draft.irs_pct,
-      subsidio_alimentacao_diario: mealDaily,
+      subsidio_alimentacao_diario: effectiveMealDaily,
     }),
-    [draft, collaborator, irsAuto.irs_pct_efectiva, mealDaily],
+    [draft, collaborator, irsAuto.irs_pct_efectiva, effectiveMealDaily],
   );
 
   const c = computeSnapshot(draftEffective);
@@ -120,7 +125,9 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         ss_colaborador_pct: Number(draft.ss_colaborador_pct) || 0,
         meses_pagos: Number(draft.meses_pagos) || 14,
         subsidios_modo: draft.subsidios_modo ?? "tradicional",
-        subsidio_alimentacao_diario: mealDaily,
+        subsidio_alimentacao_diario: effectiveMealDaily,
+        subsidio_alimentacao_manual: draft.subsidio_alimentacao_manual,
+        subsidio_alimentacao_diario_manual: Number(draft.subsidio_alimentacao_diario_manual) || 0,
         dias_uteis: Number(draft.dias_uteis) || 0,
         ajudas_custo_anual: Number(draft.ajudas_custo_anual) || 0,
         beneficio_carro: Number(draft.beneficio_carro) || 0,
