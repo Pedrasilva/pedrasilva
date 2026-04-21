@@ -10,12 +10,13 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Save, Trash2, Sparkles, Check, Loader2, Lock, Copy } from "lucide-react";
+import { Save, Trash2, Sparkles, Check, Loader2, Lock, Copy, ChevronDown, Layers } from "lucide-react";
 import { toast } from "sonner";
 import { ValueChainSummary } from "./snapshot/ValueChainSummary";
 import { SimulationTab } from "./snapshot/SimulationTab";
