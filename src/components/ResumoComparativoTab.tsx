@@ -191,6 +191,69 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
         </CardContent>
       </Card>
 
+      <Card className="border-primary">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Bruto anual global — Actual vs Proposto</CardTitle>
+          <CardDescription>
+            Soma do bruto anual de todos os colaboradores ({brutoGlobal.comProposta} de{" "}
+            {brutoGlobal.total} com ficha proposta). Quem não tem proposta conta com o valor actual.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <div className="text-xs text-muted-foreground">Bruto anual actual</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">
+                {fmtEUR(brutoGlobal.actual)}
+              </div>
+            </div>
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <div className="text-xs text-muted-foreground">Bruto anual proposto</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">
+                {fmtEUR(brutoGlobal.proposto)}
+              </div>
+            </div>
+            <div
+              className={
+                "rounded-lg border p-3 " +
+                (brutoGlobal.delta > 0
+                  ? "border-negative/40 bg-negative/5"
+                  : brutoGlobal.delta < 0
+                    ? "border-positive/40 bg-positive/5"
+                    : "bg-muted/30")
+              }
+            >
+              <div className="text-xs text-muted-foreground">Custo adicional anual</div>
+              <div
+                className={
+                  "mt-1 text-2xl font-semibold tabular-nums " +
+                  (brutoGlobal.delta > 0
+                    ? "text-negative"
+                    : brutoGlobal.delta < 0
+                      ? "text-positive"
+                      : "")
+                }
+              >
+                {(brutoGlobal.delta > 0 ? "+" : "") + fmtEUR(brutoGlobal.delta)}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                {brutoGlobal.pct == null
+                  ? "—"
+                  : (brutoGlobal.delta > 0 ? "+" : "") +
+                    new Intl.NumberFormat("pt-PT", {
+                      style: "percent",
+                      maximumFractionDigits: 2,
+                    }).format(brutoGlobal.pct) + " vs actual"}
+              </div>
+            </div>
+          </div>
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            Equivalente mensal: {(brutoGlobal.delta > 0 ? "+" : "") + fmtEUR(brutoGlobal.delta / 12)} /
+            mês
+          </p>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardContent className="p-0">
           <Table>
