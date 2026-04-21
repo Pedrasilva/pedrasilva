@@ -260,48 +260,6 @@ function DashboardPage() {
                 className="w-72 rounded-md border border-border bg-card py-1.5 pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
               />
             </div>
-            <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
-              <Link
-                to="/projects"
-                title="New project"
-                aria-label="New project"
-                className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground transition hover:opacity-90"
-              >
-                <Plus className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/projects/timesheet"
-                title="Log time"
-                aria-label="Log time"
-                className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition hover:bg-accent hover:text-foreground"
-              >
-                <Clock className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/projects/gantt"
-                title="Global Gantt"
-                aria-label="Global Gantt"
-                className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition hover:bg-accent hover:text-foreground"
-              >
-                <Briefcase className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/projects/timesheet"
-                title="Schedule"
-                aria-label="Schedule"
-                className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition hover:bg-accent hover:text-foreground"
-              >
-                <CalendarDays className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/projects/my-tasks"
-                title="Inbox"
-                aria-label="Inbox"
-                className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition hover:bg-accent hover:text-foreground"
-              >
-                <Inbox className="h-4 w-4" />
-              </Link>
-            </div>
           </div>
         </div>
 

@@ -2,29 +2,16 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Compass,
   Users,
-  ListChecks,
-  LogOut,
-  Clock,
-  Plus,
-  Eye,
-  Timer,
   LayoutGrid,
-  CalendarDays,
-  Calendar,
   ChevronDown,
   GanttChartSquare,
   FolderKanban,
-  Briefcase,
-  Inbox,
   ArrowLeft,
 } from "lucide-react";
-import { useProjectsAuth } from "@/lib/projects/use-auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -34,14 +21,7 @@ interface Props {
 }
 
 export function AppShell({ children, active }: Props) {
-  const { user, profile, isAdmin, signOut } = useProjectsAuth();
   const navigate = useNavigate();
-  const initials = (profile?.full_name || user?.email || "?")
-    .split(/\s+|@/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((s) => s[0]?.toUpperCase() ?? "")
-    .join("");
 
   return (
     <div className="-mx-4 -my-6 min-h-[calc(100vh-3.5rem)] bg-background text-foreground sm:-mx-6">
