@@ -30,6 +30,9 @@ export type Snapshot = {
   irs_calculado_auto: boolean;
   // Regime de pagamento dos subsídios de férias e Natal
   subsidios_modo: SubsidiosModo;
+  // Override manual do subsídio de alimentação (em vez de usar a tabela anual)
+  subsidio_alimentacao_manual: boolean;
+  subsidio_alimentacao_diario_manual: number;
 };
 
 export type SubsidiosModo = "tradicional" | "duodecimos_50" | "duodecimos_100";
