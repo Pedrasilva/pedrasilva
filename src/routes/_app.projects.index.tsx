@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { startOfWeek, endOfWeek, isWithinInterval, parseISO, differenceInCalendarDays } from "date-fns";
@@ -46,6 +46,7 @@ function useAllInvoices() {
 }
 
 function DashboardPage() {
+  const navigate = useNavigate();
   const { data: projects, isLoading: pLoading } = useProjects();
   const { data: allStages, isLoading: sLoading } = useAllStages();
   const { data: resources } = useResources();
@@ -307,7 +308,11 @@ function DashboardPage() {
         <KpiStrip data={kpi} loading={sLoading} />
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.6fr_1fr]">
-          <ProjectScorecard rows={scorecardRows} loading={pLoading || sLoading} />
+          <ProjectScorecard
+            rows={scorecardRows}
+            loading={pLoading || sLoading}
+            onOpenProject={(id) => navigate({ to: "/projects/$projectId", params: { projectId: id } })}
+          />
           <ProjectValueChart
             projects={filteredProjects}
             stages={allStages ?? []}
