@@ -205,6 +205,7 @@ export type Database = {
           dias_ferias_extra: number
           email: string | null
           estado_civil: string
+          foto_path: string | null
           id: string
           inicio_carreira: string | null
           localizacao: string
@@ -227,6 +228,7 @@ export type Database = {
           dias_ferias_extra?: number
           email?: string | null
           estado_civil?: string
+          foto_path?: string | null
           id?: string
           inicio_carreira?: string | null
           localizacao?: string
@@ -249,6 +251,7 @@ export type Database = {
           dias_ferias_extra?: number
           email?: string | null
           estado_civil?: string
+          foto_path?: string | null
           id?: string
           inicio_carreira?: string | null
           localizacao?: string
