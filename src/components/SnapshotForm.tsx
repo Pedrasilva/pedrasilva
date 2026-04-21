@@ -15,7 +15,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Save, Trash2, Sparkles, Check, Loader2 } from "lucide-react";
+import { Save, Trash2, Sparkles, Check, Loader2, Lock, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { ValueChainSummary } from "./snapshot/ValueChainSummary";
 import { SimulationTab } from "./snapshot/SimulationTab";
