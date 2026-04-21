@@ -35,6 +35,10 @@ import {
   Shield,
   User as UserIcon,
   Utensils,
+  FolderKanban,
+  GanttChartSquare,
+  LayoutGrid,
+  ChevronDown,
 } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
