@@ -39,9 +39,14 @@ import {
 import { Plus, ChevronRight, Briefcase, Building2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { toast } from "sonner";
 import type { Collaborator } from "@/lib/salary";
+import { PermissionGate } from "@/components/PermissionGate";
 
 export const Route = createFileRoute("/_app/hr/")({
-  component: ListPage,
+  component: () => (
+    <PermissionGate permission="hr.colaboradores">
+      <ListPage />
+    </PermissionGate>
+  ),
 });
 
 function ListPage() {
