@@ -49,6 +49,7 @@ function AppLayout() {
   const loc = useLocation();
   const navigate = useNavigate();
   const { session, loading, isAdmin, isRealAdmin, viewAsUser, setViewAsUser, user, signOut } = useAuth();
+  const { permissions } = useMyPermissions();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -68,51 +69,52 @@ function AppLayout() {
     );
   }
 
+  const can = (key: PermissionKey) => isAdmin || permissions.has(key);
+
   const items = [
     {
       to: "/" as const,
       label: "Hub",
       icon: Users,
       match: (p: string) => p === "/",
-      adminOnly: true,
+      show: isAdmin,
     },
     {
       to: "/hr/minha-ficha" as const,
       label: "Minha ficha",
       icon: UserIcon,
       match: (p: string) => p.startsWith("/hr/minha-ficha"),
-      adminOnly: false,
+      show: can("hr.minha-ficha"),
     },
     {
       to: "/hr/ferias" as const,
       label: "Férias",
       icon: CalendarDays,
       match: (p: string) => p.startsWith("/hr/ferias"),
-      adminOnly: false,
+      show: can("hr.ferias.own"),
     },
     {
       to: "/hr/beneficios" as const,
       label: "Benefícios",
       icon: Wallet,
       match: (p: string) => p.startsWith("/hr/beneficios"),
-      adminOnly: false,
+      show: can("hr.beneficios.own"),
     },
     {
       to: "/hr" as const,
       label: "Colaboradores",
       icon: Users,
-      // /hr (sem /minha-ficha, /ferias…) e /hr/colaborador/*
       match: (p: string) =>
         p === "/hr" ||
         p.startsWith("/hr/colaborador"),
-      adminOnly: true,
+      show: can("hr.colaboradores"),
     },
     {
       to: "/hr/resumo" as const,
       label: "Resumo comparativo",
       icon: BarChart3,
       match: (p: string) => p.startsWith("/hr/resumo"),
-      adminOnly: true,
+      show: isAdmin,
     },
   ] as const;
 
@@ -123,7 +125,7 @@ function AppLayout() {
     { to: "/hr/subsidio-alimentacao" as const, label: "Subsídio alimentação", icon: Utensils, match: (p: string) => p.startsWith("/hr/subsidio-alimentacao") },
   ] as const;
 
-  const visible = items.filter((it) => !it.adminOnly || isAdmin);
+  const visible = items.filter((it) => it.show);
   const settingsActive = isAdmin && settingsItems.some((s) => s.match(loc.pathname));
   // Cabeçalho/nav de HR só aparece nas rotas /hr.
   const isHrArea = loc.pathname.startsWith("/hr");
