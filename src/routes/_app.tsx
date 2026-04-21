@@ -48,8 +48,7 @@ export const Route = createFileRoute("/_app")({
 function AppLayout() {
   const loc = useLocation();
   const navigate = useNavigate();
-  const { session, loading, isAdmin, isRealAdmin, viewAsUser: _viewAsUser, setViewAsUser: _setViewAsUser, user, signOut } = useAuth();
-  void _viewAsUser; void _setViewAsUser;
+  const { session, loading, isAdmin, isRealAdmin, viewAsUser, setViewAsUser, user, signOut } = useAuth();
   const { permissions } = useMyPermissions();
   const [mobileOpen, setMobileOpen] = useState(false);
 
