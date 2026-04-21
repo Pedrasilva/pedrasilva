@@ -19,6 +19,7 @@ export type Snapshot = {
   beneficio_ticket: number;
   premio_associado: number;
   outros_beneficios: number;
+  beneficio_variavel: number;
   notas: string | null;
   // v2 — agregado familiar e cálculo automático IRS
   localizacao: string;
@@ -144,7 +145,7 @@ export function computeSnapshot(s: Snapshot) {
 
   // Bloco 4 — Benefícios
   const beneficiosAnual =
-    s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios;
+    s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios + (s.beneficio_variavel ?? 0);
   const beneficiosMensal = beneficiosAnual / 12;
 
   // Resumo Bruto
@@ -154,7 +155,7 @@ export function computeSnapshot(s: Snapshot) {
   const brutoMensal = baseMensal12 + ssAtelier12 + alimentacaoMensal + ajudasMensal;
   // D41 = C41*12 + D37 (inclui benefícios anuais — alinhado com Excel original)
   const beneficiosAnualTmp =
-    s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios;
+    s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios + (s.beneficio_variavel ?? 0);
   const brutoAnual = brutoMensal * 12 + beneficiosAnualTmp;
 
   // Líquido total mensal (líquido + alimentação + ajudas)
@@ -238,6 +239,7 @@ export function defaultSnapshot(
     beneficio_ticket: 0,
     premio_associado: 0,
     outros_beneficios: 0,
+    beneficio_variavel: 0,
     notas: null,
     localizacao: "continente",
     estado_civil: "solteiro",

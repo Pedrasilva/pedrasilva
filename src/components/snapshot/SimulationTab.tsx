@@ -159,6 +159,9 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
           <FieldRow label="Outros">
             <NumIn value={draft.outros_beneficios} onChange={(n) => set("outros_beneficios", n)} />
           </FieldRow>
+          <FieldRow label="Variável">
+            <NumIn value={draft.beneficio_variavel ?? 0} onChange={(n) => set("beneficio_variavel", n)} />
+          </FieldRow>
           <CalcRow label="Total anual" value={fmtEUR(c.beneficiosAnual)} />
         </CardContent>
       </Card>
