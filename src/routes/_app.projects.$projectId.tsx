@@ -1229,6 +1229,8 @@ function InsightsPanel({
       byRes.set(key, existing);
     }
   }
+  // Track per-resource logged cost (so totalCost reflects actual work done)
+  const loggedCostByRes = new Map<string, number>();
   for (const s of stages) {
     const planned = s.allocations.map((a) => ({
       id: a.resource.id,
@@ -1237,6 +1239,8 @@ function InsightsPanel({
         end_date: a.end_date,
         hours_per_day: Number(a.hours_per_day),
       }),
+      costRate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates),
+      saleRate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates),
     }));
     const totPlan = planned.reduce((x, y) => x + y.h, 0);
     const logged = stageLoggedHours(s.id);
@@ -1244,25 +1248,35 @@ function InsightsPanel({
     for (const p of planned) {
       const agg = byRes.get(p.id);
       if (!agg) continue;
-      agg.loggedHours += (p.h / totPlan) * logged;
+      const share = (p.h / totPlan) * logged;
+      agg.loggedHours += share;
+      loggedCostByRes.set(p.id, (loggedCostByRes.get(p.id) ?? 0) + share * p.costRate);
     }
   }
   const resources = Array.from(byRes.values()).sort(
     (a, b) => b.plannedHours - a.plannedHours,
   );
 
+  // Value = sum over resources of (logged hours × default sale rate)
+  // Cost = sum over resources of (logged hours × default cost rate)
+  // Profit = budget − cost (per user spec)
+  const earnedValue = resources.reduce((acc, r) => {
+    const saleRate = r.plannedHours > 0 ? r.plannedSale / r.plannedHours : 0;
+    return acc + r.loggedHours * saleRate;
+  }, 0);
+  const loggedCost = Array.from(loggedCostByRes.values()).reduce((a, b) => a + b, 0);
   const totalSale = resources.reduce((a, r) => a + r.plannedSale, 0);
-  const earnedValue = invoicedTotal;
   const forecastValue = totalSale > 0 ? totalSale : earnedValue;
   const earnedPct = forecastValue > 0 ? earnedValue / forecastValue : 0;
   const forecastPct = forecastValue > 0 ? 1 : 0;
 
-  const profitCurrent = earnedValue - totalCost;
-  const profitForecast = forecastValue - totalCost;
+  // Profit = budget − costs (current uses logged cost; forecast uses planned cost)
+  const profitCurrent = totalBudget - loggedCost;
+  const profitForecast = totalBudget - totalCost;
   const profitCurPct =
-    earnedValue > 0 ? Math.round((profitCurrent / earnedValue) * 100) : 0;
+    totalBudget > 0 ? Math.round((profitCurrent / totalBudget) * 100) : 0;
   const profitForePct =
-    forecastValue > 0 ? Math.round((profitForecast / forecastValue) * 100) : 0;
+    totalBudget > 0 ? Math.round((profitForecast / totalBudget) * 100) : 0;
 
   const wipHours = Math.max(0, totalPlannedHours - totalLoggedHours);
   const workDonePct =
@@ -1298,8 +1312,8 @@ function InsightsPanel({
   const services = {
     budget: totalBudget,
     value: earnedValue,
-    cost: totalCost,
-    profit: earnedValue - totalCost,
+    cost: loggedCost,
+    profit: totalBudget - loggedCost,
     invoiced: invoicedTotal,
   };
   const empty = { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 };
