@@ -129,6 +129,9 @@ function AppLayout() {
   const settingsActive = isRealAdmin && settingsItems.some((s) => s.match(loc.pathname));
   // Cabeçalho/nav de HR só aparece nas rotas /hr.
   const isHrArea = loc.pathname.startsWith("/hr");
+  // No bloco Projects também escondemos a nav HR (tem a sua própria shell).
+  const isProjectsArea = loc.pathname.startsWith("/projects");
+  const hideHrNav = isHrArea || isProjectsArea;
   // Quick Create só em CRM e Projects.
   const showQuickCreate = loc.pathname.startsWith("/crm") || loc.pathname.startsWith("/projects");
 
