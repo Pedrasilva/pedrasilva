@@ -206,7 +206,22 @@
 .bg-budget { background-color: var(--color-budget); }
 .font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+}
+
+/* Homepage editorial — fontes inspiradas em pedrasilva.com
+   (Signifier → Fraunces, The Future → Manrope) */
+.psa-editorial {
+  font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  letter-spacing: -0.005em;
+}
+.psa-editorial .font-display,
+.psa-editorial h1,
+.psa-editorial h2 {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
 }
 
 @layer base {
