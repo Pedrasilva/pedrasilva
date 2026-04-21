@@ -996,7 +996,7 @@ function BalanceField({
 }: {
   label: string;
   value: number;
-  onSave: (v: number) => void | Promise<void>;
+  onSave: (v: number) => unknown;
 }) {
   const [v, setV] = useState(String(value));
   return (
@@ -1031,8 +1031,8 @@ function YearCreditRow({
   ano: number;
   credits: BenefitYearlyCredit[];
   fichaBudgets: Record<BenefitCategory, number> | null;
-  onSave: (cat: BenefitCategory, valor: number) => void | Promise<void>;
-  onRemove: (id: string) => void | Promise<void>;
+  onSave: (cat: BenefitCategory, valor: number) => unknown;
+  onRemove: (id: string) => unknown;
 }) {
   const byCat = useMemo(() => {
     const m = {} as Record<BenefitCategory, BenefitYearlyCredit | undefined>;
