@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtEUR, type Collaborator, type Snapshot } from "@/lib/salary";
@@ -154,16 +154,6 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     onError: (e: Error) => toast.error(`Erro a guardar: ${e.message}`),
   });
 
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => {
-    if (!isDirty || save.isPending) return;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => save.mutate(), 1000);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [draft, isDirty]);
-
   const remove = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from("salary_snapshots").delete().eq("id", snapshot.id);
@@ -203,9 +193,9 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
             </FieldStacked>
           </div>
           <div className="flex items-center gap-2">
-            <SaveStatus isDirty={isDirty} isSaving={save.isPending} lastSavedAt={lastSavedAt} />
+              <SaveStatus isDirty={isDirty} isSaving={save.isPending} lastSavedAt={lastSavedAt} />
             <Button onClick={() => save.mutate()} disabled={save.isPending || !isDirty}>
-              <Save className="h-4 w-4" /> Guardar
+              <Save className="h-4 w-4" /> Guardar ficha
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -400,7 +390,7 @@ function SaveStatus({
   }
   if (isDirty) {
     return (
-      <span className="text-[11px] text-[var(--clay)]">Alterações por guardar…</span>
+      <span className="text-[11px] text-[var(--clay)]">Alterações por guardar — clique em Guardar ficha</span>
     );
   }
   if (lastSavedAt) {
