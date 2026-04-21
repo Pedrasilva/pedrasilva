@@ -35,6 +35,33 @@ export function QuickCreateMenu() {
 
   return (
     <>
+      {/* Botão de tempo (relógio) */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            size="icon"
+            variant="secondary"
+            className="ml-1 h-9 w-9"
+            aria-label="Registar tempo"
+            title="Tempo"
+          >
+            <Clock className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-52">
+          <DropdownMenuLabel className="bg-primary/10 text-primary -mx-1 -mt-1 mb-1 rounded-sm px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider">
+            Tempo
+          </DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setSheet("logTime")} className="gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" /> Registar tempo
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("startTimer")} className="gap-2">
+            <Play className="h-4 w-4 text-muted-foreground" /> Iniciar timer
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Botão de criar (+) */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -51,13 +78,6 @@ export function QuickCreateMenu() {
           <DropdownMenuLabel className="bg-primary/10 text-primary -mx-1 -mt-1 mb-1 rounded-sm px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider">
             Criar
           </DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => setSheet("logTime")} className="gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground" /> Registar tempo
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSheet("startTimer")} className="gap-2">
-            <Play className="h-4 w-4 text-muted-foreground" /> Iniciar timer
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setSheet("task")} className="gap-2">
             <CheckSquare className="h-4 w-4 text-muted-foreground" /> Tarefa
           </DropdownMenuItem>
