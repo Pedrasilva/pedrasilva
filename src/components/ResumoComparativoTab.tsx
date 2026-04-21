@@ -226,6 +226,77 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
 
       <Card className="border-primary">
         <CardHeader className="pb-3">
+          <CardTitle className="text-base">Valor base global — Actual vs Proposto</CardTitle>
+          <CardDescription>
+            Soma do vencimento base de todos os colaboradores ({valorBaseGlobal.comProposta} de{" "}
+            {valorBaseGlobal.total} com ficha proposta). Quem não tem proposta conta com o valor
+            actual. Anual = base × 14 meses.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <div className="text-xs text-muted-foreground">Base mensal — actual</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">
+                {fmtEUR(valorBaseGlobal.actualMensal)}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Anual: {fmtEUR(valorBaseGlobal.actualAnual)}
+              </div>
+            </div>
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <div className="text-xs text-muted-foreground">Base mensal — proposto</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">
+                {fmtEUR(valorBaseGlobal.propostoMensal)}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Anual: {fmtEUR(valorBaseGlobal.propostoAnual)}
+              </div>
+            </div>
+            <div
+              className={
+                "rounded-lg border p-3 " +
+                (valorBaseGlobal.deltaMensal > 0
+                  ? "border-negative/40 bg-negative/5"
+                  : valorBaseGlobal.deltaMensal < 0
+                    ? "border-positive/40 bg-positive/5"
+                    : "bg-muted/30")
+              }
+            >
+              <div className="text-xs text-muted-foreground">Aumento mensal</div>
+              <div
+                className={
+                  "mt-1 text-2xl font-semibold tabular-nums " +
+                  (valorBaseGlobal.deltaMensal > 0
+                    ? "text-negative"
+                    : valorBaseGlobal.deltaMensal < 0
+                      ? "text-positive"
+                      : "")
+                }
+              >
+                {(valorBaseGlobal.deltaMensal > 0 ? "+" : "") + fmtEUR(valorBaseGlobal.deltaMensal)}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Anual (×14):{" "}
+                {(valorBaseGlobal.deltaAnual > 0 ? "+" : "") + fmtEUR(valorBaseGlobal.deltaAnual)}
+                {valorBaseGlobal.pct != null && (
+                  <>
+                    {" · "}
+                    {(valorBaseGlobal.deltaMensal > 0 ? "+" : "") +
+                      new Intl.NumberFormat("pt-PT", {
+                        style: "percent",
+                        maximumFractionDigits: 2,
+                      }).format(valorBaseGlobal.pct)}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-primary">
+        <CardHeader className="pb-3">
           <CardTitle className="text-base">Bruto anual global — Actual vs Proposto</CardTitle>
           <CardDescription>
             Soma do bruto anual de todos os colaboradores ({brutoGlobal.comProposta} de{" "}
