@@ -198,6 +198,26 @@ function ProjectDetail() {
   const stageLoggedHours = (stageId: string) =>
     timeRows?.find((r) => r.stage_id === stageId)?.hours ?? 0;
 
+  // Logged (actual) cost per stage: distributes the stage's logged hours across
+  // its allocations proportionally to planned hours, then × each resource cost rate.
+  const stageLoggedCost = (stageId: string) => {
+    const s = stages.find((x) => x.id === stageId);
+    if (!s) return 0;
+    const logged = stageLoggedHours(stageId);
+    if (logged <= 0) return 0;
+    const planned = s.allocations.map((a) => ({
+      h: allocationHours({
+        start_date: a.start_date,
+        end_date: a.end_date,
+        hours_per_day: Number(a.hours_per_day),
+      }),
+      costRate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates),
+    }));
+    const totPlan = planned.reduce((x, y) => x + y.h, 0);
+    if (totPlan <= 0) return 0;
+    return planned.reduce((acc, p) => acc + (p.h / totPlan) * logged * p.costRate, 0);
+  };
+
   const totalCost = stages.reduce((acc, s) => acc + stageCost(s.id), 0);
   const totalLoggedHours = stages.reduce(
     (acc, s) => acc + stageLoggedHours(s.id),
@@ -485,6 +505,7 @@ function ProjectDetail() {
                   invoiced={invoicedTotal}
                   totalBudget={totalBudget}
                   stageCost={stageCost}
+                  stageLoggedCost={stageLoggedCost}
                   stageLoggedHours={stageLoggedHours}
                   stagePlannedHours={stagePlannedHours}
                   defaultRates={defaultRates}
@@ -898,6 +919,7 @@ function KpiCard({
 function MilestonesTable({
   stages,
   stageCost,
+  stageLoggedCost,
   stageLoggedHours,
   stagePlannedHours,
   defaultRates,
@@ -910,6 +932,7 @@ function MilestonesTable({
   invoiced: number;
   totalBudget: number;
   stageCost: (id: string) => number;
+  stageLoggedCost: (id: string) => number;
   stageLoggedHours: (id: string) => number;
   stagePlannedHours: (id: string) => number;
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
@@ -1017,14 +1040,16 @@ function MilestonesTable({
           </thead>
           <tbody>
             {filtered.map((s, i) => {
-              const cost = stageCost(s.id);
+              const plannedCost = stageCost(s.id);
+              const cost = stageLoggedCost(s.id);
               const budget = Number(s.budget);
               const over = cost > budget && budget > 0;
               const logged = stageLoggedHours(s.id);
               const planned = stagePlannedHours(s.id);
-              const evPct = planned > 0 ? Math.min(1, logged / planned) : 0;
+              const evPct = budget > 0 ? Math.min(1, cost / budget) : 0;
               const isOpen = expanded.has(s.id);
               const isActive = s.allocations.length > 0;
+              void plannedCost;
               return (
                 <Fragment key={s.id}>
                   <tr className="border-b border-border bg-muted/20 hover:bg-muted/30">
