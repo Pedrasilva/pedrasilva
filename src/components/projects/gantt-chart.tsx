@@ -583,7 +583,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                 })
                               }
                             >
-                              <div className="flex h-full items-center justify-between gap-1 overflow-hidden px-2 text-xs">
+                              <div className="flex h-full items-center justify-between gap-1 px-2 text-xs">
                                 <div className="flex min-w-0 items-center gap-2">
                                   <span
                                     draggable
@@ -605,12 +605,14 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                   >
                                     <GripVertical className="h-3 w-3" />
                                   </span>
-                                  <CollaboratorAvatar
-                                    collaboratorId={a.resource.collaborator_id}
-                                    name={a.resource.name}
-                                    color={color}
-                                    size={18}
-                                  />
+                                  <span className="shrink-0 -my-2 rounded-full ring-2 ring-background shadow-sm">
+                                    <CollaboratorAvatar
+                                      collaboratorId={a.resource.collaborator_id}
+                                      name={a.resource.name}
+                                      color={color}
+                                      size={36}
+                                    />
+                                  </span>
                                   <span className="truncate font-medium">{a.resource.name}</span>
                                   <span className="shrink-0 text-[10px] text-muted-foreground">
                                     {Number(a.hours_per_day)}h/d
