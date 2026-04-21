@@ -1334,11 +1334,16 @@ function InsightsPanel({
   const maxAct = Math.max(1, ...months.map((m) => m.activities));
   const maxHours = Math.max(1, ...months.map((m) => m.hours));
 
+  // Financials box (planned / forecast view):
+  //   Value  = Σ planned hours × default sale rate (per resource)
+  //   Costs  = Σ planned hours × default cost rate (per resource) = totalCost
+  //   Profit = Budget − Costs
+  const plannedValue = resources.reduce((a, r) => a + r.plannedSale, 0);
   const services = {
     budget: totalBudget,
-    value: earnedValue,
-    cost: loggedCost,
-    profit: totalBudget - loggedCost,
+    value: plannedValue,
+    cost: totalCost,
+    profit: totalBudget - totalCost,
     invoiced: invoicedTotal,
   };
   const empty = { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 };
