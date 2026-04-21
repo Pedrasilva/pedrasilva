@@ -15,6 +15,10 @@ export type IrsBracket = {
   taxa: number;
   parcela_abater: number;
   parcela_adicional_por_dependente: number;
+  // Fórmula dinâmica (Despacho 233-A/2026): quando ambos estão preenchidos,
+  // parcela a abater = taxa × formula_factor × (formula_constante − R).
+  formula_factor?: number | null;
+  formula_constante?: number | null;
 };
 
 export type IrsContexto = {
@@ -149,11 +153,16 @@ export function calcIrs(
   if (!b) {
     return { taxa_marginal: 0, parcela_abater: 0, parcela_adicional: 0, irs_mensal: 0, irs_pct_efectiva: 0 };
   }
+  // Parcela a abater: dinâmica (Despacho 233-A/2026, 2.º e 3.º escalão) ou fixa.
+  const parcela_abater_efectiva =
+    b.formula_factor != null && b.formula_constante != null
+      ? b.taxa * b.formula_factor * (b.formula_constante - rendimento_mensal)
+      : b.parcela_abater;
   const parcela_adicional = (b.parcela_adicional_por_dependente ?? 0) * numero_dependentes;
-  const irs = Math.max(0, rendimento_mensal * b.taxa - b.parcela_abater - parcela_adicional);
+  const irs = Math.max(0, rendimento_mensal * b.taxa - parcela_abater_efectiva - parcela_adicional);
   return {
     taxa_marginal: b.taxa,
-    parcela_abater: b.parcela_abater,
+    parcela_abater: parcela_abater_efectiva,
     parcela_adicional,
     irs_mensal: irs,
     irs_pct_efectiva: rendimento_mensal > 0 ? irs / rendimento_mensal : 0,
