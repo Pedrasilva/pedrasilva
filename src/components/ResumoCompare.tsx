@@ -60,7 +60,10 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
   });
 
   const mealDailyFor = (s: Snapshot | undefined): number => {
-    if (!s || mealRates.length === 0) return s?.subsidio_alimentacao_diario ?? 0;
+    if (!s) return 0;
+    // Override manual tem prioridade sobre a tabela anual
+    if (s.subsidio_alimentacao_manual) return s.subsidio_alimentacao_diario_manual ?? 0;
+    if (mealRates.length === 0) return s.subsidio_alimentacao_diario ?? 0;
     const y = Number((s.reference_date ?? "").slice(0, 4));
     const refYear = Number.isFinite(y) && y > 1900 ? y : new Date().getFullYear();
     const exact = mealRates.find((r) => r.ano === refYear);
