@@ -229,6 +229,52 @@ function AppLayout() {
           </nav>
           )}
 
+          {/* Projects sub-nav (inline) */}
+          {isProjectsArea && (
+            <nav className="hidden md:flex items-center gap-1 ml-2 text-sm">
+              <Link to="/projects" className="flex items-center gap-2 mr-1">
+                <FolderKanban className="h-4 w-4 text-primary" />
+                <span className="font-display text-sm font-semibold tracking-tight">Projects</span>
+              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+                    loc.pathname === "/projects" || loc.pathname === "/projects/gantt"
+                      ? "bg-accent text-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                  )}
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                  Projects
+                  <ChevronDown className="h-3 w-3 opacity-60" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuItem onClick={() => navigate({ to: "/projects" })}>
+                    <LayoutGrid className="mr-2 h-4 w-4 text-muted-foreground" />
+                    Project list
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate({ to: "/projects/gantt" })}>
+                    <GanttChartSquare className="mr-2 h-4 w-4 text-muted-foreground" />
+                    Global Gantt
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Link
+                to="/projects/resources"
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+                  loc.pathname.startsWith("/projects/resources")
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                )}
+              >
+                <Users className="h-3.5 w-3.5" />
+                Team
+              </Link>
+            </nav>
+          )}
+
           {/* Spacer */}
           <div className="flex-1" />
 
