@@ -47,6 +47,10 @@ import {
   ListChecks,
   Mail,
   TrendingUp,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
@@ -66,6 +70,8 @@ function ProjectDetail() {
 
   const [tab, setTab] = useState<TabKey>("overview");
   const [dayWidth, setDayWidth] = useState(36);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [poolOpen, setPoolOpen] = useState(true);
 
   // Real time entries for this project (per stage via allocation→stage)
   const { data: timeRows } = useQuery({
