@@ -77,7 +77,7 @@ function AppLayout() {
       label: "Hub",
       icon: Users,
       match: (p: string) => p === "/",
-      show: isAdmin,
+      show: isRealAdmin,
     },
     {
       to: "/hr/minha-ficha" as const,
@@ -114,7 +114,7 @@ function AppLayout() {
       label: "Resumo comparativo",
       icon: BarChart3,
       match: (p: string) => p.startsWith("/hr/resumo"),
-      show: isAdmin,
+      show: isRealAdmin,
     },
   ] as const;
 
@@ -126,7 +126,7 @@ function AppLayout() {
   ] as const;
 
   const visible = items.filter((it) => it.show);
-  const settingsActive = isAdmin && settingsItems.some((s) => s.match(loc.pathname));
+  const settingsActive = isRealAdmin && settingsItems.some((s) => s.match(loc.pathname));
   // Cabeçalho/nav de HR só aparece nas rotas /hr.
   const isHrArea = loc.pathname.startsWith("/hr");
   // Quick Create só em CRM e Projects.
@@ -140,7 +140,7 @@ function AppLayout() {
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6">
           {/* Brand */}
           <Link
-            to={isAdmin ? "/" : "/hr/minha-ficha"}
+            to={isRealAdmin ? "/" : "/hr/minha-ficha"}
             className="flex items-center gap-3 shrink-0"
           >
             <img
@@ -179,7 +179,7 @@ function AppLayout() {
               );
             })}
 
-            {isAdmin && (
+            {isRealAdmin && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
@@ -304,7 +304,7 @@ function AppLayout() {
                     );
                   })}
 
-                  {isAdmin && (
+                  {isRealAdmin && (
                     <>
                       <div className="px-2 pb-1 pt-4 text-[11px] uppercase tracking-wide text-muted-foreground">
                         Configuração
