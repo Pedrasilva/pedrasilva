@@ -271,10 +271,6 @@ function CollaboratorPage() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
-          <div className="space-y-1.5">
-            <CardTitle className="text-base">Dados do colaborador</CardTitle>
-      <Card>
         <Collapsible open={dadosOpen} onOpenChange={setDadosOpen}>
           <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
             <CollapsibleTrigger asChild>
