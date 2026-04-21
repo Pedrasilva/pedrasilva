@@ -270,13 +270,23 @@ function AdminPage() {
 function PermissionsMatrix({
   users,
   isLoading,
-  onToggle,
+  onSave,
 }: {
   users: UserRow[];
   isLoading: boolean;
-  onToggle: (userId: string, key: PermissionKey, granted: boolean) => void;
+  onSave: (
+    changes: { userId: string; key: PermissionKey; granted: boolean }[],
+  ) => Promise<void>;
 }) {
   const [filter, setFilter] = useState("");
+  // Local edits keyed by `${userId}::${key}` -> granted boolean
+  const [edits, setEdits] = useState<Record<string, boolean>>({});
+  const [saving, setSaving] = useState(false);
+
+  // Reset local edits when fresh data arrives (e.g. after save)
+  useEffect(() => {
+    setEdits({});
+  }, [users]);
 
   const filtered = useMemo(() => {
     const q = filter.trim().toLowerCase();
@@ -287,6 +297,59 @@ function PermissionsMatrix({
         (u.collaborator_nome ?? "").toLowerCase().includes(q),
     );
   }, [users, filter]);
+
+  const isChecked = (u: UserRow, key: PermissionKey): boolean => {
+    const k = `${u.user_id}::${key}`;
+    if (k in edits) return edits[k];
+    return u.permissions.includes(key);
+  };
+
+  const isDirty = (u: UserRow, key: PermissionKey): boolean => {
+    const k = `${u.user_id}::${key}`;
+    if (!(k in edits)) return false;
+    return edits[k] !== u.permissions.includes(key);
+  };
+
+  const pendingChanges = useMemo(() => {
+    const list: { userId: string; key: PermissionKey; granted: boolean }[] = [];
+    for (const u of users) {
+      for (const g of PERMISSION_GROUPS) {
+        for (const item of g.items) {
+          const k = `${u.user_id}::${item.key}`;
+          if (k in edits && edits[k] !== u.permissions.includes(item.key)) {
+            list.push({ userId: u.user_id, key: item.key, granted: edits[k] });
+          }
+        }
+      }
+    }
+    return list;
+  }, [edits, users]);
+
+  const dirtyCount = pendingChanges.length;
+
+  const handleToggle = (userId: string, key: PermissionKey, granted: boolean) => {
+    setEdits((prev) => ({ ...prev, [`${userId}::${key}`]: granted }));
+  };
+
+  const handleSave = async () => {
+    if (dirtyCount === 0) return;
+    setSaving(true);
+    try {
+      await onSave(pendingChanges);
+      toast.success(
+        `${dirtyCount} alteração${dirtyCount === 1 ? "" : "ões"} guardada${
+          dirtyCount === 1 ? "" : "s"
+        }`,
+      );
+      setEdits({});
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDiscard = () => setEdits({});
 
   if (isLoading) {
     return (
@@ -305,18 +368,37 @@ function PermissionsMatrix({
           <div>
             <CardTitle className="text-base">Matriz de permissões</CardTitle>
             <CardDescription>
-              Marque o que cada utilizador pode aceder. Admins têm tudo
-              automaticamente (linha cinzenta).
+              Marque o que cada utilizador pode aceder e clique em Guardar.
+              Admins têm tudo automaticamente (linha cinzenta).
             </CardDescription>
           </div>
-          <div className="relative w-64">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Procurar utilizador…"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="pl-8"
-            />
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative w-64">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Procurar utilizador…"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="pl-8"
+              />
+            </div>
+            {dirtyCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDiscard}
+                disabled={saving}
+              >
+                Descartar
+              </Button>
+            )}
+            <Button size="sm" onClick={handleSave} disabled={dirtyCount === 0 || saving}>
+              {saving
+                ? "A guardar…"
+                : dirtyCount > 0
+                  ? `Guardar (${dirtyCount})`
+                  : "Guardar"}
+            </Button>
           </div>
         </div>
       </CardHeader>
@@ -396,20 +478,22 @@ function PermissionsMatrix({
                     </td>
                     {PERMISSION_GROUPS.flatMap((g) =>
                       g.items.map((item) => {
-                        const checked = u.is_admin || u.permissions.includes(item.key);
+                        const checked = u.is_admin || isChecked(u, item.key);
+                        const dirty = isDirty(u, item.key);
                         return (
                           <td
                             key={item.key}
                             className={cn(
                               "border-l px-1 py-2 text-center",
                               u.is_admin && "bg-muted/30",
+                              dirty && "bg-amber-100/50 dark:bg-amber-500/10",
                             )}
                           >
                             <Checkbox
                               checked={checked}
-                              disabled={u.is_admin}
+                              disabled={u.is_admin || saving}
                               onCheckedChange={(v) =>
-                                onToggle(u.user_id, item.key, !!v)
+                                handleToggle(u.user_id, item.key, !!v)
                               }
                               aria-label={`${item.label} para ${u.email}`}
                             />
@@ -433,6 +517,11 @@ function PermissionsMatrix({
             </table>
           </div>
         </TooltipProvider>
+        {dirtyCount > 0 && (
+          <div className="border-t bg-muted/20 px-4 py-2 text-xs text-muted-foreground">
+            {dirtyCount} alteração{dirtyCount === 1 ? "" : "ões"} por guardar.
+          </div>
+        )}
       </CardContent>
     </Card>
   );
