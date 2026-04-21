@@ -1040,14 +1040,16 @@ function MilestonesTable({
           </thead>
           <tbody>
             {filtered.map((s, i) => {
-              const cost = stageCost(s.id);
+              const plannedCost = stageCost(s.id);
+              const cost = stageLoggedCost(s.id);
               const budget = Number(s.budget);
               const over = cost > budget && budget > 0;
               const logged = stageLoggedHours(s.id);
               const planned = stagePlannedHours(s.id);
-              const evPct = planned > 0 ? Math.min(1, logged / planned) : 0;
+              const evPct = budget > 0 ? Math.min(1, cost / budget) : 0;
               const isOpen = expanded.has(s.id);
               const isActive = s.allocations.length > 0;
+              void plannedCost;
               return (
                 <Fragment key={s.id}>
                   <tr className="border-b border-border bg-muted/20 hover:bg-muted/30">
