@@ -48,6 +48,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Snapshot>(snapshot);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [contextOpen, setContextOpen] = useState(false);
 
   useEffect(() => setDraft(snapshot), [snapshot]);
 
