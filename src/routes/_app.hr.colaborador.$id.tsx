@@ -53,7 +53,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Plus, Trash2, BarChart3, Save, Printer } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ArrowLeft, Plus, Trash2, BarChart3, Save, Printer, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { SnapshotForm } from "@/components/SnapshotForm";
 import { ResumoCompare } from "@/components/ResumoCompare";
@@ -74,6 +79,8 @@ function CollaboratorPage() {
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState<string>("");
   const [newOpen, setNewOpen] = useState(false);
+  const [dadosOpen, setDadosOpen] = useState(false);
+  const [agregadoOpen, setAgregadoOpen] = useState(false);
   const [newForm, setNewForm] = useState({
     label: "Proposto",
     reference_date: new Date().toISOString().slice(0, 10),
@@ -264,234 +271,270 @@ function CollaboratorPage() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
-          <div className="space-y-1.5">
-            <CardTitle className="text-base">Dados do colaborador</CardTitle>
-            <CardDescription>
-              Campos a amarelo são editáveis. As alterações só são guardadas ao clicar em Guardar.
-            </CardDescription>
-          </div>
-          <div className="flex items-center gap-2">
-            {isDirty && (
-              <span className="text-xs text-muted-foreground">Alterações por guardar</span>
-            )}
-            <Button
-              size="sm"
-              onClick={handleSave}
-              disabled={!isDirty || updateCollab.isPending}
-            >
-              <Save className="h-4 w-4" />
-              {updateCollab.isPending ? "A guardar…" : "Guardar"}
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <Field label="Nome">
-              <Input
-                className="input-yellow"
-                value={draft.nome}
-                onChange={(e) => setField("nome", e.target.value)}
-              />
-            </Field>
-            <Field label="Nº colaborador">
-              <Input
-                className="input-yellow"
-                value={draft.numero_colaborador ?? ""}
-                onChange={(e) => setField("numero_colaborador", e.target.value || null)}
-              />
-            </Field>
-            <Field label="Departamento">
-              <Select
-                value={draft.departamento}
-                onValueChange={(v) =>
-                  setField("departamento", v as "Projecto" | "Backoffice")
-                }
+        <Collapsible open={dadosOpen} onOpenChange={setDadosOpen}>
+          <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                className="flex flex-1 items-start gap-2 text-left"
+                aria-expanded={dadosOpen}
               >
-                <SelectTrigger className="input-yellow">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Projecto">Equipa Projecto</SelectItem>
-                  <SelectItem value="Backoffice">Equipa Backoffice</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Situação contractual">
-              <Select
-                value={draft.situacao_contractual ?? ""}
-                onValueChange={(v) => setField("situacao_contractual", v || null)}
-              >
-                <SelectTrigger className="input-yellow">
-                  <SelectValue placeholder="Seleccionar…" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Contrato sem termo">Contrato sem termo</SelectItem>
-                  <SelectItem value="Contrato com termo">Contrato com termo</SelectItem>
-                  <SelectItem value="Contrato de tempo indeterminado">
-                    Contrato de tempo indeterminado
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Data de nascimento">
-              <Input
-                type="date"
-                className="input-yellow"
-                value={draft.data_nascimento ?? ""}
-                onChange={(e) => setField("data_nascimento", e.target.value || null)}
-              />
-            </Field>
-            <Field label="Início de carreira">
-              <Input
-                type="date"
-                className="input-yellow"
-                value={draft.inicio_carreira ?? ""}
-                onChange={(e) => setField("inicio_carreira", e.target.value || null)}
-              />
-            </Field>
-            <Field label="Email (login Google)">
-              <Input
-                type="email"
-                placeholder="nome@empresa.com"
-                className="input-yellow"
-                value={draft.email ?? ""}
-                onChange={(e) => setField("email", e.target.value || null)}
-              />
-            </Field>
-            <Field label="Dias de férias / ano">
-              <Input
-                type="number"
-                min={0}
-                className="input-yellow tabular-nums"
-                value={draft.dias_ferias_anuais ?? 22}
-                onChange={(e) => setField("dias_ferias_anuais", Number(e.target.value) || 0)}
-              />
-            </Field>
-            <Field label="Saldo férias anterior">
-              <Input
-                type="number"
-                min={0}
-                className="input-yellow tabular-nums"
-                value={draft.saldo_ferias_anterior ?? 0}
-                onChange={(e) => setField("saldo_ferias_anterior", Number(e.target.value) || 0)}
-              />
-            </Field>
-            <Field label="Dias férias extra (atribuídos)">
-              <Input
-                type="number"
-                min={0}
-                className="input-yellow tabular-nums"
-                value={draft.dias_ferias_extra ?? 0}
-                onChange={(e) => setField("dias_ferias_extra", Number(e.target.value) || 0)}
-              />
-            </Field>
-            {draft.departamento === "Projecto" && (
-              <Field label="Margem lucro override (%)">
-                <Input
-                  type="number"
-                  step="0.5"
-                  placeholder="usa global"
-                  className="input-yellow tabular-nums"
-                  value={
-                    draft.margem_lucro_pct_override != null
-                      ? (draft.margem_lucro_pct_override * 100).toString()
-                      : ""
-                  }
-                  onChange={(e) => {
-                    const v = e.target.value.trim();
-                    setField(
-                      "margem_lucro_pct_override",
-                      v === "" ? null : Number(v) / 100,
-                    );
-                  }}
+                <ChevronDown
+                  className={`mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform ${
+                    dadosOpen ? "rotate-0" : "-rotate-90"
+                  }`}
                 />
-              </Field>
-            )}
-          </div>
-        </CardContent>
+                <div className="space-y-1.5">
+                  <CardTitle className="text-base">Dados do colaborador</CardTitle>
+                  <CardDescription>
+                    Campos a amarelo são editáveis. As alterações só são guardadas ao clicar em Guardar.
+                  </CardDescription>
+                </div>
+              </button>
+            </CollapsibleTrigger>
+            <div className="flex items-center gap-2">
+              {isDirty && (
+                <span className="text-xs text-muted-foreground">Alterações por guardar</span>
+              )}
+              <Button
+                size="sm"
+                onClick={handleSave}
+                disabled={!isDirty || updateCollab.isPending}
+              >
+                <Save className="h-4 w-4" />
+                {updateCollab.isPending ? "A guardar…" : "Guardar"}
+              </Button>
+            </div>
+          </CardHeader>
+          <CollapsibleContent>
+            <CardContent>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <Field label="Nome">
+                  <Input
+                    className="input-yellow"
+                    value={draft.nome}
+                    onChange={(e) => setField("nome", e.target.value)}
+                  />
+                </Field>
+                <Field label="Nº colaborador">
+                  <Input
+                    className="input-yellow"
+                    value={draft.numero_colaborador ?? ""}
+                    onChange={(e) => setField("numero_colaborador", e.target.value || null)}
+                  />
+                </Field>
+                <Field label="Departamento">
+                  <Select
+                    value={draft.departamento}
+                    onValueChange={(v) =>
+                      setField("departamento", v as "Projecto" | "Backoffice")
+                    }
+                  >
+                    <SelectTrigger className="input-yellow">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Projecto">Equipa Projecto</SelectItem>
+                      <SelectItem value="Backoffice">Equipa Backoffice</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Situação contractual">
+                  <Select
+                    value={draft.situacao_contractual ?? ""}
+                    onValueChange={(v) => setField("situacao_contractual", v || null)}
+                  >
+                    <SelectTrigger className="input-yellow">
+                      <SelectValue placeholder="Seleccionar…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Contrato sem termo">Contrato sem termo</SelectItem>
+                      <SelectItem value="Contrato com termo">Contrato com termo</SelectItem>
+                      <SelectItem value="Contrato de tempo indeterminado">
+                        Contrato de tempo indeterminado
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Data de nascimento">
+                  <Input
+                    type="date"
+                    className="input-yellow"
+                    value={draft.data_nascimento ?? ""}
+                    onChange={(e) => setField("data_nascimento", e.target.value || null)}
+                  />
+                </Field>
+                <Field label="Início de carreira">
+                  <Input
+                    type="date"
+                    className="input-yellow"
+                    value={draft.inicio_carreira ?? ""}
+                    onChange={(e) => setField("inicio_carreira", e.target.value || null)}
+                  />
+                </Field>
+                <Field label="Email (login Google)">
+                  <Input
+                    type="email"
+                    placeholder="nome@empresa.com"
+                    className="input-yellow"
+                    value={draft.email ?? ""}
+                    onChange={(e) => setField("email", e.target.value || null)}
+                  />
+                </Field>
+                <Field label="Dias de férias / ano">
+                  <Input
+                    type="number"
+                    min={0}
+                    className="input-yellow tabular-nums"
+                    value={draft.dias_ferias_anuais ?? 22}
+                    onChange={(e) => setField("dias_ferias_anuais", Number(e.target.value) || 0)}
+                  />
+                </Field>
+                <Field label="Saldo férias anterior">
+                  <Input
+                    type="number"
+                    min={0}
+                    className="input-yellow tabular-nums"
+                    value={draft.saldo_ferias_anterior ?? 0}
+                    onChange={(e) => setField("saldo_ferias_anterior", Number(e.target.value) || 0)}
+                  />
+                </Field>
+                <Field label="Dias férias extra (atribuídos)">
+                  <Input
+                    type="number"
+                    min={0}
+                    className="input-yellow tabular-nums"
+                    value={draft.dias_ferias_extra ?? 0}
+                    onChange={(e) => setField("dias_ferias_extra", Number(e.target.value) || 0)}
+                  />
+                </Field>
+                {draft.departamento === "Projecto" && (
+                  <Field label="Margem lucro override (%)">
+                    <Input
+                      type="number"
+                      step="0.5"
+                      placeholder="usa global"
+                      className="input-yellow tabular-nums"
+                      value={
+                        draft.margem_lucro_pct_override != null
+                          ? (draft.margem_lucro_pct_override * 100).toString()
+                          : ""
+                      }
+                      onChange={(e) => {
+                        const v = e.target.value.trim();
+                        setField(
+                          "margem_lucro_pct_override",
+                          v === "" ? null : Number(v) / 100,
+                        );
+                      }}
+                    />
+                  </Field>
+                )}
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Agregado familiar e contexto fiscal</CardTitle>
-          <CardDescription>
-            Estes valores são usados no cálculo automático de IRS de todas as fichas deste colaborador.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <Field label="Localização">
-              <Select
-                value={draft.localizacao}
-                onValueChange={(v) => setField("localizacao", v)}
+        <Collapsible open={agregadoOpen} onOpenChange={setAgregadoOpen}>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer">
+              <button
+                type="button"
+                className="flex w-full items-start gap-2 text-left"
+                aria-expanded={agregadoOpen}
               >
-                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {LOCALIZACOES.map((l) => (
-                    <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Estado civil">
-              <Select
-                value={draft.estado_civil}
-                onValueChange={(v) => setField("estado_civil", v)}
-              >
-                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {ESTADOS_CIVIS.map((e) => (
-                    <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Nº titulares">
-              <Input
-                type="number"
-                min={1}
-                max={2}
-                className="input-yellow tabular-nums"
-                value={draft.numero_titulares}
-                onChange={(e) => setField("numero_titulares", Number(e.target.value) || 1)}
-              />
-            </Field>
-            <Field label="Nº dependentes">
-              <Input
-                type="number"
-                min={0}
-                className="input-yellow tabular-nums"
-                value={draft.numero_dependentes}
-                onChange={(e) => setField("numero_dependentes", Number(e.target.value) || 0)}
-              />
-            </Field>
-            <Field label="Dep. com deficiência">
-              <Input
-                type="number"
-                min={0}
-                className="input-yellow tabular-nums"
-                value={draft.dependentes_com_deficiencia}
-                onChange={(e) => setField("dependentes_com_deficiencia", Number(e.target.value) || 0)}
-              />
-            </Field>
-            <Field label="Ano fiscal">
-              <Select
-                value={String(draft.ano_fiscal)}
-                onValueChange={(v) => setField("ano_fiscal", Number(v))}
-              >
-                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {[2023, 2024, 2025, 2026].map((y) => (
-                    <SelectItem key={y} value={String(y)}>
-                      {y}{y !== 2026 ? " · sem tabela IRS" : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-          </div>
-        </CardContent>
+                <ChevronDown
+                  className={`mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform ${
+                    agregadoOpen ? "rotate-0" : "-rotate-90"
+                  }`}
+                />
+                <div className="space-y-1.5">
+                  <CardTitle className="text-base">Agregado familiar e contexto fiscal</CardTitle>
+                  <CardDescription>
+                    Estes valores são usados no cálculo automático de IRS de todas as fichas deste colaborador.
+                  </CardDescription>
+                </div>
+              </button>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <Field label="Localização">
+                  <Select
+                    value={draft.localizacao}
+                    onValueChange={(v) => setField("localizacao", v)}
+                  >
+                    <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {LOCALIZACOES.map((l) => (
+                        <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Estado civil">
+                  <Select
+                    value={draft.estado_civil}
+                    onValueChange={(v) => setField("estado_civil", v)}
+                  >
+                    <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {ESTADOS_CIVIS.map((e) => (
+                        <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Nº titulares">
+                  <Input
+                    type="number"
+                    min={1}
+                    max={2}
+                    className="input-yellow tabular-nums"
+                    value={draft.numero_titulares}
+                    onChange={(e) => setField("numero_titulares", Number(e.target.value) || 1)}
+                  />
+                </Field>
+                <Field label="Nº dependentes">
+                  <Input
+                    type="number"
+                    min={0}
+                    className="input-yellow tabular-nums"
+                    value={draft.numero_dependentes}
+                    onChange={(e) => setField("numero_dependentes", Number(e.target.value) || 0)}
+                  />
+                </Field>
+                <Field label="Dep. com deficiência">
+                  <Input
+                    type="number"
+                    min={0}
+                    className="input-yellow tabular-nums"
+                    value={draft.dependentes_com_deficiencia}
+                    onChange={(e) => setField("dependentes_com_deficiencia", Number(e.target.value) || 0)}
+                  />
+                </Field>
+                <Field label="Ano fiscal">
+                  <Select
+                    value={String(draft.ano_fiscal)}
+                    onValueChange={(v) => setField("ano_fiscal", Number(v))}
+                  >
+                    <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {[2023, 2024, 2025, 2026].map((y) => (
+                        <SelectItem key={y} value={String(y)}>
+                          {y}{y !== 2026 ? " · sem tabela IRS" : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
       </Card>
 
       <div>
