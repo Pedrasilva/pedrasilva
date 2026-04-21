@@ -229,6 +229,94 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       <ValueChainSummary c={c} />
 
       <Card>
+        <CardContent className="pt-6 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Lock className="h-4 w-4 text-[var(--clay)]" />
+              <div>
+                <div className="text-sm font-medium">Agregado familiar (trancado nesta ficha)</div>
+                <div className="text-[11px] text-muted-foreground">
+                  Estes valores são guardados no histórico desta ficha e só mudam aqui.
+                </div>
+              </div>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                set("localizacao", collaborator.localizacao);
+                set("estado_civil", collaborator.estado_civil);
+                set("numero_titulares", collaborator.numero_titulares);
+                set("numero_dependentes", collaborator.numero_dependentes);
+                set("dependentes_com_deficiencia", collaborator.dependentes_com_deficiencia);
+                set("ano_fiscal", collaborator.ano_fiscal);
+              }}
+            >
+              <Copy className="h-3.5 w-3.5" /> Copiar do colaborador
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            <FieldStacked label="Localização">
+              <Select value={draft.localizacao} onValueChange={(v) => set("localizacao", v)}>
+                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {LOCALIZACOES.map((l) => (
+                    <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldStacked>
+            <FieldStacked label="Estado civil">
+              <Select value={draft.estado_civil} onValueChange={(v) => set("estado_civil", v)}>
+                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ESTADOS_CIVIS.map((e) => (
+                    <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldStacked>
+            <FieldStacked label="Nº titulares">
+              <Input
+                type="number" min={1} max={2}
+                className="input-yellow tabular-nums"
+                value={draft.numero_titulares}
+                onChange={(e) => set("numero_titulares", Number(e.target.value) || 1)}
+              />
+            </FieldStacked>
+            <FieldStacked label="Nº dependentes">
+              <Input
+                type="number" min={0}
+                className="input-yellow tabular-nums"
+                value={draft.numero_dependentes}
+                onChange={(e) => set("numero_dependentes", Number(e.target.value) || 0)}
+              />
+            </FieldStacked>
+            <FieldStacked label="Dep. c/ deficiência">
+              <Input
+                type="number" min={0}
+                className="input-yellow tabular-nums"
+                value={draft.dependentes_com_deficiencia}
+                onChange={(e) => set("dependentes_com_deficiencia", Number(e.target.value) || 0)}
+              />
+            </FieldStacked>
+            <FieldStacked label="Ano fiscal">
+              <Input
+                type="number" min={2000} max={2100}
+                className="input-yellow tabular-nums"
+                value={draft.ano_fiscal}
+                onChange={(e) => set("ano_fiscal", Number(e.target.value) || new Date().getFullYear())}
+              />
+            </FieldStacked>
+          </div>
+          <Label className="block text-[11px] text-muted-foreground">
+            Editar o agregado na página do colaborador <strong>não</strong> altera fichas existentes — só fichas novas.
+          </Label>
+        </CardContent>
+      </Card>
+
+      <Card>
         <CardContent className="pt-6">
           <div className="rounded-lg border border-[var(--sage)]/30 bg-[color-mix(in_oklab,var(--sage)_6%,transparent)] p-3">
             <div className="flex items-center justify-between gap-3">
