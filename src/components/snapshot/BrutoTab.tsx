@@ -12,48 +12,58 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
   // - tradicional (14m): custo base + subsídios pagos por inteiro em Jun/Nov
   // - duodecimos_50 (13m): metade diluída em duodécimos + metade paga por inteiro
   // - duodecimos_100 (12m): subsídios totalmente diluídos em duodécimos
+  // SS Atelier já incide sobre a base mensal tributável (inclui duodécimos).
   const modo = draft.subsidios_modo ?? "tradicional";
 
-  // Custo bruto da empresa para UM mês de salário (base + SS Atelier)
-  // Equivale a UM subsídio do ponto de vista do custo total
-  const custoMesBase = c.base + c.ssAtelierMensal;
+  // Parte dos subsídios diluída na base mensal
+  const duodecimosMensal = c.baseMensalTributavel - c.base;
+  const ssAtelierSobreBase = c.base * draft.ss_atelier_pct;
+  const ssAtelierSobreDuodecimos = duodecimosMensal * draft.ss_atelier_pct;
 
-  // Duodécimos mensais do custo bruto (parte dos subsídios diluída em 12 meses)
-  const duodecimosBrutoMensal =
-    modo === "duodecimos_100"
-      ? (custoMesBase * 2) / 12
-      : modo === "duodecimos_50"
-        ? custoMesBase / 12
-        : 0;
-
-  // Subsídio pago por inteiro (custo bruto, Junho/Novembro)
+  // Custo bruto da empresa para UM subsídio inteiro (pago em Jun/Nov)
+  const custoSubsidioInteiro = c.base + ssAtelierSobreBase;
   const subsidioBrutoInteiro =
     modo === "duodecimos_100"
       ? 0
       : modo === "duodecimos_50"
-        ? custoMesBase / 2
-        : custoMesBase;
+        ? custoSubsidioInteiro / 2
+        : custoSubsidioInteiro;
 
-  const brutoBaseMensal = custoMesBase;
-  const brutoMensalMedio = brutoBaseMensal + duodecimosBrutoMensal;
+  const brutoMensalMedio = c.baseMensalTributavel + c.ssAtelierMensal;
 
   const rows: Array<{ label: string; value: number; strong?: boolean; accent?: boolean; muted?: boolean }> = [
     { label: "Valor base mensal", value: c.base },
-    { label: "+ SS Atelier (mensal)", value: c.ssAtelierMensal },
-    { label: "= Custo base mensal", value: brutoBaseMensal, strong: true },
   ];
 
-  if (modo === "duodecimos_100") {
+  if (duodecimosMensal > 0.005) {
     rows.push({
-      label: "+ Duodécimos (subsídios férias + Natal diluídos em 12 meses)",
-      value: duodecimosBrutoMensal,
+      label:
+        modo === "duodecimos_100"
+          ? "+ Duodécimos (subsídios férias + Natal diluídos em 12 meses)"
+          : "+ Duodécimos (50% dos subsídios diluídos em 12 meses)",
+      value: duodecimosMensal,
     });
-  } else if (modo === "duodecimos_50") {
+    rows.push({
+      label: "= Base mensal tributável",
+      value: c.baseMensalTributavel,
+      strong: true,
+    });
+    rows.push({
+      label: "+ SS Atelier (mensal, sobre base + duodécimos)",
+      value: c.ssAtelierMensal,
+    });
+  } else {
+    rows.push({ label: "+ SS Atelier (mensal)", value: c.ssAtelierMensal });
+  }
+
+  rows.push({
+    label: "= Custo bruto mensal",
+    value: brutoMensalMedio,
+    strong: true,
+  });
+
+  if (modo === "duodecimos_50") {
     rows.push(
-      {
-        label: "+ Duodécimos (50% dos subsídios diluídos em 12 meses)",
-        value: duodecimosBrutoMensal,
-      },
       {
         label: "+ Subsídio de férias (50% pago por inteiro em Junho)",
         value: subsidioBrutoInteiro,
@@ -65,7 +75,7 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
         muted: true,
       },
     );
-  } else {
+  } else if (modo === "tradicional") {
     rows.push(
       {
         label: "+ Subsídio de férias (pago por inteiro em Junho)",
@@ -81,11 +91,6 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
   }
 
   rows.push(
-    {
-      label: "= Custo bruto mensal médio",
-      value: brutoMensalMedio,
-      strong: true,
-    },
     { label: "+ Subsídio alimentação mensal", value: c.alimentacaoMensal },
     { label: "+ Ajudas de custo mensais", value: c.ajudasMensal },
     { label: "+ Benefícios mensais", value: c.beneficiosMensal },
@@ -96,6 +101,9 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
       accent: true,
     },
   );
+
+  // Suprimir warning de variável não usada (reservada para evolução futura)
+  void ssAtelierSobreDuodecimos;
 
   const annualSlices = [
     { name: "Base anual", value: c.baseMensal12 * 12, color: "var(--sage)" },
