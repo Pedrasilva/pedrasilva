@@ -90,6 +90,10 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     [draft.valor_base, collaborator.numero_dependentes, brackets],
   );
 
+  const effectiveMealDaily = draft.subsidio_alimentacao_manual
+    ? Number(draft.subsidio_alimentacao_diario_manual) || 0
+    : mealDaily;
+
   const draftEffective = useMemo<Snapshot>(
     () => ({
       ...draft,
@@ -100,9 +104,9 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       dependentes_com_deficiencia: collaborator.dependentes_com_deficiencia,
       ano_fiscal: collaborator.ano_fiscal,
       irs_pct: draft.irs_calculado_auto ? irsAuto.irs_pct_efectiva : draft.irs_pct,
-      subsidio_alimentacao_diario: mealDaily,
+      subsidio_alimentacao_diario: effectiveMealDaily,
     }),
-    [draft, collaborator, irsAuto.irs_pct_efectiva, mealDaily],
+    [draft, collaborator, irsAuto.irs_pct_efectiva, effectiveMealDaily],
   );
 
   const c = computeSnapshot(draftEffective);
