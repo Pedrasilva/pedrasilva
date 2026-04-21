@@ -156,8 +156,8 @@ function AppLayout() {
             )}
           </Link>
 
-          {/* Nav principal — só na área HR, visível em md+ */}
-          {isHrArea && (
+          {/* Nav principal — só fora da área HR (dentro do /hr usa-se a sidebar lateral) */}
+          {!isHrArea && (
           <nav className="hidden md:flex items-center gap-0.5 ml-2">
             {visible.map((it) => {
               const Icon = it.icon;
@@ -348,7 +348,13 @@ function AppLayout() {
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      <main
+        className={cn(
+          isHrArea
+            ? ""
+            : "mx-auto max-w-7xl px-4 py-6 sm:px-6",
+        )}
+      >
         <Outlet />
       </main>
     </div>

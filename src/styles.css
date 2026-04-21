@@ -130,6 +130,10 @@
   --budget: oklch(0.93 0.06 100);
   --budget-spent: oklch(0.62 0.16 145);
   --budget-over: oklch(0.58 0.22 25);
+  /* HR module — Scandinavian Oak warm palette */
+  --hr-bg: oklch(0.965 0.012 80);
+  --hr-accent: oklch(0.58 0.11 55);
+  --hr-shadow: oklch(0.22 0.02 60 / 0.06);
 }
 
 .dark {
@@ -181,6 +185,10 @@
   --budget: oklch(0.32 0.04 100);
   --budget-spent: oklch(0.62 0.16 145);
   --budget-over: oklch(0.62 0.22 25);
+  /* HR module (dark) */
+  --hr-bg: oklch(0.17 0.012 80);
+  --hr-accent: oklch(0.72 0.12 55);
+  --hr-shadow: oklch(0 0 0 / 0.3);
 }
 
 /* Projects module — Gantt canvas grid background */
