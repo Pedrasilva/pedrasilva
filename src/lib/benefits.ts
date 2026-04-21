@@ -76,3 +76,90 @@ export function consumedByCategory(
   }
   return acc;
 }
+
+// =============================================================
+// Saldos acumulados
+// =============================================================
+
+export type BenefitBalance = {
+  id: string;
+  collaborator_id: string;
+  categoria: BenefitCategory;
+  saldo_inicial: number;
+  notas: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type BenefitYearlyCredit = {
+  id: string;
+  collaborator_id: string;
+  ano_fiscal: number;
+  categoria: BenefitCategory;
+  valor: number;
+  notas: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+const CATEGORIES: BenefitCategory[] = ["carro", "ticket", "premio", "outros"];
+
+const emptyByCat = <T>(zero: T): Record<BenefitCategory, T> => ({
+  carro: zero,
+  ticket: zero,
+  premio: zero,
+  outros: zero,
+});
+
+/** Soma os saldos iniciais por categoria. */
+export function initialByCategory(
+  balances: BenefitBalance[],
+): Record<BenefitCategory, number> {
+  const acc = emptyByCat(0);
+  for (const b of balances) acc[b.categoria] += Number(b.saldo_inicial) || 0;
+  return acc;
+}
+
+/** Soma os créditos anuais por categoria (todos os anos). */
+export function creditedByCategory(
+  credits: BenefitYearlyCredit[],
+): Record<BenefitCategory, number> {
+  const acc = emptyByCat(0);
+  for (const c of credits) acc[c.categoria] += Number(c.valor) || 0;
+  return acc;
+}
+
+/**
+ * Saldo disponível por categoria:
+ * disponível = saldo_inicial + Σ(créditos anuais) − Σ(despesas pendentes+aprovadas+pagas)
+ *
+ * Devolve também os componentes para a UI mostrar o detalhe.
+ */
+export function balanceByCategory(input: {
+  balances: BenefitBalance[];
+  credits: BenefitYearlyCredit[];
+  expenses: BenefitExpense[];
+}): Record<
+  BenefitCategory,
+  { inicial: number; creditado: number; gasto: number; disponivel: number }
+> {
+  const ini = initialByCategory(input.balances);
+  const cred = creditedByCategory(input.credits);
+  const cons = consumedByCategory(input.expenses);
+  const out = {} as Record<
+    BenefitCategory,
+    { inicial: number; creditado: number; gasto: number; disponivel: number }
+  >;
+  for (const c of CATEGORIES) {
+    const inicial = ini[c];
+    const creditado = cred[c];
+    const gasto = cons[c].total;
+    out[c] = {
+      inicial,
+      creditado,
+      gasto,
+      disponivel: inicial + creditado - gasto,
+    };
+  }
+  return out;
+}
