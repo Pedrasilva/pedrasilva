@@ -50,10 +50,12 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     [draft, snapshot],
   );
 
-  const tabela = pickTabela(collaborator.estado_civil, collaborator.numero_titulares);
-  const { data: irsTableData = { brackets: [], resolvedYear: collaborator.ano_fiscal, isFallback: false } } = useQuery({
-    queryKey: ["irs", collaborator.ano_fiscal, collaborator.localizacao, tabela],
-    queryFn: () => loadBracketsWithMeta(collaborator.ano_fiscal, collaborator.localizacao, tabela),
+  // Agregado familiar é trancado por ficha — usa o snapshot, NÃO o colaborador.
+  // Isto permite que cada ficha mantenha o seu contexto fiscal histórico.
+  const tabela = pickTabela(draft.estado_civil, draft.numero_titulares);
+  const { data: irsTableData = { brackets: [], resolvedYear: draft.ano_fiscal, isFallback: false } } = useQuery({
+    queryKey: ["irs", draft.ano_fiscal, draft.localizacao, tabela],
+    queryFn: () => loadBracketsWithMeta(draft.ano_fiscal, draft.localizacao, tabela),
   });
   const brackets = irsTableData.brackets;
 
