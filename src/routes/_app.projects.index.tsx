@@ -16,7 +16,7 @@ import {
 } from "@/lib/projects/use-default-rates";
 import { supabase } from "@/integrations/supabase/client";
 import type { StageWithAllocations } from "@/lib/projects/types";
-import { Search, Plus, Clock, Briefcase, CalendarDays, Inbox } from "lucide-react";
+import { Search } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/")({
   component: DashboardPage,
