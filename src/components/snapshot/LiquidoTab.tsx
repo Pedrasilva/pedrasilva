@@ -102,6 +102,11 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
       strong: true,
       accent: true,
     },
+    {
+      label: "+ Benefícios (média mensal: carro + ticket + prémio + outros)",
+      value: c.beneficiosMensal,
+      muted: true,
+    },
   );
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
