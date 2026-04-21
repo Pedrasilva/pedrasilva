@@ -74,6 +74,8 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
 
   const mealDailyFor = (s: Snapshot | null): number => {
     if (!s) return 0;
+    // Override manual tem prioridade sobre a tabela anual
+    if (s.subsidio_alimentacao_manual) return s.subsidio_alimentacao_diario_manual ?? 0;
     if (mealRates.length === 0) return s.subsidio_alimentacao_diario ?? 0;
     const y = Number((s.reference_date ?? "").slice(0, 4));
     const refYear = Number.isFinite(y) && y > 1900 ? y : new Date().getFullYear();
