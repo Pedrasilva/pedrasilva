@@ -299,10 +299,9 @@ function ProjectDetail() {
                 style={{ backgroundColor: project.color }}
               />
               <EditableProjectName
-                projectId={project.id}
                 name={project.name}
                 onRename={(name) =>
-                  updateProject.mutateAsync({ id: project.id, name })
+                  updateProject.mutateAsync({ id: project.id, patch: { name } })
                 }
               />
               <StatusBadge status={project.status} />
