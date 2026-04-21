@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,17 @@ import {
 } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Wallet, Camera, Check, X, BadgeEuro, Trash2, FileImage } from "lucide-react";
+import {
+  Plus,
+  Wallet,
+  Camera,
+  Check,
+  X,
+  BadgeEuro,
+  Trash2,
+  FileImage,
+  Settings2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { fmtEUR, type Snapshot, type Collaborator } from "@/lib/salary";
 import {
@@ -48,12 +58,22 @@ import {
   STATUS_LABELS,
   STATUS_COLORS,
   budgetsFromSnapshot,
-  consumedByCategory,
+  balanceByCategory,
   type BenefitCategory,
   type BenefitExpense,
   type ExpenseStatus,
+  type BenefitBalance,
+  type BenefitYearlyCredit,
 } from "@/lib/benefits";
 import { cn } from "@/lib/utils";
+
+// As novas tabelas ainda não estão no types.ts gerado — usamos `as any` para o cliente.
+// É seguro porque as RLS policies controlam o acesso.
+const sb = supabase as unknown as {
+  from: (t: string) => ReturnType<typeof supabase.from>;
+};
+
+const CATS: BenefitCategory[] = ["carro", "ticket", "premio", "outros"];
 
 export const Route = createFileRoute("/_app/hr/beneficios")({
   component: BeneficiosPage,
@@ -70,7 +90,6 @@ function BeneficiosPage() {
 function CollaboratorView() {
   const qc = useQueryClient();
 
-  // Collaborator do utilizador autenticado
   const { data: myCollab, isLoading: loadingCollab } = useQuery({
     queryKey: ["my-collaborator"],
     queryFn: async () => {
@@ -113,6 +132,51 @@ function CollaboratorView() {
   );
 }
 
+function useBenefitData(collaboratorId: string | null) {
+  const balancesQ = useQuery({
+    queryKey: ["benefit-balances", collaboratorId],
+    enabled: !!collaboratorId,
+    queryFn: async () => {
+      const { data, error } = await sb
+        .from("benefit_balances")
+        .select("*")
+        .eq("collaborator_id", collaboratorId!);
+      if (error) throw error;
+      return (data ?? []) as unknown as BenefitBalance[];
+    },
+  });
+
+  const creditsQ = useQuery({
+    queryKey: ["benefit-credits", collaboratorId],
+    enabled: !!collaboratorId,
+    queryFn: async () => {
+      const { data, error } = await sb
+        .from("benefit_yearly_credits")
+        .select("*")
+        .eq("collaborator_id", collaboratorId!)
+        .order("ano_fiscal", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as BenefitYearlyCredit[];
+    },
+  });
+
+  const expensesQ = useQuery({
+    queryKey: ["benefit-expenses-all", collaboratorId],
+    enabled: !!collaboratorId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("benefit_expenses")
+        .select("*")
+        .eq("collaborator_id", collaboratorId!)
+        .order("data_despesa", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as BenefitExpense[];
+    },
+  });
+
+  return { balancesQ, creditsQ, expensesQ };
+}
+
 function CollaboratorBody({
   collaborator,
   onChanged,
@@ -121,49 +185,34 @@ function CollaboratorBody({
   onChanged: () => void;
 }) {
   const ano = collaborator.ano_fiscal;
+  const { balancesQ, creditsQ, expensesQ } = useBenefitData(collaborator.id);
 
-  const { data: snapshot } = useQuery({
-    queryKey: ["effective-snapshot", collaborator.id, ano],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("salary_snapshots")
-        .select("*")
-        .eq("collaborator_id", collaborator.id)
-        .eq("is_effective", true)
-        .order("reference_date", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      return data as Snapshot | null;
-    },
-  });
+  const balances = balancesQ.data ?? [];
+  const credits = creditsQ.data ?? [];
+  const expenses = expensesQ.data ?? [];
 
-  const { data: expenses = [], refetch } = useQuery({
-    queryKey: ["expenses", collaborator.id, ano],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("benefit_expenses")
-        .select("*")
-        .eq("collaborator_id", collaborator.id)
-        .eq("ano_fiscal", ano)
-        .order("data_despesa", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as BenefitExpense[];
-    },
-  });
+  const balance = useMemo(
+    () => balanceByCategory({ balances, credits, expenses }),
+    [balances, credits, expenses],
+  );
 
-  const budgets = useMemo(() => budgetsFromSnapshot(snapshot), [snapshot]);
-  const consumed = useMemo(() => consumedByCategory(expenses), [expenses]);
+  const cats = CATS.filter(
+    (c) => balance[c].inicial > 0 || balance[c].creditado > 0 || balance[c].gasto > 0,
+  );
+  const hasAny = cats.length > 0;
 
-  const cats: BenefitCategory[] = ["carro", "ticket", "premio", "outros"];
-  const totalTecto = cats.reduce((s, c) => s + (budgets[c] || 0), 0);
-  const hasAnyBudget = totalTecto > 0;
+  const refetchAll = () => {
+    balancesQ.refetch();
+    creditsQ.refetch();
+    expensesQ.refetch();
+    onChanged();
+  };
 
-  if (!hasAnyBudget) {
+  if (!hasAny) {
     return (
       <Card>
         <CardContent className="py-10 text-center text-sm text-muted-foreground">
-          Não tem benefícios atribuídos no ano fiscal {ano}.
+          Ainda não tem saldo de benefícios atribuído. Contacte o administrador.
         </CardContent>
       </Card>
     );
@@ -174,30 +223,33 @@ function CollaboratorBody({
       {/* Resumo dos saldos */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cats.map((c) => {
-          const tecto = budgets[c] || 0;
-          if (tecto <= 0) return null;
-          const used = consumed[c].total;
-          const left = Math.max(0, tecto - used);
-          const pct = Math.min(100, (used / tecto) * 100);
+          const b = balance[c];
+          const tecto = b.inicial + b.creditado;
+          const pct = tecto > 0 ? Math.min(100, (b.gasto / tecto) * 100) : 0;
           return (
             <Card key={c}>
               <CardHeader className="pb-3">
                 <CardDescription>{CATEGORY_LABELS[c]}</CardDescription>
-                <CardTitle className="text-xl">{fmtEUR(left)}</CardTitle>
-                <div className="text-xs text-muted-foreground">
-                  Disponível de {fmtEUR(tecto)}
-                </div>
+                <CardTitle className={cn("text-xl", b.disponivel < 0 && "text-rose-600")}>
+                  {fmtEUR(b.disponivel)}
+                </CardTitle>
+                <div className="text-xs text-muted-foreground">disponível</div>
               </CardHeader>
               <CardContent className="space-y-2">
                 <Progress value={pct} />
-                <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-                  {consumed[c].pendente > 0 && (
-                    <span>Pendente: {fmtEUR(consumed[c].pendente)}</span>
-                  )}
-                  {consumed[c].aprovada > 0 && (
-                    <span>Aprovada: {fmtEUR(consumed[c].aprovada)}</span>
-                  )}
-                  {consumed[c].paga > 0 && <span>Paga: {fmtEUR(consumed[c].paga)}</span>}
+                <div className="grid grid-cols-3 gap-1 text-[11px] text-muted-foreground">
+                  <div>
+                    <div>Inicial</div>
+                    <div className="font-medium text-foreground">{fmtEUR(b.inicial)}</div>
+                  </div>
+                  <div>
+                    <div>Creditado</div>
+                    <div className="font-medium text-foreground">{fmtEUR(b.creditado)}</div>
+                  </div>
+                  <div>
+                    <div>Gasto</div>
+                    <div className="font-medium text-foreground">{fmtEUR(b.gasto)}</div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -211,16 +263,12 @@ function CollaboratorBody({
         <SubmitExpenseDialog
           collaboratorId={collaborator.id}
           anoFiscal={ano}
-          budgets={budgets}
-          consumed={consumed}
-          onCreated={() => {
-            refetch();
-            onChanged();
-          }}
+          balance={balance}
+          onCreated={refetchAll}
         />
       </div>
 
-      <ExpensesTable expenses={expenses} canEdit isAdmin={false} onChanged={refetch} />
+      <ExpensesTable expenses={expenses} canEdit isAdmin={false} onChanged={refetchAll} />
     </div>
   );
 }
@@ -231,14 +279,12 @@ function CollaboratorBody({
 function SubmitExpenseDialog({
   collaboratorId,
   anoFiscal,
-  budgets,
-  consumed,
+  balance,
   onCreated,
 }: {
   collaboratorId: string;
   anoFiscal: number;
-  budgets: Record<BenefitCategory, number>;
-  consumed: Record<BenefitCategory, { total: number }>;
+  balance: Record<BenefitCategory, { disponivel: number }>;
   onCreated: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -263,16 +309,12 @@ function SubmitExpenseDialog({
     setFile(null);
   };
 
-  const availableCats = (["carro", "ticket", "premio", "outros"] as BenefitCategory[]).filter(
-    (c) => (budgets[c] || 0) > 0,
-  );
+  const availableCats = CATS.filter((c) => balance[c].disponivel > 0);
 
   const valorNum = Number(form.valor.replace(",", ".")) || 0;
   const cat = form.categoria as BenefitCategory | "";
-  const tecto = cat ? budgets[cat] : 0;
-  const usado = cat ? consumed[cat].total : 0;
-  const restante = Math.max(0, tecto - usado);
-  const excede = cat && valorNum > restante;
+  const restante = cat ? balance[cat].disponivel : 0;
+  const excede = !!cat && valorNum > restante;
 
   async function submit() {
     if (!form.categoria) return toast.error("Escolha uma categoria");
@@ -282,7 +324,6 @@ function SubmitExpenseDialog({
 
     setSubmitting(true);
     try {
-      // Upload da foto
       const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
       const path = `${collaboratorId}/${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage
@@ -290,7 +331,6 @@ function SubmitExpenseDialog({
         .upload(path, file, { contentType: file.type, upsert: false });
       if (upErr) throw upErr;
 
-      // Insert na BD
       const { error } = await supabase.from("benefit_expenses").insert({
         collaborator_id: collaboratorId,
         ano_fiscal: anoFiscal,
@@ -346,11 +386,17 @@ function SubmitExpenseDialog({
                 <SelectValue placeholder="Escolha…" />
               </SelectTrigger>
               <SelectContent>
-                {availableCats.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {CATEGORY_LABELS[c]} — disponível {fmtEUR(Math.max(0, budgets[c] - consumed[c].total))}
-                  </SelectItem>
-                ))}
+                {availableCats.length === 0 ? (
+                  <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                    Sem saldo disponível em nenhuma categoria
+                  </div>
+                ) : (
+                  availableCats.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {CATEGORY_LABELS[c]} — disponível {fmtEUR(balance[c].disponivel)}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -527,7 +573,6 @@ function ExpenseActions({
   isAdmin: boolean;
   onChanged: () => void;
 }) {
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [loadingUrl, setLoadingUrl] = useState(false);
 
   async function viewPhoto() {
@@ -538,7 +583,6 @@ function ExpenseActions({
         .from("benefit-receipts")
         .createSignedUrl(expense.foto_path, 60 * 5);
       if (error) throw error;
-      setPhotoUrl(data.signedUrl);
       window.open(data.signedUrl, "_blank");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao abrir foto");
@@ -559,7 +603,6 @@ function ExpenseActions({
       .eq("id", expense.id);
     if (error) return toast.error(error.message);
 
-    // Notificar contabilidade (best effort)
     try {
       await fetch("/api/notify-expense", {
         method: "POST",
@@ -586,7 +629,7 @@ function ExpenseActions({
       })
       .eq("id", expense.id);
     if (error) return toast.error(error.message);
-    toast.success("Despesa rejeitada");
+    toast.success("Despesa rejeitada — saldo devolvido");
     onChanged();
   }
 
@@ -689,13 +732,16 @@ function AdminView() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-          <Wallet className="h-6 w-6" /> Benefícios — Gestão
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Aprove, rejeite e marque como pagas as despesas submetidas pelos colaboradores.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
+            <Wallet className="h-6 w-6" /> Benefícios — Gestão
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Aprove despesas e faça a gestão dos saldos e créditos anuais por colaborador.
+          </p>
+        </div>
+        <ManageBalancesDialog collaborators={collaborators} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -752,6 +798,284 @@ function SummaryCard({
         <CardDescription>{label}</CardDescription>
         <CardTitle className="text-2xl">{fmtEUR(value)}</CardTitle>
       </CardHeader>
+    </Card>
+  );
+}
+
+// =============================================================
+// Admin: gestão de saldos iniciais e créditos anuais
+// =============================================================
+function ManageBalancesDialog({ collaborators }: { collaborators: Collaborator[] }) {
+  const [open, setOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<string>("");
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline">
+          <Settings2 className="h-4 w-4" /> Gerir saldos
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>Saldos e créditos anuais</DialogTitle>
+          <DialogDescription>
+            Defina o saldo inicial e os créditos por ano fiscal de cada colaborador. Sobras
+            transitam automaticamente.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-1.5">
+          <Label>Colaborador</Label>
+          <Select value={selectedId} onValueChange={setSelectedId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Escolha um colaborador…" />
+            </SelectTrigger>
+            <SelectContent>
+              {collaborators.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {selectedId && (
+          <CollaboratorBalanceEditor
+            collaborator={collaborators.find((c) => c.id === selectedId)!}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function CollaboratorBalanceEditor({ collaborator }: { collaborator: Collaborator }) {
+  const qc = useQueryClient();
+  const { balancesQ, creditsQ } = useBenefitData(collaborator.id);
+
+  const { data: snapshot } = useQuery({
+    queryKey: ["effective-snapshot", collaborator.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salary_snapshots")
+        .select("*")
+        .eq("collaborator_id", collaborator.id)
+        .eq("is_effective", true)
+        .order("reference_date", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data as Snapshot | null;
+    },
+  });
+
+  const fichaBudgets = useMemo(() => budgetsFromSnapshot(snapshot), [snapshot]);
+
+  const balances = balancesQ.data ?? [];
+  const credits = creditsQ.data ?? [];
+
+  const balanceByCat = useMemo(() => {
+    const m = {} as Record<BenefitCategory, BenefitBalance | undefined>;
+    for (const b of balances) m[b.categoria] = b;
+    return m;
+  }, [balances]);
+
+  async function setBalance(cat: BenefitCategory, valor: number) {
+    const existing = balanceByCat[cat];
+    const payload = {
+      collaborator_id: collaborator.id,
+      categoria: cat,
+      saldo_inicial: valor,
+    };
+    const { error } = existing
+      ? await sb.from("benefit_balances").update(payload).eq("id", existing.id)
+      : await sb.from("benefit_balances").insert(payload);
+    if (error) return toast.error(error.message);
+    toast.success("Saldo inicial guardado");
+    qc.invalidateQueries({ queryKey: ["benefit-balances", collaborator.id] });
+  }
+
+  async function upsertCredit(ano: number, cat: BenefitCategory, valor: number) {
+    const existing = credits.find((c) => c.ano_fiscal === ano && c.categoria === cat);
+    const payload = {
+      collaborator_id: collaborator.id,
+      ano_fiscal: ano,
+      categoria: cat,
+      valor,
+    };
+    const { error } = existing
+      ? await sb.from("benefit_yearly_credits").update(payload).eq("id", existing.id)
+      : await sb.from("benefit_yearly_credits").insert(payload);
+    if (error) return toast.error(error.message);
+    toast.success(`Crédito ${ano} guardado`);
+    qc.invalidateQueries({ queryKey: ["benefit-credits", collaborator.id] });
+  }
+
+  async function removeCredit(id: string) {
+    if (!confirm("Apagar este crédito?")) return;
+    const { error } = await sb.from("benefit_yearly_credits").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Crédito apagado");
+    qc.invalidateQueries({ queryKey: ["benefit-credits", collaborator.id] });
+  }
+
+  async function creditFromFicha() {
+    const ano = collaborator.ano_fiscal;
+    let n = 0;
+    for (const c of CATS) {
+      const valor = fichaBudgets[c] || 0;
+      if (valor <= 0) continue;
+      await upsertCredit(ano, c, valor);
+      n++;
+    }
+    if (n === 0) toast.info("A ficha não tem benefícios atribuídos.");
+  }
+
+  // Anos existentes + ano corrente
+  const anos = useMemo(() => {
+    const set = new Set<number>(credits.map((c) => c.ano_fiscal));
+    set.add(collaborator.ano_fiscal);
+    return Array.from(set).sort((a, b) => b - a);
+  }, [credits, collaborator.ano_fiscal]);
+
+  return (
+    <div className="space-y-6">
+      {/* Saldo inicial */}
+      <section className="space-y-2">
+        <h3 className="text-sm font-semibold">Saldo inicial (uma vez)</h3>
+        <p className="text-xs text-muted-foreground">
+          Saldo já existente do colaborador antes da implementação deste sistema.
+        </p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {CATS.map((c) => (
+            <BalanceField
+              key={c}
+              label={CATEGORY_LABELS[c]}
+              value={balanceByCat[c]?.saldo_inicial ?? 0}
+              onSave={(v) => setBalance(c, v)}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Créditos anuais */}
+      <section className="space-y-2">
+        <div className="flex items-end justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-semibold">Créditos anuais</h3>
+            <p className="text-xs text-muted-foreground">
+              Valor creditado em cada ano. Por norma, igual ao da ficha do colaborador desse ano.
+            </p>
+          </div>
+          <Button size="sm" variant="outline" onClick={creditFromFicha}>
+            Creditar {collaborator.ano_fiscal} a partir da ficha
+          </Button>
+        </div>
+
+        {anos.map((ano) => (
+          <YearCreditRow
+            key={ano}
+            ano={ano}
+            credits={credits.filter((c) => c.ano_fiscal === ano)}
+            fichaBudgets={ano === collaborator.ano_fiscal ? fichaBudgets : null}
+            onSave={(cat, valor) => upsertCredit(ano, cat, valor)}
+            onRemove={removeCredit}
+          />
+        ))}
+      </section>
+    </div>
+  );
+}
+
+function BalanceField({
+  label,
+  value,
+  onSave,
+}: {
+  label: string;
+  value: number;
+  onSave: (v: number) => void | Promise<void>;
+}) {
+  const [v, setV] = useState(String(value));
+  return (
+    <div className="space-y-1">
+      <Label className="text-xs">{label}</Label>
+      <div className="flex gap-1">
+        <Input
+          inputMode="decimal"
+          value={v}
+          onChange={(e) => setV(e.target.value)}
+          className="h-8 text-sm"
+        />
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => onSave(Number(v.replace(",", ".")) || 0)}
+        >
+          OK
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function YearCreditRow({
+  ano,
+  credits,
+  fichaBudgets,
+  onSave,
+  onRemove,
+}: {
+  ano: number;
+  credits: BenefitYearlyCredit[];
+  fichaBudgets: Record<BenefitCategory, number> | null;
+  onSave: (cat: BenefitCategory, valor: number) => void | Promise<void>;
+  onRemove: (id: string) => void | Promise<void>;
+}) {
+  const byCat = useMemo(() => {
+    const m = {} as Record<BenefitCategory, BenefitYearlyCredit | undefined>;
+    for (const c of credits) m[c.categoria] = c;
+    return m;
+  }, [credits]);
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm">Ano fiscal {ano}</CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {CATS.map((c) => {
+          const existing = byCat[c];
+          const sugestao = fichaBudgets?.[c] ?? 0;
+          return (
+            <div key={c} className="space-y-1">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">{CATEGORY_LABELS[c]}</Label>
+                {existing && (
+                  <button
+                    onClick={() => onRemove(existing.id)}
+                    className="text-[10px] text-rose-600 hover:underline"
+                  >
+                    apagar
+                  </button>
+                )}
+              </div>
+              <BalanceField
+                label=""
+                value={existing?.valor ?? 0}
+                onSave={(v) => onSave(c, v)}
+              />
+              {!existing && sugestao > 0 && (
+                <div className="text-[10px] text-muted-foreground">
+                  Ficha: {fmtEUR(sugestao)}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </CardContent>
     </Card>
   );
 }
