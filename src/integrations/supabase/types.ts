@@ -453,6 +453,8 @@ export type Database = {
         Row: {
           ano_fiscal: number
           created_at: string
+          formula_constante: number | null
+          formula_factor: number | null
           id: string
           localizacao: string
           notas: string | null
@@ -468,6 +470,8 @@ export type Database = {
         Insert: {
           ano_fiscal: number
           created_at?: string
+          formula_constante?: number | null
+          formula_factor?: number | null
           id?: string
           localizacao: string
           notas?: string | null
@@ -483,6 +487,8 @@ export type Database = {
         Update: {
           ano_fiscal?: number
           created_at?: string
+          formula_constante?: number | null
+          formula_factor?: number | null
           id?: string
           localizacao?: string
           notas?: string | null
