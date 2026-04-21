@@ -154,6 +154,7 @@ export function computeSnapshot(s: Snapshot) {
   return {
     base,
     meses,
+    baseMensalTributavel,
     ssAtelierMensal,
     ssColaboradorMensal,
     irsMensal,
