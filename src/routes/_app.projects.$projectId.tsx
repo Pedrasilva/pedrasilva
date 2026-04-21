@@ -376,11 +376,13 @@ function ProjectDetail() {
                       key={r.id}
                       to="/projects/resources/$resourceId"
                       params={{ resourceId: r.id }}
-                      className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-2.5 py-1 text-xs hover:bg-accent"
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-background py-0.5 pl-0.5 pr-2.5 text-xs hover:bg-accent"
                     >
-                      <span
-                        className="inline-block h-2 w-2 rounded-full"
-                        style={{ backgroundColor: r.color }}
+                      <CollaboratorAvatar
+                        collaboratorId={(r as { collaborator_id?: string | null }).collaborator_id ?? null}
+                        name={r.name}
+                        color={r.color}
+                        size={20}
                       />
                       <span className="truncate max-w-[120px]">{r.name}</span>
                     </Link>
@@ -1124,7 +1126,12 @@ function MilestonesTable({
                         <tr key={a.id} className="border-b border-border last:border-b-0">
                           <td className="px-4 py-2.5">
                             <div className="flex items-center gap-2 pl-7">
-                              <div className="h-3 w-3 rounded-sm border border-border bg-muted/50" />
+                              <CollaboratorAvatar
+                                collaboratorId={(a.resource as { collaborator_id?: string | null }).collaborator_id ?? null}
+                                name={a.resource.name}
+                                color={a.resource.color}
+                                size={20}
+                              />
                               <span className="truncate text-foreground">{a.resource.name}</span>
                               <span className="text-[10px] text-muted-foreground">
                                 {Number(a.hours_per_day)}h/d
