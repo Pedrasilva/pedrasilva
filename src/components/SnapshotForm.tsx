@@ -36,6 +36,9 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual",
   "subsidio_alimentacao_manual", "subsidio_alimentacao_diario_manual",
   "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios",
+  // Agregado familiar — trancado por ficha (snapshot histórico)
+  "localizacao", "estado_civil", "numero_titulares", "numero_dependentes",
+  "dependentes_com_deficiencia", "ano_fiscal",
 ];
 
 export function SnapshotForm({ snapshot, collaborator }: Props) {
