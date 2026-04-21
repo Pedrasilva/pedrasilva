@@ -138,7 +138,7 @@ function HrLayout() {
     .filter((g) => g.items.length > 0);
 
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)] -my-6 -mx-4 sm:-mx-6 bg-[var(--hr-bg)]">
+    <div className="flex min-h-[calc(100vh-3.5rem)] bg-[var(--hr-bg)]">
       {/* Sidebar — desktop */}
       <aside
         className={cn(
