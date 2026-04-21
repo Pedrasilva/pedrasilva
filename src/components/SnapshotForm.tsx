@@ -37,7 +37,7 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos", "subsidios_modo",
   "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual",
   "subsidio_alimentacao_manual", "subsidio_alimentacao_diario_manual",
-  "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios",
+  "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios", "beneficio_variavel",
   // Agregado familiar — trancado por ficha (snapshot histórico)
   "localizacao", "estado_civil", "numero_titulares", "numero_dependentes",
   "dependentes_com_deficiencia", "ano_fiscal",
@@ -135,6 +135,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         beneficio_ticket: Number(draft.beneficio_ticket) || 0,
         premio_associado: Number(draft.premio_associado) || 0,
         outros_beneficios: Number(draft.outros_beneficios) || 0,
+        beneficio_variavel: Number(draft.beneficio_variavel) || 0,
         // Agregado familiar — gravado a partir do draft (trancado por ficha)
         localizacao: draft.localizacao,
         estado_civil: draft.estado_civil,
