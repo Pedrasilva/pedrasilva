@@ -844,6 +844,7 @@ function MilestonesTable({
   stageCost,
   stageLoggedHours,
   stagePlannedHours,
+  defaultRates,
 }: {
   stages: ReturnType<typeof useProjectDetail>["data"] extends infer T
     ? T extends { stages: infer S }
@@ -855,7 +856,42 @@ function MilestonesTable({
   stageCost: (id: string) => number;
   stageLoggedHours: (id: string) => number;
   stagePlannedHours: (id: string) => number;
+  defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
 }) {
+  const [expanded, setExpanded] = useState<Set<string>>(
+    () => new Set(stages?.map((s) => s.id) ?? []),
+  );
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "empty">("all");
+  const [search, setSearch] = useState("");
+
+  const toggle = (id: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const allExpanded = stages.every((s) => expanded.has(s.id));
+  const toggleAll = () => {
+    if (allExpanded) setExpanded(new Set());
+    else setExpanded(new Set(stages.map((s) => s.id)));
+  };
+
+  const filtered = stages.filter((s) => {
+    if (statusFilter === "active" && s.allocations.length === 0) return false;
+    if (statusFilter === "empty" && s.allocations.length > 0) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      const inName = s.name.toLowerCase().includes(q);
+      const inAllocs = s.allocations.some((a) =>
+        a.resource.name.toLowerCase().includes(q),
+      );
+      if (!inName && !inAllocs) return false;
+    }
+    return true;
+  });
+
   if (!stages || stages.length === 0) {
     return (
       <div className="p-10 text-center text-sm text-muted-foreground">
@@ -863,77 +899,297 @@ function MilestonesTable({
       </div>
     );
   }
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-border bg-muted/40 text-left text-[11px] uppercase tracking-wider text-muted-foreground">
-            <th className="px-4 py-2 font-medium">Fase</th>
-            <th className="px-4 py-2 font-medium">Status</th>
-            <th className="px-4 py-2 font-medium">Earned Value</th>
-            <th className="px-4 py-2 font-medium text-right">Usage / Budget</th>
-            <th className="px-4 py-2 font-medium">Datas</th>
-          </tr>
-        </thead>
-        <tbody>
-          {stages.map((s, i) => {
-            const cost = stageCost(s.id);
-            const budget = Number(s.budget);
-            const usage = budget > 0 ? cost / budget : 0;
-            const over = cost > budget && budget > 0;
-            const logged = stageLoggedHours(s.id);
-            const planned = stagePlannedHours(s.id);
-            const evPct = planned > 0 ? Math.min(1, logged / planned) : 0;
-            return (
-              <tr key={s.id} className="border-b border-border last:border-b-0">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground tabular-nums">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span
-                      className="inline-block h-2 w-2 rounded-full"
-                      style={{ backgroundColor: s.color }}
-                    />
-                    <span className="font-medium">{s.name}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <Badge variant="secondary" className="text-[10px]">
-                    {s.allocations.length > 0 ? "Activo" : "Sem alocação"}
-                  </Badge>
-                </td>
-                <td className="px-4 py-3 w-[28%] min-w-[180px]">
-                  <div className="flex items-center gap-3">
-                    <Meter value={evPct} tone="info" className="flex-1" />
-                    <span className="text-xs text-muted-foreground tabular-nums w-10 text-right">
-                      {Math.round(evPct * 100)}%
-                    </span>
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <span className="font-mono text-xs">
-                    <span className={over ? "text-destructive font-semibold" : ""}>
-                      {logged.toFixed(1)}h
-                    </span>
-                    <span className="text-muted-foreground"> / {euros(budget)}</span>
-                  </span>
-                  <Meter
-                    value={Math.min(1, usage)}
-                    tone={over ? "danger" : "ok"}
-                    className="mt-1.5 ml-auto w-32"
-                  />
-                </td>
-                <td className="px-4 py-3 text-xs text-muted-foreground tabular-nums whitespace-nowrap">
-                  {format(parseISO(s.start_date), "d MMM", { locale: pt })}
-                  {" → "}
-                  {format(parseISO(s.end_date), "d MMM", { locale: pt })}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div>
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-2.5">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleAll}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-accent hover:text-foreground"
+            aria-label={allExpanded ? "Colapsar tudo" : "Expandir tudo"}
+            title={allExpanded ? "Colapsar tudo" : "Expandir tudo"}
+          >
+            <ArrowUpDown className="h-3.5 w-3.5" />
+          </button>
+          <label className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-xs text-muted-foreground">
+            <span className="text-foreground/80">Status:</span>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as "all" | "active" | "empty")}
+              className="bg-transparent text-xs font-medium text-foreground outline-none"
+            >
+              <option value="all">Todos</option>
+              <option value="active">Activas</option>
+              <option value="empty">Sem alocação</option>
+            </select>
+          </label>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-foreground hover:bg-accent">
+            <Pencil className="h-3.5 w-3.5" /> Edit Plan
+          </button>
+          <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-foreground hover:bg-accent">
+            <Plus className="h-3.5 w-3.5" /> Add Task
+          </button>
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search"
+              className="h-8 w-44 rounded-md border border-border bg-background pl-7 pr-2 text-xs outline-none placeholder:text-muted-foreground focus:ring-1 focus:ring-ring"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <th className="px-4 py-2.5 font-semibold">Milestones &amp; Tasks</th>
+              <th className="px-4 py-2.5 font-semibold">Status</th>
+              <th className="px-4 py-2.5 font-semibold">Earned Value</th>
+              <th className="px-4 py-2.5 font-semibold">Usage / Budget</th>
+              <th className="px-4 py-2.5 font-semibold">Scheduled start</th>
+              <th className="px-4 py-2.5 font-semibold">Scheduled due</th>
+              <th className="px-4 py-2.5 text-right font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((s, i) => {
+              const cost = stageCost(s.id);
+              const budget = Number(s.budget);
+              const over = cost > budget && budget > 0;
+              const logged = stageLoggedHours(s.id);
+              const planned = stagePlannedHours(s.id);
+              const evPct = planned > 0 ? Math.min(1, logged / planned) : 0;
+              const isOpen = expanded.has(s.id);
+              const isActive = s.allocations.length > 0;
+              return (
+                <Fragment key={s.id}>
+                  <tr className="border-b border-border bg-muted/20 hover:bg-muted/30">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => toggle(s.id)}
+                          className="text-muted-foreground hover:text-foreground"
+                          aria-label={isOpen ? "Colapsar" : "Expandir"}
+                        >
+                          {isOpen ? (
+                            <ChevronDown className="h-3.5 w-3.5" />
+                          ) : (
+                            <ChevronRight className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                        <span
+                          className="inline-block h-2 w-2 shrink-0 rounded-full"
+                          style={{ backgroundColor: s.color }}
+                        />
+                        <div className="min-w-0">
+                          <div className="truncate font-semibold text-foreground">
+                            {i + 1}. {s.name}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground">
+                            {s.allocations.length === 0
+                              ? "Sem responsável"
+                              : `${s.allocations.length} alocaç${s.allocations.length === 1 ? "ão" : "ões"}`}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusDot active={isActive} label={isActive ? "Active" : "Planned"} />
+                    </td>
+                    <td className="px-4 py-3 min-w-[220px] w-[26%]">
+                      <EVCell cost={cost} budget={budget} pct={evPct} over={over} />
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <UsageBudgetCell logged={logged} planned={planned} over={over} />
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <DateLink date={parseISO(s.start_date)} />
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <DateLink date={parseISO(s.end_date)} />
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="inline-flex items-center gap-1 text-muted-foreground">
+                        <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Editar">
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Atribuir">
+                          <UserPlus className="h-3.5 w-3.5" />
+                        </button>
+                        <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Mais">
+                          <MoreVertical className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {isOpen &&
+                    s.allocations.map((a) => {
+                      const aHours =
+                        Math.max(0, dayDiffInclusive(a.start_date, a.end_date)) *
+                        Number(a.hours_per_day);
+                      const aCost =
+                        aHours *
+                        effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates);
+                      return (
+                        <tr key={a.id} className="border-b border-border last:border-b-0">
+                          <td className="px-4 py-2.5">
+                            <div className="flex items-center gap-2 pl-7">
+                              <div className="h-3 w-3 rounded-sm border border-border bg-muted/50" />
+                              <span className="truncate text-foreground">{a.resource.name}</span>
+                              <span className="text-[10px] text-muted-foreground">
+                                {Number(a.hours_per_day)}h/d
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-2.5">
+                            <StatusDot active label="Started" />
+                          </td>
+                          <td className="px-4 py-2.5 min-w-[220px]">
+                            <EVCell cost={aCost} budget={0} pct={1} over={false} dimmed />
+                          </td>
+                          <td className="px-4 py-2.5 whitespace-nowrap">
+                            <UsageBudgetCell logged={aHours} planned={aHours} over={false} />
+                          </td>
+                          <td className="px-4 py-2.5 whitespace-nowrap">
+                            <DateLink date={parseISO(a.start_date)} />
+                          </td>
+                          <td className="px-4 py-2.5 whitespace-nowrap">
+                            <DateLink date={parseISO(a.end_date)} />
+                          </td>
+                          <td className="px-4 py-2.5 text-right">
+                            <div className="inline-flex items-center gap-1 text-muted-foreground">
+                              <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Editar">
+                                <Pencil className="h-3.5 w-3.5" />
+                              </button>
+                              <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Atribuir">
+                                <UserPlus className="h-3.5 w-3.5" />
+                              </button>
+                              <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Mais">
+                                <MoreVertical className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
+}
+
+// ---- Cells ---------------------------------------------------------------
+
+function StatusDot({ active, label }: { active: boolean; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs">
+      <span
+        className={cn(
+          "inline-block h-2 w-2 rounded-full",
+          active ? "bg-emerald-500" : "bg-muted-foreground/40",
+        )}
+      />
+      <span className={active ? "text-emerald-700 dark:text-emerald-400" : "text-muted-foreground"}>
+        {label}
+      </span>
+    </span>
+  );
+}
+
+function EVCell({
+  cost,
+  budget,
+  pct,
+  over,
+  dimmed,
+}: {
+  cost: number;
+  budget: number;
+  pct: number;
+  over: boolean;
+  dimmed?: boolean;
+}) {
+  return (
+    <div>
+      <div className={cn("flex items-baseline justify-between text-xs", dimmed && "text-muted-foreground")}>
+        <span className="font-mono">
+          <span className={over ? "text-destructive font-semibold" : ""}>{euros(cost)}</span>
+          <span className="text-muted-foreground"> / {euros(budget)}</span>
+        </span>
+        <span className="tabular-nums text-muted-foreground">{Math.round(pct * 100)}%</span>
+      </div>
+      <div className="mt-1.5 h-[3px] w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full"
+          style={{
+            width: `${Math.max(0, Math.min(100, pct * 100))}%`,
+            backgroundColor: over ? "var(--color-budget-over)" : "var(--color-budget-spent)",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function UsageBudgetCell({
+  logged,
+  planned,
+  over,
+}: {
+  logged: number;
+  planned: number;
+  over: boolean;
+}) {
+  const noBudget = planned <= 0;
+  return (
+    <div className="flex items-center gap-2 font-mono text-xs">
+      <span className={over ? "text-destructive font-semibold" : "text-foreground"}>
+        {formatHm(logged)}
+      </span>
+      <span className="text-muted-foreground">/</span>
+      <span
+        className={cn(
+          "rounded px-1.5 py-0.5 text-[11px]",
+          noBudget || over
+            ? "bg-destructive/15 text-destructive"
+            : "bg-muted text-foreground",
+        )}
+      >
+        {formatHm(planned)}
+      </span>
+    </div>
+  );
+}
+
+function DateLink({ date }: { date: Date }) {
+  return (
+    <span className="text-xs text-foreground underline decoration-dotted decoration-muted-foreground/60 underline-offset-4">
+      {format(date, "d MMM", { locale: pt })}
+    </span>
+  );
+}
+
+function dayDiffInclusive(start: string, end: string) {
+  return differenceInCalendarDays(parseISO(end), parseISO(start)) + 1;
+}
+
+function formatHm(hours: number) {
+  if (!Number.isFinite(hours)) return "0h 0m";
+  const totalMin = Math.round(hours * 60);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return `${h}h ${m}m`;
 }
