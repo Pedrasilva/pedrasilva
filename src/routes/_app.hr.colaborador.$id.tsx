@@ -437,85 +437,104 @@ function CollaboratorPage() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Agregado familiar e contexto fiscal</CardTitle>
-          <CardDescription>
-            Estes valores são usados no cálculo automático de IRS de todas as fichas deste colaborador.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <Field label="Localização">
-              <Select
-                value={draft.localizacao}
-                onValueChange={(v) => setField("localizacao", v)}
+        <Collapsible open={agregadoOpen} onOpenChange={setAgregadoOpen}>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer">
+              <button
+                type="button"
+                className="flex w-full items-start gap-2 text-left"
+                aria-expanded={agregadoOpen}
               >
-                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {LOCALIZACOES.map((l) => (
-                    <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Estado civil">
-              <Select
-                value={draft.estado_civil}
-                onValueChange={(v) => setField("estado_civil", v)}
-              >
-                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {ESTADOS_CIVIS.map((e) => (
-                    <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Nº titulares">
-              <Input
-                type="number"
-                min={1}
-                max={2}
-                className="input-yellow tabular-nums"
-                value={draft.numero_titulares}
-                onChange={(e) => setField("numero_titulares", Number(e.target.value) || 1)}
-              />
-            </Field>
-            <Field label="Nº dependentes">
-              <Input
-                type="number"
-                min={0}
-                className="input-yellow tabular-nums"
-                value={draft.numero_dependentes}
-                onChange={(e) => setField("numero_dependentes", Number(e.target.value) || 0)}
-              />
-            </Field>
-            <Field label="Dep. com deficiência">
-              <Input
-                type="number"
-                min={0}
-                className="input-yellow tabular-nums"
-                value={draft.dependentes_com_deficiencia}
-                onChange={(e) => setField("dependentes_com_deficiencia", Number(e.target.value) || 0)}
-              />
-            </Field>
-            <Field label="Ano fiscal">
-              <Select
-                value={String(draft.ano_fiscal)}
-                onValueChange={(v) => setField("ano_fiscal", Number(v))}
-              >
-                <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {[2023, 2024, 2025, 2026].map((y) => (
-                    <SelectItem key={y} value={String(y)}>
-                      {y}{y !== 2026 ? " · sem tabela IRS" : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-          </div>
-        </CardContent>
+                <ChevronDown
+                  className={`mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform ${
+                    agregadoOpen ? "rotate-0" : "-rotate-90"
+                  }`}
+                />
+                <div className="space-y-1.5">
+                  <CardTitle className="text-base">Agregado familiar e contexto fiscal</CardTitle>
+                  <CardDescription>
+                    Estes valores são usados no cálculo automático de IRS de todas as fichas deste colaborador.
+                  </CardDescription>
+                </div>
+              </button>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <Field label="Localização">
+                  <Select
+                    value={draft.localizacao}
+                    onValueChange={(v) => setField("localizacao", v)}
+                  >
+                    <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {LOCALIZACOES.map((l) => (
+                        <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Estado civil">
+                  <Select
+                    value={draft.estado_civil}
+                    onValueChange={(v) => setField("estado_civil", v)}
+                  >
+                    <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {ESTADOS_CIVIS.map((e) => (
+                        <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Nº titulares">
+                  <Input
+                    type="number"
+                    min={1}
+                    max={2}
+                    className="input-yellow tabular-nums"
+                    value={draft.numero_titulares}
+                    onChange={(e) => setField("numero_titulares", Number(e.target.value) || 1)}
+                  />
+                </Field>
+                <Field label="Nº dependentes">
+                  <Input
+                    type="number"
+                    min={0}
+                    className="input-yellow tabular-nums"
+                    value={draft.numero_dependentes}
+                    onChange={(e) => setField("numero_dependentes", Number(e.target.value) || 0)}
+                  />
+                </Field>
+                <Field label="Dep. com deficiência">
+                  <Input
+                    type="number"
+                    min={0}
+                    className="input-yellow tabular-nums"
+                    value={draft.dependentes_com_deficiencia}
+                    onChange={(e) => setField("dependentes_com_deficiencia", Number(e.target.value) || 0)}
+                  />
+                </Field>
+                <Field label="Ano fiscal">
+                  <Select
+                    value={String(draft.ano_fiscal)}
+                    onValueChange={(v) => setField("ano_fiscal", Number(v))}
+                  >
+                    <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {[2023, 2024, 2025, 2026].map((y) => (
+                        <SelectItem key={y} value={String(y)}>
+                          {y}{y !== 2026 ? " · sem tabela IRS" : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
       </Card>
 
       <div>
