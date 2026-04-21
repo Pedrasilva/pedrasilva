@@ -235,10 +235,10 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                 <div>
                   <div className="text-sm font-medium">Cálculo automático de IRS</div>
                   <div className="text-[11px] text-muted-foreground">
-                    Tabela: {TABELA_LABEL[tabela]} · {collaborator.localizacao} · {irsTableData.resolvedYear ?? collaborator.ano_fiscal}
+                    Tabela: {TABELA_LABEL[tabela]} · {draft.localizacao} · {irsTableData.resolvedYear ?? draft.ano_fiscal}
                     {irsTableData.isFallback ? " · fallback automático" : ""}
                     {" · "}
-                    <span className="italic">contexto do colaborador</span>
+                    <span className="italic">contexto trancado na ficha</span>
                   </div>
                 </div>
               </div>
