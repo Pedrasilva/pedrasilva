@@ -26,8 +26,10 @@ import {
 import {
   useDefaultResourceRates,
   effectiveCostRate,
+  effectiveSaleRate,
 } from "@/lib/projects/use-default-rates";
 import { useProjectInvoices } from "@/lib/projects/use-invoices";
+import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { useProjectActivities } from "@/lib/projects/use-activities";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
