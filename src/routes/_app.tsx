@@ -140,7 +140,7 @@ function AppLayout() {
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6">
           {/* Brand */}
           <Link
-            to={isAdmin ? "/" : "/hr/minha-ficha"}
+            to={isRealAdmin ? "/" : "/hr/minha-ficha"}
             className="flex items-center gap-3 shrink-0"
           >
             <img
