@@ -101,8 +101,6 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
     },
   );
 
-  // Suprimir warning de variável não usada (reservada para evolução futura)
-  void ssAtelierSobreDuodecimos;
 
   const annualSlices = [
     { name: "Base anual", value: c.baseMensal12 * 12, color: "var(--sage)" },
