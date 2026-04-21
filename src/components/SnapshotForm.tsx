@@ -133,12 +133,13 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         beneficio_ticket: Number(draft.beneficio_ticket) || 0,
         premio_associado: Number(draft.premio_associado) || 0,
         outros_beneficios: Number(draft.outros_beneficios) || 0,
-        localizacao: collaborator.localizacao,
-        estado_civil: collaborator.estado_civil,
-        numero_titulares: collaborator.numero_titulares,
-        numero_dependentes: collaborator.numero_dependentes,
-        dependentes_com_deficiencia: collaborator.dependentes_com_deficiencia,
-        ano_fiscal: collaborator.ano_fiscal,
+        // Agregado familiar — gravado a partir do draft (trancado por ficha)
+        localizacao: draft.localizacao,
+        estado_civil: draft.estado_civil,
+        numero_titulares: Number(draft.numero_titulares) || 1,
+        numero_dependentes: Number(draft.numero_dependentes) || 0,
+        dependentes_com_deficiencia: Number(draft.dependentes_com_deficiencia) || 0,
+        ano_fiscal: Number(draft.ano_fiscal) || new Date().getFullYear(),
       };
       const { error } = await supabase.from("salary_snapshots").update(patch).eq("id", snapshot.id);
       if (error) throw error;
