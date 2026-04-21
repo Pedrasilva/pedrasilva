@@ -304,7 +304,7 @@ function AppLayout() {
                     );
                   })}
 
-                  {isAdmin && (
+                  {isRealAdmin && (
                     <>
                       <div className="px-2 pb-1 pt-4 text-[11px] uppercase tracking-wide text-muted-foreground">
                         Configuração
