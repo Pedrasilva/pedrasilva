@@ -98,16 +98,29 @@ export function computeSnapshot(s: Snapshot) {
     : (s.meses_pagos || 14);
 
   // Bloco 1 — Base contractual
-  const ssAtelierMensal = base * s.ss_atelier_pct;
-  const ssColaboradorMensal = base * s.ss_colaborador_pct;
-  const irsMensal = base * s.irs_pct;
-  const baseAnual = base * meses;
-  const ssAtelierAnual = ssAtelierMensal * meses;
-  const ssColaboradorAnual = ssColaboradorMensal * meses;
-  const irsAnual = irsMensal * meses;
+  // A SS e o IRS incidem sobre o valor efectivamente pago em cada mês.
+  // Em regime de duodécimos, o valor mensal pago = base + parte diluída dos
+  // subsídios; a SS/IRS devem reflectir essa base alargada.
+  // - tradicional (14m): mensal = base; subsídios pagos por inteiro tributados
+  //   no mês de pagamento (Junho/Novembro). Anual SS = base × 14 × ss_pct.
+  // - duodécimos 50% (13m): mensal = base + (2 × base × 0.5)/12 = base × 13/12;
+  //   metade restante de cada subsídio paga por inteiro. Anual = base × 13.
+  // - duodécimos 100% (12m): mensal = base × 14/12; nada pago por inteiro.
+  //   Anual = base × 14 (mantém a paridade anual com o tradicional).
+  const baseAnual = base * meses; // total anual de remuneração base sujeita a SS/IRS
+  const baseMensalTributavel = baseAnual / 12; // base efectiva mensal para SS/IRS
 
-  const liquido14m = base - ssColaboradorMensal - irsMensal; // por mês de pagamento (14)
-  const liquidoAnual = liquido14m * meses;
+  const ssAtelierMensal = baseMensalTributavel * s.ss_atelier_pct;
+  const ssColaboradorMensal = baseMensalTributavel * s.ss_colaborador_pct;
+  const irsMensal = baseMensalTributavel * s.irs_pct;
+  const ssAtelierAnual = ssAtelierMensal * 12;
+  const ssColaboradorAnual = ssColaboradorMensal * 12;
+  const irsAnual = irsMensal * 12;
+
+  // Líquido "por mês de pagamento" — usado pelo LiquidoTab como referência do
+  // que entra na conta num mês típico (já com SS/IRS sobre a base alargada).
+  const liquido14m = baseMensalTributavel - ssColaboradorMensal - irsMensal;
+  const liquidoAnual = liquido14m * 12;
   const liquido12m = liquidoAnual / 12;
 
   // Bloco 2 — Subsídio alimentação
