@@ -486,23 +486,40 @@ function ProjectDetail() {
 
             {tab === "schedule" && (
               <div className="mt-4">
-                <div className="mb-3 flex items-center justify-end gap-1 rounded-md border border-border p-1 w-fit ml-auto">
+                <div className="mb-3 flex items-center justify-end gap-2">
                   <button
-                    onClick={() => setDayWidth((w) => Math.max(16, w - 6))}
-                    className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
-                    aria-label="Zoom out"
+                    onClick={() => setPoolOpen((v) => !v)}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
+                    aria-label={poolOpen ? "Esconder team pool" : "Mostrar team pool"}
                   >
-                    <ZoomOut className="h-4 w-4" />
+                    {poolOpen ? (
+                      <>
+                        <PanelRightClose className="h-3.5 w-3.5" /> Esconder team pool
+                      </>
+                    ) : (
+                      <>
+                        <PanelRightOpen className="h-3.5 w-3.5" /> Mostrar team pool
+                      </>
+                    )}
                   </button>
-                  <button
-                    onClick={() => setDayWidth((w) => Math.min(80, w + 6))}
-                    className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
-                    aria-label="Zoom in"
-                  >
-                    <ZoomIn className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-1 rounded-md border border-border p-1">
+                    <button
+                      onClick={() => setDayWidth((w) => Math.max(16, w - 6))}
+                      className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                      aria-label="Zoom out"
+                    >
+                      <ZoomOut className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setDayWidth((w) => Math.min(80, w + 6))}
+                      className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                      aria-label="Zoom in"
+                    >
+                      <ZoomIn className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex h-[calc(100vh-360px)] gap-0">
+                <div className="flex h-[calc(100vh-320px)] min-h-[520px] gap-0">
                   <div className="flex-1 overflow-auto rounded-lg border border-border bg-canvas">
                     {stages.length === 0 ? (
                       <div className="flex h-full items-center justify-center">
@@ -529,7 +546,7 @@ function ProjectDetail() {
                       />
                     )}
                   </div>
-                  <ResourcePool resources={resources ?? []} />
+                  {poolOpen && <ResourcePool resources={resources ?? []} />}
                 </div>
               </div>
             )}
