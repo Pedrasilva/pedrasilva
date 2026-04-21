@@ -138,11 +138,11 @@ function HrLayout() {
     .filter((g) => g.items.length > 0);
 
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)] -my-6 -mx-4 sm:-mx-6 bg-[hsl(var(--hr-bg))]">
+    <div className="flex min-h-[calc(100vh-3.5rem)] -my-6 -mx-4 sm:-mx-6 bg-[var(--hr-bg)]">
       {/* Sidebar — desktop */}
       <aside
         className={cn(
-          "hidden md:flex flex-col border-r border-border bg-[hsl(var(--hr-bg))] transition-[width] duration-200 ease-out",
+          "hidden md:flex flex-col border-r border-border bg-[var(--hr-bg)] transition-[width] duration-200 ease-out",
           collapsed ? "w-[68px]" : "w-[240px]",
         )}
       >
@@ -196,7 +196,7 @@ function HrLayout() {
                               ? "justify-center px-0 py-2"
                               : "px-2.5 py-2",
                             active
-                              ? "bg-card text-foreground shadow-[0_2px_8px_hsl(var(--hr-shadow))] ring-1 ring-border/60"
+                              ? "bg-card text-foreground shadow-[0_2px_8px_var(--hr-shadow)] ring-1 ring-border/60"
                               : "text-muted-foreground hover:text-foreground hover:bg-card/60",
                           )}
                         >
@@ -204,7 +204,7 @@ function HrLayout() {
                             className={cn(
                               "h-4 w-4 shrink-0 transition-colors",
                               active
-                                ? "text-[hsl(var(--hr-accent))]"
+                                ? "text-[var(--hr-accent)]"
                                 : "text-muted-foreground group-hover:text-foreground",
                             )}
                           />
@@ -223,7 +223,7 @@ function HrLayout() {
       </aside>
 
       {/* Mobile: tira horizontal scrollable de atalhos */}
-      <div className="md:hidden border-b border-border bg-[hsl(var(--hr-bg))] sticky top-14 z-30">
+      <div className="md:hidden border-b border-border bg-[var(--hr-bg)] sticky top-14 z-30">
         <div className="flex gap-1 overflow-x-auto px-3 py-2 scrollbar-thin">
           {visibleGroups.flatMap((g) => g.items).map((item) => {
             const Icon = item.icon;
