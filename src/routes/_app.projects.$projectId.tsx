@@ -1079,6 +1079,623 @@ function MilestonesTable({
   );
 }
 
+// ---- Insights Panel -----------------------------------------------------
+
+type Stage = ReturnType<typeof useProjectDetail>["data"] extends infer T
+  ? T extends { stages: infer S }
+    ? S extends Array<infer R>
+      ? R
+      : never
+    : never
+  : never;
+
+function InsightsPanel({
+  stages,
+  invoices,
+  invoicedTotal,
+  totalBudget,
+  totalCost,
+  totalLoggedHours,
+  totalPlannedHours,
+  stageLoggedHours,
+  defaultRates,
+  activities,
+}: {
+  stages: Stage[];
+  invoices: import("@/lib/projects/use-invoices").Invoice[];
+  invoicedTotal: number;
+  totalBudget: number;
+  totalCost: number;
+  totalLoggedHours: number;
+  totalPlannedHours: number;
+  stageLoggedHours: (id: string) => number;
+  stagePlannedHours: (id: string) => number;
+  defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
+  activities: import("@/lib/projects/use-activities").Activity[];
+}) {
+  type ResAgg = {
+    id: string;
+    name: string;
+    color: string;
+    collaborator_id?: string | null;
+    plannedHours: number;
+    plannedCost: number;
+    plannedSale: number;
+    loggedHours: number;
+  };
+  const byRes = new Map<string, ResAgg>();
+  for (const s of stages) {
+    for (const a of s.allocations) {
+      const key = a.resource.id;
+      const existing =
+        byRes.get(key) ??
+        ({
+          id: a.resource.id,
+          name: a.resource.name,
+          color: a.resource.color,
+          collaborator_id: (a.resource as { collaborator_id?: string | null })
+            .collaborator_id,
+          plannedHours: 0,
+          plannedCost: 0,
+          plannedSale: 0,
+          loggedHours: 0,
+        } as ResAgg);
+      const hours = allocationHours({
+        start_date: a.start_date,
+        end_date: a.end_date,
+        hours_per_day: Number(a.hours_per_day),
+      });
+      const costRate = effectiveCostRate(
+        a.resource.cost_rate,
+        a.resource.id,
+        defaultRates,
+      );
+      const saleRate = effectiveSaleRate(
+        a.resource.hourly_rate,
+        a.resource.id,
+        defaultRates,
+      );
+      existing.plannedHours += hours;
+      existing.plannedCost += hours * costRate;
+      existing.plannedSale += hours * saleRate;
+      byRes.set(key, existing);
+    }
+  }
+  for (const s of stages) {
+    const planned = s.allocations.map((a) => ({
+      id: a.resource.id,
+      h: allocationHours({
+        start_date: a.start_date,
+        end_date: a.end_date,
+        hours_per_day: Number(a.hours_per_day),
+      }),
+    }));
+    const totPlan = planned.reduce((x, y) => x + y.h, 0);
+    const logged = stageLoggedHours(s.id);
+    if (totPlan <= 0 || logged <= 0) continue;
+    for (const p of planned) {
+      const agg = byRes.get(p.id);
+      if (!agg) continue;
+      agg.loggedHours += (p.h / totPlan) * logged;
+    }
+  }
+  const resources = Array.from(byRes.values()).sort(
+    (a, b) => b.plannedHours - a.plannedHours,
+  );
+
+  const totalSale = resources.reduce((a, r) => a + r.plannedSale, 0);
+  const earnedValue = invoicedTotal;
+  const forecastValue = totalSale > 0 ? totalSale : earnedValue;
+  const earnedPct = forecastValue > 0 ? earnedValue / forecastValue : 0;
+  const forecastPct = forecastValue > 0 ? 1 : 0;
+
+  const profitCurrent = earnedValue - totalCost;
+  const profitForecast = forecastValue - totalCost;
+  const profitCurPct =
+    earnedValue > 0 ? Math.round((profitCurrent / earnedValue) * 100) : 0;
+  const profitForePct =
+    forecastValue > 0 ? Math.round((profitForecast / forecastValue) * 100) : 0;
+
+  const wipHours = Math.max(0, totalPlannedHours - totalLoggedHours);
+  const workDonePct =
+    totalPlannedHours > 0
+      ? Math.min(1, totalLoggedHours / totalPlannedHours)
+      : 0;
+  const forecastDonePct = workDonePct;
+
+  const monthMap = new Map<
+    string,
+    { key: string; label: string; activities: number; hours: number }
+  >();
+  for (const a of activities) {
+    const d = parseISO(a.created_at);
+    const key = format(d, "yyyy-MM");
+    const label = format(d, "MMM yyyy", { locale: pt });
+    const cur = monthMap.get(key) ?? {
+      key,
+      label,
+      activities: 0,
+      hours: 0,
+    };
+    cur.activities += 1;
+    cur.hours += Number(a.logged_hours ?? 0);
+    monthMap.set(key, cur);
+  }
+  const months = Array.from(monthMap.values()).sort((a, b) =>
+    a.key < b.key ? -1 : 1,
+  );
+  const maxAct = Math.max(1, ...months.map((m) => m.activities));
+  const maxHours = Math.max(1, ...months.map((m) => m.hours));
+
+  const services = {
+    budget: totalBudget,
+    value: earnedValue,
+    cost: totalCost,
+    profit: earnedValue - totalCost,
+    invoiced: invoicedTotal,
+  };
+  const empty = { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 };
+  const totalRow = services;
+
+  return (
+    <div className="mt-4 space-y-4">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <InsightCard title="Activities vs. Hours">
+          <ActivitiesHoursChart data={months} maxAct={maxAct} maxHours={maxHours} />
+        </InsightCard>
+        <InsightCard title="Value">
+          <div className="space-y-4 px-1 pt-1">
+            <BarRow
+              label="Earned Value:"
+              value={earnedValue}
+              pct={earnedPct}
+              over={earnedValue > forecastValue && forecastValue > 0}
+            />
+            <BarRow
+              label="Forecast Value:"
+              value={forecastValue}
+              pct={forecastPct}
+              over={forecastValue < totalCost}
+            />
+          </div>
+        </InsightCard>
+      </div>
+
+      <InsightCard title="Profitability">
+        <div className="grid gap-6 px-2 py-2 sm:grid-cols-2">
+          <GaugeStat label="Current:" money={profitCurrent} pct={profitCurPct} />
+          <GaugeStat label="Forecast:" money={profitForecast} pct={profitForePct} />
+        </div>
+      </InsightCard>
+
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <InsightCard title="Financials">
+          <FinancialsTable services={services} materials={empty} expenses={empty} total={totalRow} />
+        </InsightCard>
+        <InsightCard title="Work">
+          <div className="grid grid-cols-2 gap-4 px-2 py-2">
+            <div className="flex flex-col items-center">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                Work in progress
+              </div>
+              <Gauge value={wipHours} formatter={(v) => `${Math.round(v)}h`} pct={0} muted />
+              <button className="mt-2 rounded-md border border-border px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground">
+                View Tasks
+              </button>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                Work Done
+              </div>
+              <Gauge
+                value={workDonePct * 100}
+                formatter={(v) => `${Math.round(v)}%`}
+                pct={workDonePct}
+              />
+              <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                Forecast
+              </div>
+              <Gauge
+                value={forecastDonePct * 100}
+                formatter={(v) => `${Math.round(v)}%`}
+                pct={forecastDonePct}
+              />
+            </div>
+          </div>
+        </InsightCard>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <InsightCard title="Work Done">
+          <ResourceBarList
+            resources={resources}
+            getValue={(r) =>
+              r.plannedHours > 0 ? Math.min(1, r.loggedHours / r.plannedHours) : 0
+            }
+            getLabel={(r) => formatHm(r.loggedHours)}
+            tone="ok"
+          />
+        </InsightCard>
+        <InsightCard title="Budget">
+          <ResourceBarList
+            resources={resources}
+            getValue={(r) =>
+              r.plannedSale > 0 ? Math.min(1.5, r.plannedCost / r.plannedSale) : 0
+            }
+            getLabel={(r) =>
+              r.plannedSale > 0
+                ? `${Math.round((r.plannedCost / r.plannedSale) * 100)}%`
+                : "0%"
+            }
+            tone="auto"
+          />
+        </InsightCard>
+      </div>
+
+      {invoices.length === 0 && (
+        <div className="text-[10px] text-muted-foreground">
+          Sem faturas — Earned Value usa apenas custos imputados.
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InsightCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border border-border bg-card">
+      <div className="border-b border-border px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </div>
+      <div className="p-4">{children}</div>
+    </div>
+  );
+}
+
+function ActivitiesHoursChart({
+  data,
+  maxAct,
+  maxHours,
+}: {
+  data: { key: string; label: string; activities: number; hours: number }[];
+  maxAct: number;
+  maxHours: number;
+}) {
+  if (data.length === 0) {
+    return (
+      <div className="flex h-[260px] items-center justify-center text-sm text-muted-foreground">
+        Sem actividade registada ainda.
+      </div>
+    );
+  }
+  const w = 100;
+  const h = 220;
+  const padX = 4;
+  const innerW = w - padX * 2;
+  const stepX = data.length > 1 ? innerW / (data.length - 1) : 0;
+  const points = data.map((d, i) => ({
+    x: padX + stepX * i,
+    yH: h - (d.hours / maxHours) * (h - 30),
+    yA: h - (d.activities / maxAct) * (h - 30),
+  }));
+  const areaPath =
+    points.length > 0
+      ? `M ${points[0].x},${h} ` +
+        points.map((p) => `L ${p.x},${p.yH}`).join(" ") +
+        ` L ${points[points.length - 1].x},${h} Z`
+      : "";
+  const linePath =
+    points.length > 0
+      ? `M ${points[0].x},${points[0].yH} ` +
+        points.map((p) => `L ${p.x},${p.yH}`).join(" ")
+      : "";
+  return (
+    <div>
+      <svg
+        viewBox={`0 0 ${w} ${h + 24}`}
+        preserveAspectRatio="none"
+        className="h-[240px] w-full"
+      >
+        {[0, 0.25, 0.5, 0.75, 1].map((g) => (
+          <line
+            key={g}
+            x1={padX}
+            x2={w - padX}
+            y1={h - g * (h - 30)}
+            y2={h - g * (h - 30)}
+            stroke="var(--border)"
+            strokeWidth={0.15}
+            strokeDasharray="0.6,0.6"
+          />
+        ))}
+        <path d={areaPath} fill="var(--color-budget-spent)" opacity="0.25" />
+        <path
+          d={linePath}
+          fill="none"
+          stroke="var(--color-budget-spent)"
+          strokeWidth={0.6}
+        />
+        {points.map((p, i) => {
+          const barH = h - p.yA;
+          return (
+            <rect
+              key={i}
+              x={p.x - 1.6}
+              y={p.yA}
+              width={3.2}
+              height={barH}
+              fill="var(--primary)"
+              opacity="0.85"
+            />
+          );
+        })}
+        {data.map((d, i) => (
+          <text
+            key={d.key}
+            x={padX + stepX * i}
+            y={h + 18}
+            textAnchor="middle"
+            fontSize="3"
+            fill="var(--muted-foreground)"
+          >
+            {d.label}
+          </text>
+        ))}
+      </svg>
+      <div className="mt-2 flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="inline-block h-2 w-2 rounded-sm bg-primary" /> Activities
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span
+            className="inline-block h-2 w-2 rounded-sm"
+            style={{ backgroundColor: "var(--color-budget-spent)" }}
+          />{" "}
+          Hours
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function BarRow({
+  label,
+  value,
+  pct,
+  over,
+}: {
+  label: string;
+  value: number;
+  pct: number;
+  over: boolean;
+}) {
+  return (
+    <div>
+      <div className="text-xs text-foreground">
+        {label} <span className="font-mono font-semibold">{euros(value)}</span>{" "}
+        <span className="text-muted-foreground">({Math.round(pct * 100)}%)</span>
+      </div>
+      <div className="mt-1 h-2 w-full overflow-hidden rounded bg-muted">
+        <div
+          className="h-full"
+          style={{
+            width: `${Math.max(0, Math.min(100, pct * 100))}%`,
+            backgroundColor: over
+              ? "var(--color-budget-over)"
+              : "var(--color-budget-spent)",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function Gauge({
+  value,
+  pct,
+  formatter,
+  muted,
+}: {
+  value: number;
+  pct: number;
+  formatter: (v: number) => string;
+  muted?: boolean;
+}) {
+  const radius = 28;
+  const circ = 2 * Math.PI * radius;
+  const dash = Math.max(0, Math.min(1, Math.abs(pct))) * circ;
+  const negative = pct < 0;
+  const stroke = muted
+    ? "var(--muted-foreground)"
+    : negative
+      ? "var(--color-budget-over)"
+      : "var(--color-budget-spent)";
+  return (
+    <div className="relative mt-1.5 h-[80px] w-[80px]">
+      <svg viewBox="0 0 80 80" className="h-full w-full -rotate-90">
+        <circle cx="40" cy="40" r={radius} stroke="var(--border)" strokeWidth="6" fill="none" />
+        <circle
+          cx="40"
+          cy="40"
+          r={radius}
+          stroke={stroke}
+          strokeWidth="6"
+          fill="none"
+          strokeDasharray={`${dash} ${circ - dash}`}
+          strokeLinecap="round"
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center text-sm font-semibold tabular-nums">
+        {formatter(value)}
+      </div>
+    </div>
+  );
+}
+
+function GaugeStat({
+  label,
+  money,
+  pct,
+}: {
+  label: string;
+  money: number;
+  pct: number;
+}) {
+  const negative = money < 0;
+  return (
+    <div className="flex items-center gap-4">
+      <div className="flex-1">
+        <div className="text-xs uppercase tracking-wider text-muted-foreground">
+          {label}
+        </div>
+        <div
+          className={cn(
+            "mt-1 font-mono text-lg font-semibold",
+            negative ? "text-destructive" : "text-foreground",
+          )}
+        >
+          {euros(money)}
+        </div>
+      </div>
+      <Gauge value={pct} pct={pct / 100} formatter={(v) => `${Math.round(v)}%`} />
+    </div>
+  );
+}
+
+function FinancialsTable({
+  services,
+  materials,
+  expenses,
+  total,
+}: {
+  services: { budget: number; value: number; cost: number; profit: number; invoiced: number };
+  materials: { budget: number; value: number; cost: number; profit: number; invoiced: number };
+  expenses: { budget: number; value: number; cost: number; profit: number; invoiced: number };
+  total: { budget: number; value: number; cost: number; profit: number; invoiced: number };
+}) {
+  const rows: { label: string; key: keyof typeof services }[] = [
+    { label: "Budget", key: "budget" },
+    { label: "Value", key: "value" },
+    { label: "Costs", key: "cost" },
+    { label: "Profit", key: "profit" },
+    { label: "Invoiced", key: "invoiced" },
+  ];
+  return (
+    <table className="w-full text-sm">
+      <thead>
+        <tr className="border-b border-border text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <th className="px-2 py-2 text-left font-semibold"></th>
+          <th className="px-2 py-2 font-semibold">Services</th>
+          <th className="px-2 py-2 font-semibold">Materials</th>
+          <th className="px-2 py-2 font-semibold">Expenses</th>
+          <th className="px-2 py-2 font-semibold">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => {
+          const isProfit = r.key === "profit";
+          const profitPct =
+            isProfit && services.value > 0
+              ? Math.round((services.profit / services.value) * 100)
+              : null;
+          const totalPct =
+            isProfit && total.value > 0
+              ? Math.round((total.profit / total.value) * 100)
+              : null;
+          return (
+            <tr key={r.key} className="border-b border-border/60 last:border-b-0">
+              <td className="px-2 py-2 text-xs text-muted-foreground">{r.label}</td>
+              <td className="px-2 py-2 text-right font-mono tabular-nums">
+                {euros(services[r.key])}
+                {profitPct !== null && (
+                  <div className="text-[10px] text-muted-foreground">{profitPct}%</div>
+                )}
+              </td>
+              <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
+                {euros(materials[r.key])}
+              </td>
+              <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
+                {euros(expenses[r.key])}
+              </td>
+              <td className="px-2 py-2 text-right font-mono tabular-nums">
+                {euros(total[r.key])}
+                {totalPct !== null && (
+                  <div className="text-[10px] text-muted-foreground">{totalPct}%</div>
+                )}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+}
+
+function ResourceBarList<
+  R extends {
+    id: string;
+    name: string;
+    color: string;
+    collaborator_id?: string | null;
+  },
+>({
+  resources,
+  getValue,
+  getLabel,
+  tone,
+}: {
+  resources: R[];
+  getValue: (r: R) => number;
+  getLabel: (r: R) => string;
+  tone: "ok" | "auto";
+}) {
+  if (resources.length === 0) {
+    return (
+      <div className="py-6 text-center text-sm text-muted-foreground">
+        Sem alocações.
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-3">
+      {resources.map((r) => {
+        const v = getValue(r);
+        const over = v > 1;
+        const colour =
+          tone === "auto"
+            ? over
+              ? "var(--color-budget-over)"
+              : "var(--color-budget-spent)"
+            : "var(--color-budget-spent)";
+        return (
+          <div key={r.id} className="flex items-center gap-3">
+            <CollaboratorAvatar
+              collaboratorId={r.collaborator_id ?? null}
+              name={r.name}
+              color={r.color}
+              size={28}
+            />
+            <div className="flex-1">
+              <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${Math.max(0, Math.min(100, v * 100))}%`,
+                    backgroundColor: colour,
+                  }}
+                />
+              </div>
+            </div>
+            <div className="w-20 text-right font-mono text-xs tabular-nums">
+              {getLabel(r)}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ---- Cells ---------------------------------------------------------------
 
 function StatusDot({ active, label }: { active: boolean; label: string }) {
