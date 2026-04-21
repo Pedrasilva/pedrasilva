@@ -241,7 +241,7 @@ function HubPage() {
   }
 
   return (
-    <div className="-mx-4 -my-6 sm:-mx-6">
+    <div className="psa-editorial -mx-4 -my-6 sm:-mx-6">
       {/* HERO ============================================================= */}
       <section
         className="relative overflow-hidden border-b"
