@@ -126,7 +126,7 @@ function AppLayout() {
   ] as const;
 
   const visible = items.filter((it) => it.show);
-  const settingsActive = isAdmin && settingsItems.some((s) => s.match(loc.pathname));
+  const settingsActive = isRealAdmin && settingsItems.some((s) => s.match(loc.pathname));
   // Cabeçalho/nav de HR só aparece nas rotas /hr.
   const isHrArea = loc.pathname.startsWith("/hr");
   // Quick Create só em CRM e Projects.
