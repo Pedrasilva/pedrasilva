@@ -77,7 +77,7 @@ function AppLayout() {
       label: "Hub",
       icon: Users,
       match: (p: string) => p === "/",
-      show: isRealAdmin,
+      show: true,
     },
     {
       to: "/hr/minha-ficha" as const,
