@@ -36,9 +36,12 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual",
   "subsidio_alimentacao_manual", "subsidio_alimentacao_diario_manual",
   "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios",
+  // Agregado familiar — trancado por ficha (snapshot histórico)
+  "localizacao", "estado_civil", "numero_titulares", "numero_dependentes",
+  "dependentes_com_deficiencia", "ano_fiscal",
 ];
 
-export function SnapshotForm({ snapshot, collaborator }: Props) {
+export function SnapshotForm({ snapshot, collaborator: _collaborator }: Props) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Snapshot>(snapshot);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
@@ -50,10 +53,12 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     [draft, snapshot],
   );
 
-  const tabela = pickTabela(collaborator.estado_civil, collaborator.numero_titulares);
-  const { data: irsTableData = { brackets: [], resolvedYear: collaborator.ano_fiscal, isFallback: false } } = useQuery({
-    queryKey: ["irs", collaborator.ano_fiscal, collaborator.localizacao, tabela],
-    queryFn: () => loadBracketsWithMeta(collaborator.ano_fiscal, collaborator.localizacao, tabela),
+  // Agregado familiar é trancado por ficha — usa o snapshot, NÃO o colaborador.
+  // Isto permite que cada ficha mantenha o seu contexto fiscal histórico.
+  const tabela = pickTabela(draft.estado_civil, draft.numero_titulares);
+  const { data: irsTableData = { brackets: [], resolvedYear: draft.ano_fiscal, isFallback: false } } = useQuery({
+    queryKey: ["irs", draft.ano_fiscal, draft.localizacao, tabela],
+    queryFn: () => loadBracketsWithMeta(draft.ano_fiscal, draft.localizacao, tabela),
   });
   const brackets = irsTableData.brackets;
 
@@ -86,8 +91,8 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
   }, [mealRates, refYear]);
 
   const irsAuto = useMemo(
-    () => calcIrs(draft.valor_base || 0, brackets, collaborator.numero_dependentes),
-    [draft.valor_base, collaborator.numero_dependentes, brackets],
+    () => calcIrs(draft.valor_base || 0, brackets, draft.numero_dependentes),
+    [draft.valor_base, draft.numero_dependentes, brackets],
   );
 
   const effectiveMealDaily = draft.subsidio_alimentacao_manual
@@ -97,16 +102,10 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
   const draftEffective = useMemo<Snapshot>(
     () => ({
       ...draft,
-      localizacao: collaborator.localizacao,
-      estado_civil: collaborator.estado_civil,
-      numero_titulares: collaborator.numero_titulares,
-      numero_dependentes: collaborator.numero_dependentes,
-      dependentes_com_deficiencia: collaborator.dependentes_com_deficiencia,
-      ano_fiscal: collaborator.ano_fiscal,
       irs_pct: draft.irs_calculado_auto ? irsAuto.irs_pct_efectiva : draft.irs_pct,
       subsidio_alimentacao_diario: effectiveMealDaily,
     }),
-    [draft, collaborator, irsAuto.irs_pct_efectiva, effectiveMealDaily],
+    [draft, irsAuto.irs_pct_efectiva, effectiveMealDaily],
   );
 
   const c = computeSnapshot(draftEffective);
@@ -134,12 +133,13 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         beneficio_ticket: Number(draft.beneficio_ticket) || 0,
         premio_associado: Number(draft.premio_associado) || 0,
         outros_beneficios: Number(draft.outros_beneficios) || 0,
-        localizacao: collaborator.localizacao,
-        estado_civil: collaborator.estado_civil,
-        numero_titulares: collaborator.numero_titulares,
-        numero_dependentes: collaborator.numero_dependentes,
-        dependentes_com_deficiencia: collaborator.dependentes_com_deficiencia,
-        ano_fiscal: collaborator.ano_fiscal,
+        // Agregado familiar — gravado a partir do draft (trancado por ficha)
+        localizacao: draft.localizacao,
+        estado_civil: draft.estado_civil,
+        numero_titulares: Number(draft.numero_titulares) || 1,
+        numero_dependentes: Number(draft.numero_dependentes) || 0,
+        dependentes_com_deficiencia: Number(draft.dependentes_com_deficiencia) || 0,
+        ano_fiscal: Number(draft.ano_fiscal) || new Date().getFullYear(),
       };
       const { error } = await supabase.from("salary_snapshots").update(patch).eq("id", snapshot.id);
       if (error) throw error;
@@ -235,10 +235,10 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                 <div>
                   <div className="text-sm font-medium">Cálculo automático de IRS</div>
                   <div className="text-[11px] text-muted-foreground">
-                    Tabela: {TABELA_LABEL[tabela]} · {collaborator.localizacao} · {irsTableData.resolvedYear ?? collaborator.ano_fiscal}
+                    Tabela: {TABELA_LABEL[tabela]} · {draft.localizacao} · {irsTableData.resolvedYear ?? draft.ano_fiscal}
                     {irsTableData.isFallback ? " · fallback automático" : ""}
                     {" · "}
-                    <span className="italic">contexto do colaborador</span>
+                    <span className="italic">contexto trancado na ficha</span>
                   </div>
                 </div>
               </div>
@@ -255,12 +255,12 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                 </div>
                 {irsTableData.isFallback && brackets.length > 0 && (
                   <div className="mt-3 rounded-md border border-[var(--sage)]/40 bg-[color-mix(in_oklab,var(--sage)_8%,transparent)] px-3 py-2 text-[11px] text-[var(--sage)]">
-                    Não existe tabela de retenção IRS carregada para <strong>{collaborator.ano_fiscal}</strong>. Foi usada automaticamente a tabela mais próxima disponível: <strong>{irsTableData.resolvedYear}</strong>.
+                    Não existe tabela de retenção IRS carregada para <strong>{draft.ano_fiscal}</strong>. Foi usada automaticamente a tabela mais próxima disponível: <strong>{irsTableData.resolvedYear}</strong>.
                   </div>
                 )}
                 {brackets.length === 0 && (
                   <div className="mt-3 rounded-md border border-[var(--clay)]/40 bg-[color-mix(in_oklab,var(--clay)_8%,transparent)] px-3 py-2 text-[11px] text-[var(--clay)]">
-                    Não há tabela de retenção IRS carregada para {collaborator.localizacao} · {TABELA_LABEL[tabela]}. Os valores aparecem a zero até existirem tabelas disponíveis.
+                    Não há tabela de retenção IRS carregada para {draft.localizacao} · {TABELA_LABEL[tabela]}. Os valores aparecem a zero até existirem tabelas disponíveis.
                   </div>
                 )}
               </>
