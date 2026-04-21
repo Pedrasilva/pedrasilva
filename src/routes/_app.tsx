@@ -135,7 +135,9 @@ function AppLayout() {
   const isHrArea = loc.pathname.startsWith("/hr");
   // No bloco Projects também escondemos a nav HR (tem a sua própria shell).
   const isProjectsArea = loc.pathname.startsWith("/projects");
-  const hideHrNav = isHrArea || isProjectsArea;
+  // Na landing/Hub (/) escondemos também — os módulos já estão no corpo da página.
+  const isHomeArea = loc.pathname === "/";
+  const hideHrNav = isHrArea || isProjectsArea || isHomeArea;
   // Quick Create só em CRM e Projects.
   const showQuickCreate = loc.pathname.startsWith("/crm") || loc.pathname.startsWith("/projects");
 
