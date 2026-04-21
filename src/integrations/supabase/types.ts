@@ -1541,6 +1541,7 @@ export type Database = {
           ano_fiscal: number
           beneficio_carro: number
           beneficio_ticket: number
+          beneficio_variavel: number
           collaborator_id: string
           created_at: string
           dependentes_com_deficiencia: number
@@ -1573,6 +1574,7 @@ export type Database = {
           ano_fiscal?: number
           beneficio_carro?: number
           beneficio_ticket?: number
+          beneficio_variavel?: number
           collaborator_id: string
           created_at?: string
           dependentes_com_deficiencia?: number
@@ -1605,6 +1607,7 @@ export type Database = {
           ano_fiscal?: number
           beneficio_carro?: number
           beneficio_ticket?: number
+          beneficio_variavel?: number
           collaborator_id?: string
           created_at?: string
           dependentes_com_deficiencia?: number
