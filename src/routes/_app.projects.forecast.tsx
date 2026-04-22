@@ -186,6 +186,7 @@ function ForecastPage() {
   const { data: holidays } = useHolidays();
   const { data: projects } = useProjectsLite();
   const { data: actual, isLoading: actualLoading } = useActualByMonth(monthStartISO, monthEndISO);
+  const { data: schedules } = useResourceSchedules();
 
   const resourceMap = useMemo(() => {
     const m = new Map<string, { id: string; name: string; hourly_rate: number | null; cost_rate: number | null }>();
@@ -317,7 +318,11 @@ function ForecastPage() {
       // Only consider active project-team members in capacity (back-office isn't billable delivery).
       if ((r as { active?: boolean }).active === false) continue;
       const intervals = leaveByResource?.get(r.id) ?? [];
-      const cap = computeResourceCapacity(monthStart, monthEnd, intervals, holidays);
+      // Pull this resource's contractual daily hours from their HR profile so
+      // part-time / flexible-schedule users get the right capacity number
+      // (a 4h/day user has half the capacity of a full-time peer).
+      const dh = dailyHoursFor(r.id, schedules);
+      const cap = computeResourceCapacity(monthStart, monthEnd, intervals, holidays, dh);
       const plannedH = planned.byResource.get(r.id)?.hours ?? 0;
       const utilization = cap.effectiveCapacityHours > 0 ? plannedH / cap.effectiveCapacityHours : plannedH > 0 ? Infinity : 0;
       perResource.set(r.id, {
@@ -337,7 +342,7 @@ function ForecastPage() {
     }
 
     return { perResource, totalEffective, totalRaw, totalLeave };
-  }, [resources, leaveByResource, holidays, monthStart, monthEnd, planned.byResource]);
+  }, [resources, leaveByResource, holidays, monthStart, monthEnd, planned.byResource, schedules]);
 
   // Project-level pressure: any project whose assigned team is over their
   // effective (leave-reduced) capacity is "at risk".
