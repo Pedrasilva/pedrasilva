@@ -32,6 +32,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAllStages, useResources } from "@/lib/projects/use-planner";
 import { useDefaultResourceRates, effectiveCostRate, effectiveSaleRate } from "@/lib/projects/use-default-rates";
 import { computeResourceCapacity } from "@/lib/projects/leave-capacity";
+import { useResourceSchedules, dailyHoursFor } from "@/lib/projects/use-resource-schedules";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/projects/forecast")({
