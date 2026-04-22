@@ -41,6 +41,7 @@ import {
   ChevronDown,
   CheckSquare,
   Clock,
+  TrendingUp,
 } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
@@ -311,6 +312,18 @@ function AppLayout() {
               >
                 <BarChart3 className="h-3.5 w-3.5" />
                 Financials
+              </Link>
+              <Link
+                to="/projects/forecast"
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+                  loc.pathname.startsWith("/projects/forecast")
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                )}
+              >
+                <TrendingUp className="h-3.5 w-3.5" />
+                Forecast
               </Link>
             </nav>
           )}
