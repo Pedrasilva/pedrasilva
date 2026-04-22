@@ -405,6 +405,53 @@ function DashboardPage() {
     };
   }, [entries, taskToStage, stageById, resources, defaultRates, periodStartISO, periodEndISO]);
 
+  // ---------- Hours-only KPI (period-scoped) ----------
+  const hoursKpi: HoursKpiData = useMemo(() => {
+    let loggedHours = 0;
+    let billableLogged = 0;
+    for (const e of entries ?? []) {
+      if (e.entry_type === "non_working") continue;
+      loggedHours += e.hours;
+      if (e.billable && e.entry_type === "project") billableLogged += e.hours;
+    }
+
+    // Planned hours within the selected period: clip allocations to [periodStart, periodEnd]
+    let plannedHours = 0;
+    for (const s of allStages ?? []) {
+      for (const a of s.allocations) {
+        const aStart = parseISO(a.start_date);
+        const aEnd = parseISO(a.end_date);
+        if (aEnd < periodStart || aStart > periodEnd) continue;
+        const overlapStart = aStart > periodStart ? aStart : periodStart;
+        const overlapEnd = aEnd < periodEnd ? aEnd : periodEnd;
+        plannedHours += allocationHours({
+          ...a,
+          start_date: format(overlapStart, "yyyy-MM-dd"),
+          end_date: format(overlapEnd, "yyyy-MM-dd"),
+        });
+      }
+    }
+
+    let capacityHours = 0;
+    const wd = workingDays(periodStartISO, periodEndISO);
+    for (const r of resources ?? []) {
+      if (!r.active) continue;
+      const dailyCapacity = (Number(r.weekly_capacity) || 40) / 5;
+      capacityHours += dailyCapacity * wd;
+    }
+
+    const utilizationPct = loggedHours > 0 ? (billableLogged / loggedHours) * 100 : 0;
+
+    return {
+      plannedHours,
+      loggedHours,
+      remainingHours: plannedHours - loggedHours,
+      utilizationPct,
+      capacityUsedHours: loggedHours,
+      capacityAvailableHours: capacityHours,
+    };
+  }, [entries, allStages, resources, periodStart, periodEnd, periodStartISO, periodEndISO]);
+
   // ---------- Team performance rows ----------
   const teamRows: TeamRow[] = useMemo(() => {
     const wd = workingDays(periodStartISO, periodEndISO);
