@@ -15,6 +15,8 @@ export interface ResourceWorkRow {
   color: string;
   initial: string;
   hours: number;
+  billableHours: number;
+  nonBillableHours: number;
   cost: number;
   sale: number;
 }
@@ -33,6 +35,8 @@ export interface ProjectInsights {
   totals: {
     plannedHours: number;
     loggedHours: number;
+    billableHours: number;
+    nonBillableHours: number;
     earnedValue: number;
     forecastValue: number;
     budgetTotal: number;
@@ -40,6 +44,7 @@ export interface ProjectInsights {
     forecastPct: number;
     profitPctCurrent: number;
     profitPctForecast: number;
+    profitMarginPct: number;
   };
   financials: {
     services: FinancialsRow;
@@ -59,7 +64,7 @@ export function useProjectInsights(projectId: string) {
       const { data: stages, error: sErr } = await supabase
         .from("pm_stages")
         .select(
-          "id, budget, allocations:pm_allocations(id, hours_per_day, start_date, end_date, resource:pm_resources(id, name, color, hourly_rate), tasks:pm_tasks(id))",
+          "id, budget, allocations:pm_allocations(id, hours_per_day, start_date, end_date, resource:pm_resources(id, name, color, hourly_rate, cost_rate), tasks:pm_tasks(id))",
         )
         .eq("project_id", projectId);
       if (sErr) throw sErr;
@@ -70,7 +75,13 @@ export function useProjectInsights(projectId: string) {
         hours_per_day: number;
         start_date: string;
         end_date: string;
-        resource: { id: string; name: string; color: string; hourly_rate: number };
+        resource: {
+          id: string;
+          name: string;
+          color: string;
+          hourly_rate: number;
+          cost_rate: number;
+        };
         tasks: { id: string }[];
       };
       const taskToAlloc = new Map<string, AllocLite>();
@@ -98,6 +109,8 @@ export function useProjectInsights(projectId: string) {
               color: r.color,
               initial: (r.name?.[0] ?? "?").toUpperCase(),
               hours: 0,
+              billableHours: 0,
+              nonBillableHours: 0,
               cost: 0,
               sale: 0,
             });
@@ -105,11 +118,12 @@ export function useProjectInsights(projectId: string) {
         }
       }
 
-      let entries: { task_id: string; entry_date: string; hours: number }[] = [];
+      let entries: { task_id: string; entry_date: string; hours: number; billable: boolean }[] = [];
       if (allTaskIds.length > 0) {
         const { data: tData, error: tErr } = await supabase
           .from("pm_time_entries")
-          .select("task_id, entry_date, hours")
+          .select("task_id, entry_date, hours, billable")
+          .eq("entry_type", "project")
           .in("task_id", allTaskIds);
         if (tErr) throw tErr;
         entries = (tData ?? []) as typeof entries;
@@ -117,20 +131,36 @@ export function useProjectInsights(projectId: string) {
 
       const monthMap = new Map<string, MonthlyPoint>();
       let loggedHours = 0;
-      let earnedValue = 0;
+      let billableHoursTotal = 0;
+      let nonBillableHoursTotal = 0;
+      let earnedValue = 0; // revenue from billable hours only
+      let servicesCost = 0; // cost from ALL hours logged to project
       for (const e of entries) {
         const alloc = taskToAlloc.get(e.task_id);
         if (!alloc) continue;
         const hours = Number(e.hours);
+        const isBillable = !!e.billable;
         loggedHours += hours;
-        const sale = hours * Number(alloc.resource.hourly_rate);
-        earnedValue += sale;
+
+        const rate = Number(alloc.resource.hourly_rate);
+        const costRate = Number(alloc.resource.cost_rate);
+        const sale = isBillable ? hours * rate : 0;
+        const cost = hours * costRate;
+        if (isBillable) {
+          billableHoursTotal += hours;
+          earnedValue += sale;
+        } else {
+          nonBillableHoursTotal += hours;
+        }
+        servicesCost += cost;
 
         const row = resourceTotals.get(alloc.resource.id);
         if (row) {
           row.hours += hours;
+          if (isBillable) row.billableHours += hours;
+          else row.nonBillableHours += hours;
           row.sale += sale;
-          row.cost += sale;
+          row.cost += cost;
         }
 
         const d = startOfMonth(parseISO(e.entry_date));
@@ -170,8 +200,6 @@ export function useProjectInsights(projectId: string) {
       const expensesValue = (exps ?? []).reduce((a, e) => a + Number(e.sale_price), 0);
       const expensesCost = (exps ?? []).reduce((a, e) => a + Number(e.purchase_price), 0);
 
-      const servicesCost = Array.from(resourceTotals.values()).reduce((a, r) => a + r.cost, 0);
-
       const services: FinancialsRow = {
         budget: budgetTotal,
         value: earnedValue,
@@ -206,7 +234,7 @@ export function useProjectInsights(projectId: string) {
       const avgRate =
         resourceTotals.size > 0
           ? Array.from(resourceTotals.values()).reduce(
-              (a, r) => a + (r.hours > 0 ? r.sale / r.hours : 0),
+              (a, r) => a + (r.billableHours > 0 ? r.sale / r.billableHours : 0),
               0,
             ) / resourceTotals.size
           : 0;
@@ -216,6 +244,9 @@ export function useProjectInsights(projectId: string) {
       const profitPctCurrent = total.value > 0 ? Math.round((total.profit / total.value) * 100) : 0;
       const profitPctForecast =
         forecastValue > 0 ? Math.round(((forecastValue - total.cost) / forecastValue) * 100) : 0;
+      // Profit margin = profit / revenue (project revenue from billable hours + materials + expenses value)
+      const profitMarginPct =
+        total.value > 0 ? Math.round((total.profit / total.value) * 100) : 0;
 
       const workDonePct =
         plannedHours > 0 ? Math.min(100, Math.round((loggedHours / plannedHours) * 100)) : 0;
@@ -226,6 +257,8 @@ export function useProjectInsights(projectId: string) {
         totals: {
           plannedHours,
           loggedHours,
+          billableHours: billableHoursTotal,
+          nonBillableHours: nonBillableHoursTotal,
           earnedValue,
           forecastValue,
           budgetTotal,
@@ -233,6 +266,7 @@ export function useProjectInsights(projectId: string) {
           forecastPct,
           profitPctCurrent,
           profitPctForecast,
+          profitMarginPct,
         },
         financials: { services, materials, expenses: expensesRow, total },
         workInProgressHours: Math.max(0, plannedHours - loggedHours),

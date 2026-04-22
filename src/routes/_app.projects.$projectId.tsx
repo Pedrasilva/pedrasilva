@@ -83,12 +83,13 @@ function ProjectDetail() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [poolOpen, setPoolOpen] = useState(false);
 
-  // Real time entries for this project (per stage via allocation→stage)
+  // Real time entries for this project (per stage via allocation→stage), split by billable
   const { data: timeRows } = useQuery({
     queryKey: ["pm-project-time", projectId],
     enabled: !!projectId && !!data,
     queryFn: async () => {
-      if (!data) return [] as { stage_id: string; hours: number }[];
+      if (!data)
+        return [] as { stage_id: string; hours: number; billableHours: number; nonBillableHours: number }[];
       const allocIds = data.stages.flatMap((s) =>
         s.allocations.map((a) => a.id),
       );
@@ -107,17 +108,30 @@ function ProjectDetail() {
       if (taskIds.length === 0) return [];
       const { data: entries } = await supabase
         .from("pm_time_entries")
-        .select("task_id, hours")
+        .select("task_id, hours, billable")
         .in("task_id", taskIds)
+        .eq("entry_type", "project")
         .not("task_id", "is", null);
-      const byStage = new Map<string, number>();
-      for (const e of (entries ?? []) as Array<{ task_id: string; hours: number }>) {
+      const byStage = new Map<
+        string,
+        { hours: number; billableHours: number; nonBillableHours: number }
+      >();
+      for (const e of (entries ?? []) as Array<{
+        task_id: string;
+        hours: number;
+        billable: boolean;
+      }>) {
         const allocId = taskToAlloc.get(e.task_id);
         const stageId = allocId ? allocToStage.get(allocId) : undefined;
         if (!stageId) continue;
-        byStage.set(stageId, (byStage.get(stageId) ?? 0) + Number(e.hours));
+        const h = Number(e.hours);
+        const cur = byStage.get(stageId) ?? { hours: 0, billableHours: 0, nonBillableHours: 0 };
+        cur.hours += h;
+        if (e.billable) cur.billableHours += h;
+        else cur.nonBillableHours += h;
+        byStage.set(stageId, cur);
       }
-      return Array.from(byStage, ([stage_id, hours]) => ({ stage_id, hours }));
+      return Array.from(byStage, ([stage_id, v]) => ({ stage_id, ...v }));
     },
   });
 
@@ -198,6 +212,10 @@ function ProjectDetail() {
   };
   const stageLoggedHours = (stageId: string) =>
     timeRows?.find((r) => r.stage_id === stageId)?.hours ?? 0;
+  const stageBillableHours = (stageId: string) =>
+    timeRows?.find((r) => r.stage_id === stageId)?.billableHours ?? 0;
+  const stageNonBillableHours = (stageId: string) =>
+    timeRows?.find((r) => r.stage_id === stageId)?.nonBillableHours ?? 0;
 
   // Logged (actual) cost per stage: distributes the stage's logged hours across
   // its allocations proportionally to planned hours, then × each resource cost rate.
@@ -607,6 +625,8 @@ function ProjectDetail() {
                 totalLoggedHours={totalLoggedHours}
                 totalPlannedHours={totalPlannedHours}
                 stageLoggedHours={stageLoggedHours}
+                stageBillableHours={stageBillableHours}
+                stageNonBillableHours={stageNonBillableHours}
                 stagePlannedHours={stagePlannedHours}
                 defaultRates={defaultRates}
                 activities={activities ?? []}
@@ -1213,6 +1233,8 @@ function InsightsPanel({
   totalLoggedHours,
   totalPlannedHours,
   stageLoggedHours,
+  stageBillableHours,
+  stageNonBillableHours,
   defaultRates,
   activities,
 }: {
@@ -1224,6 +1246,8 @@ function InsightsPanel({
   totalLoggedHours: number;
   totalPlannedHours: number;
   stageLoggedHours: (id: string) => number;
+  stageBillableHours: (id: string) => number;
+  stageNonBillableHours: (id: string) => number;
   stagePlannedHours: (id: string) => number;
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   activities: import("@/lib/projects/use-activities").Activity[];
@@ -1276,8 +1300,12 @@ function InsightsPanel({
       byRes.set(key, existing);
     }
   }
-  // Track per-resource logged cost (so totalCost reflects actual work done)
+  // Track per-resource logged cost & billable hours.
+  // Cost includes ALL hours logged to the project (billable + non-billable).
+  // Revenue (earned value) only comes from billable hours × sale rate.
   const loggedCostByRes = new Map<string, number>();
+  const billableValueByRes = new Map<string, number>();
+  const billableHoursByRes = new Map<string, number>();
   for (const s of stages) {
     const planned = s.allocations.map((a) => ({
       id: a.resource.id,
@@ -1291,39 +1319,57 @@ function InsightsPanel({
     }));
     const totPlan = planned.reduce((x, y) => x + y.h, 0);
     const logged = stageLoggedHours(s.id);
-    if (totPlan <= 0 || logged <= 0) continue;
+    const billable = stageBillableHours(s.id);
+    if (totPlan <= 0) continue;
     for (const p of planned) {
       const agg = byRes.get(p.id);
       if (!agg) continue;
-      const share = (p.h / totPlan) * logged;
-      agg.loggedHours += share;
-      loggedCostByRes.set(p.id, (loggedCostByRes.get(p.id) ?? 0) + share * p.costRate);
+      if (logged > 0) {
+        const share = (p.h / totPlan) * logged;
+        agg.loggedHours += share;
+        // Cost from ALL logged hours (billable + non-billable on the project)
+        loggedCostByRes.set(p.id, (loggedCostByRes.get(p.id) ?? 0) + share * p.costRate);
+      }
+      if (billable > 0) {
+        // Revenue only from billable hours
+        const billableShare = (p.h / totPlan) * billable;
+        billableHoursByRes.set(
+          p.id,
+          (billableHoursByRes.get(p.id) ?? 0) + billableShare,
+        );
+        billableValueByRes.set(
+          p.id,
+          (billableValueByRes.get(p.id) ?? 0) + billableShare * p.saleRate,
+        );
+      }
     }
   }
   const resources = Array.from(byRes.values()).sort(
     (a, b) => b.plannedHours - a.plannedHours,
   );
 
-  // Value = sum over resources of (logged hours × default sale rate)
-  // Cost = sum over resources of (logged hours × default cost rate)
-  // Profit = budget − cost (per user spec)
-  const earnedValue = resources.reduce((acc, r) => {
-    const saleRate = r.plannedHours > 0 ? r.plannedSale / r.plannedHours : 0;
-    return acc + r.loggedHours * saleRate;
-  }, 0);
+  // Revenue = Σ billable hours × sale rate (per resource)
+  // Cost    = Σ all logged hours × cost rate (per resource)
+  // Profit  = Revenue − Cost  (non-billable hours reduce profitability)
+  const earnedValue = Array.from(billableValueByRes.values()).reduce((a, b) => a + b, 0);
+  const totalBillableHours = Array.from(billableHoursByRes.values()).reduce(
+    (a, b) => a + b,
+    0,
+  );
+  const totalNonBillableHours = Math.max(0, totalLoggedHours - totalBillableHours);
   const loggedCost = Array.from(loggedCostByRes.values()).reduce((a, b) => a + b, 0);
   const totalSale = resources.reduce((a, r) => a + r.plannedSale, 0);
   const forecastValue = totalSale > 0 ? totalSale : earnedValue;
   const earnedPct = forecastValue > 0 ? earnedValue / forecastValue : 0;
   const forecastPct = forecastValue > 0 ? 1 : 0;
 
-  // Profit = budget − costs (current uses logged cost; forecast uses planned cost)
-  const profitCurrent = totalBudget - loggedCost;
-  const profitForecast = totalBudget - totalCost;
-  const profitCurPct =
-    totalBudget > 0 ? Math.round((profitCurrent / totalBudget) * 100) : 0;
-  const profitForePct =
-    totalBudget > 0 ? Math.round((profitForecast / totalBudget) * 100) : 0;
+  // Project profitability: Profit = Revenue − Cost
+  const profitCurrent = earnedValue - loggedCost;
+  const profitForecast = forecastValue - totalCost;
+  const profitMarginCurrent =
+    earnedValue > 0 ? Math.round((profitCurrent / earnedValue) * 100) : 0;
+  const profitMarginForecast =
+    forecastValue > 0 ? Math.round((profitForecast / forecastValue) * 100) : 0;
 
   const wipHours = Math.max(0, totalPlannedHours - totalLoggedHours);
   const workDonePct =
@@ -1356,16 +1402,15 @@ function InsightsPanel({
   const maxAct = Math.max(1, ...months.map((m) => m.activities));
   const maxHours = Math.max(1, ...months.map((m) => m.hours));
 
-  // Financials box (planned / forecast view):
-  //   Value  = Σ planned hours × default sale rate (per resource)
-  //   Costs  = Σ planned hours × default cost rate (per resource) = totalCost
-  //   Profit = Budget − Costs
-  const plannedValue = resources.reduce((a, r) => a + r.plannedSale, 0);
+  // Financials box reflects actuals (current state) using new revenue model:
+  //   Value (Revenue) = Σ billable hours × sale rate    (revenue only from billable)
+  //   Cost            = Σ all logged hours × cost rate  (non-billable still costs)
+  //   Profit          = Revenue − Cost
   const services = {
     budget: totalBudget,
-    value: plannedValue,
-    cost: totalCost,
-    profit: totalBudget - totalCost,
+    value: earnedValue,
+    cost: loggedCost,
+    profit: earnedValue - loggedCost,
     invoiced: invoicedTotal,
   };
   const empty = { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 };
@@ -1397,8 +1442,13 @@ function InsightsPanel({
 
       <InsightCard title="Profitability">
         <div className="grid gap-6 px-2 py-2 sm:grid-cols-2">
-          <GaugeStat label="Current:" money={profitCurrent} pct={profitCurPct} />
-          <GaugeStat label="Forecast:" money={profitForecast} pct={profitForePct} />
+          <GaugeStat label="Current margin:" money={profitCurrent} pct={profitMarginCurrent} />
+          <GaugeStat label="Forecast margin:" money={profitForecast} pct={profitMarginForecast} />
+        </div>
+        <div className="mt-2 grid grid-cols-3 gap-2 px-2 pb-3 text-xs">
+          <HoursPill label="Billable" hours={totalBillableHours} tone="ok" />
+          <HoursPill label="Non-billable" hours={totalNonBillableHours} tone="warn" />
+          <HoursPill label="Total logged" hours={totalLoggedHours} tone="muted" />
         </div>
       </InsightCard>
 
@@ -1692,6 +1742,29 @@ function GaugeStat({
         </div>
       </div>
       <Gauge value={pct} pct={pct / 100} formatter={(v) => `${Math.round(v)}%`} />
+    </div>
+  );
+}
+
+function HoursPill({
+  label,
+  hours,
+  tone,
+}: {
+  label: string;
+  hours: number;
+  tone: "ok" | "warn" | "muted";
+}) {
+  const toneClass =
+    tone === "ok"
+      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+      : tone === "warn"
+        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+        : "bg-muted text-muted-foreground";
+  return (
+    <div className={cn("rounded-md px-2 py-1.5", toneClass)}>
+      <div className="text-[10px] uppercase tracking-wider opacity-80">{label}</div>
+      <div className="font-mono text-sm font-semibold">{Math.round(hours * 10) / 10}h</div>
     </div>
   );
 }
