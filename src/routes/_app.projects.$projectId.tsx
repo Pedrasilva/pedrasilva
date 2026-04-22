@@ -1236,9 +1236,12 @@ function MilestonesTable({
                       const aHours =
                         Math.max(0, dayDiffInclusive(a.start_date, a.end_date)) *
                         Number(a.hours_per_day);
-                      const aCost =
+                      const aPlannedCost =
                         aHours *
                         effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates);
+                      const aPlannedRevenue =
+                        aHours *
+                        effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates);
                       return (
                         <tr key={a.id} className="border-b border-border last:border-b-0">
                           <td className="px-4 py-2.5">
@@ -1256,13 +1259,16 @@ function MilestonesTable({
                             </div>
                           </td>
                           <td className="px-4 py-2.5">
-                            <StatusDot active label="Started" />
+                            <StatusDot active label="Planned" />
                           </td>
-                          <td className="px-4 py-2.5 min-w-[220px]">
-                            <EVCell cost={aCost} budget={0} pct={1} over={false} dimmed />
+                          <td className="px-4 py-2.5 min-w-[200px]" title="Planned cost (allocation × cost rate)">
+                            <EVCell cost={aPlannedCost} budget={0} pct={1} over={false} dimmed />
+                          </td>
+                          <td className="px-4 py-2.5 min-w-[180px]" title="Planned revenue (allocation × sale rate)">
+                            <RevenueCell revenue={aPlannedRevenue} budget={0} pct={1} dimmed />
                           </td>
                           <td className="px-4 py-2.5 whitespace-nowrap">
-                            <UsageBudgetCell logged={aHours} planned={aHours} over={false} />
+                            <UsageBudgetCell logged={0} planned={aHours} over={false} />
                           </td>
                           <td className="px-4 py-2.5 whitespace-nowrap">
                             <DateLink date={parseISO(a.start_date)} />
