@@ -857,8 +857,8 @@ function useTrailingTrend(
   const filterKey = Array.from(filteredResourceIds).sort().join(",");
 
   return useQuery({
-    queryKey: ["fin-trailing", start, end, filterKey],
-    enabled: !!resources,
+    queryKey: ["fin-trailing", start, end, filterKey, resourceMap.size],
+    enabled: resourceMap.size > 0,
     queryFn: async () => {
       const { data: entries, error } = await supabase
         .from("pm_time_entries")
@@ -947,5 +947,3 @@ function useTrailingTrend(
   });
 }
 
-// Hack: make `resources` available to enabled flag in useTrailingTrend
-const resources: unknown = true;
