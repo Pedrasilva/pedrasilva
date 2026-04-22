@@ -665,7 +665,7 @@ function DashboardPage() {
     }
 
     return list;
-  }, [canSeeFinancials, healthRows, effortRows, allStages, resources, teamRows, periodStart, periodEnd, periodLabel]);
+  }, [canSeeFinancials, healthRows, effortRows, allStages, resources, identityMap, teamRows, periodStart, periodEnd, periodLabel]);
 
   const isLoading = pLoading || sLoading || eLoading;
 
