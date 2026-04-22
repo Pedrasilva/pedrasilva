@@ -440,7 +440,62 @@ function ProjectDetail() {
               </SidebarSection>
             )}
 
-            <SidebarSection title="Earned Value">
+            <SidebarSection title="Actual (real)">
+              <div className="space-y-2">
+                <div className="flex items-baseline justify-between text-xs">
+                  <span className="text-muted-foreground">Revenue</span>
+                  <span className="font-mono font-medium">{euros(actualRevenue)}</span>
+                </div>
+                <div className="flex items-baseline justify-between text-xs">
+                  <span className="text-muted-foreground">Cost</span>
+                  <span className="font-mono font-medium">{euros(actualCost)}</span>
+                </div>
+                <div className="flex items-baseline justify-between border-t border-border pt-2 text-xs">
+                  <span className="text-muted-foreground">Profit</span>
+                  <span
+                    className={cn(
+                      "font-mono font-semibold",
+                      actualProfit < 0 && "text-destructive",
+                    )}
+                  >
+                    {euros(actualProfit)}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-2 text-[10px] text-muted-foreground">
+                Billable hrs × sale rate − all logged hrs × cost rate
+              </div>
+            </SidebarSection>
+
+            <SidebarSection title="Budget usage">
+              <div className="flex items-baseline justify-between">
+                <span className="font-mono text-sm">
+                  <span className={budgetOver ? "text-destructive font-semibold" : ""}>
+                    {euros(actualCost)}
+                  </span>
+                  <span className="text-muted-foreground"> / {euros(totalBudget)}</span>
+                </span>
+                <span
+                  className={cn(
+                    "text-xs",
+                    budgetOver ? "text-destructive font-medium" : "text-muted-foreground",
+                  )}
+                >
+                  {Math.round(budgetUsedPct * 100)}%
+                </span>
+              </div>
+              <Meter
+                value={Math.min(1, budgetUsedPct)}
+                tone={budgetOver ? "danger" : "ok"}
+                className="mt-2"
+              />
+              <div className="mt-2 text-[11px] text-muted-foreground">
+                {totalLoggedHours.toFixed(1)}h registadas /{" "}
+                {totalPlannedHours.toFixed(0)}h planeadas
+              </div>
+            </SidebarSection>
+
+            <SidebarSection title="Invoiced">
               <div className="flex items-baseline justify-between">
                 <span className="font-mono text-sm">
                   {euros(invoicedTotal)}
@@ -450,37 +505,12 @@ function ProjectDetail() {
                   </span>
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {Math.round(evPct * 100)}%
+                  {Math.round(invoicedPct * 100)}%
                 </span>
               </div>
-              <Meter value={Math.min(1, evPct)} tone="info" className="mt-2" />
-            </SidebarSection>
-
-            <SidebarSection title="Progress">
-              <div className="flex items-baseline justify-between">
-                <span className="font-mono text-sm">
-                  <span className={overallOver ? "text-destructive font-semibold" : ""}>
-                    {euros(totalCost)}
-                  </span>
-                  <span className="text-muted-foreground"> / {euros(totalBudget)}</span>
-                </span>
-                <span
-                  className={cn(
-                    "text-xs",
-                    overallOver ? "text-destructive font-medium" : "text-muted-foreground",
-                  )}
-                >
-                  {Math.round(overall * 100)}%
-                </span>
-              </div>
-              <Meter
-                value={Math.min(1, overall)}
-                tone={overallOver ? "danger" : "ok"}
-                className="mt-2"
-              />
-              <div className="mt-2 text-[11px] text-muted-foreground">
-                {totalLoggedHours.toFixed(1)}h registadas /{" "}
-                {totalPlannedHours.toFixed(0)}h planeadas
+              <Meter value={Math.min(1, invoicedPct)} tone="info" className="mt-2" />
+              <div className="mt-2 text-[10px] text-muted-foreground">
+                Total faturado ao cliente (excl. canceladas)
               </div>
             </SidebarSection>
 
