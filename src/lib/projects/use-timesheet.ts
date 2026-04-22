@@ -174,8 +174,12 @@ export function useTimesheetEntries(opts: {
 }
 
 // Loads approved vacation_requests + holidays overlapping the week, and turns
-// them into a map of NonWorkingRow keyed by leave_type. Hours per day are
-// always 8 (full working day) unless the entry is an external holiday.
+// them into a map of NonWorkingRow keyed by leave_type.
+//
+// Hours per day come from the collaborator's HR profile
+// (`collaborators.daily_hours`). Part-time users with e.g. a 4h/day contract
+// will see 4h pre-filled per leave day, not 8h, so capacity / cost stay
+// consistent with the rest of the planner.
 export function useNonWorkingPrefill(opts: {
   collaboratorId: string | null;
   weekStart: string; // ISO Monday
@@ -185,7 +189,7 @@ export function useNonWorkingPrefill(opts: {
     queryKey: ["pm-nonworking-prefill", opts.collaboratorId, opts.weekStart, opts.weekEnd],
     enabled: !!opts.collaboratorId,
     queryFn: async (): Promise<NonWorkingRow[]> => {
-      const [vacRes, holRes] = await Promise.all([
+      const [vacRes, holRes, collabRes] = await Promise.all([
         supabase
           .from("vacation_requests")
           .select("data_inicio, data_fim, tipo, estado")
@@ -198,9 +202,19 @@ export function useNonWorkingPrefill(opts: {
           .select("data, nome")
           .gte("data", opts.weekStart)
           .lte("data", opts.weekEnd),
+        supabase
+          .from("collaborators")
+          .select("daily_hours")
+          .eq("id", opts.collaboratorId!)
+          .maybeSingle(),
       ]);
       if (vacRes.error) throw vacRes.error;
       if (holRes.error) throw holRes.error;
+      if (collabRes.error) throw collabRes.error;
+
+      const dailyHours = Number(
+        (collabRes.data as { daily_hours: number } | null)?.daily_hours ?? 8,
+      );
 
       const byType = new Map<string, Map<string, number>>();
       const ensure = (k: string) => {
@@ -220,7 +234,8 @@ export function useNonWorkingPrefill(opts: {
         dayList.push(d.toISOString().slice(0, 10));
       }
 
-      // Vacations: each approved request fills its weekday range with 8h
+      // Vacations: each approved request fills its weekday range with the
+      // user's contractual daily hours.
       const labelFor = (t: string): string => {
         switch (t) {
           case "ferias":
@@ -257,17 +272,17 @@ export function useNonWorkingPrefill(opts: {
           if (iso >= v.data_inicio && iso <= v.data_fim) {
             const dow = new Date(iso + "T00:00:00").getDay();
             if (dow === 0 || dow === 6) continue; // skip weekends
-            m.set(iso, 8);
+            m.set(iso, dailyHours);
           }
         }
       }
 
-      // Holidays
+      // Public holidays — also valued at the user's daily contract hours.
       for (const h of (holRes.data ?? []) as Array<{ data: string; nome: string }>) {
         const dow = new Date(h.data + "T00:00:00").getDay();
         if (dow === 0 || dow === 6) continue;
         const m = ensure(`Public holiday — ${h.nome}`);
-        m.set(h.data, 8);
+        m.set(h.data, dailyHours);
       }
 
       return Array.from(byType, ([leave_type, autoHoursByDate]) => ({
