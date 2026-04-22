@@ -483,6 +483,19 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                   <div className="pointer-events-none absolute inset-y-0 left-0 right-0 rounded-md border-2 border-dashed border-primary/60 bg-primary/5" />
                 )}
 
+                {/* Baseline ghost bar — frozen reference plan */}
+                {hasBaseline && (
+                  <div
+                    className="pointer-events-none absolute z-0 rounded-md border border-dashed border-foreground/30 bg-muted/20"
+                    style={{ left: baseX, width: baseW, top: 0, height: STAGE_ROW_H }}
+                    title={`Baseline: ${stageWithBaseline.baseline_start_date} → ${stageWithBaseline.baseline_end_date}`}
+                  >
+                    <div className="absolute -top-3.5 left-1 rounded-sm bg-muted px-1 py-px font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
+                      baseline
+                    </div>
+                  </div>
+                )}
+
                 <div className="group absolute" style={{ left: stageX, width: stageW, top: 0, height: STAGE_ROW_H }}>
                   <div className="absolute left-0 right-0 top-0 h-3 overflow-hidden rounded-t-md bg-budget">
                     <div
