@@ -17,6 +17,7 @@ import {
 import { ArrowLeft, GitBranch, Save, Trash2, Rocket } from "lucide-react";
 import { toast } from "sonner";
 import { ActivityTimeline } from "@/components/crm/activity-timeline";
+import { CompanyPicker } from "@/components/crm/company-picker";
 import {
   formatEUR, PIPELINE_STATUSES,
   type Company, type Contact, type FeeProposal, type ProposalStatus,
@@ -229,18 +230,11 @@ function ProposalDetail() {
               </div>
               <div>
                 <Label>Empresa</Label>
-                <Select
-                  value={current.company_id ?? "none"}
-                  onValueChange={(v) => update("company_id", v === "none" ? null : v)}
-                >
-                  <SelectTrigger><SelectValue placeholder="Sem empresa" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Sem empresa</SelectItem>
-                    {companies.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <CompanyPicker
+                  value={current.company_id ?? null}
+                  onChange={(id) => update("company_id", id)}
+                  placeholder="Sem empresa"
+                />
               </div>
               <div>
                 <Label>Contacto</Label>
