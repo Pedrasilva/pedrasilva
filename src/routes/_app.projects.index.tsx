@@ -496,13 +496,17 @@ function DashboardPage() {
     }
     const rows: TeamRow[] = [];
     for (const [userId, acc] of byUser) {
-      // Try resource lookup directly by user_id (may match in tests when uuids align).
-      const directRes = resources?.find((r) => r.id === userId);
-      const res = directRes ?? null;
+      const identity = identityMap?.get(userId) ?? null;
+      const res = identity?.resourceId
+        ? resources?.find((r) => r.id === identity.resourceId)
+        : resources?.find((r) => r.id === userId);
       const dailyCap = res ? (Number(res.weekly_capacity) || 40) / 5 : 8;
       rows.push({
-        resourceId: userId,
-        name: res?.name ?? userId.slice(0, 8),
+        resourceId: identity?.resourceId ?? userId,
+        name: identity?.name ?? res?.name ?? "Unknown user",
+        collaboratorId: identity?.collaboratorId ?? null,
+        fotoPath: identity?.fotoPath ?? null,
+        color: identity?.color ?? res?.color ?? null,
         capacityHours: dailyCap * wd,
         billableHours: acc.billable,
         internalHours: acc.internal,
@@ -510,7 +514,7 @@ function DashboardPage() {
       });
     }
     return rows;
-  }, [entries, resources, periodStartISO, periodEndISO]);
+  }, [entries, resources, identityMap, periodStartISO, periodEndISO]);
 
   /**
    * Visible team rows: full team if the user has resource visibility, otherwise
@@ -520,18 +524,23 @@ function DashboardPage() {
   const visibleTeamRows: TeamRow[] = useMemo(() => {
     if (canSeeTeam) return teamRows;
     const wd = workingDays(periodStartISO, periodEndISO);
-    // Time entries are keyed by auth user_id; fall back to resource id match.
+    const myMappedResourceId = myAuthId ? identityMap?.get(myAuthId)?.resourceId ?? null : null;
     const meRow =
       (myAuthId && teamRows.find((r) => r.resourceId === myAuthId)) ||
       (myResourceId && teamRows.find((r) => r.resourceId === myResourceId)) ||
+      (myMappedResourceId && teamRows.find((r) => r.resourceId === myMappedResourceId)) ||
       null;
     if (meRow) return [meRow];
+    const myIdentity = myAuthId ? identityMap?.get(myAuthId) : undefined;
     const myRes = myResourceId ? resources?.find((r) => r.id === myResourceId) : undefined;
     const dailyCap = myRes ? (Number(myRes.weekly_capacity) || 40) / 5 : 8;
     return [
       {
         resourceId: myResourceId ?? "self",
-        name: myRes?.name ?? profile?.full_name ?? "You",
+        name: myIdentity?.name ?? myRes?.name ?? profile?.full_name ?? "You",
+        collaboratorId: myIdentity?.collaboratorId ?? null,
+        fotoPath: myIdentity?.fotoPath ?? null,
+        color: myIdentity?.color ?? myRes?.color ?? null,
         capacityHours: dailyCap * wd,
         billableHours: 0,
         internalHours: 0,
