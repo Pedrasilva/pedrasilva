@@ -428,6 +428,23 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
             const stageX = differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
             const stageW = dayCount(sStart, sEnd) * dayWidth;
 
+            // Baseline ghost (rendered behind the working stage bar)
+            const stageWithBaseline = stage as typeof stage & {
+              baseline_start_date?: string | null;
+              baseline_end_date?: string | null;
+              baseline_locked_at?: string | null;
+            };
+            const hasBaseline =
+              !!stageWithBaseline.baseline_locked_at &&
+              !!stageWithBaseline.baseline_start_date &&
+              !!stageWithBaseline.baseline_end_date;
+            const baseX = hasBaseline
+              ? differenceInCalendarDays(new Date(stageWithBaseline.baseline_start_date!), origin) * dayWidth
+              : 0;
+            const baseW = hasBaseline
+              ? dayCount(stageWithBaseline.baseline_start_date!, stageWithBaseline.baseline_end_date!) * dayWidth
+              : 0;
+
             let totalCost = 0;
             for (const a of stage.allocations) {
               const aDraft = draftDates.get(a.id);
