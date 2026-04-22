@@ -587,7 +587,11 @@ function ForecastPage() {
   const margin = planned.totalRevenue > 0 ? (profit / planned.totalRevenue) * 100 : 0;
   const actualProfit = actualByProject.totalRev - actualByProject.totalCost;
 
-  // Variance: per-project planned vs actual
+  // Variance: per-project planned vs actual.
+  // The "planned" side reflects the currently selected forecast mode
+  // (weighted / optimistic / committed), so a 50%-probability project shows
+  // 50% of its planned hours/revenue in weighted mode and the variance vs
+  // actuals reads naturally in that lens.
   const varianceRows = useMemo(() => {
     const projectIds = new Set<string>([...planned.byProject.keys(), ...actualByProject.byProject.keys()]);
     return Array.from(projectIds)
@@ -601,6 +605,7 @@ function ForecastPage() {
         const actualRev = a?.revenue ?? 0;
         const plannedProfit = (p?.revenue ?? 0) - (p?.cost ?? 0);
         const actualProfit = (a?.revenue ?? 0) - (a?.cost ?? 0);
+        const probability = p?.probability ?? probabilityFor(pId, probabilities);
         return {
           projectId: pId,
           projectName: proj?.name ?? "—",
@@ -614,6 +619,9 @@ function ForecastPage() {
           plannedProfit,
           actualProfit,
           profitVariance: actualProfit - plannedProfit,
+          probability,
+          rawPlannedHours: p?.rawHours ?? plannedHours,
+          rawPlannedRev: p?.rawRevenue ?? plannedRev,
         };
       })
       .sort((x, y) => Math.abs(y.profitVariance) - Math.abs(x.profitVariance));
