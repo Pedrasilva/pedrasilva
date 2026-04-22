@@ -22,7 +22,8 @@ export type PermissionKey =
   | "projects.gantt"
   | "projects.resources"
   | "projects.my-tasks"
-  | "projects.timesheet";
+  | "projects.timesheet"
+  | "projects.financials";
 
 export type PermissionGroup = {
   module: "HR" | "CRM" | "Projects";
@@ -59,6 +60,12 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
       { key: "projects.resources", label: "Recursos" },
       { key: "projects.my-tasks", label: "Minhas tarefas" },
       { key: "projects.timesheet", label: "Timesheet" },
+      {
+        key: "projects.financials",
+        label: "Indicadores financeiros",
+        description:
+          "Ver receita, custo, margem e orçamento no dashboard. Sem esta permissão, são mostrados apenas indicadores de tempo (planeado/realizado).",
+      },
     ],
   },
 ];
