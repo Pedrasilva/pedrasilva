@@ -217,13 +217,18 @@ function ProjectDetail() {
   const stageNonBillableHours = (stageId: string) =>
     timeRows?.find((r) => r.stage_id === stageId)?.nonBillableHours ?? 0;
 
-  // Logged (actual) cost per stage: distributes the stage's logged hours across
-  // its allocations proportionally to planned hours, then × each resource cost rate.
-  const stageLoggedCost = (stageId: string) => {
+  // ---- Single source of truth: Actuals --------------------------------
+  // Distribute a stage's logged hours across allocations proportionally to
+  // planned hours, then apply each resource's cost/sale rate.
+  //   Actual Cost     = Σ ALL logged hours × cost rate     (billable + non-billable)
+  //   Actual Revenue  = Σ billable hours × sale rate
+  //   Actual Profit   = Actual Revenue − Actual Cost
+  const stageActuals = (stageId: string) => {
     const s = stages.find((x) => x.id === stageId);
-    if (!s) return 0;
+    if (!s) return { revenue: 0, cost: 0, profit: 0 };
     const logged = stageLoggedHours(stageId);
-    if (logged <= 0) return 0;
+    const billable = stageBillableHours(stageId);
+    if (logged <= 0 && billable <= 0) return { revenue: 0, cost: 0, profit: 0 };
     const planned = s.allocations.map((a) => ({
       h: allocationHours({
         start_date: a.start_date,
@@ -231,13 +236,23 @@ function ProjectDetail() {
         hours_per_day: Number(a.hours_per_day),
       }),
       costRate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates),
+      saleRate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates),
     }));
     const totPlan = planned.reduce((x, y) => x + y.h, 0);
-    if (totPlan <= 0) return 0;
-    return planned.reduce((acc, p) => acc + (p.h / totPlan) * logged * p.costRate, 0);
+    if (totPlan <= 0) return { revenue: 0, cost: 0, profit: 0 };
+    let cost = 0;
+    let revenue = 0;
+    for (const p of planned) {
+      const w = p.h / totPlan;
+      cost += w * logged * p.costRate;
+      revenue += w * billable * p.saleRate;
+    }
+    return { revenue, cost, profit: revenue - cost };
   };
+  const stageActualRevenue = (stageId: string) => stageActuals(stageId).revenue;
+  const stageActualCost = (stageId: string) => stageActuals(stageId).cost;
 
-  const totalCost = stages.reduce((acc, s) => acc + stageCost(s.id), 0);
+  const totalPlannedCost = stages.reduce((acc, s) => acc + stageCost(s.id), 0);
   const totalLoggedHours = stages.reduce(
     (acc, s) => acc + stageLoggedHours(s.id),
     0,
@@ -246,14 +261,27 @@ function ProjectDetail() {
     (acc, s) => acc + stagePlannedHours(s.id),
     0,
   );
-  const overall = totalBudget > 0 ? totalCost / totalBudget : 0;
-  const overallOver = totalCost > totalBudget;
+  const actuals = stages.reduce(
+    (acc, s) => {
+      const a = stageActuals(s.id);
+      acc.revenue += a.revenue;
+      acc.cost += a.cost;
+      return acc;
+    },
+    { revenue: 0, cost: 0 },
+  );
+  const actualRevenue = actuals.revenue;
+  const actualCost = actuals.cost;
+  const actualProfit = actualRevenue - actualCost;
+  const budgetUsedPct = totalBudget > 0 ? actualCost / totalBudget : 0;
+  const budgetOver = actualCost > totalBudget && totalBudget > 0;
 
-  // Earned value = invoiced € (excluding cancelled)
+  // Invoiced total (excluding cancelled). This is a separate concept from
+  // revenue — it's what has been BILLED to the client, not what has been earned.
   const invoicedTotal = (invoices ?? [])
     .filter((i) => i.status !== "cancelled")
     .reduce((s, i) => s + Number(i.total ?? 0), 0);
-  const evPct = totalBudget > 0 ? invoicedTotal / totalBudget : 0;
+  const invoicedPct = totalBudget > 0 ? invoicedTotal / totalBudget : 0;
 
   // Schedule range
   const scheduleStart = stages.length
