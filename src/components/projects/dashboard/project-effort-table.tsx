@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Project } from "@/lib/projects/types";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +13,7 @@ export interface EffortRow {
   remainingHours: number;
   efficiencyPct: number;
   status: EffortStatus;
+  /** Pre-translated reason. */
   statusReason: string;
 }
 
@@ -26,6 +28,7 @@ export function ProjectEffortTable({
   loading?: boolean;
   onOpenProject?: (id: string) => void;
 }) {
+  const { t } = useTranslation("projects");
   const [page, setPage] = useState(0);
   const [filter, setFilter] = useState<"all" | EffortStatus>("all");
 
@@ -37,16 +40,23 @@ export function ProjectEffortTable({
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
 
+  // The effort table reuses the same "all/ok/warn/bad" filter buttons but with
+  // time-oriented labels, so we map them to dedicated keys.
+  const filterLabel = (f: "all" | EffortStatus): string => {
+    if (f === "all") return t("health.filters.all");
+    if (f === "ok") return t("effort.filters.ok");
+    if (f === "warn") return t("effort.filters.warn");
+    return t("effort.filters.bad");
+  };
+
   return (
     <section className="rounded-lg border border-border bg-card">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
         <div>
           <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Project effort
+            {t("effort.title")}
           </h2>
-          <p className="text-[11px] text-muted-foreground">
-            Planned vs logged hours, with efficiency and overrun status
-          </p>
+          <p className="text-[11px] text-muted-foreground">{t("effort.subtitle")}</p>
         </div>
         <div className="inline-flex items-center gap-1 rounded-md border border-border bg-background p-1">
           {(["all", "ok", "warn", "bad"] as const).map((f) => (
@@ -63,13 +73,7 @@ export function ProjectEffortTable({
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {f === "ok"
-                ? "On track"
-                : f === "warn"
-                  ? "At risk"
-                  : f === "bad"
-                    ? "Overrun"
-                    : "All"}
+              {filterLabel(f)}
             </button>
           ))}
         </div>
@@ -80,26 +84,26 @@ export function ProjectEffortTable({
           <thead className="bg-muted/30 text-[10px] uppercase tracking-wider text-muted-foreground">
             <tr>
               <th className="w-8 px-3 py-2"></th>
-              <th className="px-3 py-2 text-left font-medium">Project</th>
-              <th className="px-3 py-2 text-right font-medium">Planned</th>
-              <th className="px-3 py-2 text-right font-medium">Logged</th>
-              <th className="px-3 py-2 text-right font-medium">Remaining</th>
-              <th className="px-3 py-2 text-right font-medium">Efficiency</th>
-              <th className="px-5 py-2 text-left font-medium">Status</th>
+              <th className="px-3 py-2 text-left font-medium">{t("health.columns.project")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("effort.columns.planned")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("effort.columns.logged")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("effort.columns.remaining")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("effort.columns.efficiency")}</th>
+              <th className="px-5 py-2 text-left font-medium">{t("health.columns.status")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {loading && (
               <tr>
                 <td colSpan={7} className="px-5 py-8 text-center text-xs text-muted-foreground">
-                  Loading projects…
+                  {t("health.loadingProjects")}
                 </td>
               </tr>
             )}
             {!loading && paged.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-5 py-8 text-center text-xs text-muted-foreground">
-                  No projects in this filter.
+                  {t("health.emptyFilter")}
                 </td>
               </tr>
             )}
@@ -156,15 +160,15 @@ export function ProjectEffortTable({
       <footer className="flex items-center justify-end gap-3 border-t border-border px-5 py-2 text-[11px] text-muted-foreground">
         <span>
           {filtered.length === 0
-            ? "0 of 0"
-            : `${page * PAGE_SIZE + 1}-${Math.min((page + 1) * PAGE_SIZE, filtered.length)} of ${filtered.length}`}
+            ? "0 / 0"
+            : `${page * PAGE_SIZE + 1}-${Math.min((page + 1) * PAGE_SIZE, filtered.length)} / ${filtered.length}`}
         </span>
         <div className="flex items-center gap-1">
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
             className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-30"
-            aria-label="Previous page"
+            aria-label={t("common.previousPage")}
           >
             <ChevronLeft className="h-3.5 w-3.5" />
           </button>
@@ -172,7 +176,7 @@ export function ProjectEffortTable({
             onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
             disabled={page >= pageCount - 1}
             className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-30"
-            aria-label="Next page"
+            aria-label={t("common.nextPage")}
           >
             <ChevronRight className="h-3.5 w-3.5" />
           </button>
@@ -214,7 +218,6 @@ function EfficiencyBadge({
   if (!hasPlanned) {
     return <span className="text-xs text-muted-foreground">—</span>;
   }
-  // efficiency = planned / actual. >=100% means on or under planned.
   const tone =
     efficiencyPct < 80
       ? "bg-destructive text-destructive-foreground"

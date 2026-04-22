@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 
@@ -11,11 +12,8 @@ export interface TeamRow {
   billableHours: number;
   internalHours: number;
   nonWorkingHours: number;
-  /** Collaborator id for avatar lookup (when available). */
   collaboratorId?: string | null;
-  /** Photo path override; takes precedence over collaborator lookup. */
   fotoPath?: string | null;
-  /** Resource ring colour. */
   color?: string | null;
 }
 
@@ -23,20 +21,18 @@ export function TeamPerformance({
   rows,
   loading,
   periodLabel,
-  title = "Team performance",
+  title,
   subtitle,
   showSort = true,
 }: {
   rows: TeamRow[];
   loading?: boolean;
   periodLabel: string;
-  /** Header title; defaults to "Team performance". */
   title?: string;
-  /** Header subtitle; defaults to a generic utilization sentence. */
   subtitle?: string;
-  /** Whether to render the sort buttons (hidden in single-row self mode). */
   showSort?: boolean;
 }) {
+  const { t } = useTranslation("projects");
   const [sort, setSort] = useState<SortKey>("utilization");
 
   const enriched = useMemo(() => {
@@ -56,15 +52,15 @@ export function TeamPerformance({
     return copy;
   }, [enriched, sort]);
 
-  const resolvedSubtitle =
-    subtitle ?? `Utilization and billable / internal split — ${periodLabel}`;
+  const resolvedTitle = title ?? t("team.title");
+  const resolvedSubtitle = subtitle ?? t("team.subtitle", { period: periodLabel });
 
   return (
     <section className="rounded-lg border border-border bg-card">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
         <div>
           <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            {title}
+            {resolvedTitle}
           </h2>
           <p className="text-[11px] text-muted-foreground">{resolvedSubtitle}</p>
         </div>
@@ -72,9 +68,9 @@ export function TeamPerformance({
           <div className="inline-flex items-center gap-1 rounded-md border border-border bg-background p-1">
             {(
               [
-                { k: "utilization", l: "Utilization" },
-                { k: "billable", l: "Billable %" },
-                { k: "name", l: "Name" },
+                { k: "utilization", l: t("team.sortByUtilization") },
+                { k: "billable", l: t("team.sortByBillable") },
+                { k: "name", l: t("team.sortByName") },
               ] as { k: SortKey; l: string }[]
             ).map((s) => (
               <button
@@ -98,25 +94,25 @@ export function TeamPerformance({
         <table className="w-full text-sm">
           <thead className="bg-muted/30 text-[10px] uppercase tracking-wider text-muted-foreground">
             <tr>
-              <th className="px-5 py-2 text-left font-medium">Member</th>
-              <th className="px-3 py-2 text-right font-medium">Capacity</th>
-              <th className="px-3 py-2 text-right font-medium">Logged</th>
-              <th className="px-3 py-2 text-center font-medium">Utilization</th>
-              <th className="px-5 py-2 text-left font-medium">Billable vs internal</th>
+              <th className="px-5 py-2 text-left font-medium">{t("team.columns.member")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("team.columns.capacity")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("team.columns.logged")}</th>
+              <th className="px-3 py-2 text-center font-medium">{t("team.columns.utilization")}</th>
+              <th className="px-5 py-2 text-left font-medium">{t("team.columns.split")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {loading && (
               <tr>
                 <td colSpan={5} className="px-5 py-8 text-center text-xs text-muted-foreground">
-                  Loading…
+                  {t("common:loading", { defaultValue: "Loading…" })}
                 </td>
               </tr>
             )}
             {!loading && sorted.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-5 py-8 text-center text-xs text-muted-foreground">
-                  No time logged in this period.
+                  {t("team.noTimeLogged")}
                 </td>
               </tr>
             )}
@@ -190,6 +186,7 @@ function SplitBar({
   internal: number;
   nonWorking: number;
 }) {
+  const { t } = useTranslation("projects");
   const total = billable + internal + nonWorking;
   if (total === 0) {
     return <div className="h-2.5 w-full rounded-full bg-muted" />;
@@ -202,7 +199,11 @@ function SplitBar({
     <div className="flex items-center gap-2">
       <div
         className="flex h-2.5 flex-1 overflow-hidden rounded-full bg-muted"
-        title={`Billable ${Math.round(billable)}h • Internal ${Math.round(internal)}h • Non-working ${Math.round(nonWorking)}h`}
+        title={t("team.splitTooltip", {
+          billable: Math.round(billable),
+          internal: Math.round(internal),
+          nonWorking: Math.round(nonWorking),
+        })}
       >
         {b > 0 && <div className="bg-emerald-500" style={{ width: `${b}%` }} />}
         {i > 0 && <div className="bg-amber-500" style={{ width: `${i}%` }} />}
