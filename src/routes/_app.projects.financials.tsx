@@ -39,6 +39,9 @@ import {
   AlertTriangle,
   Settings2,
   CheckCircle2,
+  Briefcase,
+  Trophy,
+  FileText,
 } from "lucide-react";
 import { AppShell } from "@/components/projects/app-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
