@@ -1028,6 +1028,7 @@ function MilestonesTable({
   stageLoggedHours,
   stagePlannedHours,
   defaultRates,
+  canSeeFinancials,
 }: {
   stages: ReturnType<typeof useProjectDetail>["data"] extends infer T
     ? T extends { stages: infer S }
@@ -1042,6 +1043,7 @@ function MilestonesTable({
   stageLoggedHours: (id: string) => number;
   stagePlannedHours: (id: string) => number;
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
+  canSeeFinancials: boolean;
 }) {
   const [expanded, setExpanded] = useState<Set<string>>(
     () => new Set(stages?.map((s) => s.id) ?? []),
