@@ -14,6 +14,7 @@ import {
 } from "@/lib/projects/use-planner";
 import { AllocationEditor } from "@/components/projects/allocation-editor";
 import { StageDependencyEditor } from "@/components/projects/stage-dependency-editor";
+import { StageBaselineDialog } from "@/components/projects/stage-baseline-dialog";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { toast } from "sonner";
 import { Trash2, GripVertical, AlertTriangle, CalendarOff } from "lucide-react";
