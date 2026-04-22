@@ -1442,24 +1442,29 @@ function InsightsPanel({
     (a, b) => b.plannedHours - a.plannedHours,
   );
 
-  // Revenue = Σ billable hours × sale rate (per resource)
-  // Cost    = Σ all logged hours × cost rate (per resource)
-  // Profit  = Revenue − Cost  (non-billable hours reduce profitability)
-  const earnedValue = Array.from(billableValueByRes.values()).reduce((a, b) => a + b, 0);
+  // Single source of truth — totals come from the parent (same as Overview):
+  //   actualRevenue = Σ billable hours × sale rate
+  //   actualCost    = Σ all logged hours × cost rate
+  //   actualProfit  = actualRevenue − actualCost
+  // Per-resource breakdowns below are recomputed for charts only and use the
+  // same formulas, so per-resource sums reconcile with the totals above.
+  const earnedValue = actualRevenue;
   const totalBillableHours = Array.from(billableHoursByRes.values()).reduce(
     (a, b) => a + b,
     0,
   );
   const totalNonBillableHours = Math.max(0, totalLoggedHours - totalBillableHours);
-  const loggedCost = Array.from(loggedCostByRes.values()).reduce((a, b) => a + b, 0);
-  const totalSale = resources.reduce((a, r) => a + r.plannedSale, 0);
-  const forecastValue = totalSale > 0 ? totalSale : earnedValue;
+  const loggedCost = actualCost;
+  // Planned (forecast) sale value from allocations — used as the upper bound
+  // for the "Forecast Value" bar.
+  const plannedRevenue = resources.reduce((a, r) => a + r.plannedSale, 0);
+  const forecastValue = plannedRevenue > 0 ? plannedRevenue : earnedValue;
   const earnedPct = forecastValue > 0 ? earnedValue / forecastValue : 0;
   const forecastPct = forecastValue > 0 ? 1 : 0;
 
-  // Project profitability: Profit = Revenue − Cost
-  const profitCurrent = earnedValue - loggedCost;
-  const profitForecast = forecastValue - totalCost;
+  // Profitability — actual vs forecast (using planned revenue & planned cost)
+  const profitCurrent = actualProfit;
+  const profitForecast = forecastValue - totalPlannedCost;
   const profitMarginCurrent =
     earnedValue > 0 ? Math.round((profitCurrent / earnedValue) * 100) : 0;
   const profitMarginForecast =
