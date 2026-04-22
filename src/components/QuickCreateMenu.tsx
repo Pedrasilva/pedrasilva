@@ -146,16 +146,6 @@ const projectSchema = z.object({
 // ─────────────────────────────────────────────
 function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const qc = useQueryClient();
-  const { data: companies = [] } = useQuery({
-    queryKey: ["companies-lite"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("companies").select("id, nome").order("nome");
-      if (error) throw error;
-      return data as { id: string; nome: string }[];
-    },
-    enabled: open,
-  });
 
   const [form, setForm] = useState({
     primeiro_nome: "", apelido: "", titulo: "", email: "",
@@ -249,18 +239,11 @@ function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }
               onChange={(e) => setForm((f) => ({ ...f, posicao: e.target.value }))} />
           </Field>
           <Field label="Empresa" full>
-            <Select value={form.company_id || "none"}
-              onValueChange={(v) => setForm((f) => ({ ...f, company_id: v === "none" ? "" : v }))}>
-              <SelectTrigger className="input-yellow">
-                <SelectValue placeholder="Sem empresa associada" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Sem empresa associada</SelectItem>
-                {companies.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CompanyPicker
+              value={form.company_id || null}
+              onChange={(id) => setForm((f) => ({ ...f, company_id: id }))}
+              placeholder="Sem empresa associada"
+            />
           </Field>
           <Field label="Notas" full>
             <Textarea className="input-yellow" rows={3} value={form.notas}
