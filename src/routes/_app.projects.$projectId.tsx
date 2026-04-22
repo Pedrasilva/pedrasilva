@@ -83,12 +83,13 @@ function ProjectDetail() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [poolOpen, setPoolOpen] = useState(false);
 
-  // Real time entries for this project (per stage via allocation→stage)
+  // Real time entries for this project (per stage via allocation→stage), split by billable
   const { data: timeRows } = useQuery({
     queryKey: ["pm-project-time", projectId],
     enabled: !!projectId && !!data,
     queryFn: async () => {
-      if (!data) return [] as { stage_id: string; hours: number }[];
+      if (!data)
+        return [] as { stage_id: string; hours: number; billableHours: number; nonBillableHours: number }[];
       const allocIds = data.stages.flatMap((s) =>
         s.allocations.map((a) => a.id),
       );
@@ -107,17 +108,30 @@ function ProjectDetail() {
       if (taskIds.length === 0) return [];
       const { data: entries } = await supabase
         .from("pm_time_entries")
-        .select("task_id, hours")
+        .select("task_id, hours, billable")
         .in("task_id", taskIds)
+        .eq("entry_type", "project")
         .not("task_id", "is", null);
-      const byStage = new Map<string, number>();
-      for (const e of (entries ?? []) as Array<{ task_id: string; hours: number }>) {
+      const byStage = new Map<
+        string,
+        { hours: number; billableHours: number; nonBillableHours: number }
+      >();
+      for (const e of (entries ?? []) as Array<{
+        task_id: string;
+        hours: number;
+        billable: boolean;
+      }>) {
         const allocId = taskToAlloc.get(e.task_id);
         const stageId = allocId ? allocToStage.get(allocId) : undefined;
         if (!stageId) continue;
-        byStage.set(stageId, (byStage.get(stageId) ?? 0) + Number(e.hours));
+        const h = Number(e.hours);
+        const cur = byStage.get(stageId) ?? { hours: 0, billableHours: 0, nonBillableHours: 0 };
+        cur.hours += h;
+        if (e.billable) cur.billableHours += h;
+        else cur.nonBillableHours += h;
+        byStage.set(stageId, cur);
       }
-      return Array.from(byStage, ([stage_id, hours]) => ({ stage_id, hours }));
+      return Array.from(byStage, ([stage_id, v]) => ({ stage_id, ...v }));
     },
   });
 
