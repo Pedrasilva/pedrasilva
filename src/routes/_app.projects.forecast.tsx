@@ -234,12 +234,27 @@ function ForecastPage() {
 
   // Walk every allocation, intersect with [monthStart, monthEnd], skip weekends/holidays,
   // multiply hours_per_day by (sale, cost) rates. Track conflicts with leave.
+  //
+  // Each project's contribution to the "forecast totals" is multiplied by its
+  // probability weight (see useProjectProbabilities + weightForMode). The
+  // resource-level workload is NOT weighted because, in real life, a person
+  // is allocated regardless of whether the deal closes — so we still want
+  // capacity / overload alerts to reflect the full plan.
   const planned = useMemo(() => {
-    const byProject = new Map<string, ForecastByProject>();
+    type ByProj = ForecastByProject & {
+      rawHours: number;
+      rawRevenue: number;
+      rawCost: number;
+      probability: ProjectProbability;
+    };
+    const byProject = new Map<string, ByProj>();
     const byResource = new Map<string, { hours: number; cost: number; conflictHours: number }>();
-    let totalHours = 0;
-    let totalRevenue = 0;
-    let totalCost = 0;
+    let totalHours = 0; // weighted
+    let totalRevenue = 0; // weighted
+    let totalCost = 0; // weighted
+    let rawTotalHours = 0;
+    let rawTotalRevenue = 0;
+    let rawTotalCost = 0;
     let conflictHours = 0;
     const conflictDetails: Array<{
       resourceId: string;
@@ -257,6 +272,9 @@ function ForecastPage() {
         totalHours,
         totalRevenue,
         totalCost,
+        rawTotalHours,
+        rawTotalRevenue,
+        rawTotalCost,
         conflictHours,
         conflictDetails,
       };
@@ -277,6 +295,9 @@ function ForecastPage() {
 
         const leaves = leaveByResource?.get(resource.id) ?? [];
         const days = eachDayOfInterval({ start: overlapStart, end: overlapEnd });
+        const pId = stage.project_id;
+        const prob = probabilityFor(pId, probabilities);
+        const w = weightForMode(prob, mode);
 
         for (const d of days) {
           if (isWeekend(d)) continue;
@@ -285,25 +306,50 @@ function ForecastPage() {
 
           const onLeave = leaves.some((l) => d >= l.start && d <= l.end);
 
-          totalHours += hpd;
-          totalRevenue += hpd * sale;
-          totalCost += hpd * cost;
+          const rawH = hpd;
+          const rawR = hpd * sale;
+          const rawC = hpd * cost;
+          const wH = rawH * w;
+          const wR = rawR * w;
+          const wC = rawC * w;
 
-          const pId = stage.project_id;
-          const cur = byProject.get(pId) ?? { projectId: pId, hours: 0, revenue: 0, cost: 0 };
-          cur.hours += hpd;
-          cur.revenue += hpd * sale;
-          cur.cost += hpd * cost;
+          totalHours += wH;
+          totalRevenue += wR;
+          totalCost += wC;
+          rawTotalHours += rawH;
+          rawTotalRevenue += rawR;
+          rawTotalCost += rawC;
+
+          const cur =
+            byProject.get(pId) ??
+            ({
+              projectId: pId,
+              hours: 0,
+              revenue: 0,
+              cost: 0,
+              rawHours: 0,
+              rawRevenue: 0,
+              rawCost: 0,
+              probability: prob,
+            } as ByProj);
+          cur.hours += wH;
+          cur.revenue += wR;
+          cur.cost += wC;
+          cur.rawHours += rawH;
+          cur.rawRevenue += rawR;
+          cur.rawCost += rawC;
           byProject.set(pId, cur);
 
+          // Resource workload tracks the actual plan, not the weighted forecast,
+          // because capacity alerts are about real human availability.
           const r = byResource.get(resource.id) ?? { hours: 0, cost: 0, conflictHours: 0 };
-          r.hours += hpd;
-          r.cost += hpd * cost;
-          if (onLeave) r.conflictHours += hpd;
+          r.hours += rawH;
+          r.cost += rawC;
+          if (onLeave) r.conflictHours += rawH;
           byResource.set(resource.id, r);
 
           if (onLeave) {
-            conflictHours += hpd;
+            conflictHours += rawH;
             const proj = projectMap.get(pId);
             conflictDetails.push({
               resourceId: resource.id,
@@ -311,15 +357,26 @@ function ForecastPage() {
               projectId: pId,
               projectName: proj?.name ?? "—",
               date: iso,
-              hours: hpd,
+              hours: rawH,
             });
           }
         }
       }
     }
 
-    return { byProject, byResource, totalHours, totalRevenue, totalCost, conflictHours, conflictDetails };
-  }, [stages, monthStart, monthEnd, defaultRates, leaveByResource, holidays, projectMap]);
+    return {
+      byProject,
+      byResource,
+      totalHours,
+      totalRevenue,
+      totalCost,
+      rawTotalHours,
+      rawTotalRevenue,
+      rawTotalCost,
+      conflictHours,
+      conflictDetails,
+    };
+  }, [stages, monthStart, monthEnd, defaultRates, leaveByResource, holidays, projectMap, probabilities, mode]);
 
   // Capacity vs planned per resource for the current month, factoring in
   // approved leave and public holidays. Used to flag people / projects whose
