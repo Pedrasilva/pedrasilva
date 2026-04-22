@@ -835,6 +835,36 @@ export type Database = {
           },
         ]
       }
+      pm_internal_categories: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pm_invoice_items: {
         Row: {
           created_at: string
