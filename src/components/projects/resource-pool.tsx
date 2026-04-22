@@ -1,10 +1,18 @@
 import { useMemo } from "react";
-import { addDays, format, startOfWeek } from "date-fns";
+import { addDays, eachDayOfInterval, format, isWeekend, parseISO, startOfWeek } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 import type { Resource } from "@/lib/projects/types";
 import { useAllAllocations } from "@/lib/projects/use-planner";
 import { allocationHours, euros } from "@/lib/projects/gantt-utils";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
-import { AlertTriangle, GripVertical } from "lucide-react";
+import { AlertTriangle, GripVertical, CalendarOff } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  computeResourceCapacity,
+  STANDARD_DAILY_HOURS,
+  type LeaveInterval,
+} from "@/lib/projects/leave-capacity";
 
 interface Props {
   resources: Resource[];
@@ -33,8 +41,57 @@ function weekHoursForResource(
   return total;
 }
 
+// Map of resource_id -> approved leave intervals (anywhere). Cached by react-query
+// so the small list survives re-renders cheaply.
+function useLeaveByResource() {
+  return useQuery({
+    queryKey: ["pool-leave-by-resource"],
+    queryFn: async (): Promise<Map<string, LeaveInterval[]>> => {
+      const { data: resources, error: rErr } = await supabase
+        .from("pm_resources")
+        .select("id, collaborator_id");
+      if (rErr) throw rErr;
+      const collabToResource = new Map<string, string>();
+      for (const r of (resources ?? []) as { id: string; collaborator_id: string | null }[]) {
+        if (r.collaborator_id) collabToResource.set(r.collaborator_id, r.id);
+      }
+      const { data: leaves, error: lErr } = await supabase
+        .from("vacation_requests")
+        .select("collaborator_id, data_inicio, data_fim, estado")
+        .in("estado", ["aprovado", "aprovada"]);
+      if (lErr) throw lErr;
+      const map = new Map<string, LeaveInterval[]>();
+      for (const l of (leaves ?? []) as Array<{
+        collaborator_id: string;
+        data_inicio: string;
+        data_fim: string;
+      }>) {
+        const resId = collabToResource.get(l.collaborator_id);
+        if (!resId) continue;
+        const arr = map.get(resId) ?? [];
+        arr.push({ start: parseISO(l.data_inicio), end: parseISO(l.data_fim) });
+        map.set(resId, arr);
+      }
+      return map;
+    },
+  });
+}
+
+function useHolidaySet() {
+  return useQuery({
+    queryKey: ["pool-holidays"],
+    queryFn: async (): Promise<Set<string>> => {
+      const { data, error } = await supabase.from("holidays").select("data");
+      if (error) throw error;
+      return new Set(((data ?? []) as Array<{ data: string }>).map((h) => h.data));
+    },
+  });
+}
+
 export function ResourcePool({ resources }: Props) {
   const { data: allocs } = useAllAllocations();
+  const { data: leaveByResource } = useLeaveByResource();
+  const { data: holidays } = useHolidaySet();
 
   const activeResources = useMemo(
     () => resources.filter((r) => (r as Resource & { active?: boolean }).active !== false),
@@ -59,9 +116,19 @@ export function ResourcePool({ resources }: Props) {
       <div className="flex-1 space-y-2 overflow-y-auto p-3">
         {activeResources.map((r) => {
           const wh = weekHoursForResource(r.id, thisWeek.start, thisWeek.end, allocs ?? []);
-          const cap = Number(r.weekly_capacity);
-          const ratio = cap > 0 ? wh / cap : 0;
-          const over = wh > cap;
+          const intervals = leaveByResource?.get(r.id) ?? [];
+          // Effective weekly capacity = scheduled working days × 8h, minus leave hours.
+          // We use the calendar week so the bar reflects this week's actual availability.
+          const cap = computeResourceCapacity(thisWeek.start, thisWeek.end, intervals, holidays);
+          // Fall back to contractual weekly_capacity if no working days in the week
+          // (extreme edge case — full-week public-holiday window).
+          const baseCap = cap.rawCapacityHours > 0 ? cap.rawCapacityHours : Number(r.weekly_capacity);
+          const effCap = cap.rawCapacityHours > 0 ? cap.effectiveCapacityHours : Number(r.weekly_capacity);
+          const ratio = effCap > 0 ? wh / effCap : wh > 0 ? 1.5 : 0;
+          const over = wh > effCap + 0.01;
+          const reducedByLeave = cap.leaveHours > 0;
+          const fullyOnLeave = cap.rawCapacityHours > 0 && cap.effectiveCapacityHours === 0;
+
           return (
             <div
               key={r.id}
@@ -84,7 +151,28 @@ export function ResourcePool({ resources }: Props) {
                   <p className="truncate text-sm font-medium">{r.name}</p>
                   {r.role && <p className="truncate text-[11px] text-muted-foreground">{r.role}</p>}
                 </div>
-                {over && <AlertTriangle className="h-3.5 w-3.5 text-destructive" />}
+                {reducedByLeave && (
+                  <TooltipProvider delayDuration={120}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span
+                          className={`inline-flex items-center ${
+                            fullyOnLeave ? "text-destructive" : "text-amber-600 dark:text-amber-400"
+                          }`}
+                        >
+                          <CalendarOff className="h-3.5 w-3.5" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="text-xs">
+                        {fullyOnLeave
+                          ? "On leave all week — 0h capacity"
+                          : `−${cap.leaveHours.toFixed(0)}h this week (leave)`}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+                {over && !reducedByLeave && <AlertTriangle className="h-3.5 w-3.5 text-destructive" />}
+                {over && reducedByLeave && <AlertTriangle className="h-3.5 w-3.5 text-destructive" />}
               </div>
               <div className="mt-2">
                 <div className="flex items-baseline justify-between text-[10px]">
@@ -92,7 +180,12 @@ export function ResourcePool({ resources }: Props) {
                   <span
                     className={`font-mono ${over ? "text-destructive font-semibold" : "text-muted-foreground"}`}
                   >
-                    {wh.toFixed(0)}/{cap.toFixed(0)} h
+                    {wh.toFixed(0)}/{effCap.toFixed(0)} h
+                    {reducedByLeave && (
+                      <span className="ml-1 text-[9px] text-muted-foreground/70 line-through">
+                        {baseCap.toFixed(0)}
+                      </span>
+                    )}
                   </span>
                 </div>
                 <div className="mt-1 h-1 overflow-hidden rounded-full bg-muted">
@@ -104,6 +197,11 @@ export function ResourcePool({ resources }: Props) {
                     }}
                   />
                 </div>
+                {reducedByLeave && (
+                  <p className="mt-1 text-[10px] text-amber-600 dark:text-amber-400">
+                    Capacity reduced {cap.reductionPct.toFixed(0)}% by leave
+                  </p>
+                )}
               </div>
             </div>
           );
@@ -117,3 +215,8 @@ export function ResourcePool({ resources }: Props) {
     </aside>
   );
 }
+
+// keep imports referenced
+void eachDayOfInterval;
+void isWeekend;
+void STANDARD_DAILY_HOURS;
