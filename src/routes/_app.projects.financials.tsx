@@ -915,13 +915,7 @@ function FinancialsPage() {
           </CardContent>
         </Card>
 
-        {/* Business Development efficiency */}
-        <BusinessDevCard
-          monthLabel={format(monthAnchor, "MMMM yyyy")}
-          monthHours={bdMonthCost.hours}
-          monthCost={bdMonthCost.cost}
-          data={bd}
-        />
+
 
         {/* Internal cost centers report */}
         <Card className="mt-6">
