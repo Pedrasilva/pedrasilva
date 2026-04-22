@@ -1300,8 +1300,12 @@ function InsightsPanel({
       byRes.set(key, existing);
     }
   }
-  // Track per-resource logged cost (so totalCost reflects actual work done)
+  // Track per-resource logged cost & billable hours.
+  // Cost includes ALL hours logged to the project (billable + non-billable).
+  // Revenue (earned value) only comes from billable hours × sale rate.
   const loggedCostByRes = new Map<string, number>();
+  const billableValueByRes = new Map<string, number>();
+  const billableHoursByRes = new Map<string, number>();
   for (const s of stages) {
     const planned = s.allocations.map((a) => ({
       id: a.resource.id,
@@ -1315,39 +1319,57 @@ function InsightsPanel({
     }));
     const totPlan = planned.reduce((x, y) => x + y.h, 0);
     const logged = stageLoggedHours(s.id);
-    if (totPlan <= 0 || logged <= 0) continue;
+    const billable = stageBillableHours(s.id);
+    if (totPlan <= 0) continue;
     for (const p of planned) {
       const agg = byRes.get(p.id);
       if (!agg) continue;
-      const share = (p.h / totPlan) * logged;
-      agg.loggedHours += share;
-      loggedCostByRes.set(p.id, (loggedCostByRes.get(p.id) ?? 0) + share * p.costRate);
+      if (logged > 0) {
+        const share = (p.h / totPlan) * logged;
+        agg.loggedHours += share;
+        // Cost from ALL logged hours (billable + non-billable on the project)
+        loggedCostByRes.set(p.id, (loggedCostByRes.get(p.id) ?? 0) + share * p.costRate);
+      }
+      if (billable > 0) {
+        // Revenue only from billable hours
+        const billableShare = (p.h / totPlan) * billable;
+        billableHoursByRes.set(
+          p.id,
+          (billableHoursByRes.get(p.id) ?? 0) + billableShare,
+        );
+        billableValueByRes.set(
+          p.id,
+          (billableValueByRes.get(p.id) ?? 0) + billableShare * p.saleRate,
+        );
+      }
     }
   }
   const resources = Array.from(byRes.values()).sort(
     (a, b) => b.plannedHours - a.plannedHours,
   );
 
-  // Value = sum over resources of (logged hours × default sale rate)
-  // Cost = sum over resources of (logged hours × default cost rate)
-  // Profit = budget − cost (per user spec)
-  const earnedValue = resources.reduce((acc, r) => {
-    const saleRate = r.plannedHours > 0 ? r.plannedSale / r.plannedHours : 0;
-    return acc + r.loggedHours * saleRate;
-  }, 0);
+  // Revenue = Σ billable hours × sale rate (per resource)
+  // Cost    = Σ all logged hours × cost rate (per resource)
+  // Profit  = Revenue − Cost  (non-billable hours reduce profitability)
+  const earnedValue = Array.from(billableValueByRes.values()).reduce((a, b) => a + b, 0);
+  const totalBillableHours = Array.from(billableHoursByRes.values()).reduce(
+    (a, b) => a + b,
+    0,
+  );
+  const totalNonBillableHours = Math.max(0, totalLoggedHours - totalBillableHours);
   const loggedCost = Array.from(loggedCostByRes.values()).reduce((a, b) => a + b, 0);
   const totalSale = resources.reduce((a, r) => a + r.plannedSale, 0);
   const forecastValue = totalSale > 0 ? totalSale : earnedValue;
   const earnedPct = forecastValue > 0 ? earnedValue / forecastValue : 0;
   const forecastPct = forecastValue > 0 ? 1 : 0;
 
-  // Profit = budget − costs (current uses logged cost; forecast uses planned cost)
-  const profitCurrent = totalBudget - loggedCost;
-  const profitForecast = totalBudget - totalCost;
-  const profitCurPct =
-    totalBudget > 0 ? Math.round((profitCurrent / totalBudget) * 100) : 0;
-  const profitForePct =
-    totalBudget > 0 ? Math.round((profitForecast / totalBudget) * 100) : 0;
+  // Project profitability: Profit = Revenue − Cost
+  const profitCurrent = earnedValue - loggedCost;
+  const profitForecast = forecastValue - totalCost;
+  const profitMarginCurrent =
+    earnedValue > 0 ? Math.round((profitCurrent / earnedValue) * 100) : 0;
+  const profitMarginForecast =
+    forecastValue > 0 ? Math.round((profitForecast / forecastValue) * 100) : 0;
 
   const wipHours = Math.max(0, totalPlannedHours - totalLoggedHours);
   const workDonePct =
