@@ -35,12 +35,19 @@ import {
   CalendarOff,
   Gauge,
   AlertCircle,
+  Target,
+  AlertTriangle,
+  Settings2,
+  CheckCircle2,
 } from "lucide-react";
 import { AppShell } from "@/components/projects/app-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import {
   useDefaultResourceRates,
