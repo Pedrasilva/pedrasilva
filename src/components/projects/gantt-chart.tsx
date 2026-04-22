@@ -71,6 +71,41 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
   const { data: deps } = useStageDependencies();
   const { data: defaultRates } = useDefaultResourceRates();
 
+  // Approved-leave intervals per resource — used to flag allocations that
+  // overlap days where the resource is unavailable. These remain CALCULATED
+  // (not blocking): the user still sees the allocation, but the bar/tooltip
+  // surface that delivery capacity is reduced.
+  const { data: leaveByResource } = useQuery({
+    queryKey: ["gantt-leave"],
+    queryFn: async (): Promise<Map<string, LeaveInterval[]>> => {
+      const { data: rs } = await supabase.from("pm_resources").select("id, collaborator_id");
+      const collabToRes = new Map<string, string>();
+      for (const r of (rs ?? []) as Array<{ id: string; collaborator_id: string | null }>) {
+        if (r.collaborator_id) collabToRes.set(r.collaborator_id, r.id);
+      }
+      const { data: lv } = await supabase
+        .from("vacation_requests")
+        .select("collaborator_id, data_inicio, data_fim, estado")
+        .in("estado", ["aprovado", "aprovada"]);
+      const m = new Map<string, LeaveInterval[]>();
+      for (const l of (lv ?? []) as Array<{ collaborator_id: string; data_inicio: string; data_fim: string }>) {
+        const id = collabToRes.get(l.collaborator_id);
+        if (!id) continue;
+        const arr = m.get(id) ?? [];
+        arr.push({ start: parseISO(l.data_inicio), end: parseISO(l.data_fim) });
+        m.set(id, arr);
+      }
+      return m;
+    },
+  });
+  const { data: holidaySet } = useQuery({
+    queryKey: ["gantt-holidays"],
+    queryFn: async (): Promise<Set<string>> => {
+      const { data } = await supabase.from("holidays").select("data");
+      return new Set(((data ?? []) as Array<{ data: string }>).map((h) => h.data));
+    },
+  });
+
   const resourceMap = useMemo(() => new Map(resources.map((r) => [r.id, r])), [resources]);
 
   const loadMap = useMemo(() => {
