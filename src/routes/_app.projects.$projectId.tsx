@@ -349,11 +349,13 @@ function ProjectDetail() {
         <div
           className={cn(
             "mt-6 grid gap-6",
-            sidebarOpen ? "lg:grid-cols-[300px_minmax(0,1fr)]" : "lg:grid-cols-1",
+            sidebarOpen && tab !== "schedule"
+              ? "lg:grid-cols-[300px_minmax(0,1fr)]"
+              : "lg:grid-cols-1",
           )}
         >
           {/* Sidebar ---------------------------------------------------- */}
-          <aside className={cn("space-y-6", !sidebarOpen && "hidden")}>
+          <aside className={cn("space-y-6", (!sidebarOpen || tab === "schedule") && "hidden")}>
             <SidebarSection title="Detalhes">
               <DetailRow label="Cliente" value={project.client ?? "—"} />
               <DetailRow
