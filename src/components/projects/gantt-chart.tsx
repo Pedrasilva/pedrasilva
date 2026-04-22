@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
-import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, startOfWeek } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, parseISO, startOfWeek } from "date-fns";
 import type { Resource, StageWithAllocations } from "@/lib/projects/types";
 import { allocationCost, dayCount, euros, workingDays } from "@/lib/projects/gantt-utils";
 import { useDefaultResourceRates, effectiveCostRate } from "@/lib/projects/use-default-rates";
@@ -15,8 +16,10 @@ import { AllocationEditor } from "@/components/projects/allocation-editor";
 import { StageDependencyEditor } from "@/components/projects/stage-dependency-editor";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { toast } from "sonner";
-import { Trash2, GripVertical, AlertTriangle } from "lucide-react";
+import { Trash2, GripVertical, AlertTriangle, CalendarOff } from "lucide-react";
 import { allocationOverload, buildLoadMap, DAILY_LIMIT_HOURS } from "@/lib/projects/overload";
+import { leaveHoursInRange, type LeaveInterval } from "@/lib/projects/leave-capacity";
+import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { fmt } from "@/lib/projects/gantt-utils";
 
