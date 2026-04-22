@@ -21,6 +21,7 @@ import { Route as AppCrmIndexRouteImport } from './routes/_app.crm.index'
 import { Route as AppProjectsTimesheetRouteImport } from './routes/_app.projects.timesheet'
 import { Route as AppProjectsResourcesRouteImport } from './routes/_app.projects.resources'
 import { Route as AppProjectsMyTasksRouteImport } from './routes/_app.projects.my-tasks'
+import { Route as AppProjectsInsightsRouteImport } from './routes/_app.projects.insights'
 import { Route as AppProjectsGanttRouteImport } from './routes/_app.projects.gantt'
 import { Route as AppProjectsForecastRouteImport } from './routes/_app.projects.forecast'
 import { Route as AppProjectsFinancialsRouteImport } from './routes/_app.projects.financials'
@@ -98,6 +99,11 @@ const AppProjectsResourcesRoute = AppProjectsResourcesRouteImport.update({
 const AppProjectsMyTasksRoute = AppProjectsMyTasksRouteImport.update({
   id: '/projects/my-tasks',
   path: '/projects/my-tasks',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProjectsInsightsRoute = AppProjectsInsightsRouteImport.update({
+  id: '/projects/insights',
+  path: '/projects/insights',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProjectsGanttRoute = AppProjectsGanttRouteImport.update({
@@ -221,6 +227,7 @@ export interface FileRoutesByFullPath {
   '/projects/financials': typeof AppProjectsFinancialsRoute
   '/projects/forecast': typeof AppProjectsForecastRoute
   '/projects/gantt': typeof AppProjectsGanttRoute
+  '/projects/insights': typeof AppProjectsInsightsRoute
   '/projects/my-tasks': typeof AppProjectsMyTasksRoute
   '/projects/resources': typeof AppProjectsResourcesRouteWithChildren
   '/projects/timesheet': typeof AppProjectsTimesheetRoute
@@ -251,6 +258,7 @@ export interface FileRoutesByTo {
   '/projects/financials': typeof AppProjectsFinancialsRoute
   '/projects/forecast': typeof AppProjectsForecastRoute
   '/projects/gantt': typeof AppProjectsGanttRoute
+  '/projects/insights': typeof AppProjectsInsightsRoute
   '/projects/my-tasks': typeof AppProjectsMyTasksRoute
   '/projects/resources': typeof AppProjectsResourcesRouteWithChildren
   '/projects/timesheet': typeof AppProjectsTimesheetRoute
@@ -285,6 +293,7 @@ export interface FileRoutesById {
   '/_app/projects/financials': typeof AppProjectsFinancialsRoute
   '/_app/projects/forecast': typeof AppProjectsForecastRoute
   '/_app/projects/gantt': typeof AppProjectsGanttRoute
+  '/_app/projects/insights': typeof AppProjectsInsightsRoute
   '/_app/projects/my-tasks': typeof AppProjectsMyTasksRoute
   '/_app/projects/resources': typeof AppProjectsResourcesRouteWithChildren
   '/_app/projects/timesheet': typeof AppProjectsTimesheetRoute
@@ -319,6 +328,7 @@ export interface FileRouteTypes {
     | '/projects/financials'
     | '/projects/forecast'
     | '/projects/gantt'
+    | '/projects/insights'
     | '/projects/my-tasks'
     | '/projects/resources'
     | '/projects/timesheet'
@@ -349,6 +359,7 @@ export interface FileRouteTypes {
     | '/projects/financials'
     | '/projects/forecast'
     | '/projects/gantt'
+    | '/projects/insights'
     | '/projects/my-tasks'
     | '/projects/resources'
     | '/projects/timesheet'
@@ -382,6 +393,7 @@ export interface FileRouteTypes {
     | '/_app/projects/financials'
     | '/_app/projects/forecast'
     | '/_app/projects/gantt'
+    | '/_app/projects/insights'
     | '/_app/projects/my-tasks'
     | '/_app/projects/resources'
     | '/_app/projects/timesheet'
@@ -484,6 +496,13 @@ declare module '@tanstack/react-router' {
       path: '/projects/my-tasks'
       fullPath: '/projects/my-tasks'
       preLoaderRoute: typeof AppProjectsMyTasksRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/insights': {
+      id: '/_app/projects/insights'
+      path: '/projects/insights'
+      fullPath: '/projects/insights'
+      preLoaderRoute: typeof AppProjectsInsightsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/projects/gantt': {
@@ -710,6 +729,7 @@ interface AppRouteChildren {
   AppProjectsFinancialsRoute: typeof AppProjectsFinancialsRoute
   AppProjectsForecastRoute: typeof AppProjectsForecastRoute
   AppProjectsGanttRoute: typeof AppProjectsGanttRoute
+  AppProjectsInsightsRoute: typeof AppProjectsInsightsRoute
   AppProjectsMyTasksRoute: typeof AppProjectsMyTasksRoute
   AppProjectsResourcesRoute: typeof AppProjectsResourcesRouteWithChildren
   AppProjectsTimesheetRoute: typeof AppProjectsTimesheetRoute
@@ -724,6 +744,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProjectsFinancialsRoute: AppProjectsFinancialsRoute,
   AppProjectsForecastRoute: AppProjectsForecastRoute,
   AppProjectsGanttRoute: AppProjectsGanttRoute,
+  AppProjectsInsightsRoute: AppProjectsInsightsRoute,
   AppProjectsMyTasksRoute: AppProjectsMyTasksRoute,
   AppProjectsResourcesRoute: AppProjectsResourcesRouteWithChildren,
   AppProjectsTimesheetRoute: AppProjectsTimesheetRoute,
