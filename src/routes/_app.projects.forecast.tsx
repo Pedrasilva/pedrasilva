@@ -559,13 +559,30 @@ function ForecastPage() {
         </div>
 
         {/* KPI strip */}
-        <div className="mt-6 grid gap-3 md:grid-cols-4">
+        <div className="mt-6 grid gap-3 md:grid-cols-5">
           <KpiCard
             label="Horas planeadas"
             value={hoursFmt(planned.totalHours)}
             sub={`${planned.byResource.size} pessoas alocadas`}
             icon={<Clock className="h-4 w-4" />}
             tone="muted"
+          />
+          <KpiCard
+            label="Capacidade efectiva"
+            value={hoursFmt(capacity.totalEffective)}
+            sub={
+              capacity.totalLeave > 0
+                ? `−${hoursFmt(capacity.totalLeave)} de férias (de ${hoursFmt(capacity.totalRaw)})`
+                : `${hoursFmt(capacity.totalRaw)} brutas · sem férias`
+            }
+            icon={<CalendarOff className="h-4 w-4" />}
+            tone={
+              planned.totalHours > capacity.totalEffective + 0.01
+                ? "danger"
+                : capacity.totalLeave > 0
+                  ? "muted"
+                  : "muted"
+            }
           />
           <KpiCard
             label="Receita prevista"
@@ -605,6 +622,76 @@ function ForecastPage() {
             </div>
           </div>
         )}
+
+        {/* Capacity-at-risk panel */}
+        {(atRiskProjects.length > 0 || planned.totalHours > capacity.totalEffective + 0.01) && (
+          <Card className="mt-4 border-amber-500/40 bg-amber-50/50 dark:bg-amber-950/10">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                Capacidade reduzida por férias
+              </CardTitle>
+              <CardDescription>
+                Equipa com {hoursFmt(capacity.totalLeave)} de férias aprovadas este mês →
+                capacidade efectiva {hoursFmt(capacity.totalEffective)} (de {hoursFmt(capacity.totalRaw)}).
+                {planned.totalHours > capacity.totalEffective + 0.01 && (
+                  <span className="ml-1 font-semibold text-destructive">
+                    Plano excede capacidade em {hoursFmt(planned.totalHours - capacity.totalEffective)}.
+                  </span>
+                )}
+              </CardDescription>
+            </CardHeader>
+            {atRiskProjects.length > 0 && (
+              <CardContent className="pt-0">
+                <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+                  Projectos sob pressão
+                </p>
+                <div className="grid gap-2">
+                  {atRiskProjects.slice(0, 6).map((p) => {
+                    const over = p.plannedHours - p.effectiveCapacity;
+                    return (
+                      <div
+                        key={p.projectId}
+                        className="flex items-center justify-between gap-3 rounded-md border border-border/60 bg-background px-3 py-2 text-sm"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: p.color }} />
+                          <span className="truncate font-medium">{p.projectName}</span>
+                          {p.pressuredResources.length > 0 && (
+                            <span className="truncate text-[11px] text-muted-foreground">
+                              · {p.pressuredResources.slice(0, 3).join(", ")}
+                              {p.pressuredResources.length > 3 && ` +${p.pressuredResources.length - 3}`}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex shrink-0 items-center gap-3 text-xs">
+                          <span className="font-mono text-muted-foreground">
+                            {hoursFmt(p.plannedHours)} / {hoursFmt(p.effectiveCapacity)}
+                          </span>
+                          {over > 0.01 && (
+                            <Badge variant="destructive" className="font-mono">
+                              +{hoursFmt(over)}
+                            </Badge>
+                          )}
+                          {p.leaveHours > 0 && (
+                            <span
+                              className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400"
+                              title="Hours lost to approved leave"
+                            >
+                              <CalendarOff className="h-3 w-3" />
+                              {hoursFmt(p.leaveHours)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            )}
+          </Card>
+        )}
+
 
         {/* Trend chart */}
         <Card className="mt-6">
