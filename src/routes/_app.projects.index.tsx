@@ -15,12 +15,21 @@ import {
   type FinancialKpiData,
 } from "@/components/projects/dashboard/financial-kpi-strip";
 import {
+  HoursKpiStrip,
+  type HoursKpiData,
+} from "@/components/projects/dashboard/hours-kpi-strip";
+import {
   ProjectHealthTable,
   type HealthRow,
 } from "@/components/projects/dashboard/project-health-table";
 import {
+  ProjectEffortTable,
+  type EffortRow,
+} from "@/components/projects/dashboard/project-effort-table";
+import {
   AlertsPanel,
   overBudgetDetail,
+  overrunDetail,
   type AlertItem,
 } from "@/components/projects/dashboard/alerts-panel";
 import {
@@ -41,6 +50,7 @@ import {
 } from "@/lib/projects/use-default-rates";
 import { supabase } from "@/integrations/supabase/client";
 import type { StageWithAllocations } from "@/lib/projects/types";
+import { useHasPermission } from "@/hooks/use-permissions";
 import { Search } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/")({
@@ -127,6 +137,7 @@ function useUserResourceMap() {
 
 function DashboardPage() {
   const navigate = useNavigate();
+  const { allowed: canSeeFinancials } = useHasPermission("projects.financials");
   const { data: projects, isLoading: pLoading } = useProjects();
   const { data: allStages, isLoading: sLoading } = useAllStages();
   const { data: resources } = useResources();
@@ -209,7 +220,7 @@ function DashboardPage() {
   });
 
   const projectActuals = useMemo(() => {
-    type Row = { revenue: number; cost: number };
+    type Row = { revenue: number; cost: number; loggedHours: number };
     const m = new Map<string, Row>();
     if (!allEntries || !taskToStage) return m;
     for (const e of allEntries) {
@@ -223,17 +234,30 @@ function DashboardPage() {
       // Use the first allocation in the stage to obtain a representative resource for rate.
       const repAlloc = allocation ?? stage.allocations[0];
       const resourceId = repAlloc?.resource_id;
-      if (!resourceId) continue;
-      const res = resources?.find((r) => r.id === resourceId);
-      const sale = effectiveSaleRate(res?.hourly_rate, resourceId, defaultRates);
-      const cost = effectiveCostRate(res?.cost_rate, resourceId, defaultRates);
-      const cur = m.get(projectId) ?? { revenue: 0, cost: 0 };
-      cur.cost += e.hours * cost;
-      if (e.billable) cur.revenue += e.hours * sale;
+      const cur = m.get(projectId) ?? { revenue: 0, cost: 0, loggedHours: 0 };
+      cur.loggedHours += e.hours;
+      if (resourceId) {
+        const res = resources?.find((r) => r.id === resourceId);
+        const sale = effectiveSaleRate(res?.hourly_rate, resourceId, defaultRates);
+        const cost = effectiveCostRate(res?.cost_rate, resourceId, defaultRates);
+        cur.cost += e.hours * cost;
+        if (e.billable) cur.revenue += e.hours * sale;
+      }
       m.set(projectId, cur);
     }
     return m;
   }, [allEntries, taskToStage, stageById, taskToResource, resources, defaultRates]);
+
+  // Planned hours per project = Σ allocationHours across stages.
+  const projectPlannedHours = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const s of allStages ?? []) {
+      let h = 0;
+      for (const a of s.allocations) h += allocationHours(a);
+      m.set(s.project_id, (m.get(s.project_id) ?? 0) + h);
+    }
+    return m;
+  }, [allStages]);
 
   // ---------- filtered project list ----------
   const filteredProjects = useMemo(() => {
@@ -288,6 +312,43 @@ function DashboardPage() {
       };
     });
   }, [filteredProjects, stagesByProject, projectActuals]);
+
+  // ---------- Project effort rows (time-based view) ----------
+  const effortRows: EffortRow[] = useMemo(() => {
+    return filteredProjects.map((p) => {
+      const planned = projectPlannedHours.get(p.id) ?? 0;
+      const logged = projectActuals.get(p.id)?.loggedHours ?? 0;
+      const remaining = planned - logged;
+      const efficiencyPct = logged > 0 ? (planned / logged) * 100 : planned > 0 ? 100 : 0;
+      const ps = stagesByProject.get(p.id) ?? [];
+
+      let status: EffortRow["status"] = "ok";
+      let statusReason = "On track";
+      if (planned === 0 && logged === 0 && ps.length === 0) {
+        status = "none";
+        statusReason = "No activity";
+      } else if (planned > 0 && logged > planned) {
+        status = "bad";
+        statusReason = `Overrun (${Math.round((logged / planned) * 100)}% of plan)`;
+      } else if (planned > 0 && logged / planned > 0.8) {
+        status = "warn";
+        statusReason = `Approaching plan (${Math.round((logged / planned) * 100)}%)`;
+      } else if (planned === 0 && logged > 0) {
+        status = "warn";
+        statusReason = "Logged time without plan";
+      }
+
+      return {
+        project: p,
+        plannedHours: planned,
+        loggedHours: logged,
+        remainingHours: remaining,
+        efficiencyPct,
+        status,
+        statusReason,
+      };
+    });
+  }, [filteredProjects, projectPlannedHours, projectActuals, stagesByProject]);
 
   // ---------- KPIs (period-scoped) ----------
   const kpi: FinancialKpiData = useMemo(() => {
@@ -344,6 +405,53 @@ function DashboardPage() {
     };
   }, [entries, taskToStage, stageById, resources, defaultRates, periodStartISO, periodEndISO]);
 
+  // ---------- Hours-only KPI (period-scoped) ----------
+  const hoursKpi: HoursKpiData = useMemo(() => {
+    let loggedHours = 0;
+    let billableLogged = 0;
+    for (const e of entries ?? []) {
+      if (e.entry_type === "non_working") continue;
+      loggedHours += e.hours;
+      if (e.billable && e.entry_type === "project") billableLogged += e.hours;
+    }
+
+    // Planned hours within the selected period: clip allocations to [periodStart, periodEnd]
+    let plannedHours = 0;
+    for (const s of allStages ?? []) {
+      for (const a of s.allocations) {
+        const aStart = parseISO(a.start_date);
+        const aEnd = parseISO(a.end_date);
+        if (aEnd < periodStart || aStart > periodEnd) continue;
+        const overlapStart = aStart > periodStart ? aStart : periodStart;
+        const overlapEnd = aEnd < periodEnd ? aEnd : periodEnd;
+        plannedHours += allocationHours({
+          ...a,
+          start_date: format(overlapStart, "yyyy-MM-dd"),
+          end_date: format(overlapEnd, "yyyy-MM-dd"),
+        });
+      }
+    }
+
+    let capacityHours = 0;
+    const wd = workingDays(periodStartISO, periodEndISO);
+    for (const r of resources ?? []) {
+      if (!r.active) continue;
+      const dailyCapacity = (Number(r.weekly_capacity) || 40) / 5;
+      capacityHours += dailyCapacity * wd;
+    }
+
+    const utilizationPct = loggedHours > 0 ? (billableLogged / loggedHours) * 100 : 0;
+
+    return {
+      plannedHours,
+      loggedHours,
+      remainingHours: plannedHours - loggedHours,
+      utilizationPct,
+      capacityUsedHours: loggedHours,
+      capacityAvailableHours: capacityHours,
+    };
+  }, [entries, allStages, resources, periodStart, periodEnd, periodStartISO, periodEndISO]);
+
   // ---------- Team performance rows ----------
   const teamRows: TeamRow[] = useMemo(() => {
     const wd = workingDays(periodStartISO, periodEndISO);
@@ -377,30 +485,53 @@ function DashboardPage() {
   // ---------- Alerts ----------
   const alerts: AlertItem[] = useMemo(() => {
     const list: AlertItem[] = [];
-    // Over budget + low margin
-    for (const r of healthRows) {
-      if (r.status === "bad" && r.budget > 0 && r.actualCost > r.budget) {
+    // Financial alerts: only when user can see € data.
+    if (canSeeFinancials) {
+      for (const r of healthRows) {
+        if (r.status === "bad" && r.budget > 0 && r.actualCost > r.budget) {
+          list.push({
+            id: `ob-${r.project.id}`,
+            kind: "over_budget",
+            title: `${r.project.name} is over budget`,
+            detail: overBudgetDetail(r.actualCost, r.budget),
+            href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
+          });
+        } else if (r.actualRevenue > 0 && r.marginPct < 15 && r.marginPct >= 0) {
+          list.push({
+            id: `lm-${r.project.id}`,
+            kind: "low_margin",
+            title: `${r.project.name} has low margin`,
+            detail: `Margin ${Math.round(r.marginPct)}% — target ≥ 15%`,
+            href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
+          });
+        } else if (r.actualRevenue > 0 && r.marginPct < 0) {
+          list.push({
+            id: `lm-${r.project.id}`,
+            kind: "low_margin",
+            title: `${r.project.name} has negative margin`,
+            detail: `Margin ${Math.round(r.marginPct)}% — losing money`,
+            href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
+          });
+        }
+      }
+    }
+
+    // Time-based alerts (visible to everyone): overrun and approaching plan.
+    for (const r of effortRows) {
+      if (r.status === "bad" && r.plannedHours > 0) {
         list.push({
-          id: `ob-${r.project.id}`,
-          kind: "over_budget",
-          title: `${r.project.name} is over budget`,
-          detail: overBudgetDetail(r.actualCost, r.budget),
+          id: `over-${r.project.id}`,
+          kind: "overrun",
+          title: `${r.project.name} is over planned hours`,
+          detail: overrunDetail(r.loggedHours, r.plannedHours),
           href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
         });
-      } else if (r.actualRevenue > 0 && r.marginPct < 15 && r.marginPct >= 0) {
+      } else if (r.status === "warn" && r.plannedHours > 0 && r.loggedHours / r.plannedHours > 0.8) {
         list.push({
-          id: `lm-${r.project.id}`,
-          kind: "low_margin",
-          title: `${r.project.name} has low margin`,
-          detail: `Margin ${Math.round(r.marginPct)}% — target ≥ 15%`,
-          href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
-        });
-      } else if (r.actualRevenue > 0 && r.marginPct < 0) {
-        list.push({
-          id: `lm-${r.project.id}`,
-          kind: "low_margin",
-          title: `${r.project.name} has negative margin`,
-          detail: `Margin ${Math.round(r.marginPct)}% — losing money`,
+          id: `appr-${r.project.id}`,
+          kind: "approaching_plan",
+          title: `${r.project.name} approaching planned hours`,
+          detail: overrunDetail(r.loggedHours, r.plannedHours),
           href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
         });
       }
@@ -462,7 +593,7 @@ function DashboardPage() {
     }
 
     return list;
-  }, [healthRows, allStages, resources, teamRows, periodStart, periodEnd, periodLabel]);
+  }, [canSeeFinancials, healthRows, effortRows, allStages, resources, teamRows, periodStart, periodEnd, periodLabel]);
 
   const isLoading = pLoading || sLoading || eLoading;
 
@@ -519,16 +650,30 @@ function DashboardPage() {
           </div>
         </div>
 
-        <FinancialKpiStrip data={kpi} loading={isLoading} periodLabel={periodLabel} />
+        {canSeeFinancials ? (
+          <FinancialKpiStrip data={kpi} loading={isLoading} periodLabel={periodLabel} />
+        ) : (
+          <HoursKpiStrip data={hoursKpi} loading={isLoading} periodLabel={periodLabel} />
+        )}
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.6fr_1fr]">
-          <ProjectHealthTable
-            rows={healthRows}
-            loading={isLoading}
-            onOpenProject={(id) =>
-              navigate({ to: "/projects/$projectId", params: { projectId: id } })
-            }
-          />
+          {canSeeFinancials ? (
+            <ProjectHealthTable
+              rows={healthRows}
+              loading={isLoading}
+              onOpenProject={(id) =>
+                navigate({ to: "/projects/$projectId", params: { projectId: id } })
+              }
+            />
+          ) : (
+            <ProjectEffortTable
+              rows={effortRows}
+              loading={isLoading}
+              onOpenProject={(id) =>
+                navigate({ to: "/projects/$projectId", params: { projectId: id } })
+              }
+            />
+          )}
           <AlertsPanel alerts={alerts} loading={isLoading} />
         </div>
 
