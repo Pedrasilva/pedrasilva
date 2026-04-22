@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
-import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, startOfWeek } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, parseISO, startOfWeek } from "date-fns";
 import type { Resource, StageWithAllocations } from "@/lib/projects/types";
 import { allocationCost, dayCount, euros, workingDays } from "@/lib/projects/gantt-utils";
 import { useDefaultResourceRates, effectiveCostRate } from "@/lib/projects/use-default-rates";
@@ -15,8 +16,10 @@ import { AllocationEditor } from "@/components/projects/allocation-editor";
 import { StageDependencyEditor } from "@/components/projects/stage-dependency-editor";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { toast } from "sonner";
-import { Trash2, GripVertical, AlertTriangle } from "lucide-react";
+import { Trash2, GripVertical, AlertTriangle, CalendarOff } from "lucide-react";
 import { allocationOverload, buildLoadMap, DAILY_LIMIT_HOURS } from "@/lib/projects/overload";
+import { leaveHoursInRange, type LeaveInterval } from "@/lib/projects/leave-capacity";
+import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { fmt } from "@/lib/projects/gantt-utils";
 
@@ -67,6 +70,41 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
   const createDep = useCreateDependency();
   const { data: deps } = useStageDependencies();
   const { data: defaultRates } = useDefaultResourceRates();
+
+  // Approved-leave intervals per resource — used to flag allocations that
+  // overlap days where the resource is unavailable. These remain CALCULATED
+  // (not blocking): the user still sees the allocation, but the bar/tooltip
+  // surface that delivery capacity is reduced.
+  const { data: leaveByResource } = useQuery({
+    queryKey: ["gantt-leave"],
+    queryFn: async (): Promise<Map<string, LeaveInterval[]>> => {
+      const { data: rs } = await supabase.from("pm_resources").select("id, collaborator_id");
+      const collabToRes = new Map<string, string>();
+      for (const r of (rs ?? []) as Array<{ id: string; collaborator_id: string | null }>) {
+        if (r.collaborator_id) collabToRes.set(r.collaborator_id, r.id);
+      }
+      const { data: lv } = await supabase
+        .from("vacation_requests")
+        .select("collaborator_id, data_inicio, data_fim, estado")
+        .in("estado", ["aprovado", "aprovada"]);
+      const m = new Map<string, LeaveInterval[]>();
+      for (const l of (lv ?? []) as Array<{ collaborator_id: string; data_inicio: string; data_fim: string }>) {
+        const id = collabToRes.get(l.collaborator_id);
+        if (!id) continue;
+        const arr = m.get(id) ?? [];
+        arr.push({ start: parseISO(l.data_inicio), end: parseISO(l.data_fim) });
+        m.set(id, arr);
+      }
+      return m;
+    },
+  });
+  const { data: holidaySet } = useQuery({
+    queryKey: ["gantt-holidays"],
+    queryFn: async (): Promise<Set<string>> => {
+      const { data } = await supabase.from("holidays").select("data");
+      return new Set(((data ?? []) as Array<{ data: string }>).map((h) => h.data));
+    },
+  });
 
   const resourceMap = useMemo(() => new Map(resources.map((r) => [r.id, r])), [resources]);
 
@@ -561,6 +599,15 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                     loadMap,
                   );
                   const isOver = overload.peak > DAILY_LIMIT_HOURS;
+                  const allocLeaveHours = leaveHoursInRange(
+                    parseISO(aS),
+                    parseISO(aE),
+                    leaveByResource?.get(a.resource_id) ?? [],
+                    holidaySet,
+                  );
+                  const hasLeave = allocLeaveHours > 0;
+                  const allocTotalHours = workingDays(aS, aE) * Number(a.hours_per_day);
+                  const reducedCapacity = Math.max(0, allocTotalHours - allocLeaveHours);
 
                   return (
                     <div key={a.id} className="absolute group" style={{ left: aX, width: aW, top, height: ALLOC_ROW_H }}>
@@ -621,6 +668,15 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                     <span className="flex shrink-0 items-center gap-0.5 rounded bg-destructive px-1 py-px text-[10px] font-semibold text-destructive-foreground">
                                       <AlertTriangle className="h-2.5 w-2.5" />
                                       {overload.peak}h
+                                    </span>
+                                  )}
+                                  {hasLeave && (
+                                    <span
+                                      className="flex shrink-0 items-center gap-0.5 rounded bg-amber-500/20 px-1 py-px text-[10px] font-semibold text-amber-700 dark:text-amber-300"
+                                      title={`${allocLeaveHours}h overlap approved leave`}
+                                    >
+                                      <CalendarOff className="h-2.5 w-2.5" />
+                                      −{allocLeaveHours}h
                                     </span>
                                   )}
                                 </div>
@@ -691,6 +747,15 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                   <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
                                   <span>
                                     Sobrecarga: pico de <strong>{overload.peak}h/dia</strong> (limite {DAILY_LIMIT_HOURS}h) em {overload.overDays} dia(s).
+                                  </span>
+                                </div>
+                              )}
+                              {hasLeave && (
+                                <div className="mt-1 flex items-start gap-1.5 rounded bg-amber-500/10 p-1.5 text-[11px] text-amber-700 dark:text-amber-300">
+                                  <CalendarOff className="mt-0.5 h-3 w-3 shrink-0" />
+                                  <span>
+                                    Capacidade reduzida: <strong>{allocLeaveHours}h</strong> de férias aprovadas dentro do período →
+                                    capacidade efectiva ≈ <strong>{reducedCapacity}h</strong> (de {allocTotalHours}h planeadas).
                                   </span>
                                 </div>
                               )}
