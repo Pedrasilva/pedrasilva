@@ -635,10 +635,15 @@ function DashboardPage() {
     }
     for (const [resourceId, days] of overbookedDays) {
       const r = resources?.find((res) => res.id === resourceId);
+      // Fallback: if a pm_resources row is missing or unnamed, look up via identity map by resource id.
+      const fromIdentity = identityMap
+        ? Array.from(identityMap.values()).find((i) => i.resourceId === resourceId)
+        : null;
+      const displayName = r?.name ?? fromIdentity?.name ?? "Unknown user";
       list.push({
         id: `ob-res-${resourceId}`,
         kind: "overbooked",
-        title: `${r?.name ?? "Resource"} is overbooked`,
+        title: `${displayName} is overbooked`,
         detail: `${days} day${days === 1 ? "" : "s"} in ${periodLabel.toLowerCase()} exceed daily capacity`,
         href: { to: "/projects/resources" },
       });
