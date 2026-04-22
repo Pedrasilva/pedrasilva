@@ -593,7 +593,7 @@ function DashboardPage() {
     }
 
     return list;
-  }, [healthRows, allStages, resources, teamRows, periodStart, periodEnd, periodLabel]);
+  }, [canSeeFinancials, healthRows, effortRows, allStages, resources, teamRows, periodStart, periodEnd, periodLabel]);
 
   const isLoading = pLoading || sLoading || eLoading;
 
@@ -650,16 +650,30 @@ function DashboardPage() {
           </div>
         </div>
 
-        <FinancialKpiStrip data={kpi} loading={isLoading} periodLabel={periodLabel} />
+        {canSeeFinancials ? (
+          <FinancialKpiStrip data={kpi} loading={isLoading} periodLabel={periodLabel} />
+        ) : (
+          <HoursKpiStrip data={hoursKpi} loading={isLoading} periodLabel={periodLabel} />
+        )}
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.6fr_1fr]">
-          <ProjectHealthTable
-            rows={healthRows}
-            loading={isLoading}
-            onOpenProject={(id) =>
-              navigate({ to: "/projects/$projectId", params: { projectId: id } })
-            }
-          />
+          {canSeeFinancials ? (
+            <ProjectHealthTable
+              rows={healthRows}
+              loading={isLoading}
+              onOpenProject={(id) =>
+                navigate({ to: "/projects/$projectId", params: { projectId: id } })
+              }
+            />
+          ) : (
+            <ProjectEffortTable
+              rows={effortRows}
+              loading={isLoading}
+              onOpenProject={(id) =>
+                navigate({ to: "/projects/$projectId", params: { projectId: id } })
+              }
+            />
+          )}
           <AlertsPanel alerts={alerts} loading={isLoading} />
         </div>
 
