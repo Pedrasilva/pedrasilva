@@ -15,6 +15,8 @@ export interface ResourceWorkRow {
   color: string;
   initial: string;
   hours: number;
+  billableHours: number;
+  nonBillableHours: number;
   cost: number;
   sale: number;
 }
