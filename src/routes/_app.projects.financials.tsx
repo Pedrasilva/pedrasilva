@@ -792,6 +792,7 @@ function FinancialsPage() {
                     <th className="px-3 py-2.5 text-right">Internal</th>
                     <th className="px-3 py-2.5 text-right">Non-work</th>
                     <th className="px-3 py-2.5 text-right">Util.</th>
+                    <th className="px-3 py-2.5">Status</th>
                     <th className="px-3 py-2.5 text-right">Revenue</th>
                     <th className="px-3 py-2.5 text-right">Cost</th>
                     <th className="px-3 py-2.5 text-right">Profit</th>
@@ -800,7 +801,7 @@ function FinancialsPage() {
                 <tbody className="divide-y divide-border">
                   {userRows.length === 0 && (
                     <tr>
-                      <td colSpan={9} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                      <td colSpan={10} className="px-4 py-8 text-center text-sm text-muted-foreground">
                         No time logged for the selected filters.
                       </td>
                     </tr>
@@ -820,7 +821,19 @@ function FinancialsPage() {
                       <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
                         {hours(r.nonWorking)}
                       </td>
-                      <td className="px-3 py-2.5 text-right tabular-nums">{pct(r.utilization)}</td>
+                      <td
+                        className={cn(
+                          "px-3 py-2.5 text-right tabular-nums font-medium",
+                          r.alert?.tone === "low" && "text-amber-600 dark:text-amber-400",
+                          r.alert?.tone === "high" && "text-destructive",
+                          r.alert?.tone === "internal" && "text-amber-600 dark:text-amber-400",
+                        )}
+                      >
+                        {pct(r.utilization)}
+                      </td>
+                      <td className="px-3 py-2.5">
+                        {r.alert && <AlertChip tone={r.alert.tone} label={r.alert.label} />}
+                      </td>
                       <td className="px-3 py-2.5 text-right tabular-nums">{euros(r.revenue)}</td>
                       <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
                         {euros(r.cost)}
