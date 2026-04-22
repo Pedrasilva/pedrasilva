@@ -94,24 +94,6 @@ function useResources() {
   });
 }
 
-function useResourceUserMap() {
-  // Map auth user_id (= time_entries.user_id) to pm_resource via collaborator email
-  return useQuery({
-    queryKey: ["fin-resource-user-map"],
-    queryFn: async (): Promise<Map<string, string>> => {
-      // pm_resources -> collaborator_id -> collaborator.email -> auth.users.id
-      // We can't read auth.users from the client; instead, match by user_id directly
-      // is not possible. So we map via pm_time_entries.user_id later by joining
-      // through pm_tasks->allocation->resource_id when entry_type === 'project'.
-      // For internal/non-working entries we use a fallback: aggregate by user_id and
-      // attribute via a single resource lookup using collaborator.email -> would need RPC.
-      // Pragmatic approach: build map user_id -> resource_id by reading any project
-      // entries first, then carry that through for non-project entries by user_id.
-      return new Map();
-    },
-    enabled: false, // we compute this inline below
-  });
-}
 
 function useMonthEntries(monthStartISO: string, monthEndISO: string) {
   return useQuery({
