@@ -163,6 +163,7 @@ function useUserIdentityMap() {
 
 function DashboardPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("projects");
   const { can } = useMyPermissionsV2();
   // Financial visibility: KPIs in €, margins, project budget. Operational
   // people get hours-only views.
@@ -192,7 +193,7 @@ function DashboardPage() {
   );
   const periodStartISO = format(periodStart, "yyyy-MM-dd");
   const periodEndISO = format(periodEnd, "yyyy-MM-dd");
-  const periodLabel = period === "month" ? format(today, "MMMM yyyy") : "This week";
+  const periodLabel = period === "month" ? format(today, "MMMM yyyy") : t("dashboard.thisWeek");
 
   const { data: entries, isLoading: eLoading } = useMonthEntries(periodStartISO, periodEndISO);
   const { data: taskToStage } = useTaskMap();
