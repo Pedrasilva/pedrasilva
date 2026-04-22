@@ -1427,6 +1427,7 @@ export type Database = {
       }
       pm_time_entries: {
         Row: {
+          billable: boolean
           created_at: string
           ended_at: string | null
           entry_date: string
@@ -1440,6 +1441,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          billable?: boolean
           created_at?: string
           ended_at?: string | null
           entry_date: string
@@ -1453,6 +1455,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          billable?: boolean
           created_at?: string
           ended_at?: string | null
           entry_date?: string

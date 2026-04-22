@@ -19,6 +19,7 @@ export type TimesheetEntry = {
   entry_date: string;
   hours: number;
   notes: string | null;
+  billable: boolean;
 };
 
 export function useTimesheetRows(opts: {
@@ -109,7 +110,7 @@ export function useTimesheetEntries(opts: {
     queryFn: async (): Promise<TimesheetEntry[]> => {
       const { data, error } = await supabase
         .from("pm_time_entries")
-        .select("id, task_id, entry_date, hours, notes")
+        .select("id, task_id, entry_date, hours, notes, billable")
         .eq("user_id", opts.userId!)
         .gte("entry_date", opts.weekStart)
         .lte("entry_date", opts.weekEnd);
@@ -120,6 +121,7 @@ export function useTimesheetEntries(opts: {
         entry_date: e.entry_date,
         hours: Number(e.hours),
         notes: e.notes,
+        billable: (e as { billable?: boolean }).billable ?? true,
       }));
     },
   });
@@ -134,6 +136,7 @@ export function useUpsertTimesheetCell() {
       entry_date: string;
       hours: number;
       notes?: string | null;
+      billable?: boolean;
       existing_entry_id: string | null;
     }) => {
       if (input.hours <= 0) {
@@ -146,10 +149,11 @@ export function useUpsertTimesheetCell() {
         }
         return;
       }
+      const billable = input.billable ?? true;
       if (input.existing_entry_id) {
         const { error } = await supabase
           .from("pm_time_entries")
-          .update({ hours: input.hours, notes: input.notes ?? null } as never)
+          .update({ hours: input.hours, notes: input.notes ?? null, billable } as never)
           .eq("id", input.existing_entry_id);
         if (error) throw error;
       } else {
@@ -159,6 +163,7 @@ export function useUpsertTimesheetCell() {
           entry_date: input.entry_date,
           hours: input.hours,
           notes: input.notes ?? null,
+          billable,
           source: "timesheet",
         } as never);
         if (error) throw error;
