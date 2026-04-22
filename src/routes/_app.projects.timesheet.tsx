@@ -483,6 +483,7 @@ function HourCell({
         if (o) {
           setDraftHours(formatHM(value));
           setDraftNotes(notes);
+          setDraftBillable(billable);
           setError(null);
           setTimeout(() => inputRef.current?.select(), 50);
         }
@@ -494,7 +495,9 @@ function HourCell({
           disabled={disabled}
           className={`relative h-9 w-20 rounded border text-center font-mono text-sm transition ${
             value > 0
-              ? "border-border bg-background text-foreground hover:border-ring"
+              ? billable
+                ? "border-border bg-background text-foreground hover:border-ring"
+                : "border-dashed border-border bg-muted/40 text-muted-foreground hover:border-ring"
               : "border-transparent text-muted-foreground hover:border-border hover:bg-background"
           }`}
         >
