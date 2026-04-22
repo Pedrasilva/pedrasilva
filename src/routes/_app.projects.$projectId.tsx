@@ -1176,8 +1176,7 @@ function MilestonesTable({
               const over = cost > budget && budget > 0;
               const logged = stageLoggedHours(s.id);
               const planned = stagePlannedHours(s.id);
-              const costPct = budget > 0 ? Math.min(1, cost / budget) : 0;
-              const revPct = budget > 0 ? Math.min(1, revenue / budget) : 0;
+              void stageCost;
               const isOpen = expanded.has(s.id);
               const isActive = s.allocations.length > 0;
               void plannedCost;
