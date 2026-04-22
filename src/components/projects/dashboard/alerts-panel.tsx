@@ -1,11 +1,17 @@
-import { AlertTriangle, TrendingDown, UserX, Hourglass, ShieldCheck } from "lucide-react";
+import { AlertTriangle, TrendingDown, UserX, Hourglass, ShieldCheck, Timer } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { euros } from "@/lib/projects/gantt-utils";
 import { cn } from "@/lib/utils";
 
 export interface AlertItem {
   id: string;
-  kind: "over_budget" | "low_margin" | "overbooked" | "high_internal";
+  kind:
+    | "over_budget"
+    | "low_margin"
+    | "overbooked"
+    | "high_internal"
+    | "overrun"
+    | "approaching_plan";
   title: string;
   detail: string;
   href?: { to: string; params?: Record<string, string> };
@@ -107,10 +113,24 @@ const METADATA = {
     icon: Hourglass,
     cls: "bg-amber-500/15 text-amber-500",
   },
+  overrun: {
+    icon: AlertTriangle,
+    cls: "bg-destructive/15 text-destructive",
+  },
+  approaching_plan: {
+    icon: Timer,
+    cls: "bg-amber-500/15 text-amber-500",
+  },
 } as const;
 
 // Helper exported for callers that want to construct the "over budget" detail line.
 export function overBudgetDetail(actualCost: number, budget: number): string {
   const pct = budget > 0 ? Math.round((actualCost / budget) * 100) : 0;
   return `Cost ${euros(actualCost)} • ${pct}% of ${euros(budget)} budget`;
+}
+
+// Helper for the time-based "overrun" alert detail.
+export function overrunDetail(loggedHours: number, plannedHours: number): string {
+  const pct = plannedHours > 0 ? Math.round((loggedHours / plannedHours) * 100) : 0;
+  return `Logged ${Math.round(loggedHours)}h • ${pct}% of ${Math.round(plannedHours)}h planned`;
 }
