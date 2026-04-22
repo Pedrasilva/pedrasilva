@@ -267,16 +267,6 @@ function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }
 // ─────────────────────────────────────────────
 function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const qc = useQueryClient();
-  const { data: companies = [] } = useQuery({
-    queryKey: ["companies-lite"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("companies").select("id, nome").order("nome");
-      if (error) throw error;
-      return data as { id: string; nome: string }[];
-    },
-    enabled: open,
-  });
   const { data: collaborators = [] } = useQuery({
     queryKey: ["collaborators-lite"],
     queryFn: async () => {
