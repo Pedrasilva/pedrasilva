@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { format, parseISO, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
 import {
   ResponsiveContainer,
-  BarChart,
   Bar,
   XAxis,
   YAxis,
