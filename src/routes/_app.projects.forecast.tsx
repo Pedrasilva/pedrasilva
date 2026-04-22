@@ -287,6 +287,131 @@ function ForecastPage() {
     return { byProject, byResource, totalHours, totalRevenue, totalCost, conflictHours, conflictDetails };
   }, [stages, monthStart, monthEnd, defaultRates, leaveByResource, holidays, projectMap]);
 
+  // Capacity vs planned per resource for the current month, factoring in
+  // approved leave and public holidays. Used to flag people / projects whose
+  // delivery capacity has been *reduced* below what was planned.
+  const capacity = useMemo(() => {
+    const perResource = new Map<
+      string,
+      {
+        resourceId: string;
+        resourceName: string;
+        plannedHours: number;
+        rawCapacity: number;
+        effectiveCapacity: number;
+        leaveHours: number;
+        utilization: number; // planned / effective capacity
+        underPressure: boolean; // planned > effective capacity
+        reducedByLeave: boolean;
+      }
+    >();
+
+    if (!resources) return { perResource, totalEffective: 0, totalRaw: 0, totalLeave: 0 };
+
+    let totalEffective = 0;
+    let totalRaw = 0;
+    let totalLeave = 0;
+
+    for (const r of resources) {
+      // Only consider active project-team members in capacity (back-office isn't billable delivery).
+      if ((r as { active?: boolean }).active === false) continue;
+      const intervals = leaveByResource?.get(r.id) ?? [];
+      const cap = computeResourceCapacity(monthStart, monthEnd, intervals, holidays);
+      const plannedH = planned.byResource.get(r.id)?.hours ?? 0;
+      const utilization = cap.effectiveCapacityHours > 0 ? plannedH / cap.effectiveCapacityHours : plannedH > 0 ? Infinity : 0;
+      perResource.set(r.id, {
+        resourceId: r.id,
+        resourceName: r.name,
+        plannedHours: plannedH,
+        rawCapacity: cap.rawCapacityHours,
+        effectiveCapacity: cap.effectiveCapacityHours,
+        leaveHours: cap.leaveHours,
+        utilization,
+        underPressure: plannedH > cap.effectiveCapacityHours + 0.01,
+        reducedByLeave: cap.leaveHours > 0,
+      });
+      totalEffective += cap.effectiveCapacityHours;
+      totalRaw += cap.rawCapacityHours;
+      totalLeave += cap.leaveHours;
+    }
+
+    return { perResource, totalEffective, totalRaw, totalLeave };
+  }, [resources, leaveByResource, holidays, monthStart, monthEnd, planned.byResource]);
+
+  // Project-level pressure: any project whose assigned team is over their
+  // effective (leave-reduced) capacity is "at risk".
+  const projectRisk = useMemo(() => {
+    type Row = {
+      projectId: string;
+      projectName: string;
+      color: string;
+      plannedHours: number;
+      effectiveCapacity: number;
+      leaveHours: number;
+      pressuredResources: string[];
+    };
+    const out = new Map<string, Row>();
+    if (!stages) return out;
+    for (const stage of stages) {
+      for (const a of stage.allocations) {
+        const allocStart = parseISO(a.start_date);
+        const allocEnd = parseISO(a.end_date);
+        const oS = maxDate([allocStart, monthStart]);
+        const oE = minDate([allocEnd, monthEnd]);
+        if (oS > oE) continue;
+        const cap = capacity.perResource.get(a.resource.id);
+        if (!cap) continue;
+        const proj = projectMap.get(stage.project_id);
+        const cur =
+          out.get(stage.project_id) ??
+          ({
+            projectId: stage.project_id,
+            projectName: proj?.name ?? "—",
+            color: proj?.color ?? "#888",
+            plannedHours: 0,
+            effectiveCapacity: 0,
+            leaveHours: 0,
+            pressuredResources: [],
+          } as Row);
+        // Aggregate resource-level numbers once per (project, resource) pair
+        if (!cur.pressuredResources.includes(a.resource.id) && cap.underPressure) {
+          cur.pressuredResources.push(cap.resourceName);
+        }
+        out.set(stage.project_id, cur);
+      }
+    }
+    // Fill in planned + leave + capacity totals from the planned aggregate
+    for (const [pId, row] of out) {
+      const p = planned.byProject.get(pId);
+      row.plannedHours = p?.hours ?? 0;
+      // Sum the effective capacity of resources actually working on this project
+      const resIds = new Set<string>();
+      for (const stage of stages ?? []) {
+        if (stage.project_id !== pId) continue;
+        for (const a of stage.allocations) resIds.add(a.resource.id);
+      }
+      let eff = 0;
+      let leave = 0;
+      for (const id of resIds) {
+        const c = capacity.perResource.get(id);
+        if (!c) continue;
+        eff += c.effectiveCapacity;
+        leave += c.leaveHours;
+      }
+      row.effectiveCapacity = eff;
+      row.leaveHours = leave;
+    }
+    return out;
+  }, [stages, monthStart, monthEnd, capacity.perResource, projectMap, planned.byProject]);
+
+  const atRiskProjects = useMemo(
+    () =>
+      Array.from(projectRisk.values())
+        .filter((r) => r.pressuredResources.length > 0 || r.plannedHours > r.effectiveCapacity + 0.01)
+        .sort((a, b) => b.plannedHours - b.effectiveCapacity - (a.plannedHours - a.effectiveCapacity)),
+    [projectRisk],
+  );
+
   // Aggregate actuals by project
   const actualByProject = useMemo(() => {
     const m = new Map<string, { hours: number; revenue: number; cost: number; billableHours: number }>();
