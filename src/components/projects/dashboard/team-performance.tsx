@@ -122,7 +122,18 @@ export function TeamPerformance({
             )}
             {sorted.map((r) => (
               <tr key={r.resourceId} className="hover:bg-accent/30">
-                <td className="px-5 py-2.5 text-sm text-foreground">{r.name}</td>
+                <td className="px-5 py-2.5 text-sm text-foreground">
+                  <div className="flex items-center gap-2.5">
+                    <CollaboratorAvatar
+                      collaboratorId={r.collaboratorId ?? undefined}
+                      fotoPath={r.fotoPath ?? undefined}
+                      name={r.name}
+                      color={r.color ?? undefined}
+                      size={26}
+                    />
+                    <span className="truncate">{r.name}</span>
+                  </div>
+                </td>
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-muted-foreground">
                   {Math.round(r.capacityHours)}h
                 </td>
