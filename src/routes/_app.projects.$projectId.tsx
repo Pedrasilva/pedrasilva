@@ -78,6 +78,7 @@ function ProjectDetail() {
   const { data: invoices } = useProjectInvoices(projectId);
   const { data: activities } = useProjectActivities(projectId);
   const updateProject = useUpdateProject();
+  const { allowed: canSeeFinancials } = useHasPermission("projects.financials");
 
   const [tab, setTab] = useState<TabKey>("overview");
   const [dayWidth, setDayWidth] = useState(36);
@@ -592,6 +593,7 @@ function ProjectDetail() {
                   stageLoggedHours={stageLoggedHours}
                   stagePlannedHours={stagePlannedHours}
                   defaultRates={defaultRates}
+                  canSeeFinancials={canSeeFinancials}
                 />
               </div>
             )}
