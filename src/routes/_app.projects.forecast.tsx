@@ -33,7 +33,34 @@ import { useAllStages, useResources } from "@/lib/projects/use-planner";
 import { useDefaultResourceRates, effectiveCostRate, effectiveSaleRate } from "@/lib/projects/use-default-rates";
 import { computeResourceCapacity } from "@/lib/projects/leave-capacity";
 import { useResourceSchedules, dailyHoursFor } from "@/lib/projects/use-resource-schedules";
+import {
+  useProjectProbabilities,
+  probabilityFor,
+  type ProjectProbability,
+} from "@/lib/projects/use-project-probabilities";
 import { cn } from "@/lib/utils";
+
+/**
+ * Forecast weighting mode. The user can choose to:
+ *   - "weighted"  → multiply pipeline projects by their CRM probability (default).
+ *                   This is the realistic forecast.
+ *   - "optimistic"→ count every planned allocation at 100%, regardless of
+ *                   pipeline status. Useful as an "if everything closes" view.
+ *   - "committed" → count only projects with weight === 1 (no proposal, or the
+ *                   proposal is already won). The pessimistic / floor view.
+ */
+type ForecastMode = "weighted" | "optimistic" | "committed";
+
+/**
+ * Returns the multiplier to apply to a project's planned numbers given the
+ * currently selected forecast mode. This is the only place modes are
+ * interpreted — every consumer should funnel through it.
+ */
+function weightForMode(prob: ProjectProbability, mode: ForecastMode): number {
+  if (mode === "optimistic") return 1;
+  if (mode === "committed") return prob.weight === 1 ? 1 : 0;
+  return prob.weight;
+}
 
 export const Route = createFileRoute("/_app/projects/forecast")({
   component: ForecastPage,
