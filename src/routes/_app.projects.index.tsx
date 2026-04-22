@@ -220,7 +220,7 @@ function DashboardPage() {
   });
 
   const projectActuals = useMemo(() => {
-    type Row = { revenue: number; cost: number };
+    type Row = { revenue: number; cost: number; loggedHours: number };
     const m = new Map<string, Row>();
     if (!allEntries || !taskToStage) return m;
     for (const e of allEntries) {
@@ -234,17 +234,30 @@ function DashboardPage() {
       // Use the first allocation in the stage to obtain a representative resource for rate.
       const repAlloc = allocation ?? stage.allocations[0];
       const resourceId = repAlloc?.resource_id;
-      if (!resourceId) continue;
-      const res = resources?.find((r) => r.id === resourceId);
-      const sale = effectiveSaleRate(res?.hourly_rate, resourceId, defaultRates);
-      const cost = effectiveCostRate(res?.cost_rate, resourceId, defaultRates);
-      const cur = m.get(projectId) ?? { revenue: 0, cost: 0 };
-      cur.cost += e.hours * cost;
-      if (e.billable) cur.revenue += e.hours * sale;
+      const cur = m.get(projectId) ?? { revenue: 0, cost: 0, loggedHours: 0 };
+      cur.loggedHours += e.hours;
+      if (resourceId) {
+        const res = resources?.find((r) => r.id === resourceId);
+        const sale = effectiveSaleRate(res?.hourly_rate, resourceId, defaultRates);
+        const cost = effectiveCostRate(res?.cost_rate, resourceId, defaultRates);
+        cur.cost += e.hours * cost;
+        if (e.billable) cur.revenue += e.hours * sale;
+      }
       m.set(projectId, cur);
     }
     return m;
   }, [allEntries, taskToStage, stageById, taskToResource, resources, defaultRates]);
+
+  // Planned hours per project = Σ allocationHours across stages.
+  const projectPlannedHours = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const s of allStages ?? []) {
+      let h = 0;
+      for (const a of s.allocations) h += allocationHours(a);
+      m.set(s.project_id, (m.get(s.project_id) ?? 0) + h);
+    }
+    return m;
+  }, [allStages]);
 
   // ---------- filtered project list ----------
   const filteredProjects = useMemo(() => {
