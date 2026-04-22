@@ -486,6 +486,35 @@ function DashboardPage() {
     return rows;
   }, [entries, resources, periodStartISO, periodEndISO]);
 
+  /**
+   * Visible team rows: full team if the user has resource visibility, otherwise
+   * just the user's own row (or a synthesized empty self row if they haven't
+   * logged time in this period). Production staff see only their own utilization.
+   */
+  const visibleTeamRows: TeamRow[] = useMemo(() => {
+    if (canSeeTeam) return teamRows;
+    const wd = workingDays(periodStartISO, periodEndISO);
+    // Entries are keyed by auth user_id; surface the row that matches it.
+    const myAuthId = (profile as unknown as { user_id?: string } | null)?.user_id;
+    const meRow =
+      (myAuthId && teamRows.find((r) => r.resourceId === myAuthId)) ||
+      (myResourceId && teamRows.find((r) => r.resourceId === myResourceId)) ||
+      null;
+    if (meRow) return [meRow];
+    const myRes = myResourceId ? resources?.find((r) => r.id === myResourceId) : undefined;
+    const dailyCap = myRes ? (Number(myRes.weekly_capacity) || 40) / 5 : 8;
+    return [
+      {
+        resourceId: myResourceId ?? "self",
+        name: myRes?.name ?? profile?.full_name ?? "You",
+        capacityHours: dailyCap * wd,
+        billableHours: 0,
+        internalHours: 0,
+        nonWorkingHours: 0,
+      },
+    ];
+  }, [canSeeTeam, teamRows, profile, myResourceId, resources, periodStartISO, periodEndISO]);
+
   // ---------- Alerts ----------
   const alerts: AlertItem[] = useMemo(() => {
     const list: AlertItem[] = [];
