@@ -1402,19 +1402,6 @@ function InsightsPanel({
   const maxAct = Math.max(1, ...months.map((m) => m.activities));
   const maxHours = Math.max(1, ...months.map((m) => m.hours));
 
-  // Financials box (planned / forecast view):
-  //   Value  = Σ planned hours × default sale rate (per resource)
-  //   Costs  = Σ planned hours × default cost rate (per resource) = totalCost
-  //   Profit = Budget − Costs
-  const plannedValue = resources.reduce((a, r) => a + r.plannedSale, 0);
-  const services = {
-    budget: totalBudget,
-    value: plannedValue,
-    cost: totalCost,
-    profit: totalBudget - totalCost,
-    invoiced: invoicedTotal,
-  };
-  const empty = { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 };
   // Financials box reflects actuals (current state) using new revenue model:
   //   Value (Revenue) = Σ billable hours × sale rate    (revenue only from billable)
   //   Cost            = Σ all logged hours × cost rate  (non-billable still costs)
