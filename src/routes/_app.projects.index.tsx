@@ -50,7 +50,7 @@ import {
 } from "@/lib/projects/use-default-rates";
 import { supabase } from "@/integrations/supabase/client";
 import type { StageWithAllocations } from "@/lib/projects/types";
-import { useHasPermission } from "@/hooks/use-permissions";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
 import { Search } from "lucide-react";
 
@@ -162,8 +162,13 @@ function useUserIdentityMap() {
 
 function DashboardPage() {
   const navigate = useNavigate();
-  const { allowed: canSeeFinancials } = useHasPermission("projects.financials");
-  const { allowed: canSeeTeam } = useHasPermission("projects.resources");
+  const { can } = useMyPermissionsV2();
+  // Financial visibility: KPIs in €, margins, project budget. Operational
+  // people get hours-only views.
+  const canSeeFinancials = can("projects.view_financials", "assigned");
+  // Team-wide schedule/utilisation. Without it the dashboard collapses to
+  // "your own utilization" + only your alerts.
+  const canSeeTeam = can("scheduling.view_team", "team");
   const { user, profile } = useProjectsAuth();
   const myAuthId = user?.id ?? null;
   const myResourceId = profile?.resource_id ?? null;
