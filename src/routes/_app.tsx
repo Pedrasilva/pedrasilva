@@ -41,6 +41,7 @@ import {
   ChevronDown,
   CheckSquare,
   Clock,
+  TrendingUp,
 } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
