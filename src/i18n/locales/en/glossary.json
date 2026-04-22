@@ -1,0 +1,153 @@
+{
+  "_doc": {
+    "purpose": "Master terminology dictionary. Single source of truth for canonical labels used across Projects, Financials, CRM, HR, Timesheet, Forecast and Permissions.",
+    "rule": "Modules MUST reference these keys via t('glossary:<group>.<term>') instead of redeclaring the same concept locally.",
+    "ptCanonical": "When the EN UI renders a term that has a Portuguese legal/payroll canonical form, render it as 'EN label (PT canonical)' on first occurrence using <Term k='...' /> — see ptCanonical field per term."
+  },
+
+  "time": {
+    "plannedHours": "Planned Hours",
+    "loggedHours": "Logged Hours",
+    "billableHours": "Billable Hours",
+    "internalHours": "Internal Hours",
+    "internalNonBillableHours": "Internal (non-billable) Hours",
+    "nonWorkingHours": "Non-Working Hours",
+    "remainingHours": "Remaining Hours",
+    "totalHours": "Total Hours",
+    "workingHours": "Working Hours",
+    "paidHours": "Paid Hours"
+  },
+
+  "financial": {
+    "budget": "Budget",
+    "revenue": "Revenue",
+    "cost": "Cost",
+    "profit": "Profit",
+    "margin": "Margin",
+    "costRate": "Cost Rate",
+    "saleRate": "Sale Rate",
+    "actualRevenue": "Actual Revenue",
+    "actualCost": "Actual Cost",
+    "totalCost": "Total Cost",
+    "value": "Value",
+    "fee": "Fee"
+  },
+
+  "planning": {
+    "project": "Project",
+    "stage": "Stage",
+    "allocation": "Allocation",
+    "task": "Task",
+    "baseline": "Baseline",
+    "currentPlan": "Current Plan",
+    "tentative": "Tentative",
+    "committed": "Committed",
+    "dependency": "Dependency",
+    "milestone": "Milestone"
+  },
+
+  "performance": {
+    "utilization": "Utilization",
+    "capacity": "Capacity",
+    "capacityUsed": "Capacity Used",
+    "capacityAvailable": "Available Capacity",
+    "efficiency": "Efficiency",
+    "onTrack": "On Track",
+    "atRisk": "At Risk",
+    "overrun": "Overrun",
+    "healthy": "Healthy",
+    "critical": "Critical",
+    "onTarget": "On Target",
+    "belowTarget": "Below Target",
+    "aboveTarget": "Above Target",
+    "underutilized": "Underutilized",
+    "overutilized": "Overutilized"
+  },
+
+  "permissions": {
+    "actions": {
+      "view": "View",
+      "edit": "Edit",
+      "create": "Create",
+      "approve": "Approve",
+      "manage": "Manage",
+      "delete": "Delete"
+    },
+    "scopes": {
+      "own": "Own",
+      "assigned": "Assigned",
+      "team": "Team",
+      "department": "Department",
+      "all": "All"
+    },
+    "roles": {
+      "admin": "Admin",
+      "partner": "Partner",
+      "projectLead": "Project Lead",
+      "architect": "Architect",
+      "hr": "HR",
+      "finance": "Finance"
+    }
+  },
+
+  "crm": {
+    "client": "Client",
+    "company": "Company",
+    "contact": "Contact",
+    "opportunity": "Opportunity",
+    "proposal": "Proposal",
+    "feeProposal": "Fee Proposal",
+    "lead": "Lead",
+    "negotiation": "Negotiation",
+    "won": "Won",
+    "lost": "Lost",
+    "probability": "Probability",
+    "downPayment": "Down Payment",
+    "paymentSchedule": "Payment Schedule",
+    "pipeline": "Pipeline",
+    "winRate": "Win Rate"
+  },
+
+  "hr": {
+    "collaborator": "Team Member",
+    "department": "Department",
+    "role": "Role",
+    "leave": "Leave",
+    "vacation": "Vacation",
+    "holiday": "Public Holiday",
+    "absence": "Absence",
+    "mealAllowance": "Meal Allowance",
+    "holidayAllowance": "Holiday Allowance",
+    "christmasAllowance": "Christmas Allowance",
+    "incomeTax": "Income Tax (IRS)",
+    "socialSecurity": "Social Security",
+    "grossSalary": "Gross Salary",
+    "netSalary": "Net Salary",
+    "baseSalary": "Base Salary"
+  },
+
+  "ptCanonical": {
+    "_doc": "Canonical Portuguese legal/payroll terms. EN UI renders 'EN label (PT canonical)' on first occurrence via <Term> component. Never translate these away — they are legal terms.",
+    "mealAllowance": "Subsídio de Alimentação",
+    "holidayAllowance": "Subsídio de Férias",
+    "christmasAllowance": "Subsídio de Natal",
+    "incomeTax": "IRS",
+    "socialSecurity": "Segurança Social",
+    "feeProposal": "Proposta de Fee",
+    "downPayment": "Sinal",
+    "grossSalary": "Salário Bruto",
+    "netSalary": "Salário Líquido"
+  },
+
+  "_ambiguous": {
+    "_doc": "Terms flagged for product clarification — currently used inconsistently across the app. Do NOT use these as canonical until resolved.",
+    "value": "Used to mean (a) proposal monetary value, (b) generic numeric value, (c) project budget. Standardize: proposal → 'Proposal Value', budget → 'Budget', generic numbers → context-specific.",
+    "usage": "Sometimes means 'utilization', sometimes 'capacity used'. Standardize: 'Utilization' (ratio) vs 'Capacity Used' (absolute hours).",
+    "worked": "Sometimes means 'logged', sometimes 'billable'. Standardize on 'Logged Hours' for raw time recorded.",
+    "registered": "PT 'registadas' translates to 'logged' — never use 'registered hours' in EN UI.",
+    "rate": "Ambiguous between cost rate and sale rate. Always disambiguate: 'Cost Rate' or 'Sale Rate'.",
+    "team": "Used as both (a) the Resources/People list, (b) a permission scope, (c) a department-like grouping. Confirm: should the resources page be renamed 'People' to free 'Team' for the scope?",
+    "client": "DB uses 'Company' for the entity, 'Client' as a marketing label. Standardize: entity = 'Company', commercial label = 'Client' (UI-facing only).",
+    "fee": "PT-only legal/business term ('Fee', 'Proposta de Fee') retained even in EN UI per Portuguese practice. Confirm if EN-only contexts should map to 'Professional Fee' instead."
+  }
+}

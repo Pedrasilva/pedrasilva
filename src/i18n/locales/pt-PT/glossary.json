@@ -1,0 +1,152 @@
+{
+  "_doc": {
+    "purpose": "Dicionário mestre de terminologia. Fonte única de verdade para etiquetas canónicas em Projectos, Financeiro, CRM, HR, Folha de Horas, Previsão e Permissões.",
+    "rule": "Os módulos DEVEM referenciar estas chaves via t('glossary:<grupo>.<termo>') em vez de redeclarar o mesmo conceito localmente."
+  },
+
+  "time": {
+    "plannedHours": "Horas Planeadas",
+    "loggedHours": "Horas Registadas",
+    "billableHours": "Horas Facturáveis",
+    "internalHours": "Horas Internas",
+    "internalNonBillableHours": "Horas Internas (não facturáveis)",
+    "nonWorkingHours": "Horas Não Trabalhadas",
+    "remainingHours": "Horas Restantes",
+    "totalHours": "Horas Totais",
+    "workingHours": "Horas de Trabalho",
+    "paidHours": "Horas Pagas"
+  },
+
+  "financial": {
+    "budget": "Orçamento",
+    "revenue": "Receita",
+    "cost": "Custo",
+    "profit": "Lucro",
+    "margin": "Margem",
+    "costRate": "Valor de Custo",
+    "saleRate": "Valor de Venda",
+    "actualRevenue": "Receita Real",
+    "actualCost": "Custo Real",
+    "totalCost": "Custo Total",
+    "value": "Valor",
+    "fee": "Fee"
+  },
+
+  "planning": {
+    "project": "Projecto",
+    "stage": "Fase",
+    "allocation": "Alocação",
+    "task": "Tarefa",
+    "baseline": "Linha de Base",
+    "currentPlan": "Plano Actual",
+    "tentative": "Tentativa",
+    "committed": "Confirmada",
+    "dependency": "Dependência",
+    "milestone": "Marco"
+  },
+
+  "performance": {
+    "utilization": "Utilização",
+    "capacity": "Capacidade",
+    "capacityUsed": "Capacidade Usada",
+    "capacityAvailable": "Capacidade Disponível",
+    "efficiency": "Eficiência",
+    "onTrack": "No Prazo",
+    "atRisk": "Em Risco",
+    "overrun": "Excedido",
+    "healthy": "Saudável",
+    "critical": "Crítico",
+    "onTarget": "No Alvo",
+    "belowTarget": "Abaixo do Alvo",
+    "aboveTarget": "Acima do Alvo",
+    "underutilized": "Subutilizado",
+    "overutilized": "Sobreutilizado"
+  },
+
+  "permissions": {
+    "actions": {
+      "view": "Ver",
+      "edit": "Editar",
+      "create": "Criar",
+      "approve": "Aprovar",
+      "manage": "Gerir",
+      "delete": "Apagar"
+    },
+    "scopes": {
+      "own": "Próprio",
+      "assigned": "Atribuído",
+      "team": "Equipa",
+      "department": "Departamento",
+      "all": "Todos"
+    },
+    "roles": {
+      "admin": "Administrador",
+      "partner": "Sócio",
+      "projectLead": "Responsável de Projecto",
+      "architect": "Arquitecto",
+      "hr": "HR",
+      "finance": "Financeiro"
+    }
+  },
+
+  "crm": {
+    "client": "Cliente",
+    "company": "Empresa",
+    "contact": "Contacto",
+    "opportunity": "Oportunidade",
+    "proposal": "Proposta",
+    "feeProposal": "Proposta de Fee",
+    "lead": "Lead",
+    "negotiation": "Negociação",
+    "won": "Ganha",
+    "lost": "Perdida",
+    "probability": "Probabilidade",
+    "downPayment": "Sinal",
+    "paymentSchedule": "Plano de Pagamento",
+    "pipeline": "Pipeline",
+    "winRate": "Taxa de Sucesso"
+  },
+
+  "hr": {
+    "collaborator": "Colaborador",
+    "department": "Departamento",
+    "role": "Função",
+    "leave": "Ausência",
+    "vacation": "Férias",
+    "holiday": "Feriado",
+    "absence": "Falta",
+    "mealAllowance": "Subsídio de Alimentação",
+    "holidayAllowance": "Subsídio de Férias",
+    "christmasAllowance": "Subsídio de Natal",
+    "incomeTax": "IRS",
+    "socialSecurity": "Segurança Social",
+    "grossSalary": "Salário Bruto",
+    "netSalary": "Salário Líquido",
+    "baseSalary": "Salário Base"
+  },
+
+  "ptCanonical": {
+    "_doc": "Termos legais/payroll em PT — sempre usar a forma canónica.",
+    "mealAllowance": "Subsídio de Alimentação",
+    "holidayAllowance": "Subsídio de Férias",
+    "christmasAllowance": "Subsídio de Natal",
+    "incomeTax": "IRS",
+    "socialSecurity": "Segurança Social",
+    "feeProposal": "Proposta de Fee",
+    "downPayment": "Sinal",
+    "grossSalary": "Salário Bruto",
+    "netSalary": "Salário Líquido"
+  },
+
+  "_ambiguous": {
+    "_doc": "Termos sinalizados para clarificação de produto — uso inconsistente actualmente. NÃO usar como canónicos até resolução.",
+    "value": "Significa por vezes 'valor de proposta', 'valor numérico genérico' ou 'orçamento'. Padronizar.",
+    "usage": "Por vezes 'utilização', por vezes 'capacidade usada'. Distinguir: 'Utilização' (rácio) vs 'Capacidade Usada' (horas absolutas).",
+    "worked": "Por vezes 'registado', por vezes 'facturável'. Usar 'Horas Registadas' para tempo bruto.",
+    "registered": "Tradução literal de 'registadas' — em EN é 'Logged', nunca 'Registered'.",
+    "rate": "Ambíguo entre custo e venda. Distinguir sempre: 'Valor de Custo' ou 'Valor de Venda'.",
+    "team": "Usado como (a) lista de pessoas, (b) âmbito de permissão, (c) agrupamento de departamento. Confirmar.",
+    "client": "BD usa 'Empresa' para a entidade, 'Cliente' como etiqueta comercial. Padronizar.",
+    "fee": "Termo legal/comercial PT mantido em EN. Confirmar se contextos só-EN devem usar 'Honorários Profissionais'."
+  }
+}
