@@ -682,7 +682,10 @@ function ProjectDetail() {
                 invoices={invoices ?? []}
                 invoicedTotal={invoicedTotal}
                 totalBudget={totalBudget}
-                totalCost={totalCost}
+                totalPlannedCost={totalPlannedCost}
+                actualRevenue={actualRevenue}
+                actualCost={actualCost}
+                actualProfit={actualProfit}
                 totalLoggedHours={totalLoggedHours}
                 totalPlannedHours={totalPlannedHours}
                 stageLoggedHours={stageLoggedHours}
