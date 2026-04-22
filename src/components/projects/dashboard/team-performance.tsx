@@ -16,10 +16,19 @@ export function TeamPerformance({
   rows,
   loading,
   periodLabel,
+  title = "Team performance",
+  subtitle,
+  showSort = true,
 }: {
   rows: TeamRow[];
   loading?: boolean;
   periodLabel: string;
+  /** Header title; defaults to "Team performance". */
+  title?: string;
+  /** Header subtitle; defaults to a generic utilization sentence. */
+  subtitle?: string;
+  /** Whether to render the sort buttons (hidden in single-row self mode). */
+  showSort?: boolean;
 }) {
   const [sort, setSort] = useState<SortKey>("utilization");
 
@@ -40,39 +49,42 @@ export function TeamPerformance({
     return copy;
   }, [enriched, sort]);
 
+  const resolvedSubtitle =
+    subtitle ?? `Utilization and billable / internal split — ${periodLabel}`;
+
   return (
     <section className="rounded-lg border border-border bg-card">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
         <div>
           <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Team performance
+            {title}
           </h2>
-          <p className="text-[11px] text-muted-foreground">
-            Utilization and billable / internal split — {periodLabel}
-          </p>
+          <p className="text-[11px] text-muted-foreground">{resolvedSubtitle}</p>
         </div>
-        <div className="inline-flex items-center gap-1 rounded-md border border-border bg-background p-1">
-          {(
-            [
-              { k: "utilization", l: "Utilization" },
-              { k: "billable", l: "Billable %" },
-              { k: "name", l: "Name" },
-            ] as { k: SortKey; l: string }[]
-          ).map((s) => (
-            <button
-              key={s.k}
-              onClick={() => setSort(s.k)}
-              className={cn(
-                "rounded px-2.5 py-1 text-[11px] font-medium",
-                sort === s.k
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {s.l}
-            </button>
-          ))}
-        </div>
+        {showSort && (
+          <div className="inline-flex items-center gap-1 rounded-md border border-border bg-background p-1">
+            {(
+              [
+                { k: "utilization", l: "Utilization" },
+                { k: "billable", l: "Billable %" },
+                { k: "name", l: "Name" },
+              ] as { k: SortKey; l: string }[]
+            ).map((s) => (
+              <button
+                key={s.k}
+                onClick={() => setSort(s.k)}
+                className={cn(
+                  "rounded px-2.5 py-1 text-[11px] font-medium",
+                  sort === s.k
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {s.l}
+              </button>
+            ))}
+          </div>
+        )}
       </header>
 
       <div className="overflow-x-auto">
