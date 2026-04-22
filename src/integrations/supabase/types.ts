@@ -1867,6 +1867,17 @@ export type Database = {
         }[]
       }
       pm_get_my_resource_id: { Args: never; Returns: string }
+      pm_list_user_resource_map: {
+        Args: never
+        Returns: {
+          collaborator_id: string
+          color: string
+          foto_path: string
+          name: string
+          resource_id: string
+          user_id: string
+        }[]
+      }
       set_user_admin: {
         Args: { _is_admin: boolean; _user_id: string }
         Returns: undefined
