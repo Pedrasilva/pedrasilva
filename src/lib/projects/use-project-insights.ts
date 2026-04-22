@@ -35,6 +35,8 @@ export interface ProjectInsights {
   totals: {
     plannedHours: number;
     loggedHours: number;
+    billableHours: number;
+    nonBillableHours: number;
     earnedValue: number;
     forecastValue: number;
     budgetTotal: number;
@@ -42,6 +44,7 @@ export interface ProjectInsights {
     forecastPct: number;
     profitPctCurrent: number;
     profitPctForecast: number;
+    profitMarginPct: number;
   };
   financials: {
     services: FinancialsRow;
