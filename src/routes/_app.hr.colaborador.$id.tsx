@@ -139,7 +139,9 @@ function CollaboratorPage() {
       draft.numero_titulares !== collab.numero_titulares ||
       draft.numero_dependentes !== collab.numero_dependentes ||
       draft.dependentes_com_deficiencia !== collab.dependentes_com_deficiencia ||
-      draft.ano_fiscal !== collab.ano_fiscal
+      draft.ano_fiscal !== collab.ano_fiscal ||
+      Number(draft.daily_hours ?? 8) !== Number(collab.daily_hours ?? 8) ||
+      Number(draft.days_per_week ?? 5) !== Number(collab.days_per_week ?? 5)
     );
   }, [collab, draft]);
 
@@ -179,6 +181,8 @@ function CollaboratorPage() {
       numero_dependentes: draft.numero_dependentes,
       dependentes_com_deficiencia: draft.dependentes_com_deficiencia,
       ano_fiscal: draft.ano_fiscal,
+      daily_hours: Number(draft.daily_hours ?? 8),
+      days_per_week: Number(draft.days_per_week ?? 5),
     });
   };
 
@@ -417,6 +421,28 @@ function CollaboratorPage() {
                     className="input-yellow tabular-nums"
                     value={draft.dias_ferias_extra ?? 0}
                     onChange={(e) => setField("dias_ferias_extra", Number(e.target.value) || 0)}
+                  />
+                </Field>
+                <Field label="Horas / dia (contrato)">
+                  <Input
+                    type="number"
+                    min={0.5}
+                    max={24}
+                    step="0.5"
+                    className="input-yellow tabular-nums"
+                    value={draft.daily_hours ?? 8}
+                    onChange={(e) => setField("daily_hours", Number(e.target.value) || 8)}
+                  />
+                </Field>
+                <Field label="Dias / semana (contrato)">
+                  <Input
+                    type="number"
+                    min={1}
+                    max={7}
+                    step="0.5"
+                    className="input-yellow tabular-nums"
+                    value={draft.days_per_week ?? 5}
+                    onChange={(e) => setField("days_per_week", Number(e.target.value) || 5)}
                   />
                 </Field>
                 {draft.departamento === "Projecto" && (
