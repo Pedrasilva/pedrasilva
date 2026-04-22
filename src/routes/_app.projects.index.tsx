@@ -513,7 +513,7 @@ function DashboardPage() {
         nonWorkingHours: 0,
       },
     ];
-  }, [canSeeTeam, teamRows, profile, myResourceId, resources, periodStartISO, periodEndISO]);
+  }, [canSeeTeam, teamRows, myAuthId, myResourceId, resources, profile?.full_name, periodStartISO, periodEndISO]);
 
   // ---------- Alerts ----------
   const alerts: AlertItem[] = useMemo(() => {
