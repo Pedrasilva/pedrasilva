@@ -13,6 +13,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Receipt } from "lucide-react";
 import { toast } from "sonner";
+import { CompanyPicker } from "@/components/crm/company-picker";
 import type { CrmAccount } from "@/lib/crm/types";
 
 export const Route = createFileRoute("/_app/crm/accounts")({
@@ -98,16 +99,6 @@ function AccountsPage() {
 function NewAccountDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const qc = useQueryClient();
 
-  const { data: companies = [] } = useQuery({
-    queryKey: ["companies-lite"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("companies").select("id, nome").order("nome");
-      if (error) throw error;
-      return data as { id: string; nome: string }[];
-    },
-    enabled: open,
-  });
-
   const [form, setForm] = useState({
     name: "",
     company_id: "",
@@ -156,17 +147,11 @@ function NewAccountDialog({ open, onClose }: { open: boolean; onClose: () => voi
           </div>
           <div>
             <Label>Company *</Label>
-            <Select
-              value={form.company_id}
-              onValueChange={(v) => setForm((f) => ({ ...f, company_id: v }))}
-            >
-              <SelectTrigger><SelectValue placeholder="Select company" /></SelectTrigger>
-              <SelectContent>
-                {companies.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CompanyPicker
+              value={form.company_id || null}
+              onChange={(id) => setForm((f) => ({ ...f, company_id: id }))}
+              placeholder="Select or create company"
+            />
           </div>
           <div>
             <Label>Billing details</Label>
