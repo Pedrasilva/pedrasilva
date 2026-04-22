@@ -2051,73 +2051,120 @@ function StatusDot({ active, label }: { active: boolean; label: string }) {
   );
 }
 
-function EVCell({
+/**
+ * Cost (actual vs budget).
+ *  - Always shows the actual cost in €.
+ *  - Shows budget reference and progress bar ONLY when budget > 0.
+ *  - Avoids meaningless 0% / over-budget signals when no budget is defined.
+ */
+function CostVsBudgetCell({
   cost,
   budget,
-  pct,
   over,
-  dimmed,
 }: {
   cost: number;
   budget: number;
-  pct: number;
   over: boolean;
-  dimmed?: boolean;
 }) {
+  const hasBudget = budget > 0;
+  const pct = hasBudget ? Math.min(1, cost / budget) : 0;
   return (
     <div>
-      <div className={cn("flex items-baseline justify-between text-xs", dimmed && "text-muted-foreground")}>
+      <div className="flex items-baseline justify-between text-xs">
         <span className="font-mono">
-          <span className={over ? "text-destructive font-semibold" : ""}>{euros(cost)}</span>
-          <span className="text-muted-foreground"> / {euros(budget)}</span>
+          <span className={over ? "text-destructive font-semibold" : "text-foreground"}>
+            {euros(cost)}
+          </span>
+          {hasBudget ? (
+            <span className="text-muted-foreground"> / {euros(budget)}</span>
+          ) : (
+            <span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+              no budget
+            </span>
+          )}
         </span>
-        <span className="tabular-nums text-muted-foreground">{Math.round(pct * 100)}%</span>
+        {hasBudget && (
+          <span
+            className={cn(
+              "tabular-nums",
+              over ? "text-destructive font-semibold" : "text-muted-foreground",
+            )}
+          >
+            {Math.round(pct * 100)}%
+          </span>
+        )}
       </div>
-      <div className="mt-1.5 h-[3px] w-full overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full"
-          style={{
-            width: `${Math.max(0, Math.min(100, pct * 100))}%`,
-            backgroundColor: over ? "var(--color-budget-over)" : "var(--color-budget-spent)",
-          }}
-        />
+      {hasBudget && (
+        <div className="mt-1.5 h-[3px] w-full overflow-hidden rounded-full bg-muted">
+          <div
+            className="h-full"
+            style={{
+              width: `${Math.max(0, Math.min(100, pct * 100))}%`,
+              backgroundColor: over ? "var(--color-budget-over)" : "var(--color-budget-spent)",
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Revenue (earned) — billable hours × sale rate.
+ * Shown standalone (no budget percentage) so the figure is unambiguous.
+ */
+function RevenueEarnedCell({ revenue }: { revenue: number }) {
+  return (
+    <div className="text-xs">
+      <span className="font-mono text-foreground">{euros(revenue)}</span>
+      <div className="mt-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+        earned
       </div>
     </div>
   );
 }
 
-function RevenueCell({
-  revenue,
-  budget,
-  pct,
-  dimmed,
-}: {
-  revenue: number;
-  budget: number;
-  pct: number;
-  dimmed?: boolean;
-}) {
+/**
+ * Profit + margin.
+ *  - Profit = revenue − cost (always meaningful).
+ *  - Margin shown only when revenue > 0 (otherwise denominator = 0).
+ */
+function ProfitMarginCell({ revenue, cost }: { revenue: number; cost: number }) {
+  const profit = revenue - cost;
+  const hasRevenue = revenue > 0;
+  const margin = hasRevenue ? (profit / revenue) * 100 : 0;
+  const tone =
+    profit < 0
+      ? "text-destructive"
+      : hasRevenue && margin < 15
+        ? "text-amber-600 dark:text-amber-400"
+        : "text-emerald-600 dark:text-emerald-400";
   return (
-    <div>
-      <div className={cn("flex items-baseline justify-between text-xs", dimmed && "text-muted-foreground")}>
-        <span className="font-mono">
-          <span className="text-foreground">{euros(revenue)}</span>
-          {budget > 0 && (
-            <span className="text-muted-foreground"> / {euros(budget)}</span>
-          )}
-        </span>
-        {budget > 0 && (
-          <span className="tabular-nums text-muted-foreground">{Math.round(pct * 100)}%</span>
-        )}
-      </div>
-      <div className="mt-1.5 h-[3px] w-full overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full"
-          style={{
-            width: `${Math.max(0, Math.min(100, pct * 100))}%`,
-            backgroundColor: "var(--primary)",
-          }}
-        />
+    <div className="text-xs">
+      <span className={cn("font-mono font-semibold", tone)}>{euros(profit)}</span>
+      {hasRevenue ? (
+        <div className={cn("mt-0.5 text-[10px] tabular-nums", tone)}>
+          {margin >= 0 ? "+" : ""}
+          {margin.toFixed(1)}% margin
+        </div>
+      ) : (
+        <div className="mt-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+          no revenue yet
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Sub-row planned amount (allocation forecast). Dimmed to differentiate from actuals. */
+function PlannedAmountCell({ amount, label }: { amount: number; label: string }) {
+  return (
+    <div className="text-xs">
+      <span className={cn("font-mono", amount < 0 ? "text-destructive" : "text-muted-foreground")}>
+        {euros(amount)}
+      </span>
+      <div className="mt-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+        {label}
       </div>
     </div>
   );
