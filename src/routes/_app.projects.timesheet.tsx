@@ -396,7 +396,7 @@ function TimesheetPage() {
               <span className="ml-auto text-xs text-muted-foreground">
                 {projectRows.length}{" "}
                 {projectRows.length === 1 ? "project row" : "project rows"} ·{" "}
-                {INTERNAL_CATEGORIES.length} internal · {nonWorkingPrefill.length}{" "}
+                {displayedInternalCategories.length} internal · {nonWorkingPrefill.length}{" "}
                 non-working
               </span>
             </div>
@@ -481,22 +481,26 @@ function TimesheetPage() {
                     label="Internal cost centers"
                     sub="Non-billable working time (capacity used, no revenue)."
                   />
-                  {INTERNAL_CATEGORIES.map((cat) => (
+                  {displayedInternalCategories.map((cat) => (
                     <FixedRow
-                      key={cat}
-                      label={cat}
-                      sub="Internal · non-billable"
+                      key={cat.name}
+                      label={cat.isArchived ? `${cat.name} (archived)` : cat.name}
+                      sub={
+                        cat.isArchived
+                          ? "Internal · archived (read-only label, edits still allowed)"
+                          : "Internal · non-billable"
+                      }
                       tone="internal"
                       days={days}
                       entryMap={entryMap}
-                      keyFn={() => internalKey(cat)}
+                      keyFn={() => internalKey(cat.name)}
                       pending={upsert.isPending}
-                      rowTotal={rowTotalFor(internalKey(cat))}
+                      rowTotal={rowTotalFor(internalKey(cat.name))}
                       onCommit={(dateStr, hours, notes, _billable, existingId) =>
                         upsert.mutate(
                           {
                             entry_type: "internal",
-                            internal_category: cat,
+                            internal_category: cat.name,
                             user_id: user!.id,
                             entry_date: dateStr,
                             hours,
