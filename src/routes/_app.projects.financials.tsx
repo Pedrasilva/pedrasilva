@@ -39,6 +39,9 @@ import {
   AlertTriangle,
   Settings2,
   CheckCircle2,
+  Briefcase,
+  Trophy,
+  FileText,
 } from "lucide-react";
 import { AppShell } from "@/components/projects/app-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -561,6 +564,13 @@ function FinancialsPage() {
   // 12-week utilization trend
   const { data: weeklyUtil } = useWeeklyUtilTrend(monthAnchor, filteredResourceIds);
 
+  // Business Development efficiency
+  const bdMonthCost = useMemo(() => {
+    const bucket = internalCategoryRows.rows.find((r) => r.category === "Fee proposals");
+    return { hours: bucket?.hours ?? 0, cost: bucket?.cost ?? 0 };
+  }, [internalCategoryRows.rows]);
+  const { data: bd } = useBusinessDevReport(monthStart, monthEnd, resourceMap, defaults);
+
 
   return (
     <AppShell active="projects">
@@ -905,6 +915,8 @@ function FinancialsPage() {
           </CardContent>
         </Card>
 
+
+
         {/* Internal cost centers report */}
         <Card className="mt-6">
           <CardHeader>
@@ -1021,6 +1033,14 @@ function FinancialsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Business Development efficiency */}
+        <BusinessDevCard
+          monthLabel={format(monthAnchor, "MMMM yyyy")}
+          monthHours={bdMonthCost.hours}
+          monthCost={bdMonthCost.cost}
+          data={bd}
+        />
       </div>
     </AppShell>
   );
@@ -1718,6 +1738,394 @@ function WeeklyUtilizationCard({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+// ============================================================
+// Business Development efficiency
+// ============================================================
+
+type ProposalRow = {
+  id: string;
+  titulo: string;
+  valor: number;
+  pipeline_status: string;
+  data_proposta: string | null;
+  data_decisao: string | null;
+  pm_project_id: string | null;
+  created_at: string;
+};
+
+type BusinessDevData = {
+  inMonth: {
+    submitted: number;
+    won: number;
+    lost: number;
+    valueWon: number;
+  };
+  allTime: {
+    total: number;
+    won: number;
+    lost: number;
+    open: number;
+    valueWon: number;
+    bdHours: number;
+    bdCost: number;
+  };
+  recentWon: Array<{
+    id: string;
+    titulo: string;
+    valor: number;
+    data_decisao: string | null;
+    pm_project_id: string | null;
+  }>;
+};
+
+function useBusinessDevReport(
+  monthStartISO: string,
+  monthEndISO: string,
+  resourceMap: Map<string, ResourceLite>,
+  defaults: Map<string, { sale: number; cost: number }> | undefined,
+) {
+  return useQuery({
+    queryKey: ["fin-bd-report", monthStartISO, monthEndISO, resourceMap.size],
+    enabled: resourceMap.size > 0,
+    queryFn: async (): Promise<BusinessDevData> => {
+      // 1. All proposals (lifetime — needed for win-rate denominator)
+      const { data: proposals, error: pErr } = await supabase
+        .from("fee_proposals")
+        .select("id, titulo, valor, pipeline_status, data_proposta, data_decisao, pm_project_id, created_at")
+        .order("data_decisao", { ascending: false, nullsFirst: false });
+      if (pErr) throw pErr;
+      const list = (proposals ?? []) as ProposalRow[];
+
+      // 2. All-time "Fee proposals" internal time + cost
+      const { data: bdEntries, error: eErr } = await supabase
+        .from("pm_time_entries")
+        .select("user_id, hours, entry_date, task_id, entry_type, internal_category, billable")
+        .eq("entry_type", "internal")
+        .eq("internal_category", "Fee proposals");
+      if (eErr) throw eErr;
+      const bdList = (bdEntries ?? []) as EntryLite[];
+
+      // Map user_id -> resource_id (best-effort, via any project entry)
+      const { data: anyProj } = await supabase
+        .from("pm_time_entries")
+        .select("user_id, task_id")
+        .eq("entry_type", "project")
+        .not("task_id", "is", null)
+        .limit(2000);
+      const projRows = (anyProj ?? []) as { user_id: string; task_id: string | null }[];
+      const taskIds = Array.from(new Set(projRows.map((r) => r.task_id!).filter(Boolean)));
+      const taskToRes = new Map<string, string>();
+      if (taskIds.length > 0) {
+        const { data: tdata } = await supabase
+          .from("pm_tasks")
+          .select("id, allocation:pm_allocations(resource_id)")
+          .in("id", taskIds);
+        for (const t of (tdata ?? []) as Array<{
+          id: string;
+          allocation: { resource_id: string } | null;
+        }>) {
+          if (t.allocation?.resource_id) taskToRes.set(t.id, t.allocation.resource_id);
+        }
+      }
+      const userToRes = new Map<string, string>();
+      for (const r of projRows) {
+        if (!r.task_id) continue;
+        const res = taskToRes.get(r.task_id);
+        if (res && !userToRes.has(r.user_id)) userToRes.set(r.user_id, res);
+      }
+
+      let bdHours = 0;
+      let bdCost = 0;
+      for (const e of bdList) {
+        const h = Number(e.hours) || 0;
+        bdHours += h;
+        const resId = userToRes.get(e.user_id) ?? null;
+        const res = resId ? resourceMap.get(resId) : null;
+        const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults) : 0;
+        bdCost += h * costRate;
+      }
+
+      // 3. Counts
+      let submittedInMonth = 0;
+      let wonInMonth = 0;
+      let lostInMonth = 0;
+      let valueWonInMonth = 0;
+      let totalProposals = 0;
+      let wonAllTime = 0;
+      let lostAllTime = 0;
+      let openAllTime = 0;
+      let valueWonAllTime = 0;
+      const wonList: BusinessDevData["recentWon"] = [];
+
+      for (const p of list) {
+        totalProposals++;
+        const isWon = p.pipeline_status === "ganho";
+        const isLost = p.pipeline_status === "perdido";
+        const isOpen = !isWon && !isLost;
+        if (isWon) {
+          wonAllTime++;
+          valueWonAllTime += Number(p.valor) || 0;
+          wonList.push({
+            id: p.id,
+            titulo: p.titulo,
+            valor: Number(p.valor) || 0,
+            data_decisao: p.data_decisao,
+            pm_project_id: p.pm_project_id,
+          });
+        } else if (isLost) {
+          lostAllTime++;
+        } else if (isOpen) {
+          openAllTime++;
+        }
+
+        // Submitted in month — use data_proposta if present, else created_at
+        const submittedDate = p.data_proposta ?? p.created_at?.slice(0, 10) ?? null;
+        if (submittedDate && submittedDate >= monthStartISO && submittedDate <= monthEndISO) {
+          submittedInMonth++;
+        }
+        // Decision in month
+        if (p.data_decisao && p.data_decisao >= monthStartISO && p.data_decisao <= monthEndISO) {
+          if (isWon) {
+            wonInMonth++;
+            valueWonInMonth += Number(p.valor) || 0;
+          } else if (isLost) {
+            lostInMonth++;
+          }
+        }
+      }
+
+      return {
+        inMonth: {
+          submitted: submittedInMonth,
+          won: wonInMonth,
+          lost: lostInMonth,
+          valueWon: valueWonInMonth,
+        },
+        allTime: {
+          total: totalProposals,
+          won: wonAllTime,
+          lost: lostAllTime,
+          open: openAllTime,
+          valueWon: valueWonAllTime,
+          bdHours,
+          bdCost,
+        },
+        recentWon: wonList.slice(0, 5),
+      };
+    },
+  });
+}
+
+function BusinessDevCard({
+  monthLabel,
+  monthHours,
+  monthCost,
+  data,
+}: {
+  monthLabel: string;
+  monthHours: number;
+  monthCost: number;
+  data: BusinessDevData | undefined;
+}) {
+  const decided = (data?.allTime.won ?? 0) + (data?.allTime.lost ?? 0);
+  const winRate = decided > 0 ? ((data?.allTime.won ?? 0) / decided) * 100 : 0;
+  const costPerWon =
+    (data?.allTime.won ?? 0) > 0 ? (data?.allTime.bdCost ?? 0) / (data!.allTime.won) : 0;
+  const roi =
+    (data?.allTime.bdCost ?? 0) > 0
+      ? ((data?.allTime.valueWon ?? 0) / (data?.allTime.bdCost ?? 1))
+      : 0;
+
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Briefcase className="h-5 w-5" />
+              Business Development efficiency
+            </CardTitle>
+            <CardDescription>
+              How much it costs to win work — Fee Proposal time vs. proposals submitted and won.
+            </CardDescription>
+          </div>
+          <div className="text-right">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              {monthLabel}
+            </p>
+            <p className="font-display text-xl font-semibold tabular-nums">
+              {hours(monthHours)}
+            </p>
+            <p className="text-xs text-muted-foreground tabular-nums">
+              {euros(monthCost)} BD cost this month
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Top metrics row */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <BdMetric
+            icon={<FileText className="h-4 w-4" />}
+            label="Proposals submitted"
+            value={(data?.allTime.total ?? 0).toLocaleString("pt-PT")}
+            sub={`${data?.inMonth.submitted ?? 0} this month`}
+          />
+          <BdMetric
+            icon={<Trophy className="h-4 w-4" />}
+            label="Projects won"
+            value={(data?.allTime.won ?? 0).toLocaleString("pt-PT")}
+            sub={`${data?.inMonth.won ?? 0} this month`}
+            tone="success"
+          />
+          <BdMetric
+            icon={<Target className="h-4 w-4" />}
+            label="Win rate"
+            value={pct(winRate)}
+            sub={`${decided} decided · ${data?.allTime.open ?? 0} open`}
+            tone={winRate >= 50 ? "success" : winRate >= 25 ? "warning" : "danger"}
+          />
+          <BdMetric
+            icon={<Wallet className="h-4 w-4" />}
+            label="Cost per won project"
+            value={euros(costPerWon)}
+            sub={`${euros(data?.allTime.bdCost ?? 0)} total BD cost`}
+            tone="muted"
+          />
+        </div>
+
+        {/* Insight banner */}
+        <div className="rounded-md border border-border bg-muted/40 px-3 py-2.5 text-sm">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+            <div className="space-y-1">
+              <p>
+                <span className="font-medium text-foreground">
+                  {hours(data?.allTime.bdHours ?? 0)}
+                </span>{" "}
+                logged to <span className="font-medium">Fee proposals</span> across the company,
+                costing{" "}
+                <span className="font-medium text-foreground">
+                  {euros(data?.allTime.bdCost ?? 0)}
+                </span>
+                . Each won project costs{" "}
+                <span className="font-medium text-foreground">{euros(costPerWon)}</span>{" "}
+                in BD effort.
+              </p>
+              {(data?.allTime.valueWon ?? 0) > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Total value won:{" "}
+                  <span className="font-medium text-foreground">
+                    {euros(data?.allTime.valueWon ?? 0)}
+                  </span>{" "}
+                  · ROI:{" "}
+                  <span
+                    className={cn(
+                      "font-medium",
+                      roi >= 5
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : roi >= 2
+                          ? "text-foreground"
+                          : "text-amber-600 dark:text-amber-400",
+                    )}
+                  >
+                    {roi.toFixed(1)}× return on BD spend
+                  </span>
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Recent wins */}
+        {data?.recentWon && data.recentWon.length > 0 && (
+          <div>
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Recent wins
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2">Proposal</th>
+                    <th className="px-3 py-2 text-right">Value</th>
+                    <th className="px-3 py-2">Decided</th>
+                    <th className="px-3 py-2">Linked project</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {data.recentWon.map((w) => (
+                    <tr key={w.id} className="hover:bg-muted/30">
+                      <td className="px-3 py-2 font-medium">{w.titulo}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{euros(w.valor)}</td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {w.data_decisao
+                          ? format(parseISO(w.data_decisao), "d MMM yyyy")
+                          : "—"}
+                      </td>
+                      <td className="px-3 py-2">
+                        {w.pm_project_id ? (
+                          <Badge variant="secondary" className="text-[10px]">
+                            <CheckCircle2 className="mr-1 h-3 w-3" /> Linked
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                            Not linked
+                          </Badge>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {(data?.allTime.total ?? 0) === 0 && (
+          <p className="text-sm text-muted-foreground">
+            No proposals submitted yet. Add proposals in the CRM Pipeline to track BD efficiency.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function BdMetric({
+  icon,
+  label,
+  value,
+  sub,
+  tone = "primary",
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  sub?: string;
+  tone?: "primary" | "success" | "warning" | "danger" | "muted";
+}) {
+  const toneClass = {
+    primary: "bg-primary/10 text-primary",
+    success: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    warning: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+    danger: "bg-destructive/10 text-destructive",
+    muted: "bg-muted text-foreground",
+  }[tone];
+  return (
+    <div className="rounded-md border border-border p-3">
+      <div className="flex items-center gap-2">
+        <div className={cn("flex h-7 w-7 items-center justify-center rounded-md", toneClass)}>
+          {icon}
+        </div>
+        <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      </div>
+      <p className="mt-2 text-xl font-semibold tabular-nums">{value}</p>
+      {sub && <p className="mt-0.5 text-[11px] text-muted-foreground">{sub}</p>}
+    </div>
   );
 }
 
