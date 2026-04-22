@@ -48,6 +48,7 @@ import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
 import { ViewAsPicker } from "@/components/ViewAsPicker";
 import { QuickCreateMenu } from "@/components/QuickCreateMenu";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -353,6 +354,8 @@ function AppLayout() {
             )}
 
             <ViewAsPicker variant="desktop" />
+
+            <LanguageSwitcher className="hidden md:inline-flex" />
 
             {showQuickCreate && <QuickCreateMenu />}
 

@@ -1,13 +1,27 @@
 import { QueryClient } from "@tanstack/react-query";
 import { createRouter, useRouter } from "@tanstack/react-router";
+import i18n from "./i18n";
 import { routeTree } from "./routeTree.gen";
 
 function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
+  // Helper that reads from the already-initialised i18n instance with a safe
+  // English fallback. We avoid `useTranslation()` here so we don't depend on
+  // the React context (this boundary may render outside of it on early errors).
+  const t = (key: string, fallback: string) => {
+    try {
+      const v = i18n.t(`common:${key}`);
+      return v && v !== `common:${key}` ? v : fallback;
+    } catch {
+      return fallback;
+    }
+  };
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Algo correu mal</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          {t("errorTitle", "Something went wrong")}
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
         <div className="mt-6 flex items-center justify-center gap-3">
           <button
@@ -17,13 +31,13 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Tentar novamente
+            {t("tryAgain", "Try again")}
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Início
+            {t("home", "Home")}
           </a>
         </div>
       </div>

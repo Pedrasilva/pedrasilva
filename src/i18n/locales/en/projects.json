@@ -1,0 +1,143 @@
+{
+  "module": "Projects",
+  "studio": "Studio",
+  "nav": {
+    "projects": "Projects",
+    "projectList": "Project list",
+    "globalGantt": "Global Gantt",
+    "team": "Team",
+    "myTasks": "My tasks",
+    "timesheet": "Timesheet",
+    "financials": "Financials",
+    "forecast": "Forecast",
+    "insights": "Insights"
+  },
+  "dashboard": {
+    "title": "Projects Dashboard",
+    "searchPlaceholder": "Search projects or clients…",
+    "filters": {
+      "active": "Active",
+      "paused": "Paused",
+      "archived": "Archived",
+      "all": "All"
+    },
+    "yourUtilization": "Your utilization",
+    "teamPerformance": "Team performance",
+    "subtitleTeam": "Utilization and billable / internal split — {{period}}",
+    "subtitleSelf": "Your hours and billable split — {{period}}"
+  },
+  "kpi": {
+    "businessPerformance": "Business performance",
+    "productionPerformance": "Production performance",
+    "revenue": "Revenue",
+    "revenueSub": "Billable hours × sale rate",
+    "totalCost": "Total cost",
+    "totalCostSub": "All logged hours × cost rate",
+    "profit": "Profit",
+    "profitSub": "Revenue − cost",
+    "utilization": "Utilization",
+    "utilizationSub": "Billable / total logged",
+    "capacityUsed": "Capacity used",
+    "capacityOfAvailable": "{{pct}}% of available",
+    "plannedHours": "Planned hours",
+    "plannedHoursSub": "Allocated effort",
+    "loggedHours": "Logged hours",
+    "loggedHoursSub": "Actual time recorded",
+    "remaining": "Remaining",
+    "remainingSub": "Planned − logged"
+  },
+  "health": {
+    "title": "Project health",
+    "subtitle": "Actual revenue, cost and margin per project",
+    "filters": {
+      "all": "All",
+      "ok": "Healthy",
+      "warn": "At risk",
+      "bad": "Critical"
+    },
+    "columns": {
+      "project": "Project",
+      "budget": "Budget",
+      "actualRevenue": "Actual revenue",
+      "actualCost": "Actual cost",
+      "profit": "Profit",
+      "margin": "Margin",
+      "status": "Status"
+    },
+    "loadingProjects": "Loading projects…",
+    "emptyFilter": "No projects in this filter.",
+    "reasons": {
+      "healthy": "Healthy",
+      "noActivity": "No activity",
+      "overBudget": "Over budget ({{pct}}%)",
+      "negativeMargin": "Negative margin",
+      "approachingBudget": "Approaching budget ({{pct}}%)",
+      "lowMargin": "Low margin"
+    }
+  },
+  "effort": {
+    "title": "Project effort",
+    "subtitle": "Planned vs logged hours, with efficiency and overrun status",
+    "filters": {
+      "ok": "On track",
+      "warn": "At risk",
+      "bad": "Overrun"
+    },
+    "columns": {
+      "planned": "Planned",
+      "logged": "Logged",
+      "remaining": "Remaining",
+      "efficiency": "Efficiency"
+    },
+    "reasons": {
+      "onTrack": "On track",
+      "noActivity": "No activity",
+      "overrun": "Overrun ({{pct}}% of plan)",
+      "approachingPlan": "Approaching plan ({{pct}}%)",
+      "loggedWithoutPlan": "Logged time without plan"
+    }
+  },
+  "alerts": {
+    "title": "Alerts & issues",
+    "subtitle": "Problems that need attention",
+    "scanning": "Scanning…",
+    "allClear": "All clear",
+    "allClearDetail": "No projects, resources or time entries flagged.",
+    "overBudget": "{{name}} is over budget",
+    "lowMargin": "{{name}} has low margin",
+    "negativeMargin": "{{name}} has negative margin",
+    "marginTarget": "Margin {{pct}}% — target ≥ 15%",
+    "marginLosing": "Margin {{pct}}% — losing money",
+    "overrun": "{{name}} is over planned hours",
+    "approachingPlan": "{{name}} approaching planned hours",
+    "overbooked": "{{name}} is overbooked",
+    "overbookedDetail_one": "{{count}} day in {{period}} exceeds daily capacity",
+    "overbookedDetail_other": "{{count}} days in {{period}} exceed daily capacity",
+    "highInternal": "{{name}} has high internal time",
+    "highInternalDetail": "{{pct}}% of logged hours are internal (target ≤ 20%)",
+    "overBudgetDetail": "Cost {{cost}} • {{pct}}% of {{budget}} budget",
+    "overrunDetail": "Logged {{logged}}h • {{pct}}% of {{planned}}h planned"
+  },
+  "team": {
+    "title": "Team performance",
+    "subtitle": "Utilization and billable / internal split — {{period}}",
+    "sortByUtilization": "Utilization",
+    "sortByBillable": "Billable %",
+    "sortByName": "Name",
+    "columns": {
+      "member": "Member",
+      "capacity": "Capacity",
+      "logged": "Logged",
+      "utilization": "Utilization",
+      "split": "Billable vs internal"
+    },
+    "noTimeLogged": "No time logged in this period.",
+    "splitTooltip": "Billable {{billable}}h • Internal {{internal}}h • Non-working {{nonWorking}}h",
+    "unknownUser": "Unknown user",
+    "you": "You"
+  },
+  "common": {
+    "previousPage": "Previous page",
+    "nextPage": "Next page"
+  }
+}

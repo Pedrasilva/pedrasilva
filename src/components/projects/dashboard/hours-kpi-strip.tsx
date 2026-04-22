@@ -1,4 +1,5 @@
 import { Activity, Clock, Hourglass, Timer, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
 export interface HoursKpiData {
@@ -19,6 +20,7 @@ export function HoursKpiStrip({
   loading?: boolean;
   periodLabel: string;
 }) {
+  const { t } = useTranslation("projects");
   const remainingTone =
     data.remainingHours < 0
       ? "danger"
@@ -40,7 +42,7 @@ export function HoursKpiStrip({
     <section className="rounded-lg border border-border bg-card px-5 py-4">
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Production performance
+          {t("kpi.productionPerformance")}
         </h2>
         <span className="text-[11px] text-muted-foreground">{periodLabel}</span>
       </div>
@@ -48,21 +50,21 @@ export function HoursKpiStrip({
         <KpiCell
           icon={<Hourglass className="h-4 w-4" />}
           tone="primary"
-          label="Planned hours"
+          label={t("kpi.plannedHours")}
           value={loading ? "…" : <span className="font-mono">{Math.round(data.plannedHours)}h</span>}
-          sub="Allocated effort"
+          sub={t("kpi.plannedHoursSub")}
         />
         <KpiCell
           icon={<Clock className="h-4 w-4" />}
           tone="muted"
-          label="Logged hours"
+          label={t("kpi.loggedHours")}
           value={loading ? "…" : <span className="font-mono">{Math.round(data.loggedHours)}h</span>}
-          sub="Actual time recorded"
+          sub={t("kpi.loggedHoursSub")}
         />
         <KpiCell
           icon={<Timer className="h-4 w-4" />}
           tone={remainingTone}
-          label="Remaining"
+          label={t("kpi.remaining")}
           value={
             loading ? "…" : (
               <span className="font-mono">
@@ -70,19 +72,19 @@ export function HoursKpiStrip({
               </span>
             )
           }
-          sub="Planned − logged"
+          sub={t("kpi.remainingSub")}
         />
         <KpiCell
           icon={<Activity className="h-4 w-4" />}
           tone={utilTone}
-          label="Utilization"
+          label={t("kpi.utilization")}
           value={loading ? "…" : `${Math.round(data.utilizationPct)}%`}
-          sub="Billable / total logged"
+          sub={t("kpi.utilizationSub")}
         />
         <KpiCell
           icon={<Users className="h-4 w-4" />}
           tone="primary"
-          label="Capacity used"
+          label={t("kpi.capacityUsed")}
           value={
             loading ? "…" : (
               <>
@@ -94,7 +96,7 @@ export function HoursKpiStrip({
               </>
             )
           }
-          sub={`${Math.round(capacityPct)}% of available`}
+          sub={t("kpi.capacityOfAvailable", { pct: Math.round(capacityPct) })}
         />
       </div>
     </section>

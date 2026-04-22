@@ -219,6 +219,7 @@ export type Database = {
           foto_path: string | null
           id: string
           inicio_carreira: string | null
+          language_preference: string
           localizacao: string
           margem_lucro_pct_override: number | null
           nome: string
@@ -244,6 +245,7 @@ export type Database = {
           foto_path?: string | null
           id?: string
           inicio_carreira?: string | null
+          language_preference?: string
           localizacao?: string
           margem_lucro_pct_override?: number | null
           nome: string
@@ -269,6 +271,7 @@ export type Database = {
           foto_path?: string | null
           id?: string
           inicio_carreira?: string | null
+          language_preference?: string
           localizacao?: string
           margem_lucro_pct_override?: number | null
           nome?: string

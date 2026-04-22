@@ -1,4 +1,5 @@
 import { TrendingUp, Receipt, Wallet, Activity, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { euros } from "@/lib/projects/gantt-utils";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ export function FinancialKpiStrip({
   loading?: boolean;
   periodLabel: string;
 }) {
+  const { t } = useTranslation("projects");
   const profitTone =
     data.profit < 0 ? "danger" : data.marginPct < 15 ? "warning" : "success";
   const utilTone =
@@ -38,7 +40,7 @@ export function FinancialKpiStrip({
     <section className="rounded-lg border border-border bg-card px-5 py-4">
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Business performance
+          {t("kpi.businessPerformance")}
         </h2>
         <span className="text-[11px] text-muted-foreground">{periodLabel}</span>
       </div>
@@ -46,21 +48,21 @@ export function FinancialKpiStrip({
         <KpiCell
           icon={<Receipt className="h-4 w-4" />}
           tone="primary"
-          label="Revenue"
+          label={t("kpi.revenue")}
           value={loading ? "…" : <span className="font-mono">{euros(data.revenue)}</span>}
-          sub="Billable hours × sale rate"
+          sub={t("kpi.revenueSub")}
         />
         <KpiCell
           icon={<Wallet className="h-4 w-4" />}
           tone="muted"
-          label="Total cost"
+          label={t("kpi.totalCost")}
           value={loading ? "…" : <span className="font-mono">{euros(data.cost)}</span>}
-          sub="All logged hours × cost rate"
+          sub={t("kpi.totalCostSub")}
         />
         <KpiCell
           icon={<TrendingUp className="h-4 w-4" />}
           tone={profitTone}
-          label="Profit"
+          label={t("kpi.profit")}
           value={
             loading ? "…" : (
               <>
@@ -71,19 +73,19 @@ export function FinancialKpiStrip({
               </>
             )
           }
-          sub="Revenue − cost"
+          sub={t("kpi.profitSub")}
         />
         <KpiCell
           icon={<Activity className="h-4 w-4" />}
           tone={utilTone}
-          label="Utilization"
+          label={t("kpi.utilization")}
           value={loading ? "…" : `${Math.round(data.utilizationPct)}%`}
-          sub="Billable / total logged"
+          sub={t("kpi.utilizationSub")}
         />
         <KpiCell
           icon={<Users className="h-4 w-4" />}
           tone="primary"
-          label="Capacity used"
+          label={t("kpi.capacityUsed")}
           value={
             loading ? "…" : (
               <>
@@ -95,7 +97,7 @@ export function FinancialKpiStrip({
               </>
             )
           }
-          sub={`${Math.round(capacityPct)}% of available`}
+          sub={t("kpi.capacityOfAvailable", { pct: Math.round(capacityPct) })}
         />
       </div>
     </section>

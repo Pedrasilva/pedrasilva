@@ -1,0 +1,143 @@
+{
+  "module": "Projectos",
+  "studio": "Atelier",
+  "nav": {
+    "projects": "Projectos",
+    "projectList": "Lista de projectos",
+    "globalGantt": "Gantt global",
+    "team": "Equipa",
+    "myTasks": "Minhas tarefas",
+    "timesheet": "Folha de horas",
+    "financials": "Financeiro",
+    "forecast": "Previsão",
+    "insights": "Análises"
+  },
+  "dashboard": {
+    "title": "Painel de Projectos",
+    "searchPlaceholder": "Procurar projectos ou clientes…",
+    "filters": {
+      "active": "Activos",
+      "paused": "Em pausa",
+      "archived": "Arquivados",
+      "all": "Todos"
+    },
+    "yourUtilization": "A tua utilização",
+    "teamPerformance": "Desempenho da equipa",
+    "subtitleTeam": "Utilização e divisão facturável / interno — {{period}}",
+    "subtitleSelf": "As tuas horas e divisão facturável — {{period}}"
+  },
+  "kpi": {
+    "businessPerformance": "Desempenho do negócio",
+    "productionPerformance": "Desempenho de produção",
+    "revenue": "Receita",
+    "revenueSub": "Horas facturáveis × valor de venda",
+    "totalCost": "Custo total",
+    "totalCostSub": "Todas as horas registadas × custo",
+    "profit": "Lucro",
+    "profitSub": "Receita − custo",
+    "utilization": "Utilização",
+    "utilizationSub": "Facturável / total registado",
+    "capacityUsed": "Capacidade usada",
+    "capacityOfAvailable": "{{pct}}% do disponível",
+    "plannedHours": "Horas planeadas",
+    "plannedHoursSub": "Esforço alocado",
+    "loggedHours": "Horas registadas",
+    "loggedHoursSub": "Tempo efectivamente registado",
+    "remaining": "Restantes",
+    "remainingSub": "Planeadas − registadas"
+  },
+  "health": {
+    "title": "Saúde do projecto",
+    "subtitle": "Receita real, custo e margem por projecto",
+    "filters": {
+      "all": "Todos",
+      "ok": "Saudáveis",
+      "warn": "Em risco",
+      "bad": "Críticos"
+    },
+    "columns": {
+      "project": "Projecto",
+      "budget": "Orçamento",
+      "actualRevenue": "Receita real",
+      "actualCost": "Custo real",
+      "profit": "Lucro",
+      "margin": "Margem",
+      "status": "Estado"
+    },
+    "loadingProjects": "A carregar projectos…",
+    "emptyFilter": "Nenhum projecto neste filtro.",
+    "reasons": {
+      "healthy": "Saudável",
+      "noActivity": "Sem actividade",
+      "overBudget": "Acima do orçamento ({{pct}}%)",
+      "negativeMargin": "Margem negativa",
+      "approachingBudget": "A aproximar-se do orçamento ({{pct}}%)",
+      "lowMargin": "Margem baixa"
+    }
+  },
+  "effort": {
+    "title": "Esforço do projecto",
+    "subtitle": "Horas planeadas vs registadas, eficiência e estado de excesso",
+    "filters": {
+      "ok": "No prazo",
+      "warn": "Em risco",
+      "bad": "Excedido"
+    },
+    "columns": {
+      "planned": "Planeadas",
+      "logged": "Registadas",
+      "remaining": "Restantes",
+      "efficiency": "Eficiência"
+    },
+    "reasons": {
+      "onTrack": "No prazo",
+      "noActivity": "Sem actividade",
+      "overrun": "Excedido ({{pct}}% do plano)",
+      "approachingPlan": "A aproximar-se do plano ({{pct}}%)",
+      "loggedWithoutPlan": "Tempo registado sem plano"
+    }
+  },
+  "alerts": {
+    "title": "Alertas e problemas",
+    "subtitle": "Problemas que precisam de atenção",
+    "scanning": "A analisar…",
+    "allClear": "Tudo em ordem",
+    "allClearDetail": "Sem projectos, recursos ou registos sinalizados.",
+    "overBudget": "{{name}} está acima do orçamento",
+    "lowMargin": "{{name}} tem margem baixa",
+    "negativeMargin": "{{name}} tem margem negativa",
+    "marginTarget": "Margem {{pct}}% — meta ≥ 15%",
+    "marginLosing": "Margem {{pct}}% — a perder dinheiro",
+    "overrun": "{{name}} excedeu as horas planeadas",
+    "approachingPlan": "{{name}} a aproximar-se das horas planeadas",
+    "overbooked": "{{name}} está sobrecarregado",
+    "overbookedDetail_one": "{{count}} dia em {{period}} excede a capacidade diária",
+    "overbookedDetail_other": "{{count}} dias em {{period}} excedem a capacidade diária",
+    "highInternal": "{{name}} tem muito tempo interno",
+    "highInternalDetail": "{{pct}}% das horas são internas (meta ≤ 20%)",
+    "overBudgetDetail": "Custo {{cost}} • {{pct}}% de {{budget}} de orçamento",
+    "overrunDetail": "Registadas {{logged}}h • {{pct}}% de {{planned}}h planeadas"
+  },
+  "team": {
+    "title": "Desempenho da equipa",
+    "subtitle": "Utilização e divisão facturável / interno — {{period}}",
+    "sortByUtilization": "Utilização",
+    "sortByBillable": "% facturável",
+    "sortByName": "Nome",
+    "columns": {
+      "member": "Membro",
+      "capacity": "Capacidade",
+      "logged": "Registadas",
+      "utilization": "Utilização",
+      "split": "Facturável vs interno"
+    },
+    "noTimeLogged": "Sem horas registadas neste período.",
+    "splitTooltip": "Facturável {{billable}}h • Interno {{internal}}h • Não trabalhado {{nonWorking}}h",
+    "unknownUser": "Utilizador desconhecido",
+    "you": "Tu"
+  },
+  "common": {
+    "previousPage": "Página anterior",
+    "nextPage": "Página seguinte"
+  }
+}

@@ -6,8 +6,13 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/use-auth";
+import { LanguageProvider } from "@/i18n/language-provider";
+// Side-effect import: initialises the i18next instance before any consumer
+// renders. Must come before any component that calls `useTranslation()`.
+import "@/i18n";
 
 import appCss from "../styles.css?url";
 
@@ -16,17 +21,18 @@ interface RouterContext {
 }
 
 function NotFoundComponent() {
+  const { t } = useTranslation("common");
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Página não encontrada</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">{t("notFound")}</h2>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
-            Voltar ao início
+            {t("goHome")}
           </Link>
         </div>
       </div>
@@ -88,8 +94,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
-        <Toaster />
+        {/* LanguageProvider must live INSIDE AuthProvider so it can read the
+            authenticated user's stored language preference and persist
+            changes back to the collaborator profile. */}
+        <LanguageProvider>
+          <Outlet />
+          <Toaster />
+        </LanguageProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
