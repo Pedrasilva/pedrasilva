@@ -41,15 +41,6 @@ function ProposalDetail() {
     },
   });
 
-  const { data: companies = [] } = useQuery({
-    queryKey: ["companies-lite"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("companies").select("id, nome").order("nome");
-      if (error) throw error;
-      return (data ?? []) as Pick<Company, "id" | "nome">[];
-    },
-  });
-
   const { data: contacts = [] } = useQuery({
     queryKey: ["contacts-lite-for-proposal", proposal?.company_id],
     queryFn: async () => {
