@@ -515,6 +515,46 @@ function FinancialsPage() {
     return { low, high, internal, good };
   }, [userRows]);
 
+  // Per internal cost-center aggregation (hours, cost, % of total working time)
+  const internalCategoryRows = useMemo(() => {
+    type Bucket = { category: string; hours: number; cost: number };
+    const map = new Map<string, Bucket>();
+    // Seed with the canonical 5 categories so each always shows up,
+    // even when no time has been logged yet.
+    for (const c of INTERNAL_COST_CENTERS) {
+      map.set(c, { category: c, hours: 0, cost: 0 });
+    }
+
+    for (const e of filteredEntries) {
+      if (e.entry_type !== "internal") continue;
+      const cat = (e.internal_category ?? "").trim() || "Uncategorised";
+      const h = Number(e.hours) || 0;
+      const res = e.resource_id ? resourceMap.get(e.resource_id) : null;
+      const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults) : 0;
+      const cur = map.get(cat) ?? { category: cat, hours: 0, cost: 0 };
+      cur.hours += h;
+      cur.cost += h * costRate;
+      map.set(cat, cur);
+    }
+
+    // Total working time = billable + internal (i.e. capacity actually used,
+    // excluding non-working absences). Used for "% of working time".
+    const workingTotal = summary.billableH + summary.internalH;
+    const internalTotalHours = summary.internalH;
+    const internalTotalCost = Array.from(map.values()).reduce((a, b) => a + b.cost, 0);
+
+    const rows = Array.from(map.values())
+      .map((b) => ({
+        ...b,
+        pctOfWorking: workingTotal > 0 ? (b.hours / workingTotal) * 100 : 0,
+        pctOfInternal: internalTotalHours > 0 ? (b.hours / internalTotalHours) * 100 : 0,
+      }))
+      .sort((a, b) => b.hours - a.hours);
+
+    const top = rows.find((r) => r.hours > 0) ?? null;
+    return { rows, internalTotalHours, internalTotalCost, workingTotal, top };
+  }, [filteredEntries, resourceMap, defaults, summary.billableH, summary.internalH]);
+
   // 12-month trailing trend (revenue/cost/profit)
   const { data: trailing } = useTrailingTrend(monthAnchor, filteredResourceIds, resourceMap, defaults);
 
