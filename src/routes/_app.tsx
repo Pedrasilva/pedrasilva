@@ -42,6 +42,7 @@ import {
   CheckSquare,
   Clock,
   TrendingUp,
+  LineChart,
 } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
@@ -324,6 +325,18 @@ function AppLayout() {
               >
                 <TrendingUp className="h-3.5 w-3.5" />
                 Forecast
+              </Link>
+              <Link
+                to="/projects/insights"
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+                  loc.pathname.startsWith("/projects/insights")
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                )}
+              >
+                <LineChart className="h-3.5 w-3.5" />
+                Insights
               </Link>
             </nav>
           )}
