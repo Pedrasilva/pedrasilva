@@ -510,7 +510,7 @@ function DashboardPage() {
       const dailyCap = res ? (Number(res.weekly_capacity) || 40) / 5 : 8;
       rows.push({
         resourceId: identity?.resourceId ?? userId,
-        name: identity?.name ?? res?.name ?? "Unknown user",
+        name: identity?.name ?? res?.name ?? t("team.unknownUser"),
         collaboratorId: identity?.collaboratorId ?? null,
         fotoPath: identity?.fotoPath ?? null,
         color: identity?.color ?? res?.color ?? null,
@@ -521,7 +521,7 @@ function DashboardPage() {
       });
     }
     return rows;
-  }, [entries, resources, identityMap, periodStartISO, periodEndISO]);
+  }, [entries, resources, identityMap, periodStartISO, periodEndISO, t]);
 
   /**
    * Visible team rows: full team if the user has resource visibility, otherwise
@@ -544,7 +544,7 @@ function DashboardPage() {
     return [
       {
         resourceId: myResourceId ?? "self",
-        name: myIdentity?.name ?? myRes?.name ?? profile?.full_name ?? "You",
+        name: myIdentity?.name ?? myRes?.name ?? profile?.full_name ?? t("team.you"),
         collaboratorId: myIdentity?.collaboratorId ?? null,
         fotoPath: myIdentity?.fotoPath ?? null,
         color: myIdentity?.color ?? myRes?.color ?? null,
@@ -554,7 +554,7 @@ function DashboardPage() {
         nonWorkingHours: 0,
       },
     ];
-  }, [canSeeTeam, teamRows, myAuthId, myResourceId, resources, identityMap, profile?.full_name, periodStartISO, periodEndISO]);
+  }, [canSeeTeam, teamRows, myAuthId, myResourceId, resources, identityMap, profile?.full_name, periodStartISO, periodEndISO, t]);
 
   // ---------- Alerts ----------
   const alerts: AlertItem[] = useMemo(() => {
