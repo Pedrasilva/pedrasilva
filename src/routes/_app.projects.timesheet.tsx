@@ -550,6 +550,20 @@ function HourCell({
               className="resize-none text-sm"
             />
           </div>
+          <label className="flex cursor-pointer items-center justify-between gap-3 rounded border border-border bg-muted/30 px-3 py-2">
+            <div className="min-w-0">
+              <div className="text-sm font-medium">Billable</div>
+              <div className="text-[11px] text-muted-foreground">
+                Uncheck to log time that won't be charged to the client.
+              </div>
+            </div>
+            <input
+              type="checkbox"
+              checked={draftBillable}
+              onChange={(e) => setDraftBillable(e.target.checked)}
+              className="h-4 w-4 flex-shrink-0 cursor-pointer accent-primary"
+            />
+          </label>
         </div>
         <div className="flex items-center justify-between gap-2 border-t border-border px-4 py-2">
           <Button
