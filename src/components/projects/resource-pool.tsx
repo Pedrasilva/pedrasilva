@@ -13,6 +13,8 @@ import { useResourceSchedules } from "@/lib/projects/use-resource-schedules";
 
 interface Props {
   resources: Resource[];
+  /** When true, render a thin icon-only rail (avatars + load bar). */
+  collapsed?: boolean;
 }
 
 function weekHoursForResource(
