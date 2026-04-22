@@ -1415,6 +1415,18 @@ function InsightsPanel({
     invoiced: invoicedTotal,
   };
   const empty = { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 };
+  // Financials box reflects actuals (current state) using new revenue model:
+  //   Value (Revenue) = Σ billable hours × sale rate    (revenue only from billable)
+  //   Cost            = Σ all logged hours × cost rate  (non-billable still costs)
+  //   Profit          = Revenue − Cost
+  const services = {
+    budget: totalBudget,
+    value: earnedValue,
+    cost: loggedCost,
+    profit: earnedValue - loggedCost,
+    invoiced: invoicedTotal,
+  };
+  const empty = { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 };
   const totalRow = services;
 
   return (
