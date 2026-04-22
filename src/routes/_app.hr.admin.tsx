@@ -162,6 +162,7 @@ function AdminPage() {
         <TabsList>
           <TabsTrigger value="permissions">Permissões</TabsTrigger>
           <TabsTrigger value="users">Utilizadores & Admins</TabsTrigger>
+          <TabsTrigger value="internal-categories">Cost centers internos</TabsTrigger>
         </TabsList>
 
         <TabsContent value="permissions" className="mt-4">
