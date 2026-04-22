@@ -20,7 +20,7 @@ import { ActivityTimeline } from "@/components/crm/activity-timeline";
 import { CompanyPicker } from "@/components/crm/company-picker";
 import {
   formatEUR, PIPELINE_STATUSES,
-  type Company, type Contact, type FeeProposal, type ProposalStatus,
+  type Contact, type FeeProposal, type ProposalStatus,
 } from "@/lib/crm/types";
 
 export const Route = createFileRoute("/_app/crm/pipeline/$proposalId")({
