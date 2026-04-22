@@ -1139,18 +1139,28 @@ function MilestonesTable({
             <tr className="border-b border-border text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               <th className="px-4 py-2.5 font-semibold">Milestones &amp; Tasks</th>
               <th className="px-4 py-2.5 font-semibold">Status</th>
-              <th
-                className="px-4 py-2.5 font-semibold"
-                title="Cost-to-budget: actual cost (logged hrs × cost rate) vs planned budget"
-              >
-                Cost / Budget
-              </th>
-              <th
-                className="px-4 py-2.5 font-semibold"
-                title="Actual revenue: billable hours × sale rate"
-              >
-                Actual Revenue
-              </th>
+              {canSeeFinancials && (
+                <>
+                  <th
+                    className="px-4 py-2.5 font-semibold"
+                    title="Actual cost = Σ logged hours × cost rate. Compared to the stage budget when defined."
+                  >
+                    Cost (actual vs budget)
+                  </th>
+                  <th
+                    className="px-4 py-2.5 font-semibold"
+                    title="Revenue earned = Σ billable hours × sale rate"
+                  >
+                    Revenue (earned)
+                  </th>
+                  <th
+                    className="px-4 py-2.5 font-semibold"
+                    title="Profit = revenue − cost. Margin shown only when revenue > 0."
+                  >
+                    Profit / Margin
+                  </th>
+                </>
+              )}
               <th className="px-4 py-2.5 font-semibold">Hours used / planned</th>
               <th className="px-4 py-2.5 font-semibold">Scheduled start</th>
               <th className="px-4 py-2.5 font-semibold">Scheduled due</th>
