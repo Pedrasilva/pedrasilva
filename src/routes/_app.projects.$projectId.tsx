@@ -1282,12 +1282,19 @@ function MilestonesTable({
                           <td className="px-4 py-2.5">
                             <StatusDot active label="Planned" />
                           </td>
-                          <td className="px-4 py-2.5 min-w-[200px]" title="Planned cost (allocation × cost rate)">
-                            <EVCell cost={aPlannedCost} budget={0} pct={1} over={false} dimmed />
-                          </td>
-                          <td className="px-4 py-2.5 min-w-[180px]" title="Planned revenue (allocation × sale rate)">
-                            <RevenueCell revenue={aPlannedRevenue} budget={0} pct={1} dimmed />
-                          </td>
+                          {canSeeFinancials && (
+                            <>
+                              <td className="px-4 py-2.5 min-w-[200px]" title="Planned cost (allocation × cost rate)">
+                                <PlannedAmountCell amount={aPlannedCost} label="planned" />
+                              </td>
+                              <td className="px-4 py-2.5 min-w-[160px]" title="Planned revenue (allocation × sale rate)">
+                                <PlannedAmountCell amount={aPlannedRevenue} label="planned" />
+                              </td>
+                              <td className="px-4 py-2.5 min-w-[160px]" title="Planned profit = planned revenue − planned cost">
+                                <PlannedAmountCell amount={aPlannedRevenue - aPlannedCost} label="planned" />
+                              </td>
+                            </>
+                          )}
                           <td className="px-4 py-2.5 whitespace-nowrap">
                             <UsageBudgetCell logged={0} planned={aHours} over={false} />
                           </td>
