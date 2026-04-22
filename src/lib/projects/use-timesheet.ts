@@ -27,15 +27,14 @@ export type TimesheetEntry = {
   leave_type: string | null;
 };
 
-// The five fixed internal cost centers requested by the product owner.
-export const INTERNAL_CATEGORIES = [
-  "Meetings",
-  "Training",
-  "Fee proposals",
-  "Business development",
-  "Admin",
-] as const;
-export type InternalCategory = (typeof INTERNAL_CATEGORIES)[number];
+// Internal cost centers are now admin-managed in the database
+// (`pm_internal_categories`). Use `useInternalCategories()` from
+// `@/lib/projects/use-internal-categories` to load the current active list.
+//
+// Category names are stored on `pm_time_entries.internal_category` as plain
+// text, so historical entries keep rendering with their original label even
+// after a category is archived or renamed.
+export type InternalCategory = string;
 
 export type NonWorkingRow = {
   // Stable key for this row inside the table (per leave_type)
