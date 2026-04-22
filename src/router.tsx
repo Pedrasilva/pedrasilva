@@ -1,17 +1,15 @@
 import { QueryClient } from "@tanstack/react-query";
 import { createRouter, useRouter } from "@tanstack/react-router";
+import i18n from "./i18n";
 import { routeTree } from "./routeTree.gen";
 
 function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
-  // The router error boundary mounts above i18next's React tree in some edge
-  // cases (very early errors), so we read directly from the i18n instance to
-  // avoid throwing a "no Suspense" warning. Falls back to English keys.
+  // Helper that reads from the already-initialised i18n instance with a safe
+  // English fallback. We avoid `useTranslation()` here so we don't depend on
+  // the React context (this boundary may render outside of it on early errors).
   const t = (key: string, fallback: string) => {
     try {
-      // Lazy import to keep this file standalone.
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const i18n = require("./i18n").default as { t: (k: string) => string };
       const v = i18n.t(`common:${key}`);
       return v && v !== `common:${key}` ? v : fallback;
     } catch {
