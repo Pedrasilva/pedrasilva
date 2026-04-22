@@ -263,7 +263,7 @@ function GlobalGanttPage() {
         style={{ height: fullscreen ? "calc(100vh - 6.5rem)" : "calc(100vh - 18rem)" }}
       >
         <ResizablePanelGroup
-          direction="horizontal"
+          orientation="horizontal"
           className="rounded-lg border border-border bg-canvas"
         >
           <ResizablePanel defaultSize={poolCollapsed ? 96 : 78} minSize={50}>
