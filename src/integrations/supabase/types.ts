@@ -207,7 +207,9 @@ export type Database = {
         Row: {
           ano_fiscal: number
           created_at: string
+          daily_hours: number
           data_nascimento: string | null
+          days_per_week: number
           departamento: Database["public"]["Enums"]["department"]
           dependentes_com_deficiencia: number
           dias_ferias_anuais: number
@@ -230,7 +232,9 @@ export type Database = {
         Insert: {
           ano_fiscal?: number
           created_at?: string
+          daily_hours?: number
           data_nascimento?: string | null
+          days_per_week?: number
           departamento?: Database["public"]["Enums"]["department"]
           dependentes_com_deficiencia?: number
           dias_ferias_anuais?: number
@@ -253,7 +257,9 @@ export type Database = {
         Update: {
           ano_fiscal?: number
           created_at?: string
+          daily_hours?: number
           data_nascimento?: string | null
+          days_per_week?: number
           departamento?: Database["public"]["Enums"]["department"]
           dependentes_com_deficiencia?: number
           dias_ferias_anuais?: number

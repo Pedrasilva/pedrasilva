@@ -17,8 +17,9 @@ import { StageDependencyEditor } from "@/components/projects/stage-dependency-ed
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { toast } from "sonner";
 import { Trash2, GripVertical, AlertTriangle, CalendarOff } from "lucide-react";
-import { allocationOverload, buildLoadMap, DAILY_LIMIT_HOURS } from "@/lib/projects/overload";
+import { allocationOverload, buildLoadMap } from "@/lib/projects/overload";
 import { leaveHoursInRange, type LeaveInterval } from "@/lib/projects/leave-capacity";
+import { useResourceSchedules, buildDailyLimitMap, dailyHoursFor } from "@/lib/projects/use-resource-schedules";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { fmt } from "@/lib/projects/gantt-utils";
@@ -107,6 +108,8 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
   });
 
   const resourceMap = useMemo(() => new Map(resources.map((r) => [r.id, r])), [resources]);
+  const { data: schedules } = useResourceSchedules();
+  const dailyLimitMap = useMemo(() => buildDailyLimitMap(schedules), [schedules]);
 
   const loadMap = useMemo(() => {
     const flat = stages.flatMap((s) =>
@@ -597,13 +600,16 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                       hours_per_day: Number(a.hours_per_day),
                     },
                     loadMap,
+                    dailyLimitMap,
                   );
-                  const isOver = overload.peak > DAILY_LIMIT_HOURS;
+                  const resourceDailyHours = dailyHoursFor(a.resource_id, schedules);
+                  const isOver = overload.peak > overload.limit;
                   const allocLeaveHours = leaveHoursInRange(
                     parseISO(aS),
                     parseISO(aE),
                     leaveByResource?.get(a.resource_id) ?? [],
                     holidaySet,
+                    resourceDailyHours,
                   );
                   const hasLeave = allocLeaveHours > 0;
                   const allocTotalHours = workingDays(aS, aE) * Number(a.hours_per_day);
@@ -746,7 +752,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                 <div className="mt-1 flex items-start gap-1.5 rounded bg-destructive/10 p-1.5 text-[11px] text-destructive">
                                   <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
                                   <span>
-                                    Sobrecarga: pico de <strong>{overload.peak}h/dia</strong> (limite {DAILY_LIMIT_HOURS}h) em {overload.overDays} dia(s).
+                                    Sobrecarga: pico de <strong>{overload.peak}h/dia</strong> (limite {overload.limit}h) em {overload.overDays} dia(s).
                                   </span>
                                 </div>
                               )}
