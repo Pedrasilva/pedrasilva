@@ -115,12 +115,14 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
     const flat = stages.flatMap((s) =>
       s.allocations.map((a) => {
         const draft = draftDates.get(a.id);
+        const aWithStatus = a as typeof a & { status?: "tentative" | "committed" };
         return {
           id: a.id,
           resource_id: a.resource_id,
           start_date: draft?.start ?? a.start_date,
           end_date: draft?.end ?? a.end_date,
           hours_per_day: Number(a.hours_per_day),
+          status: aWithStatus.status ?? "committed",
         };
       }),
     );
