@@ -60,10 +60,18 @@ function TimesheetPage() {
   const [addPopoverOpen, setAddPopoverOpen] = useState(false);
 
   const entryMap = useMemo(() => {
-    const m = new Map<string, Map<string, { id: string; hours: number; notes: string | null }>>();
+    const m = new Map<
+      string,
+      Map<string, { id: string; hours: number; notes: string | null; billable: boolean }>
+    >();
     for (const e of entries) {
       if (!m.has(e.task_id)) m.set(e.task_id, new Map());
-      m.get(e.task_id)!.set(e.entry_date, { id: e.id, hours: e.hours, notes: e.notes });
+      m.get(e.task_id)!.set(e.entry_date, {
+        id: e.id,
+        hours: e.hours,
+        notes: e.notes,
+        billable: e.billable,
+      });
     }
     return m;
   }, [entries]);
@@ -345,9 +353,10 @@ function TimesheetPage() {
                                 stageName={r.stage.name}
                                 value={cell?.hours ?? 0}
                                 notes={cell?.notes ?? ""}
+                                billable={cell?.billable ?? true}
                                 suggested={suggested}
                                 disabled={upsert.isPending}
-                                onCommit={(hours, notes) => {
+                                onCommit={(hours, notes, billable) => {
                                   upsert.mutate(
                                     {
                                       task_id: r.task_id,
@@ -355,6 +364,7 @@ function TimesheetPage() {
                                       entry_date: dateStr,
                                       hours,
                                       notes,
+                                      billable,
                                       existing_entry_id: cell?.id ?? null,
                                     },
                                     {
@@ -413,6 +423,7 @@ function HourCell({
   stageName,
   value,
   notes,
+  billable,
   suggested,
   disabled,
   onCommit,
@@ -422,20 +433,23 @@ function HourCell({
   stageName: string;
   value: number;
   notes: string;
+  billable: boolean;
   suggested: number;
   disabled: boolean;
-  onCommit: (hours: number, notes: string | null) => void;
+  onCommit: (hours: number, notes: string | null, billable: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [draftHours, setDraftHours] = useState<string>(formatHM(value));
   const [draftNotes, setDraftNotes] = useState<string>(notes);
+  const [draftBillable, setDraftBillable] = useState<boolean>(billable);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setDraftHours(formatHM(value));
     setDraftNotes(notes);
-  }, [value, notes]);
+    setDraftBillable(billable);
+  }, [value, notes, billable]);
 
   const display = formatHM(value);
   const placeholder = suggested ? formatHM(suggested) : "0h00";
@@ -448,15 +462,16 @@ function HourCell({
     }
     setError(null);
     const trimmedNotes = draftNotes.trim();
-    onCommit(parsed, trimmedNotes === "" ? null : trimmedNotes);
+    onCommit(parsed, trimmedNotes === "" ? null : trimmedNotes, draftBillable);
     setOpen(false);
   };
 
   const handleClear = () => {
     setError(null);
-    onCommit(0, null);
+    onCommit(0, null, true);
     setDraftHours("");
     setDraftNotes("");
+    setDraftBillable(true);
     setOpen(false);
   };
 
