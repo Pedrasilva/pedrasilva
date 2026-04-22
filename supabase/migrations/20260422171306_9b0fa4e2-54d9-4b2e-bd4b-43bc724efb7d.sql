@@ -1,0 +1,1 @@
+ALTER TABLE public.pm_time_entries ADD COLUMN IF NOT EXISTS billable boolean NOT NULL DEFAULT true;
