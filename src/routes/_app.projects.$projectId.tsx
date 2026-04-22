@@ -1134,8 +1134,19 @@ function MilestonesTable({
             <tr className="border-b border-border text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               <th className="px-4 py-2.5 font-semibold">Milestones &amp; Tasks</th>
               <th className="px-4 py-2.5 font-semibold">Status</th>
-              <th className="px-4 py-2.5 font-semibold">Earned Value</th>
-              <th className="px-4 py-2.5 font-semibold">Usage / Budget</th>
+              <th
+                className="px-4 py-2.5 font-semibold"
+                title="Cost-to-budget: actual cost (logged hrs × cost rate) vs planned budget"
+              >
+                Cost / Budget
+              </th>
+              <th
+                className="px-4 py-2.5 font-semibold"
+                title="Actual revenue: billable hours × sale rate"
+              >
+                Actual Revenue
+              </th>
+              <th className="px-4 py-2.5 font-semibold">Hours used / planned</th>
               <th className="px-4 py-2.5 font-semibold">Scheduled start</th>
               <th className="px-4 py-2.5 font-semibold">Scheduled due</th>
               <th className="px-4 py-2.5 text-right font-semibold">Actions</th>
@@ -1144,12 +1155,14 @@ function MilestonesTable({
           <tbody>
             {filtered.map((s, i) => {
               const plannedCost = stageCost(s.id);
-              const cost = stageLoggedCost(s.id);
+              const cost = stageActualCost(s.id);
+              const revenue = stageActualRevenue(s.id);
               const budget = Number(s.budget);
               const over = cost > budget && budget > 0;
               const logged = stageLoggedHours(s.id);
               const planned = stagePlannedHours(s.id);
-              const evPct = budget > 0 ? Math.min(1, cost / budget) : 0;
+              const costPct = budget > 0 ? Math.min(1, cost / budget) : 0;
+              const revPct = budget > 0 ? Math.min(1, revenue / budget) : 0;
               const isOpen = expanded.has(s.id);
               const isActive = s.allocations.length > 0;
               void plannedCost;
@@ -1188,8 +1201,11 @@ function MilestonesTable({
                     <td className="px-4 py-3">
                       <StatusDot active={isActive} label={isActive ? "Active" : "Planned"} />
                     </td>
-                    <td className="px-4 py-3 min-w-[220px] w-[26%]">
-                      <EVCell cost={cost} budget={budget} pct={evPct} over={over} />
+                    <td className="px-4 py-3 min-w-[200px] w-[20%]">
+                      <EVCell cost={cost} budget={budget} pct={costPct} over={over} />
+                    </td>
+                    <td className="px-4 py-3 min-w-[180px] w-[18%]">
+                      <RevenueCell revenue={revenue} budget={budget} pct={revPct} />
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <UsageBudgetCell logged={logged} planned={planned} over={over} />
