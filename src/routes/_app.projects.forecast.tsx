@@ -544,7 +544,9 @@ function ForecastPage() {
     return { byProject: m, totalH, totalBillH, totalRev, totalCost };
   }, [actual, resourceMap, defaultRates]);
 
-  // 6-month forecast trend (current month + next 5)
+  // 6-month forecast trend (current month + next 5). Each project's revenue
+  // and cost in each month are weighted by the same probability rule used in
+  // `planned`, so the trend chart matches the headline KPIs.
   const trend = useMemo(() => {
     if (!stages) return [] as Array<{ label: string; revenue: number; cost: number; profit: number }>;
     const out: Array<{ label: string; revenue: number; cost: number; profit: number }> = [];
@@ -554,6 +556,9 @@ function ForecastPage() {
       let rev = 0;
       let cost = 0;
       for (const stage of stages) {
+        const prob = probabilityFor(stage.project_id, probabilities);
+        const w = weightForMode(prob, mode);
+        if (w === 0) continue;
         for (const a of stage.allocations) {
           const allocStart = parseISO(a.start_date);
           const allocEnd = parseISO(a.end_date);
@@ -568,15 +573,15 @@ function ForecastPage() {
             if (isWeekend(d)) continue;
             const iso = format(d, "yyyy-MM-dd");
             if (holidays?.has(iso)) continue;
-            rev += hpd * s;
-            cost += hpd * c;
+            rev += hpd * s * w;
+            cost += hpd * c * w;
           }
         }
       }
       out.push({ label: format(ms, "MMM yy"), revenue: rev, cost, profit: rev - cost });
     }
     return out;
-  }, [stages, monthAnchor, defaultRates, holidays]);
+  }, [stages, monthAnchor, defaultRates, holidays, probabilities, mode]);
 
   const profit = planned.totalRevenue - planned.totalCost;
   const margin = planned.totalRevenue > 0 ? (profit / planned.totalRevenue) * 100 : 0;
