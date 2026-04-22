@@ -31,6 +31,7 @@ import {
 import { useProjectInvoices } from "@/lib/projects/use-invoices";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { useProjectActivities } from "@/lib/projects/use-activities";
+import { useHasPermission } from "@/hooks/use-permissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
