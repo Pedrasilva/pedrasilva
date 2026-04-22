@@ -51,6 +51,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import type { StageWithAllocations } from "@/lib/projects/types";
 import { useHasPermission } from "@/hooks/use-permissions";
+import { useProjectsAuth } from "@/lib/projects/use-auth";
 import { Search } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/")({
@@ -138,6 +139,10 @@ function useUserResourceMap() {
 function DashboardPage() {
   const navigate = useNavigate();
   const { allowed: canSeeFinancials } = useHasPermission("projects.financials");
+  const { allowed: canSeeTeam } = useHasPermission("projects.resources");
+  const { user, profile } = useProjectsAuth();
+  const myAuthId = user?.id ?? null;
+  const myResourceId = profile?.resource_id ?? null;
   const { data: projects, isLoading: pLoading } = useProjects();
   const { data: allStages, isLoading: sLoading } = useAllStages();
   const { data: resources } = useResources();
@@ -482,6 +487,34 @@ function DashboardPage() {
     return rows;
   }, [entries, resources, periodStartISO, periodEndISO]);
 
+  /**
+   * Visible team rows: full team if the user has resource visibility, otherwise
+   * just the user's own row (or a synthesized empty self row if they haven't
+   * logged time in this period). Production staff see only their own utilization.
+   */
+  const visibleTeamRows: TeamRow[] = useMemo(() => {
+    if (canSeeTeam) return teamRows;
+    const wd = workingDays(periodStartISO, periodEndISO);
+    // Time entries are keyed by auth user_id; fall back to resource id match.
+    const meRow =
+      (myAuthId && teamRows.find((r) => r.resourceId === myAuthId)) ||
+      (myResourceId && teamRows.find((r) => r.resourceId === myResourceId)) ||
+      null;
+    if (meRow) return [meRow];
+    const myRes = myResourceId ? resources?.find((r) => r.id === myResourceId) : undefined;
+    const dailyCap = myRes ? (Number(myRes.weekly_capacity) || 40) / 5 : 8;
+    return [
+      {
+        resourceId: myResourceId ?? "self",
+        name: myRes?.name ?? profile?.full_name ?? "You",
+        capacityHours: dailyCap * wd,
+        billableHours: 0,
+        internalHours: 0,
+        nonWorkingHours: 0,
+      },
+    ];
+  }, [canSeeTeam, teamRows, myAuthId, myResourceId, resources, profile?.full_name, periodStartISO, periodEndISO]);
+
   // ---------- Alerts ----------
   const alerts: AlertItem[] = useMemo(() => {
     const list: AlertItem[] = [];
@@ -677,7 +710,18 @@ function DashboardPage() {
           <AlertsPanel alerts={alerts} loading={isLoading} />
         </div>
 
-        <TeamPerformance rows={teamRows} loading={isLoading} periodLabel={periodLabel} />
+        <TeamPerformance
+          rows={visibleTeamRows}
+          loading={isLoading}
+          periodLabel={periodLabel}
+          title={canSeeTeam ? "Team performance" : "Your utilization"}
+          subtitle={
+            canSeeTeam
+              ? `Utilization and billable / internal split — ${periodLabel}`
+              : `Your hours and billable split — ${periodLabel}`
+          }
+          showSort={canSeeTeam}
+        />
       </div>
     </AppShell>
   );
