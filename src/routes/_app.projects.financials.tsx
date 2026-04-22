@@ -90,7 +90,18 @@ type EntryLite = {
   hours: number;
   entry_date: string;
   task_id: string | null;
+  internal_category: string | null;
 };
+
+// Fixed list of internal cost centers (kept in sync with use-timesheet.ts).
+// Listed in display order requested by product.
+const INTERNAL_COST_CENTERS = [
+  "Fee proposals",
+  "Meetings",
+  "Training",
+  "Business development",
+  "Admin",
+] as const;
 
 type TaskMeta = {
   task_id: string;
