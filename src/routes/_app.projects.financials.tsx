@@ -737,6 +737,12 @@ function FinancialsPage() {
           </Card>
         </div>
 
+        {/* Weekly utilization trend (last 12 weeks) */}
+        <WeeklyUtilizationCard
+          data={weeklyUtil ?? []}
+          targets={effectiveTargets}
+        />
+
         {/* Trailing 12 months */}
         <Card className="mt-6">
           <CardHeader>
