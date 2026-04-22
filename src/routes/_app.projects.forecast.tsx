@@ -33,7 +33,34 @@ import { useAllStages, useResources } from "@/lib/projects/use-planner";
 import { useDefaultResourceRates, effectiveCostRate, effectiveSaleRate } from "@/lib/projects/use-default-rates";
 import { computeResourceCapacity } from "@/lib/projects/leave-capacity";
 import { useResourceSchedules, dailyHoursFor } from "@/lib/projects/use-resource-schedules";
+import {
+  useProjectProbabilities,
+  probabilityFor,
+  type ProjectProbability,
+} from "@/lib/projects/use-project-probabilities";
 import { cn } from "@/lib/utils";
+
+/**
+ * Forecast weighting mode. The user can choose to:
+ *   - "weighted"  → multiply pipeline projects by their CRM probability (default).
+ *                   This is the realistic forecast.
+ *   - "optimistic"→ count every planned allocation at 100%, regardless of
+ *                   pipeline status. Useful as an "if everything closes" view.
+ *   - "committed" → count only projects with weight === 1 (no proposal, or the
+ *                   proposal is already won). The pessimistic / floor view.
+ */
+type ForecastMode = "weighted" | "optimistic" | "committed";
+
+/**
+ * Returns the multiplier to apply to a project's planned numbers given the
+ * currently selected forecast mode. This is the only place modes are
+ * interpreted — every consumer should funnel through it.
+ */
+function weightForMode(prob: ProjectProbability, mode: ForecastMode): number {
+  if (mode === "optimistic") return 1;
+  if (mode === "committed") return prob.weight === 1 ? 1 : 0;
+  return prob.weight;
+}
 
 export const Route = createFileRoute("/_app/projects/forecast")({
   component: ForecastPage,
@@ -174,6 +201,10 @@ type ForecastByProject = {
 
 function ForecastPage() {
   const [monthAnchor, setMonthAnchor] = useState<Date>(startOfMonth(new Date()));
+  // Default to "weighted" so the headline numbers always reflect the realistic
+  // probability-adjusted forecast — the previous "optimistic" behaviour is
+  // still one click away.
+  const [mode, setMode] = useState<ForecastMode>("weighted");
   const monthStart = useMemo(() => startOfMonth(monthAnchor), [monthAnchor]);
   const monthEnd = useMemo(() => endOfMonth(monthAnchor), [monthAnchor]);
   const monthStartISO = format(monthStart, "yyyy-MM-dd");
@@ -187,6 +218,7 @@ function ForecastPage() {
   const { data: projects } = useProjectsLite();
   const { data: actual, isLoading: actualLoading } = useActualByMonth(monthStartISO, monthEndISO);
   const { data: schedules } = useResourceSchedules();
+  const { data: probabilities } = useProjectProbabilities();
 
   const resourceMap = useMemo(() => {
     const m = new Map<string, { id: string; name: string; hourly_rate: number | null; cost_rate: number | null }>();
@@ -202,12 +234,27 @@ function ForecastPage() {
 
   // Walk every allocation, intersect with [monthStart, monthEnd], skip weekends/holidays,
   // multiply hours_per_day by (sale, cost) rates. Track conflicts with leave.
+  //
+  // Each project's contribution to the "forecast totals" is multiplied by its
+  // probability weight (see useProjectProbabilities + weightForMode). The
+  // resource-level workload is NOT weighted because, in real life, a person
+  // is allocated regardless of whether the deal closes — so we still want
+  // capacity / overload alerts to reflect the full plan.
   const planned = useMemo(() => {
-    const byProject = new Map<string, ForecastByProject>();
+    type ByProj = ForecastByProject & {
+      rawHours: number;
+      rawRevenue: number;
+      rawCost: number;
+      probability: ProjectProbability;
+    };
+    const byProject = new Map<string, ByProj>();
     const byResource = new Map<string, { hours: number; cost: number; conflictHours: number }>();
-    let totalHours = 0;
-    let totalRevenue = 0;
-    let totalCost = 0;
+    let totalHours = 0; // weighted
+    let totalRevenue = 0; // weighted
+    let totalCost = 0; // weighted
+    let rawTotalHours = 0;
+    let rawTotalRevenue = 0;
+    let rawTotalCost = 0;
     let conflictHours = 0;
     const conflictDetails: Array<{
       resourceId: string;
@@ -225,6 +272,9 @@ function ForecastPage() {
         totalHours,
         totalRevenue,
         totalCost,
+        rawTotalHours,
+        rawTotalRevenue,
+        rawTotalCost,
         conflictHours,
         conflictDetails,
       };
@@ -245,6 +295,9 @@ function ForecastPage() {
 
         const leaves = leaveByResource?.get(resource.id) ?? [];
         const days = eachDayOfInterval({ start: overlapStart, end: overlapEnd });
+        const pId = stage.project_id;
+        const prob = probabilityFor(pId, probabilities);
+        const w = weightForMode(prob, mode);
 
         for (const d of days) {
           if (isWeekend(d)) continue;
@@ -253,25 +306,50 @@ function ForecastPage() {
 
           const onLeave = leaves.some((l) => d >= l.start && d <= l.end);
 
-          totalHours += hpd;
-          totalRevenue += hpd * sale;
-          totalCost += hpd * cost;
+          const rawH = hpd;
+          const rawR = hpd * sale;
+          const rawC = hpd * cost;
+          const wH = rawH * w;
+          const wR = rawR * w;
+          const wC = rawC * w;
 
-          const pId = stage.project_id;
-          const cur = byProject.get(pId) ?? { projectId: pId, hours: 0, revenue: 0, cost: 0 };
-          cur.hours += hpd;
-          cur.revenue += hpd * sale;
-          cur.cost += hpd * cost;
+          totalHours += wH;
+          totalRevenue += wR;
+          totalCost += wC;
+          rawTotalHours += rawH;
+          rawTotalRevenue += rawR;
+          rawTotalCost += rawC;
+
+          const cur =
+            byProject.get(pId) ??
+            ({
+              projectId: pId,
+              hours: 0,
+              revenue: 0,
+              cost: 0,
+              rawHours: 0,
+              rawRevenue: 0,
+              rawCost: 0,
+              probability: prob,
+            } as ByProj);
+          cur.hours += wH;
+          cur.revenue += wR;
+          cur.cost += wC;
+          cur.rawHours += rawH;
+          cur.rawRevenue += rawR;
+          cur.rawCost += rawC;
           byProject.set(pId, cur);
 
+          // Resource workload tracks the actual plan, not the weighted forecast,
+          // because capacity alerts are about real human availability.
           const r = byResource.get(resource.id) ?? { hours: 0, cost: 0, conflictHours: 0 };
-          r.hours += hpd;
-          r.cost += hpd * cost;
-          if (onLeave) r.conflictHours += hpd;
+          r.hours += rawH;
+          r.cost += rawC;
+          if (onLeave) r.conflictHours += rawH;
           byResource.set(resource.id, r);
 
           if (onLeave) {
-            conflictHours += hpd;
+            conflictHours += rawH;
             const proj = projectMap.get(pId);
             conflictDetails.push({
               resourceId: resource.id,
@@ -279,15 +357,26 @@ function ForecastPage() {
               projectId: pId,
               projectName: proj?.name ?? "—",
               date: iso,
-              hours: hpd,
+              hours: rawH,
             });
           }
         }
       }
     }
 
-    return { byProject, byResource, totalHours, totalRevenue, totalCost, conflictHours, conflictDetails };
-  }, [stages, monthStart, monthEnd, defaultRates, leaveByResource, holidays, projectMap]);
+    return {
+      byProject,
+      byResource,
+      totalHours,
+      totalRevenue,
+      totalCost,
+      rawTotalHours,
+      rawTotalRevenue,
+      rawTotalCost,
+      conflictHours,
+      conflictDetails,
+    };
+  }, [stages, monthStart, monthEnd, defaultRates, leaveByResource, holidays, projectMap, probabilities, mode]);
 
   // Capacity vs planned per resource for the current month, factoring in
   // approved leave and public holidays. Used to flag people / projects whose
@@ -455,7 +544,9 @@ function ForecastPage() {
     return { byProject: m, totalH, totalBillH, totalRev, totalCost };
   }, [actual, resourceMap, defaultRates]);
 
-  // 6-month forecast trend (current month + next 5)
+  // 6-month forecast trend (current month + next 5). Each project's revenue
+  // and cost in each month are weighted by the same probability rule used in
+  // `planned`, so the trend chart matches the headline KPIs.
   const trend = useMemo(() => {
     if (!stages) return [] as Array<{ label: string; revenue: number; cost: number; profit: number }>;
     const out: Array<{ label: string; revenue: number; cost: number; profit: number }> = [];
@@ -465,6 +556,9 @@ function ForecastPage() {
       let rev = 0;
       let cost = 0;
       for (const stage of stages) {
+        const prob = probabilityFor(stage.project_id, probabilities);
+        const w = weightForMode(prob, mode);
+        if (w === 0) continue;
         for (const a of stage.allocations) {
           const allocStart = parseISO(a.start_date);
           const allocEnd = parseISO(a.end_date);
@@ -479,21 +573,25 @@ function ForecastPage() {
             if (isWeekend(d)) continue;
             const iso = format(d, "yyyy-MM-dd");
             if (holidays?.has(iso)) continue;
-            rev += hpd * s;
-            cost += hpd * c;
+            rev += hpd * s * w;
+            cost += hpd * c * w;
           }
         }
       }
       out.push({ label: format(ms, "MMM yy"), revenue: rev, cost, profit: rev - cost });
     }
     return out;
-  }, [stages, monthAnchor, defaultRates, holidays]);
+  }, [stages, monthAnchor, defaultRates, holidays, probabilities, mode]);
 
   const profit = planned.totalRevenue - planned.totalCost;
   const margin = planned.totalRevenue > 0 ? (profit / planned.totalRevenue) * 100 : 0;
   const actualProfit = actualByProject.totalRev - actualByProject.totalCost;
 
-  // Variance: per-project planned vs actual
+  // Variance: per-project planned vs actual.
+  // The "planned" side reflects the currently selected forecast mode
+  // (weighted / optimistic / committed), so a 50%-probability project shows
+  // 50% of its planned hours/revenue in weighted mode and the variance vs
+  // actuals reads naturally in that lens.
   const varianceRows = useMemo(() => {
     const projectIds = new Set<string>([...planned.byProject.keys(), ...actualByProject.byProject.keys()]);
     return Array.from(projectIds)
@@ -507,6 +605,7 @@ function ForecastPage() {
         const actualRev = a?.revenue ?? 0;
         const plannedProfit = (p?.revenue ?? 0) - (p?.cost ?? 0);
         const actualProfit = (a?.revenue ?? 0) - (a?.cost ?? 0);
+        const probability = p?.probability ?? probabilityFor(pId, probabilities);
         return {
           projectId: pId,
           projectName: proj?.name ?? "—",
@@ -520,10 +619,49 @@ function ForecastPage() {
           plannedProfit,
           actualProfit,
           profitVariance: actualProfit - plannedProfit,
+          probability,
+          rawPlannedHours: p?.rawHours ?? plannedHours,
+          rawPlannedRev: p?.rawRevenue ?? plannedRev,
         };
       })
       .sort((x, y) => Math.abs(y.profitVariance) - Math.abs(x.profitVariance));
-  }, [planned.byProject, actualByProject.byProject, projectMap]);
+  }, [planned.byProject, actualByProject.byProject, projectMap, probabilities]);
+
+  // Roll-up of weighted vs raw plan, broken down by committed vs pipeline.
+  // Drives the "Pipeline split" header card so users see at a glance how much
+  // of this month's forecast is locked-in revenue vs probability-weighted.
+  const split = useMemo(() => {
+    let committedRev = 0;
+    let committedHours = 0;
+    let pipelineRawRev = 0;
+    let pipelineWeightedRev = 0;
+    let pipelineRawHours = 0;
+    let pipelineWeightedHours = 0;
+    let lostRev = 0;
+    for (const p of planned.byProject.values()) {
+      if (p.probability.isCommitted) {
+        committedRev += p.rawRevenue;
+        committedHours += p.rawHours;
+      } else if (p.probability.weight === 0) {
+        // Lost deals — show how much would have been forecast had they closed.
+        lostRev += p.rawRevenue;
+      } else {
+        pipelineRawRev += p.rawRevenue;
+        pipelineWeightedRev += p.rawRevenue * p.probability.weight;
+        pipelineRawHours += p.rawHours;
+        pipelineWeightedHours += p.rawHours * p.probability.weight;
+      }
+    }
+    return {
+      committedRev,
+      committedHours,
+      pipelineRawRev,
+      pipelineWeightedRev,
+      pipelineRawHours,
+      pipelineWeightedHours,
+      lostRev,
+    };
+  }, [planned.byProject]);
 
   return (
     <AppShell active="projects">
@@ -538,29 +676,58 @@ function ForecastPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-1 rounded-md border border-border p-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMonthAnchor((m) => subMonths(m, 1))}
-              aria-label="Mês anterior"
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Forecast weighting mode — picks how pipeline projects are counted. */}
+            <div
+              className="flex items-center gap-1 rounded-md border border-border p-1"
+              role="radiogroup"
+              aria-label="Modo de previsão"
             >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="px-3 text-sm font-medium tabular-nums min-w-[120px] text-center">
-              {format(monthAnchor, "MMMM yyyy")}
+              {(
+                [
+                  { v: "weighted", label: "Probabilístico", title: "Pipeline contado pela probabilidade da proposta" },
+                  { v: "optimistic", label: "100%", title: "Tudo contado a 100% (visão optimista)" },
+                  { v: "committed", label: "Confirmado", title: "Apenas projectos ganhos ou sem proposta CRM" },
+                ] as const
+              ).map((opt) => (
+                <Button
+                  key={opt.v}
+                  variant={mode === opt.v ? "default" : "ghost"}
+                  size="sm"
+                  role="radio"
+                  aria-checked={mode === opt.v}
+                  title={opt.title}
+                  onClick={() => setMode(opt.v)}
+                  className="h-7 px-2.5 text-xs"
+                >
+                  {opt.label}
+                </Button>
+              ))}
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMonthAnchor((m) => addMonths(m, 1))}
-              aria-label="Mês seguinte"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" className="ml-2" onClick={() => setMonthAnchor(startOfMonth(new Date()))}>
-              Hoje
-            </Button>
+            <div className="flex items-center gap-1 rounded-md border border-border p-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMonthAnchor((m) => subMonths(m, 1))}
+                aria-label="Mês anterior"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="px-3 text-sm font-medium tabular-nums min-w-[120px] text-center">
+                {format(monthAnchor, "MMMM yyyy")}
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMonthAnchor((m) => addMonths(m, 1))}
+                aria-label="Mês seguinte"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" className="ml-2" onClick={() => setMonthAnchor(startOfMonth(new Date()))}>
+                Hoje
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -593,7 +760,11 @@ function ForecastPage() {
           <KpiCard
             label="Receita prevista"
             value={euros(planned.totalRevenue)}
-            sub={`vs real ${euros(actualByProject.totalRev)}`}
+            sub={
+              mode === "weighted" && planned.rawTotalRevenue !== planned.totalRevenue
+                ? `pond. · bruto ${euros(planned.rawTotalRevenue)} · real ${euros(actualByProject.totalRev)}`
+                : `vs real ${euros(actualByProject.totalRev)}`
+            }
             icon={<Wallet className="h-4 w-4" />}
             tone="primary"
           />
@@ -612,6 +783,34 @@ function ForecastPage() {
             tone={profit >= 0 ? "success" : "danger"}
           />
         </div>
+
+        {/* Pipeline split — committed vs probability-weighted vs lost */}
+        {(split.pipelineRawRev > 0 || split.lostRev > 0) && (
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="rounded-lg border border-border bg-card px-4 py-3">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Confirmado</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums">{euros(split.committedRev)}</p>
+              <p className="text-[11px] text-muted-foreground">{hoursFmt(split.committedHours)} · ganhos / sem proposta</p>
+            </div>
+            <div className="rounded-lg border border-amber-500/40 bg-amber-50/40 px-4 py-3 dark:bg-amber-950/10">
+              <p className="text-[11px] uppercase tracking-wide text-amber-700 dark:text-amber-300">Pipeline (ponderado)</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums">
+                {euros(split.pipelineWeightedRev)}{" "}
+                <span className="text-xs font-normal text-muted-foreground">/ {euros(split.pipelineRawRev)} bruto</span>
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                {hoursFmt(split.pipelineWeightedHours)} ponderadas · {hoursFmt(split.pipelineRawHours)} brutas
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/40 px-4 py-3">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Perdidos (excluídos)</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums text-muted-foreground line-through">
+                {euros(split.lostRev)}
+              </p>
+              <p className="text-[11px] text-muted-foreground">não contam para o forecast</p>
+            </div>
+          </div>
+        )}
 
         {/* Conflict alert */}
         {planned.conflictHours > 0 && (
@@ -763,6 +962,7 @@ function ForecastPage() {
                         <div className="flex items-center gap-2">
                           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: r.color }} />
                           <span className="font-medium">{r.projectName}</span>
+                          <ProbabilityChip probability={r.probability} />
                         </div>
                       </td>
                       <td className="px-2 py-2 text-right tabular-nums text-muted-foreground">{hoursFmt(r.plannedHours)}</td>
@@ -833,6 +1033,39 @@ function ForecastPage() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+/**
+ * Small pill rendered next to a project name in the variance table to show
+ * whether the project is committed work or pipeline weighted by probability.
+ * Won deals get a subtle "Ganho" pill; lost deals get a strike-through pill;
+ * pipeline projects show "P{n}%" reflecting the proposal slider value.
+ */
+function ProbabilityChip({ probability }: { probability: ProjectProbability }) {
+  if (probability.status === null) return null; // committed work, no proposal
+  if (probability.status === "ganho") {
+    return (
+      <Badge variant="outline" className="h-5 border-emerald-500/40 px-1.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-300">
+        Ganho
+      </Badge>
+    );
+  }
+  if (probability.status === "perdido") {
+    return (
+      <Badge variant="outline" className="h-5 border-destructive/40 px-1.5 text-[10px] font-medium text-destructive line-through">
+        Perdido
+      </Badge>
+    );
+  }
+  return (
+    <Badge
+      variant="outline"
+      className="h-5 border-amber-500/40 px-1.5 text-[10px] font-medium text-amber-700 dark:text-amber-300"
+      title={`Pipeline · ${probability.probability ?? 0}% probabilidade`}
+    >
+      P{probability.probability ?? 0}%
+    </Badge>
   );
 }
 

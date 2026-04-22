@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO, startOfMonth } from "date-fns";
+import { probabilityFromProposal } from "@/lib/projects/use-project-probabilities";
+import type { Database } from "@/integrations/supabase/types";
 
 export interface MonthlyPoint {
   month: string;
@@ -238,8 +240,31 @@ export function useProjectInsights(projectId: string) {
               0,
             ) / resourceTotals.size
           : 0;
-      const forecastValue = earnedValue + remainingPlannedHours * avgRate;
+
+      // Probability weighting: if this project was created from a CRM
+      // opportunity, scale the *remaining* (not-yet-earned) forecast by the
+      // proposal's probability. Already-logged value (earnedValue) stays at
+      // 100% — that work has happened. The most-optimistic linked proposal
+      // wins, mirroring the rules in useProjectProbabilities.
+      const { data: proposals } = await supabase
+        .from("fee_proposals")
+        .select("probabilidade, pipeline_status")
+        .eq("pm_project_id", projectId);
+      let weight = 1;
+      let hasOpenProposal = false;
+      for (const p of (proposals ?? []) as Array<{
+        probabilidade: number;
+        pipeline_status: Database["public"]["Enums"]["proposal_status"];
+      }>) {
+        const prob = probabilityFromProposal(p.pipeline_status, Number(p.probabilidade));
+        if (prob.isPipeline) hasOpenProposal = true;
+        if ((proposals?.length ?? 0) === 1 || prob.weight > weight) weight = prob.weight;
+      }
+      // If no proposal exists at all, weight stays at 1 (committed work).
+      const weightedRemainingValue = remainingPlannedHours * avgRate * weight;
+      const forecastValue = earnedValue + weightedRemainingValue;
       const forecastPct = budgetTotal > 0 ? Math.round((forecastValue / budgetTotal) * 100) : 0;
+      void hasOpenProposal; // reserved for future UI hint
 
       const profitPctCurrent = total.value > 0 ? Math.round((total.profit / total.value) * 100) : 0;
       const profitPctForecast =
