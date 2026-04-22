@@ -625,7 +625,43 @@ function ForecastPage() {
         };
       })
       .sort((x, y) => Math.abs(y.profitVariance) - Math.abs(x.profitVariance));
-  }, [planned.byProject, actualByProject.byProject, projectMap]);
+  }, [planned.byProject, actualByProject.byProject, projectMap, probabilities]);
+
+  // Roll-up of weighted vs raw plan, broken down by committed vs pipeline.
+  // Drives the "Pipeline split" header card so users see at a glance how much
+  // of this month's forecast is locked-in revenue vs probability-weighted.
+  const split = useMemo(() => {
+    let committedRev = 0;
+    let committedHours = 0;
+    let pipelineRawRev = 0;
+    let pipelineWeightedRev = 0;
+    let pipelineRawHours = 0;
+    let pipelineWeightedHours = 0;
+    let lostRev = 0;
+    for (const p of planned.byProject.values()) {
+      if (p.probability.isCommitted) {
+        committedRev += p.rawRevenue;
+        committedHours += p.rawHours;
+      } else if (p.probability.weight === 0) {
+        // Lost deals — show how much would have been forecast had they closed.
+        lostRev += p.rawRevenue;
+      } else {
+        pipelineRawRev += p.rawRevenue;
+        pipelineWeightedRev += p.rawRevenue * p.probability.weight;
+        pipelineRawHours += p.rawHours;
+        pipelineWeightedHours += p.rawHours * p.probability.weight;
+      }
+    }
+    return {
+      committedRev,
+      committedHours,
+      pipelineRawRev,
+      pipelineWeightedRev,
+      pipelineRawHours,
+      pipelineWeightedHours,
+      lostRev,
+    };
+  }, [planned.byProject]);
 
   return (
     <AppShell active="projects">
@@ -865,6 +901,7 @@ function ForecastPage() {
                         <div className="flex items-center gap-2">
                           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: r.color }} />
                           <span className="font-medium">{r.projectName}</span>
+                          <ProbabilityChip probability={r.probability} />
                         </div>
                       </td>
                       <td className="px-2 py-2 text-right tabular-nums text-muted-foreground">{hoursFmt(r.plannedHours)}</td>
