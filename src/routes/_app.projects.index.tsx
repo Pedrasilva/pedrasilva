@@ -710,7 +710,18 @@ function DashboardPage() {
           <AlertsPanel alerts={alerts} loading={isLoading} />
         </div>
 
-        <TeamPerformance rows={teamRows} loading={isLoading} periodLabel={periodLabel} />
+        <TeamPerformance
+          rows={visibleTeamRows}
+          loading={isLoading}
+          periodLabel={periodLabel}
+          title={canSeeTeam ? "Team performance" : "Your utilization"}
+          subtitle={
+            canSeeTeam
+              ? `Utilization and billable / internal split — ${periodLabel}`
+              : `Your hours and billable split — ${periodLabel}`
+          }
+          showSort={canSeeTeam}
+        />
       </div>
     </AppShell>
   );
