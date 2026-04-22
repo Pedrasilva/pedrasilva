@@ -217,13 +217,18 @@ function ProjectDetail() {
   const stageNonBillableHours = (stageId: string) =>
     timeRows?.find((r) => r.stage_id === stageId)?.nonBillableHours ?? 0;
 
-  // Logged (actual) cost per stage: distributes the stage's logged hours across
-  // its allocations proportionally to planned hours, then × each resource cost rate.
-  const stageLoggedCost = (stageId: string) => {
+  // ---- Single source of truth: Actuals --------------------------------
+  // Distribute a stage's logged hours across allocations proportionally to
+  // planned hours, then apply each resource's cost/sale rate.
+  //   Actual Cost     = Σ ALL logged hours × cost rate     (billable + non-billable)
+  //   Actual Revenue  = Σ billable hours × sale rate
+  //   Actual Profit   = Actual Revenue − Actual Cost
+  const stageActuals = (stageId: string) => {
     const s = stages.find((x) => x.id === stageId);
-    if (!s) return 0;
+    if (!s) return { revenue: 0, cost: 0, profit: 0 };
     const logged = stageLoggedHours(stageId);
-    if (logged <= 0) return 0;
+    const billable = stageBillableHours(stageId);
+    if (logged <= 0 && billable <= 0) return { revenue: 0, cost: 0, profit: 0 };
     const planned = s.allocations.map((a) => ({
       h: allocationHours({
         start_date: a.start_date,
@@ -231,13 +236,23 @@ function ProjectDetail() {
         hours_per_day: Number(a.hours_per_day),
       }),
       costRate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates),
+      saleRate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates),
     }));
     const totPlan = planned.reduce((x, y) => x + y.h, 0);
-    if (totPlan <= 0) return 0;
-    return planned.reduce((acc, p) => acc + (p.h / totPlan) * logged * p.costRate, 0);
+    if (totPlan <= 0) return { revenue: 0, cost: 0, profit: 0 };
+    let cost = 0;
+    let revenue = 0;
+    for (const p of planned) {
+      const w = p.h / totPlan;
+      cost += w * logged * p.costRate;
+      revenue += w * billable * p.saleRate;
+    }
+    return { revenue, cost, profit: revenue - cost };
   };
+  const stageActualRevenue = (stageId: string) => stageActuals(stageId).revenue;
+  const stageActualCost = (stageId: string) => stageActuals(stageId).cost;
 
-  const totalCost = stages.reduce((acc, s) => acc + stageCost(s.id), 0);
+  const totalPlannedCost = stages.reduce((acc, s) => acc + stageCost(s.id), 0);
   const totalLoggedHours = stages.reduce(
     (acc, s) => acc + stageLoggedHours(s.id),
     0,
@@ -246,14 +261,27 @@ function ProjectDetail() {
     (acc, s) => acc + stagePlannedHours(s.id),
     0,
   );
-  const overall = totalBudget > 0 ? totalCost / totalBudget : 0;
-  const overallOver = totalCost > totalBudget;
+  const actuals = stages.reduce(
+    (acc, s) => {
+      const a = stageActuals(s.id);
+      acc.revenue += a.revenue;
+      acc.cost += a.cost;
+      return acc;
+    },
+    { revenue: 0, cost: 0 },
+  );
+  const actualRevenue = actuals.revenue;
+  const actualCost = actuals.cost;
+  const actualProfit = actualRevenue - actualCost;
+  const budgetUsedPct = totalBudget > 0 ? actualCost / totalBudget : 0;
+  const budgetOver = actualCost > totalBudget && totalBudget > 0;
 
-  // Earned value = invoiced € (excluding cancelled)
+  // Invoiced total (excluding cancelled). This is a separate concept from
+  // revenue — it's what has been BILLED to the client, not what has been earned.
   const invoicedTotal = (invoices ?? [])
     .filter((i) => i.status !== "cancelled")
     .reduce((s, i) => s + Number(i.total ?? 0), 0);
-  const evPct = totalBudget > 0 ? invoicedTotal / totalBudget : 0;
+  const invoicedPct = totalBudget > 0 ? invoicedTotal / totalBudget : 0;
 
   // Schedule range
   const scheduleStart = stages.length
@@ -412,7 +440,62 @@ function ProjectDetail() {
               </SidebarSection>
             )}
 
-            <SidebarSection title="Earned Value">
+            <SidebarSection title="Actual (real)">
+              <div className="space-y-2">
+                <div className="flex items-baseline justify-between text-xs">
+                  <span className="text-muted-foreground">Revenue</span>
+                  <span className="font-mono font-medium">{euros(actualRevenue)}</span>
+                </div>
+                <div className="flex items-baseline justify-between text-xs">
+                  <span className="text-muted-foreground">Cost</span>
+                  <span className="font-mono font-medium">{euros(actualCost)}</span>
+                </div>
+                <div className="flex items-baseline justify-between border-t border-border pt-2 text-xs">
+                  <span className="text-muted-foreground">Profit</span>
+                  <span
+                    className={cn(
+                      "font-mono font-semibold",
+                      actualProfit < 0 && "text-destructive",
+                    )}
+                  >
+                    {euros(actualProfit)}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-2 text-[10px] text-muted-foreground">
+                Billable hrs × sale rate − all logged hrs × cost rate
+              </div>
+            </SidebarSection>
+
+            <SidebarSection title="Budget usage">
+              <div className="flex items-baseline justify-between">
+                <span className="font-mono text-sm">
+                  <span className={budgetOver ? "text-destructive font-semibold" : ""}>
+                    {euros(actualCost)}
+                  </span>
+                  <span className="text-muted-foreground"> / {euros(totalBudget)}</span>
+                </span>
+                <span
+                  className={cn(
+                    "text-xs",
+                    budgetOver ? "text-destructive font-medium" : "text-muted-foreground",
+                  )}
+                >
+                  {Math.round(budgetUsedPct * 100)}%
+                </span>
+              </div>
+              <Meter
+                value={Math.min(1, budgetUsedPct)}
+                tone={budgetOver ? "danger" : "ok"}
+                className="mt-2"
+              />
+              <div className="mt-2 text-[11px] text-muted-foreground">
+                {totalLoggedHours.toFixed(1)}h registadas /{" "}
+                {totalPlannedHours.toFixed(0)}h planeadas
+              </div>
+            </SidebarSection>
+
+            <SidebarSection title="Invoiced">
               <div className="flex items-baseline justify-between">
                 <span className="font-mono text-sm">
                   {euros(invoicedTotal)}
@@ -422,37 +505,12 @@ function ProjectDetail() {
                   </span>
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {Math.round(evPct * 100)}%
+                  {Math.round(invoicedPct * 100)}%
                 </span>
               </div>
-              <Meter value={Math.min(1, evPct)} tone="info" className="mt-2" />
-            </SidebarSection>
-
-            <SidebarSection title="Progress">
-              <div className="flex items-baseline justify-between">
-                <span className="font-mono text-sm">
-                  <span className={overallOver ? "text-destructive font-semibold" : ""}>
-                    {euros(totalCost)}
-                  </span>
-                  <span className="text-muted-foreground"> / {euros(totalBudget)}</span>
-                </span>
-                <span
-                  className={cn(
-                    "text-xs",
-                    overallOver ? "text-destructive font-medium" : "text-muted-foreground",
-                  )}
-                >
-                  {Math.round(overall * 100)}%
-                </span>
-              </div>
-              <Meter
-                value={Math.min(1, overall)}
-                tone={overallOver ? "danger" : "ok"}
-                className="mt-2"
-              />
-              <div className="mt-2 text-[11px] text-muted-foreground">
-                {totalLoggedHours.toFixed(1)}h registadas /{" "}
-                {totalPlannedHours.toFixed(0)}h planeadas
+              <Meter value={Math.min(1, invoicedPct)} tone="info" className="mt-2" />
+              <div className="mt-2 text-[10px] text-muted-foreground">
+                Total faturado ao cliente (excl. canceladas)
               </div>
             </SidebarSection>
 
@@ -528,7 +586,8 @@ function ProjectDetail() {
                   invoiced={invoicedTotal}
                   totalBudget={totalBudget}
                   stageCost={stageCost}
-                  stageLoggedCost={stageLoggedCost}
+                  stageActualRevenue={stageActualRevenue}
+                  stageActualCost={stageActualCost}
                   stageLoggedHours={stageLoggedHours}
                   stagePlannedHours={stagePlannedHours}
                   defaultRates={defaultRates}
@@ -623,7 +682,10 @@ function ProjectDetail() {
                 invoices={invoices ?? []}
                 invoicedTotal={invoicedTotal}
                 totalBudget={totalBudget}
-                totalCost={totalCost}
+                totalPlannedCost={totalPlannedCost}
+                actualRevenue={actualRevenue}
+                actualCost={actualCost}
+                actualProfit={actualProfit}
                 totalLoggedHours={totalLoggedHours}
                 totalPlannedHours={totalPlannedHours}
                 stageLoggedHours={stageLoggedHours}
@@ -958,7 +1020,8 @@ function KpiCard({
 function MilestonesTable({
   stages,
   stageCost,
-  stageLoggedCost,
+  stageActualRevenue,
+  stageActualCost,
   stageLoggedHours,
   stagePlannedHours,
   defaultRates,
@@ -971,7 +1034,8 @@ function MilestonesTable({
   invoiced: number;
   totalBudget: number;
   stageCost: (id: string) => number;
-  stageLoggedCost: (id: string) => number;
+  stageActualRevenue: (id: string) => number;
+  stageActualCost: (id: string) => number;
   stageLoggedHours: (id: string) => number;
   stagePlannedHours: (id: string) => number;
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
@@ -1070,8 +1134,19 @@ function MilestonesTable({
             <tr className="border-b border-border text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               <th className="px-4 py-2.5 font-semibold">Milestones &amp; Tasks</th>
               <th className="px-4 py-2.5 font-semibold">Status</th>
-              <th className="px-4 py-2.5 font-semibold">Earned Value</th>
-              <th className="px-4 py-2.5 font-semibold">Usage / Budget</th>
+              <th
+                className="px-4 py-2.5 font-semibold"
+                title="Cost-to-budget: actual cost (logged hrs × cost rate) vs planned budget"
+              >
+                Cost / Budget
+              </th>
+              <th
+                className="px-4 py-2.5 font-semibold"
+                title="Actual revenue: billable hours × sale rate"
+              >
+                Actual Revenue
+              </th>
+              <th className="px-4 py-2.5 font-semibold">Hours used / planned</th>
               <th className="px-4 py-2.5 font-semibold">Scheduled start</th>
               <th className="px-4 py-2.5 font-semibold">Scheduled due</th>
               <th className="px-4 py-2.5 text-right font-semibold">Actions</th>
@@ -1080,12 +1155,14 @@ function MilestonesTable({
           <tbody>
             {filtered.map((s, i) => {
               const plannedCost = stageCost(s.id);
-              const cost = stageLoggedCost(s.id);
+              const cost = stageActualCost(s.id);
+              const revenue = stageActualRevenue(s.id);
               const budget = Number(s.budget);
               const over = cost > budget && budget > 0;
               const logged = stageLoggedHours(s.id);
               const planned = stagePlannedHours(s.id);
-              const evPct = budget > 0 ? Math.min(1, cost / budget) : 0;
+              const costPct = budget > 0 ? Math.min(1, cost / budget) : 0;
+              const revPct = budget > 0 ? Math.min(1, revenue / budget) : 0;
               const isOpen = expanded.has(s.id);
               const isActive = s.allocations.length > 0;
               void plannedCost;
@@ -1124,8 +1201,11 @@ function MilestonesTable({
                     <td className="px-4 py-3">
                       <StatusDot active={isActive} label={isActive ? "Active" : "Planned"} />
                     </td>
-                    <td className="px-4 py-3 min-w-[220px] w-[26%]">
-                      <EVCell cost={cost} budget={budget} pct={evPct} over={over} />
+                    <td className="px-4 py-3 min-w-[200px] w-[20%]">
+                      <EVCell cost={cost} budget={budget} pct={costPct} over={over} />
+                    </td>
+                    <td className="px-4 py-3 min-w-[180px] w-[18%]">
+                      <RevenueCell revenue={revenue} budget={budget} pct={revPct} />
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <UsageBudgetCell logged={logged} planned={planned} over={over} />
@@ -1156,9 +1236,12 @@ function MilestonesTable({
                       const aHours =
                         Math.max(0, dayDiffInclusive(a.start_date, a.end_date)) *
                         Number(a.hours_per_day);
-                      const aCost =
+                      const aPlannedCost =
                         aHours *
                         effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates);
+                      const aPlannedRevenue =
+                        aHours *
+                        effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates);
                       return (
                         <tr key={a.id} className="border-b border-border last:border-b-0">
                           <td className="px-4 py-2.5">
@@ -1176,13 +1259,16 @@ function MilestonesTable({
                             </div>
                           </td>
                           <td className="px-4 py-2.5">
-                            <StatusDot active label="Started" />
+                            <StatusDot active label="Planned" />
                           </td>
-                          <td className="px-4 py-2.5 min-w-[220px]">
-                            <EVCell cost={aCost} budget={0} pct={1} over={false} dimmed />
+                          <td className="px-4 py-2.5 min-w-[200px]" title="Planned cost (allocation × cost rate)">
+                            <EVCell cost={aPlannedCost} budget={0} pct={1} over={false} dimmed />
+                          </td>
+                          <td className="px-4 py-2.5 min-w-[180px]" title="Planned revenue (allocation × sale rate)">
+                            <RevenueCell revenue={aPlannedRevenue} budget={0} pct={1} dimmed />
                           </td>
                           <td className="px-4 py-2.5 whitespace-nowrap">
-                            <UsageBudgetCell logged={aHours} planned={aHours} over={false} />
+                            <UsageBudgetCell logged={0} planned={aHours} over={false} />
                           </td>
                           <td className="px-4 py-2.5 whitespace-nowrap">
                             <DateLink date={parseISO(a.start_date)} />
@@ -1231,7 +1317,10 @@ function InsightsPanel({
   invoices,
   invoicedTotal,
   totalBudget,
-  totalCost,
+  totalPlannedCost,
+  actualRevenue,
+  actualCost,
+  actualProfit,
   totalLoggedHours,
   totalPlannedHours,
   stageLoggedHours,
@@ -1244,7 +1333,10 @@ function InsightsPanel({
   invoices: import("@/lib/projects/use-invoices").Invoice[];
   invoicedTotal: number;
   totalBudget: number;
-  totalCost: number;
+  totalPlannedCost: number;
+  actualRevenue: number;
+  actualCost: number;
+  actualProfit: number;
   totalLoggedHours: number;
   totalPlannedHours: number;
   stageLoggedHours: (id: string) => number;
@@ -1350,24 +1442,29 @@ function InsightsPanel({
     (a, b) => b.plannedHours - a.plannedHours,
   );
 
-  // Revenue = Σ billable hours × sale rate (per resource)
-  // Cost    = Σ all logged hours × cost rate (per resource)
-  // Profit  = Revenue − Cost  (non-billable hours reduce profitability)
-  const earnedValue = Array.from(billableValueByRes.values()).reduce((a, b) => a + b, 0);
+  // Single source of truth — totals come from the parent (same as Overview):
+  //   actualRevenue = Σ billable hours × sale rate
+  //   actualCost    = Σ all logged hours × cost rate
+  //   actualProfit  = actualRevenue − actualCost
+  // Per-resource breakdowns below are recomputed for charts only and use the
+  // same formulas, so per-resource sums reconcile with the totals above.
+  const earnedValue = actualRevenue;
   const totalBillableHours = Array.from(billableHoursByRes.values()).reduce(
     (a, b) => a + b,
     0,
   );
   const totalNonBillableHours = Math.max(0, totalLoggedHours - totalBillableHours);
-  const loggedCost = Array.from(loggedCostByRes.values()).reduce((a, b) => a + b, 0);
-  const totalSale = resources.reduce((a, r) => a + r.plannedSale, 0);
-  const forecastValue = totalSale > 0 ? totalSale : earnedValue;
+  const loggedCost = actualCost;
+  // Planned (forecast) sale value from allocations — used as the upper bound
+  // for the "Forecast Value" bar.
+  const plannedRevenue = resources.reduce((a, r) => a + r.plannedSale, 0);
+  const forecastValue = plannedRevenue > 0 ? plannedRevenue : earnedValue;
   const earnedPct = forecastValue > 0 ? earnedValue / forecastValue : 0;
   const forecastPct = forecastValue > 0 ? 1 : 0;
 
-  // Project profitability: Profit = Revenue − Cost
-  const profitCurrent = earnedValue - loggedCost;
-  const profitForecast = forecastValue - totalCost;
+  // Profitability — actual vs forecast (using planned revenue & planned cost)
+  const profitCurrent = actualProfit;
+  const profitForecast = forecastValue - totalPlannedCost;
   const profitMarginCurrent =
     earnedValue > 0 ? Math.round((profitCurrent / earnedValue) * 100) : 0;
   const profitMarginForecast =
@@ -1424,20 +1521,23 @@ function InsightsPanel({
         <InsightCard title="Activities vs. Hours">
           <ActivitiesHoursChart data={months} maxAct={maxAct} maxHours={maxHours} />
         </InsightCard>
-        <InsightCard title="Value">
+        <InsightCard title="Revenue">
           <div className="space-y-4 px-1 pt-1">
             <BarRow
-              label="Earned Value:"
+              label="Actual Revenue:"
               value={earnedValue}
               pct={earnedPct}
               over={earnedValue > forecastValue && forecastValue > 0}
             />
             <BarRow
-              label="Forecast Value:"
+              label="Planned Value (forecast):"
               value={forecastValue}
               pct={forecastPct}
-              over={forecastValue < totalCost}
+              over={forecastValue < totalPlannedCost}
             />
+          </div>
+          <div className="mt-3 px-1 text-[10px] text-muted-foreground">
+            Actual = billable hours × sale rate. Planned = total allocated hours × sale rate.
           </div>
         </InsightCard>
       </div>
@@ -1951,6 +2051,43 @@ function EVCell({
           style={{
             width: `${Math.max(0, Math.min(100, pct * 100))}%`,
             backgroundColor: over ? "var(--color-budget-over)" : "var(--color-budget-spent)",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function RevenueCell({
+  revenue,
+  budget,
+  pct,
+  dimmed,
+}: {
+  revenue: number;
+  budget: number;
+  pct: number;
+  dimmed?: boolean;
+}) {
+  return (
+    <div>
+      <div className={cn("flex items-baseline justify-between text-xs", dimmed && "text-muted-foreground")}>
+        <span className="font-mono">
+          <span className="text-foreground">{euros(revenue)}</span>
+          {budget > 0 && (
+            <span className="text-muted-foreground"> / {euros(budget)}</span>
+          )}
+        </span>
+        {budget > 0 && (
+          <span className="tabular-nums text-muted-foreground">{Math.round(pct * 100)}%</span>
+        )}
+      </div>
+      <div className="mt-1.5 h-[3px] w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full"
+          style={{
+            width: `${Math.max(0, Math.min(100, pct * 100))}%`,
+            backgroundColor: "var(--primary)",
           }}
         />
       </div>
