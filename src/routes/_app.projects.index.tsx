@@ -176,21 +176,7 @@ function DashboardPage() {
     return m;
   }, [allStages]);
 
-  // Build resource_id (pm_resources.id) keyed map so we can resolve cost/sale rate
-  // per time-entry by matching user_id → resource via collaborator. The pm_resources
-  // table also stores email and active flags. Most teams here have user_id == resource owner.
-  const resourceByUserId = useMemo(() => {
-    const m = new Map<string, (typeof resources)[number]>();
-    for (const r of resources ?? []) {
-      // Heuristic: if a resource was created from a collaborator we don't have the auth.uid
-      // direct mapping client-side. Time entries store user_id (auth.uid). To get cost rate
-      // we'll fall back to resolving per task (allocation.resource_id).
-      m.set(r.id, r);
-    }
-    return m;
-  }, [resources]);
-
-  // Build a fast lookup task_id -> resource_id via allocations.
+  // Build a fast lookup allocation_id -> resource_id via allocations.
   const taskToResource = useMemo(() => {
     const m = new Map<string, string>();
     for (const s of allStages ?? []) {
@@ -371,13 +357,6 @@ function DashboardPage() {
       else cur.billable += e.hours;
       byUser.set(e.user_id, cur);
     }
-    // Need to map user_id -> resource for name+capacity. We don't have a direct
-    // user_id→resource bridge here, so fall back to listing entries by user_id and
-    // looking up resource via collaborator if possible.
-    // Build a quick map from collaborator_id to resource for naming.
-    const resByCollab = new Map<string, (typeof resources)[number]>();
-    for (const r of resources ?? []) if (r.collaborator_id) resByCollab.set(r.collaborator_id, r);
-
     const rows: TeamRow[] = [];
     for (const [userId, acc] of byUser) {
       // Try resource lookup directly by user_id (may match in tests when uuids align).
