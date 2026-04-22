@@ -1233,6 +1233,8 @@ function InsightsPanel({
   totalLoggedHours,
   totalPlannedHours,
   stageLoggedHours,
+  stageBillableHours,
+  stageNonBillableHours,
   defaultRates,
   activities,
 }: {
@@ -1244,6 +1246,8 @@ function InsightsPanel({
   totalLoggedHours: number;
   totalPlannedHours: number;
   stageLoggedHours: (id: string) => number;
+  stageBillableHours: (id: string) => number;
+  stageNonBillableHours: (id: string) => number;
   stagePlannedHours: (id: string) => number;
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   activities: import("@/lib/projects/use-activities").Activity[];
