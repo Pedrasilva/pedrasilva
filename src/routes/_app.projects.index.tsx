@@ -139,6 +139,9 @@ function useUserResourceMap() {
 function DashboardPage() {
   const navigate = useNavigate();
   const { allowed: canSeeFinancials } = useHasPermission("projects.financials");
+  const { allowed: canSeeTeam } = useHasPermission("projects.resources");
+  const { profile } = useProjectsAuth();
+  const myResourceId = profile?.resource_id ?? null;
   const { data: projects, isLoading: pLoading } = useProjects();
   const { data: allStages, isLoading: sLoading } = useAllStages();
   const { data: resources } = useResources();
