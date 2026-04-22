@@ -9,7 +9,7 @@ import {
   fmtEUR,
 } from "@/lib/salary";
 import { computeValorBO } from "./_app.hr.valor-bo";
-import { computePricing, cotaBoPorColabProjecto, TAXA_DESPERDICIO } from "@/lib/pricing";
+import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
 import {
   Card,
   CardContent,
@@ -346,8 +346,7 @@ function ValorBoCard({
         </div>
         <p className="mt-3 text-[11px] text-muted-foreground">
           Cota BO/colab/ano: {fmtEUR(cotaBo)} · Margem global:{" "}
-          {(margemGlobal * 100).toFixed(1)}% · Desperdício:{" "}
-          {(TAXA_DESPERDICIO * 100).toFixed(0)}%
+          {(margemGlobal * 100).toFixed(1)}%
         </p>
       </CardContent>
     </Card>
@@ -679,7 +678,7 @@ function PricingTable({
         <CardTitle className="text-base">Pricing — Equipa Projecto</CardTitle>
         <CardDescription>
           VBG/h e Cota BO/h = valor anual ÷ ({diasUteis}×{horasDia}) h. Custo/h soma os dois,
-          depois ×1.20 (desperdício) e × (1 + margem).
+          venda = custo/h × (1 + margem).
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0 overflow-x-auto">
@@ -690,7 +689,6 @@ function PricingTable({
               <TableHead className="text-right">VBG/h</TableHead>
               <TableHead className="text-right">+ Cota BO/h</TableHead>
               <TableHead className="text-right">Custo/h</TableHead>
-              <TableHead className="text-right">×1.20</TableHead>
               <TableHead className="text-right">@ 30%</TableHead>
               <TableHead className="text-right">@ 50%</TableHead>
               <TableHead className="text-right">@ 100%</TableHead>
@@ -714,7 +712,7 @@ function PricingTable({
           <TableBody>
             {sortedRows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                   Sem colaboradores.
                 </TableCell>
               </TableRow>
@@ -736,9 +734,6 @@ function PricingTable({
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {p30 ? fmtEUR(p30.custoHora) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {p30 ? fmtEUR(p30.custoHoraDesperdicio) : "—"}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
                     {p30 ? fmtEUR(p30.vendaHora) : "—"}
