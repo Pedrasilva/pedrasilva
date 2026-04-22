@@ -599,6 +599,15 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                     loadMap,
                   );
                   const isOver = overload.peak > DAILY_LIMIT_HOURS;
+                  const allocLeaveHours = leaveHoursInRange(
+                    parseISO(aS),
+                    parseISO(aE),
+                    leaveByResource?.get(a.resource_id) ?? [],
+                    holidaySet,
+                  );
+                  const hasLeave = allocLeaveHours > 0;
+                  const allocTotalHours = workingDays(aS, aE) * Number(a.hours_per_day);
+                  const reducedCapacity = Math.max(0, allocTotalHours - allocLeaveHours);
 
                   return (
                     <div key={a.id} className="absolute group" style={{ left: aX, width: aW, top, height: ALLOC_ROW_H }}>
@@ -659,6 +668,15 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                     <span className="flex shrink-0 items-center gap-0.5 rounded bg-destructive px-1 py-px text-[10px] font-semibold text-destructive-foreground">
                                       <AlertTriangle className="h-2.5 w-2.5" />
                                       {overload.peak}h
+                                    </span>
+                                  )}
+                                  {hasLeave && (
+                                    <span
+                                      className="flex shrink-0 items-center gap-0.5 rounded bg-amber-500/20 px-1 py-px text-[10px] font-semibold text-amber-700 dark:text-amber-300"
+                                      title={`${allocLeaveHours}h overlap approved leave`}
+                                    >
+                                      <CalendarOff className="h-2.5 w-2.5" />
+                                      −{allocLeaveHours}h
                                     </span>
                                   )}
                                 </div>
@@ -729,6 +747,15 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                   <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
                                   <span>
                                     Sobrecarga: pico de <strong>{overload.peak}h/dia</strong> (limite {DAILY_LIMIT_HOURS}h) em {overload.overDays} dia(s).
+                                  </span>
+                                </div>
+                              )}
+                              {hasLeave && (
+                                <div className="mt-1 flex items-start gap-1.5 rounded bg-amber-500/10 p-1.5 text-[11px] text-amber-700 dark:text-amber-300">
+                                  <CalendarOff className="mt-0.5 h-3 w-3 shrink-0" />
+                                  <span>
+                                    Capacidade reduzida: <strong>{allocLeaveHours}h</strong> de férias aprovadas dentro do período →
+                                    capacidade efectiva ≈ <strong>{reducedCapacity}h</strong> (de {allocTotalHours}h planeadas).
                                   </span>
                                 </div>
                               )}
