@@ -101,6 +101,37 @@ function TimesheetPage() {
   // that row so they can review or zero it out (history stays intact).
   const { data: activeInternalCategories = [] } = useInternalCategories();
 
+  // The rows we actually render under "Internal cost centers": every active
+  // category PLUS any archived category that has logged hours this week (so
+  // people can still see / clear historical entries). Archived rows are
+  // visually flagged but otherwise editable for the existing hours.
+  const displayedInternalCategories = useMemo<{
+    name: string;
+    isArchived: boolean;
+  }[]>(() => {
+    const active = activeInternalCategories.map((c) => ({
+      name: c.name,
+      isArchived: false,
+    }));
+    const activeNames = new Set(active.map((c) => c.name));
+    const archivedWithEntries = new Set<string>();
+    for (const e of entries) {
+      if (
+        e.entry_type === "internal" &&
+        e.internal_category &&
+        !activeNames.has(e.internal_category)
+      ) {
+        archivedWithEntries.add(e.internal_category);
+      }
+    }
+    return [
+      ...active,
+      ...Array.from(archivedWithEntries)
+        .sort()
+        .map((name) => ({ name, isArchived: true })),
+    ];
+  }, [activeInternalCategories, entries]);
+
   // Index entries by composite key + date so each section can look itself up.
   const entryMap = useMemo(() => {
     const m = new Map<CellKey, Map<string, CellInfo>>();
