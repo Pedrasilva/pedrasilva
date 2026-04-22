@@ -53,16 +53,17 @@ import type { StageWithAllocations } from "@/lib/projects/types";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
 import { Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_app/projects/")({
   component: DashboardPage,
 });
 
-const STATUS_FILTERS: { label: string; value: ProjectStatus | "all" }[] = [
-  { label: "Active", value: "active" },
-  { label: "Paused", value: "paused" },
-  { label: "Archived", value: "archived" },
-  { label: "All", value: "all" },
+const STATUS_FILTER_KEYS: { key: "active" | "paused" | "archived" | "all"; value: ProjectStatus | "all" }[] = [
+  { key: "active", value: "active" },
+  { key: "paused", value: "paused" },
+  { key: "archived", value: "archived" },
+  { key: "all", value: "all" },
 ];
 
 type Period = "week" | "month";
@@ -162,6 +163,7 @@ function useUserIdentityMap() {
 
 function DashboardPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("projects");
   const { can } = useMyPermissionsV2();
   // Financial visibility: KPIs in €, margins, project budget. Operational
   // people get hours-only views.
@@ -191,7 +193,7 @@ function DashboardPage() {
   );
   const periodStartISO = format(periodStart, "yyyy-MM-dd");
   const periodEndISO = format(periodEnd, "yyyy-MM-dd");
-  const periodLabel = period === "month" ? format(today, "MMMM yyyy") : "This week";
+  const periodLabel = period === "month" ? format(today, "MMMM yyyy") : t("dashboard.thisWeek");
 
   const { data: entries, isLoading: eLoading } = useMonthEntries(periodStartISO, periodEndISO);
   const { data: taskToStage } = useTaskMap();
@@ -508,7 +510,7 @@ function DashboardPage() {
       const dailyCap = res ? (Number(res.weekly_capacity) || 40) / 5 : 8;
       rows.push({
         resourceId: identity?.resourceId ?? userId,
-        name: identity?.name ?? res?.name ?? "Unknown user",
+        name: identity?.name ?? res?.name ?? t("team.unknownUser"),
         collaboratorId: identity?.collaboratorId ?? null,
         fotoPath: identity?.fotoPath ?? null,
         color: identity?.color ?? res?.color ?? null,
@@ -519,7 +521,7 @@ function DashboardPage() {
       });
     }
     return rows;
-  }, [entries, resources, identityMap, periodStartISO, periodEndISO]);
+  }, [entries, resources, identityMap, periodStartISO, periodEndISO, t]);
 
   /**
    * Visible team rows: full team if the user has resource visibility, otherwise
@@ -542,7 +544,7 @@ function DashboardPage() {
     return [
       {
         resourceId: myResourceId ?? "self",
-        name: myIdentity?.name ?? myRes?.name ?? profile?.full_name ?? "You",
+        name: myIdentity?.name ?? myRes?.name ?? profile?.full_name ?? t("team.you"),
         collaboratorId: myIdentity?.collaboratorId ?? null,
         fotoPath: myIdentity?.fotoPath ?? null,
         color: myIdentity?.color ?? myRes?.color ?? null,
@@ -552,7 +554,7 @@ function DashboardPage() {
         nonWorkingHours: 0,
       },
     ];
-  }, [canSeeTeam, teamRows, myAuthId, myResourceId, resources, identityMap, profile?.full_name, periodStartISO, periodEndISO]);
+  }, [canSeeTeam, teamRows, myAuthId, myResourceId, resources, identityMap, profile?.full_name, periodStartISO, periodEndISO, t]);
 
   // ---------- Alerts ----------
   const alerts: AlertItem[] = useMemo(() => {
@@ -564,7 +566,7 @@ function DashboardPage() {
           list.push({
             id: `ob-${r.project.id}`,
             kind: "over_budget",
-            title: `${r.project.name} is over budget`,
+            title: t("alerts.overBudget", { name: r.project.name }),
             detail: overBudgetDetail(r.actualCost, r.budget),
             href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
           });
@@ -572,16 +574,16 @@ function DashboardPage() {
           list.push({
             id: `lm-${r.project.id}`,
             kind: "low_margin",
-            title: `${r.project.name} has low margin`,
-            detail: `Margin ${Math.round(r.marginPct)}% — target ≥ 15%`,
+            title: t("alerts.lowMargin", { name: r.project.name }),
+            detail: t("alerts.marginTarget", { pct: Math.round(r.marginPct) }),
             href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
           });
         } else if (r.actualRevenue > 0 && r.marginPct < 0) {
           list.push({
             id: `lm-${r.project.id}`,
             kind: "low_margin",
-            title: `${r.project.name} has negative margin`,
-            detail: `Margin ${Math.round(r.marginPct)}% — losing money`,
+            title: t("alerts.negativeMargin", { name: r.project.name }),
+            detail: t("alerts.marginLosing", { pct: Math.round(r.marginPct) }),
             href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
           });
         }
@@ -594,7 +596,7 @@ function DashboardPage() {
         list.push({
           id: `over-${r.project.id}`,
           kind: "overrun",
-          title: `${r.project.name} is over planned hours`,
+          title: t("alerts.overrun", { name: r.project.name }),
           detail: overrunDetail(r.loggedHours, r.plannedHours),
           href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
         });
@@ -602,7 +604,7 @@ function DashboardPage() {
         list.push({
           id: `appr-${r.project.id}`,
           kind: "approaching_plan",
-          title: `${r.project.name} approaching planned hours`,
+          title: t("alerts.approachingPlan", { name: r.project.name }),
           detail: overrunDetail(r.loggedHours, r.plannedHours),
           href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
         });
@@ -610,7 +612,6 @@ function DashboardPage() {
     }
 
     // Overbooked resources: allocations within period exceeding daily capacity
-    type Booking = { resourceId: string; date: string; hours: number };
     const bookings = new Map<string, number>(); // key resourceId|date
     for (const s of allStages ?? []) {
       for (const a of s.allocations) {
@@ -644,12 +645,12 @@ function DashboardPage() {
       const fromIdentity = identityMap
         ? Array.from(identityMap.values()).find((i) => i.resourceId === resourceId)
         : null;
-      const displayName = r?.name ?? fromIdentity?.name ?? "Unknown user";
+      const displayName = r?.name ?? fromIdentity?.name ?? t("team.unknownUser");
       list.push({
         id: `ob-res-${resourceId}`,
         kind: "overbooked",
-        title: `${displayName} is overbooked`,
-        detail: `${days} day${days === 1 ? "" : "s"} in ${periodLabel.toLowerCase()} exceed daily capacity`,
+        title: t("alerts.overbooked", { name: displayName }),
+        detail: t("alerts.overbookedDetail", { count: days, period: periodLabel.toLowerCase() }),
         href: { to: "/projects/resources" },
       });
     }
@@ -663,14 +664,14 @@ function DashboardPage() {
         list.push({
           id: `hi-${tr.resourceId}`,
           kind: "high_internal",
-          title: `${tr.name} has high internal time`,
-          detail: `${Math.round(internalPct)}% of logged hours are internal (target ≤ 20%)`,
+          title: t("alerts.highInternal", { name: tr.name }),
+          detail: t("alerts.highInternalDetail", { pct: Math.round(internalPct) }),
         });
       }
     }
 
     return list;
-  }, [canSeeFinancials, healthRows, effortRows, allStages, resources, identityMap, teamRows, periodStart, periodEnd, periodLabel]);
+  }, [canSeeFinancials, healthRows, effortRows, allStages, resources, identityMap, teamRows, periodStart, periodEnd, periodLabel, t]);
 
   const isLoading = pLoading || sLoading || eLoading;
 
@@ -679,9 +680,9 @@ function DashboardPage() {
       <div className="mx-auto w-full max-w-[1800px] space-y-4 px-6 pt-6 pb-12">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Studio</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("studio")}</p>
             <h1 className="font-display text-3xl font-semibold tracking-tight">
-              Projects Dashboard
+              {t("dashboard.title")}
             </h1>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -696,12 +697,12 @@ function DashboardPage() {
                       : "rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
                   }
                 >
-                  {p === "week" ? "This week" : "This month"}
+                  {p === "week" ? t("dashboard.thisWeek") : t("dashboard.thisMonth")}
                 </button>
               ))}
             </div>
             <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1">
-              {STATUS_FILTERS.map((f) => (
+              {STATUS_FILTER_KEYS.map((f) => (
                 <button
                   key={f.value}
                   onClick={() => setStatusFilter(f.value)}
@@ -711,7 +712,7 @@ function DashboardPage() {
                       : "rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
                   }
                 >
-                  {f.label}
+                  {t(`dashboard.filters.${f.key}`)}
                 </button>
               ))}
             </div>
@@ -720,7 +721,7 @@ function DashboardPage() {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search projects or clients…"
+                placeholder={t("dashboard.searchPlaceholder")}
                 className="w-72 rounded-md border border-border bg-card py-1.5 pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
               />
             </div>
@@ -758,11 +759,11 @@ function DashboardPage() {
           rows={visibleTeamRows}
           loading={isLoading}
           periodLabel={periodLabel}
-          title={canSeeTeam ? "Team performance" : "Your utilization"}
+          title={canSeeTeam ? t("dashboard.teamPerformance") : t("dashboard.yourUtilization")}
           subtitle={
             canSeeTeam
-              ? `Utilization and billable / internal split — ${periodLabel}`
-              : `Your hours and billable split — ${periodLabel}`
+              ? t("dashboard.subtitleTeam", { period: periodLabel })
+              : t("dashboard.subtitleSelf", { period: periodLabel })
           }
           showSort={canSeeTeam}
         />

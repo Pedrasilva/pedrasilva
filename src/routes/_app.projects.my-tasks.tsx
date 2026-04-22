@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import { AppShell } from "@/components/projects/app-shell";
 import { Button } from "@/components/ui/button";

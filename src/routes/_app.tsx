@@ -1,5 +1,6 @@
 import { Link, Outlet, createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
@@ -57,6 +58,7 @@ export const Route = createFileRoute("/_app")({
 function AppLayout() {
   const loc = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation("projects");
   const { session, loading, isAdmin, isRealAdmin, viewAsUser, setViewAsUser, user, signOut } = useAuth();
   const { permissions } = useMyPermissions();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -241,7 +243,7 @@ function AppLayout() {
             <nav className="hidden md:flex items-center gap-1 ml-2 text-sm">
               <Link to="/projects" className="flex items-center gap-2 mr-1">
                 <FolderKanban className="h-4 w-4 text-primary" />
-                <span className="font-display text-sm font-semibold tracking-tight">Projects</span>
+                <span className="font-display text-sm font-semibold tracking-tight">{t("nav.projects")}</span>
               </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -253,17 +255,17 @@ function AppLayout() {
                   )}
                 >
                   <LayoutGrid className="h-3.5 w-3.5" />
-                  Projects
+                  {t("nav.projects")}
                   <ChevronDown className="h-3 w-3 opacity-60" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56">
                   <DropdownMenuItem onClick={() => navigate({ to: "/projects" })}>
                     <LayoutGrid className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Project list
+                    {t("nav.projectList")}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate({ to: "/projects/gantt" })}>
                     <GanttChartSquare className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Global Gantt
+                    {t("nav.globalGantt")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -277,7 +279,7 @@ function AppLayout() {
                 )}
               >
                 <Users className="h-3.5 w-3.5" />
-                Team
+                {t("nav.team")}
               </Link>
               <Link
                 to="/projects/my-tasks"
@@ -289,7 +291,7 @@ function AppLayout() {
                 )}
               >
                 <CheckSquare className="h-3.5 w-3.5" />
-                My tasks
+                {t("nav.myTasks")}
               </Link>
               <Link
                 to="/projects/timesheet"
@@ -301,7 +303,7 @@ function AppLayout() {
                 )}
               >
                 <Clock className="h-3.5 w-3.5" />
-                Timesheet
+                {t("nav.timesheet")}
               </Link>
               <Link
                 to="/projects/financials"
@@ -313,7 +315,7 @@ function AppLayout() {
                 )}
               >
                 <BarChart3 className="h-3.5 w-3.5" />
-                Financials
+                {t("nav.financials")}
               </Link>
               <Link
                 to="/projects/forecast"
@@ -325,7 +327,7 @@ function AppLayout() {
                 )}
               >
                 <TrendingUp className="h-3.5 w-3.5" />
-                Forecast
+                {t("nav.forecast")}
               </Link>
               <Link
                 to="/projects/insights"
@@ -337,7 +339,7 @@ function AppLayout() {
                 )}
               >
                 <LineChart className="h-3.5 w-3.5" />
-                Insights
+                {t("nav.insights")}
               </Link>
             </nav>
           )}

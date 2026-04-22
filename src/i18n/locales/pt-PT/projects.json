@@ -1,6 +1,7 @@
 {
   "module": "Projectos",
   "studio": "Atelier",
+  "people": "Pessoas",
   "nav": {
     "projects": "Projectos",
     "projectList": "Lista de projectos",
@@ -15,6 +16,8 @@
   "dashboard": {
     "title": "Painel de Projectos",
     "searchPlaceholder": "Procurar projectos ou clientes…",
+    "thisWeek": "Esta semana",
+    "thisMonth": "Este mês",
     "filters": {
       "active": "Activos",
       "paused": "Em pausa",
@@ -25,6 +28,92 @@
     "teamPerformance": "Desempenho da equipa",
     "subtitleTeam": "Utilização e divisão facturável / interno — {{period}}",
     "subtitleSelf": "As tuas horas e divisão facturável — {{period}}"
+  },
+  "insights": {
+    "title": "Análises de Projectos",
+    "subtitle": "Vistas analíticas: valor da pipeline ao longo do tempo e desempenho por recurso."
+  },
+  "myTasks": {
+    "title": "Minhas Tarefas",
+    "subtitle": "Alocações atribuídas a ti. Aceita uma tarefa para começar a registar tempo nela.",
+    "scope": {
+      "mine": "Minhas",
+      "all": "Todos"
+    },
+    "noLink": "A tua conta ainda não está ligada a um membro da equipa. Pede a um admin para te adicionar à equipa com o mesmo email ({{email}}).",
+    "tabs": {
+      "pending": "Pendentes",
+      "active": "Activas",
+      "done": "Concluídas"
+    },
+    "empty": {
+      "pending": "Sem tarefas pendentes. Boa.",
+      "active": "Sem tarefas activas. Aceita uma das pendentes para começar.",
+      "done": "Ainda sem tarefas concluídas."
+    },
+    "errors": {
+      "updateFailed": "Não foi possível actualizar a tarefa"
+    },
+    "project": "Projecto"
+  },
+  "resources": {
+    "title": "Equipa",
+    "subtitle": "Os membros da equipa são geridos no HR. Novos colaboradores adicionados lá aparecem aqui automaticamente. Clica num nome para editar detalhes específicos do projecto (rate, capacidade, cor).",
+    "tabs": {
+      "all": "Todos",
+      "project": "Equipa de Projecto",
+      "back_office": "Back Office",
+      "inactive": "Inactivos"
+    },
+    "columns": {
+      "name": "Nome",
+      "role": "Função",
+      "team": "Equipa",
+      "rate": "Rate",
+      "capacity": "Capacidade",
+      "active": "Activo"
+    },
+    "rateSuggestionTitle": "Sugestão automática @ 50% do Resumo Comparativo do HR (sem rate definido)",
+    "removeConfirm": "Remover {{name}} da equipa do projecto? Continuará no HR.",
+    "removed": "Removido",
+    "emptyFiltered": "Ninguém nesta vista ainda.",
+    "emptyAll": "Ainda sem membros. Adiciona colaboradores na secção HR para preencher esta lista.",
+    "rateSuggestionFootnote": "* Rate sugerido automaticamente a partir do Resumo Comparativo do HR (venda @ 50%) quando o recurso ainda não tem rate definido. Edita o recurso para fixar um valor."
+  },
+  "gantt": {
+    "title": "Gantt Global",
+    "subtitle": "Todos os projectos {{filter}} num só Gantt. Arrasta recursos do painel lateral para qualquer fase, ou agarra uma alocação existente pelo ícone à esquerda para a mover entre fases ou projectos.",
+    "filterLabels": {
+      "active": "activos",
+      "paused": "em pausa",
+      "archived": "arquivados"
+    },
+    "tabs": {
+      "active": "Activos",
+      "paused": "Em pausa",
+      "archived": "Arquivados"
+    },
+    "zoom": {
+      "day": "Dia",
+      "week": "Semana",
+      "month": "Mês",
+      "out": "Reduzir zoom",
+      "in": "Aumentar zoom"
+    },
+    "pool": {
+      "expand": "Expandir painel",
+      "collapse": "Colapsar painel"
+    },
+    "fullscreen": {
+      "enter": "Ecrã inteiro",
+      "exit": "Sair de ecrã inteiro"
+    },
+    "loading": "A carregar…",
+    "empty": {
+      "active": "Nenhum projecto activo",
+      "paused": "Nada em pausa",
+      "archived": "Nenhum projecto arquivado"
+    }
   },
   "kpi": {
     "businessPerformance": "Desempenho do negócio",
