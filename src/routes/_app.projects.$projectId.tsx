@@ -1317,7 +1317,10 @@ function InsightsPanel({
   invoices,
   invoicedTotal,
   totalBudget,
-  totalCost,
+  totalPlannedCost,
+  actualRevenue,
+  actualCost,
+  actualProfit,
   totalLoggedHours,
   totalPlannedHours,
   stageLoggedHours,
@@ -1330,7 +1333,10 @@ function InsightsPanel({
   invoices: import("@/lib/projects/use-invoices").Invoice[];
   invoicedTotal: number;
   totalBudget: number;
-  totalCost: number;
+  totalPlannedCost: number;
+  actualRevenue: number;
+  actualCost: number;
+  actualProfit: number;
   totalLoggedHours: number;
   totalPlannedHours: number;
   stageLoggedHours: (id: string) => number;
