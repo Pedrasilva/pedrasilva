@@ -1768,6 +1768,8 @@ function HoursPill({
     </div>
   );
 }
+
+function FinancialsTable({
   services,
   materials,
   expenses,
