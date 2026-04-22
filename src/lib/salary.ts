@@ -92,6 +92,10 @@ export type Collaborator = {
   numero_dependentes: number;
   dependentes_com_deficiencia: number;
   ano_fiscal: number;
+  // Working schedule (HR contract) — drives capacity, leave-impact and
+  // forecast calculations across the project module.
+  daily_hours: number;
+  days_per_week: number;
 };
 
 export function computeSnapshot(s: Snapshot) {
