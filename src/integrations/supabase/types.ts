@@ -752,6 +752,8 @@ export type Database = {
           resource_id: string
           stage_id: string
           start_date: string
+          status: Database["public"]["Enums"]["pm_allocation_status"]
+          status_changed_at: string | null
           updated_at: string
         }
         Insert: {
@@ -762,6 +764,8 @@ export type Database = {
           resource_id: string
           stage_id: string
           start_date: string
+          status?: Database["public"]["Enums"]["pm_allocation_status"]
+          status_changed_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -772,6 +776,8 @@ export type Database = {
           resource_id?: string
           stage_id?: string
           start_date?: string
+          status?: Database["public"]["Enums"]["pm_allocation_status"]
+          status_changed_at?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1384,6 +1390,12 @@ export type Database = {
       }
       pm_stages: {
         Row: {
+          baseline_budget: number | null
+          baseline_end_date: string | null
+          baseline_locked_at: string | null
+          baseline_notes: string | null
+          baseline_start_date: string | null
+          baseline_target_hours: number | null
           budget: number
           color: string
           created_at: string
@@ -1396,6 +1408,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          baseline_budget?: number | null
+          baseline_end_date?: string | null
+          baseline_locked_at?: string | null
+          baseline_notes?: string | null
+          baseline_start_date?: string | null
+          baseline_target_hours?: number | null
           budget?: number
           color?: string
           created_at?: string
@@ -1408,6 +1426,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          baseline_budget?: number | null
+          baseline_end_date?: string | null
+          baseline_locked_at?: string | null
+          baseline_notes?: string | null
+          baseline_start_date?: string | null
+          baseline_target_hours?: number | null
           budget?: number
           color?: string
           created_at?: string
@@ -1869,6 +1893,7 @@ export type Database = {
       crm_activity_type: "chamada" | "email" | "reuniao" | "nota" | "outro"
       department: "Projecto" | "Backoffice"
       expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
+      pm_allocation_status: "tentative" | "committed"
       pm_dep_type: "FS" | "SS" | "FF" | "SF"
       pm_invoice_status: "draft" | "sent" | "paid" | "overdue" | "cancelled"
       pm_project_status: "active" | "paused" | "archived"
@@ -2031,6 +2056,7 @@ export const Constants = {
       crm_activity_type: ["chamada", "email", "reuniao", "nota", "outro"],
       department: ["Projecto", "Backoffice"],
       expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
+      pm_allocation_status: ["tentative", "committed"],
       pm_dep_type: ["FS", "SS", "FF", "SF"],
       pm_invoice_status: ["draft", "sent", "paid", "overdue", "cancelled"],
       pm_project_status: ["active", "paused", "archived"],

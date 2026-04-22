@@ -14,6 +14,7 @@ import {
 } from "@/lib/projects/use-planner";
 import { AllocationEditor } from "@/components/projects/allocation-editor";
 import { StageDependencyEditor } from "@/components/projects/stage-dependency-editor";
+import { StageBaselineDialog } from "@/components/projects/stage-baseline-dialog";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { toast } from "sonner";
 import { Trash2, GripVertical, AlertTriangle, CalendarOff } from "lucide-react";
@@ -115,12 +116,14 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
     const flat = stages.flatMap((s) =>
       s.allocations.map((a) => {
         const draft = draftDates.get(a.id);
+        const aWithStatus = a as typeof a & { status?: "tentative" | "committed" };
         return {
           id: a.id,
           resource_id: a.resource_id,
           start_date: draft?.start ?? a.start_date,
           end_date: draft?.end ?? a.end_date,
           hours_per_day: Number(a.hours_per_day),
+          status: aWithStatus.status ?? "committed",
         };
       }),
     );
@@ -425,6 +428,23 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
             const stageX = differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
             const stageW = dayCount(sStart, sEnd) * dayWidth;
 
+            // Baseline ghost (rendered behind the working stage bar)
+            const stageWithBaseline = stage as typeof stage & {
+              baseline_start_date?: string | null;
+              baseline_end_date?: string | null;
+              baseline_locked_at?: string | null;
+            };
+            const hasBaseline =
+              !!stageWithBaseline.baseline_locked_at &&
+              !!stageWithBaseline.baseline_start_date &&
+              !!stageWithBaseline.baseline_end_date;
+            const baseX = hasBaseline
+              ? differenceInCalendarDays(new Date(stageWithBaseline.baseline_start_date!), origin) * dayWidth
+              : 0;
+            const baseW = hasBaseline
+              ? dayCount(stageWithBaseline.baseline_start_date!, stageWithBaseline.baseline_end_date!) * dayWidth
+              : 0;
+
             let totalCost = 0;
             for (const a of stage.allocations) {
               const aDraft = draftDates.get(a.id);
@@ -461,6 +481,19 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
               >
                 {hoveredStage === stage.id && (
                   <div className="pointer-events-none absolute inset-y-0 left-0 right-0 rounded-md border-2 border-dashed border-primary/60 bg-primary/5" />
+                )}
+
+                {/* Baseline ghost bar — frozen reference plan */}
+                {hasBaseline && (
+                  <div
+                    className="pointer-events-none absolute z-0 rounded-md border border-dashed border-foreground/30 bg-muted/20"
+                    style={{ left: baseX, width: baseW, top: 0, height: STAGE_ROW_H }}
+                    title={`Baseline: ${stageWithBaseline.baseline_start_date} → ${stageWithBaseline.baseline_end_date}`}
+                  >
+                    <div className="absolute -top-3.5 left-1 rounded-sm bg-muted px-1 py-px font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
+                      baseline
+                    </div>
+                  </div>
                 )}
 
                 <div className="group absolute" style={{ left: stageX, width: stageW, top: 0, height: STAGE_ROW_H }}>

@@ -170,6 +170,14 @@ export function useUpdateStage() {
   });
 }
 
+/**
+ * Move/resize a stage with cascade through dependencies.
+ *
+ * Default behavior: when a stage is moved (start delta == end delta, i.e.
+ * a pure shift, not a resize), all of its allocations shift by the same
+ * number of calendar days. This keeps live resource planning aligned with
+ * the baseline plan unless the user explicitly opts out (`shiftAllocations: false`).
+ */
 export function useUpdateStageWithCascade() {
   const qc = useQueryClient();
   return useMutation({
@@ -178,18 +186,36 @@ export function useUpdateStageWithCascade() {
       start_date,
       end_date,
       projectId: _projectId,
+      shiftAllocations = true,
     }: {
       id: string;
       start_date: string;
       end_date: string;
       projectId: string;
-    }): Promise<{ updatedIds: string[] }> => {
+      shiftAllocations?: boolean;
+    }): Promise<{ updatedIds: string[]; shiftedAllocations: number }> => {
       const [{ data: stages, error: sErr }, { data: deps, error: dErr }] = await Promise.all([
         supabase.from("pm_stages").select("id, start_date, end_date"),
         supabase.from("pm_stage_dependencies").select("*"),
       ]);
       if (sErr) throw sErr;
       if (dErr) throw dErr;
+
+      // Detect whether the primary stage is being shifted (move) vs resized.
+      // Only on a pure move do we drag allocations along by the same delta.
+      const movedStage = (stages ?? []).find((s) => s.id === id);
+      let allocDeltaDays = 0;
+      if (movedStage && shiftAllocations) {
+        const oldStart = new Date(movedStage.start_date as string).getTime();
+        const oldEnd = new Date(movedStage.end_date as string).getTime();
+        const newStart = new Date(start_date).getTime();
+        const newEnd = new Date(end_date).getTime();
+        const startDelta = Math.round((newStart - oldStart) / 86_400_000);
+        const endDelta = Math.round((newEnd - oldEnd) / 86_400_000);
+        if (startDelta === endDelta && startDelta !== 0) {
+          allocDeltaDays = startDelta;
+        }
+      }
 
       const updates = computeCascade(
         id,
@@ -206,12 +232,112 @@ export function useUpdateStageWithCascade() {
           .eq("id", stageId);
         if (error) throw error;
       }
-      return { updatedIds: Array.from(updates.keys()) };
+
+      let shiftedAllocations = 0;
+      if (allocDeltaDays !== 0) {
+        const { data: allocs } = await supabase
+          .from("pm_allocations")
+          .select("id, start_date, end_date")
+          .eq("stage_id", id);
+        const shiftDay = (iso: string): string => {
+          const d = new Date(iso);
+          d.setDate(d.getDate() + allocDeltaDays);
+          return d.toISOString().slice(0, 10);
+        };
+        for (const a of allocs ?? []) {
+          const { error } = await supabase
+            .from("pm_allocations")
+            .update({
+              start_date: shiftDay(a.start_date as string),
+              end_date: shiftDay(a.end_date as string),
+            })
+            .eq("id", a.id);
+          if (error) throw error;
+          shiftedAllocations += 1;
+        }
+      }
+
+      return { updatedIds: Array.from(updates.keys()), shiftedAllocations };
     },
     onSuccess: (_d, vars) => {
       qc.invalidateQueries({ queryKey: ["pm-project", vars.projectId] });
       qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
       qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] });
+      qc.invalidateQueries({ queryKey: ["pm-allocations-all"] });
+    },
+  });
+}
+
+// ---------- STAGE BASELINE ----------
+
+/**
+ * Lock the current working values (start, end, budget, target hours) as the
+ * project baseline. Used as the reference for variance and stage health.
+ * Once set, the baseline is preserved until an explicit re-baseline call.
+ */
+export function useSetStageBaseline() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      projectId: _projectId,
+      baseline_start_date,
+      baseline_end_date,
+      baseline_budget,
+      baseline_target_hours,
+      baseline_notes,
+    }: {
+      id: string;
+      projectId: string;
+      baseline_start_date: string;
+      baseline_end_date: string;
+      baseline_budget: number;
+      baseline_target_hours: number;
+      baseline_notes?: string | null;
+    }): Promise<Stage> => {
+      const { data, error } = await supabase
+        .from("pm_stages")
+        .update({
+          baseline_start_date,
+          baseline_end_date,
+          baseline_budget,
+          baseline_target_hours,
+          baseline_locked_at: new Date().toISOString(),
+          baseline_notes: baseline_notes ?? null,
+        } as never)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data as Stage;
+    },
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: ["pm-project", vars.projectId] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
+    },
+  });
+}
+
+export function useClearStageBaseline() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, projectId: _projectId }: { id: string; projectId: string }) => {
+      const { error } = await supabase
+        .from("pm_stages")
+        .update({
+          baseline_start_date: null,
+          baseline_end_date: null,
+          baseline_budget: null,
+          baseline_target_hours: null,
+          baseline_locked_at: null,
+          baseline_notes: null,
+        } as never)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: ["pm-project", vars.projectId] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
     },
   });
 }
@@ -537,6 +663,8 @@ export function useCreateAllocation() {
   });
 }
 
+export type AllocationStatus = "tentative" | "committed";
+
 export function useUpdateAllocation() {
   const qc = useQueryClient();
   return useMutation({
@@ -545,12 +673,48 @@ export function useUpdateAllocation() {
       patch,
     }: {
       id: string;
-      patch: Partial<Pick<Allocation, "start_date" | "end_date" | "hours_per_day" | "stage_id">>;
+      patch: Partial<Pick<Allocation, "start_date" | "end_date" | "hours_per_day" | "stage_id">> & {
+        status?: AllocationStatus;
+      };
       projectId: string;
     }): Promise<Allocation> => {
       const { data, error } = await supabase
         .from("pm_allocations")
-        .update(patch)
+        .update(patch as never)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: ["pm-project", vars.projectId] });
+      qc.invalidateQueries({ queryKey: ["pm-allocations-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
+    },
+  });
+}
+
+/**
+ * Toggle an allocation between `tentative` (soft-booked) and `committed`
+ * (firm). Tentative allocations remain visible but are weighted down in
+ * load calculations and excluded from "committed delivery" KPIs.
+ */
+export function useSetAllocationStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      status,
+      projectId: _projectId,
+    }: {
+      id: string;
+      status: AllocationStatus;
+      projectId: string;
+    }): Promise<Allocation> => {
+      const { data, error } = await supabase
+        .from("pm_allocations")
+        .update({ status } as never)
         .eq("id", id)
         .select()
         .single();
