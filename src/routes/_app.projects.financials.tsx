@@ -1,7 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { format, parseISO, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
+import { useMemo, useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  format,
+  parseISO,
+  startOfMonth,
+  endOfMonth,
+  addMonths,
+  subMonths,
+  startOfWeek,
+  addWeeks,
+  subWeeks,
+} from "date-fns";
+import { toast } from "sonner";
 import {
   ResponsiveContainer,
   Bar,
@@ -24,12 +35,19 @@ import {
   CalendarOff,
   Gauge,
   AlertCircle,
+  Target,
+  AlertTriangle,
+  Settings2,
+  CheckCircle2,
 } from "lucide-react";
 import { AppShell } from "@/components/projects/app-shell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import {
   useDefaultResourceRates,
@@ -94,6 +112,74 @@ function useResources() {
   });
 }
 
+type UtilTargets = {
+  utilization_target_min: number;
+  utilization_target_max: number;
+  internal_threshold_pct: number;
+};
+
+function useUtilTargets() {
+  return useQuery({
+    queryKey: ["fin-util-targets"],
+    queryFn: async (): Promise<UtilTargets> => {
+      const { data, error } = await supabase
+        .from("bo_settings")
+        .select("utilization_target_min, utilization_target_max, internal_threshold_pct")
+        .eq("singleton", true)
+        .maybeSingle();
+      if (error) throw error;
+      const row = data as {
+        utilization_target_min?: number | null;
+        utilization_target_max?: number | null;
+        internal_threshold_pct?: number | null;
+      } | null;
+      return {
+        utilization_target_min: Number(row?.utilization_target_min ?? 75),
+        utilization_target_max: Number(row?.utilization_target_max ?? 85),
+        internal_threshold_pct: Number(row?.internal_threshold_pct ?? 20),
+      };
+    },
+  });
+}
+
+function useUpdateUtilTargets() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (t: UtilTargets) => {
+      const { error } = await supabase
+        .from("bo_settings")
+        .update({
+          utilization_target_min: t.utilization_target_min,
+          utilization_target_max: t.utilization_target_max,
+          internal_threshold_pct: t.internal_threshold_pct,
+        } as never)
+        .eq("singleton", true);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["fin-util-targets"] });
+      toast.success("Utilization targets updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+function utilizationTone(
+  utilization: number,
+  internalPct: number,
+  targets: UtilTargets,
+): { tone: "good" | "low" | "high" | "internal"; label: string } {
+  if (internalPct > targets.internal_threshold_pct) {
+    return { tone: "internal", label: "High internal time" };
+  }
+  if (utilization < targets.utilization_target_min) {
+    return { tone: "low", label: "Underutilized" };
+  }
+  if (utilization > targets.utilization_target_max) {
+    return { tone: "high", label: "Overutilized" };
+  }
+  return { tone: "good", label: "On target" };
+}
 
 function useMonthEntries(monthStartISO: string, monthEndISO: string) {
   return useQuery({
@@ -223,6 +309,12 @@ function FinancialsPage() {
   const { data: monthData, isLoading: entriesLoading } = useMonthEntries(monthStart, monthEnd);
   const { data: userToRes } = useUserToResource(monthStart);
   const { data: workingDays } = useWorkingDaysInMonth(monthStart, monthEnd);
+  const { data: targets } = useUtilTargets();
+  const effectiveTargets: UtilTargets = targets ?? {
+    utilization_target_min: 75,
+    utilization_target_max: 85,
+    internal_threshold_pct: 20,
+  };
 
   const resourceMap = useMemo(() => {
     const m = new Map<string, ResourceLite>();
@@ -374,8 +466,11 @@ function FinancialsPage() {
     const rows = Array.from(summary.byUser.entries()).map(([key, v]) => {
       const res = resourceMap.get(key);
       const total = v.billable + v.internal + v.nonWorking;
-      const util = v.billable + v.internal > 0 ? (v.billable / (v.billable + v.internal)) * 100 : 0;
+      const workingTotal = v.billable + v.internal;
+      const util = workingTotal > 0 ? (v.billable / workingTotal) * 100 : 0;
+      const internalPct = workingTotal > 0 ? (v.internal / workingTotal) * 100 : 0;
       const profit = v.revenue - v.cost;
+      const alert = workingTotal > 0 ? utilizationTone(util, internalPct, effectiveTargets) : null;
       return {
         key,
         name: res?.name ?? "Unmapped user",
@@ -388,14 +483,33 @@ function FinancialsPage() {
         cost: v.cost,
         profit,
         utilization: util,
+        internalPct,
+        alert,
       };
     });
     rows.sort((a, b) => b.total - a.total);
     return rows;
-  }, [summary.byUser, resourceMap]);
+  }, [summary.byUser, resourceMap, effectiveTargets]);
+
+  // Alerts summary
+  const alertCounts = useMemo(() => {
+    let low = 0, high = 0, internal = 0, good = 0;
+    for (const r of userRows) {
+      if (!r.alert) continue;
+      if (r.alert.tone === "low") low++;
+      else if (r.alert.tone === "high") high++;
+      else if (r.alert.tone === "internal") internal++;
+      else good++;
+    }
+    return { low, high, internal, good };
+  }, [userRows]);
 
   // 12-month trailing trend (revenue/cost/profit)
   const { data: trailing } = useTrailingTrend(monthAnchor, filteredResourceIds, resourceMap, defaults);
+
+  // 12-week utilization trend
+  const { data: weeklyUtil } = useWeeklyUtilTrend(monthAnchor, filteredResourceIds);
+
 
   return (
     <AppShell active="projects">
@@ -466,6 +580,7 @@ function FinancialsPage() {
                   ))}
               </SelectContent>
             </Select>
+            <TargetsPopover targets={effectiveTargets} />
           </div>
         </div>
 
@@ -520,24 +635,18 @@ function FinancialsPage() {
             tone="muted"
             icon={<CalendarOff className="h-4 w-4" />}
           />
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-2 text-xs">
-                <Gauge className="h-4 w-4" /> Utilization
-              </CardDescription>
-              <CardTitle className="text-2xl">{pct(summary.utilization)}</CardTitle>
-            </CardHeader>
-            <CardContent className="text-xs text-muted-foreground">
-              billable / (billable + internal)
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full bg-primary"
-                  style={{ width: `${Math.min(100, summary.utilization)}%` }}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <UtilizationTargetCard
+            utilization={summary.utilization}
+            targets={effectiveTargets}
+          />
         </div>
+
+        {/* Alerts strip */}
+        <AlertsStrip
+          counts={alertCounts}
+          targets={effectiveTargets}
+          totalPeople={userRows.length}
+        />
 
         {/* Capacity + Insight */}
         <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
@@ -628,6 +737,12 @@ function FinancialsPage() {
           </Card>
         </div>
 
+        {/* Weekly utilization trend (last 12 weeks) */}
+        <WeeklyUtilizationCard
+          data={weeklyUtil ?? []}
+          targets={effectiveTargets}
+        />
+
         {/* Trailing 12 months */}
         <Card className="mt-6">
           <CardHeader>
@@ -677,6 +792,7 @@ function FinancialsPage() {
                     <th className="px-3 py-2.5 text-right">Internal</th>
                     <th className="px-3 py-2.5 text-right">Non-work</th>
                     <th className="px-3 py-2.5 text-right">Util.</th>
+                    <th className="px-3 py-2.5">Status</th>
                     <th className="px-3 py-2.5 text-right">Revenue</th>
                     <th className="px-3 py-2.5 text-right">Cost</th>
                     <th className="px-3 py-2.5 text-right">Profit</th>
@@ -685,7 +801,7 @@ function FinancialsPage() {
                 <tbody className="divide-y divide-border">
                   {userRows.length === 0 && (
                     <tr>
-                      <td colSpan={9} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                      <td colSpan={10} className="px-4 py-8 text-center text-sm text-muted-foreground">
                         No time logged for the selected filters.
                       </td>
                     </tr>
@@ -705,7 +821,19 @@ function FinancialsPage() {
                       <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
                         {hours(r.nonWorking)}
                       </td>
-                      <td className="px-3 py-2.5 text-right tabular-nums">{pct(r.utilization)}</td>
+                      <td
+                        className={cn(
+                          "px-3 py-2.5 text-right tabular-nums font-medium",
+                          r.alert?.tone === "low" && "text-amber-600 dark:text-amber-400",
+                          r.alert?.tone === "high" && "text-destructive",
+                          r.alert?.tone === "internal" && "text-amber-600 dark:text-amber-400",
+                        )}
+                      >
+                        {pct(r.utilization)}
+                      </td>
+                      <td className="px-3 py-2.5">
+                        {r.alert && <AlertChip tone={r.alert.tone} label={r.alert.label} />}
+                      </td>
                       <td className="px-3 py-2.5 text-right tabular-nums">{euros(r.revenue)}</td>
                       <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
                         {euros(r.cost)}
@@ -926,5 +1054,502 @@ function useTrailingTrend(
       return arr;
     },
   });
+}
+
+// ============================================================
+// Utilization targets — UI components
+// ============================================================
+
+function TargetsPopover({ targets }: { targets: UtilTargets }) {
+  const update = useUpdateUtilTargets();
+  const [open, setOpen] = useState(false);
+  const [minV, setMinV] = useState(targets.utilization_target_min);
+  const [maxV, setMaxV] = useState(targets.utilization_target_max);
+  const [intV, setIntV] = useState(targets.internal_threshold_pct);
+
+  useEffect(() => {
+    setMinV(targets.utilization_target_min);
+    setMaxV(targets.utilization_target_max);
+    setIntV(targets.internal_threshold_pct);
+  }, [targets.utilization_target_min, targets.utilization_target_max, targets.internal_threshold_pct]);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button size="sm" variant="outline" className="h-9 gap-2">
+          <Target className="h-4 w-4" />
+          {Math.round(targets.utilization_target_min)}–{Math.round(targets.utilization_target_max)}%
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80" align="end">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <Settings2 className="h-4 w-4" /> Utilization targets
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Healthy range for billable / (billable + internal). People outside the range
+            are flagged on the dashboard.
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="util-min" className="text-xs">Min %</Label>
+              <Input
+                id="util-min"
+                type="number"
+                min={0}
+                max={100}
+                value={minV}
+                onChange={(e) => setMinV(Number(e.target.value))}
+                className="h-9"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="util-max" className="text-xs">Max %</Label>
+              <Input
+                id="util-max"
+                type="number"
+                min={0}
+                max={100}
+                value={maxV}
+                onChange={(e) => setMaxV(Number(e.target.value))}
+                className="h-9"
+              />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="util-int" className="text-xs">
+              Internal time alert (% of working time)
+            </Label>
+            <Input
+              id="util-int"
+              type="number"
+              min={0}
+              max={100}
+              value={intV}
+              onChange={(e) => setIntV(Number(e.target.value))}
+              className="h-9"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Flag people whose internal non-billable time exceeds this share of working time.
+            </p>
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                if (minV < 0 || maxV > 100 || minV >= maxV) {
+                  toast.error("Min must be lower than max, between 0 and 100");
+                  return;
+                }
+                update.mutate(
+                  {
+                    utilization_target_min: minV,
+                    utilization_target_max: maxV,
+                    internal_threshold_pct: intV,
+                  },
+                  { onSuccess: () => setOpen(false) },
+                );
+              }}
+              disabled={update.isPending}
+            >
+              Save
+            </Button>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function UtilizationTargetCard({
+  utilization,
+  targets,
+}: {
+  utilization: number;
+  targets: UtilTargets;
+}) {
+  const inRange =
+    utilization >= targets.utilization_target_min &&
+    utilization <= targets.utilization_target_max;
+  const below = utilization < targets.utilization_target_min;
+  const above = utilization > targets.utilization_target_max;
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardDescription className="flex items-center justify-between gap-2 text-xs">
+          <span className="flex items-center gap-2">
+            <Gauge className="h-4 w-4" /> Utilization
+          </span>
+          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            Target {Math.round(targets.utilization_target_min)}–
+            {Math.round(targets.utilization_target_max)}%
+          </span>
+        </CardDescription>
+        <CardTitle
+          className={cn(
+            "text-2xl",
+            below && "text-amber-600 dark:text-amber-400",
+            above && "text-destructive",
+          )}
+        >
+          {pct(utilization)}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="text-xs text-muted-foreground">
+        <div className="relative mt-1 h-2 w-full overflow-hidden rounded-full bg-muted">
+          {/* target band */}
+          <div
+            className="absolute inset-y-0 bg-emerald-500/20"
+            style={{
+              left: `${Math.min(100, targets.utilization_target_min)}%`,
+              width: `${Math.max(
+                0,
+                Math.min(100, targets.utilization_target_max) -
+                  Math.min(100, targets.utilization_target_min),
+              )}%`,
+            }}
+          />
+          <div
+            className={cn(
+              "absolute inset-y-0 left-0",
+              inRange
+                ? "bg-emerald-500"
+                : below
+                  ? "bg-amber-500"
+                  : "bg-destructive",
+            )}
+            style={{ width: `${Math.min(100, utilization)}%`, opacity: 0.85 }}
+          />
+        </div>
+        <div className="mt-2 flex items-center gap-1.5">
+          {inRange ? (
+            <>
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+              <span>On target</span>
+            </>
+          ) : below ? (
+            <>
+              <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+              <span>
+                {pct(targets.utilization_target_min - utilization)} below target
+              </span>
+            </>
+          ) : (
+            <>
+              <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+              <span>
+                {pct(utilization - targets.utilization_target_max)} above target
+              </span>
+            </>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AlertsStrip({
+  counts,
+  targets,
+  totalPeople,
+}: {
+  counts: { low: number; high: number; internal: number; good: number };
+  targets: UtilTargets;
+  totalPeople: number;
+}) {
+  if (totalPeople === 0) return null;
+  const anyAlerts = counts.low + counts.high + counts.internal > 0;
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card p-3">
+      <div className="flex items-center gap-2 text-sm font-medium">
+        {anyAlerts ? (
+          <AlertTriangle className="h-4 w-4 text-amber-500" />
+        ) : (
+          <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+        )}
+        Alerts
+      </div>
+      <AlertChip tone="good" label={`${counts.good} on target`} subtle />
+      {counts.low > 0 && (
+        <AlertChip
+          tone="low"
+          label={`${counts.low} underutilized (< ${Math.round(targets.utilization_target_min)}%)`}
+        />
+      )}
+      {counts.high > 0 && (
+        <AlertChip
+          tone="high"
+          label={`${counts.high} overutilized (> ${Math.round(targets.utilization_target_max)}%)`}
+        />
+      )}
+      {counts.internal > 0 && (
+        <AlertChip
+          tone="internal"
+          label={`${counts.internal} high internal (> ${Math.round(targets.internal_threshold_pct)}%)`}
+        />
+      )}
+      {!anyAlerts && (
+        <span className="text-xs text-muted-foreground">
+          All people in scope are within the target utilization range.
+        </span>
+      )}
+    </div>
+  );
+}
+
+function AlertChip({
+  tone,
+  label,
+  subtle,
+}: {
+  tone: "good" | "low" | "high" | "internal";
+  label: string;
+  subtle?: boolean;
+}) {
+  const cls = {
+    good: subtle
+      ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
+      : "bg-emerald-500 text-white border-transparent",
+    low: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30",
+    high: "bg-destructive/15 text-destructive border-destructive/30",
+    internal: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30",
+  }[tone];
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+        cls,
+      )}
+    >
+      {label}
+    </span>
+  );
+}
+
+// ============================================================
+// Weekly utilization trend (last 12 weeks)
+// ============================================================
+
+type WeekPoint = {
+  label: string;
+  weekStart: string;
+  utilization: number;
+  internalPct: number;
+  billable: number;
+  internal: number;
+};
+
+function useWeeklyUtilTrend(monthAnchor: Date, filteredResourceIds: Set<string>) {
+  const end = endOfMonth(monthAnchor);
+  const start = startOfWeek(subWeeks(end, 11), { weekStartsOn: 1 });
+  const startISO = format(start, "yyyy-MM-dd");
+  const endISO = format(end, "yyyy-MM-dd");
+  const filterKey = Array.from(filteredResourceIds).sort().join(",");
+
+  return useQuery({
+    queryKey: ["fin-weekly-util", startISO, endISO, filterKey],
+    queryFn: async (): Promise<WeekPoint[]> => {
+      const { data: entries, error } = await supabase
+        .from("pm_time_entries")
+        .select("user_id, entry_type, billable, hours, entry_date, task_id")
+        .gte("entry_date", startISO)
+        .lte("entry_date", endISO);
+      if (error) throw error;
+      const list = (entries ?? []) as EntryLite[];
+
+      // Resolve task -> resource (for filtering)
+      const taskIds = Array.from(new Set(list.filter((e) => e.task_id).map((e) => e.task_id!)));
+      const taskRes = new Map<string, string>();
+      if (taskIds.length > 0) {
+        const { data: tdata, error: tErr } = await supabase
+          .from("pm_tasks")
+          .select("id, allocation:pm_allocations(resource_id)")
+          .in("id", taskIds);
+        if (tErr) throw tErr;
+        for (const t of (tdata ?? []) as Array<{
+          id: string;
+          allocation: { resource_id: string } | null;
+        }>) {
+          if (t.allocation?.resource_id) taskRes.set(t.id, t.allocation.resource_id);
+        }
+      }
+      const userToRes = new Map<string, string>();
+      for (const e of list) {
+        if (e.entry_type === "project" && e.task_id) {
+          const r = taskRes.get(e.task_id);
+          if (r && !userToRes.has(e.user_id)) userToRes.set(e.user_id, r);
+        }
+      }
+
+      // 12 week buckets
+      const buckets = new Map<
+        string,
+        { billable: number; internal: number; label: string; weekStart: string }
+      >();
+      for (let i = 11; i >= 0; i--) {
+        const ws = startOfWeek(subWeeks(end, i), { weekStartsOn: 1 });
+        const key = format(ws, "yyyy-MM-dd");
+        buckets.set(key, {
+          billable: 0,
+          internal: 0,
+          label: format(ws, "d MMM"),
+          weekStart: key,
+        });
+      }
+
+      for (const e of list) {
+        let resourceId: string | null = null;
+        if (e.entry_type === "project" && e.task_id) {
+          resourceId = taskRes.get(e.task_id) ?? null;
+        }
+        if (!resourceId) resourceId = userToRes.get(e.user_id) ?? null;
+        if (filteredResourceIds.size > 0) {
+          if (!resourceId || !filteredResourceIds.has(resourceId)) continue;
+        }
+        const ws = startOfWeek(parseISO(e.entry_date), { weekStartsOn: 1 });
+        const key = format(ws, "yyyy-MM-dd");
+        const b = buckets.get(key);
+        if (!b) continue;
+        const h = Number(e.hours) || 0;
+        if (e.entry_type === "project" && e.billable) b.billable += h;
+        else if (e.entry_type === "non_working") {
+          // skip — non-working time excluded from utilization
+        } else b.internal += h;
+      }
+
+      return Array.from(buckets.values()).map((b) => {
+        const denom = b.billable + b.internal;
+        return {
+          label: b.label,
+          weekStart: b.weekStart,
+          billable: b.billable,
+          internal: b.internal,
+          utilization: denom > 0 ? (b.billable / denom) * 100 : 0,
+          internalPct: denom > 0 ? (b.internal / denom) * 100 : 0,
+        };
+      });
+    },
+  });
+}
+
+function WeeklyUtilizationCard({
+  data,
+  targets,
+}: {
+  data: WeekPoint[];
+  targets: UtilTargets;
+}) {
+  const latest = data[data.length - 1];
+  const prev = data[data.length - 2];
+  const trend = latest && prev ? latest.utilization - prev.utilization : 0;
+  return (
+    <Card className="mt-6">
+      <CardHeader className="flex flex-row items-start justify-between space-y-0">
+        <div>
+          <CardTitle className="text-lg">Utilization trend</CardTitle>
+          <CardDescription>
+            Last 12 weeks · target band {Math.round(targets.utilization_target_min)}–
+            {Math.round(targets.utilization_target_max)}%
+          </CardDescription>
+        </div>
+        {latest && (
+          <div className="text-right">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">
+              This week
+            </div>
+            <div className="text-xl font-semibold tabular-nums">
+              {pct(latest.utilization)}
+            </div>
+            <div
+              className={cn(
+                "text-xs tabular-nums",
+                trend >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400",
+              )}
+            >
+              {trend >= 0 ? "▲" : "▼"} {pct(Math.abs(trend))} vs prev
+            </div>
+          </div>
+        )}
+      </CardHeader>
+      <CardContent>
+        <div className="h-[260px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis
+                dataKey="label"
+                stroke="currentColor"
+                className="text-xs text-muted-foreground"
+              />
+              <YAxis
+                stroke="currentColor"
+                className="text-xs text-muted-foreground"
+                domain={[0, 100]}
+                tickFormatter={(v) => `${v}%`}
+              />
+              <RTooltip
+                formatter={(v: number, name: string) => [`${Number(v).toFixed(1)}%`, name]}
+                contentStyle={{
+                  background: "hsl(var(--popover))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
+              {/* Target band as a translucent area using two reference bars */}
+              <Bar
+                dataKey={() => targets.utilization_target_max}
+                name="Target max"
+                fill="hsl(var(--primary) / 0.08)"
+                stackId="band"
+                isAnimationActive={false}
+                legendType="none"
+              />
+              <Line
+                type="monotone"
+                dataKey="utilization"
+                name="Utilization"
+                stroke="hsl(var(--primary))"
+                strokeWidth={2.5}
+                dot={{ r: 3 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="internalPct"
+                name="Internal %"
+                stroke="hsl(var(--muted-foreground))"
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey={() => targets.utilization_target_min}
+                name={`Min ${Math.round(targets.utilization_target_min)}%`}
+                stroke="hsl(var(--muted-foreground))"
+                strokeDasharray="2 4"
+                dot={false}
+                legendType="none"
+              />
+              <Line
+                type="monotone"
+                dataKey={() => targets.utilization_target_max}
+                name={`Max ${Math.round(targets.utilization_target_max)}%`}
+                stroke="hsl(var(--muted-foreground))"
+                strokeDasharray="2 4"
+                dot={false}
+                legendType="none"
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 

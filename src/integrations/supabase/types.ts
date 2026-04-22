@@ -165,10 +165,13 @@ export type Database = {
           dias_uteis: number
           horas_dia: number
           id: string
+          internal_threshold_pct: number
           margem_lucro_pct: number
           notas: string | null
           singleton: boolean
           updated_at: string
+          utilization_target_max: number
+          utilization_target_min: number
         }
         Insert: {
           created_at?: string
@@ -176,10 +179,13 @@ export type Database = {
           dias_uteis?: number
           horas_dia?: number
           id?: string
+          internal_threshold_pct?: number
           margem_lucro_pct?: number
           notas?: string | null
           singleton?: boolean
           updated_at?: string
+          utilization_target_max?: number
+          utilization_target_min?: number
         }
         Update: {
           created_at?: string
@@ -187,10 +193,13 @@ export type Database = {
           dias_uteis?: number
           horas_dia?: number
           id?: string
+          internal_threshold_pct?: number
           margem_lucro_pct?: number
           notas?: string | null
           singleton?: boolean
           updated_at?: string
+          utilization_target_max?: number
+          utilization_target_min?: number
         }
         Relationships: []
       }
