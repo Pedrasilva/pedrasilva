@@ -30,7 +30,32 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Shield, ExternalLink, AlertCircle, Plus, Crown, Search } from "lucide-react";
+import {
+  Shield,
+  ExternalLink,
+  AlertCircle,
+  Plus,
+  Crown,
+  Search,
+  Archive,
+  ArchiveRestore,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  Pencil,
+  Check,
+  X,
+} from "lucide-react";
+import {
+  useArchiveInternalCategory,
+  useCreateInternalCategory,
+  useDeleteInternalCategory,
+  useInternalCategories,
+  useReorderInternalCategories,
+  useRestoreInternalCategory,
+  useUpdateInternalCategory,
+  type InternalCategoryRow,
+} from "@/lib/projects/use-internal-categories";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { NewCollaboratorDialog } from "@/components/NewCollaboratorDialog";
@@ -531,3 +556,312 @@ function PermissionsMatrix({
     </Card>
   );
 }
+
+// =============================================================================
+// Internal cost-centers admin
+// =============================================================================
+//
+// CRUD + archive + reorder UI for the `pm_internal_categories` table. Archived
+// categories stop appearing in the timesheet picker for new entries, but
+// historical reports keep working because `pm_time_entries.internal_category`
+// stores the category name as plain text.
+
+function InternalCategoriesAdmin() {
+  const [includeArchived, setIncludeArchived] = useState(true);
+  const { data: rows = [], isLoading } = useInternalCategories({ includeArchived });
+  const create = useCreateInternalCategory();
+  const update = useUpdateInternalCategory();
+  const archive = useArchiveInternalCategory();
+  const restore = useRestoreInternalCategory();
+  const remove = useDeleteInternalCategory();
+  const reorder = useReorderInternalCategories();
+
+  const [newName, setNewName] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+
+  const active = useMemo(() => rows.filter((r) => !r.archived_at), [rows]);
+  const archived = useMemo(() => rows.filter((r) => r.archived_at), [rows]);
+
+  const moveActive = (id: string, dir: -1 | 1) => {
+    const idx = active.findIndex((r) => r.id === id);
+    if (idx < 0) return;
+    const target = idx + dir;
+    if (target < 0 || target >= active.length) return;
+    const next = active.slice();
+    [next[idx], next[target]] = [next[target], next[idx]];
+    reorder.mutate(next.map((r) => r.id));
+  };
+
+  const handleCreate = async () => {
+    const name = newName.trim();
+    if (!name) return;
+    try {
+      await create.mutateAsync({ name });
+      setNewName("");
+      toast.success("Cost center criado");
+    } catch (e) {
+      toast.error((e as Error).message || "Falhou");
+    }
+  };
+
+  const startEdit = (row: InternalCategoryRow) => {
+    setEditingId(row.id);
+    setEditName(row.name);
+  };
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditName("");
+  };
+  const saveEdit = async (row: InternalCategoryRow) => {
+    if (!editName.trim() || editName.trim() === row.name) {
+      cancelEdit();
+      return;
+    }
+    try {
+      await update.mutateAsync({ id: row.id, name: editName });
+      toast.success("Renomeado");
+      cancelEdit();
+    } catch (e) {
+      toast.error((e as Error).message || "Falhou");
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Cost centers internos</CardTitle>
+        <CardDescription>
+          Categorias usadas na timesheet para horas internas (reuniões,
+          formação, propostas, etc.). Arquivar uma categoria remove-a do
+          seletor para novas entradas, mas mantém-na intacta em relatórios
+          históricos.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="flex-1 min-w-[240px]">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">
+              Novo cost center
+            </label>
+            <Input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="ex.: Recrutamento"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleCreate();
+              }}
+            />
+          </div>
+          <Button onClick={handleCreate} disabled={create.isPending || !newName.trim()}>
+            <Plus className="h-4 w-4" /> Adicionar
+          </Button>
+          <label className="ml-auto inline-flex items-center gap-2 text-xs text-muted-foreground">
+            <Switch
+              checked={includeArchived}
+              onCheckedChange={(v) => setIncludeArchived(!!v)}
+            />
+            Mostrar arquivados
+          </label>
+        </div>
+
+        <section>
+          <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Activos ({active.length})
+          </h3>
+          {isLoading ? (
+            <div className="p-3 text-sm text-muted-foreground">A carregar…</div>
+          ) : active.length === 0 ? (
+            <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+              Sem categorias activas. A timesheet não terá nada na secção
+              "Internal cost centers".
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[60px]">Ordem</TableHead>
+                  <TableHead>Nome</TableHead>
+                  <TableHead className="text-right">Acções</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {active.map((row, i) => (
+                  <TableRow key={row.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          disabled={i === 0 || reorder.isPending}
+                          onClick={() => moveActive(row.id, -1)}
+                          aria-label="Mover para cima"
+                        >
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          disabled={i === active.length - 1 || reorder.isPending}
+                          onClick={() => moveActive(row.id, 1)}
+                          aria-label="Mover para baixo"
+                        >
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {editingId === row.id ? (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            className="max-w-xs"
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") saveEdit(row);
+                              if (e.key === "Escape") cancelEdit();
+                            }}
+                            autoFocus
+                          />
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => saveEdit(row)}
+                            disabled={update.isPending}
+                            aria-label="Guardar"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={cancelEdit}
+                            aria-label="Cancelar"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <span className="font-medium">{row.name}</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="inline-flex items-center gap-1">
+                        {editingId !== row.id && (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => startEdit(row)}
+                            aria-label="Renomear"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => archive.mutate(row.id)}
+                                disabled={archive.isPending}
+                                aria-label="Arquivar"
+                              >
+                                <Archive className="h-3.5 w-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              Remove do seletor da timesheet. Histórico mantém-se.
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </section>
+
+        {includeArchived && (
+          <section>
+            <h3 className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              Arquivados ({archived.length})
+            </h3>
+            {archived.length === 0 ? (
+              <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
+                Sem categorias arquivadas.
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Arquivado em</TableHead>
+                    <TableHead className="text-right">Acções</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {archived.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell className="text-muted-foreground line-through">
+                        {row.name}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {row.archived_at
+                          ? new Date(row.archived_at).toLocaleDateString("pt-PT")
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="inline-flex items-center gap-1">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => restore.mutate(row.id)}
+                            disabled={restore.isPending}
+                            aria-label="Restaurar"
+                          >
+                            <ArchiveRestore className="h-3.5 w-3.5" />
+                          </Button>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    if (
+                                      confirm(
+                                        `Apagar "${row.name}" definitivamente? Esta acção é irreversível e pode partir relatórios históricos se houver entradas que referenciem o nome.`,
+                                      )
+                                    ) {
+                                      remove.mutate(row.id);
+                                    }
+                                  }}
+                                  disabled={remove.isPending}
+                                  aria-label="Apagar definitivamente"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                Apagar definitivamente — pode afectar relatórios
+                                históricos. Prefere arquivar.
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </section>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
