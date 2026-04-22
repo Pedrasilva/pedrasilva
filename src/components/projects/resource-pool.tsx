@@ -105,15 +105,28 @@ export function ResourcePool({ resources, collapsed = false }: Props) {
   }, []);
 
   return (
-    <aside className="flex h-full w-72 flex-col border-l border-border bg-card">
-      <div className="border-b border-border px-4 py-3">
-        <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Drag onto stage</p>
-        <h2 className="font-display text-lg font-semibold">Team pool</h2>
-        <p className="mt-1 text-[11px] text-muted-foreground">
-          This week · {format(thisWeek.start, "MMM d")} – {format(thisWeek.end, "MMM d")}
-        </p>
+    <aside
+      className={`flex h-full flex-col border-l border-border bg-card transition-all ${
+        collapsed ? "w-12" : "w-72"
+      }`}
+    >
+      <div className="border-b border-border px-3 py-3">
+        {collapsed ? (
+          <p className="text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Team
+          </p>
+        ) : (
+          <>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Drag onto stage</p>
+            <h2 className="font-display text-lg font-semibold">Team pool</h2>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              This week · {format(thisWeek.start, "MMM d")} – {format(thisWeek.end, "MMM d")}
+            </p>
+          </>
+        )}
       </div>
-      <div className="flex-1 space-y-2 overflow-y-auto p-3">
+      <div className={`flex-1 overflow-y-auto ${collapsed ? "space-y-1.5 p-1.5" : "space-y-2 p-3"}`}>
+
         {activeResources.map((r) => {
           const wh = weekHoursForResource(r.id, thisWeek.start, thisWeek.end, allocs ?? []);
           const intervals = leaveByResource?.get(r.id) ?? [];
