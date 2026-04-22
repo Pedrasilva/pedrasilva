@@ -564,6 +564,13 @@ function FinancialsPage() {
   // 12-week utilization trend
   const { data: weeklyUtil } = useWeeklyUtilTrend(monthAnchor, filteredResourceIds);
 
+  // Business Development efficiency
+  const bdMonthCost = useMemo(() => {
+    const bucket = internalCategoryRows.rows.find((r) => r.category === "Fee proposals");
+    return { hours: bucket?.hours ?? 0, cost: bucket?.cost ?? 0 };
+  }, [internalCategoryRows.rows]);
+  const { data: bd } = useBusinessDevReport(monthStart, monthEnd, resourceMap, defaults);
+
 
   return (
     <AppShell active="projects">
