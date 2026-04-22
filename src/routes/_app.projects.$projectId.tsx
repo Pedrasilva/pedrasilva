@@ -1442,8 +1442,13 @@ function InsightsPanel({
 
       <InsightCard title="Profitability">
         <div className="grid gap-6 px-2 py-2 sm:grid-cols-2">
-          <GaugeStat label="Current:" money={profitCurrent} pct={profitCurPct} />
-          <GaugeStat label="Forecast:" money={profitForecast} pct={profitForePct} />
+          <GaugeStat label="Current margin:" money={profitCurrent} pct={profitMarginCurrent} />
+          <GaugeStat label="Forecast margin:" money={profitForecast} pct={profitMarginForecast} />
+        </div>
+        <div className="mt-2 grid grid-cols-3 gap-2 px-2 pb-3 text-xs">
+          <HoursPill label="Billable" hours={totalBillableHours} tone="ok" />
+          <HoursPill label="Non-billable" hours={totalNonBillableHours} tone="warn" />
+          <HoursPill label="Total logged" hours={totalLoggedHours} tone="muted" />
         </div>
       </InsightCard>
 
