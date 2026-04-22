@@ -198,7 +198,7 @@ function useMonthEntries(monthStartISO: string, monthEndISO: string) {
     queryFn: async () => {
       const { data: entries, error } = await supabase
         .from("pm_time_entries")
-        .select("id, user_id, entry_type, billable, hours, entry_date, task_id")
+        .select("id, user_id, entry_type, billable, hours, entry_date, task_id, internal_category")
         .gte("entry_date", monthStartISO)
         .lte("entry_date", monthEndISO);
       if (error) throw error;
