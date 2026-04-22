@@ -200,8 +200,6 @@ export function useProjectInsights(projectId: string) {
       const expensesValue = (exps ?? []).reduce((a, e) => a + Number(e.sale_price), 0);
       const expensesCost = (exps ?? []).reduce((a, e) => a + Number(e.purchase_price), 0);
 
-      const servicesCost = Array.from(resourceTotals.values()).reduce((a, r) => a + r.cost, 0);
-
       const services: FinancialsRow = {
         budget: budgetTotal,
         value: earnedValue,
@@ -236,7 +234,7 @@ export function useProjectInsights(projectId: string) {
       const avgRate =
         resourceTotals.size > 0
           ? Array.from(resourceTotals.values()).reduce(
-              (a, r) => a + (r.hours > 0 ? r.sale / r.hours : 0),
+              (a, r) => a + (r.billableHours > 0 ? r.sale / r.billableHours : 0),
               0,
             ) / resourceTotals.size
           : 0;
@@ -246,6 +244,9 @@ export function useProjectInsights(projectId: string) {
       const profitPctCurrent = total.value > 0 ? Math.round((total.profit / total.value) * 100) : 0;
       const profitPctForecast =
         forecastValue > 0 ? Math.round(((forecastValue - total.cost) / forecastValue) * 100) : 0;
+      // Profit margin = profit / revenue (project revenue from billable hours + materials + expenses value)
+      const profitMarginPct =
+        total.value > 0 ? Math.round((total.profit / total.value) * 100) : 0;
 
       const workDonePct =
         plannedHours > 0 ? Math.min(100, Math.round((loggedHours / plannedHours) * 100)) : 0;
@@ -256,6 +257,8 @@ export function useProjectInsights(projectId: string) {
         totals: {
           plannedHours,
           loggedHours,
+          billableHours: billableHoursTotal,
+          nonBillableHours: nonBillableHoursTotal,
           earnedValue,
           forecastValue,
           budgetTotal,
@@ -263,6 +266,7 @@ export function useProjectInsights(projectId: string) {
           forecastPct,
           profitPctCurrent,
           profitPctForecast,
+          profitMarginPct,
         },
         financials: { services, materials, expenses: expensesRow, total },
         workInProgressHours: Math.max(0, plannedHours - loggedHours),
