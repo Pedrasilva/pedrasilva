@@ -107,6 +107,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
     },
   });
 
+  const resourceMap = useMemo(() => new Map(resources.map((r) => [r.id, r])), [resources]);
   const { data: schedules } = useResourceSchedules();
   const dailyLimitMap = useMemo(() => buildDailyLimitMap(schedules), [schedules]);
 
