@@ -39,6 +39,8 @@ import {
   GanttChartSquare,
   LayoutGrid,
   ChevronDown,
+  CheckSquare,
+  Clock,
 } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
@@ -273,6 +275,30 @@ function AppLayout() {
               >
                 <Users className="h-3.5 w-3.5" />
                 Team
+              </Link>
+              <Link
+                to="/projects/my-tasks"
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+                  loc.pathname.startsWith("/projects/my-tasks")
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                )}
+              >
+                <CheckSquare className="h-3.5 w-3.5" />
+                My tasks
+              </Link>
+              <Link
+                to="/projects/timesheet"
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+                  loc.pathname.startsWith("/projects/timesheet")
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                )}
+              >
+                <Clock className="h-3.5 w-3.5" />
+                Timesheet
               </Link>
             </nav>
           )}
