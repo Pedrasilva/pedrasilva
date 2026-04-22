@@ -1,6 +1,7 @@
 {
   "module": "Projects",
   "studio": "Studio",
+  "people": "People",
   "nav": {
     "projects": "Projects",
     "projectList": "Project list",
@@ -15,6 +16,8 @@
   "dashboard": {
     "title": "Projects Dashboard",
     "searchPlaceholder": "Search projects or clients…",
+    "thisWeek": "This week",
+    "thisMonth": "This month",
     "filters": {
       "active": "Active",
       "paused": "Paused",
@@ -25,6 +28,92 @@
     "teamPerformance": "Team performance",
     "subtitleTeam": "Utilization and billable / internal split — {{period}}",
     "subtitleSelf": "Your hours and billable split — {{period}}"
+  },
+  "insights": {
+    "title": "Projects Insights",
+    "subtitle": "Analytical views: pipeline value over time and per-resource performance."
+  },
+  "myTasks": {
+    "title": "My Tasks",
+    "subtitle": "Allocations placed on you. Accept a task to start clocking time against it.",
+    "scope": {
+      "mine": "Mine",
+      "all": "Everyone"
+    },
+    "noLink": "Your account isn't linked to a team member yet. Ask an admin to add you to the team with the same email ({{email}}).",
+    "tabs": {
+      "pending": "Pending",
+      "active": "Active",
+      "done": "Done"
+    },
+    "empty": {
+      "pending": "No pending tasks. Nice.",
+      "active": "No active tasks. Accept one from Pending to start.",
+      "done": "No completed tasks yet."
+    },
+    "errors": {
+      "updateFailed": "Could not update task"
+    },
+    "project": "Project"
+  },
+  "resources": {
+    "title": "Team",
+    "subtitle": "Team members are managed in HR. New collaborators added there appear here automatically. Click any name to edit project-specific details (rate, capacity, color).",
+    "tabs": {
+      "all": "All",
+      "project": "Project Team",
+      "back_office": "Back Office",
+      "inactive": "Inactive"
+    },
+    "columns": {
+      "name": "Name",
+      "role": "Role",
+      "team": "Team",
+      "rate": "Rate",
+      "capacity": "Capacity",
+      "active": "Active"
+    },
+    "rateSuggestionTitle": "Auto-suggested @ 50% of HR comparative summary (no rate set)",
+    "removeConfirm": "Remove {{name}} from the project team? They will remain in HR.",
+    "removed": "Removed",
+    "emptyFiltered": "No one in this view yet.",
+    "emptyAll": "No team members yet. Add collaborators in the HR section to populate this list.",
+    "rateSuggestionFootnote": "* Rate is auto-suggested from the HR comparative summary (sale @ 50%) when the resource has no rate set. Edit the resource to fix a value."
+  },
+  "gantt": {
+    "title": "Global Gantt",
+    "subtitle": "All {{filter}} projects in a single Gantt. Drag resources from the side pool onto any stage, or grab an existing allocation by the left handle to move it between stages or projects.",
+    "filterLabels": {
+      "active": "active",
+      "paused": "paused",
+      "archived": "archived"
+    },
+    "tabs": {
+      "active": "Active",
+      "paused": "Paused",
+      "archived": "Archived"
+    },
+    "zoom": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "out": "Zoom out",
+      "in": "Zoom in"
+    },
+    "pool": {
+      "expand": "Expand pool",
+      "collapse": "Collapse pool"
+    },
+    "fullscreen": {
+      "enter": "Fullscreen",
+      "exit": "Exit fullscreen"
+    },
+    "loading": "Loading…",
+    "empty": {
+      "active": "No active projects",
+      "paused": "Nothing paused",
+      "archived": "No archived projects"
+    }
   },
   "kpi": {
     "businessPerformance": "Business performance",
