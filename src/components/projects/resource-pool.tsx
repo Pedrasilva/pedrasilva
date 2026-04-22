@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { addDays, eachDayOfInterval, format, isWeekend, parseISO, startOfWeek } from "date-fns";
+import { addDays, format, parseISO, startOfWeek } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import type { Resource } from "@/lib/projects/types";
 import { useAllAllocations } from "@/lib/projects/use-planner";
@@ -8,11 +8,7 @@ import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { AlertTriangle, GripVertical, CalendarOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import {
-  computeResourceCapacity,
-  STANDARD_DAILY_HOURS,
-  type LeaveInterval,
-} from "@/lib/projects/leave-capacity";
+import { computeResourceCapacity, type LeaveInterval } from "@/lib/projects/leave-capacity";
 
 interface Props {
   resources: Resource[];
@@ -216,7 +212,3 @@ export function ResourcePool({ resources }: Props) {
   );
 }
 
-// keep imports referenced
-void eachDayOfInterval;
-void isWeekend;
-void STANDARD_DAILY_HOURS;
