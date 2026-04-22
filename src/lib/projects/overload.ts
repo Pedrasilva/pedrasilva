@@ -19,10 +19,24 @@ export interface AllocationLite {
   start_date: string;
   end_date: string;
   hours_per_day: number;
+  /**
+   * Optional planning status. Tentative allocations are weighted at
+   * `TENTATIVE_LOAD_WEIGHT` so they remain visible in load checks but don't
+   * dominate overload alarms the way firm commitments do.
+   */
+  status?: "tentative" | "committed";
 }
+
+/** Weight applied to tentative allocations in load aggregation (0..1). */
+export const TENTATIVE_LOAD_WEIGHT = 0.5;
 
 function limitFor(resourceId: string, limits?: DailyLimitMap): number {
   return limits?.get(resourceId) ?? DEFAULT_DAILY_LIMIT_HOURS;
+}
+
+function effectiveHours(a: AllocationLite): number {
+  const h = Number(a.hours_per_day);
+  return a.status === "tentative" ? h * TENTATIVE_LOAD_WEIGHT : h;
 }
 
 export function buildLoadMap(allocations: AllocationLite[]): Map<string, number> {
@@ -30,10 +44,11 @@ export function buildLoadMap(allocations: AllocationLite[]): Map<string, number>
   for (const a of allocations) {
     let d = parseISO(a.start_date);
     const end = parseISO(a.end_date);
+    const hoursPerDay = effectiveHours(a);
     while (d <= end) {
       if (!isWeekend(d)) {
         const key = `${a.resource_id}|${format(d, "yyyy-MM-dd")}`;
-        load.set(key, (load.get(key) ?? 0) + Number(a.hours_per_day));
+        load.set(key, (load.get(key) ?? 0) + hoursPerDay);
       }
       d = addDays(d, 1);
     }
