@@ -485,30 +485,53 @@ function DashboardPage() {
   // ---------- Alerts ----------
   const alerts: AlertItem[] = useMemo(() => {
     const list: AlertItem[] = [];
-    // Over budget + low margin
-    for (const r of healthRows) {
-      if (r.status === "bad" && r.budget > 0 && r.actualCost > r.budget) {
+    // Financial alerts: only when user can see € data.
+    if (canSeeFinancials) {
+      for (const r of healthRows) {
+        if (r.status === "bad" && r.budget > 0 && r.actualCost > r.budget) {
+          list.push({
+            id: `ob-${r.project.id}`,
+            kind: "over_budget",
+            title: `${r.project.name} is over budget`,
+            detail: overBudgetDetail(r.actualCost, r.budget),
+            href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
+          });
+        } else if (r.actualRevenue > 0 && r.marginPct < 15 && r.marginPct >= 0) {
+          list.push({
+            id: `lm-${r.project.id}`,
+            kind: "low_margin",
+            title: `${r.project.name} has low margin`,
+            detail: `Margin ${Math.round(r.marginPct)}% — target ≥ 15%`,
+            href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
+          });
+        } else if (r.actualRevenue > 0 && r.marginPct < 0) {
+          list.push({
+            id: `lm-${r.project.id}`,
+            kind: "low_margin",
+            title: `${r.project.name} has negative margin`,
+            detail: `Margin ${Math.round(r.marginPct)}% — losing money`,
+            href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
+          });
+        }
+      }
+    }
+
+    // Time-based alerts (visible to everyone): overrun and approaching plan.
+    for (const r of effortRows) {
+      if (r.status === "bad" && r.plannedHours > 0) {
         list.push({
-          id: `ob-${r.project.id}`,
-          kind: "over_budget",
-          title: `${r.project.name} is over budget`,
-          detail: overBudgetDetail(r.actualCost, r.budget),
+          id: `over-${r.project.id}`,
+          kind: "overrun",
+          title: `${r.project.name} is over planned hours`,
+          detail: overrunDetail(r.loggedHours, r.plannedHours),
           href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
         });
-      } else if (r.actualRevenue > 0 && r.marginPct < 15 && r.marginPct >= 0) {
+      } else if (r.status === "warn" && r.plannedHours > 0 && r.loggedHours / r.plannedHours > 0.8) {
         list.push({
-          id: `lm-${r.project.id}`,
-          kind: "low_margin",
-          title: `${r.project.name} has low margin`,
-          detail: `Margin ${Math.round(r.marginPct)}% — target ≥ 15%`,
-          href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
-        });
-      } else if (r.actualRevenue > 0 && r.marginPct < 0) {
-        list.push({
-          id: `lm-${r.project.id}`,
-          kind: "low_margin",
-          title: `${r.project.name} has negative margin`,
-          detail: `Margin ${Math.round(r.marginPct)}% — losing money`,
+          id: `appr-${r.project.id}`,
+          kind: "approaching_plan",
+          title: `${r.project.name} approaching planned hours`,
+          detail: overrunDetail(r.loggedHours, r.plannedHours),
           href: { to: "/projects/$projectId", params: { projectId: r.project.id } },
         });
       }
