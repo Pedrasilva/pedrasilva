@@ -1431,12 +1431,15 @@ export type Database = {
           created_at: string
           ended_at: string | null
           entry_date: string
+          entry_type: Database["public"]["Enums"]["pm_time_entry_type"]
           hours: number
           id: string
+          internal_category: string | null
+          leave_type: string | null
           notes: string | null
           source: string
           started_at: string | null
-          task_id: string
+          task_id: string | null
           updated_at: string
           user_id: string
         }
@@ -1445,12 +1448,15 @@ export type Database = {
           created_at?: string
           ended_at?: string | null
           entry_date: string
+          entry_type?: Database["public"]["Enums"]["pm_time_entry_type"]
           hours?: number
           id?: string
+          internal_category?: string | null
+          leave_type?: string | null
           notes?: string | null
           source?: string
           started_at?: string | null
-          task_id: string
+          task_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1459,12 +1465,15 @@ export type Database = {
           created_at?: string
           ended_at?: string | null
           entry_date?: string
+          entry_type?: Database["public"]["Enums"]["pm_time_entry_type"]
           hours?: number
           id?: string
+          internal_category?: string | null
+          leave_type?: string | null
           notes?: string | null
           source?: string
           started_at?: string | null
-          task_id?: string
+          task_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1819,6 +1828,7 @@ export type Database = {
       pm_invoice_status: "draft" | "sent" | "paid" | "overdue" | "cancelled"
       pm_project_status: "active" | "paused" | "archived"
       pm_task_status: "pending" | "active" | "paused" | "done"
+      pm_time_entry_type: "project" | "internal" | "non_working"
       project_status:
         | "proposta"
         | "em_curso"
@@ -1980,6 +1990,7 @@ export const Constants = {
       pm_invoice_status: ["draft", "sent", "paid", "overdue", "cancelled"],
       pm_project_status: ["active", "paused", "archived"],
       pm_task_status: ["pending", "active", "paused", "done"],
+      pm_time_entry_type: ["project", "internal", "non_working"],
       project_status: [
         "proposta",
         "em_curso",
