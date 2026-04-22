@@ -17,8 +17,9 @@ import { StageDependencyEditor } from "@/components/projects/stage-dependency-ed
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { toast } from "sonner";
 import { Trash2, GripVertical, AlertTriangle, CalendarOff } from "lucide-react";
-import { allocationOverload, buildLoadMap, DAILY_LIMIT_HOURS } from "@/lib/projects/overload";
+import { allocationOverload, buildLoadMap, DEFAULT_DAILY_LIMIT_HOURS } from "@/lib/projects/overload";
 import { leaveHoursInRange, type LeaveInterval } from "@/lib/projects/leave-capacity";
+import { useResourceSchedules, buildDailyLimitMap, dailyHoursFor } from "@/lib/projects/use-resource-schedules";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { fmt } from "@/lib/projects/gantt-utils";
