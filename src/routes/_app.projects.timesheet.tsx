@@ -94,6 +94,13 @@ function TimesheetPage() {
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
   const [addPopoverOpen, setAddPopoverOpen] = useState(false);
 
+  // Internal cost centers are admin-managed (DB-backed). The picker shows
+  // ACTIVE categories only — archived ones disappear from the list of
+  // selectable rows for new entries. However, if the user already has hours
+  // logged this week against an archived/renamed category, we still surface
+  // that row so they can review or zero it out (history stays intact).
+  const { data: activeInternalCategories = [] } = useInternalCategories();
+
   // Index entries by composite key + date so each section can look itself up.
   const entryMap = useMemo(() => {
     const m = new Map<CellKey, Map<string, CellInfo>>();
