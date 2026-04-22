@@ -277,7 +277,7 @@ export function ResourcePool({ resources, collapsed = false }: Props) {
             </div>
           );
         })}
-        {!activeResources.length && (
+        {!activeResources.length && !collapsed && (
           <div className="rounded-md border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
             No active team members. Add or activate someone in the Team tab to start allocating.
           </div>
