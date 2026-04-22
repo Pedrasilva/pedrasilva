@@ -112,6 +112,74 @@ function useResources() {
   });
 }
 
+type UtilTargets = {
+  utilization_target_min: number;
+  utilization_target_max: number;
+  internal_threshold_pct: number;
+};
+
+function useUtilTargets() {
+  return useQuery({
+    queryKey: ["fin-util-targets"],
+    queryFn: async (): Promise<UtilTargets> => {
+      const { data, error } = await supabase
+        .from("bo_settings")
+        .select("utilization_target_min, utilization_target_max, internal_threshold_pct")
+        .eq("singleton", true)
+        .maybeSingle();
+      if (error) throw error;
+      const row = data as {
+        utilization_target_min?: number | null;
+        utilization_target_max?: number | null;
+        internal_threshold_pct?: number | null;
+      } | null;
+      return {
+        utilization_target_min: Number(row?.utilization_target_min ?? 75),
+        utilization_target_max: Number(row?.utilization_target_max ?? 85),
+        internal_threshold_pct: Number(row?.internal_threshold_pct ?? 20),
+      };
+    },
+  });
+}
+
+function useUpdateUtilTargets() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (t: UtilTargets) => {
+      const { error } = await supabase
+        .from("bo_settings")
+        .update({
+          utilization_target_min: t.utilization_target_min,
+          utilization_target_max: t.utilization_target_max,
+          internal_threshold_pct: t.internal_threshold_pct,
+        } as never)
+        .eq("singleton", true);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["fin-util-targets"] });
+      toast.success("Utilization targets updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+function utilizationTone(
+  utilization: number,
+  internalPct: number,
+  targets: UtilTargets,
+): { tone: "good" | "low" | "high" | "internal"; label: string } {
+  if (internalPct > targets.internal_threshold_pct) {
+    return { tone: "internal", label: "High internal time" };
+  }
+  if (utilization < targets.utilization_target_min) {
+    return { tone: "low", label: "Underutilized" };
+  }
+  if (utilization > targets.utilization_target_max) {
+    return { tone: "high", label: "Overutilized" };
+  }
+  return { tone: "good", label: "On target" };
+}
 
 function useMonthEntries(monthStartISO: string, monthEndISO: string) {
   return useQuery({
