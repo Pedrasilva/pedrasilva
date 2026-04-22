@@ -385,6 +385,47 @@ export type Database = {
           },
         ]
       }
+      crm_accounts: {
+        Row: {
+          billing_details: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          notas: string | null
+          updated_at: string
+        }
+        Insert: {
+          billing_details?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          notas?: string | null
+          updated_at?: string
+        }
+        Update: {
+          billing_details?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          notas?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_accounts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_activities: {
         Row: {
           company_id: string | null
@@ -449,56 +490,135 @@ export type Database = {
           },
         ]
       }
+      crm_opportunities: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          estimated_fee: number
+          expected_start_date: string | null
+          id: string
+          name: string
+          notas: string | null
+          primary_contact_id: string | null
+          probability: number
+          stage: Database["public"]["Enums"]["crm_opportunity_stage"]
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          estimated_fee?: number
+          expected_start_date?: string | null
+          id?: string
+          name: string
+          notas?: string | null
+          primary_contact_id?: string | null
+          probability?: number
+          stage?: Database["public"]["Enums"]["crm_opportunity_stage"]
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          estimated_fee?: number
+          expected_start_date?: string | null
+          id?: string
+          name?: string
+          notas?: string | null
+          primary_contact_id?: string | null
+          probability?: number
+          stage?: Database["public"]["Enums"]["crm_opportunity_stage"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_opportunities_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_opportunities_primary_contact_id_fkey"
+            columns: ["primary_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fee_proposals: {
         Row: {
+          account_id: string | null
           company_id: string | null
           contact_id: string | null
           created_at: string
           created_by: string | null
           data_decisao: string | null
           data_proposta: string | null
+          fee_structure_type: Database["public"]["Enums"]["crm_fee_structure"]
           id: string
           notas: string | null
+          opportunity_id: string | null
           pipeline_status: Database["public"]["Enums"]["proposal_status"]
           pm_project_id: string | null
           probabilidade: number
+          quote_status: Database["public"]["Enums"]["crm_quote_status"]
           titulo: string
           updated_at: string
           valor: number
         }
         Insert: {
+          account_id?: string | null
           company_id?: string | null
           contact_id?: string | null
           created_at?: string
           created_by?: string | null
           data_decisao?: string | null
           data_proposta?: string | null
+          fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           id?: string
           notas?: string | null
+          opportunity_id?: string | null
           pipeline_status?: Database["public"]["Enums"]["proposal_status"]
           pm_project_id?: string | null
           probabilidade?: number
+          quote_status?: Database["public"]["Enums"]["crm_quote_status"]
           titulo: string
           updated_at?: string
           valor?: number
         }
         Update: {
+          account_id?: string | null
           company_id?: string | null
           contact_id?: string | null
           created_at?: string
           created_by?: string | null
           data_decisao?: string | null
           data_proposta?: string | null
+          fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           id?: string
           notas?: string | null
+          opportunity_id?: string | null
           pipeline_status?: Database["public"]["Enums"]["proposal_status"]
           pm_project_id?: string | null
           probabilidade?: number
+          quote_status?: Database["public"]["Enums"]["crm_quote_status"]
           titulo?: string
           updated_at?: string
           valor?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "fee_proposals_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "crm_accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "fee_proposals_company_id_fkey"
             columns: ["company_id"]
@@ -511,6 +631,13 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_proposals_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "crm_opportunities"
             referencedColumns: ["id"]
           },
           {
@@ -1200,42 +1327,83 @@ export type Database = {
       }
       pm_projects: {
         Row: {
+          account_id: string | null
           client: string | null
           color: string
+          company_id: string | null
           created_at: string
           external_id: string | null
           id: string
           name: string
           notes: string | null
+          opportunity_id: string | null
+          quote_id: string | null
           start_date: string
           status: Database["public"]["Enums"]["pm_project_status"]
           updated_at: string
         }
         Insert: {
+          account_id?: string | null
           client?: string | null
           color?: string
+          company_id?: string | null
           created_at?: string
           external_id?: string | null
           id?: string
           name: string
           notes?: string | null
+          opportunity_id?: string | null
+          quote_id?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["pm_project_status"]
           updated_at?: string
         }
         Update: {
+          account_id?: string | null
           client?: string | null
           color?: string
+          company_id?: string | null
           created_at?: string
           external_id?: string | null
           id?: string
           name?: string
           notes?: string | null
+          opportunity_id?: string | null
+          quote_id?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["pm_project_status"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pm_projects_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "crm_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_projects_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_projects_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "crm_opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_projects_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pm_resource_rates: {
         Row: {
@@ -2009,6 +2177,14 @@ export type Database = {
       benefit_category: "carro" | "ticket" | "premio" | "outros"
       company_status: "activo" | "prospecto" | "inactivo"
       crm_activity_type: "chamada" | "email" | "reuniao" | "nota" | "outro"
+      crm_fee_structure: "fixed" | "staged" | "monthly"
+      crm_opportunity_stage:
+        | "lead"
+        | "proposal"
+        | "negotiation"
+        | "won"
+        | "lost"
+      crm_quote_status: "draft" | "sent" | "approved" | "rejected"
       department: "Projecto" | "Backoffice"
       expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
       pm_allocation_status: "tentative" | "committed"
@@ -2179,6 +2355,9 @@ export const Constants = {
       benefit_category: ["carro", "ticket", "premio", "outros"],
       company_status: ["activo", "prospecto", "inactivo"],
       crm_activity_type: ["chamada", "email", "reuniao", "nota", "outro"],
+      crm_fee_structure: ["fixed", "staged", "monthly"],
+      crm_opportunity_stage: ["lead", "proposal", "negotiation", "won", "lost"],
+      crm_quote_status: ["draft", "sent", "approved", "rejected"],
       department: ["Projecto", "Backoffice"],
       expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
       pm_allocation_status: ["tentative", "committed"],

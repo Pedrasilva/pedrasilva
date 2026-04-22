@@ -1,12 +1,14 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { ArrowLeft, Building2, Users, GitBranch, LayoutDashboard } from "lucide-react";
+import { ArrowLeft, Building2, Users, GitBranch, LayoutDashboard, Target, Receipt } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
   { to: "/crm" as const, label: "Overview", icon: LayoutDashboard, match: (p: string) => p === "/crm" },
+  { to: "/crm/opportunities" as const, label: "Opportunities", icon: Target, match: (p: string) => p.startsWith("/crm/opportunities") || p.startsWith("/crm/quotes") },
+  { to: "/crm/accounts" as const, label: "Accounts", icon: Receipt, match: (p: string) => p.startsWith("/crm/accounts") },
   { to: "/crm/companies" as const, label: "Empresas", icon: Building2, match: (p: string) => p.startsWith("/crm/companies") },
   { to: "/crm/contacts" as const, label: "Contactos", icon: Users, match: (p: string) => p.startsWith("/crm/contacts") },
-  { to: "/crm/pipeline" as const, label: "Pipeline", icon: GitBranch, match: (p: string) => p.startsWith("/crm/pipeline") },
+  { to: "/crm/pipeline" as const, label: "Pipeline (legacy)", icon: GitBranch, match: (p: string) => p.startsWith("/crm/pipeline") },
 ];
 
 export function CrmShell({ children }: { children: React.ReactNode }) {

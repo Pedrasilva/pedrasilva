@@ -35,12 +35,17 @@ import { Route as AppHrDiasUteisRouteImport } from './routes/_app.hr.dias-uteis'
 import { Route as AppHrBeneficiosRouteImport } from './routes/_app.hr.beneficios'
 import { Route as AppHrAdminRouteImport } from './routes/_app.hr.admin'
 import { Route as AppCrmPipelineRouteImport } from './routes/_app.crm.pipeline'
+import { Route as AppCrmOpportunitiesRouteImport } from './routes/_app.crm.opportunities'
 import { Route as AppCrmContactsRouteImport } from './routes/_app.crm.contacts'
 import { Route as AppCrmCompaniesRouteImport } from './routes/_app.crm.companies'
+import { Route as AppCrmAccountsRouteImport } from './routes/_app.crm.accounts'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
+import { Route as AppCrmQuotesQuoteIdRouteImport } from './routes/_app.crm.quotes.$quoteId'
 import { Route as AppCrmPipelineProposalIdRouteImport } from './routes/_app.crm.pipeline.$proposalId'
+import { Route as AppCrmOpportunitiesOpportunityIdRouteImport } from './routes/_app.crm.opportunities.$opportunityId'
 import { Route as AppCrmCompaniesCompanyIdRouteImport } from './routes/_app.crm.companies.$companyId'
+import { Route as AppCrmAccountsAccountIdRouteImport } from './routes/_app.crm.accounts.$accountId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -172,6 +177,11 @@ const AppCrmPipelineRoute = AppCrmPipelineRouteImport.update({
   path: '/pipeline',
   getParentRoute: () => AppCrmRoute,
 } as any)
+const AppCrmOpportunitiesRoute = AppCrmOpportunitiesRouteImport.update({
+  id: '/opportunities',
+  path: '/opportunities',
+  getParentRoute: () => AppCrmRoute,
+} as any)
 const AppCrmContactsRoute = AppCrmContactsRouteImport.update({
   id: '/contacts',
   path: '/contacts',
@@ -180,6 +190,11 @@ const AppCrmContactsRoute = AppCrmContactsRouteImport.update({
 const AppCrmCompaniesRoute = AppCrmCompaniesRouteImport.update({
   id: '/companies',
   path: '/companies',
+  getParentRoute: () => AppCrmRoute,
+} as any)
+const AppCrmAccountsRoute = AppCrmAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
   getParentRoute: () => AppCrmRoute,
 } as any)
 const AppProjectsResourcesResourceIdRoute =
@@ -193,11 +208,22 @@ const AppHrColaboradorIdRoute = AppHrColaboradorIdRouteImport.update({
   path: '/colaborador/$id',
   getParentRoute: () => AppHrRoute,
 } as any)
+const AppCrmQuotesQuoteIdRoute = AppCrmQuotesQuoteIdRouteImport.update({
+  id: '/quotes/$quoteId',
+  path: '/quotes/$quoteId',
+  getParentRoute: () => AppCrmRoute,
+} as any)
 const AppCrmPipelineProposalIdRoute =
   AppCrmPipelineProposalIdRouteImport.update({
     id: '/$proposalId',
     path: '/$proposalId',
     getParentRoute: () => AppCrmPipelineRoute,
+  } as any)
+const AppCrmOpportunitiesOpportunityIdRoute =
+  AppCrmOpportunitiesOpportunityIdRouteImport.update({
+    id: '/$opportunityId',
+    path: '/$opportunityId',
+    getParentRoute: () => AppCrmOpportunitiesRoute,
   } as any)
 const AppCrmCompaniesCompanyIdRoute =
   AppCrmCompaniesCompanyIdRouteImport.update({
@@ -205,6 +231,11 @@ const AppCrmCompaniesCompanyIdRoute =
     path: '/$companyId',
     getParentRoute: () => AppCrmCompaniesRoute,
   } as any)
+const AppCrmAccountsAccountIdRoute = AppCrmAccountsAccountIdRouteImport.update({
+  id: '/$accountId',
+  path: '/$accountId',
+  getParentRoute: () => AppCrmAccountsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -212,8 +243,10 @@ export interface FileRoutesByFullPath {
   '/crm': typeof AppCrmRouteWithChildren
   '/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
+  '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
   '/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/crm/contacts': typeof AppCrmContactsRoute
+  '/crm/opportunities': typeof AppCrmOpportunitiesRouteWithChildren
   '/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
@@ -234,8 +267,11 @@ export interface FileRoutesByFullPath {
   '/crm/': typeof AppCrmIndexRoute
   '/hr/': typeof AppHrIndexRoute
   '/projects/': typeof AppProjectsIndexRoute
+  '/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
   '/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
+  '/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
+  '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
 }
@@ -243,8 +279,10 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
+  '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
   '/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/crm/contacts': typeof AppCrmContactsRoute
+  '/crm/opportunities': typeof AppCrmOpportunitiesRouteWithChildren
   '/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
@@ -265,8 +303,11 @@ export interface FileRoutesByTo {
   '/crm': typeof AppCrmIndexRoute
   '/hr': typeof AppHrIndexRoute
   '/projects': typeof AppProjectsIndexRoute
+  '/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
   '/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
+  '/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
+  '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
 }
@@ -278,8 +319,10 @@ export interface FileRoutesById {
   '/_app/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/crm/accounts': typeof AppCrmAccountsRouteWithChildren
   '/_app/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/_app/crm/contacts': typeof AppCrmContactsRoute
+  '/_app/crm/opportunities': typeof AppCrmOpportunitiesRouteWithChildren
   '/_app/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
   '/_app/hr/admin': typeof AppHrAdminRoute
   '/_app/hr/beneficios': typeof AppHrBeneficiosRoute
@@ -300,8 +343,11 @@ export interface FileRoutesById {
   '/_app/crm/': typeof AppCrmIndexRoute
   '/_app/hr/': typeof AppHrIndexRoute
   '/_app/projects/': typeof AppProjectsIndexRoute
+  '/_app/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
   '/_app/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
+  '/_app/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/_app/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
+  '/_app/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
 }
@@ -313,8 +359,10 @@ export interface FileRouteTypes {
     | '/crm'
     | '/hr'
     | '/api/notify-expense'
+    | '/crm/accounts'
     | '/crm/companies'
     | '/crm/contacts'
+    | '/crm/opportunities'
     | '/crm/pipeline'
     | '/hr/admin'
     | '/hr/beneficios'
@@ -335,8 +383,11 @@ export interface FileRouteTypes {
     | '/crm/'
     | '/hr/'
     | '/projects/'
+    | '/crm/accounts/$accountId'
     | '/crm/companies/$companyId'
+    | '/crm/opportunities/$opportunityId'
     | '/crm/pipeline/$proposalId'
+    | '/crm/quotes/$quoteId'
     | '/hr/colaborador/$id'
     | '/projects/resources/$resourceId'
   fileRoutesByTo: FileRoutesByTo
@@ -344,8 +395,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/api/notify-expense'
     | '/'
+    | '/crm/accounts'
     | '/crm/companies'
     | '/crm/contacts'
+    | '/crm/opportunities'
     | '/crm/pipeline'
     | '/hr/admin'
     | '/hr/beneficios'
@@ -366,8 +419,11 @@ export interface FileRouteTypes {
     | '/crm'
     | '/hr'
     | '/projects'
+    | '/crm/accounts/$accountId'
     | '/crm/companies/$companyId'
+    | '/crm/opportunities/$opportunityId'
     | '/crm/pipeline/$proposalId'
+    | '/crm/quotes/$quoteId'
     | '/hr/colaborador/$id'
     | '/projects/resources/$resourceId'
   id:
@@ -378,8 +434,10 @@ export interface FileRouteTypes {
     | '/_app/hr'
     | '/api/notify-expense'
     | '/_app/'
+    | '/_app/crm/accounts'
     | '/_app/crm/companies'
     | '/_app/crm/contacts'
+    | '/_app/crm/opportunities'
     | '/_app/crm/pipeline'
     | '/_app/hr/admin'
     | '/_app/hr/beneficios'
@@ -400,8 +458,11 @@ export interface FileRouteTypes {
     | '/_app/crm/'
     | '/_app/hr/'
     | '/_app/projects/'
+    | '/_app/crm/accounts/$accountId'
     | '/_app/crm/companies/$companyId'
+    | '/_app/crm/opportunities/$opportunityId'
     | '/_app/crm/pipeline/$proposalId'
+    | '/_app/crm/quotes/$quoteId'
     | '/_app/hr/colaborador/$id'
     | '/_app/projects/resources/$resourceId'
   fileRoutesById: FileRoutesById
@@ -596,6 +657,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCrmPipelineRouteImport
       parentRoute: typeof AppCrmRoute
     }
+    '/_app/crm/opportunities': {
+      id: '/_app/crm/opportunities'
+      path: '/opportunities'
+      fullPath: '/crm/opportunities'
+      preLoaderRoute: typeof AppCrmOpportunitiesRouteImport
+      parentRoute: typeof AppCrmRoute
+    }
     '/_app/crm/contacts': {
       id: '/_app/crm/contacts'
       path: '/contacts'
@@ -608,6 +676,13 @@ declare module '@tanstack/react-router' {
       path: '/companies'
       fullPath: '/crm/companies'
       preLoaderRoute: typeof AppCrmCompaniesRouteImport
+      parentRoute: typeof AppCrmRoute
+    }
+    '/_app/crm/accounts': {
+      id: '/_app/crm/accounts'
+      path: '/accounts'
+      fullPath: '/crm/accounts'
+      preLoaderRoute: typeof AppCrmAccountsRouteImport
       parentRoute: typeof AppCrmRoute
     }
     '/_app/projects/resources/$resourceId': {
@@ -624,12 +699,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHrColaboradorIdRouteImport
       parentRoute: typeof AppHrRoute
     }
+    '/_app/crm/quotes/$quoteId': {
+      id: '/_app/crm/quotes/$quoteId'
+      path: '/quotes/$quoteId'
+      fullPath: '/crm/quotes/$quoteId'
+      preLoaderRoute: typeof AppCrmQuotesQuoteIdRouteImport
+      parentRoute: typeof AppCrmRoute
+    }
     '/_app/crm/pipeline/$proposalId': {
       id: '/_app/crm/pipeline/$proposalId'
       path: '/$proposalId'
       fullPath: '/crm/pipeline/$proposalId'
       preLoaderRoute: typeof AppCrmPipelineProposalIdRouteImport
       parentRoute: typeof AppCrmPipelineRoute
+    }
+    '/_app/crm/opportunities/$opportunityId': {
+      id: '/_app/crm/opportunities/$opportunityId'
+      path: '/$opportunityId'
+      fullPath: '/crm/opportunities/$opportunityId'
+      preLoaderRoute: typeof AppCrmOpportunitiesOpportunityIdRouteImport
+      parentRoute: typeof AppCrmOpportunitiesRoute
     }
     '/_app/crm/companies/$companyId': {
       id: '/_app/crm/companies/$companyId'
@@ -638,8 +727,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCrmCompaniesCompanyIdRouteImport
       parentRoute: typeof AppCrmCompaniesRoute
     }
+    '/_app/crm/accounts/$accountId': {
+      id: '/_app/crm/accounts/$accountId'
+      path: '/$accountId'
+      fullPath: '/crm/accounts/$accountId'
+      preLoaderRoute: typeof AppCrmAccountsAccountIdRouteImport
+      parentRoute: typeof AppCrmAccountsRoute
+    }
   }
 }
+
+interface AppCrmAccountsRouteChildren {
+  AppCrmAccountsAccountIdRoute: typeof AppCrmAccountsAccountIdRoute
+}
+
+const AppCrmAccountsRouteChildren: AppCrmAccountsRouteChildren = {
+  AppCrmAccountsAccountIdRoute: AppCrmAccountsAccountIdRoute,
+}
+
+const AppCrmAccountsRouteWithChildren = AppCrmAccountsRoute._addFileChildren(
+  AppCrmAccountsRouteChildren,
+)
 
 interface AppCrmCompaniesRouteChildren {
   AppCrmCompaniesCompanyIdRoute: typeof AppCrmCompaniesCompanyIdRoute
@@ -652,6 +760,17 @@ const AppCrmCompaniesRouteChildren: AppCrmCompaniesRouteChildren = {
 const AppCrmCompaniesRouteWithChildren = AppCrmCompaniesRoute._addFileChildren(
   AppCrmCompaniesRouteChildren,
 )
+
+interface AppCrmOpportunitiesRouteChildren {
+  AppCrmOpportunitiesOpportunityIdRoute: typeof AppCrmOpportunitiesOpportunityIdRoute
+}
+
+const AppCrmOpportunitiesRouteChildren: AppCrmOpportunitiesRouteChildren = {
+  AppCrmOpportunitiesOpportunityIdRoute: AppCrmOpportunitiesOpportunityIdRoute,
+}
+
+const AppCrmOpportunitiesRouteWithChildren =
+  AppCrmOpportunitiesRoute._addFileChildren(AppCrmOpportunitiesRouteChildren)
 
 interface AppCrmPipelineRouteChildren {
   AppCrmPipelineProposalIdRoute: typeof AppCrmPipelineProposalIdRoute
@@ -666,17 +785,23 @@ const AppCrmPipelineRouteWithChildren = AppCrmPipelineRoute._addFileChildren(
 )
 
 interface AppCrmRouteChildren {
+  AppCrmAccountsRoute: typeof AppCrmAccountsRouteWithChildren
   AppCrmCompaniesRoute: typeof AppCrmCompaniesRouteWithChildren
   AppCrmContactsRoute: typeof AppCrmContactsRoute
+  AppCrmOpportunitiesRoute: typeof AppCrmOpportunitiesRouteWithChildren
   AppCrmPipelineRoute: typeof AppCrmPipelineRouteWithChildren
   AppCrmIndexRoute: typeof AppCrmIndexRoute
+  AppCrmQuotesQuoteIdRoute: typeof AppCrmQuotesQuoteIdRoute
 }
 
 const AppCrmRouteChildren: AppCrmRouteChildren = {
+  AppCrmAccountsRoute: AppCrmAccountsRouteWithChildren,
   AppCrmCompaniesRoute: AppCrmCompaniesRouteWithChildren,
   AppCrmContactsRoute: AppCrmContactsRoute,
+  AppCrmOpportunitiesRoute: AppCrmOpportunitiesRouteWithChildren,
   AppCrmPipelineRoute: AppCrmPipelineRouteWithChildren,
   AppCrmIndexRoute: AppCrmIndexRoute,
+  AppCrmQuotesQuoteIdRoute: AppCrmQuotesQuoteIdRoute,
 }
 
 const AppCrmRouteWithChildren =
