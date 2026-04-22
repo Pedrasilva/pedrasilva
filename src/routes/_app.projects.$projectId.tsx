@@ -1020,7 +1020,8 @@ function KpiCard({
 function MilestonesTable({
   stages,
   stageCost,
-  stageLoggedCost,
+  stageActualRevenue,
+  stageActualCost,
   stageLoggedHours,
   stagePlannedHours,
   defaultRates,
@@ -1033,7 +1034,8 @@ function MilestonesTable({
   invoiced: number;
   totalBudget: number;
   stageCost: (id: string) => number;
-  stageLoggedCost: (id: string) => number;
+  stageActualRevenue: (id: string) => number;
+  stageActualCost: (id: string) => number;
   stageLoggedHours: (id: string) => number;
   stagePlannedHours: (id: string) => number;
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
