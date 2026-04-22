@@ -50,7 +50,7 @@ import {
 } from "@/lib/projects/use-default-rates";
 import { supabase } from "@/integrations/supabase/client";
 import type { StageWithAllocations } from "@/lib/projects/types";
-import { useHasPermission } from "@/hooks/use-permissions";
+import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
 import { Search } from "lucide-react";
 
