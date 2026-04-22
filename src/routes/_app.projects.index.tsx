@@ -15,12 +15,21 @@ import {
   type FinancialKpiData,
 } from "@/components/projects/dashboard/financial-kpi-strip";
 import {
+  HoursKpiStrip,
+  type HoursKpiData,
+} from "@/components/projects/dashboard/hours-kpi-strip";
+import {
   ProjectHealthTable,
   type HealthRow,
 } from "@/components/projects/dashboard/project-health-table";
 import {
+  ProjectEffortTable,
+  type EffortRow,
+} from "@/components/projects/dashboard/project-effort-table";
+import {
   AlertsPanel,
   overBudgetDetail,
+  overrunDetail,
   type AlertItem,
 } from "@/components/projects/dashboard/alerts-panel";
 import {
@@ -41,6 +50,7 @@ import {
 } from "@/lib/projects/use-default-rates";
 import { supabase } from "@/integrations/supabase/client";
 import type { StageWithAllocations } from "@/lib/projects/types";
+import { useHasPermission } from "@/hooks/use-permissions";
 import { Search } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/")({
