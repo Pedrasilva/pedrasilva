@@ -663,6 +663,8 @@ export function useCreateAllocation() {
   });
 }
 
+export type AllocationStatus = "tentative" | "committed";
+
 export function useUpdateAllocation() {
   const qc = useQueryClient();
   return useMutation({
@@ -671,12 +673,48 @@ export function useUpdateAllocation() {
       patch,
     }: {
       id: string;
-      patch: Partial<Pick<Allocation, "start_date" | "end_date" | "hours_per_day" | "stage_id">>;
+      patch: Partial<Pick<Allocation, "start_date" | "end_date" | "hours_per_day" | "stage_id">> & {
+        status?: AllocationStatus;
+      };
       projectId: string;
     }): Promise<Allocation> => {
       const { data, error } = await supabase
         .from("pm_allocations")
-        .update(patch)
+        .update(patch as never)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: ["pm-project", vars.projectId] });
+      qc.invalidateQueries({ queryKey: ["pm-allocations-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
+    },
+  });
+}
+
+/**
+ * Toggle an allocation between `tentative` (soft-booked) and `committed`
+ * (firm). Tentative allocations remain visible but are weighted down in
+ * load calculations and excluded from "committed delivery" KPIs.
+ */
+export function useSetAllocationStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      status,
+      projectId: _projectId,
+    }: {
+      id: string;
+      status: AllocationStatus;
+      projectId: string;
+    }): Promise<Allocation> => {
+      const { data, error } = await supabase
+        .from("pm_allocations")
+        .update({ status } as never)
         .eq("id", id)
         .select()
         .single();
