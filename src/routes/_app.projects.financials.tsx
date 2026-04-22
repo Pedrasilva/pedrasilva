@@ -466,8 +466,11 @@ function FinancialsPage() {
     const rows = Array.from(summary.byUser.entries()).map(([key, v]) => {
       const res = resourceMap.get(key);
       const total = v.billable + v.internal + v.nonWorking;
-      const util = v.billable + v.internal > 0 ? (v.billable / (v.billable + v.internal)) * 100 : 0;
+      const workingTotal = v.billable + v.internal;
+      const util = workingTotal > 0 ? (v.billable / workingTotal) * 100 : 0;
+      const internalPct = workingTotal > 0 ? (v.internal / workingTotal) * 100 : 0;
       const profit = v.revenue - v.cost;
+      const alert = workingTotal > 0 ? utilizationTone(util, internalPct, effectiveTargets) : null;
       return {
         key,
         name: res?.name ?? "Unmapped user",
@@ -480,14 +483,33 @@ function FinancialsPage() {
         cost: v.cost,
         profit,
         utilization: util,
+        internalPct,
+        alert,
       };
     });
     rows.sort((a, b) => b.total - a.total);
     return rows;
-  }, [summary.byUser, resourceMap]);
+  }, [summary.byUser, resourceMap, effectiveTargets]);
+
+  // Alerts summary
+  const alertCounts = useMemo(() => {
+    let low = 0, high = 0, internal = 0, good = 0;
+    for (const r of userRows) {
+      if (!r.alert) continue;
+      if (r.alert.tone === "low") low++;
+      else if (r.alert.tone === "high") high++;
+      else if (r.alert.tone === "internal") internal++;
+      else good++;
+    }
+    return { low, high, internal, good };
+  }, [userRows]);
 
   // 12-month trailing trend (revenue/cost/profit)
   const { data: trailing } = useTrailingTrend(monthAnchor, filteredResourceIds, resourceMap, defaults);
+
+  // 12-week utilization trend
+  const { data: weeklyUtil } = useWeeklyUtilTrend(monthAnchor, filteredResourceIds);
+
 
   return (
     <AppShell active="projects">
