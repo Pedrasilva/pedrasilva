@@ -23,6 +23,8 @@ import {
   Clock, Play,
 } from "lucide-react";
 import { toast } from "sonner";
+import { NewCompanyDialog } from "@/components/crm/new-company-dialog";
+import { CompanyPicker } from "@/components/crm/company-picker";
 
 type Sheet =
   | null
@@ -103,7 +105,7 @@ export function QuickCreateMenu() {
       <LogTimeDialog open={sheet === "logTime"} onClose={() => setSheet(null)} />
       <StartTimerDialog open={sheet === "startTimer"} onClose={() => setSheet(null)} />
       <TaskDialog open={sheet === "task"} onClose={() => setSheet(null)} />
-      <CompanyDialog open={sheet === "company"} onClose={() => setSheet(null)} />
+      <NewCompanyDialog open={sheet === "company"} onClose={() => setSheet(null)} />
       <ContactDialog open={sheet === "contact"} onClose={() => setSheet(null)} />
       <ProjectDialog open={sheet === "project"} onClose={() => setSheet(null)} />
       <ExpenseDialog open={sheet === "expense"} onClose={() => setSheet(null)} />
@@ -113,19 +115,8 @@ export function QuickCreateMenu() {
 }
 
 // ─────────────────────────────────────────────
-// Validação (zod)
+// Validação (zod) — empresa movida para new-company-dialog.tsx
 // ─────────────────────────────────────────────
-const companySchema = z.object({
-  nome: z.string().trim().min(1, "Nome obrigatório").max(200),
-  website: z.string().trim().max(255).optional().or(z.literal("")),
-  email: z.string().trim().email("Email inválido").max(255).optional().or(z.literal("")),
-  telefone: z.string().trim().max(50).optional().or(z.literal("")),
-  morada: z.string().trim().max(500).optional().or(z.literal("")),
-  status: z.enum(["activo", "prospecto", "inactivo"]),
-  industria: z.string().trim().max(100).optional().or(z.literal("")),
-  notas: z.string().trim().max(2000).optional().or(z.literal("")),
-});
-
 const contactSchema = z.object({
   primeiro_nome: z.string().trim().min(1, "Primeiro nome obrigatório").max(100),
   apelido: z.string().trim().max(100).optional().or(z.literal("")),
@@ -149,108 +140,6 @@ const projectSchema = z.object({
   orcamento: z.number().nullable().optional(),
   notas: z.string().trim().max(2000).optional().or(z.literal("")),
 });
-
-// ─────────────────────────────────────────────
-// Empresa
-// ─────────────────────────────────────────────
-function CompanyDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const qc = useQueryClient();
-  const [form, setForm] = useState({
-    nome: "", website: "", email: "", telefone: "", morada: "",
-    status: "activo" as "activo" | "prospecto" | "inactivo",
-    industria: "", notas: "",
-  });
-
-  const reset = () => setForm({
-    nome: "", website: "", email: "", telefone: "", morada: "",
-    status: "activo", industria: "", notas: "",
-  });
-
-  const create = useMutation({
-    mutationFn: async () => {
-      const parsed = companySchema.parse(form);
-      const payload = {
-        nome: parsed.nome,
-        website: parsed.website || null,
-        email: parsed.email || null,
-        telefone: parsed.telefone || null,
-        morada: parsed.morada || null,
-        status: parsed.status,
-        industria: parsed.industria || null,
-        notas: parsed.notas || null,
-      };
-      const { error } = await supabase.from("companies").insert(payload);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Empresa criada");
-      qc.invalidateQueries({ queryKey: ["companies"] });
-      reset();
-      onClose();
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" /> Nova empresa
-          </DialogTitle>
-          <DialogDescription>Adicione um cliente, fornecedor ou prospecto.</DialogDescription>
-        </DialogHeader>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Nome *" full>
-            <Input className="input-yellow" value={form.nome}
-              onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))} />
-          </Field>
-          <Field label="Website">
-            <Input className="input-yellow" placeholder="https://…" value={form.website}
-              onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))} />
-          </Field>
-          <Field label="Email">
-            <Input type="email" className="input-yellow" value={form.email}
-              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
-          </Field>
-          <Field label="Telefone">
-            <Input className="input-yellow" value={form.telefone}
-              onChange={(e) => setForm((f) => ({ ...f, telefone: e.target.value }))} />
-          </Field>
-          <Field label="Estado">
-            <Select value={form.status}
-              onValueChange={(v) => setForm((f) => ({ ...f, status: v as typeof form.status }))}>
-              <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="activo">Activo</SelectItem>
-                <SelectItem value="prospecto">Prospecto</SelectItem>
-                <SelectItem value="inactivo">Inactivo</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Indústria">
-            <Input className="input-yellow" placeholder="Construção, retalho…" value={form.industria}
-              onChange={(e) => setForm((f) => ({ ...f, industria: e.target.value }))} />
-          </Field>
-          <Field label="Morada" full>
-            <Input className="input-yellow" value={form.morada}
-              onChange={(e) => setForm((f) => ({ ...f, morada: e.target.value }))} />
-          </Field>
-          <Field label="Notas" full>
-            <Textarea className="input-yellow" rows={3} value={form.notas}
-              onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))} />
-          </Field>
-        </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
-          <Button onClick={() => create.mutate()} disabled={create.isPending || !form.nome.trim()}>
-            Criar empresa
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 // ─────────────────────────────────────────────
 // Contacto
