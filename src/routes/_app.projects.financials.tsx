@@ -580,6 +580,7 @@ function FinancialsPage() {
                   ))}
               </SelectContent>
             </Select>
+            <TargetsPopover targets={effectiveTargets} />
           </div>
         </div>
 
