@@ -313,6 +313,43 @@ function DashboardPage() {
     });
   }, [filteredProjects, stagesByProject, projectActuals]);
 
+  // ---------- Project effort rows (time-based view) ----------
+  const effortRows: EffortRow[] = useMemo(() => {
+    return filteredProjects.map((p) => {
+      const planned = projectPlannedHours.get(p.id) ?? 0;
+      const logged = projectActuals.get(p.id)?.loggedHours ?? 0;
+      const remaining = planned - logged;
+      const efficiencyPct = logged > 0 ? (planned / logged) * 100 : planned > 0 ? 100 : 0;
+      const ps = stagesByProject.get(p.id) ?? [];
+
+      let status: EffortRow["status"] = "ok";
+      let statusReason = "On track";
+      if (planned === 0 && logged === 0 && ps.length === 0) {
+        status = "none";
+        statusReason = "No activity";
+      } else if (planned > 0 && logged > planned) {
+        status = "bad";
+        statusReason = `Overrun (${Math.round((logged / planned) * 100)}% of plan)`;
+      } else if (planned > 0 && logged / planned > 0.8) {
+        status = "warn";
+        statusReason = `Approaching plan (${Math.round((logged / planned) * 100)}%)`;
+      } else if (planned === 0 && logged > 0) {
+        status = "warn";
+        statusReason = "Logged time without plan";
+      }
+
+      return {
+        project: p,
+        plannedHours: planned,
+        loggedHours: logged,
+        remainingHours: remaining,
+        efficiencyPct,
+        status,
+        statusReason,
+      };
+    });
+  }, [filteredProjects, projectPlannedHours, projectActuals, stagesByProject]);
+
   // ---------- KPIs (period-scoped) ----------
   const kpi: FinancialKpiData = useMemo(() => {
     let revenue = 0;
