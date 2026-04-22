@@ -309,6 +309,12 @@ function FinancialsPage() {
   const { data: monthData, isLoading: entriesLoading } = useMonthEntries(monthStart, monthEnd);
   const { data: userToRes } = useUserToResource(monthStart);
   const { data: workingDays } = useWorkingDaysInMonth(monthStart, monthEnd);
+  const { data: targets } = useUtilTargets();
+  const effectiveTargets: UtilTargets = targets ?? {
+    utilization_target_min: 75,
+    utilization_target_max: 85,
+    internal_threshold_pct: 20,
+  };
 
   const resourceMap = useMemo(() => {
     const m = new Map<string, ResourceLite>();
