@@ -1619,6 +1619,24 @@ export type Database = {
           },
         ]
       }
+      role_permissions: {
+        Row: {
+          permission_key: string
+          role: Database["public"]["Enums"]["pm_role"]
+          scope: string
+        }
+        Insert: {
+          permission_key: string
+          role: Database["public"]["Enums"]["pm_role"]
+          scope?: string
+        }
+        Update: {
+          permission_key?: string
+          role?: Database["public"]["Enums"]["pm_role"]
+          scope?: string
+        }
+        Relationships: []
+      }
       salary_snapshots: {
         Row: {
           ajudas_custo_anual: number
@@ -1732,20 +1750,50 @@ export type Database = {
       user_permissions: {
         Row: {
           created_at: string
+          granted: boolean
           id: string
           permission_key: string
+          scope: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          granted?: boolean
           id?: string
           permission_key: string
+          scope?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          granted?: boolean
           id?: string
           permission_key?: string
+          scope?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_role_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          notes: string | null
+          role: Database["public"]["Enums"]["pm_role"]
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          notes?: string | null
+          role: Database["public"]["Enums"]["pm_role"]
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          notes?: string | null
+          role?: Database["public"]["Enums"]["pm_role"]
           user_id?: string
         }
         Relationships: []
@@ -1830,6 +1878,10 @@ export type Database = {
     }
     Functions: {
       get_my_collaborator_id: { Args: never; Returns: string }
+      has_module_permission: {
+        Args: { _key: string; _required_scope: string; _user_id: string }
+        Returns: boolean
+      }
       has_permission: {
         Args: { _key: string; _user_id: string }
         Returns: boolean
@@ -1842,6 +1894,14 @@ export type Database = {
         Returns: boolean
       }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      list_user_effective_permissions: {
+        Args: { _user_id: string }
+        Returns: {
+          permission_key: string
+          scope: string
+          source: string
+        }[]
+      }
       list_users_with_permissions: {
         Args: never
         Returns: {
@@ -1851,6 +1911,22 @@ export type Database = {
           is_admin: boolean
           is_super_admin: boolean
           permissions: string[]
+          user_id: string
+        }[]
+      }
+      list_users_with_role_v2: {
+        Args: never
+        Returns: {
+          assigned_role: Database["public"]["Enums"]["pm_role"]
+          collaborator_id: string
+          collaborator_nome: string
+          effective_keys: string[]
+          effective_scopes: string[]
+          email: string
+          is_admin: boolean
+          is_super_admin: boolean
+          override_keys: string[]
+          suggested_role: Database["public"]["Enums"]["pm_role"]
           user_id: string
         }[]
       }
@@ -1886,6 +1962,22 @@ export type Database = {
         Args: { _granted: boolean; _key: string; _user_id: string }
         Returns: undefined
       }
+      set_user_permission_v2: {
+        Args: { _key: string; _scope: string; _state: string; _user_id: string }
+        Returns: undefined
+      }
+      set_user_role: {
+        Args: {
+          _apply_preset?: boolean
+          _role: Database["public"]["Enums"]["pm_role"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      suggest_role_for_user: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["pm_role"]
+      }
     }
     Enums: {
       absence_type:
@@ -1908,6 +2000,13 @@ export type Database = {
       pm_dep_type: "FS" | "SS" | "FF" | "SF"
       pm_invoice_status: "draft" | "sent" | "paid" | "overdue" | "cancelled"
       pm_project_status: "active" | "paused" | "archived"
+      pm_role:
+        | "admin"
+        | "partner"
+        | "project_lead"
+        | "architect"
+        | "hr"
+        | "finance"
       pm_task_status: "pending" | "active" | "paused" | "done"
       pm_time_entry_type: "project" | "internal" | "non_working"
       project_status:
@@ -2071,6 +2170,14 @@ export const Constants = {
       pm_dep_type: ["FS", "SS", "FF", "SF"],
       pm_invoice_status: ["draft", "sent", "paid", "overdue", "cancelled"],
       pm_project_status: ["active", "paused", "archived"],
+      pm_role: [
+        "admin",
+        "partner",
+        "project_lead",
+        "architect",
+        "hr",
+        "finance",
+      ],
       pm_task_status: ["pending", "active", "paused", "done"],
       pm_time_entry_type: ["project", "internal", "non_working"],
       project_status: [
