@@ -13,11 +13,11 @@ import {
   useProjectSearch,
   useEnsureStageRow,
   useNonWorkingPrefill,
-  INTERNAL_CATEGORIES,
   type EntryType,
   type TimesheetEntry,
   type TimesheetTaskRow,
 } from "@/lib/projects/use-timesheet";
+import { useInternalCategories } from "@/lib/projects/use-internal-categories";
 import {
   ChevronLeft,
   ChevronRight,
@@ -93,6 +93,44 @@ function TimesheetPage() {
   const ensureRow = useEnsureStageRow();
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
   const [addPopoverOpen, setAddPopoverOpen] = useState(false);
+
+  // Internal cost centers are admin-managed (DB-backed). The picker shows
+  // ACTIVE categories only — archived ones disappear from the list of
+  // selectable rows for new entries. However, if the user already has hours
+  // logged this week against an archived/renamed category, we still surface
+  // that row so they can review or zero it out (history stays intact).
+  const { data: activeInternalCategories = [] } = useInternalCategories();
+
+  // The rows we actually render under "Internal cost centers": every active
+  // category PLUS any archived category that has logged hours this week (so
+  // people can still see / clear historical entries). Archived rows are
+  // visually flagged but otherwise editable for the existing hours.
+  const displayedInternalCategories = useMemo<{
+    name: string;
+    isArchived: boolean;
+  }[]>(() => {
+    const active = activeInternalCategories.map((c) => ({
+      name: c.name,
+      isArchived: false,
+    }));
+    const activeNames = new Set(active.map((c) => c.name));
+    const archivedWithEntries = new Set<string>();
+    for (const e of entries) {
+      if (
+        e.entry_type === "internal" &&
+        e.internal_category &&
+        !activeNames.has(e.internal_category)
+      ) {
+        archivedWithEntries.add(e.internal_category);
+      }
+    }
+    return [
+      ...active,
+      ...Array.from(archivedWithEntries)
+        .sort()
+        .map((name) => ({ name, isArchived: true })),
+    ];
+  }, [activeInternalCategories, entries]);
 
   // Index entries by composite key + date so each section can look itself up.
   const entryMap = useMemo(() => {
@@ -358,7 +396,7 @@ function TimesheetPage() {
               <span className="ml-auto text-xs text-muted-foreground">
                 {projectRows.length}{" "}
                 {projectRows.length === 1 ? "project row" : "project rows"} ·{" "}
-                {INTERNAL_CATEGORIES.length} internal · {nonWorkingPrefill.length}{" "}
+                {displayedInternalCategories.length} internal · {nonWorkingPrefill.length}{" "}
                 non-working
               </span>
             </div>
@@ -443,22 +481,26 @@ function TimesheetPage() {
                     label="Internal cost centers"
                     sub="Non-billable working time (capacity used, no revenue)."
                   />
-                  {INTERNAL_CATEGORIES.map((cat) => (
+                  {displayedInternalCategories.map((cat) => (
                     <FixedRow
-                      key={cat}
-                      label={cat}
-                      sub="Internal · non-billable"
+                      key={cat.name}
+                      label={cat.isArchived ? `${cat.name} (archived)` : cat.name}
+                      sub={
+                        cat.isArchived
+                          ? "Internal · archived (read-only label, edits still allowed)"
+                          : "Internal · non-billable"
+                      }
                       tone="internal"
                       days={days}
                       entryMap={entryMap}
-                      keyFn={() => internalKey(cat)}
+                      keyFn={() => internalKey(cat.name)}
                       pending={upsert.isPending}
-                      rowTotal={rowTotalFor(internalKey(cat))}
+                      rowTotal={rowTotalFor(internalKey(cat.name))}
                       onCommit={(dateStr, hours, notes, _billable, existingId) =>
                         upsert.mutate(
                           {
                             entry_type: "internal",
-                            internal_category: cat,
+                            internal_category: cat.name,
                             user_id: user!.id,
                             entry_date: dateStr,
                             hours,
