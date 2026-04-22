@@ -1203,6 +1203,7 @@ export type Database = {
           client: string | null
           color: string
           created_at: string
+          external_id: string | null
           id: string
           name: string
           notes: string | null
@@ -1214,6 +1215,7 @@ export type Database = {
           client?: string | null
           color?: string
           created_at?: string
+          external_id?: string | null
           id?: string
           name: string
           notes?: string | null
@@ -1225,6 +1227,7 @@ export type Database = {
           client?: string | null
           color?: string
           created_at?: string
+          external_id?: string | null
           id?: string
           name?: string
           notes?: string | null
@@ -1403,6 +1406,7 @@ export type Database = {
           color: string
           created_at: string
           end_date: string
+          external_id: string | null
           id: string
           name: string
           project_id: string
@@ -1421,6 +1425,7 @@ export type Database = {
           color?: string
           created_at?: string
           end_date: string
+          external_id?: string | null
           id?: string
           name: string
           project_id: string
@@ -1439,6 +1444,7 @@ export type Database = {
           color?: string
           created_at?: string
           end_date?: string
+          external_id?: string | null
           id?: string
           name?: string
           project_id?: string
@@ -1462,6 +1468,7 @@ export type Database = {
           allocation_id: string
           completed_at: string | null
           created_at: string
+          external_id: string | null
           id: string
           name: string
           status: Database["public"]["Enums"]["pm_task_status"]
@@ -1472,6 +1479,7 @@ export type Database = {
           allocation_id: string
           completed_at?: string | null
           created_at?: string
+          external_id?: string | null
           id?: string
           name: string
           status?: Database["public"]["Enums"]["pm_task_status"]
@@ -1482,6 +1490,7 @@ export type Database = {
           allocation_id?: string
           completed_at?: string | null
           created_at?: string
+          external_id?: string | null
           id?: string
           name?: string
           status?: Database["public"]["Enums"]["pm_task_status"]
@@ -1504,6 +1513,7 @@ export type Database = {
           ended_at: string | null
           entry_date: string
           entry_type: Database["public"]["Enums"]["pm_time_entry_type"]
+          external_id: string | null
           hours: number
           id: string
           internal_category: string | null
@@ -1521,6 +1531,7 @@ export type Database = {
           ended_at?: string | null
           entry_date: string
           entry_type?: Database["public"]["Enums"]["pm_time_entry_type"]
+          external_id?: string | null
           hours?: number
           id?: string
           internal_category?: string | null
@@ -1538,6 +1549,7 @@ export type Database = {
           ended_at?: string | null
           entry_date?: string
           entry_type?: Database["public"]["Enums"]["pm_time_entry_type"]
+          external_id?: string | null
           hours?: number
           id?: string
           internal_category?: string | null
