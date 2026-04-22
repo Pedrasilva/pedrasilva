@@ -752,7 +752,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                 <div className="mt-1 flex items-start gap-1.5 rounded bg-destructive/10 p-1.5 text-[11px] text-destructive">
                                   <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
                                   <span>
-                                    Sobrecarga: pico de <strong>{overload.peak}h/dia</strong> (limite {DAILY_LIMIT_HOURS}h) em {overload.overDays} dia(s).
+                                    Sobrecarga: pico de <strong>{overload.peak}h/dia</strong> (limite {overload.limit}h) em {overload.overDays} dia(s).
                                   </span>
                                 </div>
                               )}
