@@ -87,7 +87,7 @@ function useHolidaySet() {
   });
 }
 
-export function ResourcePool({ resources }: Props) {
+export function ResourcePool({ resources, collapsed = false }: Props) {
   const { data: allocs } = useAllAllocations();
   const { data: leaveByResource } = useLeaveByResource();
   const { data: holidays } = useHolidaySet();
