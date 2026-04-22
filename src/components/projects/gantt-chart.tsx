@@ -600,13 +600,16 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                       hours_per_day: Number(a.hours_per_day),
                     },
                     loadMap,
+                    dailyLimitMap,
                   );
-                  const isOver = overload.peak > DAILY_LIMIT_HOURS;
+                  const resourceDailyHours = dailyHoursFor(a.resource_id, schedules);
+                  const isOver = overload.peak > overload.limit;
                   const allocLeaveHours = leaveHoursInRange(
                     parseISO(aS),
                     parseISO(aE),
                     leaveByResource?.get(a.resource_id) ?? [],
                     holidaySet,
+                    resourceDailyHours,
                   );
                   const hasLeave = allocLeaveHours > 0;
                   const allocTotalHours = workingDays(aS, aE) * Number(a.hours_per_day);
