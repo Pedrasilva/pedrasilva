@@ -13,11 +13,11 @@ import {
   useProjectSearch,
   useEnsureStageRow,
   useNonWorkingPrefill,
-  INTERNAL_CATEGORIES,
   type EntryType,
   type TimesheetEntry,
   type TimesheetTaskRow,
 } from "@/lib/projects/use-timesheet";
+import { useInternalCategories } from "@/lib/projects/use-internal-categories";
 import {
   ChevronLeft,
   ChevronRight,

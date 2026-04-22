@@ -93,7 +93,7 @@ export function useUpdateInternalCategory() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: { id: string; name?: string; notes?: string | null }) => {
-      const patch: Record<string, unknown> = {};
+      const patch: { name?: string; notes?: string | null } = {};
       if (input.name !== undefined) {
         const trimmed = input.name.trim();
         if (!trimmed) throw new Error("Name cannot be empty");
