@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 
 type SortKey = "name" | "utilization" | "billable";
 
@@ -10,6 +11,12 @@ export interface TeamRow {
   billableHours: number;
   internalHours: number;
   nonWorkingHours: number;
+  /** Collaborator id for avatar lookup (when available). */
+  collaboratorId?: string | null;
+  /** Photo path override; takes precedence over collaborator lookup. */
+  fotoPath?: string | null;
+  /** Resource ring colour. */
+  color?: string | null;
 }
 
 export function TeamPerformance({
@@ -115,7 +122,18 @@ export function TeamPerformance({
             )}
             {sorted.map((r) => (
               <tr key={r.resourceId} className="hover:bg-accent/30">
-                <td className="px-5 py-2.5 text-sm text-foreground">{r.name}</td>
+                <td className="px-5 py-2.5 text-sm text-foreground">
+                  <div className="flex items-center gap-2.5">
+                    <CollaboratorAvatar
+                      collaboratorId={r.collaboratorId ?? undefined}
+                      fotoPath={r.fotoPath ?? undefined}
+                      name={r.name}
+                      color={r.color ?? undefined}
+                      size={26}
+                    />
+                    <span className="truncate">{r.name}</span>
+                  </div>
+                </td>
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-muted-foreground">
                   {Math.round(r.capacityHours)}h
                 </td>

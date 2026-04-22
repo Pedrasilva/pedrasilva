@@ -117,19 +117,43 @@ function useTaskMap() {
   });
 }
 
-function useUserResourceMap() {
+export interface UserIdentity {
+  userId: string;
+  resourceId: string | null;
+  collaboratorId: string | null;
+  name: string;
+  fotoPath: string | null;
+  color: string | null;
+}
+
+/**
+ * Resolves auth user_id -> human-readable identity (collaborator name, photo,
+ * resource id). Used across dashboard widgets so we never display raw UUIDs.
+ */
+function useUserIdentityMap() {
   return useQuery({
-    queryKey: ["pm-user-resource-map"],
-    queryFn: async (): Promise<Map<string, string>> => {
-      // Map auth user_id -> pm_resource via collaborator_id is not directly available;
-      // fall back to mapping via pm_resources.collaborator_id and a profile-style lookup.
-      // For dashboard purposes we simply load resources and trust user_id -> resource_id is
-      // resolved on the entries side later through a join when needed.
-      const { data, error } = await supabase.from("pm_resources").select("id, collaborator_id");
+    queryKey: ["pm-user-identity-map"],
+    staleTime: 5 * 60 * 1000,
+    queryFn: async (): Promise<Map<string, UserIdentity>> => {
+      const { data, error } = await supabase.rpc("pm_list_user_resource_map");
       if (error) throw error;
-      const m = new Map<string, string>();
-      for (const r of data ?? []) {
-        if (r.collaborator_id) m.set(r.collaborator_id, r.id);
+      const m = new Map<string, UserIdentity>();
+      for (const row of (data ?? []) as Array<{
+        user_id: string;
+        resource_id: string | null;
+        name: string | null;
+        collaborator_id: string | null;
+        foto_path: string | null;
+        color: string | null;
+      }>) {
+        m.set(row.user_id, {
+          userId: row.user_id,
+          resourceId: row.resource_id,
+          collaboratorId: row.collaborator_id,
+          name: row.name ?? "Unknown user",
+          fotoPath: row.foto_path,
+          color: row.color,
+        });
       }
       return m;
     },
@@ -166,6 +190,7 @@ function DashboardPage() {
 
   const { data: entries, isLoading: eLoading } = useMonthEntries(periodStartISO, periodEndISO);
   const { data: taskToStage } = useTaskMap();
+  const { data: identityMap } = useUserIdentityMap();
 
   // ---------- group stages and entries ----------
   const stagesByProject = useMemo(() => {
@@ -471,13 +496,17 @@ function DashboardPage() {
     }
     const rows: TeamRow[] = [];
     for (const [userId, acc] of byUser) {
-      // Try resource lookup directly by user_id (may match in tests when uuids align).
-      const directRes = resources?.find((r) => r.id === userId);
-      const res = directRes ?? null;
+      const identity = identityMap?.get(userId) ?? null;
+      const res = identity?.resourceId
+        ? resources?.find((r) => r.id === identity.resourceId)
+        : resources?.find((r) => r.id === userId);
       const dailyCap = res ? (Number(res.weekly_capacity) || 40) / 5 : 8;
       rows.push({
-        resourceId: userId,
-        name: res?.name ?? userId.slice(0, 8),
+        resourceId: identity?.resourceId ?? userId,
+        name: identity?.name ?? res?.name ?? "Unknown user",
+        collaboratorId: identity?.collaboratorId ?? null,
+        fotoPath: identity?.fotoPath ?? null,
+        color: identity?.color ?? res?.color ?? null,
         capacityHours: dailyCap * wd,
         billableHours: acc.billable,
         internalHours: acc.internal,
@@ -485,7 +514,7 @@ function DashboardPage() {
       });
     }
     return rows;
-  }, [entries, resources, periodStartISO, periodEndISO]);
+  }, [entries, resources, identityMap, periodStartISO, periodEndISO]);
 
   /**
    * Visible team rows: full team if the user has resource visibility, otherwise
@@ -495,25 +524,30 @@ function DashboardPage() {
   const visibleTeamRows: TeamRow[] = useMemo(() => {
     if (canSeeTeam) return teamRows;
     const wd = workingDays(periodStartISO, periodEndISO);
-    // Time entries are keyed by auth user_id; fall back to resource id match.
+    const myMappedResourceId = myAuthId ? identityMap?.get(myAuthId)?.resourceId ?? null : null;
     const meRow =
       (myAuthId && teamRows.find((r) => r.resourceId === myAuthId)) ||
       (myResourceId && teamRows.find((r) => r.resourceId === myResourceId)) ||
+      (myMappedResourceId && teamRows.find((r) => r.resourceId === myMappedResourceId)) ||
       null;
     if (meRow) return [meRow];
+    const myIdentity = myAuthId ? identityMap?.get(myAuthId) : undefined;
     const myRes = myResourceId ? resources?.find((r) => r.id === myResourceId) : undefined;
     const dailyCap = myRes ? (Number(myRes.weekly_capacity) || 40) / 5 : 8;
     return [
       {
         resourceId: myResourceId ?? "self",
-        name: myRes?.name ?? profile?.full_name ?? "You",
+        name: myIdentity?.name ?? myRes?.name ?? profile?.full_name ?? "You",
+        collaboratorId: myIdentity?.collaboratorId ?? null,
+        fotoPath: myIdentity?.fotoPath ?? null,
+        color: myIdentity?.color ?? myRes?.color ?? null,
         capacityHours: dailyCap * wd,
         billableHours: 0,
         internalHours: 0,
         nonWorkingHours: 0,
       },
     ];
-  }, [canSeeTeam, teamRows, myAuthId, myResourceId, resources, profile?.full_name, periodStartISO, periodEndISO]);
+  }, [canSeeTeam, teamRows, myAuthId, myResourceId, resources, identityMap, profile?.full_name, periodStartISO, periodEndISO]);
 
   // ---------- Alerts ----------
   const alerts: AlertItem[] = useMemo(() => {
@@ -601,10 +635,15 @@ function DashboardPage() {
     }
     for (const [resourceId, days] of overbookedDays) {
       const r = resources?.find((res) => res.id === resourceId);
+      // Fallback: if a pm_resources row is missing or unnamed, look up via identity map by resource id.
+      const fromIdentity = identityMap
+        ? Array.from(identityMap.values()).find((i) => i.resourceId === resourceId)
+        : null;
+      const displayName = r?.name ?? fromIdentity?.name ?? "Unknown user";
       list.push({
         id: `ob-res-${resourceId}`,
         kind: "overbooked",
-        title: `${r?.name ?? "Resource"} is overbooked`,
+        title: `${displayName} is overbooked`,
         detail: `${days} day${days === 1 ? "" : "s"} in ${periodLabel.toLowerCase()} exceed daily capacity`,
         href: { to: "/projects/resources" },
       });
@@ -626,7 +665,7 @@ function DashboardPage() {
     }
 
     return list;
-  }, [canSeeFinancials, healthRows, effortRows, allStages, resources, teamRows, periodStart, periodEnd, periodLabel]);
+  }, [canSeeFinancials, healthRows, effortRows, allStages, resources, identityMap, teamRows, periodStart, periodEnd, periodLabel]);
 
   const isLoading = pLoading || sLoading || eLoading;
 
