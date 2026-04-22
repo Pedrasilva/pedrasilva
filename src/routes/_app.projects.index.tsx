@@ -51,6 +51,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import type { StageWithAllocations } from "@/lib/projects/types";
 import { useHasPermission } from "@/hooks/use-permissions";
+import { useProjectsAuth } from "@/lib/projects/use-auth";
 import { Search } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/")({
