@@ -355,18 +355,11 @@ function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }
               onChange={(e) => setForm((f) => ({ ...f, codigo: e.target.value }))} />
           </Field>
           <Field label="Cliente (empresa)">
-            <Select value={form.company_id || "none"}
-              onValueChange={(v) => setForm((f) => ({ ...f, company_id: v === "none" ? "" : v }))}>
-              <SelectTrigger className="input-yellow">
-                <SelectValue placeholder="—" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">—</SelectItem>
-                {companies.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CompanyPicker
+              value={form.company_id || null}
+              onChange={(id) => setForm((f) => ({ ...f, company_id: id }))}
+              placeholder="—"
+            />
           </Field>
           <Field label="Responsável">
             <Select value={form.responsavel_id || "none"}
