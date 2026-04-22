@@ -31,6 +31,7 @@ import {
 import { useProjectInvoices } from "@/lib/projects/use-invoices";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { useProjectActivities } from "@/lib/projects/use-activities";
+import { useHasPermission } from "@/hooks/use-permissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -77,6 +78,7 @@ function ProjectDetail() {
   const { data: invoices } = useProjectInvoices(projectId);
   const { data: activities } = useProjectActivities(projectId);
   const updateProject = useUpdateProject();
+  const { allowed: canSeeFinancials } = useHasPermission("projects.financials");
 
   const [tab, setTab] = useState<TabKey>("overview");
   const [dayWidth, setDayWidth] = useState(36);
@@ -591,6 +593,7 @@ function ProjectDetail() {
                   stageLoggedHours={stageLoggedHours}
                   stagePlannedHours={stagePlannedHours}
                   defaultRates={defaultRates}
+                  canSeeFinancials={canSeeFinancials}
                 />
               </div>
             )}
@@ -1025,6 +1028,7 @@ function MilestonesTable({
   stageLoggedHours,
   stagePlannedHours,
   defaultRates,
+  canSeeFinancials,
 }: {
   stages: ReturnType<typeof useProjectDetail>["data"] extends infer T
     ? T extends { stages: infer S }
@@ -1039,6 +1043,7 @@ function MilestonesTable({
   stageLoggedHours: (id: string) => number;
   stagePlannedHours: (id: string) => number;
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
+  canSeeFinancials: boolean;
 }) {
   const [expanded, setExpanded] = useState<Set<string>>(
     () => new Set(stages?.map((s) => s.id) ?? []),
@@ -1134,18 +1139,28 @@ function MilestonesTable({
             <tr className="border-b border-border text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               <th className="px-4 py-2.5 font-semibold">Milestones &amp; Tasks</th>
               <th className="px-4 py-2.5 font-semibold">Status</th>
-              <th
-                className="px-4 py-2.5 font-semibold"
-                title="Cost-to-budget: actual cost (logged hrs × cost rate) vs planned budget"
-              >
-                Cost / Budget
-              </th>
-              <th
-                className="px-4 py-2.5 font-semibold"
-                title="Actual revenue: billable hours × sale rate"
-              >
-                Actual Revenue
-              </th>
+              {canSeeFinancials && (
+                <>
+                  <th
+                    className="px-4 py-2.5 font-semibold"
+                    title="Actual cost = Σ logged hours × cost rate. Compared to the stage budget when defined."
+                  >
+                    Cost (actual vs budget)
+                  </th>
+                  <th
+                    className="px-4 py-2.5 font-semibold"
+                    title="Revenue earned = Σ billable hours × sale rate"
+                  >
+                    Revenue (earned)
+                  </th>
+                  <th
+                    className="px-4 py-2.5 font-semibold"
+                    title="Profit = revenue − cost. Margin shown only when revenue > 0."
+                  >
+                    Profit / Margin
+                  </th>
+                </>
+              )}
               <th className="px-4 py-2.5 font-semibold">Hours used / planned</th>
               <th className="px-4 py-2.5 font-semibold">Scheduled start</th>
               <th className="px-4 py-2.5 font-semibold">Scheduled due</th>
@@ -1161,8 +1176,7 @@ function MilestonesTable({
               const over = cost > budget && budget > 0;
               const logged = stageLoggedHours(s.id);
               const planned = stagePlannedHours(s.id);
-              const costPct = budget > 0 ? Math.min(1, cost / budget) : 0;
-              const revPct = budget > 0 ? Math.min(1, revenue / budget) : 0;
+              void stageCost;
               const isOpen = expanded.has(s.id);
               const isActive = s.allocations.length > 0;
               void plannedCost;
@@ -1201,12 +1215,19 @@ function MilestonesTable({
                     <td className="px-4 py-3">
                       <StatusDot active={isActive} label={isActive ? "Active" : "Planned"} />
                     </td>
-                    <td className="px-4 py-3 min-w-[200px] w-[20%]">
-                      <EVCell cost={cost} budget={budget} pct={costPct} over={over} />
-                    </td>
-                    <td className="px-4 py-3 min-w-[180px] w-[18%]">
-                      <RevenueCell revenue={revenue} budget={budget} pct={revPct} />
-                    </td>
+                    {canSeeFinancials && (
+                      <>
+                        <td className="px-4 py-3 min-w-[200px] w-[18%]">
+                          <CostVsBudgetCell cost={cost} budget={budget} over={over} />
+                        </td>
+                        <td className="px-4 py-3 min-w-[160px] w-[15%]">
+                          <RevenueEarnedCell revenue={revenue} />
+                        </td>
+                        <td className="px-4 py-3 min-w-[160px] w-[15%]">
+                          <ProfitMarginCell revenue={revenue} cost={cost} />
+                        </td>
+                      </>
+                    )}
                     <td className="px-4 py-3 whitespace-nowrap">
                       <UsageBudgetCell logged={logged} planned={planned} over={over} />
                     </td>
@@ -1261,12 +1282,19 @@ function MilestonesTable({
                           <td className="px-4 py-2.5">
                             <StatusDot active label="Planned" />
                           </td>
-                          <td className="px-4 py-2.5 min-w-[200px]" title="Planned cost (allocation × cost rate)">
-                            <EVCell cost={aPlannedCost} budget={0} pct={1} over={false} dimmed />
-                          </td>
-                          <td className="px-4 py-2.5 min-w-[180px]" title="Planned revenue (allocation × sale rate)">
-                            <RevenueCell revenue={aPlannedRevenue} budget={0} pct={1} dimmed />
-                          </td>
+                          {canSeeFinancials && (
+                            <>
+                              <td className="px-4 py-2.5 min-w-[200px]" title="Planned cost (allocation × cost rate)">
+                                <PlannedAmountCell amount={aPlannedCost} label="planned" />
+                              </td>
+                              <td className="px-4 py-2.5 min-w-[160px]" title="Planned revenue (allocation × sale rate)">
+                                <PlannedAmountCell amount={aPlannedRevenue} label="planned" />
+                              </td>
+                              <td className="px-4 py-2.5 min-w-[160px]" title="Planned profit = planned revenue − planned cost">
+                                <PlannedAmountCell amount={aPlannedRevenue - aPlannedCost} label="planned" />
+                              </td>
+                            </>
+                          )}
                           <td className="px-4 py-2.5 whitespace-nowrap">
                             <UsageBudgetCell logged={0} planned={aHours} over={false} />
                           </td>
@@ -2023,73 +2051,120 @@ function StatusDot({ active, label }: { active: boolean; label: string }) {
   );
 }
 
-function EVCell({
+/**
+ * Cost (actual vs budget).
+ *  - Always shows the actual cost in €.
+ *  - Shows budget reference and progress bar ONLY when budget > 0.
+ *  - Avoids meaningless 0% / over-budget signals when no budget is defined.
+ */
+function CostVsBudgetCell({
   cost,
   budget,
-  pct,
   over,
-  dimmed,
 }: {
   cost: number;
   budget: number;
-  pct: number;
   over: boolean;
-  dimmed?: boolean;
 }) {
+  const hasBudget = budget > 0;
+  const pct = hasBudget ? Math.min(1, cost / budget) : 0;
   return (
     <div>
-      <div className={cn("flex items-baseline justify-between text-xs", dimmed && "text-muted-foreground")}>
+      <div className="flex items-baseline justify-between text-xs">
         <span className="font-mono">
-          <span className={over ? "text-destructive font-semibold" : ""}>{euros(cost)}</span>
-          <span className="text-muted-foreground"> / {euros(budget)}</span>
+          <span className={over ? "text-destructive font-semibold" : "text-foreground"}>
+            {euros(cost)}
+          </span>
+          {hasBudget ? (
+            <span className="text-muted-foreground"> / {euros(budget)}</span>
+          ) : (
+            <span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+              no budget
+            </span>
+          )}
         </span>
-        <span className="tabular-nums text-muted-foreground">{Math.round(pct * 100)}%</span>
+        {hasBudget && (
+          <span
+            className={cn(
+              "tabular-nums",
+              over ? "text-destructive font-semibold" : "text-muted-foreground",
+            )}
+          >
+            {Math.round(pct * 100)}%
+          </span>
+        )}
       </div>
-      <div className="mt-1.5 h-[3px] w-full overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full"
-          style={{
-            width: `${Math.max(0, Math.min(100, pct * 100))}%`,
-            backgroundColor: over ? "var(--color-budget-over)" : "var(--color-budget-spent)",
-          }}
-        />
+      {hasBudget && (
+        <div className="mt-1.5 h-[3px] w-full overflow-hidden rounded-full bg-muted">
+          <div
+            className="h-full"
+            style={{
+              width: `${Math.max(0, Math.min(100, pct * 100))}%`,
+              backgroundColor: over ? "var(--color-budget-over)" : "var(--color-budget-spent)",
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Revenue (earned) — billable hours × sale rate.
+ * Shown standalone (no budget percentage) so the figure is unambiguous.
+ */
+function RevenueEarnedCell({ revenue }: { revenue: number }) {
+  return (
+    <div className="text-xs">
+      <span className="font-mono text-foreground">{euros(revenue)}</span>
+      <div className="mt-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+        earned
       </div>
     </div>
   );
 }
 
-function RevenueCell({
-  revenue,
-  budget,
-  pct,
-  dimmed,
-}: {
-  revenue: number;
-  budget: number;
-  pct: number;
-  dimmed?: boolean;
-}) {
+/**
+ * Profit + margin.
+ *  - Profit = revenue − cost (always meaningful).
+ *  - Margin shown only when revenue > 0 (otherwise denominator = 0).
+ */
+function ProfitMarginCell({ revenue, cost }: { revenue: number; cost: number }) {
+  const profit = revenue - cost;
+  const hasRevenue = revenue > 0;
+  const margin = hasRevenue ? (profit / revenue) * 100 : 0;
+  const tone =
+    profit < 0
+      ? "text-destructive"
+      : hasRevenue && margin < 15
+        ? "text-amber-600 dark:text-amber-400"
+        : "text-emerald-600 dark:text-emerald-400";
   return (
-    <div>
-      <div className={cn("flex items-baseline justify-between text-xs", dimmed && "text-muted-foreground")}>
-        <span className="font-mono">
-          <span className="text-foreground">{euros(revenue)}</span>
-          {budget > 0 && (
-            <span className="text-muted-foreground"> / {euros(budget)}</span>
-          )}
-        </span>
-        {budget > 0 && (
-          <span className="tabular-nums text-muted-foreground">{Math.round(pct * 100)}%</span>
-        )}
-      </div>
-      <div className="mt-1.5 h-[3px] w-full overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full"
-          style={{
-            width: `${Math.max(0, Math.min(100, pct * 100))}%`,
-            backgroundColor: "var(--primary)",
-          }}
-        />
+    <div className="text-xs">
+      <span className={cn("font-mono font-semibold", tone)}>{euros(profit)}</span>
+      {hasRevenue ? (
+        <div className={cn("mt-0.5 text-[10px] tabular-nums", tone)}>
+          {margin >= 0 ? "+" : ""}
+          {margin.toFixed(1)}% margin
+        </div>
+      ) : (
+        <div className="mt-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+          no revenue yet
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Sub-row planned amount (allocation forecast). Dimmed to differentiate from actuals. */
+function PlannedAmountCell({ amount, label }: { amount: number; label: string }) {
+  return (
+    <div className="text-xs">
+      <span className={cn("font-mono", amount < 0 ? "text-destructive" : "text-muted-foreground")}>
+        {euros(amount)}
+      </span>
+      <div className="mt-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+        {label}
       </div>
     </div>
   );
