@@ -13,6 +13,45 @@
     "forecast": "Forecast",
     "insights": "Insights"
   },
+  "common": {
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week",
+    "today": "Today",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "clear": "Clear",
+    "remove": "Remove",
+    "team": "Team",
+    "person": "Person",
+    "allTeams": "All teams",
+    "allPeople": "All people",
+    "backOffice": "Back office",
+    "projects": "Projects",
+    "billable": "Billable",
+    "internal": "Internal",
+    "internalNonBillable": "Internal (non-billable)",
+    "nonWorking": "Non-working",
+    "total": "Total",
+    "hours": "Hours",
+    "hoursLogged": "Hours logged",
+    "hoursPlanned": "Hours planned",
+    "revenue": "Revenue",
+    "cost": "Cost",
+    "profit": "Profit",
+    "margin": "Margin",
+    "status": "Status",
+    "category": "Category",
+    "share": "Share",
+    "linked": "Linked",
+    "notLinked": "Not linked",
+    "largest": "Largest",
+    "noData": "No data."
+  },
   "dashboard": {
     "title": "Projects Dashboard",
     "searchPlaceholder": "Search projects or clients…",
@@ -225,8 +264,301 @@
     "unknownUser": "Unknown user",
     "you": "You"
   },
-  "common": {
-    "previousPage": "Previous page",
-    "nextPage": "Next page"
+  "timesheet": {
+    "title": "Weekly Timesheet",
+    "subtitle": "Log time per project stage, internal cost center, or non-working time.",
+    "summary": {
+      "billable": "Billable",
+      "internalNonBillable": "Internal (non-billable)",
+      "nonWorking": "Non-working",
+      "total": "Total"
+    },
+    "noResource": "Your account isn't linked to a team member yet. Ask an admin to add you with a matching email.",
+    "addStage": "Add project / stage",
+    "search": {
+      "placeholder": "Search any project by name or client…",
+      "prompt": "Type a project or client name to search.",
+      "searching": "Searching…",
+      "noResults": "No projects match \"{{query}}\".",
+      "stageCount_one": "{{count}} stage",
+      "stageCount_other": "{{count}} stages",
+      "noStagesDefined": "No stages defined for this project.",
+      "added": "Added {{project}} · {{stage}}",
+      "addFailed": "Failed to add stage"
+    },
+    "rowCounts": {
+      "project_one": "{{count}} project row",
+      "project_other": "{{count}} project rows",
+      "internal": "{{count}} internal",
+      "nonWorking": "{{count}} non-working"
+    },
+    "table": {
+      "description": "Description",
+      "total": "Total",
+      "dailyTotal": "Daily total"
+    },
+    "sections": {
+      "projects": "Projects",
+      "projectsHint": "Billable or non-billable. Toggle inside each cell.",
+      "internal": "Internal cost centers",
+      "internalHint": "Non-billable working time (capacity used, no revenue).",
+      "nonWorking": "Non-working time",
+      "nonWorkingHint": "Auto-filled from approved leave + public holidays. Reduces capacity."
+    },
+    "rows": {
+      "loadingProjects": "Loading projects…",
+      "emptyProjects": "No active stages this week. Use \"Add project / stage\" to log time elsewhere.",
+      "emptyNonWorking": "No approved leave or holidays this week.",
+      "internalNonBillableSub": "Internal · non-billable",
+      "internalArchivedSub": "Internal · archived (read-only label, edits still allowed)",
+      "archivedSuffix": "(archived)",
+      "nonWorkingSub": "Non-working · capacity reducer",
+      "suggestedPerDay": "Suggested {{hours}}/day",
+      "removeRow": "Remove row",
+      "saveFailed": "Failed to save"
+    },
+    "cell": {
+      "timeLabel": "Time (e.g. 6h05, 6h30)",
+      "timeError": "Use format like 6h30",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "What did you work on?",
+      "billable": "Billable",
+      "billableHint": "Uncheck to log time that won't be charged to the client.",
+      "internalHint": "Internal time is always non-billable and counts toward used capacity.",
+      "nonWorkingHint": "Non-working time reduces available capacity and isn't billable."
+    },
+    "weekRange": "{{start}} – {{end}}"
+  },
+  "financials": {
+    "eyebrow": "Company financials",
+    "title": "Monthly performance",
+    "subtitle": "Revenue, cost and time breakdown for {{month}}",
+    "kpi": {
+      "revenue": "Revenue",
+      "revenueSub": "{{hours}} billable",
+      "totalCost": "Total cost",
+      "totalCostSub": "{{hours}} paid time",
+      "profit": "Profit",
+      "profitMarginSub": "{{pct}} margin"
+    },
+    "buckets": {
+      "billable": "Billable",
+      "internalNonBillable": "Internal non-billable",
+      "nonWorking": "Non-working",
+      "ofTotalTime": "{{pct}} of total time"
+    },
+    "capacity": {
+      "available": "Available capacity",
+      "formula": "Working days × 8h × people",
+      "lessNonWorking": "Less non-working",
+      "utilisedOfAvailable": "Utilised of available"
+    },
+    "insight": {
+      "title": "Profitability insight",
+      "headline": "Internal non-billable + non-working time costs you <strong>{{cost}}</strong> this month",
+      "internalHours": "Internal hours",
+      "internalHoursHint": "working time without revenue",
+      "nonWorkingHours": "Non-working hours",
+      "nonWorkingHoursHint": "leave + holidays",
+      "combinedDrag": "Combined cost drag",
+      "combinedDragHint": "hours × avg cost/h",
+      "explanation": "Revenue only comes from billable project hours. Every internal or absent hour is paid but doesn't generate income — so it directly reduces profit. If those hours were billable at the average rate, profit would be approximately <strong>{{value}}</strong>."
+    },
+    "trailing": {
+      "title": "Trailing 12 months",
+      "subtitle": "Revenue, cost and profit per month for the current filters",
+      "revenue": "Revenue",
+      "cost": "Cost",
+      "profit": "Profit"
+    },
+    "weeklyUtil": {
+      "title": "Utilization trend",
+      "subtitle": "Last 12 weeks · target band {{min}}–{{max}}%",
+      "thisWeek": "This week",
+      "trendDelta": "{{arrow}} {{pct}} vs prev",
+      "utilization": "Utilization",
+      "internalPct": "Internal %",
+      "minLabel": "Min {{pct}}%",
+      "maxLabel": "Max {{pct}}%",
+      "targetMax": "Target max"
+    },
+    "byPerson": {
+      "title": "By person",
+      "subtitle": "Hours, revenue, cost and profit for each person in scope",
+      "person": "Person",
+      "team": "Team",
+      "billable": "Billable",
+      "internal": "Internal",
+      "nonWork": "Non-work",
+      "util": "Util.",
+      "status": "Status",
+      "revenue": "Revenue",
+      "cost": "Cost",
+      "profit": "Profit",
+      "empty": "No time logged for the selected filters."
+    },
+    "internalCenters": {
+      "title": "Internal cost centers",
+      "subtitle": "Hours and cost by internal category for {{month}}. Percentages reflect share of working time (billable + internal).",
+      "totalInternal": "Total internal",
+      "ofWorkingTime": "{{pct}} of working time",
+      "topInsight": "<strong>{{category}}</strong> is the largest internal cost center this month — {{hours}} ({{pct}} of working time, {{cost}} in cost).",
+      "category": "Category",
+      "hours": "Hours",
+      "cost": "Cost",
+      "pctWorking": "% working time",
+      "pctInternal": "% of internal",
+      "share": "Share",
+      "largest": "Largest",
+      "noInternal": "No internal time logged this month.",
+      "uncategorised": "Uncategorised",
+      "centers": {
+        "feeProposals": "Fee proposals",
+        "meetings": "Meetings",
+        "training": "Training",
+        "businessDevelopment": "Business development",
+        "admin": "Admin"
+      }
+    },
+    "businessDev": {
+      "title": "Business Development efficiency",
+      "subtitle": "How much it costs to win work — Fee Proposal time vs. proposals submitted and won.",
+      "monthCost": "{{cost}} BD cost this month",
+      "metrics": {
+        "submitted": "Proposals submitted",
+        "submittedSub": "{{count}} this month",
+        "won": "Projects won",
+        "wonSub": "{{count}} this month",
+        "winRate": "Win rate",
+        "winRateSub": "{{decided}} decided · {{open}} open",
+        "costPerWon": "Cost per won project",
+        "costPerWonSub": "{{cost}} total BD cost"
+      },
+      "insight": "<strong>{{hours}}</strong> logged to <strong>Fee proposals</strong> across the company, costing <strong>{{cost}}</strong>. Each won project costs <strong>{{costPerWon}}</strong> in BD effort.",
+      "valueWon": "Total value won: <strong>{{value}}</strong> · ROI: <strong>{{roi}}× return on BD spend</strong>",
+      "recentWins": "Recent wins",
+      "recentTable": {
+        "proposal": "Proposal",
+        "value": "Value",
+        "decided": "Decided",
+        "linkedProject": "Linked project",
+        "linked": "Linked",
+        "notLinked": "Not linked"
+      },
+      "noProposals": "No proposals submitted yet. Add proposals in the CRM Pipeline to track BD efficiency."
+    },
+    "alertChips": {
+      "alerts": "Alerts",
+      "onTarget": "{{count}} on target",
+      "underutilized": "{{count}} underutilized (< {{pct}}%)",
+      "overutilized": "{{count}} overutilized (> {{pct}}%)",
+      "highInternal": "{{count}} high internal (> {{pct}}%)",
+      "allInRange": "All people in scope are within the target utilization range."
+    },
+    "utilizationCard": {
+      "label": "Utilization",
+      "targetRange": "Target {{min}}–{{max}}%",
+      "onTarget": "On target",
+      "belowTarget": "{{pct}} below target",
+      "aboveTarget": "{{pct}} above target"
+    },
+    "utilStatus": {
+      "highInternal": "High internal time",
+      "underutilized": "Underutilized",
+      "overutilized": "Overutilized",
+      "onTarget": "On target"
+    },
+    "targets": {
+      "openLabel": "{{min}}–{{max}}%",
+      "title": "Utilization targets",
+      "description": "Healthy range for billable / (billable + internal). People outside the range are flagged on the dashboard.",
+      "minLabel": "Min %",
+      "maxLabel": "Max %",
+      "internalLabel": "Internal time alert (% of working time)",
+      "internalHint": "Flag people whose internal non-billable time exceeds this share of working time.",
+      "rangeError": "Min must be lower than max, between 0 and 100",
+      "saved": "Utilization targets updated"
+    },
+    "unmappedUser": "Unmapped user"
+  },
+  "forecast": {
+    "eyebrow": "Studio",
+    "title": "Forecast",
+    "subtitle": "Projected revenue, cost and profit from the Gantt allocations. Compare against actuals, detect overlaps with approved leave, and estimate future margins.",
+    "mode": {
+      "label": "Forecast mode",
+      "weighted": "Probability-weighted",
+      "weightedHint": "Pipeline counted by proposal probability",
+      "optimistic": "100%",
+      "optimisticHint": "Everything counted at 100% (optimistic view)",
+      "committed": "Committed",
+      "committedHint": "Only won projects or projects without a CRM proposal"
+    },
+    "kpi": {
+      "plannedHours": "Planned hours",
+      "plannedHoursSub": "{{count}} people allocated",
+      "effectiveCapacity": "Effective capacity",
+      "effectiveCapacitySubLeave": "−{{leave}} on leave (of {{raw}})",
+      "effectiveCapacitySubNoLeave": "{{raw}} gross · no leave",
+      "forecastRevenue": "Forecast revenue",
+      "forecastRevenueWeighted": "weighted · gross {{raw}} · actual {{actual}}",
+      "forecastRevenueVsActual": "vs actual {{actual}}",
+      "forecastCost": "Forecast cost",
+      "forecastCostSub": "vs actual {{actual}}",
+      "forecastProfit": "Forecast profit",
+      "forecastProfitSub": "Margin {{margin}}% · actual {{actual}}"
+    },
+    "split": {
+      "committed": "Committed",
+      "committedSub": "{{hours}} · won / no proposal",
+      "pipelineWeighted": "Pipeline (weighted)",
+      "pipelineWeightedAmount": "{{weighted}} <span>/ {{raw}} gross</span>",
+      "pipelineWeightedSub": "{{weighted}} weighted · {{raw}} gross",
+      "lost": "Lost (excluded)",
+      "lostSub": "do not count toward the forecast"
+    },
+    "leaveConflict": {
+      "title": "{{hours}} planned during approved leave",
+      "subtitle": "{{count}} day(s) with overlap. Review the allocations below marked with the leave icon."
+    },
+    "capacityRisk": {
+      "title": "Capacity reduced by leave",
+      "subtitle": "Team has {{leave}} of approved leave this month → effective capacity {{eff}} (of {{raw}}).",
+      "exceeded": "Plan exceeds capacity by {{over}}.",
+      "underPressure": "Projects under pressure",
+      "leaveTooltip": "Hours lost to approved leave"
+    },
+    "trend": {
+      "title": "Forecast trend (6 months)",
+      "subtitle": "Projected revenue vs cost from the current Gantt",
+      "revenue": "Revenue",
+      "cost": "Cost",
+      "profit": "Profit"
+    },
+    "variance": {
+      "title": "Planned vs actual variance — {{month}}",
+      "subtitle": "Difference between Gantt-allocated effort and actually logged timesheet hours",
+      "loading": "Loading…",
+      "empty": "No planned or actual data for this month.",
+      "project": "Project",
+      "planH": "Plan h",
+      "actualH": "Actual h",
+      "deltaH": "Δ h",
+      "planRevenue": "Plan revenue",
+      "actualRevenue": "Actual revenue",
+      "planProfit": "Plan profit",
+      "actualProfit": "Actual profit",
+      "deltaProfit": "Δ profit"
+    },
+    "probability": {
+      "won": "Won",
+      "lost": "Lost",
+      "pipeline": "Pipeline · {{pct}}% probability"
+    },
+    "conflicts": {
+      "title": "Conflicts with approved leave",
+      "subtitle": "People allocated to projects on days they are on leave. Adjust the Gantt or reject the request.",
+      "daysSuffix": "{{count}}d"
+    }
   }
 }
