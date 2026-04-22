@@ -150,6 +150,56 @@ export function ResourcePool({ resources, collapsed = false }: Props) {
           const reducedByLeave = cap.leaveHours > 0;
           const fullyOnLeave = cap.rawCapacityHours > 0 && cap.effectiveCapacityHours === 0;
 
+          if (collapsed) {
+            return (
+              <TooltipProvider key={r.id} delayDuration={120}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData("application/x-resource-id", r.id);
+                        e.dataTransfer.effectAllowed = "copy";
+                      }}
+                      className={`group relative flex cursor-grab items-center justify-center rounded-md border p-1.5 transition active:cursor-grabbing ${
+                        over
+                          ? "border-destructive/50 bg-destructive/5"
+                          : "border-border bg-background hover:border-foreground/30"
+                      }`}
+                    >
+                      <CollaboratorAvatar
+                        collaboratorId={r.collaborator_id}
+                        name={r.name}
+                        color={r.color}
+                        size={26}
+                      />
+                      {(over || reducedByLeave) && (
+                        <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-background ring-1 ring-border">
+                          {over ? (
+                            <AlertTriangle className="h-2.5 w-2.5 text-destructive" />
+                          ) : (
+                            <CalendarOff className="h-2.5 w-2.5 text-amber-600 dark:text-amber-400" />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="left" className="text-xs">
+                    <div className="font-medium">{r.name}</div>
+                    <div className="font-mono text-[10px] text-muted-foreground">
+                      {wh.toFixed(0)}/{effCap.toFixed(0)} h this week
+                    </div>
+                    {reducedByLeave && (
+                      <div className="text-[10px] text-amber-600 dark:text-amber-400">
+                        −{cap.leaveHours.toFixed(0)}h leave
+                      </div>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          }
+
           return (
             <div
               key={r.id}
