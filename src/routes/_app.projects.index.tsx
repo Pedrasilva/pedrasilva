@@ -117,19 +117,43 @@ function useTaskMap() {
   });
 }
 
-function useUserResourceMap() {
+export interface UserIdentity {
+  userId: string;
+  resourceId: string | null;
+  collaboratorId: string | null;
+  name: string;
+  fotoPath: string | null;
+  color: string | null;
+}
+
+/**
+ * Resolves auth user_id -> human-readable identity (collaborator name, photo,
+ * resource id). Used across dashboard widgets so we never display raw UUIDs.
+ */
+function useUserIdentityMap() {
   return useQuery({
-    queryKey: ["pm-user-resource-map"],
-    queryFn: async (): Promise<Map<string, string>> => {
-      // Map auth user_id -> pm_resource via collaborator_id is not directly available;
-      // fall back to mapping via pm_resources.collaborator_id and a profile-style lookup.
-      // For dashboard purposes we simply load resources and trust user_id -> resource_id is
-      // resolved on the entries side later through a join when needed.
-      const { data, error } = await supabase.from("pm_resources").select("id, collaborator_id");
+    queryKey: ["pm-user-identity-map"],
+    staleTime: 5 * 60 * 1000,
+    queryFn: async (): Promise<Map<string, UserIdentity>> => {
+      const { data, error } = await supabase.rpc("pm_list_user_resource_map");
       if (error) throw error;
-      const m = new Map<string, string>();
-      for (const r of data ?? []) {
-        if (r.collaborator_id) m.set(r.collaborator_id, r.id);
+      const m = new Map<string, UserIdentity>();
+      for (const row of (data ?? []) as Array<{
+        user_id: string;
+        resource_id: string | null;
+        name: string | null;
+        collaborator_id: string | null;
+        foto_path: string | null;
+        color: string | null;
+      }>) {
+        m.set(row.user_id, {
+          userId: row.user_id,
+          resourceId: row.resource_id,
+          collaboratorId: row.collaborator_id,
+          name: row.name ?? "Unknown user",
+          fotoPath: row.foto_path,
+          color: row.color,
+        });
       }
       return m;
     },
