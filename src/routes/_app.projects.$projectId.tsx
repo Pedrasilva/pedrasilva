@@ -1521,20 +1521,23 @@ function InsightsPanel({
         <InsightCard title="Activities vs. Hours">
           <ActivitiesHoursChart data={months} maxAct={maxAct} maxHours={maxHours} />
         </InsightCard>
-        <InsightCard title="Value">
+        <InsightCard title="Revenue">
           <div className="space-y-4 px-1 pt-1">
             <BarRow
-              label="Earned Value:"
+              label="Actual Revenue:"
               value={earnedValue}
               pct={earnedPct}
               over={earnedValue > forecastValue && forecastValue > 0}
             />
             <BarRow
-              label="Forecast Value:"
+              label="Planned Value (forecast):"
               value={forecastValue}
               pct={forecastPct}
-              over={forecastValue < totalCost}
+              over={forecastValue < totalPlannedCost}
             />
+          </div>
+          <div className="mt-3 px-1 text-[10px] text-muted-foreground">
+            Actual = billable hours × sale rate. Planned = total allocated hours × sale rate.
           </div>
         </InsightCard>
       </div>
