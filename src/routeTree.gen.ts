@@ -22,6 +22,7 @@ import { Route as AppProjectsTimesheetRouteImport } from './routes/_app.projects
 import { Route as AppProjectsResourcesRouteImport } from './routes/_app.projects.resources'
 import { Route as AppProjectsMyTasksRouteImport } from './routes/_app.projects.my-tasks'
 import { Route as AppProjectsGanttRouteImport } from './routes/_app.projects.gantt'
+import { Route as AppProjectsFinancialsRouteImport } from './routes/_app.projects.financials'
 import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
 import { Route as AppHrValorBoRouteImport } from './routes/_app.hr.valor-bo'
 import { Route as AppHrSubsidioAlimentacaoRouteImport } from './routes/_app.hr.subsidio-alimentacao'
@@ -101,6 +102,11 @@ const AppProjectsMyTasksRoute = AppProjectsMyTasksRouteImport.update({
 const AppProjectsGanttRoute = AppProjectsGanttRouteImport.update({
   id: '/projects/gantt',
   path: '/projects/gantt',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProjectsFinancialsRoute = AppProjectsFinancialsRouteImport.update({
+  id: '/projects/financials',
+  path: '/projects/financials',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProjectsProjectIdRoute = AppProjectsProjectIdRouteImport.update({
@@ -206,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/projects/financials': typeof AppProjectsFinancialsRoute
   '/projects/gantt': typeof AppProjectsGanttRoute
   '/projects/my-tasks': typeof AppProjectsMyTasksRoute
   '/projects/resources': typeof AppProjectsResourcesRouteWithChildren
@@ -234,6 +241,7 @@ export interface FileRoutesByTo {
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/projects/financials': typeof AppProjectsFinancialsRoute
   '/projects/gantt': typeof AppProjectsGanttRoute
   '/projects/my-tasks': typeof AppProjectsMyTasksRoute
   '/projects/resources': typeof AppProjectsResourcesRouteWithChildren
@@ -266,6 +274,7 @@ export interface FileRoutesById {
   '/_app/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/_app/hr/valor-bo': typeof AppHrValorBoRoute
   '/_app/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/_app/projects/financials': typeof AppProjectsFinancialsRoute
   '/_app/projects/gantt': typeof AppProjectsGanttRoute
   '/_app/projects/my-tasks': typeof AppProjectsMyTasksRoute
   '/_app/projects/resources': typeof AppProjectsResourcesRouteWithChildren
@@ -298,6 +307,7 @@ export interface FileRouteTypes {
     | '/hr/subsidio-alimentacao'
     | '/hr/valor-bo'
     | '/projects/$projectId'
+    | '/projects/financials'
     | '/projects/gantt'
     | '/projects/my-tasks'
     | '/projects/resources'
@@ -326,6 +336,7 @@ export interface FileRouteTypes {
     | '/hr/subsidio-alimentacao'
     | '/hr/valor-bo'
     | '/projects/$projectId'
+    | '/projects/financials'
     | '/projects/gantt'
     | '/projects/my-tasks'
     | '/projects/resources'
@@ -357,6 +368,7 @@ export interface FileRouteTypes {
     | '/_app/hr/subsidio-alimentacao'
     | '/_app/hr/valor-bo'
     | '/_app/projects/$projectId'
+    | '/_app/projects/financials'
     | '/_app/projects/gantt'
     | '/_app/projects/my-tasks'
     | '/_app/projects/resources'
@@ -467,6 +479,13 @@ declare module '@tanstack/react-router' {
       path: '/projects/gantt'
       fullPath: '/projects/gantt'
       preLoaderRoute: typeof AppProjectsGanttRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/financials': {
+      id: '/_app/projects/financials'
+      path: '/projects/financials'
+      fullPath: '/projects/financials'
+      preLoaderRoute: typeof AppProjectsFinancialsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/projects/$projectId': {
@@ -669,6 +688,7 @@ interface AppRouteChildren {
   AppHrRoute: typeof AppHrRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRoute
+  AppProjectsFinancialsRoute: typeof AppProjectsFinancialsRoute
   AppProjectsGanttRoute: typeof AppProjectsGanttRoute
   AppProjectsMyTasksRoute: typeof AppProjectsMyTasksRoute
   AppProjectsResourcesRoute: typeof AppProjectsResourcesRouteWithChildren
@@ -681,6 +701,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppHrRoute: AppHrRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppProjectsProjectIdRoute: AppProjectsProjectIdRoute,
+  AppProjectsFinancialsRoute: AppProjectsFinancialsRoute,
   AppProjectsGanttRoute: AppProjectsGanttRoute,
   AppProjectsMyTasksRoute: AppProjectsMyTasksRoute,
   AppProjectsResourcesRoute: AppProjectsResourcesRouteWithChildren,
