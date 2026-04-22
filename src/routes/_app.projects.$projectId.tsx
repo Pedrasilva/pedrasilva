@@ -212,6 +212,10 @@ function ProjectDetail() {
   };
   const stageLoggedHours = (stageId: string) =>
     timeRows?.find((r) => r.stage_id === stageId)?.hours ?? 0;
+  const stageBillableHours = (stageId: string) =>
+    timeRows?.find((r) => r.stage_id === stageId)?.billableHours ?? 0;
+  const stageNonBillableHours = (stageId: string) =>
+    timeRows?.find((r) => r.stage_id === stageId)?.nonBillableHours ?? 0;
 
   // Logged (actual) cost per stage: distributes the stage's logged hours across
   // its allocations proportionally to planned hours, then × each resource cost rate.
