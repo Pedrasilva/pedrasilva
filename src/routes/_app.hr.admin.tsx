@@ -263,6 +263,10 @@ function AdminPage() {
             o email registado na ficha.
           </p>
         </TabsContent>
+
+        <TabsContent value="internal-categories" className="mt-4">
+          <InternalCategoriesAdmin />
+        </TabsContent>
       </Tabs>
     </div>
   );
