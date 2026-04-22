@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { AppShell } from "@/components/projects/app-shell";
 import { ProjectValueChart } from "@/components/projects/dashboard/project-value-chart";
 import { PerformanceTable } from "@/components/projects/dashboard/performance-table";
@@ -17,11 +18,11 @@ export const Route = createFileRoute("/_app/projects/insights")({
   component: InsightsPage,
 });
 
-const STATUS_FILTERS: { label: string; value: ProjectStatus | "all" }[] = [
-  { label: "Active", value: "active" },
-  { label: "Paused", value: "paused" },
-  { label: "Archived", value: "archived" },
-  { label: "All", value: "all" },
+const STATUS_FILTER_KEYS: { key: "active" | "paused" | "archived" | "all"; value: ProjectStatus | "all" }[] = [
+  { key: "active", value: "active" },
+  { key: "paused", value: "paused" },
+  { key: "archived", value: "archived" },
+  { key: "all", value: "all" },
 ];
 
 function useAllInvoices() {
@@ -41,6 +42,7 @@ function useAllInvoices() {
 }
 
 function InsightsPage() {
+  const { t } = useTranslation("projects");
   const { data: projects, isLoading: pLoading } = useProjects();
   const { data: allStages, isLoading: sLoading } = useAllStages();
   const { data: resources } = useResources();
@@ -65,17 +67,17 @@ function InsightsPage() {
       <div className="mx-auto w-full max-w-[1800px] space-y-4 px-6 pt-6 pb-12">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Studio</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("studio")}</p>
             <h1 className="font-display text-3xl font-semibold tracking-tight">
-              Projects Insights
+              {t("insights.title")}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Analytical views: pipeline value over time and per-resource performance.
+              {t("insights.subtitle")}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1">
-              {STATUS_FILTERS.map((f) => (
+              {STATUS_FILTER_KEYS.map((f) => (
                 <button
                   key={f.value}
                   onClick={() => setStatusFilter(f.value)}
@@ -85,7 +87,7 @@ function InsightsPage() {
                       : "rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
                   }
                 >
-                  {f.label}
+                  {t(`dashboard.filters.${f.key}`)}
                 </button>
               ))}
             </div>
@@ -94,7 +96,7 @@ function InsightsPage() {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search projects or clients…"
+                placeholder={t("dashboard.searchPlaceholder")}
                 className="w-72 rounded-md border border-border bg-card py-1.5 pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
               />
             </div>
