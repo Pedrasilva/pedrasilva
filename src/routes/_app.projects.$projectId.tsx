@@ -2058,6 +2058,43 @@ function EVCell({
   );
 }
 
+function RevenueCell({
+  revenue,
+  budget,
+  pct,
+  dimmed,
+}: {
+  revenue: number;
+  budget: number;
+  pct: number;
+  dimmed?: boolean;
+}) {
+  return (
+    <div>
+      <div className={cn("flex items-baseline justify-between text-xs", dimmed && "text-muted-foreground")}>
+        <span className="font-mono">
+          <span className="text-foreground">{euros(revenue)}</span>
+          {budget > 0 && (
+            <span className="text-muted-foreground"> / {euros(budget)}</span>
+          )}
+        </span>
+        {budget > 0 && (
+          <span className="tabular-nums text-muted-foreground">{Math.round(pct * 100)}%</span>
+        )}
+      </div>
+      <div className="mt-1.5 h-[3px] w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full"
+          style={{
+            width: `${Math.max(0, Math.min(100, pct * 100))}%`,
+            backgroundColor: "var(--primary)",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function UsageBudgetCell({
   logged,
   planned,
