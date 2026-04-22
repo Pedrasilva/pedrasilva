@@ -625,6 +625,8 @@ function ProjectDetail() {
                 totalLoggedHours={totalLoggedHours}
                 totalPlannedHours={totalPlannedHours}
                 stageLoggedHours={stageLoggedHours}
+                stageBillableHours={stageBillableHours}
+                stageNonBillableHours={stageNonBillableHours}
                 stagePlannedHours={stagePlannedHours}
                 defaultRates={defaultRates}
                 activities={activities ?? []}
