@@ -760,7 +760,11 @@ function ForecastPage() {
           <KpiCard
             label="Receita prevista"
             value={euros(planned.totalRevenue)}
-            sub={`vs real ${euros(actualByProject.totalRev)}`}
+            sub={
+              mode === "weighted" && planned.rawTotalRevenue !== planned.totalRevenue
+                ? `pond. · bruto ${euros(planned.rawTotalRevenue)} · real ${euros(actualByProject.totalRev)}`
+                : `vs real ${euros(actualByProject.totalRev)}`
+            }
             icon={<Wallet className="h-4 w-4" />}
             tone="primary"
           />
@@ -779,6 +783,34 @@ function ForecastPage() {
             tone={profit >= 0 ? "success" : "danger"}
           />
         </div>
+
+        {/* Pipeline split — committed vs probability-weighted vs lost */}
+        {(split.pipelineRawRev > 0 || split.lostRev > 0) && (
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="rounded-lg border border-border bg-card px-4 py-3">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Confirmado</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums">{euros(split.committedRev)}</p>
+              <p className="text-[11px] text-muted-foreground">{hoursFmt(split.committedHours)} · ganhos / sem proposta</p>
+            </div>
+            <div className="rounded-lg border border-amber-500/40 bg-amber-50/40 px-4 py-3 dark:bg-amber-950/10">
+              <p className="text-[11px] uppercase tracking-wide text-amber-700 dark:text-amber-300">Pipeline (ponderado)</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums">
+                {euros(split.pipelineWeightedRev)}{" "}
+                <span className="text-xs font-normal text-muted-foreground">/ {euros(split.pipelineRawRev)} bruto</span>
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                {hoursFmt(split.pipelineWeightedHours)} ponderadas · {hoursFmt(split.pipelineRawHours)} brutas
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/40 px-4 py-3">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Perdidos (excluídos)</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums text-muted-foreground line-through">
+                {euros(split.lostRev)}
+              </p>
+              <p className="text-[11px] text-muted-foreground">não contam para o forecast</p>
+            </div>
+          </div>
+        )}
 
         {/* Conflict alert */}
         {planned.conflictHours > 0 && (
