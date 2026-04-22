@@ -610,7 +610,9 @@ function ProjectDetail() {
                       />
                     )}
                   </div>
-                  {poolOpen && <ResourcePool resources={resources ?? []} />}
+                  {poolOpen && (
+                    <ResourcePool resources={resources ?? []} collapsed={false} />
+                  )}
                 </div>
               </div>
             )}

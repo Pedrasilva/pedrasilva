@@ -13,6 +13,8 @@ import { useResourceSchedules } from "@/lib/projects/use-resource-schedules";
 
 interface Props {
   resources: Resource[];
+  /** When true, render a thin icon-only rail (avatars + load bar). */
+  collapsed?: boolean;
 }
 
 function weekHoursForResource(
@@ -85,7 +87,7 @@ function useHolidaySet() {
   });
 }
 
-export function ResourcePool({ resources }: Props) {
+export function ResourcePool({ resources, collapsed = false }: Props) {
   const { data: allocs } = useAllAllocations();
   const { data: leaveByResource } = useLeaveByResource();
   const { data: holidays } = useHolidaySet();
@@ -103,15 +105,28 @@ export function ResourcePool({ resources }: Props) {
   }, []);
 
   return (
-    <aside className="flex h-full w-72 flex-col border-l border-border bg-card">
-      <div className="border-b border-border px-4 py-3">
-        <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Drag onto stage</p>
-        <h2 className="font-display text-lg font-semibold">Team pool</h2>
-        <p className="mt-1 text-[11px] text-muted-foreground">
-          This week · {format(thisWeek.start, "MMM d")} – {format(thisWeek.end, "MMM d")}
-        </p>
+    <aside
+      className={`flex h-full flex-col border-l border-border bg-card transition-all ${
+        collapsed ? "w-12" : "w-72"
+      }`}
+    >
+      <div className="border-b border-border px-3 py-3">
+        {collapsed ? (
+          <p className="text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Team
+          </p>
+        ) : (
+          <>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Drag onto stage</p>
+            <h2 className="font-display text-lg font-semibold">Team pool</h2>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              This week · {format(thisWeek.start, "MMM d")} – {format(thisWeek.end, "MMM d")}
+            </p>
+          </>
+        )}
       </div>
-      <div className="flex-1 space-y-2 overflow-y-auto p-3">
+      <div className={`flex-1 overflow-y-auto ${collapsed ? "space-y-1.5 p-1.5" : "space-y-2 p-3"}`}>
+
         {activeResources.map((r) => {
           const wh = weekHoursForResource(r.id, thisWeek.start, thisWeek.end, allocs ?? []);
           const intervals = leaveByResource?.get(r.id) ?? [];
@@ -134,6 +149,56 @@ export function ResourcePool({ resources }: Props) {
           const over = wh > effCap + 0.01;
           const reducedByLeave = cap.leaveHours > 0;
           const fullyOnLeave = cap.rawCapacityHours > 0 && cap.effectiveCapacityHours === 0;
+
+          if (collapsed) {
+            return (
+              <TooltipProvider key={r.id} delayDuration={120}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData("application/x-resource-id", r.id);
+                        e.dataTransfer.effectAllowed = "copy";
+                      }}
+                      className={`group relative flex cursor-grab items-center justify-center rounded-md border p-1.5 transition active:cursor-grabbing ${
+                        over
+                          ? "border-destructive/50 bg-destructive/5"
+                          : "border-border bg-background hover:border-foreground/30"
+                      }`}
+                    >
+                      <CollaboratorAvatar
+                        collaboratorId={r.collaborator_id}
+                        name={r.name}
+                        color={r.color}
+                        size={26}
+                      />
+                      {(over || reducedByLeave) && (
+                        <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-background ring-1 ring-border">
+                          {over ? (
+                            <AlertTriangle className="h-2.5 w-2.5 text-destructive" />
+                          ) : (
+                            <CalendarOff className="h-2.5 w-2.5 text-amber-600 dark:text-amber-400" />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="left" className="text-xs">
+                    <div className="font-medium">{r.name}</div>
+                    <div className="font-mono text-[10px] text-muted-foreground">
+                      {wh.toFixed(0)}/{effCap.toFixed(0)} h this week
+                    </div>
+                    {reducedByLeave && (
+                      <div className="text-[10px] text-amber-600 dark:text-amber-400">
+                        −{cap.leaveHours.toFixed(0)}h leave
+                      </div>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          }
 
           return (
             <div
@@ -212,7 +277,7 @@ export function ResourcePool({ resources }: Props) {
             </div>
           );
         })}
-        {!activeResources.length && (
+        {!activeResources.length && !collapsed && (
           <div className="rounded-md border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
             No active team members. Add or activate someone in the Team tab to start allocating.
           </div>
