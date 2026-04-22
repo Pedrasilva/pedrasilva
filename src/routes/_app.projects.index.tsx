@@ -8,7 +8,6 @@ import {
   endOfWeek,
   parseISO,
   format,
-  isWithinInterval,
 } from "date-fns";
 import { AppShell } from "@/components/projects/app-shell";
 import {
@@ -539,5 +538,3 @@ function DashboardPage() {
   );
 }
 
-// Prevents tree-shaking warning for unused isWithinInterval (kept for future filters).
-void isWithinInterval;
