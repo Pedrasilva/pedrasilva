@@ -201,6 +201,10 @@ type ForecastByProject = {
 
 function ForecastPage() {
   const [monthAnchor, setMonthAnchor] = useState<Date>(startOfMonth(new Date()));
+  // Default to "weighted" so the headline numbers always reflect the realistic
+  // probability-adjusted forecast — the previous "optimistic" behaviour is
+  // still one click away.
+  const [mode, setMode] = useState<ForecastMode>("weighted");
   const monthStart = useMemo(() => startOfMonth(monthAnchor), [monthAnchor]);
   const monthEnd = useMemo(() => endOfMonth(monthAnchor), [monthAnchor]);
   const monthStartISO = format(monthStart, "yyyy-MM-dd");
@@ -214,6 +218,7 @@ function ForecastPage() {
   const { data: projects } = useProjectsLite();
   const { data: actual, isLoading: actualLoading } = useActualByMonth(monthStartISO, monthEndISO);
   const { data: schedules } = useResourceSchedules();
+  const { data: probabilities } = useProjectProbabilities();
 
   const resourceMap = useMemo(() => {
     const m = new Map<string, { id: string; name: string; hourly_rate: number | null; cost_rate: number | null }>();
