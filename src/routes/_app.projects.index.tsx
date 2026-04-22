@@ -53,16 +53,17 @@ import type { StageWithAllocations } from "@/lib/projects/types";
 import { useMyPermissionsV2 } from "@/hooks/use-permissions-v2";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
 import { Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_app/projects/")({
   component: DashboardPage,
 });
 
-const STATUS_FILTERS: { label: string; value: ProjectStatus | "all" }[] = [
-  { label: "Active", value: "active" },
-  { label: "Paused", value: "paused" },
-  { label: "Archived", value: "archived" },
-  { label: "All", value: "all" },
+const STATUS_FILTER_KEYS: { key: "active" | "paused" | "archived" | "all"; value: ProjectStatus | "all" }[] = [
+  { key: "active", value: "active" },
+  { key: "paused", value: "paused" },
+  { key: "archived", value: "archived" },
+  { key: "all", value: "all" },
 ];
 
 type Period = "week" | "month";
