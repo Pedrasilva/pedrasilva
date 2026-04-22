@@ -9,6 +9,7 @@ import { AlertTriangle, GripVertical, CalendarOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { computeResourceCapacity, type LeaveInterval } from "@/lib/projects/leave-capacity";
+import { useResourceSchedules } from "@/lib/projects/use-resource-schedules";
 
 interface Props {
   resources: Resource[];
@@ -88,6 +89,7 @@ export function ResourcePool({ resources }: Props) {
   const { data: allocs } = useAllAllocations();
   const { data: leaveByResource } = useLeaveByResource();
   const { data: holidays } = useHolidaySet();
+  const { data: schedules } = useResourceSchedules();
 
   const activeResources = useMemo(
     () => resources.filter((r) => (r as Resource & { active?: boolean }).active !== false),
@@ -113,9 +115,17 @@ export function ResourcePool({ resources }: Props) {
         {activeResources.map((r) => {
           const wh = weekHoursForResource(r.id, thisWeek.start, thisWeek.end, allocs ?? []);
           const intervals = leaveByResource?.get(r.id) ?? [];
-          // Effective weekly capacity = scheduled working days × 8h, minus leave hours.
-          // We use the calendar week so the bar reflects this week's actual availability.
-          const cap = computeResourceCapacity(thisWeek.start, thisWeek.end, intervals, holidays);
+          const sched = schedules?.get(r.id);
+          // Effective weekly capacity = scheduled working days × user's daily
+          // hours (from HR profile), minus leave hours. Part-time users
+          // therefore show a smaller bar than full-time peers.
+          const cap = computeResourceCapacity(
+            thisWeek.start,
+            thisWeek.end,
+            intervals,
+            holidays,
+            sched?.dailyHours,
+          );
           // Fall back to contractual weekly_capacity if no working days in the week
           // (extreme edge case — full-week public-holiday window).
           const baseCap = cap.rawCapacityHours > 0 ? cap.rawCapacityHours : Number(r.weekly_capacity);
