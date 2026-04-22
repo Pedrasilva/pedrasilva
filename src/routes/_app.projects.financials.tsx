@@ -635,24 +635,18 @@ function FinancialsPage() {
             tone="muted"
             icon={<CalendarOff className="h-4 w-4" />}
           />
-          <Card>
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-2 text-xs">
-                <Gauge className="h-4 w-4" /> Utilization
-              </CardDescription>
-              <CardTitle className="text-2xl">{pct(summary.utilization)}</CardTitle>
-            </CardHeader>
-            <CardContent className="text-xs text-muted-foreground">
-              billable / (billable + internal)
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full bg-primary"
-                  style={{ width: `${Math.min(100, summary.utilization)}%` }}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <UtilizationTargetCard
+            utilization={summary.utilization}
+            targets={effectiveTargets}
+          />
         </div>
+
+        {/* Alerts strip */}
+        <AlertsStrip
+          counts={alertCounts}
+          targets={effectiveTargets}
+          totalPeople={userRows.length}
+        />
 
         {/* Capacity + Insight */}
         <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
