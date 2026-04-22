@@ -495,8 +495,7 @@ function DashboardPage() {
   const visibleTeamRows: TeamRow[] = useMemo(() => {
     if (canSeeTeam) return teamRows;
     const wd = workingDays(periodStartISO, periodEndISO);
-    // Entries are keyed by auth user_id; surface the row that matches it.
-    const myAuthId = (profile as unknown as { user_id?: string } | null)?.user_id;
+    // Time entries are keyed by auth user_id; fall back to resource id match.
     const meRow =
       (myAuthId && teamRows.find((r) => r.resourceId === myAuthId)) ||
       (myResourceId && teamRows.find((r) => r.resourceId === myResourceId)) ||
