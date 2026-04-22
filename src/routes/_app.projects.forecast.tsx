@@ -676,29 +676,58 @@ function ForecastPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-1 rounded-md border border-border p-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMonthAnchor((m) => subMonths(m, 1))}
-              aria-label="Mês anterior"
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Forecast weighting mode — picks how pipeline projects are counted. */}
+            <div
+              className="flex items-center gap-1 rounded-md border border-border p-1"
+              role="radiogroup"
+              aria-label="Modo de previsão"
             >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="px-3 text-sm font-medium tabular-nums min-w-[120px] text-center">
-              {format(monthAnchor, "MMMM yyyy")}
+              {(
+                [
+                  { v: "weighted", label: "Probabilístico", title: "Pipeline contado pela probabilidade da proposta" },
+                  { v: "optimistic", label: "100%", title: "Tudo contado a 100% (visão optimista)" },
+                  { v: "committed", label: "Confirmado", title: "Apenas projectos ganhos ou sem proposta CRM" },
+                ] as const
+              ).map((opt) => (
+                <Button
+                  key={opt.v}
+                  variant={mode === opt.v ? "default" : "ghost"}
+                  size="sm"
+                  role="radio"
+                  aria-checked={mode === opt.v}
+                  title={opt.title}
+                  onClick={() => setMode(opt.v)}
+                  className="h-7 px-2.5 text-xs"
+                >
+                  {opt.label}
+                </Button>
+              ))}
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMonthAnchor((m) => addMonths(m, 1))}
-              aria-label="Mês seguinte"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="sm" className="ml-2" onClick={() => setMonthAnchor(startOfMonth(new Date()))}>
-              Hoje
-            </Button>
+            <div className="flex items-center gap-1 rounded-md border border-border p-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMonthAnchor((m) => subMonths(m, 1))}
+                aria-label="Mês anterior"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="px-3 text-sm font-medium tabular-nums min-w-[120px] text-center">
+                {format(monthAnchor, "MMMM yyyy")}
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMonthAnchor((m) => addMonths(m, 1))}
+                aria-label="Mês seguinte"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" className="ml-2" onClick={() => setMonthAnchor(startOfMonth(new Date()))}>
+                Hoje
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -972,6 +1001,39 @@ function ForecastPage() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+/**
+ * Small pill rendered next to a project name in the variance table to show
+ * whether the project is committed work or pipeline weighted by probability.
+ * Won deals get a subtle "Ganho" pill; lost deals get a strike-through pill;
+ * pipeline projects show "P{n}%" reflecting the proposal slider value.
+ */
+function ProbabilityChip({ probability }: { probability: ProjectProbability }) {
+  if (probability.status === null) return null; // committed work, no proposal
+  if (probability.status === "ganho") {
+    return (
+      <Badge variant="outline" className="h-5 border-emerald-500/40 px-1.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-300">
+        Ganho
+      </Badge>
+    );
+  }
+  if (probability.status === "perdido") {
+    return (
+      <Badge variant="outline" className="h-5 border-destructive/40 px-1.5 text-[10px] font-medium text-destructive line-through">
+        Perdido
+      </Badge>
+    );
+  }
+  return (
+    <Badge
+      variant="outline"
+      className="h-5 border-amber-500/40 px-1.5 text-[10px] font-medium text-amber-700 dark:text-amber-300"
+      title={`Pipeline · ${probability.probability ?? 0}% probabilidade`}
+    >
+      P{probability.probability ?? 0}%
+    </Badge>
   );
 }
 
