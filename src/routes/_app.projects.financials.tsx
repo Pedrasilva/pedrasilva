@@ -90,7 +90,18 @@ type EntryLite = {
   hours: number;
   entry_date: string;
   task_id: string | null;
+  internal_category: string | null;
 };
+
+// Fixed list of internal cost centers (kept in sync with use-timesheet.ts).
+// Listed in display order requested by product.
+const INTERNAL_COST_CENTERS = [
+  "Fee proposals",
+  "Meetings",
+  "Training",
+  "Business development",
+  "Admin",
+] as const;
 
 type TaskMeta = {
   task_id: string;
@@ -187,7 +198,7 @@ function useMonthEntries(monthStartISO: string, monthEndISO: string) {
     queryFn: async () => {
       const { data: entries, error } = await supabase
         .from("pm_time_entries")
-        .select("id, user_id, entry_type, billable, hours, entry_date, task_id")
+        .select("id, user_id, entry_type, billable, hours, entry_date, task_id, internal_category")
         .gte("entry_date", monthStartISO)
         .lte("entry_date", monthEndISO);
       if (error) throw error;
@@ -503,6 +514,46 @@ function FinancialsPage() {
     }
     return { low, high, internal, good };
   }, [userRows]);
+
+  // Per internal cost-center aggregation (hours, cost, % of total working time)
+  const internalCategoryRows = useMemo(() => {
+    type Bucket = { category: string; hours: number; cost: number };
+    const map = new Map<string, Bucket>();
+    // Seed with the canonical 5 categories so each always shows up,
+    // even when no time has been logged yet.
+    for (const c of INTERNAL_COST_CENTERS) {
+      map.set(c, { category: c, hours: 0, cost: 0 });
+    }
+
+    for (const e of filteredEntries) {
+      if (e.entry_type !== "internal") continue;
+      const cat = (e.internal_category ?? "").trim() || "Uncategorised";
+      const h = Number(e.hours) || 0;
+      const res = e.resource_id ? resourceMap.get(e.resource_id) : null;
+      const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults) : 0;
+      const cur = map.get(cat) ?? { category: cat, hours: 0, cost: 0 };
+      cur.hours += h;
+      cur.cost += h * costRate;
+      map.set(cat, cur);
+    }
+
+    // Total working time = billable + internal (i.e. capacity actually used,
+    // excluding non-working absences). Used for "% of working time".
+    const workingTotal = summary.billableH + summary.internalH;
+    const internalTotalHours = summary.internalH;
+    const internalTotalCost = Array.from(map.values()).reduce((a, b) => a + b.cost, 0);
+
+    const rows = Array.from(map.values())
+      .map((b) => ({
+        ...b,
+        pctOfWorking: workingTotal > 0 ? (b.hours / workingTotal) * 100 : 0,
+        pctOfInternal: internalTotalHours > 0 ? (b.hours / internalTotalHours) * 100 : 0,
+      }))
+      .sort((a, b) => b.hours - a.hours);
+
+    const top = rows.find((r) => r.hours > 0) ?? null;
+    return { rows, internalTotalHours, internalTotalCost, workingTotal, top };
+  }, [filteredEntries, resourceMap, defaults, summary.billableH, summary.internalH]);
 
   // 12-month trailing trend (revenue/cost/profit)
   const { data: trailing } = useTrailingTrend(monthAnchor, filteredResourceIds, resourceMap, defaults);
@@ -848,6 +899,123 @@ function FinancialsPage() {
                       </td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Internal cost centers report */}
+        <Card className="mt-6">
+          <CardHeader>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <CardTitle className="text-lg">Internal cost centers</CardTitle>
+                <CardDescription>
+                  Hours and cost by internal category for {format(monthAnchor, "MMMM yyyy")}.
+                  Percentages reflect share of working time (billable + internal).
+                </CardDescription>
+              </div>
+              <div className="flex flex-col items-end gap-1 text-right">
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Total internal
+                </span>
+                <span className="font-display text-xl font-semibold tabular-nums">
+                  {hours(internalCategoryRows.internalTotalHours)}
+                </span>
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  {euros(internalCategoryRows.internalTotalCost)} ·{" "}
+                  {pct(
+                    internalCategoryRows.workingTotal > 0
+                      ? (internalCategoryRows.internalTotalHours /
+                          internalCategoryRows.workingTotal) *
+                          100
+                      : 0,
+                  )}{" "}
+                  of working time
+                </span>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {internalCategoryRows.top && internalCategoryRows.top.hours > 0 && (
+              <div className="mx-4 mt-1 mb-3 flex items-start gap-2 rounded-md border border-border bg-muted/40 px-3 py-2 text-xs">
+                <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <p className="text-muted-foreground">
+                  <span className="font-medium text-foreground">
+                    {internalCategoryRows.top.category}
+                  </span>{" "}
+                  is the largest internal cost center this month —{" "}
+                  {hours(internalCategoryRows.top.hours)} ({pct(internalCategoryRows.top.pctOfWorking)} of
+                  working time, {euros(internalCategoryRows.top.cost)} in cost).
+                </p>
+              </div>
+            )}
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr>
+                    <th className="px-4 py-2.5">Category</th>
+                    <th className="px-3 py-2.5 text-right">Hours</th>
+                    <th className="px-3 py-2.5 text-right">Cost</th>
+                    <th className="px-3 py-2.5 text-right">% working time</th>
+                    <th className="px-3 py-2.5 text-right">% of internal</th>
+                    <th className="px-3 py-2.5 w-[200px]">Share</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {internalCategoryRows.rows.map((r) => {
+                    const isLargest =
+                      internalCategoryRows.top?.category === r.category && r.hours > 0;
+                    return (
+                      <tr key={r.category} className="hover:bg-muted/30">
+                        <td className="px-4 py-2.5 font-medium">
+                          <div className="flex items-center gap-2">
+                            {r.category}
+                            {isLargest && (
+                              <Badge variant="secondary" className="text-[10px]">
+                                Largest
+                              </Badge>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-3 py-2.5 text-right tabular-nums">{hours(r.hours)}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
+                          {euros(r.cost)}
+                        </td>
+                        <td
+                          className={cn(
+                            "px-3 py-2.5 text-right tabular-nums",
+                            r.pctOfWorking >= effectiveTargets.internal_threshold_pct &&
+                              "font-medium text-amber-600 dark:text-amber-400",
+                          )}
+                        >
+                          {pct(r.pctOfWorking)}
+                        </td>
+                        <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
+                          {pct(r.pctOfInternal)}
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                            <div
+                              className="h-full bg-primary"
+                              style={{ width: `${Math.min(100, r.pctOfInternal)}%` }}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {internalCategoryRows.internalTotalHours === 0 && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="px-4 py-8 text-center text-sm text-muted-foreground"
+                      >
+                        No internal time logged this month.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
