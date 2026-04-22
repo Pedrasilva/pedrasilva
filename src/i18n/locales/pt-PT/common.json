@@ -36,5 +36,11 @@
   "thisMonth": "Este mês",
   "noData": "Sem dados",
   "ofTotal": "{{shown}} de {{total}}",
-  "page": "Página {{current}} de {{total}}"
+  "page": "Página {{current}} de {{total}}",
+  "companyPicker": {
+    "search": "Procurar empresa…",
+    "empty": "Sem empresas",
+    "createNew": "Criar nova empresa",
+    "createNewWith": "Criar '{{name}}'"
+  }
 }

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, GitBranch } from "lucide-react";
+import { CompanyPicker } from "@/components/crm/company-picker";
 import { toast } from "sonner";
 import {
   formatEUR, PIPELINE_STATUSES, type Company, type Contact, type FeeProposal, type ProposalStatus,
@@ -113,16 +114,6 @@ function PipelineBoard() {
 function NewProposalDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const qc = useQueryClient();
 
-  const { data: companies = [] } = useQuery({
-    queryKey: ["companies-lite"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("companies").select("id, nome").order("nome");
-      if (error) throw error;
-      return data as { id: string; nome: string }[];
-    },
-    enabled: open,
-  });
-
   const [form, setForm] = useState({
     titulo: "",
     company_id: "",
@@ -185,18 +176,11 @@ function NewProposalDialog({ open, onClose }: { open: boolean; onClose: () => vo
           </div>
           <div className="sm:col-span-2">
             <Label>Empresa</Label>
-            <Select
-              value={form.company_id || "none"}
-              onValueChange={(v) => setForm((f) => ({ ...f, company_id: v === "none" ? "" : v }))}
-            >
-              <SelectTrigger><SelectValue placeholder="Sem empresa" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Sem empresa</SelectItem>
-                {companies.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CompanyPicker
+              value={form.company_id || null}
+              onChange={(id) => setForm((f) => ({ ...f, company_id: id }))}
+              placeholder="Sem empresa"
+            />
           </div>
           <div>
             <Label>Valor (€)</Label>
