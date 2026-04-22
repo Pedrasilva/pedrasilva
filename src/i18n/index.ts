@@ -19,8 +19,10 @@ import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
 import enCommon from "./locales/en/common.json";
+import enGlossary from "./locales/en/glossary.json";
 import enProjects from "./locales/en/projects.json";
 import ptCommon from "./locales/pt-PT/common.json";
+import ptGlossary from "./locales/pt-PT/glossary.json";
 import ptProjects from "./locales/pt-PT/projects.json";
 
 export const SUPPORTED_LANGUAGES = ["en", "pt-PT"] as const;
@@ -32,10 +34,12 @@ export const LANGUAGE_STORAGE_KEY = "psa.language";
 export const resources = {
   en: {
     common: enCommon,
+    glossary: enGlossary,
     projects: enProjects,
   },
   "pt-PT": {
     common: ptCommon,
+    glossary: ptGlossary,
     projects: ptProjects,
   },
 } as const;
@@ -55,7 +59,7 @@ if (!i18n.isInitialized) {
       resources,
       fallbackLng: DEFAULT_LANGUAGE,
       supportedLngs: [...SUPPORTED_LANGUAGES],
-      ns: ["common", "projects"],
+      ns: ["common", "glossary", "projects"],
       defaultNS: "common",
       interpolation: { escapeValue: false },
       detection: {
