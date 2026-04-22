@@ -13,6 +13,45 @@
     "forecast": "Previsão",
     "insights": "Análises"
   },
+  "common": {
+    "previousPage": "Página anterior",
+    "nextPage": "Página seguinte",
+    "previousMonth": "Mês anterior",
+    "nextMonth": "Mês seguinte",
+    "previousWeek": "Semana anterior",
+    "nextWeek": "Semana seguinte",
+    "today": "Hoje",
+    "loading": "A carregar…",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "clear": "Limpar",
+    "remove": "Remover",
+    "team": "Equipa",
+    "person": "Pessoa",
+    "allTeams": "Todas as equipas",
+    "allPeople": "Todas as pessoas",
+    "backOffice": "Back office",
+    "projects": "Projectos",
+    "billable": "Facturável",
+    "internal": "Interno",
+    "internalNonBillable": "Interno (não facturável)",
+    "nonWorking": "Não trabalhado",
+    "total": "Total",
+    "hours": "Horas",
+    "hoursLogged": "Horas registadas",
+    "hoursPlanned": "Horas planeadas",
+    "revenue": "Receita",
+    "cost": "Custo",
+    "profit": "Lucro",
+    "margin": "Margem",
+    "status": "Estado",
+    "category": "Categoria",
+    "share": "Quota",
+    "linked": "Ligado",
+    "notLinked": "Não ligado",
+    "largest": "Maior",
+    "noData": "Sem dados."
+  },
   "dashboard": {
     "title": "Painel de Projectos",
     "searchPlaceholder": "Procurar projectos ou clientes…",
@@ -225,8 +264,301 @@
     "unknownUser": "Utilizador desconhecido",
     "you": "Tu"
   },
-  "common": {
-    "previousPage": "Página anterior",
-    "nextPage": "Página seguinte"
+  "timesheet": {
+    "title": "Folha de Horas Semanal",
+    "subtitle": "Regista tempo por fase de projecto, centro de custo interno ou tempo não trabalhado.",
+    "summary": {
+      "billable": "Facturável",
+      "internalNonBillable": "Interno (não facturável)",
+      "nonWorking": "Não trabalhado",
+      "total": "Total"
+    },
+    "noResource": "A tua conta ainda não está ligada a um membro da equipa. Pede a um admin para te adicionar com email correspondente.",
+    "addStage": "Adicionar projecto / fase",
+    "search": {
+      "placeholder": "Procurar qualquer projecto por nome ou cliente…",
+      "prompt": "Escreve o nome de um projecto ou cliente para procurar.",
+      "searching": "A procurar…",
+      "noResults": "Nenhum projecto corresponde a \"{{query}}\".",
+      "stageCount_one": "{{count}} fase",
+      "stageCount_other": "{{count}} fases",
+      "noStagesDefined": "Sem fases definidas para este projecto.",
+      "added": "Adicionado {{project}} · {{stage}}",
+      "addFailed": "Não foi possível adicionar a fase"
+    },
+    "rowCounts": {
+      "project_one": "{{count}} linha de projecto",
+      "project_other": "{{count}} linhas de projecto",
+      "internal": "{{count}} interno",
+      "nonWorking": "{{count}} não trabalhado"
+    },
+    "table": {
+      "description": "Descrição",
+      "total": "Total",
+      "dailyTotal": "Total diário"
+    },
+    "sections": {
+      "projects": "Projectos",
+      "projectsHint": "Facturável ou não facturável. Alterna em cada célula.",
+      "internal": "Centros de custo interno",
+      "internalHint": "Tempo de trabalho não facturável (consome capacidade, sem receita).",
+      "nonWorking": "Tempo não trabalhado",
+      "nonWorkingHint": "Preenchido a partir de férias aprovadas e feriados. Reduz a capacidade."
+    },
+    "rows": {
+      "loadingProjects": "A carregar projectos…",
+      "emptyProjects": "Sem fases activas esta semana. Usa \"Adicionar projecto / fase\" para registar tempo noutro lado.",
+      "emptyNonWorking": "Sem férias aprovadas nem feriados esta semana.",
+      "internalNonBillableSub": "Interno · não facturável",
+      "internalArchivedSub": "Interno · arquivado (etiqueta só de leitura, edições ainda permitidas)",
+      "archivedSuffix": "(arquivado)",
+      "nonWorkingSub": "Não trabalhado · reduz capacidade",
+      "suggestedPerDay": "Sugerido {{hours}}/dia",
+      "removeRow": "Remover linha",
+      "saveFailed": "Não foi possível guardar"
+    },
+    "cell": {
+      "timeLabel": "Tempo (ex.: 6h05, 6h30)",
+      "timeError": "Usa o formato 6h30",
+      "descriptionLabel": "Descrição",
+      "descriptionPlaceholder": "Em que trabalhaste?",
+      "billable": "Facturável",
+      "billableHint": "Desactiva para registar tempo que não será cobrado ao cliente.",
+      "internalHint": "Tempo interno é sempre não facturável e conta para a capacidade usada.",
+      "nonWorkingHint": "Tempo não trabalhado reduz a capacidade disponível e não é facturável."
+    },
+    "weekRange": "{{start}} – {{end}}"
+  },
+  "financials": {
+    "eyebrow": "Financeiro da empresa",
+    "title": "Desempenho mensal",
+    "subtitle": "Receita, custo e divisão de tempo para {{month}}",
+    "kpi": {
+      "revenue": "Receita",
+      "revenueSub": "{{hours}} facturáveis",
+      "totalCost": "Custo total",
+      "totalCostSub": "{{hours}} de tempo pago",
+      "profit": "Lucro",
+      "profitMarginSub": "{{pct}} de margem"
+    },
+    "buckets": {
+      "billable": "Facturável",
+      "internalNonBillable": "Interno não facturável",
+      "nonWorking": "Não trabalhado",
+      "ofTotalTime": "{{pct}} do tempo total"
+    },
+    "capacity": {
+      "available": "Capacidade disponível",
+      "formula": "Dias úteis × 8h × pessoas",
+      "lessNonWorking": "Menos não trabalhado",
+      "utilisedOfAvailable": "Utilizado do disponível"
+    },
+    "insight": {
+      "title": "Análise de rentabilidade",
+      "headline": "Tempo interno não facturável + não trabalhado custa-te <strong>{{cost}}</strong> este mês",
+      "internalHours": "Horas internas",
+      "internalHoursHint": "tempo de trabalho sem receita",
+      "nonWorkingHours": "Horas não trabalhadas",
+      "nonWorkingHoursHint": "férias + feriados",
+      "combinedDrag": "Custo de oportunidade combinado",
+      "combinedDragHint": "horas × custo médio/h",
+      "explanation": "A receita só vem de horas facturáveis em projectos. Cada hora interna ou ausente é paga mas não gera rendimento — reduzindo o lucro directamente. Se essas horas fossem facturáveis ao valor médio, o lucro seria aproximadamente <strong>{{value}}</strong>."
+    },
+    "trailing": {
+      "title": "Últimos 12 meses",
+      "subtitle": "Receita, custo e lucro por mês para os filtros actuais",
+      "revenue": "Receita",
+      "cost": "Custo",
+      "profit": "Lucro"
+    },
+    "weeklyUtil": {
+      "title": "Tendência de utilização",
+      "subtitle": "Últimas 12 semanas · banda alvo {{min}}–{{max}}%",
+      "thisWeek": "Esta semana",
+      "trendDelta": "{{arrow}} {{pct}} vs anterior",
+      "utilization": "Utilização",
+      "internalPct": "% interno",
+      "minLabel": "Mín {{pct}}%",
+      "maxLabel": "Máx {{pct}}%",
+      "targetMax": "Alvo máximo"
+    },
+    "byPerson": {
+      "title": "Por pessoa",
+      "subtitle": "Horas, receita, custo e lucro de cada pessoa no âmbito",
+      "person": "Pessoa",
+      "team": "Equipa",
+      "billable": "Facturável",
+      "internal": "Interno",
+      "nonWork": "Não-trab.",
+      "util": "Util.",
+      "status": "Estado",
+      "revenue": "Receita",
+      "cost": "Custo",
+      "profit": "Lucro",
+      "empty": "Sem horas registadas para os filtros seleccionados."
+    },
+    "internalCenters": {
+      "title": "Centros de custo interno",
+      "subtitle": "Horas e custo por categoria interna em {{month}}. Percentagens reflectem a quota do tempo de trabalho (facturável + interno).",
+      "totalInternal": "Total interno",
+      "ofWorkingTime": "{{pct}} do tempo de trabalho",
+      "topInsight": "<strong>{{category}}</strong> é o maior centro de custo interno este mês — {{hours}} ({{pct}} do tempo de trabalho, {{cost}} de custo).",
+      "category": "Categoria",
+      "hours": "Horas",
+      "cost": "Custo",
+      "pctWorking": "% tempo de trabalho",
+      "pctInternal": "% do interno",
+      "share": "Quota",
+      "largest": "Maior",
+      "noInternal": "Sem tempo interno registado este mês.",
+      "uncategorised": "Sem categoria",
+      "centers": {
+        "feeProposals": "Propostas de fee",
+        "meetings": "Reuniões",
+        "training": "Formação",
+        "businessDevelopment": "Desenvolvimento de negócio",
+        "admin": "Administrativo"
+      }
+    },
+    "businessDev": {
+      "title": "Eficiência de Business Development",
+      "subtitle": "Quanto custa ganhar trabalho — tempo em propostas vs propostas submetidas e ganhas.",
+      "monthCost": "{{cost}} de custo BD este mês",
+      "metrics": {
+        "submitted": "Propostas submetidas",
+        "submittedSub": "{{count}} este mês",
+        "won": "Projectos ganhos",
+        "wonSub": "{{count}} este mês",
+        "winRate": "Taxa de sucesso",
+        "winRateSub": "{{decided}} decididas · {{open}} abertas",
+        "costPerWon": "Custo por projecto ganho",
+        "costPerWonSub": "{{cost}} de custo BD total"
+      },
+      "insight": "<strong>{{hours}}</strong> registadas em <strong>Propostas de fee</strong> em toda a empresa, custando <strong>{{cost}}</strong>. Cada projecto ganho custa <strong>{{costPerWon}}</strong> em esforço de BD.",
+      "valueWon": "Valor total ganho: <strong>{{value}}</strong> · ROI: <strong>{{roi}}× retorno do investimento BD</strong>",
+      "recentWins": "Vitórias recentes",
+      "recentTable": {
+        "proposal": "Proposta",
+        "value": "Valor",
+        "decided": "Decidida",
+        "linkedProject": "Projecto associado",
+        "linked": "Ligado",
+        "notLinked": "Não ligado"
+      },
+      "noProposals": "Ainda sem propostas submetidas. Adiciona propostas no Pipeline do CRM para acompanhar a eficiência de BD."
+    },
+    "alertChips": {
+      "alerts": "Alertas",
+      "onTarget": "{{count}} no alvo",
+      "underutilized": "{{count}} subutilizadas (< {{pct}}%)",
+      "overutilized": "{{count}} sobreutilizadas (> {{pct}}%)",
+      "highInternal": "{{count}} com muito interno (> {{pct}}%)",
+      "allInRange": "Todas as pessoas no âmbito estão dentro da banda de utilização alvo."
+    },
+    "utilizationCard": {
+      "label": "Utilização",
+      "targetRange": "Alvo {{min}}–{{max}}%",
+      "onTarget": "No alvo",
+      "belowTarget": "{{pct}} abaixo do alvo",
+      "aboveTarget": "{{pct}} acima do alvo"
+    },
+    "utilStatus": {
+      "highInternal": "Tempo interno elevado",
+      "underutilized": "Subutilizado",
+      "overutilized": "Sobreutilizado",
+      "onTarget": "No alvo"
+    },
+    "targets": {
+      "openLabel": "{{min}}–{{max}}%",
+      "title": "Alvos de utilização",
+      "description": "Banda saudável para facturável / (facturável + interno). Pessoas fora desta banda são sinalizadas no painel.",
+      "minLabel": "Mín %",
+      "maxLabel": "Máx %",
+      "internalLabel": "Alerta de tempo interno (% do tempo de trabalho)",
+      "internalHint": "Sinaliza pessoas cujo tempo interno não facturável excede esta quota do tempo de trabalho.",
+      "rangeError": "Mín tem de ser inferior a Máx, entre 0 e 100",
+      "saved": "Alvos de utilização actualizados"
+    },
+    "unmappedUser": "Utilizador não mapeado"
+  },
+  "forecast": {
+    "eyebrow": "Atelier",
+    "title": "Previsão",
+    "subtitle": "Receita, custo e lucro projectados a partir das alocações do Gantt. Compara com o real, detecta sobreposições com férias aprovadas e estima margens futuras.",
+    "mode": {
+      "label": "Modo de previsão",
+      "weighted": "Probabilístico",
+      "weightedHint": "Pipeline contado pela probabilidade da proposta",
+      "optimistic": "100%",
+      "optimisticHint": "Tudo contado a 100% (visão optimista)",
+      "committed": "Confirmado",
+      "committedHint": "Apenas projectos ganhos ou sem proposta CRM"
+    },
+    "kpi": {
+      "plannedHours": "Horas planeadas",
+      "plannedHoursSub": "{{count}} pessoas alocadas",
+      "effectiveCapacity": "Capacidade efectiva",
+      "effectiveCapacitySubLeave": "−{{leave}} de férias (de {{raw}})",
+      "effectiveCapacitySubNoLeave": "{{raw}} brutas · sem férias",
+      "forecastRevenue": "Receita prevista",
+      "forecastRevenueWeighted": "pond. · bruto {{raw}} · real {{actual}}",
+      "forecastRevenueVsActual": "vs real {{actual}}",
+      "forecastCost": "Custo previsto",
+      "forecastCostSub": "vs real {{actual}}",
+      "forecastProfit": "Lucro previsto",
+      "forecastProfitSub": "Margem {{margin}}% · real {{actual}}"
+    },
+    "split": {
+      "committed": "Confirmado",
+      "committedSub": "{{hours}} · ganhos / sem proposta",
+      "pipelineWeighted": "Pipeline (ponderado)",
+      "pipelineWeightedAmount": "{{weighted}} <span>/ {{raw}} bruto</span>",
+      "pipelineWeightedSub": "{{weighted}} ponderadas · {{raw}} brutas",
+      "lost": "Perdidos (excluídos)",
+      "lostSub": "não contam para o forecast"
+    },
+    "leaveConflict": {
+      "title": "{{hours}} planeadas durante férias aprovadas",
+      "subtitle": "{{count}} dia(s) com sobreposição. Reveja as alocações abaixo marcadas com o ícone de férias."
+    },
+    "capacityRisk": {
+      "title": "Capacidade reduzida por férias",
+      "subtitle": "Equipa com {{leave}} de férias aprovadas este mês → capacidade efectiva {{eff}} (de {{raw}}).",
+      "exceeded": "Plano excede capacidade em {{over}}.",
+      "underPressure": "Projectos sob pressão",
+      "leaveTooltip": "Horas perdidas para férias aprovadas"
+    },
+    "trend": {
+      "title": "Tendência de previsão (6 meses)",
+      "subtitle": "Receita vs custo projectados a partir do Gantt actual",
+      "revenue": "Receita",
+      "cost": "Custo",
+      "profit": "Lucro"
+    },
+    "variance": {
+      "title": "Variância planeado vs real — {{month}}",
+      "subtitle": "Diferença entre o que foi alocado no Gantt e o que foi efectivamente registado em timesheet",
+      "loading": "A carregar…",
+      "empty": "Sem dados planeados nem reais para este mês.",
+      "project": "Projecto",
+      "planH": "Plan h",
+      "actualH": "Real h",
+      "deltaH": "Δ h",
+      "planRevenue": "Plan receita",
+      "actualRevenue": "Real receita",
+      "planProfit": "Plan lucro",
+      "actualProfit": "Real lucro",
+      "deltaProfit": "Δ lucro"
+    },
+    "probability": {
+      "won": "Ganho",
+      "lost": "Perdido",
+      "pipeline": "Pipeline · {{pct}}% de probabilidade"
+    },
+    "conflicts": {
+      "title": "Conflitos com férias aprovadas",
+      "subtitle": "Pessoas alocadas a projectos em dias em que estão de férias. Ajuste o Gantt ou rejeite o pedido.",
+      "daysSuffix": "{{count}}d"
+    }
   }
 }
