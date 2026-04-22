@@ -81,7 +81,7 @@ function ProjectDetail() {
   const [tab, setTab] = useState<TabKey>("overview");
   const [dayWidth, setDayWidth] = useState(36);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [poolOpen, setPoolOpen] = useState(true);
+  const [poolOpen, setPoolOpen] = useState(false);
 
   // Real time entries for this project (per stage via allocation→stage)
   const { data: timeRows } = useQuery({
@@ -349,11 +349,13 @@ function ProjectDetail() {
         <div
           className={cn(
             "mt-6 grid gap-6",
-            sidebarOpen ? "lg:grid-cols-[300px_minmax(0,1fr)]" : "lg:grid-cols-1",
+            sidebarOpen && tab !== "schedule"
+              ? "lg:grid-cols-[300px_minmax(0,1fr)]"
+              : "lg:grid-cols-1",
           )}
         >
           {/* Sidebar ---------------------------------------------------- */}
-          <aside className={cn("space-y-6", !sidebarOpen && "hidden")}>
+          <aside className={cn("space-y-6", (!sidebarOpen || tab === "schedule") && "hidden")}>
             <SidebarSection title="Detalhes">
               <DetailRow label="Cliente" value={project.client ?? "—"} />
               <DetailRow
@@ -517,7 +519,19 @@ function ProjectDetail() {
 
             {tab === "schedule" && (
               <div className="mt-4">
-                <div className="mb-3 flex items-center justify-end gap-2">
+                <div className="mb-3 flex flex-wrap items-center justify-end gap-2">
+                  <NewStageDialog
+                    projectId={project.id}
+                    defaultStart={
+                      stages.length
+                        ? format(
+                            parseISO(stages[stages.length - 1].end_date),
+                            "yyyy-MM-dd",
+                          )
+                        : project.start_date
+                    }
+                    nextOrder={(stages[stages.length - 1]?.sort_order ?? 0) + 1}
+                  />
                   <button
                     onClick={() => setPoolOpen((v) => !v)}
                     className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -550,7 +564,7 @@ function ProjectDetail() {
                     </button>
                   </div>
                 </div>
-                <div className="flex h-[calc(100vh-320px)] min-h-[520px] gap-0">
+                <div className="flex h-[calc(100vh-220px)] min-h-[600px] gap-0">
                   <div className="flex-1 overflow-auto rounded-lg border border-border bg-canvas">
                     {stages.length === 0 ? (
                       <div className="flex h-full items-center justify-center">
