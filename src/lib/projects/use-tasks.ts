@@ -61,8 +61,9 @@ export function useMyTasks(opts: { resourceId: string | null; userId: string | n
         const { data: entries } = await supabase
           .from("pm_time_entries")
           .select("task_id, hours, entry_date")
-          .in("task_id", taskIds);
-        for (const e of entries ?? []) {
+          .in("task_id", taskIds)
+          .not("task_id", "is", null);
+        for (const e of (entries ?? []) as Array<{ task_id: string; hours: number; entry_date: string }>) {
           totals.set(e.task_id, (totals.get(e.task_id) ?? 0) + Number(e.hours));
           if (e.entry_date === today) {
             todays.set(e.task_id, (todays.get(e.task_id) ?? 0) + Number(e.hours));

@@ -12,8 +12,25 @@ import {
   useUpsertTimesheetCell,
   useProjectSearch,
   useEnsureStageRow,
+  useNonWorkingPrefill,
+  INTERNAL_CATEGORIES,
+  type EntryType,
+  type TimesheetEntry,
+  type TimesheetTaskRow,
 } from "@/lib/projects/use-timesheet";
-import { ChevronLeft, ChevronRight, CalendarDays, Plus, Search, X, ChevronDown, Trash2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
+  Plus,
+  Search,
+  X,
+  ChevronDown,
+  Trash2,
+  Briefcase,
+  Coffee,
+  Plane,
+} from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { formatHM, parseHM } from "@/lib/projects/time-format";
@@ -21,6 +38,19 @@ import { formatHM, parseHM } from "@/lib/projects/time-format";
 export const Route = createFileRoute("/_app/projects/timesheet")({
   component: TimesheetPage,
 });
+
+// Composite key for the entry map: <type>::<row identifier>
+type CellKey = string;
+const projectKey = (taskId: string): CellKey => `project::${taskId}`;
+const internalKey = (cat: string): CellKey => `internal::${cat}`;
+const nonWorkingKey = (lt: string): CellKey => `non_working::${lt}`;
+
+type CellInfo = {
+  id: string;
+  hours: number;
+  notes: string | null;
+  billable: boolean;
+};
 
 function TimesheetPage() {
   const { profile, user } = useProjectsAuth();
@@ -39,7 +69,7 @@ function TimesheetPage() {
   const weekStart = format(weekStartDate, "yyyy-MM-dd");
   const weekEnd = format(addDays(weekStartDate, 6), "yyyy-MM-dd");
 
-  const { data: rows = [], isLoading } = useTimesheetRows({
+  const { data: projectRows = [], isLoading } = useTimesheetRows({
     resourceId: profile?.resource_id ?? null,
     userId: user?.id ?? null,
     weekStart,
@@ -51,6 +81,11 @@ function TimesheetPage() {
     weekStart,
     weekEnd,
   });
+  const { data: nonWorkingPrefill = [] } = useNonWorkingPrefill({
+    collaboratorId: profile?.collaborator_id ?? null,
+    weekStart,
+    weekEnd,
+  });
   const upsert = useUpsertTimesheetCell();
   const { data: searchResults = [], isFetching: searching } = useProjectSearch({
     query: searchQuery,
@@ -59,14 +94,19 @@ function TimesheetPage() {
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
   const [addPopoverOpen, setAddPopoverOpen] = useState(false);
 
+  // Index entries by composite key + date so each section can look itself up.
   const entryMap = useMemo(() => {
-    const m = new Map<
-      string,
-      Map<string, { id: string; hours: number; notes: string | null; billable: boolean }>
-    >();
+    const m = new Map<CellKey, Map<string, CellInfo>>();
     for (const e of entries) {
-      if (!m.has(e.task_id)) m.set(e.task_id, new Map());
-      m.get(e.task_id)!.set(e.entry_date, {
+      let key: CellKey | null = null;
+      if (e.entry_type === "project" && e.task_id) key = projectKey(e.task_id);
+      else if (e.entry_type === "internal" && e.internal_category)
+        key = internalKey(e.internal_category);
+      else if (e.entry_type === "non_working" && e.leave_type)
+        key = nonWorkingKey(e.leave_type);
+      if (!key) continue;
+      if (!m.has(key)) m.set(key, new Map());
+      m.get(key)!.set(e.entry_date, {
         id: e.id,
         hours: e.hours,
         notes: e.notes,
@@ -82,25 +122,66 @@ function TimesheetPage() {
     return t;
   }, [entries]);
 
-  const rowTotal = (taskId: string) => {
-    const cells = entryMap.get(taskId);
+  // Bucketed totals for the footer / summary
+  const buckets = useMemo(() => {
+    let billable = 0;
+    let internal = 0;
+    let nonWorking = 0;
+    for (const e of entries) {
+      if (e.entry_type === "project") {
+        if (e.billable) billable += e.hours;
+        else internal += e.hours; // non-billable project time still consumes capacity
+      } else if (e.entry_type === "internal") internal += e.hours;
+      else if (e.entry_type === "non_working") nonWorking += e.hours;
+    }
+    return { billable, internal, nonWorking };
+  }, [entries]);
+
+  const rowTotalFor = (key: CellKey): number => {
+    const cells = entryMap.get(key);
     if (!cells) return 0;
     let total = 0;
     for (const c of cells.values()) total += c.hours;
     return total;
   };
 
-  const grandTotal = entries.reduce((s, e) => s + e.hours, 0);
+  const grandTotal = buckets.billable + buckets.internal + buckets.nonWorking;
   const noResource = !profile?.resource_id;
+
+  // Auto-create non-working entries from approved leave/holidays the first
+  // time a week is opened (idempotent — only fills cells that have no entry
+  // yet for that leave_type+date).
+  const userId = user?.id ?? null;
+  useEffect(() => {
+    if (!userId || nonWorkingPrefill.length === 0) return;
+    for (const row of nonWorkingPrefill) {
+      const existing = entryMap.get(nonWorkingKey(row.leave_type));
+      for (const [date, hours] of row.autoHoursByDate) {
+        if (existing?.has(date)) continue;
+        // Avoid double-firing while the mutation is in flight
+        upsert.mutate({
+          entry_type: "non_working",
+          leave_type: row.leave_type,
+          user_id: userId,
+          entry_date: date,
+          hours,
+          existing_entry_id: null,
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, nonWorkingPrefill, weekStart]);
 
   return (
     <AppShell active="timesheet">
       <div className="mx-auto w-full max-w-[1500px] px-6 py-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="font-display text-3xl font-semibold tracking-tight">Weekly Timesheet</h1>
+            <h1 className="font-display text-3xl font-semibold tracking-tight">
+              Weekly Timesheet
+            </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Log time per project stage. Click a cell to enter time and a description.
+              Log time per project stage, internal cost center, or non-working time.
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1.5">
@@ -118,7 +199,8 @@ function TimesheetPage() {
               className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-accent"
             >
               <CalendarDays className="h-3.5 w-3.5" />
-              {format(weekStartDate, "MMM d")} – {format(addDays(weekStartDate, 6), "MMM d, yyyy")}
+              {format(weekStartDate, "MMM d")} –{" "}
+              {format(addDays(weekStartDate, 6), "MMM d, yyyy")}
             </button>
             <Button
               size="icon"
@@ -130,6 +212,18 @@ function TimesheetPage() {
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
+        </div>
+
+        {/* Summary chips */}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <SummaryChip label="Billable" value={buckets.billable} tone="primary" />
+          <SummaryChip
+            label="Internal (non-billable)"
+            value={buckets.internal}
+            tone="muted"
+          />
+          <SummaryChip label="Non-working" value={buckets.nonWorking} tone="muted" />
+          <SummaryChip label="Total" value={grandTotal} tone="bold" />
         </div>
 
         {noResource ? (
@@ -198,7 +292,8 @@ function TimesheetPage() {
                               )}
                             </div>
                             <span className="text-[10px] text-muted-foreground">
-                              {p.stages.length} {p.stages.length === 1 ? "stage" : "stages"}
+                              {p.stages.length}{" "}
+                              {p.stages.length === 1 ? "stage" : "stages"}
                             </span>
                             <ChevronDown
                               className={`h-3.5 w-3.5 text-muted-foreground transition ${
@@ -234,7 +329,9 @@ function TimesheetPage() {
                                       setAddPopoverOpen(false);
                                       toast.success(`Added ${p.name} · ${s.name}`);
                                     } catch (err) {
-                                      toast.error((err as Error).message || "Failed to add stage");
+                                      toast.error(
+                                        (err as Error).message || "Failed to add stage",
+                                      );
                                     }
                                   }}
                                   className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left text-[13px] hover:bg-accent disabled:opacity-50"
@@ -259,7 +356,10 @@ function TimesheetPage() {
                 </PopoverContent>
               </Popover>
               <span className="ml-auto text-xs text-muted-foreground">
-                {rows.length} {rows.length === 1 ? "row" : "rows"}
+                {projectRows.length}{" "}
+                {projectRows.length === 1 ? "project row" : "project rows"} ·{" "}
+                {INTERNAL_CATEGORIES.length} internal · {nonWorkingPrefill.length}{" "}
+                non-working
               </span>
             </div>
 
@@ -268,10 +368,13 @@ function TimesheetPage() {
                 <thead>
                   <tr className="border-b border-border bg-muted/20 text-[11px] uppercase tracking-wider text-muted-foreground">
                     <th className="sticky left-0 z-10 bg-muted/40 px-4 py-2 text-left font-medium">
-                      Project · Stage
+                      Description
                     </th>
                     {days.map((d) => (
-                      <th key={d.toISOString()} className="px-2 py-2 text-center font-medium">
+                      <th
+                        key={d.toISOString()}
+                        className="px-2 py-2 text-center font-medium"
+                      >
                         <div>{format(d, "EEE")}</div>
                         <div className="text-foreground/80">{format(d, "MMM d")}</div>
                       </th>
@@ -280,109 +383,140 @@ function TimesheetPage() {
                   </tr>
                 </thead>
                 <tbody>
+                  {/* ====== PROJECTS ====== */}
+                  <SectionHeaderRow
+                    icon={<Briefcase className="h-3.5 w-3.5" />}
+                    label="Projects"
+                    sub="Billable or non-billable. Toggle inside each cell."
+                  />
                   {isLoading && (
                     <tr>
-                      <td colSpan={9} className="px-4 py-10 text-center text-muted-foreground">
-                        Loading…
+                      <td colSpan={9} className="px-4 py-6 text-center text-muted-foreground">
+                        Loading projects…
                       </td>
                     </tr>
                   )}
-                  {!isLoading && rows.length === 0 && (
+                  {!isLoading && projectRows.length === 0 && (
                     <tr>
-                      <td colSpan={9} className="px-4 py-10 text-center text-muted-foreground">
-                        No active stages this week. Use "Add project / stage" to log time elsewhere.
+                      <td colSpan={9} className="px-4 py-6 text-center text-muted-foreground">
+                        No active stages this week. Use "Add project / stage" to log time
+                        elsewhere.
                       </td>
                     </tr>
                   )}
-                  {rows.map((r) => {
-                    const isExtra = extraTaskIds.includes(r.task_id);
-                    return (
-                      <tr key={r.task_id} className="border-b border-border last:border-0">
-                        <td className="sticky left-0 z-10 bg-card px-4 py-2">
-                          <div className="flex items-start gap-2">
-                            <span
-                              className="mt-1.5 inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full"
-                              style={{ backgroundColor: r.project.color }}
-                            />
-                            <div className="min-w-0">
-                              <div className="truncate text-sm font-medium">
-                                {r.project.name}
-                                {r.project.client ? (
-                                  <span className="text-muted-foreground">
-                                    {" "}
-                                    · {r.project.client}
-                                  </span>
-                                ) : null}
-                              </div>
-                              <div
-                                className="truncate text-[12px] font-medium"
-                                style={{ color: r.stage.color }}
-                              >
-                                {r.stage.name}
-                              </div>
-                              <div className="mt-0.5 text-[10px] text-muted-foreground">
-                                Suggested {formatHM(r.hours_per_day) || "0h00"}/day
-                              </div>
-                            </div>
-                            {isExtra && (
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-6 w-6 flex-shrink-0"
-                                onClick={() =>
-                                  setExtraTaskIds((ids) => ids.filter((x) => x !== r.task_id))
-                                }
-                                aria-label="Remove row"
-                              >
-                                <X className="h-3.5 w-3.5" />
-                              </Button>
-                            )}
-                          </div>
-                        </td>
-                        {days.map((d) => {
-                          const dateStr = format(d, "yyyy-MM-dd");
-                          const inAlloc =
-                            dateStr >= r.allocation_start && dateStr <= r.allocation_end;
-                          const cell = entryMap.get(r.task_id)?.get(dateStr);
-                          const suggested = inAlloc ? r.hours_per_day : 0;
-                          return (
-                            <td key={dateStr} className="px-1 py-1 text-center">
-                              <HourCell
-                                date={d}
-                                projectName={r.project.name}
-                                stageName={r.stage.name}
-                                value={cell?.hours ?? 0}
-                                notes={cell?.notes ?? ""}
-                                billable={cell?.billable ?? true}
-                                suggested={suggested}
-                                disabled={upsert.isPending}
-                                onCommit={(hours, notes, billable) => {
-                                  upsert.mutate(
-                                    {
-                                      task_id: r.task_id,
-                                      user_id: user!.id,
-                                      entry_date: dateStr,
-                                      hours,
-                                      notes,
-                                      billable,
-                                      existing_entry_id: cell?.id ?? null,
-                                    },
-                                    {
-                                      onError: (e) =>
-                                        toast.error((e as Error).message || "Failed to save"),
-                                    },
-                                  );
-                                }}
-                              />
-                            </td>
-                          );
-                        })}
-                        <td className="px-3 py-2 text-right font-mono text-sm">
-                          {formatHM(rowTotal(r.task_id)) || "—"}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {projectRows.map((r) => (
+                    <ProjectRow
+                      key={r.task_id}
+                      row={r}
+                      days={days}
+                      entryMap={entryMap}
+                      isExtra={extraTaskIds.includes(r.task_id)}
+                      onRemove={() =>
+                        setExtraTaskIds((ids) => ids.filter((x) => x !== r.task_id))
+                      }
+                      pending={upsert.isPending}
+                      rowTotal={rowTotalFor(projectKey(r.task_id))}
+                      onCommit={(dateStr, hours, notes, billable, existingId) =>
+                        upsert.mutate(
+                          {
+                            entry_type: "project",
+                            task_id: r.task_id,
+                            user_id: user!.id,
+                            entry_date: dateStr,
+                            hours,
+                            notes,
+                            billable,
+                            existing_entry_id: existingId,
+                          },
+                          {
+                            onError: (e) =>
+                              toast.error((e as Error).message || "Failed to save"),
+                          },
+                        )
+                      }
+                    />
+                  ))}
+
+                  {/* ====== INTERNAL ====== */}
+                  <SectionHeaderRow
+                    icon={<Coffee className="h-3.5 w-3.5" />}
+                    label="Internal cost centers"
+                    sub="Non-billable working time (capacity used, no revenue)."
+                  />
+                  {INTERNAL_CATEGORIES.map((cat) => (
+                    <FixedRow
+                      key={cat}
+                      label={cat}
+                      sub="Internal · non-billable"
+                      tone="internal"
+                      days={days}
+                      entryMap={entryMap}
+                      keyFn={() => internalKey(cat)}
+                      pending={upsert.isPending}
+                      rowTotal={rowTotalFor(internalKey(cat))}
+                      onCommit={(dateStr, hours, notes, _billable, existingId) =>
+                        upsert.mutate(
+                          {
+                            entry_type: "internal",
+                            internal_category: cat,
+                            user_id: user!.id,
+                            entry_date: dateStr,
+                            hours,
+                            notes,
+                            existing_entry_id: existingId,
+                          },
+                          {
+                            onError: (e) =>
+                              toast.error((e as Error).message || "Failed to save"),
+                          },
+                        )
+                      }
+                    />
+                  ))}
+
+                  {/* ====== NON-WORKING ====== */}
+                  <SectionHeaderRow
+                    icon={<Plane className="h-3.5 w-3.5" />}
+                    label="Non-working time"
+                    sub="Auto-filled from approved leave + public holidays. Reduces capacity."
+                  />
+                  {nonWorkingPrefill.length === 0 && (
+                    <tr>
+                      <td colSpan={9} className="px-4 py-4 text-center text-xs text-muted-foreground">
+                        No approved leave or holidays this week.
+                      </td>
+                    </tr>
+                  )}
+                  {nonWorkingPrefill.map((row) => (
+                    <FixedRow
+                      key={row.key}
+                      label={row.leave_type}
+                      sub="Non-working · capacity reducer"
+                      tone="nonworking"
+                      days={days}
+                      entryMap={entryMap}
+                      keyFn={() => nonWorkingKey(row.leave_type)}
+                      pending={upsert.isPending}
+                      rowTotal={rowTotalFor(nonWorkingKey(row.leave_type))}
+                      onCommit={(dateStr, hours, notes, _billable, existingId) =>
+                        upsert.mutate(
+                          {
+                            entry_type: "non_working",
+                            leave_type: row.leave_type,
+                            user_id: user!.id,
+                            entry_date: dateStr,
+                            hours,
+                            notes,
+                            existing_entry_id: existingId,
+                          },
+                          {
+                            onError: (e) =>
+                              toast.error((e as Error).message || "Failed to save"),
+                          },
+                        )
+                      }
+                    />
+                  ))}
                 </tbody>
                 <tfoot>
                   <tr className="border-t-2 border-border bg-muted/30 text-sm">
@@ -417,10 +551,227 @@ function TimesheetPage() {
   );
 }
 
+// ----------------------------- Sub-components -----------------------------
+
+function SummaryChip({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: "primary" | "muted" | "bold";
+}) {
+  const cls =
+    tone === "primary"
+      ? "border-primary/30 bg-primary/10 text-primary"
+      : tone === "bold"
+        ? "border-foreground/30 bg-foreground/5 text-foreground font-semibold"
+        : "border-border bg-muted/40 text-muted-foreground";
+  return (
+    <span
+      className={`inline-flex items-baseline gap-1.5 rounded-full border px-3 py-1 text-xs ${cls}`}
+    >
+      <span>{label}</span>
+      <span className="font-mono">{formatHM(value) || "0h00"}</span>
+    </span>
+  );
+}
+
+function SectionHeaderRow({
+  icon,
+  label,
+  sub,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  sub: string;
+}) {
+  return (
+    <tr className="border-b border-border bg-muted/15">
+      <td
+        colSpan={9}
+        className="sticky left-0 z-10 bg-muted/30 px-4 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground"
+      >
+        <div className="flex items-center gap-2">
+          {icon}
+          <span className="font-semibold text-foreground">{label}</span>
+          <span className="ml-2 normal-case tracking-normal text-muted-foreground">
+            {sub}
+          </span>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+function ProjectRow({
+  row,
+  days,
+  entryMap,
+  isExtra,
+  onRemove,
+  pending,
+  rowTotal,
+  onCommit,
+}: {
+  row: TimesheetTaskRow;
+  days: Date[];
+  entryMap: Map<CellKey, Map<string, CellInfo>>;
+  isExtra: boolean;
+  onRemove: () => void;
+  pending: boolean;
+  rowTotal: number;
+  onCommit: (
+    dateStr: string,
+    hours: number,
+    notes: string | null,
+    billable: boolean,
+    existingId: string | null,
+  ) => void;
+}) {
+  return (
+    <tr className="border-b border-border last:border-0">
+      <td className="sticky left-0 z-10 bg-card px-4 py-2">
+        <div className="flex items-start gap-2">
+          <span
+            className="mt-1.5 inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full"
+            style={{ backgroundColor: row.project.color }}
+          />
+          <div className="min-w-0">
+            <div className="truncate text-sm font-medium">
+              {row.project.name}
+              {row.project.client ? (
+                <span className="text-muted-foreground"> · {row.project.client}</span>
+              ) : null}
+            </div>
+            <div
+              className="truncate text-[12px] font-medium"
+              style={{ color: row.stage.color }}
+            >
+              {row.stage.name}
+            </div>
+            <div className="mt-0.5 text-[10px] text-muted-foreground">
+              Suggested {formatHM(row.hours_per_day) || "0h00"}/day
+            </div>
+          </div>
+          {isExtra && (
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-6 w-6 flex-shrink-0"
+              onClick={onRemove}
+              aria-label="Remove row"
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+      </td>
+      {days.map((d) => {
+        const dateStr = format(d, "yyyy-MM-dd");
+        const inAlloc = dateStr >= row.allocation_start && dateStr <= row.allocation_end;
+        const cell = entryMap.get(projectKey(row.task_id))?.get(dateStr);
+        const suggested = inAlloc ? row.hours_per_day : 0;
+        return (
+          <td key={dateStr} className="px-1 py-1 text-center">
+            <HourCell
+              date={d}
+              title={row.project.name}
+              subtitle={row.stage.name}
+              entryType="project"
+              value={cell?.hours ?? 0}
+              notes={cell?.notes ?? ""}
+              billable={cell?.billable ?? true}
+              suggested={suggested}
+              disabled={pending}
+              onCommit={(hours, notes, billable) =>
+                onCommit(dateStr, hours, notes, billable, cell?.id ?? null)
+              }
+            />
+          </td>
+        );
+      })}
+      <td className="px-3 py-2 text-right font-mono text-sm">{formatHM(rowTotal) || "—"}</td>
+    </tr>
+  );
+}
+
+function FixedRow({
+  label,
+  sub,
+  tone,
+  days,
+  entryMap,
+  keyFn,
+  pending,
+  rowTotal,
+  onCommit,
+}: {
+  label: string;
+  sub: string;
+  tone: "internal" | "nonworking";
+  days: Date[];
+  entryMap: Map<CellKey, Map<string, CellInfo>>;
+  keyFn: () => CellKey;
+  pending: boolean;
+  rowTotal: number;
+  onCommit: (
+    dateStr: string,
+    hours: number,
+    notes: string | null,
+    billable: boolean,
+    existingId: string | null,
+  ) => void;
+}) {
+  const dotCls = tone === "internal" ? "bg-muted-foreground" : "bg-accent-foreground/60";
+  return (
+    <tr className="border-b border-border last:border-0">
+      <td className="sticky left-0 z-10 bg-card px-4 py-2">
+        <div className="flex items-start gap-2">
+          <span
+            className={`mt-1.5 inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full ${dotCls}`}
+          />
+          <div className="min-w-0">
+            <div className="truncate text-sm font-medium">{label}</div>
+            <div className="truncate text-[11px] text-muted-foreground">{sub}</div>
+          </div>
+        </div>
+      </td>
+      {days.map((d) => {
+        const dateStr = format(d, "yyyy-MM-dd");
+        const cell = entryMap.get(keyFn())?.get(dateStr);
+        const dow = d.getDay();
+        const isWeekend = dow === 0 || dow === 6;
+        return (
+          <td key={dateStr} className="px-1 py-1 text-center">
+            <HourCell
+              date={d}
+              title={label}
+              subtitle={sub}
+              entryType={tone === "internal" ? "internal" : "non_working"}
+              value={cell?.hours ?? 0}
+              notes={cell?.notes ?? ""}
+              billable={false}
+              suggested={isWeekend ? 0 : tone === "nonworking" ? 8 : 0}
+              disabled={pending}
+              onCommit={(hours, notes) =>
+                onCommit(dateStr, hours, notes, false, cell?.id ?? null)
+              }
+            />
+          </td>
+        );
+      })}
+      <td className="px-3 py-2 text-right font-mono text-sm">{formatHM(rowTotal) || "—"}</td>
+    </tr>
+  );
+}
+
 function HourCell({
   date,
-  projectName,
-  stageName,
+  title,
+  subtitle,
+  entryType,
   value,
   notes,
   billable,
@@ -429,8 +780,9 @@ function HourCell({
   onCommit,
 }: {
   date: Date;
-  projectName: string;
-  stageName: string;
+  title: string;
+  subtitle: string;
+  entryType: EntryType;
   value: number;
   notes: string;
   billable: boolean;
@@ -462,7 +814,11 @@ function HourCell({
     }
     setError(null);
     const trimmedNotes = draftNotes.trim();
-    onCommit(parsed, trimmedNotes === "" ? null : trimmedNotes, draftBillable);
+    onCommit(
+      parsed,
+      trimmedNotes === "" ? null : trimmedNotes,
+      entryType === "project" ? draftBillable : false,
+    );
     setOpen(false);
   };
 
@@ -474,6 +830,18 @@ function HourCell({
     setDraftBillable(true);
     setOpen(false);
   };
+
+  // Visual treatment per type
+  const cellCls =
+    value > 0
+      ? entryType === "project"
+        ? billable
+          ? "border-border bg-background text-foreground hover:border-ring"
+          : "border-dashed border-border bg-muted/40 text-muted-foreground hover:border-ring"
+        : entryType === "internal"
+          ? "border-border bg-muted/50 text-foreground hover:border-ring"
+          : "border-border bg-accent/40 text-foreground hover:border-ring"
+      : "border-transparent text-muted-foreground hover:border-border hover:bg-background";
 
   return (
     <Popover
@@ -493,13 +861,7 @@ function HourCell({
         <button
           type="button"
           disabled={disabled}
-          className={`relative h-9 w-20 rounded border text-center font-mono text-sm transition ${
-            value > 0
-              ? billable
-                ? "border-border bg-background text-foreground hover:border-ring"
-                : "border-dashed border-border bg-muted/40 text-muted-foreground hover:border-ring"
-              : "border-transparent text-muted-foreground hover:border-border hover:bg-background"
-          }`}
+          className={`relative h-9 w-20 rounded border text-center font-mono text-sm transition ${cellCls}`}
         >
           {display || <span className="text-muted-foreground/60">{placeholder}</span>}
           {notes && value > 0 && (
@@ -512,8 +874,8 @@ function HourCell({
           <div className="text-xs uppercase tracking-wider text-muted-foreground">
             {format(date, "EEEE, MMM d")}
           </div>
-          <div className="mt-0.5 truncate text-sm font-medium">{projectName}</div>
-          <div className="truncate text-xs text-muted-foreground">{stageName}</div>
+          <div className="mt-0.5 truncate text-sm font-medium">{title}</div>
+          <div className="truncate text-xs text-muted-foreground">{subtitle}</div>
         </div>
         <div className="space-y-3 px-4 py-3">
           <div>
@@ -550,20 +912,28 @@ function HourCell({
               className="resize-none text-sm"
             />
           </div>
-          <label className="flex cursor-pointer items-center justify-between gap-3 rounded border border-border bg-muted/30 px-3 py-2">
-            <div className="min-w-0">
-              <div className="text-sm font-medium">Billable</div>
-              <div className="text-[11px] text-muted-foreground">
-                Uncheck to log time that won't be charged to the client.
+          {entryType === "project" ? (
+            <label className="flex cursor-pointer items-center justify-between gap-3 rounded border border-border bg-muted/30 px-3 py-2">
+              <div className="min-w-0">
+                <div className="text-sm font-medium">Billable</div>
+                <div className="text-[11px] text-muted-foreground">
+                  Uncheck to log time that won't be charged to the client.
+                </div>
               </div>
+              <input
+                type="checkbox"
+                checked={draftBillable}
+                onChange={(e) => setDraftBillable(e.target.checked)}
+                className="h-4 w-4 flex-shrink-0 cursor-pointer accent-primary"
+              />
+            </label>
+          ) : (
+            <div className="rounded border border-border bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
+              {entryType === "internal"
+                ? "Internal time is always non-billable and counts toward used capacity."
+                : "Non-working time reduces available capacity and isn't billable."}
             </div>
-            <input
-              type="checkbox"
-              checked={draftBillable}
-              onChange={(e) => setDraftBillable(e.target.checked)}
-              className="h-4 w-4 flex-shrink-0 cursor-pointer accent-primary"
-            />
-          </label>
+          )}
         </div>
         <div className="flex items-center justify-between gap-2 border-t border-border px-4 py-2">
           <Button

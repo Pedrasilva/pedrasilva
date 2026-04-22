@@ -108,9 +108,10 @@ function ProjectDetail() {
       const { data: entries } = await supabase
         .from("pm_time_entries")
         .select("task_id, hours")
-        .in("task_id", taskIds);
+        .in("task_id", taskIds)
+        .not("task_id", "is", null);
       const byStage = new Map<string, number>();
-      for (const e of entries ?? []) {
+      for (const e of (entries ?? []) as Array<{ task_id: string; hours: number }>) {
         const allocId = taskToAlloc.get(e.task_id);
         const stageId = allocId ? allocToStage.get(allocId) : undefined;
         if (!stageId) continue;
