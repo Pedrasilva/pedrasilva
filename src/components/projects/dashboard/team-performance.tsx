@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 
 type SortKey = "name" | "utilization" | "billable";
 
@@ -10,6 +11,12 @@ export interface TeamRow {
   billableHours: number;
   internalHours: number;
   nonWorkingHours: number;
+  /** Collaborator id for avatar lookup (when available). */
+  collaboratorId?: string | null;
+  /** Photo path override; takes precedence over collaborator lookup. */
+  fotoPath?: string | null;
+  /** Resource ring colour. */
+  color?: string | null;
 }
 
 export function TeamPerformance({
