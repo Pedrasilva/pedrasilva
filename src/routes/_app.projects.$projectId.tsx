@@ -1746,7 +1746,28 @@ function GaugeStat({
   );
 }
 
-function FinancialsTable({
+function HoursPill({
+  label,
+  hours,
+  tone,
+}: {
+  label: string;
+  hours: number;
+  tone: "ok" | "warn" | "muted";
+}) {
+  const toneClass =
+    tone === "ok"
+      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+      : tone === "warn"
+        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+        : "bg-muted text-muted-foreground";
+  return (
+    <div className={cn("rounded-md px-2 py-1.5", toneClass)}>
+      <div className="text-[10px] uppercase tracking-wider opacity-80">{label}</div>
+      <div className="font-mono text-sm font-semibold">{Math.round(hours * 10) / 10}h</div>
+    </div>
+  );
+}
   services,
   materials,
   expenses,
