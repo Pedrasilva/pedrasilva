@@ -1,11 +1,16 @@
 import { useState } from "react";
-import { useDeleteAllocation, useUpdateAllocation } from "@/lib/projects/use-planner";
+import {
+  useDeleteAllocation,
+  useUpdateAllocation,
+  useSetAllocationStatus,
+  type AllocationStatus,
+} from "@/lib/projects/use-planner";
 import type { AllocationWithResource } from "@/lib/projects/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Lock, FileQuestion } from "lucide-react";
 import { toast } from "sonner";
 import { allocationCost, allocationHours, euros, workingDays } from "@/lib/projects/gantt-utils";
 
@@ -14,12 +19,18 @@ interface Props {
   projectId: string;
 }
 
+type AllocationWithStatus = AllocationWithResource & { status?: AllocationStatus | null };
+
 export function AllocationEditor({ allocation, projectId }: Props) {
   const [open, setOpen] = useState(false);
   const [hours, setHours] = useState(Number(allocation.hours_per_day));
   const [start, setStart] = useState(allocation.start_date);
   const [end, setEnd] = useState(allocation.end_date);
+  const [status, setStatus] = useState<AllocationStatus>(
+    ((allocation as AllocationWithStatus).status ?? "committed") as AllocationStatus,
+  );
   const update = useUpdateAllocation();
+  const setStatusMut = useSetAllocationStatus();
   const del = useDeleteAllocation();
 
   const wd = workingDays(start, end);
@@ -36,20 +47,31 @@ export function AllocationEditor({ allocation, projectId }: Props) {
       await update.mutateAsync({
         id: allocation.id,
         projectId,
-        patch: { start_date: start, end_date: end, hours_per_day: hours },
+        patch: { start_date: start, end_date: end, hours_per_day: hours, status },
       });
-      toast.success("Updated");
+      toast.success("Atualizado");
       setOpen(false);
     } catch (err) {
       toast.error((err as Error).message);
     }
   }
 
+  async function quickToggleStatus() {
+    const next: AllocationStatus = status === "committed" ? "tentative" : "committed";
+    try {
+      await setStatusMut.mutateAsync({ id: allocation.id, projectId, status: next });
+      setStatus(next);
+      toast.success(next === "committed" ? "Confirmada" : "Marcada como tentativa");
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
+  }
+
   async function remove() {
-    if (!confirm(`Remove ${allocation.resource.name}'s allocation?`)) return;
+    if (!confirm(`Remover alocação de ${allocation.resource.name}?`)) return;
     try {
       await del.mutateAsync({ id: allocation.id, projectId });
-      toast.success("Removed");
+      toast.success("Removida");
       setOpen(false);
     } catch (err) {
       toast.error((err as Error).message);
@@ -62,7 +84,7 @@ export function AllocationEditor({ allocation, projectId }: Props) {
         <button
           type="button"
           className="absolute inset-0"
-          aria-label={`Edit ${allocation.resource.name}`}
+          aria-label={`Editar ${allocation.resource.name}`}
           onClick={(e) => e.stopPropagation()}
         />
       </PopoverTrigger>
@@ -75,18 +97,55 @@ export function AllocationEditor({ allocation, projectId }: Props) {
               {euros(Number(allocation.resource.hourly_rate))}/h
             </span>
           </div>
+
+          {/* Status toggle: tentative ↔ committed */}
+          <div>
+            <Label className="text-xs">Estado da alocação</Label>
+            <div className="mt-1 grid grid-cols-2 gap-1 rounded-md border border-border p-0.5">
+              <button
+                type="button"
+                onClick={() => setStatus("tentative")}
+                className={`flex items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs transition ${
+                  status === "tentative"
+                    ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-1 ring-amber-500/30"
+                    : "text-muted-foreground hover:bg-accent"
+                }`}
+              >
+                <FileQuestion className="h-3 w-3" />
+                Tentativa
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatus("committed")}
+                className={`flex items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs transition ${
+                  status === "committed"
+                    ? "bg-primary/10 text-primary ring-1 ring-primary/30"
+                    : "text-muted-foreground hover:bg-accent"
+                }`}
+              >
+                <Lock className="h-3 w-3" />
+                Confirmada
+              </button>
+            </div>
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              {status === "tentative"
+                ? "Soft-booking: visível mas não conta como entrega firme."
+                : "Compromisso firme contado em capacidade e KPIs."}
+            </p>
+          </div>
+
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label htmlFor="a-start" className="text-xs">Start</Label>
+              <Label htmlFor="a-start" className="text-xs">Início</Label>
               <Input id="a-start" type="date" value={start} onChange={(e) => setStart(e.target.value)} />
             </div>
             <div>
-              <Label htmlFor="a-end" className="text-xs">End</Label>
+              <Label htmlFor="a-end" className="text-xs">Fim</Label>
               <Input id="a-end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
             </div>
           </div>
           <div>
-            <Label htmlFor="a-h" className="text-xs">Hours per working day</Label>
+            <Label htmlFor="a-h" className="text-xs">Horas por dia útil</Label>
             <Input
               id="a-h"
               type="number"
@@ -98,17 +157,22 @@ export function AllocationEditor({ allocation, projectId }: Props) {
             />
           </div>
           <div className="rounded-md bg-muted/60 p-3 text-xs">
-            <div className="flex justify-between"><span className="text-muted-foreground">Working days</span><span className="font-mono">{wd}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Total hours</span><span className="font-mono">{totalH.toFixed(1)} h</span></div>
-            <div className="mt-1 flex justify-between border-t border-border pt-1"><span className="text-muted-foreground">Cost</span><span className="font-mono font-semibold">{euros(cost)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Dias úteis</span><span className="font-mono">{wd}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Total horas</span><span className="font-mono">{totalH.toFixed(1)} h</span></div>
+            <div className="mt-1 flex justify-between border-t border-border pt-1"><span className="text-muted-foreground">Custo</span><span className="font-mono font-semibold">{euros(cost)}</span></div>
           </div>
-          <div className="flex justify-between gap-2 pt-1">
+          <div className="flex items-center justify-between gap-2 pt-1">
             <Button variant="ghost" size="sm" onClick={remove} className="text-destructive hover:text-destructive">
-              <Trash2 className="mr-1 h-3.5 w-3.5" /> Remove
+              <Trash2 className="mr-1 h-3.5 w-3.5" /> Remover
             </Button>
-            <Button size="sm" onClick={save} disabled={update.isPending}>
-              {update.isPending ? "Saving…" : "Save"}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={quickToggleStatus} disabled={setStatusMut.isPending}>
+                {status === "committed" ? "→ Tentativa" : "→ Confirmar"}
+              </Button>
+              <Button size="sm" onClick={save} disabled={update.isPending}>
+                {update.isPending ? "A guardar…" : "Guardar"}
+              </Button>
+            </div>
           </div>
         </div>
       </PopoverContent>
