@@ -190,6 +190,7 @@ function DashboardPage() {
 
   const { data: entries, isLoading: eLoading } = useMonthEntries(periodStartISO, periodEndISO);
   const { data: taskToStage } = useTaskMap();
+  const { data: identityMap } = useUserIdentityMap();
 
   // ---------- group stages and entries ----------
   const stagesByProject = useMemo(() => {
