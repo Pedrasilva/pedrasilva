@@ -81,7 +81,7 @@ function ProjectDetail() {
   const [tab, setTab] = useState<TabKey>("overview");
   const [dayWidth, setDayWidth] = useState(36);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [poolOpen, setPoolOpen] = useState(true);
+  const [poolOpen, setPoolOpen] = useState(false);
 
   // Real time entries for this project (per stage via allocation→stage)
   const { data: timeRows } = useQuery({
