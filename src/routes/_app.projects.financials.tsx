@@ -1290,6 +1290,7 @@ function useTrailingTrend(
 // ============================================================
 
 function TargetsPopover({ targets }: { targets: UtilTargets }) {
+  const { t } = useTranslation();
   const update = useUpdateUtilTargets();
   const [open, setOpen] = useState(false);
   const [minV, setMinV] = useState(targets.utilization_target_min);
@@ -1307,21 +1308,23 @@ function TargetsPopover({ targets }: { targets: UtilTargets }) {
       <PopoverTrigger asChild>
         <Button size="sm" variant="outline" className="h-9 gap-2">
           <Target className="h-4 w-4" />
-          {Math.round(targets.utilization_target_min)}–{Math.round(targets.utilization_target_max)}%
+          {t("projects:financials.targets.openLabel", {
+            min: Math.round(targets.utilization_target_min),
+            max: Math.round(targets.utilization_target_max),
+          })}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm font-medium">
-            <Settings2 className="h-4 w-4" /> Utilization targets
+            <Settings2 className="h-4 w-4" /> {t("projects:financials.targets.title")}
           </div>
           <p className="text-xs text-muted-foreground">
-            Healthy range for billable / (billable + internal). People outside the range
-            are flagged on the dashboard.
+            {t("projects:financials.targets.description")}
           </p>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="util-min" className="text-xs">Min %</Label>
+              <Label htmlFor="util-min" className="text-xs">{t("projects:financials.targets.minLabel")}</Label>
               <Input
                 id="util-min"
                 type="number"
@@ -1333,7 +1336,7 @@ function TargetsPopover({ targets }: { targets: UtilTargets }) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="util-max" className="text-xs">Max %</Label>
+              <Label htmlFor="util-max" className="text-xs">{t("projects:financials.targets.maxLabel")}</Label>
               <Input
                 id="util-max"
                 type="number"
@@ -1347,7 +1350,7 @@ function TargetsPopover({ targets }: { targets: UtilTargets }) {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="util-int" className="text-xs">
-              Internal time alert (% of working time)
+              {t("projects:financials.targets.internalLabel")}
             </Label>
             <Input
               id="util-int"
@@ -1359,18 +1362,18 @@ function TargetsPopover({ targets }: { targets: UtilTargets }) {
               className="h-9"
             />
             <p className="text-[11px] text-muted-foreground">
-              Flag people whose internal non-billable time exceeds this share of working time.
+              {t("projects:financials.targets.internalHint")}
             </p>
           </div>
           <div className="flex justify-end gap-2 pt-1">
             <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
-              Cancel
+              {t("projects:common.cancel")}
             </Button>
             <Button
               size="sm"
               onClick={() => {
                 if (minV < 0 || maxV > 100 || minV >= maxV) {
-                  toast.error("Min must be lower than max, between 0 and 100");
+                  toast.error(t("projects:financials.targets.rangeError"));
                   return;
                 }
                 update.mutate(
@@ -1379,12 +1382,17 @@ function TargetsPopover({ targets }: { targets: UtilTargets }) {
                     utilization_target_max: maxV,
                     internal_threshold_pct: intV,
                   },
-                  { onSuccess: () => setOpen(false) },
+                  {
+                    onSuccess: () => {
+                      toast.success(t("projects:financials.targets.saved"));
+                      setOpen(false);
+                    },
+                  },
                 );
               }}
               disabled={update.isPending}
             >
-              Save
+              {t("projects:common.save")}
             </Button>
           </div>
         </div>
