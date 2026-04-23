@@ -306,16 +306,16 @@ function CollaboratorPage() {
                   }`}
                 />
                 <div className="space-y-1.5">
-                  <CardTitle className="text-base">Dados do colaborador</CardTitle>
+                  <CardTitle className="text-base">{t("hr:collaborator.details.title")}</CardTitle>
                   <CardDescription>
-                    Campos a amarelo são editáveis. As alterações só são guardadas ao clicar em Guardar.
+                    {t("hr:collaborator.details.description")}
                   </CardDescription>
                 </div>
               </button>
             </CollapsibleTrigger>
             <div className="flex items-center gap-2">
               {isDirty && (
-                <span className="text-xs text-muted-foreground">Alterações por guardar</span>
+                <span className="text-xs text-muted-foreground">{t("hr:collaborator.details.dirtyHint")}</span>
               )}
               <Button
                 size="sm"
@@ -323,28 +323,28 @@ function CollaboratorPage() {
                 disabled={!isDirty || updateCollab.isPending}
               >
                 <Save className="h-4 w-4" />
-                {updateCollab.isPending ? "A guardar…" : "Guardar"}
+                {updateCollab.isPending ? t("hr:collaborator.details.saving") : t("hr:collaborator.details.save")}
               </Button>
             </div>
           </CardHeader>
           <CollapsibleContent>
             <CardContent>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <Field label="Nome">
+                <Field label={t("hr:collaborator.fields.name")}>
                   <Input
                     className="input-yellow"
                     value={draft.nome}
                     onChange={(e) => setField("nome", e.target.value)}
                   />
                 </Field>
-                <Field label="Nº colaborador">
+                <Field label={t("hr:collaborator.fields.employeeNumber")}>
                   <Input
                     className="input-yellow"
                     value={draft.numero_colaborador ?? ""}
                     onChange={(e) => setField("numero_colaborador", e.target.value || null)}
                   />
                 </Field>
-                <Field label="Departamento">
+                <Field label={t("hr:collaborator.fields.department")}>
                   <Select
                     value={draft.departamento}
                     onValueChange={(v) =>
@@ -355,29 +355,29 @@ function CollaboratorPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Projecto">Equipa Projecto</SelectItem>
-                      <SelectItem value="Backoffice">Equipa Backoffice</SelectItem>
+                      <SelectItem value="Projecto">{t("hr:enums.department.Projecto")}</SelectItem>
+                      <SelectItem value="Backoffice">{t("hr:enums.department.Backoffice")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label="Situação contractual">
+                <Field label={t("hr:collaborator.fields.contractStatus")}>
                   <Select
                     value={draft.situacao_contractual ?? ""}
                     onValueChange={(v) => setField("situacao_contractual", v || null)}
                   >
                     <SelectTrigger className="input-yellow">
-                      <SelectValue placeholder="Seleccionar…" />
+                      <SelectValue placeholder={t("hr:collaborator.placeholders.selectOption")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Contrato sem termo">Contrato sem termo</SelectItem>
-                      <SelectItem value="Contrato com termo">Contrato com termo</SelectItem>
+                      <SelectItem value="Contrato sem termo">{t("hr:collaborator.contractStatus.permanent")}</SelectItem>
+                      <SelectItem value="Contrato com termo">{t("hr:collaborator.contractStatus.fixedTerm")}</SelectItem>
                       <SelectItem value="Contrato de tempo indeterminado">
-                        Contrato de tempo indeterminado
+                        {t("hr:collaborator.contractStatus.indefinite")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label="Data de nascimento">
+                <Field label={t("hr:collaborator.fields.birthDate")}>
                   <Input
                     type="date"
                     className="input-yellow"
@@ -385,7 +385,7 @@ function CollaboratorPage() {
                     onChange={(e) => setField("data_nascimento", e.target.value || null)}
                   />
                 </Field>
-                <Field label="Início de carreira">
+                <Field label={t("hr:collaborator.fields.careerStart")}>
                   <Input
                     type="date"
                     className="input-yellow"
@@ -393,16 +393,16 @@ function CollaboratorPage() {
                     onChange={(e) => setField("inicio_carreira", e.target.value || null)}
                   />
                 </Field>
-                <Field label="Email (login Google)">
+                <Field label={t("hr:collaborator.fields.email")}>
                   <Input
                     type="email"
-                    placeholder="nome@empresa.com"
+                    placeholder={t("hr:collaborator.placeholders.emailExample")}
                     className="input-yellow"
                     value={draft.email ?? ""}
                     onChange={(e) => setField("email", e.target.value || null)}
                   />
                 </Field>
-                <Field label="Dias de férias / ano">
+                <Field label={t("hr:collaborator.fields.vacationDaysPerYear")}>
                   <Input
                     type="number"
                     min={0}
@@ -411,7 +411,7 @@ function CollaboratorPage() {
                     onChange={(e) => setField("dias_ferias_anuais", Number(e.target.value) || 0)}
                   />
                 </Field>
-                <Field label="Saldo férias anterior">
+                <Field label={t("hr:collaborator.fields.vacationCarryOver")}>
                   <Input
                     type="number"
                     min={0}
@@ -420,7 +420,7 @@ function CollaboratorPage() {
                     onChange={(e) => setField("saldo_ferias_anterior", Number(e.target.value) || 0)}
                   />
                 </Field>
-                <Field label="Dias férias extra (atribuídos)">
+                <Field label={t("hr:collaborator.fields.vacationExtraDays")}>
                   <Input
                     type="number"
                     min={0}
@@ -429,7 +429,7 @@ function CollaboratorPage() {
                     onChange={(e) => setField("dias_ferias_extra", Number(e.target.value) || 0)}
                   />
                 </Field>
-                <Field label="Horas / dia (contrato)">
+                <Field label={t("hr:collaborator.fields.dailyHours")}>
                   <Input
                     type="number"
                     min={0.5}
@@ -440,7 +440,7 @@ function CollaboratorPage() {
                     onChange={(e) => setField("daily_hours", Number(e.target.value) || 8)}
                   />
                 </Field>
-                <Field label="Dias / semana (contrato)">
+                <Field label={t("hr:collaborator.fields.daysPerWeek")}>
                   <Input
                     type="number"
                     min={1}
@@ -452,11 +452,11 @@ function CollaboratorPage() {
                   />
                 </Field>
                 {draft.departamento === "Projecto" && (
-                  <Field label="Margem lucro override (%)">
+                  <Field label={t("hr:collaborator.fields.profitMarginOverride")}>
                     <Input
                       type="number"
                       step="0.5"
-                      placeholder="usa global"
+                      placeholder={t("hr:collaborator.placeholders.usesGlobal")}
                       className="input-yellow tabular-nums"
                       value={
                         draft.margem_lucro_pct_override != null
@@ -494,9 +494,9 @@ function CollaboratorPage() {
                   }`}
                 />
                 <div className="space-y-1.5">
-                  <CardTitle className="text-base">Agregado familiar e contexto fiscal</CardTitle>
+                  <CardTitle className="text-base">{t("hr:collaborator.household.title")}</CardTitle>
                   <CardDescription>
-                    Estes valores são usados no cálculo automático de IRS de todas as fichas deste colaborador.
+                    {t("hr:collaborator.household.description")}
                   </CardDescription>
                 </div>
               </button>
@@ -505,7 +505,7 @@ function CollaboratorPage() {
           <CollapsibleContent>
             <CardContent>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <Field label="Localização">
+                <Field label={t("hr:collaborator.household.location")}>
                   <Select
                     value={draft.localizacao}
                     onValueChange={(v) => setField("localizacao", v)}
@@ -513,12 +513,12 @@ function CollaboratorPage() {
                     <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {LOCALIZACOES.map((l) => (
-                        <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
+                        <SelectItem key={l.value} value={l.value}>{t(`hr:enums.location.${l.value}`, { defaultValue: l.label })}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label="Estado civil">
+                <Field label={t("hr:collaborator.household.maritalStatus")}>
                   <Select
                     value={draft.estado_civil}
                     onValueChange={(v) => setField("estado_civil", v)}
@@ -526,12 +526,12 @@ function CollaboratorPage() {
                     <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {ESTADOS_CIVIS.map((e) => (
-                        <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                        <SelectItem key={e.value} value={e.value}>{t(`hr:enums.maritalStatus.${e.value}`, { defaultValue: e.label })}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label="Nº titulares">
+                <Field label={t("hr:collaborator.household.titulares")}>
                   <Input
                     type="number"
                     min={1}
@@ -541,7 +541,7 @@ function CollaboratorPage() {
                     onChange={(e) => setField("numero_titulares", Number(e.target.value) || 1)}
                   />
                 </Field>
-                <Field label="Nº dependentes">
+                <Field label={t("hr:collaborator.household.dependents")}>
                   <Input
                     type="number"
                     min={0}
@@ -550,7 +550,7 @@ function CollaboratorPage() {
                     onChange={(e) => setField("numero_dependentes", Number(e.target.value) || 0)}
                   />
                 </Field>
-                <Field label="Dep. com deficiência">
+                <Field label={t("hr:collaborator.household.dependentsDisability")}>
                   <Input
                     type="number"
                     min={0}
@@ -559,7 +559,7 @@ function CollaboratorPage() {
                     onChange={(e) => setField("dependentes_com_deficiencia", Number(e.target.value) || 0)}
                   />
                 </Field>
-                <Field label="Ano fiscal">
+                <Field label={t("hr:collaborator.household.fiscalYear")}>
                   <Select
                     value={String(draft.ano_fiscal)}
                     onValueChange={(v) => setField("ano_fiscal", Number(v))}
@@ -568,7 +568,7 @@ function CollaboratorPage() {
                     <SelectContent>
                       {[2023, 2024, 2025, 2026].map((y) => (
                         <SelectItem key={y} value={String(y)}>
-                          {y}{y !== 2026 ? " · sem tabela IRS" : ""}
+                          {y}{y !== 2026 ? t("hr:collaborator.household.yearNoIrsTable") : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -588,42 +588,42 @@ function CollaboratorPage() {
                 <TabsTrigger key={s.id} value={s.id} className="gap-2">
                   <span>{s.label}</span>
                   <span className="text-[10px] text-muted-foreground">
-                    {fmtDate(s.reference_date)}
+                    {fmtSnapshotDate(s.reference_date)}
                   </span>
                   {s.is_effective && (
                     <span className="rounded-full bg-positive/15 px-1.5 py-0.5 text-[10px] font-semibold text-positive">
-                      EFE
+                      {t("hr:myProfile.inForce")}
                     </span>
                   )}
                 </TabsTrigger>
               ))}
               <TabsTrigger value="resumo" className="gap-1">
-                <BarChart3 className="h-3 w-3" /> Resumo
+                <BarChart3 className="h-3 w-3" /> {t("hr:collaborator.snapshots.summaryTab")}
               </TabsTrigger>
             </TabsList>
 
             <Dialog open={newOpen} onOpenChange={setNewOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" variant="outline">
-                  <Plus className="h-4 w-4" /> Nova ficha
+                  <Plus className="h-4 w-4" /> {t("hr:collaborator.snapshots.newButton")}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Nova ficha salarial</DialogTitle>
+                  <DialogTitle>{t("hr:collaborator.newDialog.title")}</DialogTitle>
                   <DialogDescription>
-                    Cada ficha representa um snapshot a uma data específica.
+                    {t("hr:collaborator.newDialog.description")}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label="Etiqueta">
+                  <Field label={t("hr:collaborator.newDialog.label")}>
                     <Input
                       className="input-yellow"
                       value={newForm.label}
                       onChange={(e) => setNewForm((f) => ({ ...f, label: e.target.value }))}
                     />
                   </Field>
-                  <Field label="Data de referência">
+                  <Field label={t("hr:collaborator.newDialog.referenceDate")}>
                     <Input
                       type="date"
                       className="input-yellow"
@@ -633,7 +633,7 @@ function CollaboratorPage() {
                       }
                     />
                   </Field>
-                  <Field label="Copiar valores de">
+                  <Field label={t("hr:collaborator.newDialog.copyFrom")}>
                     <Select
                       value={newForm.copyFrom || "none"}
                       onValueChange={(v) =>
@@ -641,19 +641,19 @@ function CollaboratorPage() {
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Em branco" />
+                        <SelectValue placeholder={t("hr:collaborator.newDialog.copyFromBlank")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">Em branco</SelectItem>
+                        <SelectItem value="none">{t("hr:collaborator.newDialog.copyFromBlank")}</SelectItem>
                         {snapshots.map((s) => (
                           <SelectItem key={s.id} value={s.id}>
-                            {s.label} · {fmtDate(s.reference_date)}
+                            {s.label} · {fmtSnapshotDate(s.reference_date)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </Field>
-                  <Field label="Efectiva (em vigor)">
+                  <Field label={t("hr:collaborator.newDialog.effective")}>
                     <div className="flex h-9 items-center">
                       <Switch
                         checked={newForm.is_effective}
@@ -666,10 +666,10 @@ function CollaboratorPage() {
                 </div>
                 <DialogFooter>
                   <Button variant="ghost" onClick={() => setNewOpen(false)}>
-                    Cancelar
+                    {t("hr:collaborator.newDialog.cancel")}
                   </Button>
                   <Button onClick={() => createSnap.mutate()} disabled={createSnap.isPending}>
-                    Criar ficha
+                    {t("hr:collaborator.newDialog.create")}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -679,8 +679,7 @@ function CollaboratorPage() {
           {snapshots.length === 0 && (
             <Card className="mt-4">
               <CardContent className="py-12 text-center text-sm text-muted-foreground">
-                Ainda não existem fichas. Crie a primeira (ex: "Actual" com a data
-                actual).
+                {t("hr:collaborator.snapshots.empty")}
               </CardContent>
             </Card>
           )}
@@ -707,4 +706,22 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       {children}
     </div>
   );
+}
+
+/**
+ * Maps the (currently free-text) `situacao_contractual` column values to a
+ * canonical key for translation. Falls back to the raw string for unknown
+ * legacy values via the caller's `defaultValue` option.
+ */
+function contractStatusKey(value: string): "permanent" | "fixedTerm" | "indefinite" {
+  switch (value) {
+    case "Contrato sem termo":
+      return "permanent";
+    case "Contrato com termo":
+      return "fixedTerm";
+    case "Contrato de tempo indeterminado":
+      return "indefinite";
+    default:
+      return "permanent";
+  }
 }
