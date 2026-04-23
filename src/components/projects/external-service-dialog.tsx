@@ -27,6 +27,10 @@ import {
   type ExternalServiceStatus,
   type MarkupType,
 } from "@/lib/projects/use-external-services";
+import {
+  externalServiceSchema,
+  flattenIssues,
+} from "@/lib/projects/financial-validation";
 
 interface Props {
   open: boolean;
@@ -94,10 +98,29 @@ export function ExternalServiceDialog({
   const previewRevenue = previewSalePerUnit * (quantity || 1);
   const previewMargin = previewRevenue - totalCost;
 
+  // Live validation — recomputed every render. Cheap; small object.
+  const parseResult = externalServiceSchema.safeParse({
+    description,
+    quantity: Number(quantity),
+    unit_cost: Number(unitCost),
+    markup_type: markupType,
+    markup_value: Number(markupValue),
+    sale_price_manual: salePriceManual,
+    manual_sale_price: Number(manualSalePrice),
+    status,
+    invoice_date: invoiceDate,
+    due_date: dueDate,
+    paid_at: paidAt,
+  });
+  const errors = flattenIssues(parseResult);
+  const isValid = parseResult.success;
+  const errMsg = (key: string) =>
+    errors[key] ? t(`externalServices.dialog.errors.${errors[key]}`) : null;
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!description.trim()) {
-      toast.error(t("externalServices.dialog.errors.descriptionRequired"));
+    if (!isValid) {
+      toast.error(t("externalServices.dialog.errors.formInvalid"));
       return;
     }
     try {
@@ -151,7 +174,11 @@ export function ExternalServiceDialog({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={t("externalServices.fields.descriptionPlaceholder")}
+                aria-invalid={!!errMsg("description")}
               />
+              {errMsg("description") && (
+                <p className="text-[11px] text-destructive">{errMsg("description")}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="es-sup-name">{t("externalServices.fields.supplierName")}</Label>
@@ -178,7 +205,11 @@ export function ExternalServiceDialog({
                 step="0.01"
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
+                aria-invalid={!!errMsg("quantity")}
               />
+              {errMsg("quantity") && (
+                <p className="text-[11px] text-destructive">{errMsg("quantity")}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="es-unit">{t("externalServices.fields.unitCost")} (€)</Label>
@@ -188,7 +219,11 @@ export function ExternalServiceDialog({
                 step="0.01"
                 value={unitCost}
                 onChange={(e) => setUnitCost(Number(e.target.value))}
+                aria-invalid={!!errMsg("unit_cost")}
               />
+              {errMsg("unit_cost") && (
+                <p className="text-[11px] text-destructive">{errMsg("unit_cost")}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="es-mtype">{t("externalServices.fields.markupType")}</Label>
@@ -213,7 +248,11 @@ export function ExternalServiceDialog({
                 value={markupValue}
                 onChange={(e) => setMarkupValue(Number(e.target.value))}
                 disabled={salePriceManual}
+                aria-invalid={!!errMsg("markup_value")}
               />
+              {errMsg("markup_value") && (
+                <p className="text-[11px] text-destructive">{errMsg("markup_value")}</p>
+              )}
             </div>
             <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2 sm:col-span-2">
               <div className="space-y-0.5">
@@ -239,7 +278,11 @@ export function ExternalServiceDialog({
                   step="0.01"
                   value={manualSalePrice}
                   onChange={(e) => setManualSalePrice(Number(e.target.value))}
+                  aria-invalid={!!errMsg("manual_sale_price")}
                 />
+                {errMsg("manual_sale_price") && (
+                  <p className="text-[11px] text-destructive">{errMsg("manual_sale_price")}</p>
+                )}
               </div>
             )}
             <div className="space-y-1.5">
@@ -275,7 +318,11 @@ export function ExternalServiceDialog({
                 type="date"
                 value={invoiceDate}
                 onChange={(e) => setInvoiceDate(e.target.value)}
+                aria-invalid={!!errMsg("invoice_date")}
               />
+              {errMsg("invoice_date") && (
+                <p className="text-[11px] text-destructive">{errMsg("invoice_date")}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="es-due">{t("externalServices.fields.dueDate")}</Label>
@@ -284,7 +331,11 @@ export function ExternalServiceDialog({
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
+                aria-invalid={!!errMsg("due_date")}
               />
+              {errMsg("due_date") && (
+                <p className="text-[11px] text-destructive">{errMsg("due_date")}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="es-paid">{t("externalServices.fields.paidAt")}</Label>
@@ -293,7 +344,11 @@ export function ExternalServiceDialog({
                 type="date"
                 value={paidAt}
                 onChange={(e) => setPaidAt(e.target.value)}
+                aria-invalid={!!errMsg("paid_at")}
               />
+              {errMsg("paid_at") && (
+                <p className="text-[11px] text-destructive">{errMsg("paid_at")}</p>
+              )}
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="es-notes">{t("externalServices.fields.notes")}</Label>
@@ -322,7 +377,7 @@ export function ExternalServiceDialog({
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               {t("externalServices.dialog.cancel")}
             </Button>
-            <Button type="submit" disabled={upsert.isPending}>
+            <Button type="submit" disabled={upsert.isPending || !isValid}>
               {initial?.id
                 ? t("externalServices.dialog.save")
                 : t("externalServices.dialog.create")}
