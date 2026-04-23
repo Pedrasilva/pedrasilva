@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminOnly } from "@/components/AdminOnly";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +37,7 @@ export const Route = createFileRoute("/_app/hr/subsidio-alimentacao")({
 });
 
 function SubsidioAlimentacaoPage() {
+  const { t } = useTranslation(["hr", "common"]);
   const qc = useQueryClient();
 
   const { data: rates = [], isLoading } = useQuery({
@@ -65,9 +67,10 @@ function SubsidioAlimentacaoPage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["meal-allowance-rates"] });
-      toast.success("Valor guardado");
+      toast.success(t("hr:mealAllowance.toasts.saved"));
     },
-    onError: (e: Error) => toast.error(`Erro: ${e.message}`),
+    onError: (e: Error) =>
+      toast.error(t("hr:mealAllowance.toasts.errorPrefix", { message: e.message })),
   });
 
   const remove = useMutation({
@@ -77,7 +80,7 @@ function SubsidioAlimentacaoPage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["meal-allowance-rates"] });
-      toast.success("Linha eliminada");
+      toast.success(t("hr:mealAllowance.toasts.deleted"));
     },
   });
 
@@ -93,9 +96,9 @@ function SubsidioAlimentacaoPage() {
           <Utensils className="h-5 w-5" />
         </div>
         <div>
-          <h1 className="text-xl font-semibold">Subsídio de alimentação</h1>
+          <h1 className="text-xl font-semibold">{t("hr:mealAllowance.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Histórico do valor diário (cartão e dinheiro) por ano. O valor é aplicado automaticamente nas fichas conforme o ano fiscal do colaborador.
+            {t("hr:mealAllowance.subtitle")}
           </p>
         </div>
       </div>
@@ -103,12 +106,14 @@ function SubsidioAlimentacaoPage() {
       {/* Adicionar novo ano */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Adicionar novo ano</CardTitle>
+          <CardTitle className="text-base">
+            {t("hr:mealAllowance.addNewYear")}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[120px_1fr_1fr_auto] sm:items-end">
             <div className="space-y-1">
-              <Label className="text-xs">Ano</Label>
+              <Label className="text-xs">{t("hr:mealAllowance.fields.year")}</Label>
               <Input
                 type="number"
                 className="input-yellow text-right tabular-nums"
@@ -117,7 +122,7 @@ function SubsidioAlimentacaoPage() {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Em cartão (€/dia)</Label>
+              <Label className="text-xs">{t("hr:mealAllowance.fields.perCard")}</Label>
               <Input
                 type="number"
                 step="0.01"
@@ -127,7 +132,7 @@ function SubsidioAlimentacaoPage() {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Em dinheiro (€/dia)</Label>
+              <Label className="text-xs">{t("hr:mealAllowance.fields.perCash")}</Label>
               <Input
                 type="number"
                 step="0.01"
@@ -139,7 +144,7 @@ function SubsidioAlimentacaoPage() {
             <Button
               onClick={() => {
                 if (rates.some((r) => r.ano === novoAno)) {
-                  toast.error("Já existe uma entrada para esse ano. Edita na tabela.");
+                  toast.error(t("hr:mealAllowance.toasts.duplicateYear"));
                   return;
                 }
                 upsert.mutate({
@@ -153,7 +158,7 @@ function SubsidioAlimentacaoPage() {
               }}
               disabled={upsert.isPending}
             >
-              <Plus className="h-4 w-4" /> Adicionar
+              <Plus className="h-4 w-4" /> {t("hr:mealAllowance.add")}
             </Button>
           </div>
         </CardContent>
@@ -162,21 +167,25 @@ function SubsidioAlimentacaoPage() {
       {/* Histórico */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Histórico</CardTitle>
+          <CardTitle className="text-base">{t("hr:mealAllowance.history")}</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-sm text-muted-foreground">A carregar…</div>
+            <div className="text-sm text-muted-foreground">{t("common:loading")}</div>
           ) : rates.length === 0 ? (
-            <div className="text-sm text-muted-foreground">Sem valores definidos.</div>
+            <div className="text-sm text-muted-foreground">
+              {t("hr:mealAllowance.noRates")}
+            </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-24">Ano</TableHead>
-                  <TableHead>Em cartão (€/dia)</TableHead>
-                  <TableHead>Em dinheiro (€/dia)</TableHead>
-                  <TableHead className="text-right">Anual (220 dias)</TableHead>
+                  <TableHead className="w-24">{t("hr:mealAllowance.columns.year")}</TableHead>
+                  <TableHead>{t("hr:mealAllowance.columns.perCard")}</TableHead>
+                  <TableHead>{t("hr:mealAllowance.columns.perCash")}</TableHead>
+                  <TableHead className="text-right">
+                    {t("hr:mealAllowance.columns.annual220")}
+                  </TableHead>
                   <TableHead className="w-24"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -207,6 +216,7 @@ function RateRow({
   onSave: (patch: Partial<Rate>) => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation(["hr", "common"]);
   const [cartao, setCartao] = useState(rate.valor_cartao);
   const [dinheiro, setDinheiro] = useState(rate.valor_dinheiro);
   const dirty = cartao !== rate.valor_cartao || dinheiro !== rate.valor_dinheiro;
@@ -242,26 +252,30 @@ function RateRow({
             variant="ghost"
             disabled={!dirty}
             onClick={() => onSave({ valor_cartao: cartao, valor_dinheiro: dinheiro })}
-            title="Guardar"
+            title={t("hr:mealAllowance.actions.save")}
           >
             <Save className="h-4 w-4" />
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button size="icon" variant="ghost" title="Eliminar">
+              <Button size="icon" variant="ghost" title={t("hr:mealAllowance.actions.delete")}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Eliminar {rate.ano}?</AlertDialogTitle>
+                <AlertDialogTitle>
+                  {t("hr:mealAllowance.deleteDialog.title", { year: rate.ano })}
+                </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Esta acção é irreversível. As fichas existentes mantêm os valores guardados.
+                  {t("hr:mealAllowance.deleteDialog.description")}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={onDelete}>Eliminar</AlertDialogAction>
+                <AlertDialogCancel>{t("common:cancel")}</AlertDialogCancel>
+                <AlertDialogAction onClick={onDelete}>
+                  {t("hr:mealAllowance.actions.delete")}
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

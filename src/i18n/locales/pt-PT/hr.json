@@ -58,6 +58,71 @@
       "noMembers": "Sem colaboradores."
     }
   },
+  "myProfile": {
+    "title": "Minha ficha",
+    "subtitle": "Consulta das suas fichas salariais — efectiva e histórico.",
+    "loadingProfile": "A carregar a sua ficha…",
+    "loadingSnapshots": "A carregar fichas…",
+    "notFoundTitle": "Ficha não encontrada",
+    "notFoundDescription": "Não conseguimos associar a sua sessão ({{email}}) a um colaborador. Contacte o Backoffice para verificar o email registado.",
+    "collaboratorLabel": "Colaborador",
+    "employeeNumberShort": "Nº {{number}}",
+    "noSnapshotsTitle": "Sem fichas registadas",
+    "noSnapshotsDescription": "Ainda não existe nenhuma ficha salarial associada à sua conta.",
+    "history": "Histórico",
+    "historyCount_one": "{{count}} ficha",
+    "historyCount_other": "{{count}} fichas",
+    "inForce": "Em vigor",
+    "historical": "Histórico",
+    "snapshotLabel": "Ficha",
+    "referenceDate": "Data de referência: {{date}}",
+    "mini": {
+      "grossMonthly": "Bruto mensal",
+      "netMonthly": "Líquido mensal",
+      "netAnnual": "Líquido anual",
+      "employerCostAnnual": "Custo empregador (anual)"
+    },
+    "tabs": {
+      "net": "Visão Líquido",
+      "gross": "Visão Bruto"
+    },
+    "footerReadOnly": "Esta página é apenas de consulta. Para qualquer alteração contacte o Backoffice. Em caso de dúvida visite a secção de",
+    "footerBenefitsLink": "Benefícios",
+    "footerSuffix": "."
+  },
+  "mealAllowance": {
+    "title": "Subsídio de alimentação",
+    "subtitle": "Histórico do valor diário (cartão e dinheiro) por ano. O valor é aplicado automaticamente nas fichas conforme o ano fiscal do colaborador.",
+    "addNewYear": "Adicionar novo ano",
+    "fields": {
+      "year": "Ano",
+      "perCard": "Em cartão (€/dia)",
+      "perCash": "Em dinheiro (€/dia)"
+    },
+    "add": "Adicionar",
+    "history": "Histórico",
+    "noRates": "Sem valores definidos.",
+    "columns": {
+      "year": "Ano",
+      "perCard": "Em cartão (€/dia)",
+      "perCash": "Em dinheiro (€/dia)",
+      "annual220": "Anual (220 dias)"
+    },
+    "actions": {
+      "save": "Guardar",
+      "delete": "Eliminar"
+    },
+    "deleteDialog": {
+      "title": "Eliminar {{year}}?",
+      "description": "Esta acção é irreversível. As fichas existentes mantêm os valores guardados."
+    },
+    "toasts": {
+      "saved": "Valor guardado",
+      "deleted": "Linha eliminada",
+      "duplicateYear": "Já existe uma entrada para esse ano. Edita na tabela.",
+      "errorPrefix": "Erro: {{message}}"
+    }
+  },
   "snapshot": {
     "bruto": {
       "title": "Visão Bruto",

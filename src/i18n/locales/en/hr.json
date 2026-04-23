@@ -58,6 +58,71 @@
       "noMembers": "No team members."
     }
   },
+  "myProfile": {
+    "title": "My profile",
+    "subtitle": "View your salary snapshots — current and history.",
+    "loadingProfile": "Loading your profile…",
+    "loadingSnapshots": "Loading snapshots…",
+    "notFoundTitle": "Profile not found",
+    "notFoundDescription": "We could not link your session ({{email}}) to a team member. Contact Backoffice to verify the registered email.",
+    "collaboratorLabel": "Team member",
+    "employeeNumberShort": "No. {{number}}",
+    "noSnapshotsTitle": "No snapshots on file",
+    "noSnapshotsDescription": "There are no salary snapshots associated with your account yet.",
+    "history": "History",
+    "historyCount_one": "{{count}} snapshot",
+    "historyCount_other": "{{count}} snapshots",
+    "inForce": "In force",
+    "historical": "Historical",
+    "snapshotLabel": "Snapshot",
+    "referenceDate": "Reference date: {{date}}",
+    "mini": {
+      "grossMonthly": "Monthly gross",
+      "netMonthly": "Monthly net",
+      "netAnnual": "Annual net",
+      "employerCostAnnual": "Employer cost (annual)"
+    },
+    "tabs": {
+      "net": "Net View",
+      "gross": "Gross View"
+    },
+    "footerReadOnly": "This page is read-only. For any change, contact Backoffice. For questions, see the",
+    "footerBenefitsLink": "Benefits",
+    "footerSuffix": "section."
+  },
+  "mealAllowance": {
+    "title": "Meal allowance",
+    "subtitle": "History of the daily amount (card and cash) per year. The value is applied automatically to snapshots based on the team member's fiscal year.",
+    "addNewYear": "Add new year",
+    "fields": {
+      "year": "Year",
+      "perCard": "On card (€/day)",
+      "perCash": "In cash (€/day)"
+    },
+    "add": "Add",
+    "history": "History",
+    "noRates": "No values defined.",
+    "columns": {
+      "year": "Year",
+      "perCard": "On card (€/day)",
+      "perCash": "In cash (€/day)",
+      "annual220": "Annual (220 days)"
+    },
+    "actions": {
+      "save": "Save",
+      "delete": "Delete"
+    },
+    "deleteDialog": {
+      "title": "Delete {{year}}?",
+      "description": "This action is irreversible. Existing snapshots keep their stored values."
+    },
+    "toasts": {
+      "saved": "Value saved",
+      "deleted": "Row deleted",
+      "duplicateYear": "An entry already exists for this year. Edit it in the table.",
+      "errorPrefix": "Error: {{message}}"
+    }
+  },
   "snapshot": {
     "bruto": {
       "title": "Gross View",
