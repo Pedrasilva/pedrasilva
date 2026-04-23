@@ -575,6 +575,8 @@ function ProjectDetail() {
               <TabBtn icon={Calendar} label={t("projects:detail.tabs.schedule")} active={tab === "schedule"} onClick={() => setTab("schedule")} />
               <TabBtn icon={Package} label={t("projects:detail.tabs.materials")} active={tab === "materials"} onClick={() => setTab("materials")} />
               <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
+              <TabBtn icon={DollarSign} label={t("projects:detail.tabs.rates")} active={tab === "rates"} onClick={() => setTab("rates")} />
+              <TabBtn icon={FileText} label={t("projects:detail.tabs.billing")} active={tab === "billing"} onClick={() => setTab("billing")} />
               <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
               <TabBtn icon={ActivityIcon} label={t("projects:detail.tabs.stream")} active={tab === "stream"} onClick={() => setTab("stream")} />
             </div>
