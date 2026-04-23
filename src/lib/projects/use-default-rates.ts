@@ -23,7 +23,7 @@ export function useDefaultResourceRates() {
     queryKey: ["pm-default-rates-from-hr"],
     queryFn: async (): Promise<Map<string, DefaultRateInfo>> => {
       const [collabs, snaps, bo, resources] = await Promise.all([
-        supabase.from("collaborators").select("*"),
+        supabase.from("collaborators").select("*").is("archived_at", null),
         supabase.from("salary_snapshots").select("*").order("reference_date", { ascending: false }),
         supabase.from("bo_settings").select("*").limit(1).maybeSingle(),
         supabase.from("pm_resources").select("id, collaborator_id"),

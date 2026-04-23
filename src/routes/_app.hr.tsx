@@ -61,10 +61,13 @@ function HrLayout() {
             show: can("hr.minha-ficha"),
           },
           {
-            to: "/hr",
+            to: "/hr/colaboradores",
             label: t("nav.collaborators"),
             icon: Users,
-            match: (p) => p === "/hr" || p.startsWith("/hr/colaborador"),
+            match: (p) =>
+              p === "/hr" ||
+              p.startsWith("/hr/colaboradores") ||
+              p.startsWith("/hr/colaborador"),
             show: can("hr.colaboradores"),
           },
           {

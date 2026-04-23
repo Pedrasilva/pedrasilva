@@ -45,6 +45,7 @@ export function ViewAsPicker({ variant = "desktop" }: { variant?: "desktop" | "m
       const { data, error } = await supabase
         .from("collaborators")
         .select("id, nome, email, numero_colaborador")
+        .is("archived_at", null)
         .order("nome", { ascending: true });
       if (error) throw error;
       return (data ?? []) as CollabRow[];

@@ -356,6 +356,9 @@
     "back": "Back",
     "printPdf": "Print / PDF",
     "deleteButton": "Delete team member",
+    "archiveButton": "Archive",
+    "restoreButton": "Restore",
+    "archivedBadge": "Archived",
     "deleteDialog": {
       "title": "Delete team member",
       "description": "This removes the team member and all their snapshots.",

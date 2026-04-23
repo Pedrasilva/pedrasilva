@@ -96,6 +96,12 @@ export type Collaborator = {
   // forecast calculations across the project module.
   daily_hours: number;
   days_per_week: number;
+  // Soft-archive metadata. archived_at = null means active. Archived
+  // collaborators are hidden from operational pickers but historical
+  // records (snapshots, vacations, benefits) remain intact.
+  archived_at?: string | null;
+  archived_by?: string | null;
+  archive_reason?: string | null;
 };
 
 export function computeSnapshot(s: Snapshot) {
