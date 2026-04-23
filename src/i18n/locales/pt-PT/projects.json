@@ -714,6 +714,7 @@
       "title": "Serviços externos",
       "subtitle": "Trabalho subcontratado (consultores, especialistas, subempreiteiros) ligado ao contrato com o cliente.",
       "addButton": "Adicionar serviço externo",
+      "manageSuppliers": "Gerir fornecedores",
       "empty": "Sem serviços externos.",
       "totals": "Totais",
       "cols": {
