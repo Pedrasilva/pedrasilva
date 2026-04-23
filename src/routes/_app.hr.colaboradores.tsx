@@ -55,6 +55,7 @@ function CollaboratorsListPage() {
   const [sortKey, setSortKey] = useState<CollabSortKey>("nome");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [archiveTarget, setArchiveTarget] = useState<Collaborator | null>(null);
+  const [restoreTarget, setRestoreTarget] = useState<Collaborator | null>(null);
 
   const list = useCollaboratorsList({ status });
   const archiveMut = useArchiveCollaborator();
@@ -116,28 +117,35 @@ function CollaboratorsListPage() {
   };
 
   const handleArchive = (c: Collaborator) => setArchiveTarget(c);
-  const handleRestore = (c: Collaborator) => {
-    restoreMut.mutate(c.id, {
-      onSuccess: () =>
-        toast.success(t("hr:colaboradores.toast.restored", { name: c.nome })),
-      onError: (e: Error) =>
-        toast.error(e.message || t("hr:colaboradores.toast.error")),
+  const handleRestore = (c: Collaborator) => setRestoreTarget(c);
+
+  const confirmRestore = () => {
+    if (!restoreTarget) return;
+    const target = restoreTarget;
+    restoreMut.mutate(target.id, {
+      onSuccess: () => {
+        toast.success(
+          t("hr:colaboradores.toast.restored", { name: target.nome }),
+        );
+        setRestoreTarget(null);
+      },
+      onError: (e) => toast.error(humanizeMutationError(e, t)),
     });
   };
 
   const confirmArchive = (reason: string) => {
     if (!archiveTarget) return;
+    const target = archiveTarget;
     archiveMut.mutate(
-      { id: archiveTarget.id, reason },
+      { id: target.id, reason },
       {
         onSuccess: () => {
           toast.success(
-            t("hr:colaboradores.toast.archived", { name: archiveTarget.nome }),
+            t("hr:colaboradores.toast.archived", { name: target.nome }),
           );
           setArchiveTarget(null);
         },
-        onError: (e: Error) =>
-          toast.error(e.message || t("hr:colaboradores.toast.error")),
+        onError: (e) => toast.error(humanizeMutationError(e, t)),
       },
     );
   };
@@ -145,6 +153,7 @@ function CollaboratorsListPage() {
   const total = list.data?.length ?? 0;
   const isFiltered =
     department !== "all" || search.trim().length > 0;
+  const showStatusChip = status !== "active";
 
   return (
     <div className="space-y-6">
