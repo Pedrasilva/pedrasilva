@@ -25,6 +25,7 @@ import { useResourceSchedules, buildDailyLimitMap, dailyHoursFor } from "@/lib/p
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { fmt } from "@/lib/projects/gantt-utils";
+import { useDateLocale } from "@/i18n/use-date-locale";
 
 export type StageWithProject = StageWithAllocations & { projectId: string };
 
