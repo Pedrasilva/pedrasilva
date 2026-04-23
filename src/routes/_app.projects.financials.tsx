@@ -580,7 +580,7 @@ function FinancialsPage() {
   const { data: trailing } = useTrailingTrend(monthAnchor, filteredResourceIds, resourceMap, defaults);
 
   // 12-week utilization trend
-  const { data: weeklyUtil } = useWeeklyUtilTrend(monthAnchor, filteredResourceIds);
+  const { data: weeklyUtil } = useWeeklyUtilTrend(monthAnchor, filteredResourceIds, dateLocale);
 
   // Business Development efficiency
   const bdMonthCost = useMemo(() => {
@@ -1408,6 +1408,7 @@ function UtilizationTargetCard({
   utilization: number;
   targets: UtilTargets;
 }) {
+  const { t } = useTranslation();
   const inRange =
     utilization >= targets.utilization_target_min &&
     utilization <= targets.utilization_target_max;
@@ -1419,11 +1420,13 @@ function UtilizationTargetCard({
       <CardHeader className="pb-2">
         <CardDescription className="flex items-center justify-between gap-2 text-xs">
           <span className="flex items-center gap-2">
-            <Gauge className="h-4 w-4" /> Utilization
+            <Gauge className="h-4 w-4" /> {t("projects:financials.utilizationCard.label")}
           </span>
           <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            Target {Math.round(targets.utilization_target_min)}–
-            {Math.round(targets.utilization_target_max)}%
+            {t("projects:financials.utilizationCard.targetRange", {
+              min: Math.round(targets.utilization_target_min),
+              max: Math.round(targets.utilization_target_max),
+            })}
           </span>
         </CardDescription>
         <CardTitle
@@ -1466,20 +1469,24 @@ function UtilizationTargetCard({
           {inRange ? (
             <>
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-              <span>On target</span>
+              <span>{t("projects:financials.utilizationCard.onTarget")}</span>
             </>
           ) : below ? (
             <>
               <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
               <span>
-                {pct(targets.utilization_target_min - utilization)} below target
+                {t("projects:financials.utilizationCard.belowTarget", {
+                  pct: pct(targets.utilization_target_min - utilization),
+                })}
               </span>
             </>
           ) : (
             <>
               <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
               <span>
-                {pct(utilization - targets.utilization_target_max)} above target
+                {t("projects:financials.utilizationCard.aboveTarget", {
+                  pct: pct(utilization - targets.utilization_target_max),
+                })}
               </span>
             </>
           )}
@@ -1597,15 +1604,20 @@ type WeekPoint = {
   internal: number;
 };
 
-function useWeeklyUtilTrend(monthAnchor: Date, filteredResourceIds: Set<string>) {
+function useWeeklyUtilTrend(
+  monthAnchor: Date,
+  filteredResourceIds: Set<string>,
+  dateLocale: import("date-fns").Locale,
+) {
   const end = endOfMonth(monthAnchor);
   const start = startOfWeek(subWeeks(end, 11), { weekStartsOn: 1 });
   const startISO = format(start, "yyyy-MM-dd");
   const endISO = format(end, "yyyy-MM-dd");
   const filterKey = Array.from(filteredResourceIds).sort().join(",");
+  const localeCode = dateLocale.code ?? "en";
 
   return useQuery({
-    queryKey: ["fin-weekly-util", startISO, endISO, filterKey],
+    queryKey: ["fin-weekly-util", startISO, endISO, filterKey, localeCode],
     queryFn: async (): Promise<WeekPoint[]> => {
       const { data: entries, error } = await supabase
         .from("pm_time_entries")
@@ -1650,7 +1662,7 @@ function useWeeklyUtilTrend(monthAnchor: Date, filteredResourceIds: Set<string>)
         buckets.set(key, {
           billable: 0,
           internal: 0,
-          label: format(ws, "d MMM"),
+          label: format(ws, "d MMM", { locale: dateLocale }),
           weekStart: key,
         });
       }
@@ -1697,23 +1709,34 @@ function WeeklyUtilizationCard({
   data: WeekPoint[];
   targets: UtilTargets;
 }) {
+  const { t } = useTranslation();
   const latest = data[data.length - 1];
   const prev = data[data.length - 2];
   const trend = latest && prev ? latest.utilization - prev.utilization : 0;
+  const minLabel = t("projects:financials.weeklyUtil.minLabel", {
+    pct: Math.round(targets.utilization_target_min),
+  });
+  const maxLabel = t("projects:financials.weeklyUtil.maxLabel", {
+    pct: Math.round(targets.utilization_target_max),
+  });
   return (
     <Card className="mt-6">
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
         <div>
-          <CardTitle className="text-lg">Utilization trend</CardTitle>
+          <CardTitle className="text-lg">
+            {t("projects:financials.weeklyUtil.title")}
+          </CardTitle>
           <CardDescription>
-            Last 12 weeks · target band {Math.round(targets.utilization_target_min)}–
-            {Math.round(targets.utilization_target_max)}%
+            {t("projects:financials.weeklyUtil.subtitle", {
+              min: Math.round(targets.utilization_target_min),
+              max: Math.round(targets.utilization_target_max),
+            })}
           </CardDescription>
         </div>
         {latest && (
           <div className="text-right">
             <div className="text-xs uppercase tracking-wide text-muted-foreground">
-              This week
+              {t("projects:financials.weeklyUtil.thisWeek")}
             </div>
             <div className="text-xl font-semibold tabular-nums">
               {pct(latest.utilization)}
@@ -1724,7 +1747,10 @@ function WeeklyUtilizationCard({
                 trend >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400",
               )}
             >
-              {trend >= 0 ? "▲" : "▼"} {pct(Math.abs(trend))} vs prev
+              {t("projects:financials.weeklyUtil.trendDelta", {
+                arrow: trend >= 0 ? "▲" : "▼",
+                pct: pct(Math.abs(trend)),
+              })}
             </div>
           </div>
         )}
@@ -1758,7 +1784,7 @@ function WeeklyUtilizationCard({
               {/* Target band as a translucent area using two reference bars */}
               <Bar
                 dataKey={() => targets.utilization_target_max}
-                name="Target max"
+                name={t("projects:financials.weeklyUtil.targetMax")}
                 fill="hsl(var(--primary) / 0.08)"
                 stackId="band"
                 isAnimationActive={false}
@@ -1767,7 +1793,7 @@ function WeeklyUtilizationCard({
               <Line
                 type="monotone"
                 dataKey="utilization"
-                name="Utilization"
+                name={t("projects:financials.weeklyUtil.utilization")}
                 stroke="hsl(var(--primary))"
                 strokeWidth={2.5}
                 dot={{ r: 3 }}
@@ -1775,7 +1801,7 @@ function WeeklyUtilizationCard({
               <Line
                 type="monotone"
                 dataKey="internalPct"
-                name="Internal %"
+                name={t("projects:financials.weeklyUtil.internalPct")}
                 stroke="hsl(var(--muted-foreground))"
                 strokeWidth={1.5}
                 strokeDasharray="4 4"
@@ -1784,7 +1810,7 @@ function WeeklyUtilizationCard({
               <Line
                 type="monotone"
                 dataKey={() => targets.utilization_target_min}
-                name={`Min ${Math.round(targets.utilization_target_min)}%`}
+                name={minLabel}
                 stroke="hsl(var(--muted-foreground))"
                 strokeDasharray="2 4"
                 dot={false}
@@ -1793,7 +1819,7 @@ function WeeklyUtilizationCard({
               <Line
                 type="monotone"
                 dataKey={() => targets.utilization_target_max}
-                name={`Max ${Math.round(targets.utilization_target_max)}%`}
+                name={maxLabel}
                 stroke="hsl(var(--muted-foreground))"
                 strokeDasharray="2 4"
                 dot={false}
@@ -1996,6 +2022,8 @@ function BusinessDevCard({
   monthCost: number;
   data: BusinessDevData | undefined;
 }) {
+  const { t } = useTranslation();
+  const dateLocale = useDateLocale();
   const decided = (data?.allTime.won ?? 0) + (data?.allTime.lost ?? 0);
   const winRate = decided > 0 ? ((data?.allTime.won ?? 0) / decided) * 100 : 0;
   const costPerWon =
@@ -2012,10 +2040,10 @@ function BusinessDevCard({
           <div>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Briefcase className="h-5 w-5" />
-              Business Development efficiency
+              {t("projects:financials.businessDev.title")}
             </CardTitle>
             <CardDescription>
-              How much it costs to win work — Fee Proposal time vs. proposals submitted and won.
+              {t("projects:financials.businessDev.subtitle")}
             </CardDescription>
           </div>
           <div className="text-right">
@@ -2026,7 +2054,7 @@ function BusinessDevCard({
               {hours(monthHours)}
             </p>
             <p className="text-xs text-muted-foreground tabular-nums">
-              {euros(monthCost)} BD cost this month
+              {t("projects:financials.businessDev.monthCost", { cost: euros(monthCost) })}
             </p>
           </div>
         </div>
@@ -2036,29 +2064,38 @@ function BusinessDevCard({
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <BdMetric
             icon={<FileText className="h-4 w-4" />}
-            label="Proposals submitted"
+            label={t("projects:financials.businessDev.metrics.submitted")}
             value={(data?.allTime.total ?? 0).toLocaleString("pt-PT")}
-            sub={`${data?.inMonth.submitted ?? 0} this month`}
+            sub={t("projects:financials.businessDev.metrics.submittedSub", {
+              count: data?.inMonth.submitted ?? 0,
+            })}
           />
           <BdMetric
             icon={<Trophy className="h-4 w-4" />}
-            label="Projects won"
+            label={t("projects:financials.businessDev.metrics.won")}
             value={(data?.allTime.won ?? 0).toLocaleString("pt-PT")}
-            sub={`${data?.inMonth.won ?? 0} this month`}
+            sub={t("projects:financials.businessDev.metrics.wonSub", {
+              count: data?.inMonth.won ?? 0,
+            })}
             tone="success"
           />
           <BdMetric
             icon={<Target className="h-4 w-4" />}
-            label="Win rate"
+            label={t("projects:financials.businessDev.metrics.winRate")}
             value={pct(winRate)}
-            sub={`${decided} decided · ${data?.allTime.open ?? 0} open`}
+            sub={t("projects:financials.businessDev.metrics.winRateSub", {
+              decided,
+              open: data?.allTime.open ?? 0,
+            })}
             tone={winRate >= 50 ? "success" : winRate >= 25 ? "warning" : "danger"}
           />
           <BdMetric
             icon={<Wallet className="h-4 w-4" />}
-            label="Cost per won project"
+            label={t("projects:financials.businessDev.metrics.costPerWon")}
             value={euros(costPerWon)}
-            sub={`${euros(data?.allTime.bdCost ?? 0)} total BD cost`}
+            sub={t("projects:financials.businessDev.metrics.costPerWonSub", {
+              cost: euros(data?.allTime.bdCost ?? 0),
+            })}
             tone="muted"
           />
         </div>
@@ -2068,39 +2105,29 @@ function BusinessDevCard({
           <div className="flex items-start gap-2">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
             <div className="space-y-1">
-              <p>
-                <span className="font-medium text-foreground">
-                  {hours(data?.allTime.bdHours ?? 0)}
-                </span>{" "}
-                logged to <span className="font-medium">Fee proposals</span> across the company,
-                costing{" "}
-                <span className="font-medium text-foreground">
-                  {euros(data?.allTime.bdCost ?? 0)}
-                </span>
-                . Each won project costs{" "}
-                <span className="font-medium text-foreground">{euros(costPerWon)}</span>{" "}
-                in BD effort.
-              </p>
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: t("projects:financials.businessDev.insight", {
+                    hours: hours(data?.allTime.bdHours ?? 0),
+                    cost: euros(data?.allTime.bdCost ?? 0),
+                    costPerWon: euros(costPerWon),
+                    interpolation: { escapeValue: false },
+                  }),
+                }}
+              />
               {(data?.allTime.valueWon ?? 0) > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  Total value won:{" "}
-                  <span className="font-medium text-foreground">
-                    {euros(data?.allTime.valueWon ?? 0)}
-                  </span>{" "}
-                  · ROI:{" "}
-                  <span
-                    className={cn(
-                      "font-medium",
-                      roi >= 5
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : roi >= 2
-                          ? "text-foreground"
-                          : "text-amber-600 dark:text-amber-400",
-                    )}
-                  >
-                    {roi.toFixed(1)}× return on BD spend
-                  </span>
-                </p>
+                <p
+                  className={cn(
+                    "text-xs text-muted-foreground",
+                  )}
+                  dangerouslySetInnerHTML={{
+                    __html: t("projects:financials.businessDev.valueWon", {
+                      value: euros(data?.allTime.valueWon ?? 0),
+                      roi: roi.toFixed(1),
+                      interpolation: { escapeValue: false },
+                    }),
+                  }}
+                />
               )}
             </div>
           </div>
@@ -2110,16 +2137,16 @@ function BusinessDevCard({
         {data?.recentWon && data.recentWon.length > 0 && (
           <div>
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Recent wins
+              {t("projects:financials.businessDev.recentWins")}
             </p>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
-                    <th className="px-3 py-2">Proposal</th>
-                    <th className="px-3 py-2 text-right">Value</th>
-                    <th className="px-3 py-2">Decided</th>
-                    <th className="px-3 py-2">Linked project</th>
+                    <th className="px-3 py-2">{t("projects:financials.businessDev.recentTable.proposal")}</th>
+                    <th className="px-3 py-2 text-right">{t("projects:financials.businessDev.recentTable.value")}</th>
+                    <th className="px-3 py-2">{t("projects:financials.businessDev.recentTable.decided")}</th>
+                    <th className="px-3 py-2">{t("projects:financials.businessDev.recentTable.linkedProject")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -2129,17 +2156,17 @@ function BusinessDevCard({
                       <td className="px-3 py-2 text-right tabular-nums">{euros(w.valor)}</td>
                       <td className="px-3 py-2 text-muted-foreground">
                         {w.data_decisao
-                          ? format(parseISO(w.data_decisao), "d MMM yyyy")
+                          ? format(parseISO(w.data_decisao), "d MMM yyyy", { locale: dateLocale })
                           : "—"}
                       </td>
                       <td className="px-3 py-2">
                         {w.pm_project_id ? (
                           <Badge variant="secondary" className="text-[10px]">
-                            <CheckCircle2 className="mr-1 h-3 w-3" /> Linked
+                            <CheckCircle2 className="mr-1 h-3 w-3" /> {t("projects:financials.businessDev.recentTable.linked")}
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="text-[10px] text-muted-foreground">
-                            Not linked
+                            {t("projects:financials.businessDev.recentTable.notLinked")}
                           </Badge>
                         )}
                       </td>
@@ -2153,7 +2180,7 @@ function BusinessDevCard({
 
         {(data?.allTime.total ?? 0) === 0 && (
           <p className="text-sm text-muted-foreground">
-            No proposals submitted yet. Add proposals in the CRM Pipeline to track BD efficiency.
+            {t("projects:financials.businessDev.noProposals")}
           </p>
         )}
       </CardContent>

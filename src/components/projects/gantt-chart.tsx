@@ -25,6 +25,7 @@ import { useResourceSchedules, buildDailyLimitMap, dailyHoursFor } from "@/lib/p
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { fmt } from "@/lib/projects/gantt-utils";
+import { useDateLocale } from "@/i18n/use-date-locale";
 
 export type StageWithProject = StageWithAllocations & { projectId: string };
 
@@ -60,6 +61,7 @@ interface LinkDragState {
 
 export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: Props) {
   const { t } = useTranslation("projects");
+  const dateLocale = useDateLocale();
   const canvasRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [draftDates, setDraftDates] = useState<Map<string, { start: string; end: string }>>(new Map());
@@ -141,7 +143,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
     days.forEach((d, i) => {
       if (i === 0) return;
       if (!isSameMonth(d, cur)) {
-        out.push({ label: format(cur, "MMMM yyyy"), days: count + 1, startIdx });
+        out.push({ label: format(cur, "MMMM yyyy", { locale: dateLocale }), days: count + 1, startIdx });
         cur = d;
         startIdx = i;
         count = 0;
@@ -149,9 +151,9 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
         count++;
       }
     });
-    out.push({ label: format(cur, "MMMM yyyy"), days: count + 1, startIdx });
+    out.push({ label: format(cur, "MMMM yyyy", { locale: dateLocale }), days: count + 1, startIdx });
     return out;
-  }, [origin, totalDays]);
+  }, [origin, totalDays, dateLocale]);
 
   const today = new Date();
   const todayX = differenceInCalendarDays(today, origin) * dayWidth;
@@ -370,7 +372,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
             const isWeek = isWeekend(d);
             const isMonStart = startOfWeek(d, { weekStartsOn: 1 }).getDate() === d.getDate();
             const isToday = differenceInCalendarDays(d, today) === 0;
-            const weekday = format(d, "EEEEE");
+            const weekday = format(d, "EEEEE", { locale: dateLocale });
             return (
               <div
                 key={i}
