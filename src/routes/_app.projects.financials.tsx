@@ -1617,7 +1617,7 @@ function useWeeklyUtilTrend(
   const localeCode = dateLocale.code ?? "en";
 
   return useQuery({
-    queryKey: ["fin-weekly-util", startISO, endISO, filterKey],
+    queryKey: ["fin-weekly-util", startISO, endISO, filterKey, localeCode],
     queryFn: async (): Promise<WeekPoint[]> => {
       const { data: entries, error } = await supabase
         .from("pm_time_entries")
