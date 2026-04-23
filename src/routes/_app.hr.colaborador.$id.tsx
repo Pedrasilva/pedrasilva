@@ -157,7 +157,7 @@ function CollaboratorPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Alterações guardadas");
+      toast.success(t("hr:collaborator.toasts.saved"));
       qc.invalidateQueries({ queryKey: ["collaborator", id] });
       qc.invalidateQueries({ queryKey: ["collaborators"] });
     },
@@ -204,7 +204,7 @@ function CollaboratorPage() {
         ...seed,
         id: undefined as unknown as string,
         collaborator_id: id,
-        label: newForm.label || "Ficha",
+        label: newForm.label || t("hr:collaborator.defaults.snapshotFallback"),
         reference_date: newForm.reference_date,
         is_effective: newForm.is_effective,
       };
@@ -218,7 +218,7 @@ function CollaboratorPage() {
       return data as Snapshot;
     },
     onSuccess: (s) => {
-      toast.success("Ficha criada");
+      toast.success(t("hr:collaborator.toasts.snapshotCreated"));
       qc.invalidateQueries({ queryKey: ["snapshots", id] });
       setActiveTab(s.id);
       setNewOpen(false);
@@ -232,12 +232,12 @@ function CollaboratorPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Colaborador removido");
+      toast.success(t("hr:collaborator.toasts.collaboratorRemoved"));
       navigate({ to: "/" });
     },
   });
 
-  if (!collab || !draft) return <div className="text-sm text-muted-foreground">A carregar…</div>;
+  if (!collab || !draft) return <div className="text-sm text-muted-foreground">{t("hr:collaborator.loading")}</div>;
 
   const tabValue = activeTab || (snapshots[0]?.id ?? "resumo");
 
