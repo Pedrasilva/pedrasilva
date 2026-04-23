@@ -683,6 +683,8 @@ function ProjectDetail() {
 
             {tab === "insights" && (
               <InsightsPanel
+                projectId={projectId}
+                canEdit={canSeeFinancials}
                 stages={stages}
                 invoices={invoices ?? []}
                 invoicedTotal={invoicedTotal}
@@ -1343,6 +1345,8 @@ type Stage = ReturnType<typeof useProjectDetail>["data"] extends infer T
   : never;
 
 function InsightsPanel({
+  projectId,
+  canEdit,
   stages,
   invoices,
   invoicedTotal,
@@ -1359,6 +1363,8 @@ function InsightsPanel({
   defaultRates,
   activities,
 }: {
+  projectId: string;
+  canEdit: boolean;
   stages: Stage[];
   invoices: import("@/lib/projects/use-invoices").Invoice[];
   invoicedTotal: number;
