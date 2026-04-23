@@ -588,19 +588,23 @@ function ProjectDetail() {
             </div>
 
             {tab === "overview" && (
-              <div className="mt-4 rounded-lg border border-border bg-card">
-                <MilestonesTable
-                  stages={stages}
-                  invoiced={invoicedTotal}
-                  totalBudget={totalBudget}
-                  stageCost={stageCost}
-                  stageActualRevenue={stageActualRevenue}
-                  stageActualCost={stageActualCost}
-                  stageLoggedHours={stageLoggedHours}
-                  stagePlannedHours={stagePlannedHours}
-                  defaultRates={defaultRates}
-                  canSeeFinancials={canSeeFinancials}
-                />
+              <div className="mt-4 space-y-4">
+                <div className="rounded-lg border border-border bg-card">
+                  <MilestonesTable
+                    stages={stages}
+                    invoiced={invoicedTotal}
+                    totalBudget={totalBudget}
+                    stageCost={stageCost}
+                    stageActualRevenue={stageActualRevenue}
+                    stageActualCost={stageActualCost}
+                    stageLoggedHours={stageLoggedHours}
+                    stagePlannedHours={stagePlannedHours}
+                    defaultRates={defaultRates}
+                    canSeeFinancials={canSeeFinancials}
+                  />
+                </div>
+                <ExternalServicesSection projectId={projectId} canEdit={canSeeFinancials} />
+                <ProjectExpensesSection projectId={projectId} canEdit={canSeeFinancials} />
               </div>
             )}
 
