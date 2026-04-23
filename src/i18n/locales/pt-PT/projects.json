@@ -17,6 +17,108 @@
     "forecast": "Previsão",
     "insights": "Análises"
   },
+  "status": {
+    "proposta": "Proposta",
+    "em_curso": "Em curso",
+    "pausado": "Pausado",
+    "concluido": "Concluído",
+    "cancelado": "Cancelado"
+  },
+  "quickCreate": {
+    "time": "Tempo",
+    "registerTime": "Registar tempo",
+    "startTimer": "Iniciar timer",
+    "create": "Criar",
+    "createNew": "Criar novo",
+    "registerTimeAria": "Registar tempo",
+    "createNewAria": "Criar novo",
+    "task": "Tarefa",
+    "expense": "Despesa",
+    "request": "Pedido (férias/ausência)",
+    "newTask": "Nova tarefa",
+    "newTaskDesc": "Liga a uma alocação existente (projecto · fase · recurso).",
+    "newContact": "Novo contacto",
+    "newContactDesc": "Pessoa associada (ou não) a uma empresa.",
+    "newProject": "Novo projecto",
+    "newProjectDesc": "Cria uma proposta ou projecto em curso.",
+    "newExpense": "Nova despesa",
+    "newExpenseDesc": "Submete uma despesa para aprovação.",
+    "newRequest": "Novo pedido",
+    "newRequestDesc": "Férias ou outras ausências.",
+    "logTimeTitle": "Registar tempo",
+    "logTimeDesc": "Registo manual numa alocação existente.",
+    "startTimerTitle": "Iniciar timer",
+    "startTimerDesc": "Começar a registar tempo em directo.",
+    "fields": {
+      "name": "Nome *",
+      "code": "Código",
+      "owner": "Responsável",
+      "startDate": "Data início",
+      "endDate": "Data fim",
+      "status": "Estado",
+      "budget": "Orçamento (€)",
+      "notes": "Notas",
+      "title": "Título",
+      "firstName": "Primeiro nome *",
+      "lastName": "Apelido",
+      "email": "Email",
+      "phone": "Telefone",
+      "mobile": "Telemóvel",
+      "position": "Posição",
+      "category": "Categoria",
+      "date": "Data *",
+      "amount": "Valor (€) *",
+      "description": "Descrição *",
+      "type": "Tipo",
+      "start": "Início *",
+      "end": "Fim *",
+      "allocation": "Alocação *",
+      "hours": "Horas *",
+      "noCompany": "Sem empresa associada",
+      "positionPlaceholder": "Director, gestor de projectos…",
+      "noneOption": "—",
+      "allocationPlaceholderEmpty": "Sem alocações disponíveis",
+      "allocationPlaceholderPick": "Escolher…"
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "createTask": "Criar tarefa",
+      "createContact": "Criar contacto",
+      "createProject": "Criar projecto",
+      "submit": "Submeter"
+    },
+    "expense": {
+      "carro": "Carro",
+      "ticket": "Ticket",
+      "premio": "Prémio",
+      "outros": "Outros"
+    },
+    "leaveType": {
+      "ferias": "Férias",
+      "casamento": "Casamento",
+      "falecimento_familiar": "Falecimento familiar",
+      "assistencia_filho": "Assistência a filho",
+      "nascimento_filho": "Nascimento de filho",
+      "trabalhador_estudante": "Trabalhador-estudante",
+      "doacao_sangue": "Doação de sangue",
+      "autorizada_paga": "Autorizada (paga)",
+      "autorizada_nao_paga": "Autorizada (não paga)"
+    },
+    "toasts": {
+      "taskCreated": "Tarefa criada",
+      "contactCreated": "Contacto criado",
+      "projectCreated": "Projecto criado",
+      "expenseSubmitted": "Despesa submetida",
+      "requestSubmitted": "Pedido submetido",
+      "timeLogged": "Tempo registado"
+    },
+    "errors": {
+      "endBeforeStart": "Data fim antes da data início.",
+      "sessionExpired": "Sessão expirada.",
+      "userNotLinked": "O teu utilizador não está ligado a nenhum colaborador.",
+      "noTaskForAllocation": "Esta alocação não tem tarefa associada."
+    }
+  },
   "common": {
     "previousPage": "Página anterior",
     "nextPage": "Página seguinte",
@@ -156,6 +258,33 @@
       "active": "Nenhum projecto activo",
       "paused": "Nada em pausa",
       "archived": "Nenhum projecto arquivado"
+    },
+    "tooltip": {
+      "stage": "Fase",
+      "period": "Período",
+      "duration": "Duração",
+      "workingDays": "{{count}} dias úteis",
+      "effort": "Esforço",
+      "effortValue": "{{perDay}}h/dia · {{total}}h total",
+      "costPerHour": "Custo/h",
+      "totalCost": "Custo total",
+      "overload": "Sobrecarga: pico de <strong>{{peak}}h/dia</strong> (limite {{limit}}h) em {{days}} dia(s).",
+      "leaveImpact": "Capacidade reduzida: <strong>{{leave}}h</strong> de férias aprovadas dentro do período → capacidade efectiva ≈ <strong>{{effective}}h</strong> (de {{planned}}h planeadas).",
+      "baselineHover": "Baseline: {{start}} → {{end}}",
+      "leaveOverlap": "{{hours}}h sobrepostas com férias aprovadas"
+    },
+    "stage": {
+      "overByAmount": "excedido em {{amount}}",
+      "deleteConfirm": "Apagar fase \"{{name}}\"?",
+      "deleteAction": "Apagar fase",
+      "moveAllocation": "Mover alocação",
+      "linkFromStart": "Arraste para outra fase para criar dependência (a partir do início)",
+      "linkFromEnd": "Arraste para outra fase para criar dependência (a partir do fim)"
+    },
+    "toasts": {
+      "linkCreated": "Dependência criada",
+      "allocationMoved": "Alocação movida",
+      "resourceAllocated": "Recurso alocado"
     }
   },
   "kpi": {
@@ -483,7 +612,15 @@
       "rangeError": "Mín tem de ser inferior a Máx, entre 0 e 100",
       "saved": "Alvos de utilização actualizados"
     },
-    "unmappedUser": "Utilizador não mapeado"
+    "unmappedUser": "Utilizador não mapeado",
+    "filters": {
+      "teamPlaceholder": "Equipa",
+      "personPlaceholder": "Pessoa",
+      "allTeams": "Todas as equipas",
+      "allPeople": "Todas as pessoas",
+      "backOffice": "Back office",
+      "projects": "Projetos"
+    }
   },
   "forecast": {
     "eyebrow": "Atelier",
