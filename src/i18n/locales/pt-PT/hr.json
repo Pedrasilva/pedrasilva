@@ -261,7 +261,7 @@
     "columnA": "Coluna A",
     "columnB": "Coluna B",
     "pickerPlaceholder": "Escolha uma ficha",
-    "inForceShort": "EFE",
+    "inForceShort": "Em vigor",
     "headers": {
       "metric": "Métrica",
       "delta": "Δ",
@@ -348,8 +348,8 @@
       "onlyEffective": "Apenas ficha actual disponível",
       "onlyProposed": "Apenas ficha proposta disponível",
       "noSnapshots": "Sem fichas",
-      "totalLabel_one": "Total ({{count}} colab.)",
-      "totalLabel_other": "Total ({{count}} colab.)"
+      "totalLabel_one": "Total (1 colaborador)",
+      "totalLabel_other": "Total ({{count}} colaboradores)"
     }
   },
   "collaborator": {
