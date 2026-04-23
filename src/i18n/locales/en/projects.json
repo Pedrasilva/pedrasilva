@@ -33,7 +33,12 @@
     "registerTimeAria": "Log time",
     "createNewAria": "Create new",
     "task": "Task",
-    "expense": "Expense",
+    "expense": {
+      "carro": "Car",
+      "ticket": "Ticket",
+      "premio": "Bonus",
+      "outros": "Other"
+    },
     "request": "Request (leave/absence)",
     "newTask": "New task",
     "newTaskDesc": "Linked to an existing allocation (project · stage · resource).",
@@ -88,12 +93,6 @@
       "submit": "Submit",
       "logTime": "Log time",
       "startTimer": "Start"
-    },
-    "expense": {
-      "carro": "Car",
-      "ticket": "Ticket",
-      "premio": "Bonus",
-      "outros": "Other"
     },
     "leaveType": {
       "ferias": "Vacation",
@@ -710,91 +709,6 @@
       "subtitle": "People allocated to projects on days they are on leave. Adjust the Gantt or reject the request.",
       "daysSuffix": "{{count}}d"
     },
-    "externalServices": {
-      "title": "External services",
-      "subtitle": "Outsourced scope (consultants, specialists, subcontractors) tied to the client contract.",
-      "addButton": "Add external service",
-      "manageSuppliers": "Manage suppliers",
-      "empty": "No external services yet.",
-      "totals": "Totals",
-      "cols": {
-        "description": "Description",
-        "supplier": "Supplier",
-        "status": "Status",
-        "cost": "Cost",
-        "revenue": "Revenue",
-        "margin": "Margin",
-        "invoiceRef": "Invoice ref"
-      },
-      "status": {
-        "draft": "Draft",
-        "approved": "Approved",
-        "ordered": "Ordered",
-        "invoiced": "Invoiced",
-        "partially_paid": "Partially paid",
-        "paid": "Paid",
-        "cancelled": "Cancelled"
-      },
-      "markup": {
-        "percent": "Percentage",
-        "fixed": "Fixed amount"
-      },
-      "fields": {
-        "description": "Description",
-        "descriptionPlaceholder": "e.g. Structural consultant",
-        "supplier": "Supplier",
-        "supplierLegacyHint": "Legacy supplier name on this record: {{name}}. Pick a supplier from the directory to upgrade it.",
-        "supplierName": "Supplier",
-        "supplierContact": "Supplier contact",
-        "quantity": "Quantity",
-        "unitCost": "Unit cost",
-        "markupType": "Markup type",
-        "markupValue": "Markup value",
-        "salePrice": "Sale price (per unit)",
-        "salePriceManual": "Set sale price manually",
-        "salePriceManualHint": "Override the auto-computed sale price.",
-        "status": "Status",
-        "invoiceReference": "Invoice reference",
-        "invoiceDate": "Invoice date",
-        "dueDate": "Due date",
-        "paidAt": "Paid on",
-        "notes": "Notes"
-      },
-      "preview": {
-        "cost": "Cost",
-        "revenue": "Revenue",
-        "margin": "Margin"
-      },
-      "dialog": {
-        "createTitle": "Add external service",
-        "editTitle": "Edit external service",
-        "create": "Create",
-        "save": "Save",
-        "cancel": "Cancel",
-        "errors": {
-          "descriptionRequired": "Description is required.",
-          "descriptionTooLong": "Description is too long.",
-          "mustBeNumber": "Must be a number.",
-          "mustBeNonNegative": "Must be zero or greater.",
-          "quantityMustBePositive": "Quantity must be greater than zero.",
-          "invalidDate": "Invalid date.",
-          "formInvalid": "Please fix the highlighted fields."
-        },
-        "toast": {
-          "created": "External service added.",
-          "updated": "External service updated."
-        }
-      },
-      "confirmDelete": {
-        "title": "Delete external service?",
-        "description": "This will permanently remove \"{{name}}\".",
-        "cancel": "Cancel",
-        "confirm": "Delete"
-      },
-      "toast": {
-        "deleted": "External service deleted."
-      }
-    },
     "expenses": {
       "title": "Expenses",
       "subtitle": "Reimbursable project costs (travel, accommodation, meals). No markup.",
@@ -868,74 +782,158 @@
       "toast": {
         "deleted": "Expense deleted."
       }
+    }
+  },
+  "externalServices": {
+    "title": "External services",
+    "subtitle": "Outsourced scope (consultants, specialists, subcontractors) tied to the client contract.",
+    "addButton": "Add external service",
+    "manageSuppliers": "Manage suppliers",
+    "empty": "No external services yet.",
+    "totals": "Totals",
+    "cols": {
+      "description": "Description",
+      "supplier": "Supplier",
+      "status": "Status",
+      "cost": "Cost",
+      "revenue": "Revenue",
+      "margin": "Margin",
+      "invoiceRef": "Invoice ref"
     },
-    "suppliers": {
-      "archived": "Archived",
-      "legacy": "legacy",
-      "picker": {
-        "placeholder": "Select a supplier…",
-        "searchPlaceholder": "Search suppliers…",
-        "empty": "No suppliers match.",
-        "heading": "Suppliers",
-        "clear": "Clear supplier",
-        "createInline": "Create \"{{name}}\""
-      },
-      "manager": {
-        "title": "Suppliers",
-        "subtitle": "Reusable directory of consultants, specialists and other vendors.",
-        "addButton": "New supplier",
-        "empty": "No suppliers yet."
-      },
-      "cols": {
-        "name": "Name",
-        "contact": "Contact",
-        "email": "Email",
-        "phone": "Phone",
-        "status": "Status"
-      },
-      "status": {
-        "active": "Active",
-        "archived": "Archived"
-      },
-      "actions": {
-        "edit": "Edit supplier",
-        "archive": "Archive supplier",
-        "restore": "Restore supplier"
-      },
-      "fields": {
-        "name": "Name",
-        "namePlaceholder": "e.g. Acme Engineering",
-        "contactName": "Contact name",
-        "email": "Email",
-        "phone": "Phone",
-        "taxId": "Tax ID",
-        "notes": "Notes",
-        "active": "Active",
-        "activeHint": "Inactive suppliers are hidden from the picker but stay visible on existing records."
-      },
-      "dialog": {
-        "createTitle": "New supplier",
-        "editTitle": "Edit supplier",
-        "create": "Create",
-        "save": "Save",
-        "cancel": "Cancel",
-        "errors": {
-          "nameRequired": "Name is required.",
-          "nameTooLong": "Name is too long.",
-          "invalidEmail": "Invalid email address.",
-          "formInvalid": "Please fix the highlighted fields."
-        },
-        "toast": {
-          "created": "Supplier created.",
-          "updated": "Supplier updated."
-        }
+    "status": {
+      "draft": "Draft",
+      "approved": "Approved",
+      "ordered": "Ordered",
+      "invoiced": "Invoiced",
+      "partially_paid": "Partially paid",
+      "paid": "Paid",
+      "cancelled": "Cancelled"
+    },
+    "markup": {
+      "percent": "Percentage",
+      "fixed": "Fixed amount"
+    },
+    "fields": {
+      "description": "Description",
+      "descriptionPlaceholder": "e.g. Structural consultant",
+      "supplier": "Supplier",
+      "supplierLegacyHint": "Legacy supplier name on this record: {{name}}. Pick a supplier from the directory to upgrade it.",
+      "supplierName": "Supplier",
+      "supplierContact": "Supplier contact",
+      "quantity": "Quantity",
+      "unitCost": "Unit cost",
+      "markupType": "Markup type",
+      "markupValue": "Markup value",
+      "salePrice": "Sale price (per unit)",
+      "salePriceManual": "Set sale price manually",
+      "salePriceManualHint": "Override the auto-computed sale price.",
+      "status": "Status",
+      "invoiceReference": "Invoice reference",
+      "invoiceDate": "Invoice date",
+      "dueDate": "Due date",
+      "paidAt": "Paid on",
+      "notes": "Notes"
+    },
+    "preview": {
+      "cost": "Cost",
+      "revenue": "Revenue",
+      "margin": "Margin"
+    },
+    "dialog": {
+      "createTitle": "Add external service",
+      "editTitle": "Edit external service",
+      "create": "Create",
+      "save": "Save",
+      "cancel": "Cancel",
+      "errors": {
+        "descriptionRequired": "Description is required.",
+        "descriptionTooLong": "Description is too long.",
+        "mustBeNumber": "Must be a number.",
+        "mustBeNonNegative": "Must be zero or greater.",
+        "quantityMustBePositive": "Quantity must be greater than zero.",
+        "invalidDate": "Invalid date.",
+        "formInvalid": "Please fix the highlighted fields."
       },
       "toast": {
-        "archived": "Supplier archived.",
-        "restored": "Supplier restored.",
-        "deleted": "Supplier deleted."
+        "created": "External service added.",
+        "updated": "External service updated."
       }
+    },
+    "confirmDelete": {
+      "title": "Delete external service?",
+      "description": "This will permanently remove \"{{name}}\".",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "toast": {
+      "deleted": "External service deleted."
+    }
+  },
+  "suppliers": {
+    "archived": "Archived",
+    "legacy": "legacy",
+    "picker": {
+      "placeholder": "Select a supplier…",
+      "searchPlaceholder": "Search suppliers…",
+      "empty": "No suppliers match.",
+      "heading": "Suppliers",
+      "clear": "Clear supplier",
+      "createInline": "Create \"{{name}}\""
+    },
+    "manager": {
+      "title": "Suppliers",
+      "subtitle": "Reusable directory of consultants, specialists and other vendors.",
+      "addButton": "New supplier",
+      "empty": "No suppliers yet."
+    },
+    "cols": {
+      "name": "Name",
+      "contact": "Contact",
+      "email": "Email",
+      "phone": "Phone",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Active",
+      "archived": "Archived"
+    },
+    "actions": {
+      "edit": "Edit supplier",
+      "archive": "Archive supplier",
+      "restore": "Restore supplier"
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Acme Engineering",
+      "contactName": "Contact name",
+      "email": "Email",
+      "phone": "Phone",
+      "taxId": "Tax ID",
+      "notes": "Notes",
+      "active": "Active",
+      "activeHint": "Inactive suppliers are hidden from the picker but stay visible on existing records."
+    },
+    "dialog": {
+      "createTitle": "New supplier",
+      "editTitle": "Edit supplier",
+      "create": "Create",
+      "save": "Save",
+      "cancel": "Cancel",
+      "errors": {
+        "nameRequired": "Name is required.",
+        "nameTooLong": "Name is too long.",
+        "invalidEmail": "Invalid email address.",
+        "formInvalid": "Please fix the highlighted fields."
+      },
+      "toast": {
+        "created": "Supplier created.",
+        "updated": "Supplier updated."
+      }
+    },
+    "toast": {
+      "archived": "Supplier archived.",
+      "restored": "Supplier restored.",
+      "deleted": "Supplier deleted."
     }
   }
 }
-
