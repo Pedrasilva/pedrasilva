@@ -50,6 +50,7 @@ import {
   Calendar,
   Clock,
   Receipt,
+  Package,
   Users as UsersIcon,
   Activity as ActivityIcon,
   ListChecks,
@@ -73,7 +74,7 @@ export const Route = createFileRoute("/_app/projects/$projectId")({
   component: ProjectDetail,
 });
 
-type TabKey = "overview" | "schedule" | "insights" | "stream";
+type TabKey = "overview" | "schedule" | "materials" | "expenses" | "insights" | "stream";
 
 function ProjectDetail() {
   const { t } = useTranslation();
@@ -583,6 +584,8 @@ function ProjectDetail() {
             <div className="flex items-center gap-1 border-b border-border">
               <TabBtn icon={ListChecks} label="Overview" active={tab === "overview"} onClick={() => setTab("overview")} />
               <TabBtn icon={Calendar} label="Schedule" active={tab === "schedule"} onClick={() => setTab("schedule")} />
+              <TabBtn icon={Package} label="Materials" active={tab === "materials"} onClick={() => setTab("materials")} />
+              <TabBtn icon={Receipt} label="Expenses" active={tab === "expenses"} onClick={() => setTab("expenses")} />
               <TabBtn icon={TrendingUp} label="Insights" active={tab === "insights"} onClick={() => setTab("insights")} />
               <TabBtn icon={ActivityIcon} label="Stream" active={tab === "stream"} onClick={() => setTab("stream")} />
             </div>
@@ -603,7 +606,17 @@ function ProjectDetail() {
                     canSeeFinancials={canSeeFinancials}
                   />
                 </div>
+              </div>
+            )}
+
+            {tab === "materials" && (
+              <div className="mt-4">
                 <ExternalServicesSection projectId={projectId} canEdit={canSeeFinancials} />
+              </div>
+            )}
+
+            {tab === "expenses" && (
+              <div className="mt-4">
                 <ProjectExpensesSection projectId={projectId} canEdit={canSeeFinancials} />
               </div>
             )}
