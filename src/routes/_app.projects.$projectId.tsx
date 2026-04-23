@@ -67,6 +67,8 @@ import {
   MoreVertical,
   Pencil,
   UserPlus,
+  DollarSign,
+  FileText,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
