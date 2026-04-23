@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import {
   type Collaborator,
@@ -48,6 +49,8 @@ type Row = {
 };
 
 function ResumoPage() {
+  const { t, i18n } = useTranslation(["hr", "common", "glossary"]);
+
   const { data: collaborators = [] } = useQuery({
     queryKey: ["collaborators"],
     queryFn: async () => {
@@ -133,7 +136,12 @@ function ResumoPage() {
   const custoHoraCaso1 = horasCaso1 > 0 ? totalAtelier / horasCaso1 : 0;
   const custoHoraCaso2 = horasCaso2 > 0 ? totalAtelier / horasCaso2 : 0;
   const fmtH = (n: number) =>
-    new Intl.NumberFormat("pt-PT", { maximumFractionDigits: 0 }).format(n);
+    new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 0 }).format(n);
+  const fmtPct = (n: number) =>
+    new Intl.NumberFormat(i18n.language, {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    }).format(n) + "%";
 
   const handlePrint = () => {
     const styleId = "print-landscape-style";
@@ -156,10 +164,8 @@ function ResumoPage() {
     <div className="space-y-6 print-area">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Resumo geral</h1>
-          <p className="text-sm text-muted-foreground">
-            Formato espelhado do mapa Excel — Equipa Backoffice + Equipa Projecto.
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("hr:resumo.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("hr:resumo.subtitle")}</p>
         </div>
         <Button
           variant="outline"
@@ -168,21 +174,28 @@ function ResumoPage() {
           className="no-print shrink-0"
         >
           <Printer className="mr-2 h-4 w-4" />
-          Exportar PDF
+          {t("hr:resumo.exportPdf")}
         </Button>
       </div>
 
       <Tabs defaultValue="geral" className="space-y-4">
         <TabsList className="no-print">
-          <TabsTrigger value="geral">Geral</TabsTrigger>
-          <TabsTrigger value="comparativo">Comparativo</TabsTrigger>
+          <TabsTrigger value="geral">{t("hr:resumo.tabs.general")}</TabsTrigger>
+          <TabsTrigger value="comparativo">{t("hr:resumo.tabs.comparative")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="geral" className="space-y-6">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <Kpi title="Total Equipa Projecto (VBG)" value={fmtEUR(totalProjecto)} />
-            <Kpi title="Total Equipa Backoffice (VBG)" value={fmtEUR(totalBackoffice)} />
-            <Kpi title="Custo total anual do atelier" value={fmtEUR(totalAtelier)} highlight />
+            <Kpi title={t("hr:resumo.kpis.totalProjectTeam")} value={fmtEUR(totalProjecto)} />
+            <Kpi
+              title={t("hr:resumo.kpis.totalBackofficeTeam")}
+              value={fmtEUR(totalBackoffice)}
+            />
+            <Kpi
+              title={t("hr:resumo.kpis.totalAtelierAnnualCost")}
+              value={fmtEUR(totalAtelier)}
+              highlight
+            />
           </div>
 
           <ValorBoCard
@@ -195,9 +208,9 @@ function ResumoPage() {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Composição do custo total do atelier</CardTitle>
+              <CardTitle className="text-base">{t("hr:resumo.composition.title")}</CardTitle>
               <CardDescription>
-                Custo total = Recursos Humanos (VBG) + Custo Operacional ={" "}
+                {t("hr:resumo.composition.description")}
                 <span className="font-medium tabular-nums text-foreground">
                   {fmtEUR(totalAtelier)}
                 </span>
@@ -206,44 +219,111 @@ function ResumoPage() {
             <CardContent className="pt-0">
               <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                 <CompositionView
-                  title="Recursos Humanos vs Operacional"
+                  title={t("hr:resumo.composition.hrVsOperational")}
                   bar={[
-                    { color: "bg-clay-complement", pct: pctRH, title: `Recursos Humanos: ${pctRH.toFixed(1)}%` },
-                    { color: "bg-clay", pct: pctOp, title: `Custo Operacional: ${pctOp.toFixed(1)}%` },
+                    {
+                      color: "bg-clay-complement",
+                      pct: pctRH,
+                      title: t("hr:resumo.composition.humanResourcesPct", {
+                        pct: fmtPct(pctRH),
+                      }),
+                    },
+                    {
+                      color: "bg-clay",
+                      pct: pctOp,
+                      title: t("hr:resumo.composition.operationalPct", {
+                        pct: fmtPct(pctOp),
+                      }),
+                    },
                   ]}
                   rows={[
-                    { color: "bg-clay-complement", label: "Recursos Humanos (VBG)", value: totalGeral, pct: pctRH },
-                    { color: "bg-clay", label: "Custo Operacional", value: custosOp, pct: pctOp },
+                    {
+                      color: "bg-clay-complement",
+                      label: t("hr:resumo.composition.humanResourcesTgv"),
+                      value: totalGeral,
+                      pct: pctRH,
+                    },
+                    {
+                      color: "bg-clay",
+                      label: t("hr:resumo.composition.operationalCost"),
+                      value: custosOp,
+                      pct: pctOp,
+                    },
                   ]}
-                  hoursLabel={`Toda a equipa (${numTotalEquipa} × ${diasUteis} × ${horasDia} h)`}
+                  hoursLabel={t("hr:resumo.composition.wholeTeamHours", {
+                    count: numTotalEquipa,
+                    days: diasUteis,
+                    hours: horasDia,
+                  })}
                   hours={horasCaso1}
                   costPerHour={custoHoraCaso1}
                   costColor="text-primary"
                   fmtH={fmtH}
+                  fmtPct={fmtPct}
+                  t={t}
                 />
                 <CompositionView
-                  title="Produção vs Estrutura"
-                  subtitle="Estrutura = Backoffice + Operacional"
+                  title={t("hr:resumo.composition.productionVsStructure")}
+                  subtitle={t("hr:resumo.composition.structureSubtitle")}
                   bar={[
-                    { color: "bg-sage", pct: pctProj, title: `Recursos Projecto: ${pctProj.toFixed(1)}%` },
-                    { color: "bg-clay", pct: pctEstr, title: `Estrutura: ${pctEstr.toFixed(1)}%` },
+                    {
+                      color: "bg-sage",
+                      pct: pctProj,
+                      title: t("hr:resumo.composition.projectResourcesPct", {
+                        pct: fmtPct(pctProj),
+                      }),
+                    },
+                    {
+                      color: "bg-clay",
+                      pct: pctEstr,
+                      title: t("hr:resumo.composition.structurePct", {
+                        pct: fmtPct(pctEstr),
+                      }),
+                    },
                   ]}
                   rows={[
-                    { color: "bg-sage", label: "Recursos Projecto", value: totalProjecto, pct: pctProj },
-                    { color: "bg-clay", label: `Backoffice (${fmtEUR(totalBackoffice)}) + Operacional (${fmtEUR(custosOp)})`, value: estrutura, pct: pctEstr },
+                    {
+                      color: "bg-sage",
+                      label: t("hr:resumo.composition.projectResources"),
+                      value: totalProjecto,
+                      pct: pctProj,
+                    },
+                    {
+                      color: "bg-clay",
+                      label: t("hr:resumo.composition.structureLabel", {
+                        backoffice: fmtEUR(totalBackoffice),
+                        operational: fmtEUR(custosOp),
+                      }),
+                      value: estrutura,
+                      pct: pctEstr,
+                    },
                   ]}
-                  hoursLabel={`Só Projecto (${projecto.length} × ${diasUteis} × ${horasDia} h)`}
+                  hoursLabel={t("hr:resumo.composition.projectOnlyHours", {
+                    count: projecto.length,
+                    days: diasUteis,
+                    hours: horasDia,
+                  })}
                   hours={horasCaso2}
                   costPerHour={custoHoraCaso2}
                   costColor="text-sage"
                   fmtH={fmtH}
+                  fmtPct={fmtPct}
+                  t={t}
                 />
               </div>
             </CardContent>
           </Card>
 
-          <RhTable title="Equipa Backoffice" rows={backoffice} totalLabel="Equipa Backoffice" />
-          <RhTable title="Equipa Projecto" rows={projecto} totalLabel="Equipa produção" />
+          <RhTable
+            title={t("hr:landing.departments.backoffice")}
+            rows={backoffice}
+            totalLabel={t("hr:resumo.rhTable.totals.backoffice")}
+          />
+          <RhTable
+            title={t("hr:landing.departments.project")}
+            rows={projecto}
+            totalLabel={t("hr:resumo.rhTable.totals.production")}
+          />
 
           <PricingTable
             rows={projecto}
@@ -301,58 +381,85 @@ function ValorBoCard({
   diasUteis: number;
   horasDia: number;
 }) {
+  const { t, i18n } = useTranslation(["hr"]);
   const precoDia = diasUteis > 0 ? totalAtelier / diasUteis : 0;
   const precoHora = diasUteis > 0 && horasDia > 0 ? totalAtelier / (diasUteis * horasDia) : 0;
   const precoMinuto = precoHora / 60;
   const precoSegundo = precoMinuto / 60;
 
   const cells: { label: string; value: number; unit: string }[] = [
-    { label: "Valor / dia", value: precoDia, unit: "dia" },
-    { label: "Valor / hora", value: precoHora, unit: "hora" },
-    { label: "Valor / minuto", value: precoMinuto, unit: "min" },
-    { label: "Valor / segundo", value: precoSegundo, unit: "seg" },
+    {
+      label: t("hr:resumo.valorBo.perDayLabel"),
+      value: precoDia,
+      unit: t("hr:resumo.valorBo.perDayUnit"),
+    },
+    {
+      label: t("hr:resumo.valorBo.perHourLabel"),
+      value: precoHora,
+      unit: t("hr:resumo.valorBo.perHourUnit"),
+    },
+    {
+      label: t("hr:resumo.valorBo.perMinuteLabel"),
+      value: precoMinuto,
+      unit: t("hr:resumo.valorBo.perMinuteUnit"),
+    },
+    {
+      label: t("hr:resumo.valorBo.perSecondLabel"),
+      value: precoSegundo,
+      unit: t("hr:resumo.valorBo.perSecondUnit"),
+    },
   ];
+
+  const fmtPct1 = (n: number) =>
+    new Intl.NumberFormat(i18n.language, {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    }).format(n) + "%";
 
   return (
     <Card className="border-primary">
       <CardHeader className="pb-2 flex-row items-start justify-between gap-4">
         <div className="min-w-0">
-          <CardTitle className="text-base">Custo do atelier por unidade de tempo</CardTitle>
+          <CardTitle className="text-base">{t("hr:resumo.valorBo.title")}</CardTitle>
           <CardDescription>
-            Custo total ({fmtEUR(totalAtelier)}) ÷ {diasUteis} dias úteis × {horasDia} h/dia
+            {t("hr:resumo.valorBo.description", {
+              total: fmtEUR(totalAtelier),
+              days: diasUteis,
+              hours: horasDia,
+            })}
           </CardDescription>
         </div>
         <Link
           to="/hr/valor-bo"
           className="shrink-0 text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
         >
-          Editar parâmetros →
+          {t("hr:resumo.valorBo.editParams")}
         </Link>
       </CardHeader>
       <CardContent className="pt-0">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {cells.map((c) => (
-            <div
-              key={c.unit}
-              className="rounded-lg border bg-muted/30 p-3"
-            >
+            <div key={c.unit} className="rounded-lg border bg-muted/30 p-3">
               <div className="text-xs text-muted-foreground">{c.label}</div>
               <div className="mt-1 text-2xl font-semibold tabular-nums text-primary">
                 {fmtEUR(c.value)}
               </div>
-              <div className="text-[11px] text-muted-foreground">por {c.unit}</div>
+              <div className="text-[11px] text-muted-foreground">
+                {t("hr:resumo.valorBo.perUnit", { unit: c.unit })}
+              </div>
             </div>
           ))}
         </div>
         <p className="mt-3 text-[11px] text-muted-foreground">
-          Cota BO/colab/ano: {fmtEUR(cotaBo)} · Margem global:{" "}
-          {(margemGlobal * 100).toFixed(1)}%
+          {t("hr:resumo.valorBo.footer", {
+            cota: fmtEUR(cotaBo),
+            margin: fmtPct1(margemGlobal * 100),
+          })}
         </p>
       </CardContent>
     </Card>
   );
 }
-
 
 function CompositionView({
   title,
@@ -364,6 +471,8 @@ function CompositionView({
   costPerHour,
   costColor,
   fmtH,
+  fmtPct,
+  t,
 }: {
   title: string;
   subtitle?: string;
@@ -374,6 +483,8 @@ function CompositionView({
   costPerHour: number;
   costColor: string;
   fmtH: (n: number) => string;
+  fmtPct: (n: number) => string;
+  t: (k: string, opts?: Record<string, unknown>) => string;
 }) {
   return (
     <div className="space-y-2">
@@ -389,7 +500,7 @@ function CompositionView({
             style={{ width: `${b.pct}%` }}
             title={b.title}
           >
-            {b.pct >= 8 && `${b.pct.toFixed(1)}%`}
+            {b.pct >= 8 && fmtPct(b.pct)}
           </div>
         ))}
       </div>
@@ -405,7 +516,7 @@ function CompositionView({
             </div>
             <div className="flex items-baseline gap-2 shrink-0 tabular-nums">
               <span className="text-xs text-muted-foreground">{fmtEUR(r.value)}</span>
-              <span className="text-sm font-semibold">{r.pct.toFixed(1)}%</span>
+              <span className="text-sm font-semibold">{fmtPct(r.pct)}</span>
             </div>
           </div>
         ))}
@@ -413,9 +524,13 @@ function CompositionView({
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 rounded-md border bg-muted/30 px-3 py-1.5 text-[11px]">
         <span className="text-muted-foreground">{hoursLabel}</span>
         <span className="tabular-nums">
-          <span className="font-medium text-foreground">{fmtH(hours)} h/ano</span>
+          <span className="font-medium text-foreground">
+            {t("hr:resumo.composition.hoursPerYear", { value: fmtH(hours) })}
+          </span>
           <span className="text-muted-foreground"> · </span>
-          <span className={`font-semibold ${costColor}`}>{fmtEUR(costPerHour)}/h</span>
+          <span className={`font-semibold ${costColor}`}>
+            {t("hr:resumo.composition.costPerHour", { value: fmtEUR(costPerHour) })}
+          </span>
         </span>
       </div>
     </div>
@@ -485,6 +600,7 @@ function RhTable({
   rows: Row[];
   totalLabel: string;
 }) {
+  const { t, i18n } = useTranslation(["hr"]);
   const [sortKey, setSortKey] = useState<RhSortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
@@ -500,7 +616,7 @@ function RhTable({
     ? [...rows].sort((a, b) => {
         const av = rhValue(a, sortKey);
         const bv = rhValue(b, sortKey);
-        return compareValues(av, bv, sortDir);
+        return compareValues(av, bv, sortDir, i18n.language);
       })
     : rows;
 
@@ -520,23 +636,56 @@ function RhTable({
       <CardHeader>
         <CardTitle className="text-base">{title}</CardTitle>
         <CardDescription>
-          {rows.length} colaborador(es) · valores baseados na ficha efectiva (ou proposta se não houver efectiva)
+          {t("hr:resumo.rhTable.subtitle", { count: rows.length })}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <SortHead label="Nome" k="nome" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <TableHead>Cód.</TableHead>
-              <SortHead align="right" label="Bruto anual" k="brutoAnual" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <TableHead className="text-right">Base contractual</TableHead>
-              <TableHead className="text-right">Bruto mensal</TableHead>
-              <TableHead className="text-right">Alimentação</TableHead>
-              <TableHead className="text-right">Ajudas de custo</TableHead>
-              <TableHead className="text-right">Líquido mensal</TableHead>
-              <TableHead className="text-right">Benefícios anual</TableHead>
-              <SortHead align="right" label="VBG" k="vbg" sortKey={sortKey} dir={sortDir} onClick={toggleSort} bold />
+              <SortHead
+                label={t("hr:resumo.rhTable.headers.name")}
+                k="nome"
+                sortKey={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+              />
+              <TableHead>{t("hr:resumo.rhTable.headers.code")}</TableHead>
+              <SortHead
+                align="right"
+                label={t("hr:resumo.rhTable.headers.grossAnnual")}
+                k="brutoAnual"
+                sortKey={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+              />
+              <TableHead className="text-right">
+                {t("hr:resumo.rhTable.headers.contractualBase")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.rhTable.headers.grossMonthly")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.rhTable.headers.mealAllowance")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.rhTable.headers.perDiem")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.rhTable.headers.netMonthly")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.rhTable.headers.benefitsAnnual")}
+              </TableHead>
+              <SortHead
+                align="right"
+                label={t("hr:resumo.rhTable.headers.tgv")}
+                k="vbg"
+                sortKey={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+                bold
+              />
               <TableHead className="w-8"></TableHead>
             </TableRow>
           </TableHeader>
@@ -544,7 +693,7 @@ function RhTable({
             {sortedRows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={11} className="text-center text-muted-foreground py-8">
-                  Sem colaboradores neste departamento.
+                  {t("hr:resumo.rhTable.emptyDepartment")}
                 </TableCell>
               </TableRow>
             )}
@@ -627,6 +776,7 @@ function PricingTable({
   horasDia: number;
   margemGlobal?: number;
 }) {
+  const { t, i18n } = useTranslation(["hr"]);
   const [customPct, setCustomPct] = useState<number>(75);
   const customMargem = customPct / 100;
   const [sortKey, setSortKey] = useState<PricingSortKey | null>(null);
@@ -668,30 +818,47 @@ function PricingTable({
         const rb = computeRow(b);
         const av = pricingValue(a, ra, sortKey);
         const bv = pricingValue(b, rb, sortKey);
-        return compareValues(av, bv, sortDir);
+        return compareValues(av, bv, sortDir, i18n.language);
       })
     : rows;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Pricing — Equipa Projecto</CardTitle>
+        <CardTitle className="text-base">{t("hr:resumo.pricing.title")}</CardTitle>
         <CardDescription>
-          VBG/h e Cota BO/h = valor anual ÷ ({diasUteis}×{horasDia}) h. Custo/h soma os dois,
-          venda = custo/h × (1 + margem).
+          {t("hr:resumo.pricing.description", { days: diasUteis, hours: horasDia })}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <SortHead label="Colaborador" k="nome" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <TableHead className="text-right">VBG/h</TableHead>
-              <TableHead className="text-right">+ Cota BO/h</TableHead>
-              <TableHead className="text-right">Custo/h</TableHead>
-              <TableHead className="text-right">@ 30%</TableHead>
-              <TableHead className="text-right">@ 50%</TableHead>
-              <TableHead className="text-right">@ 100%</TableHead>
+              <SortHead
+                label={t("hr:resumo.pricing.headers.collaborator")}
+                k="nome"
+                sortKey={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+              />
+              <TableHead className="text-right">
+                {t("hr:resumo.pricing.headers.tgvPerHour")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.pricing.headers.boSharePerHour")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.pricing.headers.costPerHour")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.pricing.headers.at30")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.pricing.headers.at50")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.pricing.headers.at100")}
+              </TableHead>
               <TableHead className="text-right text-primary">
                 <div className="flex items-center justify-end gap-1.5">
                   <span>@</span>
@@ -713,7 +880,7 @@ function PricingTable({
             {sortedRows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                  Sem colaboradores.
+                  {t("hr:resumo.pricing.empty")}
                 </TableCell>
               </TableRow>
             )}
@@ -813,6 +980,7 @@ function compareValues(
   a: number | string | null,
   b: number | string | null,
   dir: SortDir,
+  lang: string,
 ): number {
   // null/undefined sempre no fim
   if (a == null && b == null) return 0;
@@ -820,7 +988,7 @@ function compareValues(
   if (b == null) return -1;
   const mult = dir === "asc" ? 1 : -1;
   if (typeof a === "string" && typeof b === "string") {
-    return a.localeCompare(b, "pt", { sensitivity: "base" }) * mult;
+    return a.localeCompare(b, lang, { sensitivity: "base" }) * mult;
   }
   return ((a as number) - (b as number)) * mult;
 }
@@ -854,9 +1022,13 @@ function SortHead<K extends string>({
         } ${bold ? "font-semibold" : ""}`}
         aria-sort={active ? (dir === "asc" ? "ascending" : "descending") : "none"}
       >
-        {align === "right" && <Icon className={`h-3 w-3 ${active ? "opacity-70" : "opacity-50"}`} />}
+        {align === "right" && (
+          <Icon className={`h-3 w-3 ${active ? "opacity-70" : "opacity-50"}`} />
+        )}
         {label}
-        {align === "left" && <Icon className={`h-3 w-3 ${active ? "opacity-70" : "opacity-50"}`} />}
+        {align === "left" && (
+          <Icon className={`h-3 w-3 ${active ? "opacity-70" : "opacity-50"}`} />
+        )}
       </button>
     </TableHead>
   );

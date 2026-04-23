@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation, Trans } from "react-i18next";
+import { format, parseISO } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -41,18 +43,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { CalendarDays, Plus, Trash2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import {
-  computeWorkdays,
-  weekdayName,
-  type Holiday,
-} from "@/lib/workdays";
-import { fmtDate } from "@/lib/salary";
+import { computeWorkdays, type Holiday } from "@/lib/workdays";
+import { useDateLocale } from "@/i18n/use-date-locale";
 
 export const Route = createFileRoute("/_app/hr/dias-uteis")({
   component: DiasUteisPage,
 });
 
 function DiasUteisPage() {
+  const { t } = useTranslation(["hr", "common"]);
+  const dateLocale = useDateLocale();
   const { isAdmin } = useAuth();
   const qc = useQueryClient();
   const currentYear = new Date().getFullYear();
@@ -95,7 +95,7 @@ function DiasUteisPage() {
 
   const addHoliday = useMutation({
     mutationFn: async () => {
-      if (!newDate || !newName.trim()) throw new Error("Preenche data e nome");
+      if (!newDate || !newName.trim()) throw new Error(t("hr:diasUteis.toasts.fillFields"));
       const { error } = await supabase.from("holidays").insert({
         data: newDate,
         nome: newName.trim(),
@@ -104,7 +104,7 @@ function DiasUteisPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Feriado adicionado");
+      toast.success(t("hr:diasUteis.toasts.added"));
       setNewDate("");
       setNewName("");
       qc.invalidateQueries({ queryKey: ["holidays"] });
@@ -118,7 +118,7 @@ function DiasUteisPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Feriado removido");
+      toast.success(t("hr:diasUteis.toasts.removed"));
       qc.invalidateQueries({ queryKey: ["holidays"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -158,7 +158,7 @@ function DiasUteisPage() {
       return updated;
     },
     onSuccess: (n) => {
-      toast.success(`Aplicado a ${n} ficha(s) e às definições BO`);
+      toast.success(t("hr:diasUteis.toasts.appliedToSnapshots", { count: n }));
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
       qc.invalidateQueries({ queryKey: ["snapshots"] });
       qc.invalidateQueries({ queryKey: ["bo-settings"] });
@@ -171,16 +171,17 @@ function DiasUteisPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
           <h1 className="inline-flex items-center gap-2 text-2xl font-semibold tracking-tight">
-            <CalendarDays className="h-5 w-5" /> Dias úteis
+            <CalendarDays className="h-5 w-5" /> {t("hr:diasUteis.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Cálculo de dias úteis por ano com base em feriados nacionais que coincidem com dias de
-            trabalho. Os dias de férias do colaborador são descontados a seguir.
+            {t("hr:diasUteis.subtitle")}
           </p>
         </div>
         <div className="flex items-end gap-3">
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Ano</Label>
+            <Label className="text-xs text-muted-foreground">
+              {t("hr:diasUteis.yearLabel")}
+            </Label>
             <Select value={String(year)} onValueChange={(v) => setYear(parseInt(v, 10))}>
               <SelectTrigger className="w-32">
                 <SelectValue />
@@ -198,24 +199,28 @@ function DiasUteisPage() {
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button>
-                  <RefreshCw className="h-4 w-4" /> Aplicar a todas as fichas
+                  <RefreshCw className="h-4 w-4" /> {t("hr:diasUteis.applyAllButton")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Aplicar dias úteis a todas as fichas?</AlertDialogTitle>
+                  <AlertDialogTitle>
+                    {t("hr:diasUteis.applyDialog.title")}
+                  </AlertDialogTitle>
                   <AlertDialogDescription>
-                    Vai atualizar o campo <strong>dias úteis</strong> de todas as fichas com data
-                    de referência em {year}, descontando os dias de férias anuais de cada
-                    colaborador. As definições BO ficam com{" "}
-                    <strong>{breakdown.diasUteisLiquidos(22)} dias</strong> (já com 22 dias de
-                    férias descontados — usado em /resumo, /valor-bo e Pricing).
+                    <Trans
+                      i18nKey="hr:diasUteis.applyDialog.description"
+                      values={{ year, days: breakdown.diasUteisLiquidos(22) }}
+                      components={{ strong: <strong /> }}
+                    />
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogCancel>
+                    {t("hr:diasUteis.applyDialog.cancel")}
+                  </AlertDialogCancel>
                   <AlertDialogAction onClick={() => applyToAll.mutate()}>
-                    Aplicar agora
+                    {t("hr:diasUteis.applyDialog.confirm")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -226,12 +231,15 @@ function DiasUteisPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-        <Kpi label="Dias do ano" value={breakdown.diasAno} />
-        <Kpi label="Sábados + Domingos" value={`− ${breakdown.fimDeSemana}`} />
-        <Kpi label="Feriados em dia útil" value={`− ${breakdown.feriadosUteis}`} />
-        <Kpi label="Dias úteis (base)" value={breakdown.diasUteisBase} />
+        <Kpi label={t("hr:diasUteis.kpis.daysInYear")} value={breakdown.diasAno} />
+        <Kpi label={t("hr:diasUteis.kpis.weekendDays")} value={`− ${breakdown.fimDeSemana}`} />
         <Kpi
-          label="Após 22 dias férias"
+          label={t("hr:diasUteis.kpis.holidaysOnWorkingDays")}
+          value={`− ${breakdown.feriadosUteis}`}
+        />
+        <Kpi label={t("hr:diasUteis.kpis.workingDaysBase")} value={breakdown.diasUteisBase} />
+        <Kpi
+          label={t("hr:diasUteis.kpis.afterVacation")}
           value={breakdown.diasUteisLiquidos(22)}
           highlight
         />
@@ -240,44 +248,56 @@ function DiasUteisPage() {
       {/* Feriados */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Feriados nacionais {year}</CardTitle>
+          <CardTitle className="text-base">
+            {t("hr:diasUteis.holidays.title", { year })}
+          </CardTitle>
           <CardDescription>
-            {breakdown.feriadosTotais} feriado(s) — {breakdown.feriadosUteis} em dia útil,{" "}
-            {breakdown.feriadosFimDeSemana} ao fim-de-semana (sem impacto).
+            {t("hr:diasUteis.holidays.description", {
+              total: breakdown.feriadosTotais,
+              onWorkingDays: breakdown.feriadosUteis,
+              onWeekend: breakdown.feriadosFimDeSemana,
+            })}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Dia da semana</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead className="text-right">Conta como dia útil?</TableHead>
+                <TableHead>{t("hr:diasUteis.holidays.headers.date")}</TableHead>
+                <TableHead>{t("hr:diasUteis.holidays.headers.weekday")}</TableHead>
+                <TableHead>{t("hr:diasUteis.holidays.headers.name")}</TableHead>
+                <TableHead className="text-right">
+                  {t("hr:diasUteis.holidays.headers.countsAsWorkingDay")}
+                </TableHead>
                 {isAdmin && <TableHead />}
               </TableRow>
             </TableHeader>
             <TableBody>
               {breakdown.feriadosDetalhe.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={isAdmin ? 5 : 4} className="text-center text-muted-foreground">
-                    Sem feriados registados para {year}.
+                  <TableCell
+                    colSpan={isAdmin ? 5 : 4}
+                    className="text-center text-muted-foreground"
+                  >
+                    {t("hr:diasUteis.holidays.empty", { year })}
                   </TableCell>
                 </TableRow>
               )}
               {breakdown.feriadosDetalhe.map((h) => (
                 <TableRow key={h.id}>
-                  <TableCell className="tabular-nums">{fmtDate(h.data)}</TableCell>
-                  <TableCell>{weekdayName(h.weekday)}</TableCell>
+                  <TableCell className="tabular-nums">
+                    {format(parseISO(h.data), "dd MMM yyyy", { locale: dateLocale })}
+                  </TableCell>
+                  <TableCell>{t(`common:weekdays.short.${h.weekday}`)}</TableCell>
                   <TableCell className="font-medium">{h.nome}</TableCell>
                   <TableCell className="text-right">
                     {h.emDiaUtil ? (
                       <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">
-                        Sim — desconta
+                        {t("hr:diasUteis.holidays.yes")}
                       </span>
                     ) : (
                       <span className="text-xs text-muted-foreground">
-                        Fim-de-semana
+                        {t("hr:diasUteis.holidays.weekend")}
                       </span>
                     )}
                   </TableCell>
@@ -300,7 +320,9 @@ function DiasUteisPage() {
           {isAdmin && (
             <div className="mt-4 grid grid-cols-1 gap-3 border-t pt-4 sm:grid-cols-[180px_1fr_auto]">
               <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Data</Label>
+                <Label className="text-xs text-muted-foreground">
+                  {t("hr:diasUteis.holidays.newHoliday.dateLabel")}
+                </Label>
                 <Input
                   type="date"
                   className="input-yellow"
@@ -309,17 +331,20 @@ function DiasUteisPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Nome do feriado</Label>
+                <Label className="text-xs text-muted-foreground">
+                  {t("hr:diasUteis.holidays.newHoliday.nameLabel")}
+                </Label>
                 <Input
                   className="input-yellow"
-                  placeholder="ex: Tolerância de ponto"
+                  placeholder={t("hr:diasUteis.holidays.newHoliday.namePlaceholder")}
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                 />
               </div>
               <div className="flex items-end">
                 <Button onClick={() => addHoliday.mutate()} disabled={addHoliday.isPending}>
-                  <Plus className="h-4 w-4" /> Adicionar
+                  <Plus className="h-4 w-4" />{" "}
+                  {t("hr:diasUteis.holidays.newHoliday.addButton")}
                 </Button>
               </div>
             </div>
@@ -330,38 +355,42 @@ function DiasUteisPage() {
       {/* Fórmula */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Como é calculado</CardTitle>
+          <CardTitle className="text-base">{t("hr:diasUteis.formula.title")}</CardTitle>
           <CardDescription>
-            Mesma lógica de{" "}
-            <a
-              href="https://www.dias-uteis.pt"
-              target="_blank"
-              rel="noreferrer"
-              className="underline"
-            >
-              dias-uteis.pt
-            </a>
-            .
+            <Trans
+              i18nKey="hr:diasUteis.formula.description"
+              components={{
+                link: (
+                  // eslint-disable-next-line jsx-a11y/anchor-has-content
+                  <a
+                    href="https://www.dias-uteis.pt"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline"
+                  />
+                ),
+              }}
+            />
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
-          <Formula label="Dias do ano" value={breakdown.diasAno} />
-          <Formula label="− Sábados e Domingos" value={`−${breakdown.fimDeSemana}`} />
+          <Formula label={t("hr:diasUteis.formula.daysInYear")} value={breakdown.diasAno} />
           <Formula
-            label="− Feriados em dia útil"
+            label={t("hr:diasUteis.formula.minusWeekend")}
+            value={`−${breakdown.fimDeSemana}`}
+          />
+          <Formula
+            label={t("hr:diasUteis.formula.minusHolidaysWorkingDays")}
             value={`−${breakdown.feriadosUteis}`}
           />
           <Formula
-            label="= Dias úteis (base, sem férias)"
+            label={t("hr:diasUteis.formula.workingDaysBase")}
             value={breakdown.diasUteisBase}
             highlight
           />
+          <Formula label={t("hr:diasUteis.formula.minusVacation")} value={`−22`} />
           <Formula
-            label="− Dias de férias do colaborador (22)"
-            value={`−22`}
-          />
-          <Formula
-            label="= Dias efectivamente trabalhados"
+            label={t("hr:diasUteis.formula.effectiveWorkingDays")}
             value={breakdown.diasUteisLiquidos(22)}
             highlight
           />
