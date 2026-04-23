@@ -31,12 +31,14 @@ import {
   externalServiceSchema,
   flattenIssues,
 } from "@/lib/projects/financial-validation";
+import { SupplierPicker } from "./supplier-picker";
+import type { Supplier } from "@/lib/projects/use-suppliers";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
-  initial?: ExternalService | null;
+  initial?: (ExternalService & { supplier_id?: string | null }) | null;
 }
 
 export function ExternalServiceDialog({
@@ -49,8 +51,10 @@ export function ExternalServiceDialog({
   const upsert = useUpsertExternalService(projectId);
 
   const [description, setDescription] = useState("");
-  const [supplierName, setSupplierName] = useState("");
-  const [supplierContact, setSupplierContact] = useState("");
+  const [supplierId, setSupplierId] = useState<string | null>(null);
+  // Legacy free-text — only kept for old rows; new entries should use supplier_id.
+  const [legacySupplierName, setLegacySupplierName] = useState<string>("");
+  const [legacySupplierContact, setLegacySupplierContact] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [unitCost, setUnitCost] = useState(0);
   const [markupType, setMarkupType] = useState<MarkupType>("percent");

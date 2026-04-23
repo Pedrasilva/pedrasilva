@@ -1,12 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import type { Supplier } from "@/lib/projects/use-suppliers";
 
-export type ExternalService = Database["public"]["Tables"]["pm_materials"]["Row"];
+export type ExternalService = Database["public"]["Tables"]["pm_materials"]["Row"] & {
+  // Freshly added column — not yet in generated types.
+  supplier_id?: string | null;
+};
 export type ExternalServiceInsert =
-  Database["public"]["Tables"]["pm_materials"]["Insert"];
+  Database["public"]["Tables"]["pm_materials"]["Insert"] & {
+    supplier_id?: string | null;
+  };
 export type ExternalServiceUpdate =
-  Database["public"]["Tables"]["pm_materials"]["Update"];
+  Database["public"]["Tables"]["pm_materials"]["Update"] & {
+    supplier_id?: string | null;
+  };
+
+export type ExternalServiceWithSupplier = ExternalService & {
+  supplier: Pick<Supplier, "id" | "name" | "active"> | null;
+};
 
 export type ExternalServiceStatus =
   Database["public"]["Enums"]["pm_external_service_status"];
@@ -22,18 +34,25 @@ export const EXTERNAL_SERVICE_STATUSES: ExternalServiceStatus[] = [
   "cancelled",
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
+
 export function useExternalServices(projectId: string | undefined) {
   return useQuery({
     queryKey: ["external-services", projectId],
     enabled: !!projectId,
-    queryFn: async () => {
-      const { data, error } = await supabase
+    queryFn: async (): Promise<ExternalServiceWithSupplier[]> => {
+      // Embed the linked supplier when present. Two-step fallback so that
+      // legacy rows (supplier_id IS NULL) still come through cleanly via
+      // supplier_name. PostgREST returns the embedded record as null when
+      // the FK is NULL.
+      const { data, error } = await db
         .from("pm_materials")
-        .select("*")
+        .select("*, supplier:pm_suppliers(id,name,active)")
         .eq("project_id", projectId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as ExternalService[];
+      return (data ?? []) as ExternalServiceWithSupplier[];
     },
   });
 }
@@ -44,7 +63,7 @@ export function useUpsertExternalService(projectId: string) {
     mutationFn: async (input: ExternalServiceInsert | ExternalServiceUpdate) => {
       if ((input as ExternalServiceUpdate).id) {
         const { id, ...rest } = input as ExternalServiceUpdate & { id: string };
-        const { data, error } = await supabase
+        const { data, error } = await db
           .from("pm_materials")
           .update(rest)
           .eq("id", id)
@@ -53,7 +72,7 @@ export function useUpsertExternalService(projectId: string) {
         if (error) throw error;
         return data;
       }
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("pm_materials")
         .insert({ ...(input as ExternalServiceInsert), project_id: projectId })
         .select()
