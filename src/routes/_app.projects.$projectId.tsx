@@ -1628,7 +1628,12 @@ function InsightsPanel({
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <InsightCard title="Financials">
-          <FinancialsTable services={services} materials={empty} expenses={empty} total={totalRow} />
+          <FinancialsTable
+            services={services}
+            materials={externalRow}
+            expenses={expensesRow}
+            total={totalRow}
+          />
         </InsightCard>
         <InsightCard title="Work">
           <div className="grid grid-cols-2 gap-4 px-2 py-2">
@@ -1695,6 +1700,9 @@ function InsightsPanel({
           Sem faturas — Earned Value usa apenas custos imputados.
         </div>
       )}
+
+      <ExternalServicesSection projectId={projectId} canEdit={canEdit} />
+      <ProjectExpensesSection projectId={projectId} canEdit={canEdit} />
     </div>
   );
 }
@@ -1967,7 +1975,7 @@ function FinancialsTable({
         <tr className="border-b border-border text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           <th className="px-2 py-2 text-left font-semibold"></th>
           <th className="px-2 py-2 font-semibold">Services</th>
-          <th className="px-2 py-2 font-semibold">Materials</th>
+          <th className="px-2 py-2 font-semibold">External services</th>
           <th className="px-2 py-2 font-semibold">Expenses</th>
           <th className="px-2 py-2 font-semibold">Total</th>
         </tr>

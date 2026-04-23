@@ -709,6 +709,150 @@
       "title": "Conflitos com férias aprovadas",
       "subtitle": "Pessoas alocadas a projectos em dias em que estão de férias. Ajuste o Gantt ou rejeite o pedido.",
       "daysSuffix": "{{count}}d"
+    },
+    "externalServices": {
+      "title": "Serviços externos",
+      "subtitle": "Trabalho subcontratado (consultores, especialistas, subempreiteiros) ligado ao contrato com o cliente.",
+      "addButton": "Adicionar serviço externo",
+      "empty": "Sem serviços externos.",
+      "totals": "Totais",
+      "cols": {
+        "description": "Descrição",
+        "supplier": "Fornecedor",
+        "status": "Estado",
+        "cost": "Custo",
+        "revenue": "Receita",
+        "margin": "Margem",
+        "invoiceRef": "Ref. fatura"
+      },
+      "status": {
+        "draft": "Rascunho",
+        "approved": "Aprovado",
+        "ordered": "Encomendado",
+        "invoiced": "Faturado",
+        "partially_paid": "Parcialmente pago",
+        "paid": "Pago",
+        "cancelled": "Cancelado"
+      },
+      "markup": {
+        "percent": "Percentagem",
+        "fixed": "Valor fixo"
+      },
+      "fields": {
+        "description": "Descrição",
+        "descriptionPlaceholder": "ex. Consultor de estruturas",
+        "supplierName": "Fornecedor",
+        "supplierContact": "Contacto do fornecedor",
+        "quantity": "Quantidade",
+        "unitCost": "Custo unitário",
+        "markupType": "Tipo de markup",
+        "markupValue": "Valor do markup",
+        "salePrice": "Preço de venda (por unidade)",
+        "salePriceManual": "Definir preço de venda manualmente",
+        "salePriceManualHint": "Substitui o preço de venda calculado automaticamente.",
+        "status": "Estado",
+        "invoiceReference": "Referência da fatura",
+        "invoiceDate": "Data da fatura",
+        "dueDate": "Data de vencimento",
+        "paidAt": "Pago em",
+        "notes": "Notas"
+      },
+      "preview": {
+        "cost": "Custo",
+        "revenue": "Receita",
+        "margin": "Margem"
+      },
+      "dialog": {
+        "createTitle": "Adicionar serviço externo",
+        "editTitle": "Editar serviço externo",
+        "create": "Criar",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "errors": {
+          "descriptionRequired": "A descrição é obrigatória."
+        },
+        "toast": {
+          "created": "Serviço externo adicionado.",
+          "updated": "Serviço externo actualizado."
+        }
+      },
+      "confirmDelete": {
+        "title": "Eliminar serviço externo?",
+        "description": "Vai remover permanentemente \"{{name}}\".",
+        "cancel": "Cancelar",
+        "confirm": "Eliminar"
+      },
+      "toast": {
+        "deleted": "Serviço externo eliminado."
+      }
+    },
+    "expenses": {
+      "title": "Despesas",
+      "subtitle": "Despesas reembolsáveis do projecto (deslocações, alojamento, refeições). Sem markup.",
+      "addButton": "Adicionar despesa",
+      "empty": "Sem despesas.",
+      "totals": "Totais",
+      "rebillableTag": "Refacturável",
+      "rebillableTotal": "refacturável: {{amount}}",
+      "cols": {
+        "description": "Descrição",
+        "category": "Categoria",
+        "vendor": "Fornecedor",
+        "date": "Data",
+        "status": "Estado",
+        "amount": "Valor"
+      },
+      "status": {
+        "draft": "Rascunho",
+        "submitted": "Submetida",
+        "approved": "Aprovada",
+        "paid": "Paga"
+      },
+      "category": {
+        "travel": "Deslocações",
+        "accommodation": "Alojamento",
+        "food": "Refeições",
+        "transport": "Transportes",
+        "printing": "Impressões",
+        "misc": "Diversos"
+      },
+      "fields": {
+        "description": "Descrição",
+        "descriptionPlaceholder": "ex. Comboio para o Porto",
+        "category": "Categoria",
+        "vendor": "Fornecedor",
+        "amount": "Valor",
+        "incurredAt": "Data da despesa",
+        "status": "Estado",
+        "paidAt": "Pago em",
+        "rebillable": "Despesa refacturável",
+        "rebillableHint": "Marque para sinalizar reembolso futuro pelo cliente. Não afecta a margem.",
+        "notes": "Notas"
+      },
+      "dialog": {
+        "createTitle": "Adicionar despesa",
+        "editTitle": "Editar despesa",
+        "create": "Criar",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "errors": {
+          "descriptionRequired": "A descrição é obrigatória."
+        },
+        "toast": {
+          "created": "Despesa adicionada.",
+          "updated": "Despesa actualizada."
+        }
+      },
+      "confirmDelete": {
+        "title": "Eliminar despesa?",
+        "description": "Vai remover permanentemente \"{{name}}\".",
+        "cancel": "Cancelar",
+        "confirm": "Eliminar"
+      },
+      "toast": {
+        "deleted": "Despesa eliminada."
+      }
     }
   }
 }
+

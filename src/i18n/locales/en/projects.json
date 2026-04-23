@@ -709,6 +709,150 @@
       "title": "Conflicts with approved leave",
       "subtitle": "People allocated to projects on days they are on leave. Adjust the Gantt or reject the request.",
       "daysSuffix": "{{count}}d"
+    },
+    "externalServices": {
+      "title": "External services",
+      "subtitle": "Outsourced scope (consultants, specialists, subcontractors) tied to the client contract.",
+      "addButton": "Add external service",
+      "empty": "No external services yet.",
+      "totals": "Totals",
+      "cols": {
+        "description": "Description",
+        "supplier": "Supplier",
+        "status": "Status",
+        "cost": "Cost",
+        "revenue": "Revenue",
+        "margin": "Margin",
+        "invoiceRef": "Invoice ref"
+      },
+      "status": {
+        "draft": "Draft",
+        "approved": "Approved",
+        "ordered": "Ordered",
+        "invoiced": "Invoiced",
+        "partially_paid": "Partially paid",
+        "paid": "Paid",
+        "cancelled": "Cancelled"
+      },
+      "markup": {
+        "percent": "Percentage",
+        "fixed": "Fixed amount"
+      },
+      "fields": {
+        "description": "Description",
+        "descriptionPlaceholder": "e.g. Structural consultant",
+        "supplierName": "Supplier",
+        "supplierContact": "Supplier contact",
+        "quantity": "Quantity",
+        "unitCost": "Unit cost",
+        "markupType": "Markup type",
+        "markupValue": "Markup value",
+        "salePrice": "Sale price (per unit)",
+        "salePriceManual": "Set sale price manually",
+        "salePriceManualHint": "Override the auto-computed sale price.",
+        "status": "Status",
+        "invoiceReference": "Invoice reference",
+        "invoiceDate": "Invoice date",
+        "dueDate": "Due date",
+        "paidAt": "Paid on",
+        "notes": "Notes"
+      },
+      "preview": {
+        "cost": "Cost",
+        "revenue": "Revenue",
+        "margin": "Margin"
+      },
+      "dialog": {
+        "createTitle": "Add external service",
+        "editTitle": "Edit external service",
+        "create": "Create",
+        "save": "Save",
+        "cancel": "Cancel",
+        "errors": {
+          "descriptionRequired": "Description is required."
+        },
+        "toast": {
+          "created": "External service added.",
+          "updated": "External service updated."
+        }
+      },
+      "confirmDelete": {
+        "title": "Delete external service?",
+        "description": "This will permanently remove \"{{name}}\".",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      },
+      "toast": {
+        "deleted": "External service deleted."
+      }
+    },
+    "expenses": {
+      "title": "Expenses",
+      "subtitle": "Reimbursable project costs (travel, accommodation, meals). No markup.",
+      "addButton": "Add expense",
+      "empty": "No expenses yet.",
+      "totals": "Totals",
+      "rebillableTag": "Rebillable",
+      "rebillableTotal": "rebillable: {{amount}}",
+      "cols": {
+        "description": "Description",
+        "category": "Category",
+        "vendor": "Vendor",
+        "date": "Date",
+        "status": "Status",
+        "amount": "Amount"
+      },
+      "status": {
+        "draft": "Draft",
+        "submitted": "Submitted",
+        "approved": "Approved",
+        "paid": "Paid"
+      },
+      "category": {
+        "travel": "Travel",
+        "accommodation": "Accommodation",
+        "food": "Food",
+        "transport": "Transport",
+        "printing": "Printing",
+        "misc": "Miscellaneous"
+      },
+      "fields": {
+        "description": "Description",
+        "descriptionPlaceholder": "e.g. Train to Porto",
+        "category": "Category",
+        "vendor": "Vendor",
+        "amount": "Amount",
+        "incurredAt": "Date incurred",
+        "status": "Status",
+        "paidAt": "Paid on",
+        "rebillable": "Rebillable expense",
+        "rebillableHint": "Mark to flag for future client reimbursement. Does not affect margin.",
+        "notes": "Notes"
+      },
+      "dialog": {
+        "createTitle": "Add expense",
+        "editTitle": "Edit expense",
+        "create": "Create",
+        "save": "Save",
+        "cancel": "Cancel",
+        "errors": {
+          "descriptionRequired": "Description is required."
+        },
+        "toast": {
+          "created": "Expense added.",
+          "updated": "Expense updated."
+        }
+      },
+      "confirmDelete": {
+        "title": "Delete expense?",
+        "description": "This will permanently remove \"{{name}}\".",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      },
+      "toast": {
+        "deleted": "Expense deleted."
+      }
     }
   }
 }
+
