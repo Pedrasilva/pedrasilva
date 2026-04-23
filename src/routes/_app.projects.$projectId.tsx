@@ -1029,6 +1029,8 @@ function PlaceholderPanel({
     </div>
   );
 }
+
+function TabBtn({
   icon: Icon,
   label,
   active,
