@@ -253,7 +253,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
     const type = link.fromSide === "end" ? "FS" : "SS";
     createDep
       .mutateAsync({ predecessor_id: link.fromStageId, successor_id: target, type, lag_days: 0 })
-      .then(() => toast.success("Ligação criada"))
+      .then(() => toast.success(t("gantt.toasts.linkCreated")))
       .catch((err) => toast.error((err as Error).message));
   }
 
@@ -311,7 +311,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
             projectId: parsed.fromProjectId,
             patch: { stage_id: stage.id, start_date: startDate, end_date: endDate },
           })
-          .then(() => toast.success("Allocation moved"))
+          .then(() => toast.success(t("gantt.toasts.allocationMoved")))
           .catch((err) => toast.error((err as Error).message));
       } catch (err) {
         toast.error((err as Error).message);
@@ -333,7 +333,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
         hours_per_day: 6,
         projectId: stage.projectId,
       })
-      .then(() => toast.success("Resource allocated"))
+      .then(() => toast.success(t("gantt.toasts.resourceAllocated")))
       .catch((err) => toast.error((err as Error).message));
   }
 
@@ -490,7 +490,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                   <div
                     className="pointer-events-none absolute z-0 rounded-md border border-dashed border-foreground/30 bg-muted/20"
                     style={{ left: baseX, width: baseW, top: 0, height: STAGE_ROW_H }}
-                    title={`Baseline: ${stageWithBaseline.baseline_start_date} → ${stageWithBaseline.baseline_end_date}`}
+                    title={t("gantt.tooltip.baselineHover", { start: stageWithBaseline.baseline_start_date, end: stageWithBaseline.baseline_end_date })}
                   >
                     <div className="absolute -top-3.5 left-1 rounded-sm bg-muted px-1 py-px font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
                       baseline
@@ -543,7 +543,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                           <span className="font-mono">{euros(budget)}</span>
                           {over && (
                             <span className="rounded bg-destructive px-1.5 py-px font-medium text-destructive-foreground">
-                              over by {euros(totalCost - budget)}
+                              {t("gantt.stage.overByAmount", { amount: euros(totalCost - budget) })}
                             </span>
                           )}
                         </div>
@@ -551,11 +551,11 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                       <button
                         onClick={async (e) => {
                           e.stopPropagation();
-                          if (!confirm(`Delete stage "${stage.name}"?`)) return;
+                          if (!confirm(t("gantt.stage.deleteConfirm", { name: stage.name }))) return;
                           await deleteStage.mutateAsync({ id: stage.id, projectId: stage.projectId });
                         }}
                         className="rounded p-1 opacity-0 transition hover:bg-background/30 group-hover:opacity-100"
-                        aria-label="Delete stage"
+                        aria-label={t("gantt.stage.deleteAction")}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -593,12 +593,12 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                   <div
                     onPointerDown={(e) => startLinkDrag(e, stage.id, "start")}
                     className="absolute -left-3 top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
-                    title="Arraste para outra fase para criar dependência (a partir do início)"
+                    title={t("gantt.stage.linkFromStart")}
                   />
                   <div
                     onPointerDown={(e) => startLinkDrag(e, stage.id, "end")}
                     className="absolute -right-3 top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
-                    title="Arraste para outra fase para criar dependência (a partir do fim)"
+                    title={t("gantt.stage.linkFromEnd")}
                   />
                 </div>
 
@@ -689,7 +689,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                       e.dataTransfer.effectAllowed = "move";
                                     }}
                                     className="shrink-0 cursor-grab text-muted-foreground/70 hover:text-foreground active:cursor-grabbing"
-                                    aria-label="Move allocation"
+                                    aria-label={t("gantt.stage.moveAllocation")}
                                   >
                                     <GripVertical className="h-3 w-3" />
                                   </span>
@@ -714,7 +714,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                   {hasLeave && (
                                     <span
                                       className="flex shrink-0 items-center gap-0.5 rounded bg-amber-500/20 px-1 py-px text-[10px] font-semibold text-amber-700 dark:text-amber-300"
-                                      title={`${allocLeaveHours}h overlap approved leave`}
+                                      title={t("gantt.tooltip.leaveOverlap", { hours: allocLeaveHours })}
                                     >
                                       <CalendarOff className="h-2.5 w-2.5" />
                                       −{allocLeaveHours}h
@@ -770,25 +770,31 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                                 )}
                               </div>
                               <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5">
-                                <span className="text-muted-foreground">Fase</span>
+                                <span className="text-muted-foreground">{t("gantt.tooltip.stage")}</span>
                                 <span className="font-medium">{stage.name}</span>
-                                <span className="text-muted-foreground">Período</span>
+                                <span className="text-muted-foreground">{t("gantt.tooltip.period")}</span>
                                 <span className="font-mono">{fmt(aS)} → {fmt(aE)}</span>
-                                <span className="text-muted-foreground">Duração</span>
-                                <span className="font-mono">{workingDays(aS, aE)} dias úteis</span>
-                                <span className="text-muted-foreground">Esforço</span>
-                                <span className="font-mono">{Number(a.hours_per_day)}h/dia · {workingDays(aS, aE) * Number(a.hours_per_day)}h total</span>
-                                <span className="text-muted-foreground">Custo/h</span>
+                                <span className="text-muted-foreground">{t("gantt.tooltip.duration")}</span>
+                                <span className="font-mono">{t("gantt.tooltip.workingDays", { count: workingDays(aS, aE) })}</span>
+                                <span className="text-muted-foreground">{t("gantt.tooltip.effort")}</span>
+                                <span className="font-mono">{t("gantt.tooltip.effortValue", { perDay: Number(a.hours_per_day), total: workingDays(aS, aE) * Number(a.hours_per_day) })}</span>
+                                <span className="text-muted-foreground">{t("gantt.tooltip.costPerHour")}</span>
                                 <span className="font-mono">{euros(costRate)}/h</span>
-                                <span className="text-muted-foreground">Custo total</span>
+                                <span className="text-muted-foreground">{t("gantt.tooltip.totalCost")}</span>
                                 <span className="font-mono font-semibold">{euros(cost)}</span>
                               </div>
                               {isOver && (
                                 <div className="mt-1 flex items-start gap-1.5 rounded bg-destructive/10 p-1.5 text-[11px] text-destructive">
                                   <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
-                                  <span>
-                                    Sobrecarga: pico de <strong>{overload.peak}h/dia</strong> (limite {overload.limit}h) em {overload.overDays} dia(s).
-                                  </span>
+                                  <span
+                                    dangerouslySetInnerHTML={{
+                                      __html: t("gantt.tooltip.overload", {
+                                        peak: overload.peak,
+                                        limit: overload.limit,
+                                        days: overload.overDays,
+                                      }),
+                                    }}
+                                  />
                                 </div>
                               )}
                               {hasLeave && (
