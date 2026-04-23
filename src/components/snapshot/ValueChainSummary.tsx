@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,6 +8,7 @@ import { fmtEUR, type Computed } from "@/lib/salary";
 type Period = "mensal" | "anual";
 
 export function ValueChainSummary({ c }: { c: Computed }) {
+  const { t } = useTranslation("hr");
   const [period, setPeriod] = useState<Period>("mensal");
   const isAnual = period === "anual";
   const mult = isAnual ? 12 : 1;
@@ -29,7 +31,9 @@ export function ValueChainSummary({ c }: { c: Computed }) {
   const pctColab = (colaborador / safeBase) * 100;
   const pctEstado = (estado / safeBase) * 100;
 
-  const periodLabel = isAnual ? "/ano" : "/mês";
+  const periodLabel = isAnual
+    ? t("snapshot.valueChain.period.perYear")
+    : t("snapshot.valueChain.period.perMonth");
 
   return (
     <Card className="overflow-hidden border-border/60">
@@ -37,16 +41,20 @@ export function ValueChainSummary({ c }: { c: Computed }) {
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
             <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-              Cadeia de valor
+              {t("snapshot.valueChain.eyebrow")}
             </div>
             <div className="text-sm text-muted-foreground">
-              De cada euro que custa ao atelier, para onde vai.
+              {t("snapshot.valueChain.subtitle")}
             </div>
           </div>
           <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
             <TabsList className="h-8">
-              <TabsTrigger value="mensal" className="h-6 px-2.5 text-xs">Mensal</TabsTrigger>
-              <TabsTrigger value="anual" className="h-6 px-2.5 text-xs">Anual</TabsTrigger>
+              <TabsTrigger value="mensal" className="h-6 px-2.5 text-xs">
+                {t("snapshot.bruto.composition.monthlyToggle")}
+              </TabsTrigger>
+              <TabsTrigger value="anual" className="h-6 px-2.5 text-xs">
+                {t("snapshot.bruto.composition.annualToggle")}
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -54,12 +62,12 @@ export function ValueChainSummary({ c }: { c: Computed }) {
         <div className="grid grid-cols-1 items-stretch gap-3 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
           {/* Custo empregador */}
           <ChainNode
-            label="Custo total empregador"
+            label={t("snapshot.valueChain.nodes.employerCost.label")}
             value={fmtEUR(custoEmpregador)}
             periodLabel={periodLabel}
             tone="clay"
             sublines={[
-              { label: "VBG (bruto + SS + benefícios + ajudas)", value: "100%" },
+              { label: t("snapshot.valueChain.nodes.employerCost.subline"), value: "100%" },
             ]}
           />
 
@@ -67,13 +75,13 @@ export function ValueChainSummary({ c }: { c: Computed }) {
 
           {/* Colaborador leva */}
           <ChainNode
-            label="Colaborador leva para casa"
+            label={t("snapshot.valueChain.nodes.employeeTakeHome.label")}
             value={fmtEUR(colaborador)}
             periodLabel={periodLabel}
             tone="sage"
             badge={`${pctColab.toFixed(1)}%`}
             sublines={[
-              { label: "Líquido + alimentação + ajudas", value: "" },
+              { label: t("snapshot.valueChain.nodes.employeeTakeHome.subline"), value: "" },
             ]}
           />
 
@@ -81,15 +89,15 @@ export function ValueChainSummary({ c }: { c: Computed }) {
 
           {/* Estado recebe */}
           <ChainNode
-            label="Estado recebe"
+            label={t("snapshot.valueChain.nodes.stateReceives.label")}
             value={fmtEUR(estado)}
             periodLabel={periodLabel}
             tone="ink"
             badge={`${pctEstado.toFixed(1)}%`}
             sublines={[
-              { label: "SS Atelier (23,75%)", value: fmtEUR(ssAtelier) },
-              { label: "SS Colaborador (11%)", value: fmtEUR(ssColab) },
-              { label: "IRS retido", value: fmtEUR(irs) },
+              { label: t("snapshot.valueChain.nodes.stateReceives.ssStudio"), value: fmtEUR(ssAtelier) },
+              { label: t("snapshot.valueChain.nodes.stateReceives.ssEmployee"), value: fmtEUR(ssColab) },
+              { label: t("snapshot.valueChain.nodes.stateReceives.incomeTaxWithheld"), value: fmtEUR(irs) },
             ]}
           />
         </div>
