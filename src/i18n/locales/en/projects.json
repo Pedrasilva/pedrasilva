@@ -714,6 +714,7 @@
       "title": "External services",
       "subtitle": "Outsourced scope (consultants, specialists, subcontractors) tied to the client contract.",
       "addButton": "Add external service",
+      "manageSuppliers": "Manage suppliers",
       "empty": "No external services yet.",
       "totals": "Totals",
       "cols": {
