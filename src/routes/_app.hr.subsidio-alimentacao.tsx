@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminOnly } from "@/components/AdminOnly";
@@ -19,6 +19,7 @@ import {
 import { Plus, Save, Trash2, Utensils } from "lucide-react";
 import { toast } from "sonner";
 import { fmtEUR } from "@/lib/salary";
+import { computeWorkdays, type Holiday } from "@/lib/workdays";
 
 type Rate = {
   id: string;
