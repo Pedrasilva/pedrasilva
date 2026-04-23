@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import type { Supplier } from "@/lib/projects/use-suppliers";
+import { assertProjectOwned } from "@/lib/finance/ownership";
 
 export type ProjectExpense = Database["public"]["Tables"]["pm_expenses"]["Row"] & {
   // Newly added supplier link + legacy mirror columns. Not yet in generated types.
@@ -69,6 +70,9 @@ export function useUpsertProjectExpense(projectId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: ProjectExpenseInsert | ProjectExpenseUpdate) => {
+      // Ownership rule: project expenses MUST be tied to a project.
+      // Use useUpsertCompanyExpense for generic company costs.
+      assertProjectOwned(projectId);
       if ((input as ProjectExpenseUpdate).id) {
         const { id, ...rest } = input as ProjectExpenseUpdate & { id: string };
         const { data, error } = await db

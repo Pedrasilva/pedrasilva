@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import type { Supplier } from "@/lib/projects/use-suppliers";
+import { assertProjectOwned } from "@/lib/finance/ownership";
 
 export type ExternalService = Database["public"]["Tables"]["pm_materials"]["Row"] & {
   // Freshly added column — not yet in generated types.
@@ -61,6 +62,8 @@ export function useUpsertExternalService(projectId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: ExternalServiceInsert | ExternalServiceUpdate) => {
+      // Ownership rule: external services / materials are project-owned.
+      assertProjectOwned(projectId);
       if ((input as ExternalServiceUpdate).id) {
         const { id, ...rest } = input as ExternalServiceUpdate & { id: string };
         const { data, error } = await db
