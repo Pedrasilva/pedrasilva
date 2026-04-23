@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,11 +23,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ExternalServiceDialog } from "./external-service-dialog";
+import { SupplierManagerDialog } from "./supplier-manager-dialog";
 import {
   useExternalServices,
   useDeleteExternalService,
-  type ExternalService,
+  type ExternalServiceWithSupplier,
 } from "@/lib/projects/use-external-services";
+import { resolveSupplierLabel } from "@/lib/projects/use-suppliers";
 import { euros } from "@/lib/projects/gantt-utils";
 
 interface Props {
@@ -41,8 +43,9 @@ export function ExternalServicesSection({ projectId, canEdit }: Props) {
   const del = useDeleteExternalService(projectId);
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<ExternalService | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<ExternalService | null>(null);
+  const [managerOpen, setManagerOpen] = useState(false);
+  const [editing, setEditing] = useState<ExternalServiceWithSupplier | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<ExternalServiceWithSupplier | null>(null);
 
   const totals = items.reduce(
     (acc, m) => {
@@ -57,7 +60,7 @@ export function ExternalServicesSection({ projectId, canEdit }: Props) {
     { cost: 0, revenue: 0, margin: 0 },
   );
 
-  function handleEdit(item: ExternalService) {
+  function handleEdit(item: ExternalServiceWithSupplier) {
     setEditing(item);
     setDialogOpen(true);
   }
