@@ -1202,12 +1202,14 @@ function BucketCard({
   total,
   tone,
   icon,
+  footnote,
 }: {
   label: string;
   hours: number;
   total: number;
   tone: "success" | "warning" | "muted";
   icon: React.ReactNode;
+  footnote?: string;
 }) {
   const pctVal = total > 0 ? (hrs / total) * 100 : 0;
   const barClass = {
@@ -1228,6 +1230,7 @@ function BucketCard({
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <div className={cn("h-full", barClass)} style={{ width: `${Math.min(100, pctVal)}%` }} />
         </div>
+        {footnote && <p className="mt-2 text-[11px] italic">{footnote}</p>}
       </CardContent>
     </Card>
   );
