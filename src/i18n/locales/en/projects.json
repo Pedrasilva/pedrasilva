@@ -61,6 +61,14 @@
     "createNewAria": "Create new",
     "task": "Task",
     "expense": "Expense",
+    "benefitExpense": "Benefit reimbursement",
+    "projectExpense": "Project / company expense",
+    "material": "Material (external service)",
+    "groups": {
+      "finance": "Finance",
+      "crm": "CRM",
+      "personal": "Personal"
+    },
     "expenseCategories": {
       "carro": "Car",
       "ticket": "Ticket",
@@ -147,6 +155,49 @@
       "sessionExpired": "Session expired.",
       "userNotLinked": "Your user is not linked to any team member.",
       "noTaskForAllocation": "This allocation has no task linked."
+    }
+  },
+  "quickFinance": {
+    "expense": {
+      "title": "New expense",
+      "description": "Quick entry — full details available inside the project."
+    },
+    "material": {
+      "title": "New material",
+      "description": "External service or supplier purchase tied to a project.",
+      "projectHint": "Materials are always tied to a project."
+    },
+    "fields": {
+      "project": "Project",
+      "projectPlaceholder": "Choose a project…",
+      "autoDetected": "auto-detected",
+      "companyExpense": "This is a company expense",
+      "companyExpenseHint": "Saves to company-level costs (no project, no margin).",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description…",
+      "category": "Category",
+      "amount": "Amount",
+      "supplier": "Supplier",
+      "incurredAt": "Date",
+      "quantity": "Quantity",
+      "unitCost": "Unit cost",
+      "markupPercent": "Markup",
+      "notes": "Notes"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create"
+    },
+    "errors": {
+      "projectRequired": "Pick a project or mark as company expense.",
+      "descriptionRequired": "Description is required.",
+      "amountRequired": "Amount must be greater than zero.",
+      "unitCostRequired": "Unit cost must be greater than zero."
+    },
+    "toasts": {
+      "projectExpenseCreated": "Project expense created",
+      "companyExpenseCreated": "Company expense created",
+      "materialCreated": "Material created"
     }
   },
   "common": {
