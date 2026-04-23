@@ -243,7 +243,7 @@ export function QuickExpenseDialog({ open, onClose }: QuickExpenseProps) {
                   <Briefcase className="h-3.5 w-3.5" />
                   {t("quickFinance.fields.project")}
                   {currentProjectId && (
-                    <span className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                    <span className="text-[10px] uppercase tracking-wider text-primary">
                       {t("quickFinance.fields.autoDetected")}
                     </span>
                   )}
@@ -443,7 +443,7 @@ export function QuickMaterialDialog({ open, onClose }: QuickMaterialProps) {
               <Briefcase className="h-3.5 w-3.5" />
               {t("quickFinance.fields.project")}
               {currentProjectId && (
-                <span className="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                <span className="text-[10px] uppercase tracking-wider text-primary">
                   {t("quickFinance.fields.autoDetected")}
                 </span>
               )}
