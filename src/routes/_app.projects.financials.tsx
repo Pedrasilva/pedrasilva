@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   format,
@@ -12,6 +13,7 @@ import {
   addWeeks,
   subWeeks,
 } from "date-fns";
+import { useDateLocale } from "@/i18n/use-date-locale";
 import { toast } from "sonner";
 import {
   ResponsiveContainer,
@@ -182,17 +184,17 @@ function utilizationTone(
   utilization: number,
   internalPct: number,
   targets: UtilTargets,
-): { tone: "good" | "low" | "high" | "internal"; label: string } {
+): { tone: "good" | "low" | "high" | "internal"; labelKey: string } {
   if (internalPct > targets.internal_threshold_pct) {
-    return { tone: "internal", label: "High internal time" };
+    return { tone: "internal", labelKey: "financials.utilStatus.highInternal" };
   }
   if (utilization < targets.utilization_target_min) {
-    return { tone: "low", label: "Underutilized" };
+    return { tone: "low", labelKey: "financials.utilStatus.underutilized" };
   }
   if (utilization > targets.utilization_target_max) {
-    return { tone: "high", label: "Overutilized" };
+    return { tone: "high", labelKey: "financials.utilStatus.overutilized" };
   }
-  return { tone: "good", label: "On target" };
+  return { tone: "good", labelKey: "financials.utilStatus.onTarget" };
 }
 
 function useMonthEntries(monthStartISO: string, monthEndISO: string) {
@@ -311,6 +313,8 @@ function useWorkingDaysInMonth(monthStartISO: string, monthEndISO: string) {
 }
 
 function FinancialsPage() {
+  const { t } = useTranslation();
+  const dateLocale = useDateLocale();
   const [monthAnchor, setMonthAnchor] = useState<Date>(startOfMonth(new Date()));
   const [teamFilter, setTeamFilter] = useState<string>("all");
   const [userFilter, setUserFilter] = useState<string>("all");
@@ -893,7 +897,7 @@ function FinancialsPage() {
                         {pct(r.utilization)}
                       </td>
                       <td className="px-3 py-2.5">
-                        {r.alert && <AlertChip tone={r.alert.tone} label={r.alert.label} />}
+                        {r.alert && <AlertChip tone={r.alert.tone} labelKey={r.alert.labelKey} />}
                       </td>
                       <td className="px-3 py-2.5 text-right tabular-nums">{euros(r.revenue)}</td>
                       <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
@@ -1449,6 +1453,7 @@ function AlertsStrip({
   targets: UtilTargets;
   totalPeople: number;
 }) {
+  const { t } = useTranslation();
   if (totalPeople === 0) return null;
   const anyAlerts = counts.low + counts.high + counts.internal > 0;
   return (
@@ -1459,30 +1464,43 @@ function AlertsStrip({
         ) : (
           <CheckCircle2 className="h-4 w-4 text-emerald-500" />
         )}
-        Alerts
+        {t("projects:financials.alertChips.alerts")}
       </div>
-      <AlertChip tone="good" label={`${counts.good} on target`} subtle />
+      <AlertChip
+        tone="good"
+        label={t("projects:financials.alertChips.onTarget", { count: counts.good })}
+        subtle
+      />
       {counts.low > 0 && (
         <AlertChip
           tone="low"
-          label={`${counts.low} underutilized (< ${Math.round(targets.utilization_target_min)}%)`}
+          label={t("projects:financials.alertChips.underutilized", {
+            count: counts.low,
+            pct: Math.round(targets.utilization_target_min),
+          })}
         />
       )}
       {counts.high > 0 && (
         <AlertChip
           tone="high"
-          label={`${counts.high} overutilized (> ${Math.round(targets.utilization_target_max)}%)`}
+          label={t("projects:financials.alertChips.overutilized", {
+            count: counts.high,
+            pct: Math.round(targets.utilization_target_max),
+          })}
         />
       )}
       {counts.internal > 0 && (
         <AlertChip
           tone="internal"
-          label={`${counts.internal} high internal (> ${Math.round(targets.internal_threshold_pct)}%)`}
+          label={t("projects:financials.alertChips.highInternal", {
+            count: counts.internal,
+            pct: Math.round(targets.internal_threshold_pct),
+          })}
         />
       )}
       {!anyAlerts && (
         <span className="text-xs text-muted-foreground">
-          All people in scope are within the target utilization range.
+          {t("projects:financials.alertChips.allInRange")}
         </span>
       )}
     </div>
@@ -1492,12 +1510,15 @@ function AlertsStrip({
 function AlertChip({
   tone,
   label,
+  labelKey,
   subtle,
 }: {
   tone: "good" | "low" | "high" | "internal";
-  label: string;
+  label?: string;
+  labelKey?: string;
   subtle?: boolean;
 }) {
+  const { t } = useTranslation();
   const cls = {
     good: subtle
       ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
@@ -1513,7 +1534,7 @@ function AlertChip({
         cls,
       )}
     >
-      {label}
+      {labelKey ? t(`projects:${labelKey}`) : label}
     </span>
   );
 }

@@ -34,71 +34,72 @@ type Sheet =
   | "expense" | "request";
 
 export function QuickCreateMenu() {
+  const { t } = useTranslation();
   const [sheet, setSheet] = useState<Sheet>(null);
 
   return (
     <>
-      {/* Botão de tempo (relógio) */}
+      {/* Time button (clock) */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             size="icon"
             variant="secondary"
             className="ml-1 h-9 w-9"
-            aria-label="Registar tempo"
-            title="Tempo"
+            aria-label={t("projects:quickCreate.registerTimeAria")}
+            title={t("projects:quickCreate.time")}
           >
             <Clock className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-52">
           <DropdownMenuLabel className="bg-primary/10 text-primary -mx-1 -mt-1 mb-1 rounded-sm px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider">
-            Tempo
+            {t("projects:quickCreate.time")}
           </DropdownMenuLabel>
           <DropdownMenuItem onClick={() => setSheet("logTime")} className="gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground" /> Registar tempo
+            <Clock className="h-4 w-4 text-muted-foreground" /> {t("projects:quickCreate.registerTime")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("startTimer")} className="gap-2">
-            <Play className="h-4 w-4 text-muted-foreground" /> Iniciar timer
+            <Play className="h-4 w-4 text-muted-foreground" /> {t("projects:quickCreate.startTimer")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Botão de criar (+) */}
+      {/* Create button (+) */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             size="icon"
             variant="default"
             className="ml-1 h-9 w-9"
-            aria-label="Criar novo"
-            title="Criar entrada"
+            aria-label={t("projects:quickCreate.createNewAria")}
+            title={t("projects:quickCreate.createNew")}
           >
             <Plus className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel className="bg-primary/10 text-primary -mx-1 -mt-1 mb-1 rounded-sm px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider">
-            Criar
+            {t("projects:quickCreate.create")}
           </DropdownMenuLabel>
           <DropdownMenuItem onClick={() => setSheet("task")} className="gap-2">
-            <CheckSquare className="h-4 w-4 text-muted-foreground" /> Tarefa
+            <CheckSquare className="h-4 w-4 text-muted-foreground" /> {t("glossary:entity.task")}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setSheet("company")} className="gap-2">
-            <Building2 className="h-4 w-4 text-muted-foreground" /> Empresa
+            <Building2 className="h-4 w-4 text-muted-foreground" /> {t("glossary:entity.company")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("contact")} className="gap-2">
-            <User className="h-4 w-4 text-muted-foreground" /> Contacto
+            <User className="h-4 w-4 text-muted-foreground" /> {t("glossary:entity.contact")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("project")} className="gap-2">
-            <Briefcase className="h-4 w-4 text-muted-foreground" /> Projecto
+            <Briefcase className="h-4 w-4 text-muted-foreground" /> {t("glossary:entity.project")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("expense")} className="gap-2">
-            <Receipt className="h-4 w-4 text-muted-foreground" /> Despesa
+            <Receipt className="h-4 w-4 text-muted-foreground" /> {t("projects:quickCreate.expense")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("request")} className="gap-2">
-            <CalendarDays className="h-4 w-4 text-muted-foreground" /> Pedido (férias/ausência)
+            <CalendarDays className="h-4 w-4 text-muted-foreground" /> {t("projects:quickCreate.request")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -116,13 +117,13 @@ export function QuickCreateMenu() {
 }
 
 // ─────────────────────────────────────────────
-// Validação (zod) — empresa movida para new-company-dialog.tsx
+// Validation (zod) — company moved to new-company-dialog.tsx
 // ─────────────────────────────────────────────
 const contactSchema = z.object({
-  primeiro_nome: z.string().trim().min(1, "Primeiro nome obrigatório").max(100),
+  primeiro_nome: z.string().trim().min(1).max(100),
   apelido: z.string().trim().max(100).optional().or(z.literal("")),
   titulo: z.string().trim().max(20).optional().or(z.literal("")),
-  email: z.string().trim().email("Email inválido").max(255).optional().or(z.literal("")),
+  email: z.string().trim().email().max(255).optional().or(z.literal("")),
   telefone: z.string().trim().max(50).optional().or(z.literal("")),
   telemovel: z.string().trim().max(50).optional().or(z.literal("")),
   posicao: z.string().trim().max(100).optional().or(z.literal("")),
@@ -131,7 +132,7 @@ const contactSchema = z.object({
 });
 
 const projectSchema = z.object({
-  nome: z.string().trim().min(1, "Nome obrigatório").max(200),
+  nome: z.string().trim().min(1).max(200),
   codigo: z.string().trim().max(50).optional().or(z.literal("")),
   company_id: z.string().uuid().nullable().optional(),
   responsavel_id: z.string().uuid().nullable().optional(),
@@ -143,9 +144,10 @@ const projectSchema = z.object({
 });
 
 // ─────────────────────────────────────────────
-// Contacto
+// Contact
 // ─────────────────────────────────────────────
 function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
 
   const [form, setForm] = useState({
@@ -181,7 +183,7 @@ function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Contacto criado");
+      toast.success(t("projects:quickCreate.toasts.contactCreated"));
       qc.invalidateQueries({ queryKey: ["contacts"] });
       reset();
       onClose();
@@ -194,17 +196,19 @@ function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" /> Novo contacto
+            <User className="h-5 w-5" /> {t("projects:quickCreate.newContact")}
           </DialogTitle>
-          <DialogDescription>Pessoa associada (ou não) a uma empresa.</DialogDescription>
+          <DialogDescription>{t("projects:quickCreate.newContactDesc")}</DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <Field label="Título">
+          <Field label={t("projects:quickCreate.fields.title")}>
             <Select value={form.titulo || "none"}
               onValueChange={(v) => setForm((f) => ({ ...f, titulo: v === "none" ? "" : v }))}>
-              <SelectTrigger className="input-yellow"><SelectValue placeholder="—" /></SelectTrigger>
+              <SelectTrigger className="input-yellow">
+                <SelectValue placeholder={t("projects:quickCreate.fields.noneOption")} />
+              </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">—</SelectItem>
+                <SelectItem value="none">{t("projects:quickCreate.fields.noneOption")}</SelectItem>
                 <SelectItem value="Sr.">Sr.</SelectItem>
                 <SelectItem value="Sra.">Sra.</SelectItem>
                 <SelectItem value="Dr.">Dr.</SelectItem>
@@ -214,48 +218,51 @@ function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Primeiro nome *">
+          <Field label={t("projects:quickCreate.fields.firstName")}>
             <Input className="input-yellow" value={form.primeiro_nome}
               onChange={(e) => setForm((f) => ({ ...f, primeiro_nome: e.target.value }))} />
           </Field>
-          <Field label="Apelido">
+          <Field label={t("projects:quickCreate.fields.lastName")}>
             <Input className="input-yellow" value={form.apelido}
               onChange={(e) => setForm((f) => ({ ...f, apelido: e.target.value }))} />
           </Field>
-          <Field label="Email">
+          <Field label={t("projects:quickCreate.fields.email")}>
             <Input type="email" className="input-yellow" value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
           </Field>
-          <Field label="Telefone">
+          <Field label={t("projects:quickCreate.fields.phone")}>
             <Input className="input-yellow" value={form.telefone}
               onChange={(e) => setForm((f) => ({ ...f, telefone: e.target.value }))} />
           </Field>
-          <Field label="Telemóvel">
+          <Field label={t("projects:quickCreate.fields.mobile")}>
             <Input className="input-yellow" value={form.telemovel}
               onChange={(e) => setForm((f) => ({ ...f, telemovel: e.target.value }))} />
           </Field>
-          <Field label="Posição" full>
-            <Input className="input-yellow" placeholder="Director, gestor de projectos…"
+          <Field label={t("projects:quickCreate.fields.position")} full>
+            <Input
+              className="input-yellow"
+              placeholder={t("projects:quickCreate.fields.positionPlaceholder")}
               value={form.posicao}
-              onChange={(e) => setForm((f) => ({ ...f, posicao: e.target.value }))} />
+              onChange={(e) => setForm((f) => ({ ...f, posicao: e.target.value }))}
+            />
           </Field>
-          <Field label="Empresa" full>
+          <Field label={t("glossary:entity.company")} full>
             <CompanyPicker
               value={form.company_id || null}
               onChange={(id) => setForm((f) => ({ ...f, company_id: id }))}
-              placeholder="Sem empresa associada"
+              placeholder={t("projects:quickCreate.fields.noCompany")}
             />
           </Field>
-          <Field label="Notas" full>
+          <Field label={t("projects:quickCreate.fields.notes")} full>
             <Textarea className="input-yellow" rows={3} value={form.notas}
               onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))} />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button variant="ghost" onClick={onClose}>{t("projects:quickCreate.actions.cancel")}</Button>
           <Button onClick={() => create.mutate()}
             disabled={create.isPending || !form.primeiro_nome.trim()}>
-            Criar contacto
+            {t("projects:quickCreate.actions.createContact")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -264,7 +271,7 @@ function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }
 }
 
 // ─────────────────────────────────────────────
-// Projecto
+// Project
 // ─────────────────────────────────────────────
 function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
@@ -319,7 +326,7 @@ function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Projecto criado");
+      toast.success(t("projects:quickCreate.toasts.projectCreated"));
       qc.invalidateQueries({ queryKey: ["projects"] });
       reset();
       onClose();
@@ -332,16 +339,16 @@ function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Briefcase className="h-5 w-5" /> Novo projecto
+            <Briefcase className="h-5 w-5" /> {t("projects:quickCreate.newProject")}
           </DialogTitle>
-          <DialogDescription>Cria uma proposta ou projecto em curso.</DialogDescription>
+          <DialogDescription>{t("projects:quickCreate.newProjectDesc")}</DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Nome *">
+          <Field label={t("projects:quickCreate.fields.name")}>
             <Input className="input-yellow" value={form.nome}
               onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))} />
           </Field>
-          <Field label="Código">
+          <Field label={t("projects:quickCreate.fields.code")}>
             <Input className="input-yellow" placeholder="P-2026-001"
               value={form.codigo}
               onChange={(e) => setForm((f) => ({ ...f, codigo: e.target.value }))} />
@@ -350,59 +357,59 @@ function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }
             <CompanyPicker
               value={form.company_id || null}
               onChange={(id) => setForm((f) => ({ ...f, company_id: id }))}
-              placeholder="—"
+              placeholder={t("projects:quickCreate.fields.noneOption")}
             />
           </Field>
-          <Field label="Responsável">
+          <Field label={t("projects:quickCreate.fields.owner")}>
             <Select value={form.responsavel_id || "none"}
               onValueChange={(v) => setForm((f) => ({ ...f, responsavel_id: v === "none" ? "" : v }))}>
               <SelectTrigger className="input-yellow">
-                <SelectValue placeholder="—" />
+                <SelectValue placeholder={t("projects:quickCreate.fields.noneOption")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">—</SelectItem>
+                <SelectItem value="none">{t("projects:quickCreate.fields.noneOption")}</SelectItem>
                 {collaborators.map((c) => (
                   <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Data início">
+          <Field label={t("projects:quickCreate.fields.startDate")}>
             <Input type="date" className="input-yellow" value={form.data_inicio}
               onChange={(e) => setForm((f) => ({ ...f, data_inicio: e.target.value }))} />
           </Field>
-          <Field label="Data fim">
+          <Field label={t("projects:quickCreate.fields.endDate")}>
             <Input type="date" className="input-yellow" value={form.data_fim}
               onChange={(e) => setForm((f) => ({ ...f, data_fim: e.target.value }))} />
           </Field>
-          <Field label="Estado">
+          <Field label={t("projects:quickCreate.fields.status")}>
             <Select value={form.status}
               onValueChange={(v) => setForm((f) => ({ ...f, status: v as typeof form.status }))}>
               <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="proposta">Proposta</SelectItem>
-                <SelectItem value="em_curso">Em curso</SelectItem>
-                <SelectItem value="pausado">Pausado</SelectItem>
-                <SelectItem value="concluido">Concluído</SelectItem>
-                <SelectItem value="cancelado">Cancelado</SelectItem>
+                <SelectItem value="proposta">{t("projects:status.proposta")}</SelectItem>
+                <SelectItem value="em_curso">{t("projects:status.em_curso")}</SelectItem>
+                <SelectItem value="pausado">{t("projects:status.pausado")}</SelectItem>
+                <SelectItem value="concluido">{t("projects:status.concluido")}</SelectItem>
+                <SelectItem value="cancelado">{t("projects:status.cancelado")}</SelectItem>
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Orçamento (€)">
+          <Field label={t("projects:quickCreate.fields.budget")}>
             <Input type="number" step="0.01" min={0}
               className="input-yellow tabular-nums" value={form.orcamento}
               onChange={(e) => setForm((f) => ({ ...f, orcamento: e.target.value }))} />
           </Field>
-          <Field label="Notas" full>
+          <Field label={t("projects:quickCreate.fields.notes")} full>
             <Textarea className="input-yellow" rows={3} value={form.notas}
               onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))} />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button variant="ghost" onClick={onClose}>{t("projects:quickCreate.actions.cancel")}</Button>
           <Button onClick={() => create.mutate()}
             disabled={create.isPending || !form.nome.trim()}>
-            Criar projecto
+            {t("projects:quickCreate.actions.createProject")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -423,14 +430,15 @@ function Field({
 }
 
 // ─────────────────────────────────────────────
-// Tarefa (pm_tasks ligada a uma allocation existente)
+// Task (pm_tasks linked to an existing allocation)
 // ─────────────────────────────────────────────
 const taskSchema = z.object({
-  name: z.string().trim().min(1, "Nome obrigatório").max(200),
-  allocation_id: z.string().uuid("Escolhe uma alocação"),
+  name: z.string().trim().min(1).max(200),
+  allocation_id: z.string().uuid(),
 });
 
 function TaskDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { data: allocations = [] } = useQuery({
     queryKey: ["allocations-lite"],
@@ -466,7 +474,7 @@ function TaskDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Tarefa criada");
+      toast.success(t("projects:quickCreate.toasts.taskCreated"));
       qc.invalidateQueries({ queryKey: ["pm_tasks"] });
       reset();
       onClose();
@@ -479,22 +487,26 @@ function TaskDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
       <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <CheckSquare className="h-5 w-5" /> Nova tarefa
+            <CheckSquare className="h-5 w-5" /> {t("projects:quickCreate.newTask")}
           </DialogTitle>
           <DialogDescription>
-            Liga a uma alocação existente (projecto · fase · recurso).
+            {t("projects:quickCreate.newTaskDesc")}
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-1 gap-3">
-          <Field label="Nome *">
+          <Field label={t("projects:quickCreate.fields.name")}>
             <Input className="input-yellow" value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
           </Field>
-          <Field label="Alocação *">
+          <Field label={t("projects:quickCreate.fields.allocation")}>
             <Select value={form.allocation_id || ""}
               onValueChange={(v) => setForm((f) => ({ ...f, allocation_id: v }))}>
               <SelectTrigger className="input-yellow">
-                <SelectValue placeholder={allocations.length ? "Escolher…" : "Sem alocações disponíveis"} />
+                <SelectValue placeholder={
+                  allocations.length
+                    ? t("projects:quickCreate.fields.allocationPlaceholderPick")
+                    : t("projects:quickCreate.fields.allocationPlaceholderEmpty")
+                } />
               </SelectTrigger>
               <SelectContent>
                 {allocations.map((a) => {
@@ -512,10 +524,10 @@ function TaskDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button variant="ghost" onClick={onClose}>{t("projects:quickCreate.actions.cancel")}</Button>
           <Button onClick={() => create.mutate()}
             disabled={create.isPending || !form.name.trim() || !form.allocation_id}>
-            Criar tarefa
+            {t("projects:quickCreate.actions.createTask")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -524,17 +536,18 @@ function TaskDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
 }
 
 // ─────────────────────────────────────────────
-// Despesa (benefit_expenses do utilizador autenticado)
+// Expense (benefit_expenses for the authenticated user)
 // ─────────────────────────────────────────────
 const expenseSchema = z.object({
   categoria: z.enum(["carro", "ticket", "premio", "outros"]),
-  data_despesa: z.string().min(1, "Data obrigatória"),
-  valor: z.number().positive("Valor > 0"),
-  descricao: z.string().trim().min(1, "Descrição obrigatória").max(500),
+  data_despesa: z.string().min(1),
+  valor: z.number().positive(),
+  descricao: z.string().trim().min(1).max(500),
   notas_colaborador: z.string().trim().max(2000).optional().or(z.literal("")),
 });
 
 function ExpenseDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const today = new Date().toISOString().slice(0, 10);
 
@@ -556,10 +569,9 @@ function ExpenseDialog({ open, onClose }: { open: boolean; onClose: () => void }
         ...form,
         valor: form.valor ? Number(form.valor) : NaN,
       });
-      // Obter o collaborator_id do utilizador actual
       const { data: collabId, error: rpcErr } = await supabase.rpc("get_my_collaborator_id");
       if (rpcErr) throw rpcErr;
-      if (!collabId) throw new Error("O teu utilizador não está ligado a nenhum colaborador.");
+      if (!collabId) throw new Error(t("projects:quickCreate.errors.userNotLinked"));
       const { error } = await supabase.from("benefit_expenses").insert({
         collaborator_id: collabId,
         categoria: parsed.categoria,
@@ -571,7 +583,7 @@ function ExpenseDialog({ open, onClose }: { open: boolean; onClose: () => void }
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Despesa submetida");
+      toast.success(t("projects:quickCreate.toasts.expenseSubmitted"));
       qc.invalidateQueries({ queryKey: ["benefit_expenses"] });
       reset();
       onClose();
@@ -584,46 +596,46 @@ function ExpenseDialog({ open, onClose }: { open: boolean; onClose: () => void }
       <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Receipt className="h-5 w-5" /> Nova despesa
+            <Receipt className="h-5 w-5" /> {t("projects:quickCreate.newExpense")}
           </DialogTitle>
-          <DialogDescription>Submete uma despesa para aprovação.</DialogDescription>
+          <DialogDescription>{t("projects:quickCreate.newExpenseDesc")}</DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Categoria">
+          <Field label={t("projects:quickCreate.fields.category")}>
             <Select value={form.categoria}
               onValueChange={(v) => setForm((f) => ({ ...f, categoria: v as typeof form.categoria }))}>
               <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="carro">Carro</SelectItem>
-                <SelectItem value="ticket">Ticket</SelectItem>
-                <SelectItem value="premio">Prémio</SelectItem>
-                <SelectItem value="outros">Outros</SelectItem>
+                <SelectItem value="carro">{t("projects:quickCreate.expense.carro")}</SelectItem>
+                <SelectItem value="ticket">{t("projects:quickCreate.expense.ticket")}</SelectItem>
+                <SelectItem value="premio">{t("projects:quickCreate.expense.premio")}</SelectItem>
+                <SelectItem value="outros">{t("projects:quickCreate.expense.outros")}</SelectItem>
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Data *">
+          <Field label={t("projects:quickCreate.fields.date")}>
             <Input type="date" className="input-yellow" value={form.data_despesa}
               onChange={(e) => setForm((f) => ({ ...f, data_despesa: e.target.value }))} />
           </Field>
-          <Field label="Valor (€) *">
+          <Field label={t("projects:quickCreate.fields.amount")}>
             <Input type="number" step="0.01" min={0}
               className="input-yellow tabular-nums" value={form.valor}
               onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))} />
           </Field>
-          <Field label="Descrição *" full>
+          <Field label={t("projects:quickCreate.fields.description")} full>
             <Input className="input-yellow" value={form.descricao}
               onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))} />
           </Field>
-          <Field label="Notas" full>
+          <Field label={t("projects:quickCreate.fields.notes")} full>
             <Textarea className="input-yellow" rows={3} value={form.notas_colaborador}
               onChange={(e) => setForm((f) => ({ ...f, notas_colaborador: e.target.value }))} />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button variant="ghost" onClick={onClose}>{t("projects:quickCreate.actions.cancel")}</Button>
           <Button onClick={() => create.mutate()}
             disabled={create.isPending || !form.descricao.trim() || !form.valor}>
-            Submeter
+            {t("projects:quickCreate.actions.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -632,7 +644,7 @@ function ExpenseDialog({ open, onClose }: { open: boolean; onClose: () => void }
 }
 
 // ─────────────────────────────────────────────
-// Pedido (vacation_requests do utilizador autenticado)
+// Request (vacation_requests for the authenticated user)
 // ─────────────────────────────────────────────
 const requestSchema = z.object({
   tipo: z.enum([
@@ -640,12 +652,13 @@ const requestSchema = z.object({
     "nascimento_filho", "trabalhador_estudante", "doacao_sangue",
     "autorizada_paga", "autorizada_nao_paga",
   ]),
-  data_inicio: z.string().min(1, "Data início obrigatória"),
-  data_fim: z.string().min(1, "Data fim obrigatória"),
+  data_inicio: z.string().min(1),
+  data_fim: z.string().min(1),
   notas: z.string().trim().max(2000).optional().or(z.literal("")),
 });
 
 function RequestDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const today = new Date().toISOString().slice(0, 10);
 
@@ -665,11 +678,11 @@ function RequestDialog({ open, onClose }: { open: boolean; onClose: () => void }
     mutationFn: async () => {
       const parsed = requestSchema.parse(form);
       if (parsed.data_fim < parsed.data_inicio) {
-        throw new Error("Data fim antes da data início.");
+        throw new Error(t("projects:quickCreate.errors.endBeforeStart"));
       }
       const { data: collabId, error: rpcErr } = await supabase.rpc("get_my_collaborator_id");
       if (rpcErr) throw rpcErr;
-      if (!collabId) throw new Error("O teu utilizador não está ligado a nenhum colaborador.");
+      if (!collabId) throw new Error(t("projects:quickCreate.errors.userNotLinked"));
       const { error } = await supabase.from("vacation_requests").insert({
         collaborator_id: collabId,
         tipo: parsed.tipo,
@@ -680,7 +693,7 @@ function RequestDialog({ open, onClose }: { open: boolean; onClose: () => void }
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Pedido submetido");
+      toast.success(t("projects:quickCreate.toasts.requestSubmitted"));
       qc.invalidateQueries({ queryKey: ["vacation_requests"] });
       reset();
       onClose();
@@ -693,46 +706,46 @@ function RequestDialog({ open, onClose }: { open: boolean; onClose: () => void }
       <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <CalendarDays className="h-5 w-5" /> Novo pedido
+            <CalendarDays className="h-5 w-5" /> {t("projects:quickCreate.newRequest")}
           </DialogTitle>
-          <DialogDescription>Férias ou outras ausências.</DialogDescription>
+          <DialogDescription>{t("projects:quickCreate.newRequestDesc")}</DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Tipo" full>
+          <Field label={t("projects:quickCreate.fields.type")} full>
             <Select value={form.tipo}
               onValueChange={(v) => setForm((f) => ({ ...f, tipo: v as typeof form.tipo }))}>
               <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="ferias">Férias</SelectItem>
-                <SelectItem value="casamento">Casamento</SelectItem>
-                <SelectItem value="falecimento_familiar">Falecimento familiar</SelectItem>
-                <SelectItem value="assistencia_filho">Assistência a filho</SelectItem>
-                <SelectItem value="nascimento_filho">Nascimento de filho</SelectItem>
-                <SelectItem value="trabalhador_estudante">Trabalhador-estudante</SelectItem>
-                <SelectItem value="doacao_sangue">Doação de sangue</SelectItem>
-                <SelectItem value="autorizada_paga">Autorizada (paga)</SelectItem>
-                <SelectItem value="autorizada_nao_paga">Autorizada (não paga)</SelectItem>
+                <SelectItem value="ferias">{t("projects:quickCreate.leaveType.ferias")}</SelectItem>
+                <SelectItem value="casamento">{t("projects:quickCreate.leaveType.casamento")}</SelectItem>
+                <SelectItem value="falecimento_familiar">{t("projects:quickCreate.leaveType.falecimento_familiar")}</SelectItem>
+                <SelectItem value="assistencia_filho">{t("projects:quickCreate.leaveType.assistencia_filho")}</SelectItem>
+                <SelectItem value="nascimento_filho">{t("projects:quickCreate.leaveType.nascimento_filho")}</SelectItem>
+                <SelectItem value="trabalhador_estudante">{t("projects:quickCreate.leaveType.trabalhador_estudante")}</SelectItem>
+                <SelectItem value="doacao_sangue">{t("projects:quickCreate.leaveType.doacao_sangue")}</SelectItem>
+                <SelectItem value="autorizada_paga">{t("projects:quickCreate.leaveType.autorizada_paga")}</SelectItem>
+                <SelectItem value="autorizada_nao_paga">{t("projects:quickCreate.leaveType.autorizada_nao_paga")}</SelectItem>
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Início *">
+          <Field label={t("projects:quickCreate.fields.start")}>
             <Input type="date" className="input-yellow" value={form.data_inicio}
               onChange={(e) => setForm((f) => ({ ...f, data_inicio: e.target.value }))} />
           </Field>
-          <Field label="Fim *">
+          <Field label={t("projects:quickCreate.fields.end")}>
             <Input type="date" className="input-yellow" value={form.data_fim}
               onChange={(e) => setForm((f) => ({ ...f, data_fim: e.target.value }))} />
           </Field>
-          <Field label="Notas" full>
+          <Field label={t("projects:quickCreate.fields.notes")} full>
             <Textarea className="input-yellow" rows={3} value={form.notas}
               onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))} />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button variant="ghost" onClick={onClose}>{t("projects:quickCreate.actions.cancel")}</Button>
           <Button onClick={() => create.mutate()}
             disabled={create.isPending || !form.data_inicio || !form.data_fim}>
-            Submeter
+            {t("projects:quickCreate.actions.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -741,7 +754,7 @@ function RequestDialog({ open, onClose }: { open: boolean; onClose: () => void }
 }
 
 // ─────────────────────────────────────────────
-// Tempo — partilhado: query de alocações + helper para obter task_id
+// Time — shared: allocations query + helper to get task_id
 // ─────────────────────────────────────────────
 type AllocationLite = {
   id: string;
@@ -765,14 +778,14 @@ function useAllocations(open: boolean) {
   });
 }
 
-async function getTaskIdForAllocation(allocationId: string): Promise<string> {
+async function getTaskIdForAllocation(allocationId: string, errorMsg: string): Promise<string> {
   const { data, error } = await supabase
     .from("pm_tasks")
     .select("id")
     .eq("allocation_id", allocationId)
     .maybeSingle();
   if (error) throw error;
-  if (!data) throw new Error("Esta alocação não tem tarefa associada.");
+  if (!data) throw new Error(errorMsg);
   return data.id;
 }
 
@@ -794,16 +807,17 @@ function AllocationOptions({ allocations }: { allocations: AllocationLite[] }) {
 }
 
 // ─────────────────────────────────────────────
-// Registar tempo (manual)
+// Log time (manual)
 // ─────────────────────────────────────────────
 const logTimeSchema = z.object({
-  allocation_id: z.string().uuid("Escolhe uma alocação"),
-  entry_date: z.string().min(1, "Data obrigatória"),
-  hours: z.number().positive("Horas > 0").max(24, "Máx 24h"),
+  allocation_id: z.string().uuid(),
+  entry_date: z.string().min(1),
+  hours: z.number().positive().max(24),
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
 });
 
 function LogTimeDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { data: allocations = [] } = useAllocations(open);
   const today = new Date().toISOString().slice(0, 10);
@@ -825,8 +839,11 @@ function LogTimeDialog({ open, onClose }: { open: boolean; onClose: () => void }
       const { data: userRes, error: userErr } = await supabase.auth.getUser();
       if (userErr) throw userErr;
       const uid = userRes.user?.id;
-      if (!uid) throw new Error("Sessão expirada.");
-      const taskId = await getTaskIdForAllocation(parsed.allocation_id);
+      if (!uid) throw new Error(t("projects:quickCreate.errors.sessionExpired"));
+      const taskId = await getTaskIdForAllocation(
+        parsed.allocation_id,
+        t("projects:quickCreate.errors.noTaskForAllocation"),
+      );
       const { error } = await supabase.from("pm_time_entries").insert({
         task_id: taskId,
         user_id: uid,
@@ -838,7 +855,7 @@ function LogTimeDialog({ open, onClose }: { open: boolean; onClose: () => void }
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Tempo registado");
+      toast.success(t("projects:quickCreate.toasts.timeLogged"));
       qc.invalidateQueries({ queryKey: ["pm_time_entries"] });
       reset();
       onClose();
@@ -851,42 +868,46 @@ function LogTimeDialog({ open, onClose }: { open: boolean; onClose: () => void }
       <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" /> Registar tempo
+            <Clock className="h-5 w-5" /> {t("projects:quickCreate.logTimeTitle")}
           </DialogTitle>
           <DialogDescription>
-            Lança horas numa alocação (projecto · fase · recurso).
+            {t("projects:quickCreate.logTimeDesc")}
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Alocação *" full>
+          <Field label={t("projects:quickCreate.fields.allocation")} full>
             <Select value={form.allocation_id || ""}
               onValueChange={(v) => setForm((f) => ({ ...f, allocation_id: v }))}>
               <SelectTrigger className="input-yellow">
-                <SelectValue placeholder={allocations.length ? "Escolher…" : "Sem alocações disponíveis"} />
+                <SelectValue placeholder={
+                  allocations.length
+                    ? t("projects:quickCreate.fields.allocationPlaceholderPick")
+                    : t("projects:quickCreate.fields.allocationPlaceholderEmpty")
+                } />
               </SelectTrigger>
               <SelectContent>
                 <AllocationOptions allocations={allocations} />
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Data *">
+          <Field label={t("projects:quickCreate.fields.date")}>
             <Input type="date" className="input-yellow" value={form.entry_date}
               onChange={(e) => setForm((f) => ({ ...f, entry_date: e.target.value }))} />
           </Field>
-          <Field label="Horas *">
+          <Field label={t("projects:quickCreate.fields.hours")}>
             <Input type="number" step="0.25" min="0" className="input-yellow" value={form.hours}
               onChange={(e) => setForm((f) => ({ ...f, hours: e.target.value }))} />
           </Field>
-          <Field label="Notas" full>
+          <Field label={t("projects:quickCreate.fields.notes")} full>
             <Textarea className="input-yellow" rows={3} value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button variant="ghost" onClick={onClose}>{t("projects:quickCreate.actions.cancel")}</Button>
           <Button onClick={() => create.mutate()}
             disabled={create.isPending || !form.allocation_id || !form.hours}>
-            Registar
+            {t("projects:quickCreate.actions.logTime")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -895,14 +916,15 @@ function LogTimeDialog({ open, onClose }: { open: boolean; onClose: () => void }
 }
 
 // ─────────────────────────────────────────────
-// Iniciar timer (cria entry com started_at = now, hours = 0)
+// Start timer (creates entry with started_at = now, hours = 0)
 // ─────────────────────────────────────────────
 const startTimerSchema = z.object({
-  allocation_id: z.string().uuid("Escolhe uma alocação"),
+  allocation_id: z.string().uuid(),
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
 });
 
 function StartTimerDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { data: allocations = [] } = useAllocations(open);
 
@@ -915,8 +937,11 @@ function StartTimerDialog({ open, onClose }: { open: boolean; onClose: () => voi
       const { data: userRes, error: userErr } = await supabase.auth.getUser();
       if (userErr) throw userErr;
       const uid = userRes.user?.id;
-      if (!uid) throw new Error("Sessão expirada.");
-      const taskId = await getTaskIdForAllocation(parsed.allocation_id);
+      if (!uid) throw new Error(t("projects:quickCreate.errors.sessionExpired"));
+      const taskId = await getTaskIdForAllocation(
+        parsed.allocation_id,
+        t("projects:quickCreate.errors.noTaskForAllocation"),
+      );
       const now = new Date();
       const { error } = await supabase.from("pm_time_entries").insert({
         task_id: taskId,
@@ -930,7 +955,7 @@ function StartTimerDialog({ open, onClose }: { open: boolean; onClose: () => voi
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Timer iniciado");
+      toast.success(t("projects:quickCreate.toasts.timerStarted"));
       qc.invalidateQueries({ queryKey: ["pm_time_entries"] });
       reset();
       onClose();
@@ -943,34 +968,38 @@ function StartTimerDialog({ open, onClose }: { open: boolean; onClose: () => voi
       <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Play className="h-5 w-5" /> Iniciar timer
+            <Play className="h-5 w-5" /> {t("projects:quickCreate.startTimerTitle")}
           </DialogTitle>
           <DialogDescription>
-            Começa a contar tempo agora. Pára-o depois na página de timesheet.
+            {t("projects:quickCreate.startTimerDesc")}
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-1 gap-3">
-          <Field label="Alocação *">
+          <Field label={t("projects:quickCreate.fields.allocation")}>
             <Select value={form.allocation_id || ""}
               onValueChange={(v) => setForm((f) => ({ ...f, allocation_id: v }))}>
               <SelectTrigger className="input-yellow">
-                <SelectValue placeholder={allocations.length ? "Escolher…" : "Sem alocações disponíveis"} />
+                <SelectValue placeholder={
+                  allocations.length
+                    ? t("projects:quickCreate.fields.allocationPlaceholderPick")
+                    : t("projects:quickCreate.fields.allocationPlaceholderEmpty")
+                } />
               </SelectTrigger>
               <SelectContent>
                 <AllocationOptions allocations={allocations} />
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Notas">
+          <Field label={t("projects:quickCreate.fields.notes")}>
             <Textarea className="input-yellow" rows={3} value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
           </Field>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button variant="ghost" onClick={onClose}>{t("projects:quickCreate.actions.cancel")}</Button>
           <Button onClick={() => create.mutate()}
             disabled={create.isPending || !form.allocation_id}>
-            Iniciar
+            {t("projects:quickCreate.actions.startTimer")}
           </Button>
         </DialogFooter>
       </DialogContent>

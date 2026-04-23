@@ -85,7 +85,9 @@
       "createTask": "Create task",
       "createContact": "Create contact",
       "createProject": "Create project",
-      "submit": "Submit"
+      "submit": "Submit",
+      "logTime": "Log time",
+      "startTimer": "Start"
     },
     "expense": {
       "carro": "Car",
@@ -110,7 +112,8 @@
       "projectCreated": "Project created",
       "expenseSubmitted": "Expense submitted",
       "requestSubmitted": "Request submitted",
-      "timeLogged": "Time logged"
+      "timeLogged": "Time logged",
+      "timerStarted": "Timer started"
     },
     "errors": {
       "endBeforeStart": "End date before start date.",
