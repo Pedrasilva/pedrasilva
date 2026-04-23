@@ -829,6 +829,8 @@
         "description": "Description",
         "descriptionPlaceholder": "e.g. Train to Porto",
         "category": "Category",
+        "supplier": "Supplier",
+        "supplierLegacyHint": "Legacy vendor on this record: {{name}}. Pick a supplier from the directory to upgrade it.",
         "vendor": "Vendor",
         "amount": "Amount",
         "incurredAt": "Date incurred",
