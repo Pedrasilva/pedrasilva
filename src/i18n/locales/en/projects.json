@@ -156,6 +156,33 @@
       "active": "No active projects",
       "paused": "Nothing paused",
       "archived": "No archived projects"
+    },
+    "tooltip": {
+      "stage": "Stage",
+      "period": "Period",
+      "duration": "Duration",
+      "workingDays": "{{count}} working days",
+      "effort": "Effort",
+      "effortValue": "{{perDay}}h/day · {{total}}h total",
+      "costPerHour": "Cost/h",
+      "totalCost": "Total cost",
+      "overload": "Overload: peak of <strong>{{peak}}h/day</strong> (limit {{limit}}h) on {{days}} day(s).",
+      "leaveImpact": "Reduced capacity: <strong>{{leave}}h</strong> of approved leave inside the period → effective capacity ≈ <strong>{{effective}}h</strong> (of {{planned}}h planned).",
+      "baselineHover": "Baseline: {{start}} → {{end}}",
+      "leaveOverlap": "{{hours}}h overlap approved leave"
+    },
+    "stage": {
+      "overByAmount": "over by {{amount}}",
+      "deleteConfirm": "Delete stage \"{{name}}\"?",
+      "deleteAction": "Delete stage",
+      "moveAllocation": "Move allocation",
+      "linkFromStart": "Drag to another stage to create a dependency (from start)",
+      "linkFromEnd": "Drag to another stage to create a dependency (from end)"
+    },
+    "toasts": {
+      "linkCreated": "Dependency created",
+      "allocationMoved": "Allocation moved",
+      "resourceAllocated": "Resource allocated"
     }
   },
   "kpi": {
