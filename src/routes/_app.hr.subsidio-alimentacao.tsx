@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminOnly } from "@/components/AdminOnly";
@@ -19,6 +19,7 @@ import {
 import { Plus, Save, Trash2, Utensils } from "lucide-react";
 import { toast } from "sonner";
 import { fmtEUR } from "@/lib/salary";
+import { computeWorkdays, type Holiday } from "@/lib/workdays";
 
 type Rate = {
   id: string;
@@ -51,6 +52,32 @@ function SubsidioAlimentacaoPage() {
       return data as Rate[];
     },
   });
+
+  const { data: holidays = [] } = useQuery({
+    queryKey: ["holidays"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("holidays")
+        .select("*")
+        .order("data", { ascending: true });
+      if (error) throw error;
+      return data as Holiday[];
+    },
+  });
+
+  // Source of truth: working days per year, computed from holidays calendar.
+  const workdaysByYear = useMemo(() => {
+    const map = new Map<number, number>();
+    const years = new Set<number>(rates.map((r) => r.ano));
+    years.forEach((y) => {
+      try {
+        map.set(y, computeWorkdays(y, holidays).diasUteisBase);
+      } catch {
+        // leave undefined → fallback rendering
+      }
+    });
+    return map;
+  }, [rates, holidays]);
 
   const upsert = useMutation({
     mutationFn: async (r: Partial<Rate> & { ano: number }) => {
@@ -184,7 +211,7 @@ function SubsidioAlimentacaoPage() {
                   <TableHead>{t("hr:mealAllowance.columns.perCard")}</TableHead>
                   <TableHead>{t("hr:mealAllowance.columns.perCash")}</TableHead>
                   <TableHead className="text-right">
-                    {t("hr:mealAllowance.columns.annual220")}
+                    {t("hr:mealAllowance.columns.annual")}
                   </TableHead>
                   <TableHead className="w-24"></TableHead>
                 </TableRow>
@@ -194,6 +221,7 @@ function SubsidioAlimentacaoPage() {
                   <RateRow
                     key={r.id}
                     rate={r}
+                    workingDays={workdaysByYear.get(r.ano)}
                     onSave={(patch) => upsert.mutate({ ano: r.ano, ...patch })}
                     onDelete={() => remove.mutate(r.id)}
                   />
@@ -209,10 +237,12 @@ function SubsidioAlimentacaoPage() {
 
 function RateRow({
   rate,
+  workingDays,
   onSave,
   onDelete,
 }: {
   rate: Rate;
+  workingDays: number | undefined;
   onSave: (patch: Partial<Rate>) => void;
   onDelete: () => void;
 }) {
@@ -220,6 +250,7 @@ function RateRow({
   const [cartao, setCartao] = useState(rate.valor_cartao);
   const [dinheiro, setDinheiro] = useState(rate.valor_dinheiro);
   const dirty = cartao !== rate.valor_cartao || dinheiro !== rate.valor_dinheiro;
+  const hasDays = typeof workingDays === "number" && workingDays > 0;
 
   return (
     <TableRow>
@@ -243,7 +274,14 @@ function RateRow({
         />
       </TableCell>
       <TableCell className="text-right tabular-nums text-muted-foreground">
-        {fmtEUR(cartao * 220)}
+        <div className="flex flex-col items-end leading-tight">
+          <span>{hasDays ? fmtEUR(cartao * (workingDays as number)) : "—"}</span>
+          <span className="text-[10px] text-muted-foreground/80">
+            {hasDays
+              ? t("hr:mealAllowance.columns.basedOnDays", { days: workingDays })
+              : t("hr:mealAllowance.columns.workingDaysUnavailable")}
+          </span>
+        </div>
       </TableCell>
       <TableCell>
         <div className="flex items-center justify-end gap-1">
