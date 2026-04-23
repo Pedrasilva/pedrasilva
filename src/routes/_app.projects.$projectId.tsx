@@ -1548,8 +1548,40 @@ function InsightsPanel({
     profit: earnedValue - loggedCost,
     invoiced: invoicedTotal,
   };
-  const empty = { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 };
-  const totalRow = services;
+  // Pull live external services + project expenses to enrich Financials
+  const externalServicesQuery = useExternalServices(projectId);
+  const projectExpensesQuery = useProjectExpenses(projectId);
+  const extItems = externalServicesQuery.data ?? [];
+  const expItems = projectExpensesQuery.data ?? [];
+  const externalRow = extItems.reduce(
+    (acc, m) => {
+      const qty = Number(m.quantity || 1);
+      const cost = Number(m.purchase_price || 0) * qty;
+      const revenue = Number(m.sale_price || 0) * qty;
+      acc.cost += cost;
+      acc.value += revenue;
+      acc.budget += revenue;
+      return acc;
+    },
+    { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 },
+  );
+  externalRow.profit = externalRow.value - externalRow.cost;
+  const expensesRow = expItems.reduce(
+    (acc, e) => {
+      const cost = Number(e.purchase_price || 0);
+      acc.cost += cost;
+      return acc;
+    },
+    { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 },
+  );
+  expensesRow.profit = -expensesRow.cost;
+  const totalRow = {
+    budget: services.budget + externalRow.budget + expensesRow.budget,
+    value: services.value + externalRow.value + expensesRow.value,
+    cost: services.cost + externalRow.cost + expensesRow.cost,
+    profit: services.profit + externalRow.profit + expensesRow.profit,
+    invoiced: services.invoiced,
+  };
 
   return (
     <div className="mt-4 space-y-4">
