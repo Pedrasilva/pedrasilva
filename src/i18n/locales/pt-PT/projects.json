@@ -829,6 +829,8 @@
         "description": "Descrição",
         "descriptionPlaceholder": "ex. Comboio para o Porto",
         "category": "Categoria",
+        "supplier": "Fornecedor",
+        "supplierLegacyHint": "Fornecedor antigo neste registo: {{name}}. Escolha um fornecedor do directório para actualizar.",
         "vendor": "Fornecedor",
         "amount": "Valor",
         "incurredAt": "Data da despesa",
