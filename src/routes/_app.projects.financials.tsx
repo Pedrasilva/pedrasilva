@@ -2017,6 +2017,8 @@ function BusinessDevCard({
   monthCost: number;
   data: BusinessDevData | undefined;
 }) {
+  const { t } = useTranslation();
+  const dateLocale = useDateLocale();
   const decided = (data?.allTime.won ?? 0) + (data?.allTime.lost ?? 0);
   const winRate = decided > 0 ? ((data?.allTime.won ?? 0) / decided) * 100 : 0;
   const costPerWon =
@@ -2033,10 +2035,10 @@ function BusinessDevCard({
           <div>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Briefcase className="h-5 w-5" />
-              Business Development efficiency
+              {t("projects:financials.businessDev.title")}
             </CardTitle>
             <CardDescription>
-              How much it costs to win work — Fee Proposal time vs. proposals submitted and won.
+              {t("projects:financials.businessDev.subtitle")}
             </CardDescription>
           </div>
           <div className="text-right">
@@ -2047,7 +2049,7 @@ function BusinessDevCard({
               {hours(monthHours)}
             </p>
             <p className="text-xs text-muted-foreground tabular-nums">
-              {euros(monthCost)} BD cost this month
+              {t("projects:financials.businessDev.monthCost", { cost: euros(monthCost) })}
             </p>
           </div>
         </div>
@@ -2057,29 +2059,38 @@ function BusinessDevCard({
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <BdMetric
             icon={<FileText className="h-4 w-4" />}
-            label="Proposals submitted"
+            label={t("projects:financials.businessDev.metrics.submitted")}
             value={(data?.allTime.total ?? 0).toLocaleString("pt-PT")}
-            sub={`${data?.inMonth.submitted ?? 0} this month`}
+            sub={t("projects:financials.businessDev.metrics.submittedSub", {
+              count: data?.inMonth.submitted ?? 0,
+            })}
           />
           <BdMetric
             icon={<Trophy className="h-4 w-4" />}
-            label="Projects won"
+            label={t("projects:financials.businessDev.metrics.won")}
             value={(data?.allTime.won ?? 0).toLocaleString("pt-PT")}
-            sub={`${data?.inMonth.won ?? 0} this month`}
+            sub={t("projects:financials.businessDev.metrics.wonSub", {
+              count: data?.inMonth.won ?? 0,
+            })}
             tone="success"
           />
           <BdMetric
             icon={<Target className="h-4 w-4" />}
-            label="Win rate"
+            label={t("projects:financials.businessDev.metrics.winRate")}
             value={pct(winRate)}
-            sub={`${decided} decided · ${data?.allTime.open ?? 0} open`}
+            sub={t("projects:financials.businessDev.metrics.winRateSub", {
+              decided,
+              open: data?.allTime.open ?? 0,
+            })}
             tone={winRate >= 50 ? "success" : winRate >= 25 ? "warning" : "danger"}
           />
           <BdMetric
             icon={<Wallet className="h-4 w-4" />}
-            label="Cost per won project"
+            label={t("projects:financials.businessDev.metrics.costPerWon")}
             value={euros(costPerWon)}
-            sub={`${euros(data?.allTime.bdCost ?? 0)} total BD cost`}
+            sub={t("projects:financials.businessDev.metrics.costPerWonSub", {
+              cost: euros(data?.allTime.bdCost ?? 0),
+            })}
             tone="muted"
           />
         </div>
@@ -2089,39 +2100,29 @@ function BusinessDevCard({
           <div className="flex items-start gap-2">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
             <div className="space-y-1">
-              <p>
-                <span className="font-medium text-foreground">
-                  {hours(data?.allTime.bdHours ?? 0)}
-                </span>{" "}
-                logged to <span className="font-medium">Fee proposals</span> across the company,
-                costing{" "}
-                <span className="font-medium text-foreground">
-                  {euros(data?.allTime.bdCost ?? 0)}
-                </span>
-                . Each won project costs{" "}
-                <span className="font-medium text-foreground">{euros(costPerWon)}</span>{" "}
-                in BD effort.
-              </p>
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: t("projects:financials.businessDev.insight", {
+                    hours: hours(data?.allTime.bdHours ?? 0),
+                    cost: euros(data?.allTime.bdCost ?? 0),
+                    costPerWon: euros(costPerWon),
+                    interpolation: { escapeValue: false },
+                  }),
+                }}
+              />
               {(data?.allTime.valueWon ?? 0) > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  Total value won:{" "}
-                  <span className="font-medium text-foreground">
-                    {euros(data?.allTime.valueWon ?? 0)}
-                  </span>{" "}
-                  · ROI:{" "}
-                  <span
-                    className={cn(
-                      "font-medium",
-                      roi >= 5
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : roi >= 2
-                          ? "text-foreground"
-                          : "text-amber-600 dark:text-amber-400",
-                    )}
-                  >
-                    {roi.toFixed(1)}× return on BD spend
-                  </span>
-                </p>
+                <p
+                  className={cn(
+                    "text-xs text-muted-foreground",
+                  )}
+                  dangerouslySetInnerHTML={{
+                    __html: t("projects:financials.businessDev.valueWon", {
+                      value: euros(data?.allTime.valueWon ?? 0),
+                      roi: roi.toFixed(1),
+                      interpolation: { escapeValue: false },
+                    }),
+                  }}
+                />
               )}
             </div>
           </div>
@@ -2131,16 +2132,16 @@ function BusinessDevCard({
         {data?.recentWon && data.recentWon.length > 0 && (
           <div>
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Recent wins
+              {t("projects:financials.businessDev.recentWins")}
             </p>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
-                    <th className="px-3 py-2">Proposal</th>
-                    <th className="px-3 py-2 text-right">Value</th>
-                    <th className="px-3 py-2">Decided</th>
-                    <th className="px-3 py-2">Linked project</th>
+                    <th className="px-3 py-2">{t("projects:financials.businessDev.recentTable.proposal")}</th>
+                    <th className="px-3 py-2 text-right">{t("projects:financials.businessDev.recentTable.value")}</th>
+                    <th className="px-3 py-2">{t("projects:financials.businessDev.recentTable.decided")}</th>
+                    <th className="px-3 py-2">{t("projects:financials.businessDev.recentTable.linkedProject")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -2150,17 +2151,17 @@ function BusinessDevCard({
                       <td className="px-3 py-2 text-right tabular-nums">{euros(w.valor)}</td>
                       <td className="px-3 py-2 text-muted-foreground">
                         {w.data_decisao
-                          ? format(parseISO(w.data_decisao), "d MMM yyyy")
+                          ? format(parseISO(w.data_decisao), "d MMM yyyy", { locale: dateLocale })
                           : "—"}
                       </td>
                       <td className="px-3 py-2">
                         {w.pm_project_id ? (
                           <Badge variant="secondary" className="text-[10px]">
-                            <CheckCircle2 className="mr-1 h-3 w-3" /> Linked
+                            <CheckCircle2 className="mr-1 h-3 w-3" /> {t("projects:financials.businessDev.recentTable.linked")}
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="text-[10px] text-muted-foreground">
-                            Not linked
+                            {t("projects:financials.businessDev.recentTable.notLinked")}
                           </Badge>
                         )}
                       </td>
@@ -2174,7 +2175,7 @@ function BusinessDevCard({
 
         {(data?.allTime.total ?? 0) === 0 && (
           <p className="text-sm text-muted-foreground">
-            No proposals submitted yet. Add proposals in the CRM Pipeline to track BD efficiency.
+            {t("projects:financials.businessDev.noProposals")}
           </p>
         )}
       </CardContent>
