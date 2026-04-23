@@ -1697,23 +1697,34 @@ function WeeklyUtilizationCard({
   data: WeekPoint[];
   targets: UtilTargets;
 }) {
+  const { t } = useTranslation();
   const latest = data[data.length - 1];
   const prev = data[data.length - 2];
   const trend = latest && prev ? latest.utilization - prev.utilization : 0;
+  const minLabel = t("projects:financials.weeklyUtil.minLabel", {
+    pct: Math.round(targets.utilization_target_min),
+  });
+  const maxLabel = t("projects:financials.weeklyUtil.maxLabel", {
+    pct: Math.round(targets.utilization_target_max),
+  });
   return (
     <Card className="mt-6">
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
         <div>
-          <CardTitle className="text-lg">Utilization trend</CardTitle>
+          <CardTitle className="text-lg">
+            {t("projects:financials.weeklyUtil.title")}
+          </CardTitle>
           <CardDescription>
-            Last 12 weeks · target band {Math.round(targets.utilization_target_min)}–
-            {Math.round(targets.utilization_target_max)}%
+            {t("projects:financials.weeklyUtil.subtitle", {
+              min: Math.round(targets.utilization_target_min),
+              max: Math.round(targets.utilization_target_max),
+            })}
           </CardDescription>
         </div>
         {latest && (
           <div className="text-right">
             <div className="text-xs uppercase tracking-wide text-muted-foreground">
-              This week
+              {t("projects:financials.weeklyUtil.thisWeek")}
             </div>
             <div className="text-xl font-semibold tabular-nums">
               {pct(latest.utilization)}
@@ -1724,7 +1735,10 @@ function WeeklyUtilizationCard({
                 trend >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400",
               )}
             >
-              {trend >= 0 ? "▲" : "▼"} {pct(Math.abs(trend))} vs prev
+              {t("projects:financials.weeklyUtil.trendDelta", {
+                arrow: trend >= 0 ? "▲" : "▼",
+                pct: pct(Math.abs(trend)),
+              })}
             </div>
           </div>
         )}
@@ -1758,7 +1772,7 @@ function WeeklyUtilizationCard({
               {/* Target band as a translucent area using two reference bars */}
               <Bar
                 dataKey={() => targets.utilization_target_max}
-                name="Target max"
+                name={t("projects:financials.weeklyUtil.targetMax")}
                 fill="hsl(var(--primary) / 0.08)"
                 stackId="band"
                 isAnimationActive={false}
@@ -1767,7 +1781,7 @@ function WeeklyUtilizationCard({
               <Line
                 type="monotone"
                 dataKey="utilization"
-                name="Utilization"
+                name={t("projects:financials.weeklyUtil.utilization")}
                 stroke="hsl(var(--primary))"
                 strokeWidth={2.5}
                 dot={{ r: 3 }}
@@ -1775,7 +1789,7 @@ function WeeklyUtilizationCard({
               <Line
                 type="monotone"
                 dataKey="internalPct"
-                name="Internal %"
+                name={t("projects:financials.weeklyUtil.internalPct")}
                 stroke="hsl(var(--muted-foreground))"
                 strokeWidth={1.5}
                 strokeDasharray="4 4"
@@ -1784,7 +1798,7 @@ function WeeklyUtilizationCard({
               <Line
                 type="monotone"
                 dataKey={() => targets.utilization_target_min}
-                name={`Min ${Math.round(targets.utilization_target_min)}%`}
+                name={minLabel}
                 stroke="hsl(var(--muted-foreground))"
                 strokeDasharray="2 4"
                 dot={false}
@@ -1793,7 +1807,7 @@ function WeeklyUtilizationCard({
               <Line
                 type="monotone"
                 dataKey={() => targets.utilization_target_max}
-                name={`Max ${Math.round(targets.utilization_target_max)}%`}
+                name={maxLabel}
                 stroke="hsl(var(--muted-foreground))"
                 strokeDasharray="2 4"
                 dot={false}
