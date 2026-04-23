@@ -583,16 +583,15 @@ function FinancialsPage() {
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-              Company financials
+              {t("projects:financials.eyebrow")}
             </p>
             <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight">
-              Monthly performance
+              {t("projects:financials.title")}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Revenue, cost and time breakdown for{" "}
-              <span className="font-medium text-foreground">
-                {format(monthAnchor, "MMMM yyyy")}
-              </span>
+              {t("projects:financials.subtitle", {
+                month: format(monthAnchor, "MMMM yyyy", { locale: dateLocale }),
+              })}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -602,40 +601,46 @@ function FinancialsPage() {
                 variant="ghost"
                 onClick={() => setMonthAnchor((d) => startOfMonth(subMonths(d, 1)))}
                 className="h-9 rounded-r-none px-2"
+                aria-label={t("projects:common.previousMonth")}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <div className="px-3 text-sm font-medium">
-                {format(monthAnchor, "MMM yyyy")}
+                {format(monthAnchor, "MMM yyyy", { locale: dateLocale })}
               </div>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setMonthAnchor((d) => startOfMonth(addMonths(d, 1)))}
                 className="h-9 rounded-l-none px-2"
+                aria-label={t("projects:common.nextMonth")}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
             <Select value={teamFilter} onValueChange={(v) => { setTeamFilter(v); setUserFilter("all"); }}>
               <SelectTrigger className="h-9 w-[160px]">
-                <SelectValue placeholder="Team" />
+                <SelectValue placeholder={t("projects:financials.filters.teamPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All teams</SelectItem>
-                {teams.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t === "back_office" ? "Back office" : t === "project" ? "Projects" : t}
+                <SelectItem value="all">{t("projects:financials.filters.allTeams")}</SelectItem>
+                {teams.map((team) => (
+                  <SelectItem key={team} value={team}>
+                    {team === "back_office"
+                      ? t("projects:financials.filters.backOffice")
+                      : team === "project"
+                        ? t("projects:financials.filters.projects")
+                        : team}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select value={userFilter} onValueChange={setUserFilter}>
               <SelectTrigger className="h-9 w-[200px]">
-                <SelectValue placeholder="Person" />
+                <SelectValue placeholder={t("projects:financials.filters.personPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All people</SelectItem>
+                <SelectItem value="all">{t("projects:financials.filters.allPeople")}</SelectItem>
                 {(resources ?? [])
                   .filter((r) => r.active && (teamFilter === "all" || r.team === teamFilter))
                   .map((r) => (
