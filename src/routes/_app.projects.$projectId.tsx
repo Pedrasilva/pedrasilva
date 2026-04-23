@@ -614,6 +614,28 @@ function ProjectDetail() {
               </div>
             )}
 
+            {tab === "rates" && (
+              <div className="mt-4">
+                <PlaceholderPanel
+                  icon={DollarSign}
+                  title={t("projects:detail.placeholder.ratesTitle")}
+                  description={t("projects:detail.placeholder.ratesDescription")}
+                  badge={t("projects:detail.placeholder.comingSoon")}
+                />
+              </div>
+            )}
+
+            {tab === "billing" && (
+              <div className="mt-4">
+                <PlaceholderPanel
+                  icon={FileText}
+                  title={t("projects:detail.placeholder.billingTitle")}
+                  description={t("projects:detail.placeholder.billingDescription")}
+                  badge={t("projects:detail.placeholder.comingSoon")}
+                />
+              </div>
+            )}
+
             {tab === "schedule" && (
               <div className="mt-4">
                 <div className="mb-3 flex flex-wrap items-center justify-end gap-2">
