@@ -19,9 +19,11 @@ import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
 import enCommon from "./locales/en/common.json";
+import enCrm from "./locales/en/crm.json";
 import enGlossary from "./locales/en/glossary.json";
 import enProjects from "./locales/en/projects.json";
 import ptCommon from "./locales/pt-PT/common.json";
+import ptCrm from "./locales/pt-PT/crm.json";
 import ptGlossary from "./locales/pt-PT/glossary.json";
 import ptProjects from "./locales/pt-PT/projects.json";
 
@@ -36,11 +38,13 @@ export const resources = {
     common: enCommon,
     glossary: enGlossary,
     projects: enProjects,
+    crm: enCrm,
   },
   "pt-PT": {
     common: ptCommon,
     glossary: ptGlossary,
     projects: ptProjects,
+    crm: ptCrm,
   },
 } as const;
 
@@ -59,7 +63,7 @@ if (!i18n.isInitialized) {
       resources,
       fallbackLng: DEFAULT_LANGUAGE,
       supportedLngs: [...SUPPORTED_LANGUAGES],
-      ns: ["common", "glossary", "projects"],
+      ns: ["common", "glossary", "projects", "crm"],
       defaultNS: "common",
       interpolation: { escapeValue: false },
       detection: {
