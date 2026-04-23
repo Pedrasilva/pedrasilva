@@ -156,6 +156,33 @@
       "active": "Nenhum projecto activo",
       "paused": "Nada em pausa",
       "archived": "Nenhum projecto arquivado"
+    },
+    "tooltip": {
+      "stage": "Fase",
+      "period": "Período",
+      "duration": "Duração",
+      "workingDays": "{{count}} dias úteis",
+      "effort": "Esforço",
+      "effortValue": "{{perDay}}h/dia · {{total}}h total",
+      "costPerHour": "Custo/h",
+      "totalCost": "Custo total",
+      "overload": "Sobrecarga: pico de <strong>{{peak}}h/dia</strong> (limite {{limit}}h) em {{days}} dia(s).",
+      "leaveImpact": "Capacidade reduzida: <strong>{{leave}}h</strong> de férias aprovadas dentro do período → capacidade efectiva ≈ <strong>{{effective}}h</strong> (de {{planned}}h planeadas).",
+      "baselineHover": "Baseline: {{start}} → {{end}}",
+      "leaveOverlap": "{{hours}}h sobrepostas com férias aprovadas"
+    },
+    "stage": {
+      "overByAmount": "excedido em {{amount}}",
+      "deleteConfirm": "Apagar fase \"{{name}}\"?",
+      "deleteAction": "Apagar fase",
+      "moveAllocation": "Mover alocação",
+      "linkFromStart": "Arraste para outra fase para criar dependência (a partir do início)",
+      "linkFromEnd": "Arraste para outra fase para criar dependência (a partir do fim)"
+    },
+    "toasts": {
+      "linkCreated": "Dependência criada",
+      "allocationMoved": "Alocação movida",
+      "resourceAllocated": "Recurso alocado"
     }
   },
   "kpi": {
