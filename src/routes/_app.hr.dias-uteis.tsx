@@ -252,15 +252,17 @@ function DiasUteisPage() {
             {t("hr:diasUteis.holidays.title", { year })}
           </CardTitle>
           <CardDescription>
-            {t("hr:diasUteis.holidays.description", {
-              count: breakdown.feriadosTotais,
-              workingClause: t("hr:diasUteis.holidays.workingClause", {
-                count: breakdown.feriadosUteis,
-              }),
-              weekendClause: t("hr:diasUteis.holidays.weekendClause", {
-                count: breakdown.feriadosFimDeSemana,
-              }),
-            })}
+            {breakdown.feriadosTotais === 0
+              ? t("hr:diasUteis.holidays.descriptionEmpty")
+              : t("hr:diasUteis.holidays.description", {
+                  count: breakdown.feriadosTotais,
+                  workingClause: t("hr:diasUteis.holidays.workingClause", {
+                    count: breakdown.feriadosUteis,
+                  }),
+                  weekendClause: t("hr:diasUteis.holidays.weekendClause", {
+                    count: breakdown.feriadosFimDeSemana,
+                  }),
+                })}
           </CardDescription>
         </CardHeader>
         <CardContent>
