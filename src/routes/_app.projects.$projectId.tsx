@@ -577,13 +577,13 @@ function ProjectDetail() {
           {/* Main ------------------------------------------------------ */}
           <section>
             {/* Tabs */}
-            <div className="flex items-center gap-1 border-b border-border">
-              <TabBtn icon={ListChecks} label="Overview" active={tab === "overview"} onClick={() => setTab("overview")} />
-              <TabBtn icon={Calendar} label="Schedule" active={tab === "schedule"} onClick={() => setTab("schedule")} />
-              <TabBtn icon={Package} label="Materials" active={tab === "materials"} onClick={() => setTab("materials")} />
-              <TabBtn icon={Receipt} label="Expenses" active={tab === "expenses"} onClick={() => setTab("expenses")} />
-              <TabBtn icon={TrendingUp} label="Insights" active={tab === "insights"} onClick={() => setTab("insights")} />
-              <TabBtn icon={ActivityIcon} label="Stream" active={tab === "stream"} onClick={() => setTab("stream")} />
+            <div className="flex items-center gap-0.5 overflow-x-auto border-b border-border">
+              <TabBtn icon={ListChecks} label={t("projects:detail.tabs.overview")} active={tab === "overview"} onClick={() => setTab("overview")} />
+              <TabBtn icon={Calendar} label={t("projects:detail.tabs.schedule")} active={tab === "schedule"} onClick={() => setTab("schedule")} />
+              <TabBtn icon={Package} label={t("projects:detail.tabs.materials")} active={tab === "materials"} onClick={() => setTab("materials")} />
+              <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
+              <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
+              <TabBtn icon={ActivityIcon} label={t("projects:detail.tabs.stream")} active={tab === "stream"} onClick={() => setTab("stream")} />
             </div>
 
             {tab === "overview" && (
@@ -843,13 +843,19 @@ function EditableProjectName({
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
   const tone =
     status === "active"
       ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
       : status === "paused"
         ? "bg-amber-500/15 text-amber-700 dark:text-amber-400"
         : "bg-muted text-muted-foreground";
-  const label = status === "active" ? "Activo" : status === "paused" ? "Em pausa" : "Arquivado";
+  const label =
+    status === "active"
+      ? t("projects:detail.status.active")
+      : status === "paused"
+        ? t("projects:detail.status.paused")
+        : t("projects:detail.status.archived");
   return (
     <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider", tone)}>
       {label}
@@ -864,31 +870,32 @@ function StatusToggle({
   current: string;
   onChange: (s: "active" | "paused" | "archived") => void;
 }) {
+  const { t } = useTranslation();
   return (
-    <div className="flex items-center gap-1 rounded-md border border-border p-0.5">
+    <div className="flex items-center gap-0.5 rounded-md border border-border p-0.5">
       <Button
         size="sm"
         variant={current === "active" ? "default" : "ghost"}
-        className="h-7 gap-1.5 text-xs"
+        className="h-8 gap-1.5 text-xs"
         onClick={() => onChange("active")}
       >
-        <CheckCircle2 className="h-3.5 w-3.5" /> Activar
+        <CheckCircle2 className="h-3.5 w-3.5" /> {t("projects:detail.actions.activate")}
       </Button>
       <Button
         size="sm"
         variant={current === "paused" ? "default" : "ghost"}
-        className="h-7 gap-1.5 text-xs"
+        className="h-8 gap-1.5 text-xs"
         onClick={() => onChange("paused")}
       >
-        <Pause className="h-3.5 w-3.5" /> Pausar
+        <Pause className="h-3.5 w-3.5" /> {t("projects:detail.actions.pause")}
       </Button>
       <Button
         size="sm"
         variant={current === "archived" ? "default" : "ghost"}
-        className="h-7 gap-1.5 text-xs"
+        className="h-8 gap-1.5 text-xs"
         onClick={() => onChange("archived")}
       >
-        <XCircle className="h-3.5 w-3.5" /> Arquivar
+        <XCircle className="h-3.5 w-3.5" /> {t("projects:detail.actions.archive")}
       </Button>
     </div>
   );
