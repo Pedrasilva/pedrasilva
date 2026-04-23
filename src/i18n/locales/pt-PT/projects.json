@@ -742,6 +742,8 @@
       "fields": {
         "description": "Descrição",
         "descriptionPlaceholder": "ex. Consultor de estruturas",
+        "supplier": "Fornecedor",
+        "supplierLegacyHint": "Fornecedor antigo neste registo: {{name}}. Escolha um fornecedor do directório para actualizar.",
         "supplierName": "Fornecedor",
         "supplierContact": "Contacto do fornecedor",
         "quantity": "Quantidade",
