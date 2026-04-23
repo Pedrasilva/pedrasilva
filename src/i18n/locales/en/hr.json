@@ -435,5 +435,143 @@
       "proposedLabel": "Proposed",
       "snapshotFallback": "Snapshot"
     }
+  },
+  "diasUteis": {
+    "title": "Working days",
+    "subtitle": "Calculation of working days per year based on national holidays that fall on working days. Each team member's vacation days are deducted afterwards.",
+    "yearLabel": "Year",
+    "applyAllButton": "Apply to all snapshots",
+    "applyDialog": {
+      "title": "Apply working days to all snapshots?",
+      "description": "This will update the <strong>working days</strong> field of all snapshots with reference date in {{year}}, deducting each team member's annual vacation days. Backoffice settings will be set to <strong>{{days}} days</strong> (already discounting 22 vacation days — used in /summary, /BO rate and Pricing).",
+      "cancel": "Cancel",
+      "confirm": "Apply now"
+    },
+    "kpis": {
+      "daysInYear": "Days in year",
+      "weekendDays": "Saturdays + Sundays",
+      "holidaysOnWorkingDays": "Holidays on working days",
+      "workingDaysBase": "Working days (base)",
+      "afterVacation": "After 22 vacation days"
+    },
+    "holidays": {
+      "title": "National holidays {{year}}",
+      "description": "{{total}} holiday(s) — {{onWorkingDays}} on working days, {{onWeekend}} on weekends (no impact).",
+      "headers": {
+        "date": "Date",
+        "weekday": "Weekday",
+        "name": "Name",
+        "countsAsWorkingDay": "Counts as working day?"
+      },
+      "empty": "No holidays registered for {{year}}.",
+      "yes": "Yes — deducts",
+      "weekend": "Weekend",
+      "newHoliday": {
+        "dateLabel": "Date",
+        "nameLabel": "Holiday name",
+        "namePlaceholder": "e.g. Bridge day",
+        "addButton": "Add"
+      }
+    },
+    "formula": {
+      "title": "How it is calculated",
+      "description": "Same logic as <link>dias-uteis.pt</link>.",
+      "daysInYear": "Days in year",
+      "minusWeekend": "− Saturdays and Sundays",
+      "minusHolidaysWorkingDays": "− Holidays on working days",
+      "workingDaysBase": "= Working days (base, before vacation)",
+      "minusVacation": "− Team member vacation days (22)",
+      "effectiveWorkingDays": "= Effective working days"
+    },
+    "toasts": {
+      "fillFields": "Please fill in date and name",
+      "added": "Holiday added",
+      "removed": "Holiday removed",
+      "appliedToSnapshots": "Applied to {{count}} snapshot(s) and BO settings"
+    }
+  },
+  "resumo": {
+    "title": "General summary",
+    "subtitle": "Mirrors the original Excel layout — Backoffice Team + Project Team.",
+    "exportPdf": "Export PDF",
+    "tabs": {
+      "general": "General",
+      "comparative": "Comparative"
+    },
+    "kpis": {
+      "totalProjectTeam": "Total Project Team (TGV)",
+      "totalBackofficeTeam": "Total Backoffice Team (TGV)",
+      "totalAtelierAnnualCost": "Total annual studio cost"
+    },
+    "valorBo": {
+      "title": "Studio cost per unit of time",
+      "description": "Total cost ({{total}}) ÷ {{days}} working days × {{hours}} h/day",
+      "editParams": "Edit parameters →",
+      "perDayLabel": "Value / day",
+      "perHourLabel": "Value / hour",
+      "perMinuteLabel": "Value / minute",
+      "perSecondLabel": "Value / second",
+      "perDayUnit": "day",
+      "perHourUnit": "hour",
+      "perMinuteUnit": "min",
+      "perSecondUnit": "sec",
+      "perUnit": "per {{unit}}",
+      "footer": "BO share / member / year: {{cota}} · Global margin: {{margin}}"
+    },
+    "composition": {
+      "title": "Composition of the total studio cost",
+      "description": "Total cost = Human Resources (TGV) + Operating Cost = ",
+      "hrVsOperational": "Human Resources vs Operational",
+      "productionVsStructure": "Production vs Structure",
+      "structureSubtitle": "Structure = Backoffice + Operational",
+      "humanResourcesTgv": "Human Resources (TGV)",
+      "operationalCost": "Operating Cost",
+      "projectResources": "Project Resources",
+      "structureLabel": "Backoffice ({{backoffice}}) + Operational ({{operational}})",
+      "humanResourcesPct": "Human Resources: {{pct}}",
+      "operationalPct": "Operating Cost: {{pct}}",
+      "projectResourcesPct": "Project Resources: {{pct}}",
+      "structurePct": "Structure: {{pct}}",
+      "wholeTeamHours": "Whole team ({{count}} × {{days}} × {{hours}} h)",
+      "projectOnlyHours": "Project only ({{count}} × {{days}} × {{hours}} h)",
+      "hoursPerYear": "{{value}} h/yr",
+      "costPerHour": "{{value}}/h"
+    },
+    "rhTable": {
+      "subtitle_one": "{{count}} team member · values based on the in-force snapshot (or proposed if there is no in-force)",
+      "subtitle_other": "{{count}} team members · values based on the in-force snapshot (or proposed if there is no in-force)",
+      "headers": {
+        "name": "Name",
+        "code": "Code",
+        "grossAnnual": "Annual gross",
+        "contractualBase": "Contractual base",
+        "grossMonthly": "Monthly gross",
+        "mealAllowance": "Meal allowance",
+        "perDiem": "Per diem allowances",
+        "netMonthly": "Monthly net",
+        "benefitsAnnual": "Annual benefits",
+        "tgv": "TGV"
+      },
+      "emptyDepartment": "No team members in this department.",
+      "totals": {
+        "production": "Production team",
+        "backoffice": "Backoffice team",
+        "project": "Project team"
+      }
+    },
+    "pricing": {
+      "title": "Pricing — Project Team",
+      "description": "TGV/h and BO share/h = annual value ÷ ({{days}}×{{hours}}) h. Cost/h sums both, sale price = cost/h × (1 + margin).",
+      "headers": {
+        "collaborator": "Team member",
+        "tgvPerHour": "TGV/h",
+        "boSharePerHour": "+ BO share/h",
+        "costPerHour": "Cost/h",
+        "at30": "@ 30%",
+        "at50": "@ 50%",
+        "at100": "@ 100%"
+      },
+      "empty": "No team members."
+    }
   }
 }

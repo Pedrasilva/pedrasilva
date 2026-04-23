@@ -435,5 +435,143 @@
       "proposedLabel": "Proposto",
       "snapshotFallback": "Ficha"
     }
+  },
+  "diasUteis": {
+    "title": "Dias úteis",
+    "subtitle": "Cálculo de dias úteis por ano com base em feriados nacionais que coincidem com dias de trabalho. Os dias de férias do colaborador são descontados a seguir.",
+    "yearLabel": "Ano",
+    "applyAllButton": "Aplicar a todas as fichas",
+    "applyDialog": {
+      "title": "Aplicar dias úteis a todas as fichas?",
+      "description": "Vai atualizar o campo <strong>dias úteis</strong> de todas as fichas com data de referência em {{year}}, descontando os dias de férias anuais de cada colaborador. As definições BO ficam com <strong>{{days}} dias</strong> (já com 22 dias de férias descontados — usado em /resumo, /valor-bo e Pricing).",
+      "cancel": "Cancelar",
+      "confirm": "Aplicar agora"
+    },
+    "kpis": {
+      "daysInYear": "Dias do ano",
+      "weekendDays": "Sábados + Domingos",
+      "holidaysOnWorkingDays": "Feriados em dia útil",
+      "workingDaysBase": "Dias úteis (base)",
+      "afterVacation": "Após 22 dias férias"
+    },
+    "holidays": {
+      "title": "Feriados nacionais {{year}}",
+      "description": "{{total}} feriado(s) — {{onWorkingDays}} em dia útil, {{onWeekend}} ao fim-de-semana (sem impacto).",
+      "headers": {
+        "date": "Data",
+        "weekday": "Dia da semana",
+        "name": "Nome",
+        "countsAsWorkingDay": "Conta como dia útil?"
+      },
+      "empty": "Sem feriados registados para {{year}}.",
+      "yes": "Sim — desconta",
+      "weekend": "Fim-de-semana",
+      "newHoliday": {
+        "dateLabel": "Data",
+        "nameLabel": "Nome do feriado",
+        "namePlaceholder": "ex: Tolerância de ponto",
+        "addButton": "Adicionar"
+      }
+    },
+    "formula": {
+      "title": "Como é calculado",
+      "description": "Mesma lógica de <link>dias-uteis.pt</link>.",
+      "daysInYear": "Dias do ano",
+      "minusWeekend": "− Sábados e Domingos",
+      "minusHolidaysWorkingDays": "− Feriados em dia útil",
+      "workingDaysBase": "= Dias úteis (base, sem férias)",
+      "minusVacation": "− Dias de férias do colaborador (22)",
+      "effectiveWorkingDays": "= Dias efectivamente trabalhados"
+    },
+    "toasts": {
+      "fillFields": "Preenche data e nome",
+      "added": "Feriado adicionado",
+      "removed": "Feriado removido",
+      "appliedToSnapshots": "Aplicado a {{count}} ficha(s) e às definições BO"
+    }
+  },
+  "resumo": {
+    "title": "Resumo geral",
+    "subtitle": "Formato espelhado do mapa Excel — Equipa Backoffice + Equipa Projecto.",
+    "exportPdf": "Exportar PDF",
+    "tabs": {
+      "general": "Geral",
+      "comparative": "Comparativo"
+    },
+    "kpis": {
+      "totalProjectTeam": "Total Equipa Projecto (VBG)",
+      "totalBackofficeTeam": "Total Equipa Backoffice (VBG)",
+      "totalAtelierAnnualCost": "Custo total anual do atelier"
+    },
+    "valorBo": {
+      "title": "Custo do atelier por unidade de tempo",
+      "description": "Custo total ({{total}}) ÷ {{days}} dias úteis × {{hours}} h/dia",
+      "editParams": "Editar parâmetros →",
+      "perDayLabel": "Valor / dia",
+      "perHourLabel": "Valor / hora",
+      "perMinuteLabel": "Valor / minuto",
+      "perSecondLabel": "Valor / segundo",
+      "perDayUnit": "dia",
+      "perHourUnit": "hora",
+      "perMinuteUnit": "min",
+      "perSecondUnit": "seg",
+      "perUnit": "por {{unit}}",
+      "footer": "Cota BO/colab/ano: {{cota}} · Margem global: {{margin}}"
+    },
+    "composition": {
+      "title": "Composição do custo total do atelier",
+      "description": "Custo total = Recursos Humanos (VBG) + Custo Operacional = ",
+      "hrVsOperational": "Recursos Humanos vs Operacional",
+      "productionVsStructure": "Produção vs Estrutura",
+      "structureSubtitle": "Estrutura = Backoffice + Operacional",
+      "humanResourcesTgv": "Recursos Humanos (VBG)",
+      "operationalCost": "Custo Operacional",
+      "projectResources": "Recursos Projecto",
+      "structureLabel": "Backoffice ({{backoffice}}) + Operacional ({{operational}})",
+      "humanResourcesPct": "Recursos Humanos: {{pct}}",
+      "operationalPct": "Custo Operacional: {{pct}}",
+      "projectResourcesPct": "Recursos Projecto: {{pct}}",
+      "structurePct": "Estrutura: {{pct}}",
+      "wholeTeamHours": "Toda a equipa ({{count}} × {{days}} × {{hours}} h)",
+      "projectOnlyHours": "Só Projecto ({{count}} × {{days}} × {{hours}} h)",
+      "hoursPerYear": "{{value}} h/ano",
+      "costPerHour": "{{value}}/h"
+    },
+    "rhTable": {
+      "subtitle_one": "{{count}} colaborador · valores baseados na ficha efectiva (ou proposta se não houver efectiva)",
+      "subtitle_other": "{{count}} colaboradores · valores baseados na ficha efectiva (ou proposta se não houver efectiva)",
+      "headers": {
+        "name": "Nome",
+        "code": "Cód.",
+        "grossAnnual": "Bruto anual",
+        "contractualBase": "Base contractual",
+        "grossMonthly": "Bruto mensal",
+        "mealAllowance": "Alimentação",
+        "perDiem": "Ajudas de custo",
+        "netMonthly": "Líquido mensal",
+        "benefitsAnnual": "Benefícios anual",
+        "tgv": "VBG"
+      },
+      "emptyDepartment": "Sem colaboradores neste departamento.",
+      "totals": {
+        "production": "Equipa produção",
+        "backoffice": "Equipa Backoffice",
+        "project": "Equipa Projecto"
+      }
+    },
+    "pricing": {
+      "title": "Pricing — Equipa Projecto",
+      "description": "VBG/h e Cota BO/h = valor anual ÷ ({{days}}×{{hours}}) h. Custo/h soma os dois, venda = custo/h × (1 + margem).",
+      "headers": {
+        "collaborator": "Colaborador",
+        "tgvPerHour": "VBG/h",
+        "boSharePerHour": "+ Cota BO/h",
+        "costPerHour": "Custo/h",
+        "at30": "@ 30%",
+        "at50": "@ 50%",
+        "at100": "@ 100%"
+      },
+      "empty": "Sem colaboradores."
+    }
   }
 }
