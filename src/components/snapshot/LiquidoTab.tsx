@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { computeSnapshot, fmtEUR, type Snapshot } from "@/lib/salary";
 import { SalaryDonut } from "./SalaryDonut";
 
 export function LiquidoTab({ draft }: { draft: Snapshot }) {
+  const { t } = useTranslation("hr");
   const c = computeSnapshot(draft);
   const [period, setPeriod] = useState<"mensal" | "anual">("mensal");
   const isAnual = period === "anual";
@@ -37,39 +39,39 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
   const liquidoMensalMedio = c.liquido14m;
 
   const rows: Array<{ label: string; value: number; raw?: string; strong?: boolean; accent?: boolean; muted?: boolean }> = [
-    { label: "Valor base mensal", value: c.base },
+    { label: t("snapshot.liquido.rows.baseMonthly"), value: c.base },
   ];
 
   if (duodecimosMensal > 0.005) {
     rows.push({
       label:
         modo === "duodecimos_100"
-          ? "+ Duodécimos (subsídios férias + Natal diluídos em 12 meses)"
-          : "+ Duodécimos (50% dos subsídios diluídos em 12 meses)",
+          ? t("snapshot.liquido.rows.duodecimos100")
+          : t("snapshot.liquido.rows.duodecimos50"),
       value: duodecimosMensal,
     });
     rows.push({
-      label: "= Base mensal tributável",
+      label: t("snapshot.liquido.rows.taxableBase"),
       value: c.baseMensalTributavel,
       strong: true,
     });
   }
 
   rows.push(
-    { label: "− SS Colaborador (mensal)", value: -c.ssColaboradorMensal },
-    { label: "− IRS (mensal)", value: -c.irsMensal },
-    { label: "= Líquido mensal médio", value: liquidoMensalMedio, strong: true },
+    { label: t("snapshot.liquido.rows.ssEmployeeMonthly"), value: -c.ssColaboradorMensal },
+    { label: t("snapshot.liquido.rows.incomeTaxMonthly"), value: -c.irsMensal },
+    { label: t("snapshot.liquido.rows.netMonthlyAvg"), value: liquidoMensalMedio, strong: true },
   );
 
   if (modo === "duodecimos_50") {
     rows.push(
       {
-        label: "+ Subsídio de férias (50% pago por inteiro em Junho)",
+        label: t("snapshot.liquido.rows.vacationFullJune50"),
         value: subsidioPagoInteiro,
         muted: true,
       },
       {
-        label: "+ Subsídio de Natal (50% pago por inteiro em Novembro)",
+        label: t("snapshot.liquido.rows.christmasFullNovember50"),
         value: subsidioPagoInteiro,
         muted: true,
       },
@@ -77,12 +79,12 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
   } else if (modo === "tradicional") {
     rows.push(
       {
-        label: "+ Subsídio de férias (pago por inteiro em Junho)",
+        label: t("snapshot.liquido.rows.vacationFullJune"),
         value: subsidioPagoInteiro,
         muted: true,
       },
       {
-        label: "+ Subsídio de Natal (pago por inteiro em Novembro)",
+        label: t("snapshot.liquido.rows.christmasFullNovember"),
         value: subsidioPagoInteiro,
         muted: true,
       },
@@ -90,16 +92,16 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
   }
 
   rows.push(
-    { label: "+ Subsídio alimentação mensal", value: c.alimentacaoMensal },
-    { label: "+ Ajudas de custo mensais", value: c.ajudasMensal },
+    { label: t("snapshot.liquido.rows.mealAllowanceMonthly"), value: c.alimentacaoMensal },
+    { label: t("snapshot.liquido.rows.perDiemMonthly"), value: c.ajudasMensal },
     {
-      label: "= Líquido total mensal",
+      label: t("snapshot.liquido.rows.totalNetMonthly"),
       value: liquidoMensalMedio + c.alimentacaoMensal + c.ajudasMensal,
       strong: true,
       accent: true,
     },
     {
-      label: "+ Benefícios (média mensal: carro + ticket + prémio + outros)",
+      label: t("snapshot.liquido.rows.benefitsMonthly"),
       value: c.beneficiosMensal,
       muted: true,
     },
@@ -108,8 +110,8 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Visão Líquido</CardTitle>
-          <CardDescription>O que entra na conta do colaborador.</CardDescription>
+          <CardTitle className="text-base">{t("snapshot.liquido.title")}</CardTitle>
+          <CardDescription>{t("snapshot.liquido.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="divide-y">
@@ -131,13 +133,21 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
         <CardHeader className="space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <CardTitle className="text-base">Composição {isAnual ? "anual" : "mensal"}</CardTitle>
-              <CardDescription>Bruto decomposto.</CardDescription>
+              <CardTitle className="text-base">
+                {isAnual
+                  ? t("snapshot.liquido.composition.annualTitle")
+                  : t("snapshot.liquido.composition.monthlyTitle")}
+              </CardTitle>
+              <CardDescription>{t("snapshot.liquido.composition.description")}</CardDescription>
             </div>
             <Tabs value={period} onValueChange={(v) => setPeriod(v as "mensal" | "anual")}>
               <TabsList className="h-8">
-                <TabsTrigger value="mensal" className="h-6 px-2 text-xs">Mensal</TabsTrigger>
-                <TabsTrigger value="anual" className="h-6 px-2 text-xs">Anual</TabsTrigger>
+                <TabsTrigger value="mensal" className="h-6 px-2 text-xs">
+                  {t("snapshot.liquido.composition.monthlyToggle")}
+                </TabsTrigger>
+                <TabsTrigger value="anual" className="h-6 px-2 text-xs">
+                  {t("snapshot.liquido.composition.annualToggle")}
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
