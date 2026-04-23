@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtDate, fmtEUR, type Snapshot } from "@/lib/salary";
 import {
@@ -26,6 +27,7 @@ import {
 } from "@/components/ui/table";
 
 export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
+  const { t, i18n } = useTranslation("hr");
   const effectives = snapshots.filter((s) => s.is_effective);
   const proposals = snapshots.filter((s) => !s.is_effective);
 
@@ -77,7 +79,7 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
     return (
       <Card>
         <CardContent className="py-12 text-center text-sm text-muted-foreground">
-          Crie pelo menos uma ficha para ver o resumo.
+          {t("hr:resumoCompare.emptyState")}
         </CardContent>
       </Card>
     );
@@ -90,40 +92,42 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
   const cr = rightEffective ? computeSnapshot(rightEffective) : null;
 
   const rows: Array<{ label: string; l: number | null; r: number | null; pct?: boolean }> = [
-    { label: "Valor base mensal", l: left?.valor_base ?? null, r: right?.valor_base ?? null },
-    { label: "Valor base x 14 meses", l: cl?.baseAnual ?? null, r: cr?.baseAnual ?? null },
-    { label: "Bruto mensal", l: cl?.brutoMensal ?? null, r: cr?.brutoMensal ?? null },
-    { label: "Bruto anual", l: cl?.brutoAnual ?? null, r: cr?.brutoAnual ?? null },
-    { label: "Líquido mensal (12)", l: cl?.liquido12m ?? null, r: cr?.liquido12m ?? null },
-    { label: "Subsídio alimentação diário", l: leftEffective?.subsidio_alimentacao_diario ?? null, r: rightEffective?.subsidio_alimentacao_diario ?? null },
-    { label: "Subsídio alimentação mensal", l: cl?.alimentacaoMensal ?? null, r: cr?.alimentacaoMensal ?? null },
-    { label: "Ajudas de custo (anual)", l: left?.ajudas_custo_anual ?? null, r: right?.ajudas_custo_anual ?? null },
-    { label: "Ajudas de custo (mensal)", l: cl?.ajudasMensal ?? null, r: cr?.ajudasMensal ?? null },
-    { label: "Líquido total mensal", l: cl?.liquidoTotalMensal ?? null, r: cr?.liquidoTotalMensal ?? null },
-    { label: "Benefícios anual", l: cl?.beneficiosAnual ?? null, r: cr?.beneficiosAnual ?? null },
-    { label: "Custo VBG anual", l: cl?.custoVBG ?? null, r: cr?.custoVBG ?? null },
+    { label: t("hr:resumoCompare.metrics.baseMonthly"), l: left?.valor_base ?? null, r: right?.valor_base ?? null },
+    { label: t("hr:resumoCompare.metrics.baseAnnualX14"), l: cl?.baseAnual ?? null, r: cr?.baseAnual ?? null },
+    { label: t("hr:resumoCompare.metrics.grossMonthly"), l: cl?.brutoMensal ?? null, r: cr?.brutoMensal ?? null },
+    { label: t("hr:resumoCompare.metrics.grossAnnual"), l: cl?.brutoAnual ?? null, r: cr?.brutoAnual ?? null },
+    { label: t("hr:resumoCompare.metrics.netMonthly12"), l: cl?.liquido12m ?? null, r: cr?.liquido12m ?? null },
+    { label: t("hr:resumoCompare.metrics.mealAllowanceDaily"), l: leftEffective?.subsidio_alimentacao_diario ?? null, r: rightEffective?.subsidio_alimentacao_diario ?? null },
+    { label: t("hr:resumoCompare.metrics.mealAllowanceMonthly"), l: cl?.alimentacaoMensal ?? null, r: cr?.alimentacaoMensal ?? null },
+    { label: t("hr:resumoCompare.metrics.perDiemAnnual"), l: left?.ajudas_custo_anual ?? null, r: right?.ajudas_custo_anual ?? null },
+    { label: t("hr:resumoCompare.metrics.perDiemMonthly"), l: cl?.ajudasMensal ?? null, r: cr?.ajudasMensal ?? null },
+    { label: t("hr:resumoCompare.metrics.totalNetMonthly"), l: cl?.liquidoTotalMensal ?? null, r: cr?.liquidoTotalMensal ?? null },
+    { label: t("hr:resumoCompare.metrics.benefitsAnnual"), l: cl?.beneficiosAnual ?? null, r: cr?.beneficiosAnual ?? null },
+    { label: t("hr:resumoCompare.metrics.tgvAnnual"), l: cl?.custoVBG ?? null, r: cr?.custoVBG ?? null },
   ];
+
+  const pctFormatter = new Intl.NumberFormat(i18n.language, {
+    style: "percent",
+    maximumFractionDigits: 2,
+  });
 
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Comparação</CardTitle>
-          <CardDescription>
-            Por defeito: última ficha efectiva vs. última ficha proposta. Pode escolher quaisquer
-            duas fichas.
-          </CardDescription>
+          <CardTitle className="text-base">{t("hr:resumoCompare.title")}</CardTitle>
+          <CardDescription>{t("hr:resumoCompare.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Picker
-              label="Coluna A"
+              label={t("hr:resumoCompare.columnA")}
               value={leftId || left?.id || ""}
               onChange={setLeftId}
               snapshots={snapshots}
             />
             <Picker
-              label="Coluna B"
+              label={t("hr:resumoCompare.columnB")}
               value={rightId || right?.id || ""}
               onChange={setRightId}
               snapshots={snapshots}
@@ -137,15 +141,15 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Métrica</TableHead>
+                <TableHead>{t("hr:resumoCompare.headers.metric")}</TableHead>
                 <TableHead className="text-right">
-                  {left ? `${left.label} · ${fmtDate(left.reference_date)}` : "—"}
+                  {left ? `${left.label} · ${fmtDate(left.reference_date)}` : t("hr:collaborator.subline.empty")}
                 </TableHead>
                 <TableHead className="text-right">
-                  {right ? `${right.label} · ${fmtDate(right.reference_date)}` : "—"}
+                  {right ? `${right.label} · ${fmtDate(right.reference_date)}` : t("hr:collaborator.subline.empty")}
                 </TableHead>
-                <TableHead className="text-right">Δ</TableHead>
-                <TableHead className="text-right">Δ %</TableHead>
+                <TableHead className="text-right">{t("hr:resumoCompare.headers.delta")}</TableHead>
+                <TableHead className="text-right">{t("hr:resumoCompare.headers.deltaPct")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -164,21 +168,16 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
                   <TableRow key={r.label}>
                     <TableCell className="font-medium">{r.label}</TableCell>
                     <TableCell className="text-right tabular-nums">
-                      {r.l == null ? "—" : fmtEUR(r.l)}
+                      {r.l == null ? t("hr:collaborator.subline.empty") : fmtEUR(r.l)}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
-                      {r.r == null ? "—" : fmtEUR(r.r)}
+                      {r.r == null ? t("hr:collaborator.subline.empty") : fmtEUR(r.r)}
                     </TableCell>
                     <TableCell className={"text-right tabular-nums " + cls}>
-                      {delta == null ? "—" : (delta > 0 ? "+" : "") + fmtEUR(delta)}
+                      {delta == null ? t("hr:collaborator.subline.empty") : (delta > 0 ? "+" : "") + fmtEUR(delta)}
                     </TableCell>
                     <TableCell className={"text-right tabular-nums " + cls}>
-                      {pct == null
-                        ? "—"
-                        : new Intl.NumberFormat("pt-PT", {
-                            style: "percent",
-                            maximumFractionDigits: 2,
-                          }).format(pct)}
+                      {pct == null ? t("hr:collaborator.subline.empty") : pctFormatter.format(pct)}
                     </TableCell>
                   </TableRow>
                 );
@@ -202,17 +201,18 @@ function Picker({
   onChange: (v: string) => void;
   snapshots: Snapshot[];
 }) {
+  const { t } = useTranslation("hr");
   return (
     <div className="space-y-1.5">
       <div className="text-xs text-muted-foreground">{label}</div>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger>
-          <SelectValue placeholder="Escolha uma ficha" />
+          <SelectValue placeholder={t("hr:resumoCompare.pickerPlaceholder")} />
         </SelectTrigger>
         <SelectContent>
           {snapshots.map((s) => (
             <SelectItem key={s.id} value={s.id}>
-              {s.label} · {fmtDate(s.reference_date)} {s.is_effective ? "· EFE" : ""}
+              {s.label} · {fmtDate(s.reference_date)} {s.is_effective ? `· ${t("hr:resumoCompare.inForceShort")}` : ""}
             </SelectItem>
           ))}
         </SelectContent>
