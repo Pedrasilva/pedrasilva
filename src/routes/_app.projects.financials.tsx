@@ -657,25 +657,25 @@ function FinancialsPage() {
         {/* KPI strip */}
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <KpiCard
-            label="Revenue"
+            label={t("projects:financials.kpi.revenue")}
             value={euros(summary.revenue)}
-            sub={`${hours(summary.billableH)} billable`}
+            sub={t("projects:financials.kpi.revenueSub", { hours: hours(summary.billableH) })}
             icon={<TrendingUp className="h-4 w-4" />}
             tone="success"
             loading={entriesLoading}
           />
           <KpiCard
-            label="Total cost"
+            label={t("projects:financials.kpi.totalCost")}
             value={euros(summary.cost)}
-            sub={`${hours(summary.totalLogged)} paid time`}
+            sub={t("projects:financials.kpi.totalCostSub", { hours: hours(summary.totalLogged) })}
             icon={<Wallet className="h-4 w-4" />}
             tone="muted"
             loading={entriesLoading}
           />
           <KpiCard
-            label="Profit"
+            label={t("projects:financials.kpi.profit")}
             value={euros(summary.profit)}
-            sub={`${pct(summary.margin)} margin`}
+            sub={t("projects:financials.kpi.profitMarginSub", { pct: pct(summary.margin) })}
             icon={summary.profit >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
             tone={summary.profit >= 0 ? "primary" : "danger"}
             loading={entriesLoading}
