@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -266,6 +267,7 @@ function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }
 // Projecto
 // ─────────────────────────────────────────────
 function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { data: collaborators = [] } = useQuery({
     queryKey: ["collaborators-lite"],
@@ -344,7 +346,7 @@ function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }
               value={form.codigo}
               onChange={(e) => setForm((f) => ({ ...f, codigo: e.target.value }))} />
           </Field>
-          <Field label="Cliente (empresa)">
+          <Field label={t("glossary:entity.company")}>
             <CompanyPicker
               value={form.company_id || null}
               onChange={(id) => setForm((f) => ({ ...f, company_id: id }))}

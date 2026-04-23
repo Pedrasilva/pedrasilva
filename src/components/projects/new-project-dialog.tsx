@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,7 @@ import { format } from "date-fns";
 const PALETTE = ["#16a34a", "#2563eb", "#db2777", "#ea580c", "#9333ea", "#0d9488", "#dc2626", "#ca8a04"];
 
 export function NewProjectDialog() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [client, setClient] = useState("");
@@ -50,7 +52,7 @@ export function NewProjectDialog() {
             <Input id="p-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Casa Verde" autoFocus />
           </div>
           <div>
-            <Label htmlFor="p-client">Client</Label>
+            <Label htmlFor="p-client">{t("glossary:entity.company")}</Label>
             <Input id="p-client" value={client} onChange={(e) => setClient(e.target.value)} placeholder="Verde Holdings" />
           </div>
           <div>
