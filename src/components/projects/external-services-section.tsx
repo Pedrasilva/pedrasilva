@@ -81,25 +81,25 @@ export function ExternalServicesSection({ projectId, canEdit }: Props) {
 
   return (
     <div className="rounded-lg border border-border bg-card">
-      <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
-        <div>
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
+        <div className="min-w-0">
+          <h3 className="text-sm font-semibold text-foreground">
             {t("externalServices.title")}
           </h3>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="mt-0.5 text-xs text-muted-foreground">
             {t("externalServices.subtitle")}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-shrink-0 items-center gap-2">
           {canEdit && (
-            <Button variant="outline" size="sm" onClick={() => setManagerOpen(true)}>
-              <Users className="mr-1 h-3.5 w-3.5" />
+            <Button variant="outline" size="sm" className="h-8" onClick={() => setManagerOpen(true)}>
+              <Users className="mr-1.5 h-3.5 w-3.5" />
               {t("externalServices.manageSuppliers")}
             </Button>
           )}
           {canEdit && (
-            <Button size="sm" onClick={handleAdd}>
-              <Plus className="mr-1 h-3.5 w-3.5" />
+            <Button size="sm" className="h-8" onClick={handleAdd}>
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
               {t("externalServices.addButton")}
             </Button>
           )}

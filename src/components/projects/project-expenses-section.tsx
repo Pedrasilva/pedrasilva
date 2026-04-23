@@ -76,16 +76,16 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
 
   return (
     <div className="rounded-lg border border-border bg-card">
-      <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
-        <div>
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
+        <div className="min-w-0">
+          <h3 className="text-sm font-semibold text-foreground">
             {t("expenses.title")}
           </h3>
-          <p className="text-[11px] text-muted-foreground">{t("expenses.subtitle")}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{t("expenses.subtitle")}</p>
         </div>
         {canEdit && (
-          <Button size="sm" onClick={handleAdd}>
-            <Plus className="mr-1 h-3.5 w-3.5" />
+          <Button size="sm" className="h-8" onClick={handleAdd}>
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
             {t("expenses.addButton")}
           </Button>
         )}
