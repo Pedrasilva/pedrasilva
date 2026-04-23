@@ -24,6 +24,33 @@
     "concluido": "Completed",
     "cancelado": "Cancelled"
   },
+  "detail": {
+    "backToList": "All projects",
+    "togglePanel": {
+      "hide": "Hide panel",
+      "show": "Show panel"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "schedule": "Schedule",
+      "materials": "Materials",
+      "expenses": "Expenses",
+      "insights": "Insights",
+      "stream": "Stream"
+    },
+    "actions": {
+      "activate": "Activate",
+      "pause": "Pause",
+      "archive": "Archive",
+      "more": "More",
+      "addStage": "Add stage"
+    },
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "archived": "Archived"
+    }
+  },
   "quickCreate": {
     "time": "Time",
     "registerTime": "Log time",
@@ -33,7 +60,8 @@
     "registerTimeAria": "Log time",
     "createNewAria": "Create new",
     "task": "Task",
-    "expense": {
+    "expense": "Expense",
+    "expenseCategories": {
       "carro": "Car",
       "ticket": "Ticket",
       "premio": "Bonus",

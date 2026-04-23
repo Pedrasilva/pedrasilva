@@ -609,10 +609,10 @@ function ExpenseDialog({ open, onClose }: { open: boolean; onClose: () => void }
               onValueChange={(v) => setForm((f) => ({ ...f, categoria: v as typeof form.categoria }))}>
               <SelectTrigger className="input-yellow"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="carro">{t("projects:quickCreate.expense.carro")}</SelectItem>
-                <SelectItem value="ticket">{t("projects:quickCreate.expense.ticket")}</SelectItem>
-                <SelectItem value="premio">{t("projects:quickCreate.expense.premio")}</SelectItem>
-                <SelectItem value="outros">{t("projects:quickCreate.expense.outros")}</SelectItem>
+                <SelectItem value="carro">{t("projects:quickCreate.expenseCategories.carro")}</SelectItem>
+                <SelectItem value="ticket">{t("projects:quickCreate.expenseCategories.ticket")}</SelectItem>
+                <SelectItem value="premio">{t("projects:quickCreate.expenseCategories.premio")}</SelectItem>
+                <SelectItem value="outros">{t("projects:quickCreate.expenseCategories.outros")}</SelectItem>
               </SelectContent>
             </Select>
           </Field>

@@ -24,6 +24,33 @@
     "concluido": "Concluído",
     "cancelado": "Cancelado"
   },
+  "detail": {
+    "backToList": "Todos os projectos",
+    "togglePanel": {
+      "hide": "Esconder painel",
+      "show": "Mostrar painel"
+    },
+    "tabs": {
+      "overview": "Resumo",
+      "schedule": "Calendário",
+      "materials": "Materiais",
+      "expenses": "Despesas",
+      "insights": "Análises",
+      "stream": "Actividade"
+    },
+    "actions": {
+      "activate": "Activar",
+      "pause": "Pausar",
+      "archive": "Arquivar",
+      "more": "Mais",
+      "addStage": "Nova fase"
+    },
+    "status": {
+      "active": "Activo",
+      "paused": "Em pausa",
+      "archived": "Arquivado"
+    }
+  },
   "quickCreate": {
     "time": "Tempo",
     "registerTime": "Registar tempo",
@@ -33,7 +60,8 @@
     "registerTimeAria": "Registar tempo",
     "createNewAria": "Criar novo",
     "task": "Tarefa",
-    "expense": {
+    "expense": "Despesa",
+    "expenseCategories": {
       "carro": "Carro",
       "ticket": "Ticket",
       "premio": "Prémio",

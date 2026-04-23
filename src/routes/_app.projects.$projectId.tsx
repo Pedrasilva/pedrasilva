@@ -51,7 +51,6 @@ import {
   Clock,
   Receipt,
   Package,
-  Users as UsersIcon,
   Activity as ActivityIcon,
   ListChecks,
   Mail,
@@ -344,28 +343,29 @@ function ProjectDetail() {
             to="/projects"
             className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="h-3 w-3" /> Todos os projectos
+            <ArrowLeft className="h-3 w-3" /> {t("projects:detail.backToList")}
           </Link>
           <button
             onClick={() => setSidebarOpen((v) => !v)}
             className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
-            aria-label={sidebarOpen ? "Esconder painel lateral" : "Mostrar painel lateral"}
+            aria-label={sidebarOpen ? t("projects:detail.togglePanel.hide") : t("projects:detail.togglePanel.show")}
           >
             {sidebarOpen ? (
               <>
-                <PanelLeftClose className="h-3.5 w-3.5" /> Esconder painel
+                <PanelLeftClose className="h-3.5 w-3.5" /> {t("projects:detail.togglePanel.hide")}
               </>
             ) : (
               <>
-                <PanelLeftOpen className="h-3.5 w-3.5" /> Mostrar painel
+                <PanelLeftOpen className="h-3.5 w-3.5" /> {t("projects:detail.togglePanel.show")}
               </>
             )}
           </button>
         </div>
 
-        {/* Header ------------------------------------------------------- */}
-        <div className="mt-3 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-4">
-          <div className="min-w-0">
+        {/* Header — 3 zones: title (left) · spacer · actions (right) */}
+        <div className="mt-3 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
+          {/* LEFT: title + status */}
+          <div className="min-w-0 flex-1">
             <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
               {project.client ?? t("glossary:entity.company")} · {t("glossary:entity.project")}
             </div>
@@ -384,20 +384,9 @@ function ProjectDetail() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          {/* RIGHT: primary status actions */}
+          <div className="flex flex-shrink-0 items-center gap-2">
             <StatusToggle current={project.status} onChange={setStatus} />
-            <NewStageDialog
-              projectId={project.id}
-              defaultStart={
-                stages.length
-                  ? format(
-                      addDays(new Date(stages[stages.length - 1].end_date), 1),
-                      "yyyy-MM-dd",
-                    )
-                  : project.start_date
-              }
-              nextOrder={(stages[stages.length - 1]?.sort_order ?? 0) + 1}
-            />
           </div>
         </div>
 
@@ -581,13 +570,13 @@ function ProjectDetail() {
           {/* Main ------------------------------------------------------ */}
           <section>
             {/* Tabs */}
-            <div className="flex items-center gap-1 border-b border-border">
-              <TabBtn icon={ListChecks} label="Overview" active={tab === "overview"} onClick={() => setTab("overview")} />
-              <TabBtn icon={Calendar} label="Schedule" active={tab === "schedule"} onClick={() => setTab("schedule")} />
-              <TabBtn icon={Package} label="Materials" active={tab === "materials"} onClick={() => setTab("materials")} />
-              <TabBtn icon={Receipt} label="Expenses" active={tab === "expenses"} onClick={() => setTab("expenses")} />
-              <TabBtn icon={TrendingUp} label="Insights" active={tab === "insights"} onClick={() => setTab("insights")} />
-              <TabBtn icon={ActivityIcon} label="Stream" active={tab === "stream"} onClick={() => setTab("stream")} />
+            <div className="flex items-center gap-0.5 overflow-x-auto border-b border-border">
+              <TabBtn icon={ListChecks} label={t("projects:detail.tabs.overview")} active={tab === "overview"} onClick={() => setTab("overview")} />
+              <TabBtn icon={Calendar} label={t("projects:detail.tabs.schedule")} active={tab === "schedule"} onClick={() => setTab("schedule")} />
+              <TabBtn icon={Package} label={t("projects:detail.tabs.materials")} active={tab === "materials"} onClick={() => setTab("materials")} />
+              <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
+              <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
+              <TabBtn icon={ActivityIcon} label={t("projects:detail.tabs.stream")} active={tab === "stream"} onClick={() => setTab("stream")} />
             </div>
 
             {tab === "overview" && (
@@ -847,13 +836,19 @@ function EditableProjectName({
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
   const tone =
     status === "active"
       ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
       : status === "paused"
         ? "bg-amber-500/15 text-amber-700 dark:text-amber-400"
         : "bg-muted text-muted-foreground";
-  const label = status === "active" ? "Activo" : status === "paused" ? "Em pausa" : "Arquivado";
+  const label =
+    status === "active"
+      ? t("projects:detail.status.active")
+      : status === "paused"
+        ? t("projects:detail.status.paused")
+        : t("projects:detail.status.archived");
   return (
     <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider", tone)}>
       {label}
@@ -868,31 +863,32 @@ function StatusToggle({
   current: string;
   onChange: (s: "active" | "paused" | "archived") => void;
 }) {
+  const { t } = useTranslation();
   return (
-    <div className="flex items-center gap-1 rounded-md border border-border p-0.5">
+    <div className="flex items-center gap-0.5 rounded-md border border-border p-0.5">
       <Button
         size="sm"
         variant={current === "active" ? "default" : "ghost"}
-        className="h-7 gap-1.5 text-xs"
+        className="h-8 gap-1.5 text-xs"
         onClick={() => onChange("active")}
       >
-        <CheckCircle2 className="h-3.5 w-3.5" /> Activar
+        <CheckCircle2 className="h-3.5 w-3.5" /> {t("projects:detail.actions.activate")}
       </Button>
       <Button
         size="sm"
         variant={current === "paused" ? "default" : "ghost"}
-        className="h-7 gap-1.5 text-xs"
+        className="h-8 gap-1.5 text-xs"
         onClick={() => onChange("paused")}
       >
-        <Pause className="h-3.5 w-3.5" /> Pausar
+        <Pause className="h-3.5 w-3.5" /> {t("projects:detail.actions.pause")}
       </Button>
       <Button
         size="sm"
         variant={current === "archived" ? "default" : "ghost"}
-        className="h-7 gap-1.5 text-xs"
+        className="h-8 gap-1.5 text-xs"
         onClick={() => onChange("archived")}
       >
-        <XCircle className="h-3.5 w-3.5" /> Arquivar
+        <XCircle className="h-3.5 w-3.5" /> {t("projects:detail.actions.archive")}
       </Button>
     </div>
   );
@@ -1000,7 +996,7 @@ function TabBtn({
     <button
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-2 px-4 py-2.5 text-sm border-b-2 -mb-px transition-colors",
+        "inline-flex items-center gap-2 whitespace-nowrap px-3.5 py-2.5 text-sm border-b-2 -mb-px transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
         active
           ? "border-primary text-foreground font-medium"
           : "border-transparent text-muted-foreground hover:text-foreground",
