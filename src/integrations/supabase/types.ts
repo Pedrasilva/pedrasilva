@@ -951,6 +951,7 @@ export type Database = {
           rebillable: boolean
           sale_price: number
           status: Database["public"]["Enums"]["pm_expense_status"]
+          supplier_id: string | null
           updated_at: string
           vendor: string | null
         }
@@ -968,6 +969,7 @@ export type Database = {
           rebillable?: boolean
           sale_price?: number
           status?: Database["public"]["Enums"]["pm_expense_status"]
+          supplier_id?: string | null
           updated_at?: string
           vendor?: string | null
         }
@@ -985,6 +987,7 @@ export type Database = {
           rebillable?: boolean
           sale_price?: number
           status?: Database["public"]["Enums"]["pm_expense_status"]
+          supplier_id?: string | null
           updated_at?: string
           vendor?: string | null
         }
@@ -994,6 +997,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_expenses_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers"
             referencedColumns: ["id"]
           },
         ]
@@ -1282,6 +1292,7 @@ export type Database = {
           sale_price_manual: boolean
           status: Database["public"]["Enums"]["pm_external_service_status"]
           supplier_contact: string | null
+          supplier_id: string | null
           supplier_name: string | null
           unit_cost: number
           updated_at: string
@@ -1304,6 +1315,7 @@ export type Database = {
           sale_price_manual?: boolean
           status?: Database["public"]["Enums"]["pm_external_service_status"]
           supplier_contact?: string | null
+          supplier_id?: string | null
           supplier_name?: string | null
           unit_cost?: number
           updated_at?: string
@@ -1326,6 +1338,7 @@ export type Database = {
           sale_price_manual?: boolean
           status?: Database["public"]["Enums"]["pm_external_service_status"]
           supplier_contact?: string | null
+          supplier_id?: string | null
           supplier_name?: string | null
           unit_cost?: number
           updated_at?: string
@@ -1336,6 +1349,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_materials_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers"
             referencedColumns: ["id"]
           },
         ]
@@ -1689,6 +1709,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pm_suppliers: {
+        Row: {
+          active: boolean
+          contact_name: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          tax_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          tax_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          tax_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       pm_tasks: {
         Row: {
