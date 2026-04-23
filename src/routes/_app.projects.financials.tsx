@@ -685,21 +685,21 @@ function FinancialsPage() {
         {/* Time breakdown + utilization + capacity */}
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
           <BucketCard
-            label="Billable"
+            label={t("projects:financials.buckets.billable")}
             hours={summary.billableH}
             total={summary.totalLogged}
             tone="success"
             icon={<Clock className="h-4 w-4" />}
           />
           <BucketCard
-            label="Internal non-billable"
+            label={t("projects:financials.buckets.internalNonBillable")}
             hours={summary.internalH}
             total={summary.totalLogged}
             tone="warning"
             icon={<Coffee className="h-4 w-4" />}
           />
           <BucketCard
-            label="Non-working"
+            label={t("projects:financials.buckets.nonWorking")}
             hours={summary.nonWorkingH}
             total={summary.totalLogged}
             tone="muted"
@@ -722,16 +722,18 @@ function FinancialsPage() {
         <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
           <Card className="lg:col-span-1">
             <CardHeader className="pb-2">
-              <CardDescription className="text-xs">Available capacity</CardDescription>
+              <CardDescription className="text-xs">
+                {t("projects:financials.capacity.available")}
+              </CardDescription>
               <CardTitle className="text-2xl">{hours(summary.availableCapacity)}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-xs text-muted-foreground">
               <div className="flex items-center justify-between">
-                <span>Working days × 8h × people</span>
+                <span>{t("projects:financials.capacity.formula")}</span>
                 <span className="font-medium text-foreground">{hours(summary.grossCapacity)}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Less non-working</span>
+                <span>{t("projects:financials.capacity.lessNonWorking")}</span>
                 <span className="font-medium text-foreground">−{hours(summary.nonWorkingH)}</span>
               </div>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
@@ -750,7 +752,7 @@ function FinancialsPage() {
                 />
               </div>
               <div className="flex items-center justify-between pt-1">
-                <span>Utilised of available</span>
+                <span>{t("projects:financials.capacity.utilisedOfAvailable")}</span>
                 <span className="font-medium text-foreground">
                   {pct(
                     summary.availableCapacity > 0
@@ -767,42 +769,46 @@ function FinancialsPage() {
           <Card className="lg:col-span-2 border-dashed">
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-2 text-xs">
-                <AlertCircle className="h-4 w-4" /> Profitability insight
+                <AlertCircle className="h-4 w-4" /> {t("projects:financials.insight.title")}
               </CardDescription>
-              <CardTitle className="text-base">
-                Internal non-billable + non-working time costs you{" "}
-                <span className="text-destructive">{euros(summary.dragCost)}</span> this month
-              </CardTitle>
+              <CardTitle
+                className="text-base"
+                dangerouslySetInnerHTML={{
+                  __html: t("projects:financials.insight.headline", {
+                    cost: `<span class="text-destructive">${euros(summary.dragCost)}</span>`,
+                    interpolation: { escapeValue: false },
+                  }),
+                }}
+              />
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <Insight
-                  label="Internal hours"
+                  label={t("projects:financials.insight.internalHours")}
                   value={hours(summary.internalH)}
-                  hint="working time without revenue"
+                  hint={t("projects:financials.insight.internalHoursHint")}
                 />
                 <Insight
-                  label="Non-working hours"
+                  label={t("projects:financials.insight.nonWorkingHours")}
                   value={hours(summary.nonWorkingH)}
-                  hint="leave + holidays"
+                  hint={t("projects:financials.insight.nonWorkingHoursHint")}
                 />
                 <Insight
-                  label="Combined cost drag"
+                  label={t("projects:financials.insight.combinedDrag")}
                   value={euros(summary.dragCost)}
-                  hint="hours × avg cost/h"
+                  hint={t("projects:financials.insight.combinedDragHint")}
                   tone="danger"
                 />
               </div>
-              <p className="mt-3 text-xs">
-                Revenue only comes from billable project hours. Every internal or absent
-                hour is paid but doesn't generate income — so it directly reduces profit.
-                If those hours were billable at the average rate, profit would be
-                approximately{" "}
-                <span className="font-medium text-foreground">
-                  {euros(summary.profit + summary.dragCost)}
-                </span>
-                .
-              </p>
+              <p
+                className="mt-3 text-xs"
+                dangerouslySetInnerHTML={{
+                  __html: t("projects:financials.insight.explanation", {
+                    value: `<span class="font-medium text-foreground">${euros(summary.profit + summary.dragCost)}</span>`,
+                    interpolation: { escapeValue: false },
+                  }),
+                }}
+              />
             </CardContent>
           </Card>
         </div>
