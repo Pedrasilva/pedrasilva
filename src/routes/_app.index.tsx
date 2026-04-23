@@ -546,39 +546,3 @@ function Avatar({ nome }: { nome: string }) {
     </span>
   );
 }
-
-function CelebrationRow({ item }: { item: BirthdayItem }) {
-  const isBirthday = item.kind === "birthday";
-  const Icon = isBirthday ? Cake : Sparkles;
-  const accent = isBirthday ? "var(--clay)" : "var(--sage)";
-  const label = isBirthday
-    ? `Faz ${item.age} anos`
-    : `${item.years} ${item.years === 1 ? "ano" : "anos"} na PSA`;
-  return (
-    <li className="flex items-center justify-between gap-4 px-6 py-3.5">
-      <div className="flex items-center gap-3 min-w-0">
-        <span
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-          style={{
-            background: `color-mix(in oklab, ${accent} 15%, transparent)`,
-            color: accent,
-          }}
-        >
-          <Icon className="h-4 w-4" />
-        </span>
-        <div className="min-w-0">
-          <div className="text-sm font-medium truncate">{item.nome}</div>
-          <div className="text-[11px] text-muted-foreground">{label}</div>
-        </div>
-      </div>
-      <div className="text-right shrink-0">
-        <div className="text-sm font-medium tabular-nums">
-          {fmtDate(item.date)}
-        </div>
-        <div className="text-[11px] text-muted-foreground">
-          {relativeDays(item.daysAway)}
-        </div>
-      </div>
-    </li>
-  );
-}
