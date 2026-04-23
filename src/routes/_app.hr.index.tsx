@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,7 @@ export const Route = createFileRoute("/_app/hr/")({
 });
 
 function ListPage() {
+  const { t } = useTranslation(["hr", "common"]);
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -76,7 +78,7 @@ function ListPage() {
 
   const create = useMutation({
     mutationFn: async () => {
-      if (!form.nome.trim()) throw new Error("Nome obrigatório");
+      if (!form.nome.trim()) throw new Error(t("hr:landing.newDialog.nameRequired"));
       const payload = {
         nome: form.nome.trim(),
         numero_colaborador: form.numero_colaborador || null,
@@ -94,7 +96,7 @@ function ListPage() {
       return data;
     },
     onSuccess: (c) => {
-      toast.success("Colaborador criado");
+      toast.success(t("hr:landing.newDialog.createdToast"));
       qc.invalidateQueries({ queryKey: ["collaborators"] });
       setOpen(false);
       navigate({ to: "/hr/colaborador/$id", params: { id: c.id } });
@@ -109,27 +111,27 @@ function ListPage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Colaboradores</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("hr:landing.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Cada colaborador tem uma ficha com fichas salariais por data.
+            {t("hr:landing.subtitle")}
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
-              <Plus className="h-4 w-4" /> Novo colaborador
+              <Plus className="h-4 w-4" /> {t("hr:landing.newButton")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Novo colaborador</DialogTitle>
+              <DialogTitle>{t("hr:landing.newDialog.title")}</DialogTitle>
               <DialogDescription>
-                Preencha os dados base. Pode editar tudo na ficha do colaborador.
+                {t("hr:landing.newDialog.description")}
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="sm:col-span-2 space-y-1.5">
-                <Label>Nome *</Label>
+                <Label>{t("hr:landing.newDialog.name")}</Label>
                 <Input
                   className="input-yellow"
                   value={form.nome}
@@ -137,7 +139,7 @@ function ListPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Nº colaborador</Label>
+                <Label>{t("hr:landing.newDialog.number")}</Label>
                 <Input
                   className="input-yellow"
                   value={form.numero_colaborador}
@@ -147,7 +149,7 @@ function ListPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Departamento *</Label>
+                <Label>{t("hr:landing.newDialog.department")}</Label>
                 <Select
                   value={form.departamento}
                   onValueChange={(v) =>
@@ -161,13 +163,13 @@ function ListPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Projecto">Equipa Projecto</SelectItem>
-                    <SelectItem value="Backoffice">Equipa Backoffice</SelectItem>
+                    <SelectItem value="Projecto">{t("hr:landing.departments.project")}</SelectItem>
+                    <SelectItem value="Backoffice">{t("hr:landing.departments.backoffice")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Situação contractual</Label>
+                <Label>{t("hr:landing.newDialog.contractStatus")}</Label>
                 <Input
                   className="input-yellow"
                   value={form.situacao_contractual}
@@ -177,7 +179,7 @@ function ListPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Início de carreira</Label>
+                <Label>{t("hr:landing.newDialog.careerStart")}</Label>
                 <Input
                   type="date"
                   className="input-yellow"
@@ -188,7 +190,7 @@ function ListPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Data de nascimento</Label>
+                <Label>{t("hr:landing.newDialog.birthDate")}</Label>
                 <Input
                   type="date"
                   className="input-yellow"
@@ -201,10 +203,10 @@ function ListPage() {
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={() => setOpen(false)}>
-                Cancelar
+                {t("common:cancel")}
               </Button>
               <Button onClick={() => create.mutate()} disabled={create.isPending}>
-                Criar
+                {t("hr:landing.newDialog.create")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -212,22 +214,22 @@ function ListPage() {
       </div>
 
       {isLoading ? (
-        <div className="text-sm text-muted-foreground">A carregar…</div>
+        <div className="text-sm text-muted-foreground">{t("common:loading")}</div>
       ) : collaborators.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
-            Sem colaboradores ainda. Crie o primeiro acima.
+            {t("hr:landing.empty")}
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-6">
           <DepartmentSection
-            title="Equipa Projecto"
+            title={t("hr:landing.departments.project")}
             icon={<Briefcase className="h-4 w-4" />}
             list={projecto}
           />
           <DepartmentSection
-            title="Equipa Backoffice"
+            title={t("hr:landing.departments.backoffice")}
             icon={<Building2 className="h-4 w-4" />}
             list={backoffice}
           />
