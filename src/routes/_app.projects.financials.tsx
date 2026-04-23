@@ -353,6 +353,36 @@ function FinancialsPage() {
     internal_threshold_pct: 20,
   };
 
+  // Persist non-working entries (approved leave + holidays) for the visible
+  // month the first time it is opened. This makes Financials trustworthy for
+  // historical periods without depending on whether anyone visited the
+  // Weekly Timesheet for those weeks. Idempotent: only inserts the gap.
+  const qc = useQueryClient();
+  const { data: reconcile, isFetching: reconciling } = useQuery({
+    queryKey: ["fin-nonworking-reconcile", monthStart, monthEnd],
+    queryFn: async () => {
+      const before = await reconcileNonWorkingRange({
+        rangeStart: monthStart,
+        rangeEnd: monthEnd,
+      });
+      // If the source has more than the persisted view, repair silently.
+      if (before.expectedTotal > before.persistedTotal + 0.01) {
+        const inserted = await syncNonWorkingForRange({
+          rangeStart: monthStart,
+          rangeEnd: monthEnd,
+        });
+        if (inserted > 0) {
+          // Refresh the entries query so KPIs reflect the new rows.
+          qc.invalidateQueries({ queryKey: ["fin-entries", monthStart, monthEnd] });
+          return reconcileNonWorkingRange({ rangeStart: monthStart, rangeEnd: monthEnd });
+        }
+      }
+      return before;
+    },
+  });
+  const reconcileRows: ReconciliationRow[] = reconcile?.rows ?? [];
+  const hasMissing = reconcileRows.some((r) => r.missing_hours > 0.01);
+
   const resourceMap = useMemo(() => {
     const m = new Map<string, ResourceLite>();
     for (const r of resources ?? []) m.set(r.id, r);
