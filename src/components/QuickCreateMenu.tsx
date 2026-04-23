@@ -91,6 +91,19 @@ export function QuickCreateMenu() {
             <CheckSquare className="h-4 w-4 text-muted-foreground" /> {t("glossary:entity.task")}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
+          <DropdownMenuLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("projects:quickCreate.groups.finance")}
+          </DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setSheet("projectExpense")} className="gap-2">
+            <Receipt className="h-4 w-4 text-muted-foreground" /> {t("projects:quickCreate.projectExpense")}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("material")} className="gap-2">
+            <Package className="h-4 w-4 text-muted-foreground" /> {t("projects:quickCreate.material")}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("projects:quickCreate.groups.crm")}
+          </DropdownMenuLabel>
           <DropdownMenuItem onClick={() => setSheet("company")} className="gap-2">
             <Building2 className="h-4 w-4 text-muted-foreground" /> {t("glossary:entity.company")}
           </DropdownMenuItem>
@@ -100,8 +113,12 @@ export function QuickCreateMenu() {
           <DropdownMenuItem onClick={() => setSheet("project")} className="gap-2">
             <Briefcase className="h-4 w-4 text-muted-foreground" /> {t("glossary:entity.project")}
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {t("projects:quickCreate.groups.personal")}
+          </DropdownMenuLabel>
           <DropdownMenuItem onClick={() => setSheet("expense")} className="gap-2">
-            <Receipt className="h-4 w-4 text-muted-foreground" /> {t("projects:quickCreate.expense")}
+            <Wallet className="h-4 w-4 text-muted-foreground" /> {t("projects:quickCreate.benefitExpense")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("request")} className="gap-2">
             <CalendarDays className="h-4 w-4 text-muted-foreground" /> {t("projects:quickCreate.request")}
@@ -117,6 +134,8 @@ export function QuickCreateMenu() {
       <ProjectDialog open={sheet === "project"} onClose={() => setSheet(null)} />
       <ExpenseDialog open={sheet === "expense"} onClose={() => setSheet(null)} />
       <RequestDialog open={sheet === "request"} onClose={() => setSheet(null)} />
+      <QuickExpenseDialog open={sheet === "projectExpense"} onClose={() => setSheet(null)} />
+      <QuickMaterialDialog open={sheet === "material"} onClose={() => setSheet(null)} />
     </>
   );
 }
