@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,6 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Receipt } from "lucide-react";
 import { toast } from "sonner";
 import { CompanyPicker } from "@/components/crm/company-picker";
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/_app/crm/accounts")({
 type Row = CrmAccount & { company: { id: string; nome: string } | null };
 
 function AccountsPage() {
+  const { t } = useTranslation("crm");
   const [open, setOpen] = useState(false);
 
   const { data: accounts = [], isLoading } = useQuery({
@@ -40,20 +41,20 @@ function AccountsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="text-xs text-muted-foreground">{accounts.length} accounts</div>
+        <div className="text-xs text-muted-foreground">{t("accounts.count", { count: accounts.length })}</div>
         <Button size="sm" onClick={() => setOpen(true)}>
-          <Plus className="h-4 w-4 mr-1" /> New account
+          <Plus className="h-4 w-4 mr-1" /> {t("accounts.newAccount")}
         </Button>
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : accounts.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-2 p-10 text-sm text-muted-foreground">
             <Receipt className="h-8 w-8 opacity-50" />
-            No billing accounts yet. Accounts represent the entity you invoice
-            (a company can have multiple).
+            <span className="font-medium">{t("accounts.emptyTitle")}</span>
+            <span>{t("accounts.emptyHint")}</span>
           </CardContent>
         </Card>
       ) : (
@@ -62,9 +63,9 @@ function AccountsPage() {
             <table className="w-full text-sm">
               <thead className="border-b bg-muted/30">
                 <tr className="text-left text-xs text-muted-foreground">
-                  <th className="px-3 py-2">Account</th>
-                  <th className="px-3 py-2">Company</th>
-                  <th className="px-3 py-2">Billing details</th>
+                  <th className="px-3 py-2">{t("accounts.tableAccount")}</th>
+                  <th className="px-3 py-2">{t("accounts.tableCompany")}</th>
+                  <th className="px-3 py-2">{t("accounts.tableBilling")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -97,6 +98,7 @@ function AccountsPage() {
 }
 
 function NewAccountDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation("crm");
   const qc = useQueryClient();
 
   const [form, setForm] = useState({
@@ -108,8 +110,8 @@ function NewAccountDialog({ open, onClose }: { open: boolean; onClose: () => voi
 
   const create = useMutation({
     mutationFn: async () => {
-      if (!form.name.trim()) throw new Error("Name is required");
-      if (!form.company_id) throw new Error("Company is required");
+      if (!form.name.trim()) throw new Error(t("accounts.dialog.errorName"));
+      if (!form.company_id) throw new Error(t("accounts.dialog.errorCompany"));
       const { error } = await supabase.from("crm_accounts").insert({
         name: form.name.trim(),
         company_id: form.company_id,
@@ -119,7 +121,7 @@ function NewAccountDialog({ open, onClose }: { open: boolean; onClose: () => voi
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Account created");
+      toast.success(t("accounts.dialog.createdToast"));
       qc.invalidateQueries({ queryKey: ["crm_accounts"] });
       setForm({ name: "", company_id: "", billing_details: "", notas: "" });
       onClose();
@@ -131,39 +133,37 @@ function NewAccountDialog({ open, onClose }: { open: boolean; onClose: () => voi
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New account</DialogTitle>
-          <DialogDescription>
-            A billing entity tied to a company. Quotes are approved against an account.
-          </DialogDescription>
+          <DialogTitle>{t("accounts.dialog.title")}</DialogTitle>
+          <DialogDescription>{t("accounts.dialog.description")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3">
           <div>
-            <Label>Name *</Label>
+            <Label>{t("common.name")} *</Label>
             <Input
-              placeholder="e.g. ACME SA — Lisbon billing"
+              placeholder={t("accounts.dialog.namePlaceholder")}
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
             />
           </div>
           <div>
-            <Label>Company *</Label>
+            <Label>{t("common.company")} *</Label>
             <CompanyPicker
               value={form.company_id || null}
               onChange={(id) => setForm((f) => ({ ...f, company_id: id }))}
-              placeholder="Select or create company"
+              placeholder={t("accounts.dialog.companyPlaceholder")}
             />
           </div>
           <div>
-            <Label>Billing details</Label>
+            <Label>{t("accounts.dialog.billingDetails")}</Label>
             <Textarea
               rows={3}
-              placeholder="NIF, billing address, IBAN, etc."
+              placeholder={t("accounts.dialog.billingPlaceholder")}
               value={form.billing_details}
               onChange={(e) => setForm((f) => ({ ...f, billing_details: e.target.value }))}
             />
           </div>
           <div>
-            <Label>Notes</Label>
+            <Label>{t("common.notes")}</Label>
             <Textarea
               rows={2}
               value={form.notas}
@@ -172,12 +172,12 @@ function NewAccountDialog({ open, onClose }: { open: boolean; onClose: () => voi
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="ghost" onClick={onClose}>{t("common.cancel")}</Button>
           <Button
             onClick={() => create.mutate()}
             disabled={create.isPending || !form.name.trim() || !form.company_id}
           >
-            Create
+            {t("common.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

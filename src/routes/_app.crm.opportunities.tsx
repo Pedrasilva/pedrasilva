@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ type Row = CrmOpportunity & {
 };
 
 function OpportunitiesPage() {
+  const { t } = useTranslation("crm");
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"pipeline" | "list">("pipeline");
 
@@ -46,6 +48,7 @@ function OpportunitiesPage() {
 
   const byStage = OPPORTUNITY_STAGES.map((s) => ({
     ...s,
+    label: t(`stage.${s.value}`),
     items: opps.filter((o) => o.stage === s.value),
   }));
 
@@ -53,7 +56,10 @@ function OpportunitiesPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="text-xs text-muted-foreground">
-          {opps.length} opportunities · {formatEUR(opps.reduce((s, o) => s + Number(o.estimated_fee), 0))} estimated
+          {t("opportunities.countAndFee", {
+            count: opps.length,
+            fee: formatEUR(opps.reduce((s, o) => s + Number(o.estimated_fee), 0)),
+          })}
         </div>
         <div className="flex items-center gap-2">
           <div className="inline-flex rounded-md border">
@@ -63,7 +69,7 @@ function OpportunitiesPage() {
               onClick={() => setView("pipeline")}
               className="rounded-r-none"
             >
-              <LayoutGrid className="h-4 w-4 mr-1" /> Pipeline
+              <LayoutGrid className="h-4 w-4 mr-1" /> {t("opportunities.viewPipeline")}
             </Button>
             <Button
               variant={view === "list" ? "secondary" : "ghost"}
@@ -71,22 +77,23 @@ function OpportunitiesPage() {
               onClick={() => setView("list")}
               className="rounded-l-none"
             >
-              <List className="h-4 w-4 mr-1" /> List
+              <List className="h-4 w-4 mr-1" /> {t("opportunities.viewList")}
             </Button>
           </div>
           <Button size="sm" onClick={() => setOpen(true)}>
-            <Plus className="h-4 w-4 mr-1" /> New opportunity
+            <Plus className="h-4 w-4 mr-1" /> {t("opportunities.newOpportunity")}
           </Button>
         </div>
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : opps.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-2 p-10 text-sm text-muted-foreground">
             <Target className="h-8 w-8 opacity-50" />
-            No opportunities yet. Create the first one to start tracking potential work.
+            <span className="font-medium">{t("opportunities.emptyTitle")}</span>
+            <span>{t("opportunities.emptyHint")}</span>
           </CardContent>
         </Card>
       ) : view === "pipeline" ? (
@@ -132,11 +139,11 @@ function OpportunitiesPage() {
             <table className="w-full text-sm">
               <thead className="border-b bg-muted/30">
                 <tr className="text-left text-xs text-muted-foreground">
-                  <th className="px-3 py-2">Name</th>
-                  <th className="px-3 py-2">Company</th>
-                  <th className="px-3 py-2">Stage</th>
-                  <th className="px-3 py-2 text-right">Est. fee</th>
-                  <th className="px-3 py-2 text-right">Prob.</th>
+                  <th className="px-3 py-2">{t("opportunities.tableName")}</th>
+                  <th className="px-3 py-2">{t("opportunities.tableCompany")}</th>
+                  <th className="px-3 py-2">{t("opportunities.tableStage")}</th>
+                  <th className="px-3 py-2 text-right">{t("opportunities.tableEstFee")}</th>
+                  <th className="px-3 py-2 text-right">{t("opportunities.tableProb")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -157,7 +164,7 @@ function OpportunitiesPage() {
                       <td className="px-3 py-2">
                         <span className="inline-flex items-center gap-2 text-xs">
                           <span className={`h-2 w-2 rounded-full ${stage?.color}`} />
-                          {stage?.label}
+                          {stage ? t(`stage.${stage.value}`) : ""}
                         </span>
                       </td>
                       <td className="px-3 py-2 text-right font-medium">{formatEUR(Number(o.estimated_fee))}</td>
@@ -177,6 +184,7 @@ function OpportunitiesPage() {
 }
 
 function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation("crm");
   const qc = useQueryClient();
 
   const [form, setForm] = useState({
@@ -202,8 +210,8 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
 
   const create = useMutation({
     mutationFn: async () => {
-      if (!form.name.trim()) throw new Error("Name is required");
-      if (!form.company_id) throw new Error("Company is required");
+      if (!form.name.trim()) throw new Error(t("opportunities.dialog.errorName"));
+      if (!form.company_id) throw new Error(t("opportunities.dialog.errorCompany"));
       const { data, error } = await supabase.from("crm_opportunities").insert({
         name: form.name.trim(),
         company_id: form.company_id,
@@ -217,7 +225,7 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
       return data;
     },
     onSuccess: () => {
-      toast.success("Opportunity created");
+      toast.success(t("opportunities.dialog.createdToast"));
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       reset();
       onClose();
@@ -229,28 +237,28 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>New opportunity</DialogTitle>
-          <DialogDescription>Track potential work before it becomes a quote.</DialogDescription>
+          <DialogTitle>{t("opportunities.dialog.title")}</DialogTitle>
+          <DialogDescription>{t("opportunities.dialog.description")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <Label>Name *</Label>
+            <Label>{t("common.name")} *</Label>
             <Input
-              placeholder="e.g. Renovation — Av. X"
+              placeholder={t("opportunities.dialog.namePlaceholder")}
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
             />
           </div>
           <div className="sm:col-span-2">
-            <Label>Company *</Label>
+            <Label>{t("common.company")} *</Label>
             <CompanyPicker
               value={form.company_id || null}
               onChange={(id) => setForm((f) => ({ ...f, company_id: id }))}
-              placeholder="Select or create company"
+              placeholder={t("opportunities.dialog.companyPlaceholder")}
             />
           </div>
           <div>
-            <Label>Estimated fee (€)</Label>
+            <Label>{t("common.estimatedFee")}</Label>
             <Input
               type="number"
               step="0.01"
@@ -259,7 +267,7 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
             />
           </div>
           <div>
-            <Label>Probability (%)</Label>
+            <Label>{t("common.probability")}</Label>
             <Input
               type="number"
               min={0}
@@ -269,7 +277,7 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
             />
           </div>
           <div>
-            <Label>Stage</Label>
+            <Label>{t("common.stage")}</Label>
             <Select
               value={form.stage}
               onValueChange={(v) => setForm((f) => ({ ...f, stage: v as OpportunityStage }))}
@@ -277,13 +285,13 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {OPPORTUNITY_STAGES.map((s) => (
-                  <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                  <SelectItem key={s.value} value={s.value}>{t(`stage.${s.value}`)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label>Expected start date</Label>
+            <Label>{t("common.expectedStart")}</Label>
             <Input
               type="date"
               value={form.expected_start_date}
@@ -291,7 +299,7 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
             />
           </div>
           <div className="sm:col-span-2">
-            <Label>Notes</Label>
+            <Label>{t("common.notes")}</Label>
             <Textarea
               rows={2}
               value={form.notas}
@@ -300,12 +308,12 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="ghost" onClick={onClose}>{t("common.cancel")}</Button>
           <Button
             onClick={() => create.mutate()}
             disabled={create.isPending || !form.name.trim() || !form.company_id}
           >
-            Create
+            {t("common.create")}
           </Button>
         </DialogFooter>
       </DialogContent>
