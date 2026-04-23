@@ -1,0 +1,169 @@
+{
+  "shell": {
+    "backToHub": "Hub",
+    "title": "CRM",
+    "subtitle": "Empresas, contactos e pipeline de propostas.",
+    "tabs": {
+      "overview": "Resumo",
+      "opportunities": "Oportunidades",
+      "accounts": "Contas",
+      "companies": "Empresas",
+      "contacts": "Contactos",
+      "pipelineLegacy": "Pipeline (legado)"
+    }
+  },
+  "overview": {
+    "stats": {
+      "companies": "Empresas",
+      "contacts": "Contactos",
+      "openProposals": "Propostas abertas",
+      "weightedPipeline": "Pipeline ponderado"
+    },
+    "pipelineSummary": "Pipeline — por estado",
+    "totalOpen": "Total em aberto"
+  },
+  "common": {
+    "loading": "A carregar…",
+    "notFound": "Não encontrado.",
+    "noData": "—",
+    "save": "Guardar alterações",
+    "create": "Criar",
+    "cancel": "Cancelar",
+    "delete": "Apagar",
+    "name": "Nome",
+    "company": "Empresa",
+    "account": "Conta",
+    "title": "Título",
+    "notes": "Notas",
+    "status": "Estado",
+    "fee": "Fee",
+    "estimatedFee": "Fee estimado (€)",
+    "probability": "Probabilidade (%)",
+    "expectedStart": "Início previsto",
+    "stage": "Fase",
+    "feeStructure": "Estrutura de fee",
+    "noAccount": "Sem conta",
+    "primaryContact": "Contacto principal",
+    "noContact": "Sem contacto",
+    "required": "*"
+  },
+  "opportunities": {
+    "countAndFee": "{{count}} oportunidades · {{fee}} estimado",
+    "newOpportunity": "Nova oportunidade",
+    "viewPipeline": "Pipeline",
+    "viewList": "Lista",
+    "emptyTitle": "Ainda sem oportunidades",
+    "emptyHint": "Crie a primeira para começar a registar trabalho potencial.",
+    "tableName": "Nome",
+    "tableCompany": "Empresa",
+    "tableStage": "Fase",
+    "tableEstFee": "Fee est.",
+    "tableProb": "Prob.",
+    "dialog": {
+      "title": "Nova oportunidade",
+      "description": "Registe trabalho potencial antes de se tornar proposta.",
+      "namePlaceholder": "ex: Reabilitação — Av. X",
+      "companyPlaceholder": "Selecionar ou criar empresa",
+      "errorName": "Nome é obrigatório",
+      "errorCompany": "Empresa é obrigatória",
+      "createdToast": "Oportunidade criada"
+    },
+    "detail": {
+      "back": "Voltar a oportunidades",
+      "deleteConfirm": "Apagar esta oportunidade? As propostas ficarão órfãs.",
+      "deletedToast": "Oportunidade apagada",
+      "stageUpdatedToast": "Fase actualizada",
+      "contactUpdatedToast": "Contacto actualizado",
+      "overview": "Resumo",
+      "company": "Empresa",
+      "quotesSection": "Propostas",
+      "newQuote": "Nova proposta",
+      "noQuotesTitle": "Ainda sem propostas",
+      "noQuotesHint": "Crie a primeira proposta para esta oportunidade.",
+      "quoteTitle": "Título",
+      "quoteAccount": "Conta",
+      "quoteStructure": "Estrutura",
+      "quoteStatus": "Estado",
+      "quoteFee": "Fee"
+    }
+  },
+  "accounts": {
+    "count": "{{count}} contas",
+    "newAccount": "Nova conta",
+    "emptyTitle": "Ainda sem contas de facturação",
+    "emptyHint": "As contas representam a entidade a que se factura (uma empresa pode ter várias).",
+    "tableAccount": "Conta",
+    "tableCompany": "Empresa",
+    "tableBilling": "Dados de facturação",
+    "dialog": {
+      "title": "Nova conta",
+      "description": "Entidade de facturação ligada a uma empresa. As propostas são aprovadas contra uma conta.",
+      "namePlaceholder": "ex: ACME SA — Facturação Lisboa",
+      "companyPlaceholder": "Selecionar ou criar empresa",
+      "billingPlaceholder": "NIF, morada de facturação, IBAN, etc.",
+      "billingDetails": "Dados de facturação",
+      "createdToast": "Conta criada",
+      "errorName": "Nome é obrigatório",
+      "errorCompany": "Empresa é obrigatória"
+    }
+  },
+  "quotes": {
+    "loadError": "Proposta não carregada",
+    "approveAccountRequired": "Conta é obrigatória para aprovar uma proposta",
+    "savedToast": "Proposta guardada",
+    "deletedToast": "Proposta apagada",
+    "deleteConfirm": "Apagar esta proposta?",
+    "convertOnlyApproved": "Só propostas aprovadas podem ser convertidas",
+    "convertExisting": "Projecto já existe — a abrir",
+    "convertCreated": "Projecto criado",
+    "backToOpportunity": "Voltar à oportunidade",
+    "backToOpportunities": "Voltar a oportunidades",
+    "openProject": "Abrir projecto",
+    "feeDetails": "Detalhes de fee",
+    "convertSection": "Converter em projecto",
+    "convertHint": "Quando a proposta estiver aprovada, pode criar o projecto operacional. O projecto herda empresa, conta, oportunidade e proposta.",
+    "accountValue": "Conta: ",
+    "feeValue": "Fee: ",
+    "statusValue": "Estado: ",
+    "projectAlreadyCreated": "✓ Projecto já criado",
+    "convertButton": "Converter em projecto",
+    "openProjectButton": "Abrir projecto",
+    "approveFirstHint": "A proposta tem de ser aprovada primeiro.",
+    "setAccountFirst": " (definir conta primeiro)",
+    "newQuoteDialog": {
+      "title": "Nova proposta",
+      "description": "As propostas herdam o contexto da oportunidade. A conta é opcional agora mas obrigatória para aprovar.",
+      "accountOptional": "Conta (opcional)",
+      "noAccountSetBefore": "Sem conta (definir antes de aprovar)",
+      "noAccountsHint": "Ainda sem contas para esta empresa. Crie uma no separador Contas.",
+      "createButton": "Criar proposta",
+      "createdToast": "Proposta criada",
+      "errorTitle": "Título é obrigatório"
+    }
+  },
+  "stage": {
+    "lead": "Lead",
+    "proposal": "Proposta",
+    "negotiation": "Negociação",
+    "won": "Ganha",
+    "lost": "Perdida"
+  },
+  "quoteStatus": {
+    "draft": "Rascunho",
+    "sent": "Enviada",
+    "approved": "Aprovada",
+    "rejected": "Rejeitada"
+  },
+  "feeStructure": {
+    "fixed": "Fixo",
+    "staged": "Por fases",
+    "monthly": "Mensal"
+  },
+  "pipelineStatus": {
+    "lead": "Lead",
+    "proposta_enviada": "Proposta enviada",
+    "negociacao": "Negociação",
+    "ganho": "Ganha",
+    "perdido": "Perdida"
+  }
+}
