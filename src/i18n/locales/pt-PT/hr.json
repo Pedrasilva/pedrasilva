@@ -1,0 +1,61 @@
+{
+  "module": {
+    "title": "HR",
+    "subtitle": "Pessoas",
+    "description": "A sua ficha, férias, benefícios e (para gestores) a equipa."
+  },
+  "sidebar": {
+    "title": "Recursos Humanos",
+    "expand": "Expandir menu",
+    "collapse": "Colapsar menu",
+    "groups": {
+      "people": "Pessoas",
+      "compensation": "Compensação",
+      "configuration": "Configuração"
+    }
+  },
+  "nav": {
+    "myProfile": "Minha ficha",
+    "collaborators": "Colaboradores",
+    "vacation": "Férias",
+    "summary": "Resumo geral",
+    "benefits": "Benefícios",
+    "mealAllowance": "Subsídio alimentação",
+    "workingDays": "Dias úteis",
+    "boRate": "Valor BO/hora",
+    "permissions": "Permissões"
+  },
+  "landing": {
+    "title": "Colaboradores",
+    "subtitle": "Cada colaborador tem uma ficha com fichas salariais por data.",
+    "newButton": "Novo colaborador",
+    "newDialog": {
+      "title": "Novo colaborador",
+      "description": "Preencha os dados base. Pode editar tudo na ficha do colaborador.",
+      "name": "Nome *",
+      "number": "Nº colaborador",
+      "department": "Departamento *",
+      "contractStatus": "Situação contractual",
+      "careerStart": "Início de carreira",
+      "birthDate": "Data de nascimento",
+      "create": "Criar",
+      "createdToast": "Colaborador criado",
+      "nameRequired": "Nome obrigatório"
+    },
+    "empty": "Sem colaboradores ainda. Crie o primeiro acima.",
+    "departments": {
+      "project": "Equipa Projecto",
+      "backoffice": "Equipa Backoffice"
+    },
+    "department": {
+      "count_one": "{{count}} colaborador",
+      "count_other": "{{count}} colaboradores"
+    },
+    "table": {
+      "name": "Nome",
+      "number": "Nº",
+      "status": "Situação",
+      "noMembers": "Sem colaboradores."
+    }
+  }
+}

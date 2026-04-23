@@ -1,4 +1,9 @@
 {
+  "module": {
+    "title": "CRM",
+    "subtitle": "Companies",
+    "description": "Companies, contacts, proposals and sales pipeline."
+  },
   "shell": {
     "backToHub": "Hub",
     "title": "CRM",

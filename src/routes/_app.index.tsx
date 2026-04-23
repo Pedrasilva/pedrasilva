@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
 import {
   useUpcomingCelebrations,
   useWhoIsOff,
   useUpcomingHolidays,
-  type BirthdayItem,
 } from "@/hooks/use-home-feed";
 import { Card } from "@/components/ui/card";
 import {
@@ -30,9 +30,9 @@ export const Route = createFileRoute("/_app/")({
 type ModuleDef = {
   to: "/hr" | "/crm" | "/projects";
   number: string;
-  title: string;
-  subtitle: string;
-  description: string;
+  titleKey: string;
+  subtitleKey: string;
+  descriptionKey: string;
   icon: React.ComponentType<{ className?: string }>;
   anyOf: PermissionKey[];
 };
@@ -41,10 +41,9 @@ const MODULES: ModuleDef[] = [
   {
     to: "/hr",
     number: "01",
-    title: "HR",
-    subtitle: "Pessoas",
-    description:
-      "A sua ficha, férias, benefícios e (para gestores) a equipa.",
+    titleKey: "hr:module.title",
+    subtitleKey: "hr:module.subtitle",
+    descriptionKey: "hr:module.description",
     icon: Users,
     anyOf: [
       "hr.minha-ficha",
@@ -58,20 +57,18 @@ const MODULES: ModuleDef[] = [
   {
     to: "/crm",
     number: "02",
-    title: "CRM",
-    subtitle: "Empresas",
-    description:
-      "Empresas, contactos, propostas e pipeline comercial.",
+    titleKey: "crm:module.title",
+    subtitleKey: "crm:module.subtitle",
+    descriptionKey: "crm:module.description",
     icon: Building2,
     anyOf: ["crm.companies", "crm.contacts", "crm.pipeline"],
   },
   {
     to: "/projects",
     number: "03",
-    title: "Projects",
-    subtitle: "Estúdio",
-    description:
-      "Projectos, alocação, gantt, tarefas e timesheets.",
+    titleKey: "projects:module.title",
+    subtitleKey: "projects:module.subtitle",
+    descriptionKey: "projects:module.description",
     icon: Briefcase,
     anyOf: [
       "projects.all",
@@ -127,49 +124,35 @@ function quoteOfTheDay() {
   return QUOTES[dayOfYear % QUOTES.length];
 }
 
-const PT_MONTHS = [
-  "Jan",
-  "Fev",
-  "Mar",
-  "Abr",
-  "Mai",
-  "Jun",
-  "Jul",
-  "Ago",
-  "Set",
-  "Out",
-  "Nov",
-  "Dez",
-];
-const ABSENCE_LABEL: Record<string, string> = {
-  ferias: "Férias",
-  casamento: "Casamento",
-  falecimento_familiar: "Luto",
-  assistencia_filho: "Assistência a filho",
-  nascimento_filho: "Nascimento",
-  trabalhador_estudante: "Estudante",
-  doacao_sangue: "Dádiva de sangue",
-  autorizada_paga: "Autorizada",
-  autorizada_nao_paga: "Autorizada",
-};
 
-function fmtDate(iso: string) {
-  const [y, m, d] = iso.split("-").map(Number);
-  return `${d} ${PT_MONTHS[(m ?? 1) - 1]}`;
-}
-
-function relativeDays(days: number) {
-  if (days === 0) return "Hoje";
-  if (days === 1) return "Amanhã";
-  if (days < 7) return `Em ${days} dias`;
-  if (days < 14) return `Próxima semana`;
-  return `Em ${days} dias`;
-}
 
 function HubPage() {
+  const { t } = useTranslation(["home", "common", "hr", "crm", "projects"]);
   const { isAdmin, loading: authLoading, user } = useAuth();
   const { permissions, loading: permsLoading } = useMyPermissions();
   const loading = authLoading || permsLoading;
+
+  const months = useMemo(
+    () => Array.from({ length: 12 }, (_, i) => t(`home:month.${i}`)),
+    [t],
+  );
+  const weekdays = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => t(`home:weekday.${i}`)),
+    [t],
+  );
+
+  const fmtDate = (iso: string) => {
+    const [, m, d] = iso.split("-").map(Number);
+    return `${d} ${months[(m ?? 1) - 1]}`;
+  };
+
+  const relativeDays = (days: number) => {
+    if (days === 0) return t("home:relative.today");
+    if (days === 1) return t("home:relative.tomorrow");
+    if (days < 7) return t("home:relative.inDays", { days });
+    if (days < 14) return t("home:relative.nextWeek");
+    return t("home:relative.inDays", { days });
+  };
 
   const visible = useMemo(() => {
     if (isAdmin) return MODULES;
@@ -178,11 +161,11 @@ function HubPage() {
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
-    if (h < 5) return "Boa noite";
-    if (h < 12) return "Bom dia";
-    if (h < 20) return "Boa tarde";
-    return "Boa noite";
-  }, []);
+    if (h < 5) return t("home:greeting.night");
+    if (h < 12) return t("home:greeting.morning");
+    if (h < 20) return t("home:greeting.afternoon");
+    return t("home:greeting.evening");
+  }, [t]);
 
   const firstName = useMemo(() => {
     const email = user?.email ?? "";
@@ -195,17 +178,8 @@ function HubPage() {
 
   const today = useMemo(() => {
     const d = new Date();
-    const weekday = [
-      "Domingo",
-      "Segunda",
-      "Terça",
-      "Quarta",
-      "Quinta",
-      "Sexta",
-      "Sábado",
-    ][d.getDay()];
-    return `${weekday} · ${d.getDate()} ${PT_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-  }, []);
+    return `${weekdays[d.getDay()]} · ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }, [weekdays, months]);
 
   const quote = useMemo(quoteOfTheDay, []);
 
@@ -221,7 +195,7 @@ function HubPage() {
   if (loading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
-        A carregar…
+        {t("common:loading")}
       </div>
     );
   }
@@ -230,11 +204,10 @@ function HubPage() {
     return (
       <div className="mx-auto max-w-md py-16 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">
-          Sem módulos disponíveis
+          {t("home:noModules.title")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          A sua conta ainda não tem permissões atribuídas. Contacte um
-          administrador.
+          {t("home:noModules.body")}
         </p>
       </div>
     );
@@ -256,7 +229,7 @@ function HubPage() {
               {today}
             </div>
             <div className="hidden md:block text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-              Pedra Silva · Studio Hub
+              {t("home:studioHub")}
             </div>
           </div>
 
@@ -264,14 +237,12 @@ function HubPage() {
             {greeting}
             {firstName ? `, ${firstName}` : ""}.
             <span className="block text-muted-foreground">
-              We make room for creativity.
+              {t("home:tagline")}
             </span>
           </h1>
 
           <p className="mt-6 max-w-2xl text-base sm:text-lg text-foreground/70 leading-relaxed">
-            Bem-vindo ao espaço dos colaboradores PSA. Aqui partilhamos as
-            ferramentas, os projectos e os pequenos momentos que constroem o
-            atelier — todos os dias.
+            {t("home:intro")}
           </p>
 
           {/* Today's celebration banner */}
@@ -284,14 +255,18 @@ function HubPage() {
                 <Sparkles className="h-3.5 w-3.5" />
               </span>
               <span className="text-sm font-medium">
-                Hoje celebramos{" "}
-                {todayCelebrations
-                  .map((c) =>
-                    c.kind === "birthday"
-                      ? `${c.nome} (anos)`
-                      : `${c.nome} (${c.years} anos PSA)`,
-                  )
-                  .join(", ")}
+                {t("home:todayCelebrate", {
+                  names: todayCelebrations
+                    .map((c) =>
+                      c.kind === "birthday"
+                        ? t("home:celebrate.birthday", { name: c.nome })
+                        : t("home:celebrate.anniversary", {
+                            name: c.nome,
+                            years: c.years,
+                          }),
+                    )
+                    .join(", "),
+                })}
               </span>
             </div>
           )}
@@ -303,10 +278,10 @@ function HubPage() {
         <div className="flex items-end justify-between mb-6">
           <div>
             <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-              Módulos
+              {t("home:modules.kicker")}
             </div>
             <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold tracking-tight">
-              Onde queres ir hoje?
+              {t("home:modules.title")}
             </h2>
           </div>
         </div>
@@ -336,13 +311,13 @@ function HubPage() {
                     <div className="mt-10">
                       <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                         <Icon className="h-3.5 w-3.5" />
-                        {m.subtitle}
+                        {t(m.subtitleKey)}
                       </div>
                       <h3 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-                        {m.title}
+                        {t(m.titleKey)}
                       </h3>
                       <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                        {m.description}
+                        {t(m.descriptionKey)}
                       </p>
                     </div>
                   </div>
@@ -357,10 +332,10 @@ function HubPage() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12 lg:py-16">
         <div className="mb-6">
           <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-            Studio diary
+            {t("home:studio.kicker")}
           </div>
           <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold tracking-tight">
-            O que se passa no atelier
+            {t("home:studio.title")}
           </h2>
         </div>
 
@@ -374,28 +349,63 @@ function HubPage() {
                   style={{ color: "var(--clay)" }}
                 />
                 <h3 className="font-display text-lg font-semibold tracking-tight">
-                  Celebrações próximas
+                  {t("home:celebrations.title")}
                 </h3>
               </div>
               <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                Próximos 45 dias
+                {t("home:celebrations.window")}
               </span>
             </div>
             <ul className="divide-y">
               {celebrationsQ.isLoading && (
                 <li className="px-6 py-8 text-center text-sm text-muted-foreground">
-                  A carregar…
+                  {t("common:loading")}
                 </li>
               )}
               {!celebrationsQ.isLoading &&
                 upcomingCelebrations.length === 0 && (
                   <li className="px-6 py-8 text-center text-sm text-muted-foreground">
-                    Nada nos próximos 45 dias.
+                    {t("home:celebrations.empty")}
                   </li>
                 )}
-              {upcomingCelebrations.map((c) => (
-                <CelebrationRow key={c.id} item={c} />
-              ))}
+              {upcomingCelebrations.map((c) => {
+                const isBirthday = c.kind === "birthday";
+                const Icon = isBirthday ? Cake : Sparkles;
+                const accent = isBirthday ? "var(--clay)" : "var(--sage)";
+                const label = isBirthday
+                  ? t("home:celebrate.turnsAge", { age: c.age })
+                  : t("home:celebrate.yearsAtPsa", { count: c.years });
+                return (
+                  <li
+                    key={c.id}
+                    className="flex items-center justify-between gap-4 px-6 py-3.5"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                        style={{
+                          background: `color-mix(in oklab, ${accent} 15%, transparent)`,
+                          color: accent,
+                        }}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium truncate">{c.nome}</div>
+                        <div className="text-[11px] text-muted-foreground">{label}</div>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-sm font-medium tabular-nums">
+                        {fmtDate(c.date)}
+                      </div>
+                      <div className="text-[11px] text-muted-foreground">
+                        {relativeDays(c.daysAway)}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </Card>
 
@@ -410,22 +420,22 @@ function HubPage() {
                     style={{ color: "var(--sage)" }}
                   />
                   <h3 className="font-display text-base font-semibold tracking-tight">
-                    Fora hoje
+                    {t("home:off.title")}
                   </h3>
                 </div>
                 <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                  Equipa
+                  {t("home:off.team")}
                 </span>
               </div>
               <ul className="divide-y">
                 {offTodayQ.isLoading && (
                   <li className="px-5 py-5 text-center text-xs text-muted-foreground">
-                    A carregar…
+                    {t("common:loading")}
                   </li>
                 )}
                 {!offTodayQ.isLoading && (offTodayQ.data?.length ?? 0) === 0 && (
                   <li className="px-5 py-5 text-center text-xs text-muted-foreground">
-                    Toda a equipa está cá hoje.
+                    {t("home:off.empty")}
                   </li>
                 )}
                 {offTodayQ.data?.slice(0, 5).map((v) => (
@@ -440,8 +450,8 @@ function HubPage() {
                           {v.nome}
                         </div>
                         <div className="text-[11px] text-muted-foreground">
-                          {ABSENCE_LABEL[v.tipo] ?? v.tipo} · até{" "}
-                          {fmtDate(v.data_fim)}
+                          {t(`home:absence.${v.tipo}`, { defaultValue: v.tipo })} ·{" "}
+                          {t("home:off.until", { date: fmtDate(v.data_fim) })}
                         </div>
                       </div>
                     </div>
@@ -459,19 +469,19 @@ function HubPage() {
                     style={{ color: "var(--clay-complement)" }}
                   />
                   <h3 className="font-display text-base font-semibold tracking-tight">
-                    Próximos feriados
+                    {t("home:holidays.title")}
                   </h3>
                 </div>
               </div>
               <ul className="divide-y">
                 {holidaysQ.isLoading && (
                   <li className="px-5 py-5 text-center text-xs text-muted-foreground">
-                    A carregar…
+                    {t("common:loading")}
                   </li>
                 )}
                 {!holidaysQ.isLoading && (holidaysQ.data?.length ?? 0) === 0 && (
                   <li className="px-5 py-5 text-center text-xs text-muted-foreground">
-                    Sem feriados próximos.
+                    {t("home:holidays.empty")}
                   </li>
                 )}
                 {holidaysQ.data?.slice(0, 4).map((h) => (
@@ -534,41 +544,5 @@ function Avatar({ nome }: { nome: string }) {
     >
       {initials || "?"}
     </span>
-  );
-}
-
-function CelebrationRow({ item }: { item: BirthdayItem }) {
-  const isBirthday = item.kind === "birthday";
-  const Icon = isBirthday ? Cake : Sparkles;
-  const accent = isBirthday ? "var(--clay)" : "var(--sage)";
-  const label = isBirthday
-    ? `Faz ${item.age} anos`
-    : `${item.years} ${item.years === 1 ? "ano" : "anos"} na PSA`;
-  return (
-    <li className="flex items-center justify-between gap-4 px-6 py-3.5">
-      <div className="flex items-center gap-3 min-w-0">
-        <span
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-          style={{
-            background: `color-mix(in oklab, ${accent} 15%, transparent)`,
-            color: accent,
-          }}
-        >
-          <Icon className="h-4 w-4" />
-        </span>
-        <div className="min-w-0">
-          <div className="text-sm font-medium truncate">{item.nome}</div>
-          <div className="text-[11px] text-muted-foreground">{label}</div>
-        </div>
-      </div>
-      <div className="text-right shrink-0">
-        <div className="text-sm font-medium tabular-nums">
-          {fmtDate(item.date)}
-        </div>
-        <div className="text-[11px] text-muted-foreground">
-          {relativeDays(item.daysAway)}
-        </div>
-      </div>
-    </li>
   );
 }
