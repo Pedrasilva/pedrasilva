@@ -59,7 +59,7 @@ const MODULES: ModuleDef[] = [
     to: "/crm",
     number: "02",
     title: "CRM",
-    subtitle: "Clientes",
+    subtitle: "Empresas",
     description:
       "Empresas, contactos, propostas e pipeline comercial.",
     icon: Building2,

@@ -97,7 +97,7 @@ function ProposalDetail() {
   const convertToProject = useMutation({
     mutationFn: async () => {
       if (!current) return;
-      let clientName = "Cliente";
+      let clientName = "Empresa";
       if (current.company_id) {
         const { data } = await supabase.from("companies").select("nome").eq("id", current.company_id).single();
         if (data?.nome) clientName = data.nome;
