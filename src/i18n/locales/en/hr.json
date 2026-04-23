@@ -456,7 +456,6 @@
     },
     "holidays": {
       "title": "National holidays {{year}}",
-      "description": "{{total}} holiday(s) — {{onWorkingDays}} on working days, {{onWeekend}} on weekends (no impact).",
       "headers": {
         "date": "Date",
         "weekday": "Weekday",
@@ -471,7 +470,16 @@
         "nameLabel": "Holiday name",
         "namePlaceholder": "e.g. Bridge day",
         "addButton": "Add"
-      }
+      },
+      "description_zero": "No holidays registered for this year.",
+      "description_one": "{{count}} holiday — {{workingClause}}, {{weekendClause}}.",
+      "description_other": "{{count}} holidays — {{workingClause}}, {{weekendClause}}.",
+      "workingClause_zero": "none on a working day",
+      "workingClause_one": "{{count}} on a working day",
+      "workingClause_other": "{{count}} on working days",
+      "weekendClause_zero": "none on a weekend (no impact)",
+      "weekendClause_one": "{{count}} on a weekend (no impact)",
+      "weekendClause_other": "{{count}} on weekends (no impact)"
     },
     "formula": {
       "title": "How it is calculated",
@@ -487,7 +495,8 @@
       "fillFields": "Please fill in date and name",
       "added": "Holiday added",
       "removed": "Holiday removed",
-      "appliedToSnapshots": "Applied to {{count}} snapshot(s) and BO settings"
+      "appliedToSnapshots_one": "Applied to {{count}} snapshot and BO settings",
+      "appliedToSnapshots_other": "Applied to {{count}} snapshots and BO settings"
     }
   },
   "resumo": {
