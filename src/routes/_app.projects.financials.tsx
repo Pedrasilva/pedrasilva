@@ -184,19 +184,18 @@ function utilizationTone(
   utilization: number,
   internalPct: number,
   targets: UtilTargets,
-): "good" | "low" | "high" | "internal" {
-  if (internalPct > targets.internal_threshold_pct) return "internal";
-  if (utilization < targets.utilization_target_min) return "low";
-  if (utilization > targets.utilization_target_max) return "high";
-  return "good";
+): { tone: "good" | "low" | "high" | "internal"; labelKey: string } {
+  if (internalPct > targets.internal_threshold_pct) {
+    return { tone: "internal", labelKey: "financials.utilStatus.highInternal" };
+  }
+  if (utilization < targets.utilization_target_min) {
+    return { tone: "low", labelKey: "financials.utilStatus.underutilized" };
+  }
+  if (utilization > targets.utilization_target_max) {
+    return { tone: "high", labelKey: "financials.utilStatus.overutilized" };
+  }
+  return { tone: "good", labelKey: "financials.utilStatus.onTarget" };
 }
-
-const UTIL_TONE_KEYS: Record<"good" | "low" | "high" | "internal", string> = {
-  good: "financials.utilStatus.onTarget",
-  low: "financials.utilStatus.underutilized",
-  high: "financials.utilStatus.overutilized",
-  internal: "financials.utilStatus.highInternal",
-};
 
 function useMonthEntries(monthStartISO: string, monthEndISO: string) {
   return useQuery({
