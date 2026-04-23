@@ -174,7 +174,7 @@ function useUpdateUtilTargets() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["fin-util-targets"] });
-      toast.success("Utilization targets updated");
+      // Toast handled by caller via i18n; keep silent here.
     },
     onError: (e: Error) => toast.error(e.message),
   });
