@@ -160,11 +160,7 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
             brutoMensalGlobal={isAnual ? c.brutoMensal * c.meses : c.brutoMensal}
             ssAtelierMensal={c.ssAtelier12 * mult}
             liquidoTotalMensal={c.liquidoTotalMensal * mult}
-            periodLabel={
-              isAnual
-                ? t("snapshot.liquido.composition.annualLabel")
-                : t("snapshot.liquido.composition.monthlyLabel")
-            }
+            periodLabel={isAnual ? "anual" : "mensal"}
           />
         </CardContent>
       </Card>
