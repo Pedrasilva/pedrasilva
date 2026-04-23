@@ -261,7 +261,7 @@
     "columnA": "Column A",
     "columnB": "Column B",
     "pickerPlaceholder": "Choose a snapshot",
-    "inForceShort": "IN FORCE",
+    "inForceShort": "In force",
     "headers": {
       "metric": "Metric",
       "delta": "Δ",
@@ -348,7 +348,7 @@
       "onlyEffective": "Only current snapshot available",
       "onlyProposed": "Only proposed snapshot available",
       "noSnapshots": "No snapshots",
-      "totalLabel_one": "Total ({{count}} member)",
+      "totalLabel_one": "Total (1 member)",
       "totalLabel_other": "Total ({{count}} members)"
     }
   },
