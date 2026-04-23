@@ -456,7 +456,6 @@
     },
     "holidays": {
       "title": "Feriados nacionais {{year}}",
-      "description": "{{total}} feriado(s) — {{onWorkingDays}} em dia útil, {{onWeekend}} ao fim-de-semana (sem impacto).",
       "headers": {
         "date": "Data",
         "weekday": "Dia da semana",
@@ -471,7 +470,16 @@
         "nameLabel": "Nome do feriado",
         "namePlaceholder": "ex: Tolerância de ponto",
         "addButton": "Adicionar"
-      }
+      },
+      "description_zero": "Sem feriados registados para este ano.",
+      "description_one": "{{count}} feriado — {{workingClause}}, {{weekendClause}}.",
+      "description_other": "{{count}} feriados — {{workingClause}}, {{weekendClause}}.",
+      "workingClause_zero": "nenhum em dia útil",
+      "workingClause_one": "{{count}} em dia útil",
+      "workingClause_other": "{{count}} em dias úteis",
+      "weekendClause_zero": "nenhum ao fim-de-semana (sem impacto)",
+      "weekendClause_one": "{{count}} ao fim-de-semana (sem impacto)",
+      "weekendClause_other": "{{count}} ao fim-de-semana (sem impacto)"
     },
     "formula": {
       "title": "Como é calculado",
@@ -487,7 +495,8 @@
       "fillFields": "Preenche data e nome",
       "added": "Feriado adicionado",
       "removed": "Feriado removido",
-      "appliedToSnapshots": "Aplicado a {{count}} ficha(s) e às definições BO"
+      "appliedToSnapshots_one": "Aplicado a {{count}} ficha e às definições BO",
+      "appliedToSnapshots_other": "Aplicado a {{count}} fichas e às definições BO"
     }
   },
   "resumo": {
