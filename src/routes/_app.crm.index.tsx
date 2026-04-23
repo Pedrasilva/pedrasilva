@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Users, GitBranch, TrendingUp } from "lucide-react";
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/_app/crm/")({
 });
 
 function CrmOverview() {
+  const { t } = useTranslation("crm");
   const { data: companiesCount = 0 } = useQuery({
     queryKey: ["crm-companies-count"],
     queryFn: async () => {
@@ -41,15 +43,16 @@ function CrmOverview() {
 
   const byStatus = PIPELINE_STATUSES.map((s) => ({
     ...s,
+    label: t(`pipelineStatus.${s.value}`),
     count: proposals.filter((p) => p.pipeline_status === s.value).length,
     value: proposals.filter((p) => p.pipeline_status === s.value).reduce((sum, p) => sum + p.valor, 0),
   }));
 
   const stats = [
-    { label: "Empresas", value: companiesCount, icon: Building2, to: "/crm/companies" as const },
-    { label: "Contactos", value: contactsCount, icon: Users, to: "/crm/contacts" as const },
-    { label: "Propostas abertas", value: openProposals.length, icon: GitBranch, to: "/crm/pipeline" as const },
-    { label: "Pipeline ponderado", value: formatEUR(weightedPipeline), icon: TrendingUp, to: "/crm/pipeline" as const },
+    { label: t("overview.stats.companies"), value: companiesCount, icon: Building2, to: "/crm/companies" as const },
+    { label: t("overview.stats.contacts"), value: contactsCount, icon: Users, to: "/crm/contacts" as const },
+    { label: t("overview.stats.openProposals"), value: openProposals.length, icon: GitBranch, to: "/crm/pipeline" as const },
+    { label: t("overview.stats.weightedPipeline"), value: formatEUR(weightedPipeline), icon: TrendingUp, to: "/crm/pipeline" as const },
   ];
 
   return (
@@ -77,7 +80,7 @@ function CrmOverview() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Pipeline — resumo por estado</CardTitle>
+          <CardTitle className="text-base">{t("overview.pipelineSummary")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -93,7 +96,7 @@ function CrmOverview() {
             ))}
           </div>
           <div className="mt-4 flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Total em aberto</span>
+            <span className="text-muted-foreground">{t("overview.totalOpen")}</span>
             <span className="font-semibold">{formatEUR(totalOpen)}</span>
           </div>
         </CardContent>
