@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import {
   addDays,
@@ -71,6 +72,7 @@ export const Route = createFileRoute("/_app/projects/$projectId")({
 type TabKey = "overview" | "schedule" | "insights" | "stream";
 
 function ProjectDetail() {
+  const { t } = useTranslation();
   const { projectId } = Route.useParams();
   const { data, isLoading, error } = useProjectDetail(projectId);
   const { data: resources } = useResources();
