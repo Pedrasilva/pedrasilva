@@ -1408,6 +1408,7 @@ function UtilizationTargetCard({
   utilization: number;
   targets: UtilTargets;
 }) {
+  const { t } = useTranslation();
   const inRange =
     utilization >= targets.utilization_target_min &&
     utilization <= targets.utilization_target_max;
@@ -1419,11 +1420,13 @@ function UtilizationTargetCard({
       <CardHeader className="pb-2">
         <CardDescription className="flex items-center justify-between gap-2 text-xs">
           <span className="flex items-center gap-2">
-            <Gauge className="h-4 w-4" /> Utilization
+            <Gauge className="h-4 w-4" /> {t("projects:financials.utilizationCard.label")}
           </span>
           <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            Target {Math.round(targets.utilization_target_min)}–
-            {Math.round(targets.utilization_target_max)}%
+            {t("projects:financials.utilizationCard.targetRange", {
+              min: Math.round(targets.utilization_target_min),
+              max: Math.round(targets.utilization_target_max),
+            })}
           </span>
         </CardDescription>
         <CardTitle
@@ -1466,20 +1469,24 @@ function UtilizationTargetCard({
           {inRange ? (
             <>
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-              <span>On target</span>
+              <span>{t("projects:financials.utilizationCard.onTarget")}</span>
             </>
           ) : below ? (
             <>
               <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
               <span>
-                {pct(targets.utilization_target_min - utilization)} below target
+                {t("projects:financials.utilizationCard.belowTarget", {
+                  pct: pct(targets.utilization_target_min - utilization),
+                })}
               </span>
             </>
           ) : (
             <>
               <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
               <span>
-                {pct(utilization - targets.utilization_target_max)} above target
+                {t("projects:financials.utilizationCard.aboveTarget", {
+                  pct: pct(utilization - targets.utilization_target_max),
+                })}
               </span>
             </>
           )}
