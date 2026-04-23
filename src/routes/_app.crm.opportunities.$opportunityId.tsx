@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/_app/crm/opportunities/$opportunityId")({
 });
 
 function OpportunityDetail() {
+  const { t } = useTranslation("crm");
   const { opportunityId } = Route.useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -79,7 +81,7 @@ function OpportunityDetail() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Stage updated");
+      toast.success(t("opportunities.detail.stageUpdatedToast"));
       qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunityId] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
     },
@@ -93,7 +95,7 @@ function OpportunityDetail() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Contact updated");
+      toast.success(t("opportunities.detail.contactUpdatedToast"));
       qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunityId] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -105,7 +107,7 @@ function OpportunityDetail() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Opportunity deleted");
+      toast.success(t("opportunities.detail.deletedToast"));
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       navigate({ to: "/crm/opportunities" });
     },
@@ -114,8 +116,8 @@ function OpportunityDetail() {
 
   const [quoteOpen, setQuoteOpen] = useState(false);
 
-  if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
-  if (!opp) return <p className="text-sm text-muted-foreground">Opportunity not found.</p>;
+  if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
+  if (!opp) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
 
   const stage = OPPORTUNITY_STAGES.find((s) => s.value === opp.stage);
 
@@ -125,7 +127,7 @@ function OpportunityDetail() {
         to="/crm/opportunities"
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="h-3 w-3" /> Back to opportunities
+        <ArrowLeft className="h-3 w-3" /> {t("opportunities.detail.back")}
       </Link>
 
       <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -139,13 +141,13 @@ function OpportunityDetail() {
         <div className="flex items-center gap-2">
           <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs`}>
             <span className={`h-2 w-2 rounded-full ${stage?.color}`} />
-            {stage?.label}
+            {stage ? t(`stage.${stage.value}`) : ""}
           </span>
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              if (confirm("Delete this opportunity? Quotes will become orphaned.")) remove.mutate();
+              if (confirm(t("opportunities.detail.deleteConfirm"))) remove.mutate();
             }}
           >
             <Trash2 className="h-4 w-4" />
@@ -155,22 +157,22 @@ function OpportunityDetail() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="md:col-span-2">
-          <CardHeader><CardTitle className="text-base">Overview</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">{t("opportunities.detail.overview")}</CardTitle></CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
             <div>
-              <Label className="text-xs text-muted-foreground">Estimated fee</Label>
+              <Label className="text-xs text-muted-foreground">{t("common.estimatedFee").replace(" (€)", "")}</Label>
               <div className="text-lg font-semibold">{formatEUR(Number(opp.estimated_fee))}</div>
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground">Probability</Label>
+              <Label className="text-xs text-muted-foreground">{t("common.probability").replace(" (%)", "")}</Label>
               <div className="text-lg font-semibold">{opp.probability}%</div>
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground">Expected start</Label>
+              <Label className="text-xs text-muted-foreground">{t("common.expectedStart")}</Label>
               <div className="text-sm">{opp.expected_start_date ?? "—"}</div>
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground">Stage</Label>
+              <Label className="text-xs text-muted-foreground">{t("common.stage")}</Label>
               <Select
                 value={opp.stage}
                 onValueChange={(v) => updateStage.mutate(v as OpportunityStage)}
@@ -178,20 +180,20 @@ function OpportunityDetail() {
                 <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {OPPORTUNITY_STAGES.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    <SelectItem key={s.value} value={s.value}>{t(`stage.${s.value}`)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="sm:col-span-2">
-              <Label className="text-xs text-muted-foreground">Primary contact</Label>
+              <Label className="text-xs text-muted-foreground">{t("common.primaryContact")}</Label>
               <Select
                 value={opp.primary_contact_id ?? "none"}
                 onValueChange={(v) => updateContact.mutate(v === "none" ? null : v)}
               >
-                <SelectTrigger className="h-8"><SelectValue placeholder="No contact" /></SelectTrigger>
+                <SelectTrigger className="h-8"><SelectValue placeholder={t("common.noContact")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">No contact</SelectItem>
+                  <SelectItem value="none">{t("common.noContact")}</SelectItem>
                   {contacts.map((c) => (
                     <SelectItem key={c.id} value={c.id}>{contactFullName(c)}</SelectItem>
                   ))}
@@ -199,14 +201,14 @@ function OpportunityDetail() {
               </Select>
             </div>
             <div className="sm:col-span-2">
-              <Label className="text-xs text-muted-foreground">Notes</Label>
+              <Label className="text-xs text-muted-foreground">{t("common.notes")}</Label>
               <p className="text-sm whitespace-pre-wrap">{opp.notas || "—"}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader><CardTitle className="text-base">Company</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">{t("opportunities.detail.company")}</CardTitle></CardHeader>
           <CardContent className="text-sm space-y-2">
             {opp.company ? (
               <Link
@@ -223,26 +225,27 @@ function OpportunityDetail() {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">Quotes</CardTitle>
+          <CardTitle className="text-base">{t("opportunities.detail.quotesSection")}</CardTitle>
           <Button size="sm" onClick={() => setQuoteOpen(true)}>
-            <Plus className="h-4 w-4 mr-1" /> New quote
+            <Plus className="h-4 w-4 mr-1" /> {t("opportunities.detail.newQuote")}
           </Button>
         </CardHeader>
         <CardContent>
           {quotes.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-8 text-sm text-muted-foreground">
               <FileText className="h-8 w-8 opacity-50" />
-              No quotes yet. Create the first quote for this opportunity.
+              <span className="font-medium">{t("opportunities.detail.noQuotesTitle")}</span>
+              <span>{t("opportunities.detail.noQuotesHint")}</span>
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead className="border-b">
                 <tr className="text-left text-xs text-muted-foreground">
-                  <th className="px-2 py-2">Title</th>
-                  <th className="px-2 py-2">Account</th>
-                  <th className="px-2 py-2">Structure</th>
-                  <th className="px-2 py-2">Status</th>
-                  <th className="px-2 py-2 text-right">Fee</th>
+                  <th className="px-2 py-2">{t("opportunities.detail.quoteTitle")}</th>
+                  <th className="px-2 py-2">{t("opportunities.detail.quoteAccount")}</th>
+                  <th className="px-2 py-2">{t("opportunities.detail.quoteStructure")}</th>
+                  <th className="px-2 py-2">{t("opportunities.detail.quoteStatus")}</th>
+                  <th className="px-2 py-2 text-right">{t("opportunities.detail.quoteFee")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -261,11 +264,11 @@ function OpportunityDetail() {
                         </Link>
                       </td>
                       <td className="px-2 py-2 text-muted-foreground">{q.account?.name ?? "—"}</td>
-                      <td className="px-2 py-2 text-muted-foreground">{struct?.label}</td>
+                      <td className="px-2 py-2 text-muted-foreground">{struct ? t(`feeStructure.${struct.value}`) : ""}</td>
                       <td className="px-2 py-2">
                         <span className="inline-flex items-center gap-2 text-xs">
                           <span className={`h-2 w-2 rounded-full ${status?.color}`} />
-                          {status?.label}
+                          {status ? t(`quoteStatus.${status.value}`) : ""}
                         </span>
                       </td>
                       <td className="px-2 py-2 text-right font-medium">{formatEUR(Number(q.valor))}</td>
@@ -297,6 +300,7 @@ function NewQuoteDialog({
   opportunityId: string; companyId: string;
   defaultTitle: string; defaultFee: number;
 }) {
+  const { t } = useTranslation("crm");
   const qc = useQueryClient();
 
   const { data: accounts = [] } = useQuery({
@@ -323,7 +327,7 @@ function NewQuoteDialog({
 
   const create = useMutation({
     mutationFn: async () => {
-      if (!form.titulo.trim()) throw new Error("Title is required");
+      if (!form.titulo.trim()) throw new Error(t("quotes.newQuoteDialog.errorTitle"));
       const { error } = await supabase.from("fee_proposals").insert({
         titulo: form.titulo.trim(),
         opportunity_id: opportunityId,
@@ -339,7 +343,7 @@ function NewQuoteDialog({
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Quote created");
+      toast.success(t("quotes.newQuoteDialog.createdToast"));
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp", opportunityId] });
       onClose();
     },
@@ -350,14 +354,12 @@ function NewQuoteDialog({
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>New quote</DialogTitle>
-          <DialogDescription>
-            Quotes inherit the opportunity context. Account is optional now but required to approve.
-          </DialogDescription>
+          <DialogTitle>{t("quotes.newQuoteDialog.title")}</DialogTitle>
+          <DialogDescription>{t("quotes.newQuoteDialog.description")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3">
           <div>
-            <Label>Title *</Label>
+            <Label>{t("common.title")} *</Label>
             <Input
               value={form.titulo}
               onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))}
@@ -365,7 +367,7 @@ function NewQuoteDialog({
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <Label>Estimated fee (€)</Label>
+              <Label>{t("common.estimatedFee")}</Label>
               <Input
                 type="number"
                 step="0.01"
@@ -374,7 +376,7 @@ function NewQuoteDialog({
               />
             </div>
             <div>
-              <Label>Fee structure</Label>
+              <Label>{t("common.feeStructure")}</Label>
               <Select
                 value={form.fee_structure_type}
                 onValueChange={(v) => setForm((f) => ({ ...f, fee_structure_type: v as FeeStructureType }))}
@@ -382,21 +384,21 @@ function NewQuoteDialog({
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {FEE_STRUCTURE_TYPES.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    <SelectItem key={s.value} value={s.value}>{t(`feeStructure.${s.value}`)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div>
-            <Label>Account (optional)</Label>
+            <Label>{t("quotes.newQuoteDialog.accountOptional")}</Label>
             <Select
               value={form.account_id || "none"}
               onValueChange={(v) => setForm((f) => ({ ...f, account_id: v === "none" ? "" : v }))}
             >
-              <SelectTrigger><SelectValue placeholder="No account" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t("common.noAccount")} /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">No account (set before approval)</SelectItem>
+                <SelectItem value="none">{t("quotes.newQuoteDialog.noAccountSetBefore")}</SelectItem>
                 {accounts.map((a) => (
                   <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
                 ))}
@@ -404,12 +406,12 @@ function NewQuoteDialog({
             </Select>
             {accounts.length === 0 && (
               <p className="text-xs text-muted-foreground mt-1">
-                No accounts for this company yet. Create one in the Accounts tab.
+                {t("quotes.newQuoteDialog.noAccountsHint")}
               </p>
             )}
           </div>
           <div>
-            <Label>Notes</Label>
+            <Label>{t("common.notes")}</Label>
             <Textarea
               rows={2}
               value={form.notas}
@@ -418,12 +420,12 @@ function NewQuoteDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="ghost" onClick={onClose}>{t("common.cancel")}</Button>
           <Button
             onClick={() => create.mutate()}
             disabled={create.isPending || !form.titulo.trim()}
           >
-            Create quote
+            {t("quotes.newQuoteDialog.createButton")}
           </Button>
         </DialogFooter>
       </DialogContent>

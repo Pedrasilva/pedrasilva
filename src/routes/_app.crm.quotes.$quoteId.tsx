@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ type FullQuote = FeeProposal & {
 };
 
 function QuoteDetail() {
+  const { t } = useTranslation("crm");
   const { quoteId } = Route.useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -88,7 +90,7 @@ function QuoteDetail() {
   const save = useMutation({
     mutationFn: async () => {
       if (form.quote_status === "approved" && !form.account_id) {
-        throw new Error("Account is required to approve a quote");
+        throw new Error(t("quotes.approveAccountRequired"));
       }
       const { error } = await supabase
         .from("fee_proposals")
@@ -104,7 +106,7 @@ function QuoteDetail() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Quote saved");
+      toast.success(t("quotes.savedToast"));
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] });
     },
@@ -117,7 +119,7 @@ function QuoteDetail() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Quote deleted");
+      toast.success(t("quotes.deletedToast"));
       if (quote?.opportunity_id) {
         navigate({
           to: "/crm/opportunities/$opportunityId",
@@ -132,9 +134,9 @@ function QuoteDetail() {
 
   const convert = useMutation({
     mutationFn: async () => {
-      if (!quote) throw new Error("Quote not loaded");
+      if (!quote) throw new Error(t("quotes.loadError"));
       if (quote.quote_status !== "approved") {
-        throw new Error("Only approved quotes can be converted");
+        throw new Error(t("quotes.convertOnlyApproved"));
       }
       if (quote.pm_project_id) {
         return { id: quote.pm_project_id, alreadyExisted: true };
@@ -175,7 +177,7 @@ function QuoteDetail() {
       return { id: project.id, alreadyExisted: false };
     },
     onSuccess: (res) => {
-      toast.success(res.alreadyExisted ? "Project already exists — opening it" : "Project created");
+      toast.success(res.alreadyExisted ? t("quotes.convertExisting") : t("quotes.convertCreated"));
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
       qc.invalidateQueries({ queryKey: ["crm_opportunity"] });
       navigate({ to: "/projects/$projectId", params: { projectId: res.id } });
@@ -183,8 +185,8 @@ function QuoteDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
-  if (!quote) return <p className="text-sm text-muted-foreground">Quote not found.</p>;
+  if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
+  if (!quote) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
 
   const status = QUOTE_STATUSES.find((s) => s.value === quote.quote_status);
   const canApprove = !!form.account_id;
@@ -198,14 +200,14 @@ function QuoteDetail() {
           params={{ opportunityId: quote.opportunity.id }}
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="h-3 w-3" /> Back to opportunity
+          <ArrowLeft className="h-3 w-3" /> {t("quotes.backToOpportunity")}
         </Link>
       ) : (
         <Link
           to="/crm/opportunities"
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="h-3 w-3" /> Back to opportunities
+          <ArrowLeft className="h-3 w-3" /> {t("quotes.backToOpportunities")}
         </Link>
       )}
 
@@ -231,7 +233,7 @@ function QuoteDetail() {
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs">
             <span className={`h-2 w-2 rounded-full ${status?.color}`} />
-            {status?.label}
+            {status ? t(`quoteStatus.${status.value}`) : ""}
           </span>
           {quote.pm_project_id && (
             <Link
@@ -239,14 +241,14 @@ function QuoteDetail() {
               params={{ projectId: quote.pm_project_id }}
               className="inline-flex items-center gap-1 rounded-md border px-3 py-1 text-xs hover:bg-muted/50"
             >
-              <ExternalLink className="h-3 w-3" /> Open project
+              <ExternalLink className="h-3 w-3" /> {t("quotes.openProject")}
             </Link>
           )}
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              if (confirm("Delete this quote?")) remove.mutate();
+              if (confirm(t("quotes.deleteConfirm"))) remove.mutate();
             }}
           >
             <Trash2 className="h-4 w-4" />
@@ -256,17 +258,17 @@ function QuoteDetail() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="md:col-span-2">
-          <CardHeader><CardTitle className="text-base">Fee details</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">{t("quotes.feeDetails")}</CardTitle></CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <Label>Title</Label>
+              <Label>{t("common.title")}</Label>
               <Input
                 value={form.titulo}
                 onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))}
               />
             </div>
             <div>
-              <Label>Estimated fee (€)</Label>
+              <Label>{t("common.estimatedFee")}</Label>
               <Input
                 type="number"
                 step="0.01"
@@ -275,7 +277,7 @@ function QuoteDetail() {
               />
             </div>
             <div>
-              <Label>Fee structure</Label>
+              <Label>{t("common.feeStructure")}</Label>
               <Select
                 value={form.fee_structure_type}
                 onValueChange={(v) => setForm((f) => ({ ...f, fee_structure_type: v as FeeStructureType }))}
@@ -283,20 +285,20 @@ function QuoteDetail() {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {FEE_STRUCTURE_TYPES.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    <SelectItem key={s.value} value={s.value}>{t(`feeStructure.${s.value}`)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Account {form.quote_status === "approved" && "*"}</Label>
+              <Label>{t("common.account")} {form.quote_status === "approved" && "*"}</Label>
               <Select
                 value={form.account_id || "none"}
                 onValueChange={(v) => setForm((f) => ({ ...f, account_id: v === "none" ? "" : v }))}
               >
-                <SelectTrigger><SelectValue placeholder="No account" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("common.noAccount")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">No account</SelectItem>
+                  <SelectItem value="none">{t("common.noAccount")}</SelectItem>
                   {accounts.map((a) => (
                     <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
                   ))}
@@ -304,7 +306,7 @@ function QuoteDetail() {
               </Select>
             </div>
             <div>
-              <Label>Status</Label>
+              <Label>{t("common.status")}</Label>
               <Select
                 value={form.quote_status}
                 onValueChange={(v) => setForm((f) => ({ ...f, quote_status: v as QuoteStatus }))}
@@ -317,14 +319,14 @@ function QuoteDetail() {
                       value={s.value}
                       disabled={s.value === "approved" && !canApprove}
                     >
-                      {s.label}{s.value === "approved" && !canApprove ? " (set account first)" : ""}
+                      {t(`quoteStatus.${s.value}`)}{s.value === "approved" && !canApprove ? t("quotes.setAccountFirst") : ""}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="sm:col-span-2">
-              <Label>Notes</Label>
+              <Label>{t("common.notes")}</Label>
               <Textarea
                 rows={3}
                 value={form.notas}
@@ -333,26 +335,23 @@ function QuoteDetail() {
             </div>
             <div className="sm:col-span-2 flex justify-end">
               <Button onClick={() => save.mutate()} disabled={save.isPending}>
-                Save changes
+                {t("common.save")}
               </Button>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader><CardTitle className="text-base">Convert to project</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">{t("quotes.convertSection")}</CardTitle></CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              When the quote is <strong>approved</strong>, you can create the operational
-              project. The project inherits company, account, opportunity and quote links.
-            </p>
+            <p className="text-sm text-muted-foreground">{t("quotes.convertHint")}</p>
             <div className="rounded-md border p-3 text-xs space-y-1">
-              <div><span className="text-muted-foreground">Status: </span>{status?.label}</div>
-              <div><span className="text-muted-foreground">Account: </span>{quote.account?.name ?? "—"}</div>
-              <div><span className="text-muted-foreground">Fee: </span>{formatEUR(Number(quote.valor))}</div>
+              <div><span className="text-muted-foreground">{t("quotes.statusValue")}</span>{status ? t(`quoteStatus.${status.value}`) : ""}</div>
+              <div><span className="text-muted-foreground">{t("quotes.accountValue")}</span>{quote.account?.name ?? "—"}</div>
+              <div><span className="text-muted-foreground">{t("quotes.feeValue")}</span>{formatEUR(Number(quote.valor))}</div>
               {quote.pm_project_id && (
                 <div className="text-emerald-600 dark:text-emerald-400 mt-2">
-                  ✓ Project already created
+                  {t("quotes.projectAlreadyCreated")}
                 </div>
               )}
             </div>
@@ -362,11 +361,11 @@ function QuoteDetail() {
               disabled={!canConvert || convert.isPending}
             >
               <Rocket className="h-4 w-4 mr-1" />
-              {quote.pm_project_id ? "Open project" : "Convert to project"}
+              {quote.pm_project_id ? t("quotes.openProjectButton") : t("quotes.convertButton")}
             </Button>
             {!canConvert && (
               <p className="text-xs text-muted-foreground">
-                Quote must be approved first.
+                {t("quotes.approveFirstHint")}
               </p>
             )}
           </CardContent>
