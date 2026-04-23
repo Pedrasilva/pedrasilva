@@ -822,8 +822,8 @@ function FinancialsPage() {
         {/* Trailing 12 months */}
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-lg">Trailing 12 months</CardTitle>
-            <CardDescription>Revenue, cost and profit per month for the current filters</CardDescription>
+            <CardTitle className="text-lg">{t("projects:financials.trailing.title")}</CardTitle>
+            <CardDescription>{t("projects:financials.trailing.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[320px] w-full">
@@ -842,9 +842,9 @@ function FinancialsPage() {
                     }}
                   />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar dataKey="revenue" name="Revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="cost" name="Cost" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
-                  <Line type="monotone" dataKey="profit" name="Profit" stroke="hsl(var(--destructive))" strokeWidth={2} dot={{ r: 3 }} />
+                  <Bar dataKey="revenue" name={t("projects:financials.trailing.revenue")} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="cost" name={t("projects:financials.trailing.cost")} fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
+                  <Line type="monotone" dataKey="profit" name={t("projects:financials.trailing.profit")} stroke="hsl(var(--destructive))" strokeWidth={2} dot={{ r: 3 }} />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
@@ -854,40 +854,46 @@ function FinancialsPage() {
         {/* Per-person table */}
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-lg">By person</CardTitle>
-            <CardDescription>Hours, revenue, cost and profit for each person in scope</CardDescription>
+            <CardTitle className="text-lg">{t("projects:financials.byPerson.title")}</CardTitle>
+            <CardDescription>{t("projects:financials.byPerson.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
-                    <th className="px-4 py-2.5">Person</th>
-                    <th className="px-3 py-2.5">Team</th>
-                    <th className="px-3 py-2.5 text-right">Billable</th>
-                    <th className="px-3 py-2.5 text-right">Internal</th>
-                    <th className="px-3 py-2.5 text-right">Non-work</th>
-                    <th className="px-3 py-2.5 text-right">Util.</th>
-                    <th className="px-3 py-2.5">Status</th>
-                    <th className="px-3 py-2.5 text-right">Revenue</th>
-                    <th className="px-3 py-2.5 text-right">Cost</th>
-                    <th className="px-3 py-2.5 text-right">Profit</th>
+                    <th className="px-4 py-2.5">{t("projects:financials.byPerson.person")}</th>
+                    <th className="px-3 py-2.5">{t("projects:financials.byPerson.team")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.billable")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.internal")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.nonWork")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.util")}</th>
+                    <th className="px-3 py-2.5">{t("projects:financials.byPerson.status")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.revenue")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.cost")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.profit")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {userRows.length === 0 && (
                     <tr>
                       <td colSpan={10} className="px-4 py-8 text-center text-sm text-muted-foreground">
-                        No time logged for the selected filters.
+                        {t("projects:financials.byPerson.empty")}
                       </td>
                     </tr>
                   )}
                   {userRows.map((r) => (
                     <tr key={r.key} className="hover:bg-muted/30">
-                      <td className="px-4 py-2.5 font-medium">{r.name}</td>
+                      <td className="px-4 py-2.5 font-medium">
+                        {r.name === "Unmapped user" ? t("projects:financials.unmappedUser") : r.name}
+                      </td>
                       <td className="px-3 py-2.5">
                         <Badge variant="secondary" className="text-[10px]">
-                          {r.team === "back_office" ? "Back office" : r.team === "project" ? "Projects" : r.team}
+                          {r.team === "back_office"
+                            ? t("projects:financials.filters.backOffice")
+                            : r.team === "project"
+                              ? t("projects:financials.filters.projects")
+                              : r.team}
                         </Badge>
                       </td>
                       <td className="px-3 py-2.5 text-right tabular-nums">{hours(r.billable)}</td>
