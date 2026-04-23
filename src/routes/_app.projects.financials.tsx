@@ -60,6 +60,11 @@ import {
   effectiveSaleRate,
 } from "@/lib/projects/use-default-rates";
 import { cn } from "@/lib/utils";
+import {
+  reconcileNonWorkingRange,
+  syncNonWorkingForRange,
+  type ReconciliationRow,
+} from "@/lib/projects/non-working-sync";
 
 export const Route = createFileRoute("/_app/projects/financials")({
   component: FinancialsPage,
@@ -347,6 +352,36 @@ function FinancialsPage() {
     utilization_target_max: 85,
     internal_threshold_pct: 20,
   };
+
+  // Persist non-working entries (approved leave + holidays) for the visible
+  // month the first time it is opened. This makes Financials trustworthy for
+  // historical periods without depending on whether anyone visited the
+  // Weekly Timesheet for those weeks. Idempotent: only inserts the gap.
+  const qc = useQueryClient();
+  const { data: reconcile, isFetching: reconciling } = useQuery({
+    queryKey: ["fin-nonworking-reconcile", monthStart, monthEnd],
+    queryFn: async () => {
+      const before = await reconcileNonWorkingRange({
+        rangeStart: monthStart,
+        rangeEnd: monthEnd,
+      });
+      // If the source has more than the persisted view, repair silently.
+      if (before.expectedTotal > before.persistedTotal + 0.01) {
+        const inserted = await syncNonWorkingForRange({
+          rangeStart: monthStart,
+          rangeEnd: monthEnd,
+        });
+        if (inserted > 0) {
+          // Refresh the entries query so KPIs reflect the new rows.
+          qc.invalidateQueries({ queryKey: ["fin-entries", monthStart, monthEnd] });
+          return reconcileNonWorkingRange({ rangeStart: monthStart, rangeEnd: monthEnd });
+        }
+      }
+      return before;
+    },
+  });
+  const reconcileRows: ReconciliationRow[] = reconcile?.rows ?? [];
+  const hasMissing = reconcileRows.some((r) => r.missing_hours > 0.01);
 
   const resourceMap = useMemo(() => {
     const m = new Map<string, ResourceLite>();
@@ -696,6 +731,36 @@ function FinancialsPage() {
           />
         </div>
 
+        {/* Non-working reconciliation banner */}
+        {hasMissing && (
+          <div className="mt-4 flex items-start gap-3 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <div className="flex-1">
+              <p className="font-medium text-foreground">
+                {t("projects:financials.nonWorkingReconcile.title", {
+                  hours: hours(
+                    reconcileRows.reduce((a, r) => a + r.missing_hours, 0),
+                  ),
+                })}
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {t("projects:financials.nonWorkingReconcile.hint")}
+              </p>
+              <ul className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
+                {reconcileRows.slice(0, 6).map((r) => (
+                  <li key={r.user_id}>
+                    {r.collaborator_nome}:{" "}
+                    <span className="font-medium text-foreground">{hours(r.missing_hours)}</span>
+                  </li>
+                ))}
+                {reconcileRows.length > 6 && (
+                  <li>+{reconcileRows.length - 6}…</li>
+                )}
+              </ul>
+            </div>
+          </div>
+        )}
+
         {/* Time breakdown + utilization + capacity */}
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
           <BucketCard
@@ -718,6 +783,13 @@ function FinancialsPage() {
             total={summary.totalLogged}
             tone="muted"
             icon={<CalendarOff className="h-4 w-4" />}
+            footnote={
+              summary.nonWorkingH < 0.01 && !reconciling
+                ? hasMissing
+                  ? t("projects:financials.buckets.nonWorkingPending")
+                  : t("projects:financials.buckets.nonWorkingNone")
+                : undefined
+            }
           />
           <UtilizationTargetCard
             utilization={summary.utilization}
@@ -1130,12 +1202,14 @@ function BucketCard({
   total,
   tone,
   icon,
+  footnote,
 }: {
   label: string;
   hours: number;
   total: number;
   tone: "success" | "warning" | "muted";
   icon: React.ReactNode;
+  footnote?: string;
 }) {
   const pctVal = total > 0 ? (hrs / total) * 100 : 0;
   const barClass = {
@@ -1156,6 +1230,7 @@ function BucketCard({
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <div className={cn("h-full", barClass)} style={{ width: `${Math.min(100, pctVal)}%` }} />
         </div>
+        {footnote && <p className="mt-2 text-[11px] italic">{footnote}</p>}
       </CardContent>
     </Card>
   );

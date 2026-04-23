@@ -481,7 +481,13 @@
       "billable": "Billable",
       "internalNonBillable": "Internal non-billable",
       "nonWorking": "Non-working",
+      "nonWorkingNone": "No approved leave or holidays recorded for this period.",
+      "nonWorkingPending": "Source data exists but has not been persisted yet — refresh the page in a moment.",
       "ofTotalTime": "{{pct}} of total time"
+    },
+    "nonWorkingReconcile": {
+      "title": "{{hours}} of approved leave / holidays were missing from this month and have just been backfilled.",
+      "hint": "Source vs. persisted totals are now reconciled. Affected people:"
     },
     "capacity": {
       "available": "Available capacity",

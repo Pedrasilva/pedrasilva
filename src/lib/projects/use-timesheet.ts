@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { APPROVED_LEAVE_STATES, leaveLabelFor } from "@/lib/projects/non-working-sync";
 
 export type TimesheetTaskRow = {
   task_id: string;
@@ -193,7 +194,7 @@ export function useNonWorkingPrefill(opts: {
           .from("vacation_requests")
           .select("data_inicio, data_fim, tipo, estado")
           .eq("collaborator_id", opts.collaboratorId!)
-          .eq("estado", "aprovada")
+          .in("estado", APPROVED_LEAVE_STATES as unknown as string[])
           .lte("data_inicio", opts.weekEnd)
           .gte("data_fim", opts.weekStart),
         supabase
@@ -234,38 +235,15 @@ export function useNonWorkingPrefill(opts: {
       }
 
       // Vacations: each approved request fills its weekday range with the
-      // user's contractual daily hours.
-      const labelFor = (t: string): string => {
-        switch (t) {
-          case "ferias":
-            return "Vacation";
-          case "casamento":
-            return "Wedding leave";
-          case "falecimento_familiar":
-            return "Bereavement";
-          case "assistencia_filho":
-            return "Child assistance";
-          case "nascimento_filho":
-            return "Parental leave";
-          case "trabalhador_estudante":
-            return "Student worker";
-          case "doacao_sangue":
-            return "Blood donation";
-          case "autorizada_paga":
-            return "Authorized (paid)";
-          case "autorizada_nao_paga":
-            return "Authorized (unpaid)";
-          default:
-            return t;
-        }
-      };
-
+      // user's contractual daily hours. Labels come from the centralized
+      // helper so the timesheet, financials persistence and the backfill
+      // script all produce identical leave_type strings.
       for (const v of (vacRes.data ?? []) as Array<{
         data_inicio: string;
         data_fim: string;
         tipo: string;
       }>) {
-        const label = labelFor(v.tipo);
+        const label = leaveLabelFor(v.tipo);
         const m = ensure(label);
         for (const iso of dayList) {
           if (iso >= v.data_inicio && iso <= v.data_fim) {
