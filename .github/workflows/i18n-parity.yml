@@ -1,0 +1,35 @@
+name: i18n parity
+
+on:
+  pull_request:
+    paths:
+      - "src/i18n/locales/**"
+      - "scripts/check-i18n-parity.mjs"
+      - "scripts/test-holiday-clauses.mjs"
+      - ".github/workflows/i18n-parity.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/i18n/locales/**"
+      - "scripts/check-i18n-parity.mjs"
+      - "scripts/test-holiday-clauses.mjs"
+
+jobs:
+  parity:
+    name: Locale parity & plural snapshots
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # No npm install required — both scripts are pure Node ESM with no deps.
+
+      - name: Verify locale parity (keys, plurals, placeholders)
+        run: node scripts/check-i18n-parity.mjs
+
+      - name: Run holiday clause snapshot tests
+        run: node scripts/test-holiday-clauses.mjs
