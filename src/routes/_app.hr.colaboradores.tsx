@@ -239,9 +239,9 @@ function CollaboratorsListPage() {
             <div className="mt-3 flex items-center gap-2">
               <Badge
                 variant="outline"
-                className="gap-1.5 border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                className="gap-1.5 border-muted-foreground/30 text-foreground"
               >
-                <Archive className="h-3 w-3" />
+                <Archive className="h-3 w-3 text-muted-foreground" />
                 {status === "archived"
                   ? t("hr:colaboradores.filterChip.showingArchived")
                   : t("hr:colaboradores.filterChip.showingAll")}
