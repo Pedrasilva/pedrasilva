@@ -48,6 +48,8 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
 
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<ExpenseCategory>("misc");
+  const [supplierId, setSupplierId] = useState<string | null>(null);
+  // Legacy mirror — keeps free-text vendor name for old rows / exports.
   const [vendor, setVendor] = useState("");
   const [amount, setAmount] = useState(0);
   const [incurredAt, setIncurredAt] = useState("");
@@ -60,6 +62,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
     if (open) {
       setDescription(initial?.description ?? "");
       setCategory((initial?.category ?? "misc") as ExpenseCategory);
+      setSupplierId(initial?.supplier_id ?? null);
       setVendor(initial?.vendor ?? "");
       setAmount(Number(initial?.purchase_price ?? 0));
       setIncurredAt(initial?.incurred_at ?? initial?.expense_date ?? "");
@@ -69,6 +72,16 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
       setNotes(initial?.notes ?? "");
     }
   }, [open, initial]);
+
+  function handleSupplierChange(id: string | null, supplier: Supplier | null) {
+    setSupplierId(id);
+    if (supplier) {
+      // Mirror into legacy vendor for back-compat with reports/exports.
+      setVendor(supplier.name);
+    } else if (id === null) {
+      setVendor("");
+    }
+  }
 
   const parseResult = projectExpenseSchema.safeParse({
     description,
