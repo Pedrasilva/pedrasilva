@@ -30,6 +30,22 @@
       "hide": "Hide panel",
       "show": "Show panel"
     },
+    "header": {
+      "team": "Team",
+      "budget": "Budget",
+      "cost": "Cost",
+      "profit": "Profit",
+      "margin": "Margin",
+      "noClient": "No client",
+      "dateRange": "Schedule"
+    },
+    "sidebar": {
+      "team": "Team",
+      "noTeam": "No team yet",
+      "budgetUsage": "Budget usage",
+      "profit": "Profit",
+      "loggedHours": "{{logged}}h logged / {{planned}}h planned"
+    },
     "tabs": {
       "overview": "Overview",
       "schedule": "Schedule",
