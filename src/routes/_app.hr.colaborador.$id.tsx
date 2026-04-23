@@ -237,6 +237,8 @@ function CollaboratorPage() {
   const archiveMut = useArchiveCollaborator();
   const restoreMut = useRestoreCollaborator();
   const [archiveOpen, setArchiveOpen] = useState(false);
+  const [restoreOpen, setRestoreOpen] = useState(false);
+  const refCounts = useCollaboratorReferenceCounts(id, !!collab?.archived_at);
 
   const handleArchiveConfirm = (reason: string) => {
     archiveMut.mutate(
@@ -247,18 +249,19 @@ function CollaboratorPage() {
           setArchiveOpen(false);
           navigate({ to: "/hr/colaboradores" });
         },
-        onError: (e: Error) => toast.error(e.message),
+        onError: (e) => toast.error(humanizeMutationError(e, t)),
       },
     );
   };
 
-  const handleRestore = () => {
+  const handleRestoreConfirm = () => {
     restoreMut.mutate(id, {
       onSuccess: () => {
         toast.success(t("hr:collaborator.toasts.restored"));
+        setRestoreOpen(false);
         qc.invalidateQueries({ queryKey: ["collaborator", id] });
       },
-      onError: (e: Error) => toast.error(e.message),
+      onError: (e) => toast.error(humanizeMutationError(e, t)),
     });
   };
 
