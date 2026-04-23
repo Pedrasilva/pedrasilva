@@ -2,6 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO, startOfMonth } from "date-fns";
 import { probabilityFromProposal } from "@/lib/projects/use-project-probabilities";
+import {
+  rollupExternalServices,
+  rollupExpenses,
+  sumFinancialsRows,
+  type FinancialsRow,
+} from "@/lib/projects/financial-rollups";
 import type { Database } from "@/integrations/supabase/types";
 
 export interface MonthlyPoint {
@@ -23,13 +29,7 @@ export interface ResourceWorkRow {
   sale: number;
 }
 
-export interface FinancialsRow {
-  budget: number;
-  value: number;
-  cost: number;
-  profit: number;
-  invoiced: number;
-}
+export type { FinancialsRow };
 
 export interface ProjectInsights {
   monthly: MonthlyPoint[];
@@ -185,24 +185,9 @@ export function useProjectInsights(projectId: string) {
           .eq("project_id", projectId),
         supabase
           .from("pm_expenses")
-          .select("purchase_price, sale_price")
+          .select("purchase_price")
           .eq("project_id", projectId),
       ]);
-
-      const materialsBudget = (mats ?? []).reduce(
-        (a, m) => a + Number(m.sale_price) * Number(m.quantity),
-        0,
-      );
-      const materialsCost = (mats ?? []).reduce(
-        (a, m) => a + Number(m.purchase_price) * Number(m.quantity),
-        0,
-      );
-      const materialsValue = materialsBudget;
-
-      // Expenses are cost-only — never inflate revenue with sale_price.
-      // Rebillable handling is reserved for future invoicing logic.
-      const expensesValue = 0;
-      const expensesCost = (exps ?? []).reduce((a, e) => a + Number(e.purchase_price), 0);
 
       const services: FinancialsRow = {
         budget: budgetTotal,
@@ -211,27 +196,9 @@ export function useProjectInsights(projectId: string) {
         profit: earnedValue - servicesCost,
         invoiced: 0,
       };
-      const materials: FinancialsRow = {
-        budget: materialsBudget,
-        value: materialsValue,
-        cost: materialsCost,
-        profit: materialsValue - materialsCost,
-        invoiced: 0,
-      };
-      const expensesRow: FinancialsRow = {
-        budget: 0,
-        value: expensesValue,
-        cost: expensesCost,
-        profit: expensesValue - expensesCost,
-        invoiced: 0,
-      };
-      const total: FinancialsRow = {
-        budget: services.budget + materials.budget + expensesRow.budget,
-        value: services.value + materials.value + expensesRow.value,
-        cost: services.cost + materials.cost + expensesRow.cost,
-        profit: services.profit + materials.profit + expensesRow.profit,
-        invoiced: 0,
-      };
+      const materials = rollupExternalServices(mats ?? []);
+      const expensesRow = rollupExpenses(exps ?? []);
+      const total = sumFinancialsRows(services, materials, expensesRow);
 
       const earnedPct = budgetTotal > 0 ? Math.round((earnedValue / budgetTotal) * 100) : 0;
       const remainingPlannedHours = Math.max(0, plannedHours - loggedHours);
