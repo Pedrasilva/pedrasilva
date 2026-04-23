@@ -36,7 +36,16 @@
       "materials": "Materiais",
       "expenses": "Despesas",
       "insights": "Análises",
-      "stream": "Actividade"
+      "stream": "Actividade",
+      "rates": "Tarifas",
+      "billing": "Facturação"
+    },
+    "placeholder": {
+      "comingSoon": "Em breve",
+      "ratesTitle": "Tarifas do projecto",
+      "ratesDescription": "Sobreposições de tarifas e lógica de preços específicas do projecto serão geridas aqui.",
+      "billingTitle": "Facturação",
+      "billingDescription": "Facturas e pagamentos associados a este projecto serão geridos aqui."
     },
     "actions": {
       "activate": "Activar",
