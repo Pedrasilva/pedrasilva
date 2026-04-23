@@ -55,7 +55,7 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
     { cost: 0, rebillable: 0 },
   );
 
-  function handleEdit(item: ProjectExpense) {
+  function handleEdit(item: ProjectExpenseWithSupplier) {
     setEditing(item);
     setDialogOpen(true);
   }
