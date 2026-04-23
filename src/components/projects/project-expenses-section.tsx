@@ -126,7 +126,7 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
                     {t(`expenses.category.${e.category}`)}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {e.vendor ?? "—"}
+                    {resolveSupplierLabel(e.supplier, e.vendor ?? null)}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {e.incurred_at ?? e.expense_date ?? "—"}
