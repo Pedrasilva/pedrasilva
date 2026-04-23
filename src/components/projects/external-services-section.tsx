@@ -207,6 +207,8 @@ export function ExternalServicesSection({ projectId, canEdit }: Props) {
         initial={editing}
       />
 
+      <SupplierManagerDialog open={managerOpen} onOpenChange={setManagerOpen} />
+
       <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
