@@ -174,7 +174,11 @@ export function ExternalServiceDialog({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={t("externalServices.fields.descriptionPlaceholder")}
+                aria-invalid={!!errMsg("description")}
               />
+              {errMsg("description") && (
+                <p className="text-[11px] text-destructive">{errMsg("description")}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="es-sup-name">{t("externalServices.fields.supplierName")}</Label>
@@ -201,7 +205,11 @@ export function ExternalServiceDialog({
                 step="0.01"
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
+                aria-invalid={!!errMsg("quantity")}
               />
+              {errMsg("quantity") && (
+                <p className="text-[11px] text-destructive">{errMsg("quantity")}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="es-unit">{t("externalServices.fields.unitCost")} (€)</Label>
@@ -211,7 +219,11 @@ export function ExternalServiceDialog({
                 step="0.01"
                 value={unitCost}
                 onChange={(e) => setUnitCost(Number(e.target.value))}
+                aria-invalid={!!errMsg("unit_cost")}
               />
+              {errMsg("unit_cost") && (
+                <p className="text-[11px] text-destructive">{errMsg("unit_cost")}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="es-mtype">{t("externalServices.fields.markupType")}</Label>
@@ -236,7 +248,11 @@ export function ExternalServiceDialog({
                 value={markupValue}
                 onChange={(e) => setMarkupValue(Number(e.target.value))}
                 disabled={salePriceManual}
+                aria-invalid={!!errMsg("markup_value")}
               />
+              {errMsg("markup_value") && (
+                <p className="text-[11px] text-destructive">{errMsg("markup_value")}</p>
+              )}
             </div>
             <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2 sm:col-span-2">
               <div className="space-y-0.5">
@@ -262,7 +278,11 @@ export function ExternalServiceDialog({
                   step="0.01"
                   value={manualSalePrice}
                   onChange={(e) => setManualSalePrice(Number(e.target.value))}
+                  aria-invalid={!!errMsg("manual_sale_price")}
                 />
+                {errMsg("manual_sale_price") && (
+                  <p className="text-[11px] text-destructive">{errMsg("manual_sale_price")}</p>
+                )}
               </div>
             )}
             <div className="space-y-1.5">
