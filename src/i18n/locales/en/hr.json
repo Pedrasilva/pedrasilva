@@ -416,7 +416,8 @@
     "snapshots": {
       "summaryTab": "Summary",
       "newButton": "New snapshot",
-      "empty": "No snapshots yet. Create the first one (e.g. \"Current\" with today's date)."
+      "empty": "No snapshots yet. Create the first one (e.g. \"Current\" with today's date).",
+      "archivedBlocked": "This team member is archived. Restore them to add new snapshots."
     },
     "newDialog": {
       "title": "New salary snapshot",
@@ -437,6 +438,57 @@
     "defaults": {
       "proposedLabel": "Proposed",
       "snapshotFallback": "Snapshot"
+    }
+  },
+  "colaboradores": {
+    "title": "Team members",
+    "subtitle": "Manage your team — create, edit, and archive members. Archived members keep their salary history but are hidden from active lists.",
+    "cardTitle": "Team members",
+    "count_one": "{{count}} team member",
+    "count_other": "{{count}} team members",
+    "empty": "No team members yet. Create the first one above.",
+    "noResults": "No team members match the current filters.",
+    "activeBadge": "Active",
+    "archivedBadge": "Archived",
+    "filters": {
+      "searchPlaceholder": "Search by name, email, number…",
+      "allDepartments": "All departments",
+      "statusActive": "Active",
+      "statusArchived": "Archived",
+      "statusAll": "All"
+    },
+    "columns": {
+      "number": "Number",
+      "contractStatus": "Contract",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "actions": {
+      "open": "Open",
+      "archive": "Archive",
+      "restore": "Restore"
+    },
+    "archiveDialog": {
+      "title": "Archive team member?",
+      "description": "{{name}} will be hidden from active lists. Their salary history and all linked records (snapshots, vacations, expenses) are preserved and can be restored at any time.",
+      "referencesNote": "Linked records that will be preserved:",
+      "refs": {
+        "snapshots_one": "{{count}} salary snapshot",
+        "snapshots_other": "{{count}} salary snapshots",
+        "vacations_one": "{{count}} vacation request",
+        "vacations_other": "{{count}} vacation requests",
+        "benefitExpenses_one": "{{count}} benefit expense",
+        "benefitExpenses_other": "{{count}} benefit expenses"
+      },
+      "reasonLabel": "Reason (optional)",
+      "reasonPlaceholder": "e.g. left the company, end of contract…",
+      "confirm": "Archive",
+      "archiving": "Archiving…"
+    },
+    "toast": {
+      "archived": "{{name}} archived",
+      "restored": "{{name}} restored",
+      "error": "Could not complete the action"
     }
   },
   "diasUteis": {

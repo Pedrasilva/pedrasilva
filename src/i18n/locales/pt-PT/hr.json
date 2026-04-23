@@ -416,7 +416,8 @@
     "snapshots": {
       "summaryTab": "Resumo",
       "newButton": "Nova ficha",
-      "empty": "Ainda não existem fichas. Crie a primeira (ex: \"Actual\" com a data actual)."
+      "empty": "Ainda não existem fichas. Crie a primeira (ex: \"Actual\" com a data actual).",
+      "archivedBlocked": "Este colaborador está arquivado. Restaure-o para adicionar novas fichas."
     },
     "newDialog": {
       "title": "Nova ficha salarial",
@@ -437,6 +438,57 @@
     "defaults": {
       "proposedLabel": "Proposto",
       "snapshotFallback": "Ficha"
+    }
+  },
+  "colaboradores": {
+    "title": "Colaboradores",
+    "subtitle": "Gerir a equipa — criar, editar e arquivar colaboradores. Os arquivados mantêm o histórico salarial mas ficam ocultos das listas activas.",
+    "cardTitle": "Colaboradores",
+    "count_one": "{{count}} colaborador",
+    "count_other": "{{count}} colaboradores",
+    "empty": "Sem colaboradores ainda. Crie o primeiro acima.",
+    "noResults": "Nenhum colaborador corresponde aos filtros actuais.",
+    "activeBadge": "Activo",
+    "archivedBadge": "Arquivado",
+    "filters": {
+      "searchPlaceholder": "Procurar por nome, email, número…",
+      "allDepartments": "Todos os departamentos",
+      "statusActive": "Activos",
+      "statusArchived": "Arquivados",
+      "statusAll": "Todos"
+    },
+    "columns": {
+      "number": "Número",
+      "contractStatus": "Contrato",
+      "status": "Estado",
+      "actions": "Acções"
+    },
+    "actions": {
+      "open": "Abrir",
+      "archive": "Arquivar",
+      "restore": "Restaurar"
+    },
+    "archiveDialog": {
+      "title": "Arquivar colaborador?",
+      "description": "{{name}} ficará oculto das listas activas. O histórico salarial e todos os registos associados (fichas, férias, despesas) são preservados e podem ser restaurados a qualquer momento.",
+      "referencesNote": "Registos associados que serão preservados:",
+      "refs": {
+        "snapshots_one": "{{count}} ficha salarial",
+        "snapshots_other": "{{count}} fichas salariais",
+        "vacations_one": "{{count}} pedido de férias",
+        "vacations_other": "{{count}} pedidos de férias",
+        "benefitExpenses_one": "{{count}} despesa de benefício",
+        "benefitExpenses_other": "{{count}} despesas de benefícios"
+      },
+      "reasonLabel": "Motivo (opcional)",
+      "reasonPlaceholder": "ex: saiu da empresa, fim de contrato…",
+      "confirm": "Arquivar",
+      "archiving": "A arquivar…"
+    },
+    "toast": {
+      "archived": "{{name}} arquivado",
+      "restored": "{{name}} restaurado",
+      "error": "Não foi possível concluir a acção"
     }
   },
   "diasUteis": {
