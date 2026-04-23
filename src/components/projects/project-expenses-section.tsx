@@ -26,8 +26,9 @@ import { ProjectExpenseDialog } from "./project-expense-dialog";
 import {
   useDeleteProjectExpense,
   useProjectExpenses,
-  type ProjectExpense,
+  type ProjectExpenseWithSupplier,
 } from "@/lib/projects/use-project-expenses";
+import { resolveSupplierLabel } from "@/lib/projects/use-suppliers";
 import { euros } from "@/lib/projects/gantt-utils";
 
 interface Props {
