@@ -206,6 +206,9 @@ export type Database = {
       collaborators: {
         Row: {
           ano_fiscal: number
+          archive_reason: string | null
+          archived_at: string | null
+          archived_by: string | null
           created_at: string
           daily_hours: number
           data_nascimento: string | null
@@ -232,6 +235,9 @@ export type Database = {
         }
         Insert: {
           ano_fiscal?: number
+          archive_reason?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           created_at?: string
           daily_hours?: number
           data_nascimento?: string | null
@@ -258,6 +264,9 @@ export type Database = {
         }
         Update: {
           ano_fiscal?: number
+          archive_reason?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           created_at?: string
           daily_hours?: number
           data_nascimento?: string | null
