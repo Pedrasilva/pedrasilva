@@ -199,7 +199,9 @@ export function useProjectInsights(projectId: string) {
       );
       const materialsValue = materialsBudget;
 
-      const expensesValue = (exps ?? []).reduce((a, e) => a + Number(e.sale_price), 0);
+      // Expenses are cost-only — never inflate revenue with sale_price.
+      // Rebillable handling is reserved for future invoicing logic.
+      const expensesValue = 0;
       const expensesCost = (exps ?? []).reduce((a, e) => a + Number(e.purchase_price), 0);
 
       const services: FinancialsRow = {
