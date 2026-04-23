@@ -53,6 +53,32 @@ function SubsidioAlimentacaoPage() {
     },
   });
 
+  const { data: holidays = [] } = useQuery({
+    queryKey: ["holidays"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("holidays")
+        .select("*")
+        .order("data", { ascending: true });
+      if (error) throw error;
+      return data as Holiday[];
+    },
+  });
+
+  // Source of truth: working days per year, computed from holidays calendar.
+  const workdaysByYear = useMemo(() => {
+    const map = new Map<number, number>();
+    const years = new Set<number>(rates.map((r) => r.ano));
+    years.forEach((y) => {
+      try {
+        map.set(y, computeWorkdays(y, holidays).diasUteisBase);
+      } catch {
+        // leave undefined → fallback rendering
+      }
+    });
+    return map;
+  }, [rates, holidays]);
+
   const upsert = useMutation({
     mutationFn: async (r: Partial<Rate> & { ano: number }) => {
       const payload = {
