@@ -108,6 +108,20 @@ const INTERNAL_COST_CENTERS = [
   "Admin",
 ] as const;
 
+// Map canonical English internal-category strings (stored in DB) to localized labels.
+function translateCategory(t: (key: string) => string, category: string): string {
+  const map: Record<string, string> = {
+    "Fee proposals": "projects:financials.internalCenters.centers.feeProposals",
+    "Meetings": "projects:financials.internalCenters.centers.meetings",
+    "Training": "projects:financials.internalCenters.centers.training",
+    "Business development": "projects:financials.internalCenters.centers.businessDevelopment",
+    "Admin": "projects:financials.internalCenters.centers.admin",
+    "Uncategorised": "projects:financials.internalCenters.uncategorised",
+  };
+  const key = map[category];
+  return key ? t(key) : category;
+}
+
 type TaskMeta = {
   task_id: string;
   resource_id: string;
@@ -174,7 +188,7 @@ function useUpdateUtilTargets() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["fin-util-targets"] });
-      toast.success("Utilization targets updated");
+      // Toast handled by caller via i18n; keep silent here.
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -583,16 +597,15 @@ function FinancialsPage() {
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-              Company financials
+              {t("projects:financials.eyebrow")}
             </p>
             <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight">
-              Monthly performance
+              {t("projects:financials.title")}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Revenue, cost and time breakdown for{" "}
-              <span className="font-medium text-foreground">
-                {format(monthAnchor, "MMMM yyyy")}
-              </span>
+              {t("projects:financials.subtitle", {
+                month: format(monthAnchor, "MMMM yyyy", { locale: dateLocale }),
+              })}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -602,40 +615,46 @@ function FinancialsPage() {
                 variant="ghost"
                 onClick={() => setMonthAnchor((d) => startOfMonth(subMonths(d, 1)))}
                 className="h-9 rounded-r-none px-2"
+                aria-label={t("projects:common.previousMonth")}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <div className="px-3 text-sm font-medium">
-                {format(monthAnchor, "MMM yyyy")}
+                {format(monthAnchor, "MMM yyyy", { locale: dateLocale })}
               </div>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setMonthAnchor((d) => startOfMonth(addMonths(d, 1)))}
                 className="h-9 rounded-l-none px-2"
+                aria-label={t("projects:common.nextMonth")}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
             <Select value={teamFilter} onValueChange={(v) => { setTeamFilter(v); setUserFilter("all"); }}>
               <SelectTrigger className="h-9 w-[160px]">
-                <SelectValue placeholder="Team" />
+                <SelectValue placeholder={t("projects:financials.filters.teamPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All teams</SelectItem>
-                {teams.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t === "back_office" ? "Back office" : t === "project" ? "Projects" : t}
+                <SelectItem value="all">{t("projects:financials.filters.allTeams")}</SelectItem>
+                {teams.map((team) => (
+                  <SelectItem key={team} value={team}>
+                    {team === "back_office"
+                      ? t("projects:financials.filters.backOffice")
+                      : team === "project"
+                        ? t("projects:financials.filters.projects")
+                        : team}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select value={userFilter} onValueChange={setUserFilter}>
               <SelectTrigger className="h-9 w-[200px]">
-                <SelectValue placeholder="Person" />
+                <SelectValue placeholder={t("projects:financials.filters.personPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All people</SelectItem>
+                <SelectItem value="all">{t("projects:financials.filters.allPeople")}</SelectItem>
                 {(resources ?? [])
                   .filter((r) => r.active && (teamFilter === "all" || r.team === teamFilter))
                   .map((r) => (
@@ -652,25 +671,25 @@ function FinancialsPage() {
         {/* KPI strip */}
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <KpiCard
-            label="Revenue"
+            label={t("projects:financials.kpi.revenue")}
             value={euros(summary.revenue)}
-            sub={`${hours(summary.billableH)} billable`}
+            sub={t("projects:financials.kpi.revenueSub", { hours: hours(summary.billableH) })}
             icon={<TrendingUp className="h-4 w-4" />}
             tone="success"
             loading={entriesLoading}
           />
           <KpiCard
-            label="Total cost"
+            label={t("projects:financials.kpi.totalCost")}
             value={euros(summary.cost)}
-            sub={`${hours(summary.totalLogged)} paid time`}
+            sub={t("projects:financials.kpi.totalCostSub", { hours: hours(summary.totalLogged) })}
             icon={<Wallet className="h-4 w-4" />}
             tone="muted"
             loading={entriesLoading}
           />
           <KpiCard
-            label="Profit"
+            label={t("projects:financials.kpi.profit")}
             value={euros(summary.profit)}
-            sub={`${pct(summary.margin)} margin`}
+            sub={t("projects:financials.kpi.profitMarginSub", { pct: pct(summary.margin) })}
             icon={summary.profit >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
             tone={summary.profit >= 0 ? "primary" : "danger"}
             loading={entriesLoading}
@@ -680,21 +699,21 @@ function FinancialsPage() {
         {/* Time breakdown + utilization + capacity */}
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
           <BucketCard
-            label="Billable"
+            label={t("projects:financials.buckets.billable")}
             hours={summary.billableH}
             total={summary.totalLogged}
             tone="success"
             icon={<Clock className="h-4 w-4" />}
           />
           <BucketCard
-            label="Internal non-billable"
+            label={t("projects:financials.buckets.internalNonBillable")}
             hours={summary.internalH}
             total={summary.totalLogged}
             tone="warning"
             icon={<Coffee className="h-4 w-4" />}
           />
           <BucketCard
-            label="Non-working"
+            label={t("projects:financials.buckets.nonWorking")}
             hours={summary.nonWorkingH}
             total={summary.totalLogged}
             tone="muted"
@@ -717,16 +736,18 @@ function FinancialsPage() {
         <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-3">
           <Card className="lg:col-span-1">
             <CardHeader className="pb-2">
-              <CardDescription className="text-xs">Available capacity</CardDescription>
+              <CardDescription className="text-xs">
+                {t("projects:financials.capacity.available")}
+              </CardDescription>
               <CardTitle className="text-2xl">{hours(summary.availableCapacity)}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-xs text-muted-foreground">
               <div className="flex items-center justify-between">
-                <span>Working days × 8h × people</span>
+                <span>{t("projects:financials.capacity.formula")}</span>
                 <span className="font-medium text-foreground">{hours(summary.grossCapacity)}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span>Less non-working</span>
+                <span>{t("projects:financials.capacity.lessNonWorking")}</span>
                 <span className="font-medium text-foreground">−{hours(summary.nonWorkingH)}</span>
               </div>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
@@ -745,7 +766,7 @@ function FinancialsPage() {
                 />
               </div>
               <div className="flex items-center justify-between pt-1">
-                <span>Utilised of available</span>
+                <span>{t("projects:financials.capacity.utilisedOfAvailable")}</span>
                 <span className="font-medium text-foreground">
                   {pct(
                     summary.availableCapacity > 0
@@ -762,42 +783,46 @@ function FinancialsPage() {
           <Card className="lg:col-span-2 border-dashed">
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-2 text-xs">
-                <AlertCircle className="h-4 w-4" /> Profitability insight
+                <AlertCircle className="h-4 w-4" /> {t("projects:financials.insight.title")}
               </CardDescription>
-              <CardTitle className="text-base">
-                Internal non-billable + non-working time costs you{" "}
-                <span className="text-destructive">{euros(summary.dragCost)}</span> this month
-              </CardTitle>
+              <CardTitle
+                className="text-base"
+                dangerouslySetInnerHTML={{
+                  __html: t("projects:financials.insight.headline", {
+                    cost: `<span class="text-destructive">${euros(summary.dragCost)}</span>`,
+                    interpolation: { escapeValue: false },
+                  }),
+                }}
+              />
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <Insight
-                  label="Internal hours"
+                  label={t("projects:financials.insight.internalHours")}
                   value={hours(summary.internalH)}
-                  hint="working time without revenue"
+                  hint={t("projects:financials.insight.internalHoursHint")}
                 />
                 <Insight
-                  label="Non-working hours"
+                  label={t("projects:financials.insight.nonWorkingHours")}
                   value={hours(summary.nonWorkingH)}
-                  hint="leave + holidays"
+                  hint={t("projects:financials.insight.nonWorkingHoursHint")}
                 />
                 <Insight
-                  label="Combined cost drag"
+                  label={t("projects:financials.insight.combinedDrag")}
                   value={euros(summary.dragCost)}
-                  hint="hours × avg cost/h"
+                  hint={t("projects:financials.insight.combinedDragHint")}
                   tone="danger"
                 />
               </div>
-              <p className="mt-3 text-xs">
-                Revenue only comes from billable project hours. Every internal or absent
-                hour is paid but doesn't generate income — so it directly reduces profit.
-                If those hours were billable at the average rate, profit would be
-                approximately{" "}
-                <span className="font-medium text-foreground">
-                  {euros(summary.profit + summary.dragCost)}
-                </span>
-                .
-              </p>
+              <p
+                className="mt-3 text-xs"
+                dangerouslySetInnerHTML={{
+                  __html: t("projects:financials.insight.explanation", {
+                    value: `<span class="font-medium text-foreground">${euros(summary.profit + summary.dragCost)}</span>`,
+                    interpolation: { escapeValue: false },
+                  }),
+                }}
+              />
             </CardContent>
           </Card>
         </div>
@@ -811,8 +836,8 @@ function FinancialsPage() {
         {/* Trailing 12 months */}
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-lg">Trailing 12 months</CardTitle>
-            <CardDescription>Revenue, cost and profit per month for the current filters</CardDescription>
+            <CardTitle className="text-lg">{t("projects:financials.trailing.title")}</CardTitle>
+            <CardDescription>{t("projects:financials.trailing.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[320px] w-full">
@@ -831,9 +856,9 @@ function FinancialsPage() {
                     }}
                   />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar dataKey="revenue" name="Revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="cost" name="Cost" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
-                  <Line type="monotone" dataKey="profit" name="Profit" stroke="hsl(var(--destructive))" strokeWidth={2} dot={{ r: 3 }} />
+                  <Bar dataKey="revenue" name={t("projects:financials.trailing.revenue")} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="cost" name={t("projects:financials.trailing.cost")} fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
+                  <Line type="monotone" dataKey="profit" name={t("projects:financials.trailing.profit")} stroke="hsl(var(--destructive))" strokeWidth={2} dot={{ r: 3 }} />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
@@ -843,40 +868,46 @@ function FinancialsPage() {
         {/* Per-person table */}
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle className="text-lg">By person</CardTitle>
-            <CardDescription>Hours, revenue, cost and profit for each person in scope</CardDescription>
+            <CardTitle className="text-lg">{t("projects:financials.byPerson.title")}</CardTitle>
+            <CardDescription>{t("projects:financials.byPerson.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
-                    <th className="px-4 py-2.5">Person</th>
-                    <th className="px-3 py-2.5">Team</th>
-                    <th className="px-3 py-2.5 text-right">Billable</th>
-                    <th className="px-3 py-2.5 text-right">Internal</th>
-                    <th className="px-3 py-2.5 text-right">Non-work</th>
-                    <th className="px-3 py-2.5 text-right">Util.</th>
-                    <th className="px-3 py-2.5">Status</th>
-                    <th className="px-3 py-2.5 text-right">Revenue</th>
-                    <th className="px-3 py-2.5 text-right">Cost</th>
-                    <th className="px-3 py-2.5 text-right">Profit</th>
+                    <th className="px-4 py-2.5">{t("projects:financials.byPerson.person")}</th>
+                    <th className="px-3 py-2.5">{t("projects:financials.byPerson.team")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.billable")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.internal")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.nonWork")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.util")}</th>
+                    <th className="px-3 py-2.5">{t("projects:financials.byPerson.status")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.revenue")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.cost")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.byPerson.profit")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {userRows.length === 0 && (
                     <tr>
                       <td colSpan={10} className="px-4 py-8 text-center text-sm text-muted-foreground">
-                        No time logged for the selected filters.
+                        {t("projects:financials.byPerson.empty")}
                       </td>
                     </tr>
                   )}
                   {userRows.map((r) => (
                     <tr key={r.key} className="hover:bg-muted/30">
-                      <td className="px-4 py-2.5 font-medium">{r.name}</td>
+                      <td className="px-4 py-2.5 font-medium">
+                        {r.name === "Unmapped user" ? t("projects:financials.unmappedUser") : r.name}
+                      </td>
                       <td className="px-3 py-2.5">
                         <Badge variant="secondary" className="text-[10px]">
-                          {r.team === "back_office" ? "Back office" : r.team === "project" ? "Projects" : r.team}
+                          {r.team === "back_office"
+                            ? t("projects:financials.filters.backOffice")
+                            : r.team === "project"
+                              ? t("projects:financials.filters.projects")
+                              : r.team}
                         </Badge>
                       </td>
                       <td className="px-3 py-2.5 text-right tabular-nums">{hours(r.billable)}</td>
@@ -926,29 +957,31 @@ function FinancialsPage() {
           <CardHeader>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <CardTitle className="text-lg">Internal cost centers</CardTitle>
+                <CardTitle className="text-lg">{t("projects:financials.internalCenters.title")}</CardTitle>
                 <CardDescription>
-                  Hours and cost by internal category for {format(monthAnchor, "MMMM yyyy")}.
-                  Percentages reflect share of working time (billable + internal).
+                  {t("projects:financials.internalCenters.subtitle", {
+                    month: format(monthAnchor, "MMMM yyyy", { locale: dateLocale }),
+                  })}
                 </CardDescription>
               </div>
               <div className="flex flex-col items-end gap-1 text-right">
                 <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Total internal
+                  {t("projects:financials.internalCenters.totalInternal")}
                 </span>
                 <span className="font-display text-xl font-semibold tabular-nums">
                   {hours(internalCategoryRows.internalTotalHours)}
                 </span>
                 <span className="text-xs text-muted-foreground tabular-nums">
                   {euros(internalCategoryRows.internalTotalCost)} ·{" "}
-                  {pct(
-                    internalCategoryRows.workingTotal > 0
-                      ? (internalCategoryRows.internalTotalHours /
-                          internalCategoryRows.workingTotal) *
-                          100
-                      : 0,
-                  )}{" "}
-                  of working time
+                  {t("projects:financials.internalCenters.ofWorkingTime", {
+                    pct: pct(
+                      internalCategoryRows.workingTotal > 0
+                        ? (internalCategoryRows.internalTotalHours /
+                            internalCategoryRows.workingTotal) *
+                            100
+                        : 0,
+                    ),
+                  })}
                 </span>
               </div>
             </div>
@@ -957,26 +990,30 @@ function FinancialsPage() {
             {internalCategoryRows.top && internalCategoryRows.top.hours > 0 && (
               <div className="mx-4 mt-1 mb-3 flex items-start gap-2 rounded-md border border-border bg-muted/40 px-3 py-2 text-xs">
                 <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                <p className="text-muted-foreground">
-                  <span className="font-medium text-foreground">
-                    {internalCategoryRows.top.category}
-                  </span>{" "}
-                  is the largest internal cost center this month —{" "}
-                  {hours(internalCategoryRows.top.hours)} ({pct(internalCategoryRows.top.pctOfWorking)} of
-                  working time, {euros(internalCategoryRows.top.cost)} in cost).
-                </p>
+                <p
+                  className="text-muted-foreground"
+                  dangerouslySetInnerHTML={{
+                    __html: t("projects:financials.internalCenters.topInsight", {
+                      category: `<span class="font-medium text-foreground">${translateCategory(t, internalCategoryRows.top.category)}</span>`,
+                      hours: hours(internalCategoryRows.top.hours),
+                      pct: pct(internalCategoryRows.top.pctOfWorking),
+                      cost: euros(internalCategoryRows.top.cost),
+                      interpolation: { escapeValue: false },
+                    }),
+                  }}
+                />
               </div>
             )}
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
-                    <th className="px-4 py-2.5">Category</th>
-                    <th className="px-3 py-2.5 text-right">Hours</th>
-                    <th className="px-3 py-2.5 text-right">Cost</th>
-                    <th className="px-3 py-2.5 text-right">% working time</th>
-                    <th className="px-3 py-2.5 text-right">% of internal</th>
-                    <th className="px-3 py-2.5 w-[200px]">Share</th>
+                    <th className="px-4 py-2.5">{t("projects:financials.internalCenters.category")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.internalCenters.hours")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.internalCenters.cost")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.internalCenters.pctWorking")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.internalCenters.pctInternal")}</th>
+                    <th className="px-3 py-2.5 w-[200px]">{t("projects:financials.internalCenters.share")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -987,10 +1024,10 @@ function FinancialsPage() {
                       <tr key={r.category} className="hover:bg-muted/30">
                         <td className="px-4 py-2.5 font-medium">
                           <div className="flex items-center gap-2">
-                            {r.category}
+                            {translateCategory(t, r.category)}
                             {isLargest && (
                               <Badge variant="secondary" className="text-[10px]">
-                                Largest
+                                {t("projects:financials.internalCenters.largest")}
                               </Badge>
                             )}
                           </div>
@@ -1028,7 +1065,7 @@ function FinancialsPage() {
                         colSpan={6}
                         className="px-4 py-8 text-center text-sm text-muted-foreground"
                       >
-                        No internal time logged this month.
+                        {t("projects:financials.internalCenters.noInternal")}
                       </td>
                     </tr>
                   )}
@@ -1040,7 +1077,7 @@ function FinancialsPage() {
 
         {/* Business Development efficiency */}
         <BusinessDevCard
-          monthLabel={format(monthAnchor, "MMMM yyyy")}
+          monthLabel={format(monthAnchor, "MMMM yyyy", { locale: dateLocale })}
           monthHours={bdMonthCost.hours}
           monthCost={bdMonthCost.cost}
           data={bd}
@@ -1253,6 +1290,7 @@ function useTrailingTrend(
 // ============================================================
 
 function TargetsPopover({ targets }: { targets: UtilTargets }) {
+  const { t } = useTranslation();
   const update = useUpdateUtilTargets();
   const [open, setOpen] = useState(false);
   const [minV, setMinV] = useState(targets.utilization_target_min);
@@ -1270,21 +1308,23 @@ function TargetsPopover({ targets }: { targets: UtilTargets }) {
       <PopoverTrigger asChild>
         <Button size="sm" variant="outline" className="h-9 gap-2">
           <Target className="h-4 w-4" />
-          {Math.round(targets.utilization_target_min)}–{Math.round(targets.utilization_target_max)}%
+          {t("projects:financials.targets.openLabel", {
+            min: Math.round(targets.utilization_target_min),
+            max: Math.round(targets.utilization_target_max),
+          })}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm font-medium">
-            <Settings2 className="h-4 w-4" /> Utilization targets
+            <Settings2 className="h-4 w-4" /> {t("projects:financials.targets.title")}
           </div>
           <p className="text-xs text-muted-foreground">
-            Healthy range for billable / (billable + internal). People outside the range
-            are flagged on the dashboard.
+            {t("projects:financials.targets.description")}
           </p>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="util-min" className="text-xs">Min %</Label>
+              <Label htmlFor="util-min" className="text-xs">{t("projects:financials.targets.minLabel")}</Label>
               <Input
                 id="util-min"
                 type="number"
@@ -1296,7 +1336,7 @@ function TargetsPopover({ targets }: { targets: UtilTargets }) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="util-max" className="text-xs">Max %</Label>
+              <Label htmlFor="util-max" className="text-xs">{t("projects:financials.targets.maxLabel")}</Label>
               <Input
                 id="util-max"
                 type="number"
@@ -1310,7 +1350,7 @@ function TargetsPopover({ targets }: { targets: UtilTargets }) {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="util-int" className="text-xs">
-              Internal time alert (% of working time)
+              {t("projects:financials.targets.internalLabel")}
             </Label>
             <Input
               id="util-int"
@@ -1322,18 +1362,18 @@ function TargetsPopover({ targets }: { targets: UtilTargets }) {
               className="h-9"
             />
             <p className="text-[11px] text-muted-foreground">
-              Flag people whose internal non-billable time exceeds this share of working time.
+              {t("projects:financials.targets.internalHint")}
             </p>
           </div>
           <div className="flex justify-end gap-2 pt-1">
             <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
-              Cancel
+              {t("projects:common.cancel")}
             </Button>
             <Button
               size="sm"
               onClick={() => {
                 if (minV < 0 || maxV > 100 || minV >= maxV) {
-                  toast.error("Min must be lower than max, between 0 and 100");
+                  toast.error(t("projects:financials.targets.rangeError"));
                   return;
                 }
                 update.mutate(
@@ -1342,12 +1382,17 @@ function TargetsPopover({ targets }: { targets: UtilTargets }) {
                     utilization_target_max: maxV,
                     internal_threshold_pct: intV,
                   },
-                  { onSuccess: () => setOpen(false) },
+                  {
+                    onSuccess: () => {
+                      toast.success(t("projects:financials.targets.saved"));
+                      setOpen(false);
+                    },
+                  },
                 );
               }}
               disabled={update.isPending}
             >
-              Save
+              {t("projects:common.save")}
             </Button>
           </div>
         </div>
