@@ -318,7 +318,11 @@ export function ExternalServiceDialog({
                 type="date"
                 value={invoiceDate}
                 onChange={(e) => setInvoiceDate(e.target.value)}
+                aria-invalid={!!errMsg("invoice_date")}
               />
+              {errMsg("invoice_date") && (
+                <p className="text-[11px] text-destructive">{errMsg("invoice_date")}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="es-due">{t("externalServices.fields.dueDate")}</Label>
@@ -327,7 +331,11 @@ export function ExternalServiceDialog({
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
+                aria-invalid={!!errMsg("due_date")}
               />
+              {errMsg("due_date") && (
+                <p className="text-[11px] text-destructive">{errMsg("due_date")}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="es-paid">{t("externalServices.fields.paidAt")}</Label>
@@ -336,7 +344,11 @@ export function ExternalServiceDialog({
                 type="date"
                 value={paidAt}
                 onChange={(e) => setPaidAt(e.target.value)}
+                aria-invalid={!!errMsg("paid_at")}
               />
+              {errMsg("paid_at") && (
+                <p className="text-[11px] text-destructive">{errMsg("paid_at")}</p>
+              )}
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="es-notes">{t("externalServices.fields.notes")}</Label>
@@ -365,7 +377,7 @@ export function ExternalServiceDialog({
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               {t("externalServices.dialog.cancel")}
             </Button>
-            <Button type="submit" disabled={upsert.isPending}>
+            <Button type="submit" disabled={upsert.isPending || !isValid}>
               {initial?.id
                 ? t("externalServices.dialog.save")
                 : t("externalServices.dialog.create")}
