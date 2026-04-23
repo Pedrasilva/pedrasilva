@@ -313,6 +313,8 @@ function useWorkingDaysInMonth(monthStartISO: string, monthEndISO: string) {
 }
 
 function FinancialsPage() {
+  const { t } = useTranslation();
+  const dateLocale = useDateLocale();
   const [monthAnchor, setMonthAnchor] = useState<Date>(startOfMonth(new Date()));
   const [teamFilter, setTeamFilter] = useState<string>("all");
   const [userFilter, setUserFilter] = useState<string>("all");
@@ -1451,6 +1453,7 @@ function AlertsStrip({
   targets: UtilTargets;
   totalPeople: number;
 }) {
+  const { t } = useTranslation();
   if (totalPeople === 0) return null;
   const anyAlerts = counts.low + counts.high + counts.internal > 0;
   return (
@@ -1461,30 +1464,43 @@ function AlertsStrip({
         ) : (
           <CheckCircle2 className="h-4 w-4 text-emerald-500" />
         )}
-        Alerts
+        {t("projects:financials.alertChips.alerts")}
       </div>
-      <AlertChip tone="good" label={`${counts.good} on target`} subtle />
+      <AlertChip
+        tone="good"
+        label={t("projects:financials.alertChips.onTarget", { count: counts.good })}
+        subtle
+      />
       {counts.low > 0 && (
         <AlertChip
           tone="low"
-          label={`${counts.low} underutilized (< ${Math.round(targets.utilization_target_min)}%)`}
+          label={t("projects:financials.alertChips.underutilized", {
+            count: counts.low,
+            pct: Math.round(targets.utilization_target_min),
+          })}
         />
       )}
       {counts.high > 0 && (
         <AlertChip
           tone="high"
-          label={`${counts.high} overutilized (> ${Math.round(targets.utilization_target_max)}%)`}
+          label={t("projects:financials.alertChips.overutilized", {
+            count: counts.high,
+            pct: Math.round(targets.utilization_target_max),
+          })}
         />
       )}
       {counts.internal > 0 && (
         <AlertChip
           tone="internal"
-          label={`${counts.internal} high internal (> ${Math.round(targets.internal_threshold_pct)}%)`}
+          label={t("projects:financials.alertChips.highInternal", {
+            count: counts.internal,
+            pct: Math.round(targets.internal_threshold_pct),
+          })}
         />
       )}
       {!anyAlerts && (
         <span className="text-xs text-muted-foreground">
-          All people in scope are within the target utilization range.
+          {t("projects:financials.alertChips.allInRange")}
         </span>
       )}
     </div>
