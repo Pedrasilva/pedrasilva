@@ -167,13 +167,19 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="ex-vendor">{t("expenses.fields.vendor")}</Label>
-              <Input
-                id="ex-vendor"
-                value={vendor}
-                onChange={(e) => setVendor(e.target.value)}
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>{t("expenses.fields.supplier")}</Label>
+              <SupplierPicker
+                value={supplierId}
+                legacyName={vendor}
+                onChange={handleSupplierChange}
+                disabled={upsert.isPending}
               />
+              {!supplierId && vendor && (
+                <p className="text-[11px] text-muted-foreground">
+                  {t("expenses.fields.supplierLegacyHint", { name: vendor })}
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ex-amt">{t("expenses.fields.amount")} (€)</Label>
