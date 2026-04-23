@@ -51,7 +51,6 @@ import {
   Clock,
   Receipt,
   Package,
-  Users as UsersIcon,
   Activity as ActivityIcon,
   ListChecks,
   Mail,
@@ -60,15 +59,14 @@ import {
   PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
-  ChevronRight,
-  ChevronDown,
-  Search,
-  ArrowUpDown,
-  Plus,
-  MoreVertical,
-  Pencil,
-  UserPlus,
+  MoreHorizontal,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
   component: ProjectDetail,
