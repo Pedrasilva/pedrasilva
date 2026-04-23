@@ -193,7 +193,7 @@ export function useNonWorkingPrefill(opts: {
           .from("vacation_requests")
           .select("data_inicio, data_fim, tipo, estado")
           .eq("collaborator_id", opts.collaboratorId!)
-          .eq("estado", "aprovado")
+          .eq("estado", "aprovada")
           .lte("data_inicio", opts.weekEnd)
           .gte("data_fim", opts.weekStart),
         supabase
