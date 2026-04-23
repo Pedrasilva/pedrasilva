@@ -943,29 +943,31 @@ function FinancialsPage() {
           <CardHeader>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <CardTitle className="text-lg">Internal cost centers</CardTitle>
+                <CardTitle className="text-lg">{t("projects:financials.internalCenters.title")}</CardTitle>
                 <CardDescription>
-                  Hours and cost by internal category for {format(monthAnchor, "MMMM yyyy")}.
-                  Percentages reflect share of working time (billable + internal).
+                  {t("projects:financials.internalCenters.subtitle", {
+                    month: format(monthAnchor, "MMMM yyyy", { locale: dateLocale }),
+                  })}
                 </CardDescription>
               </div>
               <div className="flex flex-col items-end gap-1 text-right">
                 <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Total internal
+                  {t("projects:financials.internalCenters.totalInternal")}
                 </span>
                 <span className="font-display text-xl font-semibold tabular-nums">
                   {hours(internalCategoryRows.internalTotalHours)}
                 </span>
                 <span className="text-xs text-muted-foreground tabular-nums">
                   {euros(internalCategoryRows.internalTotalCost)} ·{" "}
-                  {pct(
-                    internalCategoryRows.workingTotal > 0
-                      ? (internalCategoryRows.internalTotalHours /
-                          internalCategoryRows.workingTotal) *
-                          100
-                      : 0,
-                  )}{" "}
-                  of working time
+                  {t("projects:financials.internalCenters.ofWorkingTime", {
+                    pct: pct(
+                      internalCategoryRows.workingTotal > 0
+                        ? (internalCategoryRows.internalTotalHours /
+                            internalCategoryRows.workingTotal) *
+                            100
+                        : 0,
+                    ),
+                  })}
                 </span>
               </div>
             </div>
@@ -974,26 +976,30 @@ function FinancialsPage() {
             {internalCategoryRows.top && internalCategoryRows.top.hours > 0 && (
               <div className="mx-4 mt-1 mb-3 flex items-start gap-2 rounded-md border border-border bg-muted/40 px-3 py-2 text-xs">
                 <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                <p className="text-muted-foreground">
-                  <span className="font-medium text-foreground">
-                    {internalCategoryRows.top.category}
-                  </span>{" "}
-                  is the largest internal cost center this month —{" "}
-                  {hours(internalCategoryRows.top.hours)} ({pct(internalCategoryRows.top.pctOfWorking)} of
-                  working time, {euros(internalCategoryRows.top.cost)} in cost).
-                </p>
+                <p
+                  className="text-muted-foreground"
+                  dangerouslySetInnerHTML={{
+                    __html: t("projects:financials.internalCenters.topInsight", {
+                      category: `<span class="font-medium text-foreground">${translateCategory(t, internalCategoryRows.top.category)}</span>`,
+                      hours: hours(internalCategoryRows.top.hours),
+                      pct: pct(internalCategoryRows.top.pctOfWorking),
+                      cost: euros(internalCategoryRows.top.cost),
+                      interpolation: { escapeValue: false },
+                    }),
+                  }}
+                />
               </div>
             )}
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
-                    <th className="px-4 py-2.5">Category</th>
-                    <th className="px-3 py-2.5 text-right">Hours</th>
-                    <th className="px-3 py-2.5 text-right">Cost</th>
-                    <th className="px-3 py-2.5 text-right">% working time</th>
-                    <th className="px-3 py-2.5 text-right">% of internal</th>
-                    <th className="px-3 py-2.5 w-[200px]">Share</th>
+                    <th className="px-4 py-2.5">{t("projects:financials.internalCenters.category")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.internalCenters.hours")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.internalCenters.cost")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.internalCenters.pctWorking")}</th>
+                    <th className="px-3 py-2.5 text-right">{t("projects:financials.internalCenters.pctInternal")}</th>
+                    <th className="px-3 py-2.5 w-[200px]">{t("projects:financials.internalCenters.share")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -1004,10 +1010,10 @@ function FinancialsPage() {
                       <tr key={r.category} className="hover:bg-muted/30">
                         <td className="px-4 py-2.5 font-medium">
                           <div className="flex items-center gap-2">
-                            {r.category}
+                            {translateCategory(t, r.category)}
                             {isLargest && (
                               <Badge variant="secondary" className="text-[10px]">
-                                Largest
+                                {t("projects:financials.internalCenters.largest")}
                               </Badge>
                             )}
                           </div>
@@ -1045,7 +1051,7 @@ function FinancialsPage() {
                         colSpan={6}
                         className="px-4 py-8 text-center text-sm text-muted-foreground"
                       >
-                        No internal time logged this month.
+                        {t("projects:financials.internalCenters.noInternal")}
                       </td>
                     </tr>
                   )}
