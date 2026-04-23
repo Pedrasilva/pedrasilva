@@ -31,9 +31,9 @@ export const Route = createFileRoute("/_app/")({
 type ModuleDef = {
   to: "/hr" | "/crm" | "/projects";
   number: string;
-  title: string;
-  subtitle: string;
-  description: string;
+  titleKey: string;
+  subtitleKey: string;
+  descriptionKey: string;
   icon: React.ComponentType<{ className?: string }>;
   anyOf: PermissionKey[];
 };
@@ -42,10 +42,9 @@ const MODULES: ModuleDef[] = [
   {
     to: "/hr",
     number: "01",
-    title: "HR",
-    subtitle: "Pessoas",
-    description:
-      "A sua ficha, férias, benefícios e (para gestores) a equipa.",
+    titleKey: "hr:module.title",
+    subtitleKey: "hr:module.subtitle",
+    descriptionKey: "hr:module.description",
     icon: Users,
     anyOf: [
       "hr.minha-ficha",
@@ -59,20 +58,18 @@ const MODULES: ModuleDef[] = [
   {
     to: "/crm",
     number: "02",
-    title: "CRM",
-    subtitle: "Empresas",
-    description:
-      "Empresas, contactos, propostas e pipeline comercial.",
+    titleKey: "crm:module.title",
+    subtitleKey: "crm:module.subtitle",
+    descriptionKey: "crm:module.description",
     icon: Building2,
     anyOf: ["crm.companies", "crm.contacts", "crm.pipeline"],
   },
   {
     to: "/projects",
     number: "03",
-    title: "Projects",
-    subtitle: "Estúdio",
-    description:
-      "Projectos, alocação, gantt, tarefas e timesheets.",
+    titleKey: "projects:module.title",
+    subtitleKey: "projects:module.subtitle",
+    descriptionKey: "projects:module.description",
     icon: Briefcase,
     anyOf: [
       "projects.all",
