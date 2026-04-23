@@ -1,5 +1,9 @@
 {
-  "module": "Projects",
+  "module": {
+    "title": "Projects",
+    "subtitle": "Studio",
+    "description": "Projects, allocation, gantt, tasks and timesheets."
+  },
   "studio": "Studio",
   "people": "People",
   "nav": {
