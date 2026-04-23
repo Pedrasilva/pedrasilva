@@ -297,6 +297,37 @@ function CollaboratorPage() {
                 </>
               )}
             </p>
+            {collab.archived_at && (
+              <div className="mt-2 rounded-md border border-muted-foreground/20 bg-muted/40 p-2 text-xs text-muted-foreground space-y-0.5 max-w-md">
+                <div>
+                  {t("hr:colaboradores.archivedMeta.on", {
+                    date: format(parseISO(collab.archived_at), "PPP", {
+                      locale: dateLocale,
+                    }),
+                  })}
+                </div>
+                {collab.archive_reason && (
+                  <div className="italic">
+                    {t("hr:colaboradores.archivedMeta.reason", {
+                      reason: collab.archive_reason,
+                    })}
+                  </div>
+                )}
+                {refCounts.data && (
+                  <div className="pt-1 text-[11px]">
+                    {t("hr:colaboradores.archiveDialog.refs.snapshots", {
+                      count: refCounts.data.snapshots,
+                    })}{" · "}
+                    {t("hr:colaboradores.archiveDialog.refs.vacations", {
+                      count: refCounts.data.vacations,
+                    })}{" · "}
+                    {t("hr:colaboradores.archiveDialog.refs.benefitExpenses", {
+                      count: refCounts.data.benefitExpenses,
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2 no-print">
@@ -308,7 +339,7 @@ function CollaboratorPage() {
               variant="outline"
               size="sm"
               disabled={restoreMut.isPending}
-              onClick={handleRestore}
+              onClick={() => setRestoreOpen(true)}
             >
               <ArchiveRestore className="h-4 w-4" />
               {t("hr:collaborator.restoreButton")}
@@ -331,6 +362,23 @@ function CollaboratorPage() {
         collaborator={collab ? { id: collab.id, nome: collab.nome } : null}
         pending={archiveMut.isPending}
         onConfirm={handleArchiveConfirm}
+      />
+
+      <RestoreCollaboratorDialog
+        open={restoreOpen}
+        onOpenChange={setRestoreOpen}
+        collaborator={
+          collab
+            ? {
+                id: collab.id,
+                nome: collab.nome,
+                archived_at: collab.archived_at ?? null,
+                archive_reason: collab.archive_reason ?? null,
+              }
+            : null
+        }
+        pending={restoreMut.isPending}
+        onConfirm={handleRestoreConfirm}
       />
 
       <Card>
