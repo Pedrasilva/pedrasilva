@@ -255,35 +255,35 @@ function CollaboratorPage() {
           </div>
           <div className="space-y-1">
             <Link to="/" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground no-print">
-              <ArrowLeft className="h-3 w-3" /> Voltar
+              <ArrowLeft className="h-3 w-3" /> {t("hr:collaborator.back")}
             </Link>
             <h1 className="text-2xl font-semibold tracking-tight">{collab.nome}</h1>
             <p className="text-sm text-muted-foreground">
-              {collab.departamento} · {collab.numero_colaborador || "sem nº"} · {collab.situacao_contractual || "—"}
+              {t(`hr:enums.department.${collab.departamento}`)} · {collab.numero_colaborador || t("hr:collaborator.subline.noNumber")} · {collab.situacao_contractual ? (t(`hr:collaborator.contractStatus.${contractStatusKey(collab.situacao_contractual)}`, { defaultValue: collab.situacao_contractual })) : t("hr:collaborator.subline.empty")}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 no-print">
           <Button variant="outline" size="sm" onClick={() => window.print()}>
-            <Printer className="h-4 w-4" /> Imprimir / PDF
+            <Printer className="h-4 w-4" /> {t("hr:collaborator.printPdf")}
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="outline" size="sm">
-                <Trash2 className="h-4 w-4" /> Eliminar colaborador
+                <Trash2 className="h-4 w-4" /> {t("hr:collaborator.deleteButton")}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Eliminar colaborador</AlertDialogTitle>
+                <AlertDialogTitle>{t("hr:collaborator.deleteDialog.title")}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Esta acção remove o colaborador e todas as suas fichas.
+                  {t("hr:collaborator.deleteDialog.description")}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogCancel>{t("hr:collaborator.deleteDialog.cancel")}</AlertDialogCancel>
                 <AlertDialogAction onClick={() => deleteCollab.mutate()}>
-                  Eliminar
+                  {t("hr:collaborator.deleteDialog.confirm")}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
