@@ -106,7 +106,8 @@
       "year": "Year",
       "perCard": "On card (€/day)",
       "perCash": "In cash (€/day)",
-      "annual220": "Annual (220 days)"
+      "annualWithDays": "Annual (based on {{days}} working days)",
+      "annualNoDays": "Annual (working days unavailable)"
     },
     "actions": {
       "save": "Save",
