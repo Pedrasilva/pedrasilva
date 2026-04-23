@@ -350,28 +350,29 @@ function ProjectDetail() {
             to="/projects"
             className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="h-3 w-3" /> Todos os projectos
+            <ArrowLeft className="h-3 w-3" /> {t("projects:detail.backToList")}
           </Link>
           <button
             onClick={() => setSidebarOpen((v) => !v)}
             className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
-            aria-label={sidebarOpen ? "Esconder painel lateral" : "Mostrar painel lateral"}
+            aria-label={sidebarOpen ? t("projects:detail.togglePanel.hide") : t("projects:detail.togglePanel.show")}
           >
             {sidebarOpen ? (
               <>
-                <PanelLeftClose className="h-3.5 w-3.5" /> Esconder painel
+                <PanelLeftClose className="h-3.5 w-3.5" /> {t("projects:detail.togglePanel.hide")}
               </>
             ) : (
               <>
-                <PanelLeftOpen className="h-3.5 w-3.5" /> Mostrar painel
+                <PanelLeftOpen className="h-3.5 w-3.5" /> {t("projects:detail.togglePanel.show")}
               </>
             )}
           </button>
         </div>
 
-        {/* Header ------------------------------------------------------- */}
-        <div className="mt-3 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-4">
-          <div className="min-w-0">
+        {/* Header — 3 zones: title (left) · spacer · actions (right) */}
+        <div className="mt-3 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
+          {/* LEFT: title + status */}
+          <div className="min-w-0 flex-1">
             <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
               {project.client ?? t("glossary:entity.company")} · {t("glossary:entity.project")}
             </div>
@@ -390,20 +391,9 @@ function ProjectDetail() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          {/* RIGHT: primary status actions */}
+          <div className="flex flex-shrink-0 items-center gap-2">
             <StatusToggle current={project.status} onChange={setStatus} />
-            <NewStageDialog
-              projectId={project.id}
-              defaultStart={
-                stages.length
-                  ? format(
-                      addDays(new Date(stages[stages.length - 1].end_date), 1),
-                      "yyyy-MM-dd",
-                    )
-                  : project.start_date
-              }
-              nextOrder={(stages[stages.length - 1]?.sort_order ?? 0) + 1}
-            />
           </div>
         </div>
 
