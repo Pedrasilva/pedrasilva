@@ -2,7 +2,33 @@
   "_doc": {
     "purpose": "Master terminology dictionary. Single source of truth for canonical labels used across Projects, Financials, CRM, HR, Timesheet, Forecast and Permissions.",
     "rule": "Modules MUST reference these keys via t('glossary:<group>.<term>') instead of redeclaring the same concept locally.",
-    "ptCanonical": "When the EN UI renders a term that has a Portuguese legal/payroll canonical form, render it as 'EN label (PT canonical)' on first occurrence using <Term k='...' /> — see ptCanonical field per term."
+    "ptCanonical": "When the EN UI renders a term that has a Portuguese legal/payroll canonical form, render it as 'EN label (PT canonical)' on first occurrence using <Term k='...' /> — see ptCanonical field per term.",
+    "entityRule": "Use entity.* for the master entity label (the record itself). For relationship/role wording (e.g. 'Client approval', 'belongs to client'), use the contextual key (e.g. relation.client). Never substitute 'Client' for 'Company' as the master entity."
+  },
+
+  "entity": {
+    "_doc": "Master entity nouns — the record types themselves. Reuse these wherever a UI labels a record (table headers, form labels, picker placeholders, breadcrumbs).",
+    "company": "Company",
+    "contact": "Contact",
+    "account": "Account",
+    "project": "Project",
+    "stage": "Stage",
+    "task": "Task",
+    "user": "User",
+    "team": "Team",
+    "employee": "Employee",
+    "opportunity": "Opportunity",
+    "quote": "Quote",
+    "resource": "Resource",
+    "allocation": "Allocation"
+  },
+
+  "relation": {
+    "_doc": "Relationship/role wording — never replaces entity.*. Use only when the sentence describes a role (e.g. 'Client approval', 'Project lead').",
+    "client": "Client",
+    "owner": "Owner",
+    "lead": "Lead",
+    "responsible": "Responsible"
   },
 
   "time": {
@@ -15,7 +41,8 @@
     "remainingHours": "Remaining Hours",
     "totalHours": "Total Hours",
     "workingHours": "Working Hours",
-    "paidHours": "Paid Hours"
+    "paidHours": "Paid Hours",
+    "billable": "Billable"
   },
 
   "financial": {
@@ -43,7 +70,9 @@
     "tentative": "Tentative",
     "committed": "Committed",
     "dependency": "Dependency",
-    "milestone": "Milestone"
+    "milestone": "Milestone",
+    "timeline": "Timeline",
+    "resource": "Resource"
   },
 
   "performance": {
@@ -91,30 +120,36 @@
   },
 
   "crm": {
-    "client": "Client",
     "company": "Company",
     "contact": "Contact",
+    "account": "Account",
     "opportunity": "Opportunity",
+    "quote": "Quote",
     "proposal": "Proposal",
     "feeProposal": "Fee Proposal",
+    "pipeline": "Pipeline",
+    "status": "Status",
+    "probability": "Probability",
     "lead": "Lead",
     "negotiation": "Negotiation",
     "won": "Won",
     "lost": "Lost",
-    "probability": "Probability",
     "downPayment": "Down Payment",
     "paymentSchedule": "Payment Schedule",
-    "pipeline": "Pipeline",
     "winRate": "Win Rate"
   },
 
   "hr": {
+    "employee": "Employee",
     "collaborator": "Team Member",
     "department": "Department",
     "role": "Role",
+    "team": "Team",
+    "salary": "Salary",
+    "benefits": "Benefits",
     "leave": "Leave",
     "vacation": "Vacation",
-    "holiday": "Public Holiday",
+    "holiday": "Holiday",
     "absence": "Absence",
     "mealAllowance": "Meal Allowance",
     "holidayAllowance": "Holiday Allowance",
@@ -140,14 +175,10 @@
   },
 
   "_ambiguous": {
-    "_doc": "Terms flagged for product clarification — currently used inconsistently across the app. Do NOT use these as canonical until resolved.",
-    "value": "Used to mean (a) proposal monetary value, (b) generic numeric value, (c) project budget. Standardize: proposal → 'Proposal Value', budget → 'Budget', generic numbers → context-specific.",
-    "usage": "Sometimes means 'utilization', sometimes 'capacity used'. Standardize: 'Utilization' (ratio) vs 'Capacity Used' (absolute hours).",
-    "worked": "Sometimes means 'logged', sometimes 'billable'. Standardize on 'Logged Hours' for raw time recorded.",
-    "registered": "PT 'registadas' translates to 'logged' — never use 'registered hours' in EN UI.",
-    "rate": "Ambiguous between cost rate and sale rate. Always disambiguate: 'Cost Rate' or 'Sale Rate'.",
-    "team": "Used as both (a) the Resources/People list, (b) a permission scope, (c) a department-like grouping. Confirm: should the resources page be renamed 'People' to free 'Team' for the scope?",
-    "client": "DB uses 'Company' for the entity, 'Client' as a marketing label. Standardize: entity = 'Company', commercial label = 'Client' (UI-facing only).",
-    "fee": "PT-only legal/business term ('Fee', 'Proposta de Fee') retained even in EN UI per Portuguese practice. Confirm if EN-only contexts should map to 'Professional Fee' instead."
+    "_doc": "Terms flagged for product clarification — currently used inconsistently. Do NOT use these as canonical until resolved.",
+    "value": "Used as proposal value, generic numeric value, or budget. Standardize per context.",
+    "usage": "Sometimes 'utilization', sometimes 'capacity used'. Distinguish ratio vs absolute hours.",
+    "rate": "Always disambiguate as 'Cost Rate' or 'Sale Rate'.",
+    "fee": "PT-only legal/business term retained even in EN UI per Portuguese practice."
   }
 }

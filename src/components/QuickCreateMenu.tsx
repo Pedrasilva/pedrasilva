@@ -344,7 +344,7 @@ function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }
               value={form.codigo}
               onChange={(e) => setForm((f) => ({ ...f, codigo: e.target.value }))} />
           </Field>
-          <Field label="Cliente (empresa)">
+          <Field label={t("glossary:entity.company")}>
             <CompanyPicker
               value={form.company_id || null}
               onChange={(id) => setForm((f) => ({ ...f, company_id: id }))}

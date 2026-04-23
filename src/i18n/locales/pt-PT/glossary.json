@@ -1,7 +1,33 @@
 {
   "_doc": {
     "purpose": "Dicionário mestre de terminologia. Fonte única de verdade para etiquetas canónicas em Projectos, Financeiro, CRM, HR, Folha de Horas, Previsão e Permissões.",
-    "rule": "Os módulos DEVEM referenciar estas chaves via t('glossary:<grupo>.<termo>') em vez de redeclarar o mesmo conceito localmente."
+    "rule": "Os módulos DEVEM referenciar estas chaves via t('glossary:<grupo>.<termo>') em vez de redeclarar o mesmo conceito localmente.",
+    "entityRule": "Usar entity.* para a etiqueta da entidade mestre (o próprio registo). Para a designação de relação/papel (ex: 'Aprovação do cliente', 'pertence ao cliente'), usar relation.*. Nunca substituir 'Empresa' por 'Cliente' como entidade mestre."
+  },
+
+  "entity": {
+    "_doc": "Substantivos de entidade mestre — os tipos de registo. Reutilizar em qualquer UI que rotule um registo.",
+    "company": "Empresa",
+    "contact": "Contacto",
+    "account": "Conta",
+    "project": "Projeto",
+    "stage": "Fase",
+    "task": "Tarefa",
+    "user": "Utilizador",
+    "team": "Equipa",
+    "employee": "Colaborador",
+    "opportunity": "Oportunidade",
+    "quote": "Proposta",
+    "resource": "Recurso",
+    "allocation": "Alocação"
+  },
+
+  "relation": {
+    "_doc": "Designações de relação/papel — nunca substituem entity.*. Usar só quando a frase descreve um papel.",
+    "client": "Cliente",
+    "owner": "Responsável",
+    "lead": "Responsável",
+    "responsible": "Responsável"
   },
 
   "time": {
@@ -14,7 +40,8 @@
     "remainingHours": "Horas Restantes",
     "totalHours": "Horas Totais",
     "workingHours": "Horas de Trabalho",
-    "paidHours": "Horas Pagas"
+    "paidHours": "Horas Pagas",
+    "billable": "Faturável"
   },
 
   "financial": {
@@ -33,7 +60,7 @@
   },
 
   "planning": {
-    "project": "Projecto",
+    "project": "Projeto",
     "stage": "Fase",
     "allocation": "Alocação",
     "task": "Tarefa",
@@ -42,7 +69,9 @@
     "tentative": "Tentativa",
     "committed": "Confirmada",
     "dependency": "Dependência",
-    "milestone": "Marco"
+    "milestone": "Marco",
+    "timeline": "Cronograma",
+    "resource": "Recurso"
   },
 
   "performance": {
@@ -90,27 +119,33 @@
   },
 
   "crm": {
-    "client": "Cliente",
     "company": "Empresa",
     "contact": "Contacto",
+    "account": "Conta",
     "opportunity": "Oportunidade",
+    "quote": "Proposta",
     "proposal": "Proposta",
     "feeProposal": "Proposta de Fee",
+    "pipeline": "Pipeline",
+    "status": "Estado",
+    "probability": "Probabilidade",
     "lead": "Lead",
     "negotiation": "Negociação",
     "won": "Ganha",
     "lost": "Perdida",
-    "probability": "Probabilidade",
     "downPayment": "Sinal",
     "paymentSchedule": "Plano de Pagamento",
-    "pipeline": "Pipeline",
     "winRate": "Taxa de Sucesso"
   },
 
   "hr": {
+    "employee": "Colaborador",
     "collaborator": "Colaborador",
     "department": "Departamento",
     "role": "Função",
+    "team": "Equipa",
+    "salary": "Salário",
+    "benefits": "Benefícios",
     "leave": "Ausência",
     "vacation": "Férias",
     "holiday": "Feriado",
@@ -139,14 +174,10 @@
   },
 
   "_ambiguous": {
-    "_doc": "Termos sinalizados para clarificação de produto — uso inconsistente actualmente. NÃO usar como canónicos até resolução.",
-    "value": "Significa por vezes 'valor de proposta', 'valor numérico genérico' ou 'orçamento'. Padronizar.",
-    "usage": "Por vezes 'utilização', por vezes 'capacidade usada'. Distinguir: 'Utilização' (rácio) vs 'Capacidade Usada' (horas absolutas).",
-    "worked": "Por vezes 'registado', por vezes 'facturável'. Usar 'Horas Registadas' para tempo bruto.",
-    "registered": "Tradução literal de 'registadas' — em EN é 'Logged', nunca 'Registered'.",
-    "rate": "Ambíguo entre custo e venda. Distinguir sempre: 'Valor de Custo' ou 'Valor de Venda'.",
-    "team": "Usado como (a) lista de pessoas, (b) âmbito de permissão, (c) agrupamento de departamento. Confirmar.",
-    "client": "BD usa 'Empresa' para a entidade, 'Cliente' como etiqueta comercial. Padronizar.",
-    "fee": "Termo legal/comercial PT mantido em EN. Confirmar se contextos só-EN devem usar 'Honorários Profissionais'."
+    "_doc": "Termos sinalizados para clarificação. NÃO usar como canónicos.",
+    "value": "Significa por vezes 'valor de proposta', 'valor numérico genérico' ou 'orçamento'.",
+    "usage": "Por vezes 'utilização', por vezes 'capacidade usada'.",
+    "rate": "Distinguir sempre 'Valor de Custo' ou 'Valor de Venda'.",
+    "fee": "Termo legal/comercial PT mantido em EN."
   }
 }

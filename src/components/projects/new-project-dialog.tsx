@@ -50,7 +50,7 @@ export function NewProjectDialog() {
             <Input id="p-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Casa Verde" autoFocus />
           </div>
           <div>
-            <Label htmlFor="p-client">Client</Label>
+            <Label htmlFor="p-client">{t("glossary:entity.company")}</Label>
             <Input id="p-client" value={client} onChange={(e) => setClient(e.target.value)} placeholder="Verde Holdings" />
           </div>
           <div>

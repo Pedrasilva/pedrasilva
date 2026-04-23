@@ -360,7 +360,7 @@ function ProjectDetail() {
         <div className="mt-3 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-4">
           <div className="min-w-0">
             <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-              {project.client ?? "Cliente"} · Projecto
+              {project.client ?? t("glossary:entity.company")} · {t("glossary:entity.project")}
             </div>
             <div className="mt-1 flex items-center gap-3">
               <div
@@ -406,7 +406,7 @@ function ProjectDetail() {
           {/* Sidebar ---------------------------------------------------- */}
           <aside className={cn("space-y-6", (!sidebarOpen || tab === "schedule") && "hidden")}>
             <SidebarSection title="Detalhes">
-              <DetailRow label="Cliente" value={project.client ?? "—"} />
+              <DetailRow label={t("glossary:entity.company")} value={project.client ?? "—"} />
               <DetailRow
                 label="Início"
                 value={format(parseISO(project.start_date), "d MMM yyyy", {
