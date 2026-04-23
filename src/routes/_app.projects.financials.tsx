@@ -731,6 +731,36 @@ function FinancialsPage() {
           />
         </div>
 
+        {/* Non-working reconciliation banner */}
+        {hasMissing && (
+          <div className="mt-4 flex items-start gap-3 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <div className="flex-1">
+              <p className="font-medium text-foreground">
+                {t("projects:financials.nonWorkingReconcile.title", {
+                  hours: hours(
+                    reconcileRows.reduce((a, r) => a + r.missing_hours, 0),
+                  ),
+                })}
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {t("projects:financials.nonWorkingReconcile.hint")}
+              </p>
+              <ul className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
+                {reconcileRows.slice(0, 6).map((r) => (
+                  <li key={r.user_id}>
+                    {r.collaborator_nome}:{" "}
+                    <span className="font-medium text-foreground">{hours(r.missing_hours)}</span>
+                  </li>
+                ))}
+                {reconcileRows.length > 6 && (
+                  <li>+{reconcileRows.length - 6}…</li>
+                )}
+              </ul>
+            </div>
+          </div>
+        )}
+
         {/* Time breakdown + utilization + capacity */}
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
           <BucketCard
@@ -753,6 +783,13 @@ function FinancialsPage() {
             total={summary.totalLogged}
             tone="muted"
             icon={<CalendarOff className="h-4 w-4" />}
+            footnote={
+              summary.nonWorkingH < 0.01 && !reconciling
+                ? hasMissing
+                  ? t("projects:financials.buckets.nonWorkingPending")
+                  : t("projects:financials.buckets.nonWorkingNone")
+                : undefined
+            }
           />
           <UtilizationTargetCard
             utilization={summary.utilization}
