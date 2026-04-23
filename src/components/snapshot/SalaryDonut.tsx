@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { fmtEUR } from "@/lib/salary";
 
@@ -101,34 +102,38 @@ export function SalaryDonut({
   liquidoTotalMensal?: number;
   periodLabel?: "mensal" | "anual";
 }) {
+  const { t } = useTranslation("hr");
   const ssAtelier = ssAtelierMensal ?? 0;
   const empregadorTotal = ssAtelier + irs + ssColaborador;
   return (
     <div className="space-y-4">
       <CompositionDonut
-        centerLabel={periodLabel === "anual" ? "Bruto anual global" : "Bruto mensal global"}
+        centerLabel={
+          periodLabel === "anual"
+            ? t("snapshot.donut.centerAnnual")
+            : t("snapshot.donut.centerMonthly")
+        }
         centerValue={brutoMensalGlobal}
         slices={[
-          { name: "Líquido", value: liquido, color: "var(--sage)" },
-          { name: "SS Colaborador (11%)", value: ssColaborador, color: "var(--clay)" },
-          { name: "IRS", value: irs, color: "oklch(0.65 0.13 50)" },
-          { name: "SS Atelier (23,75%)", value: ssAtelier, color: "oklch(0.55 0.13 30)" },
+          { name: t("snapshot.donut.slices.net"), value: liquido, color: "var(--sage)" },
+          { name: t("snapshot.donut.slices.ssEmployee"), value: ssColaborador, color: "var(--clay)" },
+          { name: t("snapshot.donut.slices.incomeTax"), value: irs, color: "oklch(0.65 0.13 50)" },
+          { name: t("snapshot.donut.slices.ssStudio"), value: ssAtelier, color: "oklch(0.55 0.13 30)" },
         ]}
       />
       {(ssAtelierMensal !== undefined || liquidoTotalMensal !== undefined) && (
         <div className="rounded-md border border-border/60 bg-muted/30 p-3 text-xs space-y-2">
           <p className="text-muted-foreground leading-relaxed">
-            Do bruto mensal global, o empregador entrega ao Estado e o colaborador
-            leva para casa:
+            {t("snapshot.donut.helper.intro")}
           </p>
           <div className="space-y-1">
             <Row
-              label="Empregador → Estado (SS Atelier + IRS + SS Colab.)"
+              label={t("snapshot.donut.helper.toState")}
               value={fmtEUR(empregadorTotal)}
               color="oklch(0.65 0.13 50)"
             />
             <Row
-              label="Colaborador → para casa (líquido + subs. + ajudas)"
+              label={t("snapshot.donut.helper.toEmployee")}
               value={fmtEUR(liquidoTotalMensal ?? liquido)}
               color="var(--sage)"
               strong
