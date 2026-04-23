@@ -267,6 +267,7 @@ function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }
 // Projecto
 // ─────────────────────────────────────────────
 function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { data: collaborators = [] } = useQuery({
     queryKey: ["collaborators-lite"],
