@@ -769,7 +769,13 @@
         "save": "Save",
         "cancel": "Cancel",
         "errors": {
-          "descriptionRequired": "Description is required."
+          "descriptionRequired": "Description is required.",
+          "descriptionTooLong": "Description is too long.",
+          "mustBeNumber": "Must be a number.",
+          "mustBeNonNegative": "Must be zero or greater.",
+          "quantityMustBePositive": "Quantity must be greater than zero.",
+          "invalidDate": "Invalid date.",
+          "formInvalid": "Please fix the highlighted fields."
         },
         "toast": {
           "created": "External service added.",
@@ -836,7 +842,12 @@
         "save": "Save",
         "cancel": "Cancel",
         "errors": {
-          "descriptionRequired": "Description is required."
+          "descriptionRequired": "Description is required.",
+          "descriptionTooLong": "Description is too long.",
+          "mustBeNumber": "Must be a number.",
+          "mustBeNonNegative": "Must be zero or greater.",
+          "invalidDate": "Invalid date.",
+          "formInvalid": "Please fix the highlighted fields."
         },
         "toast": {
           "created": "Expense added.",
