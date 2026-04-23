@@ -7,7 +7,6 @@ import {
   useUpcomingCelebrations,
   useWhoIsOff,
   useUpcomingHolidays,
-  type BirthdayItem,
 } from "@/hooks/use-home-feed";
 import { Card } from "@/components/ui/card";
 import {
@@ -125,44 +124,7 @@ function quoteOfTheDay() {
   return QUOTES[dayOfYear % QUOTES.length];
 }
 
-const PT_MONTHS = [
-  "Jan",
-  "Fev",
-  "Mar",
-  "Abr",
-  "Mai",
-  "Jun",
-  "Jul",
-  "Ago",
-  "Set",
-  "Out",
-  "Nov",
-  "Dez",
-];
-const ABSENCE_LABEL: Record<string, string> = {
-  ferias: "Férias",
-  casamento: "Casamento",
-  falecimento_familiar: "Luto",
-  assistencia_filho: "Assistência a filho",
-  nascimento_filho: "Nascimento",
-  trabalhador_estudante: "Estudante",
-  doacao_sangue: "Dádiva de sangue",
-  autorizada_paga: "Autorizada",
-  autorizada_nao_paga: "Autorizada",
-};
 
-function fmtDate(iso: string) {
-  const [y, m, d] = iso.split("-").map(Number);
-  return `${d} ${PT_MONTHS[(m ?? 1) - 1]}`;
-}
-
-function relativeDays(days: number) {
-  if (days === 0) return "Hoje";
-  if (days === 1) return "Amanhã";
-  if (days < 7) return `Em ${days} dias`;
-  if (days < 14) return `Próxima semana`;
-  return `Em ${days} dias`;
-}
 
 function HubPage() {
   const { t } = useTranslation(["home", "common", "hr", "crm", "projects"]);
