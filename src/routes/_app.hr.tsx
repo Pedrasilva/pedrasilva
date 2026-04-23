@@ -1,5 +1,6 @@
 import { Link, Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
@@ -38,6 +39,7 @@ type NavGroup = {
 };
 
 function HrLayout() {
+  const { t } = useTranslation("hr");
   const loc = useLocation();
   const { isAdmin, isRealAdmin } = useAuth();
   const { permissions } = useMyPermissions();
@@ -49,25 +51,25 @@ function HrLayout() {
     () => [
       {
         key: "pessoas",
-        label: "Pessoas",
+        label: t("sidebar.groups.people"),
         items: [
           {
             to: "/hr/minha-ficha",
-            label: "Minha ficha",
+            label: t("nav.myProfile"),
             icon: UserIcon,
             match: (p) => p.startsWith("/hr/minha-ficha"),
             show: can("hr.minha-ficha"),
           },
           {
             to: "/hr",
-            label: "Colaboradores",
+            label: t("nav.collaborators"),
             icon: Users,
             match: (p) => p === "/hr" || p.startsWith("/hr/colaborador"),
             show: can("hr.colaboradores"),
           },
           {
             to: "/hr/ferias",
-            label: "Férias",
+            label: t("nav.vacation"),
             icon: CalendarDays,
             match: (p) => p.startsWith("/hr/ferias"),
             show: can("hr.ferias.own"),
@@ -76,25 +78,25 @@ function HrLayout() {
       },
       {
         key: "compensacao",
-        label: "Compensação",
+        label: t("sidebar.groups.compensation"),
         items: [
           {
             to: "/hr/resumo",
-            label: "Resumo geral",
+            label: t("nav.summary"),
             icon: BarChart3,
             match: (p) => p.startsWith("/hr/resumo"),
             show: isRealAdmin || can("hr.resumo"),
           },
           {
             to: "/hr/beneficios",
-            label: "Benefícios",
+            label: t("nav.benefits"),
             icon: Wallet,
             match: (p) => p.startsWith("/hr/beneficios"),
             show: can("hr.beneficios.own"),
           },
           {
             to: "/hr/subsidio-alimentacao",
-            label: "Subsídio alimentação",
+            label: t("nav.mealAllowance"),
             icon: Utensils,
             match: (p) => p.startsWith("/hr/subsidio-alimentacao"),
             show: isRealAdmin || can("hr.subsidio-alimentacao"),
@@ -103,25 +105,25 @@ function HrLayout() {
       },
       {
         key: "configuracao",
-        label: "Configuração",
+        label: t("sidebar.groups.configuration"),
         items: [
           {
             to: "/hr/dias-uteis",
-            label: "Dias úteis",
+            label: t("nav.workingDays"),
             icon: CalendarCheck,
             match: (p) => p.startsWith("/hr/dias-uteis"),
             show: isRealAdmin || can("hr.dias-uteis"),
           },
           {
             to: "/hr/valor-bo",
-            label: "Valor BO/hora",
+            label: t("nav.boRate"),
             icon: Calculator,
             match: (p) => p.startsWith("/hr/valor-bo"),
             show: isRealAdmin || can("hr.valor-bo"),
           },
           {
             to: "/hr/admin",
-            label: "Permissões",
+            label: t("nav.permissions"),
             icon: Shield,
             match: (p) => p.startsWith("/hr/admin"),
             show: isRealAdmin,
@@ -130,7 +132,7 @@ function HrLayout() {
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isAdmin, isRealAdmin, permissions],
+    [isAdmin, isRealAdmin, permissions, t],
   );
 
   const visibleGroups = groups
@@ -154,15 +156,15 @@ function HrLayout() {
         >
           {!collapsed && (
             <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              Recursos Humanos
+              {t("sidebar.title")}
             </span>
           )}
           <button
             type="button"
             onClick={() => setCollapsed((v) => !v)}
             className="text-muted-foreground hover:text-foreground transition-colors p-1 -mr-1 rounded-md"
-            aria-label={collapsed ? "Expandir menu" : "Colapsar menu"}
-            title={collapsed ? "Expandir" : "Colapsar"}
+            aria-label={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
+            title={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
           >
             {collapsed ? (
               <PanelLeftOpen className="h-4 w-4" />
