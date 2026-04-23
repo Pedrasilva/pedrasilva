@@ -61,6 +61,14 @@
     "createNewAria": "Create new",
     "task": "Task",
     "expense": "Expense",
+    "benefitExpense": "Benefit reimbursement",
+    "projectExpense": "Project / company expense",
+    "material": "Material (external service)",
+    "groups": {
+      "finance": "Finance",
+      "crm": "CRM",
+      "personal": "Personal"
+    },
     "expenseCategories": {
       "carro": "Car",
       "ticket": "Ticket",
