@@ -27,6 +27,10 @@ import {
   type ExternalServiceStatus,
   type MarkupType,
 } from "@/lib/projects/use-external-services";
+import {
+  externalServiceSchema,
+  flattenIssues,
+} from "@/lib/projects/financial-validation";
 
 interface Props {
   open: boolean;
@@ -94,10 +98,29 @@ export function ExternalServiceDialog({
   const previewRevenue = previewSalePerUnit * (quantity || 1);
   const previewMargin = previewRevenue - totalCost;
 
+  // Live validation — recomputed every render. Cheap; small object.
+  const parseResult = externalServiceSchema.safeParse({
+    description,
+    quantity: Number(quantity),
+    unit_cost: Number(unitCost),
+    markup_type: markupType,
+    markup_value: Number(markupValue),
+    sale_price_manual: salePriceManual,
+    manual_sale_price: Number(manualSalePrice),
+    status,
+    invoice_date: invoiceDate,
+    due_date: dueDate,
+    paid_at: paidAt,
+  });
+  const errors = flattenIssues(parseResult);
+  const isValid = parseResult.success;
+  const errMsg = (key: string) =>
+    errors[key] ? t(`externalServices.dialog.errors.${errors[key]}`) : null;
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!description.trim()) {
-      toast.error(t("externalServices.dialog.errors.descriptionRequired"));
+    if (!isValid) {
+      toast.error(t("externalServices.dialog.errors.formInvalid"));
       return;
     }
     try {
