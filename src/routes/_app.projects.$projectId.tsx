@@ -65,16 +65,9 @@ import {
   ArrowUpDown,
   Plus,
   MoreVertical,
-  MoreHorizontal,
   Pencil,
   UserPlus,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
   component: ProjectDetail,
