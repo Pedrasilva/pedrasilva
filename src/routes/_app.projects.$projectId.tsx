@@ -456,182 +456,100 @@ function ProjectDetail() {
           </div>
         </div>
 
-        {/* Body 2-col layout ------------------------------------------- */}
+        {/* Body layout — sidebar only on Overview tab, narrower & focused ---- */}
         <div
           className={cn(
             "mt-6 grid gap-6",
-            sidebarOpen && tab !== "schedule"
-              ? "lg:grid-cols-[300px_minmax(0,1fr)]"
+            sidebarOpen && tab === "overview"
+              ? "lg:grid-cols-[240px_minmax(0,1fr)]"
               : "lg:grid-cols-1",
           )}
         >
-          {/* Sidebar ---------------------------------------------------- */}
-          <aside className={cn("space-y-6", (!sidebarOpen || tab === "schedule") && "hidden")}>
-            <SidebarSection title="Detalhes">
-              <DetailRow label={t("glossary:entity.company")} value={project.client ?? "—"} />
-              <DetailRow
-                label="Início"
-                value={format(parseISO(project.start_date), "d MMM yyyy", {
-                  locale: pt,
-                })}
-              />
-              <DetailRow
-                label="Equipa"
-                value={team.length > 0 ? `${team.length} pessoas` : "—"}
-              />
-            </SidebarSection>
-
-            {team.length > 0 && (
-              <SidebarSection title="Team">
-                <div className="flex flex-wrap gap-2">
+          {/* Sidebar — Overview only: quick snapshot (Team · Budget · Profit) */}
+          <aside className={cn("space-y-4", (!sidebarOpen || tab !== "overview") && "hidden")}>
+            <SidebarSection title={t("projects:detail.sidebar.team")}>
+              {team.length === 0 ? (
+                <div className="text-xs text-muted-foreground">{t("projects:detail.sidebar.noTeam")}</div>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
                   {team.map((r) => (
                     <Link
                       key={r.id}
                       to="/projects/resources/$resourceId"
                       params={{ resourceId: r.id }}
-                      className="inline-flex items-center gap-2 rounded-full border border-border bg-background py-0.5 pl-0.5 pr-2.5 text-xs hover:bg-accent"
+                      title={r.name}
+                      className="rounded-full hover:opacity-80"
                     >
                       <CollaboratorAvatar
                         collaboratorId={(r as { collaborator_id?: string | null }).collaborator_id ?? null}
                         name={r.name}
                         color={r.color}
-                        size={20}
+                        size={26}
                       />
-                      <span className="truncate max-w-[120px]">{r.name}</span>
                     </Link>
                   ))}
                 </div>
-              </SidebarSection>
-            )}
+              )}
+            </SidebarSection>
 
-            <SidebarSection title="Actual (real)">
-              <div className="space-y-2">
-                <div className="flex items-baseline justify-between text-xs">
-                  <span className="text-muted-foreground">Revenue</span>
-                  <span className="font-mono font-medium">{euros(actualRevenue)}</span>
-                </div>
-                <div className="flex items-baseline justify-between text-xs">
-                  <span className="text-muted-foreground">Cost</span>
-                  <span className="font-mono font-medium">{euros(actualCost)}</span>
-                </div>
-                <div className="flex items-baseline justify-between border-t border-border pt-2 text-xs">
-                  <span className="text-muted-foreground">Profit</span>
-                  <span
-                    className={cn(
-                      "font-mono font-semibold",
-                      actualProfit < 0 && "text-destructive",
+            {canSeeFinancials && (
+              <>
+                <SidebarSection title={t("projects:detail.sidebar.budgetUsage")}>
+                  <div className="flex items-baseline justify-between">
+                    <span className="font-mono text-xs">
+                      <span className={budgetOver ? "text-destructive font-semibold" : ""}>
+                        {euros(actualCost)}
+                      </span>
+                      <span className="text-muted-foreground"> / {euros(totalBudget)}</span>
+                    </span>
+                    <span
+                      className={cn(
+                        "text-[11px]",
+                        budgetOver ? "text-destructive font-medium" : "text-muted-foreground",
+                      )}
+                    >
+                      {Math.round(budgetUsedPct * 100)}%
+                    </span>
+                  </div>
+                  <Meter
+                    value={Math.min(1, budgetUsedPct)}
+                    tone={budgetOver ? "danger" : "ok"}
+                    className="mt-2"
+                  />
+                  <div className="mt-1.5 text-[10px] text-muted-foreground">
+                    {t("projects:detail.sidebar.loggedHours", {
+                      logged: totalLoggedHours.toFixed(1),
+                      planned: totalPlannedHours.toFixed(0),
+                    })}
+                  </div>
+                </SidebarSection>
+
+                <SidebarSection title={t("projects:detail.sidebar.profit")}>
+                  <div className="flex items-baseline justify-between">
+                    <span
+                      className={cn(
+                        "font-mono text-base font-semibold",
+                        actualProfit < 0 && "text-destructive",
+                      )}
+                    >
+                      {euros(actualProfit)}
+                    </span>
+                    {totalBudget > 0 && (
+                      <span
+                        className={cn(
+                          "text-[11px] font-medium",
+                          actualProfit < 0 ? "text-destructive" : "text-muted-foreground",
+                        )}
+                      >
+                        {Math.round((actualProfit / totalBudget) * 100)}%
+                      </span>
                     )}
-                  >
-                    {euros(actualProfit)}
-                  </span>
-                </div>
-              </div>
-              <div className="mt-2 text-[10px] text-muted-foreground">
-                Billable hrs × sale rate − all logged hrs × cost rate
-              </div>
-            </SidebarSection>
-
-            <SidebarSection title="Budget usage">
-              <div className="flex items-baseline justify-between">
-                <span className="font-mono text-sm">
-                  <span className={budgetOver ? "text-destructive font-semibold" : ""}>
-                    {euros(actualCost)}
-                  </span>
-                  <span className="text-muted-foreground"> / {euros(totalBudget)}</span>
-                </span>
-                <span
-                  className={cn(
-                    "text-xs",
-                    budgetOver ? "text-destructive font-medium" : "text-muted-foreground",
-                  )}
-                >
-                  {Math.round(budgetUsedPct * 100)}%
-                </span>
-              </div>
-              <Meter
-                value={Math.min(1, budgetUsedPct)}
-                tone={budgetOver ? "danger" : "ok"}
-                className="mt-2"
-              />
-              <div className="mt-2 text-[11px] text-muted-foreground">
-                {totalLoggedHours.toFixed(1)}h registadas /{" "}
-                {totalPlannedHours.toFixed(0)}h planeadas
-              </div>
-            </SidebarSection>
-
-            <SidebarSection title="Invoiced">
-              <div className="flex items-baseline justify-between">
-                <span className="font-mono text-sm">
-                  {euros(invoicedTotal)}
-                  <span className="text-muted-foreground">
-                    {" "}
-                    / {euros(totalBudget)}
-                  </span>
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {Math.round(invoicedPct * 100)}%
-                </span>
-              </div>
-              <Meter value={Math.min(1, invoicedPct)} tone="info" className="mt-2" />
-              <div className="mt-2 text-[10px] text-muted-foreground">
-                Total faturado ao cliente (excl. canceladas)
-              </div>
-            </SidebarSection>
-
-            <SidebarSection title="Schedule">
-              <div className="flex items-center justify-between text-xs">
-                <span>{format(scheduleStart, "d MMM", { locale: pt })}</span>
-                <span>{format(scheduleEnd, "d MMM", { locale: pt })}</span>
-              </div>
-              <div className="relative mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-                <div
-                  className="absolute inset-y-0 left-0 bg-primary"
-                  style={{
-                    width: `${Math.min(100, (elapsedDays / totalSpan) * 100)}%`,
-                  }}
-                />
-                {overdueDays > 0 && (
-                  <div className="absolute inset-y-0 right-0 w-[3px] bg-destructive" />
-                )}
-              </div>
-              <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-                <span>{elapsedDays} dias decorridos</span>
-                {overdueDays > 0 ? (
-                  <span className="font-medium text-destructive">
-                    {overdueDays} em atraso
-                  </span>
-                ) : (
-                  <span>{remainingDays} dias restantes</span>
-                )}
-              </div>
-            </SidebarSection>
-
-            <SidebarSection title="Datas importantes">
-              <DateChip
-                label="Criado"
-                date={parseISO(project.created_at)}
-              />
-              <DateChip
-                label="Início planeado"
-                date={parseISO(project.start_date)}
-              />
-              <DateChip
-                label="1ª fase"
-                date={scheduleStart}
-              />
-              <DateChip label="Fim previsto" date={scheduleEnd} highlight />
-            </SidebarSection>
-
-            <SidebarSection title="Project email">
-              <a
-                href={`mailto:project+${project.id.slice(0, 8)}@pedra-silva-architects.lovable.app`}
-                className="inline-flex items-center gap-2 text-xs text-primary hover:underline"
-              >
-                <Mail className="h-3 w-3" />
-                project+{project.id.slice(0, 8)}@pedrasilva.app
-              </a>
-            </SidebarSection>
+                  </div>
+                </SidebarSection>
+              </>
+            )}
           </aside>
+
 
           {/* Main ------------------------------------------------------ */}
           <section>
