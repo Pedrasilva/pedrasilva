@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, parseISO, startOfWeek } from "date-fns";
 import type { Resource, StageWithAllocations } from "@/lib/projects/types";
 import { allocationCost, dayCount, euros, workingDays } from "@/lib/projects/gantt-utils";
