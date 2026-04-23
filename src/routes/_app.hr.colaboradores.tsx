@@ -10,12 +10,14 @@ import {
   type SortDir,
 } from "@/components/hr/collaborators-table";
 import { ArchiveCollaboratorDialog } from "@/components/hr/archive-collaborator-dialog";
+import { RestoreCollaboratorDialog } from "@/components/hr/restore-collaborator-dialog";
 import {
   useCollaboratorsList,
   useArchiveCollaborator,
   useRestoreCollaborator,
   type ArchiveStatus,
 } from "@/lib/hr/use-collaborators";
+import { humanizeMutationError } from "@/lib/hr/error-messages";
 import {
   Card,
   CardContent,
@@ -32,7 +34,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Users, AlertTriangle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Search, Users, AlertTriangle, Archive, X } from "lucide-react";
 import type { Collaborator } from "@/lib/salary";
 
 export const Route = createFileRoute("/_app/hr/colaboradores")({
