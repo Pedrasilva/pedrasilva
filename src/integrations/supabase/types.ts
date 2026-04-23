@@ -938,37 +938,55 @@ export type Database = {
       }
       pm_expenses: {
         Row: {
+          category: Database["public"]["Enums"]["pm_expense_category"]
           created_at: string
           description: string
           expense_date: string | null
           id: string
+          incurred_at: string | null
           notes: string | null
+          paid_at: string | null
           project_id: string
           purchase_price: number
+          rebillable: boolean
           sale_price: number
+          status: Database["public"]["Enums"]["pm_expense_status"]
           updated_at: string
+          vendor: string | null
         }
         Insert: {
+          category?: Database["public"]["Enums"]["pm_expense_category"]
           created_at?: string
           description: string
           expense_date?: string | null
           id?: string
+          incurred_at?: string | null
           notes?: string | null
+          paid_at?: string | null
           project_id: string
           purchase_price?: number
+          rebillable?: boolean
           sale_price?: number
+          status?: Database["public"]["Enums"]["pm_expense_status"]
           updated_at?: string
+          vendor?: string | null
         }
         Update: {
+          category?: Database["public"]["Enums"]["pm_expense_category"]
           created_at?: string
           description?: string
           expense_date?: string | null
           id?: string
+          incurred_at?: string | null
           notes?: string | null
+          paid_at?: string | null
           project_id?: string
           purchase_price?: number
+          rebillable?: boolean
           sale_price?: number
+          status?: Database["public"]["Enums"]["pm_expense_status"]
           updated_at?: string
+          vendor?: string | null
         }
         Relationships: [
           {
@@ -1249,34 +1267,67 @@ export type Database = {
         Row: {
           created_at: string
           description: string
+          due_date: string | null
           id: string
+          invoice_date: string | null
+          invoice_reference: string | null
+          markup_type: Database["public"]["Enums"]["pm_markup_type"]
+          markup_value: number
           notes: string | null
+          paid_at: string | null
           project_id: string
           purchase_price: number
           quantity: number
           sale_price: number
+          sale_price_manual: boolean
+          status: Database["public"]["Enums"]["pm_external_service_status"]
+          supplier_contact: string | null
+          supplier_name: string | null
+          unit_cost: number
           updated_at: string
         }
         Insert: {
           created_at?: string
           description: string
+          due_date?: string | null
           id?: string
+          invoice_date?: string | null
+          invoice_reference?: string | null
+          markup_type?: Database["public"]["Enums"]["pm_markup_type"]
+          markup_value?: number
           notes?: string | null
+          paid_at?: string | null
           project_id: string
           purchase_price?: number
           quantity?: number
           sale_price?: number
+          sale_price_manual?: boolean
+          status?: Database["public"]["Enums"]["pm_external_service_status"]
+          supplier_contact?: string | null
+          supplier_name?: string | null
+          unit_cost?: number
           updated_at?: string
         }
         Update: {
           created_at?: string
           description?: string
+          due_date?: string | null
           id?: string
+          invoice_date?: string | null
+          invoice_reference?: string | null
+          markup_type?: Database["public"]["Enums"]["pm_markup_type"]
+          markup_value?: number
           notes?: string | null
+          paid_at?: string | null
           project_id?: string
           purchase_price?: number
           quantity?: number
           sale_price?: number
+          sale_price_manual?: boolean
+          status?: Database["public"]["Enums"]["pm_external_service_status"]
+          supplier_contact?: string | null
+          supplier_name?: string | null
+          unit_cost?: number
           updated_at?: string
         }
         Relationships: [
@@ -2198,7 +2249,24 @@ export type Database = {
       expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
       pm_allocation_status: "tentative" | "committed"
       pm_dep_type: "FS" | "SS" | "FF" | "SF"
+      pm_expense_category:
+        | "travel"
+        | "accommodation"
+        | "food"
+        | "transport"
+        | "printing"
+        | "misc"
+      pm_expense_status: "draft" | "submitted" | "approved" | "paid"
+      pm_external_service_status:
+        | "draft"
+        | "approved"
+        | "ordered"
+        | "invoiced"
+        | "partially_paid"
+        | "paid"
+        | "cancelled"
       pm_invoice_status: "draft" | "sent" | "paid" | "overdue" | "cancelled"
+      pm_markup_type: "percent" | "fixed"
       pm_project_status: "active" | "paused" | "archived"
       pm_role:
         | "admin"
@@ -2371,7 +2439,26 @@ export const Constants = {
       expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
       pm_allocation_status: ["tentative", "committed"],
       pm_dep_type: ["FS", "SS", "FF", "SF"],
+      pm_expense_category: [
+        "travel",
+        "accommodation",
+        "food",
+        "transport",
+        "printing",
+        "misc",
+      ],
+      pm_expense_status: ["draft", "submitted", "approved", "paid"],
+      pm_external_service_status: [
+        "draft",
+        "approved",
+        "ordered",
+        "invoiced",
+        "partially_paid",
+        "paid",
+        "cancelled",
+      ],
       pm_invoice_status: ["draft", "sent", "paid", "overdue", "cancelled"],
+      pm_markup_type: ["percent", "fixed"],
       pm_project_status: ["active", "paused", "archived"],
       pm_role: [
         "admin",
