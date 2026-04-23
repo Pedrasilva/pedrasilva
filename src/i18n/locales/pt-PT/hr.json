@@ -254,6 +254,104 @@
       "madeira": "Madeira"
     }
   },
+  "resumoCompare": {
+    "title": "Comparação",
+    "description": "Por defeito: última ficha efectiva vs. última ficha proposta. Pode escolher quaisquer duas fichas.",
+    "emptyState": "Crie pelo menos uma ficha para ver o resumo.",
+    "columnA": "Coluna A",
+    "columnB": "Coluna B",
+    "pickerPlaceholder": "Escolha uma ficha",
+    "inForceShort": "EFE",
+    "headers": {
+      "metric": "Métrica",
+      "delta": "Δ",
+      "deltaPct": "Δ %"
+    },
+    "metrics": {
+      "baseMonthly": "Valor base mensal",
+      "baseAnnualX14": "Valor base x 14 meses",
+      "grossMonthly": "Bruto mensal",
+      "grossAnnual": "Bruto anual",
+      "netMonthly12": "Líquido mensal (12)",
+      "mealAllowanceDaily": "Subsídio alimentação diário",
+      "mealAllowanceMonthly": "Subsídio alimentação mensal",
+      "perDiemAnnual": "Ajudas de custo (anual)",
+      "perDiemMonthly": "Ajudas de custo (mensal)",
+      "totalNetMonthly": "Líquido total mensal",
+      "benefitsAnnual": "Benefícios anual",
+      "tgvAnnual": "Custo VBG anual"
+    }
+  },
+  "resumoComparativo": {
+    "title": "Comparativo Actual vs Proposto",
+    "description": "Diferenças por colaborador entre a ficha efectiva e a ficha proposta. Use os filtros para focar uma métrica ou pesquisar pelo nome.",
+    "filters": {
+      "searchLabel": "Pesquisar colaborador",
+      "searchPlaceholder": "Nome…",
+      "metricLabel": "Métrica do total"
+    },
+    "metrics": {
+      "valorBase": {
+        "label": "Valor base mensal",
+        "help": "Vencimento base mensal contratual"
+      },
+      "liquido": {
+        "label": "Líquido total mensal",
+        "help": "Líquido base + ajudas + alimentação"
+      },
+      "alimentacao": {
+        "label": "Subsídio alimentação (mensal)",
+        "help": "Diário × dias úteis / 12"
+      },
+      "ajudas": {
+        "label": "Ajudas de custo (mensal)",
+        "help": "Anual / 12"
+      },
+      "beneficios": {
+        "label": "Benefícios (anual)",
+        "help": "Carro + ticket + prémio + outros"
+      },
+      "custoVBG": {
+        "label": "Custo VBG (anual)",
+        "help": "Custo total para o atelier"
+      }
+    },
+    "valorBaseGlobal": {
+      "title": "Valor base global — Actual vs Proposto",
+      "description": "Soma do vencimento base de todos os colaboradores ({{withProposal}} de {{total}} com ficha proposta). Quem não tem proposta conta com o valor actual. Anual = base × 14 meses.",
+      "currentMonthly": "Base mensal — actual",
+      "proposedMonthly": "Base mensal — proposto",
+      "monthlyIncrease": "Aumento mensal",
+      "annualPrefix": "Anual: {{value}}",
+      "annualX14Prefix": "Anual (×14): {{value}}"
+    },
+    "brutoGlobal": {
+      "title": "Bruto anual global — Actual vs Proposto",
+      "description": "Soma do bruto anual de todos os colaboradores ({{withProposal}} de {{total}} com ficha proposta). Quem não tem proposta conta com o valor actual.",
+      "currentAnnual": "Bruto anual actual",
+      "proposedAnnual": "Bruto anual proposto",
+      "additionalAnnual": "Custo adicional anual",
+      "vsCurrent": "vs actual",
+      "monthlyEquivalent": "Equivalente mensal: {{value}} / mês"
+    },
+    "table": {
+      "collaborator": "Colaborador",
+      "metric": "Métrica",
+      "current": "Actual",
+      "proposed": "Proposto",
+      "delta": "Δ",
+      "deltaPct": "Δ %",
+      "empty": "Sem colaboradores a apresentar.",
+      "noEffective": " · sem ficha actual",
+      "noProposed": " · sem ficha proposta",
+      "fullComparison": "Comparação completa",
+      "onlyEffective": "Apenas ficha actual disponível",
+      "onlyProposed": "Apenas ficha proposta disponível",
+      "noSnapshots": "Sem fichas",
+      "totalLabel_one": "Total ({{count}} colab.)",
+      "totalLabel_other": "Total ({{count}} colab.)"
+    }
+  },
   "collaborator": {
     "back": "Voltar",
     "printPdf": "Imprimir / PDF",

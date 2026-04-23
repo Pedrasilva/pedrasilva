@@ -1,6 +1,7 @@
 import { Fragment, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtEUR, type Collaborator, type Snapshot } from "@/lib/salary";
 import {
@@ -30,13 +31,13 @@ type Row = {
 
 type MetricKey = "valorBase" | "liquido" | "alimentacao" | "ajudas" | "beneficios" | "custoVBG";
 
-const METRICS: { key: MetricKey; label: string; help: string }[] = [
-  { key: "valorBase", label: "Valor base mensal", help: "Vencimento base mensal contratual" },
-  { key: "liquido", label: "Líquido total mensal", help: "Líquido base + ajudas + alimentação" },
-  { key: "alimentacao", label: "Subsídio alimentação (mensal)", help: "Diário × dias úteis / 12" },
-  { key: "ajudas", label: "Ajudas de custo (mensal)", help: "Anual / 12" },
-  { key: "beneficios", label: "Benefícios (anual)", help: "Carro + ticket + prémio + outros" },
-  { key: "custoVBG", label: "Custo VBG (anual)", help: "Custo total para o atelier" },
+const METRIC_KEYS: MetricKey[] = [
+  "valorBase",
+  "liquido",
+  "alimentacao",
+  "ajudas",
+  "beneficios",
+  "custoVBG",
 ];
 
 function valueFor(snap: Snapshot | null, key: MetricKey, mealDaily: number): number | null {
@@ -60,8 +61,21 @@ function valueFor(snap: Snapshot | null, key: MetricKey, mealDaily: number): num
 }
 
 export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
+  const { t, i18n } = useTranslation("hr");
   const [filter, setFilter] = useState("");
   const [metric, setMetric] = useState<MetricKey>("liquido");
+
+  const dash = t("hr:collaborator.subline.empty");
+
+  const metrics = useMemo(
+    () =>
+      METRIC_KEYS.map((key) => ({
+        key,
+        label: t(`hr:resumoComparativo.metrics.${key}.label`),
+        help: t(`hr:resumoComparativo.metrics.${key}.help`),
+      })),
+    [t],
+  );
 
   const { data: mealRates = [] } = useQuery({
     queryKey: ["meal-allowance-rates-all"],
@@ -99,7 +113,7 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
     return filtered.map((r) => {
       const eMeal = mealDailyFor(r.effective);
       const pMeal = mealDailyFor(r.proposed);
-      const detail = METRICS.map((m) => {
+      const detail = metrics.map((m) => {
         const eff = valueFor(r.effective, m.key, eMeal);
         const prop = valueFor(r.proposed, m.key, pMeal);
         const delta = eff != null && prop != null ? prop - eff : null;
@@ -108,7 +122,7 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
       });
       return { row: r, detail };
     });
-  }, [filtered, mealRates]);
+  }, [filtered, mealRates, metrics]);
 
   // Comparação global Bruto Anual (todos os colaboradores filtrados).
   // Quando não há ficha proposta, assume-se o valor actual (sem alteração).
@@ -176,33 +190,39 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
     return { eff, prop, delta, pct, countBoth };
   }, [computed, metric]);
 
-  const metricLabel = METRICS.find((m) => m.key === metric)?.label ?? "";
+  const metricLabel = metrics.find((m) => m.key === metric)?.label ?? "";
+
+  const pctFormatter = new Intl.NumberFormat(i18n.language, {
+    style: "percent",
+    maximumFractionDigits: 2,
+  });
 
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Comparativo Actual vs Proposto</CardTitle>
-          <CardDescription>
-            Diferenças por colaborador entre a ficha efectiva e a ficha proposta. Use os filtros para
-            focar uma métrica ou pesquisar pelo nome.
-          </CardDescription>
+          <CardTitle className="text-base">{t("hr:resumoComparativo.title")}</CardTitle>
+          <CardDescription>{t("hr:resumoComparativo.description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1.5">
-              <div className="text-xs text-muted-foreground">Pesquisar colaborador</div>
+              <div className="text-xs text-muted-foreground">
+                {t("hr:resumoComparativo.filters.searchLabel")}
+              </div>
               <Input
-                placeholder="Nome…"
+                placeholder={t("hr:resumoComparativo.filters.searchPlaceholder")}
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
                 className="w-64"
               />
             </div>
             <div className="space-y-1.5">
-              <div className="text-xs text-muted-foreground">Métrica do total</div>
+              <div className="text-xs text-muted-foreground">
+                {t("hr:resumoComparativo.filters.metricLabel")}
+              </div>
               <div className="flex flex-wrap gap-1.5">
-                {METRICS.map((m) => (
+                {metrics.map((m) => (
                   <button
                     key={m.key}
                     type="button"
@@ -226,31 +246,40 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
 
       <Card className="border-primary">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Valor base global — Actual vs Proposto</CardTitle>
+          <CardTitle className="text-base">{t("hr:resumoComparativo.valorBaseGlobal.title")}</CardTitle>
           <CardDescription>
-            Soma do vencimento base de todos os colaboradores ({valorBaseGlobal.comProposta} de{" "}
-            {valorBaseGlobal.total} com ficha proposta). Quem não tem proposta conta com o valor
-            actual. Anual = base × 14 meses.
+            {t("hr:resumoComparativo.valorBaseGlobal.description", {
+              withProposal: valorBaseGlobal.comProposta,
+              total: valorBaseGlobal.total,
+            })}
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-lg border bg-muted/30 p-3">
-              <div className="text-xs text-muted-foreground">Base mensal — actual</div>
+              <div className="text-xs text-muted-foreground">
+                {t("hr:resumoComparativo.valorBaseGlobal.currentMonthly")}
+              </div>
               <div className="mt-1 text-2xl font-semibold tabular-nums">
                 {fmtEUR(valorBaseGlobal.actualMensal)}
               </div>
               <div className="text-[11px] text-muted-foreground">
-                Anual: {fmtEUR(valorBaseGlobal.actualAnual)}
+                {t("hr:resumoComparativo.valorBaseGlobal.annualPrefix", {
+                  value: fmtEUR(valorBaseGlobal.actualAnual),
+                })}
               </div>
             </div>
             <div className="rounded-lg border bg-muted/30 p-3">
-              <div className="text-xs text-muted-foreground">Base mensal — proposto</div>
+              <div className="text-xs text-muted-foreground">
+                {t("hr:resumoComparativo.valorBaseGlobal.proposedMonthly")}
+              </div>
               <div className="mt-1 text-2xl font-semibold tabular-nums">
                 {fmtEUR(valorBaseGlobal.propostoMensal)}
               </div>
               <div className="text-[11px] text-muted-foreground">
-                Anual: {fmtEUR(valorBaseGlobal.propostoAnual)}
+                {t("hr:resumoComparativo.valorBaseGlobal.annualPrefix", {
+                  value: fmtEUR(valorBaseGlobal.propostoAnual),
+                })}
               </div>
             </div>
             <div
@@ -263,7 +292,9 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                     : "bg-muted/30")
               }
             >
-              <div className="text-xs text-muted-foreground">Aumento mensal</div>
+              <div className="text-xs text-muted-foreground">
+                {t("hr:resumoComparativo.valorBaseGlobal.monthlyIncrease")}
+              </div>
               <div
                 className={
                   "mt-1 text-2xl font-semibold tabular-nums " +
@@ -277,16 +308,15 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                 {(valorBaseGlobal.deltaMensal > 0 ? "+" : "") + fmtEUR(valorBaseGlobal.deltaMensal)}
               </div>
               <div className="text-[11px] text-muted-foreground">
-                Anual (×14):{" "}
-                {(valorBaseGlobal.deltaAnual > 0 ? "+" : "") + fmtEUR(valorBaseGlobal.deltaAnual)}
+                {t("hr:resumoComparativo.valorBaseGlobal.annualX14Prefix", {
+                  value:
+                    (valorBaseGlobal.deltaAnual > 0 ? "+" : "") + fmtEUR(valorBaseGlobal.deltaAnual),
+                })}
                 {valorBaseGlobal.pct != null && (
                   <>
                     {" · "}
                     {(valorBaseGlobal.deltaMensal > 0 ? "+" : "") +
-                      new Intl.NumberFormat("pt-PT", {
-                        style: "percent",
-                        maximumFractionDigits: 2,
-                      }).format(valorBaseGlobal.pct)}
+                      pctFormatter.format(valorBaseGlobal.pct)}
                   </>
                 )}
               </div>
@@ -297,22 +327,28 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
 
       <Card className="border-primary">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Bruto anual global — Actual vs Proposto</CardTitle>
+          <CardTitle className="text-base">{t("hr:resumoComparativo.brutoGlobal.title")}</CardTitle>
           <CardDescription>
-            Soma do bruto anual de todos os colaboradores ({brutoGlobal.comProposta} de{" "}
-            {brutoGlobal.total} com ficha proposta). Quem não tem proposta conta com o valor actual.
+            {t("hr:resumoComparativo.brutoGlobal.description", {
+              withProposal: brutoGlobal.comProposta,
+              total: brutoGlobal.total,
+            })}
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-lg border bg-muted/30 p-3">
-              <div className="text-xs text-muted-foreground">Bruto anual actual</div>
+              <div className="text-xs text-muted-foreground">
+                {t("hr:resumoComparativo.brutoGlobal.currentAnnual")}
+              </div>
               <div className="mt-1 text-2xl font-semibold tabular-nums">
                 {fmtEUR(brutoGlobal.actual)}
               </div>
             </div>
             <div className="rounded-lg border bg-muted/30 p-3">
-              <div className="text-xs text-muted-foreground">Bruto anual proposto</div>
+              <div className="text-xs text-muted-foreground">
+                {t("hr:resumoComparativo.brutoGlobal.proposedAnnual")}
+              </div>
               <div className="mt-1 text-2xl font-semibold tabular-nums">
                 {fmtEUR(brutoGlobal.proposto)}
               </div>
@@ -327,7 +363,9 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                     : "bg-muted/30")
               }
             >
-              <div className="text-xs text-muted-foreground">Custo adicional anual</div>
+              <div className="text-xs text-muted-foreground">
+                {t("hr:resumoComparativo.brutoGlobal.additionalAnnual")}
+              </div>
               <div
                 className={
                   "mt-1 text-2xl font-semibold tabular-nums " +
@@ -342,18 +380,18 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
               </div>
               <div className="text-[11px] text-muted-foreground">
                 {brutoGlobal.pct == null
-                  ? "—"
+                  ? dash
                   : (brutoGlobal.delta > 0 ? "+" : "") +
-                    new Intl.NumberFormat("pt-PT", {
-                      style: "percent",
-                      maximumFractionDigits: 2,
-                    }).format(brutoGlobal.pct) + " vs actual"}
+                    pctFormatter.format(brutoGlobal.pct) +
+                    " " +
+                    t("hr:resumoComparativo.brutoGlobal.vsCurrent")}
               </div>
             </div>
           </div>
           <p className="mt-3 text-[11px] text-muted-foreground">
-            Equivalente mensal: {(brutoGlobal.delta > 0 ? "+" : "") + fmtEUR(brutoGlobal.delta / 12)} /
-            mês
+            {t("hr:resumoComparativo.brutoGlobal.monthlyEquivalent", {
+              value: (brutoGlobal.delta > 0 ? "+" : "") + fmtEUR(brutoGlobal.delta / 12),
+            })}
           </p>
         </CardContent>
       </Card>
@@ -363,19 +401,19 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Colaborador</TableHead>
-                <TableHead>Métrica</TableHead>
-                <TableHead className="text-right">Actual</TableHead>
-                <TableHead className="text-right">Proposto</TableHead>
-                <TableHead className="text-right">Δ</TableHead>
-                <TableHead className="text-right">Δ %</TableHead>
+                <TableHead>{t("hr:resumoComparativo.table.collaborator")}</TableHead>
+                <TableHead>{t("hr:resumoComparativo.table.metric")}</TableHead>
+                <TableHead className="text-right">{t("hr:resumoComparativo.table.current")}</TableHead>
+                <TableHead className="text-right">{t("hr:resumoComparativo.table.proposed")}</TableHead>
+                <TableHead className="text-right">{t("hr:resumoComparativo.table.delta")}</TableHead>
+                <TableHead className="text-right">{t("hr:resumoComparativo.table.deltaPct")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {computed.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="py-8 text-center text-sm text-muted-foreground">
-                    Sem colaboradores a apresentar.
+                    {t("hr:resumoComparativo.table.empty")}
                   </TableCell>
                 </TableRow>
               )}
@@ -385,7 +423,7 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                 return (
                   <Fragment key={row.collab.id}>
                     <TableRow className="bg-muted/30">
-                      <TableCell className="font-medium" rowSpan={METRICS.length + 1}>
+                      <TableCell className="font-medium" rowSpan={metrics.length + 1}>
                         <Link
                           to="/hr/colaborador/$id"
                           params={{ id: row.collab.id }}
@@ -395,19 +433,19 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                           <ChevronRight className="h-3.5 w-3.5 opacity-60" />
                         </Link>
                         <div className="mt-0.5 text-xs text-muted-foreground">
-                          {row.collab.departamento}
-                          {!hasEff && " · sem ficha actual"}
-                          {!hasProp && " · sem ficha proposta"}
+                          {t(`hr:enums.department.${row.collab.departamento}`)}
+                          {!hasEff && t("hr:resumoComparativo.table.noEffective")}
+                          {!hasProp && t("hr:resumoComparativo.table.noProposed")}
                         </div>
                       </TableCell>
                       <TableCell colSpan={5} className="text-xs text-muted-foreground">
                         {hasEff && hasProp
-                          ? "Comparação completa"
+                          ? t("hr:resumoComparativo.table.fullComparison")
                           : hasEff
-                            ? "Apenas ficha actual disponível"
+                            ? t("hr:resumoComparativo.table.onlyEffective")
                             : hasProp
-                              ? "Apenas ficha proposta disponível"
-                              : "Sem fichas"}
+                              ? t("hr:resumoComparativo.table.onlyProposed")
+                              : t("hr:resumoComparativo.table.noSnapshots")}
                       </TableCell>
                     </TableRow>
                     {detail.map((d) => {
@@ -423,21 +461,16 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                         <TableRow key={row.collab.id + d.key}>
                           <TableCell className="text-sm">{d.label}</TableCell>
                           <TableCell className="text-right tabular-nums">
-                            {d.eff == null ? "—" : fmtEUR(d.eff)}
+                            {d.eff == null ? dash : fmtEUR(d.eff)}
                           </TableCell>
                           <TableCell className="text-right tabular-nums">
-                            {d.prop == null ? "—" : fmtEUR(d.prop)}
+                            {d.prop == null ? dash : fmtEUR(d.prop)}
                           </TableCell>
                           <TableCell className={"text-right tabular-nums " + cls}>
-                            {d.delta == null ? "—" : (d.delta > 0 ? "+" : "") + fmtEUR(d.delta)}
+                            {d.delta == null ? dash : (d.delta > 0 ? "+" : "") + fmtEUR(d.delta)}
                           </TableCell>
                           <TableCell className={"text-right tabular-nums " + cls}>
-                            {d.pct == null
-                              ? "—"
-                              : new Intl.NumberFormat("pt-PT", {
-                                  style: "percent",
-                                  maximumFractionDigits: 2,
-                                }).format(d.pct)}
+                            {d.pct == null ? dash : pctFormatter.format(d.pct)}
                           </TableCell>
                         </TableRow>
                       );
@@ -448,7 +481,9 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
             </TableBody>
             <TableFooter>
               <TableRow>
-                <TableCell className="font-medium">Total ({totals.countBoth} colab.)</TableCell>
+                <TableCell className="font-medium">
+                  {t("hr:resumoComparativo.table.totalLabel", { count: totals.countBoth })}
+                </TableCell>
                 <TableCell className="text-sm text-muted-foreground">{metricLabel}</TableCell>
                 <TableCell className="text-right tabular-nums">{fmtEUR(totals.eff)}</TableCell>
                 <TableCell className="text-right tabular-nums">{fmtEUR(totals.prop)}</TableCell>
@@ -474,12 +509,7 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                         : "text-muted-foreground")
                   }
                 >
-                  {totals.pct == null
-                    ? "—"
-                    : new Intl.NumberFormat("pt-PT", {
-                        style: "percent",
-                        maximumFractionDigits: 2,
-                      }).format(totals.pct)}
+                  {totals.pct == null ? dash : pctFormatter.format(totals.pct)}
                 </TableCell>
               </TableRow>
             </TableFooter>

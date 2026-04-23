@@ -254,6 +254,104 @@
       "madeira": "Madeira"
     }
   },
+  "resumoCompare": {
+    "title": "Comparison",
+    "description": "Default: latest in-force snapshot vs. latest proposed snapshot. You can pick any two snapshots.",
+    "emptyState": "Create at least one snapshot to see the summary.",
+    "columnA": "Column A",
+    "columnB": "Column B",
+    "pickerPlaceholder": "Choose a snapshot",
+    "inForceShort": "IN FORCE",
+    "headers": {
+      "metric": "Metric",
+      "delta": "Δ",
+      "deltaPct": "Δ %"
+    },
+    "metrics": {
+      "baseMonthly": "Monthly base value",
+      "baseAnnualX14": "Base value × 14 months",
+      "grossMonthly": "Monthly gross",
+      "grossAnnual": "Annual gross",
+      "netMonthly12": "Monthly net (12)",
+      "mealAllowanceDaily": "Meal allowance — daily",
+      "mealAllowanceMonthly": "Meal allowance — monthly",
+      "perDiemAnnual": "Per diem allowances (annual)",
+      "perDiemMonthly": "Per diem allowances (monthly)",
+      "totalNetMonthly": "Total monthly net",
+      "benefitsAnnual": "Benefits (annual)",
+      "tgvAnnual": "Total Gross Value (annual)"
+    }
+  },
+  "resumoComparativo": {
+    "title": "Current vs Proposed comparison",
+    "description": "Differences per team member between the in-force snapshot and the proposed snapshot. Use the filters to focus a metric or search by name.",
+    "filters": {
+      "searchLabel": "Search team member",
+      "searchPlaceholder": "Name…",
+      "metricLabel": "Total metric"
+    },
+    "metrics": {
+      "valorBase": {
+        "label": "Monthly base value",
+        "help": "Contractual monthly base salary"
+      },
+      "liquido": {
+        "label": "Total monthly net",
+        "help": "Net base + per diem + meal allowance"
+      },
+      "alimentacao": {
+        "label": "Meal allowance (monthly)",
+        "help": "Daily × working days / 12"
+      },
+      "ajudas": {
+        "label": "Per diem allowances (monthly)",
+        "help": "Annual / 12"
+      },
+      "beneficios": {
+        "label": "Benefits (annual)",
+        "help": "Car + voucher + bonus + others"
+      },
+      "custoVBG": {
+        "label": "Total Gross Value (annual)",
+        "help": "Total cost to the studio"
+      }
+    },
+    "valorBaseGlobal": {
+      "title": "Global base value — Current vs Proposed",
+      "description": "Sum of the base salary for all team members ({{withProposal}} of {{total}} with a proposed snapshot). Members without a proposal count with the current value. Annual = base × 14 months.",
+      "currentMonthly": "Monthly base — current",
+      "proposedMonthly": "Monthly base — proposed",
+      "monthlyIncrease": "Monthly increase",
+      "annualPrefix": "Annual: {{value}}",
+      "annualX14Prefix": "Annual (×14): {{value}}"
+    },
+    "brutoGlobal": {
+      "title": "Global annual gross — Current vs Proposed",
+      "description": "Sum of the annual gross for all team members ({{withProposal}} of {{total}} with a proposed snapshot). Members without a proposal count with the current value.",
+      "currentAnnual": "Current annual gross",
+      "proposedAnnual": "Proposed annual gross",
+      "additionalAnnual": "Additional annual cost",
+      "vsCurrent": "vs current",
+      "monthlyEquivalent": "Monthly equivalent: {{value}} / month"
+    },
+    "table": {
+      "collaborator": "Team member",
+      "metric": "Metric",
+      "current": "Current",
+      "proposed": "Proposed",
+      "delta": "Δ",
+      "deltaPct": "Δ %",
+      "empty": "No team members to display.",
+      "noEffective": " · no current snapshot",
+      "noProposed": " · no proposed snapshot",
+      "fullComparison": "Full comparison",
+      "onlyEffective": "Only current snapshot available",
+      "onlyProposed": "Only proposed snapshot available",
+      "noSnapshots": "No snapshots",
+      "totalLabel_one": "Total ({{count}} member)",
+      "totalLabel_other": "Total ({{count}} members)"
+    }
+  },
   "collaborator": {
     "back": "Back",
     "printPdf": "Print / PDF",
