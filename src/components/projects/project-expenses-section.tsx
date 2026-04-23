@@ -42,8 +42,8 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
   const del = useDeleteProjectExpense(projectId);
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<ProjectExpense | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<ProjectExpense | null>(null);
+  const [editing, setEditing] = useState<ProjectExpenseWithSupplier | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<ProjectExpenseWithSupplier | null>(null);
 
   const totals = items.reduce(
     (acc, e) => {
