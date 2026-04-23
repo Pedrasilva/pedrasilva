@@ -130,7 +130,11 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={t("expenses.fields.descriptionPlaceholder")}
+                aria-invalid={!!errMsg("description")}
               />
+              {errMsg("description") && (
+                <p className="text-[11px] text-destructive">{errMsg("description")}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ex-cat">{t("expenses.fields.category")}</Label>
@@ -163,7 +167,11 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 step="0.01"
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
+                aria-invalid={!!errMsg("amount")}
               />
+              {errMsg("amount") && (
+                <p className="text-[11px] text-destructive">{errMsg("amount")}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ex-incurred">{t("expenses.fields.incurredAt")}</Label>
@@ -172,7 +180,11 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 type="date"
                 value={incurredAt}
                 onChange={(e) => setIncurredAt(e.target.value)}
+                aria-invalid={!!errMsg("incurred_at")}
               />
+              {errMsg("incurred_at") && (
+                <p className="text-[11px] text-destructive">{errMsg("incurred_at")}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ex-status">{t("expenses.fields.status")}</Label>
@@ -196,7 +208,11 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 type="date"
                 value={paidAt}
                 onChange={(e) => setPaidAt(e.target.value)}
+                aria-invalid={!!errMsg("paid_at")}
               />
+              {errMsg("paid_at") && (
+                <p className="text-[11px] text-destructive">{errMsg("paid_at")}</p>
+              )}
             </div>
             <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2 sm:col-span-2">
               <div className="space-y-0.5">
@@ -224,7 +240,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               {t("expenses.dialog.cancel")}
             </Button>
-            <Button type="submit" disabled={upsert.isPending}>
+            <Button type="submit" disabled={upsert.isPending || !isValid}>
               {initial?.id ? t("expenses.dialog.save") : t("expenses.dialog.create")}
             </Button>
           </DialogFooter>
