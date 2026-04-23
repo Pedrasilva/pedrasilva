@@ -580,7 +580,7 @@ function FinancialsPage() {
   const { data: trailing } = useTrailingTrend(monthAnchor, filteredResourceIds, resourceMap, defaults);
 
   // 12-week utilization trend
-  const { data: weeklyUtil } = useWeeklyUtilTrend(monthAnchor, filteredResourceIds);
+  const { data: weeklyUtil } = useWeeklyUtilTrend(monthAnchor, filteredResourceIds, dateLocale);
 
   // Business Development efficiency
   const bdMonthCost = useMemo(() => {
@@ -1604,12 +1604,17 @@ type WeekPoint = {
   internal: number;
 };
 
-function useWeeklyUtilTrend(monthAnchor: Date, filteredResourceIds: Set<string>) {
+function useWeeklyUtilTrend(
+  monthAnchor: Date,
+  filteredResourceIds: Set<string>,
+  dateLocale: import("date-fns").Locale,
+) {
   const end = endOfMonth(monthAnchor);
   const start = startOfWeek(subWeeks(end, 11), { weekStartsOn: 1 });
   const startISO = format(start, "yyyy-MM-dd");
   const endISO = format(end, "yyyy-MM-dd");
   const filterKey = Array.from(filteredResourceIds).sort().join(",");
+  const localeCode = dateLocale.code ?? "en";
 
   return useQuery({
     queryKey: ["fin-weekly-util", startISO, endISO, filterKey],
@@ -1657,7 +1662,7 @@ function useWeeklyUtilTrend(monthAnchor: Date, filteredResourceIds: Set<string>)
         buckets.set(key, {
           billable: 0,
           internal: 0,
-          label: format(ws, "d MMM"),
+          label: format(ws, "d MMM", { locale: dateLocale }),
           weekStart: key,
         });
       }
