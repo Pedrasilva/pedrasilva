@@ -1,0 +1,169 @@
+{
+  "shell": {
+    "backToHub": "Hub",
+    "title": "CRM",
+    "subtitle": "Companies, contacts and proposal pipeline.",
+    "tabs": {
+      "overview": "Overview",
+      "opportunities": "Opportunities",
+      "accounts": "Accounts",
+      "companies": "Companies",
+      "contacts": "Contacts",
+      "pipelineLegacy": "Pipeline (legacy)"
+    }
+  },
+  "overview": {
+    "stats": {
+      "companies": "Companies",
+      "contacts": "Contacts",
+      "openProposals": "Open proposals",
+      "weightedPipeline": "Weighted pipeline"
+    },
+    "pipelineSummary": "Pipeline — by status",
+    "totalOpen": "Total open"
+  },
+  "common": {
+    "loading": "Loading…",
+    "notFound": "Not found.",
+    "noData": "—",
+    "save": "Save changes",
+    "create": "Create",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "name": "Name",
+    "company": "Company",
+    "account": "Account",
+    "title": "Title",
+    "notes": "Notes",
+    "status": "Status",
+    "fee": "Fee",
+    "estimatedFee": "Estimated fee (€)",
+    "probability": "Probability (%)",
+    "expectedStart": "Expected start date",
+    "stage": "Stage",
+    "feeStructure": "Fee structure",
+    "noAccount": "No account",
+    "primaryContact": "Primary contact",
+    "noContact": "No contact",
+    "required": "*"
+  },
+  "opportunities": {
+    "countAndFee": "{{count}} opportunities · {{fee}} estimated",
+    "newOpportunity": "New opportunity",
+    "viewPipeline": "Pipeline",
+    "viewList": "List",
+    "emptyTitle": "No opportunities yet",
+    "emptyHint": "Create the first one to start tracking potential work.",
+    "tableName": "Name",
+    "tableCompany": "Company",
+    "tableStage": "Stage",
+    "tableEstFee": "Est. fee",
+    "tableProb": "Prob.",
+    "dialog": {
+      "title": "New opportunity",
+      "description": "Track potential work before it becomes a quote.",
+      "namePlaceholder": "e.g. Renovation — Av. X",
+      "companyPlaceholder": "Select or create company",
+      "errorName": "Name is required",
+      "errorCompany": "Company is required",
+      "createdToast": "Opportunity created"
+    },
+    "detail": {
+      "back": "Back to opportunities",
+      "deleteConfirm": "Delete this opportunity? Quotes will become orphaned.",
+      "deletedToast": "Opportunity deleted",
+      "stageUpdatedToast": "Stage updated",
+      "contactUpdatedToast": "Contact updated",
+      "overview": "Overview",
+      "company": "Company",
+      "quotesSection": "Quotes",
+      "newQuote": "New quote",
+      "noQuotesTitle": "No quotes yet",
+      "noQuotesHint": "Create the first quote for this opportunity.",
+      "quoteTitle": "Title",
+      "quoteAccount": "Account",
+      "quoteStructure": "Structure",
+      "quoteStatus": "Status",
+      "quoteFee": "Fee"
+    }
+  },
+  "accounts": {
+    "count": "{{count}} accounts",
+    "newAccount": "New account",
+    "emptyTitle": "No billing accounts yet",
+    "emptyHint": "Accounts represent the entity you invoice (a company can have multiple).",
+    "tableAccount": "Account",
+    "tableCompany": "Company",
+    "tableBilling": "Billing details",
+    "dialog": {
+      "title": "New account",
+      "description": "A billing entity tied to a company. Quotes are approved against an account.",
+      "namePlaceholder": "e.g. ACME SA — Lisbon billing",
+      "companyPlaceholder": "Select or create company",
+      "billingPlaceholder": "VAT no., billing address, IBAN, etc.",
+      "billingDetails": "Billing details",
+      "createdToast": "Account created",
+      "errorName": "Name is required",
+      "errorCompany": "Company is required"
+    }
+  },
+  "quotes": {
+    "loadError": "Quote not loaded",
+    "approveAccountRequired": "Account is required to approve a quote",
+    "savedToast": "Quote saved",
+    "deletedToast": "Quote deleted",
+    "deleteConfirm": "Delete this quote?",
+    "convertOnlyApproved": "Only approved quotes can be converted",
+    "convertExisting": "Project already exists — opening it",
+    "convertCreated": "Project created",
+    "backToOpportunity": "Back to opportunity",
+    "backToOpportunities": "Back to opportunities",
+    "openProject": "Open project",
+    "feeDetails": "Fee details",
+    "convertSection": "Convert to project",
+    "convertHint": "When the quote is approved, you can create the operational project. The project inherits company, account, opportunity and quote links.",
+    "accountValue": "Account: ",
+    "feeValue": "Fee: ",
+    "statusValue": "Status: ",
+    "projectAlreadyCreated": "✓ Project already created",
+    "convertButton": "Convert to project",
+    "openProjectButton": "Open project",
+    "approveFirstHint": "Quote must be approved first.",
+    "setAccountFirst": " (set account first)",
+    "newQuoteDialog": {
+      "title": "New quote",
+      "description": "Quotes inherit the opportunity context. Account is optional now but required to approve.",
+      "accountOptional": "Account (optional)",
+      "noAccountSetBefore": "No account (set before approval)",
+      "noAccountsHint": "No accounts for this company yet. Create one in the Accounts tab.",
+      "createButton": "Create quote",
+      "createdToast": "Quote created",
+      "errorTitle": "Title is required"
+    }
+  },
+  "stage": {
+    "lead": "Lead",
+    "proposal": "Proposal",
+    "negotiation": "Negotiation",
+    "won": "Won",
+    "lost": "Lost"
+  },
+  "quoteStatus": {
+    "draft": "Draft",
+    "sent": "Sent",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "feeStructure": {
+    "fixed": "Fixed",
+    "staged": "Staged",
+    "monthly": "Monthly"
+  },
+  "pipelineStatus": {
+    "lead": "Lead",
+    "proposta_enviada": "Proposal sent",
+    "negociacao": "Negotiation",
+    "ganho": "Won",
+    "perdido": "Lost"
+  }
+}
