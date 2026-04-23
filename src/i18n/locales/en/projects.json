@@ -483,7 +483,15 @@
       "rangeError": "Min must be lower than max, between 0 and 100",
       "saved": "Utilization targets updated"
     },
-    "unmappedUser": "Unmapped user"
+    "unmappedUser": "Unmapped user",
+    "filters": {
+      "teamPlaceholder": "Team",
+      "personPlaceholder": "Person",
+      "allTeams": "All teams",
+      "allPeople": "All people",
+      "backOffice": "Back office",
+      "projects": "Projects"
+    }
   },
   "forecast": {
     "eyebrow": "Studio",

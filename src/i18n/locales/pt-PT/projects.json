@@ -483,7 +483,15 @@
       "rangeError": "Mín tem de ser inferior a Máx, entre 0 e 100",
       "saved": "Alvos de utilização actualizados"
     },
-    "unmappedUser": "Utilizador não mapeado"
+    "unmappedUser": "Utilizador não mapeado",
+    "filters": {
+      "teamPlaceholder": "Equipa",
+      "personPlaceholder": "Pessoa",
+      "allTeams": "Todas as equipas",
+      "allPeople": "Todas as pessoas",
+      "backOffice": "Back office",
+      "projects": "Projetos"
+    }
   },
   "forecast": {
     "eyebrow": "Atelier",
