@@ -742,6 +742,8 @@
       "fields": {
         "description": "Description",
         "descriptionPlaceholder": "e.g. Structural consultant",
+        "supplier": "Supplier",
+        "supplierLegacyHint": "Legacy supplier name on this record: {{name}}. Pick a supplier from the directory to upgrade it.",
         "supplierName": "Supplier",
         "supplierContact": "Supplier contact",
         "quantity": "Quantity",
