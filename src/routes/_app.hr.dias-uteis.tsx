@@ -253,9 +253,13 @@ function DiasUteisPage() {
           </CardTitle>
           <CardDescription>
             {t("hr:diasUteis.holidays.description", {
-              total: breakdown.feriadosTotais,
-              onWorkingDays: breakdown.feriadosUteis,
-              onWeekend: breakdown.feriadosFimDeSemana,
+              count: breakdown.feriadosTotais,
+              workingClause: t("hr:diasUteis.holidays.workingClause", {
+                count: breakdown.feriadosUteis,
+              }),
+              weekendClause: t("hr:diasUteis.holidays.weekendClause", {
+                count: breakdown.feriadosFimDeSemana,
+              }),
             })}
           </CardDescription>
         </CardHeader>
