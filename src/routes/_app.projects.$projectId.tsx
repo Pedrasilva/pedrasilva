@@ -347,21 +347,23 @@ function ProjectDetail() {
           >
             <ArrowLeft className="h-3 w-3" /> {t("projects:detail.backToList")}
           </Link>
-          <button
-            onClick={() => setSidebarOpen((v) => !v)}
-            className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
-            aria-label={sidebarOpen ? t("projects:detail.togglePanel.hide") : t("projects:detail.togglePanel.show")}
-          >
-            {sidebarOpen ? (
-              <>
-                <PanelLeftClose className="h-3.5 w-3.5" /> {t("projects:detail.togglePanel.hide")}
-              </>
-            ) : (
-              <>
-                <PanelLeftOpen className="h-3.5 w-3.5" /> {t("projects:detail.togglePanel.show")}
-              </>
-            )}
-          </button>
+          {tab === "overview" && (
+            <button
+              onClick={() => setSidebarOpen((v) => !v)}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
+              aria-label={sidebarOpen ? t("projects:detail.togglePanel.hide") : t("projects:detail.togglePanel.show")}
+            >
+              {sidebarOpen ? (
+                <>
+                  <PanelLeftClose className="h-3.5 w-3.5" /> {t("projects:detail.togglePanel.hide")}
+                </>
+              ) : (
+                <>
+                  <PanelLeftOpen className="h-3.5 w-3.5" /> {t("projects:detail.togglePanel.show")}
+                </>
+              )}
+            </button>
+          )}
         </div>
 
         {/* Header — title + status + contextual chips (date range, team, financials) */}
