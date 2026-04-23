@@ -338,6 +338,59 @@ export type Database = {
         }
         Relationships: []
       }
+      company_expenses: {
+        Row: {
+          amount: number
+          category: Database["public"]["Enums"]["pm_expense_category"]
+          created_at: string
+          description: string
+          id: string
+          incurred_at: string | null
+          notes: string | null
+          paid_at: string | null
+          status: Database["public"]["Enums"]["pm_expense_status"]
+          supplier_id: string | null
+          updated_at: string
+          vendor: string | null
+        }
+        Insert: {
+          amount?: number
+          category?: Database["public"]["Enums"]["pm_expense_category"]
+          created_at?: string
+          description: string
+          id?: string
+          incurred_at?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          status?: Database["public"]["Enums"]["pm_expense_status"]
+          supplier_id?: string | null
+          updated_at?: string
+          vendor?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: Database["public"]["Enums"]["pm_expense_category"]
+          created_at?: string
+          description?: string
+          id?: string
+          incurred_at?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          status?: Database["public"]["Enums"]["pm_expense_status"]
+          supplier_id?: string | null
+          updated_at?: string
+          vendor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_expenses_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           apelido: string | null
