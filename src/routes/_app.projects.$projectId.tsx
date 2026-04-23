@@ -59,7 +59,15 @@ import {
   PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
+  ChevronRight,
+  ChevronDown,
+  Search,
+  ArrowUpDown,
+  Plus,
+  MoreVertical,
   MoreHorizontal,
+  Pencil,
+  UserPlus,
 } from "lucide-react";
 import {
   DropdownMenu,
