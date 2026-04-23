@@ -868,6 +868,73 @@
       "toast": {
         "deleted": "Despesa eliminada."
       }
+    },
+    "suppliers": {
+      "archived": "Arquivado",
+      "legacy": "antigo",
+      "picker": {
+        "placeholder": "Seleccionar fornecedor…",
+        "searchPlaceholder": "Procurar fornecedores…",
+        "empty": "Sem fornecedores correspondentes.",
+        "heading": "Fornecedores",
+        "clear": "Limpar fornecedor",
+        "createInline": "Criar \"{{name}}\""
+      },
+      "manager": {
+        "title": "Fornecedores",
+        "subtitle": "Directório reutilizável de consultores, especialistas e outros fornecedores.",
+        "addButton": "Novo fornecedor",
+        "empty": "Sem fornecedores."
+      },
+      "cols": {
+        "name": "Nome",
+        "contact": "Contacto",
+        "email": "Email",
+        "phone": "Telefone",
+        "status": "Estado"
+      },
+      "status": {
+        "active": "Activo",
+        "archived": "Arquivado"
+      },
+      "actions": {
+        "edit": "Editar fornecedor",
+        "archive": "Arquivar fornecedor",
+        "restore": "Restaurar fornecedor"
+      },
+      "fields": {
+        "name": "Nome",
+        "namePlaceholder": "ex. Acme Engenharia",
+        "contactName": "Nome do contacto",
+        "email": "Email",
+        "phone": "Telefone",
+        "taxId": "NIF",
+        "notes": "Notas",
+        "active": "Activo",
+        "activeHint": "Fornecedores inactivos ficam ocultos no selector mas continuam visíveis em registos existentes."
+      },
+      "dialog": {
+        "createTitle": "Novo fornecedor",
+        "editTitle": "Editar fornecedor",
+        "create": "Criar",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "errors": {
+          "nameRequired": "O nome é obrigatório.",
+          "nameTooLong": "O nome é demasiado longo.",
+          "invalidEmail": "Email inválido.",
+          "formInvalid": "Corrija os campos assinalados."
+        },
+        "toast": {
+          "created": "Fornecedor criado.",
+          "updated": "Fornecedor actualizado."
+        }
+      },
+      "toast": {
+        "archived": "Fornecedor arquivado.",
+        "restored": "Fornecedor restaurado.",
+        "deleted": "Fornecedor eliminado."
+      }
     }
   }
 }
