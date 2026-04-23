@@ -485,10 +485,34 @@
       "confirm": "Arquivar",
       "archiving": "A arquivar…"
     },
+    "restoreDialog": {
+      "title": "Restaurar colaborador?",
+      "description": "{{name}} voltará a estar activo e a aparecer em listas operacionais, selectores e atribuições.",
+      "archivedOn": "Arquivado em:",
+      "archiveReason": "Motivo original:",
+      "referencesNote": "Registos associados que voltam a ficar disponíveis:",
+      "confirm": "Restaurar",
+      "restoring": "A restaurar…"
+    },
+    "filterChip": {
+      "showingArchived": "A mostrar arquivados",
+      "showingAll": "A mostrar todos (incl. arquivados)",
+      "clear": "Limpar"
+    },
+    "archivedMeta": {
+      "on": "Arquivado a {{date}}",
+      "reason": "Motivo: {{reason}}"
+    },
     "toast": {
       "archived": "{{name}} arquivado",
       "restored": "{{name}} restaurado",
-      "error": "Não foi possível concluir a acção"
+      "error": "Não foi possível concluir a acção",
+      "errors": {
+        "forbidden": "Não tem permissão para executar esta acção.",
+        "session": "A sessão expirou. Por favor inicie sessão novamente.",
+        "network": "Erro de rede. Verifique a ligação e tente novamente.",
+        "conflict": "Esta acção entra em conflito com dados existentes."
+      }
     }
   },
   "diasUteis": {

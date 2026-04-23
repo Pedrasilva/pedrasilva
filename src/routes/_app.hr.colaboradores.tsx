@@ -10,12 +10,14 @@ import {
   type SortDir,
 } from "@/components/hr/collaborators-table";
 import { ArchiveCollaboratorDialog } from "@/components/hr/archive-collaborator-dialog";
+import { RestoreCollaboratorDialog } from "@/components/hr/restore-collaborator-dialog";
 import {
   useCollaboratorsList,
   useArchiveCollaborator,
   useRestoreCollaborator,
   type ArchiveStatus,
 } from "@/lib/hr/use-collaborators";
+import { humanizeMutationError } from "@/lib/hr/error-messages";
 import {
   Card,
   CardContent,
@@ -32,7 +34,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Users, AlertTriangle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Search, Users, AlertTriangle, Archive, X } from "lucide-react";
 import type { Collaborator } from "@/lib/salary";
 
 export const Route = createFileRoute("/_app/hr/colaboradores")({
@@ -51,6 +55,7 @@ function CollaboratorsListPage() {
   const [sortKey, setSortKey] = useState<CollabSortKey>("nome");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [archiveTarget, setArchiveTarget] = useState<Collaborator | null>(null);
+  const [restoreTarget, setRestoreTarget] = useState<Collaborator | null>(null);
 
   const list = useCollaboratorsList({ status });
   const archiveMut = useArchiveCollaborator();
@@ -112,28 +117,35 @@ function CollaboratorsListPage() {
   };
 
   const handleArchive = (c: Collaborator) => setArchiveTarget(c);
-  const handleRestore = (c: Collaborator) => {
-    restoreMut.mutate(c.id, {
-      onSuccess: () =>
-        toast.success(t("hr:colaboradores.toast.restored", { name: c.nome })),
-      onError: (e: Error) =>
-        toast.error(e.message || t("hr:colaboradores.toast.error")),
+  const handleRestore = (c: Collaborator) => setRestoreTarget(c);
+
+  const confirmRestore = () => {
+    if (!restoreTarget) return;
+    const target = restoreTarget;
+    restoreMut.mutate(target.id, {
+      onSuccess: () => {
+        toast.success(
+          t("hr:colaboradores.toast.restored", { name: target.nome }),
+        );
+        setRestoreTarget(null);
+      },
+      onError: (e) => toast.error(humanizeMutationError(e, t)),
     });
   };
 
   const confirmArchive = (reason: string) => {
     if (!archiveTarget) return;
+    const target = archiveTarget;
     archiveMut.mutate(
-      { id: archiveTarget.id, reason },
+      { id: target.id, reason },
       {
         onSuccess: () => {
           toast.success(
-            t("hr:colaboradores.toast.archived", { name: archiveTarget.nome }),
+            t("hr:colaboradores.toast.archived", { name: target.nome }),
           );
           setArchiveTarget(null);
         },
-        onError: (e: Error) =>
-          toast.error(e.message || t("hr:colaboradores.toast.error")),
+        onError: (e) => toast.error(humanizeMutationError(e, t)),
       },
     );
   };
@@ -141,6 +153,7 @@ function CollaboratorsListPage() {
   const total = list.data?.length ?? 0;
   const isFiltered =
     department !== "all" || search.trim().length > 0;
+  const showStatusChip = status !== "active";
 
   return (
     <div className="space-y-6">
@@ -222,6 +235,28 @@ function CollaboratorsListPage() {
               </Select>
             </div>
           </div>
+          {showStatusChip && (
+            <div className="mt-3 flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className="gap-1.5 border-muted-foreground/30 text-foreground"
+              >
+                <Archive className="h-3 w-3 text-muted-foreground" />
+                {status === "archived"
+                  ? t("hr:colaboradores.filterChip.showingArchived")
+                  : t("hr:colaboradores.filterChip.showingAll")}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => setStatus("active")}
+              >
+                <X className="h-3 w-3" />
+                {t("hr:colaboradores.filterChip.clear")}
+              </Button>
+            </div>
+          )}
         </CardHeader>
         <CardContent className="p-0">
           {list.isPending ? (
@@ -233,7 +268,7 @@ function CollaboratorsListPage() {
           ) : list.isError ? (
             <div className="flex items-center gap-2 p-6 text-sm text-destructive">
               <AlertTriangle className="h-4 w-4" />
-              {(list.error as Error)?.message ?? t("common:errorTitle")}
+              {humanizeMutationError(list.error, t, "common:errorTitle")}
             </div>
           ) : filteredSorted.length === 0 ? (
             <div className="px-6 py-12 text-center text-sm text-muted-foreground">
@@ -255,7 +290,7 @@ function CollaboratorsListPage() {
                 archiveMut.isPending
                   ? archiveTarget?.id
                   : restoreMut.isPending
-                    ? (restoreMut.variables as string | undefined) ?? null
+                    ? restoreTarget?.id ?? null
                     : null
               }
             />
@@ -269,6 +304,23 @@ function CollaboratorsListPage() {
         collaborator={archiveTarget}
         pending={archiveMut.isPending}
         onConfirm={confirmArchive}
+      />
+
+      <RestoreCollaboratorDialog
+        open={!!restoreTarget}
+        onOpenChange={(o) => !o && setRestoreTarget(null)}
+        collaborator={
+          restoreTarget
+            ? {
+                id: restoreTarget.id,
+                nome: restoreTarget.nome,
+                archived_at: restoreTarget.archived_at ?? null,
+                archive_reason: restoreTarget.archive_reason ?? null,
+              }
+            : null
+        }
+        pending={restoreMut.isPending}
+        onConfirm={confirmRestore}
       />
     </div>
   );
