@@ -61,6 +61,14 @@
     "createNewAria": "Criar novo",
     "task": "Tarefa",
     "expense": "Despesa",
+    "benefitExpense": "Reembolso de benefício",
+    "projectExpense": "Despesa de projecto / empresa",
+    "material": "Material (serviço externo)",
+    "groups": {
+      "finance": "Financeiro",
+      "crm": "CRM",
+      "personal": "Pessoal"
+    },
     "expenseCategories": {
       "carro": "Carro",
       "ticket": "Ticket",
