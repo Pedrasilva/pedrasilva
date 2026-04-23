@@ -1494,12 +1494,15 @@ function AlertsStrip({
 function AlertChip({
   tone,
   label,
+  labelKey,
   subtle,
 }: {
   tone: "good" | "low" | "high" | "internal";
-  label: string;
+  label?: string;
+  labelKey?: string;
   subtle?: boolean;
 }) {
+  const { t } = useTranslation();
   const cls = {
     good: subtle
       ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
@@ -1515,7 +1518,7 @@ function AlertChip({
         cls,
       )}
     >
-      {label}
+      {labelKey ? t(`projects:${labelKey}`) : label}
     </span>
   );
 }
