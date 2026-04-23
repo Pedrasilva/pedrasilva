@@ -42,5 +42,16 @@
     "empty": "Sem empresas",
     "createNew": "Criar nova empresa",
     "createNewWith": "Criar '{{name}}'"
+  },
+  "weekdays": {
+    "short": {
+      "0": "Dom",
+      "1": "Seg",
+      "2": "Ter",
+      "3": "Qua",
+      "4": "Qui",
+      "5": "Sex",
+      "6": "Sáb"
+    }
   }
 }
