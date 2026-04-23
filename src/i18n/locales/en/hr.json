@@ -485,10 +485,34 @@
       "confirm": "Archive",
       "archiving": "Archiving…"
     },
+    "restoreDialog": {
+      "title": "Restore team member?",
+      "description": "{{name}} will become active again and reappear in operational lists, pickers and assignments.",
+      "archivedOn": "Archived on:",
+      "archiveReason": "Original reason:",
+      "referencesNote": "Linked records that will become available again:",
+      "confirm": "Restore",
+      "restoring": "Restoring…"
+    },
+    "filterChip": {
+      "showingArchived": "Showing archived",
+      "showingAll": "Showing all (incl. archived)",
+      "clear": "Clear"
+    },
+    "archivedMeta": {
+      "on": "Archived on {{date}}",
+      "reason": "Reason: {{reason}}"
+    },
     "toast": {
       "archived": "{{name}} archived",
       "restored": "{{name}} restored",
-      "error": "Could not complete the action"
+      "error": "Could not complete the action",
+      "errors": {
+        "forbidden": "You don't have permission to perform this action.",
+        "session": "Your session expired. Please sign in again.",
+        "network": "Network error. Check your connection and try again.",
+        "conflict": "This action conflicts with existing data."
+      }
     }
   },
   "diasUteis": {
