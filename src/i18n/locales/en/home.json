@@ -1,0 +1,86 @@
+{
+  "greeting": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "night": "Good night"
+  },
+  "tagline": "We make room for creativity.",
+  "intro": "Welcome to the PSA team space. Here we share the tools, projects and small moments that build the studio — every day.",
+  "studioHub": "Pedra Silva · Studio Hub",
+  "todayCelebrate": "Today we celebrate {{names}}",
+  "celebrate": {
+    "birthday": "{{name}} (birthday)",
+    "anniversary": "{{name}} ({{years}} years at PSA)",
+    "turnsAge": "Turns {{age}}",
+    "yearsAtPsa_one": "{{count}} year at PSA",
+    "yearsAtPsa_other": "{{count}} years at PSA"
+  },
+  "modules": {
+    "kicker": "Modules",
+    "title": "Where do you want to go today?"
+  },
+  "studio": {
+    "kicker": "Studio diary",
+    "title": "What's happening at the studio"
+  },
+  "celebrations": {
+    "title": "Upcoming celebrations",
+    "window": "Next 45 days",
+    "empty": "Nothing in the next 45 days."
+  },
+  "off": {
+    "title": "Off today",
+    "team": "Team",
+    "empty": "The whole team is in today.",
+    "until": "until {{date}}"
+  },
+  "holidays": {
+    "title": "Upcoming holidays",
+    "empty": "No upcoming holidays."
+  },
+  "noModules": {
+    "title": "No modules available",
+    "body": "Your account does not have any permissions assigned yet. Please contact an administrator."
+  },
+  "relative": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "inDays": "In {{days}} days",
+    "nextWeek": "Next week"
+  },
+  "weekday": {
+    "0": "Sunday",
+    "1": "Monday",
+    "2": "Tuesday",
+    "3": "Wednesday",
+    "4": "Thursday",
+    "5": "Friday",
+    "6": "Saturday"
+  },
+  "month": {
+    "0": "Jan",
+    "1": "Feb",
+    "2": "Mar",
+    "3": "Apr",
+    "4": "May",
+    "5": "Jun",
+    "6": "Jul",
+    "7": "Aug",
+    "8": "Sep",
+    "9": "Oct",
+    "10": "Nov",
+    "11": "Dec"
+  },
+  "absence": {
+    "ferias": "Vacation",
+    "casamento": "Wedding",
+    "falecimento_familiar": "Bereavement",
+    "assistencia_filho": "Child assistance",
+    "nascimento_filho": "Childbirth",
+    "trabalhador_estudante": "Student worker",
+    "doacao_sangue": "Blood donation",
+    "autorizada_paga": "Authorised",
+    "autorizada_nao_paga": "Authorised"
+  }
+}

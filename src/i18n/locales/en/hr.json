@@ -1,0 +1,61 @@
+{
+  "module": {
+    "title": "HR",
+    "subtitle": "People",
+    "description": "Your profile, leave, benefits and (for managers) the team."
+  },
+  "sidebar": {
+    "title": "Human Resources",
+    "expand": "Expand menu",
+    "collapse": "Collapse menu",
+    "groups": {
+      "people": "People",
+      "compensation": "Compensation",
+      "configuration": "Configuration"
+    }
+  },
+  "nav": {
+    "myProfile": "My profile",
+    "collaborators": "Team members",
+    "vacation": "Vacation",
+    "summary": "Summary",
+    "benefits": "Benefits",
+    "mealAllowance": "Meal allowance",
+    "workingDays": "Working days",
+    "boRate": "BO rate",
+    "permissions": "Permissions"
+  },
+  "landing": {
+    "title": "Team members",
+    "subtitle": "Each member has a profile with salary snapshots over time.",
+    "newButton": "New team member",
+    "newDialog": {
+      "title": "New team member",
+      "description": "Fill in the basics. You can edit everything later in the profile.",
+      "name": "Name *",
+      "number": "Employee number",
+      "department": "Department *",
+      "contractStatus": "Contract status",
+      "careerStart": "Career start",
+      "birthDate": "Birth date",
+      "create": "Create",
+      "createdToast": "Team member created",
+      "nameRequired": "Name is required"
+    },
+    "empty": "No team members yet. Create the first one above.",
+    "departments": {
+      "project": "Project Team",
+      "backoffice": "Backoffice Team"
+    },
+    "department": {
+      "count_one": "{{count}} member",
+      "count_other": "{{count}} members"
+    },
+    "table": {
+      "name": "Name",
+      "number": "No.",
+      "status": "Status",
+      "noMembers": "No team members."
+    }
+  }
+}

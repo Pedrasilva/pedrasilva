@@ -1,0 +1,86 @@
+{
+  "greeting": {
+    "morning": "Bom dia",
+    "afternoon": "Boa tarde",
+    "evening": "Boa noite",
+    "night": "Boa noite"
+  },
+  "tagline": "We make room for creativity.",
+  "intro": "Bem-vindo ao espaço dos colaboradores PSA. Aqui partilhamos as ferramentas, os projectos e os pequenos momentos que constroem o atelier — todos os dias.",
+  "studioHub": "Pedra Silva · Studio Hub",
+  "todayCelebrate": "Hoje celebramos {{names}}",
+  "celebrate": {
+    "birthday": "{{name}} (anos)",
+    "anniversary": "{{name}} ({{years}} anos PSA)",
+    "turnsAge": "Faz {{age}} anos",
+    "yearsAtPsa_one": "{{count}} ano na PSA",
+    "yearsAtPsa_other": "{{count}} anos na PSA"
+  },
+  "modules": {
+    "kicker": "Módulos",
+    "title": "Onde queres ir hoje?"
+  },
+  "studio": {
+    "kicker": "Studio diary",
+    "title": "O que se passa no atelier"
+  },
+  "celebrations": {
+    "title": "Celebrações próximas",
+    "window": "Próximos 45 dias",
+    "empty": "Nada nos próximos 45 dias."
+  },
+  "off": {
+    "title": "Fora hoje",
+    "team": "Equipa",
+    "empty": "Toda a equipa está cá hoje.",
+    "until": "até {{date}}"
+  },
+  "holidays": {
+    "title": "Próximos feriados",
+    "empty": "Sem feriados próximos."
+  },
+  "noModules": {
+    "title": "Sem módulos disponíveis",
+    "body": "A sua conta ainda não tem permissões atribuídas. Contacte um administrador."
+  },
+  "relative": {
+    "today": "Hoje",
+    "tomorrow": "Amanhã",
+    "inDays": "Em {{days}} dias",
+    "nextWeek": "Próxima semana"
+  },
+  "weekday": {
+    "0": "Domingo",
+    "1": "Segunda",
+    "2": "Terça",
+    "3": "Quarta",
+    "4": "Quinta",
+    "5": "Sexta",
+    "6": "Sábado"
+  },
+  "month": {
+    "0": "Jan",
+    "1": "Fev",
+    "2": "Mar",
+    "3": "Abr",
+    "4": "Mai",
+    "5": "Jun",
+    "6": "Jul",
+    "7": "Ago",
+    "8": "Set",
+    "9": "Out",
+    "10": "Nov",
+    "11": "Dez"
+  },
+  "absence": {
+    "ferias": "Férias",
+    "casamento": "Casamento",
+    "falecimento_familiar": "Luto",
+    "assistencia_filho": "Assistência a filho",
+    "nascimento_filho": "Nascimento",
+    "trabalhador_estudante": "Estudante",
+    "doacao_sangue": "Dádiva de sangue",
+    "autorizada_paga": "Autorizada",
+    "autorizada_nao_paga": "Autorizada"
+  }
+}
