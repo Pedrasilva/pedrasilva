@@ -356,6 +356,9 @@
     "back": "Voltar",
     "printPdf": "Imprimir / PDF",
     "deleteButton": "Eliminar colaborador",
+    "archiveButton": "Arquivar",
+    "restoreButton": "Restaurar",
+    "archivedBadge": "Arquivado",
     "deleteDialog": {
       "title": "Eliminar colaborador",
       "description": "Esta acção remove o colaborador e todas as suas fichas.",
