@@ -21,17 +21,22 @@ import {
 import {
   Plus, Building2, User, Briefcase,
   CheckSquare, Receipt, CalendarDays,
-  Clock, Play,
+  Clock, Play, Package, Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
 import { NewCompanyDialog } from "@/components/crm/new-company-dialog";
 import { CompanyPicker } from "@/components/crm/company-picker";
+import {
+  QuickExpenseDialog,
+  QuickMaterialDialog,
+} from "@/components/quick-finance-dialogs";
 
 type Sheet =
   | null
   | "task" | "logTime" | "startTimer"
   | "company" | "contact" | "project"
-  | "expense" | "request";
+  | "expense" | "request"
+  | "projectExpense" | "material";
 
 export function QuickCreateMenu() {
   const { t } = useTranslation();
