@@ -364,31 +364,95 @@ function ProjectDetail() {
           </button>
         </div>
 
-        {/* Header — 3 zones: title (left) · spacer · actions (right) */}
-        <div className="mt-3 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
-          {/* LEFT: title + status */}
-          <div className="min-w-0 flex-1">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-              {project.client ?? t("glossary:entity.company")} · {t("glossary:entity.project")}
+        {/* Header — title + status + contextual chips (date range, team, financials) */}
+        <div className="mt-3 border-b border-border pb-4">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            {/* LEFT: title + status */}
+            <div className="min-w-0 flex-1">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                {project.client ?? t("projects:detail.header.noClient")} · {t("glossary:entity.project")}
+              </div>
+              <div className="mt-1 flex items-center gap-3">
+                <div
+                  className="h-3 w-3 rounded-full"
+                  style={{ backgroundColor: project.color }}
+                />
+                <EditableProjectName
+                  name={project.name}
+                  onRename={(name) =>
+                    updateProject.mutateAsync({ id: project.id, patch: { name } })
+                  }
+                />
+                <StatusBadge status={project.status} />
+              </div>
             </div>
-            <div className="mt-1 flex items-center gap-3">
-              <div
-                className="h-3 w-3 rounded-full"
-                style={{ backgroundColor: project.color }}
-              />
-              <EditableProjectName
-                name={project.name}
-                onRename={(name) =>
-                  updateProject.mutateAsync({ id: project.id, patch: { name } })
-                }
-              />
-              <StatusBadge status={project.status} />
+
+            {/* RIGHT: primary status actions */}
+            <div className="flex flex-shrink-0 items-center gap-2">
+              <StatusToggle current={project.status} onChange={setStatus} />
             </div>
           </div>
 
-          {/* RIGHT: primary status actions */}
-          <div className="flex flex-shrink-0 items-center gap-2">
-            <StatusToggle current={project.status} onChange={setStatus} />
+          {/* Contextual meta row: date range · team · financial chips */}
+          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+            <div className="inline-flex items-center gap-1.5 text-muted-foreground">
+              <Calendar className="h-3.5 w-3.5" />
+              <span>
+                {format(scheduleStart, "d MMM", { locale: pt })} – {format(scheduleEnd, "d MMM yyyy", { locale: pt })}
+              </span>
+              {overdueDays > 0 ? (
+                <span className="ml-1 font-medium text-destructive">· {overdueDays}d {t("projects:detail.header.dateRange") === "Schedule" ? "overdue" : "em atraso"}</span>
+              ) : (
+                <span className="ml-1 text-muted-foreground/70">· {remainingDays}d</span>
+              )}
+            </div>
+            {team.length > 0 && (
+              <div className="inline-flex items-center gap-2">
+                <span className="text-[11px] uppercase tracking-wider text-muted-foreground">{t("projects:detail.header.team")}</span>
+                <div className="flex -space-x-1.5">
+                  {team.slice(0, 6).map((r) => (
+                    <Link
+                      key={r.id}
+                      to="/projects/resources/$resourceId"
+                      params={{ resourceId: r.id }}
+                      title={r.name}
+                      className="rounded-full ring-2 ring-background hover:z-10"
+                    >
+                      <CollaboratorAvatar
+                        collaboratorId={(r as { collaborator_id?: string | null }).collaborator_id ?? null}
+                        name={r.name}
+                        color={r.color}
+                        size={22}
+                      />
+                    </Link>
+                  ))}
+                  {team.length > 6 && (
+                    <span className="inline-flex h-[22px] items-center justify-center rounded-full bg-muted px-1.5 text-[10px] font-medium text-muted-foreground ring-2 ring-background">
+                      +{team.length - 6}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+            {canSeeFinancials && (
+              <div className="ml-auto flex flex-wrap items-center gap-x-4 gap-y-1 font-mono">
+                <span className="text-muted-foreground">
+                  {t("projects:detail.header.budget")}: <span className="text-foreground">{euros(totalBudget)}</span>
+                </span>
+                <span className="text-muted-foreground">
+                  {t("projects:detail.header.cost")}:{" "}
+                  <span className={cn("text-foreground", budgetOver && "text-destructive font-semibold")}>
+                    {euros(actualCost)}
+                  </span>
+                </span>
+                <span className="text-muted-foreground">
+                  {t("projects:detail.header.profit")}:{" "}
+                  <span className={cn("font-semibold", actualProfit < 0 ? "text-destructive" : "text-foreground")}>
+                    {euros(actualProfit)}
+                  </span>
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
