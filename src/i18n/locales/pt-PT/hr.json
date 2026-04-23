@@ -235,5 +235,107 @@
         }
       }
     }
+  },
+  "enums": {
+    "department": {
+      "Projecto": "Equipa Projecto",
+      "Backoffice": "Equipa Backoffice"
+    },
+    "maritalStatus": {
+      "solteiro": "Solteiro(a)",
+      "casado": "Casado(a)",
+      "uniao_facto": "União de facto",
+      "divorciado": "Divorciado(a)",
+      "viuvo": "Viúvo(a)"
+    },
+    "location": {
+      "continente": "Continente",
+      "acores": "Açores",
+      "madeira": "Madeira"
+    }
+  },
+  "collaborator": {
+    "back": "Voltar",
+    "printPdf": "Imprimir / PDF",
+    "deleteButton": "Eliminar colaborador",
+    "deleteDialog": {
+      "title": "Eliminar colaborador",
+      "description": "Esta acção remove o colaborador e todas as suas fichas.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar"
+    },
+    "subline": {
+      "noNumber": "sem nº",
+      "empty": "—"
+    },
+    "loading": "A carregar…",
+    "details": {
+      "title": "Dados do colaborador",
+      "description": "Campos a amarelo são editáveis. As alterações só são guardadas ao clicar em Guardar.",
+      "dirtyHint": "Alterações por guardar",
+      "saving": "A guardar…",
+      "save": "Guardar"
+    },
+    "fields": {
+      "name": "Nome",
+      "employeeNumber": "Nº colaborador",
+      "department": "Departamento",
+      "contractStatus": "Situação contractual",
+      "birthDate": "Data de nascimento",
+      "careerStart": "Início de carreira",
+      "email": "Email (login Google)",
+      "vacationDaysPerYear": "Dias de férias / ano",
+      "vacationCarryOver": "Saldo férias anterior",
+      "vacationExtraDays": "Dias férias extra (atribuídos)",
+      "dailyHours": "Horas / dia (contrato)",
+      "daysPerWeek": "Dias / semana (contrato)",
+      "profitMarginOverride": "Margem lucro override (%)"
+    },
+    "placeholders": {
+      "selectOption": "Seleccionar…",
+      "emailExample": "nome@empresa.com",
+      "usesGlobal": "usa global"
+    },
+    "household": {
+      "title": "Agregado familiar e contexto fiscal",
+      "description": "Estes valores são usados no cálculo automático de IRS de todas as fichas deste colaborador.",
+      "location": "Localização",
+      "maritalStatus": "Estado civil",
+      "titulares": "Nº titulares",
+      "dependents": "Nº dependentes",
+      "dependentsDisability": "Dep. com deficiência",
+      "fiscalYear": "Ano fiscal",
+      "yearNoIrsTable": " · sem tabela IRS"
+    },
+    "contractStatus": {
+      "permanent": "Contrato sem termo",
+      "fixedTerm": "Contrato com termo",
+      "indefinite": "Contrato de tempo indeterminado"
+    },
+    "snapshots": {
+      "summaryTab": "Resumo",
+      "newButton": "Nova ficha",
+      "empty": "Ainda não existem fichas. Crie a primeira (ex: \"Actual\" com a data actual)."
+    },
+    "newDialog": {
+      "title": "Nova ficha salarial",
+      "description": "Cada ficha representa um snapshot a uma data específica.",
+      "label": "Etiqueta",
+      "referenceDate": "Data de referência",
+      "copyFrom": "Copiar valores de",
+      "copyFromBlank": "Em branco",
+      "effective": "Em vigor",
+      "cancel": "Cancelar",
+      "create": "Criar ficha"
+    },
+    "toasts": {
+      "saved": "Alterações guardadas",
+      "snapshotCreated": "Ficha criada",
+      "collaboratorRemoved": "Colaborador removido"
+    },
+    "defaults": {
+      "proposedLabel": "Proposto",
+      "snapshotFallback": "Ficha"
+    }
   }
 }

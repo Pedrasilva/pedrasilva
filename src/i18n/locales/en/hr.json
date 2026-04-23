@@ -235,5 +235,107 @@
         }
       }
     }
+  },
+  "enums": {
+    "department": {
+      "Projecto": "Project Team",
+      "Backoffice": "Backoffice Team"
+    },
+    "maritalStatus": {
+      "solteiro": "Single",
+      "casado": "Married",
+      "uniao_facto": "Civil partnership",
+      "divorciado": "Divorced",
+      "viuvo": "Widowed"
+    },
+    "location": {
+      "continente": "Mainland",
+      "acores": "Azores",
+      "madeira": "Madeira"
+    }
+  },
+  "collaborator": {
+    "back": "Back",
+    "printPdf": "Print / PDF",
+    "deleteButton": "Delete team member",
+    "deleteDialog": {
+      "title": "Delete team member",
+      "description": "This removes the team member and all their snapshots.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "subline": {
+      "noNumber": "no number",
+      "empty": "—"
+    },
+    "loading": "Loading…",
+    "details": {
+      "title": "Team member details",
+      "description": "Yellow fields are editable. Changes are only saved when you click Save.",
+      "dirtyHint": "Unsaved changes",
+      "saving": "Saving…",
+      "save": "Save"
+    },
+    "fields": {
+      "name": "Name",
+      "employeeNumber": "Employee number",
+      "department": "Department",
+      "contractStatus": "Contract status",
+      "birthDate": "Birth date",
+      "careerStart": "Career start",
+      "email": "Email (Google login)",
+      "vacationDaysPerYear": "Vacation days / year",
+      "vacationCarryOver": "Vacation carry-over",
+      "vacationExtraDays": "Extra vacation days (granted)",
+      "dailyHours": "Hours / day (contract)",
+      "daysPerWeek": "Days / week (contract)",
+      "profitMarginOverride": "Profit Margin Override (%)"
+    },
+    "placeholders": {
+      "selectOption": "Select…",
+      "emailExample": "name@company.com",
+      "usesGlobal": "uses global"
+    },
+    "household": {
+      "title": "Household and tax context",
+      "description": "These values are used in automatic Income Tax (IRS) calculation for all snapshots of this team member.",
+      "location": "Location",
+      "maritalStatus": "Marital status",
+      "titulares": "Number of holders",
+      "dependents": "Number of dependants",
+      "dependentsDisability": "Dependants with disability",
+      "fiscalYear": "Fiscal year",
+      "yearNoIrsTable": " · no IRS table"
+    },
+    "contractStatus": {
+      "permanent": "Permanent contract",
+      "fixedTerm": "Fixed-term contract",
+      "indefinite": "Indefinite-term contract"
+    },
+    "snapshots": {
+      "summaryTab": "Summary",
+      "newButton": "New snapshot",
+      "empty": "No snapshots yet. Create the first one (e.g. \"Current\" with today's date)."
+    },
+    "newDialog": {
+      "title": "New salary snapshot",
+      "description": "Each snapshot represents a record at a specific date.",
+      "label": "Label",
+      "referenceDate": "Reference date",
+      "copyFrom": "Copy values from",
+      "copyFromBlank": "Blank",
+      "effective": "In force",
+      "cancel": "Cancel",
+      "create": "Create snapshot"
+    },
+    "toasts": {
+      "saved": "Changes saved",
+      "snapshotCreated": "Snapshot created",
+      "collaboratorRemoved": "Team member removed"
+    },
+    "defaults": {
+      "proposedLabel": "Proposed",
+      "snapshotFallback": "Snapshot"
+    }
   }
 }
