@@ -30,6 +30,22 @@
       "hide": "Esconder painel",
       "show": "Mostrar painel"
     },
+    "header": {
+      "team": "Equipa",
+      "budget": "Orçamento",
+      "cost": "Custo",
+      "profit": "Lucro",
+      "margin": "Margem",
+      "noClient": "Sem cliente",
+      "dateRange": "Calendário"
+    },
+    "sidebar": {
+      "team": "Equipa",
+      "noTeam": "Sem equipa ainda",
+      "budgetUsage": "Uso do orçamento",
+      "profit": "Lucro",
+      "loggedHours": "{{logged}}h registadas / {{planned}}h planeadas"
+    },
     "tabs": {
       "overview": "Resumo",
       "schedule": "Calendário",
