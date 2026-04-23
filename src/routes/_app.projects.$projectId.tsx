@@ -1007,7 +1007,28 @@ function DateChip({
   );
 }
 
-function TabBtn({
+function PlaceholderPanel({
+  icon: Icon,
+  title,
+  description,
+  badge,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  badge: string;
+}) {
+  return (
+    <div className="rounded-lg border border-dashed border-border bg-card px-6 py-12 text-center">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+        <Icon className="h-5 w-5 text-muted-foreground" />
+      </div>
+      <Badge variant="secondary" className="mt-4">{badge}</Badge>
+      <h3 className="mt-3 text-base font-semibold text-foreground">{title}</h3>
+      <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">{description}</p>
+    </div>
+  );
+}
   icon: Icon,
   label,
   active,
