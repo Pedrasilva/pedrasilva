@@ -5,6 +5,10 @@
  * with create / edit / archive support. Most callers want
  * `useActiveSuppliers()` which hides archived entries; the management UI
  * uses `useSuppliers({ includeInactive: true })`.
+ *
+ * The `pm_suppliers` table is freshly created and not yet present in the
+ * generated `Database` types, so we cast the client locally to keep the
+ * rest of the codebase strictly typed. Types regen on the next deploy.
  */
 
 import {
@@ -14,39 +18,22 @@ import {
 } from "@tanstack/react-query";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
 
-// Cast through `any` because the freshly-created `pm_suppliers` table is
-// not yet present in the generated `Database` types. The runtime contract
-// is stable; types regen on the next deploy.
-type AnyDb = Database & {
-  public: {
-    Tables: {
-      pm_suppliers: {
-        Row: {
-          id: string;
-          name: string;
-          contact_name: string | null;
-          email: string | null;
-          phone: string | null;
-          tax_id: string | null;
-          notes: string | null;
-          active: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: Partial<AnyDb["public"]["Tables"]["pm_suppliers"]["Row"]> & {
-          name: string;
-        };
-        Update: Partial<AnyDb["public"]["Tables"]["pm_suppliers"]["Row"]>;
-      };
-    };
-  };
-};
+export interface Supplier {
+  id: string;
+  name: string;
+  contact_name: string | null;
+  email: string | null;
+  phone: string | null;
+  tax_id: string | null;
+  notes: string | null;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
-export type Supplier = AnyDb["public"]["Tables"]["pm_suppliers"]["Row"];
-export type SupplierInsert = AnyDb["public"]["Tables"]["pm_suppliers"]["Insert"];
-export type SupplierUpdate = AnyDb["public"]["Tables"]["pm_suppliers"]["Update"];
+export type SupplierInsert = Partial<Supplier> & { name: string };
+export type SupplierUpdate = Partial<Supplier>;
 
 // -- validation -----------------------------------------------------------
 
@@ -71,17 +58,11 @@ export const supplierSchema = z.object({
 });
 export type SupplierFormInput = z.infer<typeof supplierSchema>;
 
-// -- queries --------------------------------------------------------------
+// -- typed escape hatch ---------------------------------------------------
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
 
-const supabaseAny = supabase as unknown as ReturnType<typeof getTypedClient>;
-function getTypedClient() {
-  // helper purely for TS — never called at runtime
-  return supabase as unknown as {
-    from: (
-      table: "pm_suppliers",
-    ) => ReturnType<typeof supabase.from<"benefit_balances">>;
-  };
-}
+// -- queries --------------------------------------------------------------
 
 interface UseSuppliersOpts {
   includeInactive?: boolean;
@@ -91,21 +72,15 @@ export function useSuppliers(opts: UseSuppliersOpts = {}) {
   const { includeInactive = false } = opts;
   return useQuery({
     queryKey: ["pm-suppliers", { includeInactive }],
-    queryFn: async () => {
-      let query = (supabase as never as typeof supabaseAny)
+    queryFn: async (): Promise<Supplier[]> => {
+      let query = db
         .from("pm_suppliers")
         .select("*")
         .order("name", { ascending: true });
       if (!includeInactive) {
-        query = (query as unknown as { eq: (c: string, v: boolean) => typeof query }).eq(
-          "active",
-          true,
-        );
+        query = query.eq("active", true);
       }
-      const { data, error } = (await query) as unknown as {
-        data: Supplier[] | null;
-        error: { message: string } | null;
-      };
+      const { data, error } = await query;
       if (error) throw new Error(error.message);
       return (data ?? []) as Supplier[];
     },
@@ -125,33 +100,24 @@ export function useUpsertSupplier() {
     mutationFn: async (
       input: (SupplierInsert | SupplierUpdate) & { id?: string },
     ): Promise<Supplier> => {
-      const client = supabase as never as typeof supabaseAny;
       if (input.id) {
         const { id, ...rest } = input as SupplierUpdate & { id: string };
-        const { data, error } = (await (client.from("pm_suppliers") as never as {
-          update: (v: SupplierUpdate) => {
-            eq: (c: string, v: string) => {
-              select: () => { single: () => Promise<{ data: Supplier; error: { message: string } | null }> };
-            };
-          };
-        })
+        const { data, error } = await db
+          .from("pm_suppliers")
           .update(rest)
           .eq("id", id)
           .select()
-          .single()) as unknown as { data: Supplier; error: { message: string } | null };
+          .single();
         if (error) throw new Error(error.message);
-        return data;
+        return data as Supplier;
       }
-      const { data, error } = (await (client.from("pm_suppliers") as never as {
-        insert: (v: SupplierInsert) => {
-          select: () => { single: () => Promise<{ data: Supplier; error: { message: string } | null }> };
-        };
-      })
-        .insert(input as SupplierInsert)
+      const { data, error } = await db
+        .from("pm_suppliers")
+        .insert(input)
         .select()
-        .single()) as unknown as { data: Supplier; error: { message: string } | null };
+        .single();
       if (error) throw new Error(error.message);
-      return data;
+      return data as Supplier;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["pm-suppliers"] });
@@ -163,14 +129,10 @@ export function useArchiveSupplier() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
-      const client = supabase as never as typeof supabaseAny;
-      const { error } = (await (client.from("pm_suppliers") as never as {
-        update: (v: { active: boolean }) => {
-          eq: (c: string, v: string) => Promise<{ error: { message: string } | null }>;
-        };
-      })
+      const { error } = await db
+        .from("pm_suppliers")
         .update({ active })
-        .eq("id", id)) as unknown as { error: { message: string } | null };
+        .eq("id", id);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
@@ -183,12 +145,7 @@ export function useDeleteSupplier() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const client = supabase as never as typeof supabaseAny;
-      const { error } = (await (client.from("pm_suppliers") as never as {
-        delete: () => { eq: (c: string, v: string) => Promise<{ error: { message: string } | null }> };
-      })
-        .delete()
-        .eq("id", id)) as unknown as { error: { message: string } | null };
+      const { error } = await db.from("pm_suppliers").delete().eq("id", id);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
