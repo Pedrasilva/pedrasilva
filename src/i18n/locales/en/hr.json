@@ -126,6 +126,45 @@
         "annualLabel": "annual",
         "monthlyLabel": "monthly"
       }
+    },
+    "donut": {
+      "centerAnnual": "Total Gross Value (annual)",
+      "centerMonthly": "Total Gross Value (monthly)",
+      "slices": {
+        "net": "Net",
+        "ssEmployee": "Employee Social Security (11%)",
+        "ssStudio": "Studio Social Security (23.75%)",
+        "incomeTax": "Income Tax"
+      },
+      "helper": {
+        "intro": "From total monthly gross, what the employer hands to the State and what the employee takes home:",
+        "toState": "Employer → State (Studio SS + Income Tax + Employee SS)",
+        "toEmployee": "Employee → take-home (net + allowances + per diem)"
+      }
+    },
+    "valueChain": {
+      "eyebrow": "Value chain",
+      "subtitle": "For every euro the studio spends, where it goes.",
+      "period": {
+        "perYear": "/yr",
+        "perMonth": "/mo"
+      },
+      "nodes": {
+        "employerCost": {
+          "label": "Total employer cost",
+          "subline": "Total Gross Value (gross + SS + benefits + per diem)"
+        },
+        "employeeTakeHome": {
+          "label": "Employee take-home",
+          "subline": "Net + meal + per diem"
+        },
+        "stateReceives": {
+          "label": "State receives",
+          "ssStudio": "Studio Social Security (23.75%)",
+          "ssEmployee": "Employee Social Security (11%)",
+          "incomeTaxWithheld": "Income Tax withheld"
+        }
+      }
     }
   }
 }

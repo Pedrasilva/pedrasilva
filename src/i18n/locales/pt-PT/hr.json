@@ -126,6 +126,45 @@
         "annualLabel": "anual",
         "monthlyLabel": "mensal"
       }
+    },
+    "donut": {
+      "centerAnnual": "Bruto anual global",
+      "centerMonthly": "Bruto mensal global",
+      "slices": {
+        "net": "Líquido",
+        "ssEmployee": "SS Colaborador (11%)",
+        "ssStudio": "SS Atelier (23,75%)",
+        "incomeTax": "IRS"
+      },
+      "helper": {
+        "intro": "Do bruto mensal global, o empregador entrega ao Estado e o colaborador leva para casa:",
+        "toState": "Empregador → Estado (SS Atelier + IRS + SS Colab.)",
+        "toEmployee": "Colaborador → para casa (líquido + subs. + ajudas)"
+      }
+    },
+    "valueChain": {
+      "eyebrow": "Cadeia de valor",
+      "subtitle": "De cada euro que custa ao atelier, para onde vai.",
+      "period": {
+        "perYear": "/ano",
+        "perMonth": "/mês"
+      },
+      "nodes": {
+        "employerCost": {
+          "label": "Custo total empregador",
+          "subline": "VBG (bruto + SS + benefícios + ajudas)"
+        },
+        "employeeTakeHome": {
+          "label": "Colaborador leva para casa",
+          "subline": "Líquido + alimentação + ajudas"
+        },
+        "stateReceives": {
+          "label": "Estado recebe",
+          "ssStudio": "SS Atelier (23,75%)",
+          "ssEmployee": "SS Colaborador (11%)",
+          "incomeTaxWithheld": "IRS retido"
+        }
+      }
     }
   }
 }
