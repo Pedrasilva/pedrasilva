@@ -251,6 +251,7 @@ function DepartmentSection({
   icon: React.ReactNode;
   list: Collaborator[];
 }) {
+  const { t } = useTranslation(["hr"]);
   const navigate = useNavigate();
   const [sortKey, setSortKey] = useState<SortKey>("nome");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
@@ -303,20 +304,20 @@ function DepartmentSection({
             {title}
           </CardTitle>
           <CardDescription className="pl-[42px] text-[11px] uppercase tracking-[0.14em]">
-            {list.length} colaborador(es)
+            {t("landing.department.count", { count: list.length })}
           </CardDescription>
         </div>
       </CardHeader>
       <CardContent className="p-0">
         {sorted.length === 0 ? (
-          <div className="px-6 py-6 text-sm text-muted-foreground">Sem colaboradores.</div>
+          <div className="px-6 py-6 text-sm text-muted-foreground">{t("landing.table.noMembers")}</div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <SortableHead label="Nome" sortKey="nome" current={sortKey} dir={sortDir} onClick={toggleSort} />
-                <SortableHead label="Nº" sortKey="numero" current={sortKey} dir={sortDir} onClick={toggleSort} />
-                <SortableHead label="Situação" sortKey="situacao" current={sortKey} dir={sortDir} onClick={toggleSort} />
+                <SortableHead label={t("landing.table.name")} sortKey="nome" current={sortKey} dir={sortDir} onClick={toggleSort} />
+                <SortableHead label={t("landing.table.number")} sortKey="numero" current={sortKey} dir={sortDir} onClick={toggleSort} />
+                <SortableHead label={t("landing.table.status")} sortKey="situacao" current={sortKey} dir={sortDir} onClick={toggleSort} />
                 <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
