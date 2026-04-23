@@ -201,22 +201,21 @@ export function ExternalServiceDialog({
                 <p className="text-[11px] text-destructive">{errMsg("description")}</p>
               )}
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="es-sup-name">{t("externalServices.fields.supplierName")}</Label>
-              <Input
-                id="es-sup-name"
-                value={supplierName}
-                onChange={(e) => setSupplierName(e.target.value)}
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>{t("externalServices.fields.supplier")}</Label>
+              <SupplierPicker
+                value={supplierId}
+                legacyName={legacySupplierName}
+                onChange={handleSupplierChange}
+                disabled={upsert.isPending}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="es-sup-contact">{t("externalServices.fields.supplierContact")}</Label>
-              <Input
-                id="es-sup-contact"
-                value={supplierContact}
-                onChange={(e) => setSupplierContact(e.target.value)}
-                placeholder="email / telefone"
-              />
+              {!supplierId && legacySupplierName && (
+                <p className="text-[11px] text-muted-foreground">
+                  {t("externalServices.fields.supplierLegacyHint", {
+                    name: legacySupplierName,
+                  })}
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="es-qty">{t("externalServices.fields.quantity")}</Label>
