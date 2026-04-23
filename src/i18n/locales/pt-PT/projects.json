@@ -1,5 +1,9 @@
 {
-  "module": "Projectos",
+  "module": {
+    "title": "Projectos",
+    "subtitle": "Estúdio",
+    "description": "Projectos, alocação, gantt, tarefas e timesheets."
+  },
   "studio": "Atelier",
   "people": "Pessoas",
   "nav": {
