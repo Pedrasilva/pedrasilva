@@ -60,6 +60,11 @@ import {
   effectiveSaleRate,
 } from "@/lib/projects/use-default-rates";
 import { cn } from "@/lib/utils";
+import {
+  reconcileNonWorkingRange,
+  syncNonWorkingForRange,
+  type ReconciliationRow,
+} from "@/lib/projects/non-working-sync";
 
 export const Route = createFileRoute("/_app/projects/financials")({
   component: FinancialsPage,
