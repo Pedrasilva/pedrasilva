@@ -108,6 +108,20 @@ const INTERNAL_COST_CENTERS = [
   "Admin",
 ] as const;
 
+// Map canonical English internal-category strings (stored in DB) to localized labels.
+function translateCategory(t: (key: string) => string, category: string): string {
+  const map: Record<string, string> = {
+    "Fee proposals": "projects:financials.internalCenters.centers.feeProposals",
+    "Meetings": "projects:financials.internalCenters.centers.meetings",
+    "Training": "projects:financials.internalCenters.centers.training",
+    "Business development": "projects:financials.internalCenters.centers.businessDevelopment",
+    "Admin": "projects:financials.internalCenters.centers.admin",
+    "Uncategorised": "projects:financials.internalCenters.uncategorised",
+  };
+  const key = map[category];
+  return key ? t(key) : category;
+}
+
 type TaskMeta = {
   task_id: string;
   resource_id: string;
