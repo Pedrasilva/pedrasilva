@@ -26,8 +26,9 @@ import { ProjectExpenseDialog } from "./project-expense-dialog";
 import {
   useDeleteProjectExpense,
   useProjectExpenses,
-  type ProjectExpense,
+  type ProjectExpenseWithSupplier,
 } from "@/lib/projects/use-project-expenses";
+import { resolveSupplierLabel } from "@/lib/projects/use-suppliers";
 import { euros } from "@/lib/projects/gantt-utils";
 
 interface Props {
@@ -41,8 +42,8 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
   const del = useDeleteProjectExpense(projectId);
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<ProjectExpense | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<ProjectExpense | null>(null);
+  const [editing, setEditing] = useState<ProjectExpenseWithSupplier | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<ProjectExpenseWithSupplier | null>(null);
 
   const totals = items.reduce(
     (acc, e) => {
@@ -54,7 +55,7 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
     { cost: 0, rebillable: 0 },
   );
 
-  function handleEdit(item: ProjectExpense) {
+  function handleEdit(item: ProjectExpenseWithSupplier) {
     setEditing(item);
     setDialogOpen(true);
   }
@@ -125,7 +126,7 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
                     {t(`expenses.category.${e.category}`)}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {e.vendor ?? "—"}
+                    {resolveSupplierLabel(e.supplier, e.vendor ?? null)}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {e.incurred_at ?? e.expense_date ?? "—"}

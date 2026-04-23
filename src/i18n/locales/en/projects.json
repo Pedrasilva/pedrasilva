@@ -714,6 +714,7 @@
       "title": "External services",
       "subtitle": "Outsourced scope (consultants, specialists, subcontractors) tied to the client contract.",
       "addButton": "Add external service",
+      "manageSuppliers": "Manage suppliers",
       "empty": "No external services yet.",
       "totals": "Totals",
       "cols": {
@@ -741,6 +742,8 @@
       "fields": {
         "description": "Description",
         "descriptionPlaceholder": "e.g. Structural consultant",
+        "supplier": "Supplier",
+        "supplierLegacyHint": "Legacy supplier name on this record: {{name}}. Pick a supplier from the directory to upgrade it.",
         "supplierName": "Supplier",
         "supplierContact": "Supplier contact",
         "quantity": "Quantity",
@@ -826,6 +829,8 @@
         "description": "Description",
         "descriptionPlaceholder": "e.g. Train to Porto",
         "category": "Category",
+        "supplier": "Supplier",
+        "supplierLegacyHint": "Legacy vendor on this record: {{name}}. Pick a supplier from the directory to upgrade it.",
         "vendor": "Vendor",
         "amount": "Amount",
         "incurredAt": "Date incurred",
@@ -862,6 +867,73 @@
       },
       "toast": {
         "deleted": "Expense deleted."
+      }
+    },
+    "suppliers": {
+      "archived": "Archived",
+      "legacy": "legacy",
+      "picker": {
+        "placeholder": "Select a supplier…",
+        "searchPlaceholder": "Search suppliers…",
+        "empty": "No suppliers match.",
+        "heading": "Suppliers",
+        "clear": "Clear supplier",
+        "createInline": "Create \"{{name}}\""
+      },
+      "manager": {
+        "title": "Suppliers",
+        "subtitle": "Reusable directory of consultants, specialists and other vendors.",
+        "addButton": "New supplier",
+        "empty": "No suppliers yet."
+      },
+      "cols": {
+        "name": "Name",
+        "contact": "Contact",
+        "email": "Email",
+        "phone": "Phone",
+        "status": "Status"
+      },
+      "status": {
+        "active": "Active",
+        "archived": "Archived"
+      },
+      "actions": {
+        "edit": "Edit supplier",
+        "archive": "Archive supplier",
+        "restore": "Restore supplier"
+      },
+      "fields": {
+        "name": "Name",
+        "namePlaceholder": "e.g. Acme Engineering",
+        "contactName": "Contact name",
+        "email": "Email",
+        "phone": "Phone",
+        "taxId": "Tax ID",
+        "notes": "Notes",
+        "active": "Active",
+        "activeHint": "Inactive suppliers are hidden from the picker but stay visible on existing records."
+      },
+      "dialog": {
+        "createTitle": "New supplier",
+        "editTitle": "Edit supplier",
+        "create": "Create",
+        "save": "Save",
+        "cancel": "Cancel",
+        "errors": {
+          "nameRequired": "Name is required.",
+          "nameTooLong": "Name is too long.",
+          "invalidEmail": "Invalid email address.",
+          "formInvalid": "Please fix the highlighted fields."
+        },
+        "toast": {
+          "created": "Supplier created.",
+          "updated": "Supplier updated."
+        }
+      },
+      "toast": {
+        "archived": "Supplier archived.",
+        "restored": "Supplier restored.",
+        "deleted": "Supplier deleted."
       }
     }
   }

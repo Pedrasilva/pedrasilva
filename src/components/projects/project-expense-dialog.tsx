@@ -32,12 +32,14 @@ import {
   projectExpenseSchema,
   flattenIssues,
 } from "@/lib/projects/financial-validation";
+import { SupplierPicker } from "./supplier-picker";
+import type { Supplier } from "@/lib/projects/use-suppliers";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
-  initial?: ProjectExpense | null;
+  initial?: (ProjectExpense & { supplier_id?: string | null }) | null;
 }
 
 export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }: Props) {
@@ -46,6 +48,8 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
 
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<ExpenseCategory>("misc");
+  const [supplierId, setSupplierId] = useState<string | null>(null);
+  // Legacy mirror — keeps free-text vendor name for old rows / exports.
   const [vendor, setVendor] = useState("");
   const [amount, setAmount] = useState(0);
   const [incurredAt, setIncurredAt] = useState("");
@@ -58,6 +62,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
     if (open) {
       setDescription(initial?.description ?? "");
       setCategory((initial?.category ?? "misc") as ExpenseCategory);
+      setSupplierId(initial?.supplier_id ?? null);
       setVendor(initial?.vendor ?? "");
       setAmount(Number(initial?.purchase_price ?? 0));
       setIncurredAt(initial?.incurred_at ?? initial?.expense_date ?? "");
@@ -67,6 +72,16 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
       setNotes(initial?.notes ?? "");
     }
   }, [open, initial]);
+
+  function handleSupplierChange(id: string | null, supplier: Supplier | null) {
+    setSupplierId(id);
+    if (supplier) {
+      // Mirror into legacy vendor for back-compat with reports/exports.
+      setVendor(supplier.name);
+    } else if (id === null) {
+      setVendor("");
+    }
+  }
 
   const parseResult = projectExpenseSchema.safeParse({
     description,
@@ -92,6 +107,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
       const payload = {
         description: description.trim(),
         category,
+        supplier_id: supplierId,
         vendor: vendor.trim() || null,
         purchase_price: Number(amount || 0),
         sale_price: 0, // expenses never carry margin
@@ -151,13 +167,19 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="ex-vendor">{t("expenses.fields.vendor")}</Label>
-              <Input
-                id="ex-vendor"
-                value={vendor}
-                onChange={(e) => setVendor(e.target.value)}
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>{t("expenses.fields.supplier")}</Label>
+              <SupplierPicker
+                value={supplierId}
+                legacyName={vendor}
+                onChange={handleSupplierChange}
+                disabled={upsert.isPending}
               />
+              {!supplierId && vendor && (
+                <p className="text-[11px] text-muted-foreground">
+                  {t("expenses.fields.supplierLegacyHint", { name: vendor })}
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ex-amt">{t("expenses.fields.amount")} (€)</Label>

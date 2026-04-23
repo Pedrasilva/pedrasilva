@@ -1,12 +1,30 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import type { Supplier } from "@/lib/projects/use-suppliers";
 
-export type ProjectExpense = Database["public"]["Tables"]["pm_expenses"]["Row"];
+export type ProjectExpense = Database["public"]["Tables"]["pm_expenses"]["Row"] & {
+  // Newly added supplier link + legacy mirror columns. Not yet in generated types.
+  supplier_id?: string | null;
+  supplier_name?: string | null;
+  supplier_contact?: string | null;
+};
 export type ProjectExpenseInsert =
-  Database["public"]["Tables"]["pm_expenses"]["Insert"];
+  Database["public"]["Tables"]["pm_expenses"]["Insert"] & {
+    supplier_id?: string | null;
+    supplier_name?: string | null;
+    supplier_contact?: string | null;
+  };
 export type ProjectExpenseUpdate =
-  Database["public"]["Tables"]["pm_expenses"]["Update"];
+  Database["public"]["Tables"]["pm_expenses"]["Update"] & {
+    supplier_id?: string | null;
+    supplier_name?: string | null;
+    supplier_contact?: string | null;
+  };
+
+export type ProjectExpenseWithSupplier = ProjectExpense & {
+  supplier: Pick<Supplier, "id" | "name" | "active"> | null;
+};
 
 export type ExpenseStatus = Database["public"]["Enums"]["pm_expense_status"];
 export type ExpenseCategory = Database["public"]["Enums"]["pm_expense_category"];
@@ -27,19 +45,22 @@ export const EXPENSE_CATEGORIES: ExpenseCategory[] = [
   "misc",
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
+
 export function useProjectExpenses(projectId: string | undefined) {
   return useQuery({
     queryKey: ["project-expenses", projectId],
     enabled: !!projectId,
-    queryFn: async () => {
-      const { data, error } = await supabase
+    queryFn: async (): Promise<ProjectExpenseWithSupplier[]> => {
+      const { data, error } = await db
         .from("pm_expenses")
-        .select("*")
+        .select("*, supplier:pm_suppliers(id,name,active)")
         .eq("project_id", projectId!)
         .order("incurred_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as ProjectExpense[];
+      return (data ?? []) as ProjectExpenseWithSupplier[];
     },
   });
 }
@@ -50,7 +71,7 @@ export function useUpsertProjectExpense(projectId: string) {
     mutationFn: async (input: ProjectExpenseInsert | ProjectExpenseUpdate) => {
       if ((input as ProjectExpenseUpdate).id) {
         const { id, ...rest } = input as ProjectExpenseUpdate & { id: string };
-        const { data, error } = await supabase
+        const { data, error } = await db
           .from("pm_expenses")
           .update(rest)
           .eq("id", id)
@@ -59,7 +80,7 @@ export function useUpsertProjectExpense(projectId: string) {
         if (error) throw error;
         return data;
       }
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("pm_expenses")
         .insert({ ...(input as ProjectExpenseInsert), project_id: projectId })
         .select()
