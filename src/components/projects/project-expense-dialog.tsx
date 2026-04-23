@@ -28,6 +28,10 @@ import {
   type ExpenseStatus,
   type ProjectExpense,
 } from "@/lib/projects/use-project-expenses";
+import {
+  projectExpenseSchema,
+  flattenIssues,
+} from "@/lib/projects/financial-validation";
 
 interface Props {
   open: boolean;
@@ -64,10 +68,24 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
     }
   }, [open, initial]);
 
+  const parseResult = projectExpenseSchema.safeParse({
+    description,
+    category,
+    amount: Number(amount),
+    incurred_at: incurredAt,
+    paid_at: paidAt,
+    status,
+    rebillable,
+  });
+  const errors = flattenIssues(parseResult);
+  const isValid = parseResult.success;
+  const errMsg = (key: string) =>
+    errors[key] ? t(`expenses.dialog.errors.${errors[key]}`) : null;
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!description.trim()) {
-      toast.error(t("expenses.dialog.errors.descriptionRequired"));
+    if (!isValid) {
+      toast.error(t("expenses.dialog.errors.formInvalid"));
       return;
     }
     try {
