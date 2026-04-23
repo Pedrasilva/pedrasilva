@@ -33,7 +33,8 @@
     "registerTimeAria": "Registar tempo",
     "createNewAria": "Criar novo",
     "task": "Tarefa",
-    "expense": {
+    "expense": "Despesa",
+    "expenseCategories": {
       "carro": "Carro",
       "ticket": "Ticket",
       "premio": "Prémio",

@@ -33,7 +33,8 @@
     "registerTimeAria": "Log time",
     "createNewAria": "Create new",
     "task": "Task",
-    "expense": {
+    "expense": "Expense",
+    "expenseCategories": {
       "carro": "Car",
       "ticket": "Ticket",
       "premio": "Bonus",
