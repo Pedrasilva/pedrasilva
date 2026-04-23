@@ -71,7 +71,9 @@ export function projectExpenseLine(row: ProjectExpenseLike): {
   profit: number;
 } {
   const cost = toNum(row.purchase_price);
-  return { cost, revenue: 0, profit: -cost };
+  // Avoid producing -0 when cost is 0 (strict-equal asserts treat -0 ≠ 0).
+  const profit = cost === 0 ? 0 : -cost;
+  return { cost, revenue: 0, profit };
 }
 
 /** Aggregate a list of external services into a FinancialsRow. */
@@ -104,7 +106,7 @@ export function rollupExpenses(rows: ProjectExpenseLike[]): FinancialsRow {
     budget: 0,
     value: 0,
     cost,
-    profit: -cost,
+    profit: cost === 0 ? 0 : -cost,
     invoiced: 0,
   };
 }
