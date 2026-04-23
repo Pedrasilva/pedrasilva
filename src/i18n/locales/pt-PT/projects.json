@@ -769,7 +769,13 @@
         "save": "Guardar",
         "cancel": "Cancelar",
         "errors": {
-          "descriptionRequired": "A descrição é obrigatória."
+          "descriptionRequired": "A descrição é obrigatória.",
+          "descriptionTooLong": "A descrição é demasiado longa.",
+          "mustBeNumber": "Tem de ser um número.",
+          "mustBeNonNegative": "Tem de ser zero ou superior.",
+          "quantityMustBePositive": "A quantidade tem de ser superior a zero.",
+          "invalidDate": "Data inválida.",
+          "formInvalid": "Corrija os campos assinalados."
         },
         "toast": {
           "created": "Serviço externo adicionado.",
@@ -836,7 +842,12 @@
         "save": "Guardar",
         "cancel": "Cancelar",
         "errors": {
-          "descriptionRequired": "A descrição é obrigatória."
+          "descriptionRequired": "A descrição é obrigatória.",
+          "descriptionTooLong": "A descrição é demasiado longa.",
+          "mustBeNumber": "Tem de ser um número.",
+          "mustBeNonNegative": "Tem de ser zero ou superior.",
+          "invalidDate": "Data inválida.",
+          "formInvalid": "Corrija os campos assinalados."
         },
         "toast": {
           "created": "Despesa adicionada.",
