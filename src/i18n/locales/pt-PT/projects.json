@@ -85,7 +85,9 @@
       "createTask": "Criar tarefa",
       "createContact": "Criar contacto",
       "createProject": "Criar projecto",
-      "submit": "Submeter"
+      "submit": "Submeter",
+      "logTime": "Registar",
+      "startTimer": "Iniciar"
     },
     "expense": {
       "carro": "Carro",
@@ -110,7 +112,8 @@
       "projectCreated": "Projecto criado",
       "expenseSubmitted": "Despesa submetida",
       "requestSubmitted": "Pedido submetido",
-      "timeLogged": "Tempo registado"
+      "timeLogged": "Tempo registado",
+      "timerStarted": "Timer iniciado"
     },
     "errors": {
       "endBeforeStart": "Data fim antes da data início.",
