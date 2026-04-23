@@ -370,10 +370,10 @@ function HubPage() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12 lg:py-16">
         <div className="mb-6">
           <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-            Studio diary
+            {t("home:studio.kicker")}
           </div>
           <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold tracking-tight">
-            O que se passa no atelier
+            {t("home:studio.title")}
           </h2>
         </div>
 
@@ -387,28 +387,63 @@ function HubPage() {
                   style={{ color: "var(--clay)" }}
                 />
                 <h3 className="font-display text-lg font-semibold tracking-tight">
-                  Celebrações próximas
+                  {t("home:celebrations.title")}
                 </h3>
               </div>
               <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                Próximos 45 dias
+                {t("home:celebrations.window")}
               </span>
             </div>
             <ul className="divide-y">
               {celebrationsQ.isLoading && (
                 <li className="px-6 py-8 text-center text-sm text-muted-foreground">
-                  A carregar…
+                  {t("common:loading")}
                 </li>
               )}
               {!celebrationsQ.isLoading &&
                 upcomingCelebrations.length === 0 && (
                   <li className="px-6 py-8 text-center text-sm text-muted-foreground">
-                    Nada nos próximos 45 dias.
+                    {t("home:celebrations.empty")}
                   </li>
                 )}
-              {upcomingCelebrations.map((c) => (
-                <CelebrationRow key={c.id} item={c} />
-              ))}
+              {upcomingCelebrations.map((c) => {
+                const isBirthday = c.kind === "birthday";
+                const Icon = isBirthday ? Cake : Sparkles;
+                const accent = isBirthday ? "var(--clay)" : "var(--sage)";
+                const label = isBirthday
+                  ? t("home:celebrate.turnsAge", { age: c.age })
+                  : t("home:celebrate.yearsAtPsa", { count: c.years });
+                return (
+                  <li
+                    key={c.id}
+                    className="flex items-center justify-between gap-4 px-6 py-3.5"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                        style={{
+                          background: `color-mix(in oklab, ${accent} 15%, transparent)`,
+                          color: accent,
+                        }}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium truncate">{c.nome}</div>
+                        <div className="text-[11px] text-muted-foreground">{label}</div>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-sm font-medium tabular-nums">
+                        {fmtDate(c.date)}
+                      </div>
+                      <div className="text-[11px] text-muted-foreground">
+                        {relativeDays(c.daysAway)}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </Card>
 
@@ -423,22 +458,22 @@ function HubPage() {
                     style={{ color: "var(--sage)" }}
                   />
                   <h3 className="font-display text-base font-semibold tracking-tight">
-                    Fora hoje
+                    {t("home:off.title")}
                   </h3>
                 </div>
                 <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                  Equipa
+                  {t("home:off.team")}
                 </span>
               </div>
               <ul className="divide-y">
                 {offTodayQ.isLoading && (
                   <li className="px-5 py-5 text-center text-xs text-muted-foreground">
-                    A carregar…
+                    {t("common:loading")}
                   </li>
                 )}
                 {!offTodayQ.isLoading && (offTodayQ.data?.length ?? 0) === 0 && (
                   <li className="px-5 py-5 text-center text-xs text-muted-foreground">
-                    Toda a equipa está cá hoje.
+                    {t("home:off.empty")}
                   </li>
                 )}
                 {offTodayQ.data?.slice(0, 5).map((v) => (
@@ -453,8 +488,8 @@ function HubPage() {
                           {v.nome}
                         </div>
                         <div className="text-[11px] text-muted-foreground">
-                          {ABSENCE_LABEL[v.tipo] ?? v.tipo} · até{" "}
-                          {fmtDate(v.data_fim)}
+                          {t(`home:absence.${v.tipo}`, { defaultValue: v.tipo })} ·{" "}
+                          {t("home:off.until", { date: fmtDate(v.data_fim) })}
                         </div>
                       </div>
                     </div>
@@ -472,19 +507,19 @@ function HubPage() {
                     style={{ color: "var(--clay-complement)" }}
                   />
                   <h3 className="font-display text-base font-semibold tracking-tight">
-                    Próximos feriados
+                    {t("home:holidays.title")}
                   </h3>
                 </div>
               </div>
               <ul className="divide-y">
                 {holidaysQ.isLoading && (
                   <li className="px-5 py-5 text-center text-xs text-muted-foreground">
-                    A carregar…
+                    {t("common:loading")}
                   </li>
                 )}
                 {!holidaysQ.isLoading && (holidaysQ.data?.length ?? 0) === 0 && (
                   <li className="px-5 py-5 text-center text-xs text-muted-foreground">
-                    Sem feriados próximos.
+                    {t("home:holidays.empty")}
                   </li>
                 )}
                 {holidaysQ.data?.slice(0, 4).map((h) => (
