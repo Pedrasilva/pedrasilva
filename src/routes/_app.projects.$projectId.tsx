@@ -1036,13 +1036,13 @@ function TabBtn({
     <button
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-2 text-[13px] border-b-2 -mb-px transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+        "inline-flex items-center gap-1.5 whitespace-nowrap px-2.5 py-1.5 text-[12px] border-b-2 -mb-px transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
         active
           ? "border-primary text-foreground font-medium"
           : "border-transparent text-muted-foreground hover:text-foreground",
       )}
     >
-      <Icon className="h-3.5 w-3.5" />
+      <Icon className="h-3 w-3" />
       {label}
     </button>
   );
