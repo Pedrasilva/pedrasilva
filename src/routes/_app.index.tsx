@@ -165,9 +165,32 @@ function relativeDays(days: number) {
 }
 
 function HubPage() {
+  const { t } = useTranslation(["home", "common", "hr", "crm", "projects"]);
   const { isAdmin, loading: authLoading, user } = useAuth();
   const { permissions, loading: permsLoading } = useMyPermissions();
   const loading = authLoading || permsLoading;
+
+  const months = useMemo(
+    () => Array.from({ length: 12 }, (_, i) => t(`home:month.${i}`)),
+    [t],
+  );
+  const weekdays = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => t(`home:weekday.${i}`)),
+    [t],
+  );
+
+  const fmtDate = (iso: string) => {
+    const [, m, d] = iso.split("-").map(Number);
+    return `${d} ${months[(m ?? 1) - 1]}`;
+  };
+
+  const relativeDays = (days: number) => {
+    if (days === 0) return t("home:relative.today");
+    if (days === 1) return t("home:relative.tomorrow");
+    if (days < 7) return t("home:relative.inDays", { days });
+    if (days < 14) return t("home:relative.nextWeek");
+    return t("home:relative.inDays", { days });
+  };
 
   const visible = useMemo(() => {
     if (isAdmin) return MODULES;
@@ -176,11 +199,11 @@ function HubPage() {
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
-    if (h < 5) return "Boa noite";
-    if (h < 12) return "Bom dia";
-    if (h < 20) return "Boa tarde";
-    return "Boa noite";
-  }, []);
+    if (h < 5) return t("home:greeting.night");
+    if (h < 12) return t("home:greeting.morning");
+    if (h < 20) return t("home:greeting.afternoon");
+    return t("home:greeting.evening");
+  }, [t]);
 
   const firstName = useMemo(() => {
     const email = user?.email ?? "";
@@ -193,17 +216,8 @@ function HubPage() {
 
   const today = useMemo(() => {
     const d = new Date();
-    const weekday = [
-      "Domingo",
-      "Segunda",
-      "Terça",
-      "Quarta",
-      "Quinta",
-      "Sexta",
-      "Sábado",
-    ][d.getDay()];
-    return `${weekday} · ${d.getDate()} ${PT_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-  }, []);
+    return `${weekdays[d.getDay()]} · ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }, [weekdays, months]);
 
   const quote = useMemo(quoteOfTheDay, []);
 
