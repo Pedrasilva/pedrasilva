@@ -59,6 +59,7 @@ interface LinkDragState {
 }
 
 export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: Props) {
+  const { t } = useTranslation("projects");
   const canvasRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [draftDates, setDraftDates] = useState<Map<string, { start: string; end: string }>>(new Map());
