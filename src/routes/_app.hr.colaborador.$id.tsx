@@ -638,9 +638,18 @@ function CollaboratorPage() {
               </TabsTrigger>
             </TabsList>
 
-            <Dialog open={newOpen} onOpenChange={setNewOpen}>
+            <Dialog open={newOpen} onOpenChange={(o) => !collab.archived_at && setNewOpen(o)}>
               <DialogTrigger asChild>
-                <Button size="sm" variant="outline">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!!collab.archived_at}
+                  title={
+                    collab.archived_at
+                      ? t("hr:collaborator.snapshots.archivedBlocked")
+                      : undefined
+                  }
+                >
                   <Plus className="h-4 w-4" /> {t("hr:collaborator.snapshots.newButton")}
                 </Button>
               </DialogTrigger>
