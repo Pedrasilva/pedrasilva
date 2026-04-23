@@ -280,7 +280,10 @@ function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }
     queryKey: ["collaborators-lite"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("collaborators").select("id, nome").order("nome");
+        .from("collaborators")
+        .select("id, nome")
+        .is("archived_at", null)
+        .order("nome");
       if (error) throw error;
       return data as { id: string; nome: string }[];
     },
