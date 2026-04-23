@@ -699,9 +699,13 @@ function AdminView() {
   const [filterEstado, setFilterEstado] = useState<ExpenseStatus | "todos">("pendente");
 
   const { data: collaborators = [] } = useQuery({
-    queryKey: ["collaborators"],
+    queryKey: ["collaborators", "active"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("collaborators").select("*").order("nome");
+      const { data, error } = await supabase
+        .from("collaborators")
+        .select("*")
+        .is("archived_at", null)
+        .order("nome");
       if (error) throw error;
       return (data ?? []) as Collaborator[];
     },
