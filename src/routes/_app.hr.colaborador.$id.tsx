@@ -80,12 +80,16 @@ function CollaboratorPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { t } = useTranslation(["hr", "common"]);
+  const dateLocale = useDateLocale();
+  const fmtSnapshotDate = (iso: string) =>
+    format(parseISO(iso), "dd MMM yyyy", { locale: dateLocale });
   const [activeTab, setActiveTab] = useState<string>("");
   const [newOpen, setNewOpen] = useState(false);
   const [dadosOpen, setDadosOpen] = useState(false);
   const [agregadoOpen, setAgregadoOpen] = useState(false);
   const [newForm, setNewForm] = useState({
-    label: "Proposto",
+    label: t("hr:collaborator.defaults.proposedLabel"),
     reference_date: new Date().toISOString().slice(0, 10),
     is_effective: false,
     copyFrom: "",
