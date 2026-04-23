@@ -800,10 +800,15 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                               {hasLeave && (
                                 <div className="mt-1 flex items-start gap-1.5 rounded bg-amber-500/10 p-1.5 text-[11px] text-amber-700 dark:text-amber-300">
                                   <CalendarOff className="mt-0.5 h-3 w-3 shrink-0" />
-                                  <span>
-                                    Capacidade reduzida: <strong>{allocLeaveHours}h</strong> de férias aprovadas dentro do período →
-                                    capacidade efectiva ≈ <strong>{reducedCapacity}h</strong> (de {allocTotalHours}h planeadas).
-                                  </span>
+                                  <span
+                                    dangerouslySetInnerHTML={{
+                                      __html: t("gantt.tooltip.leaveImpact", {
+                                        leave: allocLeaveHours,
+                                        effective: reducedCapacity,
+                                        planned: allocTotalHours,
+                                      }),
+                                    }}
+                                  />
                                 </div>
                               )}
                             </div>
