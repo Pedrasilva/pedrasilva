@@ -90,12 +90,20 @@ export function ExternalServicesSection({ projectId, canEdit }: Props) {
             {t("externalServices.subtitle")}
           </p>
         </div>
-        {canEdit && (
-          <Button size="sm" onClick={handleAdd}>
-            <Plus className="mr-1 h-3.5 w-3.5" />
-            {t("externalServices.addButton")}
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {canEdit && (
+            <Button variant="outline" size="sm" onClick={() => setManagerOpen(true)}>
+              <Users className="mr-1 h-3.5 w-3.5" />
+              {t("externalServices.manageSuppliers")}
+            </Button>
+          )}
+          {canEdit && (
+            <Button size="sm" onClick={handleAdd}>
+              <Plus className="mr-1 h-3.5 w-3.5" />
+              {t("externalServices.addButton")}
+            </Button>
+          )}
+        </div>
       </div>
 
       {isLoading ? (
@@ -135,7 +143,7 @@ export function ExternalServicesSection({ projectId, canEdit }: Props) {
                       )}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {m.supplier_name ?? "—"}
+                      {resolveSupplierLabel(m.supplier, m.supplier_name)}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-[10px]">
