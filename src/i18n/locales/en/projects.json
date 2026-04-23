@@ -36,7 +36,16 @@
       "materials": "Materials",
       "expenses": "Expenses",
       "insights": "Insights",
-      "stream": "Stream"
+      "stream": "Stream",
+      "rates": "Rates",
+      "billing": "Billing"
+    },
+    "placeholder": {
+      "comingSoon": "Coming soon",
+      "ratesTitle": "Project rates",
+      "ratesDescription": "Per-project rate overrides and pricing logic will be managed here.",
+      "billingTitle": "Billing & invoices",
+      "billingDescription": "Invoices and payments scoped to this project will be managed here."
     },
     "actions": {
       "activate": "Activate",

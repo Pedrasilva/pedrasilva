@@ -67,13 +67,15 @@ import {
   MoreVertical,
   Pencil,
   UserPlus,
+  DollarSign,
+  FileText,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
   component: ProjectDetail,
 });
 
-type TabKey = "overview" | "schedule" | "materials" | "expenses" | "insights" | "stream";
+type TabKey = "overview" | "schedule" | "materials" | "expenses" | "rates" | "billing" | "insights" | "stream";
 
 function ProjectDetail() {
   const { t } = useTranslation();
@@ -575,6 +577,8 @@ function ProjectDetail() {
               <TabBtn icon={Calendar} label={t("projects:detail.tabs.schedule")} active={tab === "schedule"} onClick={() => setTab("schedule")} />
               <TabBtn icon={Package} label={t("projects:detail.tabs.materials")} active={tab === "materials"} onClick={() => setTab("materials")} />
               <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
+              <TabBtn icon={DollarSign} label={t("projects:detail.tabs.rates")} active={tab === "rates"} onClick={() => setTab("rates")} />
+              <TabBtn icon={FileText} label={t("projects:detail.tabs.billing")} active={tab === "billing"} onClick={() => setTab("billing")} />
               <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
               <TabBtn icon={ActivityIcon} label={t("projects:detail.tabs.stream")} active={tab === "stream"} onClick={() => setTab("stream")} />
             </div>
@@ -607,6 +611,28 @@ function ProjectDetail() {
             {tab === "expenses" && (
               <div className="mt-4">
                 <ProjectExpensesSection projectId={projectId} canEdit={canSeeFinancials} />
+              </div>
+            )}
+
+            {tab === "rates" && (
+              <div className="mt-4">
+                <PlaceholderPanel
+                  icon={DollarSign}
+                  title={t("projects:detail.placeholder.ratesTitle")}
+                  description={t("projects:detail.placeholder.ratesDescription")}
+                  badge={t("projects:detail.placeholder.comingSoon")}
+                />
+              </div>
+            )}
+
+            {tab === "billing" && (
+              <div className="mt-4">
+                <PlaceholderPanel
+                  icon={FileText}
+                  title={t("projects:detail.placeholder.billingTitle")}
+                  description={t("projects:detail.placeholder.billingDescription")}
+                  badge={t("projects:detail.placeholder.comingSoon")}
+                />
               </div>
             )}
 
@@ -977,6 +1003,29 @@ function DateChip({
           {format(date, "d MMMM yyyy", { locale: pt })}
         </div>
       </div>
+    </div>
+  );
+}
+
+function PlaceholderPanel({
+  icon: Icon,
+  title,
+  description,
+  badge,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  badge: string;
+}) {
+  return (
+    <div className="rounded-lg border border-dashed border-border bg-card px-6 py-12 text-center">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+        <Icon className="h-5 w-5 text-muted-foreground" />
+      </div>
+      <Badge variant="secondary" className="mt-4">{badge}</Badge>
+      <h3 className="mt-3 text-base font-semibold text-foreground">{title}</h3>
+      <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">{description}</p>
     </div>
   );
 }
