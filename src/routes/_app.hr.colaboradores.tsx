@@ -235,6 +235,28 @@ function CollaboratorsListPage() {
               </Select>
             </div>
           </div>
+          {showStatusChip && (
+            <div className="mt-3 flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className="gap-1.5 border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+              >
+                <Archive className="h-3 w-3" />
+                {status === "archived"
+                  ? t("hr:colaboradores.filterChip.showingArchived")
+                  : t("hr:colaboradores.filterChip.showingAll")}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => setStatus("active")}
+              >
+                <X className="h-3 w-3" />
+                {t("hr:colaboradores.filterChip.clear")}
+              </Button>
+            </div>
+          )}
         </CardHeader>
         <CardContent className="p-0">
           {list.isPending ? (
@@ -246,7 +268,7 @@ function CollaboratorsListPage() {
           ) : list.isError ? (
             <div className="flex items-center gap-2 p-6 text-sm text-destructive">
               <AlertTriangle className="h-4 w-4" />
-              {(list.error as Error)?.message ?? t("common:errorTitle")}
+              {humanizeMutationError(list.error, t, "common:errorTitle")}
             </div>
           ) : filteredSorted.length === 0 ? (
             <div className="px-6 py-12 text-center text-sm text-muted-foreground">
@@ -268,7 +290,7 @@ function CollaboratorsListPage() {
                 archiveMut.isPending
                   ? archiveTarget?.id
                   : restoreMut.isPending
-                    ? (restoreMut.variables as string | undefined) ?? null
+                    ? restoreTarget?.id ?? null
                     : null
               }
             />
@@ -282,6 +304,23 @@ function CollaboratorsListPage() {
         collaborator={archiveTarget}
         pending={archiveMut.isPending}
         onConfirm={confirmArchive}
+      />
+
+      <RestoreCollaboratorDialog
+        open={!!restoreTarget}
+        onOpenChange={(o) => !o && setRestoreTarget(null)}
+        collaborator={
+          restoreTarget
+            ? {
+                id: restoreTarget.id,
+                nome: restoreTarget.nome,
+                archived_at: restoreTarget.archived_at ?? null,
+                archive_reason: restoreTarget.archive_reason ?? null,
+              }
+            : null
+        }
+        pending={restoreMut.isPending}
+        onConfirm={confirmRestore}
       />
     </div>
   );
