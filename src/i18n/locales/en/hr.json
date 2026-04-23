@@ -57,5 +57,75 @@
       "status": "Status",
       "noMembers": "No team members."
     }
+  },
+  "snapshot": {
+    "bruto": {
+      "title": "Gross View",
+      "description": "Total cost to the studio over the year.",
+      "rows": {
+        "baseMonthly": "Monthly base",
+        "duodecimos100": "+ Twelfths (vacation + Christmas allowances spread across 12 months)",
+        "duodecimos50": "+ Twelfths (50% of allowances spread across 12 months)",
+        "taxableBase": "= Taxable monthly base",
+        "ssAtelierMonthlyOverBase": "+ Studio Social Security (monthly, on base + twelfths)",
+        "ssAtelierMonthly": "+ Studio Social Security (monthly)",
+        "grossMonthlyCost": "= Gross monthly cost",
+        "vacationFullJune50": "+ Vacation allowance (50% paid in full in June)",
+        "christmasFullNovember50": "+ Christmas allowance (50% paid in full in November)",
+        "vacationFullJune": "+ Vacation allowance (paid in full in June)",
+        "christmasFullNovember": "+ Christmas allowance (paid in full in November)",
+        "mealAllowanceMonthly": "+ Meal allowance (monthly)",
+        "perDiemMonthly": "+ Per diem allowances (monthly)",
+        "benefitsMonthly": "+ Benefits (monthly)",
+        "totalHrCostMonthly": "= Total HR cost monthly (TGV)"
+      },
+      "composition": {
+        "annualTitle": "Annual composition",
+        "monthlyTitle": "Monthly composition",
+        "description": "HR cost (TGV) breakdown.",
+        "annualToggle": "Annual",
+        "monthlyToggle": "Monthly",
+        "centerAnnual": "TGV cost",
+        "centerMonthly": "Monthly TGV cost",
+        "slices": {
+          "baseAnnual": "Annual base",
+          "baseMonthly": "Monthly base",
+          "ssAtelier": "Studio Social Security",
+          "mealAllowance": "Meal allowance",
+          "perDiem": "Per diem allowances",
+          "benefits": "Benefits"
+        }
+      }
+    },
+    "liquido": {
+      "title": "Net View",
+      "description": "What the team member actually takes home.",
+      "rows": {
+        "baseMonthly": "Monthly base",
+        "duodecimos100": "+ Twelfths (vacation + Christmas allowances spread across 12 months)",
+        "duodecimos50": "+ Twelfths (50% of allowances spread across 12 months)",
+        "taxableBase": "= Taxable monthly base",
+        "ssEmployeeMonthly": "− Employee Social Security (monthly)",
+        "incomeTaxMonthly": "− Income Tax (monthly)",
+        "netMonthlyAvg": "= Average monthly net",
+        "vacationFullJune50": "+ Vacation allowance (50% paid in full in June)",
+        "christmasFullNovember50": "+ Christmas allowance (50% paid in full in November)",
+        "vacationFullJune": "+ Vacation allowance (paid in full in June)",
+        "christmasFullNovember": "+ Christmas allowance (paid in full in November)",
+        "mealAllowanceMonthly": "+ Meal allowance (monthly)",
+        "perDiemMonthly": "+ Per diem allowances (monthly)",
+        "totalNetMonthly": "= Total monthly net",
+        "benefitsMonthly": "+ Benefits (monthly average: car + voucher + bonus + others)"
+      },
+      "composition": {
+        "annualTitle": "Annual composition",
+        "monthlyTitle": "Monthly composition",
+        "description": "Gross broken down.",
+        "annualToggle": "Annual",
+        "monthlyToggle": "Monthly",
+        "annualLabel": "annual",
+        "monthlyLabel": "monthly"
+      }
+    }
   }
 }

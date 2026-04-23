@@ -57,5 +57,75 @@
       "status": "Situação",
       "noMembers": "Sem colaboradores."
     }
+  },
+  "snapshot": {
+    "bruto": {
+      "title": "Visão Bruto",
+      "description": "Custo total para o atelier ao longo do ano.",
+      "rows": {
+        "baseMonthly": "Valor base mensal",
+        "duodecimos100": "+ Duodécimos (subsídios férias + Natal diluídos em 12 meses)",
+        "duodecimos50": "+ Duodécimos (50% dos subsídios diluídos em 12 meses)",
+        "taxableBase": "= Base mensal tributável",
+        "ssAtelierMonthlyOverBase": "+ SS Atelier (mensal, sobre base + duodécimos)",
+        "ssAtelierMonthly": "+ SS Atelier (mensal)",
+        "grossMonthlyCost": "= Custo bruto mensal",
+        "vacationFullJune50": "+ Subsídio de férias (50% pago por inteiro em Junho)",
+        "christmasFullNovember50": "+ Subsídio de Natal (50% pago por inteiro em Novembro)",
+        "vacationFullJune": "+ Subsídio de férias (pago por inteiro em Junho)",
+        "christmasFullNovember": "+ Subsídio de Natal (pago por inteiro em Novembro)",
+        "mealAllowanceMonthly": "+ Subsídio alimentação mensal",
+        "perDiemMonthly": "+ Ajudas de custo mensais",
+        "benefitsMonthly": "+ Benefícios mensais",
+        "totalHrCostMonthly": "= Custo total RH mensal (VBG)"
+      },
+      "composition": {
+        "annualTitle": "Composição anual",
+        "monthlyTitle": "Composição mensal",
+        "description": "Custo RH (VBG) decomposto.",
+        "annualToggle": "Anual",
+        "monthlyToggle": "Mensal",
+        "centerAnnual": "Custo VBG",
+        "centerMonthly": "Custo VBG mensal",
+        "slices": {
+          "baseAnnual": "Base anual",
+          "baseMonthly": "Base mensal",
+          "ssAtelier": "SS Atelier",
+          "mealAllowance": "Subsídio alimentação",
+          "perDiem": "Ajudas de custo",
+          "benefits": "Benefícios"
+        }
+      }
+    },
+    "liquido": {
+      "title": "Visão Líquido",
+      "description": "O que entra na conta do colaborador.",
+      "rows": {
+        "baseMonthly": "Valor base mensal",
+        "duodecimos100": "+ Duodécimos (subsídios férias + Natal diluídos em 12 meses)",
+        "duodecimos50": "+ Duodécimos (50% dos subsídios diluídos em 12 meses)",
+        "taxableBase": "= Base mensal tributável",
+        "ssEmployeeMonthly": "− SS Colaborador (mensal)",
+        "incomeTaxMonthly": "− IRS (mensal)",
+        "netMonthlyAvg": "= Líquido mensal médio",
+        "vacationFullJune50": "+ Subsídio de férias (50% pago por inteiro em Junho)",
+        "christmasFullNovember50": "+ Subsídio de Natal (50% pago por inteiro em Novembro)",
+        "vacationFullJune": "+ Subsídio de férias (pago por inteiro em Junho)",
+        "christmasFullNovember": "+ Subsídio de Natal (pago por inteiro em Novembro)",
+        "mealAllowanceMonthly": "+ Subsídio alimentação mensal",
+        "perDiemMonthly": "+ Ajudas de custo mensais",
+        "totalNetMonthly": "= Líquido total mensal",
+        "benefitsMonthly": "+ Benefícios (média mensal: carro + ticket + prémio + outros)"
+      },
+      "composition": {
+        "annualTitle": "Composição anual",
+        "monthlyTitle": "Composição mensal",
+        "description": "Bruto decomposto.",
+        "annualToggle": "Anual",
+        "monthlyToggle": "Mensal",
+        "annualLabel": "anual",
+        "monthlyLabel": "mensal"
+      }
+    }
   }
 }
