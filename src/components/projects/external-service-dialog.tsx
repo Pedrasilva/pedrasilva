@@ -71,8 +71,9 @@ export function ExternalServiceDialog({
   useEffect(() => {
     if (open) {
       setDescription(initial?.description ?? "");
-      setSupplierName(initial?.supplier_name ?? "");
-      setSupplierContact(initial?.supplier_contact ?? "");
+      setSupplierId(initial?.supplier_id ?? null);
+      setLegacySupplierName(initial?.supplier_name ?? "");
+      setLegacySupplierContact(initial?.supplier_contact ?? "");
       setQuantity(Number(initial?.quantity ?? 1));
       setUnitCost(Number(initial?.unit_cost ?? initial?.purchase_price ?? 0));
       setMarkupType((initial?.markup_type ?? "percent") as MarkupType);
@@ -87,6 +88,21 @@ export function ExternalServiceDialog({
       setNotes(initial?.notes ?? "");
     }
   }, [open, initial]);
+
+  function handleSupplierChange(id: string | null, supplier: Supplier | null) {
+    setSupplierId(id);
+    if (supplier) {
+      // Mirror the chosen supplier into legacy fields so older readers
+      // (reports, exports) keep working. The linked id remains canonical.
+      setLegacySupplierName(supplier.name);
+      setLegacySupplierContact(supplier.email ?? supplier.phone ?? "");
+    } else if (id === null) {
+      // Clearing a linked supplier — drop the legacy mirror too so we don't
+      // leave a stale name behind. Manual edits still possible after.
+      setLegacySupplierName("");
+      setLegacySupplierContact("");
+    }
+  }
 
   // Live preview of computed sale price
   const totalCost = Number(unitCost) * Number(quantity || 1);
@@ -130,8 +146,9 @@ export function ExternalServiceDialog({
     try {
       const payload = {
         description: description.trim(),
-        supplier_name: supplierName.trim() || null,
-        supplier_contact: supplierContact.trim() || null,
+        supplier_id: supplierId,
+        supplier_name: legacySupplierName.trim() || null,
+        supplier_contact: legacySupplierContact.trim() || null,
         quantity: Number(quantity || 1),
         unit_cost: Number(unitCost || 0),
         purchase_price: Number(unitCost || 0),
