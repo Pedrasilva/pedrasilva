@@ -895,7 +895,7 @@ function FinancialsPage() {
                         {pct(r.utilization)}
                       </td>
                       <td className="px-3 py-2.5">
-                        {r.alert && <AlertChip tone={r.alert.tone} label={r.alert.label} />}
+                        {r.alert && <AlertChip tone={r.alert.tone} labelKey={r.alert.labelKey} />}
                       </td>
                       <td className="px-3 py-2.5 text-right tabular-nums">{euros(r.revenue)}</td>
                       <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
