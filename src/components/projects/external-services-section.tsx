@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,11 +23,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ExternalServiceDialog } from "./external-service-dialog";
+import { SupplierManagerDialog } from "./supplier-manager-dialog";
 import {
   useExternalServices,
   useDeleteExternalService,
-  type ExternalService,
+  type ExternalServiceWithSupplier,
 } from "@/lib/projects/use-external-services";
+import { resolveSupplierLabel } from "@/lib/projects/use-suppliers";
 import { euros } from "@/lib/projects/gantt-utils";
 
 interface Props {
@@ -41,8 +43,9 @@ export function ExternalServicesSection({ projectId, canEdit }: Props) {
   const del = useDeleteExternalService(projectId);
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<ExternalService | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<ExternalService | null>(null);
+  const [managerOpen, setManagerOpen] = useState(false);
+  const [editing, setEditing] = useState<ExternalServiceWithSupplier | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<ExternalServiceWithSupplier | null>(null);
 
   const totals = items.reduce(
     (acc, m) => {
@@ -57,7 +60,7 @@ export function ExternalServicesSection({ projectId, canEdit }: Props) {
     { cost: 0, revenue: 0, margin: 0 },
   );
 
-  function handleEdit(item: ExternalService) {
+  function handleEdit(item: ExternalServiceWithSupplier) {
     setEditing(item);
     setDialogOpen(true);
   }
@@ -87,12 +90,20 @@ export function ExternalServicesSection({ projectId, canEdit }: Props) {
             {t("externalServices.subtitle")}
           </p>
         </div>
-        {canEdit && (
-          <Button size="sm" onClick={handleAdd}>
-            <Plus className="mr-1 h-3.5 w-3.5" />
-            {t("externalServices.addButton")}
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {canEdit && (
+            <Button variant="outline" size="sm" onClick={() => setManagerOpen(true)}>
+              <Users className="mr-1 h-3.5 w-3.5" />
+              {t("externalServices.manageSuppliers")}
+            </Button>
+          )}
+          {canEdit && (
+            <Button size="sm" onClick={handleAdd}>
+              <Plus className="mr-1 h-3.5 w-3.5" />
+              {t("externalServices.addButton")}
+            </Button>
+          )}
+        </div>
       </div>
 
       {isLoading ? (
@@ -132,7 +143,7 @@ export function ExternalServicesSection({ projectId, canEdit }: Props) {
                       )}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {m.supplier_name ?? "—"}
+                      {resolveSupplierLabel(m.supplier, m.supplier_name)}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-[10px]">

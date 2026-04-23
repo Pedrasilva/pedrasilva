@@ -31,12 +31,14 @@ import {
   externalServiceSchema,
   flattenIssues,
 } from "@/lib/projects/financial-validation";
+import { SupplierPicker } from "./supplier-picker";
+import type { Supplier } from "@/lib/projects/use-suppliers";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
-  initial?: ExternalService | null;
+  initial?: (ExternalService & { supplier_id?: string | null }) | null;
 }
 
 export function ExternalServiceDialog({
@@ -49,8 +51,10 @@ export function ExternalServiceDialog({
   const upsert = useUpsertExternalService(projectId);
 
   const [description, setDescription] = useState("");
-  const [supplierName, setSupplierName] = useState("");
-  const [supplierContact, setSupplierContact] = useState("");
+  const [supplierId, setSupplierId] = useState<string | null>(null);
+  // Legacy free-text — only kept for old rows; new entries should use supplier_id.
+  const [legacySupplierName, setLegacySupplierName] = useState<string>("");
+  const [legacySupplierContact, setLegacySupplierContact] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [unitCost, setUnitCost] = useState(0);
   const [markupType, setMarkupType] = useState<MarkupType>("percent");
@@ -67,8 +71,9 @@ export function ExternalServiceDialog({
   useEffect(() => {
     if (open) {
       setDescription(initial?.description ?? "");
-      setSupplierName(initial?.supplier_name ?? "");
-      setSupplierContact(initial?.supplier_contact ?? "");
+      setSupplierId(initial?.supplier_id ?? null);
+      setLegacySupplierName(initial?.supplier_name ?? "");
+      setLegacySupplierContact(initial?.supplier_contact ?? "");
       setQuantity(Number(initial?.quantity ?? 1));
       setUnitCost(Number(initial?.unit_cost ?? initial?.purchase_price ?? 0));
       setMarkupType((initial?.markup_type ?? "percent") as MarkupType);
@@ -83,6 +88,21 @@ export function ExternalServiceDialog({
       setNotes(initial?.notes ?? "");
     }
   }, [open, initial]);
+
+  function handleSupplierChange(id: string | null, supplier: Supplier | null) {
+    setSupplierId(id);
+    if (supplier) {
+      // Mirror the chosen supplier into legacy fields so older readers
+      // (reports, exports) keep working. The linked id remains canonical.
+      setLegacySupplierName(supplier.name);
+      setLegacySupplierContact(supplier.email ?? supplier.phone ?? "");
+    } else if (id === null) {
+      // Clearing a linked supplier — drop the legacy mirror too so we don't
+      // leave a stale name behind. Manual edits still possible after.
+      setLegacySupplierName("");
+      setLegacySupplierContact("");
+    }
+  }
 
   // Live preview of computed sale price
   const totalCost = Number(unitCost) * Number(quantity || 1);
@@ -126,8 +146,9 @@ export function ExternalServiceDialog({
     try {
       const payload = {
         description: description.trim(),
-        supplier_name: supplierName.trim() || null,
-        supplier_contact: supplierContact.trim() || null,
+        supplier_id: supplierId,
+        supplier_name: legacySupplierName.trim() || null,
+        supplier_contact: legacySupplierContact.trim() || null,
         quantity: Number(quantity || 1),
         unit_cost: Number(unitCost || 0),
         purchase_price: Number(unitCost || 0),
@@ -180,22 +201,21 @@ export function ExternalServiceDialog({
                 <p className="text-[11px] text-destructive">{errMsg("description")}</p>
               )}
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="es-sup-name">{t("externalServices.fields.supplierName")}</Label>
-              <Input
-                id="es-sup-name"
-                value={supplierName}
-                onChange={(e) => setSupplierName(e.target.value)}
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>{t("externalServices.fields.supplier")}</Label>
+              <SupplierPicker
+                value={supplierId}
+                legacyName={legacySupplierName}
+                onChange={handleSupplierChange}
+                disabled={upsert.isPending}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="es-sup-contact">{t("externalServices.fields.supplierContact")}</Label>
-              <Input
-                id="es-sup-contact"
-                value={supplierContact}
-                onChange={(e) => setSupplierContact(e.target.value)}
-                placeholder="email / telefone"
-              />
+              {!supplierId && legacySupplierName && (
+                <p className="text-[11px] text-muted-foreground">
+                  {t("externalServices.fields.supplierLegacyHint", {
+                    name: legacySupplierName,
+                  })}
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="es-qty">{t("externalServices.fields.quantity")}</Label>
