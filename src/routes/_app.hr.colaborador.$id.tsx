@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { format, parseISO } from "date-fns";
+import { useDateLocale } from "@/i18n/use-date-locale";
 import { supabase } from "@/integrations/supabase/client";
 import {
   type Collaborator,
   type Snapshot,
   defaultSnapshot,
-  fmtDate,
 } from "@/lib/salary";
 import { ESTADOS_CIVIS, LOCALIZACOES } from "@/lib/irs";
 import { Button } from "@/components/ui/button";
