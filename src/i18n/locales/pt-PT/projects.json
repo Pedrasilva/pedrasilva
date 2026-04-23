@@ -157,6 +157,49 @@
       "noTaskForAllocation": "Esta alocação não tem tarefa associada."
     }
   },
+  "quickFinance": {
+    "expense": {
+      "title": "Nova despesa",
+      "description": "Entrada rápida — detalhes completos disponíveis dentro do projecto."
+    },
+    "material": {
+      "title": "Novo material",
+      "description": "Serviço externo ou compra a fornecedor associada a um projecto.",
+      "projectHint": "Materiais estão sempre ligados a um projecto."
+    },
+    "fields": {
+      "project": "Projecto",
+      "projectPlaceholder": "Escolher projecto…",
+      "autoDetected": "detectado",
+      "companyExpense": "Esta é uma despesa de empresa",
+      "companyExpenseHint": "Guarda em custos de empresa (sem projecto, sem margem).",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Descrição breve…",
+      "category": "Categoria",
+      "amount": "Valor",
+      "supplier": "Fornecedor",
+      "incurredAt": "Data",
+      "quantity": "Quantidade",
+      "unitCost": "Custo unitário",
+      "markupPercent": "Margem",
+      "notes": "Notas"
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "create": "Criar"
+    },
+    "errors": {
+      "projectRequired": "Escolha um projecto ou marque como despesa de empresa.",
+      "descriptionRequired": "Descrição é obrigatória.",
+      "amountRequired": "O valor tem de ser maior que zero.",
+      "unitCostRequired": "O custo unitário tem de ser maior que zero."
+    },
+    "toasts": {
+      "projectExpenseCreated": "Despesa de projecto criada",
+      "companyExpenseCreated": "Despesa de empresa criada",
+      "materialCreated": "Material criado"
+    }
+  },
   "common": {
     "previousPage": "Página anterior",
     "nextPage": "Página seguinte",
