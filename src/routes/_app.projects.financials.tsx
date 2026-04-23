@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   format,
@@ -12,6 +13,7 @@ import {
   addWeeks,
   subWeeks,
 } from "date-fns";
+import { useDateLocale } from "@/i18n/use-date-locale";
 import { toast } from "sonner";
 import {
   ResponsiveContainer,
