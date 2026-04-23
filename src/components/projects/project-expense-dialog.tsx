@@ -107,6 +107,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
       const payload = {
         description: description.trim(),
         category,
+        supplier_id: supplierId,
         vendor: vendor.trim() || null,
         purchase_price: Number(amount || 0),
         sale_price: 0, // expenses never carry margin
