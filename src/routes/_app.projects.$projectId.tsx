@@ -339,54 +339,75 @@ function ProjectDetail() {
 
   return (
     <AppShell active="projects">
-      <div className="mx-auto w-full max-w-[1800px] px-4 pt-6 sm:px-6 2xl:px-10">
-        <div className="flex items-center justify-between gap-3">
-          <Link
-            to="/projects"
-            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-3 w-3" /> {t("projects:detail.backToList")}
-          </Link>
-          {tab === "overview" && (
-            <button
-              onClick={() => setSidebarOpen((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
-              aria-label={sidebarOpen ? t("projects:detail.togglePanel.hide") : t("projects:detail.togglePanel.show")}
-            >
-              {sidebarOpen ? (
+      <div className="mx-auto w-full max-w-[1800px] px-4 pt-5 sm:px-6 2xl:px-10">
+        <Link
+          to="/projects"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-3 w-3" /> {t("projects:detail.backToList")}
+        </Link>
+
+        {/* Header — single calm row: title + meta + status actions */}
+        <div className="mt-2 border-b border-border pb-3">
+          <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2">
+            {/* LEFT: title + status */}
+            <div className="flex min-w-0 items-center gap-3">
+              <div
+                className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
+                style={{ backgroundColor: project.color }}
+              />
+              <EditableProjectName
+                name={project.name}
+                onRename={(name) =>
+                  updateProject.mutateAsync({ id: project.id, patch: { name } })
+                }
+              />
+              <StatusBadge status={project.status} />
+            </div>
+
+            {/* MIDDLE: contextual meta — client · dates · team */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
+              <span className="truncate">
+                {project.client ?? t("projects:detail.header.noClient")}
+              </span>
+              <span className="text-border">·</span>
+              <span className="inline-flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
+                {format(scheduleStart, "d MMM", { locale: pt })} – {format(scheduleEnd, "d MMM yyyy", { locale: pt })}
+                {overdueDays > 0 ? (
+                  <span className="font-medium text-destructive">· {overdueDays}d</span>
+                ) : (
+                  <span className="text-muted-foreground/70">· {remainingDays}d</span>
+                )}
+              </span>
+              {team.length > 0 && (
                 <>
-                  <PanelLeftClose className="h-3.5 w-3.5" /> {t("projects:detail.togglePanel.hide")}
-                </>
-              ) : (
-                <>
-                  <PanelLeftOpen className="h-3.5 w-3.5" /> {t("projects:detail.togglePanel.show")}
+                  <span className="text-border">·</span>
+                  <div className="flex -space-x-1.5">
+                    {team.slice(0, 5).map((r) => (
+                      <Link
+                        key={r.id}
+                        to="/projects/resources/$resourceId"
+                        params={{ resourceId: r.id }}
+                        title={r.name}
+                        className="rounded-full ring-2 ring-background hover:z-10"
+                      >
+                        <CollaboratorAvatar
+                          collaboratorId={(r as { collaborator_id?: string | null }).collaborator_id ?? null}
+                          name={r.name}
+                          color={r.color}
+                          size={20}
+                        />
+                      </Link>
+                    ))}
+                    {team.length > 5 && (
+                      <span className="inline-flex h-5 items-center justify-center rounded-full bg-muted px-1.5 text-[10px] font-medium text-muted-foreground ring-2 ring-background">
+                        +{team.length - 5}
+                      </span>
+                    )}
+                  </div>
                 </>
               )}
-            </button>
-          )}
-        </div>
-
-        {/* Header — title + status + contextual chips (date range, team, financials) */}
-        <div className="mt-3 border-b border-border pb-4">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            {/* LEFT: title + status */}
-            <div className="min-w-0 flex-1">
-              <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                {project.client ?? t("projects:detail.header.noClient")} · {t("glossary:entity.project")}
-              </div>
-              <div className="mt-1 flex items-center gap-3">
-                <div
-                  className="h-3 w-3 rounded-full"
-                  style={{ backgroundColor: project.color }}
-                />
-                <EditableProjectName
-                  name={project.name}
-                  onRename={(name) =>
-                    updateProject.mutateAsync({ id: project.id, patch: { name } })
-                  }
-                />
-                <StatusBadge status={project.status} />
-              </div>
             </div>
 
             {/* RIGHT: primary status actions */}
@@ -394,178 +415,166 @@ function ProjectDetail() {
               <StatusToggle current={project.status} onChange={setStatus} />
             </div>
           </div>
-
-          {/* Contextual meta row: date range · team · financial chips */}
-          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
-            <div className="inline-flex items-center gap-1.5 text-muted-foreground">
-              <Calendar className="h-3.5 w-3.5" />
-              <span>
-                {format(scheduleStart, "d MMM", { locale: pt })} – {format(scheduleEnd, "d MMM yyyy", { locale: pt })}
-              </span>
-              {overdueDays > 0 ? (
-                <span className="ml-1 font-medium text-destructive">· {overdueDays}d {t("projects:detail.header.dateRange") === "Schedule" ? "overdue" : "em atraso"}</span>
-              ) : (
-                <span className="ml-1 text-muted-foreground/70">· {remainingDays}d</span>
-              )}
-            </div>
-            {team.length > 0 && (
-              <div className="inline-flex items-center gap-2">
-                <span className="text-[11px] uppercase tracking-wider text-muted-foreground">{t("projects:detail.header.team")}</span>
-                <div className="flex -space-x-1.5">
-                  {team.slice(0, 6).map((r) => (
-                    <Link
-                      key={r.id}
-                      to="/projects/resources/$resourceId"
-                      params={{ resourceId: r.id }}
-                      title={r.name}
-                      className="rounded-full ring-2 ring-background hover:z-10"
-                    >
-                      <CollaboratorAvatar
-                        collaboratorId={(r as { collaborator_id?: string | null }).collaborator_id ?? null}
-                        name={r.name}
-                        color={r.color}
-                        size={22}
-                      />
-                    </Link>
-                  ))}
-                  {team.length > 6 && (
-                    <span className="inline-flex h-[22px] items-center justify-center rounded-full bg-muted px-1.5 text-[10px] font-medium text-muted-foreground ring-2 ring-background">
-                      +{team.length - 6}
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-            {canSeeFinancials && (
-              <div className="ml-auto flex flex-wrap items-center gap-x-4 gap-y-1 font-mono">
-                <span className="text-muted-foreground">
-                  {t("projects:detail.header.budget")}: <span className="text-foreground">{euros(totalBudget)}</span>
-                </span>
-                <span className="text-muted-foreground">
-                  {t("projects:detail.header.cost")}:{" "}
-                  <span className={cn("text-foreground", budgetOver && "text-destructive font-semibold")}>
-                    {euros(actualCost)}
-                  </span>
-                </span>
-                <span className="text-muted-foreground">
-                  {t("projects:detail.header.profit")}:{" "}
-                  <span className={cn("font-semibold", actualProfit < 0 ? "text-destructive" : "text-foreground")}>
-                    {euros(actualProfit)}
-                  </span>
-                </span>
-              </div>
-            )}
-          </div>
         </div>
 
-        {/* Body layout — sidebar only on Overview tab, narrower & focused ---- */}
+        {/* Tab row — calmer, lighter spacing */}
+        <div className="mt-3 flex items-center justify-between gap-3 border-b border-border">
+          <div className="flex items-center gap-0 overflow-x-auto">
+            <TabBtn icon={ListChecks} label={t("projects:detail.tabs.overview")} active={tab === "overview"} onClick={() => setTab("overview")} />
+            <TabBtn icon={Calendar} label={t("projects:detail.tabs.schedule")} active={tab === "schedule"} onClick={() => setTab("schedule")} />
+            <TabBtn icon={Package} label={t("projects:detail.tabs.materials")} active={tab === "materials"} onClick={() => setTab("materials")} />
+            <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
+            <TabBtn icon={DollarSign} label={t("projects:detail.tabs.rates")} active={tab === "rates"} onClick={() => setTab("rates")} />
+            <TabBtn icon={FileText} label={t("projects:detail.tabs.billing")} active={tab === "billing"} onClick={() => setTab("billing")} />
+            <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
+            <TabBtn icon={ActivityIcon} label={t("projects:detail.tabs.stream")} active={tab === "stream"} onClick={() => setTab("stream")} />
+          </div>
+          {tab === "overview" && (
+            <button
+              onClick={() => setSidebarOpen((v) => !v)}
+              className="mb-1 hidden flex-shrink-0 items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground lg:inline-flex"
+              aria-label={sidebarOpen ? t("projects:detail.togglePanel.hide") : t("projects:detail.togglePanel.show")}
+              title={sidebarOpen ? t("projects:detail.togglePanel.hide") : t("projects:detail.togglePanel.show")}
+            >
+              {sidebarOpen ? <PanelLeftClose className="h-3.5 w-3.5" /> : <PanelLeftOpen className="h-3.5 w-3.5" />}
+            </button>
+          )}
+        </div>
+
+        {/* Body layout — sidebar only on Overview; narrower (200px) or slim rail (44px) */}
         <div
           className={cn(
-            "mt-6 grid gap-6",
-            sidebarOpen && tab === "overview"
-              ? "lg:grid-cols-[240px_minmax(0,1fr)]"
+            "mt-4 grid gap-5",
+            tab === "overview"
+              ? sidebarOpen
+                ? "lg:grid-cols-[200px_minmax(0,1fr)]"
+                : "lg:grid-cols-[44px_minmax(0,1fr)]"
               : "lg:grid-cols-1",
           )}
         >
-          {/* Sidebar — Overview only: quick snapshot (Team · Budget · Profit) */}
-          <aside className={cn("space-y-4", (!sidebarOpen || tab !== "overview") && "hidden")}>
-            <SidebarSection title={t("projects:detail.sidebar.team")}>
-              {team.length === 0 ? (
-                <div className="text-xs text-muted-foreground">{t("projects:detail.sidebar.noTeam")}</div>
+          {/* Sidebar — Overview only: compact snapshot (Team · Budget · Profit). Collapses to slim rail. */}
+          {tab === "overview" && (
+            <aside className={cn(sidebarOpen ? "space-y-3" : "hidden lg:flex lg:flex-col lg:items-center lg:gap-3 lg:pt-2")}>
+              {sidebarOpen ? (
+                <>
+                  <SidebarSection title={t("projects:detail.sidebar.team")}>
+                    {team.length === 0 ? (
+                      <div className="text-xs text-muted-foreground">{t("projects:detail.sidebar.noTeam")}</div>
+                    ) : (
+                      <div className="flex flex-wrap gap-1">
+                        {team.map((r) => (
+                          <Link
+                            key={r.id}
+                            to="/projects/resources/$resourceId"
+                            params={{ resourceId: r.id }}
+                            title={r.name}
+                            className="rounded-full hover:opacity-80"
+                          >
+                            <CollaboratorAvatar
+                              collaboratorId={(r as { collaborator_id?: string | null }).collaborator_id ?? null}
+                              name={r.name}
+                              color={r.color}
+                              size={22}
+                            />
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </SidebarSection>
+
+                  {canSeeFinancials && (
+                    <>
+                      <SidebarSection title={t("projects:detail.sidebar.budgetUsage")}>
+                        <div className="flex items-baseline justify-between">
+                          <span className="font-mono text-[11px]">
+                            <span className={budgetOver ? "text-destructive font-semibold" : ""}>
+                              {euros(actualCost)}
+                            </span>
+                            <span className="text-muted-foreground"> / {euros(totalBudget)}</span>
+                          </span>
+                          <span
+                            className={cn(
+                              "text-[10px]",
+                              budgetOver ? "text-destructive font-medium" : "text-muted-foreground",
+                            )}
+                          >
+                            {Math.round(budgetUsedPct * 100)}%
+                          </span>
+                        </div>
+                        <Meter
+                          value={Math.min(1, budgetUsedPct)}
+                          tone={budgetOver ? "danger" : "ok"}
+                          className="mt-2"
+                        />
+                      </SidebarSection>
+
+                      <SidebarSection title={t("projects:detail.sidebar.profit")}>
+                        <div className="flex items-baseline justify-between">
+                          <span
+                            className={cn(
+                              "font-mono text-sm font-semibold",
+                              actualProfit < 0 && "text-destructive",
+                            )}
+                          >
+                            {euros(actualProfit)}
+                          </span>
+                          {totalBudget > 0 && (
+                            <span
+                              className={cn(
+                                "text-[10px] font-medium",
+                                actualProfit < 0 ? "text-destructive" : "text-muted-foreground",
+                              )}
+                            >
+                              {Math.round((actualProfit / totalBudget) * 100)}%
+                            </span>
+                          )}
+                        </div>
+                      </SidebarSection>
+                    </>
+                  )}
+                </>
               ) : (
-                <div className="flex flex-wrap gap-1.5">
-                  {team.map((r) => (
-                    <Link
-                      key={r.id}
-                      to="/projects/resources/$resourceId"
-                      params={{ resourceId: r.id }}
-                      title={r.name}
-                      className="rounded-full hover:opacity-80"
-                    >
-                      <CollaboratorAvatar
-                        collaboratorId={(r as { collaborator_id?: string | null }).collaborator_id ?? null}
-                        name={r.name}
-                        color={r.color}
-                        size={26}
-                      />
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </SidebarSection>
-
-            {canSeeFinancials && (
-              <>
-                <SidebarSection title={t("projects:detail.sidebar.budgetUsage")}>
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-mono text-xs">
-                      <span className={budgetOver ? "text-destructive font-semibold" : ""}>
-                        {euros(actualCost)}
-                      </span>
-                      <span className="text-muted-foreground"> / {euros(totalBudget)}</span>
-                    </span>
-                    <span
-                      className={cn(
-                        "text-[11px]",
-                        budgetOver ? "text-destructive font-medium" : "text-muted-foreground",
-                      )}
-                    >
-                      {Math.round(budgetUsedPct * 100)}%
-                    </span>
-                  </div>
-                  <Meter
-                    value={Math.min(1, budgetUsedPct)}
-                    tone={budgetOver ? "danger" : "ok"}
-                    className="mt-2"
-                  />
-                  <div className="mt-1.5 text-[10px] text-muted-foreground">
-                    {t("projects:detail.sidebar.loggedHours", {
-                      logged: totalLoggedHours.toFixed(1),
-                      planned: totalPlannedHours.toFixed(0),
-                    })}
-                  </div>
-                </SidebarSection>
-
-                <SidebarSection title={t("projects:detail.sidebar.profit")}>
-                  <div className="flex items-baseline justify-between">
-                    <span
-                      className={cn(
-                        "font-mono text-base font-semibold",
-                        actualProfit < 0 && "text-destructive",
-                      )}
-                    >
-                      {euros(actualProfit)}
-                    </span>
-                    {totalBudget > 0 && (
-                      <span
+                /* Slim rail — icon-only summaries, click expands */
+                <>
+                  <button
+                    onClick={() => setSidebarOpen(true)}
+                    title={t("projects:detail.sidebar.team")}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground hover:bg-accent"
+                  >
+                    {team.length}
+                  </button>
+                  {canSeeFinancials && (
+                    <>
+                      <button
+                        onClick={() => setSidebarOpen(true)}
+                        title={`${t("projects:detail.sidebar.budgetUsage")} · ${Math.round(budgetUsedPct * 100)}%`}
                         className={cn(
-                          "text-[11px] font-medium",
-                          actualProfit < 0 ? "text-destructive" : "text-muted-foreground",
+                          "flex h-8 w-8 items-center justify-center rounded-full text-[9px] font-mono font-medium hover:opacity-80",
+                          budgetOver ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground",
                         )}
                       >
-                        {Math.round((actualProfit / totalBudget) * 100)}%
-                      </span>
-                    )}
-                  </div>
-                </SidebarSection>
-              </>
-            )}
-          </aside>
+                        {Math.round(budgetUsedPct * 100)}%
+                      </button>
+                      <button
+                        onClick={() => setSidebarOpen(true)}
+                        title={`${t("projects:detail.sidebar.profit")} · ${euros(actualProfit)}`}
+                        className={cn(
+                          "flex h-8 w-8 items-center justify-center rounded-full text-[9px] font-mono font-medium hover:opacity-80",
+                          actualProfit < 0 ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground",
+                        )}
+                      >
+                        {totalBudget > 0 ? `${Math.round((actualProfit / totalBudget) * 100)}%` : "—"}
+                      </button>
+                    </>
+                  )}
+                </>
+              )}
+            </aside>
+          )}
 
 
           {/* Main ------------------------------------------------------ */}
           <section>
-            {/* Tabs */}
-            <div className="flex items-center gap-0.5 overflow-x-auto border-b border-border">
-              <TabBtn icon={ListChecks} label={t("projects:detail.tabs.overview")} active={tab === "overview"} onClick={() => setTab("overview")} />
-              <TabBtn icon={Calendar} label={t("projects:detail.tabs.schedule")} active={tab === "schedule"} onClick={() => setTab("schedule")} />
-              <TabBtn icon={Package} label={t("projects:detail.tabs.materials")} active={tab === "materials"} onClick={() => setTab("materials")} />
-              <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
-              <TabBtn icon={DollarSign} label={t("projects:detail.tabs.rates")} active={tab === "rates"} onClick={() => setTab("rates")} />
-              <TabBtn icon={FileText} label={t("projects:detail.tabs.billing")} active={tab === "billing"} onClick={() => setTab("billing")} />
-              <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
-              <TabBtn icon={ActivityIcon} label={t("projects:detail.tabs.stream")} active={tab === "stream"} onClick={() => setTab("stream")} />
-            </div>
 
             {tab === "overview" && (
               <div className="mt-4 space-y-4">
@@ -1029,13 +1038,13 @@ function TabBtn({
     <button
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-2 whitespace-nowrap px-3.5 py-2.5 text-sm border-b-2 -mb-px transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+        "inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-2 text-[13px] border-b-2 -mb-px transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
         active
           ? "border-primary text-foreground font-medium"
           : "border-transparent text-muted-foreground hover:text-foreground",
       )}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="h-3.5 w-3.5" />
       {label}
     </button>
   );
