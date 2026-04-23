@@ -68,8 +68,11 @@ import { CollaboratorPhotoUploader } from "@/components/CollaboratorPhotoUploade
 import {
   useArchiveCollaborator,
   useRestoreCollaborator,
+  useCollaboratorReferenceCounts,
 } from "@/lib/hr/use-collaborators";
 import { ArchiveCollaboratorDialog } from "@/components/hr/archive-collaborator-dialog";
+import { RestoreCollaboratorDialog } from "@/components/hr/restore-collaborator-dialog";
+import { humanizeMutationError } from "@/lib/hr/error-messages";
 
 import { PermissionGate } from "@/components/PermissionGate";
 
