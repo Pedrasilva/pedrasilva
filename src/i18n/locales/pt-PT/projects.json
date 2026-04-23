@@ -481,7 +481,13 @@
       "billable": "Facturável",
       "internalNonBillable": "Interno não facturável",
       "nonWorking": "Não trabalhado",
+      "nonWorkingNone": "Sem férias aprovadas ou feriados registados neste período.",
+      "nonWorkingPending": "Existem dados na origem que ainda não foram persistidos — recarrega a página dentro de momentos.",
       "ofTotalTime": "{{pct}} do tempo total"
+    },
+    "nonWorkingReconcile": {
+      "title": "{{hours}} de férias aprovadas / feriados estavam em falta neste mês e acabaram de ser repostos.",
+      "hint": "Os totais de origem e persistidos estão agora reconciliados. Pessoas afectadas:"
     },
     "capacity": {
       "available": "Capacidade disponível",
