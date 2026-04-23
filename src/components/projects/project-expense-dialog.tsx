@@ -32,12 +32,14 @@ import {
   projectExpenseSchema,
   flattenIssues,
 } from "@/lib/projects/financial-validation";
+import { SupplierPicker } from "./supplier-picker";
+import type { Supplier } from "@/lib/projects/use-suppliers";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
-  initial?: ProjectExpense | null;
+  initial?: (ProjectExpense & { supplier_id?: string | null }) | null;
 }
 
 export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }: Props) {
