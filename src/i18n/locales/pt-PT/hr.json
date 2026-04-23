@@ -471,15 +471,13 @@
         "namePlaceholder": "ex: Tolerância de ponto",
         "addButton": "Adicionar"
       },
-      "description_zero": "Sem feriados registados para este ano.",
       "description_one": "{{count}} feriado — {{workingClause}}, {{weekendClause}}.",
       "description_other": "{{count}} feriados — {{workingClause}}, {{weekendClause}}.",
-      "workingClause_zero": "nenhum em dia útil",
       "workingClause_one": "{{count}} em dia útil",
       "workingClause_other": "{{count}} em dias úteis",
-      "weekendClause_zero": "nenhum ao fim-de-semana (sem impacto)",
       "weekendClause_one": "{{count}} ao fim-de-semana (sem impacto)",
-      "weekendClause_other": "{{count}} ao fim-de-semana (sem impacto)"
+      "weekendClause_other": "{{count}} ao fim-de-semana (sem impacto)",
+      "descriptionEmpty": "Sem feriados registados para este ano."
     },
     "formula": {
       "title": "Como é calculado",

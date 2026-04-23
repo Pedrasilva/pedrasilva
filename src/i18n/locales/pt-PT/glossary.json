@@ -2,9 +2,9 @@
   "_doc": {
     "purpose": "Dicionário mestre de terminologia. Fonte única de verdade para etiquetas canónicas em Projectos, Financeiro, CRM, HR, Folha de Horas, Previsão e Permissões.",
     "rule": "Os módulos DEVEM referenciar estas chaves via t('glossary:<grupo>.<termo>') em vez de redeclarar o mesmo conceito localmente.",
+    "ptCanonical": "Quando a UI EN apresenta um termo com forma canónica legal/payroll portuguesa, deve renderizar-se como 'etiqueta EN (canónica PT)' na primeira ocorrência, usando <Term k='...' /> — ver campo ptCanonical por termo.",
     "entityRule": "Usar entity.* para a etiqueta da entidade mestre (o próprio registo). Para a designação de relação/papel (ex: 'Aprovação do cliente', 'pertence ao cliente'), usar relation.*. Nunca substituir 'Empresa' por 'Cliente' como entidade mestre."
   },
-
   "entity": {
     "_doc": "Substantivos de entidade mestre — os tipos de registo. Reutilizar em qualquer UI que rotule um registo.",
     "company": "Empresa",
@@ -21,7 +21,6 @@
     "resource": "Recurso",
     "allocation": "Alocação"
   },
-
   "relation": {
     "_doc": "Designações de relação/papel — nunca substituem entity.*. Usar só quando a frase descreve um papel.",
     "client": "Cliente",
@@ -29,7 +28,6 @@
     "lead": "Responsável",
     "responsible": "Responsável"
   },
-
   "time": {
     "plannedHours": "Horas Planeadas",
     "loggedHours": "Horas Registadas",
@@ -43,7 +41,6 @@
     "paidHours": "Horas Pagas",
     "billable": "Faturável"
   },
-
   "financial": {
     "budget": "Orçamento",
     "revenue": "Receita",
@@ -58,7 +55,6 @@
     "value": "Valor",
     "fee": "Fee"
   },
-
   "planning": {
     "project": "Projeto",
     "stage": "Fase",
@@ -73,7 +69,6 @@
     "timeline": "Cronograma",
     "resource": "Recurso"
   },
-
   "performance": {
     "utilization": "Utilização",
     "capacity": "Capacidade",
@@ -91,7 +86,6 @@
     "underutilized": "Subutilizado",
     "overutilized": "Sobreutilizado"
   },
-
   "permissions": {
     "actions": {
       "view": "Ver",
@@ -117,7 +111,6 @@
       "finance": "Financeiro"
     }
   },
-
   "crm": {
     "company": "Empresa",
     "contact": "Contacto",
@@ -137,7 +130,6 @@
     "paymentSchedule": "Plano de Pagamento",
     "winRate": "Taxa de Sucesso"
   },
-
   "hr": {
     "employee": "Colaborador",
     "collaborator": "Colaborador",
@@ -159,7 +151,6 @@
     "netSalary": "Salário Líquido",
     "baseSalary": "Salário Base"
   },
-
   "ptCanonical": {
     "_doc": "Termos legais/payroll em PT — sempre usar a forma canónica.",
     "mealAllowance": "Subsídio de Alimentação",
@@ -172,7 +163,6 @@
     "grossSalary": "Salário Bruto",
     "netSalary": "Salário Líquido"
   },
-
   "_ambiguous": {
     "_doc": "Termos sinalizados para clarificação. NÃO usar como canónicos.",
     "value": "Significa por vezes 'valor de proposta', 'valor numérico genérico' ou 'orçamento'.",
