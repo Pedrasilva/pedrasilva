@@ -1077,7 +1077,7 @@ function FinancialsPage() {
 
         {/* Business Development efficiency */}
         <BusinessDevCard
-          monthLabel={format(monthAnchor, "MMMM yyyy")}
+          monthLabel={format(monthAnchor, "MMMM yyyy", { locale: dateLocale })}
           monthHours={bdMonthCost.hours}
           monthCost={bdMonthCost.cost}
           data={bd}
