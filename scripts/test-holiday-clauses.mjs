@@ -34,10 +34,10 @@ function load(lang) {
 }
 
 // English and European Portuguese both use the simple {one, other} CLDR rule
-// for cardinal numbers, with i18next additionally honoring "_zero" when the
-// caller passes count === 0 and a _zero entry exists.
-function pluralKey(base, count, dict) {
-  if (count === 0 && `${base}_zero` in dict) return `${base}_zero`;
+// for cardinal numbers, so i18next will resolve count===0 to the "_other"
+// suffix. The route handles the "no holidays" empty state explicitly via the
+// descriptionEmpty key (NOT a _zero plural variant) — this mirrors that.
+function pluralKey(base, count) {
   if (count === 1) return `${base}_one`;
   return `${base}_other`;
 }
@@ -59,9 +59,10 @@ function flatten(obj, prefix = "", out = {}) {
 
 function renderHolidayDescription(lang, total, working, weekend) {
   const flat = flatten(load(lang).diasUteis);
-  const wcKey = `holidays.${pluralKey("workingClause", working, flat)}`;
-  const weKey = `holidays.${pluralKey("weekendClause", weekend, flat)}`;
-  const dKey = `holidays.${pluralKey("description", total, flat)}`;
+  if (total === 0) return flat["holidays.descriptionEmpty"];
+  const wcKey = `holidays.${pluralKey("workingClause", working)}`;
+  const weKey = `holidays.${pluralKey("weekendClause", weekend)}`;
+  const dKey = `holidays.${pluralKey("description", total)}`;
   const workingClause = interp(flat[wcKey], { count: working });
   const weekendClause = interp(flat[weKey], { count: weekend });
   return interp(flat[dKey], { count: total, workingClause, weekendClause });
@@ -69,7 +70,7 @@ function renderHolidayDescription(lang, total, working, weekend) {
 
 function renderAppliedToast(lang, n) {
   const flat = flatten(load(lang).diasUteis);
-  const k = `toasts.${pluralKey("appliedToSnapshots", n, flat)}`;
+  const k = `toasts.${pluralKey("appliedToSnapshots", n)}`;
   return interp(flat[k], { count: n });
 }
 
@@ -91,20 +92,20 @@ const DESCRIPTION_CASES = [
 const EXPECTED_DESCRIPTION = {
   en: {
     "0/0/0": "No holidays registered for this year.",
-    "1/1/0": "1 holiday — 1 on a working day, none on a weekend (no impact).",
-    "1/0/1": "1 holiday — none on a working day, 1 on a weekend (no impact).",
+    "1/1/0": "1 holiday — 1 on a working day, 0 on weekends (no impact).",
+    "1/0/1": "1 holiday — 0 on working days, 1 on a weekend (no impact).",
     "2/1/1": "2 holidays — 1 on a working day, 1 on a weekend (no impact).",
-    "3/3/0": "3 holidays — 3 on working days, none on a weekend (no impact).",
-    "3/0/3": "3 holidays — none on a working day, 3 on weekends (no impact).",
+    "3/3/0": "3 holidays — 3 on working days, 0 on weekends (no impact).",
+    "3/0/3": "3 holidays — 0 on working days, 3 on weekends (no impact).",
     "13/11/2": "13 holidays — 11 on working days, 2 on weekends (no impact).",
   },
   "pt-PT": {
     "0/0/0": "Sem feriados registados para este ano.",
-    "1/1/0": "1 feriado — 1 em dia útil, nenhum ao fim-de-semana (sem impacto).",
-    "1/0/1": "1 feriado — nenhum em dia útil, 1 ao fim-de-semana (sem impacto).",
+    "1/1/0": "1 feriado — 1 em dia útil, 0 ao fim-de-semana (sem impacto).",
+    "1/0/1": "1 feriado — 0 em dias úteis, 1 ao fim-de-semana (sem impacto).",
     "2/1/1": "2 feriados — 1 em dia útil, 1 ao fim-de-semana (sem impacto).",
-    "3/3/0": "3 feriados — 3 em dias úteis, nenhum ao fim-de-semana (sem impacto).",
-    "3/0/3": "3 feriados — nenhum em dia útil, 3 ao fim-de-semana (sem impacto).",
+    "3/3/0": "3 feriados — 3 em dias úteis, 0 ao fim-de-semana (sem impacto).",
+    "3/0/3": "3 feriados — 0 em dias úteis, 3 ao fim-de-semana (sem impacto).",
     "13/11/2": "13 feriados — 11 em dias úteis, 2 ao fim-de-semana (sem impacto).",
   },
 };
