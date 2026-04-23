@@ -233,7 +233,7 @@ function HubPage() {
   if (loading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
-        A carregar…
+        {t("common:loading")}
       </div>
     );
   }
@@ -242,11 +242,10 @@ function HubPage() {
     return (
       <div className="mx-auto max-w-md py-16 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">
-          Sem módulos disponíveis
+          {t("home:noModules.title")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          A sua conta ainda não tem permissões atribuídas. Contacte um
-          administrador.
+          {t("home:noModules.body")}
         </p>
       </div>
     );
@@ -268,7 +267,7 @@ function HubPage() {
               {today}
             </div>
             <div className="hidden md:block text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-              Pedra Silva · Studio Hub
+              {t("home:studioHub")}
             </div>
           </div>
 
@@ -276,14 +275,12 @@ function HubPage() {
             {greeting}
             {firstName ? `, ${firstName}` : ""}.
             <span className="block text-muted-foreground">
-              We make room for creativity.
+              {t("home:tagline")}
             </span>
           </h1>
 
           <p className="mt-6 max-w-2xl text-base sm:text-lg text-foreground/70 leading-relaxed">
-            Bem-vindo ao espaço dos colaboradores PSA. Aqui partilhamos as
-            ferramentas, os projectos e os pequenos momentos que constroem o
-            atelier — todos os dias.
+            {t("home:intro")}
           </p>
 
           {/* Today's celebration banner */}
@@ -296,14 +293,18 @@ function HubPage() {
                 <Sparkles className="h-3.5 w-3.5" />
               </span>
               <span className="text-sm font-medium">
-                Hoje celebramos{" "}
-                {todayCelebrations
-                  .map((c) =>
-                    c.kind === "birthday"
-                      ? `${c.nome} (anos)`
-                      : `${c.nome} (${c.years} anos PSA)`,
-                  )
-                  .join(", ")}
+                {t("home:todayCelebrate", {
+                  names: todayCelebrations
+                    .map((c) =>
+                      c.kind === "birthday"
+                        ? t("home:celebrate.birthday", { name: c.nome })
+                        : t("home:celebrate.anniversary", {
+                            name: c.nome,
+                            years: c.years,
+                          }),
+                    )
+                    .join(", "),
+                })}
               </span>
             </div>
           )}
@@ -315,10 +316,10 @@ function HubPage() {
         <div className="flex items-end justify-between mb-6">
           <div>
             <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
-              Módulos
+              {t("home:modules.kicker")}
             </div>
             <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold tracking-tight">
-              Onde queres ir hoje?
+              {t("home:modules.title")}
             </h2>
           </div>
         </div>
@@ -348,13 +349,13 @@ function HubPage() {
                     <div className="mt-10">
                       <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                         <Icon className="h-3.5 w-3.5" />
-                        {m.subtitle}
+                        {t(m.subtitleKey)}
                       </div>
                       <h3 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-                        {m.title}
+                        {t(m.titleKey)}
                       </h3>
                       <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                        {m.description}
+                        {t(m.descriptionKey)}
                       </p>
                     </div>
                   </div>
