@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { computeSnapshot, fmtEUR, type Snapshot } from "@/lib/salary";
 import { CompositionDonut } from "./SalaryDonut";
 
 export function BrutoTab({ draft }: { draft: Snapshot }) {
+  const { t } = useTranslation("hr");
   const c = computeSnapshot(draft);
   const [period, setPeriod] = useState<"anual" | "mensal">("anual");
 
@@ -31,32 +33,35 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
   const brutoMensalMedio = c.baseMensalTributavel + c.ssAtelierMensal;
 
   const rows: Array<{ label: string; value: number; strong?: boolean; accent?: boolean; muted?: boolean }> = [
-    { label: "Valor base mensal", value: c.base },
+    { label: t("snapshot.bruto.rows.baseMonthly"), value: c.base },
   ];
 
   if (duodecimosMensal > 0.005) {
     rows.push({
       label:
         modo === "duodecimos_100"
-          ? "+ Duodécimos (subsídios férias + Natal diluídos em 12 meses)"
-          : "+ Duodécimos (50% dos subsídios diluídos em 12 meses)",
+          ? t("snapshot.bruto.rows.duodecimos100")
+          : t("snapshot.bruto.rows.duodecimos50"),
       value: duodecimosMensal,
     });
     rows.push({
-      label: "= Base mensal tributável",
+      label: t("snapshot.bruto.rows.taxableBase"),
       value: c.baseMensalTributavel,
       strong: true,
     });
     rows.push({
-      label: "+ SS Atelier (mensal, sobre base + duodécimos)",
+      label: t("snapshot.bruto.rows.ssAtelierMonthlyOverBase"),
       value: c.ssAtelierMensal,
     });
   } else {
-    rows.push({ label: "+ SS Atelier (mensal)", value: c.ssAtelierMensal });
+    rows.push({
+      label: t("snapshot.bruto.rows.ssAtelierMonthly"),
+      value: c.ssAtelierMensal,
+    });
   }
 
   rows.push({
-    label: "= Custo bruto mensal",
+    label: t("snapshot.bruto.rows.grossMonthlyCost"),
     value: brutoMensalMedio,
     strong: true,
   });
@@ -64,12 +69,12 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
   if (modo === "duodecimos_50") {
     rows.push(
       {
-        label: "+ Subsídio de férias (50% pago por inteiro em Junho)",
+        label: t("snapshot.bruto.rows.vacationFullJune50"),
         value: subsidioBrutoInteiro,
         muted: true,
       },
       {
-        label: "+ Subsídio de Natal (50% pago por inteiro em Novembro)",
+        label: t("snapshot.bruto.rows.christmasFullNovember50"),
         value: subsidioBrutoInteiro,
         muted: true,
       },
@@ -77,12 +82,12 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
   } else if (modo === "tradicional") {
     rows.push(
       {
-        label: "+ Subsídio de férias (pago por inteiro em Junho)",
+        label: t("snapshot.bruto.rows.vacationFullJune"),
         value: subsidioBrutoInteiro,
         muted: true,
       },
       {
-        label: "+ Subsídio de Natal (pago por inteiro em Novembro)",
+        label: t("snapshot.bruto.rows.christmasFullNovember"),
         value: subsidioBrutoInteiro,
         muted: true,
       },
@@ -90,45 +95,46 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
   }
 
   rows.push(
-    { label: "+ Subsídio alimentação mensal", value: c.alimentacaoMensal },
-    { label: "+ Ajudas de custo mensais", value: c.ajudasMensal },
-    { label: "+ Benefícios mensais", value: c.beneficiosMensal },
+    { label: t("snapshot.bruto.rows.mealAllowanceMonthly"), value: c.alimentacaoMensal },
+    { label: t("snapshot.bruto.rows.perDiemMonthly"), value: c.ajudasMensal },
+    { label: t("snapshot.bruto.rows.benefitsMonthly"), value: c.beneficiosMensal },
     {
-      label: "= Custo total RH mensal (VBG)",
+      label: t("snapshot.bruto.rows.totalHrCostMonthly"),
       value: brutoMensalMedio + c.alimentacaoMensal + c.ajudasMensal + c.beneficiosMensal,
       strong: true,
       accent: true,
     },
   );
 
-
   const annualSlices = [
-    { name: "Base anual", value: c.baseMensal12 * 12, color: "var(--sage)" },
-    { name: "SS Atelier", value: c.ssAtelier12 * 12, color: "var(--clay)" },
-    { name: "Subsídio alimentação", value: c.alimentacaoMensal * 12, color: "oklch(0.75 0.10 80)" },
-    { name: "Ajudas de custo", value: draft.ajudas_custo_anual, color: "oklch(0.65 0.13 50)" },
-    { name: "Benefícios", value: c.beneficiosAnual, color: "oklch(0.55 0.10 200)" },
+    { name: t("snapshot.bruto.composition.slices.baseAnnual"), value: c.baseMensal12 * 12, color: "var(--sage)" },
+    { name: t("snapshot.bruto.composition.slices.ssAtelier"), value: c.ssAtelier12 * 12, color: "var(--clay)" },
+    { name: t("snapshot.bruto.composition.slices.mealAllowance"), value: c.alimentacaoMensal * 12, color: "oklch(0.75 0.10 80)" },
+    { name: t("snapshot.bruto.composition.slices.perDiem"), value: draft.ajudas_custo_anual, color: "oklch(0.65 0.13 50)" },
+    { name: t("snapshot.bruto.composition.slices.benefits"), value: c.beneficiosAnual, color: "oklch(0.55 0.10 200)" },
   ];
 
   const monthlySlices = [
-    { name: "Base mensal", value: c.baseMensal12, color: "var(--sage)" },
-    { name: "SS Atelier", value: c.ssAtelier12, color: "var(--clay)" },
-    { name: "Subsídio alimentação", value: c.alimentacaoMensal, color: "oklch(0.75 0.10 80)" },
-    { name: "Ajudas de custo", value: c.ajudasMensal, color: "oklch(0.65 0.13 50)" },
-    { name: "Benefícios", value: c.beneficiosMensal, color: "oklch(0.55 0.10 200)" },
+    { name: t("snapshot.bruto.composition.slices.baseMonthly"), value: c.baseMensal12, color: "var(--sage)" },
+    { name: t("snapshot.bruto.composition.slices.ssAtelier"), value: c.ssAtelier12, color: "var(--clay)" },
+    { name: t("snapshot.bruto.composition.slices.mealAllowance"), value: c.alimentacaoMensal, color: "oklch(0.75 0.10 80)" },
+    { name: t("snapshot.bruto.composition.slices.perDiem"), value: c.ajudasMensal, color: "oklch(0.65 0.13 50)" },
+    { name: t("snapshot.bruto.composition.slices.benefits"), value: c.beneficiosMensal, color: "oklch(0.55 0.10 200)" },
   ];
 
   const isAnual = period === "anual";
   const slices = isAnual ? annualSlices : monthlySlices;
-  const centerLabel = isAnual ? "Custo VBG" : "Custo VBG mensal";
+  const centerLabel = isAnual
+    ? t("snapshot.bruto.composition.centerAnnual")
+    : t("snapshot.bruto.composition.centerMonthly");
   const centerValue = isAnual ? c.custoVBG : c.custoVBG / 12;
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Visão Bruto</CardTitle>
-          <CardDescription>Custo total para o atelier ao longo do ano.</CardDescription>
+          <CardTitle className="text-base">{t("snapshot.bruto.title")}</CardTitle>
+          <CardDescription>{t("snapshot.bruto.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="divide-y">
@@ -148,13 +154,21 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
         <CardHeader className="space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <CardTitle className="text-base">Composição {isAnual ? "anual" : "mensal"}</CardTitle>
-              <CardDescription>Custo RH (VBG) decomposto.</CardDescription>
+              <CardTitle className="text-base">
+                {isAnual
+                  ? t("snapshot.bruto.composition.annualTitle")
+                  : t("snapshot.bruto.composition.monthlyTitle")}
+              </CardTitle>
+              <CardDescription>{t("snapshot.bruto.composition.description")}</CardDescription>
             </div>
             <Tabs value={period} onValueChange={(v) => setPeriod(v as "anual" | "mensal")}>
               <TabsList className="h-8">
-                <TabsTrigger value="anual" className="h-6 px-2 text-xs">Anual</TabsTrigger>
-                <TabsTrigger value="mensal" className="h-6 px-2 text-xs">Mensal</TabsTrigger>
+                <TabsTrigger value="anual" className="h-6 px-2 text-xs">
+                  {t("snapshot.bruto.composition.annualToggle")}
+                </TabsTrigger>
+                <TabsTrigger value="mensal" className="h-6 px-2 text-xs">
+                  {t("snapshot.bruto.composition.monthlyToggle")}
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
