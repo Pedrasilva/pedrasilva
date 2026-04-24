@@ -543,6 +543,9 @@ function QuoteDetail() {
                   <div><span className="text-muted-foreground">{t("quotes.statusValue")}</span>{status ? t(`quoteStatus.${status.value}`) : ""}</div>
                   <div><span className="text-muted-foreground">{t("quotes.accountValue")}</span>{quote.account?.name ?? "—"}</div>
                   <div><span className="text-muted-foreground">{t("quotes.feeValue")}</span>{formatEUR(Number(quote.valor))}</div>
+                  {!quote.account_id && (
+                    <div className="text-amber-600 dark:text-amber-400 mt-2">{t("quotes.convertNoAccountWarning")}</div>
+                  )}
                   {quote.pm_project_id && (
                     <div className="text-emerald-600 dark:text-emerald-400 mt-2">{t("quotes.projectAlreadyCreated")}</div>
                   )}
