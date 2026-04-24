@@ -72,6 +72,8 @@ function CompanyDetail() {
         industria: current.industria,
         status: current.status,
         notas: current.notas,
+        nif: (current as Company & { nif?: string | null }).nif ?? null,
+        company_type: (current as Company & { company_type?: string | null }).company_type ?? null,
       }).eq("id", companyId);
       if (error) throw error;
     },
