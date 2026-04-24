@@ -14,13 +14,14 @@
  *   leave overlap, overload, status toggle, holiday shading, and
  *   cross-project moves are hidden.
  */
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { GanttChart, type StageWithProject } from "@/components/projects/gantt-chart";
 import { ResourcePool } from "@/components/projects/resource-pool";
+import { Button } from "@/components/ui/button";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
@@ -31,7 +32,18 @@ interface Props {
   dayWidth?: number;
 }
 
-export function QuoteGantt({ quoteId, dayWidth = 28 }: Props) {
+type ZoomMode = "week" | "month" | "fit";
+
+// Day widths chosen so that:
+//   week  → ~32px/day (detailed planning, default)
+//   month → ~10px/day (compact, multi-month overview)
+//   fit   → computed from totalDays so the whole quote fits in ~1100px
+const ZOOM_DAY_WIDTHS: Record<Exclude<ZoomMode, "fit">, number> = {
+  week: 32,
+  month: 10,
+};
+
+export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
