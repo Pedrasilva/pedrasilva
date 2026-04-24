@@ -21,6 +21,13 @@ import { QuoteExternalServicesTab } from "@/components/quotes/quote-external-ser
 import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
 import { QuoteFinancialSummaryTab } from "@/components/quotes/quote-financial-summary-tab";
 import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
+import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
+import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
+import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
+import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
+import { rollupQuote } from "@/lib/quotes/financial-rollups";
+import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
+import { useMemo } from "react";
 
 export const Route = createFileRoute("/_app/crm/quotes/$quoteId")({
   component: QuoteDetail,
@@ -154,7 +161,16 @@ function QuoteDetail() {
     mutationFn: async () => {
       if (!quote) throw new Error(t("quotes.loadError"));
       if (quote.quote_status !== "approved") throw new Error(t("quotes.convertOnlyApproved"));
-      if (quote.pm_project_id) return { id: quote.pm_project_id, alreadyExisted: true };
+      if (quote.pm_project_id) {
+        return {
+          id: quote.pm_project_id,
+          alreadyExisted: true,
+          stagesCopied: 0,
+          allocationsCopied: 0,
+          allocationsSkipped: 0,
+          externalCopied: 0,
+        };
+      }
 
       // 1. Create the project shell.
       const { data: project, error: projErr } = await supabase
@@ -201,6 +217,7 @@ function QuoteDetail() {
         if (insErr) throw insErr;
         stageIdMap.set(s.id, created.id);
       }
+      const stagesCopied = stageIdMap.size;
 
       // 3. Copy quote_allocations → pm_allocations (committed status).
       const { data: qAllocs, error: qaErr } = await db
@@ -209,9 +226,17 @@ function QuoteDetail() {
         .eq("quote_id", quote.id);
       if (qaErr) throw qaErr;
 
+      let allocationsCopied = 0;
+      let allocationsSkipped = 0;
       for (const a of qAllocs ?? []) {
         const newStageId = stageIdMap.get(a.stage_id);
-        if (!newStageId) continue; // stage was deleted mid-copy; skip
+        if (!newStageId) {
+          // Stage was deleted mid-copy or never existed — surface in toast.
+          allocationsSkipped += 1;
+          // eslint-disable-next-line no-console
+          console.warn("Quote→Project conversion: skipped allocation with missing stage", a);
+          continue;
+        }
         const { error: aErr } = await db.from("pm_allocations").insert({
           stage_id: newStageId,
           resource_id: a.resource_id,
@@ -221,11 +246,10 @@ function QuoteDetail() {
           status: "committed",
         });
         if (aErr) throw aErr;
+        allocationsCopied += 1;
       }
 
       // 4. Copy quote_external_services → pm_materials.
-      // pm_materials shares the same purchase/sale/markup model. Sale price is
-      // recomputed by the DB trigger; we forward the inputs and the manual flag.
       const { data: qExt, error: qeErr } = await db
         .from("quote_external_services")
         .select(
@@ -234,6 +258,7 @@ function QuoteDetail() {
         .eq("quote_id", quote.id);
       if (qeErr) throw qeErr;
 
+      let externalCopied = 0;
       for (const e of qExt ?? []) {
         const { error: mErr } = await db.from("pm_materials").insert({
           project_id: project.id,
@@ -250,6 +275,7 @@ function QuoteDetail() {
           notes: e.notes,
         });
         if (mErr) throw mErr;
+        externalCopied += 1;
       }
 
       // 5. Link the project back to the quote and mark opportunity as won.
@@ -262,10 +288,32 @@ function QuoteDetail() {
       if (quote.opportunity_id) {
         await supabase.from("crm_opportunities").update({ stage: "won" }).eq("id", quote.opportunity_id);
       }
-      return { id: project.id, alreadyExisted: false };
+      return {
+        id: project.id,
+        alreadyExisted: false,
+        stagesCopied,
+        allocationsCopied,
+        allocationsSkipped,
+        externalCopied,
+      };
     },
     onSuccess: (res) => {
-      toast.success(res.alreadyExisted ? t("quotes.convertExisting") : t("quotes.convertCreated"));
+      if (res.alreadyExisted) {
+        toast.success(t("quotes.convertExisting"));
+      } else {
+        toast.success(
+          t("quotes.convertSummary", {
+            stages: res.stagesCopied,
+            allocations: res.allocationsCopied,
+            external: res.externalCopied,
+          }),
+        );
+        if (res.allocationsSkipped > 0) {
+          toast.warning(
+            t("quotes.convertSkipped", { count: res.allocationsSkipped }),
+          );
+        }
+      }
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
       qc.invalidateQueries({ queryKey: ["crm_opportunity"] });
       navigate({ to: "/projects/$projectId", params: { projectId: res.id } });
@@ -282,6 +330,30 @@ function QuoteDetail() {
     }
     if (confirm(t("quotes.convertConfirm"))) convert.mutate();
   };
+
+  // Pre-conversion integrity warnings — reuses the same builder as the
+  // Planning/Financial tabs so the user sees consistent signals everywhere.
+  // Hooks must run before any early return: never gate them on `quote`.
+  const stagesQ = useQuoteStages(quoteId);
+  const allocsQ = useQuoteAllocations(quoteId);
+  const externalQ = useQuoteExternalServices(quoteId);
+  const preConvertWarnings = useMemo(() => {
+    const stages = stagesQ.data ?? [];
+    const allocations = allocsQ.data ?? [];
+    const externalServices = externalQ.data ?? [];
+    const multiplier = Number(form.pricing_multiplier) || 1;
+    const summary = rollupQuote({
+      allocations,
+      externalServices,
+      pricingMultiplier: multiplier,
+    });
+    return buildQuoteWarnings({
+      stages,
+      allocations,
+      externalServices,
+      summary,
+    });
+  }, [stagesQ.data, allocsQ.data, externalQ.data, form.pricing_multiplier]);
 
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   if (!quote) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
@@ -442,6 +514,10 @@ function QuoteDetail() {
                     <div className="text-emerald-600 dark:text-emerald-400 mt-2">{t("quotes.projectAlreadyCreated")}</div>
                   )}
                 </div>
+                {/* Non-blocking integrity warnings shown before conversion */}
+                {!quote.pm_project_id && preConvertWarnings.length > 0 && (
+                  <QuoteWarningsBanner warnings={preConvertWarnings} />
+                )}
                 <Button className="w-full" onClick={handleConvert} disabled={!canConvert || convert.isPending}>
                   <Rocket className="h-4 w-4 mr-1" />
                   {quote.pm_project_id ? t("quotes.openProjectButton") : t("quotes.convertButton")}

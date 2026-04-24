@@ -121,6 +121,8 @@
     "convertOnlyApproved": "Só propostas aprovadas podem ser convertidas",
     "convertExisting": "Projecto já existe — a abrir",
     "convertCreated": "Projecto criado",
+    "convertSummary": "Projecto criado — copiadas {{stages}} fases, {{allocations}} alocações, {{external}} serviços externos.",
+    "convertSkipped": "{{count}} alocação(ões) ignorada(s) (sem fase correspondente). Ver consola para detalhes.",
     "backToOpportunity": "Voltar à oportunidade",
     "backToOpportunities": "Voltar a oportunidades",
     "openProject": "Abrir projecto",
@@ -287,17 +289,21 @@
     },
     "proposal": {
       "documentLabel": "Proposta",
+      "issueDate": "Emitida em",
+      "noClient": "Cliente a confirmar",
       "clientFacingHint": "Vista para o cliente. Custo interno, margem e horas por alocação ficam ocultos.",
       "print": "Imprimir / Exportar PDF",
       "descriptionTitle": "Descrição do projecto",
       "stagesTitle": "Fases",
-      "teamTitle": "Equipa",
+      "scopeTitle": "Âmbito do trabalho",
+      "teamTitle": "Equipa do projecto",
       "externalTitle": "Serviços externos",
+      "includedServicesTitle": "Serviços incluídos",
       "totalFee": "Honorários totais",
       "totalFeeHint": "Inclui tempo interno e serviços externos. IVA não incluído.",
       "paymentScheduleTitle": "Plano de pagamentos",
-      "noStages": "Ainda sem fases definidas.",
-      "noTeam": "Ainda sem equipa atribuída."
+      "noStages": "Âmbito do trabalho a definir.",
+      "noTeam": "Equipa a atribuir."
     }
   }
 }

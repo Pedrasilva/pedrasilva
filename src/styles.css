@@ -308,4 +308,36 @@
   .print-area button {
     display: none !important;
   }
+
+  /* ── Proposal print polish ────────────────────────────────────────────
+     Larger page margins for proposals and friendlier page-break behaviour.
+     Each major section in the Proposal tab is wrapped in `.proposal-section`
+     so the printer keeps headings with their content and avoids splitting
+     a list of stages or the payment schedule across two pages. */
+  .print-area .proposal-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .print-area .proposal-section h1,
+  .print-area .proposal-section h2,
+  .print-area .proposal-section h3 {
+    page-break-after: avoid;
+    break-after: avoid-page;
+    /* widows/orphans only meaningful for paragraphs but harmless here */
+    orphans: 3;
+    widows: 3;
+  }
+  .print-area .proposal-row {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+@media print {
+  /* Slightly larger A4 margins specifically when printing a proposal —
+     the proposal lives inside `.print-area` and is the only context where
+     the studio header/issue date layout needs comfortable side margins. */
+  @page :first {
+    margin: 16mm;
+  }
 }
