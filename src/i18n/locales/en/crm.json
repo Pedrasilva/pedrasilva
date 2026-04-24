@@ -289,17 +289,21 @@
     },
     "proposal": {
       "documentLabel": "Proposal",
+      "issueDate": "Issued",
+      "noClient": "Client to be confirmed",
       "clientFacingHint": "Client-facing summary. Internal cost, margin and per-allocation hours are hidden.",
       "print": "Print / Export to PDF",
       "descriptionTitle": "Project description",
       "stagesTitle": "Stages",
-      "teamTitle": "Team",
+      "scopeTitle": "Scope of work",
+      "teamTitle": "Project team",
       "externalTitle": "External services",
+      "includedServicesTitle": "Included services",
       "totalFee": "Total fee",
       "totalFeeHint": "Inclusive of internal time and external services. Excludes VAT.",
       "paymentScheduleTitle": "Payment schedule",
-      "noStages": "No stages defined yet.",
-      "noTeam": "No team assigned yet."
+      "noStages": "Scope of work to be defined.",
+      "noTeam": "Project team to be assigned."
     }
   }
 }
