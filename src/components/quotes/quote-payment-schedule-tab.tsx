@@ -1,12 +1,17 @@
 /**
  * Quote Payment Schedule tab — planned forecast payments.
- * No invoice generation yet (Phase D).
+ *
+ * Phase 6 additions:
+ * - Generator buttons (milestones / thirds / monthly) with manual-override safety.
+ * - Per-row "manual" badge so the user can see which rows are protected.
+ * - Editing or marking-edited a row sets manual_override = true.
  */
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -14,14 +19,21 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   useQuotePaymentSchedule,
   useUpsertQuotePaymentItem,
   useDeleteQuotePaymentItem,
+  useApplyPaymentGenerator,
 } from "@/lib/quotes/use-quote-payment-schedule";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
+import {
+  generateStageMilestones,
+  generateThirds,
+  generateMonthly,
+  type GeneratorKind,
+} from "@/lib/quotes/payment-generators";
 import {
   QUOTE_PAYMENT_TRIGGERS, QUOTE_PAYMENT_AMOUNT_TYPES,
   type QuotePaymentTrigger, type QuotePaymentAmountType,
@@ -34,6 +46,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const stagesQ = useQuoteStages(quoteId);
   const upsert = useUpsertQuotePaymentItem(quoteId);
   const remove = useDeleteQuotePaymentItem(quoteId);
+  const applyGen = useApplyPaymentGenerator(quoteId);
   const items = itemsQ.data ?? [];
   const stages = stagesQ.data ?? [];
 
@@ -88,11 +101,64 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     upsert.mutate({ id: b.id, sort_order: a.sort_order });
   };
 
+  const runGenerator = async (kind: GeneratorKind) => {
+    let generated: ReturnType<typeof generateStageMilestones> = [];
+    if (kind === "milestones") generated = generateStageMilestones(stages);
+    else if (kind === "thirds") generated = generateThirds(stages);
+    else if (kind === "monthly") generated = generateMonthly(stages);
+
+    if (generated.length === 0) {
+      toast.error(t("workspace.payment.generatorEmpty"));
+      return;
+    }
+    const protectedCount = items.filter((it) => it.manual_override).length;
+    try {
+      await applyGen.mutateAsync({ generator: kind, items: generated });
+      toast.success(
+        protectedCount > 0
+          ? t("workspace.payment.generatorAppliedKeep", { count: protectedCount })
+          : t("workspace.payment.generatorApplied"),
+      );
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
           <CardTitle className="text-base">{t("workspace.payment.title")}</CardTitle>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground hidden md:inline">
+              <Wand2 className="h-3 w-3 inline mr-1" />
+              {t("workspace.payment.generators")}
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={applyGen.isPending}
+              onClick={() => runGenerator("milestones")}
+            >
+              {t("workspace.payment.genMilestones")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={applyGen.isPending}
+              onClick={() => runGenerator("thirds")}
+            >
+              {t("workspace.payment.genThirds")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={applyGen.isPending}
+              onClick={() => runGenerator("monthly")}
+            >
+              {t("workspace.payment.genMonthly")}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -105,7 +171,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                 <TableHead className="text-right">{t("workspace.payment.amount")}</TableHead>
                 <TableHead>{t("workspace.payment.invoiceDate")}</TableHead>
                 <TableHead>{t("workspace.payment.paymentDate")}</TableHead>
-                <TableHead className="w-16" />
+                <TableHead className="w-20" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -121,7 +187,20 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                       </Button>
                     </div>
                   </TableCell>
-                  <TableCell>{it.label}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span>{it.label}</span>
+                      {it.manual_override ? (
+                        <Badge variant="secondary" className="text-[10px] px-1 py-0">
+                          {t("workspace.payment.manualBadge")}
+                        </Badge>
+                      ) : it.generator_source ? (
+                        <Badge variant="outline" className="text-[10px] px-1 py-0">
+                          {it.generator_source}
+                        </Badge>
+                      ) : null}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     {QUOTE_PAYMENT_TRIGGERS.find((x) => x.value === it.trigger_type)?.label}
                   </TableCell>
@@ -136,9 +215,21 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                   <TableCell>{it.expected_invoice_date ?? "—"}</TableCell>
                   <TableCell>{it.expected_payment_date ?? "—"}</TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm" onClick={() => remove.mutate(it.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      {!it.manual_override && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          title={t("workspace.payment.lockTooltip")}
+                          onClick={() => upsert.mutate({ id: it.id, manual_override: true })}
+                        >
+                          🔒
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="sm" onClick={() => remove.mutate(it.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

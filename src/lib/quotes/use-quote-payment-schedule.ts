@@ -9,6 +9,7 @@ import type {
   QuotePaymentTrigger,
   QuotePaymentAmountType,
 } from "./types";
+import type { GeneratorItem, GeneratorKind } from "./payment-generators";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -24,6 +25,8 @@ export type QuotePaymentItemInsert = {
   expected_payment_date?: string | null;
   sort_order?: number;
   notes?: string | null;
+  manual_override?: boolean;
+  generator_source?: string | null;
 };
 
 export type QuotePaymentItemUpdate = Partial<QuotePaymentItemInsert> & {
@@ -84,6 +87,72 @@ export function useDeleteQuotePaymentItem(quoteId: string) {
         .delete()
         .eq("id", id);
       if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] });
+    },
+  });
+}
+
+/**
+ * Apply a generator: deletes all existing items from the same generator_source
+ * (or all non-manual items if `replaceAll`), then inserts the new generated rows.
+ * Items with `manual_override = true` are NEVER touched.
+ */
+export function useApplyPaymentGenerator(quoteId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      generator: GeneratorKind;
+      items: GeneratorItem[];
+      replaceAll?: boolean;
+    }) => {
+      // 1) Determine which existing items to delete.
+      const filter = db
+        .from("quote_payment_schedule_items")
+        .delete()
+        .eq("quote_id", quoteId)
+        .eq("manual_override", false);
+
+      if (!input.replaceAll) {
+        filter.eq("generator_source", input.generator);
+      }
+
+      const { error: delError } = await filter;
+      if (delError) throw new Error(delError.message);
+
+      // 2) Find next sort_order base after preserved items.
+      const { data: preserved, error: selError } = await db
+        .from("quote_payment_schedule_items")
+        .select("sort_order")
+        .eq("quote_id", quoteId)
+        .order("sort_order", { ascending: false })
+        .limit(1);
+      if (selError) throw new Error(selError.message);
+      const base =
+        preserved && preserved.length > 0 ? Number(preserved[0].sort_order) + 1 : 0;
+
+      // 3) Insert new rows.
+      if (input.items.length === 0) return [];
+      const rows = input.items.map((it, i) => ({
+        quote_id: quoteId,
+        label: it.label,
+        trigger_type: it.trigger_type,
+        amount_type: it.amount_type,
+        amount_value: it.amount_value,
+        stage_id: it.stage_id,
+        expected_invoice_date: it.expected_invoice_date,
+        expected_payment_date: it.expected_payment_date,
+        sort_order: base + i,
+        generator_source: it.generator_source,
+        manual_override: false,
+      }));
+      const { data, error } = await db
+        .from("quote_payment_schedule_items")
+        .insert(rows)
+        .select();
+      if (error) throw new Error(error.message);
+      return data as QuotePaymentScheduleItem[];
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] });

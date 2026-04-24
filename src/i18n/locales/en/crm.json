@@ -311,7 +311,16 @@
       "labelPlaceholder": "e.g. Down payment",
       "errorLabel": "Label is required",
       "errorStage": "Stage is required for this trigger",
-      "errorDate": "Date is required for this trigger"
+      "errorDate": "Date is required for this trigger",
+      "generators": "Generators:",
+      "genMilestones": "Per stage",
+      "genThirds": "30 / 40 / 30",
+      "genMonthly": "Monthly",
+      "generatorEmpty": "No stages to generate from",
+      "generatorApplied": "Schedule generated",
+      "generatorAppliedKeep": "Schedule generated — kept {{count}} manual entries",
+      "manualBadge": "manual",
+      "lockTooltip": "Lock as manual (protect from generators)"
     },
     "financial": {
       "totalsTitle": "Totals",

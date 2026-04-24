@@ -311,7 +311,16 @@
       "labelPlaceholder": "ex: Sinal",
       "errorLabel": "Etiqueta é obrigatória",
       "errorStage": "Fase é obrigatória para este gatilho",
-      "errorDate": "Data é obrigatória para este gatilho"
+      "errorDate": "Data é obrigatória para este gatilho",
+      "generators": "Geradores:",
+      "genMilestones": "Por fase",
+      "genThirds": "30 / 40 / 30",
+      "genMonthly": "Mensal",
+      "generatorEmpty": "Sem fases para gerar",
+      "generatorApplied": "Plano gerado",
+      "generatorAppliedKeep": "Plano gerado — mantidos {{count}} registos manuais",
+      "manualBadge": "manual",
+      "lockTooltip": "Marcar como manual (proteger de geradores)"
     },
     "financial": {
       "totalsTitle": "Totais",
