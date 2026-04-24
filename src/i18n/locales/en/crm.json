@@ -211,7 +211,8 @@
       "stagePlaceholder": "Select stage",
       "stageCreated": "Stage created",
       "manualTablesTitle": "Manual planning tables",
-      "loading": "Loading…"
+      "loading": "Loading…",
+      "dragHelper": "Drag resources into stages to build the fee."
     },
     "external": {
       "title": "External services",
