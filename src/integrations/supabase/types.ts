@@ -2167,8 +2167,10 @@ export type Database = {
           created_at: string
           expected_invoice_date: string | null
           expected_payment_date: string | null
+          generator_source: string | null
           id: string
           label: string
+          manual_override: boolean
           notes: string | null
           quote_id: string
           sort_order: number
@@ -2182,8 +2184,10 @@ export type Database = {
           created_at?: string
           expected_invoice_date?: string | null
           expected_payment_date?: string | null
+          generator_source?: string | null
           id?: string
           label: string
+          manual_override?: boolean
           notes?: string | null
           quote_id: string
           sort_order?: number
@@ -2197,8 +2201,10 @@ export type Database = {
           created_at?: string
           expected_invoice_date?: string | null
           expected_payment_date?: string | null
+          generator_source?: string | null
           id?: string
           label?: string
+          manual_override?: boolean
           notes?: string | null
           quote_id?: string
           sort_order?: number
