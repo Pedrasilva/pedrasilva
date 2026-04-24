@@ -2,10 +2,12 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Building2, Users, GitBranch, LayoutDashboard, Target, Receipt } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
 
 export function CrmShell({ children }: { children: React.ReactNode }) {
   const loc = useLocation();
   const { t } = useTranslation("crm");
+  const { isAdmin } = useAuth();
 
   const tabs = [
     { to: "/crm" as const, label: t("shell.tabs.overview"), icon: LayoutDashboard, match: (p: string) => p === "/crm" },
@@ -13,7 +15,10 @@ export function CrmShell({ children }: { children: React.ReactNode }) {
     { to: "/crm/accounts" as const, label: t("shell.tabs.accounts"), icon: Receipt, match: (p: string) => p.startsWith("/crm/accounts") },
     { to: "/crm/companies" as const, label: t("shell.tabs.companies"), icon: Building2, match: (p: string) => p.startsWith("/crm/companies") },
     { to: "/crm/contacts" as const, label: t("shell.tabs.contacts"), icon: Users, match: (p: string) => p.startsWith("/crm/contacts") },
-    { to: "/crm/pipeline" as const, label: t("shell.tabs.pipelineLegacy"), icon: GitBranch, match: (p: string) => p.startsWith("/crm/pipeline") },
+    // Legacy pipeline kept hidden behind admin role until fully retired.
+    ...(isAdmin
+      ? [{ to: "/crm/pipeline" as const, label: t("shell.tabs.pipelineLegacy"), icon: GitBranch, match: (p: string) => p.startsWith("/crm/pipeline") }]
+      : []),
   ];
 
   return (
