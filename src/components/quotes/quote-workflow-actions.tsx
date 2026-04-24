@@ -117,6 +117,21 @@ export function QuoteWorkflowActions({
     const next = pending.next;
     setPending(null);
     setStatus.mutate(next);
+    // Move focus to a neutral element AFTER Radix returns focus to the
+    // trigger. Without this, focus can bleed onto the next enabled button
+    // in tab order (e.g. the Convert to Project button which becomes
+    // enabled the instant status flips to "approved"), and a held/queued
+    // Enter keypress would then trigger that button — opening the convert
+    // confirmation as a visible side-effect of approval.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const active = document.activeElement as HTMLElement | null;
+        if (active && typeof active.blur === "function") active.blur();
+        if (typeof document !== "undefined" && document.body) {
+          document.body.focus?.();
+        }
+      });
+    });
   };
 
   // Already converted → only show "open project" shortcut.
