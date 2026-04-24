@@ -246,7 +246,7 @@ function OpportunityDetail() {
                   <th className="px-2 py-2">{t("opportunities.detail.quoteStructure")}</th>
                   <th className="px-2 py-2">{t("opportunities.detail.quoteStatus")}</th>
                   <th className="px-2 py-2 text-right">{t("opportunities.detail.quoteFee")}</th>
-                  <th className="px-2 py-2 text-right">{t("common.notes").replace("Notes", "")}</th>
+                  <th className="px-2 py-2 text-right" aria-label="actions"></th>
                 </tr>
               </thead>
               <tbody>
