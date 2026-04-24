@@ -219,27 +219,33 @@ export function QuoteProposalTab({
 
             <Separator />
 
-            {/* ── Project Team ────────────────────────────────────── */}
+            {/* ── Project Team (by role) ──────────────────────────── */}
             <section className="proposal-section">
               <h2 className="text-sm font-semibold mb-2">
                 {t("proposal.teamTitle")}
               </h2>
-              {team.length === 0 ? (
+              {roles.length === 0 ? (
                 <p className="text-sm text-muted-foreground italic">
                   {t("proposal.noTeam")}
                 </p>
               ) : (
-                <ul className="flex flex-wrap gap-2">
-                  {team.map((m) => (
+                <ul className="space-y-1.5">
+                  {roles.map((r) => (
                     <li
-                      key={m.id}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs"
+                      key={r.role}
+                      className="proposal-row flex items-center justify-between gap-3 text-sm border-b border-border/50 pb-1.5 last:border-0"
                     >
-                      <span
-                        className="inline-block h-2 w-2 rounded-full"
-                        style={{ background: m.color }}
-                      />
-                      {m.name}
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">{r.role}</div>
+                        {r.people.size > 0 && (
+                          <div className="text-xs text-muted-foreground truncate">
+                            {[...r.people].join(", ")}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                        {t("proposal.roleHours", { hours: Math.round(r.hours) })}
+                      </span>
                     </li>
                   ))}
                 </ul>
