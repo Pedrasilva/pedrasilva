@@ -529,6 +529,8 @@ export function QuotePlanningTab({ quoteId }: { quoteId: string }) {
           )}
         </CardContent>
       </Card>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 }
