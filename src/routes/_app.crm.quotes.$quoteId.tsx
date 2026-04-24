@@ -12,6 +12,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Rocket, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { QuoteWorkflowActions } from "@/components/quotes/quote-workflow-actions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useState, useEffect } from "react";
 import {
   formatEUR, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
@@ -347,6 +357,13 @@ function QuoteDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // Convert prompt is owned by React state (AlertDialog), not by the
+  // browser's native confirm(). This guarantees the prompt is only shown
+  // when the user clicks the dedicated Convert button — never as a
+  // side-effect of approving or any other status transition.
+  const [convertOpen, setConvertOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
   const handleConvert = () => {
     if (!quote) return;
     if (quote.pm_project_id) {
@@ -354,7 +371,7 @@ function QuoteDetail() {
       convert.mutate();
       return;
     }
-    if (confirm(t("quotes.convertConfirm"))) convert.mutate();
+    setConvertOpen(true);
   };
 
   // Pre-conversion integrity warnings — reuses the same builder as the
