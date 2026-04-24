@@ -9,6 +9,7 @@ import type {
   QuotePaymentTrigger,
   QuotePaymentAmountType,
 } from "./types";
+import type { GeneratorItem, GeneratorKind } from "./payment-generators";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
