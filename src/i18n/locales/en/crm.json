@@ -142,7 +142,7 @@
     "convertOnlyApproved": "Only approved quotes can be converted",
     "convertExisting": "Project already exists — opening it",
     "convertCreated": "Project created",
-    "convertSummary": "Project created — copied {{stages}} stages, {{allocations}} allocations, {{external}} external services.",
+    "convertSummary": "Project created — copied {{stages}} stages, {{dependencies}} dependencies, {{allocations}} allocations, {{external}} external services.",
     "convertSkipped": "{{count}} allocation(s) skipped (missing stage mapping). See console for details.",
     "backToOpportunity": "Back to opportunity",
     "backToOpportunities": "Back to opportunities",
