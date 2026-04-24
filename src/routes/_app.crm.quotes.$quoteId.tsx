@@ -385,7 +385,6 @@ function QuoteDetail() {
   if (!quote) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
 
   const status = QUOTE_STATUSES.find((s) => s.value === quote.quote_status);
-  const canApprove = !!form.account_id;
   const canConvert = quote.quote_status === "approved";
   const pricingMultiplier = Number(form.pricing_multiplier) || 1;
 
