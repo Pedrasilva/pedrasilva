@@ -257,7 +257,11 @@
       "manualTablesTitle": "Manual planning tables",
       "loading": "Loading…",
       "dragHelper": "Drag resources into stages to build the fee.",
-      "feeDriverHint": "Your fee is driven by team time and external services."
+      "feeDriverHint": "Your fee is driven by team time and external services.",
+      "zoomLabel": "Zoom",
+      "zoomWeek": "Week",
+      "zoomMonth": "Month",
+      "zoomFit": "Fit"
     },
     "warnings": {
       "noStages": "No stages yet — add at least one stage to plan the work.",
