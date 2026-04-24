@@ -4,18 +4,9 @@ import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, parseISO, startOfWeek } from "date-fns";
 import type { Resource, StageWithAllocations } from "@/lib/projects/types";
 import { allocationCost, dayCount, euros, workingDays } from "@/lib/projects/gantt-utils";
-import { useDefaultResourceRates, effectiveCostRate } from "@/lib/projects/use-default-rates";
-import {
-  useCreateAllocation,
-  useUpdateAllocation,
-  useUpdateStageWithCascade,
-  useDeleteStage,
-  useStageDependencies,
-  useCreateDependency,
-} from "@/lib/projects/use-planner";
+import { effectiveCostRate } from "@/lib/projects/use-default-rates";
 import { AllocationEditor } from "@/components/projects/allocation-editor";
 import { StageDependencyEditor } from "@/components/projects/stage-dependency-editor";
-import { StageBaselineDialog } from "@/components/projects/stage-baseline-dialog";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { toast } from "sonner";
 import { Trash2, GripVertical, AlertTriangle, CalendarOff } from "lucide-react";
@@ -26,10 +17,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { fmt } from "@/lib/projects/gantt-utils";
 import { useDateLocale } from "@/i18n/use-date-locale";
+import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
 
 export type StageWithProject = StageWithAllocations & { projectId: string };
 
 interface Props {
+  /**
+   * `projectId` is kept for backwards compatibility with callers that pass
+   * it; the Gantt component itself never reads it. The scoping ID lives on
+   * each stage row (`stage.projectId`) and on adapter mutation payloads.
+   */
   projectId?: string;
   stages: StageWithProject[];
   origin: Date;
@@ -37,6 +34,12 @@ interface Props {
   dayWidth: number;
   resources: Resource[];
   embedded?: boolean;
+  /**
+   * Planner adapter — one instance per Gantt mounting. ProjectGantt /
+   * QuoteGantt build this from their respective hook stacks. The adapter
+   * also drives feature flags (baseline ghost, leave/overload badges, etc.).
+   */
+  adapter: PlannerAdapter;
 }
 
 const STAGE_ROW_H = 92;
@@ -59,7 +62,7 @@ interface LinkDragState {
   pointerY: number;
 }
 
-export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: Props) {
+export function GanttChart({ stages, origin, totalDays, dayWidth, resources, adapter }: Props) {
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
   const canvasRef = useRef<HTMLDivElement>(null);
