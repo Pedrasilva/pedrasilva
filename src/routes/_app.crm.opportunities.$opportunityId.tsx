@@ -246,6 +246,7 @@ function OpportunityDetail() {
                   <th className="px-2 py-2">{t("opportunities.detail.quoteStructure")}</th>
                   <th className="px-2 py-2">{t("opportunities.detail.quoteStatus")}</th>
                   <th className="px-2 py-2 text-right">{t("opportunities.detail.quoteFee")}</th>
+                  <th className="px-2 py-2 text-right">{t("common.notes").replace("Notes", "")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -272,6 +273,13 @@ function OpportunityDetail() {
                         </span>
                       </td>
                       <td className="px-2 py-2 text-right font-medium">{formatEUR(Number(q.valor))}</td>
+                      <td className="px-2 py-2 text-right">
+                        <Button asChild variant="ghost" size="sm" className="h-7 px-2 text-xs">
+                          <Link to="/crm/quotes/$quoteId" params={{ quoteId: q.id }}>
+                            {t("opportunities.card.openQuote")}
+                          </Link>
+                        </Button>
+                      </td>
                     </tr>
                   );
                 })}
