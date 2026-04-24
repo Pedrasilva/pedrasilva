@@ -168,14 +168,14 @@ export function QuoteFinancialSummaryTab({
     <div className="space-y-6">
       <QuoteWarningsBanner warnings={warnings} />
 
-      {/* HEADLINE — Total Fee, Total Cost, Profit, Margin */}
+      {/* HEADLINE — Total Fee, Total Cost, Profit, Margin, Markup */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
             {t("workspace.financial.totalsTitle")}
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
+        <CardContent className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           <HeadlineStat
             label={t("workspace.financial.totalFee")}
             value={formatEUR(summary.totalFee)}
@@ -197,6 +197,11 @@ export function QuoteFinancialSummaryTab({
             value={`${(summary.effectiveMargin * 100).toFixed(1)}%`}
             accent={marginAccent}
             emphasis="hero"
+          />
+          <HeadlineStat
+            label={t("workspace.financial.markupOnCost")}
+            value={`${(markupOnCost * 100).toFixed(1)}%`}
+            accent={markupAccent}
           />
         </CardContent>
       </Card>
