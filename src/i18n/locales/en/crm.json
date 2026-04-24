@@ -157,6 +157,7 @@
     "convertButton": "Convert to project",
     "openProjectButton": "Open project",
     "approveFirstHint": "Quote must be approved first.",
+    "convertNoAccountWarning": "No account assigned",
     "setAccountFirst": " (set account first)",
     "convertConfirm": "Create the operational project from this quote? Stages, allocations and external services will be copied. This cannot be undone.",
     "newQuoteDialog": {
