@@ -453,8 +453,7 @@ function QuoteDetail() {
               <ExternalLink className="h-3 w-3" /> {t("quotes.openProject")}
             </Link>
           )}
-          <Button variant="outline" size="sm"
-            onClick={() => { if (confirm(t("quotes.deleteConfirm"))) remove.mutate(); }}>
+          <Button variant="outline" size="sm" onClick={() => setDeleteOpen(true)}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
