@@ -24,6 +24,7 @@ import {
 import type { Resource } from "@/lib/projects/types";
 import type { StageDependency, DepType } from "@/lib/projects/dependencies";
 import { QUOTE_FEATURES, type PlannerAdapter } from "@/lib/projects/planner-adapter";
+import { useDefaultResourceRates, effectiveRates } from "@/lib/projects/use-default-rates";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -42,14 +43,21 @@ export function useQuotePlannerAdapter(
   const updateDep = useUpdateQuoteDependency(quoteId);
   const deleteDep = useDeleteQuoteDependency(quoteId);
   const updateStageCascade = useUpdateQuoteStageWithCascade(quoteId);
+  // HR-derived default rates: covers the common case where pm_resources rows
+  // have cost_rate / sale_rate / hourly_rate all 0 (rates live in the HR
+  // pricing model, not on pm_resources). Without these, every dragged
+  // allocation snapshots €0/h and stage rollups are stuck at €0.
+  const { data: defaults } = useDefaultResourceRates();
 
-  // Snapshot rates straight from the resource's current values — no overrides.
+  // Snapshot rates: prefer the resource's manual rate when > 0, otherwise
+  // fall back to the HR-computed default for that resource.
   function snapshotRates(resourceId: string): { cost: number; sale: number } {
     const r = resources.find((x) => x.id === resourceId);
-    return {
-      cost: Number(r?.cost_rate ?? 0),
-      sale: Number(r?.sale_rate ?? r?.hourly_rate ?? 0),
-    };
+    if (!r) return { cost: 0, sale: 0 };
+    return effectiveRates(
+      { id: r.id, hourly_rate: r.hourly_rate ?? r.sale_rate, cost_rate: r.cost_rate },
+      defaults,
+    );
   }
 
   // Quote allocation drag/move uses an upsert, so we need a tiny wrapper that
