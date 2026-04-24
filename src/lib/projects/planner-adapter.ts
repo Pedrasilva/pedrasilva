@@ -66,6 +66,7 @@ export interface PlannerAllocationUpdateArgs {
     hours_per_day?: number;
     stage_id?: string;
     status?: "tentative" | "committed";
+    allocation_percentage?: number | null;
   };
 }
 
