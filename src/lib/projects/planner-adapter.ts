@@ -105,7 +105,7 @@ export interface PlannerAdapter {
    */
   dependencies: StageDependency[];
   /** Default resource-rate overrides (used for cost colorization in project mode). */
-  defaultRates: ResourceDefaultRate[] | undefined;
+  defaultRates: DefaultRateInfo[] | undefined;
   /** Active resources, used by drag-from-pool create flow. */
   resources: Resource[];
 
