@@ -16,8 +16,12 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Collapsible, CollapsibleContent, CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { QuoteGantt } from "@/components/quotes/quote-gantt";
 import {
   useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage,
 } from "@/lib/quotes/use-quote-stages";
