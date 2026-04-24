@@ -157,6 +157,7 @@
     "convertButton": "Converter em projecto",
     "openProjectButton": "Abrir projecto",
     "approveFirstHint": "A proposta tem de ser aprovada primeiro.",
+    "convertNoAccountWarning": "Sem conta atribuída",
     "setAccountFirst": " (definir conta primeiro)",
     "convertConfirm": "Criar o projecto operacional a partir desta proposta? Fases, alocações e serviços externos serão copiados. Esta acção não pode ser desfeita.",
     "newQuoteDialog": {
@@ -179,6 +180,7 @@
       "confirm": {
         "send": "Marcar esta proposta como enviada ao cliente?",
         "approve": "Marcar esta proposta como aprovada? A oportunidade será movida para Ganho.",
+        "approveNoAccount": "Não há conta atribuída a esta proposta. Aprovar mesmo assim?",
         "lost": "Marcar esta proposta como perdida? A oportunidade será movida para Perdido."
       },
       "toast": {

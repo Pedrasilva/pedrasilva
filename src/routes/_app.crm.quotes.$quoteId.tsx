@@ -115,9 +115,6 @@ function QuoteDetail() {
 
   const save = useMutation({
     mutationFn: async () => {
-      if (form.quote_status === "approved" && !form.account_id) {
-        throw new Error(t("quotes.approveAccountRequired"));
-      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updates: any = {
         titulo: form.titulo.trim(),
@@ -138,6 +135,8 @@ function QuoteDetail() {
       toast.success(t("quotes.savedToast"));
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunity"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -386,7 +385,6 @@ function QuoteDetail() {
   if (!quote) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
 
   const status = QUOTE_STATUSES.find((s) => s.value === quote.quote_status);
-  const canApprove = !!form.account_id;
   const canConvert = quote.quote_status === "approved";
   const pricingMultiplier = Number(form.pricing_multiplier) || 1;
 
@@ -497,7 +495,7 @@ function QuoteDetail() {
                     onChange={(e) => setForm((f) => ({ ...f, pricing_multiplier: e.target.value }))} />
                 </div>
                 <div>
-                  <Label>{t("common.account")} {form.quote_status === "approved" && "*"}</Label>
+                  <Label>{t("common.account")}</Label>
                   <Select value={form.account_id || "none"}
                     onValueChange={(v) => setForm((f) => ({ ...f, account_id: v === "none" ? "" : v }))}>
                     <SelectTrigger><SelectValue placeholder={t("common.noAccount")} /></SelectTrigger>
@@ -514,8 +512,8 @@ function QuoteDetail() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {QUOTE_STATUSES.map((s) => (
-                        <SelectItem key={s.value} value={s.value} disabled={s.value === "approved" && !canApprove}>
-                          {t(`quoteStatus.${s.value}`)}{s.value === "approved" && !canApprove ? t("quotes.setAccountFirst") : ""}
+                        <SelectItem key={s.value} value={s.value}>
+                          {t(`quoteStatus.${s.value}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -545,6 +543,9 @@ function QuoteDetail() {
                   <div><span className="text-muted-foreground">{t("quotes.statusValue")}</span>{status ? t(`quoteStatus.${status.value}`) : ""}</div>
                   <div><span className="text-muted-foreground">{t("quotes.accountValue")}</span>{quote.account?.name ?? "—"}</div>
                   <div><span className="text-muted-foreground">{t("quotes.feeValue")}</span>{formatEUR(Number(quote.valor))}</div>
+                  {!quote.account_id && (
+                    <div className="text-amber-600 dark:text-amber-400 mt-2">{t("quotes.convertNoAccountWarning")}</div>
+                  )}
                   {quote.pm_project_id && (
                     <div className="text-emerald-600 dark:text-emerald-400 mt-2">{t("quotes.projectAlreadyCreated")}</div>
                   )}

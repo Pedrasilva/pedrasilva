@@ -157,6 +157,7 @@
     "convertButton": "Convert to project",
     "openProjectButton": "Open project",
     "approveFirstHint": "Quote must be approved first.",
+    "convertNoAccountWarning": "No account assigned",
     "setAccountFirst": " (set account first)",
     "convertConfirm": "Create the operational project from this quote? Stages, allocations and external services will be copied. This cannot be undone.",
     "newQuoteDialog": {
@@ -179,6 +180,7 @@
       "confirm": {
         "send": "Mark this quote as sent to the client?",
         "approve": "Mark this quote as approved? This will move the opportunity to Won.",
+        "approveNoAccount": "No account is assigned to this quote. Approve anyway?",
         "lost": "Mark this quote as lost? This will move the opportunity to Lost."
       },
       "toast": {
