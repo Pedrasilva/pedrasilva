@@ -388,6 +388,8 @@
       "paymentScheduleTitle": "Payment schedule",
       "noStages": "Scope of work to be defined.",
       "noTeam": "Project team to be assigned.",
+      "unspecifiedRole": "Team Member",
+      "roleHours": "{{hours}}h",
       "acceptanceTitle": "Acceptance",
       "acceptanceHint": "By signing below, the client confirms acceptance of this proposal.",
       "acceptanceClientName": "Client name",
