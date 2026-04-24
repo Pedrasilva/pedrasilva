@@ -21,6 +21,13 @@ import { QuoteExternalServicesTab } from "@/components/quotes/quote-external-ser
 import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
 import { QuoteFinancialSummaryTab } from "@/components/quotes/quote-financial-summary-tab";
 import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
+import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
+import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
+import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
+import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
+import { rollupQuote } from "@/lib/quotes/financial-rollups";
+import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
+import { useMemo } from "react";
 
 export const Route = createFileRoute("/_app/crm/quotes/$quoteId")({
   component: QuoteDetail,
