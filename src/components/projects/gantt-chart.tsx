@@ -569,7 +569,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
-                      <StageDependencyEditor stage={stage} allStages={stages} />
+                      <StageDependencyEditor stage={stage} allStages={stages} adapter={adapter} />
                     </div>
 
                     <div
@@ -762,7 +762,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                                   })
                                 }
                               />
-                              <AllocationEditor allocation={a} projectId={stage.projectId} />
+                              <AllocationEditor allocation={a} projectId={stage.projectId} adapter={adapter} />
                             </div>
                           </TooltipTrigger>
                           <TooltipContent side="top" align="start" className="max-w-xs p-0">
