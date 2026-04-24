@@ -115,9 +115,6 @@ function QuoteDetail() {
 
   const save = useMutation({
     mutationFn: async () => {
-      if (form.quote_status === "approved" && !form.account_id) {
-        throw new Error(t("quotes.approveAccountRequired"));
-      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updates: any = {
         titulo: form.titulo.trim(),
@@ -138,6 +135,8 @@ function QuoteDetail() {
       toast.success(t("quotes.savedToast"));
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunity"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
