@@ -25,6 +25,8 @@ export type QuotePaymentItemInsert = {
   expected_payment_date?: string | null;
   sort_order?: number;
   notes?: string | null;
+  manual_override?: boolean;
+  generator_source?: string | null;
 };
 
 export type QuotePaymentItemUpdate = Partial<QuotePaymentItemInsert> & {
