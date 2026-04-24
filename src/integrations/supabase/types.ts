@@ -50,6 +50,13 @@ export type Database = {
             referencedRelation: "collaborators"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "benefit_balances_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       benefit_expenses: {
@@ -115,6 +122,13 @@ export type Database = {
             referencedRelation: "collaborators"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "benefit_expenses_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       benefit_yearly_credits: {
@@ -154,6 +168,13 @@ export type Database = {
             columns: ["collaborator_id"]
             isOneToOne: false
             referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_yearly_credits_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -393,6 +414,13 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "pm_suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_expenses_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -1096,6 +1124,13 @@ export type Database = {
             referencedRelation: "pm_suppliers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pm_expenses_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       pm_internal_categories: {
@@ -1448,6 +1483,13 @@ export type Database = {
             referencedRelation: "pm_suppliers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pm_materials_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       pm_project_rate_overrides: {
@@ -1683,6 +1725,13 @@ export type Database = {
             columns: ["collaborator_id"]
             isOneToOne: false
             referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_resources_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -2009,6 +2058,13 @@ export type Database = {
             referencedRelation: "collaborators"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "projects_responsavel_id_fkey"
+            columns: ["responsavel_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       quote_allocations: {
@@ -2156,6 +2212,13 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "pm_suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_external_services_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -2463,6 +2526,13 @@ export type Database = {
             referencedRelation: "collaborators"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "salary_snapshots_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_permissions: {
@@ -2588,51 +2658,100 @@ export type Database = {
             referencedRelation: "collaborators"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "vacation_requests_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      get_collaborator_full: {
-        Args: { _id: string }
-        Returns: {
-          ano_fiscal: number
-          archive_reason: string | null
+      collaborators_directory: {
+        Row: {
+          ano_fiscal: number | null
           archived_at: string | null
           archived_by: string | null
-          created_at: string
-          daily_hours: number
+          created_at: string | null
+          daily_hours: number | null
           data_nascimento: string | null
-          days_per_week: number
-          departamento: Database["public"]["Enums"]["department"]
-          dependentes_com_deficiencia: number
-          dias_ferias_anuais: number
-          dias_ferias_extra: number
+          days_per_week: number | null
+          departamento: Database["public"]["Enums"]["department"] | null
+          dias_ferias_anuais: number | null
+          dias_ferias_extra: number | null
           email: string | null
-          estado_civil: string
           foto_path: string | null
-          id: string
+          id: string | null
           inicio_carreira: string | null
-          language_preference: string
-          localizacao: string
-          margem_lucro_pct_override: number | null
-          nome: string
+          language_preference: string | null
+          nome: string | null
           numero_colaborador: string | null
-          numero_dependentes: number
-          numero_titulares: number
-          saldo_ferias_anterior: number
-          situacao_contractual: string | null
-          updated_at: string
+          updated_at: string | null
         }
-        SetofOptions: {
-          from: "*"
-          to: "collaborators"
-          isOneToOne: true
-          isSetofReturn: false
+        Insert: {
+          ano_fiscal?: number | null
+          archived_at?: string | null
+          archived_by?: string | null
+          created_at?: string | null
+          daily_hours?: number | null
+          data_nascimento?: string | null
+          days_per_week?: number | null
+          departamento?: Database["public"]["Enums"]["department"] | null
+          dias_ferias_anuais?: number | null
+          dias_ferias_extra?: number | null
+          email?: string | null
+          foto_path?: string | null
+          id?: string | null
+          inicio_carreira?: string | null
+          language_preference?: string | null
+          nome?: string | null
+          numero_colaborador?: string | null
+          updated_at?: string | null
         }
+        Update: {
+          ano_fiscal?: number | null
+          archived_at?: string | null
+          archived_by?: string | null
+          created_at?: string | null
+          daily_hours?: number | null
+          data_nascimento?: string | null
+          days_per_week?: number | null
+          departamento?: Database["public"]["Enums"]["department"] | null
+          dias_ferias_anuais?: number | null
+          dias_ferias_extra?: number | null
+          email?: string | null
+          foto_path?: string | null
+          id?: string | null
+          inicio_carreira?: string | null
+          language_preference?: string | null
+          nome?: string | null
+          numero_colaborador?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
+      pm_suppliers_directory: {
+        Row: {
+          active: boolean | null
+          id: string | null
+          name: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          id?: string | null
+          name?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          id?: string | null
+          name?: string | null
+        }
+        Relationships: []
+      }
+    }
+    Functions: {
       get_my_collaborator_id: { Args: never; Returns: string }
       has_module_permission: {
         Args: { _key: string; _required_scope: string; _user_id: string }
@@ -2650,65 +2769,6 @@ export type Database = {
         Returns: boolean
       }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
-      list_collaborators_full: {
-        Args: { _include_archived?: boolean }
-        Returns: {
-          ano_fiscal: number
-          archive_reason: string | null
-          archived_at: string | null
-          archived_by: string | null
-          created_at: string
-          daily_hours: number
-          data_nascimento: string | null
-          days_per_week: number
-          departamento: Database["public"]["Enums"]["department"]
-          dependentes_com_deficiencia: number
-          dias_ferias_anuais: number
-          dias_ferias_extra: number
-          email: string | null
-          estado_civil: string
-          foto_path: string | null
-          id: string
-          inicio_carreira: string | null
-          language_preference: string
-          localizacao: string
-          margem_lucro_pct_override: number | null
-          nome: string
-          numero_colaborador: string | null
-          numero_dependentes: number
-          numero_titulares: number
-          saldo_ferias_anterior: number
-          situacao_contractual: string | null
-          updated_at: string
-        }[]
-        SetofOptions: {
-          from: "*"
-          to: "collaborators"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
-      list_pm_suppliers_full: {
-        Args: never
-        Returns: {
-          active: boolean
-          contact_name: string | null
-          created_at: string
-          email: string | null
-          id: string
-          name: string
-          notes: string | null
-          phone: string | null
-          tax_id: string | null
-          updated_at: string
-        }[]
-        SetofOptions: {
-          from: "*"
-          to: "pm_suppliers"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
       list_user_effective_permissions: {
         Args: { _user_id: string }
         Returns: {
