@@ -14,13 +14,14 @@
  *   leave overlap, overload, status toggle, holiday shading, and
  *   cross-project moves are hidden.
  */
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { GanttChart, type StageWithProject } from "@/components/projects/gantt-chart";
 import { ResourcePool } from "@/components/projects/resource-pool";
+import { Button } from "@/components/ui/button";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
@@ -31,7 +32,18 @@ interface Props {
   dayWidth?: number;
 }
 
-export function QuoteGantt({ quoteId, dayWidth = 28 }: Props) {
+type ZoomMode = "week" | "month" | "fit";
+
+// Day widths chosen so that:
+//   week  → ~32px/day (detailed planning, default)
+//   month → ~10px/day (compact, multi-month overview)
+//   fit   → computed from totalDays so the whole quote fits in ~1100px
+const ZOOM_DAY_WIDTHS: Record<Exclude<ZoomMode, "fit">, number> = {
+  week: 32,
+  month: 10,
+};
+
+export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
@@ -143,6 +155,30 @@ export function QuoteGantt({ quoteId, dayWidth = 28 }: Props) {
     return { origin: o, totalDays: days };
   }, [mappedStages]);
 
+  // Zoom — local UI state. Default to "week" (matches old detailed view).
+  // If a parent forces dayWidth via prop, that wins (uncontrolled fallback only
+  // when the prop is undefined).
+  const [zoom, setZoom] = useState<ZoomMode>("week");
+
+  // Reset to "week" when switching quotes — avoids carrying over a fitted width
+  // sized for a different quote's totalDays.
+  useEffect(() => {
+    setZoom("week");
+  }, [quoteId]);
+
+  const computedDayWidth = useMemo(() => {
+    if (dayWidthProp !== undefined) return dayWidthProp;
+    if (zoom === "fit") {
+      // Aim to fit the whole quote into ~1100px of timeline real estate.
+      const target = 1100;
+      const w = Math.floor(target / Math.max(1, totalDays));
+      // Clamp so bars stay readable (min 4px/day) but don't get absurdly wide
+      // for tiny quotes (max 32px/day = same as week).
+      return Math.max(4, Math.min(32, w));
+    }
+    return ZOOM_DAY_WIDTHS[zoom];
+  }, [zoom, totalDays, dayWidthProp]);
+
   if (stagesQ.isLoading) {
     return (
       <div className="rounded-md border border-border p-8 text-center text-sm text-muted-foreground">
@@ -161,11 +197,47 @@ export function QuoteGantt({ quoteId, dayWidth = 28 }: Props) {
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-muted-foreground">
-        {t("workspace.planning.dragHelper", {
-          defaultValue: "Drag resources into stages to build the fee.",
-        })}
-      </p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs text-muted-foreground">
+          {t("workspace.planning.dragHelper", {
+            defaultValue: "Drag resources into stages to build the fee.",
+          })}
+        </p>
+        {dayWidthProp === undefined && (
+          <div className="flex items-center gap-1 rounded-md border border-border bg-card p-0.5">
+            <span className="px-2 text-xs text-muted-foreground">
+              {t("workspace.planning.zoomLabel", { defaultValue: "Zoom" })}
+            </span>
+            <Button
+              type="button"
+              variant={zoom === "week" ? "default" : "ghost"}
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setZoom("week")}
+            >
+              {t("workspace.planning.zoomWeek", { defaultValue: "Week" })}
+            </Button>
+            <Button
+              type="button"
+              variant={zoom === "month" ? "default" : "ghost"}
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setZoom("month")}
+            >
+              {t("workspace.planning.zoomMonth", { defaultValue: "Month" })}
+            </Button>
+            <Button
+              type="button"
+              variant={zoom === "fit" ? "default" : "ghost"}
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setZoom("fit")}
+            >
+              {t("workspace.planning.zoomFit", { defaultValue: "Fit" })}
+            </Button>
+          </div>
+        )}
+      </div>
       <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
         <div className="flex-1 overflow-auto">
           <GanttChart
@@ -173,7 +245,7 @@ export function QuoteGantt({ quoteId, dayWidth = 28 }: Props) {
             stages={mappedStages}
             origin={origin}
             totalDays={totalDays}
-            dayWidth={dayWidth}
+            dayWidth={computedDayWidth}
             resources={resources}
             adapter={adapter}
             embedded

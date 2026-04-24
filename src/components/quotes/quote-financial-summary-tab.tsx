@@ -9,8 +9,15 @@
  *   - Lightweight warnings (negative margin, missing team, etc.) shown at
  *     the top via QuoteWarningsBanner.
  */
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
@@ -85,6 +92,7 @@ export function QuoteFinancialSummaryTab({
   pricingMultiplier: number;
 }) {
   const { t } = useTranslation("crm");
+  const qc = useQueryClient();
   const stagesQ = useQuoteStages(quoteId);
   const allocsQ = useQuoteAllocations(quoteId);
   const extQ = useQuoteExternalServices(quoteId);
@@ -93,16 +101,56 @@ export function QuoteFinancialSummaryTab({
   const externalServices = extQ.data ?? [];
   const stages = stagesQ.data ?? [];
 
+  // Local draft of the multiplier so the user can type freely (e.g. "1.")
+  // without losing focus or forcing a mutation per keystroke. We persist on
+  // explicit Save click or blur — see saveMultiplier below.
+  const [multiplierDraft, setMultiplierDraft] = useState<string>(
+    String(pricingMultiplier ?? 1),
+  );
+  useEffect(() => {
+    setMultiplierDraft(String(pricingMultiplier ?? 1));
+  }, [pricingMultiplier]);
+
+  const persistMultiplier = useMutation({
+    mutationFn: async (next: number) => {
+      const { error } = await supabase
+        .from("fee_proposals")
+        .update({ pricing_multiplier: next })
+        .eq("id", quoteId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("workspace.financial.multiplierSaved"));
+      qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
+      qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  // Apply the typed value optimistically to the rollup so KPIs update live,
+  // even before the mutation lands. Falls back to the prop on invalid input.
+  const draftNum = Number(multiplierDraft);
+  const liveMultiplier = Number.isFinite(draftNum) && draftNum > 0
+    ? draftNum
+    : pricingMultiplier;
+
   const summary = rollupQuote({
     allocations,
     externalServices,
-    pricingMultiplier,
+    pricingMultiplier: liveMultiplier,
   });
 
   const band = marginBand(summary.effectiveMargin);
   const marginAccent: Accent = band === "good" ? "good" : band === "warn" ? "warn" : "bad";
   const profitAccent: Accent =
     summary.total.profit > 0 ? "good" : summary.total.profit < 0 ? "bad" : "warn";
+
+  // Markup on cost = profit / cost. Different from margin (profit / fee).
+  // Useful for designers who think in “add X% on top of cost”.
+  const markupOnCost =
+    summary.total.cost > 0 ? summary.total.profit / summary.total.cost : 0;
+  const markupAccent: Accent =
+    markupOnCost > 0 ? "good" : markupOnCost < 0 ? "bad" : "warn";
 
   const warnings = buildQuoteWarnings({
     stages,
@@ -120,14 +168,14 @@ export function QuoteFinancialSummaryTab({
     <div className="space-y-6">
       <QuoteWarningsBanner warnings={warnings} />
 
-      {/* HEADLINE — Total Fee, Total Cost, Profit, Margin */}
+      {/* HEADLINE — Total Fee, Total Cost, Profit, Margin, Markup */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
             {t("workspace.financial.totalsTitle")}
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
+        <CardContent className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           <HeadlineStat
             label={t("workspace.financial.totalFee")}
             value={formatEUR(summary.totalFee)}
@@ -149,6 +197,11 @@ export function QuoteFinancialSummaryTab({
             value={`${(summary.effectiveMargin * 100).toFixed(1)}%`}
             accent={marginAccent}
             emphasis="hero"
+          />
+          <HeadlineStat
+            label={t("workspace.financial.markupOnCost")}
+            value={`${(markupOnCost * 100).toFixed(1)}%`}
+            accent={markupAccent}
           />
         </CardContent>
       </Card>
@@ -205,14 +258,71 @@ export function QuoteFinancialSummaryTab({
               value={formatEUR(externalProfit)}
               accent={externalProfit >= 0 ? "good" : "bad"}
             />
-            <Cell
-              label={t("workspace.financial.pricingMultiplier")}
-              value={`× ${summary.pricingMultiplier}`}
-              accent="muted"
-            />
           </CardContent>
         </Card>
       </div>
+
+      {/* PRICING CONTROL — editable multiplier, persists to fee_proposals */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            {t("workspace.financial.pricingMultiplier")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="w-40">
+              <Label htmlFor="quote-multiplier" className="text-xs">
+                ×
+              </Label>
+              <Input
+                id="quote-multiplier"
+                type="number"
+                step="0.01"
+                min="0"
+                value={multiplierDraft}
+                onChange={(e) => setMultiplierDraft(e.target.value)}
+                onBlur={() => {
+                  const n = Number(multiplierDraft);
+                  if (Number.isFinite(n) && n > 0 && n !== pricingMultiplier) {
+                    persistMultiplier.mutate(n);
+                  }
+                }}
+              />
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              disabled={
+                persistMultiplier.isPending ||
+                !Number.isFinite(Number(multiplierDraft)) ||
+                Number(multiplierDraft) <= 0 ||
+                Number(multiplierDraft) === pricingMultiplier
+              }
+              onClick={() => persistMultiplier.mutate(Number(multiplierDraft))}
+            >
+              {t("workspace.financial.saveMultiplier")}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              {t("workspace.financial.pricingMultiplierHint")}
+            </p>
+          </div>
+          <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+            <p>
+              <span className="font-medium text-foreground">
+                {t("workspace.financial.effectiveMargin")}:
+              </span>{" "}
+              {t("workspace.financial.marginHint")}
+            </p>
+            <p>
+              <span className="font-medium text-foreground">
+                {t("workspace.financial.markupOnCost")}:
+              </span>{" "}
+              {t("workspace.financial.markupHint")}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       <p className="text-xs text-muted-foreground">
         {t("workspace.financial.disclaimer")}
