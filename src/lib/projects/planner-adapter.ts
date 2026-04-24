@@ -32,6 +32,8 @@ export interface PlannerFeatures {
   crossProjectMove: boolean;
   /** Show holiday shading on the timeline background. */
   holidayShading: boolean;
+  /** Allocation editor exposes an allocation % field that drives hours/day. */
+  allocationPercentage: boolean;
 }
 
 export interface PlannerStageUpdateArgs {
