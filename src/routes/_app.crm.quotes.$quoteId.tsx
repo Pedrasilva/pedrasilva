@@ -331,6 +331,30 @@ function QuoteDetail() {
     if (confirm(t("quotes.convertConfirm"))) convert.mutate();
   };
 
+  // Pre-conversion integrity warnings — reuses the same builder as the
+  // Planning/Financial tabs so the user sees consistent signals everywhere.
+  // Hooks must run before any early return: never gate them on `quote`.
+  const stagesQ = useQuoteStages(quoteId);
+  const allocsQ = useQuoteAllocations(quoteId);
+  const externalQ = useQuoteExternalServices(quoteId);
+  const preConvertWarnings = useMemo(() => {
+    const stages = stagesQ.data ?? [];
+    const allocations = allocsQ.data ?? [];
+    const externalServices = externalQ.data ?? [];
+    const multiplier = Number(form.pricing_multiplier) || 1;
+    const summary = rollupQuote({
+      allocations,
+      externalServices,
+      pricingMultiplier: multiplier,
+    });
+    return buildQuoteWarnings({
+      stages,
+      allocations,
+      externalServices,
+      summary,
+    });
+  }, [stagesQ.data, allocsQ.data, externalQ.data, form.pricing_multiplier]);
+
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   if (!quote) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
 
