@@ -220,6 +220,29 @@ function QuoteDetail() {
       }
       const stagesCopied = stageIdMap.size;
 
+      // 2b. Copy quote_stage_dependencies → pm_stage_dependencies, remapping
+      //     predecessor/successor IDs through stageIdMap. Skip silently if
+      //     either endpoint is missing (defensive — schema FKs prevent it).
+      let dependenciesCopied = 0;
+      const { data: qDeps, error: qdErr } = await db
+        .from("quote_stage_dependencies")
+        .select("predecessor_stage_id, successor_stage_id, type, lag_days")
+        .eq("quote_id", quote.id);
+      if (qdErr) throw qdErr;
+      for (const d of qDeps ?? []) {
+        const pred = stageIdMap.get(d.predecessor_stage_id);
+        const succ = stageIdMap.get(d.successor_stage_id);
+        if (!pred || !succ) continue;
+        const { error: dErr } = await db.from("pm_stage_dependencies").insert({
+          predecessor_id: pred,
+          successor_id: succ,
+          type: d.type ?? "FS",
+          lag_days: Number(d.lag_days ?? 0),
+        });
+        if (dErr) throw dErr;
+        dependenciesCopied += 1;
+      }
+
       // 3. Copy quote_allocations → pm_allocations (committed status).
       const { data: qAllocs, error: qaErr } = await db
         .from("quote_allocations")
