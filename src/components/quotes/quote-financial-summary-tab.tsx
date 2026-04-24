@@ -92,6 +92,7 @@ export function QuoteFinancialSummaryTab({
   pricingMultiplier: number;
 }) {
   const { t } = useTranslation("crm");
+  const qc = useQueryClient();
   const stagesQ = useQuoteStages(quoteId);
   const allocsQ = useQuoteAllocations(quoteId);
   const extQ = useQuoteExternalServices(quoteId);
@@ -100,16 +101,56 @@ export function QuoteFinancialSummaryTab({
   const externalServices = extQ.data ?? [];
   const stages = stagesQ.data ?? [];
 
+  // Local draft of the multiplier so the user can type freely (e.g. "1.")
+  // without losing focus or forcing a mutation per keystroke. We persist on
+  // explicit Save click or blur — see saveMultiplier below.
+  const [multiplierDraft, setMultiplierDraft] = useState<string>(
+    String(pricingMultiplier ?? 1),
+  );
+  useEffect(() => {
+    setMultiplierDraft(String(pricingMultiplier ?? 1));
+  }, [pricingMultiplier]);
+
+  const persistMultiplier = useMutation({
+    mutationFn: async (next: number) => {
+      const { error } = await supabase
+        .from("fee_proposals")
+        .update({ pricing_multiplier: next })
+        .eq("id", quoteId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("workspace.financial.multiplierSaved"));
+      qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
+      qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  // Apply the typed value optimistically to the rollup so KPIs update live,
+  // even before the mutation lands. Falls back to the prop on invalid input.
+  const draftNum = Number(multiplierDraft);
+  const liveMultiplier = Number.isFinite(draftNum) && draftNum > 0
+    ? draftNum
+    : pricingMultiplier;
+
   const summary = rollupQuote({
     allocations,
     externalServices,
-    pricingMultiplier,
+    pricingMultiplier: liveMultiplier,
   });
 
   const band = marginBand(summary.effectiveMargin);
   const marginAccent: Accent = band === "good" ? "good" : band === "warn" ? "warn" : "bad";
   const profitAccent: Accent =
     summary.total.profit > 0 ? "good" : summary.total.profit < 0 ? "bad" : "warn";
+
+  // Markup on cost = profit / cost. Different from margin (profit / fee).
+  // Useful for designers who think in “add X% on top of cost”.
+  const markupOnCost =
+    summary.total.cost > 0 ? summary.total.profit / summary.total.cost : 0;
+  const markupAccent: Accent =
+    markupOnCost > 0 ? "good" : markupOnCost < 0 ? "bad" : "warn";
 
   const warnings = buildQuoteWarnings({
     stages,
