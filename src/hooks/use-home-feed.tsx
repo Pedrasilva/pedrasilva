@@ -73,7 +73,7 @@ export function useUpcomingCelebrations(windowDays = 45) {
       const today = new Date();
       const items: BirthdayItem[] = [];
 
-      for (const c of data ?? []) {
+      for (const c of (data ?? []) as Array<{ id: string; nome: string; data_nascimento: string | null; inicio_carreira: string | null }>) {
         if (c.data_nascimento) {
           const birth = parseDate(c.data_nascimento);
           const next = nextOccurrence(
