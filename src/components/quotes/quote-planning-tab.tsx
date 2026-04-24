@@ -43,11 +43,18 @@ import { formatEUR } from "@/lib/crm/types";
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export function QuotePlanningTab({ quoteId }: { quoteId: string }) {
+export function QuotePlanningTab({
+  quoteId,
+  pricingMultiplier = 1,
+}: {
+  quoteId: string;
+  pricingMultiplier?: number;
+}) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
   const depsQ = useQuoteDependencies(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
+  const externalQ = useQuoteExternalServices(quoteId);
   const upsertStage = useUpsertQuoteStage(quoteId);
   const delStage = useDeleteQuoteStage(quoteId);
   const createDep = useCreateQuoteDependency(quoteId);
@@ -58,6 +65,7 @@ export function QuotePlanningTab({ quoteId }: { quoteId: string }) {
   const stages = stagesQ.data ?? [];
   const deps = depsQ.data ?? [];
   const allocations = allocQ.data ?? [];
+  const externalServices = externalQ.data ?? [];
 
   const { data: resources = [] } = useQuery({
     queryKey: ["pm-resources-active"],
@@ -76,6 +84,22 @@ export function QuotePlanningTab({ quoteId }: { quoteId: string }) {
     () => Object.fromEntries(stages.map((s) => [s.id, s])),
     [stages],
   );
+
+  // Lightweight, non-blocking warnings driven by the same rollup as the
+  // financial summary so users get consistent signals across tabs.
+  const warnings = useMemo(() => {
+    const summary = rollupQuote({
+      allocations,
+      externalServices,
+      pricingMultiplier,
+    });
+    return buildQuoteWarnings({
+      stages,
+      allocations,
+      externalServices,
+      summary,
+    });
+  }, [stages, allocations, externalServices, pricingMultiplier]);
 
   // ---- Stage row state -------------------------------------------------
   const [newStage, setNewStage] = useState({
