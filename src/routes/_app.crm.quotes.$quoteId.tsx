@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Rocket, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
@@ -15,6 +16,10 @@ import {
   formatEUR, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
   type FeeProposal, type QuoteStatus, type FeeStructureType,
 } from "@/lib/crm/types";
+import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
+import { QuoteExternalServicesTab } from "@/components/quotes/quote-external-services-tab";
+import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
+import { QuoteFinancialSummaryTab } from "@/components/quotes/quote-financial-summary-tab";
 
 export const Route = createFileRoute("/_app/crm/quotes/$quoteId")({
   component: QuoteDetail,
@@ -24,6 +29,10 @@ type FullQuote = FeeProposal & {
   opportunity: { id: string; name: string; stage: string; company_id: string } | null;
   account: { id: string; name: string } | null;
   company: { id: string; nome: string } | null;
+  pricing_multiplier?: number | null;
+  proposal_description?: string | null;
+  construction_cost?: number | null;
+  fee_percentage?: number | null;
 };
 
 function QuoteDetail() {
@@ -72,6 +81,10 @@ function QuoteDetail() {
     account_id: "",
     quote_status: "draft" as QuoteStatus,
     notas: "",
+    proposal_description: "",
+    construction_cost: "",
+    fee_percentage: "",
+    pricing_multiplier: "1",
   });
 
   useEffect(() => {
@@ -83,6 +96,10 @@ function QuoteDetail() {
         account_id: quote.account_id ?? "",
         quote_status: quote.quote_status,
         notas: quote.notas ?? "",
+        proposal_description: quote.proposal_description ?? "",
+        construction_cost: quote.construction_cost != null ? String(quote.construction_cost) : "",
+        fee_percentage: quote.fee_percentage != null ? String(quote.fee_percentage) : "",
+        pricing_multiplier: String(quote.pricing_multiplier ?? 1),
       });
     }
   }, [quote]);
@@ -92,17 +109,20 @@ function QuoteDetail() {
       if (form.quote_status === "approved" && !form.account_id) {
         throw new Error(t("quotes.approveAccountRequired"));
       }
-      const { error } = await supabase
-        .from("fee_proposals")
-        .update({
-          titulo: form.titulo.trim(),
-          valor: form.valor ? Number(form.valor) : 0,
-          fee_structure_type: form.fee_structure_type,
-          account_id: form.account_id || null,
-          quote_status: form.quote_status,
-          notas: form.notas || null,
-        })
-        .eq("id", quoteId);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updates: any = {
+        titulo: form.titulo.trim(),
+        valor: form.valor ? Number(form.valor) : 0,
+        fee_structure_type: form.fee_structure_type,
+        account_id: form.account_id || null,
+        quote_status: form.quote_status,
+        notas: form.notas || null,
+        proposal_description: form.proposal_description || null,
+        construction_cost: form.construction_cost ? Number(form.construction_cost) : null,
+        fee_percentage: form.fee_percentage ? Number(form.fee_percentage) : null,
+        pricing_multiplier: form.pricing_multiplier ? Number(form.pricing_multiplier) : 1,
+      };
+      const { error } = await supabase.from("fee_proposals").update(updates).eq("id", quoteId);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -121,10 +141,7 @@ function QuoteDetail() {
     onSuccess: () => {
       toast.success(t("quotes.deletedToast"));
       if (quote?.opportunity_id) {
-        navigate({
-          to: "/crm/opportunities/$opportunityId",
-          params: { opportunityId: quote.opportunity_id },
-        });
+        navigate({ to: "/crm/opportunities/$opportunityId", params: { opportunityId: quote.opportunity_id } });
       } else {
         navigate({ to: "/crm/opportunities" });
       }
@@ -135,14 +152,9 @@ function QuoteDetail() {
   const convert = useMutation({
     mutationFn: async () => {
       if (!quote) throw new Error(t("quotes.loadError"));
-      if (quote.quote_status !== "approved") {
-        throw new Error(t("quotes.convertOnlyApproved"));
-      }
-      if (quote.pm_project_id) {
-        return { id: quote.pm_project_id, alreadyExisted: true };
-      }
+      if (quote.quote_status !== "approved") throw new Error(t("quotes.convertOnlyApproved"));
+      if (quote.pm_project_id) return { id: quote.pm_project_id, alreadyExisted: true };
 
-      // Create empty pm_project (no placeholder stages, per spec)
       const { data: project, error: projErr } = await supabase
         .from("pm_projects")
         .insert({
@@ -159,21 +171,15 @@ function QuoteDetail() {
         .single();
       if (projErr) throw projErr;
 
-      // Link project back to fee_proposal (legacy compatibility column)
       const { error: linkErr } = await supabase
         .from("fee_proposals")
         .update({ pm_project_id: project.id })
         .eq("id", quote.id);
       if (linkErr) throw linkErr;
 
-      // Move opportunity to "won" if not already
       if (quote.opportunity_id) {
-        await supabase
-          .from("crm_opportunities")
-          .update({ stage: "won" })
-          .eq("id", quote.opportunity_id);
+        await supabase.from("crm_opportunities").update({ stage: "won" }).eq("id", quote.opportunity_id);
       }
-
       return { id: project.id, alreadyExisted: false };
     },
     onSuccess: (res) => {
@@ -191,22 +197,18 @@ function QuoteDetail() {
   const status = QUOTE_STATUSES.find((s) => s.value === quote.quote_status);
   const canApprove = !!form.account_id;
   const canConvert = quote.quote_status === "approved";
+  const pricingMultiplier = Number(form.pricing_multiplier) || 1;
 
   return (
     <div className="space-y-6">
       {quote.opportunity ? (
-        <Link
-          to="/crm/opportunities/$opportunityId"
-          params={{ opportunityId: quote.opportunity.id }}
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-        >
+        <Link to="/crm/opportunities/$opportunityId" params={{ opportunityId: quote.opportunity.id }}
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3 w-3" /> {t("quotes.backToOpportunity")}
         </Link>
       ) : (
-        <Link
-          to="/crm/opportunities"
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-        >
+        <Link to="/crm/opportunities"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3 w-3" /> {t("quotes.backToOpportunities")}
         </Link>
       )}
@@ -217,13 +219,9 @@ function QuoteDetail() {
           <p className="text-sm text-muted-foreground">
             {quote.company?.nome ?? "—"}
             {quote.opportunity && (
-              <>
-                {" · "}
-                <Link
-                  to="/crm/opportunities/$opportunityId"
-                  params={{ opportunityId: quote.opportunity.id }}
-                  className="hover:underline"
-                >
+              <>{" · "}
+                <Link to="/crm/opportunities/$opportunityId"
+                  params={{ opportunityId: quote.opportunity.id }} className="hover:underline">
                   {quote.opportunity.name}
                 </Link>
               </>
@@ -236,141 +234,144 @@ function QuoteDetail() {
             {status ? t(`quoteStatus.${status.value}`) : ""}
           </span>
           {quote.pm_project_id && (
-            <Link
-              to="/projects/$projectId"
-              params={{ projectId: quote.pm_project_id }}
-              className="inline-flex items-center gap-1 rounded-md border px-3 py-1 text-xs hover:bg-muted/50"
-            >
+            <Link to="/projects/$projectId" params={{ projectId: quote.pm_project_id }}
+              className="inline-flex items-center gap-1 rounded-md border px-3 py-1 text-xs hover:bg-muted/50">
               <ExternalLink className="h-3 w-3" /> {t("quotes.openProject")}
             </Link>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              if (confirm(t("quotes.deleteConfirm"))) remove.mutate();
-            }}
-          >
+          <Button variant="outline" size="sm"
+            onClick={() => { if (confirm(t("quotes.deleteConfirm"))) remove.mutate(); }}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="md:col-span-2">
-          <CardHeader><CardTitle className="text-base">{t("quotes.feeDetails")}</CardTitle></CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <Label>{t("common.title")}</Label>
-              <Input
-                value={form.titulo}
-                onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))}
-              />
-            </div>
-            <div>
-              <Label>{t("common.estimatedFee")}</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={form.valor}
-                onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))}
-              />
-            </div>
-            <div>
-              <Label>{t("common.feeStructure")}</Label>
-              <Select
-                value={form.fee_structure_type}
-                onValueChange={(v) => setForm((f) => ({ ...f, fee_structure_type: v as FeeStructureType }))}
-              >
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {FEE_STRUCTURE_TYPES.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>{t(`feeStructure.${s.value}`)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>{t("common.account")} {form.quote_status === "approved" && "*"}</Label>
-              <Select
-                value={form.account_id || "none"}
-                onValueChange={(v) => setForm((f) => ({ ...f, account_id: v === "none" ? "" : v }))}
-              >
-                <SelectTrigger><SelectValue placeholder={t("common.noAccount")} /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">{t("common.noAccount")}</SelectItem>
-                  {accounts.map((a) => (
-                    <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>{t("common.status")}</Label>
-              <Select
-                value={form.quote_status}
-                onValueChange={(v) => setForm((f) => ({ ...f, quote_status: v as QuoteStatus }))}
-              >
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {QUOTE_STATUSES.map((s) => (
-                    <SelectItem
-                      key={s.value}
-                      value={s.value}
-                      disabled={s.value === "approved" && !canApprove}
-                    >
-                      {t(`quoteStatus.${s.value}`)}{s.value === "approved" && !canApprove ? t("quotes.setAccountFirst") : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="sm:col-span-2">
-              <Label>{t("common.notes")}</Label>
-              <Textarea
-                rows={3}
-                value={form.notas}
-                onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))}
-              />
-            </div>
-            <div className="sm:col-span-2 flex justify-end">
-              <Button onClick={() => save.mutate()} disabled={save.isPending}>
-                {t("common.save")}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList>
+          <TabsTrigger value="overview">{t("workspace.tabs.overview")}</TabsTrigger>
+          <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
+          <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
+          <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
+          <TabsTrigger value="financial">{t("workspace.tabs.financial")}</TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardHeader><CardTitle className="text-base">{t("quotes.convertSection")}</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">{t("quotes.convertHint")}</p>
-            <div className="rounded-md border p-3 text-xs space-y-1">
-              <div><span className="text-muted-foreground">{t("quotes.statusValue")}</span>{status ? t(`quoteStatus.${status.value}`) : ""}</div>
-              <div><span className="text-muted-foreground">{t("quotes.accountValue")}</span>{quote.account?.name ?? "—"}</div>
-              <div><span className="text-muted-foreground">{t("quotes.feeValue")}</span>{formatEUR(Number(quote.valor))}</div>
-              {quote.pm_project_id && (
-                <div className="text-emerald-600 dark:text-emerald-400 mt-2">
-                  {t("quotes.projectAlreadyCreated")}
+        <TabsContent value="overview" className="mt-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card className="md:col-span-2">
+              <CardHeader><CardTitle className="text-base">{t("quotes.feeDetails")}</CardTitle></CardHeader>
+              <CardContent className="grid gap-3 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <Label>{t("common.title")}</Label>
+                  <Input value={form.titulo} onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))} />
                 </div>
-              )}
-            </div>
-            <Button
-              className="w-full"
-              onClick={() => convert.mutate()}
-              disabled={!canConvert || convert.isPending}
-            >
-              <Rocket className="h-4 w-4 mr-1" />
-              {quote.pm_project_id ? t("quotes.openProjectButton") : t("quotes.convertButton")}
-            </Button>
-            {!canConvert && (
-              <p className="text-xs text-muted-foreground">
-                {t("quotes.approveFirstHint")}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                <div>
+                  <Label>{t("common.estimatedFee")}</Label>
+                  <Input type="number" step="0.01" value={form.valor}
+                    onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))} />
+                </div>
+                <div>
+                  <Label>{t("common.feeStructure")}</Label>
+                  <Select value={form.fee_structure_type}
+                    onValueChange={(v) => setForm((f) => ({ ...f, fee_structure_type: v as FeeStructureType }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {FEE_STRUCTURE_TYPES.map((s) => (
+                        <SelectItem key={s.value} value={s.value}>{t(`feeStructure.${s.value}`)}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>{t("workspace.overview.constructionCost")}</Label>
+                  <Input type="number" step="0.01" value={form.construction_cost}
+                    onChange={(e) => setForm((f) => ({ ...f, construction_cost: e.target.value }))} />
+                </div>
+                <div>
+                  <Label>{t("workspace.overview.feePercentage")}</Label>
+                  <Input type="number" step="0.01" value={form.fee_percentage}
+                    onChange={(e) => setForm((f) => ({ ...f, fee_percentage: e.target.value }))} />
+                </div>
+                <div>
+                  <Label>{t("workspace.overview.pricingMultiplier")}</Label>
+                  <Input type="number" step="0.01" value={form.pricing_multiplier}
+                    onChange={(e) => setForm((f) => ({ ...f, pricing_multiplier: e.target.value }))} />
+                </div>
+                <div>
+                  <Label>{t("common.account")} {form.quote_status === "approved" && "*"}</Label>
+                  <Select value={form.account_id || "none"}
+                    onValueChange={(v) => setForm((f) => ({ ...f, account_id: v === "none" ? "" : v }))}>
+                    <SelectTrigger><SelectValue placeholder={t("common.noAccount")} /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t("common.noAccount")}</SelectItem>
+                      {accounts.map((a) => (<SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>{t("common.status")}</Label>
+                  <Select value={form.quote_status}
+                    onValueChange={(v) => setForm((f) => ({ ...f, quote_status: v as QuoteStatus }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {QUOTE_STATUSES.map((s) => (
+                        <SelectItem key={s.value} value={s.value} disabled={s.value === "approved" && !canApprove}>
+                          {t(`quoteStatus.${s.value}`)}{s.value === "approved" && !canApprove ? t("quotes.setAccountFirst") : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="sm:col-span-2">
+                  <Label>{t("workspace.overview.proposalDescription")}</Label>
+                  <Textarea rows={4} value={form.proposal_description}
+                    onChange={(e) => setForm((f) => ({ ...f, proposal_description: e.target.value }))} />
+                </div>
+                <div className="sm:col-span-2">
+                  <Label>{t("common.notes")}</Label>
+                  <Textarea rows={3} value={form.notas}
+                    onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))} />
+                </div>
+                <div className="sm:col-span-2 flex justify-end">
+                  <Button onClick={() => save.mutate()} disabled={save.isPending}>{t("common.save")}</Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle className="text-base">{t("quotes.convertSection")}</CardTitle></CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">{t("quotes.convertHint")}</p>
+                <div className="rounded-md border p-3 text-xs space-y-1">
+                  <div><span className="text-muted-foreground">{t("quotes.statusValue")}</span>{status ? t(`quoteStatus.${status.value}`) : ""}</div>
+                  <div><span className="text-muted-foreground">{t("quotes.accountValue")}</span>{quote.account?.name ?? "—"}</div>
+                  <div><span className="text-muted-foreground">{t("quotes.feeValue")}</span>{formatEUR(Number(quote.valor))}</div>
+                  {quote.pm_project_id && (
+                    <div className="text-emerald-600 dark:text-emerald-400 mt-2">{t("quotes.projectAlreadyCreated")}</div>
+                  )}
+                </div>
+                <Button className="w-full" onClick={() => convert.mutate()} disabled={!canConvert || convert.isPending}>
+                  <Rocket className="h-4 w-4 mr-1" />
+                  {quote.pm_project_id ? t("quotes.openProjectButton") : t("quotes.convertButton")}
+                </Button>
+                {!canConvert && (<p className="text-xs text-muted-foreground">{t("quotes.approveFirstHint")}</p>)}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="planning" className="mt-4">
+          <QuotePlanningTab quoteId={quoteId} />
+        </TabsContent>
+        <TabsContent value="external" className="mt-4">
+          <QuoteExternalServicesTab quoteId={quoteId} />
+        </TabsContent>
+        <TabsContent value="payment" className="mt-4">
+          <QuotePaymentScheduleTab quoteId={quoteId} />
+        </TabsContent>
+        <TabsContent value="financial" className="mt-4">
+          <QuoteFinancialSummaryTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
