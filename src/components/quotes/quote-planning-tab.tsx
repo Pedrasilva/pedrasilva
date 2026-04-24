@@ -22,6 +22,7 @@ import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { QuoteGantt } from "@/components/quotes/quote-gantt";
+import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
 import {
   useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage,
 } from "@/lib/quotes/use-quote-stages";
@@ -31,10 +32,13 @@ import {
 import {
   useQuoteDependencies, useCreateQuoteDependency, useDeleteQuoteDependency,
 } from "@/lib/quotes/use-quote-dependencies";
+import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import {
   useDefaultResourceRates, effectiveRates,
 } from "@/lib/projects/use-default-rates";
 import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
+import { rollupQuote } from "@/lib/quotes/financial-rollups";
+import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
 import { formatEUR } from "@/lib/crm/types";
 
 const today = () => new Date().toISOString().slice(0, 10);
