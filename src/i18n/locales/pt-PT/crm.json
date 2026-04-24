@@ -209,7 +209,9 @@
       "depType": "Tipo",
       "lagDays": "Lag (dias)",
       "stagePlaceholder": "Selecionar fase",
-      "stageCreated": "Fase criada"
+      "stageCreated": "Fase criada",
+      "manualTablesTitle": "Tabelas de planeamento manual",
+      "loading": "A carregar…"
     },
     "external": {
       "title": "Serviços externos",
