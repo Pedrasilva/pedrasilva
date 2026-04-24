@@ -67,7 +67,7 @@ export function useUpcomingCelebrations(windowDays = 45) {
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("collaborators")
+        .from("collaborators_directory")
         .select("id, nome, data_nascimento, inicio_carreira");
       if (error) throw error;
       const today = new Date();

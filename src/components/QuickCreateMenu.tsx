@@ -304,7 +304,7 @@ function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }
     queryKey: ["collaborators-lite"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("collaborators")
+        .from("collaborators_directory")
         .select("id, nome")
         .is("archived_at", null)
         .order("nome");

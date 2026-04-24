@@ -201,7 +201,7 @@ export async function loadCollaboratorUserMap(): Promise<Map<string, Collaborato
   if (ids.length === 0) return new Map();
 
   const { data: collabs, error: cErr } = await supabase
-    .from("collaborators")
+    .from("collaborators_directory")
     .select("id, daily_hours")
     .in("id", ids);
   if (cErr) throw cErr;
@@ -348,7 +348,7 @@ export async function reconcileNonWorkingRange(opts: {
   const nameByCollab = new Map<string, string>();
   if (collabIds.length > 0) {
     const { data: collabs } = await supabase
-      .from("collaborators")
+      .from("collaborators_directory")
       .select("id, nome")
       .in("id", collabIds);
     for (const c of (collabs ?? []) as Array<{ id: string; nome: string }>) {

@@ -36,7 +36,7 @@ export function CollaboratorAvatar({
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("collaborators")
+        .from("collaborators_directory")
         .select("foto_path, nome")
         .eq("id", collaboratorId!)
         .maybeSingle();

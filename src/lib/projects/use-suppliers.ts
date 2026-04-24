@@ -73,6 +73,9 @@ export function useSuppliers(opts: UseSuppliersOpts = {}) {
   return useQuery({
     queryKey: ["pm-suppliers", { includeInactive }],
     queryFn: async (): Promise<Supplier[]> => {
+      // Try the full table first (works for admins). If RLS denies access,
+      // fall back to the public-safe directory view (id, name, active only)
+      // so non-admin pickers keep working without leaking contact info.
       let query = db
         .from("pm_suppliers")
         .select("*")
@@ -81,8 +84,20 @@ export function useSuppliers(opts: UseSuppliersOpts = {}) {
         query = query.eq("active", true);
       }
       const { data, error } = await query;
-      if (error) throw new Error(error.message);
-      return (data ?? []) as Supplier[];
+      if (!error) {
+        return (data ?? []) as Supplier[];
+      }
+      // Fallback: directory view with limited columns.
+      let dirQuery = db
+        .from("pm_suppliers_directory")
+        .select("id, name, active")
+        .order("name", { ascending: true });
+      if (!includeInactive) {
+        dirQuery = dirQuery.eq("active", true);
+      }
+      const { data: dirData, error: dirErr } = await dirQuery;
+      if (dirErr) throw new Error(dirErr.message);
+      return (dirData ?? []) as Supplier[];
     },
   });
 }
