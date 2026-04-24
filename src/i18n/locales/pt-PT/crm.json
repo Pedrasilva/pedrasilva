@@ -211,7 +211,8 @@
       "stagePlaceholder": "Selecionar fase",
       "stageCreated": "Fase criada",
       "manualTablesTitle": "Tabelas de planeamento manual",
-      "loading": "A carregar…"
+      "loading": "A carregar…",
+      "dragHelper": "Arraste recursos para as fases para construir os honorários."
     },
     "external": {
       "title": "Serviços externos",
