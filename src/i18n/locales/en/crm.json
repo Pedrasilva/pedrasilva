@@ -82,7 +82,8 @@
       "noQuotes": "No quotes yet",
       "openOpportunity": "Open",
       "createQuote": "Create quote",
-      "openQuote": "Open quote"
+      "openQuote": "Open quote",
+      "doubleClickHint": "Double-click to open opportunity"
     },
     "dialog": {
       "title": "New opportunity",

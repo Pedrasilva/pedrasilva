@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -27,13 +27,16 @@ export const Route = createFileRoute("/_app/crm/opportunities")({
 type Row = CrmOpportunity & {
   company: { id: string; nome: string } | null;
   contact: Pick<Contact, "id" | "primeiro_nome" | "apelido" | "titulo"> | null;
-  quotes: { id: string }[];
+  quotes: { id: string; updated_at: string }[];
 };
 
 function OpportunitiesPage() {
   const { t } = useTranslation("crm");
+  const navigate = useNavigate();
+  const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"pipeline" | "list">("pipeline");
+  const [creatingFor, setCreatingFor] = useState<string | null>(null);
 
   const { data: opps = [], isLoading } = useQuery({
     queryKey: ["crm_opportunities"],
@@ -41,13 +44,63 @@ function OpportunitiesPage() {
       const { data, error } = await supabase
         .from("crm_opportunities")
         .select(
-          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id)",
+          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id, updated_at)",
         )
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as Row[];
     },
   });
+
+  const createQuote = useMutation({
+    mutationFn: async (opp: Row) => {
+      const { data, error } = await supabase
+        .from("fee_proposals")
+        .insert({
+          titulo: opp.name,
+          opportunity_id: opp.id,
+          company_id: opp.company_id,
+          contact_id: opp.primary_contact_id,
+          valor: Number(opp.estimated_fee) || 0,
+          fee_structure_type: "fixed",
+          quote_status: "draft",
+          pipeline_status: "lead",
+          data_proposta: new Date().toISOString().slice(0, 10),
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      toast.success(t("quotes.newQuoteDialog.createdToast"));
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+      navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: data.id } });
+    },
+    onError: (e: Error) => {
+      toast.error(e.message);
+      setCreatingFor(null);
+    },
+  });
+
+  const handleQuoteAction = (e: React.MouseEvent, opp: Row) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const sorted = [...(opp.quotes ?? [])].sort((a, b) =>
+      (b.updated_at ?? "").localeCompare(a.updated_at ?? ""),
+    );
+    const latestQuote = sorted[0];
+    if (latestQuote) {
+      navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: latestQuote.id } });
+      return;
+    }
+    setCreatingFor(opp.id);
+    createQuote.mutate(opp);
+  };
+
+  const handleCardDoubleClick = (oppId: string) => {
+    navigate({ to: "/crm/opportunities/$opportunityId", params: { opportunityId: oppId } });
+  };
 
   const byStage = OPPORTUNITY_STAGES.map((s) => ({
     ...s,
@@ -116,47 +169,54 @@ function OpportunitiesPage() {
                 <div className="space-y-2">
                   {col.items.map((o) => {
                     const quoteCount = o.quotes?.length ?? 0;
+                    const isCreating = createQuote.isPending && creatingFor === o.id;
                     return (
                       <div
                         key={o.id}
-                        className="rounded-md border bg-background p-2 text-sm hover:border-primary/40 hover:shadow-sm transition"
+                        onDoubleClick={() => handleCardDoubleClick(o.id)}
+                        className="rounded-md border bg-background p-2 text-sm hover:border-primary/40 hover:shadow-sm transition cursor-pointer select-none"
+                        title={t("opportunities.card.doubleClickHint")}
                       >
                         <Link
                           to="/crm/opportunities/$opportunityId"
                           params={{ opportunityId: o.id }}
-                          className="block"
+                          className="block hover:underline"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <div className="font-medium line-clamp-2">{o.name}</div>
-                          <div className="mt-1 text-xs text-muted-foreground line-clamp-1">
-                            {o.company?.nome ?? t("opportunities.card.noCompany")}
-                          </div>
-                          {o.contact && (
-                            <div className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
-                              {contactFullName(o.contact)}
-                            </div>
-                          )}
-                          <div className="mt-2 flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">{o.probability}%</span>
-                            <span className="font-semibold">{formatEUR(Number(o.estimated_fee))}</span>
-                          </div>
-                          <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
-                            <FileText className="h-3 w-3" />
-                            {quoteCount > 0
-                              ? t("opportunities.card.quotesCount", { count: quoteCount })
-                              : t("opportunities.card.noQuotes")}
-                          </div>
                         </Link>
+                        <div className="mt-1 text-xs text-muted-foreground line-clamp-1">
+                          {o.company?.nome ?? t("opportunities.card.noCompany")}
+                        </div>
+                        {o.contact && (
+                          <div className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
+                            {contactFullName(o.contact)}
+                          </div>
+                        )}
+                        <div className="mt-2 flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">{o.probability}%</span>
+                          <span className="font-semibold">{formatEUR(Number(o.estimated_fee))}</span>
+                        </div>
+                        <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
+                          <FileText className="h-3 w-3" />
+                          {quoteCount > 0
+                            ? t("opportunities.card.quotesCount", { count: quoteCount })
+                            : t("opportunities.card.noQuotes")}
+                        </div>
                         <div className="mt-2 flex items-center justify-end">
-                          <Button asChild variant="ghost" size="sm" className="h-6 px-2 text-xs">
-                            <Link
-                              to="/crm/opportunities/$opportunityId"
-                              params={{ opportunityId: o.id }}
-                            >
-                              {quoteCount > 0
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            disabled={isCreating}
+                            onClick={(e) => handleQuoteAction(e, o)}
+                          >
+                            {isCreating
+                              ? t("common.loading")
+                              : quoteCount > 0
                                 ? t("opportunities.card.openQuote")
                                 : t("opportunities.card.createQuote")}
-                              <ArrowRight className="h-3 w-3 ml-1" />
-                            </Link>
+                            <ArrowRight className="h-3 w-3 ml-1" />
                           </Button>
                         </div>
                       </div>

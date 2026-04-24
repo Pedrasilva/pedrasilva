@@ -82,7 +82,8 @@
       "noQuotes": "Ainda sem propostas",
       "openOpportunity": "Abrir",
       "createQuote": "Criar proposta",
-      "openQuote": "Abrir proposta"
+      "openQuote": "Abrir proposta",
+      "doubleClickHint": "Duplo-clique para abrir oportunidade"
     },
     "dialog": {
       "title": "Nova oportunidade",
