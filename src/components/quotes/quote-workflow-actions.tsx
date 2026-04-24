@@ -128,7 +128,7 @@ export function QuoteWorkflowActions({
 
   // status === "rejected" — terminal, no primary CTA, just a passive label.
   return (
-    <span className="inline-flex items-center gap-1 text-xs text-rose-600 dark:text-rose-400">
+    <span className="inline-flex items-center gap-1 text-xs text-destructive">
       <XCircle className="h-3 w-3" />
       {t("quotes.workflow.lostState")}
     </span>
