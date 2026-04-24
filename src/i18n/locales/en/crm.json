@@ -14,18 +14,28 @@
       "accounts": "Accounts",
       "companies": "Companies",
       "contacts": "Contacts",
-      "pipelineLegacy": "Pipeline (legacy)"
+      "pipelineLegacy": "Legacy pipeline"
     }
   },
   "overview": {
     "stats": {
       "companies": "Companies",
       "contacts": "Contacts",
-      "openProposals": "Open proposals",
+      "openOpportunities": "Open opportunities",
       "weightedPipeline": "Weighted pipeline"
     },
-    "pipelineSummary": "Pipeline — by status",
-    "totalOpen": "Total open"
+    "pipelineSummary": "Opportunities — by stage",
+    "totalOpen": "Total open",
+    "recentOpportunitiesTitle": "Recent opportunities",
+    "recentOpportunitiesEmpty": "No opportunities yet. Start by creating one.",
+    "draftQuotesTitle": "Draft quotes",
+    "draftQuotesEmpty": "No draft quotes. Open an opportunity to start one.",
+    "openOpportunity": "Open opportunity",
+    "openQuote": "Open quote",
+    "viewAllOpportunities": "View all opportunities",
+    "newOpportunity": "New opportunity",
+    "quickStartTitle": "Start here",
+    "quickStartHint": "Companies → Opportunity → Quote → Project. Create an opportunity first, then build a quote inside it."
   },
   "common": {
     "loading": "Loading…",
