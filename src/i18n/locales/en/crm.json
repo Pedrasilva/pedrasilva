@@ -178,7 +178,8 @@
       "planning": "Planning",
       "external": "External services",
       "payment": "Payment schedule",
-      "financial": "Financial summary"
+      "financial": "Financial summary",
+      "proposal": "Proposal"
     },
     "overview": {
       "constructionCost": "Construction cost (€)",
