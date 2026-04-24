@@ -360,7 +360,7 @@ function QuoteDetail() {
         </TabsContent>
 
         <TabsContent value="planning" className="mt-4">
-          <QuotePlanningTab quoteId={quoteId} />
+          <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
         </TabsContent>
         <TabsContent value="external" className="mt-4">
           <QuoteExternalServicesTab quoteId={quoteId} />
