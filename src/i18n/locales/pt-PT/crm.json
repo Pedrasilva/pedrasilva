@@ -325,7 +325,13 @@
       "totalFee": "Fee total",
       "totalProfit": "Lucro total",
       "effectiveMargin": "Margem efectiva",
-      "pricingMultiplier": "Multiplicador de preço"
+      "pricingMultiplier": "Multiplicador de preço",
+      "pricingMultiplierHint": "Aplicado apenas ao valor de venda. O custo mantém-se nas rates do snapshot.",
+      "markupOnCost": "Markup sobre o custo",
+      "markupHint": "Lucro ÷ custo (quanto se acrescenta sobre o custo).",
+      "marginHint": "Lucro ÷ fee (parte do fee que é lucro).",
+      "saveMultiplier": "Guardar",
+      "multiplierSaved": "Multiplicador actualizado"
     },
     "proposal": {
       "documentLabel": "Proposta",
