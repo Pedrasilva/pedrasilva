@@ -12,6 +12,7 @@ import { pt } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/projects/app-shell";
 import { GanttChart } from "@/components/projects/gantt-chart";
+import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { NewStageDialog } from "@/components/projects/new-stage-dialog";
 import {
@@ -82,6 +83,7 @@ function ProjectDetail() {
   const { projectId } = Route.useParams();
   const { data, isLoading, error } = useProjectDetail(projectId);
   const { data: resources } = useResources();
+  const ganttAdapter = useProjectPlannerAdapter(resources ?? []);
   const { data: defaultRates } = useDefaultResourceRates();
   const { data: invoices } = useProjectInvoices(projectId);
   const { data: activities } = useProjectActivities(projectId);
@@ -698,6 +700,7 @@ function ProjectDetail() {
                         totalDays={totalDays}
                         dayWidth={dayWidth}
                         resources={resources ?? []}
+                        adapter={ganttAdapter}
                       />
                     )}
                   </div>

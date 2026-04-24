@@ -6,18 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  useStageDependencies,
-  useCreateDependency,
-  useDeleteDependency,
-  useUpdateDependency,
-} from "@/lib/projects/use-planner";
 import type { DepType } from "@/lib/projects/dependencies";
 import type { StageWithProject } from "@/components/projects/gantt-chart";
+import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
 
 interface Props {
   stage: StageWithProject;
   allStages: StageWithProject[];
+  adapter: PlannerAdapter;
 }
 
 const TYPE_LABELS: Record<DepType, string> = {
@@ -27,12 +23,10 @@ const TYPE_LABELS: Record<DepType, string> = {
   SF: "Início → Fim",
 };
 
-export function StageDependencyEditor({ stage, allStages }: Props) {
+export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
   const [open, setOpen] = useState(false);
-  const { data: deps } = useStageDependencies();
-  const createDep = useCreateDependency();
-  const updateDep = useUpdateDependency();
-  const deleteDep = useDeleteDependency();
+  const deps = adapter.dependencies;
+  const canEdit = !!adapter.updateDependency;
 
   const [newPredId, setNewPredId] = useState<string>("");
   const [newType, setNewType] = useState<DepType>("FS");
@@ -41,7 +35,7 @@ export function StageDependencyEditor({ stage, allStages }: Props) {
   const stageMap = useMemo(() => new Map(allStages.map((s) => [s.id, s])), [allStages]);
 
   const incoming = useMemo(
-    () => (deps ?? []).filter((d) => d.successor_id === stage.id),
+    () => deps.filter((d) => d.successor_id === stage.id),
     [deps, stage.id],
   );
 
@@ -50,7 +44,7 @@ export function StageDependencyEditor({ stage, allStages }: Props) {
     const queue = [stage.id];
     while (queue.length) {
       const cur = queue.shift()!;
-      for (const d of deps ?? []) {
+      for (const d of deps) {
         if (d.predecessor_id === cur && !descendants.has(d.successor_id)) {
           descendants.add(d.successor_id);
           queue.push(d.successor_id);
@@ -68,7 +62,7 @@ export function StageDependencyEditor({ stage, allStages }: Props) {
   async function add() {
     if (!newPredId) return;
     try {
-      await createDep.mutateAsync({
+      await adapter.createDependency({
         predecessor_id: newPredId,
         successor_id: stage.id,
         type: newType,
@@ -125,11 +119,13 @@ export function StageDependencyEditor({ stage, allStages }: Props) {
                     </span>
                     <Select
                       value={d.type}
-                      onValueChange={(v) =>
-                        updateDep
-                          .mutateAsync({ id: d.id, patch: { type: v as DepType } })
-                          .catch((err) => toast.error((err as Error).message))
-                      }
+                      disabled={!canEdit}
+                      onValueChange={(v) => {
+                        if (!adapter.updateDependency) return;
+                        adapter
+                          .updateDependency({ id: d.id, patch: { type: v as DepType } })
+                          .catch((err) => toast.error((err as Error).message));
+                      }}
                     >
                       <SelectTrigger className="h-7 w-[110px] text-[11px]">
                         <SelectValue />
@@ -144,22 +140,23 @@ export function StageDependencyEditor({ stage, allStages }: Props) {
                     </Select>
                     <Input
                       type="number"
-                      value={d.lag_days}
-                      onChange={(e) =>
-                        updateDep
-                          .mutateAsync({
-                            id: d.id,
-                            patch: { lag_days: Number(e.target.value) || 0 },
-                          })
-                          .catch((err) => toast.error((err as Error).message))
-                      }
+                      defaultValue={d.lag_days}
+                      disabled={!canEdit}
+                      onBlur={(e) => {
+                        if (!adapter.updateDependency) return;
+                        const v = Number(e.target.value) || 0;
+                        if (v === d.lag_days) return;
+                        adapter
+                          .updateDependency({ id: d.id, patch: { lag_days: v } })
+                          .catch((err) => toast.error((err as Error).message));
+                      }}
                       className="h-7 w-16 text-xs"
                       title="Lag (dias úteis)"
                     />
                     <button
                       onClick={() =>
-                        deleteDep
-                          .mutateAsync(d.id)
+                        adapter
+                          .deleteDependency(d.id)
                           .then(() => toast.success("Ligação removida"))
                           .catch((err) => toast.error((err as Error).message))
                       }
@@ -212,7 +209,7 @@ export function StageDependencyEditor({ stage, allStages }: Props) {
                   title="Lag (dias úteis)"
                   placeholder="Lag"
                 />
-                <Button size="sm" onClick={add} disabled={!newPredId || createDep.isPending}>
+                <Button size="sm" onClick={add} disabled={!newPredId || adapter.pending.dependency}>
                   <Plus className="mr-1 h-3.5 w-3.5" />
                   Adicionar
                 </Button>

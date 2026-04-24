@@ -1,11 +1,6 @@
 import { useState } from "react";
-import {
-  useDeleteAllocation,
-  useUpdateAllocation,
-  useSetAllocationStatus,
-  type AllocationStatus,
-} from "@/lib/projects/use-planner";
 import type { AllocationWithResource } from "@/lib/projects/types";
+import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,24 +9,28 @@ import { Trash2, Lock, FileQuestion } from "lucide-react";
 import { toast } from "sonner";
 import { allocationCost, allocationHours, euros, workingDays } from "@/lib/projects/gantt-utils";
 
+type AllocationStatus = "tentative" | "committed";
+
 interface Props {
   allocation: AllocationWithResource;
+  /** Scoping ID for the underlying mode (project_id in project mode, quote_id in quote mode). */
   projectId: string;
+  adapter: PlannerAdapter;
 }
 
 type AllocationWithStatus = AllocationWithResource & { status?: AllocationStatus | null };
 
-export function AllocationEditor({ allocation, projectId }: Props) {
+export function AllocationEditor({ allocation, projectId, adapter }: Props) {
   const [open, setOpen] = useState(false);
   const [hours, setHours] = useState(Number(allocation.hours_per_day));
   const [start, setStart] = useState(allocation.start_date);
   const [end, setEnd] = useState(allocation.end_date);
-  const [status, setStatus] = useState<AllocationStatus>(
-    ((allocation as AllocationWithStatus).status ?? "committed") as AllocationStatus,
-  );
-  const update = useUpdateAllocation();
-  const setStatusMut = useSetAllocationStatus();
-  const del = useDeleteAllocation();
+  const initialStatus: AllocationStatus =
+    ((allocation as AllocationWithStatus).status ?? "committed") as AllocationStatus;
+  const [status, setStatus] = useState<AllocationStatus>(initialStatus);
+
+  const showStatusToggle = adapter.features.statusToggle && !!adapter.setAllocationStatus;
+  const pending = adapter.pending.allocation;
 
   const wd = workingDays(start, end);
   const totalH = allocationHours({ start_date: start, end_date: end, hours_per_day: hours });
@@ -44,10 +43,12 @@ export function AllocationEditor({ allocation, projectId }: Props) {
 
   async function save() {
     try {
-      await update.mutateAsync({
+      await adapter.updateAllocation({
         id: allocation.id,
         projectId,
-        patch: { start_date: start, end_date: end, hours_per_day: hours, status },
+        patch: showStatusToggle
+          ? { start_date: start, end_date: end, hours_per_day: hours, status }
+          : { start_date: start, end_date: end, hours_per_day: hours },
       });
       toast.success("Atualizado");
       setOpen(false);
@@ -57,9 +58,10 @@ export function AllocationEditor({ allocation, projectId }: Props) {
   }
 
   async function quickToggleStatus() {
+    if (!adapter.setAllocationStatus) return;
     const next: AllocationStatus = status === "committed" ? "tentative" : "committed";
     try {
-      await setStatusMut.mutateAsync({ id: allocation.id, projectId, status: next });
+      await adapter.setAllocationStatus({ id: allocation.id, projectId, status: next });
       setStatus(next);
       toast.success(next === "committed" ? "Confirmada" : "Marcada como tentativa");
     } catch (err) {
@@ -70,7 +72,7 @@ export function AllocationEditor({ allocation, projectId }: Props) {
   async function remove() {
     if (!confirm(`Remover alocação de ${allocation.resource.name}?`)) return;
     try {
-      await del.mutateAsync({ id: allocation.id, projectId });
+      await adapter.deleteAllocation({ id: allocation.id, projectId });
       toast.success("Removida");
       setOpen(false);
     } catch (err) {
@@ -98,41 +100,43 @@ export function AllocationEditor({ allocation, projectId }: Props) {
             </span>
           </div>
 
-          {/* Status toggle: tentative ↔ committed */}
-          <div>
-            <Label className="text-xs">Estado da alocação</Label>
-            <div className="mt-1 grid grid-cols-2 gap-1 rounded-md border border-border p-0.5">
-              <button
-                type="button"
-                onClick={() => setStatus("tentative")}
-                className={`flex items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs transition ${
-                  status === "tentative"
-                    ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-1 ring-amber-500/30"
-                    : "text-muted-foreground hover:bg-accent"
-                }`}
-              >
-                <FileQuestion className="h-3 w-3" />
-                Tentativa
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatus("committed")}
-                className={`flex items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs transition ${
-                  status === "committed"
-                    ? "bg-primary/10 text-primary ring-1 ring-primary/30"
-                    : "text-muted-foreground hover:bg-accent"
-                }`}
-              >
-                <Lock className="h-3 w-3" />
-                Confirmada
-              </button>
+          {/* Status toggle: tentative ↔ committed (project-mode only) */}
+          {showStatusToggle && (
+            <div>
+              <Label className="text-xs">Estado da alocação</Label>
+              <div className="mt-1 grid grid-cols-2 gap-1 rounded-md border border-border p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setStatus("tentative")}
+                  className={`flex items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs transition ${
+                    status === "tentative"
+                      ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-1 ring-amber-500/30"
+                      : "text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  <FileQuestion className="h-3 w-3" />
+                  Tentativa
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatus("committed")}
+                  className={`flex items-center justify-center gap-1.5 rounded px-2 py-1.5 text-xs transition ${
+                    status === "committed"
+                      ? "bg-primary/10 text-primary ring-1 ring-primary/30"
+                      : "text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  <Lock className="h-3 w-3" />
+                  Confirmada
+                </button>
+              </div>
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                {status === "tentative"
+                  ? "Soft-booking: visível mas não conta como entrega firme."
+                  : "Compromisso firme contado em capacidade e KPIs."}
+              </p>
             </div>
-            <p className="mt-1 text-[10px] text-muted-foreground">
-              {status === "tentative"
-                ? "Soft-booking: visível mas não conta como entrega firme."
-                : "Compromisso firme contado em capacidade e KPIs."}
-            </p>
-          </div>
+          )}
 
           <div className="grid grid-cols-2 gap-2">
             <div>
@@ -166,11 +170,13 @@ export function AllocationEditor({ allocation, projectId }: Props) {
               <Trash2 className="mr-1 h-3.5 w-3.5" /> Remover
             </Button>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={quickToggleStatus} disabled={setStatusMut.isPending}>
-                {status === "committed" ? "→ Tentativa" : "→ Confirmar"}
-              </Button>
-              <Button size="sm" onClick={save} disabled={update.isPending}>
-                {update.isPending ? "A guardar…" : "Guardar"}
+              {showStatusToggle && (
+                <Button variant="ghost" size="sm" onClick={quickToggleStatus} disabled={pending}>
+                  {status === "committed" ? "→ Tentativa" : "→ Confirmar"}
+                </Button>
+              )}
+              <Button size="sm" onClick={save} disabled={pending}>
+                {pending ? "A guardar…" : "Guardar"}
               </Button>
             </div>
           </div>
