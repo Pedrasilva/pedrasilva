@@ -561,7 +561,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                         onClick={async (e) => {
                           e.stopPropagation();
                           if (!confirm(t("gantt.stage.deleteConfirm", { name: stage.name }))) return;
-                          await deleteStage.mutateAsync({ id: stage.id, projectId: stage.projectId });
+                          await adapter.deleteStage({ id: stage.id, projectId: stage.projectId });
                         }}
                         className="rounded p-1 opacity-0 transition hover:bg-background/30 group-hover:opacity-100"
                         aria-label={t("gantt.stage.deleteAction")}
