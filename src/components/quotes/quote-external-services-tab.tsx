@@ -175,41 +175,66 @@ export function QuoteExternalServicesTab({ quoteId }: { quoteId: string }) {
                 <TableHead>{t("common.stage")}</TableHead>
                 <TableHead className="text-right">{t("workspace.external.qty")}</TableHead>
                 <TableHead className="text-right">{t("workspace.external.unitCost")}</TableHead>
+                <TableHead className="text-right">{t("workspace.external.markup")}</TableHead>
                 <TableHead className="text-right">{t("workspace.external.salePrice")}</TableHead>
                 <TableHead className="w-20" />
               </TableRow>
             </TableHeader>
             <TableBody>
-              {services.map((s) => (
-                <TableRow key={s.id}>
-                  <TableCell>{s.description}</TableCell>
-                  <TableCell>{resolveSupplierLabel(s.supplier, null)}</TableCell>
-                  <TableCell>
-                    {s.stage_id ? stages.find((st) => st.id === s.stage_id)?.name ?? "—" : "—"}
-                  </TableCell>
-                  <TableCell className="text-right">{s.quantity}</TableCell>
-                  <TableCell className="text-right">
-                    {formatEUR(Number(s.purchase_price))}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatEUR(Number(s.sale_price))}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        if (confirm(t("workspace.external.deleteConfirm"))) remove.mutate(s.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {services.map((s) => {
+                const purchase = Number(s.purchase_price);
+                const sale = Number(s.sale_price);
+                // Show how the sale price was reached: percent over cost, or
+                // a flat per-unit fixed adder, plus a "manual" badge when the
+                // user overrode the calculator.
+                const markupLabel =
+                  s.sale_price_manual
+                    ? t("workspace.external.markupManual")
+                    : s.markup_type === "percent"
+                      ? `+${Number(s.markup_value).toFixed(0)}%`
+                      : `+${formatEUR(Number(s.markup_value))}`;
+                return (
+                  <TableRow key={s.id}>
+                    <TableCell>{s.description}</TableCell>
+                    <TableCell>
+                      {s.supplier_id || s.supplier?.name
+                        ? resolveSupplierLabel(s.supplier, null)
+                        : (
+                          <span className="text-amber-600 dark:text-amber-400">
+                            {t("workspace.external.noSupplier")}
+                          </span>
+                        )}
+                    </TableCell>
+                    <TableCell>
+                      {s.stage_id ? stages.find((st) => st.id === s.stage_id)?.name ?? "—" : "—"}
+                    </TableCell>
+                    <TableCell className="text-right">{s.quantity}</TableCell>
+                    <TableCell className="text-right text-muted-foreground">
+                      {formatEUR(purchase)}
+                    </TableCell>
+                    <TableCell className="text-right text-xs text-muted-foreground">
+                      {markupLabel}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatEUR(sale)}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          if (confirm(t("workspace.external.deleteConfirm"))) remove.mutate(s.id);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
               {services.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">
+                  <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-6">
                     {t("workspace.external.empty")}
                   </TableCell>
                 </TableRow>
