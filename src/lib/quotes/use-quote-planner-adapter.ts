@@ -60,7 +60,13 @@ export function useQuotePlannerAdapter(
       patch,
     }: {
       id: string;
-      patch: { start_date?: string; end_date?: string; hours_per_day?: number; stage_id?: string };
+      patch: {
+        start_date?: string;
+        end_date?: string;
+        hours_per_day?: number;
+        stage_id?: string;
+        allocation_percentage?: number | null;
+      };
     }) => {
       const { data, error } = await db
         .from("quote_allocations")
@@ -109,6 +115,7 @@ export function useQuotePlannerAdapter(
         start_date: a.start_date,
         end_date: a.end_date,
         hours_per_day: a.hours_per_day,
+        allocation_percentage: 100,
         cost_rate_snapshot: rates.cost,
         sale_rate_snapshot: rates.sale,
       });
@@ -121,6 +128,7 @@ export function useQuotePlannerAdapter(
           end_date: a.patch.end_date,
           hours_per_day: a.patch.hours_per_day,
           stage_id: a.patch.stage_id,
+          allocation_percentage: a.patch.allocation_percentage,
         },
       }),
     deleteAllocation: (a) => deleteAlloc.mutateAsync(a.id),
