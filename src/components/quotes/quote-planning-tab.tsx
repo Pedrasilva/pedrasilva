@@ -189,6 +189,16 @@ export function QuotePlanningTab({
 
   return (
     <div className="space-y-6">
+      {/* Non-blocking warnings (no team, negative profit, missing supplier…) */}
+      <QuoteWarningsBanner warnings={warnings} />
+
+      {/* Fee-driver hint — clarifies what shapes the headline number */}
+      <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        {t("workspace.planning.feeDriverHint", {
+          defaultValue: "Your fee is driven by team time and external services.",
+        })}
+      </div>
+
       {/* GANTT — primary planning surface */}
       <QuoteGantt quoteId={quoteId} />
 
