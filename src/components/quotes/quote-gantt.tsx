@@ -20,6 +20,7 @@ import { addDays, differenceInCalendarDays } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { GanttChart, type StageWithProject } from "@/components/projects/gantt-chart";
+import { ResourcePool } from "@/components/projects/resource-pool";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
@@ -159,17 +160,27 @@ export function QuoteGantt({ quoteId, dayWidth = 28 }: Props) {
   }
 
   return (
-    <div className="overflow-auto rounded-md border border-border bg-canvas">
-      <GanttChart
-        projectId={quoteId}
-        stages={mappedStages}
-        origin={origin}
-        totalDays={totalDays}
-        dayWidth={dayWidth}
-        resources={resources}
-        adapter={adapter}
-        embedded
-      />
+    <div className="space-y-2">
+      <p className="text-xs text-muted-foreground">
+        {t("workspace.planning.dragHelper", {
+          defaultValue: "Drag resources into stages to build the fee.",
+        })}
+      </p>
+      <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
+        <div className="flex-1 overflow-auto">
+          <GanttChart
+            projectId={quoteId}
+            stages={mappedStages}
+            origin={origin}
+            totalDays={totalDays}
+            dayWidth={dayWidth}
+            resources={resources}
+            adapter={adapter}
+            embedded
+          />
+        </div>
+        <ResourcePool resources={resources} collapsed={false} />
+      </div>
     </div>
   );
 }
