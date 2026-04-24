@@ -209,7 +209,9 @@
       "depType": "Type",
       "lagDays": "Lag (days)",
       "stagePlaceholder": "Select stage",
-      "stageCreated": "Stage created"
+      "stageCreated": "Stage created",
+      "manualTablesTitle": "Manual planning tables",
+      "loading": "Loading…"
     },
     "external": {
       "title": "External services",
