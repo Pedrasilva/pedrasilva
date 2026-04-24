@@ -1550,6 +1550,11 @@ export type Database = {
           notes: string | null
           opportunity_id: string | null
           quote_id: string | null
+          sold_at: string | null
+          sold_external_fee: number | null
+          sold_fee: number | null
+          sold_internal_fee: number | null
+          sold_pricing_multiplier: number | null
           start_date: string
           status: Database["public"]["Enums"]["pm_project_status"]
           updated_at: string
@@ -1566,6 +1571,11 @@ export type Database = {
           notes?: string | null
           opportunity_id?: string | null
           quote_id?: string | null
+          sold_at?: string | null
+          sold_external_fee?: number | null
+          sold_fee?: number | null
+          sold_internal_fee?: number | null
+          sold_pricing_multiplier?: number | null
           start_date?: string
           status?: Database["public"]["Enums"]["pm_project_status"]
           updated_at?: string
@@ -1582,6 +1592,11 @@ export type Database = {
           notes?: string | null
           opportunity_id?: string | null
           quote_id?: string | null
+          sold_at?: string | null
+          sold_external_fee?: number | null
+          sold_fee?: number | null
+          sold_internal_fee?: number | null
+          sold_pricing_multiplier?: number | null
           start_date?: string
           status?: Database["public"]["Enums"]["pm_project_status"]
           updated_at?: string
