@@ -284,6 +284,20 @@
       "totalProfit": "Total profit",
       "effectiveMargin": "Effective margin",
       "pricingMultiplier": "Pricing multiplier"
+    },
+    "proposal": {
+      "documentLabel": "Proposal",
+      "clientFacingHint": "Client-facing summary. Internal cost, margin and per-allocation hours are hidden.",
+      "print": "Print / Export to PDF",
+      "descriptionTitle": "Project description",
+      "stagesTitle": "Stages",
+      "teamTitle": "Team",
+      "externalTitle": "External services",
+      "totalFee": "Total fee",
+      "totalFeeHint": "Inclusive of internal time and external services. Excludes VAT.",
+      "paymentScheduleTitle": "Payment schedule",
+      "noStages": "No stages defined yet.",
+      "noTeam": "No team assigned yet."
     }
   }
 }
