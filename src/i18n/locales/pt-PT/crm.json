@@ -240,7 +240,14 @@
       "deleteConfirm": "Apagar este serviço?",
       "empty": "Ainda sem serviços externos.",
       "descPlaceholder": "ex: Engenharia de estruturas",
-      "errorDesc": "Descrição é obrigatória"
+      "errorDesc": "Descrição é obrigatória",
+      "totalCost": "Custo total",
+      "totalRevenue": "Receita total",
+      "totalProfit": "Lucro total",
+      "totalMargin": "Margem total",
+      "markup": "Margem",
+      "markupManual": "manual",
+      "noSupplier": "Sem fornecedor"
     },
     "payment": {
       "title": "Plano de pagamentos",
