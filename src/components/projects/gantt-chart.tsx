@@ -18,6 +18,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { fmt } from "@/lib/projects/gantt-utils";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
+import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 
 export type StageWithProject = StageWithAllocations & { projectId: string };
 
