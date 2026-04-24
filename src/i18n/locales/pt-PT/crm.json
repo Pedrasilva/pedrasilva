@@ -222,6 +222,7 @@
       "negativeProfit": "Esta proposta tem actualmente lucro negativo. Reveja honorários, custos ou âmbito.",
       "zeroProfit": "Lucro zero — a proposta cobre o custo mas não gera margem.",
       "externalNoSupplier": "{{count}} serviço(s) externo(s) sem fornecedor."
+    },
     "external": {
       "title": "Serviços externos",
       "totals": "Totais",
