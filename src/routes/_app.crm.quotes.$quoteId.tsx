@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Rocket, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { QuoteWorkflowActions } from "@/components/quotes/quote-workflow-actions";
 import { useState, useEffect } from "react";
 import {
   formatEUR, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
@@ -392,11 +393,19 @@ function QuoteDetail() {
             )}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs">
             <span className={`h-2 w-2 rounded-full ${status?.color}`} />
             {status ? t(`quoteStatus.${status.value}`) : ""}
           </span>
+          <QuoteWorkflowActions
+            quoteId={quoteId}
+            status={quote.quote_status}
+            hasAccount={!!quote.account_id}
+            hasProject={!!quote.pm_project_id}
+            onConvert={handleConvert}
+            isConverting={convert.isPending}
+          />
           {quote.pm_project_id && (
             <Link to="/projects/$projectId" params={{ projectId: quote.pm_project_id }}
               className="inline-flex items-center gap-1 rounded-md border px-3 py-1 text-xs hover:bg-muted/50">

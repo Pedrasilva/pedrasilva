@@ -37,9 +37,12 @@ import {
   useDefaultResourceRates, effectiveRates,
 } from "@/lib/projects/use-default-rates";
 import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
-import { rollupQuote } from "@/lib/quotes/financial-rollups";
+import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
 import { formatEUR } from "@/lib/crm/types";
+
+const PCT_PRESETS = [100, 80, 50, 20, 10] as const;
+const pctToHpd = (pct: number) => Math.max(0, Math.min(24, (pct / 100) * 8));
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -84,6 +87,20 @@ export function QuotePlanningTab({
     () => Object.fromEntries(stages.map((s) => [s.id, s])),
     [stages],
   );
+
+  // Per-stage rollup: hours / cost / fee derived from allocations.
+  const stageRollups = useMemo(() => {
+    const m = new Map<string, { hours: number; cost: number; fee: number }>();
+    for (const a of allocations) {
+      const line = quoteAllocationLine(a);
+      const cur = m.get(a.stage_id) ?? { hours: 0, cost: 0, fee: 0 };
+      cur.hours += line.hours;
+      cur.cost += line.cost;
+      cur.fee += line.revenue * (pricingMultiplier > 0 ? pricingMultiplier : 1);
+      m.set(a.stage_id, cur);
+    }
+    return m;
+  }, [allocations, pricingMultiplier]);
 
   // Lightweight, non-blocking warnings driven by the same rollup as the
   // financial summary so users get consistent signals across tabs.
@@ -223,15 +240,19 @@ export function QuotePlanningTab({
                 <TableHead className="w-36">{t("workspace.planning.startDate")}</TableHead>
                 <TableHead className="w-36">{t("workspace.planning.endDate")}</TableHead>
                 <TableHead className="w-32 text-right">{t("workspace.planning.budget")}</TableHead>
+                <TableHead className="w-32 text-right">{t("workspace.planning.calcFee")}</TableHead>
                 <TableHead className="w-16" />
               </TableRow>
             </TableHeader>
             <TableBody>
-              {stages.map((s, i) => (
+              {stages.map((s, i) => {
+                const r = stageRollups.get(s.id);
+                return (
                 <TableRow key={s.id}>
                   <TableCell className="text-muted-foreground">{i + 1}</TableCell>
                   <TableCell>
                     <Input
+                      key={`name-${s.id}-${s.updated_at}`}
                       defaultValue={s.name}
                       onBlur={(e) => {
                         if (e.target.value.trim() && e.target.value !== s.name) {
@@ -243,6 +264,7 @@ export function QuotePlanningTab({
                   <TableCell>
                     <Input
                       type="date"
+                      key={`sd-${s.id}-${s.start_date}`}
                       defaultValue={s.start_date}
                       onBlur={(e) => {
                         if (e.target.value !== s.start_date) {
@@ -254,6 +276,7 @@ export function QuotePlanningTab({
                   <TableCell>
                     <Input
                       type="date"
+                      key={`ed-${s.id}-${s.end_date}`}
                       defaultValue={s.end_date}
                       onBlur={(e) => {
                         if (e.target.value !== s.end_date) {
@@ -267,6 +290,7 @@ export function QuotePlanningTab({
                       type="number"
                       step="0.01"
                       className="text-right"
+                      key={`b-${s.id}-${s.budget}`}
                       defaultValue={s.budget}
                       onBlur={(e) => {
                         const v = Number(e.target.value) || 0;
@@ -275,6 +299,13 @@ export function QuotePlanningTab({
                         }
                       }}
                     />
+                  </TableCell>
+                  <TableCell className="text-right text-xs">
+                    {r ? (
+                      <span className="font-medium">{formatEUR(r.fee)}</span>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Button
@@ -290,10 +321,11 @@ export function QuotePlanningTab({
                     </Button>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
               {stages.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-6">
+                  <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">
                     {t("workspace.planning.noStages")}
                   </TableCell>
                 </TableRow>
