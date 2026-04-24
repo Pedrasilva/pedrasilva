@@ -135,6 +135,7 @@
     "openProjectButton": "Open project",
     "approveFirstHint": "Quote must be approved first.",
     "setAccountFirst": " (set account first)",
+    "convertConfirm": "Create the operational project from this quote? Stages, allocations and external services will be copied. This cannot be undone.",
     "newQuoteDialog": {
       "title": "New quote",
       "description": "Quotes inherit the opportunity context. Account is optional now but required to approve.",
@@ -177,7 +178,8 @@
       "planning": "Planning",
       "external": "External services",
       "payment": "Payment schedule",
-      "financial": "Financial summary"
+      "financial": "Financial summary",
+      "proposal": "Proposal"
     },
     "overview": {
       "constructionCost": "Construction cost (€)",
@@ -282,6 +284,20 @@
       "totalProfit": "Total profit",
       "effectiveMargin": "Effective margin",
       "pricingMultiplier": "Pricing multiplier"
+    },
+    "proposal": {
+      "documentLabel": "Proposal",
+      "clientFacingHint": "Client-facing summary. Internal cost, margin and per-allocation hours are hidden.",
+      "print": "Print / Export to PDF",
+      "descriptionTitle": "Project description",
+      "stagesTitle": "Stages",
+      "teamTitle": "Team",
+      "externalTitle": "External services",
+      "totalFee": "Total fee",
+      "totalFeeHint": "Inclusive of internal time and external services. Excludes VAT.",
+      "paymentScheduleTitle": "Payment schedule",
+      "noStages": "No stages defined yet.",
+      "noTeam": "No team assigned yet."
     }
   }
 }
