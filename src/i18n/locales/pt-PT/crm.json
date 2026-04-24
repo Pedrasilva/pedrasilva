@@ -74,6 +74,16 @@
     "tableStage": "Fase",
     "tableEstFee": "Fee est.",
     "tableProb": "Prob.",
+    "card": {
+      "noCompany": "Sem empresa",
+      "noContact": "Sem contacto principal",
+      "quotesCount_one": "{{count}} proposta",
+      "quotesCount_other": "{{count}} propostas",
+      "noQuotes": "Ainda sem propostas",
+      "openOpportunity": "Abrir",
+      "createQuote": "Criar proposta",
+      "openQuote": "Abrir proposta"
+    },
     "dialog": {
       "title": "Nova oportunidade",
       "description": "Registe trabalho potencial antes de se tornar proposta.",

@@ -74,6 +74,16 @@
     "tableStage": "Stage",
     "tableEstFee": "Est. fee",
     "tableProb": "Prob.",
+    "card": {
+      "noCompany": "No company",
+      "noContact": "No primary contact",
+      "quotesCount_one": "{{count}} quote",
+      "quotesCount_other": "{{count}} quotes",
+      "noQuotes": "No quotes yet",
+      "openOpportunity": "Open",
+      "createQuote": "Create quote",
+      "openQuote": "Open quote"
+    },
     "dialog": {
       "title": "New opportunity",
       "description": "Track potential work before it becomes a quote.",
