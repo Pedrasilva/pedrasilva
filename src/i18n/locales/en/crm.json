@@ -168,6 +168,25 @@
       "createButton": "Create quote",
       "createdToast": "Quote created",
       "errorTitle": "Title is required"
+    },
+    "workflow": {
+      "send": "Send proposal",
+      "approve": "Mark as approved",
+      "markLost": "Mark as lost",
+      "convert": "Convert to project",
+      "openProject": "Open project",
+      "lostState": "Lost",
+      "confirm": {
+        "send": "Mark this quote as sent to the client?",
+        "approve": "Mark this quote as approved? This will move the opportunity to Won.",
+        "lost": "Mark this quote as lost? This will move the opportunity to Lost."
+      },
+      "toast": {
+        "draft": "Quote returned to draft",
+        "sent": "Proposal sent",
+        "approved": "Quote approved",
+        "rejected": "Quote marked as lost"
+      }
     }
   },
   "stage": {
