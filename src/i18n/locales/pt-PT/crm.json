@@ -135,6 +135,7 @@
     "openProjectButton": "Abrir projecto",
     "approveFirstHint": "A proposta tem de ser aprovada primeiro.",
     "setAccountFirst": " (definir conta primeiro)",
+    "convertConfirm": "Criar o projecto operacional a partir desta proposta? Fases, alocações e serviços externos serão copiados. Esta acção não pode ser desfeita.",
     "newQuoteDialog": {
       "title": "Nova proposta",
       "description": "As propostas herdam o contexto da oportunidade. A conta é opcional agora mas obrigatória para aprovar.",
