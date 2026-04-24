@@ -101,18 +101,21 @@ export function QuoteProposalTab({
     pricingMultiplier,
   });
 
-  // De-duplicate the team list by resource id; keep order of first appearance.
-  const teamMap = new Map<string, { id: string; name: string; color: string }>();
+  // Role-based snapshot for the client-facing proposal: clients care about
+  // *what roles* are on the project (e.g. "Architect: 120h"), not which
+  // individual person fills them. Aggregate hours per role; if no role is
+  // defined for a resource, bucket as "Team Member" so the proposal still
+  // shows commitment without exposing internal staffing decisions.
+  const roleMap = new Map<string, { role: string; hours: number; people: Set<string> }>();
   for (const a of allocations) {
-    if (!a.resource) continue;
-    if (teamMap.has(a.resource.id)) continue;
-    teamMap.set(a.resource.id, {
-      id: a.resource.id,
-      name: a.resource.name,
-      color: a.resource.color ?? "#a78bfa",
-    });
+    const role = a.resource?.role?.trim() || t("proposal.unspecifiedRole");
+    const { hours } = quoteAllocationLine(a);
+    const entry = roleMap.get(role) ?? { role, hours: 0, people: new Set<string>() };
+    entry.hours += hours;
+    if (a.resource?.name) entry.people.add(a.resource.name);
+    roleMap.set(role, entry);
   }
-  const team = [...teamMap.values()];
+  const roles = [...roleMap.values()].sort((a, b) => b.hours - a.hours);
 
   const triggerLabel = (v: string) =>
     QUOTE_PAYMENT_TRIGGERS.find((x) => x.value === v)?.label ?? v;
