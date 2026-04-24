@@ -37,9 +37,12 @@ import {
   useDefaultResourceRates, effectiveRates,
 } from "@/lib/projects/use-default-rates";
 import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
-import { rollupQuote } from "@/lib/quotes/financial-rollups";
+import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
 import { formatEUR } from "@/lib/crm/types";
+
+const PCT_PRESETS = [100, 80, 50, 20, 10] as const;
+const pctToHpd = (pct: number) => Math.max(0, Math.min(24, (pct / 100) * 8));
 
 const today = () => new Date().toISOString().slice(0, 10);
 
