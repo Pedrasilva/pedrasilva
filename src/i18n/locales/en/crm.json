@@ -212,8 +212,16 @@
       "stageCreated": "Stage created",
       "manualTablesTitle": "Manual planning tables",
       "loading": "Loading…",
-      "dragHelper": "Drag resources into stages to build the fee."
+      "dragHelper": "Drag resources into stages to build the fee.",
+      "feeDriverHint": "Your fee is driven by team time and external services."
     },
+    "warnings": {
+      "noStages": "No stages yet — add at least one stage to plan the work.",
+      "noTeam": "No team assigned to this quote yet.",
+      "stageWithoutAllocation": "{{count}} stage(s) without any allocation: {{names}}",
+      "negativeProfit": "This quote currently has a negative profit. Review fees, costs, or scope.",
+      "zeroProfit": "Profit is zero — the quote covers cost but generates no margin.",
+      "externalNoSupplier": "{{count}} external service(s) without a supplier."
     "external": {
       "title": "External services",
       "totals": "Totals",
