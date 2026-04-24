@@ -183,9 +183,32 @@ function QuoteDetail() {
         };
       }
 
-      // 1. Create the project shell.
+      // 0. Snapshot the agreed commercial baseline BEFORE creating the
+      //    project. We compute the rollup from the live quote data so the
+      //    sold_fee is exactly what was approved — independent of any
+      //    future changes to project allocations or rates.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = supabase as any;
+      const [{ data: snapAllocs }, { data: snapExt }] = await Promise.all([
+        db
+          .from("quote_allocations")
+          .select("*, resource:pm_resources(id, name, color, role)")
+          .eq("quote_id", quote.id),
+        db
+          .from("quote_external_services")
+          .select("*, supplier:pm_suppliers(id, name)")
+          .eq("quote_id", quote.id),
+      ]);
+      const soldSummary = rollupQuote({
+        allocations: snapAllocs ?? [],
+        externalServices: snapExt ?? [],
+        pricingMultiplier: Number(quote.pricing_multiplier ?? 1),
+      });
+
+      // 1. Create the project shell with the locked commercial baseline.
       const { data: project, error: projErr } = await supabase
         .from("pm_projects")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .insert({
           name: quote.titulo,
           status: "active",
@@ -195,14 +218,19 @@ function QuoteDetail() {
           quote_id: quote.id,
           opportunity_id: quote.opportunity_id,
           notes: `Created from quote "${quote.titulo}"`,
-        })
+          // Locked commercial baseline — DB trigger prevents future edits.
+          sold_fee: soldSummary.totalFee,
+          sold_internal_fee: soldSummary.internal.value * soldSummary.pricingMultiplier,
+          sold_external_fee: soldSummary.external.value * soldSummary.pricingMultiplier,
+          sold_pricing_multiplier: soldSummary.pricingMultiplier,
+          sold_at: new Date().toISOString(),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any)
         .select("id")
         .single();
       if (projErr) throw projErr;
 
       // 2. Copy quote_stages → pm_stages, keeping a mapping for allocations.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db = supabase as any;
       const { data: qStages, error: qsErr } = await db
         .from("quote_stages")
         .select("id, name, start_date, end_date, color, sort_order, budget")

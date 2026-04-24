@@ -388,6 +388,8 @@
       "paymentScheduleTitle": "Plano de pagamentos",
       "noStages": "Âmbito do trabalho a definir.",
       "noTeam": "Equipa a atribuir.",
+      "unspecifiedRole": "Membro da Equipa",
+      "roleHours": "{{hours}}h",
       "acceptanceTitle": "Aceitação",
       "acceptanceHint": "Ao assinar abaixo, o cliente confirma a aceitação desta proposta.",
       "acceptanceClientName": "Nome do cliente",

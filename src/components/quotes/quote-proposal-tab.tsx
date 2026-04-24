@@ -33,7 +33,7 @@ import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
-import { rollupQuote } from "@/lib/quotes/financial-rollups";
+import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import {
   QUOTE_PAYMENT_TRIGGERS,
@@ -101,18 +101,21 @@ export function QuoteProposalTab({
     pricingMultiplier,
   });
 
-  // De-duplicate the team list by resource id; keep order of first appearance.
-  const teamMap = new Map<string, { id: string; name: string; color: string }>();
+  // Role-based snapshot for the client-facing proposal: clients care about
+  // *what roles* are on the project (e.g. "Architect: 120h"), not which
+  // individual person fills them. Aggregate hours per role; if no role is
+  // defined for a resource, bucket as "Team Member" so the proposal still
+  // shows commitment without exposing internal staffing decisions.
+  const roleMap = new Map<string, { role: string; hours: number; people: Set<string> }>();
   for (const a of allocations) {
-    if (!a.resource) continue;
-    if (teamMap.has(a.resource.id)) continue;
-    teamMap.set(a.resource.id, {
-      id: a.resource.id,
-      name: a.resource.name,
-      color: a.resource.color ?? "#a78bfa",
-    });
+    const role = a.resource?.role?.trim() || t("proposal.unspecifiedRole");
+    const { hours } = quoteAllocationLine(a);
+    const entry = roleMap.get(role) ?? { role, hours: 0, people: new Set<string>() };
+    entry.hours += hours;
+    if (a.resource?.name) entry.people.add(a.resource.name);
+    roleMap.set(role, entry);
   }
-  const team = [...teamMap.values()];
+  const roles = [...roleMap.values()].sort((a, b) => b.hours - a.hours);
 
   const triggerLabel = (v: string) =>
     QUOTE_PAYMENT_TRIGGERS.find((x) => x.value === v)?.label ?? v;
@@ -216,27 +219,33 @@ export function QuoteProposalTab({
 
             <Separator />
 
-            {/* ── Project Team ────────────────────────────────────── */}
+            {/* ── Project Team (by role) ──────────────────────────── */}
             <section className="proposal-section">
               <h2 className="text-sm font-semibold mb-2">
                 {t("proposal.teamTitle")}
               </h2>
-              {team.length === 0 ? (
+              {roles.length === 0 ? (
                 <p className="text-sm text-muted-foreground italic">
                   {t("proposal.noTeam")}
                 </p>
               ) : (
-                <ul className="flex flex-wrap gap-2">
-                  {team.map((m) => (
+                <ul className="space-y-1.5">
+                  {roles.map((r) => (
                     <li
-                      key={m.id}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs"
+                      key={r.role}
+                      className="proposal-row flex items-center justify-between gap-3 text-sm border-b border-border/50 pb-1.5 last:border-0"
                     >
-                      <span
-                        className="inline-block h-2 w-2 rounded-full"
-                        style={{ background: m.color }}
-                      />
-                      {m.name}
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">{r.role}</div>
+                        {r.people.size > 0 && (
+                          <div className="text-xs text-muted-foreground truncate">
+                            {[...r.people].join(", ")}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                        {t("proposal.roleHours", { hours: Math.round(r.hours) })}
+                      </span>
                     </li>
                   ))}
                 </ul>
