@@ -37,7 +37,6 @@ import {
   QUOTE_PAYMENT_TRIGGERS,
   QUOTE_PAYMENT_AMOUNT_TYPES,
 } from "@/lib/quotes/types";
-import type { Locale } from "date-fns";
 
 interface QuoteProposalTabProps {
   quoteId: string;
