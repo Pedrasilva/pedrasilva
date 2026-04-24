@@ -1,0 +1,175 @@
+/**
+ * QuoteGantt — quote-mode wrapper around the shared GanttChart.
+ *
+ * Responsibilities
+ * - Fetch quote_stages, quote_allocations, quote_stage_dependencies and
+ *   active pm_resources.
+ * - Map quote rows into the StageWithProject / AllocationWithResource shape
+ *   GanttChart expects.
+ *   - resource.hourly_rate is set to the allocation's sale_rate_snapshot,
+ *     and resource.cost_rate to cost_rate_snapshot, so the Gantt's cost
+ *     overlays read historical quote rates rather than the resource's
+ *     current effective rates.
+ * - Build a quote-mode PlannerAdapter (QUOTE_FEATURES) so baseline,
+ *   leave overlap, overload, status toggle, holiday shading, and
+ *   cross-project moves are hidden.
+ */
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { addDays, differenceInCalendarDays } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { GanttChart, type StageWithProject } from "@/components/projects/gantt-chart";
+import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
+import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
+import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
+import type { Resource, AllocationWithResource } from "@/lib/projects/types";
+
+interface Props {
+  quoteId: string;
+  dayWidth?: number;
+}
+
+export function QuoteGantt({ quoteId, dayWidth = 28 }: Props) {
+  const { t } = useTranslation("crm");
+  const stagesQ = useQuoteStages(quoteId);
+  const allocQ = useQuoteAllocations(quoteId);
+
+  // Full Resource rows (need cost_rate / sale_rate / collaborator_id / role
+  // for Gantt's tooltip + avatar rendering).
+  const { data: resources = [] } = useQuery({
+    queryKey: ["pm-resources-active-full"],
+    queryFn: async (): Promise<Resource[]> => {
+      const { data, error } = await supabase
+        .from("pm_resources")
+        .select("*")
+        .eq("active", true)
+        .order("name");
+      if (error) throw error;
+      return (data ?? []) as Resource[];
+    },
+  });
+
+  const adapter = useQuotePlannerAdapter(quoteId, resources);
+
+  const stages = stagesQ.data ?? [];
+  const allocations = allocQ.data ?? [];
+
+  // Index resources for fast lookup when building per-allocation snapshots.
+  const resourceById = useMemo(
+    () => new Map(resources.map((r) => [r.id, r])),
+    [resources],
+  );
+
+  // Map quote allocations onto the AllocationWithResource shape, snapshotting
+  // the rate fields from the quote row (so the Gantt cost overlay reflects
+  // the rates actually quoted, not today's effective rates).
+  const allocByStage = useMemo(() => {
+    const m = new Map<string, AllocationWithResource[]>();
+    for (const a of allocations) {
+      const baseRes = resourceById.get(a.resource_id);
+      if (!baseRes) continue;
+      const resourceForAlloc: Resource = {
+        ...baseRes,
+        hourly_rate: Number(a.sale_rate_snapshot),
+        sale_rate: Number(a.sale_rate_snapshot),
+        cost_rate: Number(a.cost_rate_snapshot),
+      };
+      const mapped: AllocationWithResource = {
+        id: a.id,
+        stage_id: a.stage_id,
+        resource_id: a.resource_id,
+        start_date: a.start_date,
+        end_date: a.end_date,
+        hours_per_day: a.hours_per_day,
+        // Quote allocations have no committed/tentative status — present as
+        // 'committed' to satisfy the type and let the bar render normally.
+        status: "committed",
+        status_changed_at: null,
+        created_at: a.created_at,
+        updated_at: a.updated_at,
+        resource: resourceForAlloc,
+      };
+      const arr = m.get(a.stage_id) ?? [];
+      arr.push(mapped);
+      m.set(a.stage_id, arr);
+    }
+    return m;
+  }, [allocations, resourceById]);
+
+  // Map quote stages into StageWithProject. Quote stages have no baseline
+  // columns; leave them undefined — features.baseline is off so Gantt won't
+  // try to render the ghost.
+  const mappedStages = useMemo<StageWithProject[]>(() => {
+    return stages.map((s) => ({
+      id: s.id,
+      name: s.name,
+      project_id: quoteId,
+      projectId: quoteId,
+      start_date: s.start_date,
+      end_date: s.end_date,
+      color: s.color,
+      budget: s.budget,
+      sort_order: s.sort_order,
+      external_id: s.external_id ?? null,
+      created_at: s.created_at,
+      updated_at: s.updated_at,
+      baseline_budget: null,
+      baseline_end_date: null,
+      baseline_locked_at: null,
+      baseline_notes: null,
+      baseline_start_date: null,
+      baseline_target_hours: null,
+      allocations: allocByStage.get(s.id) ?? [],
+    }));
+  }, [stages, allocByStage, quoteId]);
+
+  // Origin/totalDays — earliest start - 7d, span out to latest end + 21d.
+  const { origin, totalDays } = useMemo(() => {
+    if (!mappedStages.length) {
+      return { origin: addDays(new Date(), -7), totalDays: 90 };
+    }
+    let minD = new Date(mappedStages[0].start_date);
+    let maxD = new Date(mappedStages[0].end_date);
+    for (const s of mappedStages) {
+      const sd = new Date(s.start_date);
+      const ed = new Date(s.end_date);
+      if (sd < minD) minD = sd;
+      if (ed > maxD) maxD = ed;
+    }
+    const o = addDays(minD, -7);
+    const days = Math.max(60, differenceInCalendarDays(maxD, o) + 21);
+    return { origin: o, totalDays: days };
+  }, [mappedStages]);
+
+  if (stagesQ.isLoading) {
+    return (
+      <div className="rounded-md border border-border p-8 text-center text-sm text-muted-foreground">
+        {t("workspace.planning.loading", { defaultValue: "Loading…" })}
+      </div>
+    );
+  }
+
+  if (mappedStages.length === 0) {
+    return (
+      <div className="rounded-md border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        {t("workspace.planning.noStages")}
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-auto rounded-md border border-border bg-canvas">
+      <GanttChart
+        projectId={quoteId}
+        stages={mappedStages}
+        origin={origin}
+        totalDays={totalDays}
+        dayWidth={dayWidth}
+        resources={resources}
+        adapter={adapter}
+        embedded
+      />
+    </div>
+  );
+}
