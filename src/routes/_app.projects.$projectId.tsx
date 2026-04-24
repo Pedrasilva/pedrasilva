@@ -83,6 +83,7 @@ function ProjectDetail() {
   const { projectId } = Route.useParams();
   const { data, isLoading, error } = useProjectDetail(projectId);
   const { data: resources } = useResources();
+  const ganttAdapter = useProjectPlannerAdapter(resources ?? []);
   const { data: defaultRates } = useDefaultResourceRates();
   const { data: invoices } = useProjectInvoices(projectId);
   const { data: activities } = useProjectActivities(projectId);
@@ -699,6 +700,7 @@ function ProjectDetail() {
                         totalDays={totalDays}
                         dayWidth={dayWidth}
                         resources={resources ?? []}
+                        adapter={ganttAdapter}
                       />
                     )}
                   </div>
