@@ -257,7 +257,11 @@
       "manualTablesTitle": "Tabelas de planeamento manual",
       "loading": "A carregar…",
       "dragHelper": "Arraste recursos para as fases para construir os honorários.",
-      "feeDriverHint": "Os honorários são determinados pelo tempo da equipa e pelos serviços externos."
+      "feeDriverHint": "Os honorários são determinados pelo tempo da equipa e pelos serviços externos.",
+      "zoomLabel": "Zoom",
+      "zoomWeek": "Semana",
+      "zoomMonth": "Mês",
+      "zoomFit": "Ajustar"
     },
     "warnings": {
       "noStages": "Ainda sem fases — adicione pelo menos uma fase para planear o trabalho.",
