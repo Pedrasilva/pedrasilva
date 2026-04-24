@@ -19,7 +19,7 @@
  * - Total fee + optional payment schedule list
  */
 import { useTranslation } from "react-i18next";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, type Locale } from "date-fns";
 import { Printer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
