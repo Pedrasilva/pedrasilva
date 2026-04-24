@@ -168,6 +168,25 @@
       "createButton": "Criar proposta",
       "createdToast": "Proposta criada",
       "errorTitle": "Título é obrigatório"
+    },
+    "workflow": {
+      "send": "Enviar proposta",
+      "approve": "Marcar como aprovada",
+      "markLost": "Marcar como perdida",
+      "convert": "Converter em projecto",
+      "openProject": "Abrir projecto",
+      "lostState": "Perdida",
+      "confirm": {
+        "send": "Marcar esta proposta como enviada ao cliente?",
+        "approve": "Marcar esta proposta como aprovada? A oportunidade será movida para Ganho.",
+        "lost": "Marcar esta proposta como perdida? A oportunidade será movida para Perdido."
+      },
+      "toast": {
+        "draft": "Proposta voltou a rascunho",
+        "sent": "Proposta enviada",
+        "approved": "Proposta aprovada",
+        "rejected": "Proposta marcada como perdida"
+      }
     }
   },
   "stage": {
