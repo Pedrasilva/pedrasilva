@@ -32,6 +32,8 @@ export interface PlannerFeatures {
   crossProjectMove: boolean;
   /** Show holiday shading on the timeline background. */
   holidayShading: boolean;
+  /** Allocation editor exposes an allocation % field that drives hours/day. */
+  allocationPercentage: boolean;
 }
 
 export interface PlannerStageUpdateArgs {
@@ -64,6 +66,7 @@ export interface PlannerAllocationUpdateArgs {
     hours_per_day?: number;
     stage_id?: string;
     status?: "tentative" | "committed";
+    allocation_percentage?: number | null;
   };
 }
 
@@ -131,6 +134,7 @@ export const PROJECT_FEATURES: PlannerFeatures = {
   statusToggle: true,
   crossProjectMove: true,
   holidayShading: true,
+  allocationPercentage: false,
 };
 
 export const QUOTE_FEATURES: PlannerFeatures = {
@@ -140,4 +144,5 @@ export const QUOTE_FEATURES: PlannerFeatures = {
   statusToggle: false,
   crossProjectMove: false,
   holidayShading: false,
+  allocationPercentage: true,
 };

@@ -18,18 +18,35 @@ interface Props {
   adapter: PlannerAdapter;
 }
 
-type AllocationWithStatus = AllocationWithResource & { status?: AllocationStatus | null };
+type AllocationWithStatus = AllocationWithResource & {
+  status?: AllocationStatus | null;
+  allocation_percentage?: number | null;
+};
+
+const HOURS_PER_FULL_DAY = 8;
+
+function pctToHours(pct: number): number {
+  // 100% = 8h, 50% = 4h, 20% = 1.6h. Round to 1 decimal.
+  return Math.round((pct / 100) * HOURS_PER_FULL_DAY * 10) / 10;
+}
 
 export function AllocationEditor({ allocation, projectId, adapter }: Props) {
   const [open, setOpen] = useState(false);
+  const allocWithExtras = allocation as AllocationWithStatus;
+  const initialPct =
+    typeof allocWithExtras.allocation_percentage === "number"
+      ? allocWithExtras.allocation_percentage
+      : 100;
+  const [pct, setPct] = useState<number>(initialPct);
   const [hours, setHours] = useState(Number(allocation.hours_per_day));
   const [start, setStart] = useState(allocation.start_date);
   const [end, setEnd] = useState(allocation.end_date);
   const initialStatus: AllocationStatus =
-    ((allocation as AllocationWithStatus).status ?? "committed") as AllocationStatus;
+    (allocWithExtras.status ?? "committed") as AllocationStatus;
   const [status, setStatus] = useState<AllocationStatus>(initialStatus);
 
   const showStatusToggle = adapter.features.statusToggle && !!adapter.setAllocationStatus;
+  const showPercentage = adapter.features.allocationPercentage;
   const pending = adapter.pending.allocation;
 
   const wd = workingDays(start, end);
@@ -41,14 +58,24 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
     hourly_rate: Number(allocation.resource.hourly_rate),
   });
 
+  function applyPct(nextPct: number) {
+    setPct(nextPct);
+    // In allocation-% mode, % drives hours/day so the two stay in sync.
+    setHours(pctToHours(nextPct));
+  }
+
   async function save() {
     try {
+      const patch: Parameters<typeof adapter.updateAllocation>[0]["patch"] = showStatusToggle
+        ? { start_date: start, end_date: end, hours_per_day: hours, status }
+        : { start_date: start, end_date: end, hours_per_day: hours };
+      if (showPercentage) {
+        patch.allocation_percentage = pct;
+      }
       await adapter.updateAllocation({
         id: allocation.id,
         projectId,
-        patch: showStatusToggle
-          ? { start_date: start, end_date: end, hours_per_day: hours, status }
-          : { start_date: start, end_date: end, hours_per_day: hours },
+        patch,
       });
       toast.success("Atualizado");
       setOpen(false);
@@ -148,6 +175,42 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
               <Input id="a-end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
             </div>
           </div>
+          {showPercentage && (
+            <div>
+              <Label htmlFor="a-pct" className="text-xs">Alocação (%)</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="a-pct"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={5}
+                  value={pct}
+                  onChange={(e) => applyPct(Number(e.target.value))}
+                  className="w-24"
+                />
+                <div className="flex flex-wrap gap-1">
+                  {[100, 80, 50, 20, 10].map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => applyPct(p)}
+                      className={`rounded border px-2 py-0.5 text-[11px] transition ${
+                        pct === p
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {p}%
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                {pct}% = {pctToHours(pct)}h/dia (base 8h).
+              </p>
+            </div>
+          )}
           <div>
             <Label htmlFor="a-h" className="text-xs">Horas por dia útil</Label>
             <Input
@@ -158,7 +221,13 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
               step={0.5}
               value={hours}
               onChange={(e) => setHours(Number(e.target.value))}
+              disabled={showPercentage}
             />
+            {showPercentage && (
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                Derivado da % de alocação.
+              </p>
+            )}
           </div>
           <div className="rounded-md bg-muted/60 p-3 text-xs">
             <div className="flex justify-between"><span className="text-muted-foreground">Dias úteis</span><span className="font-mono">{wd}</span></div>
