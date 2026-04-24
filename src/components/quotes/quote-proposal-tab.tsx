@@ -33,7 +33,7 @@ import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
-import { rollupQuote } from "@/lib/quotes/financial-rollups";
+import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import {
   QUOTE_PAYMENT_TRIGGERS,
