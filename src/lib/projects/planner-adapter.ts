@@ -15,7 +15,7 @@
  */
 import type { DepType, StageDependency } from "@/lib/projects/dependencies";
 import type { Resource } from "@/lib/projects/types";
-import type { ResourceDefaultRate } from "@/lib/projects/use-default-rates";
+import type { DefaultRateInfo } from "@/lib/projects/use-default-rates";
 
 export type PlannerMode = "project" | "quote";
 
