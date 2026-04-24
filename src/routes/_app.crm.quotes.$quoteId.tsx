@@ -495,7 +495,7 @@ function QuoteDetail() {
                     onChange={(e) => setForm((f) => ({ ...f, pricing_multiplier: e.target.value }))} />
                 </div>
                 <div>
-                  <Label>{t("common.account")} {form.quote_status === "approved" && "*"}</Label>
+                  <Label>{t("common.account")}</Label>
                   <Select value={form.account_id || "none"}
                     onValueChange={(v) => setForm((f) => ({ ...f, account_id: v === "none" ? "" : v }))}>
                     <SelectTrigger><SelectValue placeholder={t("common.noAccount")} /></SelectTrigger>
@@ -512,8 +512,8 @@ function QuoteDetail() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {QUOTE_STATUSES.map((s) => (
-                        <SelectItem key={s.value} value={s.value} disabled={s.value === "approved" && !canApprove}>
-                          {t(`quoteStatus.${s.value}`)}{s.value === "approved" && !canApprove ? t("quotes.setAccountFirst") : ""}
+                        <SelectItem key={s.value} value={s.value}>
+                          {t(`quoteStatus.${s.value}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
