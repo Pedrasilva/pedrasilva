@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const CATEGORY_LABELS: Record<string, string> = {
   carro: "Carro",
@@ -13,9 +14,25 @@ const fmtEUR = (n: number) =>
 
 export const Route = createFileRoute("/api/notify-expense")({
   server: {
+    middleware: [requireSupabaseAuth],
     handlers: {
-      POST: async ({ request }) => {
+      POST: async ({ request, context }) => {
         try {
+          // Verify the authenticated user is an admin before allowing this
+          // sensitive operation (reads expense data via service-role and
+          // generates signed URLs to private receipts).
+          const userId = context.userId;
+          const { data: isAdmin, error: roleErr } = await context.supabase.rpc("has_role", {
+            _user_id: userId,
+            _role: "admin",
+          });
+          if (roleErr || !isAdmin) {
+            return new Response(JSON.stringify({ error: "Forbidden" }), {
+              status: 403,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+
           const { expenseId } = (await request.json()) as { expenseId?: string };
           if (!expenseId) {
             return new Response(JSON.stringify({ error: "expenseId required" }), { status: 400 });
@@ -23,9 +40,10 @@ export const Route = createFileRoute("/api/notify-expense")({
 
           const TO = process.env.EMAIL_CONTABILIDADE;
           if (!TO) {
+            console.error("[notify-expense] EMAIL_CONTABILIDADE env var not set");
             return new Response(
-              JSON.stringify({ error: "EMAIL_CONTABILIDADE not set" }),
-              { status: 500 },
+              JSON.stringify({ error: "Internal server error" }),
+              { status: 500, headers: { "Content-Type": "application/json" } },
             );
           }
 
@@ -105,9 +123,10 @@ export const Route = createFileRoute("/api/notify-expense")({
             headers: { "Content-Type": "application/json" },
           });
         } catch (err) {
+          console.error("[notify-expense] unhandled error:", err);
           return new Response(
-            JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
-            { status: 500 },
+            JSON.stringify({ error: "Internal server error" }),
+            { status: 500, headers: { "Content-Type": "application/json" } },
           );
         }
       },
