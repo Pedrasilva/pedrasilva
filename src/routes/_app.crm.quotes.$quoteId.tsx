@@ -156,6 +156,7 @@ function QuoteDetail() {
       if (quote.quote_status !== "approved") throw new Error(t("quotes.convertOnlyApproved"));
       if (quote.pm_project_id) return { id: quote.pm_project_id, alreadyExisted: true };
 
+      // 1. Create the project shell.
       const { data: project, error: projErr } = await supabase
         .from("pm_projects")
         .insert({
@@ -172,6 +173,86 @@ function QuoteDetail() {
         .single();
       if (projErr) throw projErr;
 
+      // 2. Copy quote_stages → pm_stages, keeping a mapping for allocations.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = supabase as any;
+      const { data: qStages, error: qsErr } = await db
+        .from("quote_stages")
+        .select("id, name, start_date, end_date, color, sort_order, budget")
+        .eq("quote_id", quote.id)
+        .order("sort_order", { ascending: true });
+      if (qsErr) throw qsErr;
+
+      const stageIdMap = new Map<string, string>();
+      for (const s of qStages ?? []) {
+        const { data: created, error: insErr } = await db
+          .from("pm_stages")
+          .insert({
+            project_id: project.id,
+            name: s.name,
+            start_date: s.start_date,
+            end_date: s.end_date,
+            color: s.color ?? "#22c55e",
+            sort_order: s.sort_order ?? 0,
+            budget: Number(s.budget ?? 0),
+          })
+          .select("id")
+          .single();
+        if (insErr) throw insErr;
+        stageIdMap.set(s.id, created.id);
+      }
+
+      // 3. Copy quote_allocations → pm_allocations (committed status).
+      const { data: qAllocs, error: qaErr } = await db
+        .from("quote_allocations")
+        .select("stage_id, resource_id, start_date, end_date, hours_per_day")
+        .eq("quote_id", quote.id);
+      if (qaErr) throw qaErr;
+
+      for (const a of qAllocs ?? []) {
+        const newStageId = stageIdMap.get(a.stage_id);
+        if (!newStageId) continue; // stage was deleted mid-copy; skip
+        const { error: aErr } = await db.from("pm_allocations").insert({
+          stage_id: newStageId,
+          resource_id: a.resource_id,
+          start_date: a.start_date,
+          end_date: a.end_date,
+          hours_per_day: Number(a.hours_per_day ?? 8),
+          status: "committed",
+        });
+        if (aErr) throw aErr;
+      }
+
+      // 4. Copy quote_external_services → pm_materials.
+      // pm_materials shares the same purchase/sale/markup model. Sale price is
+      // recomputed by the DB trigger; we forward the inputs and the manual flag.
+      const { data: qExt, error: qeErr } = await db
+        .from("quote_external_services")
+        .select(
+          "description, supplier_id, quantity, unit_cost, purchase_price, markup_type, markup_value, sale_price, sale_price_manual, status, notes",
+        )
+        .eq("quote_id", quote.id);
+      if (qeErr) throw qeErr;
+
+      for (const e of qExt ?? []) {
+        const { error: mErr } = await db.from("pm_materials").insert({
+          project_id: project.id,
+          description: e.description,
+          supplier_id: e.supplier_id,
+          quantity: Number(e.quantity ?? 1),
+          unit_cost: Number(e.unit_cost ?? 0),
+          purchase_price: Number(e.purchase_price ?? 0),
+          markup_type: e.markup_type ?? "percent",
+          markup_value: Number(e.markup_value ?? 0),
+          sale_price: Number(e.sale_price ?? 0),
+          sale_price_manual: !!e.sale_price_manual,
+          status: e.status ?? "draft",
+          notes: e.notes,
+        });
+        if (mErr) throw mErr;
+      }
+
+      // 5. Link the project back to the quote and mark opportunity as won.
       const { error: linkErr } = await supabase
         .from("fee_proposals")
         .update({ pm_project_id: project.id })
@@ -191,6 +272,16 @@ function QuoteDetail() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const handleConvert = () => {
+    if (!quote) return;
+    if (quote.pm_project_id) {
+      // Already exists — go straight to it without a confirm prompt.
+      convert.mutate();
+      return;
+    }
+    if (confirm(t("quotes.convertConfirm"))) convert.mutate();
+  };
 
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   if (!quote) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
