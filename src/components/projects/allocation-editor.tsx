@@ -18,18 +18,35 @@ interface Props {
   adapter: PlannerAdapter;
 }
 
-type AllocationWithStatus = AllocationWithResource & { status?: AllocationStatus | null };
+type AllocationWithStatus = AllocationWithResource & {
+  status?: AllocationStatus | null;
+  allocation_percentage?: number | null;
+};
+
+const HOURS_PER_FULL_DAY = 8;
+
+function pctToHours(pct: number): number {
+  // 100% = 8h, 50% = 4h, 20% = 1.6h. Round to 1 decimal.
+  return Math.round((pct / 100) * HOURS_PER_FULL_DAY * 10) / 10;
+}
 
 export function AllocationEditor({ allocation, projectId, adapter }: Props) {
   const [open, setOpen] = useState(false);
+  const allocWithExtras = allocation as AllocationWithStatus;
+  const initialPct =
+    typeof allocWithExtras.allocation_percentage === "number"
+      ? allocWithExtras.allocation_percentage
+      : 100;
+  const [pct, setPct] = useState<number>(initialPct);
   const [hours, setHours] = useState(Number(allocation.hours_per_day));
   const [start, setStart] = useState(allocation.start_date);
   const [end, setEnd] = useState(allocation.end_date);
   const initialStatus: AllocationStatus =
-    ((allocation as AllocationWithStatus).status ?? "committed") as AllocationStatus;
+    (allocWithExtras.status ?? "committed") as AllocationStatus;
   const [status, setStatus] = useState<AllocationStatus>(initialStatus);
 
   const showStatusToggle = adapter.features.statusToggle && !!adapter.setAllocationStatus;
+  const showPercentage = adapter.features.allocationPercentage;
   const pending = adapter.pending.allocation;
 
   const wd = workingDays(start, end);
@@ -41,14 +58,24 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
     hourly_rate: Number(allocation.resource.hourly_rate),
   });
 
+  function applyPct(nextPct: number) {
+    setPct(nextPct);
+    // In allocation-% mode, % drives hours/day so the two stay in sync.
+    setHours(pctToHours(nextPct));
+  }
+
   async function save() {
     try {
+      const patch: Parameters<typeof adapter.updateAllocation>[0]["patch"] = showStatusToggle
+        ? { start_date: start, end_date: end, hours_per_day: hours, status }
+        : { start_date: start, end_date: end, hours_per_day: hours };
+      if (showPercentage) {
+        patch.allocation_percentage = pct;
+      }
       await adapter.updateAllocation({
         id: allocation.id,
         projectId,
-        patch: showStatusToggle
-          ? { start_date: start, end_date: end, hours_per_day: hours, status }
-          : { start_date: start, end_date: end, hours_per_day: hours },
+        patch,
       });
       toast.success("Atualizado");
       setOpen(false);
