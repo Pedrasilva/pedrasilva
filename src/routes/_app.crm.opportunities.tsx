@@ -27,13 +27,16 @@ export const Route = createFileRoute("/_app/crm/opportunities")({
 type Row = CrmOpportunity & {
   company: { id: string; nome: string } | null;
   contact: Pick<Contact, "id" | "primeiro_nome" | "apelido" | "titulo"> | null;
-  quotes: { id: string }[];
+  quotes: { id: string; updated_at: string }[];
 };
 
 function OpportunitiesPage() {
   const { t } = useTranslation("crm");
+  const navigate = useNavigate();
+  const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"pipeline" | "list">("pipeline");
+  const [creatingFor, setCreatingFor] = useState<string | null>(null);
 
   const { data: opps = [], isLoading } = useQuery({
     queryKey: ["crm_opportunities"],
@@ -41,13 +44,60 @@ function OpportunitiesPage() {
       const { data, error } = await supabase
         .from("crm_opportunities")
         .select(
-          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id)",
+          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id, updated_at)",
         )
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as Row[];
     },
   });
+
+  const createQuote = useMutation({
+    mutationFn: async (opp: Row) => {
+      const { data, error } = await supabase
+        .from("fee_proposals")
+        .insert({
+          titulo: opp.name,
+          opportunity_id: opp.id,
+          company_id: opp.company_id,
+          contact_id: opp.primary_contact_id,
+          valor: Number(opp.estimated_fee) || 0,
+          fee_structure_type: "fixed",
+          quote_status: "draft",
+          pipeline_status: "lead",
+          data_proposta: new Date().toISOString().slice(0, 10),
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      toast.success(t("quotes.newQuoteDialog.createdToast"));
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+      navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: data.id } });
+    },
+    onError: (e: Error) => {
+      toast.error(e.message);
+      setCreatingFor(null);
+    },
+  });
+
+  const handleQuoteAction = (e: React.MouseEvent, opp: Row) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const latestQuote = opp.quotes?.[0];
+    if (latestQuote) {
+      navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: latestQuote.id } });
+      return;
+    }
+    setCreatingFor(opp.id);
+    createQuote.mutate(opp);
+  };
+
+  const handleCardDoubleClick = (oppId: string) => {
+    navigate({ to: "/crm/opportunities/$opportunityId", params: { opportunityId: oppId } });
+  };
 
   const byStage = OPPORTUNITY_STAGES.map((s) => ({
     ...s,
