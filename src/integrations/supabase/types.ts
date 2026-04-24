@@ -570,6 +570,7 @@ export type Database = {
           notas: string | null
           primary_contact_id: string | null
           probability: number
+          project_brief: string | null
           stage: Database["public"]["Enums"]["crm_opportunity_stage"]
           updated_at: string
         }
@@ -584,6 +585,7 @@ export type Database = {
           notas?: string | null
           primary_contact_id?: string | null
           probability?: number
+          project_brief?: string | null
           stage?: Database["public"]["Enums"]["crm_opportunity_stage"]
           updated_at?: string
         }
@@ -598,6 +600,7 @@ export type Database = {
           notas?: string | null
           primary_contact_id?: string | null
           probability?: number
+          project_brief?: string | null
           stage?: Database["public"]["Enums"]["crm_opportunity_stage"]
           updated_at?: string
         }
@@ -622,19 +625,26 @@ export type Database = {
         Row: {
           account_id: string | null
           company_id: string | null
+          construction_cost: number | null
           contact_id: string | null
           created_at: string
           created_by: string | null
           data_decisao: string | null
           data_proposta: string | null
+          fee_percentage: number | null
           fee_structure_type: Database["public"]["Enums"]["crm_fee_structure"]
           id: string
           notas: string | null
           opportunity_id: string | null
+          parent_quote_id: string | null
           pipeline_status: Database["public"]["Enums"]["proposal_status"]
           pm_project_id: string | null
+          pricing_multiplier: number
           probabilidade: number
+          proposal_description: string | null
+          quote_mode_ready: boolean
           quote_status: Database["public"]["Enums"]["crm_quote_status"]
+          revision_number: number
           titulo: string
           updated_at: string
           valor: number
@@ -642,19 +652,26 @@ export type Database = {
         Insert: {
           account_id?: string | null
           company_id?: string | null
+          construction_cost?: number | null
           contact_id?: string | null
           created_at?: string
           created_by?: string | null
           data_decisao?: string | null
           data_proposta?: string | null
+          fee_percentage?: number | null
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           id?: string
           notas?: string | null
           opportunity_id?: string | null
+          parent_quote_id?: string | null
           pipeline_status?: Database["public"]["Enums"]["proposal_status"]
           pm_project_id?: string | null
+          pricing_multiplier?: number
           probabilidade?: number
+          proposal_description?: string | null
+          quote_mode_ready?: boolean
           quote_status?: Database["public"]["Enums"]["crm_quote_status"]
+          revision_number?: number
           titulo: string
           updated_at?: string
           valor?: number
@@ -662,19 +679,26 @@ export type Database = {
         Update: {
           account_id?: string | null
           company_id?: string | null
+          construction_cost?: number | null
           contact_id?: string | null
           created_at?: string
           created_by?: string | null
           data_decisao?: string | null
           data_proposta?: string | null
+          fee_percentage?: number | null
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           id?: string
           notas?: string | null
           opportunity_id?: string | null
+          parent_quote_id?: string | null
           pipeline_status?: Database["public"]["Enums"]["proposal_status"]
           pm_project_id?: string | null
+          pricing_multiplier?: number
           probabilidade?: number
+          proposal_description?: string | null
+          quote_mode_ready?: boolean
           quote_status?: Database["public"]["Enums"]["crm_quote_status"]
+          revision_number?: number
           titulo?: string
           updated_at?: string
           valor?: number
@@ -706,6 +730,13 @@ export type Database = {
             columns: ["opportunity_id"]
             isOneToOne: false
             referencedRelation: "crm_opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_proposals_parent_quote_id_fkey"
+            columns: ["parent_quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
             referencedColumns: ["id"]
           },
           {
@@ -1980,6 +2011,326 @@ export type Database = {
           },
         ]
       }
+      quote_allocations: {
+        Row: {
+          allocation_percentage: number | null
+          cost_rate_snapshot: number
+          created_at: string
+          end_date: string
+          hours_per_day: number
+          id: string
+          notes: string | null
+          quote_id: string
+          resource_id: string
+          sale_rate_snapshot: number
+          stage_id: string
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          allocation_percentage?: number | null
+          cost_rate_snapshot?: number
+          created_at?: string
+          end_date: string
+          hours_per_day?: number
+          id?: string
+          notes?: string | null
+          quote_id: string
+          resource_id: string
+          sale_rate_snapshot?: number
+          stage_id: string
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          allocation_percentage?: number | null
+          cost_rate_snapshot?: number
+          created_at?: string
+          end_date?: string
+          hours_per_day?: number
+          id?: string
+          notes?: string | null
+          quote_id?: string
+          resource_id?: string
+          sale_rate_snapshot?: number
+          stage_id?: string
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_allocations_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_allocations_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_allocations_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_external_services: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          markup_type: Database["public"]["Enums"]["quote_markup_type"]
+          markup_value: number
+          notes: string | null
+          purchase_price: number
+          quantity: number
+          quote_id: string
+          sale_price: number
+          sale_price_manual: boolean
+          stage_id: string | null
+          status: Database["public"]["Enums"]["quote_external_service_status"]
+          supplier_id: string | null
+          unit_cost: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          markup_type?: Database["public"]["Enums"]["quote_markup_type"]
+          markup_value?: number
+          notes?: string | null
+          purchase_price?: number
+          quantity?: number
+          quote_id: string
+          sale_price?: number
+          sale_price_manual?: boolean
+          stage_id?: string | null
+          status?: Database["public"]["Enums"]["quote_external_service_status"]
+          supplier_id?: string | null
+          unit_cost?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          markup_type?: Database["public"]["Enums"]["quote_markup_type"]
+          markup_value?: number
+          notes?: string | null
+          purchase_price?: number
+          quantity?: number
+          quote_id?: string
+          sale_price?: number
+          sale_price_manual?: boolean
+          stage_id?: string | null
+          status?: Database["public"]["Enums"]["quote_external_service_status"]
+          supplier_id?: string | null
+          unit_cost?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_external_services_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_external_services_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_external_services_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_payment_schedule_items: {
+        Row: {
+          amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
+          amount_value: number
+          created_at: string
+          expected_invoice_date: string | null
+          expected_payment_date: string | null
+          id: string
+          label: string
+          notes: string | null
+          quote_id: string
+          sort_order: number
+          stage_id: string | null
+          trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
+          updated_at: string
+        }
+        Insert: {
+          amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
+          amount_value?: number
+          created_at?: string
+          expected_invoice_date?: string | null
+          expected_payment_date?: string | null
+          id?: string
+          label: string
+          notes?: string | null
+          quote_id: string
+          sort_order?: number
+          stage_id?: string | null
+          trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
+          updated_at?: string
+        }
+        Update: {
+          amount_type?: Database["public"]["Enums"]["quote_payment_amount_type"]
+          amount_value?: number
+          created_at?: string
+          expected_invoice_date?: string | null
+          expected_payment_date?: string | null
+          id?: string
+          label?: string
+          notes?: string | null
+          quote_id?: string
+          sort_order?: number
+          stage_id?: string | null
+          trigger_type?: Database["public"]["Enums"]["quote_payment_trigger"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_payment_schedule_items_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_payment_schedule_items_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_stage_dependencies: {
+        Row: {
+          created_at: string
+          id: string
+          lag_days: number
+          predecessor_stage_id: string
+          quote_id: string
+          successor_stage_id: string
+          type: Database["public"]["Enums"]["quote_dep_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lag_days?: number
+          predecessor_stage_id: string
+          quote_id: string
+          successor_stage_id: string
+          type?: Database["public"]["Enums"]["quote_dep_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lag_days?: number
+          predecessor_stage_id?: string
+          quote_id?: string
+          successor_stage_id?: string
+          type?: Database["public"]["Enums"]["quote_dep_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_stage_dependencies_predecessor_stage_id_fkey"
+            columns: ["predecessor_stage_id"]
+            isOneToOne: false
+            referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_stage_dependencies_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_stage_dependencies_successor_stage_id_fkey"
+            columns: ["successor_stage_id"]
+            isOneToOne: false
+            referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_stages: {
+        Row: {
+          budget: number
+          color: string
+          created_at: string
+          description: string | null
+          end_date: string
+          external_id: string | null
+          id: string
+          name: string
+          quote_id: string
+          sort_order: number
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          budget?: number
+          color?: string
+          created_at?: string
+          description?: string | null
+          end_date: string
+          external_id?: string | null
+          id?: string
+          name: string
+          quote_id: string
+          sort_order?: number
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          budget?: number
+          color?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          external_id?: string | null
+          id?: string
+          name?: string
+          quote_id?: string
+          sort_order?: number
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_stages_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           permission_key: string
@@ -2407,6 +2758,21 @@ export type Database = {
         | "negociacao"
         | "ganho"
         | "perdido"
+      quote_dep_type: "FS" | "SS" | "FF" | "SF"
+      quote_external_service_status:
+        | "draft"
+        | "pending"
+        | "invoiced"
+        | "paid"
+        | "cancelled"
+      quote_markup_type: "percent" | "fixed"
+      quote_payment_amount_type: "fixed" | "percent"
+      quote_payment_trigger:
+        | "project_start"
+        | "stage_start"
+        | "stage_end"
+        | "manual_date"
+        | "monthly"
       subsidios_modo: "tradicional" | "duodecimos_50" | "duodecimos_100"
     }
     CompositeTypes: {
@@ -2601,6 +2967,23 @@ export const Constants = {
         "negociacao",
         "ganho",
         "perdido",
+      ],
+      quote_dep_type: ["FS", "SS", "FF", "SF"],
+      quote_external_service_status: [
+        "draft",
+        "pending",
+        "invoiced",
+        "paid",
+        "cancelled",
+      ],
+      quote_markup_type: ["percent", "fixed"],
+      quote_payment_amount_type: ["fixed", "percent"],
+      quote_payment_trigger: [
+        "project_start",
+        "stage_start",
+        "stage_end",
+        "manual_date",
+        "monthly",
       ],
       subsidios_modo: ["tradicional", "duodecimos_50", "duodecimos_100"],
     },
