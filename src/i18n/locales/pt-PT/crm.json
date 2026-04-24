@@ -157,6 +157,7 @@
     "convertButton": "Converter em projecto",
     "openProjectButton": "Abrir projecto",
     "approveFirstHint": "A proposta tem de ser aprovada primeiro.",
+    "convertNoAccountWarning": "Sem conta atribuída",
     "setAccountFirst": " (definir conta primeiro)",
     "convertConfirm": "Criar o projecto operacional a partir desta proposta? Fases, alocações e serviços externos serão copiados. Esta acção não pode ser desfeita.",
     "newQuoteDialog": {
