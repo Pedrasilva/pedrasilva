@@ -212,8 +212,16 @@
       "stageCreated": "Fase criada",
       "manualTablesTitle": "Tabelas de planeamento manual",
       "loading": "A carregar…",
-      "dragHelper": "Arraste recursos para as fases para construir os honorários."
+      "dragHelper": "Arraste recursos para as fases para construir os honorários.",
+      "feeDriverHint": "Os honorários são determinados pelo tempo da equipa e pelos serviços externos."
     },
+    "warnings": {
+      "noStages": "Ainda sem fases — adicione pelo menos uma fase para planear o trabalho.",
+      "noTeam": "Ainda não há equipa atribuída a esta proposta.",
+      "stageWithoutAllocation": "{{count}} fase(s) sem alocação: {{names}}",
+      "negativeProfit": "Esta proposta tem actualmente lucro negativo. Reveja honorários, custos ou âmbito.",
+      "zeroProfit": "Lucro zero — a proposta cobre o custo mas não gera margem.",
+      "externalNoSupplier": "{{count}} serviço(s) externo(s) sem fornecedor."
     "external": {
       "title": "Serviços externos",
       "totals": "Totais",
