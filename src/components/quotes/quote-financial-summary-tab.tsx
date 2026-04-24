@@ -258,14 +258,71 @@ export function QuoteFinancialSummaryTab({
               value={formatEUR(externalProfit)}
               accent={externalProfit >= 0 ? "good" : "bad"}
             />
-            <Cell
-              label={t("workspace.financial.pricingMultiplier")}
-              value={`× ${summary.pricingMultiplier}`}
-              accent="muted"
-            />
           </CardContent>
         </Card>
       </div>
+
+      {/* PRICING CONTROL — editable multiplier, persists to fee_proposals */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            {t("workspace.financial.pricingMultiplier")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="w-40">
+              <Label htmlFor="quote-multiplier" className="text-xs">
+                ×
+              </Label>
+              <Input
+                id="quote-multiplier"
+                type="number"
+                step="0.01"
+                min="0"
+                value={multiplierDraft}
+                onChange={(e) => setMultiplierDraft(e.target.value)}
+                onBlur={() => {
+                  const n = Number(multiplierDraft);
+                  if (Number.isFinite(n) && n > 0 && n !== pricingMultiplier) {
+                    persistMultiplier.mutate(n);
+                  }
+                }}
+              />
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              disabled={
+                persistMultiplier.isPending ||
+                !Number.isFinite(Number(multiplierDraft)) ||
+                Number(multiplierDraft) <= 0 ||
+                Number(multiplierDraft) === pricingMultiplier
+              }
+              onClick={() => persistMultiplier.mutate(Number(multiplierDraft))}
+            >
+              {t("workspace.financial.saveMultiplier")}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              {t("workspace.financial.pricingMultiplierHint")}
+            </p>
+          </div>
+          <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+            <p>
+              <span className="font-medium text-foreground">
+                {t("workspace.financial.effectiveMargin")}:
+              </span>{" "}
+              {t("workspace.financial.marginHint")}
+            </p>
+            <p>
+              <span className="font-medium text-foreground">
+                {t("workspace.financial.markupOnCost")}:
+              </span>{" "}
+              {t("workspace.financial.markupHint")}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       <p className="text-xs text-muted-foreground">
         {t("workspace.financial.disclaimer")}
