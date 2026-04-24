@@ -175,14 +175,17 @@ function OpportunitiesPage() {
                 <tr className="text-left text-xs text-muted-foreground">
                   <th className="px-3 py-2">{t("opportunities.tableName")}</th>
                   <th className="px-3 py-2">{t("opportunities.tableCompany")}</th>
+                  <th className="px-3 py-2">{t("common.primaryContact")}</th>
                   <th className="px-3 py-2">{t("opportunities.tableStage")}</th>
                   <th className="px-3 py-2 text-right">{t("opportunities.tableEstFee")}</th>
                   <th className="px-3 py-2 text-right">{t("opportunities.tableProb")}</th>
+                  <th className="px-3 py-2 text-right">{t("opportunities.detail.quotesSection")}</th>
                 </tr>
               </thead>
               <tbody>
                 {opps.map((o) => {
                   const stage = OPPORTUNITY_STAGES.find((s) => s.value === o.stage);
+                  const quoteCount = o.quotes?.length ?? 0;
                   return (
                     <tr key={o.id} className="border-b hover:bg-muted/30">
                       <td className="px-3 py-2">
@@ -195,6 +198,9 @@ function OpportunitiesPage() {
                         </Link>
                       </td>
                       <td className="px-3 py-2 text-muted-foreground">{o.company?.nome ?? "—"}</td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {o.contact ? contactFullName(o.contact) : "—"}
+                      </td>
                       <td className="px-3 py-2">
                         <span className="inline-flex items-center gap-2 text-xs">
                           <span className={`h-2 w-2 rounded-full ${stage?.color}`} />
@@ -203,6 +209,7 @@ function OpportunitiesPage() {
                       </td>
                       <td className="px-3 py-2 text-right font-medium">{formatEUR(Number(o.estimated_fee))}</td>
                       <td className="px-3 py-2 text-right text-muted-foreground">{o.probability}%</td>
+                      <td className="px-3 py-2 text-right text-muted-foreground">{quoteCount}</td>
                     </tr>
                   );
                 })}
