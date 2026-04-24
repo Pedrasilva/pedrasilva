@@ -240,7 +240,14 @@
       "deleteConfirm": "Delete this service?",
       "empty": "No external services yet.",
       "descPlaceholder": "e.g. Structural engineering",
-      "errorDesc": "Description is required"
+      "errorDesc": "Description is required",
+      "totalCost": "Total cost",
+      "totalRevenue": "Total revenue",
+      "totalProfit": "Total profit",
+      "totalMargin": "Total margin",
+      "markup": "Markup",
+      "markupManual": "manual",
+      "noSupplier": "No supplier"
     },
     "payment": {
       "title": "Payment schedule",
