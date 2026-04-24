@@ -105,19 +105,66 @@ export function QuoteExternalServicesTab({ quoteId }: { quoteId: string }) {
     { cost: 0, revenue: 0 },
   );
 
+  const totalProfit = totals.revenue - totals.cost;
+  const totalMargin = totals.revenue > 0 ? totalProfit / totals.revenue : 0;
+
   return (
     <div className="space-y-6">
+      {/* Totals strip — make cost vs sale vs profit unmistakable */}
+      <Card>
+        <CardContent className="grid gap-6 py-4 sm:grid-cols-2 md:grid-cols-4">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {t("workspace.external.totalCost")}
+            </span>
+            <span className="text-xl font-semibold text-muted-foreground">
+              {formatEUR(totals.cost)}
+            </span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {t("workspace.external.totalRevenue")}
+            </span>
+            <span className="text-xl font-semibold">{formatEUR(totals.revenue)}</span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {t("workspace.external.totalProfit")}
+            </span>
+            <span
+              className={`text-xl font-semibold ${
+                totalProfit > 0
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : totalProfit < 0
+                    ? "text-rose-600 dark:text-rose-400"
+                    : "text-muted-foreground"
+              }`}
+            >
+              {formatEUR(totalProfit)}
+            </span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {t("workspace.external.totalMargin")}
+            </span>
+            <span
+              className={`text-xl font-semibold ${
+                totalMargin >= 0.25
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : totalMargin >= 0.1
+                    ? "text-amber-600 dark:text-amber-400"
+                    : "text-rose-600 dark:text-rose-400"
+              }`}
+            >
+              {totals.revenue > 0 ? `${(totalMargin * 100).toFixed(1)}%` : "—"}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">{t("workspace.external.title")}</CardTitle>
-            <div className="text-sm text-muted-foreground">
-              {t("workspace.external.totals", {
-                cost: formatEUR(totals.cost),
-                revenue: formatEUR(totals.revenue),
-              })}
-            </div>
-          </div>
+          <CardTitle className="text-base">{t("workspace.external.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -128,41 +175,66 @@ export function QuoteExternalServicesTab({ quoteId }: { quoteId: string }) {
                 <TableHead>{t("common.stage")}</TableHead>
                 <TableHead className="text-right">{t("workspace.external.qty")}</TableHead>
                 <TableHead className="text-right">{t("workspace.external.unitCost")}</TableHead>
+                <TableHead className="text-right">{t("workspace.external.markup")}</TableHead>
                 <TableHead className="text-right">{t("workspace.external.salePrice")}</TableHead>
                 <TableHead className="w-20" />
               </TableRow>
             </TableHeader>
             <TableBody>
-              {services.map((s) => (
-                <TableRow key={s.id}>
-                  <TableCell>{s.description}</TableCell>
-                  <TableCell>{resolveSupplierLabel(s.supplier, null)}</TableCell>
-                  <TableCell>
-                    {s.stage_id ? stages.find((st) => st.id === s.stage_id)?.name ?? "—" : "—"}
-                  </TableCell>
-                  <TableCell className="text-right">{s.quantity}</TableCell>
-                  <TableCell className="text-right">
-                    {formatEUR(Number(s.purchase_price))}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatEUR(Number(s.sale_price))}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        if (confirm(t("workspace.external.deleteConfirm"))) remove.mutate(s.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {services.map((s) => {
+                const purchase = Number(s.purchase_price);
+                const sale = Number(s.sale_price);
+                // Show how the sale price was reached: percent over cost, or
+                // a flat per-unit fixed adder, plus a "manual" badge when the
+                // user overrode the calculator.
+                const markupLabel =
+                  s.sale_price_manual
+                    ? t("workspace.external.markupManual")
+                    : s.markup_type === "percent"
+                      ? `+${Number(s.markup_value).toFixed(0)}%`
+                      : `+${formatEUR(Number(s.markup_value))}`;
+                return (
+                  <TableRow key={s.id}>
+                    <TableCell>{s.description}</TableCell>
+                    <TableCell>
+                      {s.supplier_id || s.supplier?.name
+                        ? resolveSupplierLabel(s.supplier, null)
+                        : (
+                          <span className="text-amber-600 dark:text-amber-400">
+                            {t("workspace.external.noSupplier")}
+                          </span>
+                        )}
+                    </TableCell>
+                    <TableCell>
+                      {s.stage_id ? stages.find((st) => st.id === s.stage_id)?.name ?? "—" : "—"}
+                    </TableCell>
+                    <TableCell className="text-right">{s.quantity}</TableCell>
+                    <TableCell className="text-right text-muted-foreground">
+                      {formatEUR(purchase)}
+                    </TableCell>
+                    <TableCell className="text-right text-xs text-muted-foreground">
+                      {markupLabel}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatEUR(sale)}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          if (confirm(t("workspace.external.deleteConfirm"))) remove.mutate(s.id);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
               {services.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">
+                  <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-6">
                     {t("workspace.external.empty")}
                   </TableCell>
                 </TableRow>

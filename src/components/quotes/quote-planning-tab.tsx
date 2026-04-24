@@ -22,6 +22,7 @@ import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { QuoteGantt } from "@/components/quotes/quote-gantt";
+import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
 import {
   useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage,
 } from "@/lib/quotes/use-quote-stages";
@@ -31,19 +32,29 @@ import {
 import {
   useQuoteDependencies, useCreateQuoteDependency, useDeleteQuoteDependency,
 } from "@/lib/quotes/use-quote-dependencies";
+import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import {
   useDefaultResourceRates, effectiveRates,
 } from "@/lib/projects/use-default-rates";
 import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
+import { rollupQuote } from "@/lib/quotes/financial-rollups";
+import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
 import { formatEUR } from "@/lib/crm/types";
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export function QuotePlanningTab({ quoteId }: { quoteId: string }) {
+export function QuotePlanningTab({
+  quoteId,
+  pricingMultiplier = 1,
+}: {
+  quoteId: string;
+  pricingMultiplier?: number;
+}) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
   const depsQ = useQuoteDependencies(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
+  const externalQ = useQuoteExternalServices(quoteId);
   const upsertStage = useUpsertQuoteStage(quoteId);
   const delStage = useDeleteQuoteStage(quoteId);
   const createDep = useCreateQuoteDependency(quoteId);
@@ -54,6 +65,7 @@ export function QuotePlanningTab({ quoteId }: { quoteId: string }) {
   const stages = stagesQ.data ?? [];
   const deps = depsQ.data ?? [];
   const allocations = allocQ.data ?? [];
+  const externalServices = externalQ.data ?? [];
 
   const { data: resources = [] } = useQuery({
     queryKey: ["pm-resources-active"],
@@ -72,6 +84,22 @@ export function QuotePlanningTab({ quoteId }: { quoteId: string }) {
     () => Object.fromEntries(stages.map((s) => [s.id, s])),
     [stages],
   );
+
+  // Lightweight, non-blocking warnings driven by the same rollup as the
+  // financial summary so users get consistent signals across tabs.
+  const warnings = useMemo(() => {
+    const summary = rollupQuote({
+      allocations,
+      externalServices,
+      pricingMultiplier,
+    });
+    return buildQuoteWarnings({
+      stages,
+      allocations,
+      externalServices,
+      summary,
+    });
+  }, [stages, allocations, externalServices, pricingMultiplier]);
 
   // ---- Stage row state -------------------------------------------------
   const [newStage, setNewStage] = useState({
@@ -161,6 +189,16 @@ export function QuotePlanningTab({ quoteId }: { quoteId: string }) {
 
   return (
     <div className="space-y-6">
+      {/* Non-blocking warnings (no team, negative profit, missing supplier…) */}
+      <QuoteWarningsBanner warnings={warnings} />
+
+      {/* Fee-driver hint — clarifies what shapes the headline number */}
+      <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        {t("workspace.planning.feeDriverHint", {
+          defaultValue: "Your fee is driven by team time and external services.",
+        })}
+      </div>
+
       {/* GANTT — primary planning surface */}
       <QuoteGantt quoteId={quoteId} />
 
