@@ -14,18 +14,28 @@
       "accounts": "Contas",
       "companies": "Empresas",
       "contacts": "Contactos",
-      "pipelineLegacy": "Pipeline (legado)"
+      "pipelineLegacy": "Pipeline legado"
     }
   },
   "overview": {
     "stats": {
       "companies": "Empresas",
       "contacts": "Contactos",
-      "openProposals": "Propostas abertas",
+      "openOpportunities": "Oportunidades abertas",
       "weightedPipeline": "Pipeline ponderado"
     },
-    "pipelineSummary": "Pipeline — por estado",
-    "totalOpen": "Total em aberto"
+    "pipelineSummary": "Oportunidades — por fase",
+    "totalOpen": "Total em aberto",
+    "recentOpportunitiesTitle": "Oportunidades recentes",
+    "recentOpportunitiesEmpty": "Ainda sem oportunidades. Comece por criar uma.",
+    "draftQuotesTitle": "Propostas em rascunho",
+    "draftQuotesEmpty": "Sem propostas em rascunho. Abra uma oportunidade para começar.",
+    "openOpportunity": "Abrir oportunidade",
+    "openQuote": "Abrir proposta",
+    "viewAllOpportunities": "Ver todas as oportunidades",
+    "newOpportunity": "Nova oportunidade",
+    "quickStartTitle": "Começar aqui",
+    "quickStartHint": "Empresas → Oportunidade → Proposta → Projecto. Crie primeiro uma oportunidade e depois construa a proposta dentro dela."
   },
   "common": {
     "loading": "A carregar…",
@@ -64,6 +74,16 @@
     "tableStage": "Fase",
     "tableEstFee": "Fee est.",
     "tableProb": "Prob.",
+    "card": {
+      "noCompany": "Sem empresa",
+      "noContact": "Sem contacto principal",
+      "quotesCount_one": "{{count}} proposta",
+      "quotesCount_other": "{{count}} propostas",
+      "noQuotes": "Ainda sem propostas",
+      "openOpportunity": "Abrir",
+      "createQuote": "Criar proposta",
+      "openQuote": "Abrir proposta"
+    },
     "dialog": {
       "title": "Nova oportunidade",
       "description": "Registe trabalho potencial antes de se tornar proposta.",

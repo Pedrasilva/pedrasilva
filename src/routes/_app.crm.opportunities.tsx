@@ -12,7 +12,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Target, LayoutGrid, List } from "lucide-react";
+import { Plus, Target, LayoutGrid, List, FileText, ArrowRight } from "lucide-react";
 import { CompanyPicker } from "@/components/crm/company-picker";
 import { toast } from "sonner";
 import {
@@ -27,6 +27,7 @@ export const Route = createFileRoute("/_app/crm/opportunities")({
 type Row = CrmOpportunity & {
   company: { id: string; nome: string } | null;
   contact: Pick<Contact, "id" | "primeiro_nome" | "apelido" | "titulo"> | null;
+  quotes: { id: string }[];
 };
 
 function OpportunitiesPage() {
@@ -39,7 +40,9 @@ function OpportunitiesPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("crm_opportunities")
-        .select("*, company:companies(id, nome), contact:contacts(id, primeiro_nome, apelido, titulo)")
+        .select(
+          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id)",
+        )
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as Row[];
@@ -111,23 +114,54 @@ function OpportunitiesPage() {
                 </div>
                 <div className="text-xs text-muted-foreground px-1 pb-2">{formatEUR(totalCol)}</div>
                 <div className="space-y-2">
-                  {col.items.map((o) => (
-                    <Link
-                      key={o.id}
-                      to="/crm/opportunities/$opportunityId"
-                      params={{ opportunityId: o.id }}
-                      className="block rounded-md border bg-background p-2 text-sm hover:border-primary/40 hover:shadow-sm transition"
-                    >
-                      <div className="font-medium line-clamp-2">{o.name}</div>
-                      <div className="mt-1 text-xs text-muted-foreground line-clamp-1">
-                        {o.company?.nome ?? "—"}
+                  {col.items.map((o) => {
+                    const quoteCount = o.quotes?.length ?? 0;
+                    return (
+                      <div
+                        key={o.id}
+                        className="rounded-md border bg-background p-2 text-sm hover:border-primary/40 hover:shadow-sm transition"
+                      >
+                        <Link
+                          to="/crm/opportunities/$opportunityId"
+                          params={{ opportunityId: o.id }}
+                          className="block"
+                        >
+                          <div className="font-medium line-clamp-2">{o.name}</div>
+                          <div className="mt-1 text-xs text-muted-foreground line-clamp-1">
+                            {o.company?.nome ?? t("opportunities.card.noCompany")}
+                          </div>
+                          {o.contact && (
+                            <div className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
+                              {contactFullName(o.contact)}
+                            </div>
+                          )}
+                          <div className="mt-2 flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">{o.probability}%</span>
+                            <span className="font-semibold">{formatEUR(Number(o.estimated_fee))}</span>
+                          </div>
+                          <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
+                            <FileText className="h-3 w-3" />
+                            {quoteCount > 0
+                              ? t("opportunities.card.quotesCount", { count: quoteCount })
+                              : t("opportunities.card.noQuotes")}
+                          </div>
+                        </Link>
+                        <div className="mt-2 flex items-center justify-end">
+                          <Button asChild variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                            <Link
+                              to="/crm/opportunities/$opportunityId"
+                              params={{ opportunityId: o.id }}
+                            >
+                              {quoteCount > 0
+                                ? t("opportunities.card.openQuote")
+                                : t("opportunities.card.createQuote")}
+                              <ArrowRight className="h-3 w-3 ml-1" />
+                            </Link>
+                          </Button>
+                        </div>
                       </div>
-                      <div className="mt-2 flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">{o.probability}%</span>
-                        <span className="font-semibold">{formatEUR(Number(o.estimated_fee))}</span>
-                      </div>
-                    </Link>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -141,14 +175,17 @@ function OpportunitiesPage() {
                 <tr className="text-left text-xs text-muted-foreground">
                   <th className="px-3 py-2">{t("opportunities.tableName")}</th>
                   <th className="px-3 py-2">{t("opportunities.tableCompany")}</th>
+                  <th className="px-3 py-2">{t("common.primaryContact")}</th>
                   <th className="px-3 py-2">{t("opportunities.tableStage")}</th>
                   <th className="px-3 py-2 text-right">{t("opportunities.tableEstFee")}</th>
                   <th className="px-3 py-2 text-right">{t("opportunities.tableProb")}</th>
+                  <th className="px-3 py-2 text-right">{t("opportunities.detail.quotesSection")}</th>
                 </tr>
               </thead>
               <tbody>
                 {opps.map((o) => {
                   const stage = OPPORTUNITY_STAGES.find((s) => s.value === o.stage);
+                  const quoteCount = o.quotes?.length ?? 0;
                   return (
                     <tr key={o.id} className="border-b hover:bg-muted/30">
                       <td className="px-3 py-2">
@@ -161,6 +198,9 @@ function OpportunitiesPage() {
                         </Link>
                       </td>
                       <td className="px-3 py-2 text-muted-foreground">{o.company?.nome ?? "—"}</td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {o.contact ? contactFullName(o.contact) : "—"}
+                      </td>
                       <td className="px-3 py-2">
                         <span className="inline-flex items-center gap-2 text-xs">
                           <span className={`h-2 w-2 rounded-full ${stage?.color}`} />
@@ -169,6 +209,7 @@ function OpportunitiesPage() {
                       </td>
                       <td className="px-3 py-2 text-right font-medium">{formatEUR(Number(o.estimated_fee))}</td>
                       <td className="px-3 py-2 text-right text-muted-foreground">{o.probability}%</td>
+                      <td className="px-3 py-2 text-right text-muted-foreground">{quoteCount}</td>
                     </tr>
                   );
                 })}

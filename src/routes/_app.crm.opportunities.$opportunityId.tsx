@@ -246,6 +246,7 @@ function OpportunityDetail() {
                   <th className="px-2 py-2">{t("opportunities.detail.quoteStructure")}</th>
                   <th className="px-2 py-2">{t("opportunities.detail.quoteStatus")}</th>
                   <th className="px-2 py-2 text-right">{t("opportunities.detail.quoteFee")}</th>
+                  <th className="px-2 py-2 text-right" aria-label="actions"></th>
                 </tr>
               </thead>
               <tbody>
@@ -272,6 +273,13 @@ function OpportunityDetail() {
                         </span>
                       </td>
                       <td className="px-2 py-2 text-right font-medium">{formatEUR(Number(q.valor))}</td>
+                      <td className="px-2 py-2 text-right">
+                        <Button asChild variant="ghost" size="sm" className="h-7 px-2 text-xs">
+                          <Link to="/crm/quotes/$quoteId" params={{ quoteId: q.id }}>
+                            {t("opportunities.card.openQuote")}
+                          </Link>
+                        </Button>
+                      </td>
                     </tr>
                   );
                 })}
@@ -302,6 +310,7 @@ function NewQuoteDialog({
 }) {
   const { t } = useTranslation("crm");
   const qc = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: accounts = [] } = useQuery({
     queryKey: ["crm_accounts_by_company", companyId],
@@ -328,24 +337,32 @@ function NewQuoteDialog({
   const create = useMutation({
     mutationFn: async () => {
       if (!form.titulo.trim()) throw new Error(t("quotes.newQuoteDialog.errorTitle"));
-      const { error } = await supabase.from("fee_proposals").insert({
-        titulo: form.titulo.trim(),
-        opportunity_id: opportunityId,
-        company_id: companyId,
-        account_id: form.account_id || null,
-        valor: form.valor ? Number(form.valor) : 0,
-        fee_structure_type: form.fee_structure_type,
-        quote_status: "draft",
-        pipeline_status: "lead",
-        notas: form.notas || null,
-        data_proposta: new Date().toISOString().slice(0, 10),
-      });
+      const { data, error } = await supabase
+        .from("fee_proposals")
+        .insert({
+          titulo: form.titulo.trim(),
+          opportunity_id: opportunityId,
+          company_id: companyId,
+          account_id: form.account_id || null,
+          valor: form.valor ? Number(form.valor) : 0,
+          fee_structure_type: form.fee_structure_type,
+          quote_status: "draft",
+          pipeline_status: "lead",
+          notas: form.notas || null,
+          data_proposta: new Date().toISOString().slice(0, 10),
+        })
+        .select("id")
+        .single();
       if (error) throw error;
+      return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success(t("quotes.newQuoteDialog.createdToast"));
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp", opportunityId] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       onClose();
+      // Send the user straight into the quote workspace.
+      navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: data.id } });
     },
     onError: (e: Error) => toast.error(e.message),
   });
