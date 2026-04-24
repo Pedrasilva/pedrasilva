@@ -77,7 +77,7 @@ export function QuoteWorkflowActions({
     return (
       <Button
         size="sm"
-        onClick={() => transition("sent", "quotes.workflow.confirm.send")}
+        onClick={() => transition("sent")}
         disabled={setStatus.isPending}
       >
         <Send className="h-4 w-4 mr-1" />
@@ -87,20 +87,17 @@ export function QuoteWorkflowActions({
   }
 
   if (status === "sent") {
+    const handleApprove = () => {
+      if (!hasAccount) {
+        if (!confirm(t("quotes.workflow.confirm.approveNoAccount"))) return;
+        setStatus.mutate("approved");
+        return;
+      }
+      transition("approved", "quotes.workflow.confirm.approve");
+    };
     return (
       <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          onClick={() => {
-            if (!hasAccount) {
-              toast.error(t("quotes.approveAccountRequired"));
-              return;
-            }
-            transition("approved", "quotes.workflow.confirm.approve");
-          }}
-          disabled={setStatus.isPending}
-          title={!hasAccount ? t("quotes.approveAccountRequired") : undefined}
-        >
+        <Button size="sm" onClick={handleApprove} disabled={setStatus.isPending}>
           <CheckCircle2 className="h-4 w-4 mr-1" />
           {t("quotes.workflow.approve")}
         </Button>
