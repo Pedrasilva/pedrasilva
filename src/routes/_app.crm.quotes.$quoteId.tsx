@@ -316,6 +316,7 @@ function QuoteDetail() {
         id: project.id,
         alreadyExisted: false,
         stagesCopied,
+        dependenciesCopied,
         allocationsCopied,
         allocationsSkipped,
         externalCopied,
