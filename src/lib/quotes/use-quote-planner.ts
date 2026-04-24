@@ -31,17 +31,13 @@ export function useUpdateQuoteStageWithCascade(quoteId: string) {
       if (sErr) throw new Error(sErr.message);
       if (dErr) throw new Error(dErr.message);
 
-      // Detect pure move (start delta == end delta) so allocations follow.
-      const movedStage = (stages ?? []).find((s: { id: string }) => s.id === id);
-      let allocDeltaDays = 0;
-      if (movedStage && shiftAllocations) {
-        const oldStart = new Date(movedStage.start_date as string).getTime();
-        const oldEnd = new Date(movedStage.end_date as string).getTime();
-        const newStart = new Date(start_date).getTime();
-        const newEnd = new Date(end_date).getTime();
-        const startDelta = Math.round((newStart - oldStart) / 86_400_000);
-        const endDelta = Math.round((newEnd - oldEnd) / 86_400_000);
-        if (startDelta === endDelta && startDelta !== 0) allocDeltaDays = startDelta;
+      // Snapshot every stage's pre-update bounds so we can compute per-stage
+      // deltas after the cascade resolves. We need this for BOTH the moved
+      // stage AND every cascaded successor — otherwise their allocations
+      // dangle when stages slide forward in time.
+      const beforeById = new Map<string, { start: string; end: string }>();
+      for (const s of (stages ?? []) as { id: string; start_date: string; end_date: string }[]) {
+        beforeById.set(s.id, { start: s.start_date, end: s.end_date });
       }
 
       // Normalize quote dependencies into the canonical shape computeCascade expects.
@@ -57,6 +53,7 @@ export function useUpdateQuoteStageWithCascade(quoteId: string) {
 
       const updates = computeCascade(id, start_date, end_date, stages ?? [], normDeps);
 
+      // Persist every cascaded stage's new bounds.
       for (const [stageId, bounds] of updates) {
         const { error } = await db
           .from("quote_stages")
@@ -65,27 +62,59 @@ export function useUpdateQuoteStageWithCascade(quoteId: string) {
         if (error) throw new Error(error.message);
       }
 
+      // Shift allocations of EVERY moved stage (the user-edited one plus any
+      // cascaded successors) by that stage's own start delta, so allocation
+      // ranges follow their parent stage. Only pure-shift moves are applied
+      // — if the user-edited stage was resized (start delta ≠ end delta),
+      // we leave its allocations alone (caller handles resize manually) but
+      // still shift cascaded successors (which always preserve duration).
       let shiftedAllocations = 0;
-      if (allocDeltaDays !== 0) {
-        const { data: allocs } = await db
-          .from("quote_allocations")
-          .select("id, start_date, end_date")
-          .eq("stage_id", id);
-        const shiftDay = (iso: string): string => {
-          const d = new Date(iso);
-          d.setDate(d.getDate() + allocDeltaDays);
-          return d.toISOString().slice(0, 10);
-        };
-        for (const a of allocs ?? []) {
-          const { error } = await db
+      if (shiftAllocations && updates.size > 0) {
+        // Collect per-stage deltas first so we can fetch all allocations in one round-trip.
+        const stageDeltas = new Map<string, number>();
+        for (const [stageId, bounds] of updates) {
+          const before = beforeById.get(stageId);
+          if (!before) continue;
+          const oldStart = new Date(before.start).getTime();
+          const oldEnd = new Date(before.end).getTime();
+          const newStart = new Date(bounds.start_date).getTime();
+          const newEnd = new Date(bounds.end_date).getTime();
+          const startDelta = Math.round((newStart - oldStart) / 86_400_000);
+          const endDelta = Math.round((newEnd - oldEnd) / 86_400_000);
+          // For the user-edited stage, only shift on pure moves (start==end delta).
+          // For cascaded successors, computeCascade preserves duration, so they
+          // always satisfy startDelta === endDelta and shift safely.
+          if (startDelta !== 0 && startDelta === endDelta) {
+            stageDeltas.set(stageId, startDelta);
+          }
+        }
+
+        if (stageDeltas.size > 0) {
+          const { data: allocs, error: aErr } = await db
             .from("quote_allocations")
-            .update({
-              start_date: shiftDay(a.start_date as string),
-              end_date: shiftDay(a.end_date as string),
-            })
-            .eq("id", a.id);
-          if (error) throw new Error(error.message);
-          shiftedAllocations += 1;
+            .select("id, stage_id, start_date, end_date")
+            .in("stage_id", Array.from(stageDeltas.keys()));
+          if (aErr) throw new Error(aErr.message);
+          const shiftDay = (iso: string, delta: number): string => {
+            const d = new Date(iso);
+            d.setDate(d.getDate() + delta);
+            return d.toISOString().slice(0, 10);
+          };
+          for (const a of (allocs ?? []) as {
+            id: string; stage_id: string; start_date: string; end_date: string;
+          }[]) {
+            const delta = stageDeltas.get(a.stage_id);
+            if (!delta) continue;
+            const { error } = await db
+              .from("quote_allocations")
+              .update({
+                start_date: shiftDay(a.start_date, delta),
+                end_date: shiftDay(a.end_date, delta),
+              })
+              .eq("id", a.id);
+            if (error) throw new Error(error.message);
+            shiftedAllocations += 1;
+          }
         }
       }
 
