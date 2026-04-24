@@ -145,8 +145,35 @@ function CompanyDetail() {
         </TabsList>
 
         <TabsContent value="detalhes" className="space-y-4">
+          {contacts[0] && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-base">Contacto principal</CardTitle>
+                <Link
+                  to="/crm/companies/$companyId"
+                  params={{ companyId }}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Ver todos ({contacts.length})
+                </Link>
+              </CardHeader>
+              <CardContent className="grid gap-2 sm:grid-cols-2 text-sm">
+                <div>
+                  <div className="font-medium">{contactFullName(contacts[0])}</div>
+                  <div className="text-xs text-muted-foreground">{contacts[0].posicao ?? "—"}</div>
+                </div>
+                <div className="text-xs text-muted-foreground space-y-0.5">
+                  {contacts[0].email && <div>{contacts[0].email}</div>}
+                  {(contacts[0].telemovel || contacts[0].telefone) && (
+                    <div>{contacts[0].telemovel ?? contacts[0].telefone}</div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <Card>
-            <CardHeader><CardTitle className="text-base">Identificação</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Detalhes da empresa</CardTitle></CardHeader>
             <CardContent className="grid gap-3 sm:grid-cols-2">
               <div>
                 <Label>Nome</Label>
@@ -163,6 +190,32 @@ function CompanyDetail() {
                     <SelectItem value="activo">Activo</SelectItem>
                     <SelectItem value="prospecto">Prospecto</SelectItem>
                     <SelectItem value="inactivo">Inactivo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>NIF / Tax ID</Label>
+                <Input
+                  value={(current as Company & { nif?: string | null }).nif ?? ""}
+                  onChange={(e) => update("nif" as keyof Company, e.target.value as never)}
+                />
+              </div>
+              <div>
+                <Label>Tipo</Label>
+                <Select
+                  value={(current as Company & { company_type?: string | null }).company_type ?? "__none__"}
+                  onValueChange={(v) =>
+                    update("company_type" as keyof Company, (v === "__none__" ? null : v) as never)
+                  }
+                >
+                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">—</SelectItem>
+                    <SelectItem value="cliente">Cliente</SelectItem>
+                    <SelectItem value="fornecedor">Fornecedor</SelectItem>
+                    <SelectItem value="parceiro">Parceiro</SelectItem>
+                    <SelectItem value="prospecto">Prospecto</SelectItem>
+                    <SelectItem value="outro">Outro</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
