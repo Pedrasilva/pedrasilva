@@ -4,6 +4,7 @@ import { addDays, differenceInCalendarDays } from "date-fns";
 import { AppShell } from "@/components/projects/app-shell";
 import { NewProjectDialog } from "@/components/projects/new-project-dialog";
 import { GanttChart, type StageWithProject } from "@/components/projects/gantt-chart";
+import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import {
   ResizableHandle,
@@ -58,6 +59,7 @@ function GlobalGanttPage() {
   const { data: projects, isLoading } = useProjects();
   const { data: allStages } = useAllStages();
   const { data: resources } = useResources();
+  const ganttAdapter = useProjectPlannerAdapter(resources ?? []);
   const { data: defaultRates } = useDefaultResourceRates();
   const del = useDeleteProject();
   const updateProject = useUpdateProject();
@@ -379,6 +381,7 @@ function GlobalGanttPage() {
                             totalDays={totalDays}
                             dayWidth={dayWidth}
                             resources={resources ?? []}
+                            adapter={ganttAdapter}
                             embedded
                           />
                         )}
