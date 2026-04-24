@@ -231,8 +231,6 @@ function QuoteDetail() {
       if (projErr) throw projErr;
 
       // 2. Copy quote_stages → pm_stages, keeping a mapping for allocations.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db = supabase as any;
       const { data: qStages, error: qsErr } = await db
         .from("quote_stages")
         .select("id, name, start_date, end_date, color, sort_order, budget")
