@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Rocket, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { QuoteWorkflowActions } from "@/components/quotes/quote-workflow-actions";
 import { useState, useEffect } from "react";
 import {
   formatEUR, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
