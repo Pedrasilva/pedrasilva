@@ -514,6 +514,10 @@ function QuoteDetail() {
                     <div className="text-emerald-600 dark:text-emerald-400 mt-2">{t("quotes.projectAlreadyCreated")}</div>
                   )}
                 </div>
+                {/* Non-blocking integrity warnings shown before conversion */}
+                {!quote.pm_project_id && preConvertWarnings.length > 0 && (
+                  <QuoteWarningsBanner warnings={preConvertWarnings} />
+                )}
                 <Button className="w-full" onClick={handleConvert} disabled={!canConvert || convert.isPending}>
                   <Rocket className="h-4 w-4 mr-1" />
                   {quote.pm_project_id ? t("quotes.openProjectButton") : t("quotes.convertButton")}
