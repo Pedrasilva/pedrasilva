@@ -105,19 +105,66 @@ export function QuoteExternalServicesTab({ quoteId }: { quoteId: string }) {
     { cost: 0, revenue: 0 },
   );
 
+  const totalProfit = totals.revenue - totals.cost;
+  const totalMargin = totals.revenue > 0 ? totalProfit / totals.revenue : 0;
+
   return (
     <div className="space-y-6">
+      {/* Totals strip — make cost vs sale vs profit unmistakable */}
+      <Card>
+        <CardContent className="grid gap-6 py-4 sm:grid-cols-2 md:grid-cols-4">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {t("workspace.external.totalCost")}
+            </span>
+            <span className="text-xl font-semibold text-muted-foreground">
+              {formatEUR(totals.cost)}
+            </span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {t("workspace.external.totalRevenue")}
+            </span>
+            <span className="text-xl font-semibold">{formatEUR(totals.revenue)}</span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {t("workspace.external.totalProfit")}
+            </span>
+            <span
+              className={`text-xl font-semibold ${
+                totalProfit > 0
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : totalProfit < 0
+                    ? "text-rose-600 dark:text-rose-400"
+                    : "text-muted-foreground"
+              }`}
+            >
+              {formatEUR(totalProfit)}
+            </span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-xs uppercase tracking-wide text-muted-foreground">
+              {t("workspace.external.totalMargin")}
+            </span>
+            <span
+              className={`text-xl font-semibold ${
+                totalMargin >= 0.25
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : totalMargin >= 0.1
+                    ? "text-amber-600 dark:text-amber-400"
+                    : "text-rose-600 dark:text-rose-400"
+              }`}
+            >
+              {totals.revenue > 0 ? `${(totalMargin * 100).toFixed(1)}%` : "—"}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">{t("workspace.external.title")}</CardTitle>
-            <div className="text-sm text-muted-foreground">
-              {t("workspace.external.totals", {
-                cost: formatEUR(totals.cost),
-                revenue: formatEUR(totals.revenue),
-              })}
-            </div>
-          </div>
+          <CardTitle className="text-base">{t("workspace.external.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
