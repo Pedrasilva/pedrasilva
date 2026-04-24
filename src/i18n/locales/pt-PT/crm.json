@@ -142,7 +142,7 @@
     "convertOnlyApproved": "Só propostas aprovadas podem ser convertidas",
     "convertExisting": "Projecto já existe — a abrir",
     "convertCreated": "Projecto criado",
-    "convertSummary": "Projecto criado — copiadas {{stages}} fases, {{allocations}} alocações, {{external}} serviços externos.",
+    "convertSummary": "Projecto criado — copiadas {{stages}} fases, {{dependencies}} dependências, {{allocations}} alocações, {{external}} serviços externos.",
     "convertSkipped": "{{count}} alocação(ões) ignorada(s) (sem fase correspondente). Ver consola para detalhes.",
     "backToOpportunity": "Voltar à oportunidade",
     "backToOpportunities": "Voltar a oportunidades",
