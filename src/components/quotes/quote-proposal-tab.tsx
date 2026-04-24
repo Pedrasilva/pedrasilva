@@ -322,6 +322,61 @@ export function QuoteProposalTab({
                 </ul>
               </section>
             )}
+
+            <Separator />
+
+            {/* ── Client acceptance / signature block ────────────────── */}
+            <section className="proposal-section proposal-acceptance">
+              <h2 className="text-sm font-semibold mb-1">
+                {t("proposal.acceptanceTitle")}
+              </h2>
+              <p className="text-xs text-muted-foreground mb-4">
+                {t("proposal.acceptanceHint")}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                <div>
+                  <div className="h-10 border-b border-foreground/40" />
+                  <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    {t("proposal.acceptanceClientName")}
+                  </div>
+                </div>
+                <div>
+                  <div className="h-10 border-b border-foreground/40" />
+                  <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    {t("proposal.acceptanceSignature")}
+                  </div>
+                </div>
+                <div>
+                  <div className="h-10 border-b border-foreground/40" />
+                  <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    {t("proposal.acceptanceDate")}
+                  </div>
+                </div>
+                <div>
+                  <div className="h-10 border-b border-foreground/40" />
+                  <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    {t("proposal.acceptanceOnBehalf")} {clientName ?? accountName ?? ""}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* ── Firm contact footer (print-only) ───────────────────── */}
+            {(branding?.company_email ||
+              branding?.company_phone ||
+              branding?.company_address ||
+              firmName) && (
+              <footer className="proposal-footer proposal-section pt-4 mt-2 border-t border-border text-[11px] text-muted-foreground leading-relaxed">
+                <div className="font-medium text-foreground">
+                  {firmName ?? t("proposal.footerContact")}
+                </div>
+                <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                  {branding?.company_email ? <span>{branding.company_email}</span> : null}
+                  {branding?.company_phone ? <span>· {branding.company_phone}</span> : null}
+                  {branding?.company_address ? <span>· {branding.company_address}</span> : null}
+                </div>
+              </footer>
+            )}
           </CardContent>
         </Card>
       </div>
