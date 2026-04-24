@@ -13,7 +13,7 @@
  */
 import type { QuoteAllocationWithResource } from "./use-quote-allocations";
 import type { QuoteExternalServiceWithSupplier } from "./use-quote-external-services";
-import type { QuoteStage } from "./use-quote-stages";
+import type { QuoteStage } from "./types";
 import type { QuoteFinancialSummary } from "./financial-rollups";
 
 export type QuoteWarningSeverity = "info" | "warn" | "danger";
