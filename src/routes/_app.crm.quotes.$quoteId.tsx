@@ -332,6 +332,7 @@ function QuoteDetail() {
             stages: res.stagesCopied,
             allocations: res.allocationsCopied,
             external: res.externalCopied,
+            dependencies: res.dependenciesCopied,
           }),
         );
         if (res.allocationsSkipped > 0) {
