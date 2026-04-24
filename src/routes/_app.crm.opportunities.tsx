@@ -12,7 +12,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Target, LayoutGrid, List } from "lucide-react";
+import { Plus, Target, LayoutGrid, List, FileText, ArrowRight } from "lucide-react";
 import { CompanyPicker } from "@/components/crm/company-picker";
 import { toast } from "sonner";
 import {
@@ -27,6 +27,7 @@ export const Route = createFileRoute("/_app/crm/opportunities")({
 type Row = CrmOpportunity & {
   company: { id: string; nome: string } | null;
   contact: Pick<Contact, "id" | "primeiro_nome" | "apelido" | "titulo"> | null;
+  quotes: { id: string }[];
 };
 
 function OpportunitiesPage() {
@@ -39,7 +40,9 @@ function OpportunitiesPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("crm_opportunities")
-        .select("*, company:companies(id, nome), contact:contacts(id, primeiro_nome, apelido, titulo)")
+        .select(
+          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id)",
+        )
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as Row[];
