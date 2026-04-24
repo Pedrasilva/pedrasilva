@@ -203,7 +203,7 @@ export function useNonWorkingPrefill(opts: {
           .gte("data", opts.weekStart)
           .lte("data", opts.weekEnd),
         supabase
-          .from("collaborators")
+          .from("collaborators_directory")
           .select("daily_hours")
           .eq("id", opts.collaboratorId!)
           .maybeSingle(),

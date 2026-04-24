@@ -70,7 +70,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     void (async () => {
       const { data } = await supabase
-        .from("collaborators")
+        .from("collaborators_directory")
         .select("language_preference")
         .ilike("email", user.email!)
         .maybeSingle();

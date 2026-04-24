@@ -34,7 +34,7 @@ export function useResourceSchedules() {
       let collabMap = new Map<string, { dh: number; dpw: number }>();
       if (collabIds.length > 0) {
         const { data: collabs, error: cErr } = await supabase
-          .from("collaborators")
+          .from("collaborators_directory")
           .select("id, daily_hours, days_per_week")
           .in("id", collabIds);
         if (cErr) throw cErr;

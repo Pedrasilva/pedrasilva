@@ -69,9 +69,8 @@ import { cn } from "@/lib/utils";
 
 // As novas tabelas ainda não estão no types.ts gerado — usamos `as any` para o cliente.
 // É seguro porque as RLS policies controlam o acesso.
-const sb = supabase as unknown as {
-  from: (t: string) => ReturnType<typeof supabase.from>;
-};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const sb = supabase as any;
 
 const CATS: BenefitCategory[] = ["carro", "ticket", "premio", "outros"];
 

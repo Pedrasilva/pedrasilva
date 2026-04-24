@@ -67,13 +67,13 @@ export function useUpcomingCelebrations(windowDays = 45) {
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("collaborators")
+        .from("collaborators_directory")
         .select("id, nome, data_nascimento, inicio_carreira");
       if (error) throw error;
       const today = new Date();
       const items: BirthdayItem[] = [];
 
-      for (const c of data ?? []) {
+      for (const c of (data ?? []) as Array<{ id: string; nome: string; data_nascimento: string | null; inicio_carreira: string | null }>) {
         if (c.data_nascimento) {
           const birth = parseDate(c.data_nascimento);
           const next = nextOccurrence(
