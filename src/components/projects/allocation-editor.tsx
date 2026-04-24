@@ -175,6 +175,42 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
               <Input id="a-end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
             </div>
           </div>
+          {showPercentage && (
+            <div>
+              <Label htmlFor="a-pct" className="text-xs">Alocação (%)</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="a-pct"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={5}
+                  value={pct}
+                  onChange={(e) => applyPct(Number(e.target.value))}
+                  className="w-24"
+                />
+                <div className="flex flex-wrap gap-1">
+                  {[100, 80, 50, 20, 10].map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => applyPct(p)}
+                      className={`rounded border px-2 py-0.5 text-[11px] transition ${
+                        pct === p
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {p}%
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                {pct}% = {pctToHours(pct)}h/dia (base 8h).
+              </p>
+            </div>
+          )}
           <div>
             <Label htmlFor="a-h" className="text-xs">Horas por dia útil</Label>
             <Input
@@ -185,7 +221,13 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
               step={0.5}
               value={hours}
               onChange={(e) => setHours(Number(e.target.value))}
+              disabled={showPercentage}
             />
+            {showPercentage && (
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                Derivado da % de alocação.
+              </p>
+            )}
           </div>
           <div className="rounded-md bg-muted/60 p-3 text-xs">
             <div className="flex justify-between"><span className="text-muted-foreground">Dias úteis</span><span className="font-mono">{wd}</span></div>
