@@ -303,7 +303,14 @@
       "totalFeeHint": "Inclusive of internal time and external services. Excludes VAT.",
       "paymentScheduleTitle": "Payment schedule",
       "noStages": "Scope of work to be defined.",
-      "noTeam": "Project team to be assigned."
+      "noTeam": "Project team to be assigned.",
+      "acceptanceTitle": "Acceptance",
+      "acceptanceHint": "By signing below, the client confirms acceptance of this proposal.",
+      "acceptanceClientName": "Client name",
+      "acceptanceSignature": "Signature",
+      "acceptanceDate": "Date",
+      "acceptanceOnBehalf": "Accepted on behalf of",
+      "footerContact": "Contact"
     }
   }
 }
