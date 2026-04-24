@@ -58,8 +58,8 @@ export function QuoteWorkflowActions({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const transition = (next: QuoteStatus, confirmKey: string) => {
-    if (!confirm(t(confirmKey))) return;
+  const transition = (next: QuoteStatus, confirmKey?: string) => {
+    if (confirmKey && !confirm(t(confirmKey))) return;
     setStatus.mutate(next);
   };
 
