@@ -603,6 +603,55 @@ function QuoteDetail() {
           />
         </TabsContent>
       </Tabs>
+
+      {/* Convert dialog — owned exclusively by the dedicated Convert
+          button. Cannot be triggered as a side-effect of approval. */}
+      <AlertDialog open={convertOpen} onOpenChange={setConvertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("quotes.convertDialog.title")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("quotes.convertDialog.description")}
+              {!quote.account_id && (
+                <span className="block mt-2 text-amber-600 dark:text-amber-400">
+                  {t("quotes.convertNoAccountWarning")}
+                </span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setConvertOpen(false);
+                convert.mutate();
+              }}
+            >
+              {t("quotes.convertDialog.confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("quotes.deleteDialog.title")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("quotes.deleteDialog.description")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setDeleteOpen(false);
+                remove.mutate();
+              }}
+            >
+              {t("quotes.deleteDialog.confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
