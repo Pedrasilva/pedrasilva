@@ -610,9 +610,14 @@ function ExpenseActions({
     if (error) return toast.error(error.message);
 
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
       await fetch("/api/notify-expense", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
         body: JSON.stringify({ expenseId: expense.id }),
       });
     } catch {
