@@ -339,12 +339,13 @@ function QuoteDetail() {
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList>
+        <TabsList className="no-print">
           <TabsTrigger value="overview">{t("workspace.tabs.overview")}</TabsTrigger>
           <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
           <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
           <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
           <TabsTrigger value="financial">{t("workspace.tabs.financial")}</TabsTrigger>
+          <TabsTrigger value="proposal">{t("workspace.tabs.proposal")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
@@ -441,7 +442,7 @@ function QuoteDetail() {
                     <div className="text-emerald-600 dark:text-emerald-400 mt-2">{t("quotes.projectAlreadyCreated")}</div>
                   )}
                 </div>
-                <Button className="w-full" onClick={() => convert.mutate()} disabled={!canConvert || convert.isPending}>
+                <Button className="w-full" onClick={handleConvert} disabled={!canConvert || convert.isPending}>
                   <Rocket className="h-4 w-4 mr-1" />
                   {quote.pm_project_id ? t("quotes.openProjectButton") : t("quotes.convertButton")}
                 </Button>
@@ -462,6 +463,16 @@ function QuoteDetail() {
         </TabsContent>
         <TabsContent value="financial" className="mt-4">
           <QuoteFinancialSummaryTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
+        </TabsContent>
+        <TabsContent value="proposal" className="mt-4">
+          <QuoteProposalTab
+            quoteId={quoteId}
+            pricingMultiplier={pricingMultiplier}
+            title={form.titulo || quote.titulo}
+            description={form.proposal_description || quote.proposal_description || quote.notas}
+            clientName={quote.company?.nome ?? null}
+            accountName={quote.account?.name ?? null}
+          />
         </TabsContent>
       </Tabs>
     </div>
