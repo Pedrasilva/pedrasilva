@@ -188,7 +188,30 @@
         "sent": "Proposal sent",
         "approved": "Quote approved",
         "rejected": "Quote marked as lost"
+      },
+      "approvedState": "Approved",
+      "dialog": {
+        "sendTitle": "Send proposal",
+        "sendDesc": "Mark this quote as sent to the client? No email will be sent — this only updates the status.",
+        "sendConfirmCta": "Mark as sent",
+        "approveTitle": "Approve quote",
+        "approveDesc": "Mark this quote as approved? This will move the opportunity to Won.",
+        "approveNoAccountDesc": "No account is assigned to this quote. Approve anyway? This will still move the opportunity to Won.",
+        "approveConfirmCta": "Approve",
+        "lostTitle": "Mark quote as lost",
+        "lostDesc": "Mark this quote as lost? This will move the opportunity to Lost.",
+        "lostConfirmCta": "Mark as lost"
       }
+    },
+    "convertDialog": {
+      "title": "Convert to project",
+      "description": "Create the operational project from this quote? Stages, allocations and external services will be copied. This cannot be undone.",
+      "confirm": "Create project"
+    },
+    "deleteDialog": {
+      "title": "Delete quote",
+      "description": "This will permanently remove the quote and any associated planning data. This cannot be undone.",
+      "confirm": "Delete"
     }
   },
   "stage": {

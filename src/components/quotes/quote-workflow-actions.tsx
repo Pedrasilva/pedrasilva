@@ -1,20 +1,37 @@
 /**
  * Quote workflow actions — exposes the canonical Draft → Sent → Approved
- * → Convert path as primary buttons in the quote header. The Status select
- * in Overview remains as a manual/admin fallback.
+ * path as primary buttons in the quote header. The Status select in
+ * Overview remains as a manual/admin fallback.
  *
- * Each transition prompts for confirmation and is performed via a single
- * fee_proposals UPDATE, after which the surrounding query cache is
- * invalidated so opportunity stage and quote header refresh together.
+ * IMPORTANT: This header NEVER renders a "Convert to project" button.
+ * Conversion is a separate, destructive operation that lives in the
+ * dedicated Convert card on the Overview tab. Keeping it out of the
+ * header prevents two failure modes:
+ *   1. Focus-bleed: after the Approve confirmation closes, the same
+ *      DOM position would mount a Convert button — Enter/space would
+ *      re-fire and prompt for conversion.
+ *   2. Visual confusion: an Approve click should never look like it
+ *      can also create a project shell.
  *
- * "Convert to project" is delegated back to the parent through onConvert
- * because conversion is a multi-table operation already implemented in the
- * route. We only gate it on quote_status === "approved".
+ * Each transition uses an AlertDialog (shadcn) instead of the native
+ * `confirm()` dialog so the messages cannot accidentally chain across
+ * status changes, and so the dialog state is fully owned by React.
  */
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Send, CheckCircle2, XCircle, Rocket, ExternalLink } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Send, CheckCircle2, XCircle, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { QuoteStatus } from "@/lib/crm/types";
@@ -28,6 +45,13 @@ type Props = {
   isConverting?: boolean;
 };
 
+type PendingTransition = {
+  next: QuoteStatus;
+  titleKey: string;
+  descKey: string;
+  confirmKey: string;
+} | null;
+
 export function QuoteWorkflowActions({
   quoteId,
   status,
@@ -38,6 +62,7 @@ export function QuoteWorkflowActions({
 }: Props) {
   const { t } = useTranslation("crm");
   const qc = useQueryClient();
+  const [pending, setPending] = useState<PendingTransition>(null);
 
   const setStatus = useMutation({
     mutationFn: async (next: QuoteStatus) => {
@@ -58,12 +83,43 @@ export function QuoteWorkflowActions({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const transition = (next: QuoteStatus, confirmKey?: string) => {
-    if (confirmKey && !confirm(t(confirmKey))) return;
+  const askApprove = () => {
+    setPending({
+      next: "approved",
+      titleKey: "quotes.workflow.dialog.approveTitle",
+      descKey: hasAccount
+        ? "quotes.workflow.dialog.approveDesc"
+        : "quotes.workflow.dialog.approveNoAccountDesc",
+      confirmKey: "quotes.workflow.dialog.approveConfirmCta",
+    });
+  };
+
+  const askSend = () => {
+    setPending({
+      next: "sent",
+      titleKey: "quotes.workflow.dialog.sendTitle",
+      descKey: "quotes.workflow.dialog.sendDesc",
+      confirmKey: "quotes.workflow.dialog.sendConfirmCta",
+    });
+  };
+
+  const askLost = () => {
+    setPending({
+      next: "rejected",
+      titleKey: "quotes.workflow.dialog.lostTitle",
+      descKey: "quotes.workflow.dialog.lostDesc",
+      confirmKey: "quotes.workflow.dialog.lostConfirmCta",
+    });
+  };
+
+  const onConfirm = () => {
+    if (!pending) return;
+    const next = pending.next;
+    setPending(null);
     setStatus.mutate(next);
   };
 
-  // Helper: unified primary CTA per status.
+  // Already converted → only show "open project" shortcut.
   if (hasProject) {
     return (
       <Button size="sm" variant="secondary" onClick={onConvert} disabled={isConverting}>
@@ -73,38 +129,26 @@ export function QuoteWorkflowActions({
     );
   }
 
+  let primary: React.ReactNode = null;
+
   if (status === "draft") {
-    return (
-      <Button
-        size="sm"
-        onClick={() => transition("sent")}
-        disabled={setStatus.isPending}
-      >
+    primary = (
+      <Button size="sm" onClick={askSend} disabled={setStatus.isPending}>
         <Send className="h-4 w-4 mr-1" />
         {t("quotes.workflow.send")}
       </Button>
     );
-  }
-
-  if (status === "sent") {
-    const handleApprove = () => {
-      if (!hasAccount) {
-        if (!confirm(t("quotes.workflow.confirm.approveNoAccount"))) return;
-        setStatus.mutate("approved");
-        return;
-      }
-      transition("approved", "quotes.workflow.confirm.approve");
-    };
-    return (
+  } else if (status === "sent") {
+    primary = (
       <div className="flex items-center gap-2">
-        <Button size="sm" onClick={handleApprove} disabled={setStatus.isPending}>
+        <Button size="sm" onClick={askApprove} disabled={setStatus.isPending}>
           <CheckCircle2 className="h-4 w-4 mr-1" />
           {t("quotes.workflow.approve")}
         </Button>
         <Button
           size="sm"
           variant="outline"
-          onClick={() => transition("rejected", "quotes.workflow.confirm.lost")}
+          onClick={askLost}
           disabled={setStatus.isPending}
         >
           <XCircle className="h-4 w-4 mr-1" />
@@ -112,22 +156,50 @@ export function QuoteWorkflowActions({
         </Button>
       </div>
     );
-  }
-
-  if (status === "approved") {
-    return (
-      <Button size="sm" onClick={onConvert} disabled={isConverting}>
-        <Rocket className="h-4 w-4 mr-1" />
-        {t("quotes.workflow.convert")}
-      </Button>
+  } else if (status === "approved") {
+    // Header shows a passive label only. Conversion lives in the Convert
+    // card (Overview tab) so the Approve click cannot bleed into a
+    // Convert prompt via focus / repeated Enter.
+    primary = (
+      <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+        <CheckCircle2 className="h-3 w-3" />
+        {t("quotes.workflow.approvedState")}
+      </span>
+    );
+  } else {
+    // status === "rejected" — terminal, passive label.
+    primary = (
+      <span className="inline-flex items-center gap-1 text-xs text-destructive">
+        <XCircle className="h-3 w-3" />
+        {t("quotes.workflow.lostState")}
+      </span>
     );
   }
 
-  // status === "rejected" — terminal, no primary CTA, just a passive label.
   return (
-    <span className="inline-flex items-center gap-1 text-xs text-destructive">
-      <XCircle className="h-3 w-3" />
-      {t("quotes.workflow.lostState")}
-    </span>
+    <>
+      {primary}
+      <AlertDialog
+        open={pending !== null}
+        onOpenChange={(open) => {
+          if (!open) setPending(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{pending ? t(pending.titleKey) : ""}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pending ? t(pending.descKey) : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={onConfirm}>
+              {pending ? t(pending.confirmKey) : ""}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

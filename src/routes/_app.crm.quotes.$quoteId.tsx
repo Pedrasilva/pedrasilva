@@ -12,6 +12,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Rocket, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { QuoteWorkflowActions } from "@/components/quotes/quote-workflow-actions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useState, useEffect } from "react";
 import {
   formatEUR, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
@@ -347,6 +357,13 @@ function QuoteDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // Convert prompt is owned by React state (AlertDialog), not by the
+  // browser's native confirm(). This guarantees the prompt is only shown
+  // when the user clicks the dedicated Convert button — never as a
+  // side-effect of approving or any other status transition.
+  const [convertOpen, setConvertOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
   const handleConvert = () => {
     if (!quote) return;
     if (quote.pm_project_id) {
@@ -354,7 +371,7 @@ function QuoteDetail() {
       convert.mutate();
       return;
     }
-    if (confirm(t("quotes.convertConfirm"))) convert.mutate();
+    setConvertOpen(true);
   };
 
   // Pre-conversion integrity warnings — reuses the same builder as the
@@ -436,8 +453,7 @@ function QuoteDetail() {
               <ExternalLink className="h-3 w-3" /> {t("quotes.openProject")}
             </Link>
           )}
-          <Button variant="outline" size="sm"
-            onClick={() => { if (confirm(t("quotes.deleteConfirm"))) remove.mutate(); }}>
+          <Button variant="outline" size="sm" onClick={() => setDeleteOpen(true)}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
@@ -587,6 +603,55 @@ function QuoteDetail() {
           />
         </TabsContent>
       </Tabs>
+
+      {/* Convert dialog — owned exclusively by the dedicated Convert
+          button. Cannot be triggered as a side-effect of approval. */}
+      <AlertDialog open={convertOpen} onOpenChange={setConvertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("quotes.convertDialog.title")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("quotes.convertDialog.description")}
+              {!quote.account_id && (
+                <span className="block mt-2 text-amber-600 dark:text-amber-400">
+                  {t("quotes.convertNoAccountWarning")}
+                </span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setConvertOpen(false);
+                convert.mutate();
+              }}
+            >
+              {t("quotes.convertDialog.confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("quotes.deleteDialog.title")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("quotes.deleteDialog.description")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setDeleteOpen(false);
+                remove.mutate();
+              }}
+            >
+              {t("quotes.deleteDialog.confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

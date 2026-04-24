@@ -188,7 +188,30 @@
         "sent": "Proposta enviada",
         "approved": "Proposta aprovada",
         "rejected": "Proposta marcada como perdida"
+      },
+      "approvedState": "Aprovada",
+      "dialog": {
+        "sendTitle": "Enviar proposta",
+        "sendDesc": "Marcar esta proposta como enviada ao cliente? Nenhum email será enviado — apenas o estado é actualizado.",
+        "sendConfirmCta": "Marcar como enviada",
+        "approveTitle": "Aprovar proposta",
+        "approveDesc": "Marcar esta proposta como aprovada? A oportunidade será movida para Ganho.",
+        "approveNoAccountDesc": "Não há conta atribuída a esta proposta. Aprovar mesmo assim? A oportunidade será movida para Ganho.",
+        "approveConfirmCta": "Aprovar",
+        "lostTitle": "Marcar proposta como perdida",
+        "lostDesc": "Marcar esta proposta como perdida? A oportunidade será movida para Perdido.",
+        "lostConfirmCta": "Marcar como perdida"
       }
+    },
+    "convertDialog": {
+      "title": "Converter em projecto",
+      "description": "Criar o projecto operacional a partir desta proposta? Fases, alocações e serviços externos serão copiados. Esta acção não pode ser desfeita.",
+      "confirm": "Criar projecto"
+    },
+    "deleteDialog": {
+      "title": "Eliminar proposta",
+      "description": "Esta acção irá remover permanentemente a proposta e todos os dados de planeamento associados. Não pode ser desfeita.",
+      "confirm": "Eliminar"
     }
   },
   "stage": {
