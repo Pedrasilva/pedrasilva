@@ -257,10 +257,10 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
     setLinkHoverStage(null);
     if (!target || target === link.fromStageId) return;
     const type = link.fromSide === "end" ? "FS" : "SS";
-    createDep
-      .mutateAsync({ predecessor_id: link.fromStageId, successor_id: target, type, lag_days: 0 })
+    adapter
+      .createDependency({ predecessor_id: link.fromStageId, successor_id: target, type, lag_days: 0 })
       .then(() => toast.success(t("gantt.toasts.linkCreated")))
-      .catch((err) => toast.error((err as Error).message));
+      .catch((err: unknown) => toast.error((err as Error).message));
   }
 
   async function commitDrag() {
@@ -275,14 +275,14 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
     });
     try {
       if (drag.type.startsWith("stage")) {
-        await updateStageCascade.mutateAsync({
+        await adapter.updateStage({
           id: drag.id,
           projectId: drag.projectId,
           start_date: draft.start,
           end_date: draft.end,
         });
       } else {
-        await updateAlloc.mutateAsync({
+        await adapter.updateAllocation({
           id: drag.id,
           projectId: drag.projectId,
           patch: { start_date: draft.start, end_date: draft.end },
@@ -307,18 +307,21 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
     if (movedAlloc) {
       try {
         const parsed = JSON.parse(movedAlloc) as { allocationId: string; fromProjectId: string; durationDays: number };
+        // Cross-project allocation moves only make sense when the adapter
+        // exposes that capability. Quote mode disables this.
+        if (!features.crossProjectMove && parsed.fromProjectId !== stage.projectId) return;
         const stageEnd = new Date(stage.end_date);
         let endCandidate = addDays(addDays(origin, dropDayOffset), Math.max(0, parsed.durationDays - 1));
         if (endCandidate > stageEnd) endCandidate = stageEnd;
         const endDate = format(endCandidate, "yyyy-MM-dd");
-        updateAlloc
-          .mutateAsync({
+        adapter
+          .updateAllocation({
             id: parsed.allocationId,
             projectId: parsed.fromProjectId,
             patch: { stage_id: stage.id, start_date: startDate, end_date: endDate },
           })
           .then(() => toast.success(t("gantt.toasts.allocationMoved")))
-          .catch((err) => toast.error((err as Error).message));
+          .catch((err: unknown) => toast.error((err as Error).message));
       } catch (err) {
         toast.error((err as Error).message);
       }
@@ -330,8 +333,8 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
     if (endCandidate > stageEnd) endCandidate = stageEnd;
     const endDate = format(endCandidate, "yyyy-MM-dd");
 
-    createAlloc
-      .mutateAsync({
+    adapter
+      .createAllocation({
         stage_id: stage.id,
         resource_id: resourceId,
         start_date: startDate,
@@ -340,7 +343,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
         projectId: stage.projectId,
       })
       .then(() => toast.success(t("gantt.toasts.resourceAllocated")))
-      .catch((err) => toast.error((err as Error).message));
+      .catch((err: unknown) => toast.error((err as Error).message));
   }
 
   return (
