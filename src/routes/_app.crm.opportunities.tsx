@@ -169,47 +169,54 @@ function OpportunitiesPage() {
                 <div className="space-y-2">
                   {col.items.map((o) => {
                     const quoteCount = o.quotes?.length ?? 0;
+                    const isCreating = createQuote.isPending && creatingFor === o.id;
                     return (
                       <div
                         key={o.id}
-                        className="rounded-md border bg-background p-2 text-sm hover:border-primary/40 hover:shadow-sm transition"
+                        onDoubleClick={() => handleCardDoubleClick(o.id)}
+                        className="rounded-md border bg-background p-2 text-sm hover:border-primary/40 hover:shadow-sm transition cursor-pointer select-none"
+                        title={t("opportunities.card.doubleClickHint")}
                       >
                         <Link
                           to="/crm/opportunities/$opportunityId"
                           params={{ opportunityId: o.id }}
-                          className="block"
+                          className="block hover:underline"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <div className="font-medium line-clamp-2">{o.name}</div>
-                          <div className="mt-1 text-xs text-muted-foreground line-clamp-1">
-                            {o.company?.nome ?? t("opportunities.card.noCompany")}
-                          </div>
-                          {o.contact && (
-                            <div className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
-                              {contactFullName(o.contact)}
-                            </div>
-                          )}
-                          <div className="mt-2 flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">{o.probability}%</span>
-                            <span className="font-semibold">{formatEUR(Number(o.estimated_fee))}</span>
-                          </div>
-                          <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
-                            <FileText className="h-3 w-3" />
-                            {quoteCount > 0
-                              ? t("opportunities.card.quotesCount", { count: quoteCount })
-                              : t("opportunities.card.noQuotes")}
-                          </div>
                         </Link>
+                        <div className="mt-1 text-xs text-muted-foreground line-clamp-1">
+                          {o.company?.nome ?? t("opportunities.card.noCompany")}
+                        </div>
+                        {o.contact && (
+                          <div className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
+                            {contactFullName(o.contact)}
+                          </div>
+                        )}
+                        <div className="mt-2 flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">{o.probability}%</span>
+                          <span className="font-semibold">{formatEUR(Number(o.estimated_fee))}</span>
+                        </div>
+                        <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
+                          <FileText className="h-3 w-3" />
+                          {quoteCount > 0
+                            ? t("opportunities.card.quotesCount", { count: quoteCount })
+                            : t("opportunities.card.noQuotes")}
+                        </div>
                         <div className="mt-2 flex items-center justify-end">
-                          <Button asChild variant="ghost" size="sm" className="h-6 px-2 text-xs">
-                            <Link
-                              to="/crm/opportunities/$opportunityId"
-                              params={{ opportunityId: o.id }}
-                            >
-                              {quoteCount > 0
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            disabled={isCreating}
+                            onClick={(e) => handleQuoteAction(e, o)}
+                          >
+                            {isCreating
+                              ? t("common.loading")
+                              : quoteCount > 0
                                 ? t("opportunities.card.openQuote")
                                 : t("opportunities.card.createQuote")}
-                              <ArrowRight className="h-3 w-3 ml-1" />
-                            </Link>
+                            <ArrowRight className="h-3 w-3 ml-1" />
                           </Button>
                         </div>
                       </div>
