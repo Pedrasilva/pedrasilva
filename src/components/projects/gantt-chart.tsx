@@ -4,18 +4,9 @@ import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, parseISO, startOfWeek } from "date-fns";
 import type { Resource, StageWithAllocations } from "@/lib/projects/types";
 import { allocationCost, dayCount, euros, workingDays } from "@/lib/projects/gantt-utils";
-import { useDefaultResourceRates, effectiveCostRate } from "@/lib/projects/use-default-rates";
-import {
-  useCreateAllocation,
-  useUpdateAllocation,
-  useUpdateStageWithCascade,
-  useDeleteStage,
-  useStageDependencies,
-  useCreateDependency,
-} from "@/lib/projects/use-planner";
+import { effectiveCostRate } from "@/lib/projects/use-default-rates";
 import { AllocationEditor } from "@/components/projects/allocation-editor";
 import { StageDependencyEditor } from "@/components/projects/stage-dependency-editor";
-import { StageBaselineDialog } from "@/components/projects/stage-baseline-dialog";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { toast } from "sonner";
 import { Trash2, GripVertical, AlertTriangle, CalendarOff } from "lucide-react";
@@ -26,10 +17,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { fmt } from "@/lib/projects/gantt-utils";
 import { useDateLocale } from "@/i18n/use-date-locale";
+import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
+import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 
 export type StageWithProject = StageWithAllocations & { projectId: string };
 
 interface Props {
+  /**
+   * `projectId` is kept for backwards compatibility with callers that pass
+   * it; the Gantt component itself never reads it. The scoping ID lives on
+   * each stage row (`stage.projectId`) and on adapter mutation payloads.
+   */
   projectId?: string;
   stages: StageWithProject[];
   origin: Date;
@@ -37,6 +35,12 @@ interface Props {
   dayWidth: number;
   resources: Resource[];
   embedded?: boolean;
+  /**
+   * Planner adapter — one instance per Gantt mounting. ProjectGantt /
+   * QuoteGantt build this from their respective hook stacks. The adapter
+   * also drives feature flags (baseline ghost, leave/overload badges, etc.).
+   */
+  adapter: PlannerAdapter;
 }
 
 const STAGE_ROW_H = 92;
@@ -59,7 +63,7 @@ interface LinkDragState {
   pointerY: number;
 }
 
-export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: Props) {
+export function GanttChart({ stages, origin, totalDays, dayWidth, resources, adapter }: Props) {
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -69,20 +73,20 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
   const [link, setLink] = useState<LinkDragState | null>(null);
   const [linkHoverStage, setLinkHoverStage] = useState<string | null>(null);
 
-  const updateAlloc = useUpdateAllocation();
-  const updateStageCascade = useUpdateStageWithCascade();
-  const deleteStage = useDeleteStage();
-  const createAlloc = useCreateAllocation();
-  const createDep = useCreateDependency();
-  const { data: deps } = useStageDependencies();
-  const { data: defaultRates } = useDefaultResourceRates();
+  // All planner mutations + dependency reads come from the adapter — there is
+  // no direct pm_* coupling left in this component.
+  const deps = adapter.dependencies;
+  const defaultRates = adapter.defaultRates;
+  const features = adapter.features;
 
   // Approved-leave intervals per resource — used to flag allocations that
   // overlap days where the resource is unavailable. These remain CALCULATED
   // (not blocking): the user still sees the allocation, but the bar/tooltip
-  // surface that delivery capacity is reduced.
+  // surface that delivery capacity is reduced. Only fetched in modes that
+  // opt-in (project mode); quote mode never reads it.
   const { data: leaveByResource } = useQuery({
     queryKey: ["gantt-leave"],
+    enabled: features.leave,
     queryFn: async (): Promise<Map<string, LeaveInterval[]>> => {
       const { data: rs } = await supabase.from("pm_resources").select("id, collaborator_id");
       const collabToRes = new Map<string, string>();
@@ -106,6 +110,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
   });
   const { data: holidaySet } = useQuery({
     queryKey: ["gantt-holidays"],
+    enabled: features.holidayShading || features.leave,
     queryFn: async (): Promise<Set<string>> => {
       const { data } = await supabase.from("holidays").select("data");
       return new Set(((data ?? []) as Array<{ data: string }>).map((h) => h.data));
@@ -253,10 +258,10 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
     setLinkHoverStage(null);
     if (!target || target === link.fromStageId) return;
     const type = link.fromSide === "end" ? "FS" : "SS";
-    createDep
-      .mutateAsync({ predecessor_id: link.fromStageId, successor_id: target, type, lag_days: 0 })
+    adapter
+      .createDependency({ predecessor_id: link.fromStageId, successor_id: target, type, lag_days: 0 })
       .then(() => toast.success(t("gantt.toasts.linkCreated")))
-      .catch((err) => toast.error((err as Error).message));
+      .catch((err: unknown) => toast.error((err as Error).message));
   }
 
   async function commitDrag() {
@@ -271,14 +276,14 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
     });
     try {
       if (drag.type.startsWith("stage")) {
-        await updateStageCascade.mutateAsync({
+        await adapter.updateStage({
           id: drag.id,
           projectId: drag.projectId,
           start_date: draft.start,
           end_date: draft.end,
         });
       } else {
-        await updateAlloc.mutateAsync({
+        await adapter.updateAllocation({
           id: drag.id,
           projectId: drag.projectId,
           patch: { start_date: draft.start, end_date: draft.end },
@@ -303,18 +308,21 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
     if (movedAlloc) {
       try {
         const parsed = JSON.parse(movedAlloc) as { allocationId: string; fromProjectId: string; durationDays: number };
+        // Cross-project allocation moves only make sense when the adapter
+        // exposes that capability. Quote mode disables this.
+        if (!features.crossProjectMove && parsed.fromProjectId !== stage.projectId) return;
         const stageEnd = new Date(stage.end_date);
         let endCandidate = addDays(addDays(origin, dropDayOffset), Math.max(0, parsed.durationDays - 1));
         if (endCandidate > stageEnd) endCandidate = stageEnd;
         const endDate = format(endCandidate, "yyyy-MM-dd");
-        updateAlloc
-          .mutateAsync({
+        adapter
+          .updateAllocation({
             id: parsed.allocationId,
             projectId: parsed.fromProjectId,
             patch: { stage_id: stage.id, start_date: startDate, end_date: endDate },
           })
           .then(() => toast.success(t("gantt.toasts.allocationMoved")))
-          .catch((err) => toast.error((err as Error).message));
+          .catch((err: unknown) => toast.error((err as Error).message));
       } catch (err) {
         toast.error((err as Error).message);
       }
@@ -326,8 +334,8 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
     if (endCandidate > stageEnd) endCandidate = stageEnd;
     const endDate = format(endCandidate, "yyyy-MM-dd");
 
-    createAlloc
-      .mutateAsync({
+    adapter
+      .createAllocation({
         stage_id: stage.id,
         resource_id: resourceId,
         start_date: startDate,
@@ -336,7 +344,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
         projectId: stage.projectId,
       })
       .then(() => toast.success(t("gantt.toasts.resourceAllocated")))
-      .catch((err) => toast.error((err as Error).message));
+      .catch((err: unknown) => toast.error((err as Error).message));
   }
 
   return (
@@ -554,7 +562,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources }: P
                         onClick={async (e) => {
                           e.stopPropagation();
                           if (!confirm(t("gantt.stage.deleteConfirm", { name: stage.name }))) return;
-                          await deleteStage.mutateAsync({ id: stage.id, projectId: stage.projectId });
+                          await adapter.deleteStage({ id: stage.id, projectId: stage.projectId });
                         }}
                         className="rounded p-1 opacity-0 transition hover:bg-background/30 group-hover:opacity-100"
                         aria-label={t("gantt.stage.deleteAction")}
