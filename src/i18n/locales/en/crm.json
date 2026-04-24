@@ -325,7 +325,13 @@
       "totalFee": "Total fee",
       "totalProfit": "Total profit",
       "effectiveMargin": "Effective margin",
-      "pricingMultiplier": "Pricing multiplier"
+      "pricingMultiplier": "Pricing multiplier",
+      "pricingMultiplierHint": "Applied to sale side only. Cost stays at snapshot rates.",
+      "markupOnCost": "Markup on cost",
+      "markupHint": "Profit ÷ cost (how much you add on top of cost).",
+      "marginHint": "Profit ÷ fee (share of fee that is profit).",
+      "saveMultiplier": "Save",
+      "multiplierSaved": "Pricing multiplier updated"
     },
     "proposal": {
       "documentLabel": "Proposal",
