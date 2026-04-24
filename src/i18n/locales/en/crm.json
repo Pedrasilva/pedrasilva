@@ -135,6 +135,7 @@
     "openProjectButton": "Open project",
     "approveFirstHint": "Quote must be approved first.",
     "setAccountFirst": " (set account first)",
+    "convertConfirm": "Create the operational project from this quote? Stages, allocations and external services will be copied. This cannot be undone.",
     "newQuoteDialog": {
       "title": "New quote",
       "description": "Quotes inherit the opportunity context. Account is optional now but required to approve.",
