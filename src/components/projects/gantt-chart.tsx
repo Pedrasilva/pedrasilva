@@ -72,20 +72,20 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
   const [link, setLink] = useState<LinkDragState | null>(null);
   const [linkHoverStage, setLinkHoverStage] = useState<string | null>(null);
 
-  const updateAlloc = useUpdateAllocation();
-  const updateStageCascade = useUpdateStageWithCascade();
-  const deleteStage = useDeleteStage();
-  const createAlloc = useCreateAllocation();
-  const createDep = useCreateDependency();
-  const { data: deps } = useStageDependencies();
-  const { data: defaultRates } = useDefaultResourceRates();
+  // All planner mutations + dependency reads come from the adapter — there is
+  // no direct pm_* coupling left in this component.
+  const deps = adapter.dependencies;
+  const defaultRates = adapter.defaultRates;
+  const features = adapter.features;
 
   // Approved-leave intervals per resource — used to flag allocations that
   // overlap days where the resource is unavailable. These remain CALCULATED
   // (not blocking): the user still sees the allocation, but the bar/tooltip
-  // surface that delivery capacity is reduced.
+  // surface that delivery capacity is reduced. Only fetched in modes that
+  // opt-in (project mode); quote mode never reads it.
   const { data: leaveByResource } = useQuery({
     queryKey: ["gantt-leave"],
+    enabled: features.leave,
     queryFn: async (): Promise<Map<string, LeaveInterval[]>> => {
       const { data: rs } = await supabase.from("pm_resources").select("id, collaborator_id");
       const collabToRes = new Map<string, string>();
@@ -109,6 +109,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
   });
   const { data: holidaySet } = useQuery({
     queryKey: ["gantt-holidays"],
+    enabled: features.holidayShading || features.leave,
     queryFn: async (): Promise<Set<string>> => {
       const { data } = await supabase.from("holidays").select("data");
       return new Set(((data ?? []) as Array<{ data: string }>).map((h) => h.data));
