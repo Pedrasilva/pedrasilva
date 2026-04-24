@@ -295,12 +295,14 @@ export type Database = {
       }
       companies: {
         Row: {
+          company_type: string | null
           created_at: string
           created_by: string | null
           email: string | null
           id: string
           industria: string | null
           morada: string | null
+          nif: string | null
           nome: string
           notas: string | null
           status: Database["public"]["Enums"]["company_status"]
@@ -309,12 +311,14 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          company_type?: string | null
           created_at?: string
           created_by?: string | null
           email?: string | null
           id?: string
           industria?: string | null
           morada?: string | null
+          nif?: string | null
           nome: string
           notas?: string | null
           status?: Database["public"]["Enums"]["company_status"]
@@ -323,12 +327,14 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          company_type?: string | null
           created_at?: string
           created_by?: string | null
           email?: string | null
           id?: string
           industria?: string | null
           morada?: string | null
+          nif?: string | null
           nome?: string
           notas?: string | null
           status?: Database["public"]["Enums"]["company_status"]
