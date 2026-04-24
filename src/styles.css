@@ -340,4 +340,20 @@
   @page :first {
     margin: 16mm;
   }
+  /* Keep the acceptance/signature block intact across page breaks. */
+  .print-area .proposal-acceptance,
+  .print-area .proposal-footer {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+/* Footer is print/proposal-only — hide on screen, show only when printing. */
+.proposal-footer {
+  display: none;
+}
+@media print {
+  .proposal-footer {
+    display: block;
+  }
 }
