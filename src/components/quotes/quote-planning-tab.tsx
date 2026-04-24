@@ -1,0 +1,520 @@
+/**
+ * Quote Planning tab — stages + dependencies + allocations.
+ * No Gantt yet (Phase C). Plain tables only.
+ */
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
+import { Trash2, Plus } from "lucide-react";
+import { toast } from "sonner";
+import {
+  useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage,
+} from "@/lib/quotes/use-quote-stages";
+import {
+  useQuoteAllocations, useUpsertQuoteAllocation, useDeleteQuoteAllocation,
+} from "@/lib/quotes/use-quote-allocations";
+import {
+  useQuoteDependencies, useCreateQuoteDependency, useDeleteQuoteDependency,
+} from "@/lib/quotes/use-quote-dependencies";
+import {
+  useDefaultResourceRates, effectiveRates,
+} from "@/lib/projects/use-default-rates";
+import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
+import { formatEUR } from "@/lib/crm/types";
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+export function QuotePlanningTab({ quoteId }: { quoteId: string }) {
+  const { t } = useTranslation("crm");
+  const stagesQ = useQuoteStages(quoteId);
+  const depsQ = useQuoteDependencies(quoteId);
+  const allocQ = useQuoteAllocations(quoteId);
+  const upsertStage = useUpsertQuoteStage(quoteId);
+  const delStage = useDeleteQuoteStage(quoteId);
+  const createDep = useCreateQuoteDependency(quoteId);
+  const delDep = useDeleteQuoteDependency(quoteId);
+  const upsertAlloc = useUpsertQuoteAllocation(quoteId);
+  const delAlloc = useDeleteQuoteAllocation(quoteId);
+
+  const stages = stagesQ.data ?? [];
+  const deps = depsQ.data ?? [];
+  const allocations = allocQ.data ?? [];
+
+  const { data: resources = [] } = useQuery({
+    queryKey: ["pm-resources-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pm_resources")
+        .select("id, name, hourly_rate, cost_rate, color")
+        .eq("active", true)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+  const { data: defaults } = useDefaultResourceRates();
+  const stageMap = useMemo(
+    () => Object.fromEntries(stages.map((s) => [s.id, s])),
+    [stages],
+  );
+
+  // ---- Stage row state -------------------------------------------------
+  const [newStage, setNewStage] = useState({
+    name: "",
+    start_date: today(),
+    end_date: today(),
+    budget: "",
+  });
+
+  const handleAddStage = async () => {
+    if (!newStage.name.trim()) return toast.error(t("workspace.planning.errorStageName"));
+    if (newStage.end_date < newStage.start_date)
+      return toast.error(t("workspace.planning.errorStageDates"));
+    try {
+      await upsertStage.mutateAsync({
+        quote_id: quoteId,
+        name: newStage.name.trim(),
+        start_date: newStage.start_date,
+        end_date: newStage.end_date,
+        budget: newStage.budget ? Number(newStage.budget) : 0,
+        sort_order: stages.length,
+      });
+      setNewStage({ name: "", start_date: today(), end_date: today(), budget: "" });
+      toast.success(t("workspace.planning.stageCreated"));
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  // ---- Dependency state ------------------------------------------------
+  const [newDep, setNewDep] = useState<{
+    pred: string; succ: string; type: QuoteDepType; lag: string;
+  }>({ pred: "", succ: "", type: "FS", lag: "0" });
+
+  const handleAddDep = async () => {
+    if (!newDep.pred || !newDep.succ || newDep.pred === newDep.succ)
+      return toast.error(t("workspace.planning.errorDepStages"));
+    try {
+      await createDep.mutateAsync({
+        quote_id: quoteId,
+        predecessor_stage_id: newDep.pred,
+        successor_stage_id: newDep.succ,
+        type: newDep.type,
+        lag_days: Number(newDep.lag) || 0,
+      });
+      setNewDep({ pred: "", succ: "", type: "FS", lag: "0" });
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  // ---- Allocation state ------------------------------------------------
+  const [newAlloc, setNewAlloc] = useState({
+    resource_id: "",
+    stage_id: "",
+    start_date: today(),
+    end_date: today(),
+    pct: "100",
+    hpd: "8",
+  });
+
+  const handleAddAlloc = async () => {
+    if (!newAlloc.resource_id || !newAlloc.stage_id)
+      return toast.error(t("workspace.planning.errorAllocResStage"));
+    if (newAlloc.end_date < newAlloc.start_date)
+      return toast.error(t("workspace.planning.errorStageDates"));
+    const res = resources.find((r) => r.id === newAlloc.resource_id);
+    if (!res) return;
+    const rates = effectiveRates(res, defaults);
+    try {
+      await upsertAlloc.mutateAsync({
+        quote_id: quoteId,
+        resource_id: newAlloc.resource_id,
+        stage_id: newAlloc.stage_id,
+        start_date: newAlloc.start_date,
+        end_date: newAlloc.end_date,
+        hours_per_day: Number(newAlloc.hpd) || 8,
+        allocation_percentage: Number(newAlloc.pct) || 100,
+        cost_rate_snapshot: rates.cost,
+        sale_rate_snapshot: rates.sale,
+      });
+      setNewAlloc((p) => ({ ...p, resource_id: "", stage_id: "" }));
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* STAGES */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t("workspace.planning.stagesTitle")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">#</TableHead>
+                <TableHead>{t("common.name")}</TableHead>
+                <TableHead className="w-36">{t("workspace.planning.startDate")}</TableHead>
+                <TableHead className="w-36">{t("workspace.planning.endDate")}</TableHead>
+                <TableHead className="w-32 text-right">{t("workspace.planning.budget")}</TableHead>
+                <TableHead className="w-16" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {stages.map((s, i) => (
+                <TableRow key={s.id}>
+                  <TableCell className="text-muted-foreground">{i + 1}</TableCell>
+                  <TableCell>
+                    <Input
+                      defaultValue={s.name}
+                      onBlur={(e) => {
+                        if (e.target.value.trim() && e.target.value !== s.name) {
+                          upsertStage.mutate({ id: s.id, name: e.target.value.trim() });
+                        }
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="date"
+                      defaultValue={s.start_date}
+                      onBlur={(e) => {
+                        if (e.target.value !== s.start_date) {
+                          upsertStage.mutate({ id: s.id, start_date: e.target.value });
+                        }
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="date"
+                      defaultValue={s.end_date}
+                      onBlur={(e) => {
+                        if (e.target.value !== s.end_date) {
+                          upsertStage.mutate({ id: s.id, end_date: e.target.value });
+                        }
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Input
+                      type="number"
+                      step="0.01"
+                      className="text-right"
+                      defaultValue={s.budget}
+                      onBlur={(e) => {
+                        const v = Number(e.target.value) || 0;
+                        if (v !== Number(s.budget)) {
+                          upsertStage.mutate({ id: s.id, budget: v });
+                        }
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        if (confirm(t("workspace.planning.deleteStageConfirm"))) {
+                          delStage.mutate(s.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {stages.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-6">
+                    {t("workspace.planning.noStages")}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-2 items-end border-t pt-4">
+            <div className="md:col-span-2">
+              <Label>{t("common.name")}</Label>
+              <Input
+                value={newStage.name}
+                onChange={(e) => setNewStage((p) => ({ ...p, name: e.target.value }))}
+                placeholder={t("workspace.planning.stagePlaceholder")}
+              />
+            </div>
+            <div>
+              <Label>{t("workspace.planning.startDate")}</Label>
+              <Input
+                type="date"
+                value={newStage.start_date}
+                onChange={(e) => setNewStage((p) => ({ ...p, start_date: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label>{t("workspace.planning.endDate")}</Label>
+              <Input
+                type="date"
+                value={newStage.end_date}
+                onChange={(e) => setNewStage((p) => ({ ...p, end_date: e.target.value }))}
+              />
+            </div>
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Label>{t("workspace.planning.budget")}</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={newStage.budget}
+                  onChange={(e) => setNewStage((p) => ({ ...p, budget: e.target.value }))}
+                />
+              </div>
+              <Button onClick={handleAddStage} className="self-end">
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* DEPENDENCIES */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t("workspace.planning.depsTitle")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("workspace.planning.predecessor")}</TableHead>
+                <TableHead className="w-32">{t("workspace.planning.depType")}</TableHead>
+                <TableHead>{t("workspace.planning.successor")}</TableHead>
+                <TableHead className="w-24 text-right">{t("workspace.planning.lagDays")}</TableHead>
+                <TableHead className="w-16" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {deps.map((d) => (
+                <TableRow key={d.id}>
+                  <TableCell>{stageMap[d.predecessor_stage_id]?.name ?? "—"}</TableCell>
+                  <TableCell>{d.type}</TableCell>
+                  <TableCell>{stageMap[d.successor_stage_id]?.name ?? "—"}</TableCell>
+                  <TableCell className="text-right">{d.lag_days}</TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="sm" onClick={() => delDep.mutate(d.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {deps.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-6">
+                    {t("workspace.planning.noDeps")}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+
+          {stages.length >= 2 && (
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-2 items-end border-t pt-4">
+              <div>
+                <Label>{t("workspace.planning.predecessor")}</Label>
+                <Select value={newDep.pred} onValueChange={(v) => setNewDep((p) => ({ ...p, pred: v }))}>
+                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectContent>
+                    {stages.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>{t("workspace.planning.depType")}</Label>
+                <Select value={newDep.type} onValueChange={(v) => setNewDep((p) => ({ ...p, type: v as QuoteDepType }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {QUOTE_DEP_TYPES.map((d) => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>{t("workspace.planning.successor")}</Label>
+                <Select value={newDep.succ} onValueChange={(v) => setNewDep((p) => ({ ...p, succ: v }))}>
+                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectContent>
+                    {stages.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Label>{t("workspace.planning.lagDays")}</Label>
+                  <Input
+                    type="number"
+                    value={newDep.lag}
+                    onChange={(e) => setNewDep((p) => ({ ...p, lag: e.target.value }))}
+                  />
+                </div>
+                <Button onClick={handleAddDep} className="self-end">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ALLOCATIONS */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t("workspace.planning.allocTitle")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("workspace.planning.resource")}</TableHead>
+                <TableHead>{t("common.stage")}</TableHead>
+                <TableHead className="w-32">{t("workspace.planning.startDate")}</TableHead>
+                <TableHead className="w-32">{t("workspace.planning.endDate")}</TableHead>
+                <TableHead className="w-20 text-right">%</TableHead>
+                <TableHead className="w-28 text-right">{t("workspace.planning.costRate")}</TableHead>
+                <TableHead className="w-28 text-right">{t("workspace.planning.saleRate")}</TableHead>
+                <TableHead className="w-16" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {allocations.map((a) => (
+                <TableRow key={a.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="inline-block h-2 w-2 rounded-full"
+                        style={{ background: a.resource?.color ?? "#a78bfa" }}
+                      />
+                      {a.resource?.name ?? "—"}
+                    </div>
+                  </TableCell>
+                  <TableCell>{stageMap[a.stage_id]?.name ?? "—"}</TableCell>
+                  <TableCell>{a.start_date}</TableCell>
+                  <TableCell>{a.end_date}</TableCell>
+                  <TableCell className="text-right">
+                    {a.allocation_percentage ?? 100}%
+                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground">
+                    {formatEUR(Number(a.cost_rate_snapshot))}/h
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {formatEUR(Number(a.sale_rate_snapshot))}/h
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="sm" onClick={() => delAlloc.mutate(a.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {allocations.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-6">
+                    {t("workspace.planning.noAllocs")}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+
+          {stages.length > 0 && resources.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-2 items-end border-t pt-4">
+              <div>
+                <Label>{t("workspace.planning.resource")}</Label>
+                <Select
+                  value={newAlloc.resource_id}
+                  onValueChange={(v) => setNewAlloc((p) => ({ ...p, resource_id: v }))}
+                >
+                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectContent>
+                    {resources.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>{t("common.stage")}</Label>
+                <Select
+                  value={newAlloc.stage_id}
+                  onValueChange={(v) => setNewAlloc((p) => ({ ...p, stage_id: v }))}
+                >
+                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectContent>
+                    {stages.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>{t("workspace.planning.startDate")}</Label>
+                <Input
+                  type="date"
+                  value={newAlloc.start_date}
+                  onChange={(e) => setNewAlloc((p) => ({ ...p, start_date: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label>{t("workspace.planning.endDate")}</Label>
+                <Input
+                  type="date"
+                  value={newAlloc.end_date}
+                  onChange={(e) => setNewAlloc((p) => ({ ...p, end_date: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label>%</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={newAlloc.pct}
+                  onChange={(e) => setNewAlloc((p) => ({ ...p, pct: e.target.value }))}
+                />
+              </div>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Label>h/d</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="24"
+                    value={newAlloc.hpd}
+                    onChange={(e) => setNewAlloc((p) => ({ ...p, hpd: e.target.value }))}
+                  />
+                </div>
+                <Button onClick={handleAddAlloc} className="self-end">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+          {(stages.length === 0 || resources.length === 0) && (
+            <p className="text-xs text-muted-foreground border-t pt-3">
+              {t("workspace.planning.allocPrereq")}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
