@@ -120,11 +120,17 @@ export function useUpdateQuoteStageWithCascade(quoteId: string) {
 
       return { updatedIds: Array.from(updates.keys()), shiftedAllocations };
     },
-    onSuccess: () => {
+    onSuccess: (result, variables) => {
       qc.invalidateQueries({ queryKey: ["quote-stages", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-allocations", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-dependencies", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-financials", quoteId] });
+      // Surface dependent-stage cascades. updatedIds always includes the
+      // user-edited stage, so a count > 1 means at least one successor moved.
+      const dependents = result.updatedIds.filter((sid) => sid !== variables.id).length;
+      if (dependents > 0) {
+        toast.success(`Updated ${dependents} dependent stage${dependents > 1 ? "s" : ""}`);
+      }
     },
   });
 }
