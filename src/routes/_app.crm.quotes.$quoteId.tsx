@@ -20,6 +20,7 @@ import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
 import { QuoteExternalServicesTab } from "@/components/quotes/quote-external-services-tab";
 import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
 import { QuoteFinancialSummaryTab } from "@/components/quotes/quote-financial-summary-tab";
+import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
 
 export const Route = createFileRoute("/_app/crm/quotes/$quoteId")({
   component: QuoteDetail,
