@@ -167,6 +167,7 @@ function QuoteDetail() {
           id: quote.pm_project_id,
           alreadyExisted: true,
           stagesCopied: 0,
+          dependenciesCopied: 0,
           allocationsCopied: 0,
           allocationsSkipped: 0,
           externalCopied: 0,
