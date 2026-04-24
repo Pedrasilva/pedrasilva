@@ -86,7 +86,10 @@ function OpportunitiesPage() {
   const handleQuoteAction = (e: React.MouseEvent, opp: Row) => {
     e.preventDefault();
     e.stopPropagation();
-    const latestQuote = opp.quotes?.[0];
+    const sorted = [...(opp.quotes ?? [])].sort((a, b) =>
+      (b.updated_at ?? "").localeCompare(a.updated_at ?? ""),
+    );
+    const latestQuote = sorted[0];
     if (latestQuote) {
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: latestQuote.id } });
       return;
