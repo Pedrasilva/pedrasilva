@@ -88,6 +88,20 @@ export function QuotePlanningTab({
     [stages],
   );
 
+  // Per-stage rollup: hours / cost / fee derived from allocations.
+  const stageRollups = useMemo(() => {
+    const m = new Map<string, { hours: number; cost: number; fee: number }>();
+    for (const a of allocations) {
+      const line = quoteAllocationLine(a);
+      const cur = m.get(a.stage_id) ?? { hours: 0, cost: 0, fee: 0 };
+      cur.hours += line.hours;
+      cur.cost += line.cost;
+      cur.fee += line.revenue * (pricingMultiplier > 0 ? pricingMultiplier : 1);
+      m.set(a.stage_id, cur);
+    }
+    return m;
+  }, [allocations, pricingMultiplier]);
+
   // Lightweight, non-blocking warnings driven by the same rollup as the
   // financial summary so users get consistent signals across tabs.
   const warnings = useMemo(() => {
