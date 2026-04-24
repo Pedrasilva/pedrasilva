@@ -36,7 +36,7 @@ export function useQuoteAllocations(quoteId: string | undefined) {
     queryFn: async (): Promise<QuoteAllocationWithResource[]> => {
       const { data, error } = await db
         .from("quote_allocations")
-        .select("*, resource:pm_resources(id,name,color)")
+        .select("*, resource:pm_resources(id,name,color,role)")
         .eq("quote_id", quoteId!)
         .order("start_date", { ascending: true });
       if (error) throw new Error(error.message);
