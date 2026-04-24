@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Database } from "@/integrations/supabase/types";
 
 const CATEGORY_LABELS: Record<string, string> = {
   carro: "Carro",
@@ -16,6 +18,61 @@ export const Route = createFileRoute("/api/notify-expense")({
     handlers: {
       POST: async ({ request }) => {
         try {
+          // --- Authentication ---------------------------------------------
+          const SUPABASE_URL = process.env.SUPABASE_URL;
+          const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+          if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+            console.error("[notify-expense] Missing Supabase env vars");
+            return new Response(
+              JSON.stringify({ error: "Internal server error" }),
+              { status: 500, headers: { "Content-Type": "application/json" } },
+            );
+          }
+
+          const authHeader = request.headers.get("authorization");
+          if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return new Response(JSON.stringify({ error: "Unauthorized" }), {
+              status: 401,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+          const token = authHeader.slice("Bearer ".length).trim();
+          if (!token) {
+            return new Response(JSON.stringify({ error: "Unauthorized" }), {
+              status: 401,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+
+          const userClient = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+            global: { headers: { Authorization: `Bearer ${token}` } },
+            auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+          });
+
+          const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
+          const userId = claimsData?.claims?.sub;
+          if (claimsErr || !userId) {
+            return new Response(JSON.stringify({ error: "Unauthorized" }), {
+              status: 401,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+
+          // Verify the authenticated user is an admin before allowing this
+          // sensitive operation (reads expense data via service-role and
+          // generates signed URLs to private receipts).
+          const { data: isAdmin, error: roleErr } = await userClient.rpc("has_role", {
+            _user_id: userId,
+            _role: "admin",
+          });
+          if (roleErr || !isAdmin) {
+            return new Response(JSON.stringify({ error: "Forbidden" }), {
+              status: 403,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+
+          // --- Handler -----------------------------------------------------
           const { expenseId } = (await request.json()) as { expenseId?: string };
           if (!expenseId) {
             return new Response(JSON.stringify({ error: "expenseId required" }), { status: 400 });
@@ -23,9 +80,10 @@ export const Route = createFileRoute("/api/notify-expense")({
 
           const TO = process.env.EMAIL_CONTABILIDADE;
           if (!TO) {
+            console.error("[notify-expense] EMAIL_CONTABILIDADE env var not set");
             return new Response(
-              JSON.stringify({ error: "EMAIL_CONTABILIDADE not set" }),
-              { status: 500 },
+              JSON.stringify({ error: "Internal server error" }),
+              { status: 500, headers: { "Content-Type": "application/json" } },
             );
           }
 
@@ -105,9 +163,10 @@ export const Route = createFileRoute("/api/notify-expense")({
             headers: { "Content-Type": "application/json" },
           });
         } catch (err) {
+          console.error("[notify-expense] unhandled error:", err);
           return new Response(
-            JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
-            { status: 500 },
+            JSON.stringify({ error: "Internal server error" }),
+            { status: 500, headers: { "Content-Type": "application/json" } },
           );
         }
       },
