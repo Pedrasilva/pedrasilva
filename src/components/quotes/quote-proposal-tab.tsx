@@ -1645,7 +1645,6 @@ function ProposalPrintDocument({
 
   return (
     <article className="proposal-print-document mx-auto max-w-3xl bg-background px-8 py-10 text-foreground">
-      <div className="mb-3 text-xs font-semibold text-destructive">PRINT_RENDERER_ACTIVE</div>
       <header className="proposal-print-block proposal-avoid-break mb-8 flex items-start justify-between gap-6 border-b border-border pb-4">
         <div className="min-w-0">
           {firmName ? (
