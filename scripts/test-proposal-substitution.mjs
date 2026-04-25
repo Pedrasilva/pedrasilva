@@ -55,6 +55,7 @@ function cleanupEmptyPhrases(text) {
     })
     .join("\n");
   out = out.replace(/\n{3,}/g, "\n\n");
+  out = out.replace(/^\n+|\n+$/g, "");
   out = out.replace(/[ \t]{2,}/g, " ");
   return out;
 }
