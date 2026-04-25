@@ -185,6 +185,40 @@ assertEq(
   "Lighthouse is a residential renovation we look forward to.",
 );
 
+// ── Generic Project Description template (post-migration) ────────────
+const GENERIC_DESC_TEMPLATE =
+  "**{{project_name}}**\n\n{{project_brief}}\n\nThe scope, programme and ambition of {{project_name}} are reflected in the services and fees described in the following sections.";
+
+assertEq(
+  "generic project-desc template includes brief when present",
+  substituteVariables(GENERIC_DESC_TEMPLATE, {
+    project_name: "Lighthouse",
+    project_brief: "A coastal retreat with stone walls and timber roofing.",
+  }),
+  "**Lighthouse**\n\nA coastal retreat with stone walls and timber roofing.\n\nThe scope, programme and ambition of Lighthouse are reflected in the services and fees described in the following sections.",
+);
+
+assertEq(
+  "generic project-desc template collapses cleanly when brief is empty",
+  substituteVariables(GENERIC_DESC_TEMPLATE, {
+    project_name: "Lighthouse",
+    project_brief: "",
+  }),
+  "**Lighthouse**\n\nThe scope, programme and ambition of Lighthouse are reflected in the services and fees described in the following sections.",
+);
+
+assertEq(
+  "residential project-desc keeps brief paragraph when present",
+  substituteVariables(
+    "**{{project_name}}** is a residential project.\n\n{{project_brief}}\n\nWe address both the architectural definition of the building and the interior design of the principal living spaces, ensuring a coherent identity throughout.",
+    {
+      project_name: "Casa Atlântica",
+      project_brief: "Two-storey home overlooking the Atlantic.",
+    },
+  ),
+  "**Casa Atlântica** is a residential project.\n\nTwo-storey home overlooking the Atlantic.\n\nWe address both the architectural definition of the building and the interior design of the principal living spaces, ensuring a coherent identity throughout.",
+);
+
 if (failed > 0) {
   console.error(`\n${failed} check(s) failed.`);
   process.exit(1);
