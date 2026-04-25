@@ -1495,16 +1495,21 @@ function sanitizeProseForDisplay(text: string): string {
   // Orphan copula left dangling after removals: " is ." / " is ," / " is<EOL>".
   out = out.replace(/\s+\bis\s*(?=[.,;:!?])/gi, "");
   out = out.replace(/\s+\bis\s*$/gim, "");
-  // Lines reduced to noise or to a bare "<subject>." stub.
+  // Tidy " ." → "." after removals.
+  out = out.replace(/\s+([.,;:!?])/g, "$1");
+  // Drop bare-subject stub lines left behind ("**Subject**.") — require
+  // markdown emphasis so legitimate short sentences are preserved.
   out = out
     .split("\n")
     .map((line) => {
       const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
       if (/^[\s.,;:]*$/.test(trimmed)) return "";
-      const bare = trimmed.replace(/[*_]/g, "").trim();
-      if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
-        const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
-        if (wordCount <= 4) return "";
+      if (/[*_]/.test(trimmed)) {
+        const bare = trimmed.replace(/[*_]/g, "").trim();
+        if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
+          const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
+          if (wordCount <= 4) return "";
+        }
       }
       return trimmed;
     })
