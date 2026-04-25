@@ -345,7 +345,16 @@
       "generatorApplied": "Plano gerado",
       "generatorAppliedKeep": "Plano gerado — mantidos {{count}} registos manuais",
       "manualBadge": "manual",
-      "lockTooltip": "Marcar como manual (proteger de geradores)"
+      "lockTooltip": "Marcar como manual (proteger de geradores)",
+      "milestoneOptionsTitle": "Opções do gerador por fase",
+      "downPaymentEnabled": "Sinal inicial",
+      "downPaymentPercent": "% Sinal",
+      "stageStartPercent": "% Início de fase",
+      "stageEndPercent": "% Fim de fase",
+      "paymentTermsDays": "Prazo de pagamento (dias)",
+      "deductDownPayment": "Deduzir sinal dos pagamentos das fases",
+      "errorDownPayment": "Sinal tem de ser 0 ou superior",
+      "errorStageSplit": "% Início + % Fim de fase tem de ser 100"
     },
     "financial": {
       "totalsTitle": "Totais",

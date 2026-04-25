@@ -345,7 +345,16 @@
       "generatorApplied": "Schedule generated",
       "generatorAppliedKeep": "Schedule generated — kept {{count}} manual entries",
       "manualBadge": "manual",
-      "lockTooltip": "Lock as manual (protect from generators)"
+      "lockTooltip": "Lock as manual (protect from generators)",
+      "milestoneOptionsTitle": "Per-stage generator options",
+      "downPaymentEnabled": "Down payment",
+      "downPaymentPercent": "Down payment %",
+      "stageStartPercent": "Stage start %",
+      "stageEndPercent": "Stage end %",
+      "paymentTermsDays": "Payment terms (days)",
+      "deductDownPayment": "Deduct down payment from stage payments",
+      "errorDownPayment": "Down payment must be 0 or greater",
+      "errorStageSplit": "Stage start % + stage end % must equal 100"
     },
     "financial": {
       "totalsTitle": "Totals",
