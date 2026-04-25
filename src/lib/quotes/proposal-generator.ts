@@ -123,6 +123,16 @@ export interface BlockDraft {
   is_locked: boolean;
 }
 
+export type ProposalKind = "fixed_project" | "phased_consultancy";
+
+export interface ConsultancyConfig {
+  hourly_rate?: number | null;
+  hours_block?: number | null;
+  minimum_commitment_hours?: number | null;
+  /** Optional override list for phases. */
+  phases?: Array<{ label: string; estimated_hours?: number | null }>;
+}
+
 export interface GenerateInput {
   ctx: QuoteContext;
   masterBlocks: MasterBlock[];
@@ -138,6 +148,10 @@ export interface GenerateInput {
   currency?: string;
   /** Default validity period in days when block uses {{validity_days}}. */
   validityDays?: number;
+  /** Which proposal block-set to use when no explicit `slugs` are provided. */
+  proposalKind?: ProposalKind;
+  /** Optional consultancy-specific config (used by phased_consultancy generated blocks). */
+  consultancy?: ConsultancyConfig;
 }
 
 export interface GenerateOutput {
@@ -190,6 +204,24 @@ export const DEFAULT_PROPOSAL_BLOCK_SLUGS: readonly string[] = [
   "generated-acceptance-block",
 ] as const;
 
+/**
+ * Default ordered slug list for time-based phased consultancy proposals.
+ * Used when generator is called with proposalKind === "phased_consultancy".
+ */
+export const DEFAULT_CONSULTANCY_BLOCK_SLUGS: readonly string[] = [
+  "intro-consultancy-due-diligence",
+  "consultancy-scope-overview",
+  "consultancy-phase-1-feasibility",
+  "consultancy-phase-2-detailed",
+  "consultancy-phase-3-pip",
+  "generated-consultancy-phases",
+  "consultancy-methodology-iterative",
+  "consultancy-fee-structure-time-based",
+  "generated-time-fee-consultancy",
+  "consultancy-exclusions-standard",
+  "consultancy-validity-next-steps",
+] as const;
+
 // ────────────────────── Variable substitution ──────────────────────
 
 const CURRENCY_FORMATTERS: Record<string, Intl.NumberFormat> = {};
@@ -219,11 +251,14 @@ function buildVariables(
   currency: string,
   language: string,
   validityDays: number,
+  consultancy?: ConsultancyConfig,
 ): Record<string, string> {
   const clientName = ctx.company?.nome?.trim() || "";
   const contactName = ctx.contact
     ? `${ctx.contact.primeiro_nome} ${ctx.contact.apelido ?? ""}`.trim()
     : "";
+  const fmtNum = (v: number | null | undefined) =>
+    v === null || v === undefined ? "" : String(v);
   return {
     client_name: clientName || contactName || "Client",
     project_name: ctx.quote.titulo || "",
@@ -236,6 +271,11 @@ function buildVariables(
     validity_days: String(validityDays),
     payment_terms_days: String(ctx.invoiceSettings?.payment_terms_days ?? 30),
     currency,
+    project_type: "",
+    property_type: "",
+    hourly_rate: fmtNum(consultancy?.hourly_rate),
+    hours_block: fmtNum(consultancy?.hours_block),
+    minimum_commitment_hours: fmtNum(consultancy?.minimum_commitment_hours),
   };
 }
 
@@ -350,8 +390,21 @@ function buildComputed(
 function pickSlugs(input: GenerateInput): string[] {
   if (input.slugs && input.slugs.length > 0) return input.slugs;
   const exclude = new Set(input.excludeSlugs ?? []);
-  return DEFAULT_PROPOSAL_BLOCK_SLUGS.filter((s) => !exclude.has(s));
+  const base =
+    input.proposalKind === "phased_consultancy"
+      ? DEFAULT_CONSULTANCY_BLOCK_SLUGS
+      : DEFAULT_PROPOSAL_BLOCK_SLUGS;
+  return base.filter((s) => !exclude.has(s));
 }
+
+const DEFAULT_CONSULTANCY_PHASES: ReadonlyArray<{
+  label: string;
+  estimated_hours: number | null;
+}> = [
+  { label: "Phase 1 — Preliminary Feasibility", estimated_hours: null },
+  { label: "Phase 2 — Detailed Feasibility & Concept Alignment", estimated_hours: null },
+  { label: "Phase 3 — Planning Confirmation (PIP)", estimated_hours: null },
+];
 
 // ───────────────────────── Main generator ─────────────────────────
 
@@ -367,6 +420,7 @@ export function generateProposalDocument(input: GenerateInput): GenerateOutput {
     currency,
     language,
     validityDays,
+    input.consultancy,
   );
 
   const slugs = pickSlugs(input);
@@ -418,6 +472,33 @@ export function generateProposalDocument(input: GenerateInput): GenerateOutput {
         case "generated-acceptance-block":
           generated_content = { acceptance: computed.acceptance };
           break;
+        case "generated-time-fee-consultancy": {
+          const c = input.consultancy ?? {};
+          const hourly = c.hourly_rate ?? null;
+          const block = c.hours_block ?? null;
+          const minimum = c.minimum_commitment_hours ?? null;
+          const blockValue =
+            hourly !== null && block !== null ? hourly * block : null;
+          generated_content = {
+            hourly_rate: hourly,
+            hours_block: block,
+            minimum_commitment_hours: minimum,
+            block_value: blockValue,
+            currency,
+          };
+          break;
+        }
+        case "generated-consultancy-phases": {
+          const phases =
+            input.consultancy?.phases && input.consultancy.phases.length > 0
+              ? input.consultancy.phases.map((p) => ({
+                  label: p.label,
+                  estimated_hours: p.estimated_hours ?? null,
+                }))
+              : DEFAULT_CONSULTANCY_PHASES.map((p) => ({ ...p }));
+          generated_content = { phases };
+          break;
+        }
         default:
           generated_content = null;
       }
