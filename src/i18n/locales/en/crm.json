@@ -409,6 +409,11 @@
       "acceptanceDate": "Date",
       "acceptanceOnBehalf": "Accepted on behalf of",
       "footerContact": "Contact",
+      "footerAddressFallback": {
+        "line1": "Lisboa",
+        "line2": "Travessa do Corpo Santo 10 – 1ºD",
+        "line3": "1200-131 Lisboa"
+      },
       "generator": {
         "title": "Generate proposal document",
         "subtitle": "Build a structured, editable proposal from this quote using the master block library.",
