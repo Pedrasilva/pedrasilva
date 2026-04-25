@@ -1475,6 +1475,46 @@ function LegacyProposalPreview({
  * and empty blocks, and renders included blocks as flowing prose / tables
  * inside a single document container.
  */
+/**
+ * Minimal prose renderer for editable_text / legal_reference blocks
+ * inside the print document. Splits on blank lines into paragraphs and
+ * renders inline **bold** / *italic* without pulling in a markdown lib.
+ * Anything not recognised renders as plain text — never as raw asterisks.
+ */
+function ProseBlock({ text }: { text: string }) {
+  if (!text || !text.trim()) return null;
+  const paragraphs = text
+    .replace(/\r\n/g, "\n")
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  // Inline tokeniser: **bold**, *italic*, leave the rest as-is.
+  const renderInline = (s: string) => {
+    const parts: React.ReactNode[] = [];
+    const re = /(\*\*([^*]+)\*\*|\*([^*]+)\*)/g;
+    let last = 0;
+    let m: RegExpExecArray | null;
+    let i = 0;
+    while ((m = re.exec(s)) !== null) {
+      if (m.index > last) parts.push(s.slice(last, m.index));
+      if (m[2] !== undefined) parts.push(<strong key={i++}>{m[2]}</strong>);
+      else if (m[3] !== undefined) parts.push(<em key={i++}>{m[3]}</em>);
+      last = m.index + m[0].length;
+    }
+    if (last < s.length) parts.push(s.slice(last));
+    return parts;
+  };
+  return (
+    <div className="space-y-2 text-sm leading-relaxed">
+      {paragraphs.map((p, i) => (
+        <p key={i} className="whitespace-pre-wrap">
+          {renderInline(p)}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 function ProposalPrintDocument({
   document,
   blocks,
@@ -1582,9 +1622,7 @@ function ProposalPrintDocument({
                     locale={locale}
                   />
                 ) : (
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {b.content}
-                  </p>
+                  <ProseBlock text={b.content ?? ""} />
                 )}
               </section>
             );
