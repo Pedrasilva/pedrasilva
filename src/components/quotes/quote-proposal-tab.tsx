@@ -14,14 +14,28 @@
  * This pass is intentionally read-only: no inline editing, no reorder, no
  * DOCX/PDF export, no snapshot-on-send.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import type { ConsultancyConfig, ProposalKind } from "@/lib/quotes/proposal-generator";
 import { useTranslation } from "react-i18next";
 import { format, parseISO, type Locale } from "date-fns";
-import { ChevronDown, FileText, Loader2, Lock, Printer, RefreshCw, Sparkles } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronDown,
+  FileText,
+  Loader2,
+  Lock,
+  Pencil,
+  Printer,
+  RefreshCw,
+  Sparkles,
+  X,
+} from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -53,6 +67,11 @@ import {
   type QuoteProposalDocument,
   type QuoteProposalDocumentBlock,
 } from "@/lib/quotes/use-quote-proposal-document";
+import {
+  useUpdateBlockContent,
+  useSetBlockIncluded,
+  useMoveBlock,
+} from "@/lib/quotes/use-quote-proposal-document-blocks";
 import { useGenerateQuoteProposalDocument } from "@/lib/quotes/use-generate-quote-proposal-document";
 
 interface QuoteProposalTabProps {
@@ -463,16 +482,67 @@ function GeneratedSectionRenderer({
   }
 }
 
-function GeneratedBlockCard({ block }: { block: QuoteProposalDocumentBlock }) {
+interface GeneratedBlockCardProps {
+  block: QuoteProposalDocumentBlock;
+  blocks: QuoteProposalDocumentBlock[];
+  index: number;
+  documentId: string;
+}
+
+function GeneratedBlockCard({ block, blocks, index, documentId }: GeneratedBlockCardProps) {
   const { t } = useTranslation("crm");
   const locale = useDateLocale();
   const isGenerated = block.block_type === "generated_section";
-  // The master block's slug isn't stored on the per-doc row, but the generator
-  // names map cleanly via block_title? Safer: derive slug from generated_content
-  // shape OR from proposal_block_id join. We expose a `slug` field if present.
+  const isLocked = block.is_locked || isGenerated;
+  // Derive slug from optional join field or by shape inference.
   const slug =
     (block as unknown as { slug?: string | null }).slug ??
     inferSlugFromContent(block.generated_content as GenContent);
+
+  const updateContent = useUpdateBlockContent(documentId);
+  const setIncluded = useSetBlockIncluded(documentId);
+  const moveBlock = useMoveBlock(documentId);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [draftContent, setDraftContent] = useState<string>(block.content ?? "");
+
+  // Keep local draft in sync if server content changes (e.g. after reorder/refresh).
+  useEffect(() => {
+    if (!isEditing) setDraftContent(block.content ?? "");
+  }, [block.content, isEditing]);
+
+  const canEdit = !isLocked && !isGenerated;
+  const isFirst = index === 0;
+  const isLast = index === blocks.length - 1;
+
+  const handleSave = async () => {
+    try {
+      await updateContent.mutateAsync({ blockId: block.id, content: draftContent });
+      setIsEditing(false);
+      toast.success(t("workspace.proposal.document.editor.saved"));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error(msg);
+    }
+  };
+
+  const handleToggleIncluded = async (checked: boolean) => {
+    try {
+      await setIncluded.mutateAsync({ blockId: block.id, isIncluded: checked });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error(msg);
+    }
+  };
+
+  const handleMove = async (direction: "up" | "down") => {
+    try {
+      await moveBlock.mutateAsync({ blocks, blockId: block.id, direction });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error(msg);
+    }
+  };
 
   return (
     <article
@@ -481,9 +551,9 @@ function GeneratedBlockCard({ block }: { block: QuoteProposalDocumentBlock }) {
       }`}
     >
       <header className="mb-2 flex items-start justify-between gap-2">
-        <h3 className="text-sm font-semibold leading-tight">{block.block_title}</h3>
-        <div className="flex shrink-0 items-center gap-1">
-          {isGenerated && (
+        <div className="flex items-start gap-2">
+          <h3 className="text-sm font-semibold leading-tight">{block.block_title}</h3>
+          {isLocked && (
             <Badge variant="secondary" className="gap-1">
               <Lock className="h-3 w-3" />
               {t("workspace.proposal.document.lockedBadge")}
@@ -493,6 +563,53 @@ function GeneratedBlockCard({ block }: { block: QuoteProposalDocumentBlock }) {
             <Badge variant="outline">
               {t("workspace.proposal.document.excludedBadge")}
             </Badge>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <div className="flex items-center gap-2 pr-1">
+            <span className="text-xs text-muted-foreground">
+              {t("workspace.proposal.document.editor.included")}
+            </span>
+            <Switch
+              checked={block.is_included}
+              onCheckedChange={handleToggleIncluded}
+              disabled={setIncluded.isPending}
+              aria-label={t("workspace.proposal.document.editor.toggleIncluded")}
+            />
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleMove("up")}
+            disabled={isFirst || moveBlock.isPending}
+            aria-label={t("workspace.proposal.document.editor.moveUp")}
+            title={t("workspace.proposal.document.editor.moveUp")}
+          >
+            <ArrowUp className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleMove("down")}
+            disabled={isLast || moveBlock.isPending}
+            aria-label={t("workspace.proposal.document.editor.moveDown")}
+            title={t("workspace.proposal.document.editor.moveDown")}
+          >
+            <ArrowDown className="h-4 w-4" />
+          </Button>
+          {canEdit && !isEditing && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setDraftContent(block.content ?? "");
+                setIsEditing(true);
+              }}
+              aria-label={t("workspace.proposal.document.editor.edit")}
+              title={t("workspace.proposal.document.editor.edit")}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
           )}
         </div>
       </header>
@@ -507,6 +624,39 @@ function GeneratedBlockCard({ block }: { block: QuoteProposalDocumentBlock }) {
             content={block.generated_content as GenContent}
             locale={locale}
           />
+        </div>
+      ) : isEditing ? (
+        <div className="space-y-2">
+          <Textarea
+            value={draftContent}
+            onChange={(e) => setDraftContent(e.target.value)}
+            rows={Math.min(20, Math.max(4, draftContent.split("\n").length + 1))}
+            className="text-sm leading-relaxed"
+          />
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setDraftContent(block.content ?? "");
+                setIsEditing(false);
+              }}
+              disabled={updateContent.isPending}
+            >
+              <X className="mr-1 h-4 w-4" />
+              {t("workspace.proposal.document.editor.cancel")}
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSave}
+              disabled={updateContent.isPending}
+            >
+              {updateContent.isPending && (
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+              )}
+              {t("workspace.proposal.document.editor.save")}
+            </Button>
+          </div>
         </div>
       ) : (
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
@@ -1002,8 +1152,14 @@ function GeneratedDocumentSection({
             </p>
           ) : (
             <div className="space-y-3">
-              {blocks.map((b) => (
-                <GeneratedBlockCard key={b.id} block={b} />
+              {blocks.map((b, i) => (
+                <GeneratedBlockCard
+                  key={b.id}
+                  block={b}
+                  blocks={blocks}
+                  index={i}
+                  documentId={document.id}
+                />
               ))}
             </div>
           )}
