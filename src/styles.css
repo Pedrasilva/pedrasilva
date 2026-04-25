@@ -340,12 +340,6 @@
 }
 
 @media print {
-  /* Slightly larger A4 margins specifically when printing a proposal —
-     the proposal lives inside `.print-area` and is the only context where
-     the studio header/issue date layout needs comfortable side margins. */
-  @page :first {
-    margin: 16mm;
-  }
   /* Keep the acceptance/signature block intact across page breaks. */
   .print-area .proposal-acceptance,
   .print-area .proposal-footer {
@@ -366,18 +360,62 @@
 
 /* ── Proposal Print Document ──────────────────────────────────────────
    Clean, client-facing rendering of generated proposal documents. The
-   `.proposal-print-document` container is rendered both on screen (when
-   the user toggles into Preview mode) and during print. Print rules
-   below strip every editor affordance and produce a single flowing
-   document with sensible page-break behaviour. */
+   `.proposal-print-document` container renders both on screen (Preview
+   mode) and during print. The on-screen styles intentionally approximate
+   the printed PDF so what the user sees is what they get. */
 
 .proposal-print-document {
   background: var(--color-background);
   color: var(--color-foreground);
+  font-size: 11pt;
+  line-height: 1.5;
+}
+.proposal-print-document .proposal-print-heading {
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+.proposal-print-document h1.proposal-print-heading {
+  font-size: 1.6rem;
+  line-height: 1.2;
+}
+.proposal-print-document h2.proposal-print-heading {
+  font-size: 1.05rem;
+  line-height: 1.3;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.6rem;
+}
+/* Tables inside any proposal-print block — used by generated renderers
+   (payment schedule, fee summary, role summary, etc.). */
+.proposal-print-document table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+.proposal-print-document table th,
+.proposal-print-document table td {
+  padding: 0.4rem 0.5rem;
+  vertical-align: top;
+}
+.proposal-print-document table thead th {
+  border-bottom: 1px solid var(--color-border);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-muted-foreground);
+}
+.proposal-print-document table tbody tr {
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 60%, transparent);
+}
+.proposal-print-document table tbody tr:last-child {
+  border-bottom: 0;
 }
 
 @media print {
   .print-area .proposal-print-document {
+    /* Let the page flow naturally — the @page margin handles edges.
+       Removing on-screen padding/max-width prevents double margins. */
     max-width: none;
     margin: 0;
     padding: 0;
@@ -385,11 +423,13 @@
     color: black !important;
     box-shadow: none !important;
     border: none !important;
+    font-size: 10.5pt;
+    line-height: 1.5;
   }
   .print-area .proposal-print-block {
     page-break-inside: avoid;
     break-inside: avoid;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.4rem;
   }
   .print-area .proposal-avoid-break {
     page-break-inside: avoid;
@@ -404,17 +444,67 @@
     break-after: avoid-page;
     orphans: 3;
     widows: 3;
+    color: black !important;
   }
-  .print-area .proposal-print-table {
+  .print-area .proposal-print-document h1.proposal-print-heading {
+    font-size: 20pt;
+  }
+  .print-area .proposal-print-document h2.proposal-print-heading {
+    font-size: 12pt;
+    border-bottom: 0.75pt solid #888;
+    padding-bottom: 3pt;
+    margin-bottom: 6pt;
+  }
+  /* Tables in the printed proposal — clean, client-facing rendering. */
+  .print-area .proposal-print-document table {
+    width: 100%;
+    border-collapse: collapse;
     page-break-inside: auto;
     break-inside: auto;
+    margin-top: 4pt;
   }
-  .print-area .proposal-print-table tr,
-  .print-area .proposal-print-table tbody,
-  .print-area .proposal-print-table thead {
+  .print-area .proposal-print-document table thead {
+    display: table-header-group; /* repeat header on each printed page */
+  }
+  .print-area .proposal-print-document table thead th {
+    border-bottom: 0.75pt solid #444 !important;
+    color: #333 !important;
+    font-weight: 600;
+    text-align: left;
+    padding: 4pt 6pt;
+  }
+  .print-area .proposal-print-document table tbody tr {
     page-break-inside: avoid;
     break-inside: avoid;
+    border-bottom: 0.5pt solid #d0d0d0 !important;
   }
+  .print-area .proposal-print-document table tbody td {
+    padding: 4pt 6pt;
+    color: black !important;
+  }
+  /* Right-align any cell flagged with text-right (used by amount columns). */
+  .print-area .proposal-print-document .text-right {
+    text-align: right;
+  }
+  /* Muted/secondary text in print — keep readable but slightly lighter. */
+  .print-area .proposal-print-document .text-muted-foreground {
+    color: #555 !important;
+  }
+  /* Lists used by generated renderers (role summary, stages, etc.). */
+  .print-area .proposal-print-document ul,
+  .print-area .proposal-print-document ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .print-area .proposal-print-document ul > li {
+    padding: 3pt 0;
+    border-bottom: 0.5pt solid #d8d8d8;
+  }
+  .print-area .proposal-print-document ul > li:last-child {
+    border-bottom: 0;
+  }
+  /* Hide every editor affordance that may have leaked in. */
   .print-area .proposal-print-document button,
   .print-area .proposal-print-document [role="switch"],
   .print-area .proposal-print-document [role="tab"],
