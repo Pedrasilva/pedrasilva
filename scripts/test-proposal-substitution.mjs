@@ -21,12 +21,23 @@ const VAR_TOKEN_RE = /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g;
 function cleanupEmptyPhrases(text) {
   if (!text) return text;
   let out = text;
+  out = out.replace(/\bis\s+located\s+in\s*(?=[.,;:!?\n)]|$)/gi, "");
   out = out.replace(/,\s*located in\s*(?=[.,;:!?\n)]|$)/gi, "");
   out = out.replace(/\blocated in\s*(?=[.,;:!?\n)]|$)/gi, "");
   out = out.replace(/\s+in\s*(?=[.,;:!?\n)])/gi, "");
+  out = out.replace(/\s+\bis\s*(?=[.,;:!?])/gi, "");
+  out = out.replace(/\s+\bis\s*$/gim, "");
   out = out
     .split("\n")
-    .map((line) => line.replace(/\s{2,}/g, " ").trimEnd())
+    .map((line) => {
+      const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
+      const bare = trimmed.replace(/[*_]/g, "").trim();
+      if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
+        const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
+        if (wordCount <= 4) return "";
+      }
+      return trimmed;
+    })
     .join("\n");
   out = out.replace(/\n{3,}/g, "\n\n");
   out = out.replace(/[ \t]{2,}/g, " ");
