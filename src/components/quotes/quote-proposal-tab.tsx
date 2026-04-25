@@ -14,10 +14,11 @@
  * This pass is intentionally read-only: no inline editing, no reorder, no
  * DOCX/PDF export, no snapshot-on-send.
  */
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import type { ProposalKind } from "@/lib/quotes/proposal-generator";
+import { Input } from "@/components/ui/input";
+import type { ConsultancyConfig, ProposalKind } from "@/lib/quotes/proposal-generator";
 import { useTranslation } from "react-i18next";
 import { format, parseISO, type Locale } from "date-fns";
 import { ChevronDown, FileText, Loader2, Lock, Printer, RefreshCw, Sparkles } from "lucide-react";
