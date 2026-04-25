@@ -411,6 +411,25 @@
 .proposal-print-document table tbody tr:last-child {
   border-bottom: 0;
 }
+/* Stronger styling for tables explicitly tagged as proposal-print-table —
+   used by generated renderers (payment schedule, fee summary, etc.) so
+   they read as real client-facing tables in both Preview and PDF. */
+.proposal-print-document .proposal-print-table {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.proposal-print-document .proposal-print-table thead th {
+  background: color-mix(in oklab, var(--color-muted) 80%, transparent);
+  border-bottom: 1px solid var(--color-border);
+}
+.proposal-print-document .proposal-print-table th,
+.proposal-print-document .proposal-print-table td {
+  padding: 0.5rem 0.65rem;
+}
+.proposal-print-document .proposal-print-table tbody tr {
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 50%, transparent);
+}
 
 @media print {
   .print-area .proposal-print-document {
@@ -481,6 +500,33 @@
   .print-area .proposal-print-document table tbody td {
     padding: 4pt 6pt;
     color: black !important;
+  }
+  /* Stronger borders on tables explicitly tagged proposal-print-table —
+     guarantees client-facing tables (payment schedule etc.) survive print. */
+  .print-area .proposal-print-document .proposal-print-table {
+    border: 0.75pt solid #555 !important;
+    margin-top: 6pt;
+  }
+  .print-area .proposal-print-document .proposal-print-table thead th {
+    background: #f0f0f0 !important;
+    border-bottom: 0.75pt solid #555 !important;
+    color: #222 !important;
+    padding: 5pt 7pt !important;
+  }
+  .print-area .proposal-print-document .proposal-print-table th,
+  .print-area .proposal-print-document .proposal-print-table td {
+    border-right: 0.5pt solid #d0d0d0 !important;
+    padding: 5pt 7pt !important;
+  }
+  .print-area .proposal-print-document .proposal-print-table th:last-child,
+  .print-area .proposal-print-document .proposal-print-table td:last-child {
+    border-right: 0 !important;
+  }
+  .print-area .proposal-print-document .proposal-print-table tbody tr {
+    border-bottom: 0.5pt solid #c8c8c8 !important;
+  }
+  .print-area .proposal-print-document .proposal-print-table tbody tr:last-child {
+    border-bottom: 0 !important;
   }
   /* Right-align any cell flagged with text-right (used by amount columns). */
   .print-area .proposal-print-document .text-right {

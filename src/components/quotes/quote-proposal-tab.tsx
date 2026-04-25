@@ -255,7 +255,7 @@ function GeneratedSectionRenderer({
       }
       return (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="proposal-print-table w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
                 <th className="py-1.5 pr-2 font-medium">{tr("scheduleLabel")}</th>
@@ -1476,6 +1476,37 @@ function LegacyProposalPreview({
  * inside a single document container.
  */
 /**
+ * Strip leftover `{{variable}}` tokens and the awkward sentence fragments
+ * they leave behind ("located in", trailing " in .", etc.). Used by the
+ * client-facing Preview / PDF document so missing variables never reach
+ * the printed page. Editor mode does NOT call this — authors still see
+ * raw placeholders.
+ */
+function sanitizeProseForDisplay(text: string): string {
+  if (!text) return text;
+  let out = text;
+  // Remove standalone `{{var}}` tokens.
+  out = out.replace(/\{\{\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\}\}/g, "");
+  // Awkward "located in" fragments left after location goes empty.
+  out = out.replace(/,\s*located in\s*(?=[.,;:!?\n)]|$)/gi, "");
+  out = out.replace(/\blocated in\s*(?=[.,;:!?\n)]|$)/gi, "");
+  // " in " immediately followed by punctuation/EOL ("a residential project in .")
+  out = out.replace(/\s+in\s*(?=[.,;:!?\n)])/gi, "");
+  // Lines that became only whitespace/punctuation noise.
+  out = out
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
+      // Drop lines that are now just punctuation residue (e.g. ".").
+      return /^[\s.,;:]*$/.test(trimmed) ? "" : trimmed;
+    })
+    .join("\n");
+  out = out.replace(/\n{3,}/g, "\n\n");
+  out = out.replace(/[ \t]{2,}/g, " ");
+  return out.trim();
+}
+
+/**
  * Minimal prose renderer for editable_text / legal_reference blocks
  * inside the print document. Splits on blank lines into paragraphs and
  * renders inline **bold** / *italic* without pulling in a markdown lib.
@@ -1483,7 +1514,13 @@ function LegacyProposalPreview({
  */
 function ProseBlock({ text }: { text: string }) {
   if (!text || !text.trim()) return null;
-  const paragraphs = text
+  // Defensive client-facing cleanup: strip leftover {{...}} tokens that
+  // survived the generator (legacy documents, missing variables) and any
+  // awkward fragments they leave behind. Editor mode bypasses this — it
+  // uses the raw <Textarea> so authors still see the placeholders.
+  const cleaned = sanitizeProseForDisplay(text);
+  if (!cleaned.trim()) return null;
+  const paragraphs = cleaned
     .replace(/\r\n/g, "\n")
     .split(/\n{2,}/)
     .map((p) => p.trim())
