@@ -61,6 +61,7 @@ interface LinkDragState {
   fromSide: "start" | "end";
   pointerX: number;
   pointerY: number;
+  toSide: "start" | "end" | null;
 }
 
 export function GanttChart({ stages, origin, totalDays, dayWidth, resources, adapter }: Props) {
