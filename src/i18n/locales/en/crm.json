@@ -399,10 +399,39 @@
       "footerContact": "Contact",
       "generator": {
         "title": "Generate proposal document",
+        "subtitle": "Build a structured, editable proposal from this quote using the master block library.",
+        "generate": "Generate proposal document",
+        "regenerate": "Regenerate draft",
+        "regenerateWarning": "Regenerating will replace the current draft. Any edits to its blocks will be lost.",
+        "generating": "Generating…",
         "success": "Proposal document generated.",
         "error": "Failed to generate proposal document.",
         "missingBlocks": "Some library blocks were missing and skipped: {{slugs}}",
         "replaceConfirm": "Replace existing draft?"
+      },
+      "document": {
+        "metaTitle": "Proposal document",
+        "status": "Status",
+        "revision": "Revision",
+        "generatedAt": "Generated",
+        "language": "Language",
+        "blocksTitle": "Document blocks",
+        "noBlocks": "This document has no blocks yet.",
+        "lockedBadge": "Auto-generated",
+        "excludedBadge": "Excluded",
+        "generatedSection": "Generated section",
+        "generatedSectionHint": "Content for this section is rendered from quote data when the proposal is exported.",
+        "statusLabels": {
+          "draft": "Draft",
+          "ready": "Ready",
+          "sent": "Sent",
+          "accepted": "Accepted",
+          "archived": "Archived"
+        }
+      },
+      "legacyPreview": {
+        "title": "Legacy proposal preview",
+        "hint": "Original auto-rendered preview. Kept for comparison until the block editor is complete."
       }
     }
   }

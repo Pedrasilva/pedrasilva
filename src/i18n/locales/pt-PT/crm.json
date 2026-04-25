@@ -399,10 +399,39 @@
       "footerContact": "Contacto",
       "generator": {
         "title": "Gerar documento de proposta",
+        "subtitle": "Cria uma proposta estruturada e editável a partir deste orçamento, usando a biblioteca de blocos.",
+        "generate": "Gerar documento de proposta",
+        "regenerate": "Regenerar rascunho",
+        "regenerateWarning": "Regenerar substitui o rascunho actual. Edições aos blocos serão perdidas.",
+        "generating": "A gerar…",
         "success": "Documento de proposta gerado.",
         "error": "Falha ao gerar o documento de proposta.",
         "missingBlocks": "Alguns blocos da biblioteca não foram encontrados e foram ignorados: {{slugs}}",
         "replaceConfirm": "Substituir o rascunho existente?"
+      },
+      "document": {
+        "metaTitle": "Documento de proposta",
+        "status": "Estado",
+        "revision": "Revisão",
+        "generatedAt": "Gerado em",
+        "language": "Idioma",
+        "blocksTitle": "Blocos do documento",
+        "noBlocks": "Este documento ainda não tem blocos.",
+        "lockedBadge": "Gerado automaticamente",
+        "excludedBadge": "Excluído",
+        "generatedSection": "Secção gerada",
+        "generatedSectionHint": "O conteúdo desta secção é produzido a partir dos dados do orçamento na exportação.",
+        "statusLabels": {
+          "draft": "Rascunho",
+          "ready": "Pronta",
+          "sent": "Enviada",
+          "accepted": "Aceite",
+          "archived": "Arquivada"
+        }
+      },
+      "legacyPreview": {
+        "title": "Pré-visualização antiga",
+        "hint": "Pré-visualização original. Mantida para comparação até o editor de blocos estar completo."
       }
     }
   }
