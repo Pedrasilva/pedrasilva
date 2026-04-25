@@ -1487,6 +1487,19 @@ function sanitizeProseForDisplay(text: string): string {
   let out = text;
   // Remove standalone `{{var}}` tokens.
   out = out.replace(/\{\{\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\}\}/g, "");
+  // Remove whole lines that collapse to an empty location predicate, including
+  // markdown-emphasised subjects stored in older generated documents.
+  out = out
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.replace(/\s{2,}/g, " ").trim();
+      if (/^is\s+(?:located\s+in\s*)?[.,;:!?]$/i.test(trimmed)) return "";
+      if (/^\S[\s\S]*?\s+is\s+(?:located\s+in\s*)?[.,;:!?]$/i.test(trimmed)) {
+        return "";
+      }
+      return line;
+    })
+    .join("\n");
   // Composite empty-predicate fragments (variable resolved to empty).
   out = out.replace(/\bis\s+located\s+in\s*(?=[.,;:!?\n)]|$)/gi, "");
   out = out.replace(/,\s*located in\s*(?=[.,;:!?\n)]|$)/gi, "");
@@ -1526,13 +1539,13 @@ function sanitizeProseForDisplay(text: string): string {
  * renders inline **bold** / *italic* without pulling in a markdown lib.
  * Anything not recognised renders as plain text — never as raw asterisks.
  */
-function ProseBlock({ text }: { text: string }) {
+function ProseBlock({ text, alreadySanitized = false }: { text: string; alreadySanitized?: boolean }) {
   if (!text || !text.trim()) return null;
   // Defensive client-facing cleanup: strip leftover {{...}} tokens that
   // survived the generator (legacy documents, missing variables) and any
   // awkward fragments they leave behind. Editor mode bypasses this — it
   // uses the raw <Textarea> so authors still see the placeholders.
-  const cleaned = sanitizeProseForDisplay(text);
+  const cleaned = alreadySanitized ? text.trim() : sanitizeProseForDisplay(text);
   if (!cleaned.trim()) return null;
   const paragraphs = cleaned
     .replace(/\r\n/g, "\n")
