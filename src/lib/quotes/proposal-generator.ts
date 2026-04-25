@@ -316,6 +316,19 @@ export function substituteVariables(
 export function cleanupEmptyPhrases(text: string): string {
   if (!text) return text;
   let out = text;
+  // Remove whole lines that have collapsed into an empty location predicate,
+  // e.g. "Speedy Gonzalez is ." or "**Speedy Gonzalez** is located in .".
+  out = out
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.replace(/\s{2,}/g, " ").trim();
+      if (/^is\s+(?:located\s+in\s*)?[.,;:!?]$/i.test(trimmed)) return "";
+      if (/^\S[\s\S]*?\s+is\s+(?:located\s+in\s*)?[.,;:!?]$/i.test(trimmed)) {
+        return "";
+      }
+      return line;
+    })
+    .join("\n");
   // Composite empty-predicate fragments — order matters: longest/most specific first.
   // Drop "is located in " when followed by punctuation/EOL (variable was empty).
   out = out.replace(/\bis\s+located\s+in\s*(?=[.,;:!?\n)]|$)/gi, "");
@@ -341,6 +354,10 @@ export function cleanupEmptyPhrases(text: string): string {
     .map((line) => {
       const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
       if (/^[\s.,;:]*$/.test(trimmed)) return "";
+      if (/^\*\*[^*]+\*\*$/.test(trimmed)) {
+        const wordCount = trimmed.replace(/\*/g, "").trim().split(/\s+/).length;
+        if (wordCount <= 4) return "";
+      }
       const hasEmphasis = /[*_]/.test(trimmed);
       const bare = trimmed.replace(/[*_]/g, "").trim();
       if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
@@ -353,6 +370,7 @@ export function cleanupEmptyPhrases(text: string): string {
     .join("\n");
   // Collapse 3+ blank lines into max two.
   out = out.replace(/\n{3,}/g, "\n\n");
+  out = out.replace(/^\n+|\n+$/g, "");
   // Tidy double spaces inside a line.
   out = out.replace(/[ \t]{2,}/g, " ");
   return out;
