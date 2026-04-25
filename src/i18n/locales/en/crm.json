@@ -417,7 +417,13 @@
         "error": "Failed to generate proposal document.",
         "emptyLibrary": "No proposal block library found. Seed proposal blocks first.",
         "missingBlocks": "Some library blocks were missing and skipped: {{slugs}}",
-        "replaceConfirm": "Replace existing draft?"
+        "replaceConfirm": "Replace existing draft?",
+        "kind": {
+          "fixedProject": "Fixed Project",
+          "fixedProjectHint": "Stage / timeline / fee proposal.",
+          "phasedConsultancy": "Phased Consultancy",
+          "phasedConsultancyHint": "Hourly consultancy, due-diligence or feasibility proposal."
+        }
       },
       "document": {
         "metaTitle": "Proposal document",
