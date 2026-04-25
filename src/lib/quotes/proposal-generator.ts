@@ -316,16 +316,36 @@ export function substituteVariables(
 export function cleanupEmptyPhrases(text: string): string {
   if (!text) return text;
   let out = text;
-  // ", located in " followed by punctuation/end-of-line/period.
+  // Composite empty-predicate fragments — order matters: longest/most specific first.
+  // Drop "is located in " when followed by punctuation/EOL (variable was empty).
+  out = out.replace(/\bis\s+located\s+in\s*(?=[.,;:!?\n)]|$)/gi, "");
+  // Drop ", located in " when followed by punctuation/EOL.
   out = out.replace(/,\s*located in\s*(?=[.,;:!?\n)]|$)/gi, "");
-  // "located in " at start/middle followed by punctuation/end.
+  // Drop bare "located in " when followed by punctuation/EOL.
   out = out.replace(/\blocated in\s*(?=[.,;:!?\n)]|$)/gi, "");
-  // " in " immediately followed by punctuation (e.g. "is a residential project in .")
+  // " in " immediately followed by punctuation (e.g. "a residential project in .")
   out = out.replace(/\s+in\s*(?=[.,;:!?\n)])/gi, "");
+  // Orphan copula left dangling after removals: " is ." / " is ," / " is\n"
+  // (e.g. "Speedy Gonzalez is ." after stripping "located in {{project_location}}").
+  out = out.replace(/\s+\bis\s*(?=[.,;:!?])/gi, "");
+  out = out.replace(/\s+\bis\s*$/gim, "");
   // Lines that became just whitespace or punctuation noise.
   out = out
     .split("\n")
-    .map((line) => line.replace(/\s{2,}/g, " ").trimEnd())
+    .map((line) => {
+      const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
+      // Drop lines now reduced to e.g. "**Subject** ." / "Subject ."
+      if (/^[*_\s]*[A-Za-z0-9][^.\n]*\s*\.\s*$/.test(trimmed)) {
+        // Only drop if line looks like a stub: up to ~6 words and no verb beyond "is/was/are".
+        const stripped = trimmed.replace(/[*_]/g, "").trim();
+        if (/^(\S+\s+){0,5}\S+\.$/.test(stripped) && /^[^.!?]*$/.test(stripped.slice(0, -1))) {
+          // Heuristic: keep substantive sentences, drop those ending with no real predicate.
+          // A "real predicate" includes a space + lowercase verb-like token before the period.
+          if (!/\s[a-z]{3,}/.test(stripped.slice(0, -1))) return "";
+        }
+      }
+      return trimmed;
+    })
     .join("\n");
   // Collapse 3+ blank lines into max two.
   out = out.replace(/\n{3,}/g, "\n\n");
