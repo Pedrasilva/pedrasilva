@@ -63,6 +63,17 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     expected_payment_date: "",
   });
 
+  // Stage-milestone generator options (architecture fee proposal defaults).
+  const [milestoneOpts, setMilestoneOpts] = useState({
+    downPaymentEnabled: DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentEnabled,
+    downPaymentPercent: String(DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentPercent),
+    stageStartPercent: String(DEFAULT_STAGE_MILESTONE_OPTIONS.stageStartPercent),
+    stageEndPercent: String(DEFAULT_STAGE_MILESTONE_OPTIONS.stageEndPercent),
+    deductDownPaymentFromStages:
+      DEFAULT_STAGE_MILESTONE_OPTIONS.deductDownPaymentFromStages ?? false,
+    paymentTermsDays: "",
+  });
+
   const stageRequired =
     draft.trigger_type === "stage_start" || draft.trigger_type === "stage_end";
   const dateRequired = draft.trigger_type === "manual_date";
