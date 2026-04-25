@@ -109,6 +109,39 @@ assertEq(
   "Hello Acme",
 );
 
+assertEq(
+  "`{{project_name}} is {{project_location}}.` collapses when location empty",
+  substituteVariables("{{project_name}} is {{project_location}}.", vars).trim(),
+  "",
+);
+
+assertEq(
+  "`{{project_name}} is located in {{project_location}}.` collapses when location empty",
+  substituteVariables(
+    "{{project_name}} is located in {{project_location}}.",
+    vars,
+  ).trim(),
+  "",
+);
+
+assertEq(
+  "bold subject `**{{project_name}}** is located in {{project_location}}.` collapses too",
+  substituteVariables(
+    "**{{project_name}}** is located in {{project_location}}.",
+    vars,
+  ).trim(),
+  "",
+);
+
+assertEq(
+  "longer sentences with real predicates are preserved",
+  substituteVariables(
+    "{{project_name}} is a residential renovation we look forward to.",
+    vars,
+  ),
+  "Lighthouse is a residential renovation we look forward to.",
+);
+
 if (failed > 0) {
   console.error(`\n${failed} check(s) failed.`);
   process.exit(1);
