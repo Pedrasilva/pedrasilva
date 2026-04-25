@@ -1,32 +1,36 @@
 /**
- * Proposal tab — client-facing summary of a quote.
+ * Proposal tab — two layers:
  *
- * Phase F.1 polish:
- * - Light branding header (firm name + issue date) pulled from the singleton
- *   pm_invoice_settings row. No heavy template, no editor.
- * - Friendlier section labels: "Scope of Work", "Project Team",
- *   "Included Services".
- * - Better empty states (human, not system-like).
- * - Print-friendly: each major section sits inside a `.proposal-section`
- *   block so print CSS can keep titles with their content (page-break-inside
- *   rules live in src/styles.css).
+ * 1. **Generated proposal document** (new, primary): if a
+ *    quote_proposal_documents row exists for the quote, show its metadata
+ *    and an ordered, read-only preview of its blocks. If none exists, show
+ *    a CTA to generate one. A "Regenerate draft" button replaces drafts.
  *
- * Still intentionally hides:
- * - Internal cost / margin / profit
- * - Per-allocation hours and rates
- * - Gantt visuals
+ * 2. **Legacy proposal preview** (collapsible, fallback): the original
+ *    auto-rendered client-facing summary based directly on stages /
+ *    allocations / external services. Kept for comparison until the block
+ *    editor is complete.
  *
- * "Print / Export to PDF" still uses the browser's print dialog.
+ * This pass is intentionally read-only: no inline editing, no reorder, no
+ * DOCX/PDF export, no snapshot-on-send.
  */
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format, parseISO, type Locale } from "date-fns";
-import { Printer } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { ChevronDown, FileText, Loader2, Lock, Printer, RefreshCw, Sparkles } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 import { formatEUR } from "@/lib/crm/types";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
@@ -39,6 +43,13 @@ import {
   QUOTE_PAYMENT_TRIGGERS,
   QUOTE_PAYMENT_AMOUNT_TYPES,
 } from "@/lib/quotes/types";
+import {
+  useLatestQuoteProposalDocument,
+  useQuoteProposalDocumentBlocks,
+  type QuoteProposalDocument,
+  type QuoteProposalDocumentBlock,
+} from "@/lib/quotes/use-quote-proposal-document";
+import { useGenerateQuoteProposalDocument } from "@/lib/quotes/use-generate-quote-proposal-document";
 
 interface QuoteProposalTabProps {
   quoteId: string;
@@ -57,11 +68,15 @@ function safeDate(d: string, locale: Locale | undefined): string {
   }
 }
 
-/**
- * Singleton firm-level invoice settings — used here only for branding
- * (firm name). pm_invoice_settings is shared across the app for projects;
- * the row with `project_id IS NULL` represents the studio defaults.
- */
+function safeDateTime(d: string | null, locale: Locale | undefined): string {
+  if (!d) return "—";
+  try {
+    return format(parseISO(d), "d MMM yyyy HH:mm", { locale });
+  } catch {
+    return d;
+  }
+}
+
 function useFirmBranding() {
   return useQuery({
     queryKey: ["pm-invoice-settings-singleton-branding"],
@@ -78,7 +93,264 @@ function useFirmBranding() {
   });
 }
 
-export function QuoteProposalTab({
+// ─────────────────── Generated document section ───────────────────
+
+function statusVariant(
+  status: QuoteProposalDocument["status"],
+): "default" | "secondary" | "outline" | "destructive" {
+  switch (status) {
+    case "draft":
+      return "outline";
+    case "ready":
+      return "secondary";
+    case "sent":
+    case "accepted":
+      return "default";
+    case "archived":
+      return "destructive";
+    default:
+      return "outline";
+  }
+}
+
+function GeneratedBlockCard({ block }: { block: QuoteProposalDocumentBlock }) {
+  const { t } = useTranslation("crm");
+  const isGenerated = block.block_type === "generated_section";
+
+  return (
+    <article
+      className={`rounded-md border p-4 ${
+        block.is_included ? "bg-card" : "bg-muted/30 opacity-60"
+      }`}
+    >
+      <header className="mb-2 flex items-start justify-between gap-2">
+        <h3 className="text-sm font-semibold leading-tight">
+          {block.block_title}
+        </h3>
+        <div className="flex shrink-0 items-center gap-1">
+          {isGenerated && (
+            <Badge variant="secondary" className="gap-1">
+              <Lock className="h-3 w-3" />
+              {t("proposal.document.lockedBadge")}
+            </Badge>
+          )}
+          {!block.is_included && (
+            <Badge variant="outline">
+              {t("proposal.document.excludedBadge")}
+            </Badge>
+          )}
+        </div>
+      </header>
+
+      {isGenerated ? (
+        <div className="rounded border border-dashed border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+          <div className="mb-1 font-medium uppercase tracking-wider text-[10px]">
+            {t("proposal.document.generatedSection")}
+          </div>
+          <p>{t("proposal.document.generatedSectionHint")}</p>
+          {block.generated_content && (
+            <pre className="mt-2 max-h-40 overflow-auto rounded bg-background/60 p-2 font-mono text-[10px] leading-snug">
+              {JSON.stringify(block.generated_content, null, 2)}
+            </pre>
+          )}
+        </div>
+      ) : (
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+          {block.content}
+        </p>
+      )}
+    </article>
+  );
+}
+
+function GeneratedDocumentSection({
+  quoteId,
+  document,
+  isLoadingDocument,
+}: {
+  quoteId: string;
+  document: QuoteProposalDocument | null;
+  isLoadingDocument: boolean;
+}) {
+  const { t } = useTranslation("crm");
+  const locale = useDateLocale();
+  const qc = useQueryClient();
+  const { data: blocks = [], isLoading: isLoadingBlocks } =
+    useQuoteProposalDocumentBlocks(document?.id);
+  const generate = useGenerateQuoteProposalDocument();
+
+  const handleGenerate = async (replaceExistingDraft: boolean) => {
+    if (replaceExistingDraft) {
+      const ok = window.confirm(t("proposal.generator.regenerateWarning"));
+      if (!ok) return;
+    }
+    try {
+      const result = await generate.mutateAsync({
+        quoteId,
+        replaceExistingDraft,
+      });
+      toast.success(t("proposal.generator.success"));
+      if (result.missingSlugs.length > 0) {
+        toast.warning(
+          t("proposal.generator.missingBlocks", {
+            slugs: result.missingSlugs.join(", "),
+          }),
+        );
+      }
+      // Refresh both the latest-document and per-document-blocks queries.
+      qc.invalidateQueries({ queryKey: ["quote-proposal-documents", quoteId] });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`${t("proposal.generator.error")} ${message}`);
+    }
+  };
+
+  if (isLoadingDocument) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          {t("proposal.generator.generating")}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Empty state — no document yet.
+  if (!document) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center gap-3 py-10 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Sparkles className="h-6 w-6" />
+          </div>
+          <div>
+            <h3 className="text-base font-semibold">
+              {t("proposal.generator.title")}
+            </h3>
+            <p className="mt-1 max-w-md text-sm text-muted-foreground">
+              {t("proposal.generator.subtitle")}
+            </p>
+          </div>
+          <Button
+            onClick={() => handleGenerate(true)}
+            disabled={generate.isPending}
+          >
+            {generate.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {t("proposal.generator.generating")}
+              </>
+            ) : (
+              <>
+                <FileText className="h-4 w-4" />
+                {t("proposal.generator.generate")}
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Document exists — show metadata + block preview.
+  return (
+    <Card>
+      <CardContent className="space-y-4 pt-6">
+        {/* Header: title + status + actions */}
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              {t("proposal.document.metaTitle")}
+            </p>
+            <h2 className="text-lg font-semibold leading-tight">
+              {document.title}
+            </h2>
+          </div>
+          {document.status === "draft" && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleGenerate(true)}
+              disabled={generate.isPending}
+            >
+              {generate.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              {t("proposal.generator.regenerate")}
+            </Button>
+          )}
+        </div>
+
+        {/* Metadata grid */}
+        <div className="grid grid-cols-2 gap-3 rounded-md border bg-muted/30 p-3 text-xs sm:grid-cols-4">
+          <div>
+            <div className="text-muted-foreground">
+              {t("proposal.document.status")}
+            </div>
+            <div className="mt-0.5">
+              <Badge variant={statusVariant(document.status)}>
+                {t(`proposal.document.statusLabels.${document.status}`)}
+              </Badge>
+            </div>
+          </div>
+          <div>
+            <div className="text-muted-foreground">
+              {t("proposal.document.revision")}
+            </div>
+            <div className="mt-0.5 font-medium tabular-nums">
+              v{document.revision_number}
+            </div>
+          </div>
+          <div>
+            <div className="text-muted-foreground">
+              {t("proposal.document.generatedAt")}
+            </div>
+            <div className="mt-0.5 font-medium">
+              {safeDateTime(document.generated_at, locale)}
+            </div>
+          </div>
+          <div>
+            <div className="text-muted-foreground">
+              {t("proposal.document.language")}
+            </div>
+            <div className="mt-0.5 font-medium uppercase">{document.language}</div>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Blocks preview */}
+        <section>
+          <h3 className="mb-3 text-sm font-semibold">
+            {t("proposal.document.blocksTitle")}
+          </h3>
+          {isLoadingBlocks ? (
+            <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+            </div>
+          ) : blocks.length === 0 ? (
+            <p className="text-sm italic text-muted-foreground">
+              {t("proposal.document.noBlocks")}
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {blocks.map((b) => (
+                <GeneratedBlockCard key={b.id} block={b} />
+              ))}
+            </div>
+          )}
+        </section>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─────────────────── Legacy auto preview (existing UI) ───────────────────
+
+function LegacyProposalPreview({
   quoteId,
   pricingMultiplier,
   title,
@@ -101,16 +373,15 @@ export function QuoteProposalTab({
     pricingMultiplier,
   });
 
-  // Role-based snapshot for the client-facing proposal: clients care about
-  // *what roles* are on the project (e.g. "Architect: 120h"), not which
-  // individual person fills them. Aggregate hours per role; if no role is
-  // defined for a resource, bucket as "Team Member" so the proposal still
-  // shows commitment without exposing internal staffing decisions.
-  const roleMap = new Map<string, { role: string; hours: number; people: Set<string> }>();
+  const roleMap = new Map<
+    string,
+    { role: string; hours: number; people: Set<string> }
+  >();
   for (const a of allocations) {
     const role = a.resource?.role?.trim() || t("proposal.unspecifiedRole");
     const { hours } = quoteAllocationLine(a);
-    const entry = roleMap.get(role) ?? { role, hours: 0, people: new Set<string>() };
+    const entry =
+      roleMap.get(role) ?? { role, hours: 0, people: new Set<string>() };
     entry.hours += hours;
     if (a.resource?.name) entry.people.add(a.resource.name);
     roleMap.set(role, entry);
@@ -124,6 +395,261 @@ export function QuoteProposalTab({
 
   const issueDate = format(new Date(), "d MMMM yyyy", { locale });
   const firmName = branding?.company_name?.trim() || null;
+
+  return (
+    <div className="print-area">
+      <Card>
+        <div className="proposal-section flex items-start justify-between gap-4 border-b border-border px-6 py-4">
+          <div className="min-w-0">
+            {firmName ? (
+              <p className="text-sm font-semibold tracking-tight">{firmName}</p>
+            ) : null}
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
+              {t("proposal.documentLabel")}
+            </p>
+          </div>
+          <div className="text-right text-xs text-muted-foreground shrink-0">
+            <div>{t("proposal.issueDate")}</div>
+            <div className="text-foreground">{issueDate}</div>
+          </div>
+        </div>
+
+        <CardContent className="space-y-6 pt-6">
+          <section className="proposal-section">
+            <h1 className="text-2xl font-semibold leading-tight">{title}</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {clientName ?? t("proposal.noClient")}
+              {accountName ? ` · ${accountName}` : ""}
+            </p>
+          </section>
+
+          {description ? (
+            <>
+              <Separator />
+              <section className="proposal-section">
+                <h2 className="text-sm font-semibold mb-2">
+                  {t("proposal.descriptionTitle")}
+                </h2>
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                  {description}
+                </p>
+              </section>
+            </>
+          ) : null}
+
+          <Separator />
+
+          <section className="proposal-section">
+            <h2 className="text-sm font-semibold mb-2">
+              {t("proposal.scopeTitle")}
+            </h2>
+            {stages.length === 0 ? (
+              <p className="text-sm text-muted-foreground italic">
+                {t("proposal.noStages")}
+              </p>
+            ) : (
+              <ul className="space-y-1.5">
+                {stages.map((s) => (
+                  <li
+                    key={s.id}
+                    className="proposal-row flex items-center justify-between gap-3 text-sm border-b border-border/50 pb-1.5 last:border-0"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className="inline-block h-2.5 w-2.5 rounded-full shrink-0"
+                        style={{ background: s.color ?? "#22c55e" }}
+                      />
+                      <span className="truncate">{s.name}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                      {safeDate(s.start_date, locale)} → {safeDate(s.end_date, locale)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <Separator />
+
+          <section className="proposal-section">
+            <h2 className="text-sm font-semibold mb-2">
+              {t("proposal.teamTitle")}
+            </h2>
+            {roles.length === 0 ? (
+              <p className="text-sm text-muted-foreground italic">
+                {t("proposal.noTeam")}
+              </p>
+            ) : (
+              <ul className="space-y-1.5">
+                {roles.map((r) => (
+                  <li
+                    key={r.role}
+                    className="proposal-row flex items-center justify-between gap-3 text-sm border-b border-border/50 pb-1.5 last:border-0"
+                  >
+                    <div className="min-w-0">
+                      <div className="font-medium truncate">{r.role}</div>
+                      {r.people.size > 0 && (
+                        <div className="text-xs text-muted-foreground truncate">
+                          {[...r.people].join(", ")}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                      {t("proposal.roleHours", { hours: Math.round(r.hours) })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {external.length > 0 && (
+            <>
+              <Separator />
+              <section className="proposal-section">
+                <h2 className="text-sm font-semibold mb-2">
+                  {t("proposal.includedServicesTitle")}
+                </h2>
+                <ul className="space-y-1.5">
+                  {external.map((e) => {
+                    const lineFee =
+                      Number(e.sale_price) *
+                      Number(e.quantity) *
+                      (pricingMultiplier > 0 ? pricingMultiplier : 1);
+                    return (
+                      <li
+                        key={e.id}
+                        className="proposal-row flex items-center justify-between gap-3 text-sm border-b border-border/50 pb-1.5 last:border-0"
+                      >
+                        <span className="truncate">{e.description}</span>
+                        <span className="tabular-nums text-muted-foreground">
+                          {formatEUR(lineFee)}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            </>
+          )}
+
+          <Separator />
+
+          <section className="proposal-section rounded-md border border-border bg-muted/40 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm font-semibold">
+                {t("proposal.totalFee")}
+              </span>
+              <span className="text-2xl font-semibold tabular-nums">
+                {formatEUR(summary.totalFee)}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t("proposal.totalFeeHint")}
+            </p>
+          </section>
+
+          {schedule.length > 0 && (
+            <section className="proposal-section">
+              <h2 className="text-sm font-semibold mb-2">
+                {t("proposal.paymentScheduleTitle")}
+              </h2>
+              <ul className="space-y-1.5">
+                {schedule.map((p) => (
+                  <li
+                    key={p.id}
+                    className="proposal-row flex items-center justify-between gap-3 text-sm border-b border-border/50 pb-1.5 last:border-0"
+                  >
+                    <div className="min-w-0">
+                      <div className="truncate">{p.label}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {triggerLabel(p.trigger_type)}
+                        {p.expected_invoice_date
+                          ? ` · ${safeDate(p.expected_invoice_date, locale)}`
+                          : ""}
+                      </div>
+                    </div>
+                    <div className="text-xs tabular-nums text-muted-foreground shrink-0">
+                      {p.amount_type === "percent"
+                        ? `${Number(p.amount_value)}%`
+                        : formatEUR(Number(p.amount_value))}
+                      <span className="ml-1 text-muted-foreground">
+                        ({amountTypeLabel(p.amount_type)})
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <Separator />
+
+          <section className="proposal-section proposal-acceptance">
+            <h2 className="text-sm font-semibold mb-1">
+              {t("proposal.acceptanceTitle")}
+            </h2>
+            <p className="text-xs text-muted-foreground mb-4">
+              {t("proposal.acceptanceHint")}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+              <div>
+                <div className="h-10 border-b border-foreground/40" />
+                <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+                  {t("proposal.acceptanceClientName")}
+                </div>
+              </div>
+              <div>
+                <div className="h-10 border-b border-foreground/40" />
+                <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+                  {t("proposal.acceptanceSignature")}
+                </div>
+              </div>
+              <div>
+                <div className="h-10 border-b border-foreground/40" />
+                <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+                  {t("proposal.acceptanceDate")}
+                </div>
+              </div>
+              <div>
+                <div className="h-10 border-b border-foreground/40" />
+                <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+                  {t("proposal.acceptanceOnBehalf")} {clientName ?? accountName ?? ""}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {(branding?.company_email ||
+            branding?.company_phone ||
+            branding?.company_address ||
+            firmName) && (
+            <footer className="proposal-footer proposal-section pt-4 mt-2 border-t border-border text-[11px] text-muted-foreground leading-relaxed">
+              <div className="font-medium text-foreground">
+                {firmName ?? t("proposal.footerContact")}
+              </div>
+              <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                {branding?.company_email ? <span>{branding.company_email}</span> : null}
+                {branding?.company_phone ? <span>· {branding.company_phone}</span> : null}
+                {branding?.company_address ? <span>· {branding.company_address}</span> : null}
+              </div>
+            </footer>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// ─────────────────────────── Top-level tab ───────────────────────────
+
+export function QuoteProposalTab(props: QuoteProposalTabProps) {
+  const { quoteId } = props;
+  const { t } = useTranslation("crm");
+  const { data: document = null, isLoading: isLoadingDocument } =
+    useLatestQuoteProposalDocument(quoteId);
+  const [legacyOpen, setLegacyOpen] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -141,254 +667,36 @@ export function QuoteProposalTab({
         </Button>
       </div>
 
-      <div className="print-area">
-        <Card>
-          {/* ── Branded header ─────────────────────────────────────── */}
-          <div className="proposal-section flex items-start justify-between gap-4 border-b border-border px-6 py-4">
-            <div className="min-w-0">
-              {firmName ? (
-                <p className="text-sm font-semibold tracking-tight">{firmName}</p>
-              ) : null}
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
-                {t("proposal.documentLabel")}
-              </p>
-            </div>
-            <div className="text-right text-xs text-muted-foreground shrink-0">
-              <div>{t("proposal.issueDate")}</div>
-              <div className="text-foreground">{issueDate}</div>
-            </div>
-          </div>
+      <GeneratedDocumentSection
+        quoteId={quoteId}
+        document={document}
+        isLoadingDocument={isLoadingDocument}
+      />
 
-          <CardContent className="space-y-6 pt-6">
-            {/* ── Title block ─────────────────────────────────────── */}
-            <section className="proposal-section">
-              <h1 className="text-2xl font-semibold leading-tight">{title}</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {clientName ?? t("proposal.noClient")}
-                {accountName ? ` · ${accountName}` : ""}
-              </p>
-            </section>
-
-            {description ? (
-              <>
-                <Separator />
-                <section className="proposal-section">
-                  <h2 className="text-sm font-semibold mb-2">
-                    {t("proposal.descriptionTitle")}
-                  </h2>
-                  <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                    {description}
-                  </p>
-                </section>
-              </>
-            ) : null}
-
-            <Separator />
-
-            {/* ── Scope of Work ───────────────────────────────────── */}
-            <section className="proposal-section">
-              <h2 className="text-sm font-semibold mb-2">
-                {t("proposal.scopeTitle")}
-              </h2>
-              {stages.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">
-                  {t("proposal.noStages")}
-                </p>
-              ) : (
-                <ul className="space-y-1.5">
-                  {stages.map((s) => (
-                    <li
-                      key={s.id}
-                      className="proposal-row flex items-center justify-between gap-3 text-sm border-b border-border/50 pb-1.5 last:border-0"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span
-                          className="inline-block h-2.5 w-2.5 rounded-full shrink-0"
-                          style={{ background: s.color ?? "#22c55e" }}
-                        />
-                        <span className="truncate">{s.name}</span>
-                      </div>
-                      <span className="text-xs text-muted-foreground tabular-nums shrink-0">
-                        {safeDate(s.start_date, locale)} → {safeDate(s.end_date, locale)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-
-            <Separator />
-
-            {/* ── Project Team (by role) ──────────────────────────── */}
-            <section className="proposal-section">
-              <h2 className="text-sm font-semibold mb-2">
-                {t("proposal.teamTitle")}
-              </h2>
-              {roles.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">
-                  {t("proposal.noTeam")}
-                </p>
-              ) : (
-                <ul className="space-y-1.5">
-                  {roles.map((r) => (
-                    <li
-                      key={r.role}
-                      className="proposal-row flex items-center justify-between gap-3 text-sm border-b border-border/50 pb-1.5 last:border-0"
-                    >
-                      <div className="min-w-0">
-                        <div className="font-medium truncate">{r.role}</div>
-                        {r.people.size > 0 && (
-                          <div className="text-xs text-muted-foreground truncate">
-                            {[...r.people].join(", ")}
-                          </div>
-                        )}
-                      </div>
-                      <span className="text-xs text-muted-foreground tabular-nums shrink-0">
-                        {t("proposal.roleHours", { hours: Math.round(r.hours) })}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-
-            {external.length > 0 && (
-              <>
-                <Separator />
-                <section className="proposal-section">
-                  <h2 className="text-sm font-semibold mb-2">
-                    {t("proposal.includedServicesTitle")}
-                  </h2>
-                  <ul className="space-y-1.5">
-                    {external.map((e) => {
-                      const lineFee =
-                        Number(e.sale_price) *
-                        Number(e.quantity) *
-                        (pricingMultiplier > 0 ? pricingMultiplier : 1);
-                      return (
-                        <li
-                          key={e.id}
-                          className="proposal-row flex items-center justify-between gap-3 text-sm border-b border-border/50 pb-1.5 last:border-0"
-                        >
-                          <span className="truncate">{e.description}</span>
-                          <span className="tabular-nums text-muted-foreground">
-                            {formatEUR(lineFee)}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
-              </>
-            )}
-
-            <Separator />
-
-            <section className="proposal-section rounded-md border border-border bg-muted/40 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-semibold">
-                  {t("proposal.totalFee")}
-                </span>
-                <span className="text-2xl font-semibold tabular-nums">
-                  {formatEUR(summary.totalFee)}
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t("proposal.totalFeeHint")}
-              </p>
-            </section>
-
-            {schedule.length > 0 && (
-              <section className="proposal-section">
-                <h2 className="text-sm font-semibold mb-2">
-                  {t("proposal.paymentScheduleTitle")}
-                </h2>
-                <ul className="space-y-1.5">
-                  {schedule.map((p) => (
-                    <li
-                      key={p.id}
-                      className="proposal-row flex items-center justify-between gap-3 text-sm border-b border-border/50 pb-1.5 last:border-0"
-                    >
-                      <div className="min-w-0">
-                        <div className="truncate">{p.label}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {triggerLabel(p.trigger_type)}
-                          {p.expected_invoice_date
-                            ? ` · ${safeDate(p.expected_invoice_date, locale)}`
-                            : ""}
-                        </div>
-                      </div>
-                      <div className="text-xs tabular-nums text-muted-foreground shrink-0">
-                        {p.amount_type === "percent"
-                          ? `${Number(p.amount_value)}%`
-                          : formatEUR(Number(p.amount_value))}
-                        <span className="ml-1 text-muted-foreground">
-                          ({amountTypeLabel(p.amount_type)})
-                        </span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            <Separator />
-
-            {/* ── Client acceptance / signature block ────────────────── */}
-            <section className="proposal-section proposal-acceptance">
-              <h2 className="text-sm font-semibold mb-1">
-                {t("proposal.acceptanceTitle")}
-              </h2>
-              <p className="text-xs text-muted-foreground mb-4">
-                {t("proposal.acceptanceHint")}
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
-                <div>
-                  <div className="h-10 border-b border-foreground/40" />
-                  <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-                    {t("proposal.acceptanceClientName")}
-                  </div>
-                </div>
-                <div>
-                  <div className="h-10 border-b border-foreground/40" />
-                  <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-                    {t("proposal.acceptanceSignature")}
-                  </div>
-                </div>
-                <div>
-                  <div className="h-10 border-b border-foreground/40" />
-                  <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-                    {t("proposal.acceptanceDate")}
-                  </div>
-                </div>
-                <div>
-                  <div className="h-10 border-b border-foreground/40" />
-                  <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-                    {t("proposal.acceptanceOnBehalf")} {clientName ?? accountName ?? ""}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* ── Firm contact footer (print-only) ───────────────────── */}
-            {(branding?.company_email ||
-              branding?.company_phone ||
-              branding?.company_address ||
-              firmName) && (
-              <footer className="proposal-footer proposal-section pt-4 mt-2 border-t border-border text-[11px] text-muted-foreground leading-relaxed">
-                <div className="font-medium text-foreground">
-                  {firmName ?? t("proposal.footerContact")}
-                </div>
-                <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-                  {branding?.company_email ? <span>{branding.company_email}</span> : null}
-                  {branding?.company_phone ? <span>· {branding.company_phone}</span> : null}
-                  {branding?.company_address ? <span>· {branding.company_address}</span> : null}
-                </div>
-              </footer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <Collapsible open={legacyOpen} onOpenChange={setLegacyOpen}>
+        <CollapsibleTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-between text-xs text-muted-foreground"
+          >
+            <span>
+              {t("proposal.legacyPreview.title")} ·{" "}
+              <span className="text-muted-foreground/80">
+                {t("proposal.legacyPreview.hint")}
+              </span>
+            </span>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${
+                legacyOpen ? "rotate-180" : ""
+              }`}
+            />
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="mt-3">
+          <LegacyProposalPreview {...props} />
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 }
