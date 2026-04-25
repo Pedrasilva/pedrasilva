@@ -3,6 +3,8 @@
  * them through the PlannerAdapter contract so GanttChart, AllocationEditor,
  * and StageDependencyEditor stay mode-agnostic.
  */
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import {
   useCreateAllocation,
   useUpdateAllocation,
@@ -24,6 +26,7 @@ import {
 } from "@/lib/projects/planner-adapter";
 
 export function useProjectPlannerAdapter(resources: Resource[]): PlannerAdapter {
+  const { t } = useTranslation(["projects"]);
   const updateAlloc = useUpdateAllocation();
   const createAlloc = useCreateAllocation();
   const deleteAlloc = useDeleteAllocation();
@@ -41,7 +44,15 @@ export function useProjectPlannerAdapter(resources: Resource[]): PlannerAdapter 
     dependencies: (deps ?? []) as StageDependency[],
     defaultRates,
     resources,
-    updateStage: (a) => updateStageCascade.mutateAsync(a),
+    updateStage: async (a) => {
+      const res = await updateStageCascade.mutateAsync(a);
+      if (res?.dependentCount > 0) {
+        toast.success(
+          t("projects:gantt.dependency.cascadeToast", { count: res.dependentCount }),
+        );
+      }
+      return res;
+    },
     deleteStage: (a) => deleteStage.mutateAsync(a),
     createAllocation: (a) => createAlloc.mutateAsync(a),
     updateAllocation: (a) => updateAlloc.mutateAsync(a),

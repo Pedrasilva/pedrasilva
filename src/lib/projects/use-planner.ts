@@ -193,7 +193,7 @@ export function useUpdateStageWithCascade() {
       end_date: string;
       projectId: string;
       shiftAllocations?: boolean;
-    }): Promise<{ updatedIds: string[]; shiftedAllocations: number }> => {
+    }): Promise<{ updatedIds: string[]; shiftedAllocations: number; dependentCount: number }> => {
       const [{ data: stages, error: sErr }, { data: deps, error: dErr }] = await Promise.all([
         supabase.from("pm_stages").select("id, start_date, end_date"),
         supabase.from("pm_stage_dependencies").select("*"),
@@ -201,20 +201,13 @@ export function useUpdateStageWithCascade() {
       if (sErr) throw sErr;
       if (dErr) throw dErr;
 
-      // Detect whether the primary stage is being shifted (move) vs resized.
-      // Only on a pure move do we drag allocations along by the same delta.
-      const movedStage = (stages ?? []).find((s) => s.id === id);
-      let allocDeltaDays = 0;
-      if (movedStage && shiftAllocations) {
-        const oldStart = new Date(movedStage.start_date as string).getTime();
-        const oldEnd = new Date(movedStage.end_date as string).getTime();
-        const newStart = new Date(start_date).getTime();
-        const newEnd = new Date(end_date).getTime();
-        const startDelta = Math.round((newStart - oldStart) / 86_400_000);
-        const endDelta = Math.round((newEnd - oldEnd) / 86_400_000);
-        if (startDelta === endDelta && startDelta !== 0) {
-          allocDeltaDays = startDelta;
-        }
+      // Snapshot every stage's pre-update bounds so we can compute per-stage
+      // deltas after the cascade resolves. We need this for BOTH the moved
+      // stage AND every cascaded successor — otherwise their allocations
+      // dangle when stages slide forward in time.
+      const beforeById = new Map<string, { start: string; end: string }>();
+      for (const s of (stages ?? []) as { id: string; start_date: string; end_date: string }[]) {
+        beforeById.set(s.id, { start: s.start_date, end: s.end_date });
       }
 
       const updates = computeCascade(
@@ -233,31 +226,61 @@ export function useUpdateStageWithCascade() {
         if (error) throw error;
       }
 
+      // Shift allocations of EVERY moved stage (the user-edited one plus any
+      // cascaded successors) by that stage's own start delta, so allocation
+      // ranges follow their parent stage. Only pure-shift moves are applied
+      // — if the user-edited stage was resized (start delta ≠ end delta),
+      // we leave its allocations alone (caller handles resize manually) but
+      // still shift cascaded successors (which always preserve duration).
       let shiftedAllocations = 0;
-      if (allocDeltaDays !== 0) {
-        const { data: allocs } = await supabase
-          .from("pm_allocations")
-          .select("id, start_date, end_date")
-          .eq("stage_id", id);
-        const shiftDay = (iso: string): string => {
-          const d = new Date(iso);
-          d.setDate(d.getDate() + allocDeltaDays);
-          return d.toISOString().slice(0, 10);
-        };
-        for (const a of allocs ?? []) {
-          const { error } = await supabase
+      if (shiftAllocations && updates.size > 0) {
+        const stageDeltas = new Map<string, number>();
+        for (const [stageId, bounds] of updates) {
+          const before = beforeById.get(stageId);
+          if (!before) continue;
+          const oldStart = new Date(before.start).getTime();
+          const oldEnd = new Date(before.end).getTime();
+          const newStart = new Date(bounds.start_date).getTime();
+          const newEnd = new Date(bounds.end_date).getTime();
+          const startDelta = Math.round((newStart - oldStart) / 86_400_000);
+          const endDelta = Math.round((newEnd - oldEnd) / 86_400_000);
+          if (startDelta !== 0 && startDelta === endDelta) {
+            stageDeltas.set(stageId, startDelta);
+          }
+        }
+
+        if (stageDeltas.size > 0) {
+          const { data: allocs, error: aErr } = await supabase
             .from("pm_allocations")
-            .update({
-              start_date: shiftDay(a.start_date as string),
-              end_date: shiftDay(a.end_date as string),
-            })
-            .eq("id", a.id);
-          if (error) throw error;
-          shiftedAllocations += 1;
+            .select("id, stage_id, start_date, end_date")
+            .in("stage_id", Array.from(stageDeltas.keys()));
+          if (aErr) throw aErr;
+          const shiftDay = (iso: string, delta: number): string => {
+            const d = new Date(iso);
+            d.setDate(d.getDate() + delta);
+            return d.toISOString().slice(0, 10);
+          };
+          for (const a of (allocs ?? []) as {
+            id: string; stage_id: string; start_date: string; end_date: string;
+          }[]) {
+            const delta = stageDeltas.get(a.stage_id);
+            if (!delta) continue;
+            const { error } = await supabase
+              .from("pm_allocations")
+              .update({
+                start_date: shiftDay(a.start_date, delta),
+                end_date: shiftDay(a.end_date, delta),
+              })
+              .eq("id", a.id);
+            if (error) throw error;
+            shiftedAllocations += 1;
+          }
         }
       }
 
-      return { updatedIds: Array.from(updates.keys()), shiftedAllocations };
+      const updatedIds = Array.from(updates.keys());
+      const dependentCount = updatedIds.filter((sid) => sid !== id).length;
+      return { updatedIds, shiftedAllocations, dependentCount };
     },
     onSuccess: (_d, vars) => {
       qc.invalidateQueries({ queryKey: ["pm-project", vars.projectId] });

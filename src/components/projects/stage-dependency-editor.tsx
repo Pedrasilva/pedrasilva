@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,14 +17,10 @@ interface Props {
   adapter: PlannerAdapter;
 }
 
-const TYPE_LABELS: Record<DepType, string> = {
-  FS: "Fim → Início",
-  SS: "Início → Início",
-  FF: "Fim → Fim",
-  SF: "Início → Fim",
-};
+const DEP_TYPES: DepType[] = ["FS", "SS", "FF", "SF"];
 
 export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
+  const { t } = useTranslation(["projects"]);
   const [open, setOpen] = useState(false);
   const deps = adapter.dependencies;
   const canEdit = !!adapter.updateDependency;
@@ -71,7 +68,7 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
       setNewPredId("");
       setNewLag(0);
       setNewType("FS");
-      toast.success("Ligação criada");
+      toast.success(t("projects:gantt.toasts.linkCreated"));
     } catch (err) {
       toast.error((err as Error).message);
     }
@@ -88,8 +85,8 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
             setOpen((v) => !v);
           }}
           className="rounded p-1 text-foreground/70 opacity-0 transition hover:bg-background/30 hover:text-foreground group-hover:opacity-100"
-          aria-label="Gerir dependências"
-          title="Dependências"
+          aria-label={t("projects:gantt.dependency.addPredecessor")}
+          title={t("projects:gantt.dependency.addPredecessor")}
         >
           <Link2 className="h-3.5 w-3.5" />
         </button>
@@ -97,14 +94,16 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
       <PopoverContent className="w-96" align="start">
         <div className="space-y-3">
           <div className="border-b border-border pb-2">
-            <p className="font-display text-base font-semibold">Dependências de “{stage.name}”</p>
+            <p className="font-display text-base font-semibold">{stage.name}</p>
             <p className="text-[11px] text-muted-foreground">
-              Esta fase é empurrada quando os predecessores se movem.
+              {t("projects:gantt.dependency.lagHint")}
             </p>
           </div>
 
           {incoming.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Sem predecessores ainda.</p>
+            <p className="text-xs text-muted-foreground">
+              {t("projects:gantt.dependency.noDependencies")}
+            </p>
           ) : (
             <ul className="space-y-1.5">
               {incoming.map((d) => {
@@ -115,7 +114,7 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                     className="flex items-center gap-2 rounded-md border border-border bg-muted/40 p-2 text-xs"
                   >
                     <span className="min-w-0 flex-1 truncate font-medium">
-                      {pred?.name ?? "(fase removida)"}
+                      {pred?.name ?? "—"}
                     </span>
                     <Select
                       value={d.type}
@@ -127,13 +126,13 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                           .catch((err) => toast.error((err as Error).message));
                       }}
                     >
-                      <SelectTrigger className="h-7 w-[110px] text-[11px]">
+                      <SelectTrigger className="h-7 w-[140px] text-[11px]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {(Object.keys(TYPE_LABELS) as DepType[]).map((t) => (
-                          <SelectItem key={t} value={t} className="text-xs">
-                            {TYPE_LABELS[t]}
+                        {DEP_TYPES.map((tp) => (
+                          <SelectItem key={tp} value={tp} className="text-xs">
+                            {t(`projects:gantt.dependency.typeDescriptions.${tp}`)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -151,17 +150,16 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                           .catch((err) => toast.error((err as Error).message));
                       }}
                       className="h-7 w-16 text-xs"
-                      title="Lag (dias úteis)"
+                      title={t("projects:gantt.dependency.lagWorkingDays")}
                     />
                     <button
                       onClick={() =>
                         adapter
                           .deleteDependency(d.id)
-                          .then(() => toast.success("Ligação removida"))
                           .catch((err) => toast.error((err as Error).message))
                       }
                       className="rounded p-1 text-muted-foreground transition hover:bg-accent hover:text-destructive"
-                      aria-label="Remover"
+                      aria-label="Remove"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -174,11 +172,11 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
           {eligible.length > 0 && (
             <div className="space-y-2 rounded-md border border-dashed border-border p-2">
               <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Adicionar predecessor
+                {t("projects:gantt.dependency.addPredecessor")}
               </Label>
               <Select value={newPredId} onValueChange={setNewPredId}>
                 <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Escolher fase…" />
+                  <SelectValue placeholder="…" />
                 </SelectTrigger>
                 <SelectContent>
                   {eligible.map((s) => (
@@ -194,9 +192,9 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {(Object.keys(TYPE_LABELS) as DepType[]).map((t) => (
-                      <SelectItem key={t} value={t} className="text-xs">
-                        {TYPE_LABELS[t]}
+                    {DEP_TYPES.map((tp) => (
+                      <SelectItem key={tp} value={tp} className="text-xs">
+                        {t(`projects:gantt.dependency.typeDescriptions.${tp}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -206,14 +204,16 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                   value={newLag}
                   onChange={(e) => setNewLag(Number(e.target.value) || 0)}
                   className="h-8 w-20 text-xs"
-                  title="Lag (dias úteis)"
+                  title={t("projects:gantt.dependency.lagWorkingDays")}
                   placeholder="Lag"
                 />
                 <Button size="sm" onClick={add} disabled={!newPredId || adapter.pending.dependency}>
                   <Plus className="mr-1 h-3.5 w-3.5" />
-                  Adicionar
                 </Button>
               </div>
+              <p className="text-[10px] text-muted-foreground">
+                {t("projects:gantt.dependency.lagHint")}
+              </p>
             </div>
           )}
         </div>

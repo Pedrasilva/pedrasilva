@@ -61,6 +61,7 @@ interface LinkDragState {
   fromSide: "start" | "end";
   pointerX: number;
   pointerY: number;
+  toSide: "start" | "end" | null;
 }
 
 export function GanttChart({ stages, origin, totalDays, dayWidth, resources, adapter }: Props) {
@@ -201,15 +202,20 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
       if (rect) {
         const px = e.clientX - rect.left;
         const py = e.clientY - rect.top;
-        setLink({ ...link, pointerX: px, pointerY: py });
         let hit: string | null = null;
+        let toSide: "start" | "end" | null = null;
         for (const [sid, geo] of stageLayouts.entries()) {
           if (sid === link.fromStageId) continue;
           if (px >= geo.x && px <= geo.x + geo.w && py >= geo.top && py <= geo.top + STAGE_ROW_H) {
             hit = sid;
+            // Classify which half of the bar the pointer is over.
+            // Left third = start, right third = end, middle = nearest side.
+            const rel = (px - geo.x) / geo.w;
+            toSide = rel < 0.5 ? "start" : "end";
             break;
           }
         }
+        setLink({ ...link, pointerX: px, pointerY: py, toSide });
         setLinkHoverStage(hit);
       }
     }
@@ -247,17 +253,37 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
     e.preventDefault();
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
-    setLink({ fromStageId, fromSide, pointerX: e.clientX - rect.left, pointerY: e.clientY - rect.top });
+    setLink({
+      fromStageId,
+      fromSide,
+      pointerX: e.clientX - rect.left,
+      pointerY: e.clientY - rect.top,
+      toSide: null,
+    });
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
+  // FS/SS/FF/SF inference from the drag handles:
+  //   from end  → to start = FS  | to end = FF
+  //   from start → to start = SS | to end = SF
+  function inferDepType(
+    fromSide: "start" | "end",
+    toSide: "start" | "end",
+  ): "FS" | "SS" | "FF" | "SF" {
+    if (fromSide === "end" && toSide === "start") return "FS";
+    if (fromSide === "end" && toSide === "end") return "FF";
+    if (fromSide === "start" && toSide === "start") return "SS";
+    return "SF";
   }
 
   function commitLinkDrag() {
     if (!link) return;
     const target = linkHoverStage;
+    const toSide = link.toSide;
     setLink(null);
     setLinkHoverStage(null);
-    if (!target || target === link.fromStageId) return;
-    const type = link.fromSide === "end" ? "FS" : "SS";
+    if (!target || target === link.fromStageId || !toSide) return;
+    const type = inferDepType(link.fromSide, toSide);
     adapter
       .createDependency({ predecessor_id: link.fromStageId, successor_id: target, type, lag_days: 0 })
       .then(() => toast.success(t("gantt.toasts.linkCreated")))
@@ -840,8 +866,17 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
           style={{ overflow: "visible" }}
         >
           <defs>
-            <marker id="dep-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <marker id="dep-arrow-FS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-primary)" />
+            </marker>
+            <marker id="dep-arrow-SS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-accent-foreground)" />
+            </marker>
+            <marker id="dep-arrow-FF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-muted-foreground)" />
+            </marker>
+            <marker id="dep-arrow-SF" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-destructive)" />
             </marker>
           </defs>
           {visibleDeps.map((d) => {
@@ -853,8 +888,57 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
             const toY = s.top + STAGE_ROW_H / 2;
             const dx = toX > fromX ? 10 : -10;
             const path = `M ${fromX} ${fromY} L ${fromX + dx} ${fromY} L ${fromX + dx} ${toY} L ${toX} ${toY}`;
+            const strokeColor =
+              d.type === "FS"
+                ? "var(--color-primary)"
+                : d.type === "SS"
+                ? "var(--color-accent-foreground)"
+                : d.type === "FF"
+                ? "var(--color-muted-foreground)"
+                : "var(--color-destructive)";
+            // Label at the elbow midpoint along the vertical segment.
+            const labelX = fromX + dx;
+            const labelY = (fromY + toY) / 2;
+            const lagText =
+              d.lag_days === 0
+                ? ""
+                : ` ${d.lag_days > 0 ? "+" : "−"}${Math.abs(d.lag_days)}d`;
+            const label = `${d.type}${lagText}`;
+            const labelWidth = 14 + label.length * 6;
             return (
-              <path key={d.id} d={path} fill="none" stroke="var(--color-primary)" strokeWidth={1.5} strokeOpacity={0.7} markerEnd="url(#dep-arrow)" />
+              <g key={d.id}>
+                <path
+                  d={path}
+                  fill="none"
+                  stroke={strokeColor}
+                  strokeWidth={1.5}
+                  strokeOpacity={0.75}
+                  markerEnd={`url(#dep-arrow-${d.type})`}
+                />
+                <g transform={`translate(${labelX - labelWidth / 2}, ${labelY - 8})`}>
+                  <rect
+                    width={labelWidth}
+                    height={16}
+                    rx={3}
+                    ry={3}
+                    fill="var(--color-background)"
+                    stroke={strokeColor}
+                    strokeOpacity={0.5}
+                    strokeWidth={1}
+                  />
+                  <text
+                    x={labelWidth / 2}
+                    y={11}
+                    textAnchor="middle"
+                    fontSize={10}
+                    fontFamily="ui-sans-serif, system-ui, sans-serif"
+                    fill={strokeColor}
+                    style={{ fontWeight: 600 }}
+                  >
+                    {label}
+                  </text>
+                </g>
+              </g>
             );
           })}
           {link && (() => {
@@ -862,8 +946,45 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
             if (!p) return null;
             const fromX = link.fromSide === "end" ? p.x + p.w : p.x;
             const fromY = p.top + STAGE_ROW_H / 2;
+            const previewType =
+              linkHoverStage && link.toSide
+                ? inferDepType(link.fromSide, link.toSide)
+                : null;
             return (
-              <line x1={fromX} y1={fromY} x2={link.pointerX} y2={link.pointerY} stroke="var(--color-primary)" strokeWidth={1.5} strokeDasharray="4 3" />
+              <g>
+                <line
+                  x1={fromX}
+                  y1={fromY}
+                  x2={link.pointerX}
+                  y2={link.pointerY}
+                  stroke="var(--color-primary)"
+                  strokeWidth={1.5}
+                  strokeDasharray="4 3"
+                />
+                {previewType && (
+                  <g transform={`translate(${link.pointerX + 12}, ${link.pointerY + 12})`}>
+                    <rect
+                      width={170}
+                      height={18}
+                      rx={3}
+                      ry={3}
+                      fill="var(--color-background)"
+                      stroke="var(--color-primary)"
+                      strokeOpacity={0.6}
+                    />
+                    <text
+                      x={8}
+                      y={12}
+                      fontSize={10}
+                      fontFamily="ui-sans-serif, system-ui, sans-serif"
+                      fill="var(--color-foreground)"
+                      style={{ fontWeight: 500 }}
+                    >
+                      {t("gantt.dependency.linkHint", { type: previewType })}
+                    </text>
+                  </g>
+                )}
+              </g>
             );
           })()}
         </svg>

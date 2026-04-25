@@ -6,6 +6,8 @@
  * for fee proposals.
  */
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
   useQuoteDependencies,
@@ -33,6 +35,7 @@ export function useQuotePlannerAdapter(
   quoteId: string,
   resources: Resource[],
 ): PlannerAdapter {
+  const { t } = useTranslation(["projects"]);
   const qc = useQueryClient();
   const depsQ = useQuoteDependencies(quoteId);
   const upsertStage = useUpsertQuoteStage(quoteId);
@@ -106,12 +109,19 @@ export function useQuotePlannerAdapter(
     defaultRates: undefined,
     resources,
 
-    updateStage: (a) =>
-      updateStageCascade.mutateAsync({
+    updateStage: async (a) => {
+      const res = await updateStageCascade.mutateAsync({
         id: a.id,
         start_date: a.start_date,
         end_date: a.end_date,
-      }),
+      });
+      if (res?.dependentCount > 0) {
+        toast.success(
+          t("projects:gantt.dependency.cascadeToast", { count: res.dependentCount }),
+        );
+      }
+      return res;
+    },
     deleteStage: (a) => deleteStage.mutateAsync(a.id),
 
     createAllocation: (a) => {
