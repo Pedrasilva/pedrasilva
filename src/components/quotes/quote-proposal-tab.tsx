@@ -1152,8 +1152,14 @@ function GeneratedDocumentSection({
             </p>
           ) : (
             <div className="space-y-3">
-              {blocks.map((b) => (
-                <GeneratedBlockCard key={b.id} block={b} />
+              {blocks.map((b, i) => (
+                <GeneratedBlockCard
+                  key={b.id}
+                  block={b}
+                  blocks={blocks}
+                  index={i}
+                  documentId={document.id}
+                />
               ))}
             </div>
           )}
