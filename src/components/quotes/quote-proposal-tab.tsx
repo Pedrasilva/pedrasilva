@@ -357,24 +357,22 @@ function GeneratedSectionRenderer({
       const proposal = asStr(a.proposal_title);
       const fee = asNum(a.total_fee);
       return (
-        <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
-          {client && (
-            <div>
-              <dt className="text-xs text-muted-foreground">{tr("acceptanceClient")}</dt>
-              <dd className="font-medium">{client}</dd>
-            </div>
-          )}
-          {proposal && (
-            <div>
-              <dt className="text-xs text-muted-foreground">{tr("acceptanceProposal")}</dt>
-              <dd className="font-medium">{proposal}</dd>
-            </div>
-          )}
-          <div>
-            <dt className="text-xs text-muted-foreground">{tr("acceptanceFee")}</dt>
-            <dd className="font-medium tabular-nums">{formatCurrency(fee)}</dd>
-          </div>
-        </dl>
+        <table className="proposal-print-table w-full text-sm">
+          <thead>
+            <tr>
+              {client && <th>{tr("acceptanceClient")}</th>}
+              {proposal && <th>{tr("acceptanceProposal")}</th>}
+              <th>{tr("acceptanceFee")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              {client && <td className="font-medium">{client}</td>}
+              {proposal && <td className="font-medium">{proposal}</td>}
+              <td className="font-semibold tabular-nums">{formatCurrency(fee)}</td>
+            </tr>
+          </tbody>
+        </table>
       );
     }
 
