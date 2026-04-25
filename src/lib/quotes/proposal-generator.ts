@@ -366,6 +366,7 @@ export function cleanupEmptyPhrases(text: string): string {
     .join("\n");
   // Collapse 3+ blank lines into max two.
   out = out.replace(/\n{3,}/g, "\n\n");
+  out = out.replace(/^\n+|\n+$/g, "");
   // Tidy double spaces inside a line.
   out = out.replace(/[ \t]{2,}/g, " ");
   return out;
