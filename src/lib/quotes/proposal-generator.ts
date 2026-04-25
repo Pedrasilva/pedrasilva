@@ -382,8 +382,21 @@ function buildComputed(
 function pickSlugs(input: GenerateInput): string[] {
   if (input.slugs && input.slugs.length > 0) return input.slugs;
   const exclude = new Set(input.excludeSlugs ?? []);
-  return DEFAULT_PROPOSAL_BLOCK_SLUGS.filter((s) => !exclude.has(s));
+  const base =
+    input.proposalKind === "phased_consultancy"
+      ? DEFAULT_CONSULTANCY_BLOCK_SLUGS
+      : DEFAULT_PROPOSAL_BLOCK_SLUGS;
+  return base.filter((s) => !exclude.has(s));
 }
+
+const DEFAULT_CONSULTANCY_PHASES: ReadonlyArray<{
+  label: string;
+  estimated_hours: number | null;
+}> = [
+  { label: "Phase 1 — Preliminary Feasibility", estimated_hours: null },
+  { label: "Phase 2 — Detailed Feasibility & Concept Alignment", estimated_hours: null },
+  { label: "Phase 3 — Planning Confirmation (PIP)", estimated_hours: null },
+];
 
 // ───────────────────────── Main generator ─────────────────────────
 
