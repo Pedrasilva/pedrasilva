@@ -423,6 +423,30 @@
           "fixedProjectHint": "Stage / timeline / fee proposal.",
           "phasedConsultancy": "Phased Consultancy",
           "phasedConsultancyHint": "Hourly consultancy, due-diligence or feasibility proposal."
+        },
+        "consultancy": {
+          "sectionTitle": "Consultancy commercial settings",
+          "sectionHint": "Define the rate, hours block and minimum commitment. Leave blank to keep them open.",
+          "hourlyRate": "Hourly rate (€ / h)",
+          "hoursBlock": "Initial hours block",
+          "minimumCommitment": "Minimum commitment (hours)",
+          "blockValue": "Block value",
+          "minimumFee": "Minimum fee",
+          "phasesTitle": "Estimated hours per phase (optional)",
+          "phase1Label": "Phase 1 — Preliminary Feasibility",
+          "phase2Label": "Phase 2 — Detailed Feasibility & Concept Alignment",
+          "phase3Label": "Phase 3 — Planning Confirmation (PIP)",
+          "hoursPlaceholder": "h",
+          "validationError": "Please fix the consultancy settings before generating.",
+          "errors": {
+            "hourlyRateInvalid": "Hourly rate must be greater than 0.",
+            "hoursBlockInvalid": "Hours block must be greater than 0.",
+            "minCommitmentInvalid": "Minimum commitment must be greater than 0.",
+            "minCommitmentExceedsBlock": "Minimum commitment cannot exceed the hours block.",
+            "phase1Invalid": "Phase 1 estimated hours must be a positive number.",
+            "phase2Invalid": "Phase 2 estimated hours must be a positive number.",
+            "phase3Invalid": "Phase 3 estimated hours must be a positive number."
+          }
         }
       },
       "document": {
