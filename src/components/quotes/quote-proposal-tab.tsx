@@ -1582,9 +1582,7 @@ function ProposalPrintDocument({
                     locale={locale}
                   />
                 ) : (
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {b.content}
-                  </p>
+                  <ProseBlock text={b.content ?? ""} />
                 )}
               </section>
             );
