@@ -251,11 +251,14 @@ function buildVariables(
   currency: string,
   language: string,
   validityDays: number,
+  consultancy?: ConsultancyConfig,
 ): Record<string, string> {
   const clientName = ctx.company?.nome?.trim() || "";
   const contactName = ctx.contact
     ? `${ctx.contact.primeiro_nome} ${ctx.contact.apelido ?? ""}`.trim()
     : "";
+  const fmtNum = (v: number | null | undefined) =>
+    v === null || v === undefined ? "" : String(v);
   return {
     client_name: clientName || contactName || "Client",
     project_name: ctx.quote.titulo || "",
@@ -268,6 +271,11 @@ function buildVariables(
     validity_days: String(validityDays),
     payment_terms_days: String(ctx.invoiceSettings?.payment_terms_days ?? 30),
     currency,
+    project_type: "",
+    property_type: "",
+    hourly_rate: fmtNum(consultancy?.hourly_rate),
+    hours_block: fmtNum(consultancy?.hours_block),
+    minimum_commitment_hours: fmtNum(consultancy?.minimum_commitment_hours),
   };
 }
 
