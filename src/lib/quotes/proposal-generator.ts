@@ -69,6 +69,10 @@ export interface QuoteContext {
 }
 
 export interface GeneratedSnapshot {
+  /** Which block-set was used to generate this document. Persisted so that
+   *  "Regenerate draft" can preserve the user's original choice without
+   *  requiring a schema column. */
+  proposal_kind?: ProposalKind;
   /** Resolved variable map applied to all editable_text blocks. */
   variables: Record<string, string>;
   /** Computed quote view used by generated_section blocks. */
@@ -522,7 +526,11 @@ export function generateProposalDocument(input: GenerateInput): GenerateOutput {
     language,
     status: "draft",
     revision_number: input.revisionNumber ?? 1,
-    snapshot_json: { variables, computed },
+    snapshot_json: {
+      proposal_kind: input.proposalKind ?? "fixed_project",
+      variables,
+      computed,
+    },
     generated_at: new Date().toISOString(),
   };
 

@@ -15,6 +15,9 @@
  * DOCX/PDF export, no snapshot-on-send.
  */
 import { useState } from "react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import type { ProposalKind } from "@/lib/quotes/proposal-generator";
 import { useTranslation } from "react-i18next";
 import { format, parseISO, type Locale } from "date-fns";
 import { ChevronDown, FileText, Loader2, Lock, Printer, RefreshCw, Sparkles } from "lucide-react";
@@ -546,15 +549,34 @@ function GeneratedDocumentSection({
     useQuoteProposalDocumentBlocks(document?.id);
   const generate = useGenerateQuoteProposalDocument();
 
+  // Read prior choice from snapshot when regenerating; otherwise default.
+  const persistedKind =
+    (document?.snapshot_json as { proposal_kind?: ProposalKind } | null)
+      ?.proposal_kind ?? "fixed_project";
+  const [proposalKind, setProposalKind] = useState<ProposalKind>(persistedKind);
+
   const handleGenerate = async (replaceExistingDraft: boolean) => {
     if (replaceExistingDraft && document) {
       const ok = window.confirm(t("workspace.proposal.generator.regenerateWarning"));
       if (!ok) return;
     }
+    // Use whichever kind is currently selected (or the persisted one when
+    // regenerating without the selector visible).
+    const kind: ProposalKind = document ? persistedKind : proposalKind;
     try {
       const result = await generate.mutateAsync({
         quoteId,
         replaceExistingDraft,
+        proposalKind: kind,
+        consultancy:
+          kind === "phased_consultancy"
+            ? {
+                hourly_rate: null,
+                hours_block: null,
+                minimum_commitment_hours: null,
+                phases: undefined,
+              }
+            : undefined,
       });
       toast.success(t("workspace.proposal.generator.success"));
       if (result.missingSlugs.length > 0) {
@@ -603,6 +625,44 @@ function GeneratedDocumentSection({
               {t("workspace.proposal.generator.subtitle")}
             </p>
           </div>
+          <RadioGroup
+            value={proposalKind}
+            onValueChange={(v) => setProposalKind(v as ProposalKind)}
+            className="grid w-full max-w-md gap-2 text-left"
+          >
+            <Label
+              htmlFor="kind-fixed"
+              className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
+            >
+              <RadioGroupItem id="kind-fixed" value="fixed_project" className="mt-0.5" />
+              <div className="space-y-0.5">
+                <div className="text-sm font-medium">
+                  {t("workspace.proposal.generator.kind.fixedProject")}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t("workspace.proposal.generator.kind.fixedProjectHint")}
+                </div>
+              </div>
+            </Label>
+            <Label
+              htmlFor="kind-consultancy"
+              className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
+            >
+              <RadioGroupItem
+                id="kind-consultancy"
+                value="phased_consultancy"
+                className="mt-0.5"
+              />
+              <div className="space-y-0.5">
+                <div className="text-sm font-medium">
+                  {t("workspace.proposal.generator.kind.phasedConsultancy")}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t("workspace.proposal.generator.kind.phasedConsultancyHint")}
+                </div>
+              </div>
+            </Label>
+          </RadioGroup>
           <Button
             onClick={() => handleGenerate(true)}
             disabled={generate.isPending}

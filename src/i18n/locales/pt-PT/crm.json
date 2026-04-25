@@ -417,7 +417,13 @@
         "error": "Falha ao gerar o documento de proposta.",
         "emptyLibrary": "Não foi encontrada uma biblioteca de blocos de proposta. Faça o seed dos blocos primeiro.",
         "missingBlocks": "Alguns blocos da biblioteca não foram encontrados e foram ignorados: {{slugs}}",
-        "replaceConfirm": "Substituir o rascunho existente?"
+        "replaceConfirm": "Substituir o rascunho existente?",
+        "kind": {
+          "fixedProject": "Projeto a Preço Fixo",
+          "fixedProjectHint": "Proposta com fases, cronograma e honorários.",
+          "phasedConsultancy": "Consultoria por Fases",
+          "phasedConsultancyHint": "Proposta de consultoria à hora, due diligence ou estudo de viabilidade."
+        }
       },
       "document": {
         "metaTitle": "Documento de proposta",
