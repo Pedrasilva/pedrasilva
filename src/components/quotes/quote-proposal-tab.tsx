@@ -255,7 +255,7 @@ function GeneratedSectionRenderer({
       }
       return (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="proposal-print-table w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
                 <th className="py-1.5 pr-2 font-medium">{tr("scheduleLabel")}</th>
