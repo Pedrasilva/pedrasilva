@@ -500,6 +500,7 @@
   .print-area .proposal-print-document table tbody td {
     padding: 4pt 6pt;
     color: black !important;
+  }
   /* Stronger borders on tables explicitly tagged proposal-print-table —
      guarantees client-facing tables (payment schedule etc.) survive print. */
   .print-area .proposal-print-document .proposal-print-table {
@@ -527,6 +528,7 @@
   .print-area .proposal-print-document .proposal-print-table tbody tr:last-child {
     border-bottom: 0 !important;
   }
+  /* Right-align any cell flagged with text-right (used by amount columns). */
   .print-area .proposal-print-document .text-right {
     text-align: right;
   }
