@@ -180,7 +180,7 @@ function GeneratedDocumentSection({
   const generate = useGenerateQuoteProposalDocument();
 
   const handleGenerate = async (replaceExistingDraft: boolean) => {
-    if (replaceExistingDraft) {
+    if (replaceExistingDraft && document) {
       const ok = window.confirm(t("workspace.proposal.generator.regenerateWarning"));
       if (!ok) return;
     }
@@ -201,7 +201,11 @@ function GeneratedDocumentSection({
       qc.invalidateQueries({ queryKey: ["quote-proposal-documents", quoteId] });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      toast.error(`${t("workspace.proposal.generator.error")} ${message}`);
+      if (message === "no_blocks") {
+        toast.error(t("workspace.proposal.generator.emptyLibrary"));
+      } else {
+        toast.error(`${t("workspace.proposal.generator.error")} ${message}`);
+      }
     }
   };
 
