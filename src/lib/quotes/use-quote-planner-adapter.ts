@@ -35,6 +35,7 @@ export function useQuotePlannerAdapter(
   quoteId: string,
   resources: Resource[],
 ): PlannerAdapter {
+  const { t } = useTranslation(["projects"]);
   const qc = useQueryClient();
   const depsQ = useQuoteDependencies(quoteId);
   const upsertStage = useUpsertQuoteStage(quoteId);
