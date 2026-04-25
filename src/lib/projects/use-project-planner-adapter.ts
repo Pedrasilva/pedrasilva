@@ -3,6 +3,8 @@
  * them through the PlannerAdapter contract so GanttChart, AllocationEditor,
  * and StageDependencyEditor stay mode-agnostic.
  */
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import {
   useCreateAllocation,
   useUpdateAllocation,
