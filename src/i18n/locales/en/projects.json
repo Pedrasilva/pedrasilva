@@ -391,6 +391,28 @@
       "linkCreated": "Dependency created",
       "allocationMoved": "Allocation moved",
       "resourceAllocated": "Resource allocated"
+    },
+    "dependency": {
+      "types": {
+        "FS": "FS",
+        "SS": "SS",
+        "FF": "FF",
+        "SF": "SF"
+      },
+      "typeDescriptions": {
+        "FS": "Finish → Start",
+        "SS": "Start → Start",
+        "FF": "Finish → Finish",
+        "SF": "Start → Finish"
+      },
+      "lagWorkingDays": "Lag (working days)",
+      "lagHint": "Negative values create lead time — the successor can start before the predecessor finishes.",
+      "linkHint": "Release to create {{type}} dependency",
+      "cascadeToast_one": "Updated {{count}} dependent stage",
+      "cascadeToast_other": "Updated {{count}} dependent stages",
+      "addPredecessor": "Add predecessor",
+      "noDependencies": "No incoming dependencies",
+      "labelDays": "{{sign}}{{abs}}d"
     }
   },
   "kpi": {
