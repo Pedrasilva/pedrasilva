@@ -116,10 +116,33 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   };
 
   const runGenerator = async (kind: GeneratorKind) => {
-    let generated: ReturnType<typeof generateStageMilestones> = [];
-    if (kind === "milestones") generated = generateStageMilestones(stages);
-    else if (kind === "thirds") generated = generateThirds(stages);
-    else if (kind === "monthly") generated = generateMonthly(stages);
+    let generated: GeneratorItem[] = [];
+    if (kind === "milestones") {
+      const dp = Number(milestoneOpts.downPaymentPercent) || 0;
+      const startPct = Number(milestoneOpts.stageStartPercent) || 0;
+      const endPct = Number(milestoneOpts.stageEndPercent) || 0;
+      if (dp < 0) {
+        toast.error(t("workspace.payment.errorDownPayment"));
+        return;
+      }
+      if (Math.round((startPct + endPct) * 100) / 100 !== 100) {
+        toast.error(t("workspace.payment.errorStageSplit"));
+        return;
+      }
+      const terms = Number(milestoneOpts.paymentTermsDays);
+      generated = generateStageMilestones(stages, {
+        downPaymentEnabled: milestoneOpts.downPaymentEnabled,
+        downPaymentPercent: dp,
+        stageStartPercent: startPct,
+        stageEndPercent: endPct,
+        deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
+        paymentTermsDays: Number.isFinite(terms) && terms > 0 ? terms : null,
+      });
+    } else if (kind === "thirds") {
+      generated = generateThirds(stages);
+    } else if (kind === "monthly") {
+      generated = generateMonthly(stages);
+    }
 
     if (generated.length === 0) {
       toast.error(t("workspace.payment.generatorEmpty"));
