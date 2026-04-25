@@ -20,6 +20,8 @@ import {
   type MasterBlock,
   type MasterCategory,
   type QuoteContext,
+  type ProposalKind,
+  type ConsultancyConfig,
 } from "./proposal-generator";
 
 export interface GenerateProposalArgs {
@@ -30,6 +32,10 @@ export interface GenerateProposalArgs {
   currency?: string;
   validityDays?: number;
   replaceExistingDraft?: boolean;
+  /** Which block-set to use when no explicit slugs are provided. */
+  proposalKind?: ProposalKind;
+  /** Optional consultancy-specific config (used by phased_consultancy generated blocks). */
+  consultancy?: ConsultancyConfig;
 }
 
 export interface GenerateProposalResult {
