@@ -253,17 +253,37 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
     e.preventDefault();
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
-    setLink({ fromStageId, fromSide, pointerX: e.clientX - rect.left, pointerY: e.clientY - rect.top });
+    setLink({
+      fromStageId,
+      fromSide,
+      pointerX: e.clientX - rect.left,
+      pointerY: e.clientY - rect.top,
+      toSide: null,
+    });
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
+  // FS/SS/FF/SF inference from the drag handles:
+  //   from end  → to start = FS  | to end = FF
+  //   from start → to start = SS | to end = SF
+  function inferDepType(
+    fromSide: "start" | "end",
+    toSide: "start" | "end",
+  ): "FS" | "SS" | "FF" | "SF" {
+    if (fromSide === "end" && toSide === "start") return "FS";
+    if (fromSide === "end" && toSide === "end") return "FF";
+    if (fromSide === "start" && toSide === "start") return "SS";
+    return "SF";
   }
 
   function commitLinkDrag() {
     if (!link) return;
     const target = linkHoverStage;
+    const toSide = link.toSide;
     setLink(null);
     setLinkHoverStage(null);
-    if (!target || target === link.fromStageId) return;
-    const type = link.fromSide === "end" ? "FS" : "SS";
+    if (!target || target === link.fromStageId || !toSide) return;
+    const type = inferDepType(link.fromSide, toSide);
     adapter
       .createDependency({ predecessor_id: link.fromStageId, successor_id: target, type, lag_days: 0 })
       .then(() => toast.success(t("gantt.toasts.linkCreated")))
