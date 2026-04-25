@@ -526,7 +526,11 @@ export function generateProposalDocument(input: GenerateInput): GenerateOutput {
     language,
     status: "draft",
     revision_number: input.revisionNumber ?? 1,
-    snapshot_json: { variables, computed },
+    snapshot_json: {
+      proposal_kind: input.proposalKind ?? "fixed_project",
+      variables,
+      computed,
+    },
     generated_at: new Date().toISOString(),
   };
 
