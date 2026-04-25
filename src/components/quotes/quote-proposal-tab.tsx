@@ -1497,19 +1497,20 @@ function sanitizeProseForDisplay(text: string): string {
   out = out.replace(/\s+\bis\s*$/gim, "");
   // Tidy " ." → "." after removals.
   out = out.replace(/\s+([.,;:!?])/g, "$1");
-  // Drop bare-subject stub lines left behind ("**Subject**.") — require
-  // markdown emphasis so legitimate short sentences are preserved.
+  // Drop bare-subject stub lines: with emphasis allow up to 4 words,
+  // without emphasis only single-word stubs are dropped so legitimate
+  // short sentences are preserved.
   out = out
     .split("\n")
     .map((line) => {
       const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
       if (/^[\s.,;:]*$/.test(trimmed)) return "";
-      if (/[*_]/.test(trimmed)) {
-        const bare = trimmed.replace(/[*_]/g, "").trim();
-        if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
-          const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
-          if (wordCount <= 4) return "";
-        }
+      const hasEmphasis = /[*_]/.test(trimmed);
+      const bare = trimmed.replace(/[*_]/g, "").trim();
+      if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
+        const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
+        const limit = hasEmphasis ? 4 : 1;
+        if (wordCount <= limit) return "";
       }
       return trimmed;
     })
