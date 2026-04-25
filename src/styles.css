@@ -357,3 +357,62 @@
     display: block;
   }
 }
+
+/* ── Proposal Print Document ──────────────────────────────────────────
+   Clean, client-facing rendering of generated proposal documents. The
+   `.proposal-print-document` container is rendered both on screen (when
+   the user toggles into Preview mode) and during print. Print rules
+   below strip every editor affordance and produce a single flowing
+   document with sensible page-break behaviour. */
+
+.proposal-print-document {
+  background: var(--color-background);
+  color: var(--color-foreground);
+}
+
+@media print {
+  .print-area .proposal-print-document {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .print-area .proposal-print-block {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 1.25rem;
+  }
+  .print-area .proposal-avoid-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .print-area .proposal-page-break-before {
+    page-break-before: always;
+    break-before: page;
+  }
+  .print-area .proposal-print-heading {
+    page-break-after: avoid;
+    break-after: avoid-page;
+    orphans: 3;
+    widows: 3;
+  }
+  .print-area .proposal-print-table {
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+  .print-area .proposal-print-table tr,
+  .print-area .proposal-print-table tbody,
+  .print-area .proposal-print-table thead {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .print-area .proposal-print-document button,
+  .print-area .proposal-print-document [role="switch"],
+  .print-area .proposal-print-document [role="tab"],
+  .print-area .proposal-print-document [data-slot="badge"] {
+    display: none !important;
+  }
+}
