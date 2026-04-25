@@ -354,10 +354,12 @@ export function cleanupEmptyPhrases(text: string): string {
     .map((line) => {
       const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
       if (/^[\s.,;:]*$/.test(trimmed)) return "";
-      if (/^\*\*[^*]+\*\*$/.test(trimmed)) {
-        const wordCount = trimmed.replace(/\*/g, "").trim().split(/\s+/).length;
-        if (wordCount <= 4) return "";
-      }
+      // Drop bare-subject stub lines left after the predicate was stripped.
+      // Two cases — both require a trailing period to avoid eating legitimate
+      // heading-style lines like a standalone `**Project Name**` paragraph:
+      //   - With markdown emphasis (`**Subject**.`) — short noun phrase ≤ 4 words.
+      //   - Without emphasis — only single-word stubs (`Subject.`), so legitimate
+      //     short sentences like "Project Lighthouse." or "Intro line." survive.
       const hasEmphasis = /[*_]/.test(trimmed);
       const bare = trimmed.replace(/[*_]/g, "").trim();
       if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
