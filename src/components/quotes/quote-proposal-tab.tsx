@@ -556,6 +556,102 @@ function GeneratedDocumentSection({
       ?.proposal_kind ?? "fixed_project";
   const [proposalKind, setProposalKind] = useState<ProposalKind>(persistedKind);
 
+  // Consultancy commercial settings (in-memory only — not persisted yet).
+  const [hourlyRate, setHourlyRate] = useState<string>("");
+  const [hoursBlock, setHoursBlock] = useState<string>("");
+  const [minCommitment, setMinCommitment] = useState<string>("");
+  const [phase1Hours, setPhase1Hours] = useState<string>("");
+  const [phase2Hours, setPhase2Hours] = useState<string>("");
+  const [phase3Hours, setPhase3Hours] = useState<string>("");
+
+  const parseOptionalPositive = (s: string): number | null => {
+    const trimmed = s.trim();
+    if (trimmed === "") return null;
+    const n = Number(trimmed.replace(",", "."));
+    return Number.isFinite(n) && n > 0 ? n : NaN;
+  };
+  const parseOptionalNonNegative = (s: string): number | null => {
+    const trimmed = s.trim();
+    if (trimmed === "") return null;
+    const n = Number(trimmed.replace(",", "."));
+    return Number.isFinite(n) && n >= 0 ? n : NaN;
+  };
+
+  const consultancyValidation = useMemo(() => {
+    const rate = parseOptionalPositive(hourlyRate);
+    const block = parseOptionalPositive(hoursBlock);
+    const min = parseOptionalPositive(minCommitment);
+    const errors: string[] = [];
+    if (Number.isNaN(rate)) errors.push("hourlyRateInvalid");
+    if (Number.isNaN(block)) errors.push("hoursBlockInvalid");
+    if (Number.isNaN(min)) errors.push("minCommitmentInvalid");
+    if (
+      typeof block === "number" &&
+      typeof min === "number" &&
+      min > block
+    )
+      errors.push("minCommitmentExceedsBlock");
+    return {
+      rate: typeof rate === "number" ? rate : null,
+      block: typeof block === "number" ? block : null,
+      min: typeof min === "number" ? min : null,
+      errors,
+    };
+  }, [hourlyRate, hoursBlock, minCommitment]);
+
+  const phaseValidation = useMemo(() => {
+    const p1 = parseOptionalNonNegative(phase1Hours);
+    const p2 = parseOptionalNonNegative(phase2Hours);
+    const p3 = parseOptionalNonNegative(phase3Hours);
+    const errors: string[] = [];
+    if (Number.isNaN(p1)) errors.push("phase1Invalid");
+    if (Number.isNaN(p2)) errors.push("phase2Invalid");
+    if (Number.isNaN(p3)) errors.push("phase3Invalid");
+    return {
+      p1: typeof p1 === "number" ? p1 : null,
+      p2: typeof p2 === "number" ? p2 : null,
+      p3: typeof p3 === "number" ? p3 : null,
+      errors,
+    };
+  }, [phase1Hours, phase2Hours, phase3Hours]);
+
+  const blockValuePreview =
+    consultancyValidation.rate !== null && consultancyValidation.block !== null
+      ? consultancyValidation.rate * consultancyValidation.block
+      : null;
+  const minimumFeePreview =
+    consultancyValidation.rate !== null && consultancyValidation.min !== null
+      ? consultancyValidation.rate * consultancyValidation.min
+      : null;
+
+  const buildConsultancyConfig = (): ConsultancyConfig => {
+    const phases = [
+      {
+        label: t("workspace.proposal.generator.consultancy.phase1Label"),
+        estimated_hours: phaseValidation.p1,
+      },
+      {
+        label: t("workspace.proposal.generator.consultancy.phase2Label"),
+        estimated_hours: phaseValidation.p2,
+      },
+      {
+        label: t("workspace.proposal.generator.consultancy.phase3Label"),
+        estimated_hours: phaseValidation.p3,
+      },
+    ];
+    const anyPhaseEntered = phases.some((p) => p.estimated_hours !== null);
+    return {
+      hourly_rate: consultancyValidation.rate,
+      hours_block: consultancyValidation.block,
+      minimum_commitment_hours: consultancyValidation.min,
+      phases: anyPhaseEntered ? phases : undefined,
+    };
+  };
+
+  const consultancyHasErrors =
+    proposalKind === "phased_consultancy" &&
+    (consultancyValidation.errors.length > 0 || phaseValidation.errors.length > 0);
+
   const handleGenerate = async (replaceExistingDraft: boolean) => {
     if (replaceExistingDraft && document) {
       const ok = window.confirm(t("workspace.proposal.generator.regenerateWarning"));
@@ -564,20 +660,17 @@ function GeneratedDocumentSection({
     // Use whichever kind is currently selected (or the persisted one when
     // regenerating without the selector visible).
     const kind: ProposalKind = document ? persistedKind : proposalKind;
+    if (kind === "phased_consultancy" && consultancyHasErrors) {
+      toast.error(t("workspace.proposal.generator.consultancy.validationError"));
+      return;
+    }
     try {
       const result = await generate.mutateAsync({
         quoteId,
         replaceExistingDraft,
         proposalKind: kind,
         consultancy:
-          kind === "phased_consultancy"
-            ? {
-                hourly_rate: null,
-                hours_block: null,
-                minimum_commitment_hours: null,
-                phases: undefined,
-              }
-            : undefined,
+          kind === "phased_consultancy" ? buildConsultancyConfig() : undefined,
       });
       toast.success(t("workspace.proposal.generator.success"));
       if (result.missingSlugs.length > 0) {
