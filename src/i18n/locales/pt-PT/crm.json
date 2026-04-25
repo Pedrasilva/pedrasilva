@@ -396,7 +396,14 @@
       "acceptanceSignature": "Assinatura",
       "acceptanceDate": "Data",
       "acceptanceOnBehalf": "Aceite em nome de",
-      "footerContact": "Contacto"
+      "footerContact": "Contacto",
+      "generator": {
+        "title": "Gerar documento de proposta",
+        "success": "Documento de proposta gerado.",
+        "error": "Falha ao gerar o documento de proposta.",
+        "missingBlocks": "Alguns blocos da biblioteca não foram encontrados e foram ignorados: {{slugs}}",
+        "replaceConfirm": "Substituir o rascunho existente?"
+      }
     }
   }
 }
