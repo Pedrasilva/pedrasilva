@@ -391,6 +391,28 @@
       "linkCreated": "Dependência criada",
       "allocationMoved": "Alocação movida",
       "resourceAllocated": "Recurso alocado"
+    },
+    "dependency": {
+      "types": {
+        "FS": "FS",
+        "SS": "SS",
+        "FF": "FF",
+        "SF": "SF"
+      },
+      "typeDescriptions": {
+        "FS": "Fim → Início",
+        "SS": "Início → Início",
+        "FF": "Fim → Fim",
+        "SF": "Início → Fim"
+      },
+      "lagWorkingDays": "Lag (dias úteis)",
+      "lagHint": "Valores negativos criam tempo de antecipação — a fase sucessora pode começar antes da predecessora terminar.",
+      "linkHint": "Largue para criar dependência {{type}}",
+      "cascadeToast_one": "Atualizada {{count}} fase dependente",
+      "cascadeToast_other": "Atualizadas {{count}} fases dependentes",
+      "addPredecessor": "Adicionar predecessora",
+      "noDependencies": "Sem dependências de entrada",
+      "labelDays": "{{sign}}{{abs}}d"
     }
   },
   "kpi": {
