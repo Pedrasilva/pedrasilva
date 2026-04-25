@@ -123,6 +123,16 @@ export interface BlockDraft {
   is_locked: boolean;
 }
 
+export type ProposalKind = "fixed_project" | "phased_consultancy";
+
+export interface ConsultancyConfig {
+  hourly_rate?: number | null;
+  hours_block?: number | null;
+  minimum_commitment_hours?: number | null;
+  /** Optional override list for phases. */
+  phases?: Array<{ label: string; estimated_hours?: number | null }>;
+}
+
 export interface GenerateInput {
   ctx: QuoteContext;
   masterBlocks: MasterBlock[];
@@ -138,6 +148,10 @@ export interface GenerateInput {
   currency?: string;
   /** Default validity period in days when block uses {{validity_days}}. */
   validityDays?: number;
+  /** Which proposal block-set to use when no explicit `slugs` are provided. */
+  proposalKind?: ProposalKind;
+  /** Optional consultancy-specific config (used by phased_consultancy generated blocks). */
+  consultancy?: ConsultancyConfig;
 }
 
 export interface GenerateOutput {
