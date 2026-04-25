@@ -329,19 +329,24 @@ export function cleanupEmptyPhrases(text: string): string {
   // (e.g. "Speedy Gonzalez is ." after stripping "located in {{project_location}}").
   out = out.replace(/\s+\bis\s*(?=[.,;:!?])/gi, "");
   out = out.replace(/\s+\bis\s*$/gim, "");
-  // Lines that became just whitespace or punctuation noise, or a bare
-  // subject + period after the predicate was stripped.
+  // Tidy " ." spacing produced by removals (e.g. "Subject ." → "Subject.").
+  out = out.replace(/\s+([.,;:!?])/g, "$1");
+  // Drop bare-subject lines left after the predicate was stripped: lines
+  // composed only of a short markdown-emphasised noun phrase ending in
+  // ".", which is what an empty predicate leaves behind. We require the
+  // markdown markers (`*` / `_`) so that legitimate short sentences like
+  // "Project Lighthouse." or "Intro line." are NOT dropped.
   out = out
     .split("\n")
     .map((line) => {
       const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
-      // Strip markdown emphasis to evaluate the bare content.
-      const bare = trimmed.replace(/[*_]/g, "").trim();
-      // Drop short "<subject>." lines (≤ 4 words, no other punctuation),
-      // which is what an empty predicate leaves behind.
-      if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
-        const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
-        if (wordCount <= 4) return "";
+      if (/^[\s.,;:]*$/.test(trimmed)) return "";
+      if (/[*_]/.test(trimmed)) {
+        const bare = trimmed.replace(/[*_]/g, "").trim();
+        if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
+          const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
+          if (wordCount <= 4) return "";
+        }
       }
       return trimmed;
     })
