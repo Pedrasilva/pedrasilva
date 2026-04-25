@@ -1483,7 +1483,13 @@ function LegacyProposalPreview({
  */
 function ProseBlock({ text }: { text: string }) {
   if (!text || !text.trim()) return null;
-  const paragraphs = text
+  // Defensive client-facing cleanup: strip leftover {{...}} tokens that
+  // survived the generator (legacy documents, missing variables) and any
+  // awkward fragments they leave behind. Editor mode bypasses this — it
+  // uses the raw <Textarea> so authors still see the placeholders.
+  const cleaned = sanitizeProseForDisplay(text);
+  if (!cleaned.trim()) return null;
+  const paragraphs = cleaned
     .replace(/\r\n/g, "\n")
     .split(/\n{2,}/)
     .map((p) => p.trim())
