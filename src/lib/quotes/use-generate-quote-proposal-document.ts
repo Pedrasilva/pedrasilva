@@ -173,6 +173,8 @@ async function runGenerate(
     currency: args.currency,
     validityDays: args.validityDays,
     revisionNumber: 1,
+    proposalKind: args.proposalKind,
+    consultancy: args.consultancy,
   });
 
   // 3. Replace existing draft if requested.
