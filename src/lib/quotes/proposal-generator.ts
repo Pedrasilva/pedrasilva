@@ -285,14 +285,53 @@ function buildVariables(
 
 const VAR_TOKEN_RE = /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g;
 
+/**
+ * Replace `{{var}}` tokens. A variable that is *defined* in the map is
+ * always substituted, even when its value is the empty string — leaving
+ * `{{token}}` in client-facing copy is never acceptable. Only truly
+ * unknown variables fall through unchanged so missing keys are noticed
+ * during template authoring.
+ *
+ * After substitution, awkward phrases that depend on a now-empty
+ * variable (e.g. ", located in ") are cleaned up so the surrounding
+ * sentence still reads naturally.
+ */
 export function substituteVariables(
   template: string,
   variables: Record<string, string>,
 ): string {
-  return template.replace(VAR_TOKEN_RE, (match, key: string) => {
-    const v = variables[key];
-    return v === undefined || v === "" ? match : v;
+  const replaced = template.replace(VAR_TOKEN_RE, (match, key: string) => {
+    return Object.prototype.hasOwnProperty.call(variables, key)
+      ? variables[key]
+      : match;
   });
+  return cleanupEmptyPhrases(replaced);
+}
+
+/**
+ * Remove sentence fragments that become awkward when an injected
+ * variable resolves to an empty string. Safe to apply to both freshly
+ * substituted text and previously generated content stored in the DB.
+ */
+export function cleanupEmptyPhrases(text: string): string {
+  if (!text) return text;
+  let out = text;
+  // ", located in " followed by punctuation/end-of-line/period.
+  out = out.replace(/,\s*located in\s*(?=[.,;:!?\n)]|$)/gi, "");
+  // "located in " at start/middle followed by punctuation/end.
+  out = out.replace(/\blocated in\s*(?=[.,;:!?\n)]|$)/gi, "");
+  // " in " immediately followed by punctuation (e.g. "is a residential project in .")
+  out = out.replace(/\s+in\s*(?=[.,;:!?\n)])/gi, "");
+  // Lines that became just whitespace or punctuation noise.
+  out = out
+    .split("\n")
+    .map((line) => line.replace(/\s{2,}/g, " ").trimEnd())
+    .join("\n");
+  // Collapse 3+ blank lines into max two.
+  out = out.replace(/\n{3,}/g, "\n\n");
+  // Tidy double spaces inside a line.
+  out = out.replace(/[ \t]{2,}/g, " ");
+  return out;
 }
 
 // ──────────────────────── Computed snapshot ────────────────────────
