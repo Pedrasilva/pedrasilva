@@ -250,10 +250,12 @@
 @media print {
   @page {
     size: A4;
-    margin: 12mm;
+    margin: 18mm 18mm 20mm 18mm;
   }
-  body {
+  html, body {
     background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   /* Esconde tudo excepto a área marcada para impressão */
   body * {
@@ -263,9 +265,13 @@
   .print-area * {
     visibility: visible;
   }
+  /* The print-area flows naturally inside the @page margin box —
+     do NOT pin it to inset:0, otherwise content reaches the page edges. */
   .print-area {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     width: 100%;
     padding: 0;
     margin: 0;
