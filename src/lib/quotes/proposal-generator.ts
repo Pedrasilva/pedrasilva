@@ -69,6 +69,10 @@ export interface QuoteContext {
 }
 
 export interface GeneratedSnapshot {
+  /** Which block-set was used to generate this document. Persisted so that
+   *  "Regenerate draft" can preserve the user's original choice without
+   *  requiring a schema column. */
+  proposal_kind?: ProposalKind;
   /** Resolved variable map applied to all editable_text blocks. */
   variables: Record<string, string>;
   /** Computed quote view used by generated_section blocks. */
