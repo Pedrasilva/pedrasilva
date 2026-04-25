@@ -316,6 +316,19 @@ export function substituteVariables(
 export function cleanupEmptyPhrases(text: string): string {
   if (!text) return text;
   let out = text;
+  // Remove whole lines that have collapsed into an empty location predicate,
+  // e.g. "Speedy Gonzalez is ." or "**Speedy Gonzalez** is located in .".
+  out = out
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.replace(/\s{2,}/g, " ").trim();
+      if (/^is\s+(?:located\s+in\s*)?[.,;:!?]$/i.test(trimmed)) return "";
+      if (/^\S[\s\S]*?\s+is\s+(?:located\s+in\s*)?[.,;:!?]$/i.test(trimmed)) {
+        return "";
+      }
+      return line;
+    })
+    .join("\n");
   // Composite empty-predicate fragments — order matters: longest/most specific first.
   // Drop "is located in " when followed by punctuation/EOL (variable was empty).
   out = out.replace(/\bis\s+located\s+in\s*(?=[.,;:!?\n)]|$)/gi, "");
