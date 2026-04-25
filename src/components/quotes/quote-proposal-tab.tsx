@@ -1742,7 +1742,7 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
   // the next paint so the DOM reflects the clean document.
   const handlePrint = () => {
     if (mode !== "preview") {
-      setMode("preview");
+      flushSync(() => setMode("preview"));
       requestAnimationFrame(() => {
         requestAnimationFrame(() => window.print());
       });
