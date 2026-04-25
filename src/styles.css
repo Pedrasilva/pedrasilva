@@ -441,7 +441,8 @@
 }
 
 .proposal-page-logo {
-  width: 38mm;
+  width: 60mm;
+  max-width: 60mm;
   height: auto;
   display: block;
 }
@@ -449,7 +450,8 @@
   font-size: 9pt;
   color: #555;
   font-style: italic;
-  margin-top: 4mm;
+  margin-top: 6mm;
+  white-space: nowrap;
 }
 
 .proposal-page-footer {
@@ -502,8 +504,8 @@
 /* ─── Cover / title block ───────────────────────────────────────── */
 
 .proposal-cover {
-  margin-top: 60mm; /* push title down so cover page reads like the reference */
-  margin-bottom: 12mm;
+  margin-top: 0;
+  margin-bottom: 10mm;
 }
 .proposal-cover-eyebrow {
   font-family: "Inter", sans-serif;
