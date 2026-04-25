@@ -27,14 +27,18 @@ function cleanupEmptyPhrases(text) {
   out = out.replace(/\s+in\s*(?=[.,;:!?\n)])/gi, "");
   out = out.replace(/\s+\bis\s*(?=[.,;:!?])/gi, "");
   out = out.replace(/\s+\bis\s*$/gim, "");
+  out = out.replace(/\s+([.,;:!?])/g, "$1");
   out = out
     .split("\n")
     .map((line) => {
       const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
-      const bare = trimmed.replace(/[*_]/g, "").trim();
-      if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
-        const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
-        if (wordCount <= 4) return "";
+      if (/^[\s.,;:]*$/.test(trimmed)) return "";
+      if (/[*_]/.test(trimmed)) {
+        const bare = trimmed.replace(/[*_]/g, "").trim();
+        if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
+          const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
+          if (wordCount <= 4) return "";
+        }
       }
       return trimmed;
     })
