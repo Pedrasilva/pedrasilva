@@ -14,10 +14,11 @@
  * This pass is intentionally read-only: no inline editing, no reorder, no
  * DOCX/PDF export, no snapshot-on-send.
  */
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import type { ProposalKind } from "@/lib/quotes/proposal-generator";
+import { Input } from "@/components/ui/input";
+import type { ConsultancyConfig, ProposalKind } from "@/lib/quotes/proposal-generator";
 import { useTranslation } from "react-i18next";
 import { format, parseISO, type Locale } from "date-fns";
 import { ChevronDown, FileText, Loader2, Lock, Printer, RefreshCw, Sparkles } from "lucide-react";
@@ -555,6 +556,102 @@ function GeneratedDocumentSection({
       ?.proposal_kind ?? "fixed_project";
   const [proposalKind, setProposalKind] = useState<ProposalKind>(persistedKind);
 
+  // Consultancy commercial settings (in-memory only — not persisted yet).
+  const [hourlyRate, setHourlyRate] = useState<string>("");
+  const [hoursBlock, setHoursBlock] = useState<string>("");
+  const [minCommitment, setMinCommitment] = useState<string>("");
+  const [phase1Hours, setPhase1Hours] = useState<string>("");
+  const [phase2Hours, setPhase2Hours] = useState<string>("");
+  const [phase3Hours, setPhase3Hours] = useState<string>("");
+
+  const parseOptionalPositive = (s: string): number | null => {
+    const trimmed = s.trim();
+    if (trimmed === "") return null;
+    const n = Number(trimmed.replace(",", "."));
+    return Number.isFinite(n) && n > 0 ? n : NaN;
+  };
+  const parseOptionalNonNegative = (s: string): number | null => {
+    const trimmed = s.trim();
+    if (trimmed === "") return null;
+    const n = Number(trimmed.replace(",", "."));
+    return Number.isFinite(n) && n >= 0 ? n : NaN;
+  };
+
+  const consultancyValidation = useMemo(() => {
+    const rate = parseOptionalPositive(hourlyRate);
+    const block = parseOptionalPositive(hoursBlock);
+    const min = parseOptionalPositive(minCommitment);
+    const errors: string[] = [];
+    if (Number.isNaN(rate)) errors.push("hourlyRateInvalid");
+    if (Number.isNaN(block)) errors.push("hoursBlockInvalid");
+    if (Number.isNaN(min)) errors.push("minCommitmentInvalid");
+    if (
+      typeof block === "number" &&
+      typeof min === "number" &&
+      min > block
+    )
+      errors.push("minCommitmentExceedsBlock");
+    return {
+      rate: typeof rate === "number" ? rate : null,
+      block: typeof block === "number" ? block : null,
+      min: typeof min === "number" ? min : null,
+      errors,
+    };
+  }, [hourlyRate, hoursBlock, minCommitment]);
+
+  const phaseValidation = useMemo(() => {
+    const p1 = parseOptionalNonNegative(phase1Hours);
+    const p2 = parseOptionalNonNegative(phase2Hours);
+    const p3 = parseOptionalNonNegative(phase3Hours);
+    const errors: string[] = [];
+    if (Number.isNaN(p1)) errors.push("phase1Invalid");
+    if (Number.isNaN(p2)) errors.push("phase2Invalid");
+    if (Number.isNaN(p3)) errors.push("phase3Invalid");
+    return {
+      p1: typeof p1 === "number" ? p1 : null,
+      p2: typeof p2 === "number" ? p2 : null,
+      p3: typeof p3 === "number" ? p3 : null,
+      errors,
+    };
+  }, [phase1Hours, phase2Hours, phase3Hours]);
+
+  const blockValuePreview =
+    consultancyValidation.rate !== null && consultancyValidation.block !== null
+      ? consultancyValidation.rate * consultancyValidation.block
+      : null;
+  const minimumFeePreview =
+    consultancyValidation.rate !== null && consultancyValidation.min !== null
+      ? consultancyValidation.rate * consultancyValidation.min
+      : null;
+
+  const buildConsultancyConfig = (): ConsultancyConfig => {
+    const phases = [
+      {
+        label: t("workspace.proposal.generator.consultancy.phase1Label"),
+        estimated_hours: phaseValidation.p1,
+      },
+      {
+        label: t("workspace.proposal.generator.consultancy.phase2Label"),
+        estimated_hours: phaseValidation.p2,
+      },
+      {
+        label: t("workspace.proposal.generator.consultancy.phase3Label"),
+        estimated_hours: phaseValidation.p3,
+      },
+    ];
+    const anyPhaseEntered = phases.some((p) => p.estimated_hours !== null);
+    return {
+      hourly_rate: consultancyValidation.rate,
+      hours_block: consultancyValidation.block,
+      minimum_commitment_hours: consultancyValidation.min,
+      phases: anyPhaseEntered ? phases : undefined,
+    };
+  };
+
+  const consultancyHasErrors =
+    proposalKind === "phased_consultancy" &&
+    (consultancyValidation.errors.length > 0 || phaseValidation.errors.length > 0);
+
   const handleGenerate = async (replaceExistingDraft: boolean) => {
     if (replaceExistingDraft && document) {
       const ok = window.confirm(t("workspace.proposal.generator.regenerateWarning"));
@@ -563,20 +660,17 @@ function GeneratedDocumentSection({
     // Use whichever kind is currently selected (or the persisted one when
     // regenerating without the selector visible).
     const kind: ProposalKind = document ? persistedKind : proposalKind;
+    if (kind === "phased_consultancy" && consultancyHasErrors) {
+      toast.error(t("workspace.proposal.generator.consultancy.validationError"));
+      return;
+    }
     try {
       const result = await generate.mutateAsync({
         quoteId,
         replaceExistingDraft,
         proposalKind: kind,
         consultancy:
-          kind === "phased_consultancy"
-            ? {
-                hourly_rate: null,
-                hours_block: null,
-                minimum_commitment_hours: null,
-                phases: undefined,
-              }
-            : undefined,
+          kind === "phased_consultancy" ? buildConsultancyConfig() : undefined,
       });
       toast.success(t("workspace.proposal.generator.success"));
       if (result.missingSlugs.length > 0) {
@@ -663,9 +757,149 @@ function GeneratedDocumentSection({
               </div>
             </Label>
           </RadioGroup>
+
+          {proposalKind === "phased_consultancy" && (
+            <div className="w-full max-w-md space-y-4 rounded-md border bg-muted/20 p-4 text-left">
+              <div>
+                <h4 className="text-sm font-semibold">
+                  {t("workspace.proposal.generator.consultancy.sectionTitle")}
+                </h4>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {t("workspace.proposal.generator.consultancy.sectionHint")}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label htmlFor="consultancy-rate" className="text-xs">
+                    {t("workspace.proposal.generator.consultancy.hourlyRate")}
+                  </Label>
+                  <Input
+                    id="consultancy-rate"
+                    inputMode="decimal"
+                    placeholder="90"
+                    value={hourlyRate}
+                    onChange={(e) => setHourlyRate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="consultancy-block" className="text-xs">
+                    {t("workspace.proposal.generator.consultancy.hoursBlock")}
+                  </Label>
+                  <Input
+                    id="consultancy-block"
+                    inputMode="decimal"
+                    placeholder="50"
+                    value={hoursBlock}
+                    onChange={(e) => setHoursBlock(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <Label htmlFor="consultancy-min" className="text-xs">
+                    {t("workspace.proposal.generator.consultancy.minimumCommitment")}
+                  </Label>
+                  <Input
+                    id="consultancy-min"
+                    inputMode="decimal"
+                    placeholder="25"
+                    value={minCommitment}
+                    onChange={(e) => setMinCommitment(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {(blockValuePreview !== null || minimumFeePreview !== null) && (
+                <div className="grid grid-cols-2 gap-3 rounded-md border bg-background/60 p-3 text-xs">
+                  {blockValuePreview !== null && (
+                    <div>
+                      <div className="text-muted-foreground">
+                        {t("workspace.proposal.generator.consultancy.blockValue")}
+                      </div>
+                      <div className="mt-0.5 font-semibold tabular-nums">
+                        {formatCurrency(blockValuePreview)}
+                      </div>
+                    </div>
+                  )}
+                  {minimumFeePreview !== null && (
+                    <div>
+                      <div className="text-muted-foreground">
+                        {t("workspace.proposal.generator.consultancy.minimumFee")}
+                      </div>
+                      <div className="mt-0.5 font-semibold tabular-nums">
+                        {formatCurrency(minimumFeePreview)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t("workspace.proposal.generator.consultancy.phasesTitle")}
+                </div>
+                <div className="space-y-2">
+                  {[
+                    {
+                      id: "phase1",
+                      label: t("workspace.proposal.generator.consultancy.phase1Label"),
+                      value: phase1Hours,
+                      setter: setPhase1Hours,
+                    },
+                    {
+                      id: "phase2",
+                      label: t("workspace.proposal.generator.consultancy.phase2Label"),
+                      value: phase2Hours,
+                      setter: setPhase2Hours,
+                    },
+                    {
+                      id: "phase3",
+                      label: t("workspace.proposal.generator.consultancy.phase3Label"),
+                      value: phase3Hours,
+                      setter: setPhase3Hours,
+                    },
+                  ].map((p) => (
+                    <div key={p.id} className="flex items-center gap-2">
+                      <Label
+                        htmlFor={`consultancy-${p.id}`}
+                        className="flex-1 text-xs font-normal"
+                      >
+                        {p.label}
+                      </Label>
+                      <Input
+                        id={`consultancy-${p.id}`}
+                        inputMode="decimal"
+                        placeholder={t(
+                          "workspace.proposal.generator.consultancy.hoursPlaceholder",
+                        )}
+                        value={p.value}
+                        onChange={(e) => p.setter(e.target.value)}
+                        className="h-8 w-24"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {consultancyHasErrors && (
+                <ul className="space-y-1 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-xs text-destructive">
+                  {consultancyValidation.errors.map((e) => (
+                    <li key={e}>
+                      {t(`workspace.proposal.generator.consultancy.errors.${e}`)}
+                    </li>
+                  ))}
+                  {phaseValidation.errors.map((e) => (
+                    <li key={e}>
+                      {t(`workspace.proposal.generator.consultancy.errors.${e}`)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
           <Button
             onClick={() => handleGenerate(true)}
-            disabled={generate.isPending}
+            disabled={generate.isPending || consultancyHasErrors}
           >
             {generate.isPending ? (
               <>
