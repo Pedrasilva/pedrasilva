@@ -331,22 +331,22 @@ export function cleanupEmptyPhrases(text: string): string {
   out = out.replace(/\s+\bis\s*$/gim, "");
   // Tidy " ." spacing produced by removals (e.g. "Subject ." → "Subject.").
   out = out.replace(/\s+([.,;:!?])/g, "$1");
-  // Drop bare-subject lines left after the predicate was stripped: lines
-  // composed only of a short markdown-emphasised noun phrase ending in
-  // ".", which is what an empty predicate leaves behind. We require the
-  // markdown markers (`*` / `_`) so that legitimate short sentences like
-  // "Project Lighthouse." or "Intro line." are NOT dropped.
+  // Drop bare-subject stub lines left after the predicate was stripped.
+  // Two cases:
+  //   - With markdown emphasis (`**Subject**.`) — short noun phrase ≤ 4 words.
+  //   - Without emphasis — only single-word stubs (`Subject.`), so legitimate
+  //     short sentences like "Project Lighthouse." or "Intro line." survive.
   out = out
     .split("\n")
     .map((line) => {
       const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
       if (/^[\s.,;:]*$/.test(trimmed)) return "";
-      if (/[*_]/.test(trimmed)) {
-        const bare = trimmed.replace(/[*_]/g, "").trim();
-        if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
-          const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
-          if (wordCount <= 4) return "";
-        }
+      const hasEmphasis = /[*_]/.test(trimmed);
+      const bare = trimmed.replace(/[*_]/g, "").trim();
+      if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
+        const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
+        const limit = hasEmphasis ? 4 : 1;
+        if (wordCount <= limit) return "";
       }
       return trimmed;
     })
