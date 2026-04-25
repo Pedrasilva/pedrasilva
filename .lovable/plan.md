@@ -1,119 +1,101 @@
 ## Goal
-Make the proposal Preview **and** the printed PDF visually match the reference Pedra Silva fee proposal:
-- Top-left **PEDR A SILV A ARCHITECTS** logo on every page
-- Top-right `www.pedrasilva.com` (or firm site)
-- Bottom-left **address block** (italic, small) repeating on every page
-- Bottom-right **RIBA + Ordem dos Arquitectos** accreditation marks
-- Page numbers in the outer margin
-- Serif body font (the reference uses a transitional serif — we'll use a free Google equivalent, **EB Garamond / "Source Serif 4"**), bold sans for headings
-- Generous 1" margins, justified body, the same overall rhythm
+Mirror the structure of the reference Pedra Silva fee proposal (10 sections + cover) by adding **17 new master blocks** (EN + PT-PT) and a new **opt-in preset** ordering them in the document's reference sequence. All new blocks ship with **fully generic wording** (no firm names, addresses, partner names, or specific rates) so they're reusable for any architecture/interior practice.
 
-The reference is built around a fixed **page frame** (logo + footer block on every page). In CSS print, the only reliable way to get a true "every page" frame is to use `position: fixed` with `@page` margins — that's the core technique we'll apply.
+## Reference document sections (and current coverage)
+
+| Reference section | Existing block | New block to add |
+|---|---|---|
+| Cover / Intro | `intro-standard` | `psa-intro-interior-fitout` (opening line for fit-out projects) |
+| About firm | `about-psa-standard` | — |
+| §1 Project areas list | — | `psa-project-areas` |
+| §1 Scope (Interior / Furniture / Signage) | `scope-generic` | `psa-scope-interior-design` |
+| §1 Local-consultant clause | — | `psa-scope-exclusions-local` |
+| §1 MEP / lighting paragraph | — | `psa-mep-lighting-note` |
+| §1 LEED / BREEAM line | — | `psa-leed-breeam-note` |
+| §2 Base information | — | `psa-base-information` |
+| §3 Stages intro | — | `psa-stages-intro` |
+| §3 Per-stage detail | (auto via `generated-stage-summary`) | — |
+| §3 Timeline | (auto via `generated-timeline`) | — |
+| §4 Fee intro | `fee-explanation` | `psa-fee-intro-inflation` |
+| §4 Fee table | (auto via `generated-fee-summary`) | — |
+| §5 Payment monthly cycle | `payment-intro`, `payment-stage-based` | `psa-payment-monthly-cycle` |
+| §5 Payment table | (auto via `generated-payment-schedule`) | — |
+| §6 Timelines & deadlines | — | `psa-timelines-deadlines` |
+| §7 Additional services | `additional-services-standard` | `psa-additional-services-interior` (mentions per-3D-image charge generically) |
+| §8 Travelling | — | `psa-travelling` (per-km, written approval, etc.) |
+| §9 Exclusions | `exclusions-standard` | `psa-exclusions-interior` (fuller bullet list) |
+| §10 Validity | `validity-period` | `psa-validity-30-days` (uses `{{validity_days}}` token) |
+| §10 Acceptance + signature | `acceptance-wording`, `generated-acceptance-block` | `psa-closing-signature` (uses `{{firm_partner_name}}`/`{{firm_partner_title}}` tokens — both blank by default → cleaned by sanitizer) |
+
+**17 new master blocks** × **2 languages** = 34 rows inserted. All `block_type = 'editable_text'`, `visibility = 'client'`, `is_active = true`.
 
 ## Files to change
 
-### 1. `src/assets/logo-psa.png`
-Already exists — confirmed it's the **PEDR A SILV A ARCHITECTS** mark. We'll reuse it.
-Optionally add `src/assets/riba.png` and `src/assets/oa.png` for the footer accreditation marks. If the user doesn't have them yet, we'll render text fallbacks (`RIBA` + `ORDEM DOS ARQUITECTOS`) styled to match, and ask the user to upload the real PNGs after.
+### 1. `supabase/migrations/<ts>_add_psa_interior_proposal_blocks.sql`
+- Pure `INSERT` statements into `proposal_blocks`. No schema change.
+- Each block inserted in EN and PT-PT.
+- Wording is **fully generic** — uses placeholders (e.g. *"travel outside the project's primary city is billed per kilometre or against receipts"*, never hard-coded "€0.50/km").
+- Uses existing variable tokens where appropriate: `{{client_name}}`, `{{project_name}}`, `{{project_areas}}` (new), `{{stage_count}}` (new), `{{firm_partner_name}}` (new, blank by default), `{{firm_partner_title}}` (new, blank by default), `{{validity_days}}`.
+- Idempotent via `ON CONFLICT (slug, language) DO NOTHING` so re-running is safe.
 
-### 2. `src/components/quotes/quote-proposal-tab.tsx` — `ProposalPrintDocument`
-Restructure the article so it has three layers:
-- **`.proposal-page-header`** (fixed): logo (left) + website (right)
-- **`.proposal-page-footer`** (fixed): address block (left) + accreditation marks (right)
-- **`.proposal-page-body`**: scrollable/flowing content — title block, sections, generated tables
+### 2. `src/lib/quotes/proposal-generator.ts`
+- Extend `ProposalKind` union: `"fixed_project" | "phased_consultancy" | "psa_interior_fitout"`.
+- Add `PSA_INTERIOR_BLOCK_SLUGS` constant in the reference document order:
+  ```
+  psa-intro-interior-fitout, about-psa-standard, psa-project-areas,
+  psa-scope-interior-design, psa-scope-exclusions-local, psa-mep-lighting-note,
+  psa-leed-breeam-note, psa-base-information, psa-stages-intro,
+  generated-stage-summary, generated-timeline, generated-role-summary,
+  psa-fee-intro-inflation, generated-fee-summary,
+  psa-payment-monthly-cycle, generated-payment-schedule,
+  psa-timelines-deadlines, psa-additional-services-interior,
+  psa-travelling, psa-exclusions-interior, psa-validity-30-days,
+  generated-acceptance-block, psa-closing-signature
+  ```
+- Update `pickSlugs()` to return this list when `proposalKind === "psa_interior_fitout"`.
+- Extend `buildVariables()` with **generic, blank-by-default** keys:
+  - `project_areas` (string, default `""`)
+  - `stage_count` (derived from `ctx.stages.length`)
+  - `firm_partner_name` (default `""` — sanitiser drops the dangling line if absent)
+  - `firm_partner_title` (default `""`)
+- All current variables remain untouched. Empty values fall through the existing `cleanupEmptyPhrases()` sanitiser.
 
-Header/footer are `position: fixed` so the browser print engine repeats them on every printed page. In Preview (screen) we make them `position: absolute` per "page" wrapper so the user sees the same chrome.
+### 3. `src/lib/quotes/use-generate-quote-proposal-document.ts`
+- No new query needed — `pm_invoice_settings` is already loaded for `payment_terms_days`.
+- Pass-through: when the kind is `psa_interior_fitout`, simply forward to the generator. No tenant-specific defaults pulled from settings (per user decision).
 
-Add a centered cover/title block at the top of the body with:
-- Project code + name (e.g. `P2502 | UX HQ Offices`)
-- Subtitle line (e.g. `INTERIOR ARCHITECTURE DESIGN FEE PROPOSAL`)
-- Issue date
-
-Wire branding from existing `useFirmBranding()` (already returns `company_name`, `company_address`, `company_email`, `company_phone`). Add `company_website` to the select if available; otherwise fall back to `pedrasilva.com` derived from email domain or hard-coded firm site string.
-
-Remove the inline header/footer that currently render only once at the top/bottom of the document (lines 1645–1667 and 1703–1717) and move them into the fixed frame.
-
-### 3. `src/styles.css` — print + preview chrome
-Add:
-```css
-@page {
-  size: A4;
-  margin: 28mm 22mm 32mm 22mm; /* room for fixed header + footer */
-}
-
-.proposal-print-document {
-  font-family: "Source Serif 4", "EB Garamond", Georgia, "Times New Roman", serif;
-  font-size: 11pt;
-  line-height: 1.55;
-  color: #111;
-}
-
-.proposal-print-heading,
-.proposal-page-header .brand {
-  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-}
-
-.proposal-page-header,
-.proposal-page-footer {
-  position: fixed;
-  left: 22mm;
-  right: 22mm;
-}
-.proposal-page-header { top: 10mm; }
-.proposal-page-footer { bottom: 12mm; }
-
-@media screen {
-  /* Simulate paper in Preview */
-  .proposal-print-document {
-    width: 210mm;
-    min-height: 297mm;
-    margin: 24px auto;
-    padding: 28mm 22mm 32mm 22mm;
-    background: white;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-    position: relative;
-  }
-  .proposal-page-header,
-  .proposal-page-footer { position: absolute; }
-}
-
-@media print {
-  .proposal-print-document { box-shadow: none; margin: 0; padding: 0; }
-  .proposal-print-table thead { display: table-header-group; }
-  .proposal-avoid-break { break-inside: avoid; }
-}
-```
-Plus: page number using `counter(page)` in the footer's right side (CSS-only, prints correctly), table styling kept from previous fix.
-
-### 4. Google Font import
-Add `@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&display=swap");` at the top of `src/styles.css`. This is the closest free analogue to the reference's transitional serif and renders cleanly in print.
+### 4. `src/components/quotes/quote-proposal-tab.tsx`
+- Add a third option to the existing proposal-kind picker (already supports `fixed_project` and `phased_consultancy`):
+  - **Label**: "Interior Fit-Out (full template)"
+  - **Value**: `"psa_interior_fitout"`
+- Picker default remains `"fixed_project"` so existing behaviour is unchanged.
+- No layout/style changes — the new blocks render through the same `GeneratedDocumentSection` and `ProposalPrintDocument` we just refined for Preview/PDF parity.
 
 ### 5. `src/i18n/locales/{en,pt-PT}/crm.json`
-Add new keys (EN + PT in same edit):
-- `workspace.proposal.coverSubtitle` → "Fee Proposal" / "Proposta de Honorários"
-- `workspace.proposal.footerAddressFallback` → "Lisboa\nTravessa do Corpo Santo 10 – 1ºD\n1200-131 Lisboa"
-- `workspace.proposal.accreditationRiba` / `accreditationOA` (alt text)
+- One new key in each: `proposal.kind.psaInteriorFitout`
+  - EN: "Interior Fit-Out (full template)"
+  - PT-PT: "Fit-Out Interior (modelo completo)"
 
-### 6. `supabase/migrations/<timestamp>_add_pm_invoice_settings_website.sql`
-Optional, only if `pm_invoice_settings` doesn't already have `company_website`. We'll check first and skip if present. Add `company_logo_url text` too so the firm can later override the logo.
+## What this fixes / unlocks
+- Generating a quote and picking "Interior Fit-Out" now produces a 23-block proposal that **matches the reference document's order and section coverage**.
+- Stage detail, timeline, fees, role summary, payment schedule, and acceptance block remain auto-generated from the live quote data (no double-entry).
+- Firm-specific details (address, partner name, exact rates, validity in days) stay editable per quote in the proposal editor — nothing is baked into code.
 
-## What this fixes vs current PDF
-- **Logo only on first page** → logo on every page
-- **No footer accreditation** → RIBA + OA marks on every page, bottom-right
-- **Sans serif everywhere** → serif body matching the reference, sans-serif headings
-- **Address shown once** → address repeats bottom-left on every page
-- **No page numbers** → small page number in the outer margin
-- **Preview ≠ PDF** → both use the same fixed frame so they look identical
+## Out of scope (explicitly)
+- No schema changes to `proposal_blocks` or `pm_invoice_settings`.
+- No edits to the existing default preset (`DEFAULT_PROPOSAL_BLOCK_SLUGS`) or the consultancy preset.
+- No changes to the generic master blocks already in the library.
+- No automated per-stage narrative generation. The auto stage table covers names, dates, and totals; if the user wants per-stage prose like the reference document's "[1] Workplace strategy …", they add free-text blocks manually after generation.
+- No new logo/footer/styling work — that was done in the previous turn and remains unchanged.
 
-## Validation after implementation
-1. Visual: open Preview, confirm logo top-left + footer marks bottom-right.
-2. Print → PDF: confirm the same frame repeats on pages 2, 3, 4…
-3. Confirm justified body text and serif font in PDF.
-4. `bunx tsc --noEmit`
-5. `node scripts/check-i18n-parity.mjs`
+## Validation
+1. `bunx tsc --noEmit`
+2. `node scripts/check-i18n-parity.mjs` — proves the new `proposal.kind.psaInteriorFitout` key exists in both EN and PT-PT.
+3. `node scripts/test-proposal-substitution.mjs` — proves the new variables (`project_areas`, `firm_partner_name`, `firm_partner_title`, `stage_count`) clean up cleanly when blank.
+4. SQL spot-check after migration: `SELECT slug, language FROM proposal_blocks WHERE slug LIKE 'psa-%' ORDER BY slug, language` should return 34 rows.
+5. Manual: open a quote, switch the generate picker to "Interior Fit-Out", click Regenerate. Confirm 23 blocks appear in Preview in the reference order; print to PDF and confirm the same.
 
-## Open questions / assumptions
-- I'll use the existing `src/assets/logo-psa.png` as-is.
-- For the RIBA / Ordem dos Arquitectos marks I'll render styled text fallbacks first (`RIBA` in serif, `ORDEM DOS ARQUITECTOS` in bold sans) and ask you to drop in the real logo PNGs after — those marks are trademark-controlled, so I shouldn't fabricate them.
-- Body font will be **Source Serif 4** (Google Fonts, free, very close to the reference).
-- Address defaults to the Pedra Silva Lisbon address if `company_address` is empty in branding settings.
+## Migration safety
+- All inserts are additive and gated by `ON CONFLICT (slug, language) DO NOTHING`.
+- Existing quotes already have generated documents stored in `quote_proposal_documents` / `quote_proposal_document_blocks` — those are untouched and continue rendering exactly as today.
+- Users only see the new structure if they explicitly pick the new kind and click Regenerate.

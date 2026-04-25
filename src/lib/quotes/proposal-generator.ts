@@ -127,7 +127,10 @@ export interface BlockDraft {
   is_locked: boolean;
 }
 
-export type ProposalKind = "fixed_project" | "phased_consultancy";
+export type ProposalKind =
+  | "fixed_project"
+  | "phased_consultancy"
+  | "psa_interior_fitout";
 
 export interface ConsultancyConfig {
   hourly_rate?: number | null;
@@ -226,6 +229,56 @@ export const DEFAULT_CONSULTANCY_BLOCK_SLUGS: readonly string[] = [
   "consultancy-validity-next-steps",
 ] as const;
 
+/**
+ * Ordered slug list for the "Interior Fit-Out" preset, mirroring the
+ * structure of a full architectural fee proposal: cover/intro, project
+ * areas, scope (interior + furniture + signage), local-authority
+ * exclusions, MEP/lighting note, sustainability note, base information,
+ * stages intro, auto-generated stage/timeline/role tables, fee intro
+ * with auto fee summary, monthly payment cycle with auto schedule,
+ * timelines & deadlines, additional services, travelling, exclusions,
+ * validity, auto acceptance block, closing & signature.
+ *
+ * Used when generator is called with proposalKind === "psa_interior_fitout".
+ */
+export const PSA_INTERIOR_BLOCK_SLUGS: readonly string[] = [
+  // Cover
+  "psa-intro-interior-fitout",
+  // About
+  "about-psa-standard",
+  // §1 Project description / scope
+  "psa-project-areas",
+  "psa-scope-interior-design",
+  "psa-scope-exclusions-local",
+  "psa-mep-lighting-note",
+  "psa-leed-breeam-note",
+  // §2 Base information
+  "psa-base-information",
+  // §3 Stages
+  "psa-stages-intro",
+  "generated-stage-summary",
+  "generated-timeline",
+  "generated-role-summary",
+  // §4 Fee proposal
+  "psa-fee-intro-inflation",
+  "generated-fee-summary",
+  // §5 Payment terms & schedule
+  "psa-payment-monthly-cycle",
+  "generated-payment-schedule",
+  // §6 Timelines and deadlines
+  "psa-timelines-deadlines",
+  // §7 Additional services
+  "psa-additional-services-interior",
+  // §8 Travelling
+  "psa-travelling",
+  // §9 Exclusions
+  "psa-exclusions-interior",
+  // §10 Validity & acceptance
+  "psa-validity-30-days",
+  "generated-acceptance-block",
+  "psa-closing-signature",
+] as const;
+
 // ────────────────────── Variable substitution ──────────────────────
 
 const CURRENCY_FORMATTERS: Record<string, Intl.NumberFormat> = {};
@@ -280,6 +333,13 @@ function buildVariables(
     hourly_rate: fmtNum(consultancy?.hourly_rate),
     hours_block: fmtNum(consultancy?.hours_block),
     minimum_commitment_hours: fmtNum(consultancy?.minimum_commitment_hours),
+    // PSA Interior Fit-Out preset variables — all blank by default; the
+    // existing cleanupEmptyPhrases() sanitiser drops any sentence that
+    // collapses around an empty value so client-facing copy stays clean.
+    project_areas: "",
+    stage_count: String(ctx.stages.length),
+    firm_partner_name: "",
+    firm_partner_title: "",
   };
 }
 
@@ -477,10 +537,17 @@ function buildComputed(
 function pickSlugs(input: GenerateInput): string[] {
   if (input.slugs && input.slugs.length > 0) return input.slugs;
   const exclude = new Set(input.excludeSlugs ?? []);
-  const base =
-    input.proposalKind === "phased_consultancy"
-      ? DEFAULT_CONSULTANCY_BLOCK_SLUGS
-      : DEFAULT_PROPOSAL_BLOCK_SLUGS;
+  let base: readonly string[];
+  switch (input.proposalKind) {
+    case "phased_consultancy":
+      base = DEFAULT_CONSULTANCY_BLOCK_SLUGS;
+      break;
+    case "psa_interior_fitout":
+      base = PSA_INTERIOR_BLOCK_SLUGS;
+      break;
+    default:
+      base = DEFAULT_PROPOSAL_BLOCK_SLUGS;
+  }
   return base.filter((s) => !exclude.has(s));
 }
 

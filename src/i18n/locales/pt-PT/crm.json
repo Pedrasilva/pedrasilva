@@ -430,7 +430,9 @@
           "fixedProject": "Projeto a Preço Fixo",
           "fixedProjectHint": "Proposta com fases, cronograma e honorários.",
           "phasedConsultancy": "Consultoria por Fases",
-          "phasedConsultancyHint": "Proposta de consultoria à hora, due diligence ou estudo de viabilidade."
+          "phasedConsultancyHint": "Proposta de consultoria à hora, due diligence ou estudo de viabilidade.",
+          "psaInteriorFitout": "Fit-Out Interior (modelo completo)",
+          "psaInteriorFitoutHint": "Proposta arquitectónica completa: âmbito, informação de base, fases, honorários, pagamento, deslocações, exclusões, validade e assinatura."
         },
         "consultancy": {
           "sectionTitle": "Configurações comerciais da consultoria",

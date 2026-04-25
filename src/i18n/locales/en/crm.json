@@ -430,7 +430,9 @@
           "fixedProject": "Fixed Project",
           "fixedProjectHint": "Stage / timeline / fee proposal.",
           "phasedConsultancy": "Phased Consultancy",
-          "phasedConsultancyHint": "Hourly consultancy, due-diligence or feasibility proposal."
+          "phasedConsultancyHint": "Hourly consultancy, due-diligence or feasibility proposal.",
+          "psaInteriorFitout": "Interior Fit-Out (full template)",
+          "psaInteriorFitoutHint": "Full architectural fee proposal: scope, base info, stages, fees, payment, travelling, exclusions, validity & signature."
         },
         "consultancy": {
           "sectionTitle": "Consultancy commercial settings",

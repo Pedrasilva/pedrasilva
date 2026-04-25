@@ -906,6 +906,24 @@ function GeneratedDocumentSection({
                 </div>
               </div>
             </Label>
+            <Label
+              htmlFor="kind-psa-interior"
+              className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
+            >
+              <RadioGroupItem
+                id="kind-psa-interior"
+                value="psa_interior_fitout"
+                className="mt-0.5"
+              />
+              <div className="space-y-0.5">
+                <div className="text-sm font-medium">
+                  {t("workspace.proposal.generator.kind.psaInteriorFitout")}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t("workspace.proposal.generator.kind.psaInteriorFitoutHint")}
+                </div>
+              </div>
+            </Label>
           </RadioGroup>
 
           {proposalKind === "phased_consultancy" && (
