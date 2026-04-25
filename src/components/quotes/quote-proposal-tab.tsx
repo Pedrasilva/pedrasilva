@@ -1487,18 +1487,26 @@ function sanitizeProseForDisplay(text: string): string {
   let out = text;
   // Remove standalone `{{var}}` tokens.
   out = out.replace(/\{\{\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\}\}/g, "");
-  // Awkward "located in" fragments left after location goes empty.
+  // Composite empty-predicate fragments (variable resolved to empty).
+  out = out.replace(/\bis\s+located\s+in\s*(?=[.,;:!?\n)]|$)/gi, "");
   out = out.replace(/,\s*located in\s*(?=[.,;:!?\n)]|$)/gi, "");
   out = out.replace(/\blocated in\s*(?=[.,;:!?\n)]|$)/gi, "");
-  // " in " immediately followed by punctuation/EOL ("a residential project in .")
   out = out.replace(/\s+in\s*(?=[.,;:!?\n)])/gi, "");
-  // Lines that became only whitespace/punctuation noise.
+  // Orphan copula left dangling after removals: " is ." / " is ," / " is<EOL>".
+  out = out.replace(/\s+\bis\s*(?=[.,;:!?])/gi, "");
+  out = out.replace(/\s+\bis\s*$/gim, "");
+  // Lines reduced to noise or to a bare "<subject>." stub.
   out = out
     .split("\n")
     .map((line) => {
       const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
-      // Drop lines that are now just punctuation residue (e.g. ".").
-      return /^[\s.,;:]*$/.test(trimmed) ? "" : trimmed;
+      if (/^[\s.,;:]*$/.test(trimmed)) return "";
+      const bare = trimmed.replace(/[*_]/g, "").trim();
+      if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
+        const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
+        if (wordCount <= 4) return "";
+      }
+      return trimmed;
     })
     .join("\n");
   out = out.replace(/\n{3,}/g, "\n\n");
