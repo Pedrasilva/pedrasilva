@@ -423,6 +423,30 @@
           "fixedProjectHint": "Proposta com fases, cronograma e honorários.",
           "phasedConsultancy": "Consultoria por Fases",
           "phasedConsultancyHint": "Proposta de consultoria à hora, due diligence ou estudo de viabilidade."
+        },
+        "consultancy": {
+          "sectionTitle": "Configurações comerciais da consultoria",
+          "sectionHint": "Define o valor à hora, o bloco de horas e o compromisso mínimo. Deixa em branco para manter em aberto.",
+          "hourlyRate": "Valor à hora (€ / h)",
+          "hoursBlock": "Bloco inicial de horas",
+          "minimumCommitment": "Compromisso mínimo (horas)",
+          "blockValue": "Valor do bloco",
+          "minimumFee": "Honorário mínimo",
+          "phasesTitle": "Horas estimadas por fase (opcional)",
+          "phase1Label": "Fase 1 — Viabilidade Preliminar",
+          "phase2Label": "Fase 2 — Viabilidade Detalhada e Alinhamento do Conceito",
+          "phase3Label": "Fase 3 — Confirmação de Planeamento (PIP)",
+          "hoursPlaceholder": "h",
+          "validationError": "Corrige as configurações da consultoria antes de gerar.",
+          "errors": {
+            "hourlyRateInvalid": "O valor à hora tem de ser superior a 0.",
+            "hoursBlockInvalid": "O bloco de horas tem de ser superior a 0.",
+            "minCommitmentInvalid": "O compromisso mínimo tem de ser superior a 0.",
+            "minCommitmentExceedsBlock": "O compromisso mínimo não pode exceder o bloco de horas.",
+            "phase1Invalid": "As horas estimadas da Fase 1 têm de ser um número positivo.",
+            "phase2Invalid": "As horas estimadas da Fase 2 têm de ser um número positivo.",
+            "phase3Invalid": "As horas estimadas da Fase 3 têm de ser um número positivo."
+          }
         }
       },
       "document": {
