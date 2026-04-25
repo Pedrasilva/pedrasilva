@@ -396,7 +396,14 @@
       "acceptanceSignature": "Signature",
       "acceptanceDate": "Date",
       "acceptanceOnBehalf": "Accepted on behalf of",
-      "footerContact": "Contact"
+      "footerContact": "Contact",
+      "generator": {
+        "title": "Generate proposal document",
+        "success": "Proposal document generated.",
+        "error": "Failed to generate proposal document.",
+        "missingBlocks": "Some library blocks were missing and skipped: {{slugs}}",
+        "replaceConfirm": "Replace existing draft?"
+      }
     }
   }
 }
