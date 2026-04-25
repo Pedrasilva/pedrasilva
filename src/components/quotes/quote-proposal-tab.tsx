@@ -27,12 +27,14 @@ import {
   ArrowDown,
   ArrowUp,
   ChevronDown,
+  Eye,
   FileText,
   Loader2,
   Lock,
   Pencil,
   Printer,
   RefreshCw,
+  Settings2,
   Sparkles,
   X,
 } from "lucide-react";
@@ -1463,38 +1465,246 @@ function LegacyProposalPreview({
   );
 }
 
+// ─────────────────── Client/print preview document ───────────────────
+
+/**
+ * Clean, client-facing render of a generated proposal document.
+ *
+ * Used by the Preview mode and by the print pipeline. Hides every editor
+ * affordance (cards, badges, switches, edit buttons), drops excluded blocks
+ * and empty blocks, and renders included blocks as flowing prose / tables
+ * inside a single document container.
+ */
+function ProposalPrintDocument({
+  document,
+  blocks,
+  clientName,
+  accountName,
+}: {
+  document: QuoteProposalDocument;
+  blocks: QuoteProposalDocumentBlock[];
+  clientName: string | null;
+  accountName: string | null;
+}) {
+  const { t } = useTranslation("crm");
+  const locale = useDateLocale();
+  const { data: branding } = useFirmBranding();
+  const firmName = branding?.company_name?.trim() || null;
+  const issueDate = format(new Date(), "d MMMM yyyy", { locale });
+
+  // Drop excluded blocks; keep original sort order.
+  const visible = useMemo(
+    () =>
+      [...blocks]
+        .filter((b) => b.is_included)
+        .sort((a, b) => a.sort_order - b.sort_order),
+    [blocks],
+  );
+
+  // Decide if a block has rendrable content; used to hide empty blocks.
+  function blockHasContent(b: QuoteProposalDocumentBlock): boolean {
+    if (b.block_type === "generated_section") {
+      const c = b.generated_content as GenContent;
+      if (!c) return false;
+      // Consider "non-empty" if any known payload key has data.
+      const arrayKeys = ["items", "schedule", "roles", "stages", "phases"];
+      if (arrayKeys.some((k) => Array.isArray(c[k]) && (c[k] as unknown[]).length > 0))
+        return true;
+      const objectKeys = ["fees", "timeline", "acceptance"];
+      if (
+        objectKeys.some(
+          (k) => c[k] && typeof c[k] === "object" && Object.keys(c[k] as object).length > 0,
+        )
+      )
+        return true;
+      // Consultancy-fee shape: any of the four numeric fields present.
+      if (
+        typeof c.hourly_rate === "number" ||
+        typeof c.hours_block === "number" ||
+        typeof c.minimum_commitment_hours === "number" ||
+        typeof c.block_value === "number"
+      )
+        return true;
+      return false;
+    }
+    return Boolean(b.content && b.content.trim().length > 0);
+  }
+
+  const renderable = visible.filter(blockHasContent);
+
+  return (
+    <article className="proposal-print-document mx-auto max-w-3xl bg-background px-8 py-10 text-foreground">
+      <header className="proposal-print-block proposal-avoid-break mb-8 flex items-start justify-between gap-6 border-b border-border pb-4">
+        <div className="min-w-0">
+          {firmName ? (
+            <p className="text-sm font-semibold tracking-tight">{firmName}</p>
+          ) : null}
+          <p className="mt-0.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+            {t("workspace.proposal.documentLabel")}
+          </p>
+          <h1 className="proposal-print-heading mt-3 text-2xl font-semibold leading-tight">
+            {document.title}
+          </h1>
+          {(clientName || accountName) && (
+            <p className="mt-1 text-sm text-muted-foreground">
+              {clientName ?? t("workspace.proposal.noClient")}
+              {accountName ? ` · ${accountName}` : ""}
+            </p>
+          )}
+        </div>
+        <div className="shrink-0 text-right text-xs text-muted-foreground">
+          <div>{t("workspace.proposal.issueDate")}</div>
+          <div className="text-foreground">{issueDate}</div>
+        </div>
+      </header>
+
+      {renderable.length === 0 ? (
+        <p className="text-sm italic text-muted-foreground">
+          {t("workspace.proposal.document.noBlocks")}
+        </p>
+      ) : (
+        <div className="space-y-7">
+          {renderable.map((b) => {
+            const slug =
+              (b as unknown as { slug?: string | null }).slug ??
+              inferSlugFromContent(b.generated_content as GenContent);
+            return (
+              <section key={b.id} className="proposal-print-block proposal-avoid-break">
+                {b.block_title && (
+                  <h2 className="proposal-print-heading mb-2 text-base font-semibold leading-snug">
+                    {b.block_title}
+                  </h2>
+                )}
+                {b.block_type === "generated_section" ? (
+                  <GeneratedSectionRenderer
+                    slug={slug}
+                    content={b.generated_content as GenContent}
+                    locale={locale}
+                  />
+                ) : (
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                    {b.content}
+                  </p>
+                )}
+              </section>
+            );
+          })}
+        </div>
+      )}
+
+      {(branding?.company_email ||
+        branding?.company_phone ||
+        branding?.company_address ||
+        firmName) && (
+        <footer className="proposal-print-block proposal-avoid-break mt-10 border-t border-border pt-4 text-[11px] leading-relaxed text-muted-foreground">
+          <div className="font-medium text-foreground">
+            {firmName ?? t("workspace.proposal.footerContact")}
+          </div>
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+            {branding?.company_email ? <span>{branding.company_email}</span> : null}
+            {branding?.company_phone ? <span>· {branding.company_phone}</span> : null}
+            {branding?.company_address ? <span>· {branding.company_address}</span> : null}
+          </div>
+        </footer>
+      )}
+    </article>
+  );
+}
+
 // ─────────────────────────── Top-level tab ───────────────────────────
 
 export function QuoteProposalTab(props: QuoteProposalTabProps) {
-  const { quoteId } = props;
+  const { quoteId, clientName, accountName } = props;
   const { t } = useTranslation("crm");
   const { data: document = null, isLoading: isLoadingDocument } =
     useLatestQuoteProposalDocument(quoteId);
+  const { data: blocks = [] } = useQuoteProposalDocumentBlocks(document?.id);
   const [legacyOpen, setLegacyOpen] = useState(false);
+  const [mode, setMode] = useState<"edit" | "preview">("edit");
+
+  // Print always runs in preview mode: switch first, then trigger print on
+  // the next paint so the DOM reflects the clean document.
+  const handlePrint = () => {
+    if (mode !== "preview") {
+      setMode("preview");
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => window.print());
+      });
+    } else {
+      window.print();
+    }
+  };
+
+  const canPreview = Boolean(document);
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2 no-print">
+      <div className="flex flex-wrap items-center justify-between gap-2 no-print">
         <p className="text-xs text-muted-foreground">
           {t("workspace.proposal.clientFacingHint")}
         </p>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => window.print()}
-        >
-          <Printer className="h-4 w-4 mr-1" />
-          {t("workspace.proposal.print")}
-        </Button>
+        <div className="flex items-center gap-2">
+          {canPreview && (
+            <div
+              role="tablist"
+              aria-label={t("workspace.proposal.modeToggleLabel")}
+              className="inline-flex rounded-md border bg-muted/30 p-0.5 text-xs"
+            >
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mode === "edit"}
+                onClick={() => setMode("edit")}
+                className={`inline-flex items-center gap-1 rounded px-2.5 py-1 transition-colors ${
+                  mode === "edit"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Settings2 className="h-3.5 w-3.5" />
+                {t("workspace.proposal.editMode")}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mode === "preview"}
+                onClick={() => setMode("preview")}
+                className={`inline-flex items-center gap-1 rounded px-2.5 py-1 transition-colors ${
+                  mode === "preview"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Eye className="h-3.5 w-3.5" />
+                {t("workspace.proposal.previewMode")}
+              </button>
+            </div>
+          )}
+          <Button variant="outline" size="sm" onClick={handlePrint}>
+            <Printer className="mr-1 h-4 w-4" />
+            {t("workspace.proposal.print")}
+          </Button>
+        </div>
       </div>
 
-      <div className="print-area">
-        <GeneratedDocumentSection
-          quoteId={quoteId}
-          document={document}
-          isLoadingDocument={isLoadingDocument}
-        />
-      </div>
+      {mode === "preview" && document ? (
+        <div className="print-area">
+          <ProposalPrintDocument
+            document={document}
+            blocks={blocks}
+            clientName={clientName}
+            accountName={accountName}
+          />
+        </div>
+      ) : (
+        <div className="no-print">
+          <GeneratedDocumentSection
+            quoteId={quoteId}
+            document={document}
+            isLoadingDocument={isLoadingDocument}
+          />
+        </div>
+      )}
 
       <Collapsible open={legacyOpen} onOpenChange={setLegacyOpen} className="no-print">
         <CollapsibleTrigger asChild>
