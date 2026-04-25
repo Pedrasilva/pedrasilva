@@ -1518,6 +1518,10 @@ function sanitizeProseForDisplay(text: string): string {
     .map((line) => {
       const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
       if (/^[\s.,;:]*$/.test(trimmed)) return "";
+      if (/^\*\*[^*]+\*\*$/.test(trimmed)) {
+        const wordCount = trimmed.replace(/\*/g, "").trim().split(/\s+/).length;
+        if (wordCount <= 4) return "";
+      }
       const hasEmphasis = /[*_]/.test(trimmed);
       const bare = trimmed.replace(/[*_]/g, "").trim();
       if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
