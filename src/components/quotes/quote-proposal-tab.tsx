@@ -549,15 +549,34 @@ function GeneratedDocumentSection({
     useQuoteProposalDocumentBlocks(document?.id);
   const generate = useGenerateQuoteProposalDocument();
 
+  // Read prior choice from snapshot when regenerating; otherwise default.
+  const persistedKind =
+    (document?.snapshot_json as { proposal_kind?: ProposalKind } | null)
+      ?.proposal_kind ?? "fixed_project";
+  const [proposalKind, setProposalKind] = useState<ProposalKind>(persistedKind);
+
   const handleGenerate = async (replaceExistingDraft: boolean) => {
     if (replaceExistingDraft && document) {
       const ok = window.confirm(t("workspace.proposal.generator.regenerateWarning"));
       if (!ok) return;
     }
+    // Use whichever kind is currently selected (or the persisted one when
+    // regenerating without the selector visible).
+    const kind: ProposalKind = document ? persistedKind : proposalKind;
     try {
       const result = await generate.mutateAsync({
         quoteId,
         replaceExistingDraft,
+        proposalKind: kind,
+        consultancy:
+          kind === "phased_consultancy"
+            ? {
+                hourly_rate: null,
+                hours_block: null,
+                minimum_commitment_hours: null,
+                phases: undefined,
+              }
+            : undefined,
       });
       toast.success(t("workspace.proposal.generator.success"));
       if (result.missingSlugs.length > 0) {
