@@ -411,6 +411,25 @@
 .proposal-print-document table tbody tr:last-child {
   border-bottom: 0;
 }
+/* Stronger styling for tables explicitly tagged as proposal-print-table —
+   used by generated renderers (payment schedule, fee summary, etc.) so
+   they read as real client-facing tables in both Preview and PDF. */
+.proposal-print-document .proposal-print-table {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.proposal-print-document .proposal-print-table thead th {
+  background: color-mix(in oklab, var(--color-muted) 80%, transparent);
+  border-bottom: 1px solid var(--color-border);
+}
+.proposal-print-document .proposal-print-table th,
+.proposal-print-document .proposal-print-table td {
+  padding: 0.5rem 0.65rem;
+}
+.proposal-print-document .proposal-print-table tbody tr {
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 50%, transparent);
+}
 
 @media print {
   .print-area .proposal-print-document {
