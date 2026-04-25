@@ -113,9 +113,262 @@ function statusVariant(
   }
 }
 
+function formatCurrency(value: number, currency = "EUR"): string {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `${value.toFixed(0)} ${currency}`;
+  }
+}
+
+// Type guards for the various generated_content shapes produced by
+// proposal-generator.ts. Kept narrow so each renderer reads cleanly.
+type GenContent = Record<string, unknown> | null | undefined;
+
+function asArray<T = unknown>(v: unknown): T[] {
+  return Array.isArray(v) ? (v as T[]) : [];
+}
+function asStr(v: unknown): string | null {
+  return typeof v === "string" && v.length > 0 ? v : null;
+}
+function asNum(v: unknown): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function GeneratedSectionRenderer({
+  slug,
+  content,
+  locale,
+}: {
+  slug: string | null;
+  content: GenContent;
+  locale: Locale | undefined;
+}) {
+  const { t } = useTranslation("crm");
+  const tr = (k: string, opts?: Record<string, unknown>) =>
+    t(`workspace.proposal.document.renderers.${k}`, opts);
+
+  if (!content) return null;
+
+  switch (slug) {
+    case "generated-external-services": {
+      const items = asArray<Record<string, unknown>>(content.items);
+      if (items.length === 0) {
+        return <p className="text-sm italic text-muted-foreground">{tr("externalServicesEmpty")}</p>;
+      }
+      return (
+        <ul className="space-y-1.5">
+          {items.map((it, i) => {
+            const desc = asStr(it.description) ?? "—";
+            const supplier = asStr(it.supplier);
+            const qty = asNum(it.quantity);
+            const total = asNum(it.total);
+            return (
+              <li
+                key={i}
+                className="flex items-center justify-between gap-3 border-b border-border/50 pb-1.5 text-sm last:border-0"
+              >
+                <div className="min-w-0">
+                  <div className="truncate font-medium">{desc}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {supplier ? `${supplier} · ` : ""}
+                    {tr("qty")}: {qty}
+                  </div>
+                </div>
+                <span className="shrink-0 tabular-nums">{formatCurrency(total)}</span>
+              </li>
+            );
+          })}
+        </ul>
+      );
+    }
+
+    case "generated-fee-summary": {
+      const fees = (content.fees ?? {}) as Record<string, unknown>;
+      const currency = asStr(content.currency) ?? "EUR";
+      const total = asNum(fees.total);
+      const internal = asNum(fees.internal);
+      const external = asNum(fees.external);
+      return (
+        <div className="space-y-3">
+          <div>
+            <div className="text-xs uppercase tracking-wider text-muted-foreground">
+              {tr("feeTotal")}
+            </div>
+            <div className="text-2xl font-semibold tabular-nums">
+              {formatCurrency(total, currency)}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <div className="text-xs text-muted-foreground">{tr("feeInternal")}</div>
+              <div className="font-medium tabular-nums">
+                {formatCurrency(internal, currency)}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">{tr("feeExternal")}</div>
+              <div className="font-medium tabular-nums">
+                {formatCurrency(external, currency)}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    case "generated-payment-schedule": {
+      const schedule = asArray<Record<string, unknown>>(content.schedule);
+      const currency = asStr(content.currency) ?? "EUR";
+      if (schedule.length === 0) {
+        return <p className="text-sm italic text-muted-foreground">{tr("scheduleEmpty")}</p>;
+      }
+      return (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <th className="py-1.5 pr-2 font-medium">{tr("scheduleLabel")}</th>
+                <th className="py-1.5 pr-2 font-medium">{tr("scheduleDate")}</th>
+                <th className="py-1.5 text-right font-medium">{tr("scheduleAmount")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {schedule.map((row, i) => {
+                const label = asStr(row.label) ?? "—";
+                const date = asStr(row.expected_invoice_date);
+                const amount = asNum(row.amount);
+                return (
+                  <tr key={i} className="border-b border-border/50 last:border-0">
+                    <td className="py-1.5 pr-2">{label}</td>
+                    <td className="py-1.5 pr-2 text-xs text-muted-foreground tabular-nums">
+                      {date ? safeDate(date, locale) : "—"}
+                    </td>
+                    <td className="py-1.5 text-right tabular-nums">
+                      {formatCurrency(amount, currency)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    case "generated-role-summary": {
+      const roles = asArray<Record<string, unknown>>(content.roles);
+      if (roles.length === 0) {
+        return <p className="text-sm italic text-muted-foreground">{tr("rolesEmpty")}</p>;
+      }
+      return (
+        <ul className="space-y-1.5">
+          {roles.map((r, i) => (
+            <li
+              key={i}
+              className="flex items-center justify-between gap-3 border-b border-border/50 pb-1.5 text-sm last:border-0"
+            >
+              <span className="truncate font-medium">{asStr(r.role) ?? "—"}</span>
+              <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                {tr("rolesHours", { hours: asNum(r.hours) })}
+              </span>
+            </li>
+          ))}
+        </ul>
+      );
+    }
+
+    case "generated-stage-summary": {
+      const stages = asArray<Record<string, unknown>>(content.stages);
+      if (stages.length === 0) {
+        return <p className="text-sm italic text-muted-foreground">{tr("stagesEmpty")}</p>;
+      }
+      return (
+        <ul className="space-y-1.5">
+          {stages.map((s, i) => {
+            const start = asStr(s.start_date);
+            const end = asStr(s.end_date);
+            return (
+              <li
+                key={i}
+                className="flex items-center justify-between gap-3 border-b border-border/50 pb-1.5 text-sm last:border-0"
+              >
+                <span className="truncate font-medium">{asStr(s.name) ?? "—"}</span>
+                <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                  {start ? safeDate(start, locale) : "—"} →{" "}
+                  {end ? safeDate(end, locale) : "—"}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      );
+    }
+
+    case "generated-timeline": {
+      const tl = (content.timeline ?? {}) as Record<string, unknown>;
+      const start = asStr(tl.start_date);
+      const end = asStr(tl.end_date);
+      if (!start && !end) {
+        return <p className="text-sm italic text-muted-foreground">{tr("timelineEmpty")}</p>;
+      }
+      return (
+        <p className="text-sm tabular-nums">
+          {tr("timelineRange", {
+            start: start ? safeDate(start, locale) : "—",
+            end: end ? safeDate(end, locale) : "—",
+          })}
+        </p>
+      );
+    }
+
+    case "generated-acceptance-block": {
+      const a = (content.acceptance ?? {}) as Record<string, unknown>;
+      const client = asStr(a.client_name);
+      const proposal = asStr(a.proposal_title);
+      const fee = asNum(a.total_fee);
+      return (
+        <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
+          {client && (
+            <div>
+              <dt className="text-xs text-muted-foreground">{tr("acceptanceClient")}</dt>
+              <dd className="font-medium">{client}</dd>
+            </div>
+          )}
+          {proposal && (
+            <div>
+              <dt className="text-xs text-muted-foreground">{tr("acceptanceProposal")}</dt>
+              <dd className="font-medium">{proposal}</dd>
+            </div>
+          )}
+          <div>
+            <dt className="text-xs text-muted-foreground">{tr("acceptanceFee")}</dt>
+            <dd className="font-medium tabular-nums">{formatCurrency(fee)}</dd>
+          </div>
+        </dl>
+      );
+    }
+
+    default:
+      return null;
+  }
+}
+
 function GeneratedBlockCard({ block }: { block: QuoteProposalDocumentBlock }) {
   const { t } = useTranslation("crm");
+  const locale = useDateLocale();
   const isGenerated = block.block_type === "generated_section";
+  // The master block's slug isn't stored on the per-doc row, but the generator
+  // names map cleanly via block_title? Safer: derive slug from generated_content
+  // shape OR from proposal_block_id join. We expose a `slug` field if present.
+  const slug =
+    (block as unknown as { slug?: string | null }).slug ??
+    inferSlugFromContent(block.generated_content as GenContent);
 
   return (
     <article
@@ -124,9 +377,7 @@ function GeneratedBlockCard({ block }: { block: QuoteProposalDocumentBlock }) {
       }`}
     >
       <header className="mb-2 flex items-start justify-between gap-2">
-        <h3 className="text-sm font-semibold leading-tight">
-          {block.block_title}
-        </h3>
+        <h3 className="text-sm font-semibold leading-tight">{block.block_title}</h3>
         <div className="flex shrink-0 items-center gap-1">
           {isGenerated && (
             <Badge variant="secondary" className="gap-1">
@@ -143,16 +394,15 @@ function GeneratedBlockCard({ block }: { block: QuoteProposalDocumentBlock }) {
       </header>
 
       {isGenerated ? (
-        <div className="rounded border border-dashed border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-          <div className="mb-1 font-medium uppercase tracking-wider text-[10px]">
+        <div className="rounded border border-dashed border-border bg-muted/40 p-3">
+          <div className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
             {t("workspace.proposal.document.generatedSection")}
           </div>
-          <p>{t("workspace.proposal.document.generatedSectionHint")}</p>
-          {block.generated_content && (
-            <pre className="mt-2 max-h-40 overflow-auto rounded bg-background/60 p-2 font-mono text-[10px] leading-snug">
-              {JSON.stringify(block.generated_content, null, 2)}
-            </pre>
-          )}
+          <GeneratedSectionRenderer
+            slug={slug}
+            content={block.generated_content as GenContent}
+            locale={locale}
+          />
         </div>
       ) : (
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
@@ -161,6 +411,20 @@ function GeneratedBlockCard({ block }: { block: QuoteProposalDocumentBlock }) {
       )}
     </article>
   );
+}
+
+// Best-effort slug inference from the generated_content shape, used when the
+// per-document block row doesn't carry the master slug.
+function inferSlugFromContent(content: GenContent): string | null {
+  if (!content) return null;
+  if ("items" in content) return "generated-external-services";
+  if ("schedule" in content) return "generated-payment-schedule";
+  if ("fees" in content) return "generated-fee-summary";
+  if ("roles" in content) return "generated-role-summary";
+  if ("stages" in content) return "generated-stage-summary";
+  if ("timeline" in content) return "generated-timeline";
+  if ("acceptance" in content) return "generated-acceptance-block";
+  return null;
 }
 
 function GeneratedDocumentSection({
