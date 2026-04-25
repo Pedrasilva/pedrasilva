@@ -2082,6 +2082,98 @@ export type Database = {
           },
         ]
       }
+      proposal_block_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      proposal_blocks: {
+        Row: {
+          block_type: Database["public"]["Enums"]["proposal_block_type"]
+          category_id: string | null
+          created_at: string
+          default_content: string
+          id: string
+          is_active: boolean
+          language: string
+          project_type_tags: string[]
+          service_type_tags: string[]
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+          variables: Json
+          visibility: Database["public"]["Enums"]["proposal_block_visibility"]
+        }
+        Insert: {
+          block_type?: Database["public"]["Enums"]["proposal_block_type"]
+          category_id?: string | null
+          created_at?: string
+          default_content?: string
+          id?: string
+          is_active?: boolean
+          language?: string
+          project_type_tags?: string[]
+          service_type_tags?: string[]
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+          variables?: Json
+          visibility?: Database["public"]["Enums"]["proposal_block_visibility"]
+        }
+        Update: {
+          block_type?: Database["public"]["Enums"]["proposal_block_type"]
+          category_id?: string | null
+          created_at?: string
+          default_content?: string
+          id?: string
+          is_active?: boolean
+          language?: string
+          project_type_tags?: string[]
+          service_type_tags?: string[]
+          slug?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          variables?: Json
+          visibility?: Database["public"]["Enums"]["proposal_block_visibility"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_blocks_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "proposal_block_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_allocations: {
         Row: {
           allocation_percentage: number | null
@@ -2303,6 +2395,119 @@ export type Database = {
             columns: ["stage_id"]
             isOneToOne: false
             referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_proposal_document_blocks: {
+        Row: {
+          block_title: string
+          block_type: Database["public"]["Enums"]["proposal_block_type"]
+          content: string
+          created_at: string
+          generated_content: Json | null
+          id: string
+          is_included: boolean
+          is_locked: boolean
+          proposal_block_id: string | null
+          proposal_document_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          block_title: string
+          block_type?: Database["public"]["Enums"]["proposal_block_type"]
+          content?: string
+          created_at?: string
+          generated_content?: Json | null
+          id?: string
+          is_included?: boolean
+          is_locked?: boolean
+          proposal_block_id?: string | null
+          proposal_document_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          block_title?: string
+          block_type?: Database["public"]["Enums"]["proposal_block_type"]
+          content?: string
+          created_at?: string
+          generated_content?: Json | null
+          id?: string
+          is_included?: boolean
+          is_locked?: boolean
+          proposal_block_id?: string | null
+          proposal_document_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_proposal_document_blocks_proposal_block_id_fkey"
+            columns: ["proposal_block_id"]
+            isOneToOne: false
+            referencedRelation: "proposal_blocks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_proposal_document_blocks_proposal_document_id_fkey"
+            columns: ["proposal_document_id"]
+            isOneToOne: false
+            referencedRelation: "quote_proposal_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_proposal_documents: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          generated_at: string | null
+          id: string
+          language: string
+          quote_id: string
+          revision_number: number
+          sent_at: string | null
+          snapshot_json: Json
+          status: Database["public"]["Enums"]["quote_proposal_document_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          generated_at?: string | null
+          id?: string
+          language?: string
+          quote_id: string
+          revision_number?: number
+          sent_at?: string | null
+          snapshot_json?: Json
+          status?: Database["public"]["Enums"]["quote_proposal_document_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          generated_at?: string | null
+          id?: string
+          language?: string
+          quote_id?: string
+          revision_number?: number
+          sent_at?: string | null
+          snapshot_json?: Json
+          status?: Database["public"]["Enums"]["quote_proposal_document_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_proposal_documents_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
             referencedColumns: ["id"]
           },
         ]
@@ -2930,6 +3135,11 @@ export type Database = {
         | "pausado"
         | "concluido"
         | "cancelado"
+      proposal_block_type:
+        | "editable_text"
+        | "generated_section"
+        | "legal_reference"
+      proposal_block_visibility: "client" | "internal" | "both"
       proposal_status:
         | "lead"
         | "proposta_enviada"
@@ -2951,6 +3161,12 @@ export type Database = {
         | "stage_end"
         | "manual_date"
         | "monthly"
+      quote_proposal_document_status:
+        | "draft"
+        | "ready"
+        | "sent"
+        | "accepted"
+        | "archived"
       subsidios_modo: "tradicional" | "duodecimos_50" | "duodecimos_100"
     }
     CompositeTypes: {
@@ -3139,6 +3355,12 @@ export const Constants = {
         "concluido",
         "cancelado",
       ],
+      proposal_block_type: [
+        "editable_text",
+        "generated_section",
+        "legal_reference",
+      ],
+      proposal_block_visibility: ["client", "internal", "both"],
       proposal_status: [
         "lead",
         "proposta_enviada",
@@ -3162,6 +3384,13 @@ export const Constants = {
         "stage_end",
         "manual_date",
         "monthly",
+      ],
+      quote_proposal_document_status: [
+        "draft",
+        "ready",
+        "sent",
+        "accepted",
+        "archived",
       ],
       subsidios_modo: ["tradicional", "duodecimos_50", "duodecimos_100"],
     },
