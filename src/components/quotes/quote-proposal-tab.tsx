@@ -1605,7 +1605,10 @@ function ProposalPrintDocument({
     [blocks],
   );
 
-  // Decide if a block has rendrable content; used to hide empty blocks.
+  const getRenderableText = (b: QuoteProposalDocumentBlock): string =>
+    sanitizeProseForDisplay(b.content ?? "");
+
+  // Decide if a block has renderable content; used to hide empty blocks.
   function blockHasContent(b: QuoteProposalDocumentBlock): boolean {
     if (b.block_type === "generated_section") {
       const c = b.generated_content as GenContent;
@@ -1631,7 +1634,7 @@ function ProposalPrintDocument({
         return true;
       return false;
     }
-    return Boolean(b.content && b.content.trim().length > 0);
+    return getRenderableText(b).length > 0;
   }
 
   const renderable = visible.filter(blockHasContent);
@@ -1672,6 +1675,12 @@ function ProposalPrintDocument({
             const slug =
               (b as unknown as { slug?: string | null }).slug ??
               inferSlugFromContent(b.generated_content as GenContent);
+            const sanitizedContent =
+              b.block_type === "generated_section" ? "" : getRenderableText(b);
+            if (b.block_title === "Generic Project Description") {
+              console.log("Generic Project Description original", b.content ?? "");
+              console.log("Generic Project Description sanitized", sanitizedContent);
+            }
             return (
               <section key={b.id} className="proposal-print-block proposal-avoid-break">
                 {b.block_title && (
@@ -1686,7 +1695,7 @@ function ProposalPrintDocument({
                     locale={locale}
                   />
                 ) : (
-                  <ProseBlock text={b.content ?? ""} />
+                  <ProseBlock text={sanitizedContent} alreadySanitized />
                 )}
               </section>
             );
