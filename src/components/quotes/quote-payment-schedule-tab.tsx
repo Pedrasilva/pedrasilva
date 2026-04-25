@@ -197,7 +197,89 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          <div className="rounded-md border bg-muted/30 p-3">
+            <div className="text-xs font-medium text-muted-foreground mb-2">
+              {t("workspace.payment.milestoneOptionsTitle")}
+            </div>
+            <div className="grid gap-3 md:grid-cols-5 items-end">
+              <div className="flex items-center gap-2 md:col-span-1">
+                <Checkbox
+                  id="dp-enabled"
+                  checked={milestoneOpts.downPaymentEnabled}
+                  onCheckedChange={(v) =>
+                    setMilestoneOpts((p) => ({ ...p, downPaymentEnabled: Boolean(v) }))
+                  }
+                />
+                <Label htmlFor="dp-enabled" className="text-xs cursor-pointer">
+                  {t("workspace.payment.downPaymentEnabled")}
+                </Label>
+              </div>
+              <div>
+                <Label className="text-xs">{t("workspace.payment.downPaymentPercent")}</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  disabled={!milestoneOpts.downPaymentEnabled}
+                  value={milestoneOpts.downPaymentPercent}
+                  onChange={(e) =>
+                    setMilestoneOpts((p) => ({ ...p, downPaymentPercent: e.target.value }))
+                  }
+                />
+              </div>
+              <div>
+                <Label className="text-xs">{t("workspace.payment.stageStartPercent")}</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={milestoneOpts.stageStartPercent}
+                  onChange={(e) =>
+                    setMilestoneOpts((p) => ({ ...p, stageStartPercent: e.target.value }))
+                  }
+                />
+              </div>
+              <div>
+                <Label className="text-xs">{t("workspace.payment.stageEndPercent")}</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={milestoneOpts.stageEndPercent}
+                  onChange={(e) =>
+                    setMilestoneOpts((p) => ({ ...p, stageEndPercent: e.target.value }))
+                  }
+                />
+              </div>
+              <div>
+                <Label className="text-xs">{t("workspace.payment.paymentTermsDays")}</Label>
+                <Input
+                  type="number"
+                  step="1"
+                  min="0"
+                  placeholder="0"
+                  value={milestoneOpts.paymentTermsDays}
+                  onChange={(e) =>
+                    setMilestoneOpts((p) => ({ ...p, paymentTermsDays: e.target.value }))
+                  }
+                />
+              </div>
+              <div className="flex items-center gap-2 md:col-span-5">
+                <Checkbox
+                  id="dp-deduct"
+                  checked={milestoneOpts.deductDownPaymentFromStages}
+                  disabled={!milestoneOpts.downPaymentEnabled}
+                  onCheckedChange={(v) =>
+                    setMilestoneOpts((p) => ({ ...p, deductDownPaymentFromStages: Boolean(v) }))
+                  }
+                />
+                <Label htmlFor="dp-deduct" className="text-xs cursor-pointer">
+                  {t("workspace.payment.deductDownPayment")}
+                </Label>
+              </div>
+            </div>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
