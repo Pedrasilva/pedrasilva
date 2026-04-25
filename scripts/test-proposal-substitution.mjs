@@ -21,6 +21,17 @@ const VAR_TOKEN_RE = /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g;
 function cleanupEmptyPhrases(text) {
   if (!text) return text;
   let out = text;
+  out = out
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.replace(/\s{2,}/g, " ").trim();
+      if (/^is\s+(?:located\s+in\s*)?[.,;:!?]$/i.test(trimmed)) return "";
+      if (/^\S[\s\S]*?\s+is\s+(?:located\s+in\s*)?[.,;:!?]$/i.test(trimmed)) {
+        return "";
+      }
+      return line;
+    })
+    .join("\n");
   out = out.replace(/\bis\s+located\s+in\s*(?=[.,;:!?\n)]|$)/gi, "");
   out = out.replace(/,\s*located in\s*(?=[.,;:!?\n)]|$)/gi, "");
   out = out.replace(/\blocated in\s*(?=[.,;:!?\n)]|$)/gi, "");
@@ -125,6 +136,29 @@ assertEq(
     "{{project_name}} is located in {{project_location}}.",
     vars,
   ).trim(),
+  "",
+);
+
+assertEq(
+  "bold saved DB location sentence is removed while following brief remains",
+  substituteVariables(
+    "**{{project_name}}** is located in {{project_location}}.\n\nThis is a project for a familiar face with a house in rocks",
+    vars,
+  ),
+  "This is a project for a familiar face with a house in rocks",
+);
+
+assertEq(
+  "already-saved bold orphan `is .` sentence is removed",
+  cleanupEmptyPhrases(
+    "**Speedy Gonzalez** is .\n\nThis is a project for a familiar face with a house in rocks",
+  ),
+  "This is a project for a familiar face with a house in rocks",
+);
+
+assertEq(
+  "already-saved plain orphan `is .` sentence is removed",
+  cleanupEmptyPhrases("Speedy Gonzalez is .").trim(),
   "",
 );
 
