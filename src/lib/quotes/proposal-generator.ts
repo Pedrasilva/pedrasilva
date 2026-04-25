@@ -472,6 +472,33 @@ export function generateProposalDocument(input: GenerateInput): GenerateOutput {
         case "generated-acceptance-block":
           generated_content = { acceptance: computed.acceptance };
           break;
+        case "generated-time-fee-consultancy": {
+          const c = input.consultancy ?? {};
+          const hourly = c.hourly_rate ?? null;
+          const block = c.hours_block ?? null;
+          const minimum = c.minimum_commitment_hours ?? null;
+          const blockValue =
+            hourly !== null && block !== null ? hourly * block : null;
+          generated_content = {
+            hourly_rate: hourly,
+            hours_block: block,
+            minimum_commitment_hours: minimum,
+            block_value: blockValue,
+            currency,
+          };
+          break;
+        }
+        case "generated-consultancy-phases": {
+          const phases =
+            input.consultancy?.phases && input.consultancy.phases.length > 0
+              ? input.consultancy.phases.map((p) => ({
+                  label: p.label,
+                  estimated_hours: p.estimated_hours ?? null,
+                }))
+              : DEFAULT_CONSULTANCY_PHASES.map((p) => ({ ...p }));
+          generated_content = { phases };
+          break;
+        }
         default:
           generated_content = null;
       }
