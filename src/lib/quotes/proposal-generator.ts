@@ -204,6 +204,24 @@ export const DEFAULT_PROPOSAL_BLOCK_SLUGS: readonly string[] = [
   "generated-acceptance-block",
 ] as const;
 
+/**
+ * Default ordered slug list for time-based phased consultancy proposals.
+ * Used when generator is called with proposalKind === "phased_consultancy".
+ */
+export const DEFAULT_CONSULTANCY_BLOCK_SLUGS: readonly string[] = [
+  "intro-consultancy-due-diligence",
+  "consultancy-scope-overview",
+  "consultancy-phase-1-feasibility",
+  "consultancy-phase-2-detailed",
+  "consultancy-phase-3-pip",
+  "generated-consultancy-phases",
+  "consultancy-methodology-iterative",
+  "consultancy-fee-structure-time-based",
+  "generated-time-fee-consultancy",
+  "consultancy-exclusions-standard",
+  "consultancy-validity-next-steps",
+] as const;
+
 // ────────────────────── Variable substitution ──────────────────────
 
 const CURRENCY_FORMATTERS: Record<string, Intl.NumberFormat> = {};
