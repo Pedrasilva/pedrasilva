@@ -21,12 +21,27 @@ const VAR_TOKEN_RE = /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g;
 function cleanupEmptyPhrases(text) {
   if (!text) return text;
   let out = text;
+  out = out.replace(/\bis\s+located\s+in\s*(?=[.,;:!?\n)]|$)/gi, "");
   out = out.replace(/,\s*located in\s*(?=[.,;:!?\n)]|$)/gi, "");
   out = out.replace(/\blocated in\s*(?=[.,;:!?\n)]|$)/gi, "");
   out = out.replace(/\s+in\s*(?=[.,;:!?\n)])/gi, "");
+  out = out.replace(/\s+\bis\s*(?=[.,;:!?])/gi, "");
+  out = out.replace(/\s+\bis\s*$/gim, "");
+  out = out.replace(/\s+([.,;:!?])/g, "$1");
   out = out
     .split("\n")
-    .map((line) => line.replace(/\s{2,}/g, " ").trimEnd())
+    .map((line) => {
+      const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
+      if (/^[\s.,;:]*$/.test(trimmed)) return "";
+      const hasEmphasis = /[*_]/.test(trimmed);
+      const bare = trimmed.replace(/[*_]/g, "").trim();
+      if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
+        const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
+        const limit = hasEmphasis ? 4 : 1;
+        if (wordCount <= limit) return "";
+      }
+      return trimmed;
+    })
     .join("\n");
   out = out.replace(/\n{3,}/g, "\n\n");
   out = out.replace(/[ \t]{2,}/g, " ");
@@ -96,6 +111,39 @@ assertEq(
   "filled variable still substitutes correctly",
   substituteVariables("Hello {{client_name}}", vars),
   "Hello Acme",
+);
+
+assertEq(
+  "`{{project_name}} is {{project_location}}.` collapses when location empty",
+  substituteVariables("{{project_name}} is {{project_location}}.", vars).trim(),
+  "",
+);
+
+assertEq(
+  "`{{project_name}} is located in {{project_location}}.` collapses when location empty",
+  substituteVariables(
+    "{{project_name}} is located in {{project_location}}.",
+    vars,
+  ).trim(),
+  "",
+);
+
+assertEq(
+  "bold subject `**{{project_name}}** is located in {{project_location}}.` collapses too",
+  substituteVariables(
+    "**{{project_name}}** is located in {{project_location}}.",
+    vars,
+  ).trim(),
+  "",
+);
+
+assertEq(
+  "longer sentences with real predicates are preserved",
+  substituteVariables(
+    "{{project_name}} is a residential renovation we look forward to.",
+    vars,
+  ),
+  "Lighthouse is a residential renovation we look forward to.",
 );
 
 if (failed > 0) {

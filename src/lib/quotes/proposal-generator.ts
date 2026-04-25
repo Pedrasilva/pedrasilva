@@ -316,16 +316,40 @@ export function substituteVariables(
 export function cleanupEmptyPhrases(text: string): string {
   if (!text) return text;
   let out = text;
-  // ", located in " followed by punctuation/end-of-line/period.
+  // Composite empty-predicate fragments — order matters: longest/most specific first.
+  // Drop "is located in " when followed by punctuation/EOL (variable was empty).
+  out = out.replace(/\bis\s+located\s+in\s*(?=[.,;:!?\n)]|$)/gi, "");
+  // Drop ", located in " when followed by punctuation/EOL.
   out = out.replace(/,\s*located in\s*(?=[.,;:!?\n)]|$)/gi, "");
-  // "located in " at start/middle followed by punctuation/end.
+  // Drop bare "located in " when followed by punctuation/EOL.
   out = out.replace(/\blocated in\s*(?=[.,;:!?\n)]|$)/gi, "");
-  // " in " immediately followed by punctuation (e.g. "is a residential project in .")
+  // " in " immediately followed by punctuation (e.g. "a residential project in .")
   out = out.replace(/\s+in\s*(?=[.,;:!?\n)])/gi, "");
-  // Lines that became just whitespace or punctuation noise.
+  // Orphan copula left dangling after removals: " is ." / " is ," / " is\n"
+  // (e.g. "Speedy Gonzalez is ." after stripping "located in {{project_location}}").
+  out = out.replace(/\s+\bis\s*(?=[.,;:!?])/gi, "");
+  out = out.replace(/\s+\bis\s*$/gim, "");
+  // Tidy " ." spacing produced by removals (e.g. "Subject ." → "Subject.").
+  out = out.replace(/\s+([.,;:!?])/g, "$1");
+  // Drop bare-subject stub lines left after the predicate was stripped.
+  // Two cases:
+  //   - With markdown emphasis (`**Subject**.`) — short noun phrase ≤ 4 words.
+  //   - Without emphasis — only single-word stubs (`Subject.`), so legitimate
+  //     short sentences like "Project Lighthouse." or "Intro line." survive.
   out = out
     .split("\n")
-    .map((line) => line.replace(/\s{2,}/g, " ").trimEnd())
+    .map((line) => {
+      const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
+      if (/^[\s.,;:]*$/.test(trimmed)) return "";
+      const hasEmphasis = /[*_]/.test(trimmed);
+      const bare = trimmed.replace(/[*_]/g, "").trim();
+      if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
+        const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
+        const limit = hasEmphasis ? 4 : 1;
+        if (wordCount <= limit) return "";
+      }
+      return trimmed;
+    })
     .join("\n");
   // Collapse 3+ blank lines into max two.
   out = out.replace(/\n{3,}/g, "\n\n");
