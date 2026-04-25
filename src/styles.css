@@ -534,6 +534,15 @@
   .print-area .proposal-print-document .text-muted-foreground {
     color: #555 !important;
   }
+  /* Force visible separators on borders inside the printed document so
+     list rows (Stage Summary, Role Summary, Acceptance Block, etc.) read
+     the same way they do on screen. Theme tokens can wash out to white. */
+  .print-area .proposal-print-document [class*="border-b"],
+  .print-area .proposal-print-document [class*="border-t"],
+  .print-area .proposal-print-document header,
+  .print-area .proposal-print-document footer {
+    border-color: #d4d4d4 !important;
+  }
   /* Hide every editor affordance that may have leaked in. */
   .print-area .proposal-print-document button,
   .print-area .proposal-print-document [role="switch"],
