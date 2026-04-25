@@ -109,12 +109,19 @@ export function useQuotePlannerAdapter(
     defaultRates: undefined,
     resources,
 
-    updateStage: (a) =>
-      updateStageCascade.mutateAsync({
+    updateStage: async (a) => {
+      const res = await updateStageCascade.mutateAsync({
         id: a.id,
         start_date: a.start_date,
         end_date: a.end_date,
-      }),
+      });
+      if (res?.dependentCount > 0) {
+        toast.success(
+          t("projects:gantt.dependency.cascadeToast", { count: res.dependentCount }),
+        );
+      }
+      return res;
+    },
     deleteStage: (a) => deleteStage.mutateAsync(a.id),
 
     createAllocation: (a) => {
