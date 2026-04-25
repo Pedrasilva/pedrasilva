@@ -33,12 +33,12 @@ function cleanupEmptyPhrases(text) {
     .map((line) => {
       const trimmed = line.replace(/\s{2,}/g, " ").trimEnd();
       if (/^[\s.,;:]*$/.test(trimmed)) return "";
-      if (/[*_]/.test(trimmed)) {
-        const bare = trimmed.replace(/[*_]/g, "").trim();
-        if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
-          const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
-          if (wordCount <= 4) return "";
-        }
+      const hasEmphasis = /[*_]/.test(trimmed);
+      const bare = trimmed.replace(/[*_]/g, "").trim();
+      if (/^[A-Za-z0-9][^.,;:!?]*\.$/.test(bare)) {
+        const wordCount = bare.slice(0, -1).trim().split(/\s+/).length;
+        const limit = hasEmphasis ? 4 : 1;
+        if (wordCount <= limit) return "";
       }
       return trimmed;
     })
