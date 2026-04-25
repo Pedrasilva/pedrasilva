@@ -935,13 +935,15 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
         </Button>
       </div>
 
-      <GeneratedDocumentSection
-        quoteId={quoteId}
-        document={document}
-        isLoadingDocument={isLoadingDocument}
-      />
+      <div className="print-area">
+        <GeneratedDocumentSection
+          quoteId={quoteId}
+          document={document}
+          isLoadingDocument={isLoadingDocument}
+        />
+      </div>
 
-      <Collapsible open={legacyOpen} onOpenChange={setLegacyOpen}>
+      <Collapsible open={legacyOpen} onOpenChange={setLegacyOpen} className="no-print">
         <CollapsibleTrigger asChild>
           <Button
             variant="ghost"
