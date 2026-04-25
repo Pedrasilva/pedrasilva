@@ -67,6 +67,11 @@ import {
   type QuoteProposalDocument,
   type QuoteProposalDocumentBlock,
 } from "@/lib/quotes/use-quote-proposal-document";
+import {
+  useUpdateBlockContent,
+  useSetBlockIncluded,
+  useMoveBlock,
+} from "@/lib/quotes/use-quote-proposal-document-blocks";
 import { useGenerateQuoteProposalDocument } from "@/lib/quotes/use-generate-quote-proposal-document";
 
 interface QuoteProposalTabProps {
