@@ -420,6 +420,7 @@ export function generateProposalDocument(input: GenerateInput): GenerateOutput {
     currency,
     language,
     validityDays,
+    input.consultancy,
   );
 
   const slugs = pickSlugs(input);
