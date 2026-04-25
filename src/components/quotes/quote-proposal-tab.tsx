@@ -15,6 +15,7 @@
  * DOCX/PDF export, no snapshot-on-send.
  */
 import { useEffect, useMemo, useState } from "react";
+import { flushSync } from "react-dom";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -1220,7 +1221,7 @@ function LegacyProposalPreview({
   const firmName = branding?.company_name?.trim() || null;
 
   return (
-    <div className="print-area">
+    <div className="legacy-proposal-preview">
       <Card>
         <div className="proposal-section flex items-start justify-between gap-4 border-b border-border px-6 py-4">
           <div className="min-w-0">
@@ -1741,7 +1742,7 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
   // the next paint so the DOM reflects the clean document.
   const handlePrint = () => {
     if (mode !== "preview") {
-      setMode("preview");
+      flushSync(() => setMode("preview"));
       requestAnimationFrame(() => {
         requestAnimationFrame(() => window.print());
       });
