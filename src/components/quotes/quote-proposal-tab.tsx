@@ -1682,10 +1682,6 @@ function ProposalPrintDocument({
               inferSlugFromContent(b.generated_content as GenContent);
             const sanitizedContent =
               b.block_type === "generated_section" ? "" : getRenderableText(b);
-            if (b.block_title === "Generic Project Description") {
-              console.log("Generic Project Description original", b.content ?? "");
-              console.log("Generic Project Description sanitized", sanitizedContent);
-            }
             return (
               <section key={b.id} className="proposal-print-block proposal-avoid-break">
                 {b.block_title && (
