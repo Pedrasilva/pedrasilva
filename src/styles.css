@@ -479,18 +479,18 @@
 
 @media print {
   .print-area .proposal-print-document {
-    /* Keep the same horizontal rhythm as Preview: a centred document with
-       inner padding so headings/borders don't span the full page width.
-       The @page margin handles the outer paper margin; the article's own
-       padding gives the printed text the same indented look as on-screen. */
-    max-width: 100%;
+    /* Match Preview's paper rhythm: keep the same internal padding instead
+       of flattening the document to the page edge. Browser print already
+       supplies the outer paper margin through @page. */
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 48rem;
     margin: 0 auto;
-    padding: 0 0.25rem;
+    padding: 2rem;
     background: white !important;
     color: black !important;
     box-shadow: none !important;
     border: none !important;
-    /* Keep on-screen typography rather than shrinking — matches Preview. */
     font-size: 11pt;
     line-height: 1.55;
   }
