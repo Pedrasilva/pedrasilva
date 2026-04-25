@@ -202,15 +202,20 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
       if (rect) {
         const px = e.clientX - rect.left;
         const py = e.clientY - rect.top;
-        setLink({ ...link, pointerX: px, pointerY: py });
         let hit: string | null = null;
+        let toSide: "start" | "end" | null = null;
         for (const [sid, geo] of stageLayouts.entries()) {
           if (sid === link.fromStageId) continue;
           if (px >= geo.x && px <= geo.x + geo.w && py >= geo.top && py <= geo.top + STAGE_ROW_H) {
             hit = sid;
+            // Classify which half of the bar the pointer is over.
+            // Left third = start, right third = end, middle = nearest side.
+            const rel = (px - geo.x) / geo.w;
+            toSide = rel < 0.5 ? "start" : "end";
             break;
           }
         }
+        setLink({ ...link, pointerX: px, pointerY: py, toSide });
         setLinkHoverStage(hit);
       }
     }
