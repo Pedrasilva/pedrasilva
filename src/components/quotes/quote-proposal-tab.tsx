@@ -517,6 +517,9 @@ function GeneratedBlockCard({ block }: { block: QuoteProposalDocumentBlock }) {
 // per-document block row doesn't carry the master slug.
 function inferSlugFromContent(content: GenContent): string | null {
   if (!content) return null;
+  if ("phases" in content) return "generated-consultancy-phases";
+  if ("hourly_rate" in content || "hours_block" in content || "block_value" in content)
+    return "generated-time-fee-consultancy";
   if ("items" in content) return "generated-external-services";
   if ("schedule" in content) return "generated-payment-schedule";
   if ("fees" in content) return "generated-fee-summary";
