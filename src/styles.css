@@ -691,9 +691,10 @@
   .print-area .proposal-print-document [data-slot="badge"] {
     display: none !important;
   }
-  /* Cover spacing in print: less aggressive than screen. */
+  /* Cover sits flush at the top of the content box; @page margin already
+     reserves space at the top for the fixed header. */
   .print-area .proposal-cover {
-    margin-top: 50mm;
+    margin-top: 0;
   }
 }
 
