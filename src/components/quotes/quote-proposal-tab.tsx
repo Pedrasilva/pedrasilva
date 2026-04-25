@@ -757,9 +757,149 @@ function GeneratedDocumentSection({
               </div>
             </Label>
           </RadioGroup>
+
+          {proposalKind === "phased_consultancy" && (
+            <div className="w-full max-w-md space-y-4 rounded-md border bg-muted/20 p-4 text-left">
+              <div>
+                <h4 className="text-sm font-semibold">
+                  {t("workspace.proposal.generator.consultancy.sectionTitle")}
+                </h4>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {t("workspace.proposal.generator.consultancy.sectionHint")}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label htmlFor="consultancy-rate" className="text-xs">
+                    {t("workspace.proposal.generator.consultancy.hourlyRate")}
+                  </Label>
+                  <Input
+                    id="consultancy-rate"
+                    inputMode="decimal"
+                    placeholder="90"
+                    value={hourlyRate}
+                    onChange={(e) => setHourlyRate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="consultancy-block" className="text-xs">
+                    {t("workspace.proposal.generator.consultancy.hoursBlock")}
+                  </Label>
+                  <Input
+                    id="consultancy-block"
+                    inputMode="decimal"
+                    placeholder="50"
+                    value={hoursBlock}
+                    onChange={(e) => setHoursBlock(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <Label htmlFor="consultancy-min" className="text-xs">
+                    {t("workspace.proposal.generator.consultancy.minimumCommitment")}
+                  </Label>
+                  <Input
+                    id="consultancy-min"
+                    inputMode="decimal"
+                    placeholder="25"
+                    value={minCommitment}
+                    onChange={(e) => setMinCommitment(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {(blockValuePreview !== null || minimumFeePreview !== null) && (
+                <div className="grid grid-cols-2 gap-3 rounded-md border bg-background/60 p-3 text-xs">
+                  {blockValuePreview !== null && (
+                    <div>
+                      <div className="text-muted-foreground">
+                        {t("workspace.proposal.generator.consultancy.blockValue")}
+                      </div>
+                      <div className="mt-0.5 font-semibold tabular-nums">
+                        {formatCurrency(blockValuePreview)}
+                      </div>
+                    </div>
+                  )}
+                  {minimumFeePreview !== null && (
+                    <div>
+                      <div className="text-muted-foreground">
+                        {t("workspace.proposal.generator.consultancy.minimumFee")}
+                      </div>
+                      <div className="mt-0.5 font-semibold tabular-nums">
+                        {formatCurrency(minimumFeePreview)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t("workspace.proposal.generator.consultancy.phasesTitle")}
+                </div>
+                <div className="space-y-2">
+                  {[
+                    {
+                      id: "phase1",
+                      label: t("workspace.proposal.generator.consultancy.phase1Label"),
+                      value: phase1Hours,
+                      setter: setPhase1Hours,
+                    },
+                    {
+                      id: "phase2",
+                      label: t("workspace.proposal.generator.consultancy.phase2Label"),
+                      value: phase2Hours,
+                      setter: setPhase2Hours,
+                    },
+                    {
+                      id: "phase3",
+                      label: t("workspace.proposal.generator.consultancy.phase3Label"),
+                      value: phase3Hours,
+                      setter: setPhase3Hours,
+                    },
+                  ].map((p) => (
+                    <div key={p.id} className="flex items-center gap-2">
+                      <Label
+                        htmlFor={`consultancy-${p.id}`}
+                        className="flex-1 text-xs font-normal"
+                      >
+                        {p.label}
+                      </Label>
+                      <Input
+                        id={`consultancy-${p.id}`}
+                        inputMode="decimal"
+                        placeholder={t(
+                          "workspace.proposal.generator.consultancy.hoursPlaceholder",
+                        )}
+                        value={p.value}
+                        onChange={(e) => p.setter(e.target.value)}
+                        className="h-8 w-24"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {consultancyHasErrors && (
+                <ul className="space-y-1 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-xs text-destructive">
+                  {consultancyValidation.errors.map((e) => (
+                    <li key={e}>
+                      {t(`workspace.proposal.generator.consultancy.errors.${e}`)}
+                    </li>
+                  ))}
+                  {phaseValidation.errors.map((e) => (
+                    <li key={e}>
+                      {t(`workspace.proposal.generator.consultancy.errors.${e}`)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
           <Button
             onClick={() => handleGenerate(true)}
-            disabled={generate.isPending}
+            disabled={generate.isPending || consultancyHasErrors}
           >
             {generate.isPending ? (
               <>
