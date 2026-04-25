@@ -354,6 +354,106 @@ function GeneratedSectionRenderer({
       );
     }
 
+    case "generated-time-fee-consultancy": {
+      const currency = asStr(content.currency) ?? "EUR";
+      const hourlyRaw = content.hourly_rate;
+      const blockRaw = content.hours_block;
+      const minRaw = content.minimum_commitment_hours;
+      const blockValRaw = content.block_value;
+      const hourly = typeof hourlyRaw === "number" ? hourlyRaw : null;
+      const hoursBlock = typeof blockRaw === "number" ? blockRaw : null;
+      const minimum = typeof minRaw === "number" ? minRaw : null;
+      const blockValue = typeof blockValRaw === "number" ? blockValRaw : null;
+
+      if (hourly === null && hoursBlock === null && minimum === null && blockValue === null) {
+        return (
+          <p className="text-sm italic text-muted-foreground">{tr("consultancyFeeEmpty")}</p>
+        );
+      }
+
+      return (
+        <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+          {hourly !== null && (
+            <div>
+              <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+                {tr("consultancyHourlyRate")}
+              </dt>
+              <dd className="font-semibold tabular-nums">
+                {formatCurrency(hourly, currency)}
+                <span className="ml-1 text-xs font-normal text-muted-foreground">/ h</span>
+              </dd>
+            </div>
+          )}
+          {hoursBlock !== null && (
+            <div>
+              <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+                {tr("consultancyHoursBlock")}
+              </dt>
+              <dd className="font-medium tabular-nums">
+                {tr("consultancyHoursUnit", { hours: hoursBlock })}
+              </dd>
+            </div>
+          )}
+          {minimum !== null && (
+            <div>
+              <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+                {tr("consultancyMinimumCommitment")}
+              </dt>
+              <dd className="font-medium tabular-nums">
+                {tr("consultancyHoursUnit", { hours: minimum })}
+              </dd>
+            </div>
+          )}
+          {blockValue !== null && (
+            <div>
+              <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+                {tr("consultancyBlockValue")}
+              </dt>
+              <dd className="font-semibold tabular-nums">
+                {formatCurrency(blockValue, currency)}
+              </dd>
+            </div>
+          )}
+        </dl>
+      );
+    }
+
+    case "generated-consultancy-phases": {
+      const phases = asArray<Record<string, unknown>>(content.phases);
+      if (phases.length === 0) {
+        return (
+          <p className="text-sm italic text-muted-foreground">{tr("consultancyPhasesEmpty")}</p>
+        );
+      }
+      return (
+        <ol className="space-y-2">
+          {phases.map((p, i) => {
+            const label = asStr(p.label) ?? "—";
+            const hoursRaw = p.estimated_hours;
+            const hours = typeof hoursRaw === "number" ? hoursRaw : null;
+            return (
+              <li
+                key={i}
+                className="flex items-start justify-between gap-3 border-b border-border/50 pb-2 last:border-0"
+              >
+                <div className="flex min-w-0 items-start gap-2">
+                  <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
+                    {i + 1}
+                  </span>
+                  <span className="text-sm font-medium leading-snug">{label}</span>
+                </div>
+                {hours !== null && (
+                  <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                    {tr("consultancyPhaseEstimated", { hours })}
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      );
+    }
+
     default:
       return null;
   }
@@ -417,6 +517,9 @@ function GeneratedBlockCard({ block }: { block: QuoteProposalDocumentBlock }) {
 // per-document block row doesn't carry the master slug.
 function inferSlugFromContent(content: GenContent): string | null {
   if (!content) return null;
+  if ("phases" in content) return "generated-consultancy-phases";
+  if ("hourly_rate" in content || "hours_block" in content || "block_value" in content)
+    return "generated-time-fee-consultancy";
   if ("items" in content) return "generated-external-services";
   if ("schedule" in content) return "generated-payment-schedule";
   if ("fees" in content) return "generated-fee-summary";

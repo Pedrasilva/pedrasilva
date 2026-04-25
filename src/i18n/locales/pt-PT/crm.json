@@ -449,7 +449,15 @@
           "acceptanceClient": "Cliente",
           "acceptanceProposal": "Proposta",
           "acceptanceFee": "Honorários totais",
-          "qty": "Qtd"
+          "qty": "Qtd",
+          "consultancyHourlyRate": "Valor à hora",
+          "consultancyHoursBlock": "Bloco inicial de horas",
+          "consultancyMinimumCommitment": "Compromisso mínimo",
+          "consultancyBlockValue": "Valor do bloco inicial",
+          "consultancyHoursUnit": "{{hours}} h",
+          "consultancyFeeEmpty": "As condições de honorários serão confirmadas antes do início da Fase 1.",
+          "consultancyPhasesEmpty": "As fases serão definidas no início do trabalho.",
+          "consultancyPhaseEstimated": "Estimativa de {{hours}} h"
         },
         "statusLabels": {
           "draft": "Rascunho",

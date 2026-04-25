@@ -449,7 +449,15 @@
           "acceptanceClient": "Client",
           "acceptanceProposal": "Proposal",
           "acceptanceFee": "Total fee",
-          "qty": "Qty"
+          "qty": "Qty",
+          "consultancyHourlyRate": "Hourly rate",
+          "consultancyHoursBlock": "Initial hours block",
+          "consultancyMinimumCommitment": "Minimum commitment",
+          "consultancyBlockValue": "Initial block value",
+          "consultancyHoursUnit": "{{hours}} h",
+          "consultancyFeeEmpty": "Fee settings will be confirmed before Phase 1 begins.",
+          "consultancyPhasesEmpty": "Phases will be defined upon engagement.",
+          "consultancyPhaseEstimated": "Estimated {{hours}} h"
         },
         "statusLabels": {
           "draft": "Draft",
