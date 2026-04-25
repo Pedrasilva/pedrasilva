@@ -293,19 +293,18 @@ function GeneratedSectionRenderer({
         return <p className="text-sm italic text-muted-foreground">{tr("rolesEmpty")}</p>;
       }
       return (
-        <ul className="space-y-1.5">
-          {roles.map((r, i) => (
-            <li
-              key={i}
-              className="flex items-center justify-between gap-3 border-b border-border/50 pb-1.5 text-sm last:border-0"
-            >
-              <span className="truncate font-medium">{asStr(r.role) ?? "—"}</span>
-              <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-                {tr("rolesHours", { hours: asNum(r.hours) })}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <table className="proposal-print-table w-full text-sm">
+          <tbody>
+            {roles.map((r, i) => (
+              <tr key={i}>
+                <td className="font-medium">{asStr(r.role) ?? "—"}</td>
+                <td className="text-right text-xs text-muted-foreground tabular-nums">
+                  {tr("rolesHours", { hours: asNum(r.hours) })}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       );
     }
 
@@ -315,24 +314,23 @@ function GeneratedSectionRenderer({
         return <p className="text-sm italic text-muted-foreground">{tr("stagesEmpty")}</p>;
       }
       return (
-        <ul className="space-y-1.5">
-          {stages.map((s, i) => {
-            const start = asStr(s.start_date);
-            const end = asStr(s.end_date);
-            return (
-              <li
-                key={i}
-                className="flex items-center justify-between gap-3 border-b border-border/50 pb-1.5 text-sm last:border-0"
-              >
-                <span className="truncate font-medium">{asStr(s.name) ?? "—"}</span>
-                <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-                  {start ? safeDate(start, locale) : "—"} →{" "}
-                  {end ? safeDate(end, locale) : "—"}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
+        <table className="proposal-print-table w-full text-sm">
+          <tbody>
+            {stages.map((s, i) => {
+              const start = asStr(s.start_date);
+              const end = asStr(s.end_date);
+              return (
+                <tr key={i}>
+                  <td className="font-medium">{asStr(s.name) ?? "—"}</td>
+                  <td className="text-right text-xs text-muted-foreground tabular-nums">
+                    {start ? safeDate(start, locale) : "—"} →{" "}
+                    {end ? safeDate(end, locale) : "—"}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       );
     }
 
