@@ -479,17 +479,18 @@
 
 @media print {
   .print-area .proposal-print-document {
-    /* Let the page flow naturally — the @page margin handles edges.
-       Removing on-screen padding/max-width prevents double margins. */
-    max-width: none;
-    margin: 0;
-    padding: 0;
+    /* Keep the same horizontal rhythm as Preview: a centred document with
+       inner padding so headings/borders don't span the full page width.
+       The @page margin handles the outer paper margin; the article's own
+       padding gives the printed text the same indented look as on-screen. */
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 0.25rem;
     background: white !important;
     color: black !important;
     box-shadow: none !important;
     border: none !important;
-    /* Keep on-screen typography rather than shrinking to 10.5pt — that
-       was the root cause of "headings look weak" in the printed PDF. */
+    /* Keep on-screen typography rather than shrinking — matches Preview. */
     font-size: 11pt;
     line-height: 1.55;
   }
@@ -532,6 +533,15 @@
   /* Muted/secondary text — keep readable in print. */
   .print-area .proposal-print-document .text-muted-foreground {
     color: #555 !important;
+  }
+  /* Force visible separators on borders inside the printed document so
+     list rows (Stage Summary, Role Summary, Acceptance Block, etc.) read
+     the same way they do on screen. Theme tokens can wash out to white. */
+  .print-area .proposal-print-document [class*="border-b"],
+  .print-area .proposal-print-document [class*="border-t"],
+  .print-area .proposal-print-document header,
+  .print-area .proposal-print-document footer {
+    border-color: #d4d4d4 !important;
   }
   /* Hide every editor affordance that may have leaked in. */
   .print-area .proposal-print-document button,
