@@ -47,6 +47,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import logoPSA from "@/assets/logo-psa.png";
 import {
   Collapsible,
   CollapsibleContent,
@@ -1640,31 +1641,68 @@ function ProposalPrintDocument({
 
   const renderable = visible.filter(blockHasContent);
 
+  // Address fallback (Pedra Silva Lisbon HQ) until firm branding row is filled.
+  const addressLines: string[] =
+    branding?.company_address && branding.company_address.trim().length > 0
+      ? branding.company_address.split(/\r?\n/).map((s) => s.trim()).filter(Boolean)
+      : [
+          t("workspace.proposal.footerAddressFallback.line1", "Lisboa"),
+          t(
+            "workspace.proposal.footerAddressFallback.line2",
+            "Travessa do Corpo Santo 10 – 1ºD",
+          ),
+          t("workspace.proposal.footerAddressFallback.line3", "1200-131 Lisboa"),
+        ];
+  const websiteLabel = "www.pedrasilva.com";
+
   return (
-    <article className="proposal-print-document mx-auto max-w-3xl bg-background px-8 py-10 text-foreground">
-      <header className="proposal-print-block proposal-avoid-break mb-8 flex items-start justify-between gap-6 border-b border-border pb-4">
-        <div className="min-w-0">
-          {firmName ? (
-            <p className="text-sm font-semibold tracking-tight">{firmName}</p>
-          ) : null}
-          <p className="mt-0.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-            {t("workspace.proposal.documentLabel")}
-          </p>
-          <h1 className="proposal-print-heading mt-3 text-2xl font-semibold leading-tight">
-            {document.title}
-          </h1>
-          {(clientName || accountName) && (
-            <p className="mt-1 text-sm text-muted-foreground">
-              {clientName ?? t("workspace.proposal.noClient")}
-              {accountName ? ` · ${accountName}` : ""}
-            </p>
-          )}
-        </div>
-        <div className="shrink-0 text-right text-xs text-muted-foreground">
-          <div>{t("workspace.proposal.issueDate")}</div>
-          <div className="text-foreground">{issueDate}</div>
-        </div>
+    <article className="proposal-print-document mx-auto bg-background text-foreground">
+      {/* Fixed page frame — repeats on every printed page; absolute on screen. */}
+      <header className="proposal-page-header" aria-hidden="true">
+        <img
+          src={logoPSA}
+          alt={firmName ?? "Pedra Silva Architects"}
+          className="proposal-page-logo"
+        />
+        <span className="proposal-page-website">{websiteLabel}</span>
       </header>
+
+      <footer className="proposal-page-footer" aria-hidden="true">
+        <div className="proposal-page-address">
+          {addressLines.map((line, i) => (
+            <div key={i}>{line}</div>
+          ))}
+        </div>
+        <div className="proposal-page-marks">
+          <span className="proposal-mark-riba">RIBA</span>
+          <span className="proposal-mark-oa">
+            <span className="proposal-mark-oa-symbol">oA</span>
+            <span className="proposal-mark-oa-text">
+              ORDEM DOS
+              <br />
+              ARQUITECTOS
+            </span>
+          </span>
+        </div>
+      </footer>
+
+      {/* Cover / title block */}
+      <section className="proposal-print-block proposal-avoid-break proposal-cover">
+        <p className="proposal-cover-eyebrow">{t("workspace.proposal.documentLabel")}</p>
+        <h1 className="proposal-print-heading proposal-cover-title">{document.title}</h1>
+        {(clientName || accountName) && (
+          <p className="proposal-cover-client">
+            {clientName ?? t("workspace.proposal.noClient")}
+            {accountName ? ` · ${accountName}` : ""}
+          </p>
+        )}
+        <p className="proposal-cover-date">
+          <span className="proposal-cover-date-label">
+            {t("workspace.proposal.issueDate")}:
+          </span>{" "}
+          {issueDate}
+        </p>
+      </section>
 
       {renderable.length === 0 ? (
         <p className="text-sm italic text-muted-foreground">
@@ -1698,22 +1736,6 @@ function ProposalPrintDocument({
             );
           })}
         </div>
-      )}
-
-      {(branding?.company_email ||
-        branding?.company_phone ||
-        branding?.company_address ||
-        firmName) && (
-        <footer className="proposal-print-block proposal-avoid-break mt-10 border-t border-border pt-4 text-[11px] leading-relaxed text-muted-foreground">
-          <div className="font-medium text-foreground">
-            {firmName ?? t("workspace.proposal.footerContact")}
-          </div>
-          <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-            {branding?.company_email ? <span>{branding.company_email}</span> : null}
-            {branding?.company_phone ? <span>· {branding.company_phone}</span> : null}
-            {branding?.company_address ? <span>· {branding.company_address}</span> : null}
-          </div>
-        </footer>
       )}
     </article>
   );
