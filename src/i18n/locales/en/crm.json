@@ -415,6 +415,7 @@
         "generating": "Generating…",
         "success": "Proposal document generated.",
         "error": "Failed to generate proposal document.",
+        "emptyLibrary": "No proposal block library found. Seed proposal blocks first.",
         "missingBlocks": "Some library blocks were missing and skipped: {{slugs}}",
         "replaceConfirm": "Replace existing draft?"
       },

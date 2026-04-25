@@ -131,12 +131,12 @@ function GeneratedBlockCard({ block }: { block: QuoteProposalDocumentBlock }) {
           {isGenerated && (
             <Badge variant="secondary" className="gap-1">
               <Lock className="h-3 w-3" />
-              {t("proposal.document.lockedBadge")}
+              {t("workspace.proposal.document.lockedBadge")}
             </Badge>
           )}
           {!block.is_included && (
             <Badge variant="outline">
-              {t("proposal.document.excludedBadge")}
+              {t("workspace.proposal.document.excludedBadge")}
             </Badge>
           )}
         </div>
@@ -145,9 +145,9 @@ function GeneratedBlockCard({ block }: { block: QuoteProposalDocumentBlock }) {
       {isGenerated ? (
         <div className="rounded border border-dashed border-border bg-muted/40 p-3 text-xs text-muted-foreground">
           <div className="mb-1 font-medium uppercase tracking-wider text-[10px]">
-            {t("proposal.document.generatedSection")}
+            {t("workspace.proposal.document.generatedSection")}
           </div>
-          <p>{t("proposal.document.generatedSectionHint")}</p>
+          <p>{t("workspace.proposal.document.generatedSectionHint")}</p>
           {block.generated_content && (
             <pre className="mt-2 max-h-40 overflow-auto rounded bg-background/60 p-2 font-mono text-[10px] leading-snug">
               {JSON.stringify(block.generated_content, null, 2)}
@@ -180,8 +180,8 @@ function GeneratedDocumentSection({
   const generate = useGenerateQuoteProposalDocument();
 
   const handleGenerate = async (replaceExistingDraft: boolean) => {
-    if (replaceExistingDraft) {
-      const ok = window.confirm(t("proposal.generator.regenerateWarning"));
+    if (replaceExistingDraft && document) {
+      const ok = window.confirm(t("workspace.proposal.generator.regenerateWarning"));
       if (!ok) return;
     }
     try {
@@ -189,10 +189,10 @@ function GeneratedDocumentSection({
         quoteId,
         replaceExistingDraft,
       });
-      toast.success(t("proposal.generator.success"));
+      toast.success(t("workspace.proposal.generator.success"));
       if (result.missingSlugs.length > 0) {
         toast.warning(
-          t("proposal.generator.missingBlocks", {
+          t("workspace.proposal.generator.missingBlocks", {
             slugs: result.missingSlugs.join(", "),
           }),
         );
@@ -201,7 +201,11 @@ function GeneratedDocumentSection({
       qc.invalidateQueries({ queryKey: ["quote-proposal-documents", quoteId] });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      toast.error(`${t("proposal.generator.error")} ${message}`);
+      if (message === "no_blocks") {
+        toast.error(t("workspace.proposal.generator.emptyLibrary"));
+      } else {
+        toast.error(`${t("workspace.proposal.generator.error")} ${message}`);
+      }
     }
   };
 
@@ -210,7 +214,7 @@ function GeneratedDocumentSection({
       <Card>
         <CardContent className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
-          {t("proposal.generator.generating")}
+          {t("workspace.proposal.generator.generating")}
         </CardContent>
       </Card>
     );
@@ -226,10 +230,10 @@ function GeneratedDocumentSection({
           </div>
           <div>
             <h3 className="text-base font-semibold">
-              {t("proposal.generator.title")}
+              {t("workspace.proposal.generator.title")}
             </h3>
             <p className="mt-1 max-w-md text-sm text-muted-foreground">
-              {t("proposal.generator.subtitle")}
+              {t("workspace.proposal.generator.subtitle")}
             </p>
           </div>
           <Button
@@ -239,12 +243,12 @@ function GeneratedDocumentSection({
             {generate.isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                {t("proposal.generator.generating")}
+                {t("workspace.proposal.generator.generating")}
               </>
             ) : (
               <>
                 <FileText className="h-4 w-4" />
-                {t("proposal.generator.generate")}
+                {t("workspace.proposal.generator.generate")}
               </>
             )}
           </Button>
@@ -261,7 +265,7 @@ function GeneratedDocumentSection({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
-              {t("proposal.document.metaTitle")}
+              {t("workspace.proposal.document.metaTitle")}
             </p>
             <h2 className="text-lg font-semibold leading-tight">
               {document.title}
@@ -279,7 +283,7 @@ function GeneratedDocumentSection({
               ) : (
                 <RefreshCw className="h-4 w-4" />
               )}
-              {t("proposal.generator.regenerate")}
+              {t("workspace.proposal.generator.regenerate")}
             </Button>
           )}
         </div>
@@ -288,17 +292,17 @@ function GeneratedDocumentSection({
         <div className="grid grid-cols-2 gap-3 rounded-md border bg-muted/30 p-3 text-xs sm:grid-cols-4">
           <div>
             <div className="text-muted-foreground">
-              {t("proposal.document.status")}
+              {t("workspace.proposal.document.status")}
             </div>
             <div className="mt-0.5">
               <Badge variant={statusVariant(document.status)}>
-                {t(`proposal.document.statusLabels.${document.status}`)}
+                {t(`workspace.proposal.document.statusLabels.${document.status}`)}
               </Badge>
             </div>
           </div>
           <div>
             <div className="text-muted-foreground">
-              {t("proposal.document.revision")}
+              {t("workspace.proposal.document.revision")}
             </div>
             <div className="mt-0.5 font-medium tabular-nums">
               v{document.revision_number}
@@ -306,7 +310,7 @@ function GeneratedDocumentSection({
           </div>
           <div>
             <div className="text-muted-foreground">
-              {t("proposal.document.generatedAt")}
+              {t("workspace.proposal.document.generatedAt")}
             </div>
             <div className="mt-0.5 font-medium">
               {safeDateTime(document.generated_at, locale)}
@@ -314,7 +318,7 @@ function GeneratedDocumentSection({
           </div>
           <div>
             <div className="text-muted-foreground">
-              {t("proposal.document.language")}
+              {t("workspace.proposal.document.language")}
             </div>
             <div className="mt-0.5 font-medium uppercase">{document.language}</div>
           </div>
@@ -325,7 +329,7 @@ function GeneratedDocumentSection({
         {/* Blocks preview */}
         <section>
           <h3 className="mb-3 text-sm font-semibold">
-            {t("proposal.document.blocksTitle")}
+            {t("workspace.proposal.document.blocksTitle")}
           </h3>
           {isLoadingBlocks ? (
             <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
@@ -333,7 +337,7 @@ function GeneratedDocumentSection({
             </div>
           ) : blocks.length === 0 ? (
             <p className="text-sm italic text-muted-foreground">
-              {t("proposal.document.noBlocks")}
+              {t("workspace.proposal.document.noBlocks")}
             </p>
           ) : (
             <div className="space-y-3">
@@ -378,7 +382,7 @@ function LegacyProposalPreview({
     { role: string; hours: number; people: Set<string> }
   >();
   for (const a of allocations) {
-    const role = a.resource?.role?.trim() || t("proposal.unspecifiedRole");
+    const role = a.resource?.role?.trim() || t("workspace.proposal.unspecifiedRole");
     const { hours } = quoteAllocationLine(a);
     const entry =
       roleMap.get(role) ?? { role, hours: 0, people: new Set<string>() };
@@ -405,11 +409,11 @@ function LegacyProposalPreview({
               <p className="text-sm font-semibold tracking-tight">{firmName}</p>
             ) : null}
             <p className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
-              {t("proposal.documentLabel")}
+              {t("workspace.proposal.documentLabel")}
             </p>
           </div>
           <div className="text-right text-xs text-muted-foreground shrink-0">
-            <div>{t("proposal.issueDate")}</div>
+            <div>{t("workspace.proposal.issueDate")}</div>
             <div className="text-foreground">{issueDate}</div>
           </div>
         </div>
@@ -418,7 +422,7 @@ function LegacyProposalPreview({
           <section className="proposal-section">
             <h1 className="text-2xl font-semibold leading-tight">{title}</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {clientName ?? t("proposal.noClient")}
+              {clientName ?? t("workspace.proposal.noClient")}
               {accountName ? ` · ${accountName}` : ""}
             </p>
           </section>
@@ -428,7 +432,7 @@ function LegacyProposalPreview({
               <Separator />
               <section className="proposal-section">
                 <h2 className="text-sm font-semibold mb-2">
-                  {t("proposal.descriptionTitle")}
+                  {t("workspace.proposal.descriptionTitle")}
                 </h2>
                 <p className="text-sm whitespace-pre-wrap leading-relaxed">
                   {description}
@@ -441,11 +445,11 @@ function LegacyProposalPreview({
 
           <section className="proposal-section">
             <h2 className="text-sm font-semibold mb-2">
-              {t("proposal.scopeTitle")}
+              {t("workspace.proposal.scopeTitle")}
             </h2>
             {stages.length === 0 ? (
               <p className="text-sm text-muted-foreground italic">
-                {t("proposal.noStages")}
+                {t("workspace.proposal.noStages")}
               </p>
             ) : (
               <ul className="space-y-1.5">
@@ -474,11 +478,11 @@ function LegacyProposalPreview({
 
           <section className="proposal-section">
             <h2 className="text-sm font-semibold mb-2">
-              {t("proposal.teamTitle")}
+              {t("workspace.proposal.teamTitle")}
             </h2>
             {roles.length === 0 ? (
               <p className="text-sm text-muted-foreground italic">
-                {t("proposal.noTeam")}
+                {t("workspace.proposal.noTeam")}
               </p>
             ) : (
               <ul className="space-y-1.5">
@@ -496,7 +500,7 @@ function LegacyProposalPreview({
                       )}
                     </div>
                     <span className="text-xs text-muted-foreground tabular-nums shrink-0">
-                      {t("proposal.roleHours", { hours: Math.round(r.hours) })}
+                      {t("workspace.proposal.roleHours", { hours: Math.round(r.hours) })}
                     </span>
                   </li>
                 ))}
@@ -509,7 +513,7 @@ function LegacyProposalPreview({
               <Separator />
               <section className="proposal-section">
                 <h2 className="text-sm font-semibold mb-2">
-                  {t("proposal.includedServicesTitle")}
+                  {t("workspace.proposal.includedServicesTitle")}
                 </h2>
                 <ul className="space-y-1.5">
                   {external.map((e) => {
@@ -539,21 +543,21 @@ function LegacyProposalPreview({
           <section className="proposal-section rounded-md border border-border bg-muted/40 p-4">
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm font-semibold">
-                {t("proposal.totalFee")}
+                {t("workspace.proposal.totalFee")}
               </span>
               <span className="text-2xl font-semibold tabular-nums">
                 {formatEUR(summary.totalFee)}
               </span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              {t("proposal.totalFeeHint")}
+              {t("workspace.proposal.totalFeeHint")}
             </p>
           </section>
 
           {schedule.length > 0 && (
             <section className="proposal-section">
               <h2 className="text-sm font-semibold mb-2">
-                {t("proposal.paymentScheduleTitle")}
+                {t("workspace.proposal.paymentScheduleTitle")}
               </h2>
               <ul className="space-y-1.5">
                 {schedule.map((p) => (
@@ -588,34 +592,34 @@ function LegacyProposalPreview({
 
           <section className="proposal-section proposal-acceptance">
             <h2 className="text-sm font-semibold mb-1">
-              {t("proposal.acceptanceTitle")}
+              {t("workspace.proposal.acceptanceTitle")}
             </h2>
             <p className="text-xs text-muted-foreground mb-4">
-              {t("proposal.acceptanceHint")}
+              {t("workspace.proposal.acceptanceHint")}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
               <div>
                 <div className="h-10 border-b border-foreground/40" />
                 <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-                  {t("proposal.acceptanceClientName")}
+                  {t("workspace.proposal.acceptanceClientName")}
                 </div>
               </div>
               <div>
                 <div className="h-10 border-b border-foreground/40" />
                 <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-                  {t("proposal.acceptanceSignature")}
+                  {t("workspace.proposal.acceptanceSignature")}
                 </div>
               </div>
               <div>
                 <div className="h-10 border-b border-foreground/40" />
                 <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-                  {t("proposal.acceptanceDate")}
+                  {t("workspace.proposal.acceptanceDate")}
                 </div>
               </div>
               <div>
                 <div className="h-10 border-b border-foreground/40" />
                 <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-                  {t("proposal.acceptanceOnBehalf")} {clientName ?? accountName ?? ""}
+                  {t("workspace.proposal.acceptanceOnBehalf")} {clientName ?? accountName ?? ""}
                 </div>
               </div>
             </div>
@@ -627,7 +631,7 @@ function LegacyProposalPreview({
             firmName) && (
             <footer className="proposal-footer proposal-section pt-4 mt-2 border-t border-border text-[11px] text-muted-foreground leading-relaxed">
               <div className="font-medium text-foreground">
-                {firmName ?? t("proposal.footerContact")}
+                {firmName ?? t("workspace.proposal.footerContact")}
               </div>
               <div className="flex flex-wrap gap-x-3 gap-y-0.5">
                 {branding?.company_email ? <span>{branding.company_email}</span> : null}
@@ -655,7 +659,7 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2 no-print">
         <p className="text-xs text-muted-foreground">
-          {t("proposal.clientFacingHint")}
+          {t("workspace.proposal.clientFacingHint")}
         </p>
         <Button
           variant="outline"
@@ -663,7 +667,7 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
           onClick={() => window.print()}
         >
           <Printer className="h-4 w-4 mr-1" />
-          {t("proposal.print")}
+          {t("workspace.proposal.print")}
         </Button>
       </div>
 
@@ -681,9 +685,9 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
             className="w-full justify-between text-xs text-muted-foreground"
           >
             <span>
-              {t("proposal.legacyPreview.title")} ·{" "}
+              {t("workspace.proposal.legacyPreview.title")} ·{" "}
               <span className="text-muted-foreground/80">
-                {t("proposal.legacyPreview.hint")}
+                {t("workspace.proposal.legacyPreview.hint")}
               </span>
             </span>
             <ChevronDown

@@ -415,6 +415,7 @@
         "generating": "A gerar…",
         "success": "Documento de proposta gerado.",
         "error": "Falha ao gerar o documento de proposta.",
+        "emptyLibrary": "Não foi encontrada uma biblioteca de blocos de proposta. Faça o seed dos blocos primeiro.",
         "missingBlocks": "Alguns blocos da biblioteca não foram encontrados e foram ignorados: {{slugs}}",
         "replaceConfirm": "Substituir o rascunho existente?"
       },
