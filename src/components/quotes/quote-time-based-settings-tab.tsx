@@ -110,7 +110,7 @@ export function QuoteTimeBasedSettingsTab({ quoteId, quoteType }: Props) {
 
       <div className="flex justify-end">
         <Button onClick={() => save.mutate()} disabled={save.isPending}>
-          {save.isPending ? t("common.saving") : t("common.save")}
+          {t("common.save")}
         </Button>
       </div>
     </div>
