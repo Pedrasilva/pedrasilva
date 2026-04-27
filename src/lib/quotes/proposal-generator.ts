@@ -399,6 +399,7 @@ function buildVariables(
   language: string,
   validityDays: number,
   consultancy?: ConsultancyConfig,
+  retainer?: RetainerConfig,
 ): Record<string, string> {
   const clientName = ctx.company?.nome?.trim() || "";
   const contactName = ctx.contact
@@ -406,6 +407,8 @@ function buildVariables(
     : "";
   const fmtNum = (v: number | null | undefined) =>
     v === null || v === undefined ? "" : String(v);
+  const fmtMoney = (v: number | null | undefined) =>
+    v === null || v === undefined ? "" : formatMoney(v, currency, language);
   return {
     client_name: clientName || contactName || "Client",
     project_name: ctx.quote.titulo || "",
@@ -423,6 +426,13 @@ function buildVariables(
     hourly_rate: fmtNum(consultancy?.hourly_rate),
     hours_block: fmtNum(consultancy?.hours_block),
     minimum_commitment_hours: fmtNum(consultancy?.minimum_commitment_hours),
+    block_value: fmtMoney(consultancy?.block_value),
+    downpayment_amount: fmtMoney(consultancy?.downpayment_amount),
+    // Retainer-specific
+    retainer_start_date: retainer?.start_date ?? "",
+    retainer_end_date: retainer?.estimated_end_date ?? "",
+    monthly_estimate: fmtMoney(retainer?.monthly_estimate),
+    reimbursable_expenses_note: retainer?.reimbursable_expenses_note ?? "",
     // PSA Interior Fit-Out preset variables — all blank by default; the
     // existing cleanupEmptyPhrases() sanitiser drops any sentence that
     // collapses around an empty value so client-facing copy stays clean.
