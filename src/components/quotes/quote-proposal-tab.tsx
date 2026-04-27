@@ -159,6 +159,12 @@ function isTimeBasedProposalKind(kind: ProposalKind): boolean {
   return isConsultancyProposalKind(kind) || kind === "construction_retainer";
 }
 
+function proposalKindToTimeBasedHint(kind: ProposalKind) {
+  if (isConsultancyProposalKind(kind)) return "consultancy_hours_package";
+  if (kind === "construction_retainer") return "construction_retainer";
+  return undefined;
+}
+
 function formatCurrency(value: number, currency = "EUR"): string {
   try {
     return new Intl.NumberFormat(undefined, {
