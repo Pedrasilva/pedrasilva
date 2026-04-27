@@ -272,6 +272,8 @@
     },
     "timeBased": {
       "savedToast": "Time-based settings saved",
+      "kindPickerTitle": "Time-based fee model",
+      "kindPickerHint": "This quote is a standard project. Use the panel below if you also want to surface monthly retainer or hourly consultancy figures inside the generated proposal.",
       "retainer": {
         "basicsTitle": "Retainer basics",
         "startDate": "Construction start date",
