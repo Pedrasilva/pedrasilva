@@ -807,6 +807,14 @@ function GeneratedDocumentSection({
     };
   };
 
+  const hasManualConsultancyValues =
+    hourlyRate.trim() !== "" ||
+    hoursBlock.trim() !== "" ||
+    minCommitment.trim() !== "" ||
+    phase1Hours.trim() !== "" ||
+    phase2Hours.trim() !== "" ||
+    phase3Hours.trim() !== "";
+
   const consultancyHasErrors =
     proposalKind === "phased_consultancy" &&
     (consultancyValidation.errors.length > 0 || phaseValidation.errors.length > 0);
@@ -829,7 +837,9 @@ function GeneratedDocumentSection({
         replaceExistingDraft,
         proposalKind: kind,
         consultancy:
-          kind === "phased_consultancy" ? buildConsultancyConfig() : undefined,
+          kind === "phased_consultancy" && hasManualConsultancyValues
+            ? buildConsultancyConfig()
+            : undefined,
       });
       toast.success(t("workspace.proposal.generator.success"));
       if (result.missingSlugs.length > 0) {
