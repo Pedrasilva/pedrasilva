@@ -15,11 +15,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Plus, FileText, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  formatEUR, OPPORTUNITY_STAGES, QUOTE_STATUSES, FEE_STRUCTURE_TYPES, QUOTE_TYPES,
+  formatEUR, OPPORTUNITY_STAGES, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
+  QUOTE_TYPES_BY_CATEGORY, defaultQuoteTypeForCategory,
   type CrmOpportunity, type OpportunityStage, type FeeProposal, type FeeStructureType,
-  type QuoteType, type Contact, contactFullName,
+  type QuoteType, type QuoteCategory, type Contact, contactFullName,
 } from "@/lib/crm/types";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Briefcase, Lightbulb } from "lucide-react";
 
 export const Route = createFileRoute("/_app/crm/opportunities/$opportunityId")({
   component: OpportunityDetail,
