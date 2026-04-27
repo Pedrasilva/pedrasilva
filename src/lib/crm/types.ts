@@ -29,6 +29,8 @@ export type FeeProposal = {
   account_id: string | null;
   fee_structure_type: FeeStructureType;
   quote_status: QuoteStatus;
+  /** Commercial classification chosen at creation time. See QuoteType. */
+  quote_type: QuoteType;
 };
 
 export type CrmActivity = {
