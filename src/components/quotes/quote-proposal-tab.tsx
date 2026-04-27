@@ -837,7 +837,9 @@ function GeneratedDocumentSection({
         replaceExistingDraft,
         proposalKind: kind,
         consultancy:
-          kind === "phased_consultancy" && hasManualConsultancyValues
+          (kind === "phased_consultancy" ||
+            kind === "consultancy_hours_package") &&
+          hasManualConsultancyValues
             ? buildConsultancyConfig()
             : undefined,
       });
