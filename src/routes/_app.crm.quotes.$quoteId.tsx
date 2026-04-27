@@ -34,6 +34,7 @@ import { QuoteFinancialSummaryTab } from "@/components/quotes/quote-financial-su
 import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
 import { QuoteTimeBasedSettingsTab } from "@/components/quotes/quote-time-based-settings-tab";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
+import { QuoteFeeCalculatorCard } from "@/components/quotes/quote-fee-calculator-card";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
@@ -53,6 +54,7 @@ type FullQuote = FeeProposal & {
   proposal_description?: string | null;
   construction_cost?: number | null;
   fee_percentage?: number | null;
+  project_fee_calculation?: unknown;
 };
 
 function QuoteDetail() {
@@ -628,6 +630,25 @@ function QuoteDetail() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Construction-percentage architectural fee calculator. Project
+              Proposals only — Consultancy quotes bill hourly and skip this. */}
+          {quote.quote_category === "project" && (
+            <div className="mt-4">
+              <QuoteFeeCalculatorCard
+                quoteId={quoteId}
+                initialPayload={quote.project_fee_calculation}
+                onApplied={(finalFee, constructionValue, feePct) => {
+                  setForm((f) => ({
+                    ...f,
+                    valor: String(Math.round(finalFee * 100) / 100),
+                    construction_cost: constructionValue ? String(constructionValue) : "",
+                    fee_percentage: feePct ? String(Number(feePct.toFixed(4))) : "",
+                  }));
+                }}
+              />
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="time-based" className="mt-4">

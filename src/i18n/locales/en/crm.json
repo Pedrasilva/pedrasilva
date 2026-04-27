@@ -254,6 +254,37 @@
     "ganho": "Won",
     "perdido": "Lost"
   },
+  "feeCalculator": {
+    "title": "Architectural fee calculator",
+    "subtitle": "Estimate the architectural fee from the construction value, with corrections for foundations, heritage/refurbishment, extension and category.",
+    "constructionValue": "Construction value (€)",
+    "constructionValuePh": "or computed from area × cost/m²",
+    "costPerSqm": "Cost per m² (€)",
+    "area": "Construction area (m²)",
+    "category": "Category",
+    "category2": "Category 2",
+    "category3": "Category 3",
+    "discount": "Discount / correction (%)",
+    "heritageUplift": "Heritage / refurbishment uplift (%)",
+    "extensionUplift": "Extension uplift (%)",
+    "stageBreakdown": "Stage breakdown",
+    "stageNamePh": "Stage name (e.g. Concept design)",
+    "stageTotal": "Stages total: {{pct}} %",
+    "saveDraft": "Save calculator",
+    "applyToFee": "Apply to estimated fee",
+    "savedToast": "Calculator saved",
+    "appliedToast": "Fee applied to quote",
+    "summary": {
+      "constructionValue": "Construction value",
+      "foundationDeduction": "Foundation deduction (5% of structure)",
+      "heritageUplift": "Heritage / refurbishment uplift",
+      "extensionUplift": "Extension uplift",
+      "adjustedValue": "Adjusted construction value",
+      "feePct": "Architectural fee %",
+      "baseFee": "Base architectural fee",
+      "finalFee": "Final architecture fee"
+    }
+  },
   "workspace": {
     "tabs": {
       "overview": "Overview",

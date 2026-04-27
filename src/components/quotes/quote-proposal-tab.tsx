@@ -98,6 +98,8 @@ interface QuoteProposalTabProps {
   accountName: string | null;
   /** Drives the default ProposalKind used by the generator. */
   quoteType?: string | null;
+  /** Top-level category — restricts which proposal block-sets are offered. */
+  quoteCategory?: "project" | "consultancy" | null;
 }
 
 function safeDate(d: string, locale: Locale | undefined): string {
