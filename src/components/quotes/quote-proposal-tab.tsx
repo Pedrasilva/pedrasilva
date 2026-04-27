@@ -747,6 +747,7 @@ function GeneratedDocumentSection({
   const [monthlyRetainer, setMonthlyRetainer] = useState<string>("");
   const [retainerDurationMonths, setRetainerDurationMonths] = useState<string>("");
   const [reimbursableNote, setReimbursableNote] = useState<string>("");
+  const [hasHydratedSettings, setHasHydratedSettings] = useState(false);
 
   // Hydrate the manual fields from the quote's stored time_based_settings
   // when the row arrives, so users do not need to re-type values.
@@ -763,7 +764,7 @@ function GeneratedDocumentSection({
     },
   });
   useEffect(() => {
-    if (!tbsRow) return;
+    if (!tbsRow || hasHydratedSettings) return;
     const hint = proposalKindToTimeBasedHint(document ? persistedKind : proposalKind) ?? quoteType;
     const parsed = parseTimeBasedSettings(tbsRow.time_based_settings, hint);
     if (parsed?.kind === "consultancy_hours_package") {
@@ -800,8 +801,10 @@ function GeneratedDocumentSection({
         setReimbursableNote(parsed.reimbursable_expenses_note);
       }
     }
+    setHasHydratedSettings(true);
   }, [
     tbsRow,
+    hasHydratedSettings,
     document,
     persistedKind,
     proposalKind,
