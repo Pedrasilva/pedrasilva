@@ -85,6 +85,8 @@ interface QuoteProposalTabProps {
   description: string | null;
   clientName: string | null;
   accountName: string | null;
+  /** Drives the default ProposalKind used by the generator. */
+  quoteType?: string | null;
 }
 
 function safeDate(d: string, locale: Locale | undefined): string {
