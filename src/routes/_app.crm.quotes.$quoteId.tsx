@@ -616,6 +616,12 @@ function QuoteDetail() {
           </div>
         </TabsContent>
 
+        {(quote.quote_type === "construction_retainer" ||
+          quote.quote_type === "consultancy_hours_package") && (
+          <TabsContent value="time-based" className="mt-4">
+            <QuoteTimeBasedSettingsTab quoteId={quoteId} quoteType={quote.quote_type} />
+          </TabsContent>
+        )}
         <TabsContent value="planning" className="mt-4">
           <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
         </TabsContent>
