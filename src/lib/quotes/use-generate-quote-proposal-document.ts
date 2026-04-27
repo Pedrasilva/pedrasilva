@@ -22,7 +22,15 @@ import {
   type QuoteContext,
   type ProposalKind,
   type ConsultancyConfig,
+  type RetainerConfig,
 } from "./proposal-generator";
+import {
+  parseTimeBasedSettings,
+  retainerMonthlyEstimate,
+  consultancyMinimumHours,
+  consultancyDownpayment,
+  consultancyBlockValue,
+} from "./time-based-settings";
 
 export interface GenerateProposalArgs {
   quoteId: string;
@@ -36,6 +44,9 @@ export interface GenerateProposalArgs {
   proposalKind?: ProposalKind;
   /** Optional consultancy-specific config (used by phased_consultancy generated blocks). */
   consultancy?: ConsultancyConfig;
+  /** Optional retainer-specific config; when omitted, the hook reads
+   *  fee_proposals.time_based_settings and derives one for retainer quotes. */
+  retainer?: RetainerConfig;
 }
 
 export interface GenerateProposalResult {
