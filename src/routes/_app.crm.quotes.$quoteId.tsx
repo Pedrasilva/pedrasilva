@@ -54,6 +54,7 @@ type FullQuote = FeeProposal & {
   proposal_description?: string | null;
   construction_cost?: number | null;
   fee_percentage?: number | null;
+  project_fee_calculation?: unknown;
 };
 
 function QuoteDetail() {
