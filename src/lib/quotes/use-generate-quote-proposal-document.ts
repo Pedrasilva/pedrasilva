@@ -67,7 +67,7 @@ async function runGenerate(
   const { data: quote, error: quoteErr } = await supabase
     .from("fee_proposals")
     .select(
-      "id, titulo, proposal_description, pricing_multiplier, data_proposta, opportunity_id, company_id, contact_id, revision_number, quote_type, time_based_settings",
+      "id, titulo, valor, proposal_description, pricing_multiplier, data_proposta, opportunity_id, company_id, contact_id, revision_number, quote_type, time_based_settings",
     )
     .eq("id", args.quoteId)
     .maybeSingle();
@@ -161,6 +161,7 @@ async function runGenerate(
     quote: {
       id: quote.id,
       titulo: quote.titulo,
+      valor: Number(quote.valor ?? 0),
       proposal_description: quote.proposal_description,
       pricing_multiplier: Number(quote.pricing_multiplier ?? 1),
       data_proposta: quote.data_proposta,
