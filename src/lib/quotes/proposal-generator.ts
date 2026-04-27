@@ -155,6 +155,38 @@ export function quoteTypeToProposalKind(
   }
 }
 
+/** Project-category proposal kinds — Gantt/staged/retainer block sets. */
+export const PROJECT_PROPOSAL_KINDS: readonly ProposalKind[] = [
+  "fixed_project",
+  "psa_interior_fitout",
+  "construction_retainer",
+] as const;
+
+/** Consultancy-category proposal kinds — hourly / phased advisory block sets. */
+export const CONSULTANCY_PROPOSAL_KINDS: readonly ProposalKind[] = [
+  "phased_consultancy",
+  "consultancy_hours_package",
+] as const;
+
+/**
+ * Filter the available proposal kinds by the quote's top-level category.
+ * Project quotes never see consultancy block-sets and vice-versa, which
+ * fixes the bug where a standard_project quote could pick consultancy
+ * blocks at generation time.
+ */
+export function proposalKindsForCategory(
+  category: "project" | "consultancy",
+): readonly ProposalKind[] {
+  return category === "consultancy" ? CONSULTANCY_PROPOSAL_KINDS : PROJECT_PROPOSAL_KINDS;
+}
+
+/** Default proposal kind for a category when no prior choice exists. */
+export function defaultProposalKindForCategory(
+  category: "project" | "consultancy",
+): ProposalKind {
+  return category === "consultancy" ? "consultancy_hours_package" : "fixed_project";
+}
+
 export interface ConsultancyConfig {
   hourly_rate?: number | null;
   hours_block?: number | null;
