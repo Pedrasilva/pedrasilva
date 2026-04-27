@@ -1222,6 +1222,92 @@ function GeneratedDocumentSection({
           </div>
         </div>
 
+        {/* Inline consultancy values: lets the user supply hourly rate /
+            hours block / minimum commitment after the document has been
+            generated, so a regenerate fills in {{hourly_rate}},
+            {{block_value}} and {{downpayment_amount}} in the fee block. */}
+        {(persistedKind === "phased_consultancy" ||
+          persistedKind === "consultancy_hours_package") && (
+          <div className="space-y-3 rounded-md border bg-muted/20 p-4">
+            <div>
+              <h4 className="text-sm font-semibold">
+                {t("workspace.proposal.generator.consultancy.sectionTitle")}
+              </h4>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {t("workspace.proposal.generator.consultancy.sectionHint")}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="space-y-1">
+                <Label htmlFor="doc-consultancy-rate" className="text-xs">
+                  {t("workspace.proposal.generator.consultancy.hourlyRate")}
+                </Label>
+                <Input
+                  id="doc-consultancy-rate"
+                  inputMode="decimal"
+                  placeholder="90"
+                  value={hourlyRate}
+                  onChange={(e) => setHourlyRate(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="doc-consultancy-block" className="text-xs">
+                  {t("workspace.proposal.generator.consultancy.hoursBlock")}
+                </Label>
+                <Input
+                  id="doc-consultancy-block"
+                  inputMode="decimal"
+                  placeholder="50"
+                  value={hoursBlock}
+                  onChange={(e) => setHoursBlock(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="doc-consultancy-min" className="text-xs">
+                  {t("workspace.proposal.generator.consultancy.minimumCommitment")}
+                </Label>
+                <Input
+                  id="doc-consultancy-min"
+                  inputMode="decimal"
+                  placeholder="25"
+                  value={minCommitment}
+                  onChange={(e) => setMinCommitment(e.target.value)}
+                />
+              </div>
+            </div>
+            {(blockValuePreview !== null || minimumFeePreview !== null) && (
+              <div className="grid grid-cols-2 gap-3 rounded-md border bg-background/60 p-3 text-xs">
+                {blockValuePreview !== null && (
+                  <div>
+                    <div className="text-muted-foreground">
+                      {t("workspace.proposal.generator.consultancy.blockValue")}
+                    </div>
+                    <div className="mt-0.5 font-semibold tabular-nums">
+                      {formatCurrency(blockValuePreview)}
+                    </div>
+                  </div>
+                )}
+                {minimumFeePreview !== null && (
+                  <div>
+                    <div className="text-muted-foreground">
+                      {t("workspace.proposal.generator.consultancy.minimumFee")}
+                    </div>
+                    <div className="mt-0.5 font-semibold tabular-nums">
+                      {formatCurrency(minimumFeePreview)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            <p className="text-[11px] italic text-muted-foreground">
+              {t(
+                "workspace.proposal.generator.consultancy.regenerateHint",
+                "Click Regenerate above to apply these values to the proposal.",
+              )}
+            </p>
+          </div>
+        )}
+
         <Separator />
 
         {/* Blocks preview */}
