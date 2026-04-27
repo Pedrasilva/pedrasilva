@@ -936,6 +936,8 @@ function GeneratedDocumentSection({
   const missingRequiredFields = (kind: ProposalKind): string[] => {
     if (isConsultancyProposalKind(kind)) {
       const missing: string[] = [];
+      if (consultancyValidation.rate === null && document)
+        return [];
       if (consultancyValidation.rate === null)
         missing.push(t("workspace.proposal.generator.consultancy.hourlyRate"));
       if (consultancyValidation.block === null)
@@ -946,6 +948,8 @@ function GeneratedDocumentSection({
     }
     if (kind === "construction_retainer") {
       const missing: string[] = [];
+      if (retainerValidation.monthly === null && document)
+        return [];
       if (retainerValidation.monthly === null)
         missing.push(t("workspace.proposal.generator.retainer.monthlyRetainer"));
       if (retainerValidation.duration === null)
