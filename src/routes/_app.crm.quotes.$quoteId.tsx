@@ -494,6 +494,10 @@ function QuoteDetail() {
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="no-print">
           <TabsTrigger value="overview">{t("workspace.tabs.overview")}</TabsTrigger>
+          {(quote.quote_type === "construction_retainer" ||
+            quote.quote_type === "consultancy_hours_package") && (
+            <TabsTrigger value="time-based">{t("workspace.tabs.timeBased")}</TabsTrigger>
+          )}
           <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
           <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
           <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
