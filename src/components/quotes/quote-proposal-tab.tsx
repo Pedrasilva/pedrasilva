@@ -1754,7 +1754,7 @@ function ProposalPrintDocument({
             const sanitizedContent =
               b.block_type === "generated_section" ? "" : getRenderableText(b);
             return (
-              <section key={b.id} className="proposal-print-block proposal-avoid-break">
+              <section key={b.id} className="proposal-print-block">
                 {b.block_title && (
                   <h2 className="proposal-print-heading mb-2 text-base font-semibold leading-snug">
                     {b.block_title}

@@ -266,14 +266,13 @@
   .print-area * {
     visibility: visible;
   }
-  /* The print-area flows naturally inside the @page margin box —
-     do NOT pin it to inset:0, otherwise content reaches the page edges. */
+  /* The print-area must flow naturally inside the @page margin box.
+     Absolute positioning makes browser PDF output ignore the intended
+     document margins and causes unreliable page breaks. */
   .print-area {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
+    position: static !important;
+    inset: auto !important;
+    width: auto;
     padding: 0;
     margin: 0;
     color: black !important;
@@ -709,8 +708,8 @@
   .print-area .proposal-page-footer { bottom: 12mm; }
 
   .print-area .proposal-print-block {
-    page-break-inside: avoid;
-    break-inside: avoid;
+    page-break-inside: auto;
+    break-inside: auto;
   }
   .print-area .proposal-avoid-break {
     page-break-inside: avoid;
