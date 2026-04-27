@@ -871,6 +871,19 @@ function GeneratedDocumentSection({
     };
   }, [phase1Hours, phase2Hours, phase3Hours]);
 
+  const retainerValidation = useMemo(() => {
+    const monthly = parseOptionalPositive(monthlyRetainer);
+    const duration = parseOptionalPositive(retainerDurationMonths);
+    const errors: string[] = [];
+    if (Number.isNaN(monthly)) errors.push("monthlyRetainerInvalid");
+    if (Number.isNaN(duration)) errors.push("durationInvalid");
+    return {
+      monthly: typeof monthly === "number" ? monthly : null,
+      duration: typeof duration === "number" ? duration : null,
+      errors,
+    };
+  }, [monthlyRetainer, retainerDurationMonths]);
+
   const blockValuePreview =
     consultancyValidation.rate !== null && consultancyValidation.block !== null
       ? consultancyValidation.rate * consultancyValidation.block
@@ -904,6 +917,22 @@ function GeneratedDocumentSection({
     };
   };
 
+  const buildRetainerConfig = (): RetainerConfig => ({
+    monthly_estimate: retainerValidation.monthly,
+    construction_duration_months: retainerValidation.duration,
+    reimbursable_expenses_note: reimbursableNote.trim() || null,
+    monthly_resources:
+      retainerValidation.monthly !== null
+        ? [
+            {
+              label: t("workspace.proposal.generator.retainer.monthlyRetainer"),
+              hours_per_month: 1,
+              hourly_rate: retainerValidation.monthly,
+            },
+          ]
+        : [],
+  });
+
   const hasManualConsultancyValues =
     hourlyRate.trim() !== "" ||
     hoursBlock.trim() !== "" ||
@@ -912,9 +941,40 @@ function GeneratedDocumentSection({
     phase2Hours.trim() !== "" ||
     phase3Hours.trim() !== "";
 
+  const hasManualRetainerValues =
+    monthlyRetainer.trim() !== "" ||
+    retainerDurationMonths.trim() !== "" ||
+    reimbursableNote.trim() !== "";
+
   const consultancyHasErrors =
-    proposalKind === "phased_consultancy" &&
+    isConsultancyProposalKind(document ? persistedKind : proposalKind) &&
     (consultancyValidation.errors.length > 0 || phaseValidation.errors.length > 0);
+
+  const retainerHasErrors =
+    (document ? persistedKind : proposalKind) === "construction_retainer" &&
+    retainerValidation.errors.length > 0;
+
+  const missingRequiredFields = (kind: ProposalKind): string[] => {
+    if (isConsultancyProposalKind(kind)) {
+      const missing: string[] = [];
+      if (consultancyValidation.rate === null)
+        missing.push(t("workspace.proposal.generator.consultancy.hourlyRate"));
+      if (consultancyValidation.block === null)
+        missing.push(t("workspace.proposal.generator.consultancy.hoursBlock"));
+      if (consultancyValidation.min === null)
+        missing.push(t("workspace.proposal.generator.consultancy.minimumCommitment"));
+      return missing;
+    }
+    if (kind === "construction_retainer") {
+      const missing: string[] = [];
+      if (retainerValidation.monthly === null)
+        missing.push(t("workspace.proposal.generator.retainer.monthlyRetainer"));
+      if (retainerValidation.duration === null)
+        missing.push(t("workspace.proposal.generator.retainer.durationMonths"));
+      return missing;
+    }
+    return [];
+  };
 
   const handleGenerate = async (replaceExistingDraft: boolean) => {
     if (replaceExistingDraft && document) {
