@@ -174,6 +174,34 @@ async function runGenerate(
     invoiceSettings: invoiceSettingsRes.data ?? null,
   };
 
+  // Derive consultancy/retainer configs from saved time_based_settings
+  // when caller did not pass explicit values.
+  const parsedSettings = parseTimeBasedSettings(
+    quote.time_based_settings,
+    quote.quote_type,
+  );
+  let derivedConsultancy: ConsultancyConfig | undefined = args.consultancy;
+  let derivedRetainer: RetainerConfig | undefined = args.retainer;
+  if (!derivedConsultancy && parsedSettings?.kind === "consultancy_hours_package") {
+    derivedConsultancy = {
+      hourly_rate: parsedSettings.hourly_rate,
+      hours_block: parsedSettings.hours_block,
+      minimum_commitment_hours: consultancyMinimumHours(parsedSettings),
+      block_value: consultancyBlockValue(parsedSettings),
+      downpayment_amount: consultancyDownpayment(parsedSettings),
+      phases: parsedSettings.phases,
+    };
+  }
+  if (!derivedRetainer && parsedSettings?.kind === "construction_retainer") {
+    derivedRetainer = {
+      start_date: parsedSettings.start_date,
+      estimated_end_date: parsedSettings.estimated_end_date,
+      monthly_estimate: retainerMonthlyEstimate(parsedSettings),
+      monthly_resources: parsedSettings.monthly_resources,
+      reimbursable_expenses_note: parsedSettings.reimbursable_expenses_note,
+    };
+  }
+
   const { documentDraft, blockDrafts, missingSlugs } = generateProposalDocument({
     ctx,
     masterBlocks,
@@ -185,7 +213,8 @@ async function runGenerate(
     validityDays: args.validityDays,
     revisionNumber: 1,
     proposalKind: args.proposalKind,
-    consultancy: args.consultancy,
+    consultancy: derivedConsultancy,
+    retainer: derivedRetainer,
   });
 
   // 3. Replace existing draft if requested.
