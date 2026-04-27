@@ -53,6 +53,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import logoPSA from "@/assets/logo-psa.png";
+import proposalMarkRiba from "@/assets/proposal-mark-riba.png";
+import proposalMarkOa from "@/assets/proposal-mark-oa.png";
 import {
   Collapsible,
   CollapsibleContent,
@@ -2100,15 +2102,16 @@ function ProposalPrintDocument({
           ))}
         </div>
         <div className="proposal-page-marks">
-          <span className="proposal-mark-riba">RIBA</span>
-          <span className="proposal-mark-oa">
-            <span className="proposal-mark-oa-symbol">oA</span>
-            <span className="proposal-mark-oa-text">
-              ORDEM DOS
-              <br />
-              ARQUITECTOS
-            </span>
-          </span>
+          <img
+            src={proposalMarkRiba}
+            alt="RIBA"
+            className="proposal-mark-riba"
+          />
+          <img
+            src={proposalMarkOa}
+            alt="Ordem dos Arquitectos"
+            className="proposal-mark-oa"
+          />
         </div>
       </footer>
 
