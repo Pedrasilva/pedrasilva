@@ -176,6 +176,7 @@ export interface ConsultancyConfig {
 export interface RetainerConfig {
   start_date?: string | null;
   estimated_end_date?: string | null;
+  construction_duration_months?: number | null;
   monthly_estimate?: number | null;
   monthly_resources?: Array<{
     label: string;
@@ -444,6 +445,8 @@ function buildVariables(
     // Retainer-specific
     retainer_start_date: retainer?.start_date ?? "",
     retainer_end_date: retainer?.estimated_end_date ?? "",
+    retainer_duration_months: fmtNum(retainer?.construction_duration_months),
+    construction_duration_months: fmtNum(retainer?.construction_duration_months),
     monthly_estimate: fmtMoney(retainer?.monthly_estimate),
     reimbursable_expenses_note: retainer?.reimbursable_expenses_note ?? "",
     // PSA Interior Fit-Out preset variables — all blank by default; the
