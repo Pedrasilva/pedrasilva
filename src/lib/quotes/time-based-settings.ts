@@ -172,10 +172,11 @@ export function parseTimeBasedSettings(
 // ──────────────────────── Computed totals ────────────────────────
 
 export function retainerMonthlyEstimate(s: ConstructionRetainerSettings): number {
-  return s.monthly_resources.reduce(
+  const resourcesTotal = s.monthly_resources.reduce(
     (sum, r) => sum + (Number(r.hours_per_month) || 0) * (Number(r.hourly_rate) || 0),
     0,
   );
+  return resourcesTotal > 0 ? resourcesTotal : (s.monthly_estimate ?? 0);
 }
 
 export function consultancyMinimumHours(s: ConsultancyHoursPackageSettings): number {
