@@ -176,9 +176,23 @@ async function runGenerate(
 
   // Derive consultancy/retainer configs from saved time_based_settings
   // when caller did not pass explicit values.
+  //
+  // IMPORTANT: when the chosen proposalKind is a time-based one
+  // (consultancy_hours_package / construction_retainer) but the quote's
+  // commercial type is "standard_project", we still want to honour any
+  // settings the author saved via the Time-based tab kind picker. We
+  // therefore prefer args.proposalKind as the type hint when it maps to
+  // a time-based kind, and only fall back to the DB quote_type otherwise.
+  const proposalKindHint: string | null | undefined =
+    args.proposalKind === "consultancy_hours_package" ||
+    args.proposalKind === "phased_consultancy"
+      ? "consultancy_hours_package"
+      : args.proposalKind === "construction_retainer"
+        ? "construction_retainer"
+        : quote.quote_type;
   const parsedSettings = parseTimeBasedSettings(
     quote.time_based_settings,
-    quote.quote_type,
+    proposalKindHint,
   );
   let derivedConsultancy: ConsultancyConfig | undefined = args.consultancy;
   let derivedRetainer: RetainerConfig | undefined = args.retainer;
