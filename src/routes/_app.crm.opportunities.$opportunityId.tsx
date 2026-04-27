@@ -15,11 +15,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Plus, FileText, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  formatEUR, OPPORTUNITY_STAGES, QUOTE_STATUSES, FEE_STRUCTURE_TYPES, QUOTE_TYPES,
+  formatEUR, OPPORTUNITY_STAGES, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
+  QUOTE_TYPES_BY_CATEGORY, defaultQuoteTypeForCategory,
   type CrmOpportunity, type OpportunityStage, type FeeProposal, type FeeStructureType,
-  type QuoteType, type Contact, contactFullName,
+  type QuoteType, type QuoteCategory, type Contact, contactFullName,
 } from "@/lib/crm/types";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Briefcase, Lightbulb } from "lucide-react";
 
 export const Route = createFileRoute("/_app/crm/opportunities/$opportunityId")({
   component: OpportunityDetail,
@@ -331,20 +333,33 @@ function NewQuoteDialog({
     titulo: defaultTitle,
     valor: String(defaultFee || ""),
     fee_structure_type: "fixed" as FeeStructureType,
+    quote_category: "project" as QuoteCategory,
     quote_type: "standard_project" as QuoteType,
     account_id: "",
     notas: "",
   });
 
+  const setCategory = (cat: QuoteCategory) =>
+    setForm((f) => ({
+      ...f,
+      quote_category: cat,
+      quote_type: defaultQuoteTypeForCategory(cat),
+      // Consultancy is always monthly billing against actual hours.
+      fee_structure_type: cat === "consultancy" ? "monthly" : f.fee_structure_type,
+    }));
+
   const create = useMutation({
     mutationFn: async () => {
       if (!form.titulo.trim()) throw new Error(t("quotes.newQuoteDialog.errorTitle"));
-      // Time-based quote types use the "monthly" fee structure as their
-      // most natural mapping; standard_project keeps whatever the user picked.
+      // Consultancy quotes always bill monthly against actuals; project quotes
+      // honour whatever the user picked in the dialog (or "monthly" for the
+      // construction retainer sub-type).
       const feeStructure: FeeStructureType =
-        form.quote_type === "standard_project"
-          ? form.fee_structure_type
-          : "monthly";
+        form.quote_category === "consultancy"
+          ? "monthly"
+          : form.quote_type === "construction_retainer"
+            ? "monthly"
+            : form.fee_structure_type;
       const { data, error } = await supabase
         .from("fee_proposals")
         .insert({
@@ -354,6 +369,7 @@ function NewQuoteDialog({
           account_id: form.account_id || null,
           valor: form.valor ? Number(form.valor) : 0,
           fee_structure_type: feeStructure,
+          quote_category: form.quote_category,
           quote_type: form.quote_type,
           quote_status: "draft",
           pipeline_status: "lead",
@@ -376,14 +392,62 @@ function NewQuoteDialog({
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const projectSubTypes = QUOTE_TYPES_BY_CATEGORY.project;
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle>{t("quotes.newQuoteDialog.title")}</DialogTitle>
-          <DialogDescription>{t("quotes.newQuoteDialog.description")}</DialogDescription>
+          <DialogDescription>
+            {t("quotes.newQuoteDialog.categoryChooserDescription")}
+          </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-3">
+
+        <div className="grid gap-4">
+          {/* ── Step 1: top-level category chooser ─────────────────── */}
+          <div className="grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => setCategory("project")}
+              className={`flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors ${
+                form.quote_category === "project"
+                  ? "border-primary bg-primary/5 ring-1 ring-primary"
+                  : "hover:bg-muted/50"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold">
+                  {t("quotes.newQuoteDialog.category.project.title")}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t("quotes.newQuoteDialog.category.project.hint")}
+              </p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCategory("consultancy")}
+              className={`flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors ${
+                form.quote_category === "consultancy"
+                  ? "border-primary bg-primary/5 ring-1 ring-primary"
+                  : "hover:bg-muted/50"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Lightbulb className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold">
+                  {t("quotes.newQuoteDialog.category.consultancy.title")}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t("quotes.newQuoteDialog.category.consultancy.hint")}
+              </p>
+            </button>
+          </div>
+
+          {/* ── Step 2: details ───────────────────────────────────── */}
           <div>
             <Label>{t("common.title")} *</Label>
             <Input
@@ -392,31 +456,34 @@ function NewQuoteDialog({
             />
           </div>
 
-          {/* Quote type — drives planning UI + default proposal block-set */}
-          <div>
-            <Label>{t("quotes.newQuoteDialog.quoteTypeLabel")}</Label>
-            <RadioGroup
-              value={form.quote_type}
-              onValueChange={(v) => setForm((f) => ({ ...f, quote_type: v as QuoteType }))}
-              className="grid gap-2 mt-1"
-            >
-              {QUOTE_TYPES.map((qt) => (
-                <Label
-                  key={qt.value}
-                  htmlFor={`qt-${qt.value}`}
-                  className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
-                >
-                  <RadioGroupItem id={`qt-${qt.value}`} value={qt.value} className="mt-0.5" />
-                  <div className="space-y-0.5">
-                    <div className="text-sm font-medium">{t(`quoteType.${qt.value}.label`)}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {t(`quoteType.${qt.value}.hint`)}
+          {/* Project sub-type — only shown for project category. Consultancy
+              has a single sub-type so we hide the picker entirely. */}
+          {form.quote_category === "project" && (
+            <div>
+              <Label>{t("quotes.newQuoteDialog.projectSubTypeLabel")}</Label>
+              <RadioGroup
+                value={form.quote_type}
+                onValueChange={(v) => setForm((f) => ({ ...f, quote_type: v as QuoteType }))}
+                className="grid gap-2 mt-1"
+              >
+                {projectSubTypes.map((qt) => (
+                  <Label
+                    key={qt}
+                    htmlFor={`qt-${qt}`}
+                    className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
+                  >
+                    <RadioGroupItem id={`qt-${qt}`} value={qt} className="mt-0.5" />
+                    <div className="space-y-0.5">
+                      <div className="text-sm font-medium">{t(`quoteType.${qt}.label`)}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {t(`quoteType.${qt}.hint`)}
+                      </div>
                     </div>
-                  </div>
-                </Label>
-              ))}
-            </RadioGroup>
-          </div>
+                  </Label>
+                ))}
+              </RadioGroup>
+            </div>
+          )}
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
@@ -428,7 +495,7 @@ function NewQuoteDialog({
                 onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))}
               />
             </div>
-            {form.quote_type === "standard_project" && (
+            {form.quote_category === "project" && form.quote_type === "standard_project" && (
               <div>
                 <Label>{t("common.feeStructure")}</Label>
                 <Select

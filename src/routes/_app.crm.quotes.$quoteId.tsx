@@ -494,14 +494,20 @@ function QuoteDetail() {
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="no-print">
           <TabsTrigger value="overview">{t("workspace.tabs.overview")}</TabsTrigger>
-          {/* Time-based tab is shown for retainer/consultancy quote types AND
-              for any quote whose user wants to configure time-based financials
-              for a regenerated proposal. Always-on so authors of standard
-              quotes can also surface monthly/hourly figures in the proposal. */}
+          {/* Time-based tab is always shown — for project quotes the optional
+              retainer/consultancy add-on figures live there, and for
+              consultancy quotes it is the primary fee configuration tab. */}
           <TabsTrigger value="time-based">{t("workspace.tabs.timeBased")}</TabsTrigger>
-          <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
-          <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
-          <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
+          {/* Planning (Gantt + stages), External services and Payment schedule
+              are project-only — consultancy proposals do not have stages,
+              dependencies or stage-driven payment milestones. */}
+          {quote.quote_category === "project" && (
+            <>
+              <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
+              <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
+              <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
+            </>
+          )}
           <TabsTrigger value="financial">{t("workspace.tabs.financial")}</TabsTrigger>
           <TabsTrigger value="proposal">{t("workspace.tabs.proposal")}</TabsTrigger>
         </TabsList>
@@ -532,16 +538,23 @@ function QuoteDetail() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label>{t("workspace.overview.constructionCost")}</Label>
-                  <Input type="number" step="0.01" value={form.construction_cost}
-                    onChange={(e) => setForm((f) => ({ ...f, construction_cost: e.target.value }))} />
-                </div>
-                <div>
-                  <Label>{t("workspace.overview.feePercentage")}</Label>
-                  <Input type="number" step="0.01" value={form.fee_percentage}
-                    onChange={(e) => setForm((f) => ({ ...f, fee_percentage: e.target.value }))} />
-                </div>
+                {/* Construction cost / fee percentage are project-quote
+                    concepts (% of construction value). Hidden for
+                    consultancy quotes which bill hourly. */}
+                {quote.quote_category === "project" && (
+                  <>
+                    <div>
+                      <Label>{t("workspace.overview.constructionCost")}</Label>
+                      <Input type="number" step="0.01" value={form.construction_cost}
+                        onChange={(e) => setForm((f) => ({ ...f, construction_cost: e.target.value }))} />
+                    </div>
+                    <div>
+                      <Label>{t("workspace.overview.feePercentage")}</Label>
+                      <Input type="number" step="0.01" value={form.fee_percentage}
+                        onChange={(e) => setForm((f) => ({ ...f, fee_percentage: e.target.value }))} />
+                    </div>
+                  </>
+                )}
                 <div>
                   <Label>{t("workspace.overview.pricingMultiplier")}</Label>
                   <Input type="number" step="0.01" value={form.pricing_multiplier}
@@ -618,17 +631,25 @@ function QuoteDetail() {
         </TabsContent>
 
         <TabsContent value="time-based" className="mt-4">
-          <QuoteTimeBasedSettingsTab quoteId={quoteId} quoteType={quote.quote_type} />
+          <QuoteTimeBasedSettingsTab
+            quoteId={quoteId}
+            quoteType={quote.quote_type}
+            quoteCategory={quote.quote_category}
+          />
         </TabsContent>
-        <TabsContent value="planning" className="mt-4">
-          <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
-        </TabsContent>
-        <TabsContent value="external" className="mt-4">
-          <QuoteExternalServicesTab quoteId={quoteId} />
-        </TabsContent>
-        <TabsContent value="payment" className="mt-4">
-          <QuotePaymentScheduleTab quoteId={quoteId} />
-        </TabsContent>
+        {quote.quote_category === "project" && (
+          <>
+            <TabsContent value="planning" className="mt-4">
+              <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
+            </TabsContent>
+            <TabsContent value="external" className="mt-4">
+              <QuoteExternalServicesTab quoteId={quoteId} />
+            </TabsContent>
+            <TabsContent value="payment" className="mt-4">
+              <QuotePaymentScheduleTab quoteId={quoteId} />
+            </TabsContent>
+          </>
+        )}
         <TabsContent value="financial" className="mt-4">
           <QuoteFinancialSummaryTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
         </TabsContent>
@@ -641,6 +662,7 @@ function QuoteDetail() {
             clientName={quote.company?.nome ?? null}
             accountName={quote.account?.name ?? null}
             quoteType={quote.quote_type ?? "standard_project"}
+            quoteCategory={quote.quote_category}
           />
         </TabsContent>
       </Tabs>

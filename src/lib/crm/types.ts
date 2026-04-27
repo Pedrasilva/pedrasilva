@@ -31,6 +31,8 @@ export type FeeProposal = {
   quote_status: QuoteStatus;
   /** Commercial classification chosen at creation time. See QuoteType. */
   quote_type: QuoteType;
+  /** Top-level workflow category. Drives which tabs/blocks/presets apply. */
+  quote_category: QuoteCategory;
 };
 
 export type CrmActivity = {
@@ -85,11 +87,43 @@ export type QuoteType =
   | "construction_retainer"
   | "consultancy_hours_package";
 
+/**
+ * Top-level workflow category chosen at quote creation. Each category owns a
+ * disjoint set of `quote_type` sub-values, enforced by a DB trigger:
+ *   - "project"     → standard_project | construction_retainer
+ *   - "consultancy" → consultancy_hours_package
+ *
+ * Construction Retainer is therefore ALWAYS a project sub-type and never a
+ * standalone proposal category.
+ */
+export type QuoteCategory = "project" | "consultancy";
+
+export const QUOTE_CATEGORIES: { value: QuoteCategory }[] = [
+  { value: "project" },
+  { value: "consultancy" },
+];
+
 export const QUOTE_TYPES: { value: QuoteType }[] = [
   { value: "standard_project" },
   { value: "construction_retainer" },
   { value: "consultancy_hours_package" },
 ];
+
+/** Quote sub-types valid for each top-level category. */
+export const QUOTE_TYPES_BY_CATEGORY: Record<QuoteCategory, QuoteType[]> = {
+  project: ["standard_project", "construction_retainer"],
+  consultancy: ["consultancy_hours_package"],
+};
+
+/** Default sub-type when a user picks a category. */
+export function defaultQuoteTypeForCategory(category: QuoteCategory): QuoteType {
+  return category === "consultancy" ? "consultancy_hours_package" : "standard_project";
+}
+
+/** Derive the category for an existing quote_type — used as a safety net. */
+export function categoryForQuoteType(type: QuoteType | string | null | undefined): QuoteCategory {
+  return type === "consultancy_hours_package" ? "consultancy" : "project";
+}
 
 export type CrmAccount = {
   id: string;
