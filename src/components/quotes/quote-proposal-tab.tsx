@@ -1764,6 +1764,47 @@ function ProposalPrintDocument({
           })}
         </div>
       )}
+
+      {/* Acceptance / signature block — always shown at the end of the
+          client-facing document so the proposal can be printed and signed.
+          Marked `proposal-acceptance` so the print stylesheet keeps it
+          intact across page breaks. */}
+      <section className="proposal-print-block proposal-avoid-break proposal-acceptance proposal-signature-block mt-8">
+        <h2 className="proposal-print-heading mb-2 text-base font-semibold leading-snug">
+          {t("workspace.proposal.acceptanceTitle")}
+        </h2>
+        <p className="proposal-signature-hint text-xs text-muted-foreground mb-6">
+          {t("workspace.proposal.acceptanceHint")}
+        </p>
+        <div className="proposal-signature-grid">
+          <div className="proposal-signature-cell">
+            <div className="proposal-signature-line" />
+            <div className="proposal-signature-label">
+              {t("workspace.proposal.acceptanceClientName")}
+              {clientName || accountName ? ` — ${clientName ?? accountName}` : ""}
+            </div>
+          </div>
+          <div className="proposal-signature-cell">
+            <div className="proposal-signature-line" />
+            <div className="proposal-signature-label">
+              {t("workspace.proposal.acceptanceSignature")}
+            </div>
+          </div>
+          <div className="proposal-signature-cell">
+            <div className="proposal-signature-line" />
+            <div className="proposal-signature-label">
+              {t("workspace.proposal.acceptanceDate")}
+            </div>
+          </div>
+          <div className="proposal-signature-cell">
+            <div className="proposal-signature-line" />
+            <div className="proposal-signature-label">
+              {t("workspace.proposal.acceptanceOnBehalf")}
+              {firmName ? ` ${firmName}` : ""}
+            </div>
+          </div>
+        </div>
+      </section>
     </article>
   );
 }

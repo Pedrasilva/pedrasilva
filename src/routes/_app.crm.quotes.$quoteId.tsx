@@ -494,10 +494,11 @@ function QuoteDetail() {
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="no-print">
           <TabsTrigger value="overview">{t("workspace.tabs.overview")}</TabsTrigger>
-          {(quote.quote_type === "construction_retainer" ||
-            quote.quote_type === "consultancy_hours_package") && (
-            <TabsTrigger value="time-based">{t("workspace.tabs.timeBased")}</TabsTrigger>
-          )}
+          {/* Time-based tab is shown for retainer/consultancy quote types AND
+              for any quote whose user wants to configure time-based financials
+              for a regenerated proposal. Always-on so authors of standard
+              quotes can also surface monthly/hourly figures in the proposal. */}
+          <TabsTrigger value="time-based">{t("workspace.tabs.timeBased")}</TabsTrigger>
           <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
           <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
           <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
@@ -616,12 +617,9 @@ function QuoteDetail() {
           </div>
         </TabsContent>
 
-        {(quote.quote_type === "construction_retainer" ||
-          quote.quote_type === "consultancy_hours_package") && (
-          <TabsContent value="time-based" className="mt-4">
-            <QuoteTimeBasedSettingsTab quoteId={quoteId} quoteType={quote.quote_type} />
-          </TabsContent>
-        )}
+        <TabsContent value="time-based" className="mt-4">
+          <QuoteTimeBasedSettingsTab quoteId={quoteId} quoteType={quote.quote_type} />
+        </TabsContent>
         <TabsContent value="planning" className="mt-4">
           <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
         </TabsContent>

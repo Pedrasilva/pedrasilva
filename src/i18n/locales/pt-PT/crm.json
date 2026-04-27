@@ -272,6 +272,8 @@
     },
     "timeBased": {
       "savedToast": "Definições baseadas em tempo guardadas",
+      "kindPickerTitle": "Modelo de honorários baseado em tempo",
+      "kindPickerHint": "Esta proposta é um projecto standard. Utilize o painel abaixo se também pretender apresentar valores mensais de retainer ou valores horários de consultoria na proposta gerada.",
       "retainer": {
         "basicsTitle": "Dados do retainer",
         "startDate": "Data de início da obra",
