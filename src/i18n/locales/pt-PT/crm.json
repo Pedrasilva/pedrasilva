@@ -163,6 +163,7 @@
     "newQuoteDialog": {
       "title": "Nova proposta",
       "description": "As propostas herdam o contexto da oportunidade. A conta é opcional agora mas obrigatória para aprovar.",
+      "quoteTypeLabel": "Tipo de proposta",
       "accountOptional": "Conta (opcional)",
       "noAccountSetBefore": "Sem conta (definir antes de aprovar)",
       "noAccountsHint": "Ainda sem contas para esta empresa. Crie uma no separador Contas.",
