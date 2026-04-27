@@ -610,6 +610,12 @@ function pickSlugs(input: GenerateInput): string[] {
     case "psa_interior_fitout":
       base = PSA_INTERIOR_BLOCK_SLUGS;
       break;
+    case "construction_retainer":
+      base = RETAINER_BLOCK_SLUGS;
+      break;
+    case "consultancy_hours_package":
+      base = CONSULTANCY_HOURS_PACKAGE_BLOCK_SLUGS;
+      break;
     default:
       base = DEFAULT_PROPOSAL_BLOCK_SLUGS;
   }
