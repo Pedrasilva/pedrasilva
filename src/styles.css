@@ -687,13 +687,23 @@
     border: none !important;
     background: white !important;
     color: #111 !important;
+    /* Reset all the screen-mode page-frame variables so they cannot
+       leak in and create unintended top/bottom padding on print. */
+    --psa-margin-top: 0;
+    --psa-margin-bottom: 0;
+    --psa-margin-x: 0;
   }
-  /* Fixed header/footer repeat on every printed page. */
+  /* Fixed header/footer repeat on every printed page. They sit INSIDE
+     the @page margin box (top 14mm / bottom 12mm leave the central
+     content area clear from 40mm…page-height-28mm). White background
+     ensures they cover any content that would otherwise show through. */
   .print-area .proposal-page-header,
   .print-area .proposal-page-footer {
     position: fixed;
     left: 22mm;
     right: 22mm;
+    background: white;
+    z-index: 100;
   }
   .print-area .proposal-page-header { top: 14mm; }
   .print-area .proposal-page-footer { bottom: 12mm; }
@@ -735,6 +745,10 @@
      reserves space at the top for the fixed header. */
   .print-area .proposal-cover {
     margin-top: 0;
+  }
+  /* Keep the signature lines crisp and dark on paper. */
+  .print-area .proposal-signature-line {
+    border-bottom-color: #111 !important;
   }
 }
 
