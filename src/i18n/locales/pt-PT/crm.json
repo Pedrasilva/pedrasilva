@@ -254,6 +254,37 @@
     "ganho": "Ganha",
     "perdido": "Perdida"
   },
+  "feeCalculator": {
+    "title": "Calculadora de honorários de arquitectura",
+    "subtitle": "Estima os honorários de arquitectura a partir do valor de obra, com correcções para fundações, recuperação de património, ampliação e categoria.",
+    "constructionValue": "Valor de obra (€)",
+    "constructionValuePh": "ou calculado por área × custo/m²",
+    "costPerSqm": "Custo por m² (€)",
+    "area": "Área de construção (m²)",
+    "category": "Categoria",
+    "category2": "Categoria 2",
+    "category3": "Categoria 3",
+    "discount": "Desconto / correcção (%)",
+    "heritageUplift": "Recuperação de património (%)",
+    "extensionUplift": "Ampliação (%)",
+    "stageBreakdown": "Distribuição por fases",
+    "stageNamePh": "Nome da fase (ex.: Estudo prévio)",
+    "stageTotal": "Total das fases: {{pct}} %",
+    "saveDraft": "Guardar calculadora",
+    "applyToFee": "Aplicar aos honorários estimados",
+    "savedToast": "Calculadora guardada",
+    "appliedToast": "Honorários aplicados à proposta",
+    "summary": {
+      "constructionValue": "Valor de obra",
+      "foundationDeduction": "Dedução de fundações (5% da estrutura)",
+      "heritageUplift": "Aumento de recuperação de património",
+      "extensionUplift": "Aumento de ampliação",
+      "adjustedValue": "Valor de obra ajustado",
+      "feePct": "% de honorários",
+      "baseFee": "Honorários base de arquitectura",
+      "finalFee": "Honorários finais de arquitectura"
+    }
+  },
   "workspace": {
     "tabs": {
       "overview": "Resumo",
