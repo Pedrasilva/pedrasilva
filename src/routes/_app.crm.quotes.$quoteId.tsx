@@ -631,6 +631,7 @@ function QuoteDetail() {
             description={form.proposal_description || quote.proposal_description || quote.notas}
             clientName={quote.company?.nome ?? null}
             accountName={quote.account?.name ?? null}
+            quoteType={quote.quote_type ?? "standard_project"}
           />
         </TabsContent>
       </Tabs>
