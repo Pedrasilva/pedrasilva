@@ -32,6 +32,7 @@ import { QuoteExternalServicesTab } from "@/components/quotes/quote-external-ser
 import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
 import { QuoteFinancialSummaryTab } from "@/components/quotes/quote-financial-summary-tab";
 import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
+import { QuoteTimeBasedSettingsTab } from "@/components/quotes/quote-time-based-settings-tab";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
@@ -493,6 +494,10 @@ function QuoteDetail() {
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="no-print">
           <TabsTrigger value="overview">{t("workspace.tabs.overview")}</TabsTrigger>
+          {(quote.quote_type === "construction_retainer" ||
+            quote.quote_type === "consultancy_hours_package") && (
+            <TabsTrigger value="time-based">{t("workspace.tabs.timeBased")}</TabsTrigger>
+          )}
           <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
           <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
           <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
@@ -611,6 +616,12 @@ function QuoteDetail() {
           </div>
         </TabsContent>
 
+        {(quote.quote_type === "construction_retainer" ||
+          quote.quote_type === "consultancy_hours_package") && (
+          <TabsContent value="time-based" className="mt-4">
+            <QuoteTimeBasedSettingsTab quoteId={quoteId} quoteType={quote.quote_type} />
+          </TabsContent>
+        )}
         <TabsContent value="planning" className="mt-4">
           <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
         </TabsContent>
