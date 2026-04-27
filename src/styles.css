@@ -406,11 +406,17 @@
 
 .proposal-print-document .proposal-print-block {
   margin-bottom: 1.5rem;
-  page-break-inside: avoid;
-  break-inside: avoid-page;
 }
 .proposal-print-document .proposal-print-block:last-child {
   margin-bottom: 0;
+}
+/* Keep small atomic units together so they don't split mid-line, but allow
+   larger blocks to flow naturally across pages — otherwise whole sections
+   get pushed to a new page leaving large white gaps. */
+.proposal-print-document .proposal-print-block li,
+.proposal-print-document .proposal-print-block p {
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .proposal-print-document .proposal-print-heading {
