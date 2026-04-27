@@ -409,6 +409,19 @@ function buildVariables(
     v === null || v === undefined ? "" : String(v);
   const fmtMoney = (v: number | null | undefined) =>
     v === null || v === undefined ? "" : formatMoney(v, currency, language);
+  const consultancyHourly = consultancy?.hourly_rate ?? null;
+  const consultancyBlock = consultancy?.hours_block ?? null;
+  const consultancyMinimum = consultancy?.minimum_commitment_hours ?? null;
+  const consultancyBlockValue =
+    consultancy?.block_value ??
+    (consultancyHourly !== null && consultancyBlock !== null
+      ? consultancyHourly * consultancyBlock
+      : null);
+  const consultancyDownpayment =
+    consultancy?.downpayment_amount ??
+    (consultancyHourly !== null && consultancyMinimum !== null
+      ? consultancyHourly * consultancyMinimum
+      : null);
   return {
     client_name: clientName || contactName || "Client",
     project_name: ctx.quote.titulo || "",
@@ -423,11 +436,11 @@ function buildVariables(
     currency,
     project_type: "",
     property_type: "",
-    hourly_rate: fmtNum(consultancy?.hourly_rate),
-    hours_block: fmtNum(consultancy?.hours_block),
-    minimum_commitment_hours: fmtNum(consultancy?.minimum_commitment_hours),
-    block_value: fmtMoney(consultancy?.block_value),
-    downpayment_amount: fmtMoney(consultancy?.downpayment_amount),
+    hourly_rate: fmtMoney(consultancyHourly),
+    hours_block: fmtNum(consultancyBlock),
+    minimum_commitment_hours: fmtNum(consultancyMinimum),
+    block_value: fmtMoney(consultancyBlockValue),
+    downpayment_amount: fmtMoney(consultancyDownpayment),
     // Retainer-specific
     retainer_start_date: retainer?.start_date ?? "",
     retainer_end_date: retainer?.estimated_end_date ?? "",

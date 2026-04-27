@@ -51,6 +51,19 @@ export type TimeBasedSettings =
   | ConstructionRetainerSettings
   | ConsultancyHoursPackageSettings;
 
+function optionalNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value.replace(",", "."));
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
+function numberOrZero(value: unknown): number {
+  return optionalNumber(value) ?? 0;
+}
+
 // ──────────────────────── Defaults ────────────────────────
 
 export function defaultRetainerSettings(): ConstructionRetainerSettings {
@@ -108,8 +121,8 @@ export function parseTimeBasedSettings(
                 const o = r as Record<string, unknown>;
                 return {
                   label: typeof o.label === "string" ? o.label : "",
-                  hours_per_month: Number(o.hours_per_month) || 0,
-                  hourly_rate: Number(o.hourly_rate) || 0,
+                  hours_per_month: numberOrZero(o.hours_per_month),
+                  hourly_rate: numberOrZero(o.hourly_rate),
                 };
               })
               .filter((r): r is RetainerMonthlyResource => r !== null)
@@ -124,14 +137,11 @@ export function parseTimeBasedSettings(
       const base = defaultConsultancySettings();
       return {
         ...base,
-        hourly_rate:
-          typeof obj.hourly_rate === "number" ? obj.hourly_rate : base.hourly_rate,
-        hours_block:
-          typeof obj.hours_block === "number" ? obj.hours_block : base.hours_block,
+        hourly_rate: optionalNumber(obj.hourly_rate) ?? base.hourly_rate,
+        hours_block: optionalNumber(obj.hours_block) ?? base.hours_block,
         minimum_commitment_percent:
-          typeof obj.minimum_commitment_percent === "number"
-            ? obj.minimum_commitment_percent
-            : base.minimum_commitment_percent,
+          optionalNumber(obj.minimum_commitment_percent) ??
+          base.minimum_commitment_percent,
         phases: Array.isArray(obj.phases)
           ? (obj.phases as unknown[])
               .map((p) => {
@@ -139,8 +149,7 @@ export function parseTimeBasedSettings(
                 const o = p as Record<string, unknown>;
                 return {
                   label: typeof o.label === "string" ? o.label : "",
-                  estimated_hours:
-                    typeof o.estimated_hours === "number" ? o.estimated_hours : null,
+                  estimated_hours: optionalNumber(o.estimated_hours),
                 };
               })
               .filter((p): p is ConsultancyPhaseEstimate => p !== null)
