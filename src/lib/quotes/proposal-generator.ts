@@ -681,6 +681,7 @@ export function generateProposalDocument(input: GenerateInput): GenerateOutput {
     language,
     validityDays,
     input.consultancy,
+    input.retainer,
   );
 
   const slugs = pickSlugs(input);
