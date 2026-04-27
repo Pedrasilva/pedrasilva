@@ -802,14 +802,25 @@ export function generateProposalDocument(input: GenerateInput): GenerateOutput {
   const validityDays = input.validityDays ?? 60;
 
   const computed = buildComputed(input.ctx, currency);
+  const consultancy = resolveConsultancyConfig(
+    input.ctx,
+    computed,
+    input.proposalKind,
+    input.consultancy,
+  );
+  const retainer =
+    input.proposalKind === "construction_retainer"
+      ? resolveRetainerConfig(computed, input.retainer ?? {})
+      : input.retainer;
+  assertTimeBasedValues(input.proposalKind, consultancy, retainer);
   const variables = buildVariables(
     input.ctx,
     computed.totalFee,
     currency,
     language,
     validityDays,
-    input.consultancy,
-    input.retainer,
+    consultancy,
+    retainer,
   );
 
   const slugs = pickSlugs(input);
@@ -862,7 +873,7 @@ export function generateProposalDocument(input: GenerateInput): GenerateOutput {
           generated_content = { acceptance: computed.acceptance };
           break;
         case "generated-time-fee-consultancy": {
-          const c = input.consultancy ?? {};
+          const c = consultancy ?? {};
           const hourly = c.hourly_rate ?? null;
           const block = c.hours_block ?? null;
           const minimum = c.minimum_commitment_hours ?? null;
@@ -879,8 +890,8 @@ export function generateProposalDocument(input: GenerateInput): GenerateOutput {
         }
         case "generated-consultancy-phases": {
           const phases =
-            input.consultancy?.phases && input.consultancy.phases.length > 0
-              ? input.consultancy.phases.map((p) => ({
+            consultancy?.phases && consultancy.phases.length > 0
+              ? consultancy.phases.map((p) => ({
                   label: p.label,
                   estimated_hours: p.estimated_hours ?? null,
                 }))
