@@ -130,7 +130,29 @@ export interface BlockDraft {
 export type ProposalKind =
   | "fixed_project"
   | "phased_consultancy"
-  | "psa_interior_fitout";
+  | "psa_interior_fitout"
+  | "construction_retainer"
+  | "consultancy_hours_package";
+
+/**
+ * Map a quote_type (commercial classification stored on fee_proposals) to
+ * the default ProposalKind used by the generator. `standard_project` keeps
+ * the existing legacy default ("fixed_project"); the two time-based types
+ * route to their dedicated block sets.
+ */
+export function quoteTypeToProposalKind(
+  quoteType: string | null | undefined,
+): ProposalKind {
+  switch (quoteType) {
+    case "construction_retainer":
+      return "construction_retainer";
+    case "consultancy_hours_package":
+      return "consultancy_hours_package";
+    case "standard_project":
+    default:
+      return "fixed_project";
+  }
+}
 
 export interface ConsultancyConfig {
   hourly_rate?: number | null;
