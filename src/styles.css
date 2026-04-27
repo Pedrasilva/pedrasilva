@@ -610,6 +610,44 @@
   border-bottom: 0;
 }
 
+/* ─── Acceptance / signature block ───────────────────────────────
+   Always rendered at the end of the client-facing document. Uses a
+   2-column grid of signature lines so the proposal can be printed
+   and physically signed by both parties. */
+.proposal-print-document .proposal-signature-block {
+  margin-top: 12mm;
+  padding-top: 6mm;
+  border-top: 0.5pt solid #888;
+}
+.proposal-print-document .proposal-signature-hint {
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 9pt;
+  color: #555;
+  text-align: left;
+  margin-bottom: 8mm;
+}
+.proposal-print-document .proposal-signature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10mm 14mm;
+}
+.proposal-print-document .proposal-signature-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2mm;
+}
+.proposal-print-document .proposal-signature-line {
+  height: 14mm;
+  border-bottom: 0.5pt solid #111;
+}
+.proposal-print-document .proposal-signature-label {
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-size: 8.5pt;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #555;
+}
+
 /* ─── SCREEN (Preview) ──────────────────────────────────────────── */
 
 @media screen {
