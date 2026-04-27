@@ -984,8 +984,21 @@ function GeneratedDocumentSection({
     // Use whichever kind is currently selected (or the persisted one when
     // regenerating without the selector visible).
     const kind: ProposalKind = document ? persistedKind : proposalKind;
-    if (kind === "phased_consultancy" && consultancyHasErrors) {
+    if (isConsultancyProposalKind(kind) && consultancyHasErrors) {
       toast.error(t("workspace.proposal.generator.consultancy.validationError"));
+      return;
+    }
+    if (kind === "construction_retainer" && retainerHasErrors) {
+      toast.error(t("workspace.proposal.generator.retainer.validationError"));
+      return;
+    }
+    const missing = missingRequiredFields(kind);
+    if (missing.length > 0) {
+      toast.warning(
+        t("workspace.proposal.generator.missingRequiredFields", {
+          fields: missing.join(", "),
+        }),
+      );
       return;
     }
     try {
@@ -993,12 +1006,11 @@ function GeneratedDocumentSection({
         quoteId,
         replaceExistingDraft,
         proposalKind: kind,
-        consultancy:
-          (kind === "phased_consultancy" ||
-            kind === "consultancy_hours_package") &&
-          hasManualConsultancyValues
-            ? buildConsultancyConfig()
-            : undefined,
+        consultancy: isConsultancyProposalKind(kind)
+          ? buildConsultancyConfig()
+          : undefined,
+        retainer: kind === "construction_retainer" ? buildRetainerConfig() : undefined,
+        persistTimeBasedSettings: isTimeBasedProposalKind(kind),
       });
       toast.success(t("workspace.proposal.generator.success"));
       if (result.missingSlugs.length > 0) {
