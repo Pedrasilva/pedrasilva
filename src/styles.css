@@ -406,6 +406,8 @@
 
 .proposal-print-document .proposal-print-block {
   margin-bottom: 1.5rem;
+  page-break-inside: avoid;
+  break-inside: avoid-page;
 }
 .proposal-print-document .proposal-print-block:last-child {
   margin-bottom: 0;
@@ -657,20 +659,34 @@
     margin: 24px auto;
     padding: var(--psa-margin-top) var(--psa-margin-x) var(--psa-margin-bottom);
     box-sizing: border-box;
-    /* Simulate physical A4 page boundaries: each page is exactly --psa-page-h tall.
-       We render a 16px gutter every page-height as a visible page break. */
-    background:
+    /* Show A4 boundaries without drawing a gutter through proposal text. */
+    background-image:
       repeating-linear-gradient(
         to bottom,
-        white 0,
-        white var(--psa-page-h),
+        transparent 0,
+        transparent var(--psa-page-h),
         #e5e7eb var(--psa-page-h),
         #e5e7eb calc(var(--psa-page-h) + 1px),
         #f3f4f6 calc(var(--psa-page-h) + 1px),
         #f3f4f6 calc(var(--psa-page-h) + 16px),
         #e5e7eb calc(var(--psa-page-h) + 16px),
         #e5e7eb calc(var(--psa-page-h) + 17px)
-      );
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent var(--psa-page-h),
+        #e5e7eb var(--psa-page-h),
+        #e5e7eb calc(var(--psa-page-h) + 1px),
+        #f3f4f6 calc(var(--psa-page-h) + 1px),
+        #f3f4f6 calc(var(--psa-page-h) + 16px),
+        #e5e7eb calc(var(--psa-page-h) + 16px),
+        #e5e7eb calc(var(--psa-page-h) + 17px)
+      ),
+      linear-gradient(white, white);
+    background-position: left top, right top, left top;
+    background-size: var(--psa-margin-x) auto, var(--psa-margin-x) auto, auto;
+    background-repeat: repeat-y, repeat-y, no-repeat;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
   }
   .proposal-page-header,
@@ -726,8 +742,8 @@
   .print-area .proposal-page-footer { bottom: var(--psa-footer-bottom); }
 
   .print-area .proposal-print-block {
-    page-break-inside: auto;
-    break-inside: auto;
+    page-break-inside: avoid;
+    break-inside: avoid-page;
   }
   .print-area .proposal-avoid-break {
     page-break-inside: avoid;
