@@ -744,6 +744,9 @@ function GeneratedDocumentSection({
   const [phase1Hours, setPhase1Hours] = useState<string>("");
   const [phase2Hours, setPhase2Hours] = useState<string>("");
   const [phase3Hours, setPhase3Hours] = useState<string>("");
+  const [monthlyRetainer, setMonthlyRetainer] = useState<string>("");
+  const [retainerDurationMonths, setRetainerDurationMonths] = useState<string>("");
+  const [reimbursableNote, setReimbursableNote] = useState<string>("");
 
   // Hydrate the manual fields from the quote's stored time_based_settings
   // when the row arrives, so users do not need to re-type values.
@@ -761,31 +764,41 @@ function GeneratedDocumentSection({
   });
   useEffect(() => {
     if (!tbsRow) return;
-    const raw = tbsRow.time_based_settings;
-    if (!raw || typeof raw !== "object") return;
-    const obj = raw as Record<string, unknown>;
-    if (obj.kind !== "consultancy_hours_package") return;
-    if (typeof obj.hourly_rate === "number" && hourlyRate === "")
-      setHourlyRate(String(obj.hourly_rate));
-    if (typeof obj.hours_block === "number" && hoursBlock === "")
-      setHoursBlock(String(obj.hours_block));
-    if (
-      typeof obj.minimum_commitment_percent === "number" &&
-      typeof obj.hours_block === "number" &&
-      minCommitment === ""
-    ) {
-      const min = (obj.hours_block * obj.minimum_commitment_percent) / 100;
-      setMinCommitment(String(min));
-    }
-    if (Array.isArray(obj.phases)) {
-      const phs = obj.phases as Array<Record<string, unknown>>;
+    const hint = proposalKindToTimeBasedHint(document ? persistedKind : proposalKind) ?? quoteType;
+    const parsed = parseTimeBasedSettings(tbsRow.time_based_settings, hint);
+    if (parsed?.kind === "consultancy_hours_package") {
+      if (typeof parsed.hourly_rate === "number" && hourlyRate === "")
+        setHourlyRate(String(parsed.hourly_rate));
+      if (typeof parsed.hours_block === "number" && hoursBlock === "")
+        setHoursBlock(String(parsed.hours_block));
+      if (
+        typeof parsed.minimum_commitment_percent === "number" &&
+        typeof parsed.hours_block === "number" &&
+        minCommitment === ""
+      ) {
+        const min = (parsed.hours_block * parsed.minimum_commitment_percent) / 100;
+        setMinCommitment(String(min));
+      }
       const v = (i: number) => {
-        const h = phs[i]?.estimated_hours;
+        const h = parsed.phases[i]?.estimated_hours;
         return typeof h === "number" ? String(h) : "";
       };
       if (phase1Hours === "") setPhase1Hours(v(0));
       if (phase2Hours === "") setPhase2Hours(v(1));
       if (phase3Hours === "") setPhase3Hours(v(2));
+    }
+    if (parsed?.kind === "construction_retainer") {
+      const monthly = retainerMonthlyEstimate(parsed);
+      if (monthly > 0 && monthlyRetainer === "") setMonthlyRetainer(String(monthly));
+      if (
+        typeof parsed.construction_duration_months === "number" &&
+        retainerDurationMonths === ""
+      ) {
+        setRetainerDurationMonths(String(parsed.construction_duration_months));
+      }
+      if (parsed.reimbursable_expenses_note && reimbursableNote === "") {
+        setReimbursableNote(parsed.reimbursable_expenses_note);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tbsRow]);
