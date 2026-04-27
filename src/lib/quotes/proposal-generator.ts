@@ -158,8 +158,31 @@ export interface ConsultancyConfig {
   hourly_rate?: number | null;
   hours_block?: number | null;
   minimum_commitment_hours?: number | null;
+  /** Block value (hourly_rate × hours_block). Optional; computed by
+   *  the generator when omitted. */
+  block_value?: number | null;
+  /** Down payment (minimum_commitment_hours × hourly_rate). Optional. */
+  downpayment_amount?: number | null;
   /** Optional override list for phases. */
   phases?: Array<{ label: string; estimated_hours?: number | null }>;
+}
+
+/**
+ * Optional config for `construction_retainer` proposals. Surfaced to the
+ * generator so the substitution variable map carries retainer-specific
+ * values into editable_text blocks (e.g. "{{monthly_estimate}}",
+ * "{{retainer_start_date}}").
+ */
+export interface RetainerConfig {
+  start_date?: string | null;
+  estimated_end_date?: string | null;
+  monthly_estimate?: number | null;
+  monthly_resources?: Array<{
+    label: string;
+    hours_per_month: number;
+    hourly_rate: number;
+  }>;
+  reimbursable_expenses_note?: string | null;
 }
 
 export interface GenerateInput {
@@ -181,6 +204,8 @@ export interface GenerateInput {
   proposalKind?: ProposalKind;
   /** Optional consultancy-specific config (used by phased_consultancy generated blocks). */
   consultancy?: ConsultancyConfig;
+  /** Optional retainer-specific config. */
+  retainer?: RetainerConfig;
 }
 
 export interface GenerateOutput {
