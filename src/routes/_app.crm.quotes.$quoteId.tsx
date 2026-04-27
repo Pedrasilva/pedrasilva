@@ -630,6 +630,25 @@ function QuoteDetail() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Construction-percentage architectural fee calculator. Project
+              Proposals only — Consultancy quotes bill hourly and skip this. */}
+          {quote.quote_category === "project" && (
+            <div className="mt-4">
+              <QuoteFeeCalculatorCard
+                quoteId={quoteId}
+                initialPayload={quote.project_fee_calculation}
+                onApplied={(finalFee, constructionValue, feePct) => {
+                  setForm((f) => ({
+                    ...f,
+                    valor: String(Math.round(finalFee * 100) / 100),
+                    construction_cost: constructionValue ? String(constructionValue) : "",
+                    fee_percentage: feePct ? String(Number(feePct.toFixed(4))) : "",
+                  }));
+                }}
+              />
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="time-based" className="mt-4">
