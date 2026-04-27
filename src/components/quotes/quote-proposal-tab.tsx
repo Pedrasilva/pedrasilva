@@ -921,16 +921,7 @@ function GeneratedDocumentSection({
     monthly_estimate: retainerValidation.monthly,
     construction_duration_months: retainerValidation.duration,
     reimbursable_expenses_note: reimbursableNote.trim() || null,
-    monthly_resources:
-      retainerValidation.monthly !== null
-        ? [
-            {
-              label: t("workspace.proposal.generator.retainer.monthlyRetainer"),
-              hours_per_month: 1,
-              hourly_rate: retainerValidation.monthly,
-            },
-          ]
-        : [],
+    monthly_resources: [],
   });
 
   const activeKind: ProposalKind = document ? persistedKind : proposalKind;
