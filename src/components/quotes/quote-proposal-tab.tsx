@@ -25,6 +25,7 @@ import {
   quoteTypeToProposalKind,
   type ConsultancyConfig,
   type ProposalKind,
+  type RetainerConfig,
 } from "@/lib/quotes/proposal-generator";
 import { useTranslation } from "react-i18next";
 import { format, parseISO, type Locale } from "date-fns";
@@ -81,6 +82,10 @@ import {
   useMoveBlock,
 } from "@/lib/quotes/use-quote-proposal-document-blocks";
 import { useGenerateQuoteProposalDocument } from "@/lib/quotes/use-generate-quote-proposal-document";
+import {
+  parseTimeBasedSettings,
+  retainerMonthlyEstimate,
+} from "@/lib/quotes/time-based-settings";
 
 interface QuoteProposalTabProps {
   quoteId: string;
@@ -144,6 +149,20 @@ function statusVariant(
     default:
       return "outline";
   }
+}
+
+function isConsultancyProposalKind(kind: ProposalKind): boolean {
+  return kind === "phased_consultancy" || kind === "consultancy_hours_package";
+}
+
+function isTimeBasedProposalKind(kind: ProposalKind): boolean {
+  return isConsultancyProposalKind(kind) || kind === "construction_retainer";
+}
+
+function proposalKindToTimeBasedHint(kind: ProposalKind) {
+  if (isConsultancyProposalKind(kind)) return "consultancy_hours_package";
+  if (kind === "construction_retainer") return "construction_retainer";
+  return undefined;
 }
 
 function formatCurrency(value: number, currency = "EUR"): string {
@@ -725,6 +744,10 @@ function GeneratedDocumentSection({
   const [phase1Hours, setPhase1Hours] = useState<string>("");
   const [phase2Hours, setPhase2Hours] = useState<string>("");
   const [phase3Hours, setPhase3Hours] = useState<string>("");
+  const [monthlyRetainer, setMonthlyRetainer] = useState<string>("");
+  const [retainerDurationMonths, setRetainerDurationMonths] = useState<string>("");
+  const [reimbursableNote, setReimbursableNote] = useState<string>("");
+  const [hasHydratedSettings, setHasHydratedSettings] = useState(false);
 
   // Hydrate the manual fields from the quote's stored time_based_settings
   // when the row arrives, so users do not need to re-type values.
@@ -741,35 +764,61 @@ function GeneratedDocumentSection({
     },
   });
   useEffect(() => {
-    if (!tbsRow) return;
-    const raw = tbsRow.time_based_settings;
-    if (!raw || typeof raw !== "object") return;
-    const obj = raw as Record<string, unknown>;
-    if (obj.kind !== "consultancy_hours_package") return;
-    if (typeof obj.hourly_rate === "number" && hourlyRate === "")
-      setHourlyRate(String(obj.hourly_rate));
-    if (typeof obj.hours_block === "number" && hoursBlock === "")
-      setHoursBlock(String(obj.hours_block));
-    if (
-      typeof obj.minimum_commitment_percent === "number" &&
-      typeof obj.hours_block === "number" &&
-      minCommitment === ""
-    ) {
-      const min = (obj.hours_block * obj.minimum_commitment_percent) / 100;
-      setMinCommitment(String(min));
-    }
-    if (Array.isArray(obj.phases)) {
-      const phs = obj.phases as Array<Record<string, unknown>>;
+    if (!tbsRow || hasHydratedSettings) return;
+    const hint = proposalKindToTimeBasedHint(document ? persistedKind : proposalKind) ?? quoteType;
+    const parsed = parseTimeBasedSettings(tbsRow.time_based_settings, hint);
+    if (parsed?.kind === "consultancy_hours_package") {
+      if (typeof parsed.hourly_rate === "number" && hourlyRate === "")
+        setHourlyRate(String(parsed.hourly_rate));
+      if (typeof parsed.hours_block === "number" && hoursBlock === "")
+        setHoursBlock(String(parsed.hours_block));
+      if (
+        typeof parsed.minimum_commitment_percent === "number" &&
+        typeof parsed.hours_block === "number" &&
+        minCommitment === ""
+      ) {
+        const min = (parsed.hours_block * parsed.minimum_commitment_percent) / 100;
+        setMinCommitment(String(min));
+      }
       const v = (i: number) => {
-        const h = phs[i]?.estimated_hours;
+        const h = parsed.phases[i]?.estimated_hours;
         return typeof h === "number" ? String(h) : "";
       };
       if (phase1Hours === "") setPhase1Hours(v(0));
       if (phase2Hours === "") setPhase2Hours(v(1));
       if (phase3Hours === "") setPhase3Hours(v(2));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tbsRow]);
+    if (parsed?.kind === "construction_retainer") {
+      const monthly = retainerMonthlyEstimate(parsed);
+      if (monthly > 0 && monthlyRetainer === "") setMonthlyRetainer(String(monthly));
+      if (
+        typeof parsed.construction_duration_months === "number" &&
+        retainerDurationMonths === ""
+      ) {
+        setRetainerDurationMonths(String(parsed.construction_duration_months));
+      }
+      if (parsed.reimbursable_expenses_note && reimbursableNote === "") {
+        setReimbursableNote(parsed.reimbursable_expenses_note);
+      }
+    }
+    setHasHydratedSettings(true);
+  }, [
+    tbsRow,
+    hasHydratedSettings,
+    document,
+    persistedKind,
+    proposalKind,
+    quoteType,
+    hourlyRate,
+    hoursBlock,
+    minCommitment,
+    phase1Hours,
+    phase2Hours,
+    phase3Hours,
+    monthlyRetainer,
+    retainerDurationMonths,
+    reimbursableNote,
+  ]);
 
   const parseOptionalPositive = (s: string): number | null => {
     const trimmed = s.trim();
@@ -822,6 +871,19 @@ function GeneratedDocumentSection({
     };
   }, [phase1Hours, phase2Hours, phase3Hours]);
 
+  const retainerValidation = useMemo(() => {
+    const monthly = parseOptionalPositive(monthlyRetainer);
+    const duration = parseOptionalPositive(retainerDurationMonths);
+    const errors: string[] = [];
+    if (Number.isNaN(monthly)) errors.push("monthlyRetainerInvalid");
+    if (Number.isNaN(duration)) errors.push("durationInvalid");
+    return {
+      monthly: typeof monthly === "number" ? monthly : null,
+      duration: typeof duration === "number" ? duration : null,
+      errors,
+    };
+  }, [monthlyRetainer, retainerDurationMonths]);
+
   const blockValuePreview =
     consultancyValidation.rate !== null && consultancyValidation.block !== null
       ? consultancyValidation.rate * consultancyValidation.block
@@ -855,17 +917,47 @@ function GeneratedDocumentSection({
     };
   };
 
-  const hasManualConsultancyValues =
-    hourlyRate.trim() !== "" ||
-    hoursBlock.trim() !== "" ||
-    minCommitment.trim() !== "" ||
-    phase1Hours.trim() !== "" ||
-    phase2Hours.trim() !== "" ||
-    phase3Hours.trim() !== "";
+  const buildRetainerConfig = (): RetainerConfig => ({
+    monthly_estimate: retainerValidation.monthly,
+    construction_duration_months: retainerValidation.duration,
+    reimbursable_expenses_note: reimbursableNote.trim() || null,
+    monthly_resources: [],
+  });
 
+  const activeKind: ProposalKind = document ? persistedKind : proposalKind;
   const consultancyHasErrors =
-    proposalKind === "phased_consultancy" &&
+    isConsultancyProposalKind(activeKind) &&
     (consultancyValidation.errors.length > 0 || phaseValidation.errors.length > 0);
+
+  const retainerHasErrors =
+    activeKind === "construction_retainer" &&
+    retainerValidation.errors.length > 0;
+
+  const missingRequiredFields = (kind: ProposalKind): string[] => {
+    if (isConsultancyProposalKind(kind)) {
+      const missing: string[] = [];
+      if (consultancyValidation.rate === null)
+        missing.push(t("workspace.proposal.generator.consultancy.hourlyRate"));
+      if (consultancyValidation.block === null)
+        missing.push(t("workspace.proposal.generator.consultancy.hoursBlock"));
+      if (consultancyValidation.min === null)
+        missing.push(t("workspace.proposal.generator.consultancy.minimumCommitment"));
+      return missing;
+    }
+    if (kind === "construction_retainer") {
+      const missing: string[] = [];
+      if (retainerValidation.monthly === null)
+        missing.push(t("workspace.proposal.generator.retainer.monthlyRetainer"));
+      if (retainerValidation.duration === null)
+        missing.push(t("workspace.proposal.generator.retainer.durationMonths"));
+      return missing;
+    }
+    return [];
+  };
+  const missingFieldsForActiveKind = missingRequiredFields(activeKind);
+  const cannotGenerateTimeBased =
+    isTimeBasedProposalKind(activeKind) &&
+    (consultancyHasErrors || retainerHasErrors || missingFieldsForActiveKind.length > 0);
 
   const handleGenerate = async (replaceExistingDraft: boolean) => {
     if (replaceExistingDraft && document) {
@@ -875,8 +967,21 @@ function GeneratedDocumentSection({
     // Use whichever kind is currently selected (or the persisted one when
     // regenerating without the selector visible).
     const kind: ProposalKind = document ? persistedKind : proposalKind;
-    if (kind === "phased_consultancy" && consultancyHasErrors) {
+    if (isConsultancyProposalKind(kind) && consultancyHasErrors) {
       toast.error(t("workspace.proposal.generator.consultancy.validationError"));
+      return;
+    }
+    if (kind === "construction_retainer" && retainerHasErrors) {
+      toast.error(t("workspace.proposal.generator.retainer.validationError"));
+      return;
+    }
+    const missing = missingRequiredFields(kind);
+    if (missing.length > 0) {
+      toast.warning(
+        t("workspace.proposal.generator.missingRequiredFields", {
+          fields: missing.join(", "),
+        }),
+      );
       return;
     }
     try {
@@ -884,12 +989,11 @@ function GeneratedDocumentSection({
         quoteId,
         replaceExistingDraft,
         proposalKind: kind,
-        consultancy:
-          (kind === "phased_consultancy" ||
-            kind === "consultancy_hours_package") &&
-          hasManualConsultancyValues
-            ? buildConsultancyConfig()
-            : undefined,
+        consultancy: isConsultancyProposalKind(kind)
+          ? buildConsultancyConfig()
+          : undefined,
+        retainer: kind === "construction_retainer" ? buildRetainerConfig() : undefined,
+        persistTimeBasedSettings: isTimeBasedProposalKind(kind),
       });
       toast.success(t("workspace.proposal.generator.success"));
       if (result.missingSlugs.length > 0) {
@@ -976,6 +1080,42 @@ function GeneratedDocumentSection({
               </div>
             </Label>
             <Label
+              htmlFor="kind-consultancy-package"
+              className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
+            >
+              <RadioGroupItem
+                id="kind-consultancy-package"
+                value="consultancy_hours_package"
+                className="mt-0.5"
+              />
+              <div className="space-y-0.5">
+                <div className="text-sm font-medium">
+                  {t("workspace.proposal.generator.kind.consultancyHoursPackage")}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t("workspace.proposal.generator.kind.consultancyHoursPackageHint")}
+                </div>
+              </div>
+            </Label>
+            <Label
+              htmlFor="kind-construction-retainer"
+              className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
+            >
+              <RadioGroupItem
+                id="kind-construction-retainer"
+                value="construction_retainer"
+                className="mt-0.5"
+              />
+              <div className="space-y-0.5">
+                <div className="text-sm font-medium">
+                  {t("workspace.proposal.generator.kind.constructionRetainer")}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t("workspace.proposal.generator.kind.constructionRetainerHint")}
+                </div>
+              </div>
+            </Label>
+            <Label
               htmlFor="kind-psa-interior"
               className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
             >
@@ -995,7 +1135,7 @@ function GeneratedDocumentSection({
             </Label>
           </RadioGroup>
 
-          {proposalKind === "phased_consultancy" && (
+          {isConsultancyProposalKind(proposalKind) && (
             <div className="w-full max-w-md space-y-4 rounded-md border bg-muted/20 p-4 text-left">
               <div>
                 <h4 className="text-sm font-semibold">
@@ -1134,9 +1274,66 @@ function GeneratedDocumentSection({
             </div>
           )}
 
+          {proposalKind === "construction_retainer" && (
+            <div className="w-full max-w-md space-y-4 rounded-md border bg-muted/20 p-4 text-left">
+              <div>
+                <h4 className="text-sm font-semibold">
+                  {t("workspace.proposal.generator.retainer.sectionTitle")}
+                </h4>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {t("workspace.proposal.generator.retainer.sectionHint")}
+                </p>
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label htmlFor="retainer-monthly" className="text-xs">
+                    {t("workspace.proposal.generator.retainer.monthlyRetainer")}
+                  </Label>
+                  <Input
+                    id="retainer-monthly"
+                    inputMode="decimal"
+                    placeholder="2500"
+                    value={monthlyRetainer}
+                    onChange={(e) => setMonthlyRetainer(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="retainer-duration" className="text-xs">
+                    {t("workspace.proposal.generator.retainer.durationMonths")}
+                  </Label>
+                  <Input
+                    id="retainer-duration"
+                    inputMode="decimal"
+                    placeholder="6"
+                    value={retainerDurationMonths}
+                    onChange={(e) => setRetainerDurationMonths(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <Label htmlFor="retainer-reimbursable" className="text-xs">
+                    {t("workspace.proposal.generator.retainer.reimbursableNote")}
+                  </Label>
+                  <Textarea
+                    id="retainer-reimbursable"
+                    rows={2}
+                    value={reimbursableNote}
+                    onChange={(e) => setReimbursableNote(e.target.value)}
+                  />
+                </div>
+              </div>
+              {retainerHasErrors && (
+                <ul className="space-y-1 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-xs text-destructive">
+                  {retainerValidation.errors.map((e) => (
+                    <li key={e}>{t(`workspace.proposal.generator.retainer.errors.${e}`)}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
           <Button
             onClick={() => handleGenerate(true)}
-            disabled={generate.isPending || consultancyHasErrors}
+            disabled={generate.isPending}
           >
             {generate.isPending ? (
               <>
@@ -1170,19 +1367,7 @@ function GeneratedDocumentSection({
             </h2>
           </div>
           {document.status === "draft" && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleGenerate(true)}
-              disabled={generate.isPending}
-            >
-              {generate.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-              {t("workspace.proposal.generator.regenerate")}
-            </Button>
+            <Badge variant="outline">{t("workspace.proposal.generator.regenerate")}</Badge>
           )}
         </div>
 
@@ -1226,8 +1411,7 @@ function GeneratedDocumentSection({
             hours block / minimum commitment after the document has been
             generated, so a regenerate fills in {{hourly_rate}},
             {{block_value}} and {{downpayment_amount}} in the fee block. */}
-        {(persistedKind === "phased_consultancy" ||
-          persistedKind === "consultancy_hours_package") && (
+        {isConsultancyProposalKind(persistedKind) && (
           <div className="space-y-3 rounded-md border bg-muted/20 p-4">
             <div>
               <h4 className="text-sm font-semibold">
@@ -1300,11 +1484,76 @@ function GeneratedDocumentSection({
               </div>
             )}
             <p className="text-[11px] italic text-muted-foreground">
-              {t(
-                "workspace.proposal.generator.consultancy.regenerateHint",
-                "Click Regenerate above to apply these values to the proposal.",
-              )}
+              {t("workspace.proposal.generator.consultancy.regenerateHint")}
             </p>
+          </div>
+        )}
+
+        {persistedKind === "construction_retainer" && (
+          <div className="space-y-3 rounded-md border bg-muted/20 p-4">
+            <div>
+              <h4 className="text-sm font-semibold">
+                {t("workspace.proposal.generator.retainer.sectionTitle")}
+              </h4>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {t("workspace.proposal.generator.retainer.sectionHint")}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="doc-retainer-monthly" className="text-xs">
+                  {t("workspace.proposal.generator.retainer.monthlyRetainer")}
+                </Label>
+                <Input
+                  id="doc-retainer-monthly"
+                  inputMode="decimal"
+                  placeholder="2500"
+                  value={monthlyRetainer}
+                  onChange={(e) => setMonthlyRetainer(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="doc-retainer-duration" className="text-xs">
+                  {t("workspace.proposal.generator.retainer.durationMonths")}
+                </Label>
+                <Input
+                  id="doc-retainer-duration"
+                  inputMode="decimal"
+                  placeholder="6"
+                  value={retainerDurationMonths}
+                  onChange={(e) => setRetainerDurationMonths(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1 sm:col-span-2">
+                <Label htmlFor="doc-retainer-reimbursable" className="text-xs">
+                  {t("workspace.proposal.generator.retainer.reimbursableNote")}
+                </Label>
+                <Textarea
+                  id="doc-retainer-reimbursable"
+                  rows={2}
+                  value={reimbursableNote}
+                  onChange={(e) => setReimbursableNote(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {document.status === "draft" && (
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleGenerate(true)}
+              disabled={generate.isPending}
+            >
+              {generate.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              {t("workspace.proposal.generator.regenerate")}
+            </Button>
           </div>
         )}
 

@@ -47,6 +47,9 @@ export interface GenerateProposalArgs {
   /** Optional retainer-specific config; when omitted, the hook reads
    *  fee_proposals.time_based_settings and derives one for retainer quotes. */
   retainer?: RetainerConfig;
+  /** Persist explicit time-based settings before generating so regeneration
+   *  hydrates the same values next time. */
+  persistTimeBasedSettings?: boolean;
 }
 
 export interface GenerateProposalResult {
@@ -210,10 +213,44 @@ async function runGenerate(
     derivedRetainer = {
       start_date: parsedSettings.start_date,
       estimated_end_date: parsedSettings.estimated_end_date,
+      construction_duration_months: null,
       monthly_estimate: retainerMonthlyEstimate(parsedSettings),
       monthly_resources: parsedSettings.monthly_resources,
       reimbursable_expenses_note: parsedSettings.reimbursable_expenses_note,
     };
+  }
+
+  if (args.persistTimeBasedSettings && (args.consultancy || args.retainer)) {
+    const settings = args.consultancy
+      ? {
+          kind: "consultancy_hours_package" as const,
+          hourly_rate: args.consultancy.hourly_rate ?? null,
+          hours_block: args.consultancy.hours_block ?? null,
+          minimum_commitment_percent:
+            args.consultancy.hours_block && args.consultancy.minimum_commitment_hours
+              ? (args.consultancy.minimum_commitment_hours / args.consultancy.hours_block) * 100
+              : 30,
+          billing_mode: "monthly_actual" as const,
+          phases: args.consultancy.phases ?? [],
+        }
+      : {
+          kind: "construction_retainer" as const,
+          start_date: args.retainer?.start_date ?? null,
+          estimated_end_date: args.retainer?.estimated_end_date ?? null,
+          construction_duration_months:
+            args.retainer?.construction_duration_months ?? null,
+          monthly_estimate: args.retainer?.monthly_estimate ?? null,
+          billing_mode: "monthly_advance" as const,
+          monthly_resources: args.retainer?.monthly_resources ?? [],
+          reimbursable_expenses_note:
+            args.retainer?.reimbursable_expenses_note ?? "",
+        };
+    const { error: persistErr } = await supabase
+      .from("fee_proposals")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update({ time_based_settings: settings as any })
+      .eq("id", args.quoteId);
+    if (persistErr) throw new Error(persistErr.message);
   }
 
   const { documentDraft, blockDrafts, missingSlugs } = generateProposalDocument({

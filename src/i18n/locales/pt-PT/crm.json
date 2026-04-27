@@ -476,12 +476,17 @@
         "error": "Falha ao gerar o documento de proposta.",
         "emptyLibrary": "Não foi encontrada uma biblioteca de blocos de proposta. Faça o seed dos blocos primeiro.",
         "missingBlocks": "Alguns blocos da biblioteca não foram encontrados e foram ignorados: {{slugs}}",
+        "missingRequiredFields": "Adiciona os valores comerciais obrigatórios antes de regenerar: {{fields}}.",
         "replaceConfirm": "Substituir o rascunho existente?",
         "kind": {
           "fixedProject": "Projeto a Preço Fixo",
           "fixedProjectHint": "Proposta com fases, cronograma e honorários.",
           "phasedConsultancy": "Consultoria por Fases",
           "phasedConsultancyHint": "Proposta de consultoria à hora, due diligence ou estudo de viabilidade.",
+          "consultancyHoursPackage": "Pacote de Horas de Consultoria",
+          "consultancyHoursPackageHint": "Pacote à hora com valor do bloco e compromisso mínimo.",
+          "constructionRetainer": "Retainer de Obra",
+          "constructionRetainerHint": "Retainer mensal para acompanhamento de obra e despesas reembolsáveis.",
           "psaInteriorFitout": "Fit-Out Interior (modelo completo)",
           "psaInteriorFitoutHint": "Proposta arquitectónica completa: âmbito, informação de base, fases, honorários, pagamento, deslocações, exclusões, validade e assinatura."
         },
@@ -508,6 +513,18 @@
             "phase1Invalid": "As horas estimadas da Fase 1 têm de ser um número positivo.",
             "phase2Invalid": "As horas estimadas da Fase 2 têm de ser um número positivo.",
             "phase3Invalid": "As horas estimadas da Fase 3 têm de ser um número positivo."
+          }
+        },
+        "retainer": {
+          "sectionTitle": "Configurações do retainer de obra",
+          "sectionHint": "Define o retainer mensal, a duração da obra e qualquer nota sobre despesas reembolsáveis.",
+          "monthlyRetainer": "Retainer mensal (€)",
+          "durationMonths": "Duração da obra (meses)",
+          "reimbursableNote": "Nota sobre despesas reembolsáveis (opcional)",
+          "validationError": "Corrige as configurações do retainer antes de gerar.",
+          "errors": {
+            "monthlyRetainerInvalid": "O retainer mensal tem de ser superior a 0.",
+            "durationInvalid": "A duração da obra tem de ser superior a 0."
           }
         }
       },

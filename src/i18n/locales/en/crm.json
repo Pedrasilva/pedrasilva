@@ -476,12 +476,17 @@
         "error": "Failed to generate proposal document.",
         "emptyLibrary": "No proposal block library found. Seed proposal blocks first.",
         "missingBlocks": "Some library blocks were missing and skipped: {{slugs}}",
+        "missingRequiredFields": "Add the required commercial values before regenerating: {{fields}}.",
         "replaceConfirm": "Replace existing draft?",
         "kind": {
           "fixedProject": "Fixed Project",
           "fixedProjectHint": "Stage / timeline / fee proposal.",
           "phasedConsultancy": "Phased Consultancy",
           "phasedConsultancyHint": "Hourly consultancy, due-diligence or feasibility proposal.",
+          "consultancyHoursPackage": "Consultancy Hours Package",
+          "consultancyHoursPackageHint": "Hourly package with block value and minimum commitment.",
+          "constructionRetainer": "Construction Retainer",
+          "constructionRetainerHint": "Monthly retainer for construction support and reimbursable expenses.",
           "psaInteriorFitout": "Interior Fit-Out (full template)",
           "psaInteriorFitoutHint": "Full architectural fee proposal: scope, base info, stages, fees, payment, travelling, exclusions, validity & signature."
         },
@@ -508,6 +513,18 @@
             "phase1Invalid": "Phase 1 estimated hours must be a positive number.",
             "phase2Invalid": "Phase 2 estimated hours must be a positive number.",
             "phase3Invalid": "Phase 3 estimated hours must be a positive number."
+          }
+        },
+        "retainer": {
+          "sectionTitle": "Construction retainer settings",
+          "sectionHint": "Define the monthly retainer, construction duration and any reimbursable expenses note.",
+          "monthlyRetainer": "Monthly retainer (€)",
+          "durationMonths": "Construction duration (months)",
+          "reimbursableNote": "Reimbursable expenses note (optional)",
+          "validationError": "Please fix the retainer settings before generating.",
+          "errors": {
+            "monthlyRetainerInvalid": "Monthly retainer must be greater than 0.",
+            "durationInvalid": "Construction duration must be greater than 0."
           }
         }
       },
