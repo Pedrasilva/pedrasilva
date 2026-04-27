@@ -715,13 +715,61 @@ function GeneratedDocumentSection({
       ?.proposal_kind ?? quoteTypeToProposalKind(quoteType);
   const [proposalKind, setProposalKind] = useState<ProposalKind>(persistedKind);
 
-  // Consultancy commercial settings (in-memory only — not persisted yet).
+  // Consultancy commercial settings. Initialised in-memory; we hydrate them
+  // from fee_proposals.time_based_settings when the saved JSON exists so the
+  // user does not need to re-enter rate/hours after picking the kind on the
+  // Time-based tab.
   const [hourlyRate, setHourlyRate] = useState<string>("");
   const [hoursBlock, setHoursBlock] = useState<string>("");
   const [minCommitment, setMinCommitment] = useState<string>("");
   const [phase1Hours, setPhase1Hours] = useState<string>("");
   const [phase2Hours, setPhase2Hours] = useState<string>("");
   const [phase3Hours, setPhase3Hours] = useState<string>("");
+
+  // Hydrate the manual fields from the quote's stored time_based_settings
+  // when the row arrives, so users do not need to re-type values.
+  const { data: tbsRow } = useQuery({
+    queryKey: ["fee_proposal_time_based_settings_for_proposal_tab", quoteId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("fee_proposals")
+        .select("time_based_settings")
+        .eq("id", quoteId)
+        .single();
+      if (error) throw error;
+      return data as { time_based_settings: unknown };
+    },
+  });
+  useEffect(() => {
+    if (!tbsRow) return;
+    const raw = tbsRow.time_based_settings;
+    if (!raw || typeof raw !== "object") return;
+    const obj = raw as Record<string, unknown>;
+    if (obj.kind !== "consultancy_hours_package") return;
+    if (typeof obj.hourly_rate === "number" && hourlyRate === "")
+      setHourlyRate(String(obj.hourly_rate));
+    if (typeof obj.hours_block === "number" && hoursBlock === "")
+      setHoursBlock(String(obj.hours_block));
+    if (
+      typeof obj.minimum_commitment_percent === "number" &&
+      typeof obj.hours_block === "number" &&
+      minCommitment === ""
+    ) {
+      const min = (obj.hours_block * obj.minimum_commitment_percent) / 100;
+      setMinCommitment(String(min));
+    }
+    if (Array.isArray(obj.phases)) {
+      const phs = obj.phases as Array<Record<string, unknown>>;
+      const v = (i: number) => {
+        const h = phs[i]?.estimated_hours;
+        return typeof h === "number" ? String(h) : "";
+      };
+      if (phase1Hours === "") setPhase1Hours(v(0));
+      if (phase2Hours === "") setPhase2Hours(v(1));
+      if (phase3Hours === "") setPhase3Hours(v(2));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tbsRow]);
 
   const parseOptionalPositive = (s: string): number | null => {
     const trimmed = s.trim();
