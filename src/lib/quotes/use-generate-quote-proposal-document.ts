@@ -239,6 +239,7 @@ async function runGenerate(
           estimated_end_date: args.retainer?.estimated_end_date ?? null,
           construction_duration_months:
             args.retainer?.construction_duration_months ?? null,
+          monthly_estimate: args.retainer?.monthly_estimate ?? null,
           billing_mode: "monthly_advance" as const,
           monthly_resources: args.retainer?.monthly_resources ?? [],
           reimbursable_expenses_note:
