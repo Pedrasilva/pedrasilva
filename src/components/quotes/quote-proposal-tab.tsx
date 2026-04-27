@@ -25,6 +25,7 @@ import {
   quoteTypeToProposalKind,
   type ConsultancyConfig,
   type ProposalKind,
+  type RetainerConfig,
 } from "@/lib/quotes/proposal-generator";
 import { useTranslation } from "react-i18next";
 import { format, parseISO, type Locale } from "date-fns";
@@ -81,6 +82,10 @@ import {
   useMoveBlock,
 } from "@/lib/quotes/use-quote-proposal-document-blocks";
 import { useGenerateQuoteProposalDocument } from "@/lib/quotes/use-generate-quote-proposal-document";
+import {
+  parseTimeBasedSettings,
+  retainerMonthlyEstimate,
+} from "@/lib/quotes/time-based-settings";
 
 interface QuoteProposalTabProps {
   quoteId: string;
@@ -144,6 +149,14 @@ function statusVariant(
     default:
       return "outline";
   }
+}
+
+function isConsultancyProposalKind(kind: ProposalKind): boolean {
+  return kind === "phased_consultancy" || kind === "consultancy_hours_package";
+}
+
+function isTimeBasedProposalKind(kind: ProposalKind): boolean {
+  return isConsultancyProposalKind(kind) || kind === "construction_retainer";
 }
 
 function formatCurrency(value: number, currency = "EUR"): string {
