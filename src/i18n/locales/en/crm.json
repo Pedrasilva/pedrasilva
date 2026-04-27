@@ -257,6 +257,7 @@
   "workspace": {
     "tabs": {
       "overview": "Overview",
+      "timeBased": "Time-based",
       "planning": "Planning",
       "external": "External services",
       "payment": "Payment schedule",
@@ -268,6 +269,39 @@
       "feePercentage": "Fee (%)",
       "pricingMultiplier": "Pricing multiplier",
       "proposalDescription": "Proposal description"
+    },
+    "timeBased": {
+      "savedToast": "Time-based settings saved",
+      "retainer": {
+        "basicsTitle": "Retainer basics",
+        "startDate": "Construction start date",
+        "estimatedEndDate": "Estimated end date",
+        "billingModeNote": "Billed monthly in advance. First invoice issued at construction start; reimbursable expenses billed separately.",
+        "resourcesTitle": "Monthly resources",
+        "resourcesEmpty": "No monthly resources defined yet.",
+        "addRow": "Add resource",
+        "role": "Role / resource",
+        "rolePlaceholder": "e.g. Senior Architect",
+        "hoursPerMonth": "Hours / month",
+        "hourlyRate": "Hourly rate (€)",
+        "monthlyEstimate": "Monthly estimate",
+        "reimbursableTitle": "Reimbursable expenses",
+        "reimbursablePlaceholder": "Notes on what is treated as reimbursable (travel, printing, permits, etc.)"
+      },
+      "consultancy": {
+        "basicsTitle": "Hours package basics",
+        "hourlyRate": "Hourly rate (€)",
+        "hoursBlock": "Hours block",
+        "minimumPercent": "Minimum commitment (%)",
+        "billingModeNote": "Down payment invoiced upfront; remaining hours billed monthly based on actuals.",
+        "calculatedTitle": "Calculated",
+        "minimumHours": "Minimum hours",
+        "downpayment": "Down payment",
+        "blockValue": "Block value",
+        "phasesTitle": "Optional phase estimates",
+        "phaseLabel": "Phase",
+        "estimatedHours": "Estimated hours"
+      }
     },
     "planning": {
       "stagesTitle": "Stages",
