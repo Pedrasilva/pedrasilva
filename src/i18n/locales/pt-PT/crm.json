@@ -257,6 +257,7 @@
   "workspace": {
     "tabs": {
       "overview": "Resumo",
+      "timeBased": "Tempo",
       "planning": "Planeamento",
       "external": "Serviços externos",
       "payment": "Plano de pagamentos",
@@ -268,6 +269,39 @@
       "feePercentage": "Fee (%)",
       "pricingMultiplier": "Multiplicador de preço",
       "proposalDescription": "Descrição da proposta"
+    },
+    "timeBased": {
+      "savedToast": "Definições baseadas em tempo guardadas",
+      "retainer": {
+        "basicsTitle": "Dados do retainer",
+        "startDate": "Data de início da obra",
+        "estimatedEndDate": "Data prevista de conclusão",
+        "billingModeNote": "Faturação mensal antecipada. Primeira fatura emitida no início da obra; despesas reembolsáveis faturadas em separado.",
+        "resourcesTitle": "Recursos mensais",
+        "resourcesEmpty": "Ainda não foram definidos recursos mensais.",
+        "addRow": "Adicionar recurso",
+        "role": "Função / recurso",
+        "rolePlaceholder": "ex.: Arquitecto Sénior",
+        "hoursPerMonth": "Horas / mês",
+        "hourlyRate": "Tarifa horária (€)",
+        "monthlyEstimate": "Estimativa mensal",
+        "reimbursableTitle": "Despesas reembolsáveis",
+        "reimbursablePlaceholder": "Notas sobre o que é tratado como reembolsável (deslocações, impressões, taxas, etc.)"
+      },
+      "consultancy": {
+        "basicsTitle": "Dados do pacote de horas",
+        "hourlyRate": "Tarifa horária (€)",
+        "hoursBlock": "Bloco de horas",
+        "minimumPercent": "Compromisso mínimo (%)",
+        "billingModeNote": "Sinal facturado no início; horas restantes facturadas mensalmente conforme as horas reais.",
+        "calculatedTitle": "Calculado",
+        "minimumHours": "Horas mínimas",
+        "downpayment": "Sinal",
+        "blockValue": "Valor do bloco",
+        "phasesTitle": "Estimativas de fases (opcional)",
+        "phaseLabel": "Fase",
+        "estimatedHours": "Horas estimadas"
+      }
     },
     "planning": {
       "stagesTitle": "Fases",
