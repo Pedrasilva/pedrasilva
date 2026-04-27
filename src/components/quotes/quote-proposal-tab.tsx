@@ -933,25 +933,13 @@ function GeneratedDocumentSection({
         : [],
   });
 
-  const hasManualConsultancyValues =
-    hourlyRate.trim() !== "" ||
-    hoursBlock.trim() !== "" ||
-    minCommitment.trim() !== "" ||
-    phase1Hours.trim() !== "" ||
-    phase2Hours.trim() !== "" ||
-    phase3Hours.trim() !== "";
-
-  const hasManualRetainerValues =
-    monthlyRetainer.trim() !== "" ||
-    retainerDurationMonths.trim() !== "" ||
-    reimbursableNote.trim() !== "";
-
+  const activeKind: ProposalKind = document ? persistedKind : proposalKind;
   const consultancyHasErrors =
-    isConsultancyProposalKind(document ? persistedKind : proposalKind) &&
+    isConsultancyProposalKind(activeKind) &&
     (consultancyValidation.errors.length > 0 || phaseValidation.errors.length > 0);
 
   const retainerHasErrors =
-    (document ? persistedKind : proposalKind) === "construction_retainer" &&
+    activeKind === "construction_retainer" &&
     retainerValidation.errors.length > 0;
 
   const missingRequiredFields = (kind: ProposalKind): string[] => {
@@ -975,6 +963,10 @@ function GeneratedDocumentSection({
     }
     return [];
   };
+  const missingFieldsForActiveKind = missingRequiredFields(activeKind);
+  const cannotGenerateTimeBased =
+    isTimeBasedProposalKind(activeKind) &&
+    (consultancyHasErrors || retainerHasErrors || missingFieldsForActiveKind.length > 0);
 
   const handleGenerate = async (replaceExistingDraft: boolean) => {
     if (replaceExistingDraft && document) {
