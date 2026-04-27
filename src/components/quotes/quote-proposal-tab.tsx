@@ -1367,19 +1367,7 @@ function GeneratedDocumentSection({
             </h2>
           </div>
           {document.status === "draft" && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleGenerate(true)}
-              disabled={generate.isPending}
-            >
-              {generate.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-              {t("workspace.proposal.generator.regenerate")}
-            </Button>
+            <Badge variant="outline">{t("workspace.proposal.generator.regenerate")}</Badge>
           )}
         </div>
 
