@@ -40,9 +40,12 @@ import {
 interface Props {
   quoteId: string;
   quoteType: string | null | undefined;
+  /** Top-level category. When "consultancy" we lock the kind to
+   *  consultancy_hours_package and hide the project-only retainer toggle. */
+  quoteCategory?: "project" | "consultancy";
 }
 
-export function QuoteTimeBasedSettingsTab({ quoteId, quoteType }: Props) {
+export function QuoteTimeBasedSettingsTab({ quoteId, quoteType, quoteCategory }: Props) {
   const { t } = useTranslation("crm");
   const qc = useQueryClient();
 
@@ -99,10 +102,12 @@ export function QuoteTimeBasedSettingsTab({ quoteId, quoteType }: Props) {
     return null;
   }
 
-  // For non-time-based quote types (e.g. standard_project), expose a small
-  // selector so the author can still capture monthly/hourly figures that
-  // surface inside a regenerated proposal.
+  // Consultancy-category quotes always use consultancy_hours_package.
+  // Project-category quotes may optionally surface monthly/hourly figures
+  // via the retainer/consultancy add-on toggle below.
+  const isConsultancyCategory = quoteCategory === "consultancy";
   const isTimeBasedQuote =
+    isConsultancyCategory ||
     quoteType === "construction_retainer" ||
     quoteType === "consultancy_hours_package";
 
@@ -117,7 +122,7 @@ export function QuoteTimeBasedSettingsTab({ quoteId, quoteType }: Props) {
 
   return (
     <div className="space-y-4">
-      {!isTimeBasedQuote && (
+      {!isTimeBasedQuote && !isConsultancyCategory && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
