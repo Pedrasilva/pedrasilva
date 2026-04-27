@@ -406,11 +406,17 @@
 
 .proposal-print-document .proposal-print-block {
   margin-bottom: 1.5rem;
-  page-break-inside: avoid;
-  break-inside: avoid-page;
 }
 .proposal-print-document .proposal-print-block:last-child {
   margin-bottom: 0;
+}
+/* Keep small atomic units together so they don't split mid-line, but allow
+   larger blocks to flow naturally across pages — otherwise whole sections
+   get pushed to a new page leaving large white gaps. */
+.proposal-print-document .proposal-print-block li,
+.proposal-print-document .proposal-print-block p {
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .proposal-print-document .proposal-print-heading {
@@ -659,35 +665,39 @@
     margin: 24px auto;
     padding: var(--psa-margin-top) var(--psa-margin-x) var(--psa-margin-bottom);
     box-sizing: border-box;
-    /* Show A4 boundaries without drawing a gutter through proposal text. */
+    background: white;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  }
+  /* Dashed horizontal markers at each A4 boundary, drawn over the sheet
+     so users can see where pages will break in the PDF. The dashes only
+     appear in the side margins (left/right gutters) so they never cross
+     proposal text. */
+  .proposal-print-document::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
     background-image:
       repeating-linear-gradient(
         to bottom,
         transparent 0,
-        transparent var(--psa-page-h),
-        #e5e7eb var(--psa-page-h),
-        #e5e7eb calc(var(--psa-page-h) + 1px),
-        #f3f4f6 calc(var(--psa-page-h) + 1px),
-        #f3f4f6 calc(var(--psa-page-h) + 16px),
-        #e5e7eb calc(var(--psa-page-h) + 16px),
-        #e5e7eb calc(var(--psa-page-h) + 17px)
-      ),
-      repeating-linear-gradient(
-        to bottom,
-        transparent 0,
-        transparent var(--psa-page-h),
-        #e5e7eb var(--psa-page-h),
-        #e5e7eb calc(var(--psa-page-h) + 1px),
-        #f3f4f6 calc(var(--psa-page-h) + 1px),
-        #f3f4f6 calc(var(--psa-page-h) + 16px),
-        #e5e7eb calc(var(--psa-page-h) + 16px),
-        #e5e7eb calc(var(--psa-page-h) + 17px)
-      ),
-      linear-gradient(white, white);
-    background-position: left top, right top, left top;
-    background-size: var(--psa-margin-x) auto, var(--psa-margin-x) auto, auto;
-    background-repeat: repeat-y, repeat-y, no-repeat;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        transparent calc(var(--psa-page-h) - 1px),
+        #cbd5e1 calc(var(--psa-page-h) - 1px),
+        #cbd5e1 var(--psa-page-h)
+      );
+    /* Restrict to the left/right margin gutters only. */
+    background-size: 100% auto;
+    -webkit-mask-image: linear-gradient(to right,
+      black 0, black var(--psa-margin-x),
+      transparent var(--psa-margin-x), transparent calc(100% - var(--psa-margin-x)),
+      black calc(100% - var(--psa-margin-x)), black 100%);
+            mask-image: linear-gradient(to right,
+      black 0, black var(--psa-margin-x),
+      transparent var(--psa-margin-x), transparent calc(100% - var(--psa-margin-x)),
+      black calc(100% - var(--psa-margin-x)), black 100%);
   }
   .proposal-page-header,
   .proposal-page-footer {
@@ -741,9 +751,13 @@
   .print-area .proposal-page-header { top: var(--psa-header-top); }
   .print-area .proposal-page-footer { bottom: var(--psa-footer-bottom); }
 
-  .print-area .proposal-print-block {
+  /* Allow blocks to break across pages naturally to avoid huge white gaps.
+     Only protect atomic items (paragraphs, list rows) and explicitly-flagged
+     groups via .proposal-avoid-break. */
+  .print-area .proposal-print-document p,
+  .print-area .proposal-print-document li {
     page-break-inside: avoid;
-    break-inside: avoid-page;
+    break-inside: avoid;
   }
   .print-area .proposal-avoid-break {
     page-break-inside: avoid;
