@@ -21,7 +21,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import type { ConsultancyConfig, ProposalKind } from "@/lib/quotes/proposal-generator";
+import {
+  quoteTypeToProposalKind,
+  type ConsultancyConfig,
+  type ProposalKind,
+} from "@/lib/quotes/proposal-generator";
 import { useTranslation } from "react-i18next";
 import { format, parseISO, type Locale } from "date-fns";
 import {
@@ -690,10 +694,12 @@ function GeneratedDocumentSection({
   quoteId,
   document,
   isLoadingDocument,
+  quoteType,
 }: {
   quoteId: string;
   document: QuoteProposalDocument | null;
   isLoadingDocument: boolean;
+  quoteType?: string | null;
 }) {
   const { t } = useTranslation("crm");
   const locale = useDateLocale();
@@ -702,10 +708,11 @@ function GeneratedDocumentSection({
     useQuoteProposalDocumentBlocks(document?.id);
   const generate = useGenerateQuoteProposalDocument();
 
-  // Read prior choice from snapshot when regenerating; otherwise default.
+  // Read prior choice from snapshot when regenerating; otherwise default
+  // from quote_type (commercial classification chosen at quote creation).
   const persistedKind =
     (document?.snapshot_json as { proposal_kind?: ProposalKind } | null)
-      ?.proposal_kind ?? "fixed_project";
+      ?.proposal_kind ?? quoteTypeToProposalKind(quoteType);
   const [proposalKind, setProposalKind] = useState<ProposalKind>(persistedKind);
 
   // Consultancy commercial settings (in-memory only — not persisted yet).
@@ -1764,7 +1771,7 @@ function ProposalPrintDocument({
 // ─────────────────────────── Top-level tab ───────────────────────────
 
 export function QuoteProposalTab(props: QuoteProposalTabProps) {
-  const { quoteId, clientName, accountName } = props;
+  const { quoteId, clientName, accountName, quoteType } = props;
   const { t } = useTranslation("crm");
   const { data: document = null, isLoading: isLoadingDocument } =
     useLatestQuoteProposalDocument(quoteId);
@@ -1852,6 +1859,7 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
             quoteId={quoteId}
             document={document}
             isLoadingDocument={isLoadingDocument}
+            quoteType={quoteType}
           />
         </div>
       )}
