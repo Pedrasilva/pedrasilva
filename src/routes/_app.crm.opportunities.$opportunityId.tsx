@@ -331,6 +331,7 @@ function NewQuoteDialog({
     titulo: defaultTitle,
     valor: String(defaultFee || ""),
     fee_structure_type: "fixed" as FeeStructureType,
+    quote_type: "standard_project" as QuoteType,
     account_id: "",
     notas: "",
   });
@@ -338,6 +339,12 @@ function NewQuoteDialog({
   const create = useMutation({
     mutationFn: async () => {
       if (!form.titulo.trim()) throw new Error(t("quotes.newQuoteDialog.errorTitle"));
+      // Time-based quote types use the "monthly" fee structure as their
+      // most natural mapping; standard_project keeps whatever the user picked.
+      const feeStructure: FeeStructureType =
+        form.quote_type === "standard_project"
+          ? form.fee_structure_type
+          : "monthly";
       const { data, error } = await supabase
         .from("fee_proposals")
         .insert({
@@ -346,7 +353,8 @@ function NewQuoteDialog({
           company_id: companyId,
           account_id: form.account_id || null,
           valor: form.valor ? Number(form.valor) : 0,
-          fee_structure_type: form.fee_structure_type,
+          fee_structure_type: feeStructure,
+          quote_type: form.quote_type,
           quote_status: "draft",
           pipeline_status: "lead",
           notas: form.notas || null,
