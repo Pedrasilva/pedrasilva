@@ -747,9 +747,13 @@
   .print-area .proposal-page-header { top: var(--psa-header-top); }
   .print-area .proposal-page-footer { bottom: var(--psa-footer-bottom); }
 
-  .print-area .proposal-print-block {
+  /* Allow blocks to break across pages naturally to avoid huge white gaps.
+     Only protect atomic items (paragraphs, list rows) and explicitly-flagged
+     groups via .proposal-avoid-break. */
+  .print-area .proposal-print-document p,
+  .print-area .proposal-print-document li {
     page-break-inside: avoid;
-    break-inside: avoid-page;
+    break-inside: avoid;
   }
   .print-area .proposal-avoid-break {
     page-break-inside: avoid;
