@@ -53,6 +53,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import logoPSA from "@/assets/logo-psa.png";
+import proposalMarkRiba from "@/assets/proposal-mark-riba.png";
+import proposalMarkOa from "@/assets/proposal-mark-oa.png";
 import {
   Collapsible,
   CollapsibleContent,
