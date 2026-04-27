@@ -69,6 +69,26 @@ export type OpportunityStage = "lead" | "proposal" | "negotiation" | "won" | "lo
 export type QuoteStatus = "draft" | "sent" | "approved" | "rejected";
 export type FeeStructureType = "fixed" | "staged" | "monthly";
 
+/**
+ * Commercial classification of a quote, set at creation time. Drives:
+ * - which planning UI surfaces (stages/Gantt vs time-based settings)
+ * - which proposal block-set the generator picks by default
+ * - downstream conversion-to-project behaviour
+ *
+ * `standard_project` matches the legacy / pre-existing flow and is the
+ * default for any quote created before this column existed.
+ */
+export type QuoteType =
+  | "standard_project"
+  | "construction_retainer"
+  | "consultancy_hours_package";
+
+export const QUOTE_TYPES: { value: QuoteType }[] = [
+  { value: "standard_project" },
+  { value: "construction_retainer" },
+  { value: "consultancy_hours_package" },
+];
+
 export type CrmAccount = {
   id: string;
   company_id: string;
