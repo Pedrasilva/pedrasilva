@@ -478,36 +478,16 @@
   gap: 8mm;
 }
 .proposal-mark-riba {
-  font-family: "Source Serif 4", Georgia, serif;
-  font-size: 16pt;
-  letter-spacing: 0.04em;
-  color: #111;
+  height: 9mm;
+  width: auto;
+  display: block;
+  object-fit: contain;
 }
 .proposal-mark-oa {
-  display: inline-flex;
-  align-items: center;
-  gap: 2mm;
-}
-.proposal-mark-oa-symbol {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 9mm;
-  height: 9mm;
-  border: 0.6mm solid #111;
-  border-radius: 50%;
-  font-family: "Inter", sans-serif;
-  font-size: 11pt;
-  font-weight: 700;
-  color: #111;
-}
-.proposal-mark-oa-text {
-  font-family: "Inter", sans-serif;
-  font-size: 7pt;
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: 0.02em;
-  color: #111;
+  height: 12mm;
+  width: auto;
+  display: block;
+  object-fit: contain;
 }
 
 /* ─── Cover / title block ───────────────────────────────────────── */
