@@ -2100,15 +2100,16 @@ function ProposalPrintDocument({
           ))}
         </div>
         <div className="proposal-page-marks">
-          <span className="proposal-mark-riba">RIBA</span>
-          <span className="proposal-mark-oa">
-            <span className="proposal-mark-oa-symbol">oA</span>
-            <span className="proposal-mark-oa-text">
-              ORDEM DOS
-              <br />
-              ARQUITECTOS
-            </span>
-          </span>
+          <img
+            src={proposalMarkRiba}
+            alt="RIBA"
+            className="proposal-mark-riba"
+          />
+          <img
+            src={proposalMarkOa}
+            alt="Ordem dos Arquitectos"
+            className="proposal-mark-oa"
+          />
         </div>
       </footer>
 
