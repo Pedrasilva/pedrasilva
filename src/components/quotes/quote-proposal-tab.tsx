@@ -1080,6 +1080,42 @@ function GeneratedDocumentSection({
               </div>
             </Label>
             <Label
+              htmlFor="kind-consultancy-package"
+              className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
+            >
+              <RadioGroupItem
+                id="kind-consultancy-package"
+                value="consultancy_hours_package"
+                className="mt-0.5"
+              />
+              <div className="space-y-0.5">
+                <div className="text-sm font-medium">
+                  {t("workspace.proposal.generator.kind.consultancyHoursPackage")}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t("workspace.proposal.generator.kind.consultancyHoursPackageHint")}
+                </div>
+              </div>
+            </Label>
+            <Label
+              htmlFor="kind-construction-retainer"
+              className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
+            >
+              <RadioGroupItem
+                id="kind-construction-retainer"
+                value="construction_retainer"
+                className="mt-0.5"
+              />
+              <div className="space-y-0.5">
+                <div className="text-sm font-medium">
+                  {t("workspace.proposal.generator.kind.constructionRetainer")}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t("workspace.proposal.generator.kind.constructionRetainerHint")}
+                </div>
+              </div>
+            </Label>
+            <Label
               htmlFor="kind-psa-interior"
               className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
             >
@@ -1099,7 +1135,7 @@ function GeneratedDocumentSection({
             </Label>
           </RadioGroup>
 
-          {proposalKind === "phased_consultancy" && (
+          {isConsultancyProposalKind(proposalKind) && (
             <div className="w-full max-w-md space-y-4 rounded-md border bg-muted/20 p-4 text-left">
               <div>
                 <h4 className="text-sm font-semibold">
@@ -1238,9 +1274,66 @@ function GeneratedDocumentSection({
             </div>
           )}
 
+          {proposalKind === "construction_retainer" && (
+            <div className="w-full max-w-md space-y-4 rounded-md border bg-muted/20 p-4 text-left">
+              <div>
+                <h4 className="text-sm font-semibold">
+                  {t("workspace.proposal.generator.retainer.sectionTitle")}
+                </h4>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {t("workspace.proposal.generator.retainer.sectionHint")}
+                </p>
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label htmlFor="retainer-monthly" className="text-xs">
+                    {t("workspace.proposal.generator.retainer.monthlyRetainer")}
+                  </Label>
+                  <Input
+                    id="retainer-monthly"
+                    inputMode="decimal"
+                    placeholder="2500"
+                    value={monthlyRetainer}
+                    onChange={(e) => setMonthlyRetainer(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="retainer-duration" className="text-xs">
+                    {t("workspace.proposal.generator.retainer.durationMonths")}
+                  </Label>
+                  <Input
+                    id="retainer-duration"
+                    inputMode="decimal"
+                    placeholder="6"
+                    value={retainerDurationMonths}
+                    onChange={(e) => setRetainerDurationMonths(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <Label htmlFor="retainer-reimbursable" className="text-xs">
+                    {t("workspace.proposal.generator.retainer.reimbursableNote")}
+                  </Label>
+                  <Textarea
+                    id="retainer-reimbursable"
+                    rows={2}
+                    value={reimbursableNote}
+                    onChange={(e) => setReimbursableNote(e.target.value)}
+                  />
+                </div>
+              </div>
+              {retainerHasErrors && (
+                <ul className="space-y-1 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-xs text-destructive">
+                  {retainerValidation.errors.map((e) => (
+                    <li key={e}>{t(`workspace.proposal.generator.retainer.errors.${e}`)}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
           <Button
             onClick={() => handleGenerate(true)}
-            disabled={generate.isPending || consultancyHasErrors}
+            disabled={generate.isPending || cannotGenerateTimeBased}
           >
             {generate.isPending ? (
               <>
