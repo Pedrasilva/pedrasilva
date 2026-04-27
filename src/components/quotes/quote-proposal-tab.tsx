@@ -800,8 +800,22 @@ function GeneratedDocumentSection({
         setReimbursableNote(parsed.reimbursable_expenses_note);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tbsRow]);
+  }, [
+    tbsRow,
+    document,
+    persistedKind,
+    proposalKind,
+    quoteType,
+    hourlyRate,
+    hoursBlock,
+    minCommitment,
+    phase1Hours,
+    phase2Hours,
+    phase3Hours,
+    monthlyRetainer,
+    retainerDurationMonths,
+    reimbursableNote,
+  ]);
 
   const parseOptionalPositive = (s: string): number | null => {
     const trimmed = s.trim();
