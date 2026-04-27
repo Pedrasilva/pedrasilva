@@ -391,6 +391,33 @@ function NewQuoteDialog({
               onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))}
             />
           </div>
+
+          {/* Quote type — drives planning UI + default proposal block-set */}
+          <div>
+            <Label>{t("quotes.newQuoteDialog.quoteTypeLabel")}</Label>
+            <RadioGroup
+              value={form.quote_type}
+              onValueChange={(v) => setForm((f) => ({ ...f, quote_type: v as QuoteType }))}
+              className="grid gap-2 mt-1"
+            >
+              {QUOTE_TYPES.map((qt) => (
+                <Label
+                  key={qt.value}
+                  htmlFor={`qt-${qt.value}`}
+                  className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
+                >
+                  <RadioGroupItem id={`qt-${qt.value}`} value={qt.value} className="mt-0.5" />
+                  <div className="space-y-0.5">
+                    <div className="text-sm font-medium">{t(`quoteType.${qt.value}.label`)}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t(`quoteType.${qt.value}.hint`)}
+                    </div>
+                  </div>
+                </Label>
+              ))}
+            </RadioGroup>
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <Label>{t("common.estimatedFee")}</Label>
@@ -401,20 +428,22 @@ function NewQuoteDialog({
                 onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))}
               />
             </div>
-            <div>
-              <Label>{t("common.feeStructure")}</Label>
-              <Select
-                value={form.fee_structure_type}
-                onValueChange={(v) => setForm((f) => ({ ...f, fee_structure_type: v as FeeStructureType }))}
-              >
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {FEE_STRUCTURE_TYPES.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>{t(`feeStructure.${s.value}`)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {form.quote_type === "standard_project" && (
+              <div>
+                <Label>{t("common.feeStructure")}</Label>
+                <Select
+                  value={form.fee_structure_type}
+                  onValueChange={(v) => setForm((f) => ({ ...f, fee_structure_type: v as FeeStructureType }))}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {FEE_STRUCTURE_TYPES.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>{t(`feeStructure.${s.value}`)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
           <div>
             <Label>{t("quotes.newQuoteDialog.accountOptional")}</Label>
