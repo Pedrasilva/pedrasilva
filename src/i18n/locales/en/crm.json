@@ -498,6 +498,7 @@
           "phase2Label": "Phase 2 — Detailed Feasibility & Concept Alignment",
           "phase3Label": "Phase 3 — Planning Confirmation (PIP)",
           "hoursPlaceholder": "h",
+          "regenerateHint": "Click Regenerate above to apply these values to the proposal.",
           "validationError": "Please fix the consultancy settings before generating.",
           "errors": {
             "hourlyRateInvalid": "Hourly rate must be greater than 0.",

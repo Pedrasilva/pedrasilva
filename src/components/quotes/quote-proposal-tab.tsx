@@ -715,13 +715,61 @@ function GeneratedDocumentSection({
       ?.proposal_kind ?? quoteTypeToProposalKind(quoteType);
   const [proposalKind, setProposalKind] = useState<ProposalKind>(persistedKind);
 
-  // Consultancy commercial settings (in-memory only — not persisted yet).
+  // Consultancy commercial settings. Initialised in-memory; we hydrate them
+  // from fee_proposals.time_based_settings when the saved JSON exists so the
+  // user does not need to re-enter rate/hours after picking the kind on the
+  // Time-based tab.
   const [hourlyRate, setHourlyRate] = useState<string>("");
   const [hoursBlock, setHoursBlock] = useState<string>("");
   const [minCommitment, setMinCommitment] = useState<string>("");
   const [phase1Hours, setPhase1Hours] = useState<string>("");
   const [phase2Hours, setPhase2Hours] = useState<string>("");
   const [phase3Hours, setPhase3Hours] = useState<string>("");
+
+  // Hydrate the manual fields from the quote's stored time_based_settings
+  // when the row arrives, so users do not need to re-type values.
+  const { data: tbsRow } = useQuery({
+    queryKey: ["fee_proposal_time_based_settings_for_proposal_tab", quoteId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("fee_proposals")
+        .select("time_based_settings")
+        .eq("id", quoteId)
+        .single();
+      if (error) throw error;
+      return data as { time_based_settings: unknown };
+    },
+  });
+  useEffect(() => {
+    if (!tbsRow) return;
+    const raw = tbsRow.time_based_settings;
+    if (!raw || typeof raw !== "object") return;
+    const obj = raw as Record<string, unknown>;
+    if (obj.kind !== "consultancy_hours_package") return;
+    if (typeof obj.hourly_rate === "number" && hourlyRate === "")
+      setHourlyRate(String(obj.hourly_rate));
+    if (typeof obj.hours_block === "number" && hoursBlock === "")
+      setHoursBlock(String(obj.hours_block));
+    if (
+      typeof obj.minimum_commitment_percent === "number" &&
+      typeof obj.hours_block === "number" &&
+      minCommitment === ""
+    ) {
+      const min = (obj.hours_block * obj.minimum_commitment_percent) / 100;
+      setMinCommitment(String(min));
+    }
+    if (Array.isArray(obj.phases)) {
+      const phs = obj.phases as Array<Record<string, unknown>>;
+      const v = (i: number) => {
+        const h = phs[i]?.estimated_hours;
+        return typeof h === "number" ? String(h) : "";
+      };
+      if (phase1Hours === "") setPhase1Hours(v(0));
+      if (phase2Hours === "") setPhase2Hours(v(1));
+      if (phase3Hours === "") setPhase3Hours(v(2));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tbsRow]);
 
   const parseOptionalPositive = (s: string): number | null => {
     const trimmed = s.trim();
@@ -837,7 +885,9 @@ function GeneratedDocumentSection({
         replaceExistingDraft,
         proposalKind: kind,
         consultancy:
-          kind === "phased_consultancy" && hasManualConsultancyValues
+          (kind === "phased_consultancy" ||
+            kind === "consultancy_hours_package") &&
+          hasManualConsultancyValues
             ? buildConsultancyConfig()
             : undefined,
       });
@@ -1171,6 +1221,92 @@ function GeneratedDocumentSection({
             <div className="mt-0.5 font-medium uppercase">{document.language}</div>
           </div>
         </div>
+
+        {/* Inline consultancy values: lets the user supply hourly rate /
+            hours block / minimum commitment after the document has been
+            generated, so a regenerate fills in {{hourly_rate}},
+            {{block_value}} and {{downpayment_amount}} in the fee block. */}
+        {(persistedKind === "phased_consultancy" ||
+          persistedKind === "consultancy_hours_package") && (
+          <div className="space-y-3 rounded-md border bg-muted/20 p-4">
+            <div>
+              <h4 className="text-sm font-semibold">
+                {t("workspace.proposal.generator.consultancy.sectionTitle")}
+              </h4>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {t("workspace.proposal.generator.consultancy.sectionHint")}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="space-y-1">
+                <Label htmlFor="doc-consultancy-rate" className="text-xs">
+                  {t("workspace.proposal.generator.consultancy.hourlyRate")}
+                </Label>
+                <Input
+                  id="doc-consultancy-rate"
+                  inputMode="decimal"
+                  placeholder="90"
+                  value={hourlyRate}
+                  onChange={(e) => setHourlyRate(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="doc-consultancy-block" className="text-xs">
+                  {t("workspace.proposal.generator.consultancy.hoursBlock")}
+                </Label>
+                <Input
+                  id="doc-consultancy-block"
+                  inputMode="decimal"
+                  placeholder="50"
+                  value={hoursBlock}
+                  onChange={(e) => setHoursBlock(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="doc-consultancy-min" className="text-xs">
+                  {t("workspace.proposal.generator.consultancy.minimumCommitment")}
+                </Label>
+                <Input
+                  id="doc-consultancy-min"
+                  inputMode="decimal"
+                  placeholder="25"
+                  value={minCommitment}
+                  onChange={(e) => setMinCommitment(e.target.value)}
+                />
+              </div>
+            </div>
+            {(blockValuePreview !== null || minimumFeePreview !== null) && (
+              <div className="grid grid-cols-2 gap-3 rounded-md border bg-background/60 p-3 text-xs">
+                {blockValuePreview !== null && (
+                  <div>
+                    <div className="text-muted-foreground">
+                      {t("workspace.proposal.generator.consultancy.blockValue")}
+                    </div>
+                    <div className="mt-0.5 font-semibold tabular-nums">
+                      {formatCurrency(blockValuePreview)}
+                    </div>
+                  </div>
+                )}
+                {minimumFeePreview !== null && (
+                  <div>
+                    <div className="text-muted-foreground">
+                      {t("workspace.proposal.generator.consultancy.minimumFee")}
+                    </div>
+                    <div className="mt-0.5 font-semibold tabular-nums">
+                      {formatCurrency(minimumFeePreview)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            <p className="text-[11px] italic text-muted-foreground">
+              {t(
+                "workspace.proposal.generator.consultancy.regenerateHint",
+                "Click Regenerate above to apply these values to the proposal.",
+              )}
+            </p>
+          </div>
+        )}
 
         <Separator />
 
