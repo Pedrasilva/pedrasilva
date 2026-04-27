@@ -27,6 +27,8 @@ export interface ConstructionRetainerSettings {
   kind: "construction_retainer";
   start_date: string | null; // ISO date
   estimated_end_date: string | null; // ISO date
+  construction_duration_months?: number | null;
+  monthly_estimate?: number | null;
   billing_mode: "monthly_advance";
   monthly_resources: RetainerMonthlyResource[];
   reimbursable_expenses_note: string;
@@ -71,6 +73,8 @@ export function defaultRetainerSettings(): ConstructionRetainerSettings {
     kind: "construction_retainer",
     start_date: null,
     estimated_end_date: null,
+    construction_duration_months: null,
+    monthly_estimate: null,
     billing_mode: "monthly_advance",
     monthly_resources: [],
     reimbursable_expenses_note: "",
@@ -114,6 +118,8 @@ export function parseTimeBasedSettings(
         start_date: typeof obj.start_date === "string" ? obj.start_date : null,
         estimated_end_date:
           typeof obj.estimated_end_date === "string" ? obj.estimated_end_date : null,
+        construction_duration_months: optionalNumber(obj.construction_duration_months),
+        monthly_estimate: optionalNumber(obj.monthly_estimate),
         monthly_resources: Array.isArray(obj.monthly_resources)
           ? (obj.monthly_resources as unknown[])
               .map((r) => {
