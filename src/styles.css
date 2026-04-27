@@ -674,38 +674,36 @@
 @media print {
   @page {
     size: A4;
-    margin: 34mm 22mm 38mm 22mm;
+    margin: 0;
   }
   .print-area .proposal-print-document {
     box-sizing: border-box;
-    width: 100%;
+    position: relative;
+    width: var(--psa-page-w);
+    min-height: var(--psa-page-h);
     max-width: none;
-    margin: 0;
-    padding: 0;
+    margin: 0 auto;
+    padding: var(--psa-margin-top) var(--psa-margin-x) var(--psa-margin-bottom);
     box-shadow: none !important;
     border: none !important;
     background: white !important;
     color: #111 !important;
-    /* Reset all the screen-mode page-frame variables so they cannot
-       leak in and create unintended top/bottom padding on print. */
-    --psa-margin-top: 0;
-    --psa-margin-bottom: 0;
-    --psa-margin-x: 0;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
-  /* Fixed header/footer repeat on every printed page. In Chromium print,
-     fixed elements are offset from the @page content box, so negative
-     offsets place the brand frame in the physical paper margins while the
-     text continues to flow inside the reserved safe area. */
+  /* Match the screen preview: same A4 sheet, same content padding, same
+     brand-frame coordinates. @page margin: 0 prevents the browser's own
+     URL/date/page headers from stealing space or appearing in the PDF. */
   .print-area .proposal-page-header,
   .print-area .proposal-page-footer {
     position: fixed;
-    left: 22mm;
-    right: 22mm;
+    left: var(--psa-margin-x);
+    right: var(--psa-margin-x);
     background: white;
     z-index: 100;
   }
-  .print-area .proposal-page-header { top: -22mm; }
-  .print-area .proposal-page-footer { bottom: -20mm; }
+  .print-area .proposal-page-header { top: var(--psa-header-top); }
+  .print-area .proposal-page-footer { bottom: var(--psa-footer-bottom); }
 
   .print-area .proposal-print-block {
     page-break-inside: auto;
