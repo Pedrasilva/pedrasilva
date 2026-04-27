@@ -50,6 +50,7 @@ export interface QuoteContext {
   quote: {
     id: string;
     titulo: string;
+    valor?: number | null;
     proposal_description: string | null;
     pricing_multiplier: number;
     data_proposta: string | null;
@@ -457,6 +458,117 @@ function buildVariables(
     firm_partner_name: "",
     firm_partner_title: "",
   };
+}
+
+function positiveNumber(value: number | null | undefined): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? value
+    : null;
+}
+
+function roundMoney(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+function roundHours(value: number): number {
+  return Math.round(value * 10) / 10;
+}
+
+function allocationHours(ctx: QuoteContext): number {
+  return ctx.allocations.reduce((sum, allocation) => {
+    return sum + quoteAllocationLine(allocation).hours;
+  }, 0);
+}
+
+function resolveConsultancyConfig(
+  ctx: QuoteContext,
+  computed: GeneratedSnapshot["computed"],
+  proposalKind: ProposalKind | undefined,
+  consultancy: ConsultancyConfig | undefined,
+): ConsultancyConfig | undefined {
+  if (proposalKind !== "phased_consultancy" && proposalKind !== "consultancy_hours_package") {
+    return consultancy;
+  }
+
+  const plannedHours = roundHours(allocationHours(ctx));
+  const plannedValue =
+    positiveNumber(ctx.quote.valor) ??
+    positiveNumber(computed.internalFee) ??
+    positiveNumber(computed.totalFee);
+  const hoursBlock = positiveNumber(consultancy?.hours_block) ?? positiveNumber(plannedHours);
+  const hourlyRate =
+    positiveNumber(consultancy?.hourly_rate) ??
+    (hoursBlock && plannedValue ? roundMoney(plannedValue / hoursBlock) : null);
+  const minimumHours =
+    positiveNumber(consultancy?.minimum_commitment_hours) ?? hoursBlock ?? null;
+  const blockValue =
+    positiveNumber(consultancy?.block_value) ??
+    (hourlyRate && hoursBlock ? roundMoney(hourlyRate * hoursBlock) : plannedValue ?? null);
+  const downpayment =
+    positiveNumber(consultancy?.downpayment_amount) ??
+    (hourlyRate && minimumHours
+      ? roundMoney(hourlyRate * minimumHours)
+      : blockValue ?? null);
+
+  return {
+    ...consultancy,
+    hourly_rate: hourlyRate,
+    hours_block: hoursBlock,
+    minimum_commitment_hours: minimumHours,
+    block_value: blockValue,
+    downpayment_amount: downpayment,
+  };
+}
+
+function resolveRetainerConfig(
+  computed: GeneratedSnapshot["computed"],
+  retainer: RetainerConfig | undefined,
+): RetainerConfig | undefined {
+  if (!retainer) return retainer;
+  const start = retainer.start_date ?? computed.timeline.start_date;
+  const end = retainer.estimated_end_date ?? computed.timeline.end_date;
+  const duration =
+    positiveNumber(retainer.construction_duration_months) ??
+    (start && end
+      ? Math.max(
+          1,
+          Math.ceil((new Date(end).getTime() - new Date(start).getTime()) / 2_592_000_000),
+        )
+      : null);
+  return {
+    ...retainer,
+    start_date: start,
+    estimated_end_date: end,
+    construction_duration_months: duration,
+    monthly_estimate:
+      positiveNumber(retainer.monthly_estimate) ?? positiveNumber(computed.totalFee),
+  };
+}
+
+function assertTimeBasedValues(
+  proposalKind: ProposalKind | undefined,
+  consultancy: ConsultancyConfig | undefined,
+  retainer: RetainerConfig | undefined,
+) {
+  const missing: string[] = [];
+  if (proposalKind === "phased_consultancy" || proposalKind === "consultancy_hours_package") {
+    if (!positiveNumber(consultancy?.hourly_rate)) missing.push("hourly_rate");
+    if (!positiveNumber(consultancy?.hours_block)) missing.push("hours_block");
+    if (!positiveNumber(consultancy?.minimum_commitment_hours)) {
+      missing.push("minimum_commitment_hours");
+    }
+  }
+  if (proposalKind === "construction_retainer") {
+    if (!positiveNumber(retainer?.monthly_estimate)) missing.push("monthly_estimate");
+    if (!positiveNumber(retainer?.construction_duration_months)) {
+      missing.push("construction_duration_months");
+    }
+  }
+  if (missing.length > 0) {
+    const err = new Error(`missing_time_based_values:${missing.join(",")}`);
+    err.name = "MissingTimeBasedValuesError";
+    throw err;
+  }
 }
 
 const VAR_TOKEN_RE = /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g;
