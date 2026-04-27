@@ -1333,7 +1333,7 @@ function GeneratedDocumentSection({
 
           <Button
             onClick={() => handleGenerate(true)}
-            disabled={generate.isPending || cannotGenerateTimeBased}
+            disabled={generate.isPending}
           >
             {generate.isPending ? (
               <>
@@ -1411,8 +1411,7 @@ function GeneratedDocumentSection({
             hours block / minimum commitment after the document has been
             generated, so a regenerate fills in {{hourly_rate}},
             {{block_value}} and {{downpayment_amount}} in the fee block. */}
-        {(persistedKind === "phased_consultancy" ||
-          persistedKind === "consultancy_hours_package") && (
+        {isConsultancyProposalKind(persistedKind) && (
           <div className="space-y-3 rounded-md border bg-muted/20 p-4">
             <div>
               <h4 className="text-sm font-semibold">
@@ -1485,11 +1484,76 @@ function GeneratedDocumentSection({
               </div>
             )}
             <p className="text-[11px] italic text-muted-foreground">
-              {t(
-                "workspace.proposal.generator.consultancy.regenerateHint",
-                "Click Regenerate above to apply these values to the proposal.",
-              )}
+              {t("workspace.proposal.generator.consultancy.regenerateHint")}
             </p>
+          </div>
+        )}
+
+        {persistedKind === "construction_retainer" && (
+          <div className="space-y-3 rounded-md border bg-muted/20 p-4">
+            <div>
+              <h4 className="text-sm font-semibold">
+                {t("workspace.proposal.generator.retainer.sectionTitle")}
+              </h4>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {t("workspace.proposal.generator.retainer.sectionHint")}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="doc-retainer-monthly" className="text-xs">
+                  {t("workspace.proposal.generator.retainer.monthlyRetainer")}
+                </Label>
+                <Input
+                  id="doc-retainer-monthly"
+                  inputMode="decimal"
+                  placeholder="2500"
+                  value={monthlyRetainer}
+                  onChange={(e) => setMonthlyRetainer(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="doc-retainer-duration" className="text-xs">
+                  {t("workspace.proposal.generator.retainer.durationMonths")}
+                </Label>
+                <Input
+                  id="doc-retainer-duration"
+                  inputMode="decimal"
+                  placeholder="6"
+                  value={retainerDurationMonths}
+                  onChange={(e) => setRetainerDurationMonths(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1 sm:col-span-2">
+                <Label htmlFor="doc-retainer-reimbursable" className="text-xs">
+                  {t("workspace.proposal.generator.retainer.reimbursableNote")}
+                </Label>
+                <Textarea
+                  id="doc-retainer-reimbursable"
+                  rows={2}
+                  value={reimbursableNote}
+                  onChange={(e) => setReimbursableNote(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {document.status === "draft" && (
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleGenerate(true)}
+              disabled={generate.isPending}
+            >
+              {generate.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              {t("workspace.proposal.generator.regenerate")}
+            </Button>
           </div>
         )}
 
