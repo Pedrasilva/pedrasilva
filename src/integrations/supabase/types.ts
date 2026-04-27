@@ -669,6 +669,7 @@ export type Database = {
           pm_project_id: string | null
           pricing_multiplier: number
           probabilidade: number
+          project_fee_calculation: Json
           proposal_description: string | null
           quote_category: Database["public"]["Enums"]["crm_quote_category"]
           quote_mode_ready: boolean
@@ -699,6 +700,7 @@ export type Database = {
           pm_project_id?: string | null
           pricing_multiplier?: number
           probabilidade?: number
+          project_fee_calculation?: Json
           proposal_description?: string | null
           quote_category?: Database["public"]["Enums"]["crm_quote_category"]
           quote_mode_ready?: boolean
@@ -729,6 +731,7 @@ export type Database = {
           pm_project_id?: string | null
           pricing_multiplier?: number
           probabilidade?: number
+          project_fee_calculation?: Json
           proposal_description?: string | null
           quote_category?: Database["public"]["Enums"]["crm_quote_category"]
           quote_mode_ready?: boolean
