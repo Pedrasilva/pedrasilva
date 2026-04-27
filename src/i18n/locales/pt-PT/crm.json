@@ -498,6 +498,7 @@
           "phase2Label": "Fase 2 — Viabilidade Detalhada e Alinhamento do Conceito",
           "phase3Label": "Fase 3 — Confirmação de Planeamento (PIP)",
           "hoursPlaceholder": "h",
+          "regenerateHint": "Clica em Regenerar acima para aplicar estes valores à proposta.",
           "validationError": "Corrige as configurações da consultoria antes de gerar.",
           "errors": {
             "hourlyRateInvalid": "O valor à hora tem de ser superior a 0.",
