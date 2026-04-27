@@ -672,7 +672,9 @@ export type Database = {
           proposal_description: string | null
           quote_mode_ready: boolean
           quote_status: Database["public"]["Enums"]["crm_quote_status"]
+          quote_type: Database["public"]["Enums"]["crm_quote_type"]
           revision_number: number
+          time_based_settings: Json
           titulo: string
           updated_at: string
           valor: number
@@ -699,7 +701,9 @@ export type Database = {
           proposal_description?: string | null
           quote_mode_ready?: boolean
           quote_status?: Database["public"]["Enums"]["crm_quote_status"]
+          quote_type?: Database["public"]["Enums"]["crm_quote_type"]
           revision_number?: number
+          time_based_settings?: Json
           titulo: string
           updated_at?: string
           valor?: number
@@ -726,7 +730,9 @@ export type Database = {
           proposal_description?: string | null
           quote_mode_ready?: boolean
           quote_status?: Database["public"]["Enums"]["crm_quote_status"]
+          quote_type?: Database["public"]["Enums"]["crm_quote_type"]
           revision_number?: number
+          time_based_settings?: Json
           titulo?: string
           updated_at?: string
           valor?: number
@@ -3097,6 +3103,10 @@ export type Database = {
         | "won"
         | "lost"
       crm_quote_status: "draft" | "sent" | "approved" | "rejected"
+      crm_quote_type:
+        | "standard_project"
+        | "construction_retainer"
+        | "consultancy_hours_package"
       department: "Projecto" | "Backoffice"
       expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
       pm_allocation_status: "tentative" | "committed"
@@ -3313,6 +3323,11 @@ export const Constants = {
       crm_fee_structure: ["fixed", "staged", "monthly"],
       crm_opportunity_stage: ["lead", "proposal", "negotiation", "won", "lost"],
       crm_quote_status: ["draft", "sent", "approved", "rejected"],
+      crm_quote_type: [
+        "standard_project",
+        "construction_retainer",
+        "consultancy_hours_package",
+      ],
       department: ["Projecto", "Backoffice"],
       expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
       pm_allocation_status: ["tentative", "committed"],

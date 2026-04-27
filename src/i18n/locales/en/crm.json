@@ -163,6 +163,7 @@
     "newQuoteDialog": {
       "title": "New quote",
       "description": "Quotes inherit the opportunity context. Account is optional now but required to approve.",
+      "quoteTypeLabel": "Quote type",
       "accountOptional": "Account (optional)",
       "noAccountSetBefore": "No account (set before approval)",
       "noAccountsHint": "No accounts for this company yet. Create one in the Accounts tab.",
@@ -231,6 +232,20 @@
     "fixed": "Fixed",
     "staged": "Staged",
     "monthly": "Monthly"
+  },
+  "quoteType": {
+    "standard_project": {
+      "label": "Standard Project Proposal",
+      "hint": "Stages, Gantt, resources, external services and a generated proposal. Use for fixed/staged design projects."
+    },
+    "construction_retainer": {
+      "label": "Construction Retainer",
+      "hint": "Time-based support during construction, billed monthly in advance. Reimbursable expenses billed separately."
+    },
+    "consultancy_hours_package": {
+      "label": "Consultancy Hours Package",
+      "hint": "Block of hours for advisory / feasibility / due diligence. Minimum commitment upfront, remainder billed monthly on actuals."
+    }
   },
   "pipelineStatus": {
     "lead": "Lead",

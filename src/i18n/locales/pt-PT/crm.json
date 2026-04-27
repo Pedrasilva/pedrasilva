@@ -232,6 +232,20 @@
     "staged": "Por fases",
     "monthly": "Mensal"
   },
+  "quoteType": {
+    "standard_project": {
+      "label": "Proposta de Projeto Standard",
+      "hint": "Fases, Gantt, recursos, serviços externos e proposta gerada. Para projetos de honorários fixos ou por fases."
+    },
+    "construction_retainer": {
+      "label": "Retainer de Obra",
+      "hint": "Acompanhamento por horas durante a obra, faturado mensalmente antecipadamente. Despesas reembolsáveis faturadas à parte."
+    },
+    "consultancy_hours_package": {
+      "label": "Pacote de Horas de Consultoria",
+      "hint": "Bloco de horas para consultoria / viabilidade / due diligence. Compromisso mínimo antecipado, restantes horas faturadas mensalmente em função do consumo real."
+    }
+  },
   "pipelineStatus": {
     "lead": "Lead",
     "proposta_enviada": "Proposta enviada",

@@ -130,7 +130,29 @@ export interface BlockDraft {
 export type ProposalKind =
   | "fixed_project"
   | "phased_consultancy"
-  | "psa_interior_fitout";
+  | "psa_interior_fitout"
+  | "construction_retainer"
+  | "consultancy_hours_package";
+
+/**
+ * Map a quote_type (commercial classification stored on fee_proposals) to
+ * the default ProposalKind used by the generator. `standard_project` keeps
+ * the existing legacy default ("fixed_project"); the two time-based types
+ * route to their dedicated block sets.
+ */
+export function quoteTypeToProposalKind(
+  quoteType: string | null | undefined,
+): ProposalKind {
+  switch (quoteType) {
+    case "construction_retainer":
+      return "construction_retainer";
+    case "consultancy_hours_package":
+      return "consultancy_hours_package";
+    case "standard_project":
+    default:
+      return "fixed_project";
+  }
+}
 
 export interface ConsultancyConfig {
   hourly_rate?: number | null;
@@ -277,6 +299,49 @@ export const PSA_INTERIOR_BLOCK_SLUGS: readonly string[] = [
   "psa-validity-30-days",
   "generated-acceptance-block",
   "psa-closing-signature",
+] as const;
+
+/**
+ * Ordered slug list for the **Construction Retainer** quote type.
+ * Time-based proposal: no stages/Gantt sections — just an intro,
+ * about, scope, generated team-by-role table (still meaningful since
+ * monthly hours can be allocated by role), fees, monthly payment cycle,
+ * exclusions, validity, and acceptance.
+ *
+ * Used when generator is called with proposalKind === "construction_retainer".
+ */
+export const RETAINER_BLOCK_SLUGS: readonly string[] = [
+  "retainer-intro",
+  "about-psa-standard",
+  "retainer-scope",
+  "generated-role-summary",
+  "retainer-fee-monthly",
+  "generated-fee-summary",
+  "retainer-payment-cycle",
+  "generated-payment-schedule",
+  "retainer-exclusions",
+  "validity-period",
+  "generated-acceptance-block",
+] as const;
+
+/**
+ * Ordered slug list for the **Consultancy Hours Package** quote type.
+ * Reuses the existing time-based consultancy block library plus the
+ * generated time/fee summary so the client sees hourly rate, hours
+ * block and minimum commitment up front.
+ *
+ * Used when generator is called with proposalKind === "consultancy_hours_package".
+ */
+export const CONSULTANCY_HOURS_PACKAGE_BLOCK_SLUGS: readonly string[] = [
+  "intro-consultancy-due-diligence",
+  "about-psa-standard",
+  "consultancy-scope-overview",
+  "consultancy-methodology-iterative",
+  "consultancy-fee-structure-time-based",
+  "generated-time-fee-consultancy",
+  "consultancy-exclusions-standard",
+  "consultancy-validity-next-steps",
+  "generated-acceptance-block",
 ] as const;
 
 // ────────────────────── Variable substitution ──────────────────────
@@ -544,6 +609,12 @@ function pickSlugs(input: GenerateInput): string[] {
       break;
     case "psa_interior_fitout":
       base = PSA_INTERIOR_BLOCK_SLUGS;
+      break;
+    case "construction_retainer":
+      base = RETAINER_BLOCK_SLUGS;
+      break;
+    case "consultancy_hours_package":
+      base = CONSULTANCY_HOURS_PACKAGE_BLOCK_SLUGS;
       break;
     default:
       base = DEFAULT_PROPOSAL_BLOCK_SLUGS;

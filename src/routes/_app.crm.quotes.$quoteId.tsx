@@ -467,6 +467,9 @@ function QuoteDetail() {
             <span className={`h-2 w-2 rounded-full ${status?.color}`} />
             {status ? t(`quoteStatus.${status.value}`) : ""}
           </span>
+          <span className="inline-flex items-center rounded-full border bg-muted/40 px-3 py-1 text-xs font-medium">
+            {t(`quoteType.${quote.quote_type ?? "standard_project"}.label`)}
+          </span>
           <QuoteWorkflowActions
             quoteId={quoteId}
             status={quote.quote_status}
@@ -628,6 +631,7 @@ function QuoteDetail() {
             description={form.proposal_description || quote.proposal_description || quote.notas}
             clientName={quote.company?.nome ?? null}
             accountName={quote.account?.name ?? null}
+            quoteType={quote.quote_type ?? "standard_project"}
           />
         </TabsContent>
       </Tabs>
