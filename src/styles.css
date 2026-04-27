@@ -674,28 +674,28 @@
 @media print {
   @page {
     size: A4;
-    margin: 0;
+    margin: 40mm 22mm 28mm 22mm;
   }
   .print-area .proposal-print-document {
     box-sizing: border-box;
-    width: 210mm;
-    min-height: 297mm;
+    width: 100%;
     max-width: none;
     margin: 0;
-    padding: 40mm 22mm 28mm 22mm;
+    padding: 0;
     box-shadow: none !important;
     border: none !important;
     background: white !important;
     color: #111 !important;
     /* Reset all the screen-mode page-frame variables so they cannot
        leak in and create unintended top/bottom padding on print. */
-    --psa-margin-top: 40mm;
-    --psa-margin-bottom: 28mm;
-    --psa-margin-x: 22mm;
+    --psa-margin-top: 0;
+    --psa-margin-bottom: 0;
+    --psa-margin-x: 0;
   }
   /* Fixed header/footer repeat on every printed page. They sit INSIDE
-     the same fixed page padding as the preview. White background ensures
-     they cover any content that would otherwise show through. */
+     the @page margin box (top 14mm / bottom 12mm leave the central
+     content area clear from 40mm…page-height-28mm). White background
+     ensures they cover any content that would otherwise show through. */
   .print-area .proposal-page-header,
   .print-area .proposal-page-footer {
     position: fixed;
