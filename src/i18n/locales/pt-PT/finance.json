@@ -171,5 +171,58 @@
   "noAccess": {
     "title": "Sem acesso",
     "body": "Não tem permissão para ver o painel financeiro."
+  },
+  "debts": {
+    "title": "Dívidas",
+    "subtitle": "{{count}} dívida(s)",
+    "empty": "Sem dívidas registadas.",
+    "scheduledCount": "{{count}} pagamento(s)",
+    "summary": {
+      "original": "Total original",
+      "outstanding": "Total em aberto"
+    },
+    "col": {
+      "creditor": "Credor",
+      "description": "Descrição",
+      "original": "Original",
+      "outstanding": "Em aberto",
+      "status": "Estado",
+      "startDate": "Início",
+      "endDate": "Fim",
+      "scheduled": "Plano de pagamentos"
+    },
+    "payments": {
+      "title": "Pagamentos de dívida agendados",
+      "subtitle": "{{count}} pagamento(s)",
+      "empty": "Ainda não há pagamentos de dívida agendados.",
+      "col": {
+        "creditor": "Credor",
+        "month": "Mês",
+        "due": "Vencimento",
+        "paid": "Pago",
+        "planned": "Previsto",
+        "actual": "Real",
+        "status": "Estado"
+      }
+    }
+  },
+  "importLogs": {
+    "title": "Logs de importação",
+    "subtitle": "{{count}} importação(ões)",
+    "empty": "Ainda não há importações registadas.",
+    "col": {
+      "importedAt": "Importado em",
+      "fileName": "Ficheiro",
+      "importType": "Tipo",
+      "fileSize": "Tamanho",
+      "checksum": "Checksum",
+      "rowsExpenses": "Despesas",
+      "rowsIncome": "Receitas",
+      "rowsSuppliers": "Fornecedores",
+      "rowsClients": "Clientes",
+      "rowsDebts": "Dívidas",
+      "rowsBankAccounts": "Contas banc.",
+      "notes": "Notas"
+    }
   }
 }
