@@ -1692,6 +1692,7 @@ type DebtPaymentFull = {
 };
 
 function DebtStatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation(["finance"]);
   const map: Record<string, string> = {
     open: "bg-amber-100 text-amber-900",
     paid: "bg-emerald-100 text-emerald-900",
@@ -1700,7 +1701,7 @@ function DebtStatusBadge({ status }: { status: string }) {
   };
   return (
     <Badge variant="secondary" className={cn("font-normal", map[status] ?? "")}>
-      {status}
+      {t(`finance:debtStatus.${status}`, { defaultValue: status })}
     </Badge>
   );
 }
