@@ -1623,21 +1623,21 @@ function ExpensesTab({
               return (
                 <TableRow key={r.id}>
                   <TableCell className="text-sm">
-                    {period?.month_name ?? "—"}
+                    {period?.month_name ?? DASH}
                   </TableCell>
-                  <TableCell className="text-sm">{supplier ?? "—"}</TableCell>
-                  <TableCell className="text-sm">{category ?? "—"}</TableCell>
+                  <TableCell className="text-sm">{supplier ?? DASH}</TableCell>
+                  <TableCell className="text-sm">{category ?? DASH}</TableCell>
                   <TableCell className="text-sm max-w-[280px] truncate">
-                    {r.description ?? "—"}
+                    {r.description ?? DASH}
                   </TableCell>
                   <TableCell className="text-sm tabular-nums">
-                    {r.due_date ?? "—"}
+                    {fmtDate(r.due_date)}
                   </TableCell>
                   <TableCell className="text-sm tabular-nums">
-                    {r.paid_date ?? "—"}
+                    {fmtDate(r.paid_date)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {fmtEUR(amt)}
+                    {fmtEUR2(amt)}
                   </TableCell>
                   <TableCell>
                     <ExpenseStatusBadge status={r.status} />
@@ -1653,7 +1653,7 @@ function ExpensesTab({
                   {t("finance:expenses.summary.total")}
                 </TableCell>
                 <TableCell className="text-right tabular-nums font-semibold">
-                  {fmtEUR(totals.total)}
+                  {fmtEUR2(totals.total)}
                 </TableCell>
                 <TableCell />
               </TableRow>
