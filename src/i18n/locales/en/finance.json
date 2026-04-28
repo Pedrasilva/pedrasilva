@@ -109,6 +109,18 @@
     "overdue": "Overdue",
     "cancelled": "Cancelled"
   },
+  "debtStatus": {
+    "open": "Open",
+    "paid": "Paid",
+    "cancelled": "Cancelled",
+    "defaulted": "Defaulted"
+  },
+  "debtPaymentStatus": {
+    "planned": "Planned",
+    "paid": "Paid",
+    "overdue": "Overdue",
+    "cancelled": "Cancelled"
+  },
   "income": {
     "title": "Income",
     "subtitle": "{{count}} invoice(s)",
