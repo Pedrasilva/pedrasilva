@@ -343,22 +343,17 @@ function NewQuoteDialog({
       ...f,
       quote_category: cat,
       quote_type: defaultQuoteTypeForCategory(cat),
-      // Consultancy is always monthly billing against actual hours.
-      fee_structure_type: cat === "consultancy" ? "monthly" : f.fee_structure_type,
+      // Time-based and Retainer always bill monthly. Project keeps its choice.
+      fee_structure_type: cat === "project" ? f.fee_structure_type : "monthly",
     }));
 
   const create = useMutation({
     mutationFn: async () => {
       if (!form.titulo.trim()) throw new Error(t("quotes.newQuoteDialog.errorTitle"));
-      // Consultancy quotes always bill monthly against actuals; project quotes
-      // honour whatever the user picked in the dialog (or "monthly" for the
-      // construction retainer sub-type).
+      // Project quotes honour the chosen fee structure; the two time-based
+      // categories are always monthly.
       const feeStructure: FeeStructureType =
-        form.quote_category === "consultancy"
-          ? "monthly"
-          : form.quote_type === "construction_retainer"
-            ? "monthly"
-            : form.fee_structure_type;
+        form.quote_category === "project" ? form.fee_structure_type : "monthly";
       const { data, error } = await supabase
         .from("fee_proposals")
         .insert({
@@ -391,11 +386,18 @@ function NewQuoteDialog({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const projectSubTypes = QUOTE_TYPES_BY_CATEGORY.project;
+  const categoryCards: {
+    value: QuoteCategory;
+    icon: typeof Briefcase;
+  }[] = [
+    { value: "project", icon: Briefcase },
+    { value: "time_based", icon: Clock },
+    { value: "retainer", icon: Wrench },
+  ];
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("quotes.newQuoteDialog.title")}</DialogTitle>
           <DialogDescription>
@@ -404,46 +406,30 @@ function NewQuoteDialog({
         </DialogHeader>
 
         <div className="grid gap-4">
-          {/* ── Step 1: top-level category chooser ─────────────────── */}
-          <div className="grid gap-2 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={() => setCategory("project")}
-              className={`flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors ${
-                form.quote_category === "project"
-                  ? "border-primary bg-primary/5 ring-1 ring-primary"
-                  : "hover:bg-muted/50"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Briefcase className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold">
-                  {t("quotes.newQuoteDialog.category.project.title")}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {t("quotes.newQuoteDialog.category.project.hint")}
-              </p>
-            </button>
-            <button
-              type="button"
-              onClick={() => setCategory("consultancy")}
-              className={`flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors ${
-                form.quote_category === "consultancy"
-                  ? "border-primary bg-primary/5 ring-1 ring-primary"
-                  : "hover:bg-muted/50"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Lightbulb className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold">
-                  {t("quotes.newQuoteDialog.category.consultancy.title")}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {t("quotes.newQuoteDialog.category.consultancy.hint")}
-              </p>
-            </button>
+          {/* ── Step 1: 3-card top-level chooser ───────────────────── */}
+          <div className="grid gap-2 sm:grid-cols-3">
+            {categoryCards.map(({ value, icon: Icon }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setCategory(value)}
+                className={`flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors ${
+                  form.quote_category === value
+                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                    : "hover:bg-muted/50"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Icon className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold">
+                    {t(`quotes.newQuoteDialog.category.${value}.title`)}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t(`quotes.newQuoteDialog.category.${value}.hint`)}
+                </p>
+              </button>
+            ))}
           </div>
 
           {/* ── Step 2: details ───────────────────────────────────── */}
@@ -455,35 +441,6 @@ function NewQuoteDialog({
             />
           </div>
 
-          {/* Project sub-type — only shown for project category. Consultancy
-              has a single sub-type so we hide the picker entirely. */}
-          {form.quote_category === "project" && (
-            <div>
-              <Label>{t("quotes.newQuoteDialog.projectSubTypeLabel")}</Label>
-              <RadioGroup
-                value={form.quote_type}
-                onValueChange={(v) => setForm((f) => ({ ...f, quote_type: v as QuoteType }))}
-                className="grid gap-2 mt-1"
-              >
-                {projectSubTypes.map((qt) => (
-                  <Label
-                    key={qt}
-                    htmlFor={`qt-${qt}`}
-                    className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
-                  >
-                    <RadioGroupItem id={`qt-${qt}`} value={qt} className="mt-0.5" />
-                    <div className="space-y-0.5">
-                      <div className="text-sm font-medium">{t(`quoteType.${qt}.label`)}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {t(`quoteType.${qt}.hint`)}
-                      </div>
-                    </div>
-                  </Label>
-                ))}
-              </RadioGroup>
-            </div>
-          )}
-
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <Label>{t("common.estimatedFee")}</Label>
@@ -494,7 +451,9 @@ function NewQuoteDialog({
                 onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))}
               />
             </div>
-            {form.quote_category === "project" && form.quote_type === "standard_project" && (
+            {/* Fee structure dropdown is project-only. Time-based and
+                Retainer are forced to monthly. */}
+            {form.quote_category === "project" && (
               <div>
                 <Label>{t("common.feeStructure")}</Label>
                 <Select
