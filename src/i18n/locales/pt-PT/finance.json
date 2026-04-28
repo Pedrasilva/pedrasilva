@@ -303,5 +303,155 @@
       "rowsBankAccounts": "Contas banc.",
       "notes": "Notas"
     }
+  },
+  "tabsExtra": {
+    "documents": "Documentos"
+  },
+  "documents": {
+    "title": "Documentos Financeiros",
+    "subtitle": "Faturas, notas de crédito e recibos. Fonte de verdade do IVA por acréscimo.",
+    "openFull": "Abrir página de documentos",
+    "new": "Novo documento",
+    "back": "Voltar a documentos",
+    "noResults": "Nenhum documento corresponde aos filtros actuais.",
+    "filters": {
+      "all": "Todos",
+      "search": "Procurar número, referência ou contraparte",
+      "docType": "Tipo",
+      "direction": "Direcção",
+      "status": "Estado",
+      "supplier": "Fornecedor",
+      "client": "Cliente",
+      "project": "Projecto",
+      "vatPeriod": "Período de IVA"
+    },
+    "direction": {
+      "issued": "Emitidos",
+      "received": "Recebidos"
+    },
+    "type": {
+      "client_invoice": "Fatura a cliente",
+      "client_credit_note": "Nota de crédito a cliente",
+      "supplier_invoice": "Fatura de fornecedor",
+      "supplier_credit_note": "Nota de crédito de fornecedor",
+      "receipt": "Recibo",
+      "other": "Outro"
+    },
+    "status": {
+      "draft": "Rascunho",
+      "issued": "Emitido",
+      "partially_paid": "Parcialmente pago",
+      "paid": "Pago",
+      "cancelled": "Cancelado"
+    },
+    "source": {
+      "manual": "Manual",
+      "project": "Gerado de projecto",
+      "import": "Importado",
+      "ocr": "OCR"
+    },
+    "col": {
+      "number": "Número",
+      "type": "Tipo",
+      "counterparty": "Contraparte",
+      "issueDate": "Data emissão",
+      "dueDate": "Vencimento",
+      "vatPeriod": "Período IVA",
+      "net": "Líquido",
+      "vat": "IVA",
+      "gross": "Bruto",
+      "paid": "Pago",
+      "outstanding": "Em dívida",
+      "status": "Estado",
+      "project": "Projecto",
+      "actions": "Acções"
+    },
+    "form": {
+      "header": "Detalhes do documento",
+      "lines": "Linhas",
+      "addLine": "Adicionar linha",
+      "removeLine": "Remover",
+      "totals": "Totais",
+      "subtotal": "Subtotal (s/IVA)",
+      "vat": "IVA",
+      "total": "Total (c/IVA)",
+      "documentNumber": "Número do documento",
+      "externalReference": "Referência externa",
+      "issueDate": "Data de emissão",
+      "dueDate": "Data de vencimento",
+      "currency": "Moeda",
+      "supplier": "Fornecedor",
+      "client": "Cliente",
+      "project": "Projecto (opcional)",
+      "classification": "Classificação por defeito",
+      "notes": "Notas",
+      "file": "Anexo",
+      "uploadFile": "Carregar ficheiro",
+      "viewFile": "Ver anexo",
+      "removeFile": "Remover anexo",
+      "lineDescription": "Descrição",
+      "lineQuantity": "Qtd",
+      "lineUnitPrice": "Preço unitário (s/IVA)",
+      "lineVatRate": "IVA %",
+      "lineVatCode": "Código IVA",
+      "lineClassification": "Classificação",
+      "lineProject": "Projecto",
+      "lineReimbursable": "Reemb.",
+      "lineNet": "Líquido",
+      "lineVat": "IVA",
+      "lineGross": "Bruto",
+      "save": "Guardar",
+      "saveDraft": "Guardar como rascunho",
+      "issue": "Marcar como emitido",
+      "cancelDoc": "Cancelar documento",
+      "selectType": "Seleccionar tipo de documento",
+      "noLines": "Adicione pelo menos uma linha.",
+      "savedDraft": "Documento guardado como rascunho.",
+      "saved": "Documento actualizado.",
+      "issued": "Documento marcado como emitido.",
+      "cancelled": "Documento cancelado."
+    },
+    "payments": {
+      "title": "Pagamentos",
+      "addManual": "Registar pagamento",
+      "matchBank": "Associar movimento bancário",
+      "noPayments": "Sem pagamentos registados.",
+      "amount": "Valor",
+      "date": "Data",
+      "method": "Método",
+      "bankTx": "Movimento bancário",
+      "remove": "Remover",
+      "removed": "Pagamento removido.",
+      "added": "Pagamento registado.",
+      "exceedsOutstanding": "O pagamento excede o valor em dívida.",
+      "method_bank_transfer": "Transferência",
+      "method_cash": "Numerário",
+      "method_card": "Cartão",
+      "method_direct_debit": "Débito directo",
+      "method_other": "Outro"
+    },
+    "vat": {
+      "title": "Resumo de IVA",
+      "subtitle": "Por período de IVA. IVA liquidado vem dos documentos emitidos; IVA dedutível dos documentos recebidos.",
+      "period": "Período",
+      "outputAccrued": "IVA liquidado (acréscimo)",
+      "inputAccrued": "IVA dedutível (acréscimo)",
+      "payable": "IVA a pagar",
+      "paidEst": "Pago (est.)",
+      "outstanding": "Em dívida",
+      "totals": "Totais"
+    },
+    "statement": {
+      "title": "Extracto",
+      "outstandingTotal": "Total em dívida",
+      "documents": "Documentos"
+    },
+    "bankMatch": {
+      "title": "Associar a documento financeiro",
+      "subtitle": "Escolha um documento em dívida para registar este movimento como pagamento.",
+      "noCandidates": "Sem documentos em dívida disponíveis.",
+      "useAmount": "Usar valor do movimento",
+      "matched": "Movimento bancário associado ao documento."
+    }
   }
 }
