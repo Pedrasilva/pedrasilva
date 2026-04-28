@@ -641,6 +641,22 @@ function FinanceSnapshotBlock() {
     },
   });
 
+  const debtsQ = useQuery({
+    queryKey: ["home-finance", "debts", periodId],
+    enabled: !!periodId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("financial_debt_payments")
+        .select("planned_amount, actual_amount")
+        .eq("period_id", periodId!);
+      if (error) throw error;
+      return (data ?? []).reduce(
+        (s, r) => s + Number(r.actual_amount ?? r.planned_amount ?? 0),
+        0,
+      );
+    },
+  });
+
   const snapshotsQ = useQuery({
     queryKey: ["home-finance", "snapshots"],
     queryFn: async () => {
@@ -660,7 +676,7 @@ function FinanceSnapshotBlock() {
 
   const currentBalance = snapshotsQ.data ?? 0;
   const income = incomeQ.data ?? 0;
-  const expenses = expensesQ.data ?? 0;
+  const expenses = (expensesQ.data ?? 0) + (debtsQ.data ?? 0);
   const net = income - expenses;
   const projected = currentBalance + net;
 
