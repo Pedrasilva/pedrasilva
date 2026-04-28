@@ -673,13 +673,15 @@
     "hrOwnedBadge": "Gestão RH",
     "fields": {
       "file": "Ficheiro Excel",
-      "fileHint": "Aceita .xlsx / .xls. As colunas são identificadas pelo nome, não pela posição.",
+      "fileHint": "Aceita .xlsx / .xls / .csv. As colunas são identificadas pelo nome, não pela posição.",
       "sheet": "Folha",
       "headerRow": "Linha de cabeçalho (a partir de 1)",
+      "autoDetected": "auto-detectada",
       "defaultEffectiveFrom": "Data efectiva por defeito",
       "createMissing": "Criar colaboradores em falta quando existe nome + email/nº"
     },
     "reset": "Limpar",
+    "downloadTemplate": "Descarregar modelo",
     "previewButton": "Pré-visualizar importação",
     "previewing": "A ler…",
     "confirmButton": "Confirmar importação",
@@ -700,6 +702,8 @@
       "willCreateDisabled": "Desactivado — active “Criar colaboradores em falta” para os incluir.",
       "skippedTitle": "Linhas que vão ser ignoradas",
       "confirmHint": "Vai inserir {{insert}} ficha(s); ignorar {{skip}} linha(s).",
+      "selectedHint": "{{selected}} linha(s) seleccionada(s) para importação.",
+      "selectRow": "Incluir linha",
       "cols": {
         "row": "Linha",
         "identifier": "Identificador",
@@ -710,8 +714,17 @@
         "name": "Nome",
         "email": "Email",
         "number": "Nº",
-        "reason": "Motivo"
+        "reason": "Motivo",
+        "warnings": "Avisos"
       }
+    },
+    "warnings": {
+      "missing_email": "Sem email",
+      "salary_too_low": "Salário invulgarmente baixo",
+      "salary_too_high": "Salário invulgarmente alto",
+      "invalid_effective_date": "Data efectiva inválida",
+      "duplicate_in_file": "Duplicado no ficheiro",
+      "no_change_vs_current": "Sem alteração face ao actual"
     },
     "result": {
       "completedTitle": "Importação concluída",

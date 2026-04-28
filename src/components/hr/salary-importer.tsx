@@ -1,13 +1,12 @@
 // HR-owned salary Excel importer (admin-only).
 //
-// Flow: upload → parse → preview headers + matches + skipped → confirm → result.
+// Flow: upload → auto-detect header row → preview headers + matches +
+// warnings → row-level toggle → confirm → result.
 // All writes go through `importSalarySnapshots`, which appends new rows to
-// `salary_snapshots` (immutability trigger blocks updates server-side).
-//
-// Salary is HR-owned. Payroll cash rows in the monthly finance sheets remain
-// skipped — see src/lib/finance/import-reference.md §7.
+// `salary_snapshots` (immutability trigger blocks updates server-side) and
+// closes the previous open snapshot per collaborator.
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
@@ -45,15 +44,20 @@ import {
   Upload,
   FileSpreadsheet,
   RotateCcw,
+  Download,
+  Wand2,
 } from "lucide-react";
 import {
   DEFAULT_SALARY_HEADER_ALIASES,
+  autoDetectHeaderRow,
   importSalarySnapshots,
   previewSalaryImport,
   type SalaryColumnKey,
   type SalaryPreviewResult,
   type SalaryImportResult,
+  type SalaryRowWarning,
 } from "@/lib/finance/import-salary";
+import { downloadSalaryTemplate } from "@/lib/finance/salary-template";
 
 type ParsedFile = {
   file: File;
@@ -86,6 +90,7 @@ export function SalaryImporter() {
   const [parsed, setParsed] = useState<ParsedFile | null>(null);
   const [sheetName, setSheetName] = useState<string>("");
   const [headerRowNum, setHeaderRowNum] = useState<number>(1); // 1-based
+  const [autoDetected, setAutoDetected] = useState<boolean>(false);
   const [defaultEff, setDefaultEff] = useState<string>(
     new Date().toISOString().slice(0, 10),
   );
@@ -93,6 +98,7 @@ export function SalaryImporter() {
   const [preview, setPreview] = useState<SalaryPreviewResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<SalaryImportResult | null>(null);
+  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
 
   const reset = () => {
     setParsed(null);
@@ -100,11 +106,14 @@ export function SalaryImporter() {
     setHeaderRowNum(1);
     setPreview(null);
     setResult(null);
+    setSelectedRows(new Set());
+    setAutoDetected(false);
   };
 
   const onFile = async (file: File | null) => {
     setPreview(null);
     setResult(null);
+    setSelectedRows(new Set());
     if (!file) {
       setParsed(null);
       return;
@@ -118,6 +127,26 @@ export function SalaryImporter() {
       toast.error((e as Error).message);
     }
   };
+
+  // When the sheet changes, run header auto-detect.
+  useEffect(() => {
+    if (!parsed || !sheetName) return;
+    const ws = parsed.workbook.Sheets[sheetName];
+    if (!ws) return;
+    const aoa = XLSX.utils.sheet_to_json<(string | number | null)[]>(ws, {
+      header: 1,
+      raw: true,
+      defval: null,
+    });
+    const detected = autoDetectHeaderRow(aoa as (string | number | null)[][]);
+    if (detected.score > 0) {
+      setHeaderRowNum(detected.headerRowNum);
+      setAutoDetected(true);
+    } else {
+      setHeaderRowNum(1);
+      setAutoDetected(false);
+    }
+  }, [parsed, sheetName]);
 
   // Extract header + data rows for the chosen sheet/header row
   const extracted = useMemo(() => {
@@ -149,7 +178,15 @@ export function SalaryImporter() {
         createMissing,
       });
       setPreview(r);
-      if (r.status === "error") toast.error(r.message);
+      if (r.status === "error") {
+        toast.error(r.message);
+      } else {
+        // Default selection: all matched + (will-create when enabled).
+        const sel = new Set<number>();
+        r.matches.forEach((m) => sel.add(m.rowIndex));
+        if (createMissing) r.willCreate.forEach((c) => sel.add(c.rowIndex));
+        setSelectedRows(sel);
+      }
     } finally {
       setBusy(false);
     }
@@ -166,6 +203,7 @@ export function SalaryImporter() {
         dataRows: extracted.dataRows,
         defaultEffectiveFrom: defaultEff,
         createMissing,
+        selectedRowIndices: Array.from(selectedRows),
       });
       setResult(r);
       if (r.status === "completed") {
@@ -187,6 +225,15 @@ export function SalaryImporter() {
     }
   };
 
+  const toggleRow = (idx: number, checked: boolean) => {
+    setSelectedRows((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(idx);
+      else next.delete(idx);
+      return next;
+    });
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -199,7 +246,17 @@ export function SalaryImporter() {
               </CardTitle>
               <CardDescription>{t("salaryImport.subtitle")}</CardDescription>
             </div>
-            <Badge variant="secondary">{t("salaryImport.hrOwnedBadge")}</Badge>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => downloadSalaryTemplate()}
+              >
+                <Download className="h-4 w-4" />
+                {t("salaryImport.downloadTemplate")}
+              </Button>
+              <Badge variant="secondary">{t("salaryImport.hrOwnedBadge")}</Badge>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -209,7 +266,7 @@ export function SalaryImporter() {
               <Input
                 id="salary-import-file"
                 type="file"
-                accept=".xlsx,.xls,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                accept=".xlsx,.xls,.xlsm,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
                 onChange={(e) => onFile(e.target.files?.[0] ?? null)}
               />
               <p className="text-xs text-muted-foreground">
@@ -243,15 +300,24 @@ export function SalaryImporter() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="salary-header-row">{t("salaryImport.fields.headerRow")}</Label>
+                <Label htmlFor="salary-header-row" className="flex items-center gap-1.5">
+                  {t("salaryImport.fields.headerRow")}
+                  {autoDetected && (
+                    <Badge variant="outline" className="gap-1 px-1.5 py-0 text-[10px]">
+                      <Wand2 className="h-3 w-3" />
+                      {t("salaryImport.fields.autoDetected")}
+                    </Badge>
+                  )}
+                </Label>
                 <Input
                   id="salary-header-row"
                   type="number"
                   min={1}
                   value={headerRowNum}
-                  onChange={(e) =>
-                    setHeaderRowNum(Math.max(1, Number(e.target.value) || 1))
-                  }
+                  onChange={(e) => {
+                    setHeaderRowNum(Math.max(1, Number(e.target.value) || 1));
+                    setAutoDetected(false);
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -292,6 +358,8 @@ export function SalaryImporter() {
         <PreviewSection
           preview={preview}
           createMissing={createMissing}
+          selectedRows={selectedRows}
+          onToggleRow={toggleRow}
           onConfirm={runImport}
           busy={busy}
           result={result}
@@ -318,15 +386,37 @@ export function SalaryImporter() {
   );
 }
 
+function WarningChips({ warnings }: { warnings: SalaryRowWarning[] | undefined }) {
+  const { t } = useTranslation("hr");
+  if (!warnings?.length) return null;
+  return (
+    <div className="flex flex-wrap gap-1">
+      {warnings.map((w) => (
+        <Badge
+          key={w}
+          variant="outline"
+          className="border-amber-500/40 bg-amber-500/10 px-1.5 py-0 text-[10px] text-amber-700 dark:text-amber-400"
+        >
+          {t(`salaryImport.warnings.${w}`)}
+        </Badge>
+      ))}
+    </div>
+  );
+}
+
 function PreviewSection({
   preview,
   createMissing,
+  selectedRows,
+  onToggleRow,
   onConfirm,
   busy,
   result,
 }: {
   preview: Extract<SalaryPreviewResult, { status: "ready" }>;
   createMissing: boolean;
+  selectedRows: Set<number>;
+  onToggleRow: (idx: number, checked: boolean) => void;
   onConfirm: () => void;
   busy: boolean;
   result: SalaryImportResult | null;
@@ -336,6 +426,7 @@ function PreviewSection({
   const unresolvedKeys = HEADER_KEYS_ORDER.filter((k) => preview.headers[k] == null);
 
   const completed = result?.status === "completed" ? result : null;
+  const totalSelected = selectedRows.size;
 
   return (
     <Card>
@@ -413,6 +504,7 @@ function PreviewSection({
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-10"></TableHead>
                     <TableHead>{t("salaryImport.preview.cols.row")}</TableHead>
                     <TableHead>{t("salaryImport.preview.cols.identifier")}</TableHead>
                     <TableHead>{t("salaryImport.preview.cols.matchedTo")}</TableHead>
@@ -421,11 +513,19 @@ function PreviewSection({
                       {t("salaryImport.preview.cols.base")}
                     </TableHead>
                     <TableHead>{t("salaryImport.preview.cols.effectiveFrom")}</TableHead>
+                    <TableHead>{t("salaryImport.preview.cols.warnings")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {preview.matches.map((m) => (
                     <TableRow key={`m-${m.rowIndex}`}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedRows.has(m.rowIndex)}
+                          onCheckedChange={(v) => onToggleRow(m.rowIndex, Boolean(v))}
+                          aria-label={t("salaryImport.preview.selectRow")}
+                        />
+                      </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         {m.rowIndex + 1}
                       </TableCell>
@@ -443,6 +543,9 @@ function PreviewSection({
                         })}
                       </TableCell>
                       <TableCell className="text-xs">{m.effective_from}</TableCell>
+                      <TableCell>
+                        <WarningChips warnings={preview.warnings[m.rowIndex]} />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -466,6 +569,7 @@ function PreviewSection({
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-10"></TableHead>
                     <TableHead>{t("salaryImport.preview.cols.row")}</TableHead>
                     <TableHead>{t("salaryImport.preview.cols.name")}</TableHead>
                     <TableHead>{t("salaryImport.preview.cols.email")}</TableHead>
@@ -473,11 +577,20 @@ function PreviewSection({
                     <TableHead className="text-right">
                       {t("salaryImport.preview.cols.base")}
                     </TableHead>
+                    <TableHead>{t("salaryImport.preview.cols.warnings")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {preview.willCreate.map((c) => (
                     <TableRow key={`c-${c.rowIndex}`}>
+                      <TableCell>
+                        <Checkbox
+                          disabled={!createMissing}
+                          checked={selectedRows.has(c.rowIndex)}
+                          onCheckedChange={(v) => onToggleRow(c.rowIndex, Boolean(v))}
+                          aria-label={t("salaryImport.preview.selectRow")}
+                        />
+                      </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         {c.rowIndex + 1}
                       </TableCell>
@@ -489,6 +602,9 @@ function PreviewSection({
                           style: "currency",
                           currency: "EUR",
                         })}
+                      </TableCell>
+                      <TableCell>
+                        <WarningChips warnings={preview.warnings[c.rowIndex]} />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -532,20 +648,11 @@ function PreviewSection({
         {/* Confirm */}
         <div className="flex items-center justify-between gap-3 border-t pt-4">
           <p className="text-xs text-muted-foreground">
-            {t("salaryImport.preview.confirmHint", {
-              insert: preview.matches.length + (createMissing ? preview.willCreate.length : 0),
-              skip:
-                preview.skipped.length +
-                (createMissing ? 0 : preview.willCreate.length),
-            })}
+            {t("salaryImport.preview.selectedHint", { selected: totalSelected })}
           </p>
           <Button
             onClick={onConfirm}
-            disabled={
-              busy ||
-              !!completed ||
-              preview.matches.length + (createMissing ? preview.willCreate.length : 0) === 0
-            }
+            disabled={busy || !!completed || totalSelected === 0}
           >
             {busy
               ? t("salaryImport.importing")

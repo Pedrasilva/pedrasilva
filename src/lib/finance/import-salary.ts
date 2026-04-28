@@ -108,6 +108,27 @@ export function resolveHeaders(
   return map;
 }
 
+/**
+ * Scan the first N rows of a sheet (array-of-arrays) and pick the row that
+ * resolves the highest number of known salary columns. Returns the 1-based
+ * row number (suitable for the UI input). Falls back to 1 when no row scores.
+ */
+export function autoDetectHeaderRow(
+  rows: (string | number | null)[][],
+  aliases: Record<SalaryColumnKey, string[]> = DEFAULT_SALARY_HEADER_ALIASES,
+  scanRows = 20,
+): { headerRowNum: number; score: number } {
+  const limit = Math.min(scanRows, rows.length);
+  let best = { headerRowNum: 1, score: 0 };
+  for (let i = 0; i < limit; i++) {
+    const headerCandidate = (rows[i] ?? []).map((v) => String(v ?? "").trim());
+    const map = resolveHeaders(headerCandidate, aliases);
+    const score = Object.keys(map).length;
+    if (score > best.score) best = { headerRowNum: i + 1, score };
+  }
+  return best;
+}
+
 // ---- Value parsing ------------------------------------------------------
 
 const toNumber = (raw: unknown): number => {
@@ -156,6 +177,12 @@ export type SalaryImportInput = {
   createMissing?: boolean;
   /** Optional overrides/extensions to the default header alias map. */
   headerAliases?: Record<SalaryColumnKey, string[]>;
+  /**
+   * If provided, only these data row indices (0-based, relative to dataRows)
+   * will be imported. Other rows are silently ignored. When omitted, all
+   * eligible rows are imported.
+   */
+  selectedRowIndices?: number[];
 };
 
 export type SalaryImportSkip = {
@@ -186,6 +213,18 @@ export type SalaryPreviewWillCreate = {
   effective_from: string;
 };
 
+/** Per-row validation warning (does not block import). */
+export type SalaryRowWarning =
+  | "missing_email"
+  | "salary_too_low"
+  | "salary_too_high"
+  | "invalid_effective_date"
+  | "duplicate_in_file"
+  | "no_change_vs_current";
+
+/** Reasonable sanity bounds for monthly base salary, in EUR. */
+export const SALARY_BOUNDS = { min: 600, max: 25_000 } as const;
+
 export type SalaryPreviewResult =
   | {
       status: "ready";
@@ -194,6 +233,8 @@ export type SalaryPreviewResult =
       matches: SalaryPreviewMatch[];
       willCreate: SalaryPreviewWillCreate[];
       skipped: SalaryImportSkip[];
+      /** Warnings keyed by rowIndex (0-based, relative to dataRows). */
+      warnings: Record<number, SalaryRowWarning[]>;
       duplicateOfImport?: { imported_at: string; file_name: string };
       checksum: string | null;
     }
@@ -257,9 +298,31 @@ export async function previewSalaryImport(
     return idx == null ? undefined : row[idx];
   };
 
+  // Load current open snapshots per collaborator to flag duplicate effective_from
+  // and "no change vs current" warnings (read-only).
+  const { data: openSnaps } = await supabase
+    .from("salary_snapshots")
+    .select("collaborator_id, effective_from, valor_base")
+    .is("effective_to", null);
+  const currentByCollab = new Map<string, { effective_from: string; valor_base: number }>();
+  for (const s of openSnaps ?? []) {
+    currentByCollab.set(s.collaborator_id, {
+      effective_from: s.effective_from,
+      valor_base: Number(s.valor_base ?? 0),
+    });
+  }
+
   const matches: SalaryPreviewMatch[] = [];
   const willCreate: SalaryPreviewWillCreate[] = [];
   const skipped: SalaryImportSkip[] = [];
+  const warnings: Record<number, SalaryRowWarning[]> = {};
+  const addWarn = (i: number, w: SalaryRowWarning) => {
+    if (!warnings[i]) warnings[i] = [];
+    if (!warnings[i].includes(w)) warnings[i].push(w);
+  };
+
+  // Track duplicate (collaboratorId, effective_from) pairs within the file
+  const seenPairs = new Map<string, number>(); // key → first rowIndex
 
   for (let i = 0; i < input.dataRows.length; i++) {
     const row = input.dataRows[i];
@@ -276,32 +339,43 @@ export async function previewSalaryImport(
       skipped.push({ rowIndex: i, identifier, reason: "Missing or non-positive base salary" });
       continue;
     }
-    const effectiveFrom = toDate(cell(row, "effective_from")) ?? defaultEff;
+
+    // Effective-from: invalid date is a critical skip (would corrupt history).
+    const effRaw = cell(row, "effective_from");
+    const effParsed = headers.effective_from != null && effRaw != null && String(effRaw).trim() !== ""
+      ? toDate(effRaw)
+      : defaultEff;
+    if (!effParsed) {
+      skipped.push({ rowIndex: i, identifier, reason: "Invalid effective date" });
+      continue;
+    }
+    const effectiveFrom = effParsed;
+
+    // Soft warnings — do not block
+    if (valorBase < SALARY_BOUNDS.min) addWarn(i, "salary_too_low");
+    if (valorBase > SALARY_BOUNDS.max) addWarn(i, "salary_too_high");
+    if (!emailRaw) addWarn(i, "missing_email");
 
     const emailKey = normalizeEmail(emailRaw);
     const nameKey = normalizeName(nameRaw);
     const emailHit = emailKey ? byEmail.get(emailKey) : undefined;
     const nameHit = !emailHit && nameKey ? byName.get(nameKey) : undefined;
+    const hit = emailHit ?? nameHit;
 
-    if (emailHit) {
+    if (hit) {
+      const dupKey = `${hit.id}|${effectiveFrom}`;
+      if (seenPairs.has(dupKey)) addWarn(i, "duplicate_in_file");
+      else seenPairs.set(dupKey, i);
+      const cur = currentByCollab.get(hit.id);
+      if (cur && cur.effective_from === effectiveFrom && Math.abs(cur.valor_base - valorBase) < 0.005) {
+        addWarn(i, "no_change_vs_current");
+      }
       matches.push({
         rowIndex: i,
         identifier,
-        collaboratorId: emailHit.id,
-        matchedBy: "email",
-        matchedLabel: emailHit.label,
-        valor_base: valorBase,
-        effective_from: effectiveFrom,
-      });
-      continue;
-    }
-    if (nameHit) {
-      matches.push({
-        rowIndex: i,
-        identifier,
-        collaboratorId: nameHit.id,
-        matchedBy: "name",
-        matchedLabel: nameHit.label,
+        collaboratorId: hit.id,
+        matchedBy: emailHit ? "email" : "name",
+        matchedLabel: hit.label,
         valor_base: valorBase,
         effective_from: effectiveFrom,
       });
@@ -325,8 +399,8 @@ export async function previewSalaryImport(
       rowIndex: i,
       identifier,
       reason: !nameRaw
-        ? "No name and no matching collaborator by email"
-        : "No matching collaborator and not enough identity to create one (need name + email or employee number)",
+        ? "Unknown collaborator (no name and no email match)"
+        : "Unknown collaborator (cannot create — need name + email or employee number)",
     });
   }
 
@@ -337,6 +411,7 @@ export async function previewSalaryImport(
     matches,
     willCreate,
     skipped,
+    warnings,
     duplicateOfImport,
     checksum,
   };
@@ -427,7 +502,12 @@ export async function importSalarySnapshots(
     return idx == null ? undefined : row[idx];
   };
 
+  const selected = input.selectedRowIndices
+    ? new Set(input.selectedRowIndices)
+    : null;
+
   for (let i = 0; i < input.dataRows.length; i++) {
+    if (selected && !selected.has(i)) continue;
     const row = input.dataRows[i];
     const nameRaw = String(cell(row, "nome") ?? "").trim();
     const emailRaw = String(cell(row, "email") ?? "").trim();
@@ -447,6 +527,18 @@ export async function importSalarySnapshots(
         identifier,
         reason: "Missing or non-positive base salary",
       });
+      continue;
+    }
+
+    // Validate effective_from up-front; reject invalid dates rather than
+    // silently falling back (would corrupt salary history).
+    const effRaw = cell(row, "effective_from");
+    const effParsed =
+      headers.effective_from != null && effRaw != null && String(effRaw).trim() !== ""
+        ? toDate(effRaw)
+        : defaultEff;
+    if (!effParsed) {
+      skipped.push({ rowIndex: i, identifier, reason: "Invalid effective date" });
       continue;
     }
 
@@ -492,7 +584,32 @@ export async function importSalarySnapshots(
       if (created.nome) byName.set(normalizeName(created.nome), created.id);
     }
 
-    const effectiveFrom = toDate(cell(row, "effective_from")) ?? defaultEff;
+    const effectiveFrom = effParsed;
+
+    // Close the previous open snapshot for this collaborator (if any) by
+    // setting effective_to = effectiveFrom - 1 day. Only `effective_to` is
+    // touched on existing rows — the immutability trigger blocks any change
+    // to financial fields, by design.
+    const dayBefore = (() => {
+      const d = new Date(effectiveFrom + "T00:00:00Z");
+      d.setUTCDate(d.getUTCDate() - 1);
+      return d.toISOString().slice(0, 10);
+    })();
+    const { error: closeErr } = await supabase
+      .from("salary_snapshots")
+      .update({ effective_to: dayBefore })
+      .eq("collaborator_id", collaboratorId!)
+      .is("effective_to", null)
+      .lt("effective_from", effectiveFrom);
+    if (closeErr) {
+      // Non-fatal — log and continue. The new row still inserts; the prior
+      // row will need to be closed manually.
+      skipped.push({
+        rowIndex: i,
+        identifier,
+        reason: `Could not close previous open snapshot: ${closeErr.message}`,
+      });
+    }
 
     const seed = defaultSnapshot(collaboratorId!, "Excel import", true);
     const payload = {
