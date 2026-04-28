@@ -164,6 +164,184 @@ export type SalaryImportSkip = {
   identifier: string; // best-effort name/email for log readability
 };
 
+// ---- Preview (dry-run) --------------------------------------------------
+
+export type SalaryPreviewMatch = {
+  rowIndex: number; // 0-based, relative to dataRows
+  identifier: string;
+  collaboratorId: string;
+  matchedBy: "email" | "name";
+  matchedLabel: string; // existing collaborator nome / email
+  valor_base: number;
+  effective_from: string;
+};
+
+export type SalaryPreviewWillCreate = {
+  rowIndex: number;
+  identifier: string;
+  nome: string;
+  email: string | null;
+  numero_colaborador: string | null;
+  valor_base: number;
+  effective_from: string;
+};
+
+export type SalaryPreviewResult =
+  | {
+      status: "ready";
+      headers: HeaderMap;
+      headerRow: string[];
+      matches: SalaryPreviewMatch[];
+      willCreate: SalaryPreviewWillCreate[];
+      skipped: SalaryImportSkip[];
+      duplicateOfImport?: { imported_at: string; file_name: string };
+      checksum: string | null;
+    }
+  | { status: "error"; message: string };
+
+/**
+ * Dry-run: parse rows, resolve headers, classify each row as match / will-create / skip.
+ * Performs ZERO writes. Used by the UI to render the confirmation step.
+ */
+export async function previewSalaryImport(
+  input: SalaryImportInput,
+): Promise<SalaryPreviewResult> {
+  const aliases = input.headerAliases ?? DEFAULT_SALARY_HEADER_ALIASES;
+  const headers = resolveHeaders(input.headerRow, aliases);
+  const today = new Date().toISOString().slice(0, 10);
+  const defaultEff = input.defaultEffectiveFrom ?? today;
+
+  if (headers.nome == null && headers.email == null) {
+    return {
+      status: "error",
+      message: "Header row must contain at least a name or email column.",
+    };
+  }
+  if (headers.valor_base == null) {
+    return {
+      status: "error",
+      message: "Header row must contain a base salary column (e.g. 'Salário Base').",
+    };
+  }
+
+  const { data: collaborators, error: collabErr } = await supabase
+    .from("collaborators")
+    .select("id, nome, email, numero_colaborador");
+  if (collabErr) {
+    return { status: "error", message: `Failed to load collaborators: ${collabErr.message}` };
+  }
+  const byEmail = new Map<string, { id: string; label: string }>();
+  const byName = new Map<string, { id: string; label: string }>();
+  for (const c of collaborators ?? []) {
+    if (c.email) byEmail.set(normalizeEmail(c.email), { id: c.id, label: c.nome ?? c.email });
+    if (c.nome) byName.set(normalizeName(c.nome), { id: c.id, label: c.nome });
+  }
+
+  // Duplicate-import check (does NOT write a log row)
+  const checksum = input.fileBlob ? await computeFileChecksum(input.fileBlob) : null;
+  let duplicateOfImport: { imported_at: string; file_name: string } | undefined;
+  if (checksum) {
+    const { data: prior } = await supabase
+      .from("financial_import_logs")
+      .select("imported_at, file_name")
+      .eq("import_type", "salary_excel")
+      .eq("file_checksum", checksum)
+      .order("imported_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (prior) duplicateOfImport = prior as { imported_at: string; file_name: string };
+  }
+
+  const cell = (row: SalaryImportRow, key: SalaryColumnKey): unknown => {
+    const idx = headers[key];
+    return idx == null ? undefined : row[idx];
+  };
+
+  const matches: SalaryPreviewMatch[] = [];
+  const willCreate: SalaryPreviewWillCreate[] = [];
+  const skipped: SalaryImportSkip[] = [];
+
+  for (let i = 0; i < input.dataRows.length; i++) {
+    const row = input.dataRows[i];
+    const nameRaw = String(cell(row, "nome") ?? "").trim();
+    const emailRaw = String(cell(row, "email") ?? "").trim();
+    const numeroRaw = String(cell(row, "numero_colaborador") ?? "").trim();
+    const baseRaw = cell(row, "valor_base");
+    const identifier = emailRaw || nameRaw || `row ${i + 1}`;
+
+    if (!nameRaw && !emailRaw && !numeroRaw && (baseRaw == null || baseRaw === "")) continue;
+
+    const valorBase = toNumber(baseRaw);
+    if (valorBase <= 0) {
+      skipped.push({ rowIndex: i, identifier, reason: "Missing or non-positive base salary" });
+      continue;
+    }
+    const effectiveFrom = toDate(cell(row, "effective_from")) ?? defaultEff;
+
+    const emailKey = normalizeEmail(emailRaw);
+    const nameKey = normalizeName(nameRaw);
+    const emailHit = emailKey ? byEmail.get(emailKey) : undefined;
+    const nameHit = !emailHit && nameKey ? byName.get(nameKey) : undefined;
+
+    if (emailHit) {
+      matches.push({
+        rowIndex: i,
+        identifier,
+        collaboratorId: emailHit.id,
+        matchedBy: "email",
+        matchedLabel: emailHit.label,
+        valor_base: valorBase,
+        effective_from: effectiveFrom,
+      });
+      continue;
+    }
+    if (nameHit) {
+      matches.push({
+        rowIndex: i,
+        identifier,
+        collaboratorId: nameHit.id,
+        matchedBy: "name",
+        matchedLabel: nameHit.label,
+        valor_base: valorBase,
+        effective_from: effectiveFrom,
+      });
+      continue;
+    }
+
+    const enoughIdentity = nameRaw && (emailRaw || numeroRaw);
+    if (input.createMissing && enoughIdentity) {
+      willCreate.push({
+        rowIndex: i,
+        identifier,
+        nome: nameRaw,
+        email: emailRaw || null,
+        numero_colaborador: numeroRaw || null,
+        valor_base: valorBase,
+        effective_from: effectiveFrom,
+      });
+      continue;
+    }
+    skipped.push({
+      rowIndex: i,
+      identifier,
+      reason: !nameRaw
+        ? "No name and no matching collaborator by email"
+        : "No matching collaborator and not enough identity to create one (need name + email or employee number)",
+    });
+  }
+
+  return {
+    status: "ready",
+    headers,
+    headerRow: input.headerRow,
+    matches,
+    willCreate,
+    skipped,
+    duplicateOfImport,
+    checksum,
+  };
+}
+
 export type SalaryImportResult =
   | {
       status: "duplicate";
