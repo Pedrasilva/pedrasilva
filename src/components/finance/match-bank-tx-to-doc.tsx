@@ -45,6 +45,25 @@ type Props = {
   onMatched?: () => void;
 };
 
+const fmtEUR = (n: number) =>
+  new Intl.NumberFormat("pt-PT", {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n || 0);
+
+const fmtDate = (s: string | null | undefined) => {
+  if (!s) return "—";
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return "—";
+  return new Intl.DateTimeFormat("pt-PT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(d);
+};
+
 export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
   const { t } = useTranslation(["finance", "common"]);
   const { user } = useAuth();
@@ -133,7 +152,7 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
               <span className="text-muted-foreground">
                 {t("finance:bankRec.col.date")}
               </span>
-              <span>{tx.transaction_date}</span>
+              <span>{fmtDate(tx.transaction_date)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">
@@ -145,16 +164,16 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">
-                {t("finance:bankRec.col.amount")}
+                {t("finance:documents.bankMatch.txAmount")}
               </span>
               <span className="tabular-nums font-medium">
-                {tx.amount.toFixed(2)}
+                {fmtEUR(tx.amount)}
               </span>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>{t("finance:documents.payments.title")}</Label>
+            <Label>{t("finance:documents.bankMatch.documentLabel")}</Label>
             {(docsQ.data ?? []).length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 {t("finance:documents.bankMatch.noCandidates")}
@@ -163,7 +182,7 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
               <Select value={docId} onValueChange={setDocId}>
                 <SelectTrigger>
                   <SelectValue
-                    placeholder={t("finance:documents.payments.matchBank")}
+                    placeholder={t("finance:documents.bankMatch.pickDocument") as string}
                   />
                 </SelectTrigger>
                 <SelectContent>
@@ -173,7 +192,7 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
                         " · " +
                         (d.counterparty_name_snapshot ?? "—") +
                         " · " +
-                        Number(d.outstanding_amount ?? 0).toFixed(2)}
+                        fmtEUR(Number(d.outstanding_amount ?? 0))}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -193,8 +212,9 @@ export function MatchBankTxToDocDialog({ tx, onClose, onMatched }: Props) {
                   className="max-w-[180px]"
                 />
                 <Badge variant="outline" className="text-xs">
-                  {t("finance:documents.col.outstanding")}:{" "}
-                  {Number(selectedDoc.outstanding_amount ?? 0).toFixed(2)}
+                  {t("finance:documents.payments.outstandingHint", {
+                    amount: fmtEUR(Number(selectedDoc.outstanding_amount ?? 0)),
+                  })}
                 </Badge>
                 <Button
                   variant="ghost"
