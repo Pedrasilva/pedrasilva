@@ -20,12 +20,14 @@ import LanguageDetector from "i18next-browser-languagedetector";
 
 import enCommon from "./locales/en/common.json";
 import enCrm from "./locales/en/crm.json";
+import enFinance from "./locales/en/finance.json";
 import enGlossary from "./locales/en/glossary.json";
 import enHome from "./locales/en/home.json";
 import enHr from "./locales/en/hr.json";
 import enProjects from "./locales/en/projects.json";
 import ptCommon from "./locales/pt-PT/common.json";
 import ptCrm from "./locales/pt-PT/crm.json";
+import ptFinance from "./locales/pt-PT/finance.json";
 import ptGlossary from "./locales/pt-PT/glossary.json";
 import ptHome from "./locales/pt-PT/home.json";
 import ptHr from "./locales/pt-PT/hr.json";
@@ -45,6 +47,7 @@ export const resources = {
     crm: enCrm,
     hr: enHr,
     home: enHome,
+    finance: enFinance,
   },
   "pt-PT": {
     common: ptCommon,
@@ -53,6 +56,7 @@ export const resources = {
     crm: ptCrm,
     hr: ptHr,
     home: ptHome,
+    finance: ptFinance,
   },
 } as const;
 
@@ -71,7 +75,7 @@ if (!i18n.isInitialized) {
       resources,
       fallbackLng: DEFAULT_LANGUAGE,
       supportedLngs: [...SUPPORTED_LANGUAGES],
-      ns: ["common", "glossary", "projects", "crm", "hr", "home"],
+      ns: ["common", "glossary", "projects", "crm", "hr", "home", "finance"],
       defaultNS: "common",
       interpolation: { escapeValue: false },
       detection: {

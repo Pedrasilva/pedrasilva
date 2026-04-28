@@ -1,0 +1,112 @@
+{
+  "module": {
+    "title": "Finance",
+    "subtitle": "Office cash flow",
+    "description": "Track bank balances, income, expenses, materials, debts and monthly cash flow for the office."
+  },
+  "nav": {
+    "finance": "Finance",
+    "openDashboard": "Open Financial Dashboard"
+  },
+  "page": {
+    "title": "Financial Dashboard",
+    "kicker": "Office finance",
+    "year": "Year",
+    "vatToggle": "VAT view",
+    "vatInc": "Including VAT",
+    "vatEx": "Excluding VAT"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "cashFlow": "Cash Flow",
+    "income": "Income",
+    "expenses": "Expenses",
+    "materials": "Materials",
+    "debts": "Debts",
+    "bankBalances": "Bank Balances",
+    "importLogs": "Import Logs"
+  },
+  "overview": {
+    "currentBankBalance": "Current bank balance",
+    "currentBankBalanceSub": "Sum of latest snapshot per account",
+    "expectedIncome": "Expected income this month",
+    "expectedExpenses": "Expected expenses this month",
+    "projectedClosing": "Projected end-of-month balance",
+    "outstandingInvoices": "Outstanding invoices",
+    "overdueInvoices": "Overdue invoices",
+    "netCashFlow": "Net cash flow this month",
+    "vatNote": "Values shown {{mode}}. Imported amounts are gross (inc. VAT).",
+    "noPeriod": "No period defined for this month."
+  },
+  "cashFlow": {
+    "title": "Monthly cash flow",
+    "subtitle": "Projected vs realised, {{year}}",
+    "col": {
+      "month": "Month",
+      "opening": "Opening",
+      "income": "Income",
+      "expenses": "Expenses",
+      "materials": "Materials",
+      "debts": "Debts",
+      "net": "Net",
+      "closing": "Closing",
+      "status": "Status"
+    },
+    "status": {
+      "projected": "Projected",
+      "actual": "Actual",
+      "closed": "Closed",
+      "draft": "Draft"
+    },
+    "footer": {
+      "totals": "Year totals"
+    }
+  },
+  "bank": {
+    "title": "Bank accounts",
+    "col": {
+      "account": "Account",
+      "bank": "Bank",
+      "currency": "Currency",
+      "latest": "Latest balance",
+      "asOf": "As of",
+      "actions": "Actions"
+    },
+    "newSnapshot": "New balance snapshot",
+    "newSnapshotTitle": "Add bank balance snapshot",
+    "form": {
+      "account": "Account",
+      "date": "Snapshot date",
+      "balance": "Balance",
+      "notes": "Notes",
+      "save": "Save snapshot",
+      "saved": "Snapshot saved",
+      "saveError": "Could not save snapshot"
+    },
+    "empty": "No bank accounts found.",
+    "noSnapshot": "No snapshot",
+    "totalCurrent": "Total current bank balance"
+  },
+  "tabPlaceholder": {
+    "title": "Coming next",
+    "body": "This tab will be implemented in the next iteration."
+  },
+  "home": {
+    "kicker": "Office finance",
+    "title": "Finance",
+    "currentBalance": "Current balance",
+    "expectedIncome": "Expected income",
+    "expectedExpenses": "Expected expenses",
+    "projectedClosing": "Projected closing",
+    "status": {
+      "positive": "Positive cash flow",
+      "negative": "Negative cash flow",
+      "flat": "Flat cash flow"
+    },
+    "open": "Open Financial Dashboard"
+  },
+  "noAccess": {
+    "title": "No access",
+    "body": "You don't have permission to view the financial dashboard."
+  }
+}
