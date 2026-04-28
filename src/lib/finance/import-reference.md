@@ -125,9 +125,9 @@ the dashboard partitions them in the UI (Expenses tab excludes
 | `financial_periods`          | One row per month (Jan–Dec 2026)                | `kind = "month"`, `opening_balance` from previous month closing where known |
 | `bank_accounts`              | Read from header of `2026` sheet                | Created if missing; matched by `name` |
 | `bank_balance_snapshots`     | Opening/closing balance cells per monthly sheet | One snapshot per account per month-end; latest per account is shown in Bank Balances tab |
-| `financial_suppliers`        | Distinct values of supplier column in expense + materials blocks | Deduped case/accent-insensitive |
+| `financial_suppliers`        | Distinct values of supplier column in operational + external-services blocks | Deduped case/accent-insensitive |
 | `financial_clients`          | Distinct values of client column in income block | Deduped case/accent-insensitive |
-| `financial_expense_items`    | Operational + materials blocks (all months)     | `expense_type ∈ {"operational","materials"}` |
+| `financial_expense_items`    | Operational + external-services blocks (all months) | `expense_type ∈ {"operational","materials"}` — `"materials"` is a legacy enum; displayed as "External Services" / "Serviços externos" |
 | `financial_income_items`     | Income block (all months)                       | — |
 | `financial_debts`            | `Dívidas` sheet header rows                     | Payment schedule rows NOT yet imported |
 | `financial_import_logs`      | One row per import run                          | Records file name, size, sha256 checksum, per-table row counts, notes |
