@@ -1846,27 +1846,27 @@ function DebtsTab() {
                       {d.creditor_name}
                     </TableCell>
                     <TableCell className="text-sm max-w-[280px] truncate">
-                      {d.description ?? "—"}
+                      {d.description ?? DASH}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
-                      {fmtEUR(Number(d.original_amount))}
+                      {fmtEUR2(Number(d.original_amount))}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
-                      {fmtEUR(Number(d.outstanding_amount))}
+                      {fmtEUR2(Number(d.outstanding_amount))}
                     </TableCell>
                     <TableCell>
                       <DebtStatusBadge status={d.status} />
                     </TableCell>
                     <TableCell className="text-sm tabular-nums">
-                      {d.start_date ?? "—"}
+                      {fmtDate(d.start_date)}
                     </TableCell>
                     <TableCell className="text-sm tabular-nums">
-                      {d.end_date ?? "—"}
+                      {fmtDate(d.end_date)}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
                       {scheduled > 0
                         ? t("finance:debts.scheduledCount", { count: scheduled })
-                        : "—"}
+                        : DASH}
                     </TableCell>
                   </TableRow>
                 );
