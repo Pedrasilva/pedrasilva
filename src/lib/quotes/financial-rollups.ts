@@ -20,7 +20,6 @@ import type { QuoteAllocationWithResource } from "./use-quote-allocations";
 import type { QuoteExternalServiceWithSupplier } from "./use-quote-external-services";
 import {
   consultancyBlockValue,
-  consultancyMinimumHours,
   retainerMonthlyEstimate,
   type TimeBasedSettings,
 } from "./time-based-settings";
