@@ -76,9 +76,13 @@ fixed numeric ranges.
   - `status` (mapped from F; defaults to `projected`)
   - `period_id` → `financial_periods` for that month
 
-### 2b. Materials / outsourced services
+### 2b. External services / Subcontracting (legacy Excel: "Materiais")
 
-- Header marker: `MATERIAIS` (also catches `MATERIAIS / SUBCONTRATAÇÃO`)
+- Header marker: `MATERIAIS` (also catches `MATERIAIS / SUBCONTRATAÇÃO`,
+  `MATERIAIS E SUBCONTRATAÇÃO`) — kept for Excel compatibility only.
+- App-side, this block represents **External Services** (EN) /
+  **Serviços externos** (PT-PT) — consultants, subcontractors,
+  outsourced services. See §0.
 - Row range: typically immediately after operational block
 - Date column: `B`
 - Supplier column: `C`
@@ -87,11 +91,12 @@ fixed numeric ranges.
 - Status column: `F`
 - **Target table**: `financial_expense_items`
 - **Target fields**: same as operational block, except:
-  - `expense_type = "materials"`
+  - `expense_type = "materials"` (legacy DB enum value — display layer
+    renders it as "External Services" / "Serviços externos")
 
-Materials live in the same table as expenses; the dashboard partitions them
-in the UI (Expenses tab excludes `expense_type = 'materials'`; Materials tab
-filters to it).
+External-service rows live in the same table as operational expenses;
+the dashboard partitions them in the UI (Expenses tab excludes
+`expense_type = 'materials'`; the External Services tab filters to it).
 
 ### 2c. Income block
 
