@@ -502,7 +502,12 @@ export async function importSalarySnapshots(
     return idx == null ? undefined : row[idx];
   };
 
+  const selected = input.selectedRowIndices
+    ? new Set(input.selectedRowIndices)
+    : null;
+
   for (let i = 0; i < input.dataRows.length; i++) {
+    if (selected && !selected.has(i)) continue;
     const row = input.dataRows[i];
     const nameRaw = String(cell(row, "nome") ?? "").trim();
     const emailRaw = String(cell(row, "email") ?? "").trim();
@@ -522,6 +527,18 @@ export async function importSalarySnapshots(
         identifier,
         reason: "Missing or non-positive base salary",
       });
+      continue;
+    }
+
+    // Validate effective_from up-front; reject invalid dates rather than
+    // silently falling back (would corrupt salary history).
+    const effRaw = cell(row, "effective_from");
+    const effParsed =
+      headers.effective_from != null && effRaw != null && String(effRaw).trim() !== ""
+        ? toDate(effRaw)
+        : defaultEff;
+    if (!effParsed) {
+      skipped.push({ rowIndex: i, identifier, reason: "Invalid effective date" });
       continue;
     }
 
