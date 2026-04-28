@@ -1429,6 +1429,267 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_document_lines: {
+        Row: {
+          amount_ex_vat: number | null
+          amount_inc_vat: number | null
+          classification_id: string | null
+          created_at: string
+          description: string
+          document_id: string
+          id: string
+          notes: string | null
+          project_id: string | null
+          quantity: number
+          reimbursable: boolean
+          sort_order: number
+          unit_price_ex_vat: number
+          updated_at: string
+          vat_amount: number | null
+          vat_code: string | null
+          vat_rate: number
+        }
+        Insert: {
+          amount_ex_vat?: number | null
+          amount_inc_vat?: number | null
+          classification_id?: string | null
+          created_at?: string
+          description: string
+          document_id: string
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          quantity?: number
+          reimbursable?: boolean
+          sort_order?: number
+          unit_price_ex_vat?: number
+          updated_at?: string
+          vat_amount?: number | null
+          vat_code?: string | null
+          vat_rate?: number
+        }
+        Update: {
+          amount_ex_vat?: number | null
+          amount_inc_vat?: number | null
+          classification_id?: string | null
+          created_at?: string
+          description?: string
+          document_id?: string
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          quantity?: number
+          reimbursable?: boolean
+          sort_order?: number
+          unit_price_ex_vat?: number
+          updated_at?: string
+          vat_amount?: number | null
+          vat_code?: string | null
+          vat_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_document_lines_classification_id_fkey"
+            columns: ["classification_id"]
+            isOneToOne: false
+            referencedRelation: "financial_classifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_lines_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_lines_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_document_payments: {
+        Row: {
+          amount: number
+          bank_transaction_id: string | null
+          created_at: string
+          created_by: string | null
+          document_id: string
+          id: string
+          method: Database["public"]["Enums"]["financial_payment_method"]
+          notes: string | null
+          payment_date: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          bank_transaction_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          document_id: string
+          id?: string
+          method?: Database["public"]["Enums"]["financial_payment_method"]
+          notes?: string | null
+          payment_date: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          bank_transaction_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          document_id?: string
+          id?: string
+          method?: Database["public"]["Enums"]["financial_payment_method"]
+          notes?: string | null
+          payment_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_document_payments_bank_transaction_id_fkey"
+            columns: ["bank_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "bank_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_document_payments_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_documents: {
+        Row: {
+          classification_id: string | null
+          counterparty_client_id: string | null
+          counterparty_name_snapshot: string | null
+          counterparty_supplier_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          direction: Database["public"]["Enums"]["financial_doc_direction"]
+          doc_type: Database["public"]["Enums"]["financial_doc_type"]
+          document_number: string | null
+          due_date: string | null
+          external_reference: string | null
+          file_path: string | null
+          id: string
+          issue_date: string
+          notes: string | null
+          ocr_metadata: Json | null
+          outstanding_amount: number | null
+          paid_amount: number
+          project_id: string | null
+          source: Database["public"]["Enums"]["financial_doc_source"]
+          source_ref_id: string | null
+          source_ref_table: string | null
+          status: Database["public"]["Enums"]["financial_doc_status"]
+          subtotal_ex_vat: number
+          total_inc_vat: number
+          updated_at: string
+          vat_amount: number
+          vat_period: string | null
+        }
+        Insert: {
+          classification_id?: string | null
+          counterparty_client_id?: string | null
+          counterparty_name_snapshot?: string | null
+          counterparty_supplier_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          direction: Database["public"]["Enums"]["financial_doc_direction"]
+          doc_type: Database["public"]["Enums"]["financial_doc_type"]
+          document_number?: string | null
+          due_date?: string | null
+          external_reference?: string | null
+          file_path?: string | null
+          id?: string
+          issue_date: string
+          notes?: string | null
+          ocr_metadata?: Json | null
+          outstanding_amount?: number | null
+          paid_amount?: number
+          project_id?: string | null
+          source?: Database["public"]["Enums"]["financial_doc_source"]
+          source_ref_id?: string | null
+          source_ref_table?: string | null
+          status?: Database["public"]["Enums"]["financial_doc_status"]
+          subtotal_ex_vat?: number
+          total_inc_vat?: number
+          updated_at?: string
+          vat_amount?: number
+          vat_period?: string | null
+        }
+        Update: {
+          classification_id?: string | null
+          counterparty_client_id?: string | null
+          counterparty_name_snapshot?: string | null
+          counterparty_supplier_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          direction?: Database["public"]["Enums"]["financial_doc_direction"]
+          doc_type?: Database["public"]["Enums"]["financial_doc_type"]
+          document_number?: string | null
+          due_date?: string | null
+          external_reference?: string | null
+          file_path?: string | null
+          id?: string
+          issue_date?: string
+          notes?: string | null
+          ocr_metadata?: Json | null
+          outstanding_amount?: number | null
+          paid_amount?: number
+          project_id?: string | null
+          source?: Database["public"]["Enums"]["financial_doc_source"]
+          source_ref_id?: string | null
+          source_ref_table?: string | null
+          status?: Database["public"]["Enums"]["financial_doc_status"]
+          subtotal_ex_vat?: number
+          total_inc_vat?: number
+          updated_at?: string
+          vat_amount?: number
+          vat_period?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_documents_classification_id_fkey"
+            columns: ["classification_id"]
+            isOneToOne: false
+            referencedRelation: "financial_classifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_documents_counterparty_client_id_fkey"
+            columns: ["counterparty_client_id"]
+            isOneToOne: false
+            referencedRelation: "financial_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_documents_counterparty_supplier_id_fkey"
+            columns: ["counterparty_supplier_id"]
+            isOneToOne: false
+            referencedRelation: "financial_suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_expense_items: {
         Row: {
           actual_amount_inc_vat: number | null
@@ -2308,6 +2569,7 @@ export type Database = {
           contact_name: string | null
           created_at: string
           due_date: string | null
+          financial_document_id: string | null
           id: string
           invoice_number: string
           notes: string | null
@@ -2333,6 +2595,7 @@ export type Database = {
           contact_name?: string | null
           created_at?: string
           due_date?: string | null
+          financial_document_id?: string | null
           id?: string
           invoice_number: string
           notes?: string | null
@@ -2358,6 +2621,7 @@ export type Database = {
           contact_name?: string | null
           created_at?: string
           due_date?: string | null
+          financial_document_id?: string | null
           id?: string
           invoice_number?: string
           notes?: string | null
@@ -2374,6 +2638,13 @@ export type Database = {
           vat_amount?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "pm_invoices_financial_document_id_fkey"
+            columns: ["financial_document_id"]
+            isOneToOne: false
+            referencedRelation: "financial_documents"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pm_invoices_project_id_fkey"
             columns: ["project_id"]
@@ -4195,6 +4466,21 @@ export type Database = {
       financial_class_level: "category" | "group" | "subgroup"
       financial_debt_payment_status: "planned" | "paid" | "overdue" | "skipped"
       financial_debt_status: "open" | "partially_paid" | "paid" | "renegotiated"
+      financial_doc_direction: "issued" | "received"
+      financial_doc_source: "manual" | "project" | "import" | "ocr"
+      financial_doc_status:
+        | "draft"
+        | "issued"
+        | "partially_paid"
+        | "paid"
+        | "cancelled"
+      financial_doc_type:
+        | "client_invoice"
+        | "client_credit_note"
+        | "supplier_invoice"
+        | "supplier_credit_note"
+        | "receipt"
+        | "other"
       financial_expense_status:
         | "projected"
         | "confirmed"
@@ -4223,6 +4509,12 @@ export type Database = {
         | "financing"
         | "transfer"
         | "income"
+      financial_payment_method:
+        | "bank_transfer"
+        | "cash"
+        | "card"
+        | "direct_debit"
+        | "other"
       financial_period_status: "projected" | "active" | "validated" | "closed"
       financial_spending_policy: "mandatory" | "discretionary" | "pass_through"
       pm_allocation_status: "tentative" | "committed"
@@ -4465,6 +4757,23 @@ export const Constants = {
       financial_class_level: ["category", "group", "subgroup"],
       financial_debt_payment_status: ["planned", "paid", "overdue", "skipped"],
       financial_debt_status: ["open", "partially_paid", "paid", "renegotiated"],
+      financial_doc_direction: ["issued", "received"],
+      financial_doc_source: ["manual", "project", "import", "ocr"],
+      financial_doc_status: [
+        "draft",
+        "issued",
+        "partially_paid",
+        "paid",
+        "cancelled",
+      ],
+      financial_doc_type: [
+        "client_invoice",
+        "client_credit_note",
+        "supplier_invoice",
+        "supplier_credit_note",
+        "receipt",
+        "other",
+      ],
       financial_expense_status: [
         "projected",
         "confirmed",
@@ -4496,6 +4805,13 @@ export const Constants = {
         "financing",
         "transfer",
         "income",
+      ],
+      financial_payment_method: [
+        "bank_transfer",
+        "cash",
+        "card",
+        "direct_debit",
+        "other",
       ],
       financial_period_status: ["projected", "active", "validated", "closed"],
       financial_spending_policy: ["mandatory", "discretionary", "pass_through"],
