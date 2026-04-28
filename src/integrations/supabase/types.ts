@@ -14,6 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
+      bank_accounts: {
+        Row: {
+          account_name: string
+          bank_name: string | null
+          created_at: string
+          currency: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_name: string
+          bank_name?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_name?: string
+          bank_name?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      bank_balance_snapshots: {
+        Row: {
+          balance: number
+          bank_account_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          snapshot_date: string
+          source: string
+        }
+        Insert: {
+          balance: number
+          bank_account_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          snapshot_date: string
+          source?: string
+        }
+        Update: {
+          balance?: number
+          bank_account_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          snapshot_date?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_balance_snapshots_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       benefit_balances: {
         Row: {
           categoria: Database["public"]["Enums"]["benefit_category"]
@@ -649,6 +720,44 @@ export type Database = {
           },
         ]
       }
+      expense_categories: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          parent_id: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          parent_id?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          parent_id?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fee_proposals: {
         Row: {
           account_id: string | null
@@ -784,6 +893,414 @@ export type Database = {
             columns: ["pm_project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_clients: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      financial_debt_payments: {
+        Row: {
+          actual_amount: number | null
+          created_at: string
+          debt_id: string
+          due_date: string | null
+          id: string
+          notes: string | null
+          paid_date: string | null
+          period_id: string | null
+          planned_amount: number
+          status: Database["public"]["Enums"]["financial_debt_payment_status"]
+          updated_at: string
+        }
+        Insert: {
+          actual_amount?: number | null
+          created_at?: string
+          debt_id: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          paid_date?: string | null
+          period_id?: string | null
+          planned_amount?: number
+          status?: Database["public"]["Enums"]["financial_debt_payment_status"]
+          updated_at?: string
+        }
+        Update: {
+          actual_amount?: number | null
+          created_at?: string
+          debt_id?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          paid_date?: string | null
+          period_id?: string | null
+          planned_amount?: number
+          status?: Database["public"]["Enums"]["financial_debt_payment_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_debt_payments_debt_id_fkey"
+            columns: ["debt_id"]
+            isOneToOne: false
+            referencedRelation: "financial_debts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_debt_payments_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "financial_period_totals"
+            referencedColumns: ["period_id"]
+          },
+          {
+            foreignKeyName: "financial_debt_payments_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "financial_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_debts: {
+        Row: {
+          created_at: string
+          creditor_name: string
+          description: string | null
+          end_date: string | null
+          id: string
+          notes: string | null
+          original_amount: number
+          outstanding_amount: number
+          start_date: string | null
+          status: Database["public"]["Enums"]["financial_debt_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creditor_name: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          original_amount?: number
+          outstanding_amount?: number
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["financial_debt_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creditor_name?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          original_amount?: number
+          outstanding_amount?: number
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["financial_debt_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      financial_expense_items: {
+        Row: {
+          actual_amount_inc_vat: number | null
+          amount_ex_vat: number
+          amount_inc_vat: number | null
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          expense_type: Database["public"]["Enums"]["financial_expense_type"]
+          id: string
+          notes: string | null
+          paid_date: string | null
+          period_id: string | null
+          status: Database["public"]["Enums"]["financial_expense_status"]
+          supplier_id: string | null
+          updated_at: string
+          vat_amount: number | null
+          vat_rate: number
+        }
+        Insert: {
+          actual_amount_inc_vat?: number | null
+          amount_ex_vat?: number
+          amount_inc_vat?: number | null
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          expense_type?: Database["public"]["Enums"]["financial_expense_type"]
+          id?: string
+          notes?: string | null
+          paid_date?: string | null
+          period_id?: string | null
+          status?: Database["public"]["Enums"]["financial_expense_status"]
+          supplier_id?: string | null
+          updated_at?: string
+          vat_amount?: number | null
+          vat_rate?: number
+        }
+        Update: {
+          actual_amount_inc_vat?: number | null
+          amount_ex_vat?: number
+          amount_inc_vat?: number | null
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          expense_type?: Database["public"]["Enums"]["financial_expense_type"]
+          id?: string
+          notes?: string | null
+          paid_date?: string | null
+          period_id?: string | null
+          status?: Database["public"]["Enums"]["financial_expense_status"]
+          supplier_id?: string | null
+          updated_at?: string
+          vat_amount?: number | null
+          vat_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_expense_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_expense_items_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "financial_period_totals"
+            referencedColumns: ["period_id"]
+          },
+          {
+            foreignKeyName: "financial_expense_items_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "financial_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_expense_items_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "financial_suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_income_items: {
+        Row: {
+          amount_ex_vat: number
+          amount_inc_vat: number | null
+          client_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          expected_payment_date: string | null
+          id: string
+          invoice_number: string | null
+          invoice_status: Database["public"]["Enums"]["financial_invoice_status"]
+          issue_date: string | null
+          notes: string | null
+          paid_date: string | null
+          period_id: string | null
+          project_code: string | null
+          project_id: string | null
+          project_name: string | null
+          updated_at: string
+          vat_amount: number | null
+          vat_rate: number
+        }
+        Insert: {
+          amount_ex_vat?: number
+          amount_inc_vat?: number | null
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expected_payment_date?: string | null
+          id?: string
+          invoice_number?: string | null
+          invoice_status?: Database["public"]["Enums"]["financial_invoice_status"]
+          issue_date?: string | null
+          notes?: string | null
+          paid_date?: string | null
+          period_id?: string | null
+          project_code?: string | null
+          project_id?: string | null
+          project_name?: string | null
+          updated_at?: string
+          vat_amount?: number | null
+          vat_rate?: number
+        }
+        Update: {
+          amount_ex_vat?: number
+          amount_inc_vat?: number | null
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expected_payment_date?: string | null
+          id?: string
+          invoice_number?: string | null
+          invoice_status?: Database["public"]["Enums"]["financial_invoice_status"]
+          issue_date?: string | null
+          notes?: string | null
+          paid_date?: string | null
+          period_id?: string | null
+          project_code?: string | null
+          project_id?: string | null
+          project_name?: string | null
+          updated_at?: string
+          vat_amount?: number | null
+          vat_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_income_items_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "financial_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_income_items_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "financial_period_totals"
+            referencedColumns: ["period_id"]
+          },
+          {
+            foreignKeyName: "financial_income_items_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "financial_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_periods: {
+        Row: {
+          closed_at: string | null
+          closed_by: string | null
+          closing_balance: number
+          created_at: string
+          id: string
+          is_closed: boolean
+          month: number
+          month_name: string
+          notes: string | null
+          opening_balance: number
+          status: Database["public"]["Enums"]["financial_period_status"]
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          closed_at?: string | null
+          closed_by?: string | null
+          closing_balance?: number
+          created_at?: string
+          id?: string
+          is_closed?: boolean
+          month: number
+          month_name: string
+          notes?: string | null
+          opening_balance?: number
+          status?: Database["public"]["Enums"]["financial_period_status"]
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          closed_at?: string | null
+          closed_by?: string | null
+          closing_balance?: number
+          created_at?: string
+          id?: string
+          is_closed?: boolean
+          month?: number
+          month_name?: string
+          notes?: string | null
+          opening_balance?: number
+          status?: Database["public"]["Enums"]["financial_period_status"]
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      financial_suppliers: {
+        Row: {
+          created_at: string
+          default_category_id: string | null
+          id: string
+          is_active: boolean
+          name: string
+          nif: string | null
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_category_id?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          nif?: string | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_category_id?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          nif?: string | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_suppliers_default_category_id_fkey"
+            columns: ["default_category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
             referencedColumns: ["id"]
           },
         ]
@@ -2964,6 +3481,60 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_period_totals: {
+        Row: {
+          closing_balance: number | null
+          debt_actual: number | null
+          debt_planned: number | null
+          expense_actual: number | null
+          expense_projected: number | null
+          income_actual: number | null
+          income_projected: number | null
+          is_closed: boolean | null
+          month: number | null
+          month_name: string | null
+          net_cash_flow: number | null
+          opening_balance: number | null
+          period_id: string | null
+          status: Database["public"]["Enums"]["financial_period_status"] | null
+          year: number | null
+        }
+        Insert: {
+          closing_balance?: number | null
+          debt_actual?: never
+          debt_planned?: never
+          expense_actual?: never
+          expense_projected?: never
+          income_actual?: never
+          income_projected?: never
+          is_closed?: boolean | null
+          month?: number | null
+          month_name?: string | null
+          net_cash_flow?: never
+          opening_balance?: number | null
+          period_id?: string | null
+          status?: Database["public"]["Enums"]["financial_period_status"] | null
+          year?: number | null
+        }
+        Update: {
+          closing_balance?: number | null
+          debt_actual?: never
+          debt_planned?: never
+          expense_actual?: never
+          expense_projected?: never
+          income_actual?: never
+          income_projected?: never
+          is_closed?: boolean | null
+          month?: number | null
+          month_name?: string | null
+          net_cash_flow?: never
+          opening_balance?: number | null
+          period_id?: string | null
+          status?: Database["public"]["Enums"]["financial_period_status"] | null
+          year?: number | null
+        }
+        Relationships: []
+      }
       pm_suppliers_directory: {
         Row: {
           active: boolean | null
@@ -3116,6 +3687,28 @@ export type Database = {
         | "consultancy_hours_package"
       department: "Projecto" | "Backoffice"
       expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
+      financial_debt_payment_status: "planned" | "paid" | "overdue" | "skipped"
+      financial_debt_status: "open" | "partially_paid" | "paid" | "renegotiated"
+      financial_expense_status:
+        | "projected"
+        | "confirmed"
+        | "paid"
+        | "overdue"
+        | "cancelled"
+      financial_expense_type:
+        | "operational"
+        | "debt"
+        | "project"
+        | "consultant"
+        | "tax"
+        | "other"
+      financial_invoice_status:
+        | "planned"
+        | "issued"
+        | "paid"
+        | "overdue"
+        | "cancelled"
+      financial_period_status: "projected" | "active" | "validated" | "closed"
       pm_allocation_status: "tentative" | "committed"
       pm_dep_type: "FS" | "SS" | "FF" | "SF"
       pm_expense_category:
@@ -3338,6 +3931,31 @@ export const Constants = {
       ],
       department: ["Projecto", "Backoffice"],
       expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
+      financial_debt_payment_status: ["planned", "paid", "overdue", "skipped"],
+      financial_debt_status: ["open", "partially_paid", "paid", "renegotiated"],
+      financial_expense_status: [
+        "projected",
+        "confirmed",
+        "paid",
+        "overdue",
+        "cancelled",
+      ],
+      financial_expense_type: [
+        "operational",
+        "debt",
+        "project",
+        "consultant",
+        "tax",
+        "other",
+      ],
+      financial_invoice_status: [
+        "planned",
+        "issued",
+        "paid",
+        "overdue",
+        "cancelled",
+      ],
+      financial_period_status: ["projected", "active", "validated", "closed"],
       pm_allocation_status: ["tentative", "committed"],
       pm_dep_type: ["FS", "SS", "FF", "SF"],
       pm_expense_category: [
