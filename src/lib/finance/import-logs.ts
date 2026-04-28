@@ -23,6 +23,7 @@ export type FinancialImportLogInput = {
   rows_clients?: number;
   rows_debts?: number;
   rows_bank_accounts?: number;
+  rows_salary_snapshots?: number;
   notes?: string | null;
 };
 
@@ -39,6 +40,7 @@ export type FinancialImportLogRow = {
   rows_clients: number;
   rows_debts: number;
   rows_bank_accounts: number;
+  rows_salary_snapshots: number;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -134,6 +136,7 @@ export async function recordFinancialImportLog(
       rows_clients: input.rows_clients ?? 0,
       rows_debts: input.rows_debts ?? 0,
       rows_bank_accounts: input.rows_bank_accounts ?? 0,
+      rows_salary_snapshots: input.rows_salary_snapshots ?? 0,
       notes: input.notes ?? null,
     })
     .select("*")
@@ -184,6 +187,7 @@ export async function recordFinancialImportLog(
         rows_clients: 0,
         rows_debts: 0,
         rows_bank_accounts: 0,
+        rows_salary_snapshots: 0,
         notes: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
