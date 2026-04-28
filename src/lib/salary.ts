@@ -34,6 +34,11 @@ export type Snapshot = {
   // Override manual do subsídio de alimentação (em vez de usar a tabela anual)
   subsidio_alimentacao_manual: boolean;
   subsidio_alimentacao_diario_manual: number;
+  // v3 — explicit effective-date range + provenance
+  effective_from: string; // YYYY-MM-DD; required
+  effective_to: string | null; // YYYY-MM-DD or null = open-ended
+  source: "manual" | "excel_import" | "api";
+  import_log_id: string | null;
 };
 
 export type SubsidiosModo = "tradicional" | "duodecimos_50" | "duodecimos_100";
@@ -262,5 +267,9 @@ export function defaultSnapshot(
     subsidios_modo: "tradicional",
     subsidio_alimentacao_manual: false,
     subsidio_alimentacao_diario_manual: 0,
+    effective_from: new Date().toISOString().slice(0, 10),
+    effective_to: null,
+    source: "manual",
+    import_log_id: null,
   };
 }

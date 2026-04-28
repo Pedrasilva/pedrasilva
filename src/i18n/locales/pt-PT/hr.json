@@ -262,6 +262,13 @@
     "columnB": "Coluna B",
     "pickerPlaceholder": "Escolha uma ficha",
     "inForceShort": "Em vigor",
+    "recentlyChanged": "Alterado recentemente",
+    "upcoming": "Próximo",
+    "source": {
+      "manual": "Manual",
+      "excel_import": "Importação Excel",
+      "api": "API"
+    },
     "headers": {
       "metric": "Métrica",
       "delta": "Δ",

@@ -210,11 +210,28 @@ function Picker({
           <SelectValue placeholder={t("hr:resumoCompare.pickerPlaceholder")} />
         </SelectTrigger>
         <SelectContent>
-          {snapshots.map((s) => (
-            <SelectItem key={s.id} value={s.id}>
-              {s.label} · {fmtDate(s.reference_date)} {s.is_effective ? `· ${t("hr:resumoCompare.inForceShort")}` : ""}
-            </SelectItem>
-          ))}
+          {snapshots.map((s) => {
+            // Highlight rows whose effective_from is within ±30 days of today.
+            const effFrom = s.effective_from ?? s.reference_date;
+            const days = effFrom
+              ? Math.round((new Date(effFrom).getTime() - Date.now()) / 86400000)
+              : null;
+            const recent = days != null && days <= 0 && days >= -30;
+            const upcoming = days != null && days > 0 && days <= 30;
+            const sourceLabel = s.source && s.source !== "manual"
+              ? ` · ${t(`hr:resumoCompare.source.${s.source}`)}`
+              : "";
+            const stateBadge = recent
+              ? ` · ${t("hr:resumoCompare.recentlyChanged")}`
+              : upcoming
+                ? ` · ${t("hr:resumoCompare.upcoming")}`
+                : "";
+            return (
+              <SelectItem key={s.id} value={s.id}>
+                {s.label} · {fmtDate(effFrom)} {s.is_effective ? `· ${t("hr:resumoCompare.inForceShort")}` : ""}{sourceLabel}{stateBadge}
+              </SelectItem>
+            );
+          })}
         </SelectContent>
       </Select>
     </div>

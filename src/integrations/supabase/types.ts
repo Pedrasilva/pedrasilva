@@ -1140,6 +1140,7 @@ export type Database = {
           rows_debts: number
           rows_expenses: number
           rows_income: number
+          rows_salary_snapshots: number
           rows_suppliers: number
           source_file_size_bytes: number | null
           updated_at: string
@@ -1158,6 +1159,7 @@ export type Database = {
           rows_debts?: number
           rows_expenses?: number
           rows_income?: number
+          rows_salary_snapshots?: number
           rows_suppliers?: number
           source_file_size_bytes?: number | null
           updated_at?: string
@@ -1176,6 +1178,7 @@ export type Database = {
           rows_debts?: number
           rows_expenses?: number
           rows_income?: number
+          rows_salary_snapshots?: number
           rows_suppliers?: number
           source_file_size_bytes?: number | null
           updated_at?: string
@@ -3235,8 +3238,11 @@ export type Database = {
           created_at: string
           dependentes_com_deficiencia: number
           dias_uteis: number
+          effective_from: string
+          effective_to: string | null
           estado_civil: string
           id: string
+          import_log_id: string | null
           irs_calculado_auto: boolean
           irs_pct: number
           is_effective: boolean
@@ -3249,6 +3255,7 @@ export type Database = {
           outros_beneficios: number
           premio_associado: number
           reference_date: string
+          source: string
           ss_atelier_pct: number
           ss_colaborador_pct: number
           subsidio_alimentacao_diario: number
@@ -3268,8 +3275,11 @@ export type Database = {
           created_at?: string
           dependentes_com_deficiencia?: number
           dias_uteis?: number
+          effective_from: string
+          effective_to?: string | null
           estado_civil?: string
           id?: string
+          import_log_id?: string | null
           irs_calculado_auto?: boolean
           irs_pct?: number
           is_effective?: boolean
@@ -3282,6 +3292,7 @@ export type Database = {
           outros_beneficios?: number
           premio_associado?: number
           reference_date: string
+          source?: string
           ss_atelier_pct?: number
           ss_colaborador_pct?: number
           subsidio_alimentacao_diario?: number
@@ -3301,8 +3312,11 @@ export type Database = {
           created_at?: string
           dependentes_com_deficiencia?: number
           dias_uteis?: number
+          effective_from?: string
+          effective_to?: string | null
           estado_civil?: string
           id?: string
+          import_log_id?: string | null
           irs_calculado_auto?: boolean
           irs_pct?: number
           is_effective?: boolean
@@ -3315,6 +3329,7 @@ export type Database = {
           outros_beneficios?: number
           premio_associado?: number
           reference_date?: string
+          source?: string
           ss_atelier_pct?: number
           ss_colaborador_pct?: number
           subsidio_alimentacao_diario?: number
@@ -3337,6 +3352,13 @@ export type Database = {
             columns: ["collaborator_id"]
             isOneToOne: false
             referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salary_snapshots_import_log_id_fkey"
+            columns: ["import_log_id"]
+            isOneToOne: false
+            referencedRelation: "financial_import_logs"
             referencedColumns: ["id"]
           },
         ]
