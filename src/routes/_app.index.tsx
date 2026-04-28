@@ -9,6 +9,10 @@ import {
   useUpcomingHolidays,
 } from "@/hooks/use-home-feed";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { ArrowRight, TrendingUp, TrendingDown } from "lucide-react";
 import {
   Users,
   Building2,
@@ -563,3 +567,182 @@ function Avatar({ nome }: { nome: string }) {
     </span>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Finance snapshot block (home page)
+// ---------------------------------------------------------------------------
+
+const FINANCE_HOME_YEAR = 2026;
+const fmtEURHome = (v: number) =>
+  new Intl.NumberFormat("pt-PT", {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits: 0,
+  }).format(v || 0);
+
+function FinanceSnapshotBlock() {
+  const { t } = useTranslation(["finance", "common"]);
+  const now = new Date();
+  const month = now.getMonth() + 1;
+
+  const periodQ = useQuery({
+    queryKey: ["home-finance", "period", FINANCE_HOME_YEAR, month],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("financial_periods")
+        .select("id, opening_balance")
+        .eq("year", FINANCE_HOME_YEAR)
+        .eq("month", month)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const periodId = periodQ.data?.id ?? null;
+
+  const incomeQ = useQuery({
+    queryKey: ["home-finance", "income", periodId],
+    enabled: !!periodId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("financial_income_items")
+        .select("amount_inc_vat, amount_ex_vat, vat_amount")
+        .eq("period_id", periodId!);
+      if (error) throw error;
+      return (data ?? []).reduce(
+        (s, r) =>
+          s +
+          (r.amount_inc_vat != null
+            ? Number(r.amount_inc_vat)
+            : Number(r.amount_ex_vat || 0) + Number(r.vat_amount || 0)),
+        0,
+      );
+    },
+  });
+
+  const expensesQ = useQuery({
+    queryKey: ["home-finance", "expenses", periodId],
+    enabled: !!periodId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("financial_expense_items")
+        .select("amount_inc_vat, amount_ex_vat, vat_amount")
+        .eq("period_id", periodId!);
+      if (error) throw error;
+      return (data ?? []).reduce(
+        (s, r) =>
+          s +
+          (r.amount_inc_vat != null
+            ? Number(r.amount_inc_vat)
+            : Number(r.amount_ex_vat || 0) + Number(r.vat_amount || 0)),
+        0,
+      );
+    },
+  });
+
+  const snapshotsQ = useQuery({
+    queryKey: ["home-finance", "snapshots"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("bank_balance_snapshots")
+        .select("bank_account_id, snapshot_date, balance")
+        .order("snapshot_date", { ascending: false });
+      if (error) throw error;
+      const seen = new Map<string, number>();
+      for (const r of data ?? []) {
+        if (!seen.has(r.bank_account_id))
+          seen.set(r.bank_account_id, Number(r.balance || 0));
+      }
+      return Array.from(seen.values()).reduce((s, v) => s + v, 0);
+    },
+  });
+
+  const currentBalance = snapshotsQ.data ?? 0;
+  const income = incomeQ.data ?? 0;
+  const expenses = expensesQ.data ?? 0;
+  const net = income - expenses;
+  const projected = currentBalance + net;
+
+  const statusKey =
+    net > 0 ? "positive" : net < 0 ? "negative" : "flat";
+  const statusTone =
+    net > 0
+      ? "text-emerald-600"
+      : net < 0
+        ? "text-rose-600"
+        : "text-muted-foreground";
+  const StatusIcon = net >= 0 ? TrendingUp : TrendingDown;
+
+  return (
+    <Card className="overflow-hidden">
+      <div className="grid gap-6 p-6 md:grid-cols-[1fr_auto] md:items-center">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Wallet className="h-4 w-4" style={{ color: "var(--clay)" }} />
+            <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+              {t("finance:home.kicker")}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
+            <KpiMini
+              label={t("finance:home.currentBalance")}
+              value={fmtEURHome(currentBalance)}
+            />
+            <KpiMini
+              label={t("finance:home.expectedIncome")}
+              value={fmtEURHome(income)}
+              tone="text-emerald-700"
+            />
+            <KpiMini
+              label={t("finance:home.expectedExpenses")}
+              value={fmtEURHome(expenses)}
+              tone="text-rose-700"
+            />
+            <KpiMini
+              label={t("finance:home.projectedClosing")}
+              value={fmtEURHome(projected)}
+            />
+          </div>
+          <div className={cn("flex items-center gap-2 text-sm", statusTone)}>
+            <StatusIcon className="h-4 w-4" />
+            <span>{t(`finance:home.status.${statusKey}`)}</span>
+          </div>
+        </div>
+        <Button asChild variant="outline" className="md:self-center">
+          <Link to="/finance">
+            {t("finance:home.open")}
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+function KpiMini({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: string;
+}) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </div>
+      <div
+        className={cn(
+          "mt-1 font-display text-lg font-semibold tabular-nums",
+          tone ?? "text-foreground",
+        )}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
