@@ -38,6 +38,7 @@ function OpportunitiesPage() {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"pipeline" | "list">("pipeline");
   const [creatingFor, setCreatingFor] = useState<string | null>(null);
+  const [chooserOpp, setChooserOpp] = useState<Row | null>(null);
 
   const { data: opps = [], isLoading } = useQuery({
     queryKey: ["crm_opportunities"],
