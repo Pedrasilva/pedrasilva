@@ -207,6 +207,18 @@ export type SalaryPreviewWillCreate = {
   effective_from: string;
 };
 
+/** Per-row validation warning (does not block import). */
+export type SalaryRowWarning =
+  | "missing_email"
+  | "salary_too_low"
+  | "salary_too_high"
+  | "invalid_effective_date"
+  | "duplicate_in_file"
+  | "no_change_vs_current";
+
+/** Reasonable sanity bounds for monthly base salary, in EUR. */
+export const SALARY_BOUNDS = { min: 600, max: 25_000 } as const;
+
 export type SalaryPreviewResult =
   | {
       status: "ready";
@@ -215,6 +227,8 @@ export type SalaryPreviewResult =
       matches: SalaryPreviewMatch[];
       willCreate: SalaryPreviewWillCreate[];
       skipped: SalaryImportSkip[];
+      /** Warnings keyed by rowIndex (0-based, relative to dataRows). */
+      warnings: Record<number, SalaryRowWarning[]>;
       duplicateOfImport?: { imported_at: string; file_name: string };
       checksum: string | null;
     }
