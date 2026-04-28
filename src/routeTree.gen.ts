@@ -41,8 +41,10 @@ import { Route as AppCrmOpportunitiesRouteImport } from './routes/_app.crm.oppor
 import { Route as AppCrmContactsRouteImport } from './routes/_app.crm.contacts'
 import { Route as AppCrmCompaniesRouteImport } from './routes/_app.crm.companies'
 import { Route as AppCrmAccountsRouteImport } from './routes/_app.crm.accounts'
+import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.finance.documents.index'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
+import { Route as AppFinanceDocumentsDocumentIdRouteImport } from './routes/_app.finance.documents.$documentId'
 import { Route as AppCrmQuotesQuoteIdRouteImport } from './routes/_app.crm.quotes.$quoteId'
 import { Route as AppCrmPipelineProposalIdRouteImport } from './routes/_app.crm.pipeline.$proposalId'
 import { Route as AppCrmOpportunitiesOpportunityIdRouteImport } from './routes/_app.crm.opportunities.$opportunityId'
@@ -209,6 +211,12 @@ const AppCrmAccountsRoute = AppCrmAccountsRouteImport.update({
   path: '/accounts',
   getParentRoute: () => AppCrmRoute,
 } as any)
+const AppFinanceDocumentsIndexRoute =
+  AppFinanceDocumentsIndexRouteImport.update({
+    id: '/documents/',
+    path: '/documents/',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppProjectsResourcesResourceIdRoute =
   AppProjectsResourcesResourceIdRouteImport.update({
     id: '/$resourceId',
@@ -220,6 +228,12 @@ const AppHrColaboradorIdRoute = AppHrColaboradorIdRouteImport.update({
   path: '/colaborador/$id',
   getParentRoute: () => AppHrRoute,
 } as any)
+const AppFinanceDocumentsDocumentIdRoute =
+  AppFinanceDocumentsDocumentIdRouteImport.update({
+    id: '/documents/$documentId',
+    path: '/documents/$documentId',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppCrmQuotesQuoteIdRoute = AppCrmQuotesQuoteIdRouteImport.update({
   id: '/quotes/$quoteId',
   path: '/quotes/$quoteId',
@@ -253,7 +267,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
   '/crm': typeof AppCrmRouteWithChildren
-  '/finance': typeof AppFinanceRoute
+  '/finance': typeof AppFinanceRouteWithChildren
   '/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
@@ -286,12 +300,14 @@ export interface FileRoutesByFullPath {
   '/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
+  '/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
+  '/finance/documents/': typeof AppFinanceDocumentsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/finance': typeof AppFinanceRoute
+  '/finance': typeof AppFinanceRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
@@ -324,15 +340,17 @@ export interface FileRoutesByTo {
   '/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
+  '/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
+  '/finance/documents': typeof AppFinanceDocumentsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/crm': typeof AppCrmRouteWithChildren
-  '/_app/finance': typeof AppFinanceRoute
+  '/_app/finance': typeof AppFinanceRouteWithChildren
   '/_app/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
@@ -366,8 +384,10 @@ export interface FileRoutesById {
   '/_app/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/_app/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/_app/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
+  '/_app/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
+  '/_app/finance/documents/': typeof AppFinanceDocumentsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -408,8 +428,10 @@ export interface FileRouteTypes {
     | '/crm/opportunities/$opportunityId'
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
+    | '/finance/documents/$documentId'
     | '/hr/colaborador/$id'
     | '/projects/resources/$resourceId'
+    | '/finance/documents/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -446,8 +468,10 @@ export interface FileRouteTypes {
     | '/crm/opportunities/$opportunityId'
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
+    | '/finance/documents/$documentId'
     | '/hr/colaborador/$id'
     | '/projects/resources/$resourceId'
+    | '/finance/documents'
   id:
     | '__root__'
     | '/_app'
@@ -487,8 +511,10 @@ export interface FileRouteTypes {
     | '/_app/crm/opportunities/$opportunityId'
     | '/_app/crm/pipeline/$proposalId'
     | '/_app/crm/quotes/$quoteId'
+    | '/_app/finance/documents/$documentId'
     | '/_app/hr/colaborador/$id'
     | '/_app/projects/resources/$resourceId'
+    | '/_app/finance/documents/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -723,6 +749,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCrmAccountsRouteImport
       parentRoute: typeof AppCrmRoute
     }
+    '/_app/finance/documents/': {
+      id: '/_app/finance/documents/'
+      path: '/documents'
+      fullPath: '/finance/documents/'
+      preLoaderRoute: typeof AppFinanceDocumentsIndexRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/projects/resources/$resourceId': {
       id: '/_app/projects/resources/$resourceId'
       path: '/$resourceId'
@@ -736,6 +769,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/hr/colaborador/$id'
       preLoaderRoute: typeof AppHrColaboradorIdRouteImport
       parentRoute: typeof AppHrRoute
+    }
+    '/_app/finance/documents/$documentId': {
+      id: '/_app/finance/documents/$documentId'
+      path: '/documents/$documentId'
+      fullPath: '/finance/documents/$documentId'
+      preLoaderRoute: typeof AppFinanceDocumentsDocumentIdRouteImport
+      parentRoute: typeof AppFinanceRoute
     }
     '/_app/crm/quotes/$quoteId': {
       id: '/_app/crm/quotes/$quoteId'
@@ -845,6 +885,20 @@ const AppCrmRouteChildren: AppCrmRouteChildren = {
 const AppCrmRouteWithChildren =
   AppCrmRoute._addFileChildren(AppCrmRouteChildren)
 
+interface AppFinanceRouteChildren {
+  AppFinanceDocumentsDocumentIdRoute: typeof AppFinanceDocumentsDocumentIdRoute
+  AppFinanceDocumentsIndexRoute: typeof AppFinanceDocumentsIndexRoute
+}
+
+const AppFinanceRouteChildren: AppFinanceRouteChildren = {
+  AppFinanceDocumentsDocumentIdRoute: AppFinanceDocumentsDocumentIdRoute,
+  AppFinanceDocumentsIndexRoute: AppFinanceDocumentsIndexRoute,
+}
+
+const AppFinanceRouteWithChildren = AppFinanceRoute._addFileChildren(
+  AppFinanceRouteChildren,
+)
+
 interface AppHrRouteChildren {
   AppHrAdminRoute: typeof AppHrAdminRoute
   AppHrBeneficiosRoute: typeof AppHrBeneficiosRoute
@@ -888,7 +942,7 @@ const AppProjectsResourcesRouteWithChildren =
 
 interface AppRouteChildren {
   AppCrmRoute: typeof AppCrmRouteWithChildren
-  AppFinanceRoute: typeof AppFinanceRoute
+  AppFinanceRoute: typeof AppFinanceRouteWithChildren
   AppHrRoute: typeof AppHrRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRoute
@@ -904,7 +958,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppCrmRoute: AppCrmRouteWithChildren,
-  AppFinanceRoute: AppFinanceRoute,
+  AppFinanceRoute: AppFinanceRouteWithChildren,
   AppHrRoute: AppHrRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppProjectsProjectIdRoute: AppProjectsProjectIdRoute,
