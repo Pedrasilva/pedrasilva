@@ -12,6 +12,29 @@ Related code:
 
 ---
 
+## 0. Terminology — "External Services" vs legacy "Materiais"
+
+The Excel spreadsheet still uses the header `MATERIAIS` (or
+`MATERIAIS / SUBCONTRATAÇÃO`) for the second expense block. **In the app
+this is NOT called "materials".** The canonical business label is:
+
+- **Excel marker accepted**: `materiais` (and variants — see §6a)
+- **App label (EN)**: `External Services`
+- **App label (PT-PT)**: `Serviços externos`
+- **Meaning**: consultants, outsourced services, subcontractors,
+  reimbursable / project-delivery costs paid to third parties.
+- **Do NOT** call these "materials" anywhere in the UI, i18n keys, badges,
+  or copy. The word "materials" is reserved for legacy Excel-mapping
+  context only (this document, importer comments, and DB enum values that
+  cannot be renamed without a migration).
+
+DB column values (`expense_type = "materials"`) are kept as-is for
+backwards compatibility with already-imported rows; the display layer
+maps them to "External Services" / "Serviços externos" via the i18n
+glossary.
+
+---
+
 ## 1. Sheets used
 
 | Sheet                  | Purpose                                              | Imported |
