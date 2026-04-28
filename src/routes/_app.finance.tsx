@@ -447,13 +447,13 @@ function FinanceDashboardPage() {
           <BankBalancesTab />
         </TabsContent>
         <TabsContent value="income" className="mt-6">
-          <PlaceholderTab />
+          <IncomeTab vatMode={vatMode} />
         </TabsContent>
         <TabsContent value="expenses" className="mt-6">
-          <PlaceholderTab />
+          <ExpensesTab vatMode={vatMode} kind="operational" />
         </TabsContent>
         <TabsContent value="materials" className="mt-6">
-          <PlaceholderTab />
+          <ExpensesTab vatMode={vatMode} kind="materials" />
         </TabsContent>
         <TabsContent value="debts" className="mt-6">
           <PlaceholderTab />
