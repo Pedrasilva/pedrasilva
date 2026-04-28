@@ -43,6 +43,17 @@ function fmt(n: number) {
   }).format(n);
 }
 
+function fmtDate(s: string | null | undefined) {
+  if (!s) return "—";
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return "—";
+  return new Intl.DateTimeFormat("pt-PT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(d);
+}
+
 function VatSummaryPanel() {
   const { t } = useTranslation(["finance"]);
   const year = new Date().getFullYear();
@@ -164,8 +175,7 @@ function VatSummaryPanel() {
 }
 
 function StatementPanel() {
-  const { t, i18n } = useTranslation(["finance"]);
-  const isPt = i18n.language?.startsWith("pt");
+  const { t } = useTranslation(["finance"]);
   const suppliers = useFinSuppliers();
   const clients = useFinClients();
 
@@ -195,20 +205,18 @@ function StatementPanel() {
             <Select value={selection} onValueChange={setSelection}>
               <SelectTrigger>
                 <SelectValue
-                  placeholder={
-                    isPt ? "Escolher contraparte…" : "Pick counterparty…"
-                  }
+                  placeholder={t("finance:documents.statement.pickCounterparty") as string}
                 />
               </SelectTrigger>
               <SelectContent>
                 {(suppliers.data ?? []).map((s) => (
                   <SelectItem key={`s-${s.id}`} value={`supplier:${s.id}`}>
-                    {isPt ? "Fornecedor" : "Supplier"} · {s.name}
+                    {t("finance:documents.statement.supplier")} · {s.name}
                   </SelectItem>
                 ))}
                 {(clients.data ?? []).map((c) => (
                   <SelectItem key={`c-${c.id}`} value={`client:${c.id}`}>
-                    {isPt ? "Cliente" : "Client"} · {c.name}
+                    {t("finance:documents.statement.client")} · {c.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -266,9 +274,9 @@ function StatementPanel() {
                       <TableCell className="text-xs">
                         {t(`finance:documents.type.${d.doc_type}`)}
                       </TableCell>
-                      <TableCell className="text-xs">{d.issue_date}</TableCell>
+                      <TableCell className="text-xs">{fmtDate(d.issue_date)}</TableCell>
                       <TableCell className="text-xs">
-                        {d.due_date ?? "—"}
+                        {fmtDate(d.due_date)}
                       </TableCell>
                       <TableCell className="text-right text-xs tabular-nums">
                         {fmt(Number(d.total_inc_vat ?? 0))}
