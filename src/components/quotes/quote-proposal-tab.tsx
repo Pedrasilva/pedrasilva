@@ -720,11 +720,13 @@ function GeneratedDocumentSection({
   document,
   isLoadingDocument,
   quoteType,
+  quoteCategory,
 }: {
   quoteId: string;
   document: QuoteProposalDocument | null;
   isLoadingDocument: boolean;
   quoteType?: string | null;
+  quoteCategory?: "project" | "time_based" | "retainer" | "consultancy" | null;
 }) {
   const { t } = useTranslation("crm");
   const locale = useDateLocale();
