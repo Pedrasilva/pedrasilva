@@ -23,6 +23,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
   quoteTypeToProposalKind,
+  proposalKindsForCategory,
+  defaultProposalKindForCategory,
   type ConsultancyConfig,
   type ProposalKind,
   type RetainerConfig,
