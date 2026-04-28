@@ -12,12 +12,13 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Target, LayoutGrid, List, FileText, ArrowRight } from "lucide-react";
+import { Plus, Target, LayoutGrid, List, FileText, ArrowRight, Briefcase, Clock, Wrench } from "lucide-react";
 import { CompanyPicker } from "@/components/crm/company-picker";
 import { toast } from "sonner";
 import {
   formatEUR, OPPORTUNITY_STAGES, type CrmOpportunity, type OpportunityStage,
   contactFullName, type Contact,
+  defaultQuoteTypeForCategory, type QuoteCategory,
 } from "@/lib/crm/types";
 
 export const Route = createFileRoute("/_app/crm/opportunities")({
@@ -37,6 +38,7 @@ function OpportunitiesPage() {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"pipeline" | "list">("pipeline");
   const [creatingFor, setCreatingFor] = useState<string | null>(null);
+  const [chooserOpp, setChooserOpp] = useState<Row | null>(null);
 
   const { data: opps = [], isLoading } = useQuery({
     queryKey: ["crm_opportunities"],
@@ -53,7 +55,9 @@ function OpportunitiesPage() {
   });
 
   const createQuote = useMutation({
-    mutationFn: async (opp: Row) => {
+    mutationFn: async ({ opp, category }: { opp: Row; category: QuoteCategory }) => {
+      const quote_type = defaultQuoteTypeForCategory(category);
+      const fee_structure_type = category === "project" ? "fixed" : "monthly";
       const { data, error } = await supabase
         .from("fee_proposals")
         .insert({
@@ -62,7 +66,9 @@ function OpportunitiesPage() {
           company_id: opp.company_id,
           contact_id: opp.primary_contact_id,
           valor: Number(opp.estimated_fee) || 0,
-          fee_structure_type: "fixed",
+          fee_structure_type,
+          quote_category: category,
+          quote_type,
           quote_status: "draft",
           pipeline_status: "lead",
           data_proposta: new Date().toISOString().slice(0, 10),
@@ -80,6 +86,7 @@ function OpportunitiesPage() {
     onError: (e: Error) => {
       toast.error(e.message);
       setCreatingFor(null);
+      setChooserOpp(null);
     },
   });
 
@@ -94,8 +101,7 @@ function OpportunitiesPage() {
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: latestQuote.id } });
       return;
     }
-    setCreatingFor(opp.id);
-    createQuote.mutate(opp);
+    setChooserOpp(opp);
   };
 
   const handleCardDoubleClick = (oppId: string) => {
@@ -280,7 +286,71 @@ function OpportunitiesPage() {
       )}
 
       <NewOpportunityDialog open={open} onClose={() => setOpen(false)} />
+      <QuoteCategoryChooserDialog
+        opp={chooserOpp}
+        onClose={() => setChooserOpp(null)}
+        onPick={(category) => {
+          if (!chooserOpp) return;
+          setCreatingFor(chooserOpp.id);
+          createQuote.mutate({ opp: chooserOpp, category });
+        }}
+        isPending={createQuote.isPending}
+      />
     </div>
+  );
+}
+
+function QuoteCategoryChooserDialog({
+  opp, onClose, onPick, isPending,
+}: {
+  opp: Row | null;
+  onClose: () => void;
+  onPick: (category: QuoteCategory) => void;
+  isPending: boolean;
+}) {
+  const { t } = useTranslation("crm");
+  const cards: { value: QuoteCategory; icon: typeof Briefcase }[] = [
+    { value: "project", icon: Briefcase },
+    { value: "time_based", icon: Clock },
+    { value: "retainer", icon: Wrench },
+  ];
+  return (
+    <Dialog open={!!opp} onOpenChange={(v) => !v && !isPending && onClose()}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{t("quotes.newQuoteDialog.title")}</DialogTitle>
+          <DialogDescription>
+            {t("quotes.newQuoteDialog.categoryChooserDescription")}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {cards.map(({ value, icon: Icon }) => (
+            <button
+              key={value}
+              type="button"
+              disabled={isPending}
+              onClick={() => onPick(value)}
+              className="flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors hover:bg-muted/50 hover:border-primary/40 disabled:opacity-50"
+            >
+              <div className="flex items-center gap-2">
+                <Icon className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold">
+                  {t(`quotes.newQuoteDialog.category.${value}.title`)}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t(`quotes.newQuoteDialog.category.${value}.hint`)}
+              </p>
+            </button>
+          ))}
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose} disabled={isPending}>
+            {t("common.cancel")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
