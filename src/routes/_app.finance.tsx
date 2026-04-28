@@ -2078,8 +2078,17 @@ function ImportLogsTab() {
                 <TableCell className="text-sm tabular-nums">
                   {fmtBytes(l.source_file_size_bytes)}
                 </TableCell>
-                <TableCell className="text-xs font-mono text-muted-foreground max-w-[120px] truncate">
-                  {l.file_checksum ? l.file_checksum.slice(0, 12) + "…" : "—"}
+                <TableCell className="text-xs font-mono text-muted-foreground">
+                  {l.file_checksum ? (
+                    <code
+                      className="select-all cursor-text rounded bg-muted px-1.5 py-0.5"
+                      title={l.file_checksum}
+                    >
+                      {l.file_checksum.slice(0, 8)}…{l.file_checksum.slice(-4)}
+                    </code>
+                  ) : (
+                    DASH
+                  )}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
                   {l.rows_expenses}
@@ -2100,7 +2109,7 @@ function ImportLogsTab() {
                   {l.rows_bank_accounts}
                 </TableCell>
                 <TableCell className="text-sm max-w-[200px] truncate text-muted-foreground">
-                  {l.notes ?? "—"}
+                  {l.notes ?? DASH}
                 </TableCell>
               </TableRow>
             ))}
