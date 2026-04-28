@@ -1633,5 +1633,456 @@ function ExpensesTab({
   );
 }
 
+// ---------------------------------------------------------------------------
+// Debts Tab
+// ---------------------------------------------------------------------------
+
+type DebtRow = {
+  id: string;
+  creditor_name: string;
+  description: string | null;
+  original_amount: number;
+  outstanding_amount: number;
+  status: string;
+  start_date: string | null;
+  end_date: string | null;
+};
+
+type DebtPaymentFull = {
+  id: string;
+  debt_id: string;
+  period_id: string | null;
+  due_date: string | null;
+  paid_date: string | null;
+  planned_amount: number;
+  actual_amount: number | null;
+  status: string;
+};
+
+function DebtStatusBadge({ status }: { status: string }) {
+  const map: Record<string, string> = {
+    open: "bg-amber-100 text-amber-900",
+    paid: "bg-emerald-100 text-emerald-900",
+    cancelled: "bg-muted text-muted-foreground",
+    defaulted: "bg-rose-100 text-rose-900",
+  };
+  return (
+    <Badge variant="secondary" className={cn("font-normal", map[status] ?? "")}>
+      {status}
+    </Badge>
+  );
+}
+
+function DebtsTab() {
+  const { t } = useTranslation(["finance", "common"]);
+
+  const debtsQ = useQuery({
+    queryKey: ["finance", "debts"],
+    queryFn: async (): Promise<DebtRow[]> => {
+      const { data, error } = await supabase
+        .from("financial_debts")
+        .select(
+          "id, creditor_name, description, original_amount, outstanding_amount, status, start_date, end_date",
+        )
+        .order("creditor_name");
+      if (error) throw error;
+      return (data ?? []) as DebtRow[];
+    },
+  });
+
+  const paymentsQ = useQuery({
+    queryKey: ["finance", "debt-payments-full"],
+    queryFn: async (): Promise<DebtPaymentFull[]> => {
+      const { data, error } = await supabase
+        .from("financial_debt_payments")
+        .select(
+          "id, debt_id, period_id, due_date, paid_date, planned_amount, actual_amount, status",
+        )
+        .order("due_date", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as DebtPaymentFull[];
+    },
+  });
+
+  const periodsQ = useQuery({
+    queryKey: ["finance", "periods-map"],
+    queryFn: async (): Promise<Map<string, string>> => {
+      const { data, error } = await supabase
+        .from("financial_periods")
+        .select("id, month_name, year");
+      if (error) throw error;
+      const m = new Map<string, string>();
+      for (const p of data ?? []) {
+        m.set(p.id as string, `${p.month_name} ${p.year}`);
+      }
+      return m;
+    },
+  });
+
+  const paymentsByDebt = useMemo(() => {
+    const m = new Map<string, DebtPaymentFull[]>();
+    for (const p of paymentsQ.data ?? []) {
+      const arr = m.get(p.debt_id) ?? [];
+      arr.push(p);
+      m.set(p.debt_id, arr);
+    }
+    return m;
+  }, [paymentsQ.data]);
+
+  const debts = debtsQ.data ?? [];
+  const totalOriginal = debts.reduce((s, d) => s + Number(d.original_amount || 0), 0);
+  const totalOutstanding = debts.reduce(
+    (s, d) => s + Number(d.outstanding_amount || 0),
+    0,
+  );
+
+  const loading = debtsQ.isLoading || paymentsQ.isLoading || periodsQ.isLoading;
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center text-sm text-muted-foreground">
+          {t("common:loading")}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex items-end justify-between gap-4 flex-wrap">
+            <div>
+              <CardTitle className="font-display text-xl">
+                {t("finance:debts.title")}
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("finance:debts.subtitle", { count: debts.length })}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-6 text-xs">
+              <SummaryStat
+                label={t("finance:debts.summary.original")}
+                value={fmtEUR(totalOriginal)}
+              />
+              <SummaryStat
+                label={t("finance:debts.summary.outstanding")}
+                value={fmtEUR(totalOutstanding)}
+                tone="text-rose-700"
+              />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("finance:debts.col.creditor")}</TableHead>
+                <TableHead>{t("finance:debts.col.description")}</TableHead>
+                <TableHead className="text-right">
+                  {t("finance:debts.col.original")}
+                </TableHead>
+                <TableHead className="text-right">
+                  {t("finance:debts.col.outstanding")}
+                </TableHead>
+                <TableHead>{t("finance:debts.col.status")}</TableHead>
+                <TableHead>{t("finance:debts.col.startDate")}</TableHead>
+                <TableHead>{t("finance:debts.col.endDate")}</TableHead>
+                <TableHead className="text-right">
+                  {t("finance:debts.col.scheduled")}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {debts.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={8}
+                    className="text-center text-sm text-muted-foreground py-8"
+                  >
+                    {t("finance:debts.empty")}
+                  </TableCell>
+                </TableRow>
+              )}
+              {debts.map((d) => {
+                const ps = paymentsByDebt.get(d.id) ?? [];
+                const scheduled = ps.length;
+                return (
+                  <TableRow key={d.id}>
+                    <TableCell className="text-sm font-medium">
+                      {d.creditor_name}
+                    </TableCell>
+                    <TableCell className="text-sm max-w-[280px] truncate">
+                      {d.description ?? "—"}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {fmtEUR(Number(d.original_amount))}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {fmtEUR(Number(d.outstanding_amount))}
+                    </TableCell>
+                    <TableCell>
+                      <DebtStatusBadge status={d.status} />
+                    </TableCell>
+                    <TableCell className="text-sm tabular-nums">
+                      {d.start_date ?? "—"}
+                    </TableCell>
+                    <TableCell className="text-sm tabular-nums">
+                      {d.end_date ?? "—"}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {scheduled > 0
+                        ? t("finance:debts.scheduledCount", { count: scheduled })
+                        : "—"}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-display text-xl">
+            {t("finance:debts.payments.title")}
+          </CardTitle>
+          <p className="text-xs text-muted-foreground mt-1">
+            {t("finance:debts.payments.subtitle", {
+              count: paymentsQ.data?.length ?? 0,
+            })}
+          </p>
+        </CardHeader>
+        <CardContent>
+          {(paymentsQ.data?.length ?? 0) === 0 ? (
+            <div className="py-8 text-center text-sm text-muted-foreground">
+              {t("finance:debts.payments.empty")}
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("finance:debts.payments.col.creditor")}</TableHead>
+                  <TableHead>{t("finance:debts.payments.col.month")}</TableHead>
+                  <TableHead>{t("finance:debts.payments.col.due")}</TableHead>
+                  <TableHead>{t("finance:debts.payments.col.paid")}</TableHead>
+                  <TableHead className="text-right">
+                    {t("finance:debts.payments.col.planned")}
+                  </TableHead>
+                  <TableHead className="text-right">
+                    {t("finance:debts.payments.col.actual")}
+                  </TableHead>
+                  <TableHead>{t("finance:debts.payments.col.status")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(paymentsQ.data ?? []).map((p) => {
+                  const debt = debts.find((d) => d.id === p.debt_id);
+                  const period = p.period_id
+                    ? periodsQ.data?.get(p.period_id)
+                    : null;
+                  return (
+                    <TableRow key={p.id}>
+                      <TableCell className="text-sm">
+                        {debt?.creditor_name ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-sm">{period ?? "—"}</TableCell>
+                      <TableCell className="text-sm tabular-nums">
+                        {p.due_date ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-sm tabular-nums">
+                        {p.paid_date ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {fmtEUR(Number(p.planned_amount))}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {p.actual_amount != null
+                          ? fmtEUR(Number(p.actual_amount))
+                          : "—"}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="font-normal">
+                          {p.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Import Logs Tab
+// ---------------------------------------------------------------------------
+
+type ImportLogRow = {
+  id: string;
+  imported_at: string;
+  file_name: string;
+  import_type: string;
+  file_checksum: string | null;
+  source_file_size_bytes: number | null;
+  rows_expenses: number;
+  rows_income: number;
+  rows_suppliers: number;
+  rows_clients: number;
+  rows_debts: number;
+  rows_bank_accounts: number;
+  notes: string | null;
+};
+
+function fmtBytes(n: number | null): string {
+  if (n == null) return "—";
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(2)} MB`;
+}
+
+function fmtDateTime(s: string): string {
+  try {
+    return new Date(s).toLocaleString("pt-PT");
+  } catch {
+    return s;
+  }
+}
+
+function ImportLogsTab() {
+  const { t } = useTranslation(["finance", "common"]);
+
+  const logsQ = useQuery({
+    queryKey: ["finance", "import-logs"],
+    queryFn: async (): Promise<ImportLogRow[]> => {
+      const { data, error } = await supabase
+        .from("financial_import_logs")
+        .select(
+          "id, imported_at, file_name, import_type, file_checksum, source_file_size_bytes, rows_expenses, rows_income, rows_suppliers, rows_clients, rows_debts, rows_bank_accounts, notes",
+        )
+        .order("imported_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as ImportLogRow[];
+    },
+  });
+
+  if (logsQ.isLoading) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center text-sm text-muted-foreground">
+          {t("common:loading")}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const logs = logsQ.data ?? [];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-display text-xl">
+          {t("finance:importLogs.title")}
+        </CardTitle>
+        <p className="text-xs text-muted-foreground mt-1">
+          {t("finance:importLogs.subtitle", { count: logs.length })}
+        </p>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("finance:importLogs.col.importedAt")}</TableHead>
+              <TableHead>{t("finance:importLogs.col.fileName")}</TableHead>
+              <TableHead>{t("finance:importLogs.col.importType")}</TableHead>
+              <TableHead>{t("finance:importLogs.col.fileSize")}</TableHead>
+              <TableHead>{t("finance:importLogs.col.checksum")}</TableHead>
+              <TableHead className="text-right">
+                {t("finance:importLogs.col.rowsExpenses")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("finance:importLogs.col.rowsIncome")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("finance:importLogs.col.rowsSuppliers")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("finance:importLogs.col.rowsClients")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("finance:importLogs.col.rowsDebts")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("finance:importLogs.col.rowsBankAccounts")}
+              </TableHead>
+              <TableHead>{t("finance:importLogs.col.notes")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {logs.length === 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={12}
+                  className="text-center text-sm text-muted-foreground py-8"
+                >
+                  {t("finance:importLogs.empty")}
+                </TableCell>
+              </TableRow>
+            )}
+            {logs.map((l) => (
+              <TableRow key={l.id}>
+                <TableCell className="text-sm tabular-nums whitespace-nowrap">
+                  {fmtDateTime(l.imported_at)}
+                </TableCell>
+                <TableCell className="text-sm max-w-[220px] truncate">
+                  {l.file_name}
+                </TableCell>
+                <TableCell className="text-sm">
+                  <Badge variant="secondary" className="font-normal">
+                    {l.import_type}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-sm tabular-nums">
+                  {fmtBytes(l.source_file_size_bytes)}
+                </TableCell>
+                <TableCell className="text-xs font-mono text-muted-foreground max-w-[120px] truncate">
+                  {l.file_checksum ? l.file_checksum.slice(0, 12) + "…" : "—"}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {l.rows_expenses}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {l.rows_income}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {l.rows_suppliers}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {l.rows_clients}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {l.rows_debts}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {l.rows_bank_accounts}
+                </TableCell>
+                <TableCell className="text-sm max-w-[200px] truncate text-muted-foreground">
+                  {l.notes ?? "—"}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
+
 // Helper for /finance hub link reused elsewhere
 export const FINANCE_LINK = "/finance" as const;
