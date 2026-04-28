@@ -121,8 +121,7 @@ export function DocumentsList({
     [projectsQ.data],
   );
 
-  function counterpartyOf(d: (typeof docs.data)[number] | undefined) {
-    if (!d) return DASH;
+  function counterpartyOf(d: NonNullable<typeof docs.data>[number]): string {
     if (d.counterparty_supplier_id)
       return supplierMap.get(d.counterparty_supplier_id) ??
         d.counterparty_name_snapshot ??
