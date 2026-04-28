@@ -1015,7 +1015,7 @@ function PaymentsSection({
               <TableBody>
                 {(matchesQ.data ?? []).map((tx) => (
                   <TableRow key={tx.id}>
-                    <TableCell>{tx.transaction_date}</TableCell>
+                    <TableCell>{fmtDate(tx.transaction_date)}</TableCell>
                     <TableCell className="text-xs">{tx.description}</TableCell>
                     <TableCell className="text-right tabular-nums">
                       {fmtEUR2(Number(tx.amount))}
