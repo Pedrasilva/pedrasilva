@@ -12,12 +12,13 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Target, LayoutGrid, List, FileText, ArrowRight } from "lucide-react";
+import { Plus, Target, LayoutGrid, List, FileText, ArrowRight, Briefcase, Clock, Wrench } from "lucide-react";
 import { CompanyPicker } from "@/components/crm/company-picker";
 import { toast } from "sonner";
 import {
   formatEUR, OPPORTUNITY_STAGES, type CrmOpportunity, type OpportunityStage,
   contactFullName, type Contact,
+  defaultQuoteTypeForCategory, type QuoteCategory,
 } from "@/lib/crm/types";
 
 export const Route = createFileRoute("/_app/crm/opportunities")({
