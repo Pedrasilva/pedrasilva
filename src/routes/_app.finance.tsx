@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -47,9 +47,40 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
 import { cn } from "@/lib/utils";
 
+async function checkFinanceAccess(): Promise<boolean> {
+  const { data: { session } } = await supabase.auth.getSession();
+  const userId = session?.user?.id;
+  if (!userId) return false;
+
+  // Check admin role
+  const { data: roleRow } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (roleRow) return true;
+
+  // Check finance.dashboard permission
+  const { data: permRow } = await supabase
+    .from("user_permissions")
+    .select("permission_key")
+    .eq("user_id", userId)
+    .eq("permission_key", "finance.dashboard")
+    .maybeSingle();
+  return !!permRow;
+}
+
 export const Route = createFileRoute("/_app/finance")({
+  beforeLoad: async () => {
+    const allowed = await checkFinanceAccess();
+    if (!allowed) {
+      throw redirect({ to: "/" });
+    }
+  },
   component: FinanceDashboardPage,
 });
+
 
 // ---------------------------------------------------------------------------
 // Types
@@ -416,13 +447,13 @@ function FinanceDashboardPage() {
           <BankBalancesTab />
         </TabsContent>
         <TabsContent value="income" className="mt-6">
-          <PlaceholderTab />
+          <IncomeTab vatMode={vatMode} />
         </TabsContent>
         <TabsContent value="expenses" className="mt-6">
-          <PlaceholderTab />
+          <ExpensesTab vatMode={vatMode} kind="operational" />
         </TabsContent>
         <TabsContent value="materials" className="mt-6">
-          <PlaceholderTab />
+          <ExpensesTab vatMode={vatMode} kind="materials" />
         </TabsContent>
         <TabsContent value="debts" className="mt-6">
           <PlaceholderTab />
@@ -942,6 +973,666 @@ function BankBalancesTab() {
               );
             })}
           </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Income tab (read-only)
+// ---------------------------------------------------------------------------
+
+type IncomeFull = {
+  id: string;
+  period_id: string | null;
+  client_id: string | null;
+  project_name: string | null;
+  project_code: string | null;
+  invoice_number: string | null;
+  invoice_status: string;
+  issue_date: string | null;
+  expected_payment_date: string | null;
+  paid_date: string | null;
+  amount_ex_vat: number;
+  vat_amount: number | null;
+  amount_inc_vat: number | null;
+  vat_rate: number;
+};
+
+function useIncomeFull() {
+  return useQuery({
+    queryKey: ["finance", "income-full", FINANCE_YEAR],
+    queryFn: async (): Promise<IncomeFull[]> => {
+      const { data, error } = await supabase
+        .from("financial_income_items")
+        .select(
+          "id, period_id, client_id, project_name, project_code, invoice_number, invoice_status, issue_date, expected_payment_date, paid_date, amount_ex_vat, vat_amount, amount_inc_vat, vat_rate",
+        )
+        .order("expected_payment_date", { ascending: true, nullsFirst: false });
+      if (error) throw error;
+      return (data ?? []) as IncomeFull[];
+    },
+  });
+}
+
+function useClientsMap() {
+  return useQuery({
+    queryKey: ["finance", "clients-map"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("financial_clients")
+        .select("id, name");
+      if (error) throw error;
+      const m = new Map<string, string>();
+      for (const r of data ?? []) m.set(r.id, r.name);
+      return m;
+    },
+  });
+}
+
+function usePeriodsMap() {
+  return useQuery({
+    queryKey: ["finance", "periods-map", FINANCE_YEAR],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("financial_periods")
+        .select("id, month, month_name")
+        .eq("year", FINANCE_YEAR)
+        .order("month");
+      if (error) throw error;
+      const m = new Map<string, { month: number; month_name: string }>();
+      for (const r of data ?? [])
+        m.set(r.id, { month: r.month, month_name: r.month_name });
+      return m;
+    },
+  });
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation(["finance"]);
+  const tone =
+    status === "paid"
+      ? "bg-emerald-100 text-emerald-800"
+      : status === "overdue"
+        ? "bg-rose-100 text-rose-800"
+        : status === "cancelled"
+          ? "bg-muted text-muted-foreground"
+          : status === "issued"
+            ? "bg-amber-100 text-amber-800"
+            : "bg-slate-100 text-slate-700";
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide",
+        tone,
+      )}
+    >
+      {t(`finance:invoiceStatus.${status}`, { defaultValue: status })}
+    </span>
+  );
+}
+
+function MonthFilter({
+  value,
+  onChange,
+  periods,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  periods: { id: string; month: number; month_name: string }[];
+}) {
+  const { t } = useTranslation(["finance"]);
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">{t("finance:filter.allMonths")}</SelectItem>
+        {periods.map((p) => (
+          <SelectItem key={p.id} value={p.id}>
+            {p.month_name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+function IncomeTab({ vatMode }: { vatMode: VatMode }) {
+  const { t } = useTranslation(["finance", "common"]);
+  const incomeQ = useIncomeFull();
+  const clientsQ = useClientsMap();
+  const periodsQ = usePeriodsMap();
+  const [monthFilter, setMonthFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  const periodOptions = useMemo(
+    () =>
+      Array.from(periodsQ.data?.entries() ?? []).map(([id, p]) => ({
+        id,
+        ...p,
+      })),
+    [periodsQ.data],
+  );
+
+  const rows = useMemo(() => {
+    const all = incomeQ.data ?? [];
+    return all.filter((r) => {
+      if (monthFilter !== "all" && r.period_id !== monthFilter) return false;
+      if (statusFilter !== "all" && r.invoice_status !== statusFilter)
+        return false;
+      return true;
+    });
+  }, [incomeQ.data, monthFilter, statusFilter]);
+
+  const totals = useMemo(() => {
+    const total = rows.reduce(
+      (s, r) =>
+        s + pickAmount(r.amount_ex_vat, r.amount_inc_vat, r.vat_amount, vatMode),
+      0,
+    );
+    const paid = rows
+      .filter((r) => r.invoice_status === "paid")
+      .reduce(
+        (s, r) =>
+          s +
+          pickAmount(r.amount_ex_vat, r.amount_inc_vat, r.vat_amount, vatMode),
+        0,
+      );
+    return { total, paid, outstanding: total - paid, count: rows.length };
+  }, [rows, vatMode]);
+
+  if (incomeQ.isLoading || clientsQ.isLoading || periodsQ.isLoading) {
+    return (
+      <div className="text-sm text-muted-foreground">{t("common:loading")}</div>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <CardTitle className="font-display text-lg">
+              {t("finance:income.title")}
+            </CardTitle>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t("finance:income.subtitle", { count: totals.count })}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <MonthFilter
+              value={monthFilter}
+              onChange={setMonthFilter}
+              periods={periodOptions}
+            />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  {t("finance:filter.allStatuses")}
+                </SelectItem>
+                <SelectItem value="planned">
+                  {t("finance:invoiceStatus.planned")}
+                </SelectItem>
+                <SelectItem value="issued">
+                  {t("finance:invoiceStatus.issued")}
+                </SelectItem>
+                <SelectItem value="paid">
+                  {t("finance:invoiceStatus.paid")}
+                </SelectItem>
+                <SelectItem value="overdue">
+                  {t("finance:invoiceStatus.overdue")}
+                </SelectItem>
+                <SelectItem value="cancelled">
+                  {t("finance:invoiceStatus.cancelled")}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-6 text-xs">
+          <SummaryStat
+            label={t("finance:income.summary.total")}
+            value={fmtEUR(totals.total)}
+          />
+          <SummaryStat
+            label={t("finance:income.summary.paid")}
+            value={fmtEUR(totals.paid)}
+            tone="text-emerald-700"
+          />
+          <SummaryStat
+            label={t("finance:income.summary.outstanding")}
+            value={fmtEUR(totals.outstanding)}
+            tone="text-amber-700"
+          />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("finance:income.col.month")}</TableHead>
+              <TableHead>{t("finance:income.col.client")}</TableHead>
+              <TableHead>{t("finance:income.col.project")}</TableHead>
+              <TableHead>{t("finance:income.col.invoice")}</TableHead>
+              <TableHead>{t("finance:income.col.expected")}</TableHead>
+              <TableHead>{t("finance:income.col.paid")}</TableHead>
+              <TableHead className="text-right">
+                {t("finance:income.col.amount")}
+              </TableHead>
+              <TableHead>{t("finance:income.col.status")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-8">
+                  {t("finance:income.empty")}
+                </TableCell>
+              </TableRow>
+            )}
+            {rows.map((r) => {
+              const period = r.period_id ? periodsQ.data?.get(r.period_id) : null;
+              const client = r.client_id ? clientsQ.data?.get(r.client_id) : null;
+              const amt = pickAmount(
+                r.amount_ex_vat,
+                r.amount_inc_vat,
+                r.vat_amount,
+                vatMode,
+              );
+              return (
+                <TableRow key={r.id}>
+                  <TableCell className="text-sm">
+                    {period?.month_name ?? "—"}
+                  </TableCell>
+                  <TableCell className="text-sm">{client ?? "—"}</TableCell>
+                  <TableCell className="text-sm">
+                    {r.project_code ? (
+                      <span className="text-muted-foreground mr-1">
+                        {r.project_code}
+                      </span>
+                    ) : null}
+                    {r.project_name ?? "—"}
+                  </TableCell>
+                  <TableCell className="text-sm tabular-nums">
+                    {r.invoice_number ?? "—"}
+                  </TableCell>
+                  <TableCell className="text-sm tabular-nums">
+                    {r.expected_payment_date ?? "—"}
+                  </TableCell>
+                  <TableCell className="text-sm tabular-nums">
+                    {r.paid_date ?? "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {fmtEUR(amt)}
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge status={r.invoice_status} />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+          {rows.length > 0 && (
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={6}>
+                  {t("finance:income.summary.total")}
+                </TableCell>
+                <TableCell className="text-right tabular-nums font-semibold">
+                  {fmtEUR(totals.total)}
+                </TableCell>
+                <TableCell />
+              </TableRow>
+            </TableFooter>
+          )}
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SummaryStat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: string;
+}) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </div>
+      <div
+        className={cn(
+          "mt-1 font-display text-base font-semibold tabular-nums",
+          tone ?? "text-foreground",
+        )}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Expenses & Materials tab (read-only, shared)
+// ---------------------------------------------------------------------------
+
+type ExpenseFull = {
+  id: string;
+  period_id: string | null;
+  supplier_id: string | null;
+  category_id: string | null;
+  expense_type: string;
+  status: string;
+  description: string | null;
+  due_date: string | null;
+  paid_date: string | null;
+  amount_ex_vat: number;
+  vat_amount: number | null;
+  amount_inc_vat: number | null;
+  actual_amount_inc_vat: number | null;
+  vat_rate: number;
+};
+
+function useExpensesFull() {
+  return useQuery({
+    queryKey: ["finance", "expenses-full"],
+    queryFn: async (): Promise<ExpenseFull[]> => {
+      const { data, error } = await supabase
+        .from("financial_expense_items")
+        .select(
+          "id, period_id, supplier_id, category_id, expense_type, status, description, due_date, paid_date, amount_ex_vat, vat_amount, amount_inc_vat, actual_amount_inc_vat, vat_rate",
+        )
+        .order("due_date", { ascending: true, nullsFirst: false });
+      if (error) throw error;
+      return (data ?? []) as ExpenseFull[];
+    },
+  });
+}
+
+function useSuppliersMap() {
+  return useQuery({
+    queryKey: ["finance", "suppliers-map"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("financial_suppliers")
+        .select("id, name");
+      if (error) throw error;
+      const m = new Map<string, string>();
+      for (const r of data ?? []) m.set(r.id, r.name);
+      return m;
+    },
+  });
+}
+
+function useCategoriesMap() {
+  return useQuery({
+    queryKey: ["finance", "categories-map"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("expense_categories")
+        .select("id, name");
+      if (error) throw error;
+      const m = new Map<string, string>();
+      for (const r of data ?? []) m.set(r.id, r.name);
+      return m;
+    },
+  });
+}
+
+function ExpenseStatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation(["finance"]);
+  const tone =
+    status === "paid"
+      ? "bg-emerald-100 text-emerald-800"
+      : status === "overdue"
+        ? "bg-rose-100 text-rose-800"
+        : status === "cancelled"
+          ? "bg-muted text-muted-foreground"
+          : status === "committed"
+            ? "bg-amber-100 text-amber-800"
+            : "bg-slate-100 text-slate-700";
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide",
+        tone,
+      )}
+    >
+      {t(`finance:expenseStatus.${status}`, { defaultValue: status })}
+    </span>
+  );
+}
+
+function ExpensesTab({
+  vatMode,
+  kind,
+}: {
+  vatMode: VatMode;
+  kind: "operational" | "materials";
+}) {
+  const { t } = useTranslation(["finance", "common"]);
+  const expensesQ = useExpensesFull();
+  const suppliersQ = useSuppliersMap();
+  const categoriesQ = useCategoriesMap();
+  const periodsQ = usePeriodsMap();
+  const [monthFilter, setMonthFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  const periodOptions = useMemo(
+    () =>
+      Array.from(periodsQ.data?.entries() ?? []).map(([id, p]) => ({
+        id,
+        ...p,
+      })),
+    [periodsQ.data],
+  );
+
+  const rows = useMemo(() => {
+    const all = expensesQ.data ?? [];
+    const wantType = kind === "materials" ? "materials" : null;
+    return all.filter((r) => {
+      if (kind === "materials") {
+        if (r.expense_type !== "materials") return false;
+      } else {
+        if (r.expense_type === "materials") return false;
+      }
+      if (wantType && r.expense_type !== wantType) return false;
+      if (monthFilter !== "all" && r.period_id !== monthFilter) return false;
+      if (statusFilter !== "all" && r.status !== statusFilter) return false;
+      return true;
+    });
+  }, [expensesQ.data, kind, monthFilter, statusFilter]);
+
+  const totals = useMemo(() => {
+    const total = rows.reduce(
+      (s, r) =>
+        s + pickAmount(r.amount_ex_vat, r.amount_inc_vat, r.vat_amount, vatMode),
+      0,
+    );
+    const paid = rows
+      .filter((r) => r.status === "paid")
+      .reduce(
+        (s, r) =>
+          s +
+          pickAmount(
+            r.amount_ex_vat,
+            r.actual_amount_inc_vat ?? r.amount_inc_vat,
+            r.vat_amount,
+            vatMode,
+          ),
+        0,
+      );
+    return { total, paid, outstanding: total - paid, count: rows.length };
+  }, [rows, vatMode]);
+
+  const titleKey =
+    kind === "materials" ? "finance:materials.title" : "finance:expenses.title";
+  const subtitleKey =
+    kind === "materials"
+      ? "finance:materials.subtitle"
+      : "finance:expenses.subtitle";
+  const emptyKey =
+    kind === "materials" ? "finance:materials.empty" : "finance:expenses.empty";
+
+  if (
+    expensesQ.isLoading ||
+    suppliersQ.isLoading ||
+    categoriesQ.isLoading ||
+    periodsQ.isLoading
+  ) {
+    return (
+      <div className="text-sm text-muted-foreground">{t("common:loading")}</div>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <CardTitle className="font-display text-lg">{t(titleKey)}</CardTitle>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t(subtitleKey, { count: totals.count })}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <MonthFilter
+              value={monthFilter}
+              onChange={setMonthFilter}
+              periods={periodOptions}
+            />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  {t("finance:filter.allStatuses")}
+                </SelectItem>
+                <SelectItem value="projected">
+                  {t("finance:expenseStatus.projected")}
+                </SelectItem>
+                <SelectItem value="committed">
+                  {t("finance:expenseStatus.committed")}
+                </SelectItem>
+                <SelectItem value="paid">
+                  {t("finance:expenseStatus.paid")}
+                </SelectItem>
+                <SelectItem value="overdue">
+                  {t("finance:expenseStatus.overdue")}
+                </SelectItem>
+                <SelectItem value="cancelled">
+                  {t("finance:expenseStatus.cancelled")}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-6 text-xs">
+          <SummaryStat
+            label={t("finance:expenses.summary.total")}
+            value={fmtEUR(totals.total)}
+          />
+          <SummaryStat
+            label={t("finance:expenses.summary.paid")}
+            value={fmtEUR(totals.paid)}
+            tone="text-emerald-700"
+          />
+          <SummaryStat
+            label={t("finance:expenses.summary.outstanding")}
+            value={fmtEUR(totals.outstanding)}
+            tone="text-rose-700"
+          />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("finance:expenses.col.month")}</TableHead>
+              <TableHead>{t("finance:expenses.col.supplier")}</TableHead>
+              <TableHead>{t("finance:expenses.col.category")}</TableHead>
+              <TableHead>{t("finance:expenses.col.description")}</TableHead>
+              <TableHead>{t("finance:expenses.col.due")}</TableHead>
+              <TableHead>{t("finance:expenses.col.paid")}</TableHead>
+              <TableHead className="text-right">
+                {t("finance:expenses.col.amount")}
+              </TableHead>
+              <TableHead>{t("finance:expenses.col.status")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-8">
+                  {t(emptyKey)}
+                </TableCell>
+              </TableRow>
+            )}
+            {rows.map((r) => {
+              const period = r.period_id ? periodsQ.data?.get(r.period_id) : null;
+              const supplier = r.supplier_id
+                ? suppliersQ.data?.get(r.supplier_id)
+                : null;
+              const category = r.category_id
+                ? categoriesQ.data?.get(r.category_id)
+                : null;
+              const amt = pickAmount(
+                r.amount_ex_vat,
+                r.amount_inc_vat,
+                r.vat_amount,
+                vatMode,
+              );
+              return (
+                <TableRow key={r.id}>
+                  <TableCell className="text-sm">
+                    {period?.month_name ?? "—"}
+                  </TableCell>
+                  <TableCell className="text-sm">{supplier ?? "—"}</TableCell>
+                  <TableCell className="text-sm">{category ?? "—"}</TableCell>
+                  <TableCell className="text-sm max-w-[280px] truncate">
+                    {r.description ?? "—"}
+                  </TableCell>
+                  <TableCell className="text-sm tabular-nums">
+                    {r.due_date ?? "—"}
+                  </TableCell>
+                  <TableCell className="text-sm tabular-nums">
+                    {r.paid_date ?? "—"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {fmtEUR(amt)}
+                  </TableCell>
+                  <TableCell>
+                    <ExpenseStatusBadge status={r.status} />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+          {rows.length > 0 && (
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={6}>
+                  {t("finance:expenses.summary.total")}
+                </TableCell>
+                <TableCell className="text-right tabular-nums font-semibold">
+                  {fmtEUR(totals.total)}
+                </TableCell>
+                <TableCell />
+              </TableRow>
+            </TableFooter>
+          )}
         </Table>
       </CardContent>
     </Card>

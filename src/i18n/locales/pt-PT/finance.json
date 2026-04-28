@@ -91,6 +91,69 @@
     "title": "Em breve",
     "body": "Este separador será implementado na próxima iteração."
   },
+  "filter": {
+    "allMonths": "Todos os meses",
+    "allStatuses": "Todos os estados"
+  },
+  "invoiceStatus": {
+    "planned": "Planeada",
+    "issued": "Emitida",
+    "paid": "Paga",
+    "overdue": "Vencida",
+    "cancelled": "Cancelada"
+  },
+  "expenseStatus": {
+    "projected": "Prevista",
+    "committed": "Compromissada",
+    "paid": "Paga",
+    "overdue": "Vencida",
+    "cancelled": "Cancelada"
+  },
+  "income": {
+    "title": "Receitas",
+    "subtitle": "{{count}} factura(s)",
+    "empty": "Sem receitas para os filtros seleccionados.",
+    "summary": {
+      "total": "Total",
+      "paid": "Pago",
+      "outstanding": "Em aberto"
+    },
+    "col": {
+      "month": "Mês",
+      "client": "Cliente",
+      "project": "Projecto",
+      "invoice": "Factura",
+      "expected": "Prevista",
+      "paid": "Paga",
+      "amount": "Valor",
+      "status": "Estado"
+    }
+  },
+  "expenses": {
+    "title": "Despesas operacionais",
+    "subtitle": "{{count}} despesa(s)",
+    "empty": "Sem despesas para os filtros seleccionados.",
+    "summary": {
+      "total": "Total",
+      "paid": "Pago",
+      "outstanding": "Em aberto"
+    },
+    "col": {
+      "month": "Mês",
+      "supplier": "Fornecedor",
+      "category": "Categoria",
+      "description": "Descrição",
+      "due": "Vencimento",
+      "paid": "Paga",
+      "amount": "Valor",
+      "status": "Estado"
+    }
+  },
+  "materials": {
+    "title": "Materiais de projecto",
+    "subtitle": "{{count}} linha(s) de materiais",
+    "empty": "Sem materiais para os filtros seleccionados."
+  },
   "home": {
     "kicker": "Finanças do atelier",
     "title": "Finanças",

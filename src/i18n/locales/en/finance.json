@@ -91,6 +91,69 @@
     "title": "Coming next",
     "body": "This tab will be implemented in the next iteration."
   },
+  "filter": {
+    "allMonths": "All months",
+    "allStatuses": "All statuses"
+  },
+  "invoiceStatus": {
+    "planned": "Planned",
+    "issued": "Issued",
+    "paid": "Paid",
+    "overdue": "Overdue",
+    "cancelled": "Cancelled"
+  },
+  "expenseStatus": {
+    "projected": "Projected",
+    "committed": "Committed",
+    "paid": "Paid",
+    "overdue": "Overdue",
+    "cancelled": "Cancelled"
+  },
+  "income": {
+    "title": "Income",
+    "subtitle": "{{count}} invoice(s)",
+    "empty": "No income records match the selected filters.",
+    "summary": {
+      "total": "Total",
+      "paid": "Paid",
+      "outstanding": "Outstanding"
+    },
+    "col": {
+      "month": "Month",
+      "client": "Client",
+      "project": "Project",
+      "invoice": "Invoice",
+      "expected": "Expected",
+      "paid": "Paid",
+      "amount": "Amount",
+      "status": "Status"
+    }
+  },
+  "expenses": {
+    "title": "Operational expenses",
+    "subtitle": "{{count}} expense(s)",
+    "empty": "No expenses match the selected filters.",
+    "summary": {
+      "total": "Total",
+      "paid": "Paid",
+      "outstanding": "Outstanding"
+    },
+    "col": {
+      "month": "Month",
+      "supplier": "Supplier",
+      "category": "Category",
+      "description": "Description",
+      "due": "Due",
+      "paid": "Paid",
+      "amount": "Amount",
+      "status": "Status"
+    }
+  },
+  "materials": {
+    "title": "Project materials",
+    "subtitle": "{{count}} material line(s)",
+    "empty": "No materials match the selected filters."
+  },
   "home": {
     "kicker": "Office finance",
     "title": "Finance",
