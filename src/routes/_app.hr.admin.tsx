@@ -61,6 +61,7 @@ import { Button } from "@/components/ui/button";
 import { NewCollaboratorDialog } from "@/components/NewCollaboratorDialog";
 import { PERMISSION_GROUPS, type PermissionKey } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
+import { SalaryImporter } from "@/components/hr/salary-importer";
 
 type UserRow = {
   user_id: string;
@@ -188,6 +189,7 @@ function AdminPage() {
           <TabsTrigger value="permissions">Permissões</TabsTrigger>
           <TabsTrigger value="users">Utilizadores & Admins</TabsTrigger>
           <TabsTrigger value="internal-categories">Cost centers internos</TabsTrigger>
+          <TabsTrigger value="salary-import">Importar salários (RH)</TabsTrigger>
         </TabsList>
 
         <TabsContent value="permissions" className="mt-4">
@@ -291,6 +293,10 @@ function AdminPage() {
 
         <TabsContent value="internal-categories" className="mt-4">
           <InternalCategoriesAdmin />
+        </TabsContent>
+
+        <TabsContent value="salary-import" className="mt-4">
+          <SalaryImporter />
         </TabsContent>
       </Tabs>
     </div>
