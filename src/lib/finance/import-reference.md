@@ -334,3 +334,30 @@ in `financial_expense_items`. Never write the same logical row to both.
 - `pm_expenses` / `pm_materials` — project-owned expense/material lines.
 - HR-owned payroll movements (salaries, SA, IRS, SS).
 - Annual P-coded forecast rows on the `2026` sheet.
+
+---
+
+## 7. Salary / Payroll import (header-driven)
+
+Salary rows live in a separate flow from the company finance importer.
+See `src/lib/finance/import-salary.ts` and `src/lib/finance/salary-cost.ts`.
+
+Rules:
+
+- Column positions resolved by **normalized header label** (lower-cased,
+  accent-stripped, punctuation collapsed) via `DEFAULT_SALARY_HEADER_ALIASES`.
+  Never rely on fixed column indices.
+- Match collaborators by **normalized email first**, then **normalized name**.
+- Create a missing collaborator only when **name AND (email OR
+  numero_colaborador)** are present (`createMissing: true`).
+- Each Excel row becomes a **NEW** `salary_snapshots` record. The DB trigger
+  `salary_snapshots_guard_immutable` blocks edits to financial fields on
+  existing rows — history is append-only.
+- Imported rows carry `source = 'excel_import'` and `import_log_id` linking
+  back to `financial_import_logs`. The log's `rows_salary_snapshots` counter
+  is updated after the batch; skipped rows are appended to `notes`.
+- The earlier rule "*Payroll/HR rows are skipped (owned by HR module)*" in
+  the monthly-sheet importer **still applies** to per-month cash sheets:
+  payroll cash flow is owned here, not by `financial_expense_items`.
+
+Import type label: `salary_excel` (distinct from `excel_seed`).
