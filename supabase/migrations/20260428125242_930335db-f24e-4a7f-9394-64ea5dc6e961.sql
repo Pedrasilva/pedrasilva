@@ -1,0 +1,1 @@
+ALTER TYPE financial_expense_type ADD VALUE IF NOT EXISTS 'materials';

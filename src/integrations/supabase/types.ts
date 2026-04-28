@@ -3702,6 +3702,7 @@ export type Database = {
         | "consultant"
         | "tax"
         | "other"
+        | "materials"
       financial_invoice_status:
         | "planned"
         | "issued"
@@ -3947,6 +3948,7 @@ export const Constants = {
         "consultant",
         "tax",
         "other",
+        "materials",
       ],
       financial_invoice_status: [
         "planned",
