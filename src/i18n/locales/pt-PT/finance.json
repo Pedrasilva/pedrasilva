@@ -453,13 +453,19 @@
     "statement": {
       "title": "Extracto",
       "outstandingTotal": "Total em dívida",
-      "documents": "Documentos"
+      "documents": "Documentos",
+      "pickCounterparty": "Escolher contraparte…",
+      "supplier": "Fornecedor",
+      "client": "Cliente"
     },
     "bankMatch": {
       "title": "Associar a documento financeiro",
       "subtitle": "Escolha um documento em dívida para registar este movimento como pagamento.",
       "noCandidates": "Sem documentos em dívida disponíveis.",
       "useAmount": "Usar valor do movimento",
+      "documentLabel": "Documento",
+      "pickDocument": "Escolher documento…",
+      "txAmount": "Valor do movimento",
       "matched": "Movimento bancário associado ao documento."
     }
   }
