@@ -155,36 +155,44 @@ export function quoteTypeToProposalKind(
   }
 }
 
-/** Project-category proposal kinds — Gantt/staged/retainer block sets. */
+/** Project-category proposal kinds — Gantt/staged block sets. */
 export const PROJECT_PROPOSAL_KINDS: readonly ProposalKind[] = [
   "fixed_project",
   "psa_interior_fitout",
-  "construction_retainer",
 ] as const;
 
-/** Consultancy-category proposal kinds — hourly / phased advisory block sets. */
+/** Time-based (consultancy) proposal kinds — hourly / phased advisory block sets. */
 export const CONSULTANCY_PROPOSAL_KINDS: readonly ProposalKind[] = [
   "phased_consultancy",
   "consultancy_hours_package",
 ] as const;
 
+/** Construction-retainer proposal kinds — monthly retainer block sets. */
+export const RETAINER_PROPOSAL_KINDS: readonly ProposalKind[] = [
+  "construction_retainer",
+] as const;
+
 /**
  * Filter the available proposal kinds by the quote's top-level category.
- * Project quotes never see consultancy block-sets and vice-versa, which
- * fixes the bug where a standard_project quote could pick consultancy
- * blocks at generation time.
+ * Each of the 3 workflows now has its own disjoint block-set so a quote
+ * created in one workflow can never accidentally pick blocks from another.
+ * Legacy "consultancy" maps to the time-based (consultancy) set.
  */
 export function proposalKindsForCategory(
-  category: "project" | "consultancy",
+  category: "project" | "time_based" | "retainer" | "consultancy",
 ): readonly ProposalKind[] {
-  return category === "consultancy" ? CONSULTANCY_PROPOSAL_KINDS : PROJECT_PROPOSAL_KINDS;
+  if (category === "retainer") return RETAINER_PROPOSAL_KINDS;
+  if (category === "time_based" || category === "consultancy") return CONSULTANCY_PROPOSAL_KINDS;
+  return PROJECT_PROPOSAL_KINDS;
 }
 
 /** Default proposal kind for a category when no prior choice exists. */
 export function defaultProposalKindForCategory(
-  category: "project" | "consultancy",
+  category: "project" | "time_based" | "retainer" | "consultancy",
 ): ProposalKind {
-  return category === "consultancy" ? "consultancy_hours_package" : "fixed_project";
+  if (category === "retainer") return "construction_retainer";
+  if (category === "time_based" || category === "consultancy") return "consultancy_hours_package";
+  return "fixed_project";
 }
 
 export interface ConsultancyConfig {
