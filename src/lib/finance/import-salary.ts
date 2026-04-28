@@ -108,6 +108,27 @@ export function resolveHeaders(
   return map;
 }
 
+/**
+ * Scan the first N rows of a sheet (array-of-arrays) and pick the row that
+ * resolves the highest number of known salary columns. Returns the 1-based
+ * row number (suitable for the UI input). Falls back to 1 when no row scores.
+ */
+export function autoDetectHeaderRow(
+  rows: (string | number | null)[][],
+  aliases: Record<SalaryColumnKey, string[]> = DEFAULT_SALARY_HEADER_ALIASES,
+  scanRows = 20,
+): { headerRowNum: number; score: number } {
+  const limit = Math.min(scanRows, rows.length);
+  let best = { headerRowNum: 1, score: 0 };
+  for (let i = 0; i < limit; i++) {
+    const headerCandidate = (rows[i] ?? []).map((v) => String(v ?? "").trim());
+    const map = resolveHeaders(headerCandidate, aliases);
+    const score = Object.keys(map).length;
+    if (score > best.score) best = { headerRowNum: i + 1, score };
+  }
+  return best;
+}
+
 // ---- Value parsing ------------------------------------------------------
 
 const toNumber = (raw: unknown): number => {
