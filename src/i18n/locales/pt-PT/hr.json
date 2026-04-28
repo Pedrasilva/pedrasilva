@@ -666,5 +666,59 @@
       },
       "empty": "Sem colaboradores."
     }
+  },
+  "salaryImport": {
+    "title": "Importar salários (folha RH)",
+    "subtitle": "Carregue um Excel de salários para acrescentar novas fichas com data efectiva. As fichas existentes nunca são alteradas.",
+    "hrOwnedBadge": "Gestão RH",
+    "fields": {
+      "file": "Ficheiro Excel",
+      "fileHint": "Aceita .xlsx / .xls. As colunas são identificadas pelo nome, não pela posição.",
+      "sheet": "Folha",
+      "headerRow": "Linha de cabeçalho (a partir de 1)",
+      "defaultEffectiveFrom": "Data efectiva por defeito",
+      "createMissing": "Criar colaboradores em falta quando existe nome + email/nº"
+    },
+    "reset": "Limpar",
+    "previewButton": "Pré-visualizar importação",
+    "previewing": "A ler…",
+    "confirmButton": "Confirmar importação",
+    "importing": "A importar…",
+    "imported": "Importado",
+    "duplicateInfo": "Já tinha sido importado como \"{{file}}\" em {{date}}.",
+    "preview": {
+      "title": "Pré-visualização",
+      "subtitle": "Reveja o que vai ser inserido antes de confirmar. Nada é escrito nesta fase.",
+      "resolvedHeaders": "Cabeçalhos identificados",
+      "aliasHint": "{{keys}} chaves conhecidas; chaves não identificadas usam valores por defeito.",
+      "duplicateTitle": "Este ficheiro coincide com uma importação anterior",
+      "matchedCount": "A inserir (correspondidos)",
+      "willCreateCount": "Novos colaboradores",
+      "skippedCount": "Ignorados",
+      "matchedTitle": "Colaboradores correspondidos",
+      "willCreateTitle": "Novos colaboradores a criar",
+      "willCreateDisabled": "Desactivado — active “Criar colaboradores em falta” para os incluir.",
+      "skippedTitle": "Linhas que vão ser ignoradas",
+      "confirmHint": "Vai inserir {{insert}} ficha(s); ignorar {{skip}} linha(s).",
+      "cols": {
+        "row": "Linha",
+        "identifier": "Identificador",
+        "matchedTo": "Correspondido a",
+        "matchedBy": "Por",
+        "base": "Salário base",
+        "effectiveFrom": "Data efectiva",
+        "name": "Nome",
+        "email": "Email",
+        "number": "Nº",
+        "reason": "Motivo"
+      }
+    },
+    "result": {
+      "completedTitle": "Importação concluída",
+      "summary": "Inseridas {{inserted}} ficha(s); criados {{created}} colaborador(es); ignoradas {{skipped}} linha(s)."
+    },
+    "toasts": {
+      "completed": "Importadas {{inserted}} ficha(s); {{skipped}} ignoradas"
+    }
   }
 }
