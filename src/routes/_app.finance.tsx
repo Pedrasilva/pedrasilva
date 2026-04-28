@@ -244,6 +244,8 @@ function useFinanceData() {
 // Helpers
 // ---------------------------------------------------------------------------
 
+const DASH = "—";
+
 const fmtEUR = (v: number) =>
   new Intl.NumberFormat("pt-PT", {
     style: "currency",
@@ -255,7 +257,37 @@ const fmtEUR2 = (v: number) =>
   new Intl.NumberFormat("pt-PT", {
     style: "currency",
     currency: "EUR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(v || 0);
+
+const dateFmt = new Intl.DateTimeFormat("pt-PT", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+const dateTimeFmt = new Intl.DateTimeFormat("pt-PT", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+function fmtDate(s: string | null | undefined): string {
+  if (!s) return DASH;
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return DASH;
+  return dateFmt.format(d);
+}
+
+function fmtDateTime(s: string | null | undefined): string {
+  if (!s) return DASH;
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return DASH;
+  return dateTimeFmt.format(d);
+}
 
 type VatMode = "inc" | "ex";
 
