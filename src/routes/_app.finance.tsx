@@ -47,6 +47,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
 import { cn } from "@/lib/utils";
 import { BankReconciliationTab } from "@/components/finance/bank-reconciliation";
+import { DocumentsTab } from "@/components/finance/documents-tab";
 
 async function checkFinanceAccess(): Promise<boolean> {
   const { data: { session } } = await supabase.auth.getSession();
