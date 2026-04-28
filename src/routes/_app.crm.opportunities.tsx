@@ -286,7 +286,71 @@ function OpportunitiesPage() {
       )}
 
       <NewOpportunityDialog open={open} onClose={() => setOpen(false)} />
+      <QuoteCategoryChooserDialog
+        opp={chooserOpp}
+        onClose={() => setChooserOpp(null)}
+        onPick={(category) => {
+          if (!chooserOpp) return;
+          setCreatingFor(chooserOpp.id);
+          createQuote.mutate({ opp: chooserOpp, category });
+        }}
+        isPending={createQuote.isPending}
+      />
     </div>
+  );
+}
+
+function QuoteCategoryChooserDialog({
+  opp, onClose, onPick, isPending,
+}: {
+  opp: Row | null;
+  onClose: () => void;
+  onPick: (category: QuoteCategory) => void;
+  isPending: boolean;
+}) {
+  const { t } = useTranslation("crm");
+  const cards: { value: QuoteCategory; icon: typeof Briefcase }[] = [
+    { value: "project", icon: Briefcase },
+    { value: "time_based", icon: Clock },
+    { value: "retainer", icon: Wrench },
+  ];
+  return (
+    <Dialog open={!!opp} onOpenChange={(v) => !v && !isPending && onClose()}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{t("quotes.newQuoteDialog.title")}</DialogTitle>
+          <DialogDescription>
+            {t("quotes.newQuoteDialog.categoryChooserDescription")}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {cards.map(({ value, icon: Icon }) => (
+            <button
+              key={value}
+              type="button"
+              disabled={isPending}
+              onClick={() => onPick(value)}
+              className="flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors hover:bg-muted/50 hover:border-primary/40 disabled:opacity-50"
+            >
+              <div className="flex items-center gap-2">
+                <Icon className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold">
+                  {t(`quotes.newQuoteDialog.category.${value}.title`)}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t(`quotes.newQuoteDialog.category.${value}.hint`)}
+              </p>
+            </button>
+          ))}
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose} disabled={isPending}>
+            {t("common.cancel")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
