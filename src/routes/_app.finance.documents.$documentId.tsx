@@ -583,6 +583,9 @@ function DocumentEditorPage() {
           </Button>
         </CardHeader>
         <CardContent>
+          <p className="text-xs text-muted-foreground mb-3">
+            {t("finance:documents.form.linesHelp")}
+          </p>
           <div className="overflow-x-auto rounded-md border">
             <Table>
               <TableHeader>
@@ -619,8 +622,9 @@ function DocumentEditorPage() {
               </TableHeader>
               <TableBody>
                 {lines.map((l, i) => {
-                  const ex = l.quantity * l.unit_price_ex_vat;
-                  const gross = ex * (1 + l.vat_rate / 100);
+                  const net = l.quantity * l.unit_price_ex_vat;
+                  const vat = net * (l.vat_rate / 100);
+                  const gross = net + vat;
                   return (
                     <TableRow key={l._key}>
                       <TableCell>
@@ -629,6 +633,13 @@ function DocumentEditorPage() {
                           onChange={(e) => patchLine(i, { description: e.target.value })}
                           disabled={readOnly}
                         />
+                        <div className="mt-1 text-[11px] text-muted-foreground tabular-nums">
+                          {t("finance:documents.form.linePreview", {
+                            net: fmtEUR2(net),
+                            vat: fmtEUR2(vat),
+                            gross: fmtEUR2(gross),
+                          })}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Input
