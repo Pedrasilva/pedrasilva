@@ -70,6 +70,16 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
       },
     ],
   },
+  {
+    module: "Finance",
+    items: [
+      {
+        key: "finance.dashboard",
+        label: "Painel financeiro",
+        description: "Aceder ao dashboard financeiro do escritório (cash flow, receitas, despesas, bancos).",
+      },
+    ],
+  },
 ];
 
 export const ALL_PERMISSION_KEYS: PermissionKey[] = PERMISSION_GROUPS.flatMap(
