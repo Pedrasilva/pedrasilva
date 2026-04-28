@@ -676,6 +676,7 @@
       "fileHint": "Accepts .xlsx / .xls. Headers are matched by name, not position.",
       "sheet": "Sheet",
       "headerRow": "Header row (1-based)",
+      "autoDetected": "auto-detected",
       "defaultEffectiveFrom": "Default effective from",
       "createMissing": "Create missing team members when name + email/number is present"
     },
