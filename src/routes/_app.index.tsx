@@ -13,6 +13,7 @@ import {
   Users,
   Building2,
   Briefcase,
+  Wallet,
   ArrowUpRight,
   Cake,
   Sparkles,
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/_app/")({
 });
 
 type ModuleDef = {
-  to: "/hr" | "/crm" | "/projects";
+  to: "/hr" | "/crm" | "/projects" | "/finance";
   number: string;
   titleKey: string;
   subtitleKey: string;
@@ -77,6 +78,15 @@ const MODULES: ModuleDef[] = [
       "projects.my-tasks",
       "projects.timesheet",
     ],
+  },
+  {
+    to: "/finance",
+    number: "04",
+    titleKey: "finance:module.title",
+    subtitleKey: "finance:module.subtitle",
+    descriptionKey: "finance:module.description",
+    icon: Wallet,
+    anyOf: ["finance.dashboard"],
   },
 ];
 
@@ -127,7 +137,7 @@ function quoteOfTheDay() {
 
 
 function HubPage() {
-  const { t } = useTranslation(["home", "common", "hr", "crm", "projects"]);
+  const { t } = useTranslation(["home", "common", "hr", "crm", "projects", "finance"]);
   const { isAdmin, loading: authLoading, user } = useAuth();
   const { permissions, loading: permsLoading } = useMyPermissions();
   const loading = authLoading || permsLoading;
