@@ -1118,7 +1118,6 @@ function GeneratedDocumentSection({
                 </Label>
               );
             })}
-            </Label>
           </RadioGroup>
 
           {isConsultancyProposalKind(proposalKind) && (
