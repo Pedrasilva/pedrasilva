@@ -4222,6 +4222,7 @@ export type Database = {
         | "tax"
         | "financing"
         | "transfer"
+        | "income"
       financial_period_status: "projected" | "active" | "validated" | "closed"
       financial_spending_policy: "mandatory" | "discretionary" | "pass_through"
       pm_allocation_status: "tentative" | "committed"
@@ -4494,6 +4495,7 @@ export const Constants = {
         "tax",
         "financing",
         "transfer",
+        "income",
       ],
       financial_period_status: ["projected", "active", "validated", "closed"],
       financial_spending_policy: ["mandatory", "discretionary", "pass_through"],
