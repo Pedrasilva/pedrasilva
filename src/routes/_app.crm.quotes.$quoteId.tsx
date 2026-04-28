@@ -435,6 +435,8 @@ function QuoteDetail() {
   const status = QUOTE_STATUSES.find((s) => s.value === quote.quote_status);
   const canConvert = quote.quote_status === "approved";
   const pricingMultiplier = Number(form.pricing_multiplier) || 1;
+  const category = normalizeQuoteCategory(quote.quote_category);
+  const isProject = category === "project";
 
   return (
     <div className="space-y-6">
