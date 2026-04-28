@@ -497,6 +497,9 @@ function FinanceDashboardPage() {
         <TabsContent value="bankRec" className="mt-6">
           <BankReconciliationTab />
         </TabsContent>
+        <TabsContent value="documents" className="mt-6">
+          <DocumentsTab />
+        </TabsContent>
         <TabsContent value="importLogs" className="mt-6">
           <ImportLogsTab />
         </TabsContent>
