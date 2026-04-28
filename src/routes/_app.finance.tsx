@@ -1295,13 +1295,13 @@ function IncomeTab({ vatMode }: { vatMode: VatMode }) {
                     {r.invoice_number ?? "—"}
                   </TableCell>
                   <TableCell className="text-sm tabular-nums">
-                    {r.expected_payment_date ?? "—"}
+                    {fmtDate(r.expected_payment_date)}
                   </TableCell>
                   <TableCell className="text-sm tabular-nums">
-                    {r.paid_date ?? "—"}
+                    {fmtDate(r.paid_date)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {fmtEUR(amt)}
+                    {fmtEUR2(amt)}
                   </TableCell>
                   <TableCell>
                     <StatusBadge status={r.invoice_status} />
