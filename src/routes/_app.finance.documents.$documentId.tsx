@@ -788,7 +788,7 @@ function DocumentEditorPage() {
               {t("finance:documents.form.saveDraft")}
             </Button>
             <Button onClick={() => save(true)} disabled={readOnly}>
-              {t("finance:documents.form.save")}
+              {t("finance:documents.form.issue")}
             </Button>
           </div>
         </CardContent>
