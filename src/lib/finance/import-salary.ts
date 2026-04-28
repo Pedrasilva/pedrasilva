@@ -177,6 +177,12 @@ export type SalaryImportInput = {
   createMissing?: boolean;
   /** Optional overrides/extensions to the default header alias map. */
   headerAliases?: Record<SalaryColumnKey, string[]>;
+  /**
+   * If provided, only these data row indices (0-based, relative to dataRows)
+   * will be imported. Other rows are silently ignored. When omitted, all
+   * eligible rows are imported.
+   */
+  selectedRowIndices?: number[];
 };
 
 export type SalaryImportSkip = {
