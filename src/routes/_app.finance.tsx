@@ -467,6 +467,7 @@ function FinanceDashboardPage() {
             {t("finance:tabs.bankBalances")}
           </TabsTrigger>
           <TabsTrigger value="bankRec">{t("finance:tabs.bankRec")}</TabsTrigger>
+          <TabsTrigger value="documents">{t("finance:tabsExtra.documents")}</TabsTrigger>
           <TabsTrigger value="importLogs">
             {t("finance:tabs.importLogs")}
           </TabsTrigger>
