@@ -737,9 +737,25 @@ function GeneratedDocumentSection({
 
   // Read prior choice from snapshot when regenerating; otherwise default
   // from quote_type (commercial classification chosen at quote creation).
-  const persistedKind =
+  // Filter the offered proposal kinds by the quote's top-level category so
+  // a Time-based / Retainer quote never sees Project block-sets (and vice-
+  // versa). Defaults to the project set when no category is provided.
+  const allowedKinds = useMemo(
+    () => proposalKindsForCategory(quoteCategory ?? "project"),
+    [quoteCategory],
+  );
+  const fallbackKind = quoteCategory
+    ? defaultProposalKindForCategory(quoteCategory)
+    : quoteTypeToProposalKind(quoteType);
+  const persistedRaw =
     (document?.snapshot_json as { proposal_kind?: ProposalKind } | null)
-      ?.proposal_kind ?? quoteTypeToProposalKind(quoteType);
+      ?.proposal_kind ?? fallbackKind;
+  // If the persisted kind is not allowed for this category, snap to the
+  // category default — prevents stale "fixed_project" selections leaking
+  // into a time-based quote.
+  const persistedKind: ProposalKind = allowedKinds.includes(persistedRaw)
+    ? persistedRaw
+    : fallbackKind;
   const [proposalKind, setProposalKind] = useState<ProposalKind>(persistedKind);
 
   // Consultancy commercial settings. Initialised in-memory; we hydrate them
