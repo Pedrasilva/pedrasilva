@@ -104,7 +104,7 @@
   },
   "expenseStatus": {
     "projected": "Prevista",
-    "committed": "Compromissada",
+    "confirmed": "Confirmada",
     "paid": "Paga",
     "overdue": "Vencida",
     "cancelled": "Cancelada"

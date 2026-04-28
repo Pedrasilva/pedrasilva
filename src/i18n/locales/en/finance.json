@@ -104,7 +104,7 @@
   },
   "expenseStatus": {
     "projected": "Projected",
-    "committed": "Committed",
+    "confirmed": "Confirmed",
     "paid": "Paid",
     "overdue": "Overdue",
     "cancelled": "Cancelled"
