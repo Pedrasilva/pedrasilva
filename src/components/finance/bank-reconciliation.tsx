@@ -410,6 +410,7 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
   const { t } = useTranslation(["finance", "common"]);
   const [filter, setFilter] = useState<"unclassified" | "classified" | "ignored" | "all">("unclassified");
   const [classifyTx, setClassifyTx] = useState<BankTx | null>(null);
+  const [matchDocTx, setMatchDocTx] = useState<BankTx | null>(null);
 
   const txQ = useQuery({
     queryKey: ["finance", "bank-tx", accountId, filter],
