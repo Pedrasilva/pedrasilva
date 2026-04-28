@@ -680,6 +680,7 @@
       "createMissing": "Create missing team members when name + email/number is present"
     },
     "reset": "Reset",
+    "downloadTemplate": "Download template",
     "previewButton": "Preview import",
     "previewing": "Reading…",
     "confirmButton": "Confirm import",
@@ -700,6 +701,8 @@
       "willCreateDisabled": "Disabled — toggle “Create missing team members” to include these.",
       "skippedTitle": "Rows that will be skipped",
       "confirmHint": "Will insert {{insert}} snapshot(s); skip {{skip}} row(s).",
+      "selectedHint": "{{selected}} row(s) selected for import.",
+      "selectRow": "Include row",
       "cols": {
         "row": "Row",
         "identifier": "Row identifier",
@@ -710,8 +713,17 @@
         "name": "Name",
         "email": "Email",
         "number": "Number",
-        "reason": "Reason"
+        "reason": "Reason",
+        "warnings": "Warnings"
       }
+    },
+    "warnings": {
+      "missing_email": "Missing email",
+      "salary_too_low": "Salary unusually low",
+      "salary_too_high": "Salary unusually high",
+      "invalid_effective_date": "Invalid effective date",
+      "duplicate_in_file": "Duplicate in file",
+      "no_change_vs_current": "No change vs current"
     },
     "result": {
       "completedTitle": "Import completed",
