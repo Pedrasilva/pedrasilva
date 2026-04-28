@@ -1399,7 +1399,7 @@ function ExpenseStatusBadge({ status }: { status: string }) {
         ? "bg-rose-100 text-rose-800"
         : status === "cancelled"
           ? "bg-muted text-muted-foreground"
-          : status === "committed"
+          : status === "confirmed"
             ? "bg-amber-100 text-amber-800"
             : "bg-slate-100 text-slate-700";
   return (
@@ -1464,13 +1464,7 @@ function ExpensesTab({
       .filter((r) => r.status === "paid")
       .reduce(
         (s, r) =>
-          s +
-          pickAmount(
-            r.amount_ex_vat,
-            r.actual_amount_inc_vat ?? r.amount_inc_vat,
-            r.vat_amount,
-            vatMode,
-          ),
+          s + pickAmount(r.amount_ex_vat, r.amount_inc_vat, r.vat_amount, vatMode),
         0,
       );
     return { total, paid, outstanding: total - paid, count: rows.length };
@@ -1523,8 +1517,8 @@ function ExpensesTab({
                 <SelectItem value="projected">
                   {t("finance:expenseStatus.projected")}
                 </SelectItem>
-                <SelectItem value="committed">
-                  {t("finance:expenseStatus.committed")}
+                <SelectItem value="confirmed">
+                  {t("finance:expenseStatus.confirmed")}
                 </SelectItem>
                 <SelectItem value="paid">
                   {t("finance:expenseStatus.paid")}
