@@ -831,8 +831,22 @@ function PaymentsSection({
 
   const outstanding = Number(doc.outstanding_amount ?? 0);
 
+  // Reset manual form to current outstanding whenever dialog opens or
+  // outstanding changes (e.g. after a partial payment).
+  useEffect(() => {
+    if (manualOpen) {
+      setManualAmount(outstanding);
+      setManualDate(new Date().toISOString().slice(0, 10));
+      setManualMethod("bank_transfer");
+    }
+  }, [manualOpen, outstanding]);
+
   async function addManual() {
-    if (manualAmount <= 0 || manualAmount > outstanding) {
+    if (!Number.isFinite(manualAmount) || manualAmount <= 0) {
+      toast.error(t("finance:documents.payments.amountInvalid") as string);
+      return;
+    }
+    if (manualAmount > outstanding + 0.005) {
       toast.error(t("finance:documents.payments.exceedsOutstanding") as string);
       return;
     }
@@ -894,15 +908,17 @@ function PaymentsSection({
             <TableBody>
               {(docQ.data?.payments ?? []).map((p) => (
                 <TableRow key={p.id}>
-                  <TableCell>{p.payment_date}</TableCell>
+                  <TableCell>{fmtDate(p.payment_date)}</TableCell>
                   <TableCell className="text-right tabular-nums">
                     {fmtEUR2(Number(p.amount))}
                   </TableCell>
                   <TableCell>
-                    {t(`finance:documents.payments.method_${p.method}`)}
+                    {t(`finance:documents.payments.methods.${p.method}`)}
                   </TableCell>
-                  <TableCell className="font-mono text-xs">
-                    {p.bank_transaction_id ?? "—"}
+                  <TableCell className="text-xs text-muted-foreground">
+                    {p.bank_transaction_id
+                      ? t("finance:documents.payments.matched")
+                      : t("finance:documents.payments.manual")}
                   </TableCell>
                   <TableCell>
                     <Button
@@ -934,9 +950,16 @@ function PaymentsSection({
               <Input
                 type="number"
                 step="0.01"
+                min="0"
+                max={outstanding}
                 value={manualAmount}
                 onChange={(e) => setManualAmount(Number(e.target.value || 0))}
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("finance:documents.payments.outstandingHint", {
+                  amount: fmtEUR2(outstanding),
+                })}
+              </p>
             </div>
             <div>
               <Label>{t("finance:documents.payments.date")}</Label>
@@ -955,7 +978,7 @@ function PaymentsSection({
                 <SelectContent>
                   {(["bank_transfer", "cash", "card", "direct_debit", "other"] as const).map((m) => (
                     <SelectItem key={m} value={m}>
-                      {t(`finance:documents.payments.method_${m}`)}
+                      {t(`finance:documents.payments.methods.${m}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
