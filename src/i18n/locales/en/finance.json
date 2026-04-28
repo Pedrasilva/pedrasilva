@@ -406,6 +406,9 @@
       "cancelDoc": "Cancel document",
       "selectType": "Select document type",
       "noLines": "Add at least one line item.",
+      "missingDescription": "Every line needs a description.",
+      "missingCounterparty": "Pick a {{role}} for this document.",
+      "confirmCancel": "Cancel this document? It can no longer be edited.",
       "savedDraft": "Document saved as draft.",
       "saved": "Document updated.",
       "issued": "Document marked as issued.",
@@ -450,13 +453,19 @@
     "statement": {
       "title": "Statement",
       "outstandingTotal": "Total outstanding",
-      "documents": "Documents"
+      "documents": "Documents",
+      "pickCounterparty": "Pick counterparty…",
+      "supplier": "Supplier",
+      "client": "Client"
     },
     "bankMatch": {
       "title": "Match to financial document",
       "subtitle": "Pick an outstanding document to record this transaction as a payment.",
       "noCandidates": "No outstanding documents available.",
       "useAmount": "Use transaction amount",
+      "documentLabel": "Document",
+      "pickDocument": "Pick a document…",
+      "txAmount": "Transaction amount",
       "matched": "Bank transaction matched to document."
     }
   }
