@@ -303,5 +303,155 @@
       "rowsBankAccounts": "Bank acc.",
       "notes": "Notes"
     }
+  },
+  "tabsExtra": {
+    "documents": "Documents"
+  },
+  "documents": {
+    "title": "Financial Documents",
+    "subtitle": "Invoices, credit notes, and receipts. The accrual source of truth for VAT.",
+    "openFull": "Open documents page",
+    "new": "New document",
+    "back": "Back to documents",
+    "noResults": "No documents match the current filters.",
+    "filters": {
+      "all": "All",
+      "search": "Search number, reference, party",
+      "docType": "Type",
+      "direction": "Direction",
+      "status": "Status",
+      "supplier": "Supplier",
+      "client": "Client",
+      "project": "Project",
+      "vatPeriod": "VAT period"
+    },
+    "direction": {
+      "issued": "Issued",
+      "received": "Received"
+    },
+    "type": {
+      "client_invoice": "Client invoice",
+      "client_credit_note": "Client credit note",
+      "supplier_invoice": "Supplier invoice",
+      "supplier_credit_note": "Supplier credit note",
+      "receipt": "Receipt",
+      "other": "Other"
+    },
+    "status": {
+      "draft": "Draft",
+      "issued": "Issued",
+      "partially_paid": "Partially paid",
+      "paid": "Paid",
+      "cancelled": "Cancelled"
+    },
+    "source": {
+      "manual": "Manual",
+      "project": "Project-generated",
+      "import": "Imported",
+      "ocr": "OCR"
+    },
+    "col": {
+      "number": "Number",
+      "type": "Type",
+      "counterparty": "Counterparty",
+      "issueDate": "Issue date",
+      "dueDate": "Due date",
+      "vatPeriod": "VAT period",
+      "net": "Net",
+      "vat": "VAT",
+      "gross": "Gross",
+      "paid": "Paid",
+      "outstanding": "Outstanding",
+      "status": "Status",
+      "project": "Project",
+      "actions": "Actions"
+    },
+    "form": {
+      "header": "Document details",
+      "lines": "Line items",
+      "addLine": "Add line",
+      "removeLine": "Remove",
+      "totals": "Totals",
+      "subtotal": "Subtotal (ex VAT)",
+      "vat": "VAT",
+      "total": "Total (inc VAT)",
+      "documentNumber": "Document number",
+      "externalReference": "External reference",
+      "issueDate": "Issue date",
+      "dueDate": "Due date",
+      "currency": "Currency",
+      "supplier": "Supplier",
+      "client": "Client",
+      "project": "Project (optional)",
+      "classification": "Default classification",
+      "notes": "Notes",
+      "file": "Attachment",
+      "uploadFile": "Upload file",
+      "viewFile": "View attachment",
+      "removeFile": "Remove attachment",
+      "lineDescription": "Description",
+      "lineQuantity": "Qty",
+      "lineUnitPrice": "Unit price (ex VAT)",
+      "lineVatRate": "VAT %",
+      "lineVatCode": "VAT code",
+      "lineClassification": "Classification",
+      "lineProject": "Project",
+      "lineReimbursable": "Reimb.",
+      "lineNet": "Net",
+      "lineVat": "VAT",
+      "lineGross": "Gross",
+      "save": "Save",
+      "saveDraft": "Save as draft",
+      "issue": "Mark as issued",
+      "cancelDoc": "Cancel document",
+      "selectType": "Select document type",
+      "noLines": "Add at least one line item.",
+      "savedDraft": "Document saved as draft.",
+      "saved": "Document updated.",
+      "issued": "Document marked as issued.",
+      "cancelled": "Document cancelled."
+    },
+    "payments": {
+      "title": "Payments",
+      "addManual": "Record payment",
+      "matchBank": "Match bank transaction",
+      "noPayments": "No payments recorded yet.",
+      "amount": "Amount",
+      "date": "Date",
+      "method": "Method",
+      "bankTx": "Bank transaction",
+      "remove": "Remove",
+      "removed": "Payment removed.",
+      "added": "Payment recorded.",
+      "exceedsOutstanding": "Payment exceeds outstanding amount.",
+      "method_bank_transfer": "Bank transfer",
+      "method_cash": "Cash",
+      "method_card": "Card",
+      "method_direct_debit": "Direct debit",
+      "method_other": "Other"
+    },
+    "vat": {
+      "title": "VAT summary",
+      "subtitle": "Per VAT period. Output VAT comes from issued documents, input VAT from received supplier documents.",
+      "period": "Period",
+      "outputAccrued": "Output VAT (accrued)",
+      "inputAccrued": "Input VAT (accrued)",
+      "payable": "VAT payable",
+      "paidEst": "Paid (est.)",
+      "outstanding": "Outstanding",
+      "totals": "Totals"
+    },
+    "statement": {
+      "title": "Statement",
+      "outstandingTotal": "Total outstanding",
+      "documents": "Documents"
+    },
+    "bankMatch": {
+      "title": "Match to financial document",
+      "subtitle": "Pick an outstanding document to record this transaction as a payment.",
+      "noCandidates": "No outstanding documents available.",
+      "useAmount": "Use transaction amount",
+      "matched": "Bank transaction matched to document."
+    }
   }
 }
