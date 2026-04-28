@@ -995,12 +995,12 @@ function BankBalancesTab() {
               return (
                 <TableRow key={a.id}>
                   <TableCell className="font-medium">{a.account_name}</TableCell>
-                  <TableCell>{a.bank_name ?? "—"}</TableCell>
+                  <TableCell>{a.bank_name ?? DASH}</TableCell>
                   <TableCell>{a.currency}</TableCell>
                   <TableCell className="text-right tabular-nums">
                     {snap ? fmtEUR2(Number(snap.balance)) : t("finance:bank.noSnapshot")}
                   </TableCell>
-                  <TableCell>{snap?.snapshot_date ?? "—"}</TableCell>
+                  <TableCell className="tabular-nums">{fmtDate(snap?.snapshot_date)}</TableCell>
                 </TableRow>
               );
             })}
