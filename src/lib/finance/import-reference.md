@@ -300,3 +300,37 @@ Sign handling:
   skipped without aborting the import, but the count of skipped rows per
   block is written to `financial_import_logs.notes` so a human can
   reconcile.
+
+---
+
+## 7. Excel block → target table mapping (canonical)
+
+Single source of truth for "where does each Excel block end up?". Use this
+table when wiring new importers, debugging missing rows, or extending the
+schema.
+
+| Excel block / source                              | Canonical app concept              | Target table(s)                                                                 | Discriminator / notes |
+|---------------------------------------------------|------------------------------------|----------------------------------------------------------------------------------|-----------------------|
+| `DESPESAS OPERACIONAIS` (monthly sheets)          | Operational expenses               | `financial_expense_items`                                                        | `expense_type = "operational"` |
+| `MATERIAIS` / `MATERIAIS / SUBCONTRATAÇÃO`        | **External services / Subcontracting** | `financial_expense_items` (current) — future: split into `project_external_services` when project linkage is wired | `expense_type = "materials"` (legacy DB enum); displayed as "External Services" / "Serviços externos". When a row is project-linked, target is `project_external_services` instead, with `category = "external_service"`. |
+| `RECEITAS` (monthly sheets)                       | Income                             | `financial_income_items` (company-level cash income); invoices stay in `pm_invoices` (project-owned) | Excel income is treated as company-level. Project invoices are NOT imported here — they are authored in the Projects module and live in `pm_invoices`. |
+| Bank account header + opening/closing balances    | Bank balances                      | `bank_accounts` (master) + `bank_balance_snapshots` (one per account per month-end) | Account matched by name; snapshot keyed `(account_id, snapshot_date)`. |
+| `Dívidas` sheet                                   | Debts                              | `financial_debts` (header) + `financial_debt_payments` (schedule, NOT yet imported) | Original / outstanding amounts stored as positive — see §6f. |
+| Per-month period header                           | Accounting period                  | `financial_periods`                                                              | `kind = "month"`, one row per Jan–Dec. |
+| Each import run                                   | Import audit                       | `financial_import_logs`                                                          | File name, size, sha256, per-table row counts, skipped-row notes. |
+
+### Ownership reminder
+
+All tables in this mapping are **company-owned** (no `project_id`) — see
+`mem://features/financial-ownership.md`. The one exception is the future
+`project_external_services` route: when an external-service row is
+explicitly tied to a project, it must move to the project-owned
+`project_external_services` table (with `project_id NOT NULL`), not stay
+in `financial_expense_items`. Never write the same logical row to both.
+
+### Out of scope for this importer
+
+- `pm_invoices` — project invoices, authored in Projects module.
+- `pm_expenses` / `pm_materials` — project-owned expense/material lines.
+- HR-owned payroll movements (salaries, SA, IRS, SS).
+- Annual P-coded forecast rows on the `2026` sheet.
