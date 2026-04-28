@@ -666,5 +666,59 @@
       },
       "empty": "No team members."
     }
+  },
+  "salaryImport": {
+    "title": "Salary import (HR payroll)",
+    "subtitle": "Upload an Excel payroll sheet to append new effective-dated salary snapshots. Existing rows are never overwritten.",
+    "hrOwnedBadge": "HR-owned",
+    "fields": {
+      "file": "Excel file",
+      "fileHint": "Accepts .xlsx / .xls. Headers are matched by name, not position.",
+      "sheet": "Sheet",
+      "headerRow": "Header row (1-based)",
+      "defaultEffectiveFrom": "Default effective from",
+      "createMissing": "Create missing team members when name + email/number is present"
+    },
+    "reset": "Reset",
+    "previewButton": "Preview import",
+    "previewing": "Reading…",
+    "confirmButton": "Confirm import",
+    "importing": "Importing…",
+    "imported": "Imported",
+    "duplicateInfo": "Already imported as \"{{file}}\" on {{date}}.",
+    "preview": {
+      "title": "Preview",
+      "subtitle": "Review what will be inserted before confirming. No writes happen yet.",
+      "resolvedHeaders": "Resolved headers",
+      "aliasHint": "{{keys}} known column keys; unresolved keys fall back to defaults.",
+      "duplicateTitle": "This file matches a previous import",
+      "matchedCount": "Will insert (matched)",
+      "willCreateCount": "New team members",
+      "skippedCount": "Skipped",
+      "matchedTitle": "Matched team members",
+      "willCreateTitle": "New team members to create",
+      "willCreateDisabled": "Disabled — toggle “Create missing team members” to include these.",
+      "skippedTitle": "Rows that will be skipped",
+      "confirmHint": "Will insert {{insert}} snapshot(s); skip {{skip}} row(s).",
+      "cols": {
+        "row": "Row",
+        "identifier": "Row identifier",
+        "matchedTo": "Matched to",
+        "matchedBy": "By",
+        "base": "Base salary",
+        "effectiveFrom": "Effective from",
+        "name": "Name",
+        "email": "Email",
+        "number": "Number",
+        "reason": "Reason"
+      }
+    },
+    "result": {
+      "completedTitle": "Import completed",
+      "summary": "Inserted {{inserted}} snapshot(s); created {{created}} team member(s); skipped {{skipped}} row(s)."
+    },
+    "toasts": {
+      "completed": "Imported {{inserted}} snapshot(s); {{skipped}} skipped"
+    }
   }
 }
