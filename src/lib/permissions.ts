@@ -23,10 +23,12 @@ export type PermissionKey =
   | "projects.resources"
   | "projects.my-tasks"
   | "projects.timesheet"
-  | "projects.financials";
+  | "projects.financials"
+  // Finance (backoffice)
+  | "finance.dashboard";
 
 export type PermissionGroup = {
-  module: "HR" | "CRM" | "Projects";
+  module: "HR" | "CRM" | "Projects" | "Finance";
   items: { key: PermissionKey; label: string; description?: string }[];
 };
 
