@@ -154,9 +154,10 @@ All financial tables are **company-owned** (no `project_id`). See
 - **Annual P-coded forecast rows were not imported yet.** Rows on the
   `2026` sheet prefixed with `P` (projected forecast cells used for the
   annual view) are out of scope for this import pass.
-- **Materials are imported as `expense_type = "materials"`** so the
-  dashboard can partition them from operational expenses without a
-  separate table.
+- **External-service rows are imported as `expense_type = "materials"`**
+  (legacy DB enum) so the dashboard can partition them from operational
+  expenses without a separate table. The UI labels them "External
+  Services" / "Serviços externos" — never "Materials" / "Materiais".
 
 ---
 
