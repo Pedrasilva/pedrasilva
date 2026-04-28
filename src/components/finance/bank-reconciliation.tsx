@@ -484,9 +484,14 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
                       <TableCell className="text-xs">{sug ? <Badge variant="outline">{isPt ? sug.name_pt : sug.name_en}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
                       <TableCell><StatusBadge status={tx.status} /></TableCell>
                       <TableCell className="text-right">
-                        <Button size="sm" variant="ghost" onClick={() => setClassifyTx(tx)}>
-                          {tx.status === "unclassified" ? t("finance:bankRec.classify") : t("common:edit")}
-                        </Button>
+                        <div className="flex justify-end gap-1">
+                          <Button size="sm" variant="ghost" onClick={() => setMatchDocTx(tx)}>
+                            {t("finance:documents.payments.matchBank")}
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setClassifyTx(tx)}>
+                            {tx.status === "unclassified" ? t("finance:bankRec.classify") : t("common:edit")}
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
