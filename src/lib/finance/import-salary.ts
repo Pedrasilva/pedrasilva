@@ -584,7 +584,32 @@ export async function importSalarySnapshots(
       if (created.nome) byName.set(normalizeName(created.nome), created.id);
     }
 
-    const effectiveFrom = toDate(cell(row, "effective_from")) ?? defaultEff;
+    const effectiveFrom = effParsed;
+
+    // Close the previous open snapshot for this collaborator (if any) by
+    // setting effective_to = effectiveFrom - 1 day. Only `effective_to` is
+    // touched on existing rows — the immutability trigger blocks any change
+    // to financial fields, by design.
+    const dayBefore = (() => {
+      const d = new Date(effectiveFrom + "T00:00:00Z");
+      d.setUTCDate(d.getUTCDate() - 1);
+      return d.toISOString().slice(0, 10);
+    })();
+    const { error: closeErr } = await supabase
+      .from("salary_snapshots")
+      .update({ effective_to: dayBefore })
+      .eq("collaborator_id", collaboratorId!)
+      .is("effective_to", null)
+      .lt("effective_from", effectiveFrom);
+    if (closeErr) {
+      // Non-fatal — log and continue. The new row still inserts; the prior
+      // row will need to be closed manually.
+      skipped.push({
+        rowIndex: i,
+        identifier,
+        reason: `Could not close previous open snapshot: ${closeErr.message}`,
+      });
+    }
 
     const seed = defaultSnapshot(collaboratorId!, "Excel import", true);
     const payload = {
