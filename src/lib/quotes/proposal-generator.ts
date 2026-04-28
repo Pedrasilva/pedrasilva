@@ -16,6 +16,7 @@ import { rollupQuote, quoteAllocationLine } from "./financial-rollups";
 import type { QuoteAllocationWithResource } from "./use-quote-allocations";
 import type { QuoteExternalServiceWithSupplier } from "./use-quote-external-services";
 import type { QuoteStage, QuotePaymentScheduleItem } from "./types";
+import type { TimeBasedSettings } from "./time-based-settings";
 
 // ───────────────────────────── Types ─────────────────────────────
 
