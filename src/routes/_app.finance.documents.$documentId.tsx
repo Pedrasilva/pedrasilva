@@ -73,6 +73,17 @@ const fmtEUR2 = (v: number) =>
     maximumFractionDigits: 2,
   }).format(v || 0);
 
+const fmtDate = (s: string | null | undefined) => {
+  if (!s) return "—";
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return "—";
+  return new Intl.DateTimeFormat("pt-PT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(d);
+};
+
 async function checkFinanceAccess(): Promise<boolean> {
   const { data: { session } } = await supabase.auth.getSession();
   const userId = session?.user?.id;
@@ -244,9 +255,36 @@ function DocumentEditorPage() {
   }
 
   async function save(asIssued: boolean) {
+    // Validation
+    if (!header.doc_type) {
+      toast.error(t("finance:documents.form.selectType") as string);
+      return;
+    }
     if (lines.length === 0) {
       toast.error(t("finance:documents.form.noLines") as string);
       return;
+    }
+    if (lines.some((l) => !l.description.trim())) {
+      toast.error(t("finance:documents.form.missingDescription") as string);
+      return;
+    }
+    if (asIssued) {
+      if (isReceived && !header.counterparty_supplier_id) {
+        toast.error(
+          t("finance:documents.form.missingCounterparty", {
+            role: t("finance:documents.form.supplier"),
+          }) as string,
+        );
+        return;
+      }
+      if (!isReceived && !header.counterparty_client_id) {
+        toast.error(
+          t("finance:documents.form.missingCounterparty", {
+            role: t("finance:documents.form.client"),
+          }) as string,
+        );
+        return;
+      }
     }
     const payloadLines = lines.map((l, i) => ({
       ...l,
@@ -280,6 +318,7 @@ function DocumentEditorPage() {
 
   async function doCancel() {
     if (isNew) return;
+    if (!window.confirm(t("finance:documents.form.confirmCancel") as string)) return;
     await cancelMut.mutateAsync(documentId);
     toast.success(t("finance:documents.form.cancelled") as string);
   }
