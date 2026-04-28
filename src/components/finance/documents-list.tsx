@@ -253,17 +253,21 @@ export function DocumentsList({
             </SelectContent>
           </Select>
 
-          <Input
-            type="month"
-            value={filters.vatPeriod ? filters.vatPeriod.slice(0, 7) : ""}
-            onChange={(e) => {
-              const v = e.target.value;
-              setFilters((f) => ({
-                ...f,
-                vatPeriod: v ? `${v}-01` : null,
-              }));
-            }}
-          />
+          <div className="space-y-1">
+            <Input
+              type="month"
+              aria-label={t("finance:documents.filters.vatPeriod") as string}
+              title={t("finance:documents.filters.vatPeriod") as string}
+              value={filters.vatPeriod ? filters.vatPeriod.slice(0, 7) : ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                setFilters((f) => ({
+                  ...f,
+                  vatPeriod: v ? `${v}-01` : null,
+                }));
+              }}
+            />
+          </div>
 
           <Select
             value={filters.supplierId ?? ALL}
@@ -357,7 +361,7 @@ export function DocumentsList({
               {docs.isLoading ? (
                 <TableRow>
                   <TableCell colSpan={12} className="text-center text-muted-foreground py-8">
-                    …
+                    {t("common:loading")}
                   </TableCell>
                 </TableRow>
               ) : (docs.data ?? []).length === 0 ? (

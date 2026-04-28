@@ -73,6 +73,17 @@ const fmtEUR2 = (v: number) =>
     maximumFractionDigits: 2,
   }).format(v || 0);
 
+const fmtDate = (s: string | null | undefined) => {
+  if (!s) return "—";
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return "—";
+  return new Intl.DateTimeFormat("pt-PT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(d);
+};
+
 async function checkFinanceAccess(): Promise<boolean> {
   const { data: { session } } = await supabase.auth.getSession();
   const userId = session?.user?.id;
@@ -244,9 +255,36 @@ function DocumentEditorPage() {
   }
 
   async function save(asIssued: boolean) {
+    // Validation
+    if (!header.doc_type) {
+      toast.error(t("finance:documents.form.selectType") as string);
+      return;
+    }
     if (lines.length === 0) {
       toast.error(t("finance:documents.form.noLines") as string);
       return;
+    }
+    if (lines.some((l) => !l.description.trim())) {
+      toast.error(t("finance:documents.form.missingDescription") as string);
+      return;
+    }
+    if (asIssued) {
+      if (isReceived && !header.counterparty_supplier_id) {
+        toast.error(
+          t("finance:documents.form.missingCounterparty", {
+            role: t("finance:documents.form.supplier"),
+          }) as string,
+        );
+        return;
+      }
+      if (!isReceived && !header.counterparty_client_id) {
+        toast.error(
+          t("finance:documents.form.missingCounterparty", {
+            role: t("finance:documents.form.client"),
+          }) as string,
+        );
+        return;
+      }
     }
     const payloadLines = lines.map((l, i) => ({
       ...l,
@@ -280,6 +318,7 @@ function DocumentEditorPage() {
 
   async function doCancel() {
     if (isNew) return;
+    if (!window.confirm(t("finance:documents.form.confirmCancel") as string)) return;
     await cancelMut.mutateAsync(documentId);
     toast.success(t("finance:documents.form.cancelled") as string);
   }
@@ -749,7 +788,7 @@ function DocumentEditorPage() {
               {t("finance:documents.form.saveDraft")}
             </Button>
             <Button onClick={() => save(true)} disabled={readOnly}>
-              {t("finance:documents.form.save")}
+              {t("finance:documents.form.issue")}
             </Button>
           </div>
         </CardContent>
@@ -792,8 +831,22 @@ function PaymentsSection({
 
   const outstanding = Number(doc.outstanding_amount ?? 0);
 
+  // Reset manual form to current outstanding whenever dialog opens or
+  // outstanding changes (e.g. after a partial payment).
+  useEffect(() => {
+    if (manualOpen) {
+      setManualAmount(outstanding);
+      setManualDate(new Date().toISOString().slice(0, 10));
+      setManualMethod("bank_transfer");
+    }
+  }, [manualOpen, outstanding]);
+
   async function addManual() {
-    if (manualAmount <= 0 || manualAmount > outstanding) {
+    if (!Number.isFinite(manualAmount) || manualAmount <= 0) {
+      toast.error(t("finance:documents.payments.amountInvalid") as string);
+      return;
+    }
+    if (manualAmount > outstanding + 0.005) {
       toast.error(t("finance:documents.payments.exceedsOutstanding") as string);
       return;
     }
@@ -855,15 +908,17 @@ function PaymentsSection({
             <TableBody>
               {(docQ.data?.payments ?? []).map((p) => (
                 <TableRow key={p.id}>
-                  <TableCell>{p.payment_date}</TableCell>
+                  <TableCell>{fmtDate(p.payment_date)}</TableCell>
                   <TableCell className="text-right tabular-nums">
                     {fmtEUR2(Number(p.amount))}
                   </TableCell>
                   <TableCell>
-                    {t(`finance:documents.payments.method_${p.method}`)}
+                    {t(`finance:documents.payments.methods.${p.method}`)}
                   </TableCell>
-                  <TableCell className="font-mono text-xs">
-                    {p.bank_transaction_id ?? "—"}
+                  <TableCell className="text-xs text-muted-foreground">
+                    {p.bank_transaction_id
+                      ? t("finance:documents.payments.matched")
+                      : t("finance:documents.payments.manual")}
                   </TableCell>
                   <TableCell>
                     <Button
@@ -895,9 +950,16 @@ function PaymentsSection({
               <Input
                 type="number"
                 step="0.01"
+                min="0"
+                max={outstanding}
                 value={manualAmount}
                 onChange={(e) => setManualAmount(Number(e.target.value || 0))}
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("finance:documents.payments.outstandingHint", {
+                  amount: fmtEUR2(outstanding),
+                })}
+              </p>
             </div>
             <div>
               <Label>{t("finance:documents.payments.date")}</Label>
@@ -916,7 +978,7 @@ function PaymentsSection({
                 <SelectContent>
                   {(["bank_transfer", "cash", "card", "direct_debit", "other"] as const).map((m) => (
                     <SelectItem key={m} value={m}>
-                      {t(`finance:documents.payments.method_${m}`)}
+                      {t(`finance:documents.payments.methods.${m}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -953,7 +1015,7 @@ function PaymentsSection({
               <TableBody>
                 {(matchesQ.data ?? []).map((tx) => (
                   <TableRow key={tx.id}>
-                    <TableCell>{tx.transaction_date}</TableCell>
+                    <TableCell>{fmtDate(tx.transaction_date)}</TableCell>
                     <TableCell className="text-xs">{tx.description}</TableCell>
                     <TableCell className="text-right tabular-nums">
                       {fmtEUR2(Number(tx.amount))}
