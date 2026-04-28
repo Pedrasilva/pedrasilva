@@ -40,14 +40,27 @@ import {
 interface Props {
   quoteId: string;
   quoteType: string | null | undefined;
-  /** Top-level category. When "consultancy" we lock the kind to
-   *  consultancy_hours_package and hide the project-only retainer toggle. */
-  quoteCategory?: "project" | "consultancy";
+  /** Top-level category. Drives which editor renders:
+   *  - "time_based" / legacy "consultancy" → consultancy hours-package editor
+   *  - "retainer" → construction retainer editor
+   *  - "project" → optional add-on (legacy retainer/consultancy figures inside
+   *    the generated proposal). User can pick which add-on via the toggle.
+   */
+  quoteCategory?: "project" | "time_based" | "retainer" | "consultancy";
 }
 
 export function QuoteTimeBasedSettingsTab({ quoteId, quoteType, quoteCategory }: Props) {
   const { t } = useTranslation("crm");
   const qc = useQueryClient();
+
+  // Determine the locked editor kind from the category. "project" means the
+  // user can choose between the two legacy add-ons.
+  const lockedKind: "construction_retainer" | "consultancy_hours_package" | null =
+    quoteCategory === "retainer"
+      ? "construction_retainer"
+      : quoteCategory === "time_based" || quoteCategory === "consultancy"
+        ? "consultancy_hours_package"
+        : null;
 
   const { data: row, isLoading } = useQuery({
     queryKey: ["fee_proposal_time_based_settings", quoteId],
@@ -66,9 +79,12 @@ export function QuoteTimeBasedSettingsTab({ quoteId, quoteType, quoteCategory }:
 
   useEffect(() => {
     if (!row) return;
-    const parsed = parseTimeBasedSettings(row.time_based_settings, row.quote_type ?? quoteType);
+    // Prefer the locked kind (from category) when parsing; otherwise fall
+    // back to whatever the saved JSON / quote_type implied.
+    const discriminator = lockedKind ?? row.quote_type ?? quoteType;
+    const parsed = parseTimeBasedSettings(row.time_based_settings, discriminator);
     setSettings(parsed);
-  }, [row, quoteType]);
+  }, [row, quoteType, lockedKind]);
 
   const save = useMutation({
     mutationFn: async () => {
@@ -93,23 +109,19 @@ export function QuoteTimeBasedSettingsTab({ quoteId, quoteType, quoteCategory }:
   }
 
   if (!settings) {
-    // Fallback — initialize from quoteType.
+    // Fallback — initialize from the locked kind (or quoteType for legacy).
+    const initialKind = lockedKind ?? quoteType;
     const initial =
-      quoteType === "consultancy_hours_package"
+      initialKind === "consultancy_hours_package"
         ? defaultConsultancySettings()
         : defaultRetainerSettings();
     setSettings(initial);
     return null;
   }
 
-  // Consultancy-category quotes always use consultancy_hours_package.
-  // Project-category quotes may optionally surface monthly/hourly figures
-  // via the retainer/consultancy add-on toggle below.
-  const isConsultancyCategory = quoteCategory === "consultancy";
-  const isTimeBasedQuote =
-    isConsultancyCategory ||
-    quoteType === "construction_retainer" ||
-    quoteType === "consultancy_hours_package";
+  // Project category may show the kind-picker (optional add-on). The two
+  // dedicated categories (time_based / retainer) lock the editor.
+  const isProjectCategory = quoteCategory === "project" || (!quoteCategory && quoteType === "standard_project");
 
   const switchKind = (next: "construction_retainer" | "consultancy_hours_package") => {
     if (settings.kind === next) return;
@@ -122,7 +134,7 @@ export function QuoteTimeBasedSettingsTab({ quoteId, quoteType, quoteCategory }:
 
   return (
     <div className="space-y-4">
-      {!isTimeBasedQuote && !isConsultancyCategory && (
+      {isProjectCategory && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">

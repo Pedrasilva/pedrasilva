@@ -163,7 +163,22 @@
     "newQuoteDialog": {
       "title": "New quote",
       "description": "Quotes inherit the opportunity context. Account is optional now but required to approve.",
+      "categoryChooserDescription": "Pick the type of proposal — this drives which workflow, fields and proposal blocks the quote will use.",
       "quoteTypeLabel": "Quote type",
+      "category": {
+        "project": {
+          "title": "Project Proposal",
+          "hint": "Standard architectural project with stages, Gantt schedule, staged fees and the project fee calculator."
+        },
+        "time_based": {
+          "title": "Time-based Proposal",
+          "hint": "Hourly consultancy block — set hourly rate, hours per block and minimum commitment. Billed monthly against actual hours."
+        },
+        "retainer": {
+          "title": "Construction Retainer",
+          "hint": "Monthly retainer for the construction phase — start/end dates, monthly resources and reimbursable expenses. Billed monthly in advance."
+        }
+      },
       "accountOptional": "Account (optional)",
       "noAccountSetBefore": "No account (set before approval)",
       "noAccountsHint": "No accounts for this company yet. Create one in the Accounts tab.",

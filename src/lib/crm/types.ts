@@ -88,19 +88,21 @@ export type QuoteType =
   | "consultancy_hours_package";
 
 /**
- * Top-level workflow category chosen at quote creation. Each category owns a
- * disjoint set of `quote_type` sub-values, enforced by a DB trigger:
- *   - "project"     → standard_project | construction_retainer
- *   - "consultancy" → consultancy_hours_package
+ * Top-level workflow category chosen at quote creation. Each category pins to
+ * exactly one `quote_type` sub-value, enforced by a DB trigger:
+ *   - "project"     → standard_project   (full project workflow w/ Gantt)
+ *   - "time_based"  → consultancy_hours_package (hours-block consultancy)
+ *   - "retainer"    → construction_retainer    (monthly construction retainer)
  *
- * Construction Retainer is therefore ALWAYS a project sub-type and never a
- * standalone proposal category.
+ * The legacy "consultancy" value is accepted for back-compat reads but UI
+ * code should treat it as equivalent to "time_based".
  */
-export type QuoteCategory = "project" | "consultancy";
+export type QuoteCategory = "project" | "time_based" | "retainer" | "consultancy";
 
 export const QUOTE_CATEGORIES: { value: QuoteCategory }[] = [
   { value: "project" },
-  { value: "consultancy" },
+  { value: "time_based" },
+  { value: "retainer" },
 ];
 
 export const QUOTE_TYPES: { value: QuoteType }[] = [
@@ -111,18 +113,43 @@ export const QUOTE_TYPES: { value: QuoteType }[] = [
 
 /** Quote sub-types valid for each top-level category. */
 export const QUOTE_TYPES_BY_CATEGORY: Record<QuoteCategory, QuoteType[]> = {
-  project: ["standard_project", "construction_retainer"],
-  consultancy: ["consultancy_hours_package"],
+  project: ["standard_project"],
+  time_based: ["consultancy_hours_package"],
+  retainer: ["construction_retainer"],
+  consultancy: ["consultancy_hours_package"], // legacy alias
 };
 
 /** Default sub-type when a user picks a category. */
 export function defaultQuoteTypeForCategory(category: QuoteCategory): QuoteType {
-  return category === "consultancy" ? "consultancy_hours_package" : "standard_project";
+  switch (category) {
+    case "retainer":
+      return "construction_retainer";
+    case "time_based":
+    case "consultancy":
+      return "consultancy_hours_package";
+    case "project":
+    default:
+      return "standard_project";
+  }
 }
 
 /** Derive the category for an existing quote_type — used as a safety net. */
 export function categoryForQuoteType(type: QuoteType | string | null | undefined): QuoteCategory {
-  return type === "consultancy_hours_package" ? "consultancy" : "project";
+  if (type === "consultancy_hours_package") return "time_based";
+  if (type === "construction_retainer") return "retainer";
+  return "project";
+}
+
+/**
+ * Normalise a category value coming from the DB so the legacy "consultancy"
+ * value is treated as the new "time_based" everywhere in the UI.
+ */
+export function normalizeQuoteCategory(
+  category: QuoteCategory | string | null | undefined,
+): "project" | "time_based" | "retainer" {
+  if (category === "retainer") return "retainer";
+  if (category === "time_based" || category === "consultancy") return "time_based";
+  return "project";
 }
 
 export type CrmAccount = {

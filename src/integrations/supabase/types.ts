@@ -3108,7 +3108,7 @@ export type Database = {
         | "negotiation"
         | "won"
         | "lost"
-      crm_quote_category: "project" | "consultancy"
+      crm_quote_category: "project" | "consultancy" | "time_based" | "retainer"
       crm_quote_status: "draft" | "sent" | "approved" | "rejected"
       crm_quote_type:
         | "standard_project"
@@ -3329,7 +3329,7 @@ export const Constants = {
       crm_activity_type: ["chamada", "email", "reuniao", "nota", "outro"],
       crm_fee_structure: ["fixed", "staged", "monthly"],
       crm_opportunity_stage: ["lead", "proposal", "negotiation", "won", "lost"],
-      crm_quote_category: ["project", "consultancy"],
+      crm_quote_category: ["project", "consultancy", "time_based", "retainer"],
       crm_quote_status: ["draft", "sent", "approved", "rejected"],
       crm_quote_type: [
         "standard_project",

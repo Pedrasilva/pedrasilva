@@ -163,7 +163,22 @@
     "newQuoteDialog": {
       "title": "Nova proposta",
       "description": "As propostas herdam o contexto da oportunidade. A conta é opcional agora mas obrigatória para aprovar.",
+      "categoryChooserDescription": "Escolha o tipo de proposta — define o workflow, os campos e os blocos de proposta usados.",
       "quoteTypeLabel": "Tipo de proposta",
+      "category": {
+        "project": {
+          "title": "Proposta de Projecto",
+          "hint": "Projecto de arquitectura padrão com fases, cronograma Gantt, honorários por fase e calculadora de honorários."
+        },
+        "time_based": {
+          "title": "Proposta Time-based",
+          "hint": "Bloco de horas de consultoria — defina valor/hora, horas por bloco e compromisso mínimo. Facturação mensal sobre horas reais."
+        },
+        "retainer": {
+          "title": "Avença de Construção",
+          "hint": "Avença mensal para a fase de construção — datas de início/fim, recursos mensais e despesas reembolsáveis. Facturação mensal antecipada."
+        }
+      },
       "accountOptional": "Conta (opcional)",
       "noAccountSetBefore": "Sem conta (definir antes de aprovar)",
       "noAccountsHint": "Ainda sem contas para esta empresa. Crie uma no separador Contas.",
