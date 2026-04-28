@@ -723,6 +723,8 @@ function buildComputed(
     allocations: ctx.allocations,
     externalServices: ctx.externalServices,
     pricingMultiplier: ctx.quote.pricing_multiplier,
+    category: ctx.quoteCategory ?? undefined,
+    timeBasedSettings: ctx.timeBasedSettings ?? null,
   });
 
   // Stages, ordered.
