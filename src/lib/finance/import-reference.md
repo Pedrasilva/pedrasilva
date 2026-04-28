@@ -12,6 +12,29 @@ Related code:
 
 ---
 
+## 0. Terminology — "External Services" vs legacy "Materiais"
+
+The Excel spreadsheet still uses the header `MATERIAIS` (or
+`MATERIAIS / SUBCONTRATAÇÃO`) for the second expense block. **In the app
+this is NOT called "materials".** The canonical business label is:
+
+- **Excel marker accepted**: `materiais` (and variants — see §6a)
+- **App label (EN)**: `External Services`
+- **App label (PT-PT)**: `Serviços externos`
+- **Meaning**: consultants, outsourced services, subcontractors,
+  reimbursable / project-delivery costs paid to third parties.
+- **Do NOT** call these "materials" anywhere in the UI, i18n keys, badges,
+  or copy. The word "materials" is reserved for legacy Excel-mapping
+  context only (this document, importer comments, and DB enum values that
+  cannot be renamed without a migration).
+
+DB column values (`expense_type = "materials"`) are kept as-is for
+backwards compatibility with already-imported rows; the display layer
+maps them to "External Services" / "Serviços externos" via the i18n
+glossary.
+
+---
+
 ## 1. Sheets used
 
 | Sheet                  | Purpose                                              | Imported |
@@ -53,9 +76,13 @@ fixed numeric ranges.
   - `status` (mapped from F; defaults to `projected`)
   - `period_id` → `financial_periods` for that month
 
-### 2b. Materials / outsourced services
+### 2b. External services / Subcontracting (legacy Excel: "Materiais")
 
-- Header marker: `MATERIAIS` (also catches `MATERIAIS / SUBCONTRATAÇÃO`)
+- Header marker: `MATERIAIS` (also catches `MATERIAIS / SUBCONTRATAÇÃO`,
+  `MATERIAIS E SUBCONTRATAÇÃO`) — kept for Excel compatibility only.
+- App-side, this block represents **External Services** (EN) /
+  **Serviços externos** (PT-PT) — consultants, subcontractors,
+  outsourced services. See §0.
 - Row range: typically immediately after operational block
 - Date column: `B`
 - Supplier column: `C`
@@ -64,11 +91,12 @@ fixed numeric ranges.
 - Status column: `F`
 - **Target table**: `financial_expense_items`
 - **Target fields**: same as operational block, except:
-  - `expense_type = "materials"`
+  - `expense_type = "materials"` (legacy DB enum value — display layer
+    renders it as "External Services" / "Serviços externos")
 
-Materials live in the same table as expenses; the dashboard partitions them
-in the UI (Expenses tab excludes `expense_type = 'materials'`; Materials tab
-filters to it).
+External-service rows live in the same table as operational expenses;
+the dashboard partitions them in the UI (Expenses tab excludes
+`expense_type = 'materials'`; the External Services tab filters to it).
 
 ### 2c. Income block
 
@@ -97,9 +125,9 @@ filters to it).
 | `financial_periods`          | One row per month (Jan–Dec 2026)                | `kind = "month"`, `opening_balance` from previous month closing where known |
 | `bank_accounts`              | Read from header of `2026` sheet                | Created if missing; matched by `name` |
 | `bank_balance_snapshots`     | Opening/closing balance cells per monthly sheet | One snapshot per account per month-end; latest per account is shown in Bank Balances tab |
-| `financial_suppliers`        | Distinct values of supplier column in expense + materials blocks | Deduped case/accent-insensitive |
+| `financial_suppliers`        | Distinct values of supplier column in operational + external-services blocks | Deduped case/accent-insensitive |
 | `financial_clients`          | Distinct values of client column in income block | Deduped case/accent-insensitive |
-| `financial_expense_items`    | Operational + materials blocks (all months)     | `expense_type ∈ {"operational","materials"}` |
+| `financial_expense_items`    | Operational + external-services blocks (all months) | `expense_type ∈ {"operational","materials"}` — `"materials"` is a legacy enum; displayed as "External Services" / "Serviços externos" |
 | `financial_income_items`     | Income block (all months)                       | — |
 | `financial_debts`            | `Dívidas` sheet header rows                     | Payment schedule rows NOT yet imported |
 | `financial_import_logs`      | One row per import run                          | Records file name, size, sha256 checksum, per-table row counts, notes |
@@ -126,9 +154,10 @@ All financial tables are **company-owned** (no `project_id`). See
 - **Annual P-coded forecast rows were not imported yet.** Rows on the
   `2026` sheet prefixed with `P` (projected forecast cells used for the
   annual view) are out of scope for this import pass.
-- **Materials are imported as `expense_type = "materials"`** so the
-  dashboard can partition them from operational expenses without a
-  separate table.
+- **External-service rows are imported as `expense_type = "materials"`**
+  (legacy DB enum) so the dashboard can partition them from operational
+  expenses without a separate table. The UI labels them "External
+  Services" / "Serviços externos" — never "Materials" / "Materiais".
 
 ---
 
@@ -168,7 +197,8 @@ import must survive that without code changes.
   (lowercased, accent-stripped, trimmed):
   - `despesas operacionais` → start of operational expenses block
   - `materiais` (also matches `materiais / subcontratação`,
-    `materiais e subcontratação`) → start of materials block
+    `materiais e subcontratação`) → start of **external services /
+    subcontracting** block (legacy Excel marker; see §0)
   - `receitas` → start of income block
   - `dívidas` / `dividas` → debt register
   - `saldos` / `bancos` → bank balance section
@@ -270,3 +300,37 @@ Sign handling:
   skipped without aborting the import, but the count of skipped rows per
   block is written to `financial_import_logs.notes` so a human can
   reconcile.
+
+---
+
+## 7. Excel block → target table mapping (canonical)
+
+Single source of truth for "where does each Excel block end up?". Use this
+table when wiring new importers, debugging missing rows, or extending the
+schema.
+
+| Excel block / source                              | Canonical app concept              | Target table(s)                                                                 | Discriminator / notes |
+|---------------------------------------------------|------------------------------------|----------------------------------------------------------------------------------|-----------------------|
+| `DESPESAS OPERACIONAIS` (monthly sheets)          | Operational expenses               | `financial_expense_items`                                                        | `expense_type = "operational"` |
+| `MATERIAIS` / `MATERIAIS / SUBCONTRATAÇÃO`        | **External services / Subcontracting** | `financial_expense_items` (current) — future: split into `project_external_services` when project linkage is wired | `expense_type = "materials"` (legacy DB enum); displayed as "External Services" / "Serviços externos". When a row is project-linked, target is `project_external_services` instead, with `category = "external_service"`. |
+| `RECEITAS` (monthly sheets)                       | Income                             | `financial_income_items` (company-level cash income); invoices stay in `pm_invoices` (project-owned) | Excel income is treated as company-level. Project invoices are NOT imported here — they are authored in the Projects module and live in `pm_invoices`. |
+| Bank account header + opening/closing balances    | Bank balances                      | `bank_accounts` (master) + `bank_balance_snapshots` (one per account per month-end) | Account matched by name; snapshot keyed `(account_id, snapshot_date)`. |
+| `Dívidas` sheet                                   | Debts                              | `financial_debts` (header) + `financial_debt_payments` (schedule, NOT yet imported) | Original / outstanding amounts stored as positive — see §6f. |
+| Per-month period header                           | Accounting period                  | `financial_periods`                                                              | `kind = "month"`, one row per Jan–Dec. |
+| Each import run                                   | Import audit                       | `financial_import_logs`                                                          | File name, size, sha256, per-table row counts, skipped-row notes. |
+
+### Ownership reminder
+
+All tables in this mapping are **company-owned** (no `project_id`) — see
+`mem://features/financial-ownership.md`. The one exception is the future
+`project_external_services` route: when an external-service row is
+explicitly tied to a project, it must move to the project-owned
+`project_external_services` table (with `project_id NOT NULL`), not stay
+in `financial_expense_items`. Never write the same logical row to both.
+
+### Out of scope for this importer
+
+- `pm_invoices` — project invoices, authored in Projects module.
+- `pm_expenses` / `pm_materials` — project-owned expense/material lines.
+- HR-owned payroll movements (salaries, SA, IRS, SS).
+- Annual P-coded forecast rows on the `2026` sheet.
