@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -47,9 +47,40 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
 import { cn } from "@/lib/utils";
 
+async function checkFinanceAccess(): Promise<boolean> {
+  const { data: { session } } = await supabase.auth.getSession();
+  const userId = session?.user?.id;
+  if (!userId) return false;
+
+  // Check admin role
+  const { data: roleRow } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (roleRow) return true;
+
+  // Check finance.dashboard permission
+  const { data: permRow } = await supabase
+    .from("user_permissions")
+    .select("permission_key")
+    .eq("user_id", userId)
+    .eq("permission_key", "finance.dashboard")
+    .maybeSingle();
+  return !!permRow;
+}
+
 export const Route = createFileRoute("/_app/finance")({
+  beforeLoad: async () => {
+    const allowed = await checkFinanceAccess();
+    if (!allowed) {
+      throw redirect({ to: "/" });
+    }
+  },
   component: FinanceDashboardPage,
 });
+
 
 // ---------------------------------------------------------------------------
 // Types
