@@ -1918,26 +1918,28 @@ function DebtsTab() {
                   return (
                     <TableRow key={p.id}>
                       <TableCell className="text-sm">
-                        {debt?.creditor_name ?? "—"}
+                        {debt?.creditor_name ?? DASH}
                       </TableCell>
-                      <TableCell className="text-sm">{period ?? "—"}</TableCell>
+                      <TableCell className="text-sm">{period ?? DASH}</TableCell>
                       <TableCell className="text-sm tabular-nums">
-                        {p.due_date ?? "—"}
+                        {fmtDate(p.due_date)}
                       </TableCell>
                       <TableCell className="text-sm tabular-nums">
-                        {p.paid_date ?? "—"}
+                        {fmtDate(p.paid_date)}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
-                        {fmtEUR(Number(p.planned_amount))}
+                        {fmtEUR2(Number(p.planned_amount))}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
                         {p.actual_amount != null
-                          ? fmtEUR(Number(p.actual_amount))
-                          : "—"}
+                          ? fmtEUR2(Number(p.actual_amount))
+                          : DASH}
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="font-normal">
-                          {p.status}
+                          {t(`finance:debtPaymentStatus.${p.status}`, {
+                            defaultValue: p.status,
+                          })}
                         </Badge>
                       </TableCell>
                     </TableRow>
