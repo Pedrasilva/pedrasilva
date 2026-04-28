@@ -261,10 +261,9 @@ function buildCashFlow(
   let runningOpening: number | null = null;
 
   for (const p of periods) {
-    const opening =
-      Number(p.opening_balance) > 0 || runningOpening == null
-        ? Number(p.opening_balance) || runningOpening || 0
-        : runningOpening;
+    const seedOpening = Number(p.opening_balance) || 0;
+    const opening: number =
+      seedOpening > 0 || runningOpening == null ? seedOpening || (runningOpening ?? 0) : runningOpening;
 
     const periodIncome = income
       .filter((r) => r.period_id === p.id)
