@@ -11,7 +11,7 @@
  */
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,8 @@ import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { rollupQuote } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings, marginBand } from "@/lib/quotes/quote-warnings";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
-import { formatEUR } from "@/lib/crm/types";
+import { formatEUR, normalizeQuoteCategory } from "@/lib/crm/types";
+import { parseTimeBasedSettings } from "@/lib/quotes/time-based-settings";
 
 type Accent = "good" | "bad" | "warn" | "muted" | "primary";
 
