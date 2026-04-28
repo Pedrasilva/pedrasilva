@@ -413,6 +413,9 @@ export const CONSULTANCY_HOURS_PACKAGE_BLOCK_SLUGS: readonly string[] = [
   "consultancy-methodology-iterative",
   "consultancy-fee-structure-time-based",
   "generated-time-fee-consultancy",
+  // Optional phase estimates — surfaces the hours per phase the user
+  // entered on the Time-based tab so the client sees the planned scope.
+  "generated-consultancy-phases",
   "consultancy-exclusions-standard",
   "consultancy-validity-next-steps",
   "generated-acceptance-block",
