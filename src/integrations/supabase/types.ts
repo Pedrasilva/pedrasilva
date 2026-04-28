@@ -1125,6 +1125,57 @@ export type Database = {
           },
         ]
       }
+      financial_import_logs: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          file_name: string
+          id: string
+          import_type: string
+          imported_at: string
+          notes: string | null
+          rows_bank_accounts: number
+          rows_clients: number
+          rows_debts: number
+          rows_expenses: number
+          rows_income: number
+          rows_suppliers: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          file_name: string
+          id?: string
+          import_type?: string
+          imported_at?: string
+          notes?: string | null
+          rows_bank_accounts?: number
+          rows_clients?: number
+          rows_debts?: number
+          rows_expenses?: number
+          rows_income?: number
+          rows_suppliers?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          file_name?: string
+          id?: string
+          import_type?: string
+          imported_at?: string
+          notes?: string | null
+          rows_bank_accounts?: number
+          rows_clients?: number
+          rows_debts?: number
+          rows_expenses?: number
+          rows_income?: number
+          rows_suppliers?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       financial_income_items: {
         Row: {
           amount_ex_vat: number
