@@ -14,6 +14,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expense'
 import { Route as AppHrRouteImport } from './routes/_app.hr'
+import { Route as AppFinanceRouteImport } from './routes/_app.finance'
 import { Route as AppCrmRouteImport } from './routes/_app.crm'
 import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
@@ -70,6 +71,11 @@ const ApiNotifyExpenseRoute = ApiNotifyExpenseRouteImport.update({
 const AppHrRoute = AppHrRouteImport.update({
   id: '/hr',
   path: '/hr',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFinanceRoute = AppFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCrmRoute = AppCrmRouteImport.update({
@@ -247,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
   '/crm': typeof AppCrmRouteWithChildren
+  '/finance': typeof AppFinanceRoute
   '/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
@@ -284,6 +291,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/finance': typeof AppFinanceRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
@@ -324,6 +332,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/_app/crm': typeof AppCrmRouteWithChildren
+  '/_app/finance': typeof AppFinanceRoute
   '/_app/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
@@ -366,6 +375,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/crm'
+    | '/finance'
     | '/hr'
     | '/api/notify-expense'
     | '/crm/accounts'
@@ -403,6 +413,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/finance'
     | '/api/notify-expense'
     | '/'
     | '/crm/accounts'
@@ -442,6 +453,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/login'
     | '/_app/crm'
+    | '/_app/finance'
     | '/_app/hr'
     | '/api/notify-expense'
     | '/_app/'
@@ -520,6 +532,13 @@ declare module '@tanstack/react-router' {
       path: '/hr'
       fullPath: '/hr'
       preLoaderRoute: typeof AppHrRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/finance': {
+      id: '/_app/finance'
+      path: '/finance'
+      fullPath: '/finance'
+      preLoaderRoute: typeof AppFinanceRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/crm': {
@@ -869,6 +888,7 @@ const AppProjectsResourcesRouteWithChildren =
 
 interface AppRouteChildren {
   AppCrmRoute: typeof AppCrmRouteWithChildren
+  AppFinanceRoute: typeof AppFinanceRoute
   AppHrRoute: typeof AppHrRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRoute
@@ -884,6 +904,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppCrmRoute: AppCrmRouteWithChildren,
+  AppFinanceRoute: AppFinanceRoute,
   AppHrRoute: AppHrRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppProjectsProjectIdRoute: AppProjectsProjectIdRoute,

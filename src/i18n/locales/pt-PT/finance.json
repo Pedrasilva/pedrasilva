@@ -1,0 +1,112 @@
+{
+  "module": {
+    "title": "Finanças",
+    "subtitle": "Tesouraria do atelier",
+    "description": "Acompanhe saldos bancários, receitas, despesas, materiais, dívidas e cash flow mensal do atelier."
+  },
+  "nav": {
+    "finance": "Finanças",
+    "openDashboard": "Abrir painel financeiro"
+  },
+  "page": {
+    "title": "Painel financeiro",
+    "kicker": "Finanças do atelier",
+    "year": "Ano",
+    "vatToggle": "Vista IVA",
+    "vatInc": "Com IVA",
+    "vatEx": "Sem IVA"
+  },
+  "tabs": {
+    "overview": "Resumo",
+    "cashFlow": "Cash Flow",
+    "income": "Receitas",
+    "expenses": "Despesas",
+    "materials": "Materiais",
+    "debts": "Dívidas",
+    "bankBalances": "Saldos bancários",
+    "importLogs": "Logs de importação"
+  },
+  "overview": {
+    "currentBankBalance": "Saldo bancário actual",
+    "currentBankBalanceSub": "Soma do último snapshot por conta",
+    "expectedIncome": "Receitas previstas este mês",
+    "expectedExpenses": "Despesas previstas este mês",
+    "projectedClosing": "Saldo previsto fim do mês",
+    "outstandingInvoices": "Facturas em aberto",
+    "overdueInvoices": "Facturas vencidas",
+    "netCashFlow": "Cash flow líquido este mês",
+    "vatNote": "Valores mostrados {{mode}}. Os valores importados são brutos (com IVA).",
+    "noPeriod": "Não existe período definido para este mês."
+  },
+  "cashFlow": {
+    "title": "Cash flow mensal",
+    "subtitle": "Previsto vs realizado, {{year}}",
+    "col": {
+      "month": "Mês",
+      "opening": "Saldo inicial",
+      "income": "Receitas",
+      "expenses": "Despesas",
+      "materials": "Materiais",
+      "debts": "Dívidas",
+      "net": "Líquido",
+      "closing": "Saldo final",
+      "status": "Estado"
+    },
+    "status": {
+      "projected": "Previsto",
+      "actual": "Real",
+      "closed": "Fechado",
+      "draft": "Rascunho"
+    },
+    "footer": {
+      "totals": "Totais do ano"
+    }
+  },
+  "bank": {
+    "title": "Contas bancárias",
+    "col": {
+      "account": "Conta",
+      "bank": "Banco",
+      "currency": "Moeda",
+      "latest": "Último saldo",
+      "asOf": "Em",
+      "actions": "Acções"
+    },
+    "newSnapshot": "Novo snapshot de saldo",
+    "newSnapshotTitle": "Adicionar snapshot de saldo bancário",
+    "form": {
+      "account": "Conta",
+      "date": "Data do snapshot",
+      "balance": "Saldo",
+      "notes": "Notas",
+      "save": "Guardar snapshot",
+      "saved": "Snapshot guardado",
+      "saveError": "Não foi possível guardar o snapshot"
+    },
+    "empty": "Não foram encontradas contas bancárias.",
+    "noSnapshot": "Sem snapshot",
+    "totalCurrent": "Saldo bancário total actual"
+  },
+  "tabPlaceholder": {
+    "title": "Em breve",
+    "body": "Este separador será implementado na próxima iteração."
+  },
+  "home": {
+    "kicker": "Finanças do atelier",
+    "title": "Finanças",
+    "currentBalance": "Saldo actual",
+    "expectedIncome": "Receitas previstas",
+    "expectedExpenses": "Despesas previstas",
+    "projectedClosing": "Saldo previsto fim do mês",
+    "status": {
+      "positive": "Cash flow positivo",
+      "negative": "Cash flow negativo",
+      "flat": "Cash flow neutro"
+    },
+    "open": "Abrir painel financeiro"
+  },
+  "noAccess": {
+    "title": "Sem acesso",
+    "body": "Não tem permissão para ver o painel financeiro."
+  }
+}

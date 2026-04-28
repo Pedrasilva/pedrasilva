@@ -23,10 +23,12 @@ export type PermissionKey =
   | "projects.resources"
   | "projects.my-tasks"
   | "projects.timesheet"
-  | "projects.financials";
+  | "projects.financials"
+  // Finance (backoffice)
+  | "finance.dashboard";
 
 export type PermissionGroup = {
-  module: "HR" | "CRM" | "Projects";
+  module: "HR" | "CRM" | "Projects" | "Finance";
   items: { key: PermissionKey; label: string; description?: string }[];
 };
 
@@ -65,6 +67,16 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
         label: "Indicadores financeiros",
         description:
           "Ver receita, custo, margem e orçamento no dashboard. Sem esta permissão, são mostrados apenas indicadores de tempo (planeado/realizado).",
+      },
+    ],
+  },
+  {
+    module: "Finance",
+    items: [
+      {
+        key: "finance.dashboard",
+        label: "Painel financeiro",
+        description: "Aceder ao dashboard financeiro do escritório (cash flow, receitas, despesas, bancos).",
       },
     ],
   },
