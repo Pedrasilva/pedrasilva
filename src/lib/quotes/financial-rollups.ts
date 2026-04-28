@@ -18,6 +18,12 @@ import {
 } from "@/lib/projects/financial-rollups";
 import type { QuoteAllocationWithResource } from "./use-quote-allocations";
 import type { QuoteExternalServiceWithSupplier } from "./use-quote-external-services";
+import {
+  consultancyBlockValue,
+  consultancyMinimumHours,
+  retainerMonthlyEstimate,
+  type TimeBasedSettings,
+} from "./time-based-settings";
 
 /** Calendar-day count (inclusive). Weekends not excluded — quotes are forecast,
  *  not actuals; using calendar days keeps the maths predictable and consistent
