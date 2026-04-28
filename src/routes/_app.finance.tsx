@@ -456,10 +456,10 @@ function FinanceDashboardPage() {
           <ExpensesTab vatMode={vatMode} kind="materials" />
         </TabsContent>
         <TabsContent value="debts" className="mt-6">
-          <PlaceholderTab />
+          <DebtsTab />
         </TabsContent>
         <TabsContent value="importLogs" className="mt-6">
-          <PlaceholderTab />
+          <ImportLogsTab />
         </TabsContent>
       </Tabs>
     </div>
