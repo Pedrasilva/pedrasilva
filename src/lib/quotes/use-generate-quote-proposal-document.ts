@@ -176,6 +176,15 @@ async function runGenerate(
     externalServices: (externalRes.data ?? []) as any,
     paymentSchedule: paymentRes.data ?? [],
     invoiceSettings: invoiceSettingsRes.data ?? null,
+    // Threaded into buildComputed so totalFee / acceptance are populated
+    // for time-based and retainer workflows.
+    timeBasedSettings: null, // populated below once parsed
+    quoteCategory: (quote.quote_category as
+      | "project"
+      | "time_based"
+      | "retainer"
+      | "consultancy"
+      | null) ?? null,
   };
 
   // Derive consultancy/retainer configs from saved time_based_settings
