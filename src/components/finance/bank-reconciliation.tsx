@@ -276,7 +276,7 @@ function UploadSection({ accountId, rules, isPt, onImported }: { accountId: stri
         running_balance: r.running_balance,
         currency: r.currency,
         notes: r.notes,
-        raw_row: r.raw,
+        raw_row: r.raw as never,
         row_checksum: r.row_checksum,
         status: "unclassified" as const,
         suggested_classification_id: ruleHits[i],
