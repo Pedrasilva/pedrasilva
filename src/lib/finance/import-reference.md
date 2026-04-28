@@ -152,3 +152,121 @@ All financial tables are **company-owned** (no `project_id`). See
 - **Imported rows default to `status = "projected"`** unless the Excel
   status column explicitly marks them as `paid` or `confirmed`. Treat
   unflagged historical months as needing a manual confirmation pass.
+
+---
+
+## 6. Row marker rules
+
+The parser must identify blocks and rows by **structure + content**, not by
+fixed row numbers. The 2026 layout is the canonical reference, but next
+year's file (or any mid-year edit by accounting) will shift rows around. The
+import must survive that without code changes.
+
+### 6a. Section headers
+
+- Detect blocks by scanning column A/B for known labels, normalized
+  (lowercased, accent-stripped, trimmed):
+  - `despesas operacionais` → start of operational expenses block
+  - `materiais` (also matches `materiais / subcontratação`,
+    `materiais e subcontratação`) → start of materials block
+  - `receitas` → start of income block
+  - `dívidas` / `dividas` → debt register
+  - `saldos` / `bancos` → bank balance section
+- A block ends at the next recognized header OR at the first fully empty
+  row after at least one valid data row.
+- Any row whose label contains `total`, `subtotal`, `soma`, or
+  `acumulado` (case/accent-insensitive) is a roll-up — **skip it**. The
+  dashboard recomputes totals from line items.
+
+### 6b. Expense rows (operational + materials)
+
+A row is a valid expense row only if **all** are true:
+
+- Supplier cell is a non-empty string after trimming.
+- Amount cell parses as a finite number.
+- Supplier text is not `total`, `subtotal`, or any header label.
+- Amount is not null and not zero.
+
+Additional handling:
+
+- Date cell may be empty → fall back to the period's month-end date and
+  flag the row in the import log notes.
+- Supplier name is matched case/accent-insensitively against
+  `financial_suppliers.name`; new names create a new supplier row.
+- Negative amounts on expense rows represent reversals/credits → store
+  as `amount_inc_vat = ABS(value)` and set
+  `status = "credit_note"` (or note in the import log if status mapping
+  is not yet wired).
+
+### 6c. Income rows
+
+A row is a valid income row only if **all** are true:
+
+- Client cell is a non-empty string after trimming.
+- Amount cell parses as a finite number and is not zero.
+- Client text is not `total`, `subtotal`, or a header label.
+
+Additional handling:
+
+- Negative income values represent corrections / refunds → store as
+  `amount_inc_vat = ABS(value)` and mark the row as a correction in the
+  import log notes. They still reduce net income at display time via the
+  status, not by storing a negative amount.
+- Client name dedup is case/accent-insensitive against
+  `financial_clients.name`.
+
+### 6d. Weekly blocks
+
+Some monthly sheets group movements by week (`Semana 1`, `Semana 2`, …).
+Parser rules:
+
+- Treat each `Semana N` marker as a sub-section inside the current block
+  (operational / materials / income).
+- Within a week, the column layout is the same triple:
+  `date | name (supplier or client) | amount`.
+- Iterate week-by-week dynamically — do **not** hardcode the row offsets
+  between weeks. The number of rows per week varies.
+- A week ends at the next `Semana N+1` marker, the next section header,
+  or the first fully empty row.
+
+### 6e. Bank balances
+
+A row is a valid balance snapshot only if:
+
+- Account name cell is a non-empty string.
+- Balance cell parses as a finite number (zero is allowed — it's a real
+  state, not malformed).
+
+Skip rows where the account name is empty, contains `total`, or where
+the balance cell is non-numeric (e.g. a label leaked into the value
+column). Store one `bank_balance_snapshots` row per account per
+month-end.
+
+### 6f. Debts
+
+A row is a valid debt only if:
+
+- Creditor cell is a non-empty string after trimming.
+- Original amount cell parses as a finite, non-zero number.
+
+Sign handling:
+
+- In the Excel, debts may appear as negative values (liabilities shown
+  with a minus). Always store `original_amount = ABS(value)` and
+  `outstanding_amount = ABS(value)` on first import.
+- A positive value with the same creditor on a later row represents a
+  payment / reduction → reduce `outstanding_amount` accordingly (do not
+  create a second debt row).
+
+### 6g. General principles
+
+- **Normalize before comparing**: lowercase, strip accents, trim
+  whitespace, collapse internal double-spaces. Apply this to every label
+  match (headers, totals, supplier/client dedup).
+- **Structure first, position second**: locate blocks by header markers,
+  then iterate rows until a stop condition. Row numbers in this document
+  are reference only — never compiled into the parser as constants.
+- **Skip silently, log loudly**: rows that fail a validity check are
+  skipped without aborting the import, but the count of skipped rows per
+  block is written to `financial_import_logs.notes` so a human can
+  reconcile.
