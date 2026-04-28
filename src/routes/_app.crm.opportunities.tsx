@@ -55,7 +55,9 @@ function OpportunitiesPage() {
   });
 
   const createQuote = useMutation({
-    mutationFn: async (opp: Row) => {
+    mutationFn: async ({ opp, category }: { opp: Row; category: QuoteCategory }) => {
+      const quote_type = defaultQuoteTypeForCategory(category);
+      const fee_structure_type = category === "project" ? "fixed" : "monthly";
       const { data, error } = await supabase
         .from("fee_proposals")
         .insert({
@@ -64,7 +66,9 @@ function OpportunitiesPage() {
           company_id: opp.company_id,
           contact_id: opp.primary_contact_id,
           valor: Number(opp.estimated_fee) || 0,
-          fee_structure_type: "fixed",
+          fee_structure_type,
+          quote_category: category,
+          quote_type,
           quote_status: "draft",
           pipeline_status: "lead",
           data_proposta: new Date().toISOString().slice(0, 10),
@@ -82,6 +86,7 @@ function OpportunitiesPage() {
     onError: (e: Error) => {
       toast.error(e.message);
       setCreatingFor(null);
+      setChooserOpp(null);
     },
   });
 
@@ -96,8 +101,7 @@ function OpportunitiesPage() {
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: latestQuote.id } });
       return;
     }
-    setCreatingFor(opp.id);
-    createQuote.mutate(opp);
+    setChooserOpp(opp);
   };
 
   const handleCardDoubleClick = (oppId: string) => {
