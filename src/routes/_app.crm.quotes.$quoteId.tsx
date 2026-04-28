@@ -505,7 +505,7 @@ function QuoteDetail() {
           {/* Planning (Gantt + stages), External services and Payment schedule
               are project-only — consultancy proposals do not have stages,
               dependencies or stage-driven payment milestones. */}
-          {quote.quote_category === "project" && (
+          {isProject && (
             <>
               <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
               <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
@@ -545,7 +545,7 @@ function QuoteDetail() {
                 {/* Construction cost / fee percentage are project-quote
                     concepts (% of construction value). Hidden for
                     consultancy quotes which bill hourly. */}
-                {quote.quote_category === "project" && (
+                {isProject && (
                   <>
                     <div>
                       <Label>{t("workspace.overview.constructionCost")}</Label>
@@ -635,7 +635,7 @@ function QuoteDetail() {
 
           {/* Construction-percentage architectural fee calculator. Project
               Proposals only — Consultancy quotes bill hourly and skip this. */}
-          {quote.quote_category === "project" && (
+          {isProject && (
             <div className="mt-4">
               <QuoteFeeCalculatorCard
                 quoteId={quoteId}
@@ -660,7 +660,7 @@ function QuoteDetail() {
             quoteCategory={quote.quote_category}
           />
         </TabsContent>
-        {quote.quote_category === "project" && (
+        {isProject && (
           <>
             <TabsContent value="planning" className="mt-4">
               <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
