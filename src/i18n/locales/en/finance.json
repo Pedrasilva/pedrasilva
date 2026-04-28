@@ -420,15 +420,21 @@
       "date": "Date",
       "method": "Method",
       "bankTx": "Bank transaction",
+      "matched": "Matched",
+      "manual": "Manual",
       "remove": "Remove",
       "removed": "Payment removed.",
       "added": "Payment recorded.",
+      "outstandingHint": "Outstanding: {{amount}}",
       "exceedsOutstanding": "Payment exceeds outstanding amount.",
-      "method_bank_transfer": "Bank transfer",
-      "method_cash": "Cash",
-      "method_card": "Card",
-      "method_direct_debit": "Direct debit",
-      "method_other": "Other"
+      "amountInvalid": "Enter a payment amount greater than zero.",
+      "methods": {
+        "bank_transfer": "Bank transfer",
+        "cash": "Cash",
+        "card": "Card",
+        "direct_debit": "Direct debit",
+        "other": "Other"
+      }
     },
     "vat": {
       "title": "VAT summary",

@@ -420,15 +420,21 @@
       "date": "Data",
       "method": "Método",
       "bankTx": "Movimento bancário",
+      "matched": "Associado",
+      "manual": "Manual",
       "remove": "Remover",
       "removed": "Pagamento removido.",
       "added": "Pagamento registado.",
+      "outstandingHint": "Em dívida: {{amount}}",
       "exceedsOutstanding": "O pagamento excede o valor em dívida.",
-      "method_bank_transfer": "Transferência",
-      "method_cash": "Numerário",
-      "method_card": "Cartão",
-      "method_direct_debit": "Débito directo",
-      "method_other": "Outro"
+      "amountInvalid": "Indique um valor de pagamento maior que zero.",
+      "methods": {
+        "bank_transfer": "Transferência",
+        "cash": "Numerário",
+        "card": "Cartão",
+        "direct_debit": "Débito directo",
+        "other": "Outro"
+      }
     },
     "vat": {
       "title": "Resumo de IVA",
