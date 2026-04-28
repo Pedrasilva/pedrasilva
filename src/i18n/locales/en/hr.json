@@ -262,6 +262,13 @@
     "columnB": "Column B",
     "pickerPlaceholder": "Choose a snapshot",
     "inForceShort": "In force",
+    "recentlyChanged": "Recently changed",
+    "upcoming": "Upcoming",
+    "source": {
+      "manual": "Manual",
+      "excel_import": "Excel import",
+      "api": "API"
+    },
     "headers": {
       "metric": "Metric",
       "delta": "Δ",
