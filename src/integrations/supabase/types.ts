@@ -1129,6 +1129,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          file_checksum: string | null
           file_name: string
           id: string
           import_type: string
@@ -1140,11 +1141,13 @@ export type Database = {
           rows_expenses: number
           rows_income: number
           rows_suppliers: number
+          source_file_size_bytes: number | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           created_by?: string | null
+          file_checksum?: string | null
           file_name: string
           id?: string
           import_type?: string
@@ -1156,11 +1159,13 @@ export type Database = {
           rows_expenses?: number
           rows_income?: number
           rows_suppliers?: number
+          source_file_size_bytes?: number | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           created_by?: string | null
+          file_checksum?: string | null
           file_name?: string
           id?: string
           import_type?: string
@@ -1172,6 +1177,7 @@ export type Database = {
           rows_expenses?: number
           rows_income?: number
           rows_suppliers?: number
+          source_file_size_bytes?: number | null
           updated_at?: string
         }
         Relationships: []
