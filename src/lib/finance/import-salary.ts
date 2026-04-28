@@ -292,9 +292,31 @@ export async function previewSalaryImport(
     return idx == null ? undefined : row[idx];
   };
 
+  // Load current open snapshots per collaborator to flag duplicate effective_from
+  // and "no change vs current" warnings (read-only).
+  const { data: openSnaps } = await supabase
+    .from("salary_snapshots")
+    .select("collaborator_id, effective_from, valor_base")
+    .is("effective_to", null);
+  const currentByCollab = new Map<string, { effective_from: string; valor_base: number }>();
+  for (const s of openSnaps ?? []) {
+    currentByCollab.set(s.collaborator_id, {
+      effective_from: s.effective_from,
+      valor_base: Number(s.valor_base ?? 0),
+    });
+  }
+
   const matches: SalaryPreviewMatch[] = [];
   const willCreate: SalaryPreviewWillCreate[] = [];
   const skipped: SalaryImportSkip[] = [];
+  const warnings: Record<number, SalaryRowWarning[]> = {};
+  const addWarn = (i: number, w: SalaryRowWarning) => {
+    if (!warnings[i]) warnings[i] = [];
+    if (!warnings[i].includes(w)) warnings[i].push(w);
+  };
+
+  // Track duplicate (collaboratorId, effective_from) pairs within the file
+  const seenPairs = new Map<string, number>(); // key → first rowIndex
 
   for (let i = 0; i < input.dataRows.length; i++) {
     const row = input.dataRows[i];
@@ -311,32 +333,43 @@ export async function previewSalaryImport(
       skipped.push({ rowIndex: i, identifier, reason: "Missing or non-positive base salary" });
       continue;
     }
-    const effectiveFrom = toDate(cell(row, "effective_from")) ?? defaultEff;
+
+    // Effective-from: invalid date is a critical skip (would corrupt history).
+    const effRaw = cell(row, "effective_from");
+    const effParsed = headers.effective_from != null && effRaw != null && String(effRaw).trim() !== ""
+      ? toDate(effRaw)
+      : defaultEff;
+    if (!effParsed) {
+      skipped.push({ rowIndex: i, identifier, reason: "Invalid effective date" });
+      continue;
+    }
+    const effectiveFrom = effParsed;
+
+    // Soft warnings — do not block
+    if (valorBase < SALARY_BOUNDS.min) addWarn(i, "salary_too_low");
+    if (valorBase > SALARY_BOUNDS.max) addWarn(i, "salary_too_high");
+    if (!emailRaw) addWarn(i, "missing_email");
 
     const emailKey = normalizeEmail(emailRaw);
     const nameKey = normalizeName(nameRaw);
     const emailHit = emailKey ? byEmail.get(emailKey) : undefined;
     const nameHit = !emailHit && nameKey ? byName.get(nameKey) : undefined;
+    const hit = emailHit ?? nameHit;
 
-    if (emailHit) {
+    if (hit) {
+      const dupKey = `${hit.id}|${effectiveFrom}`;
+      if (seenPairs.has(dupKey)) addWarn(i, "duplicate_in_file");
+      else seenPairs.set(dupKey, i);
+      const cur = currentByCollab.get(hit.id);
+      if (cur && cur.effective_from === effectiveFrom && Math.abs(cur.valor_base - valorBase) < 0.005) {
+        addWarn(i, "no_change_vs_current");
+      }
       matches.push({
         rowIndex: i,
         identifier,
-        collaboratorId: emailHit.id,
-        matchedBy: "email",
-        matchedLabel: emailHit.label,
-        valor_base: valorBase,
-        effective_from: effectiveFrom,
-      });
-      continue;
-    }
-    if (nameHit) {
-      matches.push({
-        rowIndex: i,
-        identifier,
-        collaboratorId: nameHit.id,
-        matchedBy: "name",
-        matchedLabel: nameHit.label,
+        collaboratorId: hit.id,
+        matchedBy: emailHit ? "email" : "name",
+        matchedLabel: hit.label,
         valor_base: valorBase,
         effective_from: effectiveFrom,
       });
@@ -360,8 +393,8 @@ export async function previewSalaryImport(
       rowIndex: i,
       identifier,
       reason: !nameRaw
-        ? "No name and no matching collaborator by email"
-        : "No matching collaborator and not enough identity to create one (need name + email or employee number)",
+        ? "Unknown collaborator (no name and no email match)"
+        : "Unknown collaborator (cannot create — need name + email or employee number)",
     });
   }
 
@@ -372,6 +405,7 @@ export async function previewSalaryImport(
     matches,
     willCreate,
     skipped,
+    warnings,
     duplicateOfImport,
     checksum,
   };
