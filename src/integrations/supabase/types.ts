@@ -3628,6 +3628,23 @@ export type Database = {
         }
         Returns: boolean
       }
+      import_financial_data: {
+        Args: {
+          p_bank_accounts?: Json
+          p_clients?: Json
+          p_debts?: Json
+          p_expenses?: Json
+          p_file_checksum: string
+          p_file_name: string
+          p_import_type: string
+          p_income?: Json
+          p_notes?: string
+          p_periods?: Json
+          p_source_file_size_bytes?: number
+          p_suppliers?: Json
+        }
+        Returns: Json
+      }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       list_user_effective_permissions: {
         Args: { _user_id: string }
