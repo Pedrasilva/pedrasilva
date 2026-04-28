@@ -2307,6 +2307,7 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
             document={document}
             isLoadingDocument={isLoadingDocument}
             quoteType={quoteType}
+            quoteCategory={props.quoteCategory ?? null}
           />
         </div>
       )}
