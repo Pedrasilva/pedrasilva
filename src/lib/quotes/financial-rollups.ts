@@ -86,22 +86,66 @@ export interface QuoteFinancialSummary {
   effectiveMargin: number;
 }
 
+export type QuoteCategoryHint = "project" | "time_based" | "retainer" | "consultancy";
+
 export function rollupQuote({
   allocations,
   externalServices,
   pricingMultiplier = 1,
+  category,
+  timeBasedSettings,
 }: {
   allocations: QuoteAllocationWithResource[];
   externalServices: QuoteExternalServiceWithSupplier[];
   pricingMultiplier?: number;
+  /** When set to "time_based"/"consultancy" or "retainer", the rollup uses
+   *  the saved fee_proposals.time_based_settings to compute a meaningful
+   *  totalFee instead of relying on stage allocations (which don't exist
+   *  for time-based / retainer quotes). */
+  category?: QuoteCategoryHint;
+  timeBasedSettings?: TimeBasedSettings | null;
 }): QuoteFinancialSummary {
   const internal = rollupQuoteAllocations(allocations);
   const external = rollupExternalServices(externalServices);
 
   const m = pricingMultiplier > 0 ? pricingMultiplier : 1;
-  const internalFee = internal.value * m;
+  let internalFee = internal.value * m;
   const externalFee = external.value * m;
   const totalCost = internal.cost + external.cost;
+
+  // Time-based / retainer: derive fee from the saved commercial settings
+  // when allocations are empty so the financial summary is not blank.
+  const isTimeBased = category === "time_based" || category === "consultancy";
+  const isRetainer = category === "retainer";
+  if (
+    timeBasedSettings &&
+    (isTimeBased || isRetainer) &&
+    internalFee === 0
+  ) {
+    if (timeBasedSettings.kind === "consultancy_hours_package") {
+      // Block value = hourly_rate × hours_block (full package fee).
+      internalFee = consultancyBlockValue(timeBasedSettings) * m;
+      // Reflect the implied "billable hours" for the Internal cell.
+      internal.hours = timeBasedSettings.hours_block ?? 0;
+    } else if (timeBasedSettings.kind === "construction_retainer") {
+      const monthly = retainerMonthlyEstimate(timeBasedSettings);
+      const months = timeBasedSettings.construction_duration_months ?? null;
+      // If duration set, total = monthly × months. Otherwise monthly only.
+      internalFee = (months && months > 0 ? monthly * months : monthly) * m;
+      // Sum of resources hours/month × months (if duration set).
+      const hpm = timeBasedSettings.monthly_resources.reduce(
+        (s, r) => s + (Number(r.hours_per_month) || 0),
+        0,
+      );
+      internal.hours = months && months > 0 ? hpm * months : hpm;
+    }
+    // Mirror the imputed fee back into the internal row so per-side cells
+    // (Internal Fee, Internal Profit) display correctly.
+    internal.value = internalFee / m;
+    internal.budget = internal.value;
+    internal.profit = internal.value - internal.cost;
+  }
+
   const totalFee = internalFee + externalFee;
   const totalProfit = totalFee - totalCost;
 
