@@ -67,7 +67,7 @@ async function runGenerate(
   const { data: quote, error: quoteErr } = await supabase
     .from("fee_proposals")
     .select(
-      "id, titulo, valor, proposal_description, pricing_multiplier, data_proposta, opportunity_id, company_id, contact_id, revision_number, quote_type, time_based_settings",
+      "id, titulo, valor, proposal_description, pricing_multiplier, data_proposta, opportunity_id, company_id, contact_id, revision_number, quote_type, quote_category, time_based_settings",
     )
     .eq("id", args.quoteId)
     .maybeSingle();
@@ -176,6 +176,15 @@ async function runGenerate(
     externalServices: (externalRes.data ?? []) as any,
     paymentSchedule: paymentRes.data ?? [],
     invoiceSettings: invoiceSettingsRes.data ?? null,
+    // Threaded into buildComputed so totalFee / acceptance are populated
+    // for time-based and retainer workflows.
+    timeBasedSettings: null, // populated below once parsed
+    quoteCategory: (quote.quote_category as
+      | "project"
+      | "time_based"
+      | "retainer"
+      | "consultancy"
+      | null) ?? null,
   };
 
   // Derive consultancy/retainer configs from saved time_based_settings
@@ -198,6 +207,9 @@ async function runGenerate(
     quote.time_based_settings,
     proposalKindHint,
   );
+  // Wire parsed settings into the generator context so totalFee /
+  // acceptance / fee summary are non-zero for time-based / retainer.
+  ctx.timeBasedSettings = parsedSettings;
   let derivedConsultancy: ConsultancyConfig | undefined = args.consultancy;
   let derivedRetainer: RetainerConfig | undefined = args.retainer;
   if (!derivedConsultancy && parsedSettings?.kind === "consultancy_hours_package") {

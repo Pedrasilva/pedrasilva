@@ -16,6 +16,7 @@ import { rollupQuote, quoteAllocationLine } from "./financial-rollups";
 import type { QuoteAllocationWithResource } from "./use-quote-allocations";
 import type { QuoteExternalServiceWithSupplier } from "./use-quote-external-services";
 import type { QuoteStage, QuotePaymentScheduleItem } from "./types";
+import type { TimeBasedSettings } from "./time-based-settings";
 
 // ───────────────────────────── Types ─────────────────────────────
 
@@ -67,6 +68,12 @@ export interface QuoteContext {
     company_name: string | null;
     vat_rate: number;
   } | null;
+  /** Saved fee_proposals.time_based_settings — used by buildComputed so
+   *  time-based / retainer proposals get a non-zero totalFee for the
+   *  acceptance block, fee summary, and {{total_fee}} substitution. */
+  timeBasedSettings?: TimeBasedSettings | null;
+  /** Top-level workflow category — controls how totalFee is derived. */
+  quoteCategory?: "project" | "time_based" | "retainer" | "consultancy" | null;
 }
 
 export interface GeneratedSnapshot {
@@ -406,6 +413,9 @@ export const CONSULTANCY_HOURS_PACKAGE_BLOCK_SLUGS: readonly string[] = [
   "consultancy-methodology-iterative",
   "consultancy-fee-structure-time-based",
   "generated-time-fee-consultancy",
+  // Optional phase estimates — surfaces the hours per phase the user
+  // entered on the Time-based tab so the client sees the planned scope.
+  "generated-consultancy-phases",
   "consultancy-exclusions-standard",
   "consultancy-validity-next-steps",
   "generated-acceptance-block",
@@ -716,6 +726,8 @@ function buildComputed(
     allocations: ctx.allocations,
     externalServices: ctx.externalServices,
     pricingMultiplier: ctx.quote.pricing_multiplier,
+    category: ctx.quoteCategory ?? undefined,
+    timeBasedSettings: ctx.timeBasedSettings ?? null,
   });
 
   // Stages, ordered.

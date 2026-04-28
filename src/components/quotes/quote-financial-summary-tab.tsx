@@ -11,7 +11,7 @@
  */
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,8 @@ import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { rollupQuote } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings, marginBand } from "@/lib/quotes/quote-warnings";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
-import { formatEUR } from "@/lib/crm/types";
+import { formatEUR, normalizeQuoteCategory } from "@/lib/crm/types";
+import { parseTimeBasedSettings } from "@/lib/quotes/time-based-settings";
 
 type Accent = "good" | "bad" | "warn" | "muted" | "primary";
 
@@ -97,6 +98,25 @@ export function QuoteFinancialSummaryTab({
   const allocsQ = useQuoteAllocations(quoteId);
   const extQ = useQuoteExternalServices(quoteId);
 
+  // Fetch quote-level fields needed for the time-based / retainer rollup
+  // (so the summary is no longer empty for those workflows).
+  const { data: quoteRow } = useQuery({
+    queryKey: ["fee_proposal_for_financial_summary", quoteId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("fee_proposals")
+        .select("quote_category, quote_type, time_based_settings")
+        .eq("id", quoteId)
+        .single();
+      if (error) throw error;
+      return data as {
+        quote_category: string | null;
+        quote_type: string | null;
+        time_based_settings: unknown;
+      };
+    },
+  });
+
   const allocations = allocsQ.data ?? [];
   const externalServices = extQ.data ?? [];
   const stages = stagesQ.data ?? [];
@@ -134,10 +154,17 @@ export function QuoteFinancialSummaryTab({
     ? draftNum
     : pricingMultiplier;
 
+  const category = quoteRow ? normalizeQuoteCategory(quoteRow.quote_category) : "project";
+  const timeBasedSettings = quoteRow
+    ? parseTimeBasedSettings(quoteRow.time_based_settings, quoteRow.quote_type)
+    : null;
+
   const summary = rollupQuote({
     allocations,
     externalServices,
     pricingMultiplier: liveMultiplier,
+    category,
+    timeBasedSettings,
   });
 
   const band = marginBand(summary.effectiveMargin);
