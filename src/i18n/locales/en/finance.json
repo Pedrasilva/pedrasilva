@@ -171,5 +171,58 @@
   "noAccess": {
     "title": "No access",
     "body": "You don't have permission to view the financial dashboard."
+  },
+  "debts": {
+    "title": "Debts",
+    "subtitle": "{{count}} debt(s)",
+    "empty": "No debts recorded.",
+    "scheduledCount": "{{count}} payment(s)",
+    "summary": {
+      "original": "Original total",
+      "outstanding": "Outstanding total"
+    },
+    "col": {
+      "creditor": "Creditor",
+      "description": "Description",
+      "original": "Original",
+      "outstanding": "Outstanding",
+      "status": "Status",
+      "startDate": "Start",
+      "endDate": "End",
+      "scheduled": "Payment plan"
+    },
+    "payments": {
+      "title": "Scheduled debt payments",
+      "subtitle": "{{count}} payment(s)",
+      "empty": "No scheduled debt payments yet.",
+      "col": {
+        "creditor": "Creditor",
+        "month": "Month",
+        "due": "Due",
+        "paid": "Paid",
+        "planned": "Planned",
+        "actual": "Actual",
+        "status": "Status"
+      }
+    }
+  },
+  "importLogs": {
+    "title": "Import logs",
+    "subtitle": "{{count}} import(s)",
+    "empty": "No imports recorded yet.",
+    "col": {
+      "importedAt": "Imported at",
+      "fileName": "File name",
+      "importType": "Type",
+      "fileSize": "Size",
+      "checksum": "Checksum",
+      "rowsExpenses": "Expenses",
+      "rowsIncome": "Income",
+      "rowsSuppliers": "Suppliers",
+      "rowsClients": "Clients",
+      "rowsDebts": "Debts",
+      "rowsBankAccounts": "Bank acc.",
+      "notes": "Notes"
+    }
   }
 }
