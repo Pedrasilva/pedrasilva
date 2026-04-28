@@ -68,6 +68,12 @@ export interface QuoteContext {
     company_name: string | null;
     vat_rate: number;
   } | null;
+  /** Saved fee_proposals.time_based_settings — used by buildComputed so
+   *  time-based / retainer proposals get a non-zero totalFee for the
+   *  acceptance block, fee summary, and {{total_fee}} substitution. */
+  timeBasedSettings?: TimeBasedSettings | null;
+  /** Top-level workflow category — controls how totalFee is derived. */
+  quoteCategory?: "project" | "time_based" | "retainer" | "consultancy" | null;
 }
 
 export interface GeneratedSnapshot {
