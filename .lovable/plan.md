@@ -1,101 +1,83 @@
-## Goal
-Mirror the structure of the reference Pedra Silva fee proposal (10 sections + cover) by adding **17 new master blocks** (EN + PT-PT) and a new **opt-in preset** ordering them in the document's reference sequence. All new blocks ship with **fully generic wording** (no firm names, addresses, partner names, or specific rates) so they're reusable for any architecture/interior practice.
+# Three distinct quote workflows
 
-## Reference document sections (and current coverage)
+Promote the current model from 2 categories (project / consultancy) to **3 top-level workflows**, each with its own tabs, presets, and proposal block-set:
 
-| Reference section | Existing block | New block to add |
-|---|---|---|
-| Cover / Intro | `intro-standard` | `psa-intro-interior-fitout` (opening line for fit-out projects) |
-| About firm | `about-psa-standard` | — |
-| §1 Project areas list | — | `psa-project-areas` |
-| §1 Scope (Interior / Furniture / Signage) | `scope-generic` | `psa-scope-interior-design` |
-| §1 Local-consultant clause | — | `psa-scope-exclusions-local` |
-| §1 MEP / lighting paragraph | — | `psa-mep-lighting-note` |
-| §1 LEED / BREEAM line | — | `psa-leed-breeam-note` |
-| §2 Base information | — | `psa-base-information` |
-| §3 Stages intro | — | `psa-stages-intro` |
-| §3 Per-stage detail | (auto via `generated-stage-summary`) | — |
-| §3 Timeline | (auto via `generated-timeline`) | — |
-| §4 Fee intro | `fee-explanation` | `psa-fee-intro-inflation` |
-| §4 Fee table | (auto via `generated-fee-summary`) | — |
-| §5 Payment monthly cycle | `payment-intro`, `payment-stage-based` | `psa-payment-monthly-cycle` |
-| §5 Payment table | (auto via `generated-payment-schedule`) | — |
-| §6 Timelines & deadlines | — | `psa-timelines-deadlines` |
-| §7 Additional services | `additional-services-standard` | `psa-additional-services-interior` (mentions per-3D-image charge generically) |
-| §8 Travelling | — | `psa-travelling` (per-km, written approval, etc.) |
-| §9 Exclusions | `exclusions-standard` | `psa-exclusions-interior` (fuller bullet list) |
-| §10 Validity | `validity-period` | `psa-validity-30-days` (uses `{{validity_days}}` token) |
-| §10 Acceptance + signature | `acceptance-wording`, `generated-acceptance-block` | `psa-closing-signature` (uses `{{firm_partner_name}}`/`{{firm_partner_title}}` tokens — both blank by default → cleaned by sanitizer) |
+1. **Project Proposal** — current full project flow (stages, Gantt, fee calculator, staged fees, external services, payment schedule).
+2. **Time-based Proposal** — simplified consultancy-style flow built around an hours block (hourly rate, hours per block, minimum commitment %, per-phase estimates). No Gantt, no stages, no payment schedule.
+3. **Construction Retainer** — its own dedicated flow for monthly construction-phase retainers (start/end dates, monthly resources, monthly estimate, reimbursable expenses). No Gantt, no payment schedule, no fee calculator. Today this lives buried as a sub-type of Project — it gets its own card.
 
-**17 new master blocks** × **2 languages** = 34 rows inserted. All `block_type = 'editable_text'`, `visibility = 'client'`, `is_active = true`.
+Construction Retainer is no longer a sub-type under Project, and "Consultancy" is renamed to "Time-based" in the UI to match how you described it.
 
-## Files to change
+## Data model
 
-### 1. `supabase/migrations/<ts>_add_psa_interior_proposal_blocks.sql`
-- Pure `INSERT` statements into `proposal_blocks`. No schema change.
-- Each block inserted in EN and PT-PT.
-- Wording is **fully generic** — uses placeholders (e.g. *"travel outside the project's primary city is billed per kilometre or against receipts"*, never hard-coded "€0.50/km").
-- Uses existing variable tokens where appropriate: `{{client_name}}`, `{{project_name}}`, `{{project_areas}}` (new), `{{stage_count}}` (new), `{{firm_partner_name}}` (new, blank by default), `{{firm_partner_title}}` (new, blank by default), `{{validity_days}}`.
-- Idempotent via `ON CONFLICT (slug, language) DO NOTHING` so re-running is safe.
+Today: `quote_category ∈ { project, consultancy }` with `quote_type ∈ { standard_project, construction_retainer, consultancy_hours_package }`, where `construction_retainer` is locked under `project`.
 
-### 2. `src/lib/quotes/proposal-generator.ts`
-- Extend `ProposalKind` union: `"fixed_project" | "phased_consultancy" | "psa_interior_fitout"`.
-- Add `PSA_INTERIOR_BLOCK_SLUGS` constant in the reference document order:
-  ```
-  psa-intro-interior-fitout, about-psa-standard, psa-project-areas,
-  psa-scope-interior-design, psa-scope-exclusions-local, psa-mep-lighting-note,
-  psa-leed-breeam-note, psa-base-information, psa-stages-intro,
-  generated-stage-summary, generated-timeline, generated-role-summary,
-  psa-fee-intro-inflation, generated-fee-summary,
-  psa-payment-monthly-cycle, generated-payment-schedule,
-  psa-timelines-deadlines, psa-additional-services-interior,
-  psa-travelling, psa-exclusions-interior, psa-validity-30-days,
-  generated-acceptance-block, psa-closing-signature
-  ```
-- Update `pickSlugs()` to return this list when `proposalKind === "psa_interior_fitout"`.
-- Extend `buildVariables()` with **generic, blank-by-default** keys:
-  - `project_areas` (string, default `""`)
-  - `stage_count` (derived from `ctx.stages.length`)
-  - `firm_partner_name` (default `""` — sanitiser drops the dangling line if absent)
-  - `firm_partner_title` (default `""`)
-- All current variables remain untouched. Empty values fall through the existing `cleanupEmptyPhrases()` sanitiser.
+Change `quote_category` to a 3-value enum and re-pin types:
 
-### 3. `src/lib/quotes/use-generate-quote-proposal-document.ts`
-- No new query needed — `pm_invoice_settings` is already loaded for `payment_terms_days`.
-- Pass-through: when the kind is `psa_interior_fitout`, simply forward to the generator. No tenant-specific defaults pulled from settings (per user decision).
+```text
+quote_category    quote_type (only valid sub-type)
+─────────────────────────────────────────────────────────
+project        →  standard_project
+time_based     →  consultancy_hours_package
+retainer       →  construction_retainer
+```
 
-### 4. `src/components/quotes/quote-proposal-tab.tsx`
-- Add a third option to the existing proposal-kind picker (already supports `fixed_project` and `phased_consultancy`):
-  - **Label**: "Interior Fit-Out (full template)"
-  - **Value**: `"psa_interior_fitout"`
-- Picker default remains `"fixed_project"` so existing behaviour is unchanged.
-- No layout/style changes — the new blocks render through the same `GeneratedDocumentSection` and `ProposalPrintDocument` we just refined for Preview/PDF parity.
+Migration:
+- Add `'time_based'` and `'retainer'` to the `crm_quote_category` enum.
+- Backfill existing rows by `quote_type`:
+  - `standard_project` → `project`
+  - `consultancy_hours_package` → `time_based`
+  - `construction_retainer` → `retainer`
+- Replace the existing validation trigger so each category locks to exactly one `quote_type`.
+- Keep `'consultancy'` in the enum for safety (no rows will use it after backfill); drop in a later cleanup pass.
 
-### 5. `src/i18n/locales/{en,pt-PT}/crm.json`
-- One new key in each: `proposal.kind.psaInteriorFitout`
-  - EN: "Interior Fit-Out (full template)"
-  - PT-PT: "Fit-Out Interior (modelo completo)"
+`quote_type` becomes a derived/internal field — the UI will always set it from category and never expose it as a user choice.
 
-## What this fixes / unlocks
-- Generating a quote and picking "Interior Fit-Out" now produces a 23-block proposal that **matches the reference document's order and section coverage**.
-- Stage detail, timeline, fees, role summary, payment schedule, and acceptance block remain auto-generated from the live quote data (no double-entry).
-- Firm-specific details (address, partner name, exact rates, validity in days) stay editable per quote in the proposal editor — nothing is baked into code.
+## UX changes
 
-## Out of scope (explicitly)
-- No schema changes to `proposal_blocks` or `pm_invoice_settings`.
-- No edits to the existing default preset (`DEFAULT_PROPOSAL_BLOCK_SLUGS`) or the consultancy preset.
-- No changes to the generic master blocks already in the library.
-- No automated per-stage narrative generation. The auto stage table covers names, dates, and totals; if the user wants per-stage prose like the reference document's "[1] Workplace strategy …", they add free-text blocks manually after generation.
-- No new logo/footer/styling work — that was done in the previous turn and remains unchanged.
+**New Quote dialog** (`_app.crm.opportunities.$opportunityId.tsx`):
+- Replace the 2-card chooser with a **3-card chooser**: Project / Time-based / Construction Retainer.
+- Remove the project sub-type radio group entirely (no more `standard_project` vs `construction_retainer` choice — retainer is its own top-level card).
+- Hide `fee_structure_type` for time_based and retainer (forced to `monthly`); keep dropdown only for project.
+
+**Quote workspace** (`_app.crm.quotes.$quoteId.tsx`):
+- Tabs by category:
+  - **project**: Overview, Time-based (optional retainer add-on figures), Planning, External services, Payment schedule, Financial, Proposal.
+  - **time_based**: Overview (simplified — no construction cost / fee %), Time-based (primary config), Financial, Proposal.
+  - **retainer**: Overview (simplified), Time-based (renamed locally to "Retainer" — primary config: start/end, monthly resources, reimbursable note), Financial, Proposal.
+- Header chip shows the category label, not `quote_type`.
+- Fee calculator card shown for **project only** (already gated — no change).
+- Construction-cost / fee-% fields hidden for time_based and retainer.
+
+**Time-based settings tab** (`quote-time-based-settings-tab.tsx`):
+- Drive the editor purely from `quote_category` (`time_based` → consultancy editor, `retainer` → retainer editor) instead of the current `quote_type` discriminator. Remove the project-only "add-on toggle" path — for project quotes this tab continues to show the add-on figures it shows today.
+
+## Proposal generator
+
+`src/lib/quotes/proposal-generator.ts` and `use-quote-proposal-document-blocks.ts`:
+- Swap the existing 2-way split (PROJECT_PROPOSAL_KINDS / CONSULTANCY_PROPOSAL_KINDS) for a **3-way map keyed by category**:
+  - `project` → existing project block-set.
+  - `time_based` → existing consultancy block-set (hours block, minimum commitment, per-phase estimates).
+  - `retainer` → new retainer block-set (monthly fee, resources table, reimbursable expenses, start/end). Promote what already lives inside the existing retainer-tagged blocks; no new copywriting required up front.
+- Pass `quote_category` through `QuoteProposalTab` (already wired) and use it as the discriminator, falling back to `categoryForQuoteType()` for legacy rows.
+
+## Files to edit
+
+- `supabase/migrations/<new>.sql` — enum extension, backfill, trigger.
+- `src/lib/crm/types.ts` — add `time_based` / `retainer` to `QuoteCategory`, update `QUOTE_TYPES_BY_CATEGORY`, `defaultQuoteTypeForCategory`, `categoryForQuoteType`.
+- `src/integrations/supabase/types.ts` — regenerated by the migration.
+- `src/routes/_app.crm.opportunities.$opportunityId.tsx` — 3-card chooser, drop project sub-type radio.
+- `src/routes/_app.crm.quotes.$quoteId.tsx` — tab gating + header chip + Overview field gating per category.
+- `src/components/quotes/quote-time-based-settings-tab.tsx` — switch discriminator to category.
+- `src/components/quotes/quote-proposal-tab.tsx` — use category to pick block-set.
+- `src/lib/quotes/proposal-generator.ts`, `src/lib/quotes/use-quote-proposal-document-blocks.ts` — 3-way preset map.
+- `src/i18n/locales/{en,pt-PT}/crm.json` — add `quotes.newQuoteDialog.category.time_based.*`, `…category.retainer.*`, `quoteCategory.{project,time_based,retainer}` labels. Keep existing `consultancy` keys as aliases for one release.
 
 ## Validation
-1. `bunx tsc --noEmit`
-2. `node scripts/check-i18n-parity.mjs` — proves the new `proposal.kind.psaInteriorFitout` key exists in both EN and PT-PT.
-3. `node scripts/test-proposal-substitution.mjs` — proves the new variables (`project_areas`, `firm_partner_name`, `firm_partner_title`, `stage_count`) clean up cleanly when blank.
-4. SQL spot-check after migration: `SELECT slug, language FROM proposal_blocks WHERE slug LIKE 'psa-%' ORDER BY slug, language` should return 34 rows.
-5. Manual: open a quote, switch the generate picker to "Interior Fit-Out", click Regenerate. Confirm 23 blocks appear in Preview in the reference order; print to PDF and confirm the same.
 
-## Migration safety
-- All inserts are additive and gated by `ON CONFLICT (slug, language) DO NOTHING`.
-- Existing quotes already have generated documents stored in `quote_proposal_documents` / `quote_proposal_document_blocks` — those are untouched and continue rendering exactly as today.
-- Users only see the new structure if they explicitly pick the new kind and click Regenerate.
+- Creating each of the 3 types lands in the right workspace with the right tabs.
+- Existing project quotes still show Gantt + fee calculator.
+- Existing `consultancy_hours_package` quotes now appear under "Time-based" with the hours-block editor.
+- Existing `construction_retainer` quotes now appear under "Construction Retainer" with the retainer editor and no Gantt.
+- Generated proposals pull the correct block-set for each of the 3 categories.
+- DB trigger rejects mismatched `(category, quote_type)` combos.
