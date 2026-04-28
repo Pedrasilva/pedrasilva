@@ -1317,7 +1317,7 @@ function IncomeTab({ vatMode }: { vatMode: VatMode }) {
                   {t("finance:income.summary.total")}
                 </TableCell>
                 <TableCell className="text-right tabular-nums font-semibold">
-                  {fmtEUR(totals.total)}
+                  {fmtEUR2(totals.total)}
                 </TableCell>
                 <TableCell />
               </TableRow>
