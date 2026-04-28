@@ -17,32 +17,47 @@ export type Database = {
       bank_accounts: {
         Row: {
           account_name: string
+          account_number: string | null
           bank_name: string | null
+          bic: string | null
           created_at: string
           currency: string
+          iban: string | null
           id: string
           is_active: boolean
           notes: string | null
+          opening_balance: number | null
+          opening_balance_date: string | null
           updated_at: string
         }
         Insert: {
           account_name: string
+          account_number?: string | null
           bank_name?: string | null
+          bic?: string | null
           created_at?: string
           currency?: string
+          iban?: string | null
           id?: string
           is_active?: boolean
           notes?: string | null
+          opening_balance?: number | null
+          opening_balance_date?: string | null
           updated_at?: string
         }
         Update: {
           account_name?: string
+          account_number?: string | null
           bank_name?: string | null
+          bic?: string | null
           created_at?: string
           currency?: string
+          iban?: string | null
           id?: string
           is_active?: boolean
           notes?: string | null
+          opening_balance?: number | null
+          opening_balance_date?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -81,6 +96,313 @@ export type Database = {
             columns: ["bank_account_id"]
             isOneToOne: false
             referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bank_classification_rules: {
+        Row: {
+          active: boolean
+          case_sensitive: boolean
+          classification_id: string | null
+          created_at: string
+          id: string
+          match_type: Database["public"]["Enums"]["bank_rule_match_type"]
+          name: string
+          needs_review: boolean
+          pattern: string
+          priority: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          case_sensitive?: boolean
+          classification_id?: string | null
+          created_at?: string
+          id?: string
+          match_type?: Database["public"]["Enums"]["bank_rule_match_type"]
+          name: string
+          needs_review?: boolean
+          pattern: string
+          priority?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          case_sensitive?: boolean
+          classification_id?: string | null
+          created_at?: string
+          id?: string
+          match_type?: Database["public"]["Enums"]["bank_rule_match_type"]
+          name?: string
+          needs_review?: boolean
+          pattern?: string
+          priority?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_classification_rules_classification_id_fkey"
+            columns: ["classification_id"]
+            isOneToOne: false
+            referencedRelation: "financial_classifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bank_statement_imports: {
+        Row: {
+          bank_account_id: string
+          created_at: string
+          exported_at: string | null
+          file_checksum: string
+          file_name: string
+          id: string
+          imported_at: string
+          imported_by: string | null
+          notes: string | null
+          period_end: string | null
+          period_start: string | null
+          rows_imported: number
+          rows_skipped: number
+          rows_total: number
+          source_file_size_bytes: number | null
+          status: Database["public"]["Enums"]["bank_import_status"]
+          updated_at: string
+        }
+        Insert: {
+          bank_account_id: string
+          created_at?: string
+          exported_at?: string | null
+          file_checksum: string
+          file_name: string
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          notes?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          rows_imported?: number
+          rows_skipped?: number
+          rows_total?: number
+          source_file_size_bytes?: number | null
+          status?: Database["public"]["Enums"]["bank_import_status"]
+          updated_at?: string
+        }
+        Update: {
+          bank_account_id?: string
+          created_at?: string
+          exported_at?: string | null
+          file_checksum?: string
+          file_name?: string
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          notes?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          rows_imported?: number
+          rows_skipped?: number
+          rows_total?: number
+          source_file_size_bytes?: number | null
+          status?: Database["public"]["Enums"]["bank_import_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_statement_imports_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bank_transaction_classifications: {
+        Row: {
+          amount: number
+          bank_transaction_id: string
+          classification_id: string
+          client_id: string | null
+          collaborator_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          project_id: string | null
+          reimbursable: boolean
+          supplier_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          bank_transaction_id: string
+          classification_id: string
+          client_id?: string | null
+          collaborator_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          reimbursable?: boolean
+          supplier_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          bank_transaction_id?: string
+          classification_id?: string
+          client_id?: string | null
+          collaborator_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          reimbursable?: boolean
+          supplier_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_transaction_classifications_bank_transaction_id_fkey"
+            columns: ["bank_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "bank_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transaction_classifications_classification_id_fkey"
+            columns: ["classification_id"]
+            isOneToOne: false
+            referencedRelation: "financial_classifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transaction_classifications_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "financial_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transaction_classifications_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transaction_classifications_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transaction_classifications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transaction_classifications_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "financial_suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bank_transactions: {
+        Row: {
+          amount: number
+          bank_account_id: string
+          classified_at: string | null
+          classified_by: string | null
+          created_at: string
+          currency: string
+          description: string
+          id: string
+          ignored_reason: string | null
+          notes: string | null
+          raw_row: Json | null
+          row_checksum: string
+          running_balance: number | null
+          statement_import_id: string | null
+          status: Database["public"]["Enums"]["bank_tx_status"]
+          suggested_by_rule_id: string | null
+          suggested_classification_id: string | null
+          transaction_date: string
+          updated_at: string
+          value_date: string | null
+        }
+        Insert: {
+          amount: number
+          bank_account_id: string
+          classified_at?: string | null
+          classified_by?: string | null
+          created_at?: string
+          currency?: string
+          description: string
+          id?: string
+          ignored_reason?: string | null
+          notes?: string | null
+          raw_row?: Json | null
+          row_checksum: string
+          running_balance?: number | null
+          statement_import_id?: string | null
+          status?: Database["public"]["Enums"]["bank_tx_status"]
+          suggested_by_rule_id?: string | null
+          suggested_classification_id?: string | null
+          transaction_date: string
+          updated_at?: string
+          value_date?: string | null
+        }
+        Update: {
+          amount?: number
+          bank_account_id?: string
+          classified_at?: string | null
+          classified_by?: string | null
+          created_at?: string
+          currency?: string
+          description?: string
+          id?: string
+          ignored_reason?: string | null
+          notes?: string | null
+          raw_row?: Json | null
+          row_checksum?: string
+          running_balance?: number | null
+          statement_import_id?: string | null
+          status?: Database["public"]["Enums"]["bank_tx_status"]
+          suggested_by_rule_id?: string | null
+          suggested_classification_id?: string | null
+          transaction_date?: string
+          updated_at?: string
+          value_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_transactions_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transactions_statement_import_id_fkey"
+            columns: ["statement_import_id"]
+            isOneToOne: false
+            referencedRelation: "bank_statement_imports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_transactions_suggested_classification_id_fkey"
+            columns: ["suggested_classification_id"]
+            isOneToOne: false
+            referencedRelation: "financial_classifications"
             referencedColumns: ["id"]
           },
         ]
@@ -893,6 +1215,80 @@ export type Database = {
             columns: ["pm_project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_classifications: {
+        Row: {
+          active: boolean
+          affects_cash_flow: boolean
+          affects_profit: boolean
+          code: string
+          collaborator_link_allowed: boolean
+          created_at: string
+          financial_nature: Database["public"]["Enums"]["financial_nature"]
+          id: string
+          level: Database["public"]["Enums"]["financial_class_level"]
+          name_en: string
+          name_pt: string
+          notes: string | null
+          parent_id: string | null
+          project_link_allowed: boolean
+          reimbursable_default: boolean
+          sort_order: number
+          spending_policy: Database["public"]["Enums"]["financial_spending_policy"]
+          supplier_required: boolean
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          affects_cash_flow?: boolean
+          affects_profit?: boolean
+          code: string
+          collaborator_link_allowed?: boolean
+          created_at?: string
+          financial_nature: Database["public"]["Enums"]["financial_nature"]
+          id?: string
+          level?: Database["public"]["Enums"]["financial_class_level"]
+          name_en: string
+          name_pt: string
+          notes?: string | null
+          parent_id?: string | null
+          project_link_allowed?: boolean
+          reimbursable_default?: boolean
+          sort_order?: number
+          spending_policy?: Database["public"]["Enums"]["financial_spending_policy"]
+          supplier_required?: boolean
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          affects_cash_flow?: boolean
+          affects_profit?: boolean
+          code?: string
+          collaborator_link_allowed?: boolean
+          created_at?: string
+          financial_nature?: Database["public"]["Enums"]["financial_nature"]
+          id?: string
+          level?: Database["public"]["Enums"]["financial_class_level"]
+          name_en?: string
+          name_pt?: string
+          notes?: string | null
+          parent_id?: string | null
+          project_link_allowed?: boolean
+          reimbursable_default?: boolean
+          sort_order?: number
+          spending_policy?: Database["public"]["Enums"]["financial_spending_policy"]
+          supplier_required?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_classifications_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "financial_classifications"
             referencedColumns: ["id"]
           },
         ]
@@ -3765,6 +4161,19 @@ export type Database = {
         | "autorizada_paga"
         | "autorizada_nao_paga"
       app_role: "admin" | "user"
+      bank_import_status: "pending" | "imported" | "rolled_back"
+      bank_rule_match_type:
+        | "contains"
+        | "starts_with"
+        | "ends_with"
+        | "equals"
+        | "regex"
+      bank_tx_status:
+        | "unclassified"
+        | "classified"
+        | "ignored"
+        | "internal_transfer"
+        | "archived"
       benefit_category: "carro" | "ticket" | "premio" | "outros"
       company_status: "activo" | "prospecto" | "inactivo"
       crm_activity_type: "chamada" | "email" | "reuniao" | "nota" | "outro"
@@ -3783,6 +4192,7 @@ export type Database = {
         | "consultancy_hours_package"
       department: "Projecto" | "Backoffice"
       expense_status: "pendente" | "aprovada" | "rejeitada" | "paga"
+      financial_class_level: "category" | "group" | "subgroup"
       financial_debt_payment_status: "planned" | "paid" | "overdue" | "skipped"
       financial_debt_status: "open" | "partially_paid" | "paid" | "renegotiated"
       financial_expense_status:
@@ -3805,7 +4215,15 @@ export type Database = {
         | "paid"
         | "overdue"
         | "cancelled"
+      financial_nature:
+        | "operational"
+        | "project_cost"
+        | "payroll"
+        | "tax"
+        | "financing"
+        | "transfer"
       financial_period_status: "projected" | "active" | "validated" | "closed"
+      financial_spending_policy: "mandatory" | "discretionary" | "pass_through"
       pm_allocation_status: "tentative" | "committed"
       pm_dep_type: "FS" | "SS" | "FF" | "SF"
       pm_expense_category:
@@ -4014,6 +4432,21 @@ export const Constants = {
         "autorizada_nao_paga",
       ],
       app_role: ["admin", "user"],
+      bank_import_status: ["pending", "imported", "rolled_back"],
+      bank_rule_match_type: [
+        "contains",
+        "starts_with",
+        "ends_with",
+        "equals",
+        "regex",
+      ],
+      bank_tx_status: [
+        "unclassified",
+        "classified",
+        "ignored",
+        "internal_transfer",
+        "archived",
+      ],
       benefit_category: ["carro", "ticket", "premio", "outros"],
       company_status: ["activo", "prospecto", "inactivo"],
       crm_activity_type: ["chamada", "email", "reuniao", "nota", "outro"],
@@ -4028,6 +4461,7 @@ export const Constants = {
       ],
       department: ["Projecto", "Backoffice"],
       expense_status: ["pendente", "aprovada", "rejeitada", "paga"],
+      financial_class_level: ["category", "group", "subgroup"],
       financial_debt_payment_status: ["planned", "paid", "overdue", "skipped"],
       financial_debt_status: ["open", "partially_paid", "paid", "renegotiated"],
       financial_expense_status: [
@@ -4053,7 +4487,16 @@ export const Constants = {
         "overdue",
         "cancelled",
       ],
+      financial_nature: [
+        "operational",
+        "project_cost",
+        "payroll",
+        "tax",
+        "financing",
+        "transfer",
+      ],
       financial_period_status: ["projected", "active", "validated", "closed"],
+      financial_spending_policy: ["mandatory", "discretionary", "pass_through"],
       pm_allocation_status: ["tentative", "committed"],
       pm_dep_type: ["FS", "SS", "FF", "SF"],
       pm_expense_category: [

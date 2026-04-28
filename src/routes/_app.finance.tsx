@@ -46,6 +46,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useMyPermissions } from "@/hooks/use-permissions";
 import { cn } from "@/lib/utils";
+import { BankReconciliationTab } from "@/components/finance/bank-reconciliation";
 
 async function checkFinanceAccess(): Promise<boolean> {
   const { data: { session } } = await supabase.auth.getSession();
@@ -464,6 +465,7 @@ function FinanceDashboardPage() {
           <TabsTrigger value="bankBalances">
             {t("finance:tabs.bankBalances")}
           </TabsTrigger>
+          <TabsTrigger value="bankRec">{t("finance:tabs.bankRec")}</TabsTrigger>
           <TabsTrigger value="importLogs">
             {t("finance:tabs.importLogs")}
           </TabsTrigger>
@@ -489,6 +491,9 @@ function FinanceDashboardPage() {
         </TabsContent>
         <TabsContent value="debts" className="mt-6">
           <DebtsTab />
+        </TabsContent>
+        <TabsContent value="bankRec" className="mt-6">
+          <BankReconciliationTab />
         </TabsContent>
         <TabsContent value="importLogs" className="mt-6">
           <ImportLogsTab />
