@@ -197,7 +197,8 @@ import must survive that without code changes.
   (lowercased, accent-stripped, trimmed):
   - `despesas operacionais` → start of operational expenses block
   - `materiais` (also matches `materiais / subcontratação`,
-    `materiais e subcontratação`) → start of materials block
+    `materiais e subcontratação`) → start of **external services /
+    subcontracting** block (legacy Excel marker; see §0)
   - `receitas` → start of income block
   - `dívidas` / `dividas` → debt register
   - `saldos` / `bancos` → bank balance section
