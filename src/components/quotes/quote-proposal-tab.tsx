@@ -1075,91 +1075,49 @@ function GeneratedDocumentSection({
             onValueChange={(v) => setProposalKind(v as ProposalKind)}
             className="grid w-full max-w-md gap-2 text-left"
           >
-            <Label
-              htmlFor="kind-fixed"
-              className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
-            >
-              <RadioGroupItem id="kind-fixed" value="fixed_project" className="mt-0.5" />
-              <div className="space-y-0.5">
-                <div className="text-sm font-medium">
-                  {t("workspace.proposal.generator.kind.fixedProject")}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {t("workspace.proposal.generator.kind.fixedProjectHint")}
-                </div>
-              </div>
-            </Label>
-            <Label
-              htmlFor="kind-consultancy"
-              className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
-            >
-              <RadioGroupItem
-                id="kind-consultancy"
-                value="phased_consultancy"
-                className="mt-0.5"
-              />
-              <div className="space-y-0.5">
-                <div className="text-sm font-medium">
-                  {t("workspace.proposal.generator.kind.phasedConsultancy")}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {t("workspace.proposal.generator.kind.phasedConsultancyHint")}
-                </div>
-              </div>
-            </Label>
-            <Label
-              htmlFor="kind-consultancy-package"
-              className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
-            >
-              <RadioGroupItem
-                id="kind-consultancy-package"
-                value="consultancy_hours_package"
-                className="mt-0.5"
-              />
-              <div className="space-y-0.5">
-                <div className="text-sm font-medium">
-                  {t("workspace.proposal.generator.kind.consultancyHoursPackage")}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {t("workspace.proposal.generator.kind.consultancyHoursPackageHint")}
-                </div>
-              </div>
-            </Label>
-            <Label
-              htmlFor="kind-construction-retainer"
-              className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
-            >
-              <RadioGroupItem
-                id="kind-construction-retainer"
-                value="construction_retainer"
-                className="mt-0.5"
-              />
-              <div className="space-y-0.5">
-                <div className="text-sm font-medium">
-                  {t("workspace.proposal.generator.kind.constructionRetainer")}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {t("workspace.proposal.generator.kind.constructionRetainerHint")}
-                </div>
-              </div>
-            </Label>
-            <Label
-              htmlFor="kind-psa-interior"
-              className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
-            >
-              <RadioGroupItem
-                id="kind-psa-interior"
-                value="psa_interior_fitout"
-                className="mt-0.5"
-              />
-              <div className="space-y-0.5">
-                <div className="text-sm font-medium">
-                  {t("workspace.proposal.generator.kind.psaInteriorFitout")}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {t("workspace.proposal.generator.kind.psaInteriorFitoutHint")}
-                </div>
-              </div>
+            {allowedKinds.map((kind) => {
+              const meta: Record<ProposalKind, { id: string; label: string; hint: string }> = {
+                fixed_project: {
+                  id: "kind-fixed",
+                  label: t("workspace.proposal.generator.kind.fixedProject"),
+                  hint: t("workspace.proposal.generator.kind.fixedProjectHint"),
+                },
+                phased_consultancy: {
+                  id: "kind-consultancy",
+                  label: t("workspace.proposal.generator.kind.phasedConsultancy"),
+                  hint: t("workspace.proposal.generator.kind.phasedConsultancyHint"),
+                },
+                consultancy_hours_package: {
+                  id: "kind-consultancy-package",
+                  label: t("workspace.proposal.generator.kind.consultancyHoursPackage"),
+                  hint: t("workspace.proposal.generator.kind.consultancyHoursPackageHint"),
+                },
+                construction_retainer: {
+                  id: "kind-construction-retainer",
+                  label: t("workspace.proposal.generator.kind.constructionRetainer"),
+                  hint: t("workspace.proposal.generator.kind.constructionRetainerHint"),
+                },
+                psa_interior_fitout: {
+                  id: "kind-psa-interior",
+                  label: t("workspace.proposal.generator.kind.psaInteriorFitout"),
+                  hint: t("workspace.proposal.generator.kind.psaInteriorFitoutHint"),
+                },
+              };
+              const m = meta[kind];
+              return (
+                <Label
+                  key={kind}
+                  htmlFor={m.id}
+                  className="flex cursor-pointer items-start gap-3 rounded-md border p-3 hover:bg-muted/50"
+                >
+                  <RadioGroupItem id={m.id} value={kind} className="mt-0.5" />
+                  <div className="space-y-0.5">
+                    <div className="text-sm font-medium">{m.label}</div>
+                    <div className="text-xs text-muted-foreground">{m.hint}</div>
+                  </div>
+                </Label>
+              );
+            })}
             </Label>
           </RadioGroup>
 
