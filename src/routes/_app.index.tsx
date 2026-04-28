@@ -338,6 +338,13 @@ function HubPage() {
         </div>
       </section>
 
+      {/* FINANCE SNAPSHOT ================================================= */}
+      {(isAdmin || permissions.has("finance.dashboard")) && (
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-2">
+          <FinanceSnapshotBlock />
+        </section>
+      )}
+
       {/* WIDGETS ========================================================== */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12 lg:py-16">
         <div className="mb-6">
