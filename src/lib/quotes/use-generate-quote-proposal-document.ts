@@ -207,6 +207,9 @@ async function runGenerate(
     quote.time_based_settings,
     proposalKindHint,
   );
+  // Wire parsed settings into the generator context so totalFee /
+  // acceptance / fee summary are non-zero for time-based / retainer.
+  ctx.timeBasedSettings = parsedSettings;
   let derivedConsultancy: ConsultancyConfig | undefined = args.consultancy;
   let derivedRetainer: RetainerConfig | undefined = args.retainer;
   if (!derivedConsultancy && parsedSettings?.kind === "consultancy_hours_package") {
