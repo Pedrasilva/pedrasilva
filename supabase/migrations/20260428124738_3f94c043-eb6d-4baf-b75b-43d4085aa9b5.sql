@@ -1,0 +1,1 @@
+ALTER VIEW public.financial_period_totals SET (security_invoker = true);
