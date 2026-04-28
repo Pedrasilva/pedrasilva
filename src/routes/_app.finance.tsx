@@ -244,6 +244,8 @@ function useFinanceData() {
 // Helpers
 // ---------------------------------------------------------------------------
 
+const DASH = "—";
+
 const fmtEUR = (v: number) =>
   new Intl.NumberFormat("pt-PT", {
     style: "currency",
@@ -255,7 +257,37 @@ const fmtEUR2 = (v: number) =>
   new Intl.NumberFormat("pt-PT", {
     style: "currency",
     currency: "EUR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(v || 0);
+
+const dateFmt = new Intl.DateTimeFormat("pt-PT", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+const dateTimeFmt = new Intl.DateTimeFormat("pt-PT", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+function fmtDate(s: string | null | undefined): string {
+  if (!s) return DASH;
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return DASH;
+  return dateFmt.format(d);
+}
+
+function fmtDateTime(s: string | null | undefined): string {
+  if (!s) return DASH;
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return DASH;
+  return dateTimeFmt.format(d);
+}
 
 type VatMode = "inc" | "ex";
 
@@ -963,12 +995,12 @@ function BankBalancesTab() {
               return (
                 <TableRow key={a.id}>
                   <TableCell className="font-medium">{a.account_name}</TableCell>
-                  <TableCell>{a.bank_name ?? "—"}</TableCell>
+                  <TableCell>{a.bank_name ?? DASH}</TableCell>
                   <TableCell>{a.currency}</TableCell>
                   <TableCell className="text-right tabular-nums">
                     {snap ? fmtEUR2(Number(snap.balance)) : t("finance:bank.noSnapshot")}
                   </TableCell>
-                  <TableCell>{snap?.snapshot_date ?? "—"}</TableCell>
+                  <TableCell className="tabular-nums">{fmtDate(snap?.snapshot_date)}</TableCell>
                 </TableRow>
               );
             })}
@@ -1263,13 +1295,13 @@ function IncomeTab({ vatMode }: { vatMode: VatMode }) {
                     {r.invoice_number ?? "—"}
                   </TableCell>
                   <TableCell className="text-sm tabular-nums">
-                    {r.expected_payment_date ?? "—"}
+                    {fmtDate(r.expected_payment_date)}
                   </TableCell>
                   <TableCell className="text-sm tabular-nums">
-                    {r.paid_date ?? "—"}
+                    {fmtDate(r.paid_date)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {fmtEUR(amt)}
+                    {fmtEUR2(amt)}
                   </TableCell>
                   <TableCell>
                     <StatusBadge status={r.invoice_status} />
@@ -1285,7 +1317,7 @@ function IncomeTab({ vatMode }: { vatMode: VatMode }) {
                   {t("finance:income.summary.total")}
                 </TableCell>
                 <TableCell className="text-right tabular-nums font-semibold">
-                  {fmtEUR(totals.total)}
+                  {fmtEUR2(totals.total)}
                 </TableCell>
                 <TableCell />
               </TableRow>
@@ -1591,21 +1623,21 @@ function ExpensesTab({
               return (
                 <TableRow key={r.id}>
                   <TableCell className="text-sm">
-                    {period?.month_name ?? "—"}
+                    {period?.month_name ?? DASH}
                   </TableCell>
-                  <TableCell className="text-sm">{supplier ?? "—"}</TableCell>
-                  <TableCell className="text-sm">{category ?? "—"}</TableCell>
+                  <TableCell className="text-sm">{supplier ?? DASH}</TableCell>
+                  <TableCell className="text-sm">{category ?? DASH}</TableCell>
                   <TableCell className="text-sm max-w-[280px] truncate">
-                    {r.description ?? "—"}
+                    {r.description ?? DASH}
                   </TableCell>
                   <TableCell className="text-sm tabular-nums">
-                    {r.due_date ?? "—"}
+                    {fmtDate(r.due_date)}
                   </TableCell>
                   <TableCell className="text-sm tabular-nums">
-                    {r.paid_date ?? "—"}
+                    {fmtDate(r.paid_date)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {fmtEUR(amt)}
+                    {fmtEUR2(amt)}
                   </TableCell>
                   <TableCell>
                     <ExpenseStatusBadge status={r.status} />
@@ -1621,7 +1653,7 @@ function ExpensesTab({
                   {t("finance:expenses.summary.total")}
                 </TableCell>
                 <TableCell className="text-right tabular-nums font-semibold">
-                  {fmtEUR(totals.total)}
+                  {fmtEUR2(totals.total)}
                 </TableCell>
                 <TableCell />
               </TableRow>
@@ -1660,6 +1692,7 @@ type DebtPaymentFull = {
 };
 
 function DebtStatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation(["finance"]);
   const map: Record<string, string> = {
     open: "bg-amber-100 text-amber-900",
     paid: "bg-emerald-100 text-emerald-900",
@@ -1668,7 +1701,7 @@ function DebtStatusBadge({ status }: { status: string }) {
   };
   return (
     <Badge variant="secondary" className={cn("font-normal", map[status] ?? "")}>
-      {status}
+      {t(`finance:debtStatus.${status}`, { defaultValue: status })}
     </Badge>
   );
 }
@@ -1814,27 +1847,27 @@ function DebtsTab() {
                       {d.creditor_name}
                     </TableCell>
                     <TableCell className="text-sm max-w-[280px] truncate">
-                      {d.description ?? "—"}
+                      {d.description ?? DASH}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
-                      {fmtEUR(Number(d.original_amount))}
+                      {fmtEUR2(Number(d.original_amount))}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
-                      {fmtEUR(Number(d.outstanding_amount))}
+                      {fmtEUR2(Number(d.outstanding_amount))}
                     </TableCell>
                     <TableCell>
                       <DebtStatusBadge status={d.status} />
                     </TableCell>
                     <TableCell className="text-sm tabular-nums">
-                      {d.start_date ?? "—"}
+                      {fmtDate(d.start_date)}
                     </TableCell>
                     <TableCell className="text-sm tabular-nums">
-                      {d.end_date ?? "—"}
+                      {fmtDate(d.end_date)}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
                       {scheduled > 0
                         ? t("finance:debts.scheduledCount", { count: scheduled })
-                        : "—"}
+                        : DASH}
                     </TableCell>
                   </TableRow>
                 );
@@ -1886,26 +1919,28 @@ function DebtsTab() {
                   return (
                     <TableRow key={p.id}>
                       <TableCell className="text-sm">
-                        {debt?.creditor_name ?? "—"}
+                        {debt?.creditor_name ?? DASH}
                       </TableCell>
-                      <TableCell className="text-sm">{period ?? "—"}</TableCell>
+                      <TableCell className="text-sm">{period ?? DASH}</TableCell>
                       <TableCell className="text-sm tabular-nums">
-                        {p.due_date ?? "—"}
+                        {fmtDate(p.due_date)}
                       </TableCell>
                       <TableCell className="text-sm tabular-nums">
-                        {p.paid_date ?? "—"}
+                        {fmtDate(p.paid_date)}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
-                        {fmtEUR(Number(p.planned_amount))}
+                        {fmtEUR2(Number(p.planned_amount))}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
                         {p.actual_amount != null
-                          ? fmtEUR(Number(p.actual_amount))
-                          : "—"}
+                          ? fmtEUR2(Number(p.actual_amount))
+                          : DASH}
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="font-normal">
-                          {p.status}
+                          {t(`finance:debtPaymentStatus.${p.status}`, {
+                            defaultValue: p.status,
+                          })}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -1941,18 +1976,10 @@ type ImportLogRow = {
 };
 
 function fmtBytes(n: number | null): string {
-  if (n == null) return "—";
+  if (n == null) return DASH;
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
   return `${(n / (1024 * 1024)).toFixed(2)} MB`;
-}
-
-function fmtDateTime(s: string): string {
-  try {
-    return new Date(s).toLocaleString("pt-PT");
-  } catch {
-    return s;
-  }
 }
 
 function ImportLogsTab() {
@@ -2051,8 +2078,17 @@ function ImportLogsTab() {
                 <TableCell className="text-sm tabular-nums">
                   {fmtBytes(l.source_file_size_bytes)}
                 </TableCell>
-                <TableCell className="text-xs font-mono text-muted-foreground max-w-[120px] truncate">
-                  {l.file_checksum ? l.file_checksum.slice(0, 12) + "…" : "—"}
+                <TableCell className="text-xs font-mono text-muted-foreground">
+                  {l.file_checksum ? (
+                    <code
+                      className="select-all cursor-text rounded bg-muted px-1.5 py-0.5"
+                      title={l.file_checksum}
+                    >
+                      {l.file_checksum.slice(0, 8)}…{l.file_checksum.slice(-4)}
+                    </code>
+                  ) : (
+                    DASH
+                  )}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
                   {l.rows_expenses}
@@ -2073,7 +2109,7 @@ function ImportLogsTab() {
                   {l.rows_bank_accounts}
                 </TableCell>
                 <TableCell className="text-sm max-w-[200px] truncate text-muted-foreground">
-                  {l.notes ?? "—"}
+                  {l.notes ?? DASH}
                 </TableCell>
               </TableRow>
             ))}

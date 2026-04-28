@@ -109,6 +109,18 @@
     "overdue": "Vencida",
     "cancelled": "Cancelada"
   },
+  "debtStatus": {
+    "open": "Em aberto",
+    "paid": "Paga",
+    "cancelled": "Cancelada",
+    "defaulted": "Em incumprimento"
+  },
+  "debtPaymentStatus": {
+    "planned": "Planeado",
+    "paid": "Pago",
+    "overdue": "Vencido",
+    "cancelled": "Cancelado"
+  },
   "income": {
     "title": "Receitas",
     "subtitle": "{{count}} factura(s)",
