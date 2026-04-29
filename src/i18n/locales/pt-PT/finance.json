@@ -75,6 +75,7 @@
       "archived": "Arquivada"
     }
   },
+  "module": {
     "title": "Finanças",
     "subtitle": "Tesouraria do atelier",
     "description": "Acompanhe saldos bancários, receitas, despesas, materiais, dívidas e cash flow mensal do atelier."
