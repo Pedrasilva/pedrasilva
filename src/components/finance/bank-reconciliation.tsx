@@ -741,14 +741,16 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
                 <div className="grid grid-cols-12 gap-2 items-end">
                   <div className="col-span-6">
                     <Label className="text-xs">{t("finance:bankRec.classification")}</Label>
-                    <Select value={s.classification_id} onValueChange={(v) => { const c = classifications.find((x) => x.id === v); updateSplit(i, { classification_id: v, reimbursable: c?.reimbursable_default ?? s.reimbursable }); }}>
-                      <SelectTrigger><SelectValue placeholder={t("finance:bankRec.selectClassification")} /></SelectTrigger>
-                      <SelectContent className="max-h-[300px]">
-                        {classifications.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>{isPt ? c.name_pt : c.name_en} <span className="text-muted-foreground text-xs">· {c.code}</span></SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <ClassificationPicker
+                      value={s.classification_id || null}
+                      onChange={(v) => {
+                        const c = classifications.find((x) => x.id === v);
+                        updateSplit(i, { classification_id: v ?? "", reimbursable: c?.reimbursable_default ?? s.reimbursable });
+                      }}
+                      options={classifications}
+                      isPt={isPt}
+                      placeholder={t("finance:bankRec.selectClassification")}
+                    />
                   </div>
                   <div className="col-span-3">
                     <Label className="text-xs">{t("finance:bankRec.col.amount")}</Label>
