@@ -1,5 +1,6 @@
 {
   "classificationPicker": {
+    "_replaceMe": true
     "placeholder": "Selecionar categoria…",
     "searchPlaceholder": "Pesquisar por código ou nome…",
     "empty": "Sem categoria correspondente.",
