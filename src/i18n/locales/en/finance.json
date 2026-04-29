@@ -75,6 +75,7 @@
       "archived": "Archived"
     }
   },
+  "module": {
     "title": "Finance",
     "subtitle": "Office cash flow",
     "description": "Track bank balances, income, expenses, materials, debts and monthly cash flow for the office."
