@@ -139,7 +139,8 @@ function DocumentEditorPage() {
   const { documentId } = Route.useParams();
   const isNew = documentId === "new";
   const navigate = useNavigate();
-  const { t } = useTranslation(["finance", "common"]);
+  const { t, i18n } = useTranslation(["finance", "common"]);
+  const isPt = i18n.language?.startsWith("pt");
 
   const docQ = useFinDocument(isNew ? null : documentId);
   const suppliersQ = useFinSuppliers();
