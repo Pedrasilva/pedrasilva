@@ -360,12 +360,18 @@ function UploadSection({ accountId, rules, isPt, onImported }: { accountId: stri
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <input ref={fileInput} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
-        <Button onClick={() => fileInput.current?.click()}>
-          <Upload className="size-4 mr-2" /> {t("finance:bankRec.uploadStatement")}
+        <Button onClick={() => fileInput.current?.click()} disabled={parsing}>
+          {parsing ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Upload className="size-4 mr-2" />}
+          {parsing ? t("finance:bankRec.parsing") : t("finance:bankRec.uploadStatement")}
         </Button>
-        {preview && (
+        {parsing && parsingFileName && (
+          <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
+            <FileSpreadsheet className="size-3" /> {parsingFileName}
+          </span>
+        )}
+        {preview && !parsing && (
           <Button variant="ghost" size="sm" onClick={() => { setPreview(null); if (fileInput.current) fileInput.current.value = ""; }}>
             <X className="size-4 mr-1" /> {t("common:cancel")}
           </Button>
@@ -386,13 +392,53 @@ function UploadSection({ accountId, rules, isPt, onImported }: { accountId: stri
             <Stat label={t("finance:bankRec.skippedRows")} value={preview.parse.diagnostics.skipped.length.toString()} tone={preview.parse.diagnostics.skipped.length > 0 ? "warn" : "neutral"} />
           </div>
 
-          {preview.parse.diagnostics.unresolvedRequired.length > 0 ? (
+          {preview.parse.diagnostics.headerRowIndex == null ? (
+            <div className="flex items-start gap-2 rounded-md bg-destructive/10 text-destructive p-3 text-sm">
+              <AlertTriangle className="size-4 mt-0.5 shrink-0" />
+              <div>
+                <div className="font-medium">{t("finance:bankRec.noHeaderDetected")}</div>
+                <div className="text-xs mt-1">{t("finance:bankRec.noHeaderDetectedHint")}</div>
+              </div>
+            </div>
+          ) : preview.parse.diagnostics.unresolvedRequired.length > 0 ? (
             <div className="flex items-start gap-2 rounded-md bg-destructive/10 text-destructive p-3 text-sm">
               <AlertTriangle className="size-4 mt-0.5 shrink-0" />
               <div>
                 <div className="font-medium">{t("finance:bankRec.headerError")}</div>
                 <div className="text-xs mt-1">{t("finance:bankRec.headerErrorDetail", { fields: preview.parse.diagnostics.unresolvedRequired.join(", ") })}</div>
               </div>
+            </div>
+          ) : preview.parse.rows.length === 0 ? (
+            <div className="space-y-2">
+              <div className="flex items-start gap-2 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 p-3 text-sm">
+                <Info className="size-4 mt-0.5 shrink-0" />
+                <div className="space-y-1">
+                  <div className="font-medium">
+                    {preview.parse.diagnostics.totalDataRows === 0
+                      ? t("finance:bankRec.noDataRows")
+                      : t("finance:bankRec.allRowsSkipped", { count: preview.parse.diagnostics.skipped.length })}
+                  </div>
+                  <div className="text-xs">
+                    {preview.parse.diagnostics.totalDataRows === 0
+                      ? t("finance:bankRec.noDataRowsHint")
+                      : t("finance:bankRec.allRowsSkippedHint")}
+                  </div>
+                </div>
+              </div>
+              {preview.parse.diagnostics.skipped.length > 0 && (
+                <details className="text-xs text-muted-foreground border rounded-md p-2 bg-background">
+                  <summary className="cursor-pointer font-medium">
+                    {t("finance:bankRec.skippedDetails", { count: preview.parse.diagnostics.skipped.length })}
+                  </summary>
+                  <ul className="mt-2 space-y-0.5 max-h-40 overflow-auto">
+                    {preview.parse.diagnostics.skipped.slice(0, 50).map((s, i) => (
+                      <li key={i}>
+                        {t("finance:bankRec.skippedRowLine", { row: s.rowIndex, reason: s.reason })}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
             </div>
           ) : (
             <>
