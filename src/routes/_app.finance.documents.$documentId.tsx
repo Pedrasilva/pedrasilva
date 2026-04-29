@@ -454,12 +454,20 @@ function DocumentEditorPage() {
               <Label>{t("finance:documents.form.supplier")}</Label>
               <Select
                 value={header.counterparty_supplier_id ?? NONE}
-                onValueChange={(v) =>
-                  setHeader((h) => ({
-                    ...h,
-                    counterparty_supplier_id: v === NONE ? null : v,
-                  }))
-                }
+                onValueChange={(v) => {
+                  const newSupplierId = v === NONE ? null : v;
+                  setHeader((h) => {
+                    const suggestion = newSupplierId
+                      ? supplierClassQ.data?.[newSupplierId] ?? null
+                      : null;
+                    return {
+                      ...h,
+                      counterparty_supplier_id: newSupplierId,
+                      classification_id:
+                        suggestion && !h.classification_id ? suggestion : h.classification_id,
+                    };
+                  });
+                }}
                 disabled={readOnly}
               >
                 <SelectTrigger>
@@ -699,6 +707,7 @@ function DocumentEditorPage() {
                           isPt={isPt}
                           disabled={readOnly}
                           allowClear
+                          suggestedIds={suggestedIds}
                         />
                       </TableCell>
                       <TableCell>
