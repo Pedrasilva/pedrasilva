@@ -3,7 +3,21 @@
     "placeholder": "Select category…",
     "searchPlaceholder": "Search by code or name…",
     "empty": "No matching category.",
-    "clear": "Clear selection"
+    "clear": "Clear selection",
+    "recent": "Recent",
+    "suggested": "Suggested",
+    "all": "All categories",
+    "browseAll": "Browse all categories…"
+  },
+  "classificationBrowser": {
+    "title": "Classification browser",
+    "subtitle": "Read-only reference for all financial categories.",
+    "searchPlaceholder": "Search by code or name…",
+    "code": "Code",
+    "name": "Name",
+    "spendingPolicy": "Policy",
+    "loading": "Loading…",
+    "empty": "No matching category."
   },
   "module": {
     "title": "Finance",

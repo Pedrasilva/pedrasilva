@@ -24,6 +24,7 @@ import {
 } from "@/lib/finance/bank-statement-parser";
 import { MatchBankTxToDocDialog } from "@/components/finance/match-bank-tx-to-doc";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
+import { useSupplierDefaultClassifications } from "@/lib/finance/use-supplier-classifications";
 
 type BankAccount = { id: string; account_name: string; bank_name: string | null; account_number: string | null; iban: string | null; currency: string };
 type Classification = { id: string; code: string; name_pt: string; name_en: string; financial_nature: string; spending_policy: string; supplier_required: boolean; project_link_allowed: boolean; collaborator_link_allowed: boolean; reimbursable_default: boolean };
@@ -659,6 +660,7 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
   const suppliersQ = useQuery({ queryKey: ["fin-suppliers"], queryFn: async () => { const { data } = await supabase.from("financial_suppliers").select("id, name").order("name"); return (data ?? []) as Supplier[]; } });
   const clientsQ = useQuery({ queryKey: ["fin-clients"], queryFn: async () => { const { data } = await supabase.from("financial_clients").select("id, name").order("name"); return (data ?? []) as Client[]; } });
   const projectsQ = useQuery({ queryKey: ["pm-projects-pick"], queryFn: async () => { const { data } = await supabase.from("pm_projects").select("id, name").order("name"); return (data ?? []) as Project[]; } });
+  const supplierClassQ = useSupplierDefaultClassifications();
 
   const total = splits.reduce((s, x) => s + (Number(x.amount) || 0), 0);
   const balanced = Math.abs(total - tx.amount) < 0.01;
@@ -750,6 +752,7 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
                       options={classifications}
                       isPt={isPt}
                       placeholder={t("finance:bankRec.selectClassification")}
+                      suggestedIds={s.supplier_id && supplierClassQ.data?.[s.supplier_id] ? [supplierClassQ.data[s.supplier_id]] : []}
                     />
                   </div>
                   <div className="col-span-3">
@@ -765,7 +768,17 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-4">
                       <Label className="text-xs">{t("finance:bankRec.supplier")}{cls.supplier_required ? " *" : ""}</Label>
-                      <Select value={s.supplier_id ?? "__none"} onValueChange={(v) => updateSplit(i, { supplier_id: v === "__none" ? null : v })}>
+                      <Select value={s.supplier_id ?? "__none"} onValueChange={(v) => {
+                        const newSupplierId = v === "__none" ? null : v;
+                        const suggestion = newSupplierId ? supplierClassQ.data?.[newSupplierId] : null;
+                        const patch: Partial<SplitRow> = { supplier_id: newSupplierId };
+                        if (suggestion && !s.classification_id) {
+                          patch.classification_id = suggestion;
+                          const sc = classifications.find((x) => x.id === suggestion);
+                          if (sc) patch.reimbursable = sc.reimbursable_default;
+                        }
+                        updateSplit(i, patch);
+                      }}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent className="max-h-[260px]">
                           <SelectItem value="__none">—</SelectItem>
