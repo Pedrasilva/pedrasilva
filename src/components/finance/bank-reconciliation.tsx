@@ -773,23 +773,21 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-4">
                       <Label className="text-xs">{t("finance:bankRec.supplier")}{cls.supplier_required ? " *" : ""}</Label>
-                      <Select value={s.supplier_id ?? "__none"} onValueChange={(v) => {
-                        const newSupplierId = v === "__none" ? null : v;
-                        const suggestion = newSupplierId ? supplierClassQ.data?.[newSupplierId] : null;
-                        const patch: Partial<SplitRow> = { supplier_id: newSupplierId };
-                        if (suggestion && !s.classification_id) {
-                          patch.classification_id = suggestion;
-                          const sc = classifications.find((x) => x.id === suggestion);
-                          if (sc) patch.reimbursable = sc.reimbursable_default;
-                        }
-                        updateSplit(i, patch);
-                      }}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent className="max-h-[260px]">
-                          <SelectItem value="__none">—</SelectItem>
-                          {(suppliersQ.data ?? []).map((sp) => <SelectItem key={sp.id} value={sp.id}>{sp.name}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <CounterpartySelect
+                        kind="supplier"
+                        value={s.supplier_id}
+                        options={(suppliersQ.data ?? []).map((sp) => ({ id: sp.id, name: sp.name }))}
+                        onChange={(newSupplierId) => {
+                          const suggestion = newSupplierId ? supplierClassQ.data?.[newSupplierId] : null;
+                          const patch: Partial<SplitRow> = { supplier_id: newSupplierId };
+                          if (suggestion && !s.classification_id) {
+                            patch.classification_id = suggestion;
+                            const sc = classifications.find((x) => x.id === suggestion);
+                            if (sc) patch.reimbursable = sc.reimbursable_default;
+                          }
+                          updateSplit(i, patch);
+                        }}
+                      />
                     </div>
                     {cls.project_link_allowed && (
                       <div className="col-span-4">
@@ -805,13 +803,12 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
                     )}
                     <div className="col-span-4">
                       <Label className="text-xs">{t("finance:bankRec.client")}</Label>
-                      <Select value={s.client_id ?? "__none"} onValueChange={(v) => updateSplit(i, { client_id: v === "__none" ? null : v })}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent className="max-h-[260px]">
-                          <SelectItem value="__none">—</SelectItem>
-                          {(clientsQ.data ?? []).map((cl) => <SelectItem key={cl.id} value={cl.id}>{cl.name}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <CounterpartySelect
+                        kind="client"
+                        value={s.client_id}
+                        options={(clientsQ.data ?? []).map((cl) => ({ id: cl.id, name: cl.name }))}
+                        onChange={(v) => updateSplit(i, { client_id: v })}
+                      />
                     </div>
                   </div>
                 )}
