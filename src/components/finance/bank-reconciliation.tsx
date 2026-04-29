@@ -601,13 +601,26 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
                       <TableCell className="text-xs">{sug ? <Badge variant="outline">{isPt ? sug.name_pt : sug.name_en}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
                       <TableCell><StatusBadge status={tx.status} /></TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button size="sm" variant="ghost" onClick={() => setMatchDocTx(tx)}>
-                            {t("finance:documents.payments.matchBank")}
+                        <div className="flex justify-end gap-1 flex-wrap">
+                          <Button size="sm" variant="ghost" onClick={() => setMatchDocTx(tx)} title={t("finance:bankRec.actions.matchHint") as string}>
+                            {t("finance:bankRec.actions.match")}
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setCreateDocTx(tx)} title={t("finance:bankRec.actions.createDocHint") as string}>
+                            {t("finance:bankRec.actions.createDoc")}
                           </Button>
                           <Button size="sm" variant="ghost" onClick={() => setClassifyTx(tx)}>
-                            {tx.status === "unclassified" ? t("finance:bankRec.classify") : t("common:edit")}
+                            {tx.status === "unclassified" ? t("finance:bankRec.actions.classify") : t("common:edit")}
                           </Button>
+                          {tx.status !== "internal_transfer" && (
+                            <Button size="sm" variant="ghost" onClick={() => quickMarkStatus(tx, "internal_transfer")} title={t("finance:bankRec.actions.transferHint") as string}>
+                              {t("finance:bankRec.actions.transfer")}
+                            </Button>
+                          )}
+                          {tx.status !== "ignored" && (
+                            <Button size="sm" variant="ghost" onClick={() => quickMarkStatus(tx, "ignored")} title={t("finance:bankRec.actions.ignoreHint") as string}>
+                              {t("finance:bankRec.actions.ignore")}
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
