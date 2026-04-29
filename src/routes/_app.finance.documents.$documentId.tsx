@@ -686,25 +686,14 @@ function DocumentEditorPage() {
                         />
                       </TableCell>
                       <TableCell>
-                        <Select
-                          value={l.classification_id ?? NONE}
-                          onValueChange={(v) =>
-                            patchLine(i, { classification_id: v === NONE ? null : v })
-                          }
+                        <ClassificationPicker
+                          value={l.classification_id}
+                          onChange={(v) => patchLine(i, { classification_id: v })}
+                          options={classQ.data ?? []}
+                          isPt={isPt}
                           disabled={readOnly}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value={NONE}>—</SelectItem>
-                            {(classQ.data ?? []).map((c) => (
-                              <SelectItem key={c.id} value={c.id}>
-                                {c.code} — {c.name_pt}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          allowClear
+                        />
                       </TableCell>
                       <TableCell>
                         <Select
