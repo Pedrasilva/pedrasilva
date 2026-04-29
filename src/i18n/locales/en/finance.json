@@ -469,6 +469,25 @@
       "pickDocument": "Pick a document…",
       "txAmount": "Transaction amount",
       "matched": "Bank transaction matched to document."
+    },
+    "projectFinancials": {
+      "title": "Project financials",
+      "subtitle": "Cost, billed, received and reimbursable rollups from financial documents. Cash position uses recorded payments only — bank transactions are never read directly.",
+      "empty": "No project-linked financial documents yet.",
+      "project": "Project",
+      "cost": "Cost",
+      "billed": "Billed",
+      "received": "Received",
+      "paid": "Paid",
+      "margin": "Margin",
+      "cash": "Cash",
+      "reimbursable": "Reimbursable",
+      "reimbCost": "Reimb. cost",
+      "reimbBilled": "Reimb. billed",
+      "reimbReceived": "Reimb. received",
+      "reimbUnbilled": "Unbilled",
+      "reimbUnpaid": "Unpaid",
+      "noProject": "(unassigned)"
     }
   }
 }

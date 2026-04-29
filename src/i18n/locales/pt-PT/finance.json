@@ -469,6 +469,25 @@
       "pickDocument": "Escolher documento…",
       "txAmount": "Valor do movimento",
       "matched": "Movimento bancário associado ao documento."
+    },
+    "projectFinancials": {
+      "title": "Financeiro por projecto",
+      "subtitle": "Custo, facturado, recebido e reembolsáveis a partir de documentos financeiros. A posição de caixa usa apenas pagamentos registados — os movimentos bancários nunca são lidos directamente.",
+      "empty": "Ainda não há documentos financeiros associados a projectos.",
+      "project": "Projecto",
+      "cost": "Custo",
+      "billed": "Facturado",
+      "received": "Recebido",
+      "paid": "Pago",
+      "margin": "Margem",
+      "cash": "Caixa",
+      "reimbursable": "Reembolsável",
+      "reimbCost": "Custo reemb.",
+      "reimbBilled": "Facturado reemb.",
+      "reimbReceived": "Recebido reemb.",
+      "reimbUnbilled": "Por facturar",
+      "reimbUnpaid": "Por receber",
+      "noProject": "(sem projecto)"
     }
   }
 }
