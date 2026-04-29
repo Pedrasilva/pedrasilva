@@ -149,10 +149,6 @@ function DocumentEditorPage() {
   const projectsQ = useFinProjects();
   const classQ = useFinClassifications();
   const supplierClassQ = useSupplierDefaultClassifications();
-  const supplierSuggestion = header.counterparty_supplier_id
-    ? supplierClassQ.data?.[header.counterparty_supplier_id] ?? null
-    : null;
-  const suggestedIds = supplierSuggestion ? [supplierSuggestion] : undefined;
 
   const createMut = useCreateFinDocument();
   const updateMut = useUpdateFinDocument();
@@ -213,6 +209,10 @@ function DocumentEditorPage() {
   const totals = useMemo(() => computeDocTotals(lines), [lines]);
   const isReceived = header.direction === "received";
   const readOnly = !isNew && (docQ.data?.document.status === "cancelled");
+  const supplierSuggestion = header.counterparty_supplier_id
+    ? supplierClassQ.data?.[header.counterparty_supplier_id] ?? null
+    : null;
+  const suggestedIds = supplierSuggestion ? [supplierSuggestion] : undefined;
 
   function setHeaderType(v: FinDocType) {
     const dir = defaultDirectionFor(v);
