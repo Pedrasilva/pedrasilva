@@ -1,4 +1,10 @@
 {
+  "classificationPicker": {
+    "placeholder": "Select category…",
+    "searchPlaceholder": "Search by code or name…",
+    "empty": "No matching category.",
+    "clear": "Clear selection"
+  },
   "module": {
     "title": "Finance",
     "subtitle": "Office cash flow",
