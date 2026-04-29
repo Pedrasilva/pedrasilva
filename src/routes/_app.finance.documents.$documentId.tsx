@@ -166,6 +166,8 @@ function DocumentEditorPage() {
     status: "draft",
   });
   const [lines, setLines] = useState<LineDraft[]>([emptyLine(0)]);
+  const [createSupplierOpen, setCreateSupplierOpen] = useState(false);
+  const [createClientOpen, setCreateClientOpen] = useState(false);
 
   // Hydrate from server
   useEffect(() => {
