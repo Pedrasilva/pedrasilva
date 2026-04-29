@@ -103,6 +103,7 @@ export function BankReconciliationTab() {
           ) : (
             <UploadSection
               accountId={selectedAccount}
+              accounts={accountsQ.data ?? []}
               rules={rulesQ.data ?? []}
               isPt={isPt}
               onImported={() => {
