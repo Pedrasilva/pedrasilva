@@ -19,6 +19,62 @@
     "loading": "A carregar…",
     "empty": "Sem categoria correspondente."
   },
+  "inlineCounterparty": {
+    "newSupplier": "Novo fornecedor",
+    "newClient": "Novo cliente",
+    "name": "Nome",
+    "namePlaceholder": "Nome a apresentar",
+    "nif": "NIF",
+    "email": "Email",
+    "notes": "Notas",
+    "nameRequired": "O nome é obrigatório",
+    "supplierCreated": "Fornecedor criado",
+    "clientCreated": "Cliente criado"
+  },
+  "bankImports": {
+    "manage": "Gerir importações",
+    "title": "Importações de extratos bancários",
+    "adminOnly": "Só administradores podem mover ou anular importações.",
+    "empty": "Ainda não há importações nesta conta.",
+    "moved": "Movida de outra conta",
+    "move": "Mover",
+    "undo": "Anular",
+    "moveTitle": "Mover importação para outra conta",
+    "moveHint": "Todas as transações de \"{{file}}\" serão reatribuídas à conta selecionada. Os duplicados serão verificados antes.",
+    "targetAccount": "Conta de destino",
+    "selectTarget": "Seleccionar conta de destino",
+    "confirmMove": "Mover importação",
+    "moveSuccess": "Importação movida",
+    "errorDupFile": "A conta de destino já importou o mesmo ficheiro. Mudança cancelada.",
+    "errorDupRows": "Algumas transações já existem na conta de destino. Mudança cancelada.",
+    "undoTitle": "Anular importação",
+    "undoHint": "Remove a importação \"{{file}}\" e as suas transações, quando for seguro fazê-lo.",
+    "undoWarn": "Esta importação tem atividade",
+    "undoStat": {
+      "total": "{{n}} transações nesta importação",
+      "classified": "{{n}} já classificadas ou em estado não-pendente",
+      "payments": "{{n}} ligadas a pagamentos de documentos"
+    },
+    "undoWillDelete": "Confirmar irá apagar a importação e as suas transações.",
+    "undoWillArchive": "Confirmar irá manter as transações (estão ligadas a pagamentos) e arquivar a importação como cancelada.",
+    "reason": "Motivo (opcional)",
+    "confirmUndo": "Confirmar anulação",
+    "undoSuccess": "Importação anulada",
+    "archivedDueToPayments": "Importação arquivada (transações mantidas porque estão ligadas a pagamentos).",
+    "col": {
+      "file": "Ficheiro",
+      "imported": "Importada",
+      "period": "Período",
+      "rows": "Linhas",
+      "status": "Estado"
+    },
+    "status": {
+      "imported": "Importada",
+      "pending": "Pendente",
+      "rolled_back": "Anulada",
+      "archived": "Arquivada"
+    }
+  },
   "module": {
     "title": "Finanças",
     "subtitle": "Tesouraria do atelier",

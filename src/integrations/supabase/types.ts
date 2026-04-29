@@ -160,7 +160,10 @@ export type Database = {
           id: string
           imported_at: string
           imported_by: string | null
+          moved_at: string | null
+          moved_by: string | null
           notes: string | null
+          original_account_id: string | null
           period_end: string | null
           period_start: string | null
           rows_imported: number
@@ -168,6 +171,9 @@ export type Database = {
           rows_total: number
           source_file_size_bytes: number | null
           status: Database["public"]["Enums"]["bank_import_status"]
+          undo_reason: string | null
+          undone_at: string | null
+          undone_by: string | null
           updated_at: string
         }
         Insert: {
@@ -179,7 +185,10 @@ export type Database = {
           id?: string
           imported_at?: string
           imported_by?: string | null
+          moved_at?: string | null
+          moved_by?: string | null
           notes?: string | null
+          original_account_id?: string | null
           period_end?: string | null
           period_start?: string | null
           rows_imported?: number
@@ -187,6 +196,9 @@ export type Database = {
           rows_total?: number
           source_file_size_bytes?: number | null
           status?: Database["public"]["Enums"]["bank_import_status"]
+          undo_reason?: string | null
+          undone_at?: string | null
+          undone_by?: string | null
           updated_at?: string
         }
         Update: {
@@ -198,7 +210,10 @@ export type Database = {
           id?: string
           imported_at?: string
           imported_by?: string | null
+          moved_at?: string | null
+          moved_by?: string | null
           notes?: string | null
+          original_account_id?: string | null
           period_end?: string | null
           period_start?: string | null
           rows_imported?: number
@@ -206,6 +221,9 @@ export type Database = {
           rows_total?: number
           source_file_size_bytes?: number | null
           status?: Database["public"]["Enums"]["bank_import_status"]
+          undo_reason?: string | null
+          undone_at?: string | null
+          undone_by?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -4301,6 +4319,14 @@ export type Database = {
       }
     }
     Functions: {
+      bank_import_move_account: {
+        Args: { _import_id: string; _new_account_id: string }
+        Returns: Json
+      }
+      bank_import_undo: {
+        Args: { _force?: boolean; _import_id: string; _reason?: string }
+        Returns: Json
+      }
       get_my_collaborator_id: { Args: never; Returns: string }
       has_module_permission: {
         Args: { _key: string; _required_scope: string; _user_id: string }
@@ -4432,7 +4458,7 @@ export type Database = {
         | "autorizada_paga"
         | "autorizada_nao_paga"
       app_role: "admin" | "user"
-      bank_import_status: "pending" | "imported" | "rolled_back"
+      bank_import_status: "pending" | "imported" | "rolled_back" | "archived"
       bank_rule_match_type:
         | "contains"
         | "starts_with"
@@ -4725,7 +4751,7 @@ export const Constants = {
         "autorizada_nao_paga",
       ],
       app_role: ["admin", "user"],
-      bank_import_status: ["pending", "imported", "rolled_back"],
+      bank_import_status: ["pending", "imported", "rolled_back", "archived"],
       bank_rule_match_type: [
         "contains",
         "starts_with",

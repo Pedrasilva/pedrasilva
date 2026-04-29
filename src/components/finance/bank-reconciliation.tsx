@@ -25,6 +25,8 @@ import {
 import { MatchBankTxToDocDialog } from "@/components/finance/match-bank-tx-to-doc";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
 import { useSupplierDefaultClassifications } from "@/lib/finance/use-supplier-classifications";
+import { BankImportsManager } from "@/components/finance/bank-imports-manager";
+import { InlineCounterpartyDialog } from "@/components/finance/inline-counterparty-dialog";
 
 type BankAccount = { id: string; account_name: string; bank_name: string | null; account_number: string | null; iban: string | null; currency: string };
 type Classification = { id: string; code: string; name_pt: string; name_en: string; financial_nature: string; spending_policy: string; supplier_required: boolean; project_link_allowed: boolean; collaborator_link_allowed: boolean; reimbursable_default: boolean };
@@ -101,6 +103,7 @@ export function BankReconciliationTab() {
           ) : (
             <UploadSection
               accountId={selectedAccount}
+              accounts={accountsQ.data ?? []}
               rules={rulesQ.data ?? []}
               isPt={isPt}
               onImported={() => {
@@ -189,7 +192,7 @@ type PreviewState = {
   ruleHits: (string | null)[]; // classification id or null
 };
 
-function UploadSection({ accountId, rules, isPt, onImported }: { accountId: string; rules: RuleRow[]; isPt: boolean; onImported: () => void }) {
+function UploadSection({ accountId, accounts, rules, isPt, onImported }: { accountId: string; accounts: BankAccount[]; rules: RuleRow[]; isPt: boolean; onImported: () => void }) {
   const { t } = useTranslation(["finance", "common"]);
   const { user } = useAuth();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -378,6 +381,8 @@ function UploadSection({ accountId, rules, isPt, onImported }: { accountId: stri
             <X className="size-4 mr-1" /> {t("common:cancel")}
           </Button>
         )}
+        <div className="flex-1" />
+        <BankImportsManager accountId={accountId} accounts={accounts} onChanged={onImported} />
       </div>
 
       {preview && (
@@ -768,23 +773,21 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-4">
                       <Label className="text-xs">{t("finance:bankRec.supplier")}{cls.supplier_required ? " *" : ""}</Label>
-                      <Select value={s.supplier_id ?? "__none"} onValueChange={(v) => {
-                        const newSupplierId = v === "__none" ? null : v;
-                        const suggestion = newSupplierId ? supplierClassQ.data?.[newSupplierId] : null;
-                        const patch: Partial<SplitRow> = { supplier_id: newSupplierId };
-                        if (suggestion && !s.classification_id) {
-                          patch.classification_id = suggestion;
-                          const sc = classifications.find((x) => x.id === suggestion);
-                          if (sc) patch.reimbursable = sc.reimbursable_default;
-                        }
-                        updateSplit(i, patch);
-                      }}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent className="max-h-[260px]">
-                          <SelectItem value="__none">—</SelectItem>
-                          {(suppliersQ.data ?? []).map((sp) => <SelectItem key={sp.id} value={sp.id}>{sp.name}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <CounterpartySelect
+                        kind="supplier"
+                        value={s.supplier_id}
+                        options={(suppliersQ.data ?? []).map((sp) => ({ id: sp.id, name: sp.name }))}
+                        onChange={(newSupplierId) => {
+                          const suggestion = newSupplierId ? supplierClassQ.data?.[newSupplierId] : null;
+                          const patch: Partial<SplitRow> = { supplier_id: newSupplierId };
+                          if (suggestion && !s.classification_id) {
+                            patch.classification_id = suggestion;
+                            const sc = classifications.find((x) => x.id === suggestion);
+                            if (sc) patch.reimbursable = sc.reimbursable_default;
+                          }
+                          updateSplit(i, patch);
+                        }}
+                      />
                     </div>
                     {cls.project_link_allowed && (
                       <div className="col-span-4">
@@ -800,13 +803,12 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
                     )}
                     <div className="col-span-4">
                       <Label className="text-xs">{t("finance:bankRec.client")}</Label>
-                      <Select value={s.client_id ?? "__none"} onValueChange={(v) => updateSplit(i, { client_id: v === "__none" ? null : v })}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent className="max-h-[260px]">
-                          <SelectItem value="__none">—</SelectItem>
-                          {(clientsQ.data ?? []).map((cl) => <SelectItem key={cl.id} value={cl.id}>{cl.name}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <CounterpartySelect
+                        kind="client"
+                        value={s.client_id}
+                        options={(clientsQ.data ?? []).map((cl) => ({ id: cl.id, name: cl.name }))}
+                        onChange={(v) => updateSplit(i, { client_id: v })}
+                      />
                     </div>
                   </div>
                 )}
@@ -831,5 +833,58 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// =========================================================
+// Counterparty select with inline create
+// =========================================================
+function CounterpartySelect({
+  kind,
+  value,
+  options,
+  onChange,
+}: {
+  kind: "supplier" | "client";
+  value: string | null;
+  options: { id: string; name: string }[];
+  onChange: (id: string | null) => void;
+}) {
+  const { t } = useTranslation(["finance"]);
+  const [createOpen, setCreateOpen] = useState(false);
+  const NEW = "__new";
+  const NONE = "__none";
+  return (
+    <>
+      <Select
+        value={value ?? NONE}
+        onValueChange={(v) => {
+          if (v === NEW) {
+            setCreateOpen(true);
+            return;
+          }
+          onChange(v === NONE ? null : v);
+        }}
+      >
+        <SelectTrigger><SelectValue /></SelectTrigger>
+        <SelectContent className="max-h-[260px]">
+          <SelectItem value={NONE}>—</SelectItem>
+          <SelectItem value={NEW} className="text-primary font-medium">
+            + {kind === "supplier" ? t("finance:inlineCounterparty.newSupplier") : t("finance:inlineCounterparty.newClient")}
+          </SelectItem>
+          {options.map((o) => (
+            <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {createOpen && (
+        <InlineCounterpartyDialog
+          kind={kind}
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          onCreated={(row) => onChange(row.id)}
+        />
+      )}
+    </>
   );
 }

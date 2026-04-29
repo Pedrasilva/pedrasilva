@@ -44,6 +44,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
 import { useSupplierDefaultClassifications } from "@/lib/finance/use-supplier-classifications";
+import { InlineCounterpartyDialog } from "@/components/finance/inline-counterparty-dialog";
 import {
   useFinDocument,
   useCreateFinDocument,
@@ -165,6 +166,8 @@ function DocumentEditorPage() {
     status: "draft",
   });
   const [lines, setLines] = useState<LineDraft[]>([emptyLine(0)]);
+  const [createSupplierOpen, setCreateSupplierOpen] = useState(false);
+  const [createClientOpen, setCreateClientOpen] = useState(false);
 
   // Hydrate from server
   useEffect(() => {
@@ -455,6 +458,10 @@ function DocumentEditorPage() {
               <Select
                 value={header.counterparty_supplier_id ?? NONE}
                 onValueChange={(v) => {
+                  if (v === "__new") {
+                    setCreateSupplierOpen(true);
+                    return;
+                  }
                   const newSupplierId = v === NONE ? null : v;
                   setHeader((h) => {
                     const suggestion = newSupplierId
@@ -475,6 +482,9 @@ function DocumentEditorPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={NONE}>—</SelectItem>
+                  <SelectItem value="__new" className="text-primary font-medium">
+                    + {t("finance:inlineCounterparty.newSupplier")}
+                  </SelectItem>
                   {(suppliersQ.data ?? []).map((s) => (
                     <SelectItem key={s.id} value={s.id}>
                       {s.name}
@@ -482,18 +492,32 @@ function DocumentEditorPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {createSupplierOpen && (
+                <InlineCounterpartyDialog
+                  kind="supplier"
+                  open={createSupplierOpen}
+                  onOpenChange={setCreateSupplierOpen}
+                  onCreated={(row) =>
+                    setHeader((h) => ({ ...h, counterparty_supplier_id: row.id }))
+                  }
+                />
+              )}
             </div>
           ) : (
             <div className="space-y-1 md:col-span-2">
               <Label>{t("finance:documents.form.client")}</Label>
               <Select
                 value={header.counterparty_client_id ?? NONE}
-                onValueChange={(v) =>
+                onValueChange={(v) => {
+                  if (v === "__new") {
+                    setCreateClientOpen(true);
+                    return;
+                  }
                   setHeader((h) => ({
                     ...h,
                     counterparty_client_id: v === NONE ? null : v,
-                  }))
-                }
+                  }));
+                }}
                 disabled={readOnly}
               >
                 <SelectTrigger>
@@ -501,6 +525,9 @@ function DocumentEditorPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={NONE}>—</SelectItem>
+                  <SelectItem value="__new" className="text-primary font-medium">
+                    + {t("finance:inlineCounterparty.newClient")}
+                  </SelectItem>
                   {(clientsQ.data ?? []).map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.name}
@@ -508,6 +535,16 @@ function DocumentEditorPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {createClientOpen && (
+                <InlineCounterpartyDialog
+                  kind="client"
+                  open={createClientOpen}
+                  onOpenChange={setCreateClientOpen}
+                  onCreated={(row) =>
+                    setHeader((h) => ({ ...h, counterparty_client_id: row.id }))
+                  }
+                />
+              )}
             </div>
           )}
 

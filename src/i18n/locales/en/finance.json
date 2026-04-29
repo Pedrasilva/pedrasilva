@@ -19,6 +19,62 @@
     "loading": "Loading…",
     "empty": "No matching category."
   },
+  "inlineCounterparty": {
+    "newSupplier": "New supplier",
+    "newClient": "New client",
+    "name": "Name",
+    "namePlaceholder": "Display name",
+    "nif": "NIF / Tax ID",
+    "email": "Email",
+    "notes": "Notes",
+    "nameRequired": "Name is required",
+    "supplierCreated": "Supplier created",
+    "clientCreated": "Client created"
+  },
+  "bankImports": {
+    "manage": "Manage imports",
+    "title": "Bank statement imports",
+    "adminOnly": "Only admins can move or undo imports.",
+    "empty": "No imports for this account yet.",
+    "moved": "Moved from another account",
+    "move": "Move",
+    "undo": "Undo",
+    "moveTitle": "Move import to another account",
+    "moveHint": "All transactions from \"{{file}}\" will be reassigned to the selected account. Duplicates will be checked first.",
+    "targetAccount": "Target account",
+    "selectTarget": "Select target account",
+    "confirmMove": "Move import",
+    "moveSuccess": "Import moved",
+    "errorDupFile": "Target account already imported the same file. Move aborted.",
+    "errorDupRows": "Some transactions already exist on the target account. Move aborted.",
+    "undoTitle": "Undo import",
+    "undoHint": "Removes the import \"{{file}}\" and its transactions, when safe to do so.",
+    "undoWarn": "This import has activity",
+    "undoStat": {
+      "total": "{{n}} transactions in this import",
+      "classified": "{{n}} already classified or not unclassified",
+      "payments": "{{n}} linked to document payments"
+    },
+    "undoWillDelete": "Confirming will delete the import and its transactions.",
+    "undoWillArchive": "Confirming will keep the transactions (linked to payments) and archive the import as cancelled.",
+    "reason": "Reason (optional)",
+    "confirmUndo": "Confirm undo",
+    "undoSuccess": "Import undone",
+    "archivedDueToPayments": "Import archived (transactions kept because they are linked to payments).",
+    "col": {
+      "file": "File",
+      "imported": "Imported",
+      "period": "Period",
+      "rows": "Rows",
+      "status": "Status"
+    },
+    "status": {
+      "imported": "Imported",
+      "pending": "Pending",
+      "rolled_back": "Undone",
+      "archived": "Archived"
+    }
+  },
   "module": {
     "title": "Finance",
     "subtitle": "Office cash flow",
