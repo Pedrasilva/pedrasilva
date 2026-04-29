@@ -381,6 +381,8 @@ function UploadSection({ accountId, accounts, rules, isPt, onImported }: { accou
             <X className="size-4 mr-1" /> {t("common:cancel")}
           </Button>
         )}
+        <div className="flex-1" />
+        <BankImportsManager accountId={accountId} accounts={accounts} onChanged={onImported} />
       </div>
 
       {preview && (
