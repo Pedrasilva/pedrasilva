@@ -835,3 +835,56 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
     </Dialog>
   );
 }
+
+// =========================================================
+// Counterparty select with inline create
+// =========================================================
+function CounterpartySelect({
+  kind,
+  value,
+  options,
+  onChange,
+}: {
+  kind: "supplier" | "client";
+  value: string | null;
+  options: { id: string; name: string }[];
+  onChange: (id: string | null) => void;
+}) {
+  const { t } = useTranslation(["finance"]);
+  const [createOpen, setCreateOpen] = useState(false);
+  const NEW = "__new";
+  const NONE = "__none";
+  return (
+    <>
+      <Select
+        value={value ?? NONE}
+        onValueChange={(v) => {
+          if (v === NEW) {
+            setCreateOpen(true);
+            return;
+          }
+          onChange(v === NONE ? null : v);
+        }}
+      >
+        <SelectTrigger><SelectValue /></SelectTrigger>
+        <SelectContent className="max-h-[260px]">
+          <SelectItem value={NONE}>—</SelectItem>
+          <SelectItem value={NEW} className="text-primary font-medium">
+            + {kind === "supplier" ? t("finance:inlineCounterparty.newSupplier") : t("finance:inlineCounterparty.newClient")}
+          </SelectItem>
+          {options.map((o) => (
+            <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {createOpen && (
+        <InlineCounterpartyDialog
+          kind={kind}
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          onCreated={(row) => onChange(row.id)}
+        />
+      )}
+    </>
+  );
+}
