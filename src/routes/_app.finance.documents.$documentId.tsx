@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { supabase } from "@/integrations/supabase/client";
+import { ClassificationPicker } from "@/components/finance/classification-picker";
 import {
   useFinDocument,
   useCreateFinDocument,
