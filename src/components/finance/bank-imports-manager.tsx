@@ -338,7 +338,7 @@ function UndoImportDialog({
     const { data, error } = await supabase.rpc("bank_import_undo", {
       _import_id: row.id,
       _force: force,
-      _reason: reason.trim() || null,
+      _reason: reason.trim() || undefined,
     });
     setBusy(false);
     if (error) {
