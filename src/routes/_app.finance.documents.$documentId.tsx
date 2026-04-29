@@ -44,6 +44,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
 import { useSupplierDefaultClassifications } from "@/lib/finance/use-supplier-classifications";
+import { InlineCounterpartyDialog } from "@/components/finance/inline-counterparty-dialog";
 import {
   useFinDocument,
   useCreateFinDocument,
