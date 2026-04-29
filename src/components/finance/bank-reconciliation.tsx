@@ -752,6 +752,7 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
                       options={classifications}
                       isPt={isPt}
                       placeholder={t("finance:bankRec.selectClassification")}
+                      suggestedIds={s.supplier_id && supplierClassQ.data?.[s.supplier_id] ? [supplierClassQ.data[s.supplier_id]] : []}
                     />
                   </div>
                   <div className="col-span-3">
@@ -767,7 +768,17 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-4">
                       <Label className="text-xs">{t("finance:bankRec.supplier")}{cls.supplier_required ? " *" : ""}</Label>
-                      <Select value={s.supplier_id ?? "__none"} onValueChange={(v) => updateSplit(i, { supplier_id: v === "__none" ? null : v })}>
+                      <Select value={s.supplier_id ?? "__none"} onValueChange={(v) => {
+                        const newSupplierId = v === "__none" ? null : v;
+                        const suggestion = newSupplierId ? supplierClassQ.data?.[newSupplierId] : null;
+                        const patch: Partial<SplitRow> = { supplier_id: newSupplierId };
+                        if (suggestion && !s.classification_id) {
+                          patch.classification_id = suggestion;
+                          const sc = classifications.find((x) => x.id === suggestion);
+                          if (sc) patch.reimbursable = sc.reimbursable_default;
+                        }
+                        updateSplit(i, patch);
+                      }}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent className="max-h-[260px]">
                           <SelectItem value="__none">—</SelectItem>
