@@ -64,9 +64,37 @@ export function ProjectFinancialPanel() {
             {t("projectFinancials.empty")}
           </p>
         ) : (
+        <p className="mt-2 rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
+          {t("projectFinancials.reimbEstimateNote")}
+        </p>
+        <Collapsible className="mt-3">
+          <CollapsibleTrigger className="group flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground">
+            <Info className="h-3.5 w-3.5" />
+            {t("projectFinancials.howCalculated.title")}
+            <ChevronDown className="h-3.5 w-3.5 transition-transform group-data-[state=open]:rotate-180" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 space-y-1.5 rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+            <p>{t("projectFinancials.howCalculated.cost")}</p>
+            <p>{t("projectFinancials.howCalculated.billed")}</p>
+            <p>{t("projectFinancials.howCalculated.received")}</p>
+            <p>{t("projectFinancials.howCalculated.paid")}</p>
+            <p>{t("projectFinancials.howCalculated.margin")}</p>
+            <p>{t("projectFinancials.howCalculated.cash")}</p>
+            <p>{t("projectFinancials.howCalculated.reimbReceived")}</p>
+            <p>{t("projectFinancials.howCalculated.attribution")}</p>
+          </CollapsibleContent>
+        </Collapsible>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">…</p>
+        ) : !data || data.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            {t("projectFinancials.empty")}
+          </p>
+        ) : (
+          <TooltipProvider delayDuration={200}>
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
                 <TableRow>
                   <TableHead>{t("projectFinancials.project")}</TableHead>
                   <TableHead className="text-right">
