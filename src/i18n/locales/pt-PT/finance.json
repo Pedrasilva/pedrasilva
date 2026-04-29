@@ -1,4 +1,10 @@
 {
+  "classificationPicker": {
+    "placeholder": "Selecionar categoria…",
+    "searchPlaceholder": "Pesquisar por código ou nome…",
+    "empty": "Sem categoria correspondente.",
+    "clear": "Limpar seleção"
+  },
   "module": {
     "title": "Finanças",
     "subtitle": "Tesouraria do atelier",
