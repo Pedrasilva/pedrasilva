@@ -541,6 +541,18 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
 
   const classMap = useMemo(() => new Map(classifications.map((c) => [c.id, c])), [classifications]);
 
+  async function quickMarkStatus(tx: BankTx, status: "ignored" | "internal_transfer") {
+    const { error } = await supabase
+      .from("bank_transactions")
+      .update({ status, classified_at: new Date().toISOString(), classified_by: user?.id ?? null })
+      .eq("id", tx.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(status === "ignored" ? t("finance:bankRec.markedIgnored") : t("finance:bankRec.markedTransfer"));
+    txQ.refetch();
+    counts.refetch();
+  }
+
+
   return (
     <Card>
       <CardHeader>
