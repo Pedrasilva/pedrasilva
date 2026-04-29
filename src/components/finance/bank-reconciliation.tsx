@@ -653,6 +653,20 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
           onMatched={() => { txQ.refetch(); }}
         />
       )}
+      {createDocTx && (
+        <CreateDocFromTxDialog
+          tx={{
+            id: createDocTx.id,
+            bank_account_id: createDocTx.bank_account_id,
+            transaction_date: createDocTx.transaction_date,
+            description: createDocTx.description,
+            amount: Number(createDocTx.amount),
+            currency: createDocTx.currency,
+          }}
+          onClose={() => setCreateDocTx(null)}
+          onCreated={() => { setCreateDocTx(null); txQ.refetch(); counts.refetch(); }}
+        />
+      )}
     </Card>
   );
 }
