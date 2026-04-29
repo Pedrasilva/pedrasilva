@@ -487,7 +487,8 @@
       "reimbReceived": "Recebido reemb.",
       "reimbUnbilled": "Por facturar",
       "reimbUnpaid": "Por receber",
-      "noProject": "(sem projecto)"
+      "noProject": "(sem projecto)",
+      "reimbEstimateNote": "O recebido reembolsável é estimado: cada pagamento é repartido proporcionalmente à quota reembolsável do subtotal do documento. Enquanto os pagamentos não forem explicitamente alocados a linhas específicas, considere os valores de caixa reembolsável como aproximados."
     }
   }
 }
