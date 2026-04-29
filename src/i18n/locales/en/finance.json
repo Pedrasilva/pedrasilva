@@ -487,7 +487,8 @@
       "reimbReceived": "Reimb. received",
       "reimbUnbilled": "Unbilled",
       "reimbUnpaid": "Unpaid",
-      "noProject": "(unassigned)"
+      "noProject": "(unassigned)",
+      "reimbEstimateNote": "Reimbursable received is estimated: each payment is split proportionally to the document's reimbursable share of the subtotal. Until payments are explicitly allocated to specific lines, treat reimbursable cash figures as approximate."
     }
   }
 }
