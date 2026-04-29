@@ -43,6 +43,7 @@ import {
 
 import { supabase } from "@/integrations/supabase/client";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
+import { useSupplierDefaultClassifications } from "@/lib/finance/use-supplier-classifications";
 import {
   useFinDocument,
   useCreateFinDocument,
@@ -147,6 +148,11 @@ function DocumentEditorPage() {
   const clientsQ = useFinClients();
   const projectsQ = useFinProjects();
   const classQ = useFinClassifications();
+  const supplierClassQ = useSupplierDefaultClassifications();
+  const supplierSuggestion = header.counterparty_supplier_id
+    ? supplierClassQ.data?.[header.counterparty_supplier_id] ?? null
+    : null;
+  const suggestedIds = supplierSuggestion ? [supplierSuggestion] : undefined;
 
   const createMut = useCreateFinDocument();
   const updateMut = useUpdateFinDocument();
