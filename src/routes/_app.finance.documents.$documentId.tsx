@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { supabase } from "@/integrations/supabase/client";
+import { ClassificationPicker } from "@/components/finance/classification-picker";
 import {
   useFinDocument,
   useCreateFinDocument,
@@ -138,7 +139,8 @@ function DocumentEditorPage() {
   const { documentId } = Route.useParams();
   const isNew = documentId === "new";
   const navigate = useNavigate();
-  const { t } = useTranslation(["finance", "common"]);
+  const { t, i18n } = useTranslation(["finance", "common"]);
+  const isPt = i18n.language?.startsWith("pt");
 
   const docQ = useFinDocument(isNew ? null : documentId);
   const suppliersQ = useFinSuppliers();
@@ -684,25 +686,14 @@ function DocumentEditorPage() {
                         />
                       </TableCell>
                       <TableCell>
-                        <Select
-                          value={l.classification_id ?? NONE}
-                          onValueChange={(v) =>
-                            patchLine(i, { classification_id: v === NONE ? null : v })
-                          }
+                        <ClassificationPicker
+                          value={l.classification_id}
+                          onChange={(v) => patchLine(i, { classification_id: v })}
+                          options={classQ.data ?? []}
+                          isPt={isPt}
                           disabled={readOnly}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value={NONE}>—</SelectItem>
-                            {(classQ.data ?? []).map((c) => (
-                              <SelectItem key={c.id} value={c.id}>
-                                {c.code} — {c.name_pt}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          allowClear
+                        />
                       </TableCell>
                       <TableCell>
                         <Select
