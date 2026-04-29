@@ -193,15 +193,55 @@ function UploadSection({ accountId, rules, isPt, onImported }: { accountId: stri
   const fileInput = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<PreviewState | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [parsing, setParsing] = useState(false);
+  const [parsingFileName, setParsingFileName] = useState<string | null>(null);
 
   async function handleFile(file: File) {
+    setParsing(true);
+    setParsingFileName(file.name);
+    setPreview(null);
     try {
+      // Basic file sanity checks
+      const lower = file.name.toLowerCase();
+      const hasSupportedExt = [".xlsx", ".xls", ".csv"].some((ext) => lower.endsWith(ext));
+      if (!hasSupportedExt) {
+        toast.error(t("finance:bankRec.unsupportedFormat", { name: file.name }));
+        return;
+      }
+      if (file.size === 0) {
+        toast.error(t("finance:bankRec.emptyFile"));
+        return;
+      }
+
       const buf = await file.arrayBuffer();
       const checksum = await computeFileChecksum(file);
       const parse = await parseBankStatementWorkbook(buf);
+
+      // Surface parse-level problems with explicit toasts so the user is never left wondering
+      if (parse.diagnostics.headerRowIndex == null) {
+        toast.error(t("finance:bankRec.noHeaderDetected"), {
+          description: t("finance:bankRec.noHeaderDetectedHint"),
+        });
+      } else if (parse.diagnostics.unresolvedRequired.length > 0) {
+        toast.error(t("finance:bankRec.headerError"), {
+          description: t("finance:bankRec.headerErrorDetail", {
+            fields: parse.diagnostics.unresolvedRequired.join(", "),
+          }),
+        });
+      } else if (parse.diagnostics.totalDataRows === 0) {
+        toast.warning(t("finance:bankRec.noDataRows"), {
+          description: t("finance:bankRec.noDataRowsHint"),
+        });
+      } else if (parse.rows.length === 0) {
+        toast.warning(t("finance:bankRec.allRowsSkipped", { count: parse.diagnostics.skipped.length }), {
+          description: t("finance:bankRec.allRowsSkippedHint"),
+        });
+      }
+
       // Check duplicates against existing tx checksums
       const checksums = parse.rows.map((r) => r.row_checksum);
       let duplicateCount = 0;
+      const existingSet = new Set<string>();
       if (checksums.length > 0) {
         const { data: existing } = await supabase
           .from("bank_transactions")
@@ -209,6 +249,7 @@ function UploadSection({ accountId, rules, isPt, onImported }: { accountId: stri
           .eq("bank_account_id", accountId)
           .in("row_checksum", checksums);
         duplicateCount = existing?.length ?? 0;
+        existing?.forEach((e) => existingSet.add(e.row_checksum));
       }
       // Pre-apply rules
       const ruleHits = parse.rows.map((r) => applyRules(r.description, rules)?.classification_id ?? null);
@@ -222,20 +263,28 @@ function UploadSection({ accountId, rules, isPt, onImported }: { accountId: stri
       if (fileDup) {
         toast.warning(t("finance:bankRec.fileAlreadyImported", { name: fileDup.file_name }));
       }
-      // Pre-select non-duplicate rows
-      const existingSet = new Set<string>();
-      if (checksums.length > 0) {
-        const { data: existing } = await supabase
-          .from("bank_transactions")
-          .select("row_checksum")
-          .eq("bank_account_id", accountId)
-          .in("row_checksum", checksums);
-        existing?.forEach((e) => existingSet.add(e.row_checksum));
-      }
       const rowSelection = parse.rows.map((r) => !existingSet.has(r.row_checksum));
+
+      // Success toast only when there is something to import
+      if (parse.rows.length > 0) {
+        const importable = rowSelection.filter(Boolean).length;
+        if (importable === 0) {
+          toast.warning(t("finance:bankRec.allDuplicates"), {
+            description: t("finance:bankRec.allDuplicatesHint"),
+          });
+        } else {
+          toast.success(t("finance:bankRec.parseSuccess", { count: parse.rows.length, importable }));
+        }
+      }
+
       setPreview({ fileName: file.name, fileChecksum: checksum, fileSize: file.size, parse, duplicateCheck: { duplicateCount, total: parse.rows.length }, rowSelection, ruleHits });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("finance:bankRec.parseError"));
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(t("finance:bankRec.parseError"), { description: msg });
+    } finally {
+      setParsing(false);
+      setParsingFileName(null);
+      if (fileInput.current) fileInput.current.value = "";
     }
   }
 
