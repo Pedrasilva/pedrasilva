@@ -488,7 +488,19 @@
       "reimbUnbilled": "Por facturar",
       "reimbUnpaid": "Por receber",
       "noProject": "(sem projecto)",
-      "reimbEstimateNote": "O recebido reembolsável é estimado: cada pagamento é repartido proporcionalmente à quota reembolsável do subtotal do documento. Enquanto os pagamentos não forem explicitamente alocados a linhas específicas, considere os valores de caixa reembolsável como aproximados."
+      "reimbEstimateNote": "Os pagamentos não são alocados por linha. O recebido reembolsável é estimado proporcionalmente com base na quota das linhas reembolsáveis em cada documento. Considere os valores de caixa reembolsável como aproximados enquanto a alocação por linha não estiver implementada.",
+      "reimbReceivedTooltip": "Estimado a partir de pagamentos ao nível do documento",
+      "howCalculated": {
+        "title": "Como estes valores são calculados",
+        "cost": "Custo — soma dos documentos recebidos, linhas filtradas pelas classificações PRD.*, OPS.REP.* e REIM.*. Exclui documentos em rascunho ou cancelados.",
+        "billed": "Facturado — soma dos documentos emitidos (subtotais de linha, sem IVA).",
+        "received": "Recebido — soma dos pagamentos registados em documentos emitidos.",
+        "paid": "Pago — soma dos pagamentos registados em documentos recebidos.",
+        "margin": "Margem — Facturado menos Custo.",
+        "cash": "Caixa — Recebido menos Pago. Derivado apenas de pagamentos registados; os movimentos bancários nunca são lidos directamente.",
+        "reimbReceived": "Recebido reembolsável — os pagamentos não são repartidos por linha. Cada pagamento é alocado proporcionalmente com base na quota das linhas reembolsáveis no subtotal do documento.",
+        "attribution": "Atribuição ao projecto — o project_id ao nível da linha tem precedência; recorre ao project_id do cabeçalho do documento."
+      }
     }
   }
 }

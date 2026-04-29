@@ -488,7 +488,19 @@
       "reimbUnbilled": "Unbilled",
       "reimbUnpaid": "Unpaid",
       "noProject": "(unassigned)",
-      "reimbEstimateNote": "Reimbursable received is estimated: each payment is split proportionally to the document's reimbursable share of the subtotal. Until payments are explicitly allocated to specific lines, treat reimbursable cash figures as approximate."
+      "reimbEstimateNote": "Payments are not allocated per line. Reimbursable cash received is estimated proportionally based on the share of reimbursable lines in each document. Treat reimbursable cash figures as approximate until per-line allocation is implemented.",
+      "reimbReceivedTooltip": "Estimated from document-level payments",
+      "howCalculated": {
+        "title": "How these numbers are calculated",
+        "cost": "Cost — sum of received documents, lines filtered by classifications PRD.*, OPS.REP.* and REIM.*. Excludes draft and cancelled documents.",
+        "billed": "Billed — sum of issued documents (line subtotals, excluding VAT).",
+        "received": "Received — sum of payments recorded against issued documents.",
+        "paid": "Paid — sum of payments recorded against received documents.",
+        "margin": "Margin — Billed minus Cost.",
+        "cash": "Cash — Received minus Paid. Derived strictly from recorded payments; bank transactions are never read directly.",
+        "reimbReceived": "Reimbursable received — payments are not split per line. Each payment is allocated proportionally based on the reimbursable lines' share of the document subtotal.",
+        "attribution": "Project attribution — line-level project_id takes precedence; falls back to the document header project_id."
+      }
     }
   }
 }
