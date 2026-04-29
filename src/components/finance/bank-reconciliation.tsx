@@ -23,6 +23,7 @@ import {
   type RuleRow,
 } from "@/lib/finance/bank-statement-parser";
 import { MatchBankTxToDocDialog } from "@/components/finance/match-bank-tx-to-doc";
+import { ClassificationPicker } from "@/components/finance/classification-picker";
 
 type BankAccount = { id: string; account_name: string; bank_name: string | null; account_number: string | null; iban: string | null; currency: string };
 type Classification = { id: string; code: string; name_pt: string; name_en: string; financial_nature: string; spending_policy: string; supplier_required: boolean; project_link_allowed: boolean; collaborator_link_allowed: boolean; reimbursable_default: boolean };
