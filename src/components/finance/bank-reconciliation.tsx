@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Upload, FileSpreadsheet, AlertTriangle, CheckCircle2, Filter, X, Plus, Trash2 } from "lucide-react";
+import { Upload, FileSpreadsheet, AlertTriangle, CheckCircle2, Filter, X, Plus, Trash2, Loader2, Info } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -193,15 +193,55 @@ function UploadSection({ accountId, rules, isPt, onImported }: { accountId: stri
   const fileInput = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<PreviewState | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [parsing, setParsing] = useState(false);
+  const [parsingFileName, setParsingFileName] = useState<string | null>(null);
 
   async function handleFile(file: File) {
+    setParsing(true);
+    setParsingFileName(file.name);
+    setPreview(null);
     try {
+      // Basic file sanity checks
+      const lower = file.name.toLowerCase();
+      const hasSupportedExt = [".xlsx", ".xls", ".csv"].some((ext) => lower.endsWith(ext));
+      if (!hasSupportedExt) {
+        toast.error(t("finance:bankRec.unsupportedFormat", { name: file.name }));
+        return;
+      }
+      if (file.size === 0) {
+        toast.error(t("finance:bankRec.emptyFile"));
+        return;
+      }
+
       const buf = await file.arrayBuffer();
       const checksum = await computeFileChecksum(file);
       const parse = await parseBankStatementWorkbook(buf);
+
+      // Surface parse-level problems with explicit toasts so the user is never left wondering
+      if (parse.diagnostics.headerRowIndex == null) {
+        toast.error(t("finance:bankRec.noHeaderDetected"), {
+          description: t("finance:bankRec.noHeaderDetectedHint"),
+        });
+      } else if (parse.diagnostics.unresolvedRequired.length > 0) {
+        toast.error(t("finance:bankRec.headerError"), {
+          description: t("finance:bankRec.headerErrorDetail", {
+            fields: parse.diagnostics.unresolvedRequired.join(", "),
+          }),
+        });
+      } else if (parse.diagnostics.totalDataRows === 0) {
+        toast.warning(t("finance:bankRec.noDataRows"), {
+          description: t("finance:bankRec.noDataRowsHint"),
+        });
+      } else if (parse.rows.length === 0) {
+        toast.warning(t("finance:bankRec.allRowsSkipped", { count: parse.diagnostics.skipped.length }), {
+          description: t("finance:bankRec.allRowsSkippedHint"),
+        });
+      }
+
       // Check duplicates against existing tx checksums
       const checksums = parse.rows.map((r) => r.row_checksum);
       let duplicateCount = 0;
+      const existingSet = new Set<string>();
       if (checksums.length > 0) {
         const { data: existing } = await supabase
           .from("bank_transactions")
@@ -209,6 +249,7 @@ function UploadSection({ accountId, rules, isPt, onImported }: { accountId: stri
           .eq("bank_account_id", accountId)
           .in("row_checksum", checksums);
         duplicateCount = existing?.length ?? 0;
+        existing?.forEach((e) => existingSet.add(e.row_checksum));
       }
       // Pre-apply rules
       const ruleHits = parse.rows.map((r) => applyRules(r.description, rules)?.classification_id ?? null);
@@ -222,20 +263,28 @@ function UploadSection({ accountId, rules, isPt, onImported }: { accountId: stri
       if (fileDup) {
         toast.warning(t("finance:bankRec.fileAlreadyImported", { name: fileDup.file_name }));
       }
-      // Pre-select non-duplicate rows
-      const existingSet = new Set<string>();
-      if (checksums.length > 0) {
-        const { data: existing } = await supabase
-          .from("bank_transactions")
-          .select("row_checksum")
-          .eq("bank_account_id", accountId)
-          .in("row_checksum", checksums);
-        existing?.forEach((e) => existingSet.add(e.row_checksum));
-      }
       const rowSelection = parse.rows.map((r) => !existingSet.has(r.row_checksum));
+
+      // Success toast only when there is something to import
+      if (parse.rows.length > 0) {
+        const importable = rowSelection.filter(Boolean).length;
+        if (importable === 0) {
+          toast.warning(t("finance:bankRec.allDuplicates"), {
+            description: t("finance:bankRec.allDuplicatesHint"),
+          });
+        } else {
+          toast.success(t("finance:bankRec.parseSuccess", { count: parse.rows.length, importable }));
+        }
+      }
+
       setPreview({ fileName: file.name, fileChecksum: checksum, fileSize: file.size, parse, duplicateCheck: { duplicateCount, total: parse.rows.length }, rowSelection, ruleHits });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("finance:bankRec.parseError"));
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(t("finance:bankRec.parseError"), { description: msg });
+    } finally {
+      setParsing(false);
+      setParsingFileName(null);
+      if (fileInput.current) fileInput.current.value = "";
     }
   }
 
@@ -311,12 +360,18 @@ function UploadSection({ accountId, rules, isPt, onImported }: { accountId: stri
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <input ref={fileInput} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
-        <Button onClick={() => fileInput.current?.click()}>
-          <Upload className="size-4 mr-2" /> {t("finance:bankRec.uploadStatement")}
+        <Button onClick={() => fileInput.current?.click()} disabled={parsing}>
+          {parsing ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Upload className="size-4 mr-2" />}
+          {parsing ? t("finance:bankRec.parsing") : t("finance:bankRec.uploadStatement")}
         </Button>
-        {preview && (
+        {parsing && parsingFileName && (
+          <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
+            <FileSpreadsheet className="size-3" /> {parsingFileName}
+          </span>
+        )}
+        {preview && !parsing && (
           <Button variant="ghost" size="sm" onClick={() => { setPreview(null); if (fileInput.current) fileInput.current.value = ""; }}>
             <X className="size-4 mr-1" /> {t("common:cancel")}
           </Button>
@@ -337,13 +392,53 @@ function UploadSection({ accountId, rules, isPt, onImported }: { accountId: stri
             <Stat label={t("finance:bankRec.skippedRows")} value={preview.parse.diagnostics.skipped.length.toString()} tone={preview.parse.diagnostics.skipped.length > 0 ? "warn" : "neutral"} />
           </div>
 
-          {preview.parse.diagnostics.unresolvedRequired.length > 0 ? (
+          {preview.parse.diagnostics.headerRowIndex == null ? (
+            <div className="flex items-start gap-2 rounded-md bg-destructive/10 text-destructive p-3 text-sm">
+              <AlertTriangle className="size-4 mt-0.5 shrink-0" />
+              <div>
+                <div className="font-medium">{t("finance:bankRec.noHeaderDetected")}</div>
+                <div className="text-xs mt-1">{t("finance:bankRec.noHeaderDetectedHint")}</div>
+              </div>
+            </div>
+          ) : preview.parse.diagnostics.unresolvedRequired.length > 0 ? (
             <div className="flex items-start gap-2 rounded-md bg-destructive/10 text-destructive p-3 text-sm">
               <AlertTriangle className="size-4 mt-0.5 shrink-0" />
               <div>
                 <div className="font-medium">{t("finance:bankRec.headerError")}</div>
                 <div className="text-xs mt-1">{t("finance:bankRec.headerErrorDetail", { fields: preview.parse.diagnostics.unresolvedRequired.join(", ") })}</div>
               </div>
+            </div>
+          ) : preview.parse.rows.length === 0 ? (
+            <div className="space-y-2">
+              <div className="flex items-start gap-2 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 p-3 text-sm">
+                <Info className="size-4 mt-0.5 shrink-0" />
+                <div className="space-y-1">
+                  <div className="font-medium">
+                    {preview.parse.diagnostics.totalDataRows === 0
+                      ? t("finance:bankRec.noDataRows")
+                      : t("finance:bankRec.allRowsSkipped", { count: preview.parse.diagnostics.skipped.length })}
+                  </div>
+                  <div className="text-xs">
+                    {preview.parse.diagnostics.totalDataRows === 0
+                      ? t("finance:bankRec.noDataRowsHint")
+                      : t("finance:bankRec.allRowsSkippedHint")}
+                  </div>
+                </div>
+              </div>
+              {preview.parse.diagnostics.skipped.length > 0 && (
+                <details className="text-xs text-muted-foreground border rounded-md p-2 bg-background">
+                  <summary className="cursor-pointer font-medium">
+                    {t("finance:bankRec.skippedDetails", { count: preview.parse.diagnostics.skipped.length })}
+                  </summary>
+                  <ul className="mt-2 space-y-0.5 max-h-40 overflow-auto">
+                    {preview.parse.diagnostics.skipped.slice(0, 50).map((s, i) => (
+                      <li key={i}>
+                        {t("finance:bankRec.skippedRowLine", { row: s.rowIndex, reason: s.reason })}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
             </div>
           ) : (
             <>
