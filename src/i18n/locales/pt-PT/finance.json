@@ -181,6 +181,17 @@
       "internal_transfer": "Transferência interna",
       "archived": "Arquivado",
       "all": "Todos"
+    },
+    "actions": {
+      "match": "Associar documento",
+      "matchHint": "Ligar esta transação a um documento financeiro existente",
+      "createDoc": "Criar documento",
+      "createDocHint": "Criar fatura/recibo a partir desta transação",
+      "classify": "Classificar",
+      "transfer": "Transferência",
+      "transferHint": "Marcar como transferência interna entre contas",
+      "ignore": "Ignorar",
+      "ignoreHint": "Marcar como não relevante para contabilidade"
     }
   },
   "overview": {
@@ -592,5 +603,35 @@
         "attribution": "Atribuição ao projecto — o project_id ao nível da linha tem precedência; recorre ao project_id do cabeçalho do documento."
       }
     }
+  },
+  "createDoc": {
+    "title": "Criar documento a partir da transação",
+    "direction": "Direção",
+    "directionReceived": "Recebido (pagamos)",
+    "directionIssued": "Emitido (recebemos)",
+    "docType": "Tipo de documento",
+    "types": {
+      "supplier_invoice": "Fatura de fornecedor",
+      "supplier_credit_note": "Nota de crédito de fornecedor",
+      "client_invoice": "Fatura de cliente",
+      "client_credit_note": "Nota de crédito de cliente",
+      "receipt": "Recibo",
+      "other": "Outro"
+    },
+    "documentNumber": "Nº do documento",
+    "documentNumberPlaceholder": "ex.: FT 2025/123",
+    "issueDate": "Data de emissão",
+    "issueDateRequired": "A data de emissão é obrigatória",
+    "vatRate": "IVA %",
+    "gross": "Total",
+    "net": "Base",
+    "vat": "IVA",
+    "grossRequired": "O valor total tem de ser maior que zero",
+    "attachment": "Anexo (opcional)",
+    "supplierRequired": "Fornecedor obrigatório",
+    "clientRequired": "Cliente obrigatório",
+    "nifPlaceholder": "NIF (opcional)",
+    "createAndLink": "Criar e ligar à transação",
+    "created": "Documento criado e ligado à transação bancária"
   }
 }

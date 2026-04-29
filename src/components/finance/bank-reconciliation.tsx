@@ -27,6 +27,7 @@ import { ClassificationPicker } from "@/components/finance/classification-picker
 import { useSupplierDefaultClassifications } from "@/lib/finance/use-supplier-classifications";
 import { BankImportsManager } from "@/components/finance/bank-imports-manager";
 import { InlineCounterpartyDialog } from "@/components/finance/inline-counterparty-dialog";
+import { CreateDocFromTxDialog } from "@/components/finance/create-doc-from-tx";
 
 type BankAccount = { id: string; account_name: string; bank_name: string | null; account_number: string | null; iban: string | null; currency: string };
 type Classification = { id: string; code: string; name_pt: string; name_en: string; financial_nature: string; spending_policy: string; supplier_required: boolean; project_link_allowed: boolean; collaborator_link_allowed: boolean; reimbursable_default: boolean };
@@ -513,6 +514,8 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
   const [filter, setFilter] = useState<"unclassified" | "classified" | "ignored" | "all">("unclassified");
   const [classifyTx, setClassifyTx] = useState<BankTx | null>(null);
   const [matchDocTx, setMatchDocTx] = useState<BankTx | null>(null);
+  const [createDocTx, setCreateDocTx] = useState<BankTx | null>(null);
+  const { user } = useAuth();
 
   const txQ = useQuery({
     queryKey: ["finance", "bank-tx", accountId, filter],
@@ -537,6 +540,18 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
   });
 
   const classMap = useMemo(() => new Map(classifications.map((c) => [c.id, c])), [classifications]);
+
+  async function quickMarkStatus(tx: BankTx, status: "ignored" | "internal_transfer") {
+    const { error } = await supabase
+      .from("bank_transactions")
+      .update({ status, classified_at: new Date().toISOString(), classified_by: user?.id ?? null })
+      .eq("id", tx.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(status === "ignored" ? t("finance:bankRec.markedIgnored") : t("finance:bankRec.markedTransfer"));
+    txQ.refetch();
+    counts.refetch();
+  }
+
 
   return (
     <Card>
@@ -586,13 +601,26 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
                       <TableCell className="text-xs">{sug ? <Badge variant="outline">{isPt ? sug.name_pt : sug.name_en}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
                       <TableCell><StatusBadge status={tx.status} /></TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button size="sm" variant="ghost" onClick={() => setMatchDocTx(tx)}>
-                            {t("finance:documents.payments.matchBank")}
+                        <div className="flex justify-end gap-1 flex-wrap">
+                          <Button size="sm" variant="ghost" onClick={() => setMatchDocTx(tx)} title={t("finance:bankRec.actions.matchHint") as string}>
+                            {t("finance:bankRec.actions.match")}
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setCreateDocTx(tx)} title={t("finance:bankRec.actions.createDocHint") as string}>
+                            {t("finance:bankRec.actions.createDoc")}
                           </Button>
                           <Button size="sm" variant="ghost" onClick={() => setClassifyTx(tx)}>
-                            {tx.status === "unclassified" ? t("finance:bankRec.classify") : t("common:edit")}
+                            {tx.status === "unclassified" ? t("finance:bankRec.actions.classify") : t("common:edit")}
                           </Button>
+                          {tx.status !== "internal_transfer" && (
+                            <Button size="sm" variant="ghost" onClick={() => quickMarkStatus(tx, "internal_transfer")} title={t("finance:bankRec.actions.transferHint") as string}>
+                              {t("finance:bankRec.actions.transfer")}
+                            </Button>
+                          )}
+                          {tx.status !== "ignored" && (
+                            <Button size="sm" variant="ghost" onClick={() => quickMarkStatus(tx, "ignored")} title={t("finance:bankRec.actions.ignoreHint") as string}>
+                              {t("finance:bankRec.actions.ignore")}
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -623,6 +651,20 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
           }}
           onClose={() => setMatchDocTx(null)}
           onMatched={() => { txQ.refetch(); }}
+        />
+      )}
+      {createDocTx && (
+        <CreateDocFromTxDialog
+          tx={{
+            id: createDocTx.id,
+            bank_account_id: createDocTx.bank_account_id,
+            transaction_date: createDocTx.transaction_date,
+            description: createDocTx.description,
+            amount: Number(createDocTx.amount),
+            currency: createDocTx.currency,
+          }}
+          onClose={() => setCreateDocTx(null)}
+          onCreated={() => { setCreateDocTx(null); txQ.refetch(); counts.refetch(); }}
         />
       )}
     </Card>

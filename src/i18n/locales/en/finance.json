@@ -181,6 +181,17 @@
       "internal_transfer": "Internal transfer",
       "archived": "Archived",
       "all": "All"
+    },
+    "actions": {
+      "match": "Match document",
+      "matchHint": "Link this transaction to an existing financial document",
+      "createDoc": "Create document",
+      "createDocHint": "Create an invoice/receipt from this transaction",
+      "classify": "Classify",
+      "transfer": "Transfer",
+      "transferHint": "Mark as internal transfer between accounts",
+      "ignore": "Ignore",
+      "ignoreHint": "Mark as not relevant for accounting"
     }
   },
   "overview": {
@@ -592,5 +603,35 @@
         "attribution": "Project attribution — line-level project_id takes precedence; falls back to the document header project_id."
       }
     }
+  },
+  "createDoc": {
+    "title": "Create document from transaction",
+    "direction": "Direction",
+    "directionReceived": "Received (we pay)",
+    "directionIssued": "Issued (we receive)",
+    "docType": "Document type",
+    "types": {
+      "supplier_invoice": "Supplier invoice",
+      "supplier_credit_note": "Supplier credit note",
+      "client_invoice": "Client invoice",
+      "client_credit_note": "Client credit note",
+      "receipt": "Receipt",
+      "other": "Other"
+    },
+    "documentNumber": "Document number",
+    "documentNumberPlaceholder": "e.g. FT 2025/123",
+    "issueDate": "Issue date",
+    "issueDateRequired": "Issue date is required",
+    "vatRate": "VAT %",
+    "gross": "Gross",
+    "net": "Net",
+    "vat": "VAT",
+    "grossRequired": "Gross amount must be greater than zero",
+    "attachment": "Attachment (optional)",
+    "supplierRequired": "Supplier is required",
+    "clientRequired": "Client is required",
+    "nifPlaceholder": "Tax number (optional)",
+    "createAndLink": "Create and link to transaction",
+    "created": "Document created and linked to bank transaction"
   }
 }
