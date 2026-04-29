@@ -192,7 +192,7 @@ type PreviewState = {
   ruleHits: (string | null)[]; // classification id or null
 };
 
-function UploadSection({ accountId, rules, isPt, onImported }: { accountId: string; rules: RuleRow[]; isPt: boolean; onImported: () => void }) {
+function UploadSection({ accountId, accounts, rules, isPt, onImported }: { accountId: string; accounts: BankAccount[]; rules: RuleRow[]; isPt: boolean; onImported: () => void }) {
   const { t } = useTranslation(["finance", "common"]);
   const { user } = useAuth();
   const fileInput = useRef<HTMLInputElement>(null);
