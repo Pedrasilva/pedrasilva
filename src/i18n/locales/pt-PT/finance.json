@@ -1,10 +1,23 @@
 {
   "classificationPicker": {
-    "_replaceMe": true
     "placeholder": "Selecionar categoria…",
     "searchPlaceholder": "Pesquisar por código ou nome…",
     "empty": "Sem categoria correspondente.",
-    "clear": "Limpar seleção"
+    "clear": "Limpar seleção",
+    "recent": "Recentes",
+    "suggested": "Sugerido",
+    "all": "Todas as categorias",
+    "browseAll": "Ver todas as categorias…"
+  },
+  "classificationBrowser": {
+    "title": "Catálogo de classificações",
+    "subtitle": "Referência só de leitura para todas as categorias financeiras.",
+    "searchPlaceholder": "Pesquisar por código ou nome…",
+    "code": "Código",
+    "name": "Nome",
+    "spendingPolicy": "Política",
+    "loading": "A carregar…",
+    "empty": "Sem categoria correspondente."
   },
   "module": {
     "title": "Finanças",
