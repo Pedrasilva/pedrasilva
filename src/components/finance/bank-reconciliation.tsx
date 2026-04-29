@@ -659,6 +659,7 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
   const suppliersQ = useQuery({ queryKey: ["fin-suppliers"], queryFn: async () => { const { data } = await supabase.from("financial_suppliers").select("id, name").order("name"); return (data ?? []) as Supplier[]; } });
   const clientsQ = useQuery({ queryKey: ["fin-clients"], queryFn: async () => { const { data } = await supabase.from("financial_clients").select("id, name").order("name"); return (data ?? []) as Client[]; } });
   const projectsQ = useQuery({ queryKey: ["pm-projects-pick"], queryFn: async () => { const { data } = await supabase.from("pm_projects").select("id, name").order("name"); return (data ?? []) as Project[]; } });
+  const supplierClassQ = useSupplierDefaultClassifications();
 
   const total = splits.reduce((s, x) => s + (Number(x.amount) || 0), 0);
   const balanced = Math.abs(total - tx.amount) < 0.01;
