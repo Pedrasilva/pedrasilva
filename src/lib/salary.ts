@@ -160,6 +160,10 @@ export function computeSnapshot(s: Snapshot) {
   // Bloco 3 — Ajudas de custo
   const ajudasMensal = s.ajudas_custo_anual / 12;
 
+  // Bloco 3b — Passe / Transporte público (ajuda de custo anual separada)
+  const passeAnual = s.passe_anual ?? 0;
+  const passeMensal = passeAnual / 12;
+
   // Bloco 4 — Benefícios
   const beneficiosAnual =
     s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios + (s.beneficio_variavel ?? 0);
@@ -169,17 +173,18 @@ export function computeSnapshot(s: Snapshot) {
   // C41 = E15 + E14 + D26 + D30  (mensal: base12m + ssAtelier12m + alimentacao + ajudas)
   const baseMensal12 = baseAnual / 12;
   const ssAtelier12 = ssAtelierAnual / 12;
-  const brutoMensal = baseMensal12 + ssAtelier12 + alimentacaoMensal + ajudasMensal;
+  const brutoMensal = baseMensal12 + ssAtelier12 + alimentacaoMensal + ajudasMensal + passeMensal;
   // D41 = C41*12 + D37 (inclui benefícios anuais — alinhado com Excel original)
   const beneficiosAnualTmp =
     s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios + (s.beneficio_variavel ?? 0);
   const brutoAnual = brutoMensal * 12 + beneficiosAnualTmp;
 
   // Líquido total mensal (líquido + alimentação + ajudas)
+  // Passe não entra no líquido — é um benefício isento pago pela empresa.
   const liquidoTotalMensal = liquido12m + alimentacaoMensal + ajudasMensal;
 
-  // VBG / Custo total RH (incluindo benefícios)
-  const custoVBG = brutoAnual + beneficiosAnual + s.ajudas_custo_anual;
+  // VBG / Custo total RH (incluindo benefícios + passe)
+  const custoVBG = brutoAnual + beneficiosAnual + s.ajudas_custo_anual + passeAnual;
 
   return {
     base,
