@@ -259,6 +259,7 @@ export function defaultSnapshot(
     subsidio_alimentacao_diario: 0,
     dias_uteis: 230,
     ajudas_custo_anual: 0,
+    passe_anual: 0,
     beneficio_carro: 0,
     beneficio_ticket: 0,
     premio_associado: 0,
