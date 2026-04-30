@@ -101,6 +101,8 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
     { label: t("hr:resumoCompare.metrics.mealAllowanceMonthly"), l: cl?.alimentacaoMensal ?? null, r: cr?.alimentacaoMensal ?? null },
     { label: t("hr:resumoCompare.metrics.perDiemAnnual"), l: left?.ajudas_custo_anual ?? null, r: right?.ajudas_custo_anual ?? null },
     { label: t("hr:resumoCompare.metrics.perDiemMonthly"), l: cl?.ajudasMensal ?? null, r: cr?.ajudasMensal ?? null },
+    { label: t("hr:resumoCompare.metrics.transitPassAnnual"), l: left?.passe_anual ?? null, r: right?.passe_anual ?? null },
+    { label: t("hr:resumoCompare.metrics.transitPassMonthly"), l: cl?.passeMensal ?? null, r: cr?.passeMensal ?? null },
     { label: t("hr:resumoCompare.metrics.totalNetMonthly"), l: cl?.liquidoTotalMensal ?? null, r: cr?.liquidoTotalMensal ?? null },
     { label: t("hr:resumoCompare.metrics.benefitsAnnual"), l: cl?.beneficiosAnual ?? null, r: cr?.beneficiosAnual ?? null },
     { label: t("hr:resumoCompare.metrics.tgvAnnual"), l: cl?.custoVBG ?? null, r: cr?.custoVBG ?? null },
