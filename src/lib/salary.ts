@@ -203,6 +203,8 @@ export function computeSnapshot(s: Snapshot) {
     alimentacaoAnual,
     alimentacaoMensal,
     ajudasMensal,
+    passeAnual,
+    passeMensal,
     beneficiosAnual,
     beneficiosMensal,
     baseMensal12,
