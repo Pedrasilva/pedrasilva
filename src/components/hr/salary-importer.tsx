@@ -75,6 +75,7 @@ const HEADER_KEYS_ORDER: SalaryColumnKey[] = [
   "irs_pct",
   "meses_pagos",
   "ajudas_custo_anual",
+  "passe_anual",
   "beneficio_carro",
   "beneficio_ticket",
   "premio_associado",
