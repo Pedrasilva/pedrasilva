@@ -145,6 +145,7 @@
         "christmasFullNovember": "+ Christmas allowance (paid in full in November)",
         "mealAllowanceMonthly": "+ Meal allowance (monthly)",
         "perDiemMonthly": "+ Per diem allowances (monthly)",
+        "transitPassMonthly": "+ Transit pass (monthly)",
         "benefitsMonthly": "+ Benefits (monthly)",
         "totalHrCostMonthly": "= Total HR cost monthly (TGV)"
       },
