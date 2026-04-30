@@ -97,10 +97,11 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
   rows.push(
     { label: t("snapshot.bruto.rows.mealAllowanceMonthly"), value: c.alimentacaoMensal },
     { label: t("snapshot.bruto.rows.perDiemMonthly"), value: c.ajudasMensal },
+    { label: t("snapshot.bruto.rows.transitPassMonthly"), value: c.passeMensal },
     { label: t("snapshot.bruto.rows.benefitsMonthly"), value: c.beneficiosMensal },
     {
       label: t("snapshot.bruto.rows.totalHrCostMonthly"),
-      value: brutoMensalMedio + c.alimentacaoMensal + c.ajudasMensal + c.beneficiosMensal,
+      value: brutoMensalMedio + c.alimentacaoMensal + c.ajudasMensal + c.passeMensal + c.beneficiosMensal,
       strong: true,
       accent: true,
     },
