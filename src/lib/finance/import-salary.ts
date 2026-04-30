@@ -66,6 +66,7 @@ export const DEFAULT_SALARY_HEADER_ALIASES: Record<SalaryColumnKey, string[]> = 
   irs_pct: ["irs", "irs pct", "retencao irs"],
   meses_pagos: ["meses", "n meses", "meses pagos", "months"],
   ajudas_custo_anual: ["ajudas de custo", "ajudas custo", "per diem", "ajudas custo anual"],
+  passe_anual: ["passe", "passe anual", "transporte", "passe transporte", "transit pass", "transport pass"],
   beneficio_carro: ["carro", "viatura", "car"],
   beneficio_ticket: ["ticket", "vale", "voucher"],
   premio_associado: ["premio", "premio associado", "bonus"],
