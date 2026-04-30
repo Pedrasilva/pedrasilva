@@ -36,6 +36,7 @@ export type SalaryColumnKey =
   | "irs_pct"
   | "meses_pagos"
   | "ajudas_custo_anual"
+  | "passe_anual"
   | "beneficio_carro"
   | "beneficio_ticket"
   | "premio_associado"
@@ -65,6 +66,7 @@ export const DEFAULT_SALARY_HEADER_ALIASES: Record<SalaryColumnKey, string[]> = 
   irs_pct: ["irs", "irs pct", "retencao irs"],
   meses_pagos: ["meses", "n meses", "meses pagos", "months"],
   ajudas_custo_anual: ["ajudas de custo", "ajudas custo", "per diem", "ajudas custo anual"],
+  passe_anual: ["passe", "passe anual", "transporte", "passe transporte", "transit pass", "transport pass"],
   beneficio_carro: ["carro", "viatura", "car"],
   beneficio_ticket: ["ticket", "vale", "voucher"],
   premio_associado: ["premio", "premio associado", "bonus"],
@@ -635,6 +637,7 @@ export async function importSalarySnapshots(
         ? Math.max(12, Math.round(toNumber(cell(row, "meses_pagos"))))
         : seed.meses_pagos,
       ajudas_custo_anual: toNumber(cell(row, "ajudas_custo_anual")),
+      passe_anual: toNumber(cell(row, "passe_anual")),
       beneficio_carro: toNumber(cell(row, "beneficio_carro")),
       beneficio_ticket: toNumber(cell(row, "beneficio_ticket")),
       premio_associado: toNumber(cell(row, "premio_associado")),

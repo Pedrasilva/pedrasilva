@@ -145,6 +145,7 @@
         "christmasFullNovember": "+ Subsídio de Natal (pago por inteiro em Novembro)",
         "mealAllowanceMonthly": "+ Subsídio alimentação mensal",
         "perDiemMonthly": "+ Ajudas de custo mensais",
+        "transitPassMonthly": "+ Passe / transporte público (mensal)",
         "benefitsMonthly": "+ Benefícios mensais",
         "totalHrCostMonthly": "= Custo total RH mensal (VBG)"
       },
@@ -162,6 +163,7 @@
           "ssAtelier": "SS Atelier",
           "mealAllowance": "Subsídio alimentação",
           "perDiem": "Ajudas de custo",
+          "transitPass": "Passe / transporte",
           "benefits": "Benefícios"
         }
       }
@@ -284,6 +286,8 @@
       "mealAllowanceMonthly": "Subsídio alimentação mensal",
       "perDiemAnnual": "Ajudas de custo (anual)",
       "perDiemMonthly": "Ajudas de custo (mensal)",
+      "transitPassAnnual": "Passe / transporte público (anual)",
+      "transitPassMonthly": "Passe / transporte público (mensal)",
       "totalNetMonthly": "Líquido total mensal",
       "benefitsAnnual": "Benefícios anual",
       "tgvAnnual": "Custo VBG anual"

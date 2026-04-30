@@ -3938,6 +3938,7 @@ export type Database = {
           numero_dependentes: number
           numero_titulares: number
           outros_beneficios: number
+          passe_anual: number
           premio_associado: number
           reference_date: string
           source: string
@@ -3975,6 +3976,7 @@ export type Database = {
           numero_dependentes?: number
           numero_titulares?: number
           outros_beneficios?: number
+          passe_anual?: number
           premio_associado?: number
           reference_date: string
           source?: string
@@ -4012,6 +4014,7 @@ export type Database = {
           numero_dependentes?: number
           numero_titulares?: number
           outros_beneficios?: number
+          passe_anual?: number
           premio_associado?: number
           reference_date?: string
           source?: string

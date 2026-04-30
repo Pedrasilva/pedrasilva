@@ -145,6 +145,7 @@
         "christmasFullNovember": "+ Christmas allowance (paid in full in November)",
         "mealAllowanceMonthly": "+ Meal allowance (monthly)",
         "perDiemMonthly": "+ Per diem allowances (monthly)",
+        "transitPassMonthly": "+ Transit pass (monthly)",
         "benefitsMonthly": "+ Benefits (monthly)",
         "totalHrCostMonthly": "= Total HR cost monthly (TGV)"
       },
@@ -162,6 +163,7 @@
           "ssAtelier": "Studio Social Security",
           "mealAllowance": "Meal allowance",
           "perDiem": "Per diem allowances",
+          "transitPass": "Transit pass",
           "benefits": "Benefits"
         }
       }
@@ -284,6 +286,8 @@
       "mealAllowanceMonthly": "Meal allowance — monthly",
       "perDiemAnnual": "Per diem allowances (annual)",
       "perDiemMonthly": "Per diem allowances (monthly)",
+      "transitPassAnnual": "Transit pass (annual)",
+      "transitPassMonthly": "Transit pass (monthly)",
       "totalNetMonthly": "Total monthly net",
       "benefitsAnnual": "Benefits (annual)",
       "tgvAnnual": "Total Gross Value (annual)"

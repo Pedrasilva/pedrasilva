@@ -139,6 +139,12 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
               onChange={(n) => set("ajudas_custo_anual", n)} />
           </FieldRow>
           <CalcRow label="Média mensal" value={fmtEUR(c.ajudasMensal)} />
+          <div className="border-t pt-3" />
+          <FieldRow label="Passe / Transporte público (anual)">
+            <NumIn value={draft.passe_anual}
+              onChange={(n) => set("passe_anual", n)} />
+          </FieldRow>
+          <CalcRow label="Passe — média mensal" value={fmtEUR(c.passeMensal)} />
         </CardContent>
       </Card>
 

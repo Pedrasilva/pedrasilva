@@ -97,10 +97,11 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
   rows.push(
     { label: t("snapshot.bruto.rows.mealAllowanceMonthly"), value: c.alimentacaoMensal },
     { label: t("snapshot.bruto.rows.perDiemMonthly"), value: c.ajudasMensal },
+    { label: t("snapshot.bruto.rows.transitPassMonthly"), value: c.passeMensal },
     { label: t("snapshot.bruto.rows.benefitsMonthly"), value: c.beneficiosMensal },
     {
       label: t("snapshot.bruto.rows.totalHrCostMonthly"),
-      value: brutoMensalMedio + c.alimentacaoMensal + c.ajudasMensal + c.beneficiosMensal,
+      value: brutoMensalMedio + c.alimentacaoMensal + c.ajudasMensal + c.passeMensal + c.beneficiosMensal,
       strong: true,
       accent: true,
     },
@@ -111,6 +112,7 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
     { name: t("snapshot.bruto.composition.slices.ssAtelier"), value: c.ssAtelier12 * 12, color: "var(--clay)" },
     { name: t("snapshot.bruto.composition.slices.mealAllowance"), value: c.alimentacaoMensal * 12, color: "oklch(0.75 0.10 80)" },
     { name: t("snapshot.bruto.composition.slices.perDiem"), value: draft.ajudas_custo_anual, color: "oklch(0.65 0.13 50)" },
+    { name: t("snapshot.bruto.composition.slices.transitPass"), value: c.passeAnual, color: "oklch(0.60 0.12 260)" },
     { name: t("snapshot.bruto.composition.slices.benefits"), value: c.beneficiosAnual, color: "oklch(0.55 0.10 200)" },
   ];
 
@@ -119,6 +121,7 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
     { name: t("snapshot.bruto.composition.slices.ssAtelier"), value: c.ssAtelier12, color: "var(--clay)" },
     { name: t("snapshot.bruto.composition.slices.mealAllowance"), value: c.alimentacaoMensal, color: "oklch(0.75 0.10 80)" },
     { name: t("snapshot.bruto.composition.slices.perDiem"), value: c.ajudasMensal, color: "oklch(0.65 0.13 50)" },
+    { name: t("snapshot.bruto.composition.slices.transitPass"), value: c.passeMensal, color: "oklch(0.60 0.12 260)" },
     { name: t("snapshot.bruto.composition.slices.benefits"), value: c.beneficiosMensal, color: "oklch(0.55 0.10 200)" },
   ];
 

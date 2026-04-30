@@ -36,7 +36,7 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "label", "reference_date", "is_effective", "notas",
   "irs_calculado_auto", "irs_pct", "valor_base",
   "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos", "subsidios_modo",
-  "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual",
+  "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual", "passe_anual",
   "subsidio_alimentacao_manual", "subsidio_alimentacao_diario_manual",
   "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios", "beneficio_variavel",
   // Agregado familiar — trancado por ficha (snapshot histórico)
@@ -133,6 +133,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         subsidio_alimentacao_diario_manual: Number(draft.subsidio_alimentacao_diario_manual) || 0,
         dias_uteis: Number(draft.dias_uteis) || 0,
         ajudas_custo_anual: Number(draft.ajudas_custo_anual) || 0,
+        passe_anual: Number(draft.passe_anual) || 0,
         beneficio_carro: Number(draft.beneficio_carro) || 0,
         beneficio_ticket: Number(draft.beneficio_ticket) || 0,
         premio_associado: Number(draft.premio_associado) || 0,
