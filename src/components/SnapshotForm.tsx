@@ -133,6 +133,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         subsidio_alimentacao_diario_manual: Number(draft.subsidio_alimentacao_diario_manual) || 0,
         dias_uteis: Number(draft.dias_uteis) || 0,
         ajudas_custo_anual: Number(draft.ajudas_custo_anual) || 0,
+        passe_anual: Number(draft.passe_anual) || 0,
         beneficio_carro: Number(draft.beneficio_carro) || 0,
         beneficio_ticket: Number(draft.beneficio_ticket) || 0,
         premio_associado: Number(draft.premio_associado) || 0,
