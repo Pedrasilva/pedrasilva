@@ -36,7 +36,7 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "label", "reference_date", "is_effective", "notas",
   "irs_calculado_auto", "irs_pct", "valor_base",
   "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos", "subsidios_modo",
-  "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual",
+  "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual", "passe_anual",
   "subsidio_alimentacao_manual", "subsidio_alimentacao_diario_manual",
   "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios", "beneficio_variavel",
   // Agregado familiar — trancado por ficha (snapshot histórico)
