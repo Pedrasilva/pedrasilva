@@ -637,6 +637,7 @@ export async function importSalarySnapshots(
         ? Math.max(12, Math.round(toNumber(cell(row, "meses_pagos"))))
         : seed.meses_pagos,
       ajudas_custo_anual: toNumber(cell(row, "ajudas_custo_anual")),
+      passe_anual: toNumber(cell(row, "passe_anual")),
       beneficio_carro: toNumber(cell(row, "beneficio_carro")),
       beneficio_ticket: toNumber(cell(row, "beneficio_ticket")),
       premio_associado: toNumber(cell(row, "premio_associado")),
