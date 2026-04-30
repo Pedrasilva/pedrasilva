@@ -15,6 +15,7 @@ export type Snapshot = {
   subsidio_alimentacao_diario: number;
   dias_uteis: number;
   ajudas_custo_anual: number;
+  passe_anual: number;
   beneficio_carro: number;
   beneficio_ticket: number;
   premio_associado: number;
