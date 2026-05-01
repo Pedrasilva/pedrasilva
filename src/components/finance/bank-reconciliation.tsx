@@ -745,11 +745,17 @@ type SplitRow = {
   notes: string;
 };
 
-function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: BankTx; classifications: Classification[]; isPt: boolean; onClose: () => void; onSaved: () => void }) {
+function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClose, onSaved }: { tx: BankTx; classifications: Classification[]; isPt: boolean; linkedDocumentNumber: string | null; onClose: () => void; onSaved: () => void }) {
   const { t } = useTranslation(["finance", "common"]);
   const { user } = useAuth();
   const [splits, setSplits] = useState<SplitRow[]>([{ classification_id: tx.suggested_classification_id ?? "", amount: tx.amount, supplier_id: null, client_id: null, project_id: null, collaborator_id: null, reimbursable: false, notes: "" }]);
   const [saving, setSaving] = useState(false);
+  // Direction-based hint: money out -> supplier expense; money in -> client income.
+  // We only render the relevant counterparty picker per split row to reduce noise.
+  const isOutflow = tx.amount < 0;
+  const [linkOverride, setLinkOverride] = useState(false);
+  const isLinked = linkedDocumentNumber !== null || linkedDocumentNumber === "";
+  const linkedActive = linkedDocumentNumber !== null;
 
   const suppliersQ = useQuery({ queryKey: ["fin-suppliers"], queryFn: async () => { const { data } = await supabase.from("companies").select("id, nome").eq("is_supplier", true).order("nome"); return ((data ?? []).map((r) => ({ id: r.id, name: r.nome }))) as Supplier[]; } });
   const clientsQ = useQuery({ queryKey: ["fin-clients"], queryFn: async () => { const { data } = await supabase.from("companies").select("id, nome").eq("is_client", true).order("nome"); return ((data ?? []).map((r) => ({ id: r.id, name: r.nome }))) as Client[]; } });
