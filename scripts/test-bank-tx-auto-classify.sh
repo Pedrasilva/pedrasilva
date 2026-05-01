@@ -119,23 +119,18 @@ BEGIN
   END IF;
 
   -- 5. Backfill no-op: re-running the migration's UPDATE pattern on an
-  --    already-classified row must touch zero rows.
-  WITH upd AS (
-    UPDATE public.bank_transactions bt
-       SET status = 'classified',
-           classified_at = COALESCE(bt.classified_at, now()),
-           classified_by = COALESCE(bt.classified_by, v_user_id)
-     WHERE bt.id = v_tx_id
-       AND bt.status IS DISTINCT FROM 'classified'
-    RETURNING 1
-  )
-  SELECT count(*) INTO v_status1::text::int FROM upd;
-  -- If the WHERE clause matched anything, that means the row wasn't truly
-  -- idempotent. We expect zero rows.
-  -- (Cast above is a hack to reuse v_status1 as a counter — re-check.)
+  --    already-classified row must NOT mutate classified_at / classified_by.
+  UPDATE public.bank_transactions bt
+     SET status = 'classified',
+         classified_at = COALESCE(bt.classified_at, now()),
+         classified_by = COALESCE(bt.classified_by, v_user_id)
+   WHERE bt.id = v_tx_id
+     AND bt.status IS DISTINCT FROM 'classified';
 
   PERFORM 1 FROM public.bank_transactions
-    WHERE id = v_tx_id AND classified_at = v_classified_at1 AND classified_by = v_classified_by1;
+    WHERE id = v_tx_id
+      AND classified_at = v_classified_at1
+      AND classified_by = v_classified_by1;
   IF NOT FOUND THEN
     RAISE EXCEPTION 'TEST FAIL #3: backfill UPDATE mutated classified_at or classified_by';
   END IF;
