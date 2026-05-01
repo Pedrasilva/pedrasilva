@@ -244,7 +244,7 @@ Additional handling:
   import log notes. They still reduce net income at display time via the
   status, not by storing a negative amount.
 - Client name dedup is case/accent-insensitive against
-  `financial_clients.name`.
+  `companies.name` where `is_client = true` (unified counterparty table).
 
 ### 6d. Weekly blocks
 
