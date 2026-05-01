@@ -1068,11 +1068,12 @@ function useClientsMap() {
     queryKey: ["finance", "clients-map"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("financial_clients")
-        .select("id, name");
+        .from("companies")
+        .select("id, nome")
+        .eq("is_client", true);
       if (error) throw error;
       const m = new Map<string, string>();
-      for (const r of data ?? []) m.set(r.id, r.name);
+      for (const r of data ?? []) m.set(r.id, r.nome);
       return m;
     },
   });
