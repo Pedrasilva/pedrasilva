@@ -620,34 +620,53 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
               <TableBody>
                 {(txQ.data ?? []).map((tx) => {
                   const sug = tx.suggested_classification_id ? classMap.get(tx.suggested_classification_id) : null;
+                  const linked = linksQ.data?.get(tx.id) ?? null;
                   return (
                     <TableRow key={tx.id}>
                       <TableCell className="text-xs">{tx.transaction_date}</TableCell>
-                      <TableCell className="text-xs max-w-[420px] truncate" title={tx.description}>{tx.description}</TableCell>
+                      <TableCell className="text-xs max-w-[420px]">
+                        <div className="truncate" title={tx.description}>{tx.description}</div>
+                        {linked && (
+                          <Badge variant="secondary" className="mt-1 text-[10px] gap-1">
+                            <Link2 className="size-2.5" />
+                            {t("finance:bankRec.linkedTo", { ref: linked.documentNumber ?? "—" })}
+                          </Badge>
+                        )}
+                      </TableCell>
                       <TableCell className={`text-right text-xs tabular-nums ${tx.amount < 0 ? "text-destructive" : "text-emerald-600"}`}>{tx.amount.toFixed(2)}</TableCell>
                       <TableCell className="text-xs">{sug ? <Badge variant="outline">{isPt ? sug.name_pt : sug.name_en}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
                       <TableCell><StatusBadge status={tx.status} /></TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-1 flex-wrap">
-                          <Button size="sm" variant="ghost" onClick={() => setMatchDocTx(tx)} title={t("finance:bankRec.actions.matchHint") as string}>
+                        <div className="flex justify-end gap-1 items-center">
+                          <Button size="sm" variant="outline" onClick={() => setMatchDocTx(tx)} title={t("finance:bankRec.actions.matchHint") as string}>
                             {t("finance:bankRec.actions.match")}
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setCreateDocTx(tx)} title={t("finance:bankRec.actions.createDocHint") as string}>
+                          <Button size="sm" variant="outline" onClick={() => setCreateDocTx(tx)} title={t("finance:bankRec.actions.createDocHint") as string}>
                             {t("finance:bankRec.actions.createDoc")}
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setClassifyTx(tx)}>
-                            {tx.status === "unclassified" ? t("finance:bankRec.actions.classify") : t("common:edit")}
-                          </Button>
-                          {tx.status !== "internal_transfer" && (
-                            <Button size="sm" variant="ghost" onClick={() => quickMarkStatus(tx, "internal_transfer")} title={t("finance:bankRec.actions.transferHint") as string}>
-                              {t("finance:bankRec.actions.transfer")}
-                            </Button>
-                          )}
-                          {tx.status !== "ignored" && (
-                            <Button size="sm" variant="ghost" onClick={() => quickMarkStatus(tx, "ignored")} title={t("finance:bankRec.actions.ignoreHint") as string}>
-                              {t("finance:bankRec.actions.ignore")}
-                            </Button>
-                          )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button size="sm" variant="ghost" title={t("finance:bankRec.actions.more") as string} aria-label={t("finance:bankRec.actions.more") as string}>
+                                <MoreHorizontal className="size-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56">
+                              <DropdownMenuItem onClick={() => setClassifyTx(tx)}>
+                                {tx.status === "unclassified" ? t("finance:bankRec.actions.classify") : t("common:edit")}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              {tx.status !== "internal_transfer" && (
+                                <DropdownMenuItem onClick={() => quickMarkStatus(tx, "internal_transfer")}>
+                                  {t("finance:bankRec.actions.transfer")}
+                                </DropdownMenuItem>
+                              )}
+                              {tx.status !== "ignored" && (
+                                <DropdownMenuItem onClick={() => quickMarkStatus(tx, "ignored")}>
+                                  {t("finance:bankRec.actions.ignore")}
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </TableCell>
                     </TableRow>
