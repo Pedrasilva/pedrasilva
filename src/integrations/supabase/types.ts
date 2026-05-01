@@ -301,7 +301,7 @@ export type Database = {
             foreignKeyName: "bank_transaction_classifications_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
-            referencedRelation: "financial_clients"
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
@@ -733,6 +733,9 @@ export type Database = {
           email: string | null
           id: string
           industria: string | null
+          is_active: boolean
+          is_client: boolean
+          is_supplier: boolean
           morada: string | null
           nif: string | null
           nome: string
@@ -749,6 +752,9 @@ export type Database = {
           email?: string | null
           id?: string
           industria?: string | null
+          is_active?: boolean
+          is_client?: boolean
+          is_supplier?: boolean
           morada?: string | null
           nif?: string | null
           nome: string
@@ -765,6 +771,9 @@ export type Database = {
           email?: string | null
           id?: string
           industria?: string | null
+          is_active?: boolean
+          is_client?: boolean
+          is_supplier?: boolean
           morada?: string | null
           nif?: string | null
           nome?: string
@@ -1311,36 +1320,6 @@ export type Database = {
           },
         ]
       }
-      financial_clients: {
-        Row: {
-          company_id: string | null
-          created_at: string
-          id: string
-          is_active: boolean
-          name: string
-          notes: string | null
-          updated_at: string
-        }
-        Insert: {
-          company_id?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          name: string
-          notes?: string | null
-          updated_at?: string
-        }
-        Update: {
-          company_id?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          name?: string
-          notes?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
       financial_debt_payments: {
         Row: {
           actual_amount: number | null
@@ -1689,7 +1668,7 @@ export type Database = {
             foreignKeyName: "financial_documents_counterparty_client_id_fkey"
             columns: ["counterparty_client_id"]
             isOneToOne: false
-            referencedRelation: "financial_clients"
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
@@ -1932,7 +1911,7 @@ export type Database = {
             foreignKeyName: "financial_income_items_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
-            referencedRelation: "financial_clients"
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
@@ -2001,33 +1980,42 @@ export type Database = {
       }
       financial_suppliers: {
         Row: {
+          address: string | null
           created_at: string
           default_category_id: string | null
+          email: string | null
           id: string
           is_active: boolean
           name: string
           nif: string | null
           notes: string | null
+          phone: string | null
           updated_at: string
         }
         Insert: {
+          address?: string | null
           created_at?: string
           default_category_id?: string | null
+          email?: string | null
           id?: string
           is_active?: boolean
           name: string
           nif?: string | null
           notes?: string | null
+          phone?: string | null
           updated_at?: string
         }
         Update: {
+          address?: string | null
           created_at?: string
           default_category_id?: string | null
+          email?: string | null
           id?: string
           is_active?: boolean
           name?: string
           nif?: string | null
           notes?: string | null
+          phone?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -4330,6 +4318,7 @@ export type Database = {
         Args: { _force?: boolean; _import_id: string; _reason?: string }
         Returns: Json
       }
+      finance_reset_test_data: { Args: { _confirm: string }; Returns: Json }
       get_my_collaborator_id: { Args: never; Returns: string }
       has_module_permission: {
         Args: { _key: string; _required_scope: string; _user_id: string }

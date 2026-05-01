@@ -49,6 +49,9 @@ import { cn } from "@/lib/utils";
 import { BankReconciliationTab } from "@/components/finance/bank-reconciliation";
 import { DocumentsTab } from "@/components/finance/documents-tab";
 import { ProjectFinancialPanel } from "@/components/finance/project-financial-panel";
+import { ClientsMasterData } from "@/components/finance/clients-master-data";
+import { SuppliersMasterData } from "@/components/finance/suppliers-master-data";
+import { AdminResetTool } from "@/components/finance/admin-reset-tool";
 
 async function checkFinanceAccess(): Promise<boolean> {
   const { data: { session } } = await supabase.auth.getSession();
@@ -469,10 +472,13 @@ function FinanceDashboardPage() {
           </TabsTrigger>
           <TabsTrigger value="bankRec">{t("finance:tabs.bankRec")}</TabsTrigger>
           <TabsTrigger value="documents">{t("finance:tabsExtra.documents")}</TabsTrigger>
+          <TabsTrigger value="clients">{t("finance:clientsMaster.tab")}</TabsTrigger>
+          <TabsTrigger value="suppliers">{t("finance:suppliersMaster.tab")}</TabsTrigger>
           <TabsTrigger value="projectFin">{t("finance:projectFinancials.title")}</TabsTrigger>
           <TabsTrigger value="importLogs">
             {t("finance:tabs.importLogs")}
           </TabsTrigger>
+          <TabsTrigger value="admin">{t("finance:reset.tab")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
@@ -505,8 +511,17 @@ function FinanceDashboardPage() {
         <TabsContent value="projectFin" className="mt-6">
           <ProjectFinancialPanel />
         </TabsContent>
+        <TabsContent value="clients" className="mt-6">
+          <ClientsMasterData />
+        </TabsContent>
+        <TabsContent value="suppliers" className="mt-6">
+          <SuppliersMasterData />
+        </TabsContent>
         <TabsContent value="importLogs" className="mt-6">
           <ImportLogsTab />
+        </TabsContent>
+        <TabsContent value="admin" className="mt-6">
+          <AdminResetTool />
         </TabsContent>
       </Tabs>
     </div>
@@ -1068,11 +1083,12 @@ function useClientsMap() {
     queryKey: ["finance", "clients-map"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("financial_clients")
-        .select("id, name");
+        .from("companies")
+        .select("id, nome")
+        .eq("is_client", true);
       if (error) throw error;
       const m = new Map<string, string>();
-      for (const r of data ?? []) m.set(r.id, r.name);
+      for (const r of data ?? []) m.set(r.id, r.nome);
       return m;
     },
   });

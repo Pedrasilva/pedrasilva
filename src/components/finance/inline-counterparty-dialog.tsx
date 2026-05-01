@@ -5,11 +5,14 @@
  * classify dialog, financial document editor) and discovers that the
  * counterparty does not exist yet.
  *
+ * Sources of truth:
+ *   - client  → `companies` (with `is_client = true`) — same record as CRM/projects
+ *   - supplier → `financial_suppliers`
+ *
  * Minimal fields:
  *   - name (required)
- *   - NIF / tax number (optional, suppliers only)
- *   - email (optional, suppliers only — stored in notes for clients since
- *     financial_clients has no email column)
+ *   - NIF / tax number (optional)
+ *   - email (optional)
  *   - notes (optional)
  *
  * On success, returns the new id and name via onCreated and the parent is
@@ -109,28 +112,26 @@ export function InlineCounterpartyDialog({
         toast.success(t("finance:inlineCounterparty.supplierCreated"));
         onCreated({ id: data.id, name: data.name });
       } else {
-        // financial_clients: name, notes, is_active (no nif/email columns)
-        const composedNotes = [
-          notes.trim(),
-          nif.trim() ? `NIF: ${nif.trim()}` : "",
-          email.trim() ? `email: ${email.trim()}` : "",
-        ]
-          .filter(Boolean)
-          .join("\n");
+        // Clients live on companies (unified). Mark is_client=true so the
+        // record appears in the finance client master list and pickers.
         const { data, error } = await supabase
-          .from("financial_clients")
+          .from("companies")
           .insert({
-            name: trimmed,
-            notes: composedNotes || null,
+            nome: trimmed,
+            nif: nif.trim() || null,
+            email: email.trim() || null,
+            notas: notes.trim() || null,
+            is_client: true,
             is_active: true,
           })
-          .select("id, name")
+          .select("id, nome")
           .single();
         if (error) throw error;
         await qc.invalidateQueries({ queryKey: ["fin-clients"] });
         await qc.invalidateQueries({ queryKey: ["finance", "clients"] });
+        await qc.invalidateQueries({ queryKey: ["companies"] });
         toast.success(t("finance:inlineCounterparty.clientCreated"));
-        onCreated({ id: data.id, name: data.name });
+        onCreated({ id: data.id, name: data.nome });
       }
       reset();
       setOpen(false);
