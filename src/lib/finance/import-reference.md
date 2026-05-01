@@ -125,8 +125,8 @@ the dashboard partitions them in the UI (Expenses tab excludes
 | `financial_periods`          | One row per month (Jan–Dec 2026)                | `kind = "month"`, `opening_balance` from previous month closing where known |
 | `bank_accounts`              | Read from header of `2026` sheet                | Created if missing; matched by `name` |
 | `bank_balance_snapshots`     | Opening/closing balance cells per monthly sheet | One snapshot per account per month-end; latest per account is shown in Bank Balances tab |
-| `financial_suppliers`        | Distinct values of supplier column in operational + external-services blocks | Deduped case/accent-insensitive |
-| `financial_clients`          | Distinct values of client column in income block | Deduped case/accent-insensitive |
+| `companies` (suppliers) | Distinct values of supplier column in operational + external-services blocks | Deduped case/accent-insensitively; rows flagged with `is_supplier = true` (unified counterparty table) |
+| `companies` (clients)   | Distinct values of client column in income block | Deduped case/accent-insensitively; rows flagged with `is_client = true` (unified counterparty table) |
 | `financial_expense_items`    | Operational + external-services blocks (all months) | `expense_type ∈ {"operational","materials"}` — `"materials"` is a legacy enum; displayed as "External Services" / "Serviços externos" |
 | `financial_income_items`     | Income block (all months)                       | — |
 | `financial_debts`            | `Dívidas` sheet header rows                     | Payment schedule rows NOT yet imported |
