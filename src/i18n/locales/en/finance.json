@@ -702,5 +702,32 @@
     "confirmDescription": "Removes companies where is_supplier=true and is_client=false that have no links to any transactional or CRM record. Cannot be undone.",
     "confirmAction": "Delete",
     "success": "Removed {{count}} unused supplier companies."
+  },
+  "inconsistencies": {
+    "title": "Finance inconsistencies",
+    "subtitle": "Read-only integrity check between bank transactions, classifications and document payments.",
+    "allClean": "No inconsistencies detected. ✅",
+    "linkedNotClassified": {
+      "title": "Linked payment not classified",
+      "description": "A document payment is linked to a bank transaction but the bank transaction is not marked as classified. The trigger should keep these in sync — investigate any rows here."
+    },
+    "classifiedOrphan": {
+      "title": "Classified orphan",
+      "description": "Bank transaction is marked classified but has no split and no linked document payment. Likely a stale status — re-classify or reset to unclassified."
+    },
+    "paymentMissingTx": {
+      "title": "Payment missing bank transaction",
+      "description": "Payment recorded as bank transfer but no bank_transaction_id is linked. Match the payment to the originating transaction."
+    },
+    "cols": {
+      "bankTx": "Bank tx",
+      "payment": "Payment",
+      "document": "Document",
+      "description": "Description",
+      "amount": "Amount",
+      "status": "Status",
+      "date": "Date",
+      "method": "Method"
+    }
   }
 }
