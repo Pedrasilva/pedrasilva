@@ -52,6 +52,7 @@ import { ProjectFinancialPanel } from "@/components/finance/project-financial-pa
 import { ClientsMasterData } from "@/components/finance/clients-master-data";
 import { SuppliersMasterData } from "@/components/finance/suppliers-master-data";
 import { AdminResetTool } from "@/components/finance/admin-reset-tool";
+import { FinanceInconsistencyReport } from "@/components/finance/finance-inconsistency-report";
 
 async function checkFinanceAccess(): Promise<boolean> {
   const { data: { session } } = await supabase.auth.getSession();
@@ -520,7 +521,8 @@ function FinanceDashboardPage() {
         <TabsContent value="importLogs" className="mt-6">
           <ImportLogsTab />
         </TabsContent>
-        <TabsContent value="admin" className="mt-6">
+        <TabsContent value="admin" className="mt-6 space-y-6">
+          <FinanceInconsistencyReport />
           <AdminResetTool />
         </TabsContent>
       </Tabs>

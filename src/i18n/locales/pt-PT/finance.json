@@ -702,5 +702,32 @@
     "confirmDescription": "Remove empresas onde is_supplier=true e is_client=false sem ligações a qualquer registo transaccional ou de CRM. Não pode ser desfeito.",
     "confirmAction": "Apagar",
     "success": "Removidas {{count}} empresas-fornecedor não usadas."
+  },
+  "inconsistencies": {
+    "title": "Inconsistências financeiras",
+    "subtitle": "Verificação de integridade só de leitura entre movimentos bancários, classificações e pagamentos de documentos.",
+    "allClean": "Sem inconsistências detectadas. ✅",
+    "linkedNotClassified": {
+      "title": "Pagamento ligado mas não classificado",
+      "description": "Um pagamento de documento está ligado a um movimento bancário, mas o movimento não está marcado como classificado. O trigger deveria manter isto sincronizado — investigar qualquer linha aqui."
+    },
+    "classifiedOrphan": {
+      "title": "Classificado órfão",
+      "description": "Movimento bancário marcado como classificado mas sem split e sem pagamento de documento associado. Provavelmente estado desactualizado — reclassificar ou repor para não classificado."
+    },
+    "paymentMissingTx": {
+      "title": "Pagamento sem movimento bancário",
+      "description": "Pagamento registado como transferência bancária mas sem bank_transaction_id ligado. Associe o pagamento ao movimento de origem."
+    },
+    "cols": {
+      "bankTx": "Mov. banco",
+      "payment": "Pagamento",
+      "document": "Documento",
+      "description": "Descrição",
+      "amount": "Valor",
+      "status": "Estado",
+      "date": "Data",
+      "method": "Método"
+    }
   }
 }
