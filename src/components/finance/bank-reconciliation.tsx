@@ -529,6 +529,32 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
     },
   });
 
+  const txIds = useMemo(() => (txQ.data ?? []).map((t) => t.id), [txQ.data]);
+
+  // Map of bank_transaction_id -> linked document summary.
+  // Surfaces "Linked to X" badge so users don't double-classify.
+  const linksQ = useQuery({
+    queryKey: ["finance", "bank-tx-links", accountId, txIds],
+    enabled: txIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("financial_document_payments")
+        .select("bank_transaction_id, document_id, financial_documents(document_number)")
+        .in("bank_transaction_id", txIds);
+      if (error) throw error;
+      const map = new Map<string, { documentId: string; documentNumber: string | null }>();
+      (data ?? []).forEach((row: { bank_transaction_id: string | null; document_id: string; financial_documents: { document_number: string | null } | { document_number: string | null }[] | null }) => {
+        if (!row.bank_transaction_id) return;
+        const fd = Array.isArray(row.financial_documents) ? row.financial_documents[0] : row.financial_documents;
+        map.set(row.bank_transaction_id, {
+          documentId: row.document_id,
+          documentNumber: fd?.document_number ?? null,
+        });
+      });
+      return map;
+    },
+  });
+
   const counts = useQuery({
     queryKey: ["finance", "bank-tx-counts", accountId],
     queryFn: async () => {
