@@ -103,7 +103,7 @@ the dashboard partitions them in the UI (Expenses tab excludes
 - Header marker: `RECEITAS`
 - Row range: bottom block of each monthly sheet
 - Date column: `B` (`received_at`)
-- Client column: `C` (`financial_clients.name`)
+- Client column: `C` (`companies.name` where `is_client = true`)
 - Description column: `D`
 - Amount column: `E` (gross, inc-VAT)
 - Status column: `F`
