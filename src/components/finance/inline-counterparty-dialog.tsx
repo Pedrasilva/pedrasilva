@@ -5,11 +5,14 @@
  * classify dialog, financial document editor) and discovers that the
  * counterparty does not exist yet.
  *
+ * Sources of truth:
+ *   - client  → `companies` (with `is_client = true`) — same record as CRM/projects
+ *   - supplier → `financial_suppliers`
+ *
  * Minimal fields:
  *   - name (required)
- *   - NIF / tax number (optional, suppliers only)
- *   - email (optional, suppliers only — stored in notes for clients since
- *     financial_clients has no email column)
+ *   - NIF / tax number (optional)
+ *   - email (optional)
  *   - notes (optional)
  *
  * On success, returns the new id and name via onCreated and the parent is
