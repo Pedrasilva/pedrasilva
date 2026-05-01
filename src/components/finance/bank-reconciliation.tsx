@@ -950,7 +950,7 @@ function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClo
           <Button variant="ghost" size="sm" onClick={markInternalTransfer}>{t("finance:bankRec.markTransfer")}</Button>
           <div className="flex-1" />
           <Button variant="outline" onClick={onClose}>{t("common:cancel")}</Button>
-          <Button onClick={save} disabled={saving || !balanced}>{t("common:save")}</Button>
+          <Button onClick={save} disabled={saving || !balanced || (isLinkedToDoc && !linkOverride)}>{t("common:save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
