@@ -155,11 +155,16 @@ export function SuppliersMasterData() {
                       <TableCell className="text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{r.phone ?? "—"}</TableCell>
                       <TableCell>
-                        {r.is_active ? (
-                          <Badge variant="secondary">{t("finance:suppliersMaster.active")}</Badge>
-                        ) : (
-                          <Badge variant="outline">{t("finance:suppliersMaster.inactive")}</Badge>
-                        )}
+                        <div className="flex flex-wrap gap-1">
+                          {r.is_active ? (
+                            <Badge variant="secondary">{t("finance:suppliersMaster.active")}</Badge>
+                          ) : (
+                            <Badge variant="outline">{t("finance:suppliersMaster.inactive")}</Badge>
+                          )}
+                          {r.also_client ? (
+                            <Badge variant="outline">{t("finance:suppliersMaster.alsoClient")}</Badge>
+                          ) : null}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="icon" onClick={() => setEditing(r)}>
