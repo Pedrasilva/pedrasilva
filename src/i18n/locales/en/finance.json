@@ -191,7 +191,14 @@
       "transfer": "Transfer",
       "transferHint": "Mark as internal transfer between accounts",
       "ignore": "Ignore",
-      "ignoreHint": "Mark as not relevant for accounting"
+      "ignoreHint": "Mark as not relevant for accounting",
+      "more": "More actions"
+    },
+    "linkedTo": "Linked to {{ref}}",
+    "alreadyLinked": {
+      "title": "Already linked to document {{ref}}",
+      "body": "This transaction is already linked to a financial document. Adding a manual classification will record the same expense twice. Use this only if you also need to attribute part of the amount to a different cost.",
+      "override": "I understand — let me classify it anyway"
     }
   },
   "overview": {

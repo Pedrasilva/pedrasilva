@@ -346,6 +346,26 @@ export function useAddFinDocPayment() {
         .select("*")
         .single();
       if (error) throw error;
+
+      // When a payment links a bank transaction to a document, mark the
+      // bank transaction as `classified` so it stops appearing in the
+      // unclassified queue and users don't double-classify it.
+      if (payload.bank_transaction_id) {
+        const nowIso = new Date().toISOString();
+        const { error: updErr } = await supabase
+          .from("bank_transactions")
+          .update({
+            status: "classified",
+            classified_at: nowIso,
+            classified_by: payload.created_by ?? null,
+          })
+          .eq("id", payload.bank_transaction_id)
+          .neq("status", "classified");
+        // Non-fatal: log but don't break the payment if the side-effect
+        // update fails (e.g. RLS edge case). The payment itself succeeded.
+        if (updErr) console.warn("[finance] failed to flip bank_tx status", updErr);
+      }
+
       return data as FinDocPayment;
     },
     onSuccess: (_, vars) => {
@@ -354,6 +374,9 @@ export function useAddFinDocPayment() {
         queryKey: [...ROOT_KEY, "one", vars.document_id],
       });
       qc.invalidateQueries({ queryKey: ["bank-tx-doc-matches"] });
+      qc.invalidateQueries({ queryKey: ["finance", "bank-tx"] });
+      qc.invalidateQueries({ queryKey: ["finance", "bank-tx-counts"] });
+      qc.invalidateQueries({ queryKey: ["finance", "bank-tx-links"] });
     },
   });
 }

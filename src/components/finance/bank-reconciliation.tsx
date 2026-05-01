@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Upload, FileSpreadsheet, AlertTriangle, CheckCircle2, Filter, X, Plus, Trash2, Loader2, Info } from "lucide-react";
+import { Upload, FileSpreadsheet, AlertTriangle, CheckCircle2, Filter, X, Plus, Trash2, Loader2, Info, MoreHorizontal, Link2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -528,6 +529,32 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
     },
   });
 
+  const txIds = useMemo(() => (txQ.data ?? []).map((t) => t.id), [txQ.data]);
+
+  // Map of bank_transaction_id -> linked document summary.
+  // Surfaces "Linked to X" badge so users don't double-classify.
+  const linksQ = useQuery({
+    queryKey: ["finance", "bank-tx-links", accountId, txIds],
+    enabled: txIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("financial_document_payments")
+        .select("bank_transaction_id, document_id, financial_documents(document_number)")
+        .in("bank_transaction_id", txIds);
+      if (error) throw error;
+      const map = new Map<string, { documentId: string; documentNumber: string | null }>();
+      (data ?? []).forEach((row: { bank_transaction_id: string | null; document_id: string; financial_documents: { document_number: string | null } | { document_number: string | null }[] | null }) => {
+        if (!row.bank_transaction_id) return;
+        const fd = Array.isArray(row.financial_documents) ? row.financial_documents[0] : row.financial_documents;
+        map.set(row.bank_transaction_id, {
+          documentId: row.document_id,
+          documentNumber: fd?.document_number ?? null,
+        });
+      });
+      return map;
+    },
+  });
+
   const counts = useQuery({
     queryKey: ["finance", "bank-tx-counts", accountId],
     queryFn: async () => {
@@ -593,34 +620,53 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
               <TableBody>
                 {(txQ.data ?? []).map((tx) => {
                   const sug = tx.suggested_classification_id ? classMap.get(tx.suggested_classification_id) : null;
+                  const linked = linksQ.data?.get(tx.id) ?? null;
                   return (
                     <TableRow key={tx.id}>
                       <TableCell className="text-xs">{tx.transaction_date}</TableCell>
-                      <TableCell className="text-xs max-w-[420px] truncate" title={tx.description}>{tx.description}</TableCell>
+                      <TableCell className="text-xs max-w-[420px]">
+                        <div className="truncate" title={tx.description}>{tx.description}</div>
+                        {linked && (
+                          <Badge variant="secondary" className="mt-1 text-[10px] gap-1">
+                            <Link2 className="size-2.5" />
+                            {t("finance:bankRec.linkedTo", { ref: linked.documentNumber ?? "—" })}
+                          </Badge>
+                        )}
+                      </TableCell>
                       <TableCell className={`text-right text-xs tabular-nums ${tx.amount < 0 ? "text-destructive" : "text-emerald-600"}`}>{tx.amount.toFixed(2)}</TableCell>
                       <TableCell className="text-xs">{sug ? <Badge variant="outline">{isPt ? sug.name_pt : sug.name_en}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
                       <TableCell><StatusBadge status={tx.status} /></TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-1 flex-wrap">
-                          <Button size="sm" variant="ghost" onClick={() => setMatchDocTx(tx)} title={t("finance:bankRec.actions.matchHint") as string}>
+                        <div className="flex justify-end gap-1 items-center">
+                          <Button size="sm" variant="outline" onClick={() => setMatchDocTx(tx)} title={t("finance:bankRec.actions.matchHint") as string}>
                             {t("finance:bankRec.actions.match")}
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setCreateDocTx(tx)} title={t("finance:bankRec.actions.createDocHint") as string}>
+                          <Button size="sm" variant="outline" onClick={() => setCreateDocTx(tx)} title={t("finance:bankRec.actions.createDocHint") as string}>
                             {t("finance:bankRec.actions.createDoc")}
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setClassifyTx(tx)}>
-                            {tx.status === "unclassified" ? t("finance:bankRec.actions.classify") : t("common:edit")}
-                          </Button>
-                          {tx.status !== "internal_transfer" && (
-                            <Button size="sm" variant="ghost" onClick={() => quickMarkStatus(tx, "internal_transfer")} title={t("finance:bankRec.actions.transferHint") as string}>
-                              {t("finance:bankRec.actions.transfer")}
-                            </Button>
-                          )}
-                          {tx.status !== "ignored" && (
-                            <Button size="sm" variant="ghost" onClick={() => quickMarkStatus(tx, "ignored")} title={t("finance:bankRec.actions.ignoreHint") as string}>
-                              {t("finance:bankRec.actions.ignore")}
-                            </Button>
-                          )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button size="sm" variant="ghost" title={t("finance:bankRec.actions.more") as string} aria-label={t("finance:bankRec.actions.more") as string}>
+                                <MoreHorizontal className="size-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56">
+                              <DropdownMenuItem onClick={() => setClassifyTx(tx)}>
+                                {tx.status === "unclassified" ? t("finance:bankRec.actions.classify") : t("common:edit")}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              {tx.status !== "internal_transfer" && (
+                                <DropdownMenuItem onClick={() => quickMarkStatus(tx, "internal_transfer")}>
+                                  {t("finance:bankRec.actions.transfer")}
+                                </DropdownMenuItem>
+                              )}
+                              {tx.status !== "ignored" && (
+                                <DropdownMenuItem onClick={() => quickMarkStatus(tx, "ignored")}>
+                                  {t("finance:bankRec.actions.ignore")}
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -637,6 +683,7 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
           tx={classifyTx}
           classifications={classifications}
           isPt={isPt}
+          linkedDocumentNumber={linksQ.data?.get(classifyTx.id)?.documentNumber ?? null}
           onClose={() => setClassifyTx(null)}
           onSaved={() => { setClassifyTx(null); txQ.refetch(); counts.refetch(); }}
         />
@@ -698,11 +745,18 @@ type SplitRow = {
   notes: string;
 };
 
-function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: BankTx; classifications: Classification[]; isPt: boolean; onClose: () => void; onSaved: () => void }) {
+function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClose, onSaved }: { tx: BankTx; classifications: Classification[]; isPt: boolean; linkedDocumentNumber: string | null; onClose: () => void; onSaved: () => void }) {
   const { t } = useTranslation(["finance", "common"]);
   const { user } = useAuth();
   const [splits, setSplits] = useState<SplitRow[]>([{ classification_id: tx.suggested_classification_id ?? "", amount: tx.amount, supplier_id: null, client_id: null, project_id: null, collaborator_id: null, reimbursable: false, notes: "" }]);
   const [saving, setSaving] = useState(false);
+  // Direction-based hint: money out -> supplier expense; money in -> client income.
+  // We only render the relevant counterparty picker per split row to reduce noise.
+  const isOutflow = tx.amount < 0;
+  // If a payment already links this tx to a document, gate manual classification
+  // behind explicit confirmation so users don't double-account the same expense.
+  const isLinkedToDoc = linkedDocumentNumber !== null;
+  const [linkOverride, setLinkOverride] = useState(false);
 
   const suppliersQ = useQuery({ queryKey: ["fin-suppliers"], queryFn: async () => { const { data } = await supabase.from("companies").select("id, nome").eq("is_supplier", true).order("nome"); return ((data ?? []).map((r) => ({ id: r.id, name: r.nome }))) as Supplier[]; } });
   const clientsQ = useQuery({ queryKey: ["fin-clients"], queryFn: async () => { const { data } = await supabase.from("companies").select("id, nome").eq("is_client", true).order("nome"); return ((data ?? []).map((r) => ({ id: r.id, name: r.nome }))) as Client[]; } });
@@ -778,6 +832,28 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
             </div>
           </div>
 
+          {isLinkedToDoc && (
+            <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs flex items-start gap-2">
+              <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="space-y-2 flex-1">
+                <div className="font-medium text-amber-700 dark:text-amber-400">
+                  {t("finance:bankRec.alreadyLinked.title", { ref: linkedDocumentNumber ?? "—" })}
+                </div>
+                <div className="text-muted-foreground">
+                  {t("finance:bankRec.alreadyLinked.body")}
+                </div>
+                <label className="flex items-center gap-2 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={linkOverride}
+                    onChange={(e) => setLinkOverride(e.target.checked)}
+                  />
+                  {t("finance:bankRec.alreadyLinked.override")}
+                </label>
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center justify-between">
             <Label className="text-sm">{t("finance:bankRec.splits")}</Label>
             <Button size="sm" variant="outline" onClick={addSplit}><Plus className="size-3 mr-1" /> {t("finance:bankRec.addSplit")}</Button>
@@ -813,24 +889,36 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
                 </div>
                 {cls && (
                   <div className="grid grid-cols-12 gap-2">
-                    <div className="col-span-4">
-                      <Label className="text-xs">{t("finance:bankRec.supplier")}{cls.supplier_required ? " *" : ""}</Label>
-                      <CounterpartySelect
-                        kind="supplier"
-                        value={s.supplier_id}
-                        options={(suppliersQ.data ?? []).map((sp) => ({ id: sp.id, name: sp.name }))}
-                        onChange={(newSupplierId) => {
-                          const suggestion = newSupplierId ? supplierClassQ.data?.[newSupplierId] : null;
-                          const patch: Partial<SplitRow> = { supplier_id: newSupplierId };
-                          if (suggestion && !s.classification_id) {
-                            patch.classification_id = suggestion;
-                            const sc = classifications.find((x) => x.id === suggestion);
-                            if (sc) patch.reimbursable = sc.reimbursable_default;
-                          }
-                          updateSplit(i, patch);
-                        }}
-                      />
-                    </div>
+                    {isOutflow ? (
+                      <div className="col-span-4">
+                        <Label className="text-xs">{t("finance:bankRec.supplier")}{cls.supplier_required ? " *" : ""}</Label>
+                        <CounterpartySelect
+                          kind="supplier"
+                          value={s.supplier_id}
+                          options={(suppliersQ.data ?? []).map((sp) => ({ id: sp.id, name: sp.name }))}
+                          onChange={(newSupplierId) => {
+                            const suggestion = newSupplierId ? supplierClassQ.data?.[newSupplierId] : null;
+                            const patch: Partial<SplitRow> = { supplier_id: newSupplierId, client_id: null };
+                            if (suggestion && !s.classification_id) {
+                              patch.classification_id = suggestion;
+                              const sc = classifications.find((x) => x.id === suggestion);
+                              if (sc) patch.reimbursable = sc.reimbursable_default;
+                            }
+                            updateSplit(i, patch);
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="col-span-4">
+                        <Label className="text-xs">{t("finance:bankRec.client")}</Label>
+                        <CounterpartySelect
+                          kind="client"
+                          value={s.client_id}
+                          options={(clientsQ.data ?? []).map((cl) => ({ id: cl.id, name: cl.name }))}
+                          onChange={(v) => updateSplit(i, { client_id: v, supplier_id: null })}
+                        />
+                      </div>
+                    )}
                     {cls.project_link_allowed && (
                       <div className="col-span-4">
                         <Label className="text-xs">{t("finance:bankRec.project")}</Label>
@@ -843,15 +931,6 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
                         </Select>
                       </div>
                     )}
-                    <div className="col-span-4">
-                      <Label className="text-xs">{t("finance:bankRec.client")}</Label>
-                      <CounterpartySelect
-                        kind="client"
-                        value={s.client_id}
-                        options={(clientsQ.data ?? []).map((cl) => ({ id: cl.id, name: cl.name }))}
-                        onChange={(v) => updateSplit(i, { client_id: v })}
-                      />
-                    </div>
                   </div>
                 )}
                 <Textarea placeholder={t("finance:bankRec.notesPlaceholder")} value={s.notes} onChange={(e) => updateSplit(i, { notes: e.target.value })} rows={1} className="text-xs" />
@@ -871,7 +950,7 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
           <Button variant="ghost" size="sm" onClick={markInternalTransfer}>{t("finance:bankRec.markTransfer")}</Button>
           <div className="flex-1" />
           <Button variant="outline" onClick={onClose}>{t("common:cancel")}</Button>
-          <Button onClick={save} disabled={saving || !balanced}>{t("common:save")}</Button>
+          <Button onClick={save} disabled={saving || !balanced || (isLinkedToDoc && !linkOverride)}>{t("common:save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
