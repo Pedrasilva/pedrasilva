@@ -832,6 +832,28 @@ function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClo
             </div>
           </div>
 
+          {isLinkedToDoc && (
+            <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-xs flex items-start gap-2">
+              <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="space-y-2 flex-1">
+                <div className="font-medium text-amber-700 dark:text-amber-400">
+                  {t("finance:bankRec.alreadyLinked.title", { ref: linkedDocumentNumber ?? "—" })}
+                </div>
+                <div className="text-muted-foreground">
+                  {t("finance:bankRec.alreadyLinked.body")}
+                </div>
+                <label className="flex items-center gap-2 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={linkOverride}
+                    onChange={(e) => setLinkOverride(e.target.checked)}
+                  />
+                  {t("finance:bankRec.alreadyLinked.override")}
+                </label>
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center justify-between">
             <Label className="text-sm">{t("finance:bankRec.splits")}</Label>
             <Button size="sm" variant="outline" onClick={addSplit}><Plus className="size-3 mr-1" /> {t("finance:bankRec.addSplit")}</Button>
