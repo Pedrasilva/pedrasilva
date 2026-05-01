@@ -61,7 +61,7 @@ fixed numeric ranges.
 - Header marker: `DESPESAS OPERACIONAIS`
 - Row range: ~rows 6–35 (variable per sheet)
 - Date column: `B` (`incurred_at`)
-- Supplier column: `C` (`financial_suppliers.name`)
+- Supplier column: `C` (`companies.name` where `is_supplier = true`)
 - Description column: `D`
 - Amount column: `E` (gross, including VAT)
 - Status column: `F` (`paid` / `confirmed` / `projected`)
