@@ -74,7 +74,7 @@ BEGIN
     subtotal_ex_vat, vat_amount, total_inc_vat
   ) VALUES (
     'supplier_invoice', 'received', 'manual', 'issued', current_date,
-    100.00, 0.00, 100.00
+    200.00, 0.00, 200.00
   ) RETURNING id INTO v_doc_id;
 
   -- 3. First payment → trigger classifies the bank tx.
