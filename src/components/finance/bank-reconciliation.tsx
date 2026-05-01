@@ -889,24 +889,36 @@ function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClo
                 </div>
                 {cls && (
                   <div className="grid grid-cols-12 gap-2">
-                    <div className="col-span-4">
-                      <Label className="text-xs">{t("finance:bankRec.supplier")}{cls.supplier_required ? " *" : ""}</Label>
-                      <CounterpartySelect
-                        kind="supplier"
-                        value={s.supplier_id}
-                        options={(suppliersQ.data ?? []).map((sp) => ({ id: sp.id, name: sp.name }))}
-                        onChange={(newSupplierId) => {
-                          const suggestion = newSupplierId ? supplierClassQ.data?.[newSupplierId] : null;
-                          const patch: Partial<SplitRow> = { supplier_id: newSupplierId };
-                          if (suggestion && !s.classification_id) {
-                            patch.classification_id = suggestion;
-                            const sc = classifications.find((x) => x.id === suggestion);
-                            if (sc) patch.reimbursable = sc.reimbursable_default;
-                          }
-                          updateSplit(i, patch);
-                        }}
-                      />
-                    </div>
+                    {isOutflow ? (
+                      <div className="col-span-4">
+                        <Label className="text-xs">{t("finance:bankRec.supplier")}{cls.supplier_required ? " *" : ""}</Label>
+                        <CounterpartySelect
+                          kind="supplier"
+                          value={s.supplier_id}
+                          options={(suppliersQ.data ?? []).map((sp) => ({ id: sp.id, name: sp.name }))}
+                          onChange={(newSupplierId) => {
+                            const suggestion = newSupplierId ? supplierClassQ.data?.[newSupplierId] : null;
+                            const patch: Partial<SplitRow> = { supplier_id: newSupplierId, client_id: null };
+                            if (suggestion && !s.classification_id) {
+                              patch.classification_id = suggestion;
+                              const sc = classifications.find((x) => x.id === suggestion);
+                              if (sc) patch.reimbursable = sc.reimbursable_default;
+                            }
+                            updateSplit(i, patch);
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="col-span-4">
+                        <Label className="text-xs">{t("finance:bankRec.client")}</Label>
+                        <CounterpartySelect
+                          kind="client"
+                          value={s.client_id}
+                          options={(clientsQ.data ?? []).map((cl) => ({ id: cl.id, name: cl.name }))}
+                          onChange={(v) => updateSplit(i, { client_id: v, supplier_id: null })}
+                        />
+                      </div>
+                    )}
                     {cls.project_link_allowed && (
                       <div className="col-span-4">
                         <Label className="text-xs">{t("finance:bankRec.project")}</Label>
@@ -919,15 +931,6 @@ function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClo
                         </Select>
                       </div>
                     )}
-                    <div className="col-span-4">
-                      <Label className="text-xs">{t("finance:bankRec.client")}</Label>
-                      <CounterpartySelect
-                        kind="client"
-                        value={s.client_id}
-                        options={(clientsQ.data ?? []).map((cl) => ({ id: cl.id, name: cl.name }))}
-                        onChange={(v) => updateSplit(i, { client_id: v })}
-                      />
-                    </div>
                   </div>
                 )}
                 <Textarea placeholder={t("finance:bankRec.notesPlaceholder")} value={s.notes} onChange={(e) => updateSplit(i, { notes: e.target.value })} rows={1} className="text-xs" />
