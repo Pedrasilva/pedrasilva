@@ -22,8 +22,7 @@ if [ -z "${PGHOST:-}" ]; then
   exit 2
 fi
 
-# Pull two real user_ids from public.user_roles. Fallback: use the first
-# twice (then test #2 only verifies stability under same user — still useful).
+# Fetch two real auth user_ids via public.user_roles (auth schema is locked).
 USER_IDS=$(psql -X -A -t -c "SELECT user_id FROM public.user_roles LIMIT 2;" | grep -v '^$')
 USER1=$(echo "$USER_IDS" | sed -n '1p')
 USER2=$(echo "$USER_IDS" | sed -n '2p')
@@ -33,14 +32,15 @@ if [ -z "$USER1" ]; then
 fi
 if [ -z "$USER2" ]; then USER2="$USER1"; fi
 
-OUT=$(psql -X -A -t -v ON_ERROR_STOP=1 \
-  -v "user1=$USER1" -v "user2=$USER2" <<'SQL'
+# Heredoc is UNQUOTED so $USER1/$USER2 substitute. PL/pgSQL `$$` blocks must
+# be written as $DO$ ... $DO$ to avoid shell-level conflicts.
+OUT=$(psql -X -A -t -v ON_ERROR_STOP=1 <<SQL
 BEGIN;
 
-DO $$
+DO \$DO\$
 DECLARE
-  v_user1       uuid := :'user1';
-  v_user2       uuid := :'user2';
+  v_user1       uuid := '$USER1';
+  v_user2       uuid := '$USER2';
   v_account_id  uuid;
   v_tx_id       uuid;
   v_doc_id      uuid;
@@ -50,7 +50,7 @@ DECLARE
   v_classified_by1 uuid;
   v_classified_by2 uuid;
 BEGIN
-  -- 1. Seed a bank account and an unclassified bank transaction.
+  -- 1. Seed bank account + unclassified bank transaction.
   INSERT INTO public.bank_accounts (account_name, bank_name, currency, is_active)
   VALUES ('TEST-IDEMPOTENCY', 'TEST', 'EUR', true)
   RETURNING id INTO v_account_id;
@@ -68,7 +68,7 @@ BEGIN
     RAISE EXCEPTION 'TEST FAIL: starting status = %, expected unclassified', v_status;
   END IF;
 
-  -- 2. Create a financial_document so the payment FK is satisfied.
+  -- 2. Document so payment FK is satisfied.
   INSERT INTO public.financial_documents (
     doc_type, direction, source, status, issue_date,
     subtotal_ex_vat, vat_amount, total_inc_vat
@@ -98,8 +98,8 @@ BEGIN
     RAISE EXCEPTION 'TEST FAIL #1: classified_by = %, expected %', v_classified_by1, v_user1;
   END IF;
 
-  -- 4. Idempotency: second payment with a different created_by must NOT
-  --    change classified_at or classified_by (COALESCE guards in trigger).
+  -- 4. Idempotency: second payment with different created_by must NOT
+  --    change classified_at / classified_by (COALESCE guards).
   PERFORM pg_sleep(0.05);
   INSERT INTO public.financial_document_payments (
     document_id, amount, payment_date, method, bank_transaction_id, created_by
@@ -115,16 +115,16 @@ BEGIN
     RAISE EXCEPTION 'TEST FAIL #2: status changed to % after re-insert', v_status;
   END IF;
   IF v_classified_at2 IS DISTINCT FROM v_classified_at1 THEN
-    RAISE EXCEPTION 'TEST FAIL #2: classified_at changed (% -> %), expected stable',
+    RAISE EXCEPTION 'TEST FAIL #2: classified_at changed (% -> %)',
       v_classified_at1, v_classified_at2;
   END IF;
   IF v_classified_by2 IS DISTINCT FROM v_classified_by1 THEN
-    RAISE EXCEPTION 'TEST FAIL #2: classified_by changed (% -> %), expected stable',
+    RAISE EXCEPTION 'TEST FAIL #2: classified_by changed (% -> %)',
       v_classified_by1, v_classified_by2;
   END IF;
 
-  -- 5. Backfill no-op: the migration's UPDATE pattern on an already-
-  --    classified row must NOT mutate classified_at / classified_by.
+  -- 5. Backfill no-op: same UPDATE pattern as the migration must NOT
+  --    mutate already-classified rows.
   UPDATE public.bank_transactions bt
      SET status = 'classified',
          classified_at = COALESCE(bt.classified_at, now()),
@@ -148,7 +148,8 @@ BEGIN
   );
 
   RAISE NOTICE 'ALL TESTS PASSED';
-END $$;
+END
+\$DO\$;
 
 ROLLBACK;
 SQL
