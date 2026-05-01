@@ -222,7 +222,8 @@ Additional handling:
 - Date cell may be empty → fall back to the period's month-end date and
   flag the row in the import log notes.
 - Supplier name is matched case/accent-insensitively against
-  `financial_suppliers.name`; new names create a new supplier row.
+  `companies.name` where `is_supplier = true`; new names create a new
+  company row with `is_supplier = true` (unified counterparty table).
 - Negative amounts on expense rows represent reversals/credits → store
   as `amount_inc_vat = ABS(value)` and set
   `status = "credit_note"` (or note in the import log if status mapping
