@@ -191,7 +191,14 @@
       "transfer": "Transferência",
       "transferHint": "Marcar como transferência interna entre contas",
       "ignore": "Ignorar",
-      "ignoreHint": "Marcar como não relevante para contabilidade"
+      "ignoreHint": "Marcar como não relevante para contabilidade",
+      "more": "Mais acções"
+    },
+    "linkedTo": "Associada a {{ref}}",
+    "alreadyLinked": {
+      "title": "Já associada ao documento {{ref}}",
+      "body": "Esta transação já está ligada a um documento financeiro. Adicionar uma classificação manual vai registar a mesma despesa duas vezes. Use apenas se precisar mesmo de imputar parte do valor a outro custo.",
+      "override": "Compreendi — quero classificar mesmo assim"
     }
   },
   "overview": {
