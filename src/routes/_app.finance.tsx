@@ -1428,11 +1428,12 @@ function useSuppliersMap() {
     queryKey: ["finance", "suppliers-map"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("financial_suppliers")
-        .select("id, name");
+        .from("companies")
+        .select("id, nome")
+        .eq("is_supplier", true);
       if (error) throw error;
       const m = new Map<string, string>();
-      for (const r of data ?? []) m.set(r.id, r.name);
+      for (const r of data ?? []) m.set(r.id, r.nome);
       return m;
     },
   });

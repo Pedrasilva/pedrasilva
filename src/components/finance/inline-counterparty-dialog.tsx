@@ -5,9 +5,9 @@
  * classify dialog, financial document editor) and discovers that the
  * counterparty does not exist yet.
  *
- * Sources of truth:
- *   - client  → `companies` (with `is_client = true`) — same record as CRM/projects
- *   - supplier → `financial_suppliers`
+ * Sources of truth (unified):
+ *   - client   → `companies` (with `is_client = true`)
+ *   - supplier → `companies` (with `is_supplier = true`)
  *
  * Minimal fields:
  *   - name (required)
@@ -92,25 +92,26 @@ export function InlineCounterpartyDialog({
     setSaving(true);
     try {
       if (kind === "supplier") {
-        // financial_suppliers: name, nif, notes, is_active
-        const composedNotes = [notes.trim(), email.trim() ? `email: ${email.trim()}` : ""]
-          .filter(Boolean)
-          .join("\n");
+        // Suppliers live in companies (unified) with is_supplier=true.
         const { data, error } = await supabase
-          .from("financial_suppliers")
+          .from("companies")
           .insert({
-            name: trimmed,
+            nome: trimmed,
             nif: nif.trim() || null,
-            notes: composedNotes || null,
+            email: email.trim() || null,
+            notas: notes.trim() || null,
+            is_supplier: true,
             is_active: true,
           })
-          .select("id, name")
+          .select("id, nome")
           .single();
         if (error) throw error;
         await qc.invalidateQueries({ queryKey: ["fin-suppliers"] });
         await qc.invalidateQueries({ queryKey: ["finance", "suppliers"] });
+        await qc.invalidateQueries({ queryKey: ["finance", "suppliers-master"] });
+        await qc.invalidateQueries({ queryKey: ["companies"] });
         toast.success(t("finance:inlineCounterparty.supplierCreated"));
-        onCreated({ id: data.id, name: data.name });
+        onCreated({ id: data.id, name: data.nome });
       } else {
         // Clients live on companies (unified). Mark is_client=true so the
         // record appears in the finance client master list and pickers.
