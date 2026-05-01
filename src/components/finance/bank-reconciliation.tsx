@@ -753,9 +753,10 @@ function ClassifyDialog({ tx, classifications, isPt, linkedDocumentNumber, onClo
   // Direction-based hint: money out -> supplier expense; money in -> client income.
   // We only render the relevant counterparty picker per split row to reduce noise.
   const isOutflow = tx.amount < 0;
+  // If a payment already links this tx to a document, gate manual classification
+  // behind explicit confirmation so users don't double-account the same expense.
+  const isLinkedToDoc = linkedDocumentNumber !== null;
   const [linkOverride, setLinkOverride] = useState(false);
-  const isLinked = linkedDocumentNumber !== null || linkedDocumentNumber === "";
-  const linkedActive = linkedDocumentNumber !== null;
 
   const suppliersQ = useQuery({ queryKey: ["fin-suppliers"], queryFn: async () => { const { data } = await supabase.from("companies").select("id, nome").eq("is_supplier", true).order("nome"); return ((data ?? []).map((r) => ({ id: r.id, name: r.nome }))) as Supplier[]; } });
   const clientsQ = useQuery({ queryKey: ["fin-clients"], queryFn: async () => { const { data } = await supabase.from("companies").select("id, nome").eq("is_client", true).order("nome"); return ((data ?? []).map((r) => ({ id: r.id, name: r.nome }))) as Client[]; } });
