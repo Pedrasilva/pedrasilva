@@ -4283,6 +4283,7 @@ export type Database = {
         Args: { _confirm: string }
         Returns: Json
       }
+      finance_inconsistency_report: { Args: never; Returns: Json }
       finance_reset_test_data: { Args: { _confirm: string }; Returns: Json }
       get_my_collaborator_id: { Args: never; Returns: string }
       has_module_permission: {
