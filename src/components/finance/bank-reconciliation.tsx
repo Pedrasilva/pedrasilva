@@ -683,6 +683,7 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
           tx={classifyTx}
           classifications={classifications}
           isPt={isPt}
+          linkedDocumentNumber={linksQ.data?.get(classifyTx.id)?.documentNumber ?? null}
           onClose={() => setClassifyTx(null)}
           onSaved={() => { setClassifyTx(null); txQ.refetch(); counts.refetch(); }}
         />
