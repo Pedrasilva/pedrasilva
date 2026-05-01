@@ -123,21 +123,25 @@ BEGIN
       v_classified_by1, v_classified_by2;
   END IF;
 
-  -- 5. Backfill no-op: same UPDATE pattern as the migration must NOT
-  --    mutate already-classified rows.
-  UPDATE public.bank_transactions bt
-     SET status = 'classified',
-         classified_at = COALESCE(bt.classified_at, now()),
-         classified_by = COALESCE(bt.classified_by, v_user1)
-   WHERE bt.id = v_tx_id
-     AND bt.status IS DISTINCT FROM 'classified';
+  -- 5. Backfill idempotency by proxy: a THIRD payment insert re-fires the
+  --    trigger, which uses the SAME COALESCE pattern as the backfill SQL in
+  --    the migration. classified_at / classified_by must remain stable.
+  --    (We cannot run the raw UPDATE here — bank_transactions UPDATE is
+  --    locked behind the bank_tx_guard_immutable trigger and admin RLS;
+  --    the SECURITY DEFINER trigger is the supported path.)
+  PERFORM pg_sleep(0.05);
+  INSERT INTO public.financial_document_payments (
+    document_id, amount, payment_date, method, bank_transaction_id, created_by
+  ) VALUES (
+    v_doc_id, 0.01, current_date, 'bank_transfer', v_tx_id, v_user1
+  );
 
   PERFORM 1 FROM public.bank_transactions
     WHERE id = v_tx_id
       AND classified_at = v_classified_at1
       AND classified_by = v_classified_by1;
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'TEST FAIL #3: backfill UPDATE mutated classified_at or classified_by';
+    RAISE EXCEPTION 'TEST FAIL #3: third trigger fire mutated classified_at or classified_by';
   END IF;
 
   -- 6. Trigger no-op when bank_transaction_id IS NULL.
