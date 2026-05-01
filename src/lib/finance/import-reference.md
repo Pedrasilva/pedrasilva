@@ -61,7 +61,7 @@ fixed numeric ranges.
 - Header marker: `DESPESAS OPERACIONAIS`
 - Row range: ~rows 6–35 (variable per sheet)
 - Date column: `B` (`incurred_at`)
-- Supplier column: `C` (`financial_suppliers.name`)
+- Supplier column: `C` (`companies.name` where `is_supplier = true`)
 - Description column: `D`
 - Amount column: `E` (gross, including VAT)
 - Status column: `F` (`paid` / `confirmed` / `projected`)
@@ -103,7 +103,7 @@ the dashboard partitions them in the UI (Expenses tab excludes
 - Header marker: `RECEITAS`
 - Row range: bottom block of each monthly sheet
 - Date column: `B` (`received_at`)
-- Client column: `C` (`financial_clients.name`)
+- Client column: `C` (`companies.name` where `is_client = true`)
 - Description column: `D`
 - Amount column: `E` (gross, inc-VAT)
 - Status column: `F`
@@ -125,8 +125,8 @@ the dashboard partitions them in the UI (Expenses tab excludes
 | `financial_periods`          | One row per month (Jan–Dec 2026)                | `kind = "month"`, `opening_balance` from previous month closing where known |
 | `bank_accounts`              | Read from header of `2026` sheet                | Created if missing; matched by `name` |
 | `bank_balance_snapshots`     | Opening/closing balance cells per monthly sheet | One snapshot per account per month-end; latest per account is shown in Bank Balances tab |
-| `financial_suppliers`        | Distinct values of supplier column in operational + external-services blocks | Deduped case/accent-insensitive |
-| `financial_clients`          | Distinct values of client column in income block | Deduped case/accent-insensitive |
+| `companies` (suppliers) | Distinct values of supplier column in operational + external-services blocks | Deduped case/accent-insensitively; rows flagged with `is_supplier = true` (unified counterparty table) |
+| `companies` (clients)   | Distinct values of client column in income block | Deduped case/accent-insensitively; rows flagged with `is_client = true` (unified counterparty table) |
 | `financial_expense_items`    | Operational + external-services blocks (all months) | `expense_type ∈ {"operational","materials"}` — `"materials"` is a legacy enum; displayed as "External Services" / "Serviços externos" |
 | `financial_income_items`     | Income block (all months)                       | — |
 | `financial_debts`            | `Dívidas` sheet header rows                     | Payment schedule rows NOT yet imported |
@@ -222,7 +222,8 @@ Additional handling:
 - Date cell may be empty → fall back to the period's month-end date and
   flag the row in the import log notes.
 - Supplier name is matched case/accent-insensitively against
-  `financial_suppliers.name`; new names create a new supplier row.
+  `companies.name` where `is_supplier = true`; new names create a new
+  company row with `is_supplier = true` (unified counterparty table).
 - Negative amounts on expense rows represent reversals/credits → store
   as `amount_inc_vat = ABS(value)` and set
   `status = "credit_note"` (or note in the import log if status mapping
@@ -243,7 +244,7 @@ Additional handling:
   import log notes. They still reduce net income at display time via the
   status, not by storing a negative amount.
 - Client name dedup is case/accent-insensitive against
-  `financial_clients.name`.
+  `companies.name` where `is_client = true` (unified counterparty table).
 
 ### 6d. Weekly blocks
 
