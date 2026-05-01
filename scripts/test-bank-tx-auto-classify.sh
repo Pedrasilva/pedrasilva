@@ -67,9 +67,10 @@ BEGIN
 
   -- 2. Create a financial_document so payment FK is satisfied.
   INSERT INTO public.financial_documents (
-    doc_type, direction, status, issue_date, total_ex_vat, total_inc_vat
+    doc_type, direction, source, status, issue_date,
+    subtotal_ex_vat, vat_amount, total_inc_vat
   ) VALUES (
-    'invoice', 'in', 'issued', current_date, 100.00, 100.00
+    'invoice', 'in', 'manual', 'issued', current_date, 100.00, 0.00, 100.00
   ) RETURNING id INTO v_doc_id;
 
   -- 3. Insert first payment linked to the bank tx → trigger should classify.
