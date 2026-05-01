@@ -656,7 +656,7 @@
   "suppliersMaster": {
     "tab": "Fornecedores",
     "title": "Fornecedores (dados mestre)",
-    "subtitle": "Fornecedores usados em despesas, reconciliação bancária e custos de projecto.",
+    "subtitle": "Fornecedores usados em despesas, reconciliação bancária e custos de projecto. Guardados no registo unificado de empresas.",
     "new": "Novo fornecedor",
     "edit": "Editar fornecedor",
     "searchPlaceholder": "Procurar por nome, NIF ou email…",
@@ -669,6 +669,7 @@
     "status": "Estado",
     "active": "Activo",
     "inactive": "Inactivo",
+    "alsoClient": "Também cliente",
     "empty": "Sem fornecedores."
   },
   "reset": {
@@ -678,12 +679,21 @@
     "table": "Tabela",
     "rows": "Linhas",
     "total": "Total de linhas",
-    "kept": "Mantém: empresas (clientes), contas bancárias, classificações, projectos, RH, esquema e permissões.",
+    "kept": "Mantém: empresas (clientes + fornecedores), contas bancárias, classificações, projectos, RH, esquema e permissões.",
     "action": "Repor dados financeiros de teste",
     "confirmTitle": "Isto apaga permanentemente os dados financeiros de teste",
-    "confirmDescription": "Todos os movimentos bancários, importações, documentos, classificações e fornecedores serão apagados. Empresas, contas bancárias e o plano de classificações são preservados.",
+    "confirmDescription": "Todos os movimentos bancários, importações, documentos, classificações, despesas e receitas serão apagados. Empresas (clientes + fornecedores), contas bancárias e o plano de classificações são preservados.",
     "typeToConfirm": "Escreva {{phrase}} para confirmar",
     "confirmAction": "Apagar",
     "success": "Dados financeiros de teste apagados."
+  },
+  "resetSuppliers": {
+    "title": "Apagar empresas-fornecedor não usadas",
+    "subtitle": "Remove empresas marcadas apenas como fornecedor que não estão referenciadas em nenhum registo. Clientes reais do CRM e qualquer empresa ligada a documentos, classificações bancárias, despesas, projectos, oportunidades ou contactos são preservados.",
+    "action": "Apagar fornecedores não usados",
+    "confirmTitle": "Apagar empresas-fornecedor não usadas",
+    "confirmDescription": "Remove empresas onde is_supplier=true e is_client=false sem ligações a qualquer registo transaccional ou de CRM. Não pode ser desfeito.",
+    "confirmAction": "Apagar",
+    "success": "Removidas {{count}} empresas-fornecedor não usadas."
   }
 }

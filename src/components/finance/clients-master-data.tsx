@@ -254,23 +254,26 @@ export function CounterpartyEditor({ open, onOpenChange, kind, record, onSaved }
           if (error) throw error;
         }
       } else {
+        // Suppliers live in companies (unified) with is_supplier=true.
         const payload = {
-          name: trimmed,
+          nome: trimmed,
           nif: nif.trim() || null,
           email: email.trim() || null,
-          phone: telefone.trim() || null,
-          address: morada.trim() || null,
-          notes: notas.trim() || null,
+          telefone: telefone.trim() || null,
+          morada: morada.trim() || null,
+          notas: notas.trim() || null,
           is_active: isActive,
         };
         if (isEdit && record) {
           const { error } = await supabase
-            .from("financial_suppliers")
+            .from("companies")
             .update(payload)
             .eq("id", record.id);
           if (error) throw error;
         } else {
-          const { error } = await supabase.from("financial_suppliers").insert(payload);
+          const { error } = await supabase
+            .from("companies")
+            .insert({ ...payload, is_supplier: true });
           if (error) throw error;
         }
       }

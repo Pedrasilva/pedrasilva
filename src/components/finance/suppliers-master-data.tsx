@@ -1,9 +1,9 @@
 /**
  * Suppliers master-data section.
  *
- * Source of truth: `financial_suppliers` (finance-only — suppliers do not
- * live in CRM today). Powers supplier pickers in bank reconciliation,
- * document editor, and project expenses.
+ * Source of truth: `companies` with `is_supplier = true`.
+ * Same record as CRM/clients — never duplicated. Powers supplier pickers
+ * in bank reconciliation, document editor, and project expenses.
  */
 
 import { useState, useMemo } from "react";
@@ -34,7 +34,7 @@ type Supplier = {
   address: string | null;
   notes: string | null;
   is_active: boolean;
-  default_category_id: string | null;
+  also_client: boolean;
 };
 
 export function SuppliersMasterData() {
@@ -48,11 +48,22 @@ export function SuppliersMasterData() {
     queryKey: ["finance", "suppliers-master"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("financial_suppliers")
-        .select("id, name, nif, email, phone, address, notes, is_active, default_category_id")
-        .order("name");
+        .from("companies")
+        .select("id, nome, nif, email, telefone, morada, notas, is_active, is_client")
+        .eq("is_supplier", true)
+        .order("nome");
       if (error) throw error;
-      return (data ?? []) as Supplier[];
+      return (data ?? []).map((r) => ({
+        id: r.id,
+        name: r.nome,
+        nif: r.nif,
+        email: r.email,
+        phone: r.telefone,
+        address: r.morada,
+        notes: r.notas,
+        is_active: r.is_active,
+        also_client: r.is_client,
+      })) as Supplier[];
     },
   });
 
@@ -83,7 +94,7 @@ export function SuppliersMasterData() {
         telefone: editing.phone,
         morada: editing.address,
         notas: editing.notes,
-        is_client: false,
+        is_client: editing.also_client,
         is_supplier: true,
         is_active: editing.is_active,
       }
@@ -144,11 +155,16 @@ export function SuppliersMasterData() {
                       <TableCell className="text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{r.phone ?? "—"}</TableCell>
                       <TableCell>
-                        {r.is_active ? (
-                          <Badge variant="secondary">{t("finance:suppliersMaster.active")}</Badge>
-                        ) : (
-                          <Badge variant="outline">{t("finance:suppliersMaster.inactive")}</Badge>
-                        )}
+                        <div className="flex flex-wrap gap-1">
+                          {r.is_active ? (
+                            <Badge variant="secondary">{t("finance:suppliersMaster.active")}</Badge>
+                          ) : (
+                            <Badge variant="outline">{t("finance:suppliersMaster.inactive")}</Badge>
+                          )}
+                          {r.also_client ? (
+                            <Badge variant="outline">{t("finance:suppliersMaster.alsoClient")}</Badge>
+                          ) : null}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="icon" onClick={() => setEditing(r)}>

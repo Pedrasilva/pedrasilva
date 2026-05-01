@@ -656,7 +656,7 @@
   "suppliersMaster": {
     "tab": "Suppliers",
     "title": "Suppliers (master data)",
-    "subtitle": "Suppliers used in expenses, bank reconciliation and project costs.",
+    "subtitle": "Suppliers used in expenses, bank reconciliation and project costs. Stored in the unified companies master.",
     "new": "New supplier",
     "edit": "Edit supplier",
     "searchPlaceholder": "Search by name, NIF or email…",
@@ -669,6 +669,7 @@
     "status": "Status",
     "active": "Active",
     "inactive": "Inactive",
+    "alsoClient": "Also client",
     "empty": "No suppliers yet."
   },
   "reset": {
@@ -678,12 +679,21 @@
     "table": "Table",
     "rows": "Rows",
     "total": "Total rows",
-    "kept": "Kept: companies (clients), bank accounts, classifications, projects, HR, schema and permissions.",
+    "kept": "Kept: companies (clients + suppliers), bank accounts, classifications, projects, HR, schema and permissions.",
     "action": "Reset finance test data",
     "confirmTitle": "This permanently deletes test finance data",
-    "confirmDescription": "All bank transactions, imports, documents, classifications and finance suppliers will be wiped. Companies, bank accounts and the chart of classifications are preserved.",
+    "confirmDescription": "All bank transactions, imports, documents, classifications, expenses and income will be wiped. Companies (clients + suppliers), bank accounts and the chart of classifications are preserved.",
     "typeToConfirm": "Type {{phrase}} to confirm",
     "confirmAction": "Delete",
     "success": "Finance test data wiped."
+  },
+  "resetSuppliers": {
+    "title": "Delete unused supplier companies",
+    "subtitle": "Removes companies flagged as supplier-only that are not referenced anywhere. Real CRM clients and any company linked to documents, bank classifications, expenses, projects, opportunities or contacts are preserved.",
+    "action": "Delete unused suppliers",
+    "confirmTitle": "Delete unused supplier companies",
+    "confirmDescription": "Removes companies where is_supplier=true and is_client=false that have no links to any transactional or CRM record. Cannot be undone.",
+    "confirmAction": "Delete",
+    "success": "Removed {{count}} unused supplier companies."
   }
 }

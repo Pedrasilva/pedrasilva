@@ -704,7 +704,7 @@ function ClassifyDialog({ tx, classifications, isPt, onClose, onSaved }: { tx: B
   const [splits, setSplits] = useState<SplitRow[]>([{ classification_id: tx.suggested_classification_id ?? "", amount: tx.amount, supplier_id: null, client_id: null, project_id: null, collaborator_id: null, reimbursable: false, notes: "" }]);
   const [saving, setSaving] = useState(false);
 
-  const suppliersQ = useQuery({ queryKey: ["fin-suppliers"], queryFn: async () => { const { data } = await supabase.from("financial_suppliers").select("id, name").order("name"); return (data ?? []) as Supplier[]; } });
+  const suppliersQ = useQuery({ queryKey: ["fin-suppliers"], queryFn: async () => { const { data } = await supabase.from("companies").select("id, nome").eq("is_supplier", true).order("nome"); return ((data ?? []).map((r) => ({ id: r.id, name: r.nome }))) as Supplier[]; } });
   const clientsQ = useQuery({ queryKey: ["fin-clients"], queryFn: async () => { const { data } = await supabase.from("companies").select("id, nome").eq("is_client", true).order("nome"); return ((data ?? []).map((r) => ({ id: r.id, name: r.nome }))) as Client[]; } });
   const projectsQ = useQuery({ queryKey: ["pm-projects-pick"], queryFn: async () => { const { data } = await supabase.from("pm_projects").select("id, name").order("name"); return (data ?? []) as Project[]; } });
   const supplierClassQ = useSupplierDefaultClassifications();

@@ -329,7 +329,7 @@ export type Database = {
             foreignKeyName: "bank_transaction_classifications_supplier_id_fkey"
             columns: ["supplier_id"]
             isOneToOne: false
-            referencedRelation: "financial_suppliers"
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -730,6 +730,7 @@ export type Database = {
           company_type: string | null
           created_at: string
           created_by: string | null
+          default_classification_id: string | null
           email: string | null
           id: string
           industria: string | null
@@ -749,6 +750,7 @@ export type Database = {
           company_type?: string | null
           created_at?: string
           created_by?: string | null
+          default_classification_id?: string | null
           email?: string | null
           id?: string
           industria?: string | null
@@ -768,6 +770,7 @@ export type Database = {
           company_type?: string | null
           created_at?: string
           created_by?: string | null
+          default_classification_id?: string | null
           email?: string | null
           id?: string
           industria?: string | null
@@ -783,7 +786,15 @@ export type Database = {
           updated_at?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "companies_default_classification_id_fkey"
+            columns: ["default_classification_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       company_expenses: {
         Row: {
@@ -1675,7 +1686,7 @@ export type Database = {
             foreignKeyName: "financial_documents_counterparty_supplier_id_fkey"
             columns: ["counterparty_supplier_id"]
             isOneToOne: false
-            referencedRelation: "financial_suppliers"
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
@@ -1774,7 +1785,7 @@ export type Database = {
             foreignKeyName: "financial_expense_items_supplier_id_fkey"
             columns: ["supplier_id"]
             isOneToOne: false
-            referencedRelation: "financial_suppliers"
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -1977,56 +1988,6 @@ export type Database = {
           year?: number
         }
         Relationships: []
-      }
-      financial_suppliers: {
-        Row: {
-          address: string | null
-          created_at: string
-          default_category_id: string | null
-          email: string | null
-          id: string
-          is_active: boolean
-          name: string
-          nif: string | null
-          notes: string | null
-          phone: string | null
-          updated_at: string
-        }
-        Insert: {
-          address?: string | null
-          created_at?: string
-          default_category_id?: string | null
-          email?: string | null
-          id?: string
-          is_active?: boolean
-          name: string
-          nif?: string | null
-          notes?: string | null
-          phone?: string | null
-          updated_at?: string
-        }
-        Update: {
-          address?: string | null
-          created_at?: string
-          default_category_id?: string | null
-          email?: string | null
-          id?: string
-          is_active?: boolean
-          name?: string
-          nif?: string | null
-          notes?: string | null
-          phone?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "financial_suppliers_default_category_id_fkey"
-            columns: ["default_category_id"]
-            isOneToOne: false
-            referencedRelation: "expense_categories"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       holidays: {
         Row: {
@@ -4316,6 +4277,10 @@ export type Database = {
       }
       bank_import_undo: {
         Args: { _force?: boolean; _import_id: string; _reason?: string }
+        Returns: Json
+      }
+      finance_delete_unused_supplier_companies: {
+        Args: { _confirm: string }
         Returns: Json
       }
       finance_reset_test_data: { Args: { _confirm: string }; Returns: Json }

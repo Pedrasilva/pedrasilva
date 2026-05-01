@@ -388,12 +388,16 @@ export function useFinSuppliers() {
     queryKey: ["fin-suppliers"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("financial_suppliers")
-        .select("id, name")
+        .from("companies")
+        .select("id, nome")
+        .eq("is_supplier", true)
         .eq("is_active", true)
-        .order("name");
+        .order("nome");
       if (error) throw error;
-      return (data ?? []) as Array<{ id: string; name: string }>;
+      return ((data ?? []).map((r) => ({ id: r.id, name: r.nome }))) as Array<{
+        id: string;
+        name: string;
+      }>;
     },
   });
 }
