@@ -34,7 +34,7 @@ if [ -z "$USER2" ]; then USER2="$USER1"; fi
 
 # Heredoc is UNQUOTED so $USER1/$USER2 substitute. PL/pgSQL `$$` blocks must
 # be written as $DO$ ... $DO$ to avoid shell-level conflicts.
-OUT=$(psql -X -A -t -v ON_ERROR_STOP=1 <<SQL
+OUT=$(psql -X -A -t -v ON_ERROR_STOP=1 2>&1 <<SQL
 BEGIN;
 
 DO \$DO\$
