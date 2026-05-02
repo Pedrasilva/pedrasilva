@@ -742,5 +742,38 @@
     "reduced": "6% (reduced)",
     "exempt": "0% / Exempt",
     "reverseCharge": "Reverse charge (autoliquidação)"
+  },
+  "projectBilling": {
+    "title": "Project billing",
+    "subtitle": "Read-only view of financial documents and payments linked to this project. Source of truth: Finance.",
+    "empty": "This project has no linked invoices or supplier documents yet.",
+    "cta": {
+      "createInFinance": "Create invoice in Finance"
+    },
+    "summary": {
+      "invoiced": "Total invoiced",
+      "received": "Total received",
+      "outstandingClient": "Outstanding client invoices",
+      "supplierCosts": "Supplier costs",
+      "supplierPaid": "Supplier paid",
+      "supplierOutstanding": "Supplier outstanding",
+      "netPosition": "Net project position"
+    },
+    "sections": {
+      "clientInvoices": "Client invoices / income",
+      "supplierInvoices": "Supplier invoices / project costs",
+      "payments": "Payments / receipts",
+      "noClientInvoices": "No client invoices linked to this project.",
+      "noSupplierInvoices": "No supplier invoices linked to this project.",
+      "noPayments": "No payments recorded against linked documents."
+    },
+    "cols": {
+      "date": "Date",
+      "linkedDocument": "Linked document",
+      "method": "Method",
+      "bankTx": "Bank tx",
+      "amount": "Amount",
+      "projectShare": "Project share (net)"
+    }
   }
 }

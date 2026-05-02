@@ -742,5 +742,38 @@
     "reduced": "6% (reduzida)",
     "exempt": "0% / Isento",
     "reverseCharge": "Autoliquidação"
+  },
+  "projectBilling": {
+    "title": "Faturação do projeto",
+    "subtitle": "Vista só de leitura dos documentos financeiros e pagamentos associados a este projeto. Fonte de verdade: Finanças.",
+    "empty": "Este projeto ainda não tem faturas ou documentos de fornecedor associados.",
+    "cta": {
+      "createInFinance": "Criar fatura em Finanças"
+    },
+    "summary": {
+      "invoiced": "Total faturado",
+      "received": "Total recebido",
+      "outstandingClient": "Faturas a cliente em aberto",
+      "supplierCosts": "Custos de fornecedores",
+      "supplierPaid": "Fornecedores pagos",
+      "supplierOutstanding": "Fornecedores em aberto",
+      "netPosition": "Posição líquida do projeto"
+    },
+    "sections": {
+      "clientInvoices": "Faturas a cliente / rendimento",
+      "supplierInvoices": "Faturas de fornecedor / custos do projeto",
+      "payments": "Pagamentos / recebimentos",
+      "noClientInvoices": "Sem faturas a cliente associadas a este projeto.",
+      "noSupplierInvoices": "Sem faturas de fornecedor associadas a este projeto.",
+      "noPayments": "Sem pagamentos registados nos documentos associados."
+    },
+    "cols": {
+      "date": "Data",
+      "linkedDocument": "Documento associado",
+      "method": "Método",
+      "bankTx": "Tx bancária",
+      "amount": "Valor",
+      "projectShare": "Quota-parte projeto (líq.)"
+    }
   }
 }
