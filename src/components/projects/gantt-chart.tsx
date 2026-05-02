@@ -22,6 +22,11 @@ import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-ada
 
 export type StageWithProject = StageWithAllocations & { projectId: string };
 
+import type {
+  StageBudgetControl,
+  AllocationActuals,
+} from "@/lib/projects/use-stage-budget-control";
+
 interface Props {
   /**
    * `projectId` is kept for backwards compatibility with callers that pass
@@ -41,6 +46,15 @@ interface Props {
    * also drives feature flags (baseline ghost, leave/overload badges, etc.).
    */
   adapter: PlannerAdapter;
+  /**
+   * Optional budget control snapshot. When provided, the Gantt overlays a
+   * compact per-stage badge (remaining budget, est. hours, planned ahead,
+   * projected over/under) and shows per-allocation actual logged hours +
+   * cost consumed. Caller is responsible for permission gating.
+   */
+  budgetByStage?: Map<string, StageBudgetControl>;
+  budgetByAllocation?: Map<string, AllocationActuals>;
+  showFinancials?: boolean;
 }
 
 const STAGE_ROW_H = 92;
