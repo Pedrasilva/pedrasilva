@@ -53,6 +53,7 @@ function ImportsContent() {
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [createMissingProjects, setCreateMissingProjects] = useState(false);
   const [createMissingCompanies, setCreateMissingCompanies] = useState(true);
+  const [mappingTarget, setMappingTarget] = useState<{ email: string; name: string } | null>(null);
 
   const jobsQuery = useQuery({ queryKey: ["import-jobs"], queryFn: listImportJobs });
 
