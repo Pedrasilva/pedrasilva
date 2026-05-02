@@ -109,7 +109,6 @@ export function GlobalTopNav() {
           <DropdownMenuItem asChild>
             <Link
               to="/projects/my-tasks"
-              search={{ view: "team" }}
               className="flex w-full cursor-pointer items-center gap-2"
             >
               <Users className="h-4 w-4 text-muted-foreground" /> {t("topNav.teamTasks")}
