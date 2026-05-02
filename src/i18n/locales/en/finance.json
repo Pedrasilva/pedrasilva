@@ -733,5 +733,14 @@
       "date": "Date",
       "method": "Method"
     }
+  },
+  "vatPresets": {
+    "label": "VAT preset",
+    "placeholder": "PT VAT preset…",
+    "standard": "23% (standard)",
+    "intermediate": "13% (intermediate)",
+    "reduced": "6% (reduced)",
+    "exempt": "0% / Exempt",
+    "reverseCharge": "Reverse charge (autoliquidação)"
   }
 }

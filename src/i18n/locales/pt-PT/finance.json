@@ -733,5 +733,14 @@
       "date": "Data",
       "method": "Método"
     }
+  },
+  "vatPresets": {
+    "label": "Presets de IVA",
+    "placeholder": "Preset de IVA PT…",
+    "standard": "23% (normal)",
+    "intermediate": "13% (intermédia)",
+    "reduced": "6% (reduzida)",
+    "exempt": "0% / Isento",
+    "reverseCharge": "Autoliquidação"
   }
 }
