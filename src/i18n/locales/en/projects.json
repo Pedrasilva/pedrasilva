@@ -15,7 +15,8 @@
     "timesheet": "Timesheet",
     "financials": "Financials",
     "forecast": "Forecast",
-    "insights": "Insights"
+    "insights": "Insights",
+    "analytics": "Analytics"
   },
   "topNav": {
     "time": "Time",
