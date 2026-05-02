@@ -449,3 +449,90 @@ export async function listImportJobs() {
   if (error) throw error;
   return data ?? [];
 }
+
+export async function listCollaboratorsForMapping() {
+  const { data, error } = await supabase
+    .from("collaborators")
+    .select("id,nome,email")
+    .is("archived_at", null)
+    .order("nome");
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function saveIdentityMapping(input: {
+  source_identifier: string;
+  source_name: string | null;
+  collaborator_id: string;
+  resource_id?: string | null;
+  notes?: string | null;
+}) {
+  const userRes = await supabase.auth.getUser();
+  // Deactivate any existing active mapping for this (source_system, identifier)
+  await supabase
+    .from("import_identity_mappings")
+    .update({ active: false })
+    .eq("source_system", SOURCE_SYSTEM)
+    .eq("source_identifier", input.source_identifier.toLowerCase())
+    .eq("active", true);
+
+  const { error } = await supabase.from("import_identity_mappings").insert({
+    source_system: SOURCE_SYSTEM,
+    source_identifier: input.source_identifier.toLowerCase(),
+    source_name: input.source_name,
+    collaborator_id: input.collaborator_id,
+    resource_id: input.resource_id ?? null,
+    notes: input.notes ?? null,
+    active: true,
+    created_by: userRes.data.user?.id ?? null,
+  });
+  if (error) throw error;
+}
+
+/** Re-runs preview/validation against an already-uploaded file (no re-upload). */
+export async function revalidatePreview(file: File, jobId: string): Promise<ImportPreview> {
+  const buffer = await file.arrayBuffer();
+  const { rows } = parseAcceloActivityExport(buffer);
+  const externals = Array.from(new Set(rows.map((r) => r.external_id).filter(Boolean)));
+  const existing = new Set<string>();
+  if (externals.length) {
+    const { data } = await supabase
+      .from("historical_time_entries")
+      .select("external_id")
+      .eq("source_system", SOURCE_SYSTEM)
+      .in("external_id", externals);
+    (data ?? []).forEach((d) => d.external_id && existing.add(d.external_id));
+  }
+  const maps = await lookupMaps(rows);
+  const { validations, duplicates } = validateRows(rows, maps, existing);
+
+  const unmatchedCollabs = new Map<string, { email: string | null; name: string }>();
+  const unmatchedProjects = new Set<string>();
+  const unmatchedCompanies = new Set<string>();
+  validations.forEach((v) => {
+    if (!v.matched.collaborator_id && v.row.from_email)
+      unmatchedCollabs.set(v.row.from_email, { email: v.row.from_email, name: v.row.from_name });
+    if (!v.matched.project_id && v.row.reference) unmatchedProjects.add(v.row.reference);
+    if (!v.matched.company_id && v.row.company) unmatchedCompanies.add(v.row.company);
+  });
+
+  return {
+    jobId,
+    filename: file.name,
+    storagePath: null,
+    storageWarning: null,
+    totals: {
+      rows: validations.length,
+      valid: validations.filter((v) => v.status === "valid").length,
+      warning: validations.filter((v) => v.status === "warning").length,
+      error: validations.filter((v) => v.status === "error").length,
+      duplicates,
+    },
+    unmatched: {
+      collaborators: Array.from(unmatchedCollabs.values()),
+      projects: Array.from(unmatchedProjects),
+      companies: Array.from(unmatchedCompanies),
+    },
+    rows: validations,
+  };
+}
