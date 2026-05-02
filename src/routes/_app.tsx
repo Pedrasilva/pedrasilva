@@ -291,19 +291,37 @@ function AppLayout() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-52">
                 <DropdownMenuItem asChild>
-                  <Link to="/projects/financials" className="flex items-center gap-2 cursor-pointer">
+                  <Link
+                    to="/projects/financials"
+                    className={cn(
+                      "flex items-center gap-2 cursor-pointer",
+                      loc.pathname.startsWith("/projects/financials") && "bg-accent text-foreground font-medium",
+                    )}
+                  >
                     <BarChart3 className="h-4 w-4" />
                     {t("nav.financials")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/projects/forecast" className="flex items-center gap-2 cursor-pointer">
+                  <Link
+                    to="/projects/forecast"
+                    className={cn(
+                      "flex items-center gap-2 cursor-pointer",
+                      loc.pathname.startsWith("/projects/forecast") && "bg-accent text-foreground font-medium",
+                    )}
+                  >
                     <TrendingUp className="h-4 w-4" />
                     {t("nav.forecast")}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/projects/insights" className="flex items-center gap-2 cursor-pointer">
+                  <Link
+                    to="/projects/insights"
+                    className={cn(
+                      "flex items-center gap-2 cursor-pointer",
+                      loc.pathname.startsWith("/projects/insights") && "bg-accent text-foreground font-medium",
+                    )}
+                  >
                     <LineChart className="h-4 w-4" />
                     {t("nav.insights")}
                   </Link>
