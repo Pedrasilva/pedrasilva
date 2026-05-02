@@ -287,8 +287,13 @@ function ProjectDetail() {
     },
     { revenue: 0, cost: 0 },
   );
-  const actualRevenue = actuals.revenue;
-  const actualCost = actuals.cost;
+  // Imported historical entries (e.g. Accelo) are not bound to allocations,
+  // so we add them at the project-total level only — never per-stage and never
+  // into editable timesheets. Idempotency on (source_system, external_id)
+  // prevents double counting on re-imports; live timesheet rows are never
+  // mirrored into historical_time_entries, so the same hour cannot appear twice.
+  const actualRevenue = actuals.revenue + hist.amount;
+  const actualCost = actuals.cost + hist.cost;
   const actualProfit = actualRevenue - actualCost;
   const budgetUsedPct = totalBudget > 0 ? actualCost / totalBudget : 0;
   const budgetOver = actualCost > totalBudget && totalBudget > 0;
