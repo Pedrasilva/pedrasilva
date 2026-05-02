@@ -306,7 +306,7 @@ function computeControl({
     imported_sources: imported.sources,
   };
 
-  return { byStage, project };
+  return { byStage, byAllocation, project };
 }
 
 export interface UseStageBudgetControlArgs {
