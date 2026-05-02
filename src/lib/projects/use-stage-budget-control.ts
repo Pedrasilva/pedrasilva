@@ -65,6 +65,15 @@ export interface ProjectBudgetControl extends Omit<StageBudgetControl, "stage_id
   imported_sources: string[];
 }
 
+export interface AllocationActuals {
+  allocation_id: string;
+  actual_hours_logged: number;
+  actual_billable_hours: number;
+  actual_cost_consumed: number;
+  planned_future_hours: number;
+  planned_future_cost: number;
+}
+
 interface AllocLite {
   id: string;
   start_date: string;
