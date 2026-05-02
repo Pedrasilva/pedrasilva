@@ -237,7 +237,7 @@ function AppLayout() {
           </nav>
           )}
 
-          {/* Projects sub-nav (inline) */}
+          {/* Projects sub-nav (inline) — primary nav only: Projects + Team */}
           {isProjectsArea && (
             <nav className="hidden md:flex items-center gap-1 ml-2 text-sm">
               <Link to="/projects" className="flex items-center gap-2 mr-1">
@@ -254,7 +254,7 @@ function AppLayout() {
                 )}
               >
                 <LayoutGrid className="h-3.5 w-3.5" />
-                {t("nav.projectList")}
+                {t("nav.projects")}
               </Link>
               <Link
                 to="/projects/resources"
@@ -268,43 +268,48 @@ function AppLayout() {
                 <Users className="h-3.5 w-3.5" />
                 {t("nav.team")}
               </Link>
-              <Link
-                to="/projects/financials"
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
-                  loc.pathname.startsWith("/projects/financials")
-                    ? "bg-accent text-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
-                )}
-              >
-                <BarChart3 className="h-3.5 w-3.5" />
-                {t("nav.financials")}
-              </Link>
-              <Link
-                to="/projects/forecast"
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
-                  loc.pathname.startsWith("/projects/forecast")
-                    ? "bg-accent text-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
-                )}
-              >
-                <TrendingUp className="h-3.5 w-3.5" />
-                {t("nav.forecast")}
-              </Link>
-              <Link
-                to="/projects/insights"
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
-                  loc.pathname.startsWith("/projects/insights")
-                    ? "bg-accent text-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
-                )}
-              >
-                <LineChart className="h-3.5 w-3.5" />
-                {t("nav.insights")}
-              </Link>
             </nav>
+          )}
+
+          {/* Analytics dropdown — only for users with financial permissions */}
+          {isProjectsArea && can("projects.financials") && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    "hidden md:inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+                    (loc.pathname.startsWith("/projects/financials") ||
+                      loc.pathname.startsWith("/projects/forecast") ||
+                      loc.pathname.startsWith("/projects/insights"))
+                      ? "bg-accent text-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                  )}
+                >
+                  <BarChart3 className="h-3.5 w-3.5" />
+                  {t("nav.analytics", "Analytics")}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-52">
+                <DropdownMenuItem asChild>
+                  <Link to="/projects/financials" className="flex items-center gap-2 cursor-pointer">
+                    <BarChart3 className="h-4 w-4" />
+                    {t("nav.financials")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/projects/forecast" className="flex items-center gap-2 cursor-pointer">
+                    <TrendingUp className="h-4 w-4" />
+                    {t("nav.forecast")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/projects/insights" className="flex items-center gap-2 cursor-pointer">
+                    <LineChart className="h-4 w-4" />
+                    {t("nav.insights")}
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
 
           {/* Spacer */}
@@ -317,8 +322,6 @@ function AppLayout() {
                 Modo colaborador
               </Badge>
             )}
-
-            <ViewAsPicker variant="desktop" />
 
             <LanguageSwitcher className="hidden md:inline-flex" />
 
@@ -344,6 +347,17 @@ function AppLayout() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {isRealAdmin && (
+                  <>
+                    <DropdownMenuLabel className="text-[11px] uppercase tracking-wide text-muted-foreground font-normal">
+                      Admin
+                    </DropdownMenuLabel>
+                    <div className="px-1 pb-1">
+                      <ViewAsPicker variant="mobile" />
+                    </div>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 <DropdownMenuItem onSelect={() => signOut()} className="cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />
                   Terminar sessão
