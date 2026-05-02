@@ -36,6 +36,8 @@ import {
   effectiveSaleRate,
   type DefaultRateInfo,
 } from "@/lib/projects/use-default-rates";
+
+type DefaultRatesMap = Map<string, DefaultRateInfo> | undefined;
 import { allocationHours } from "@/lib/projects/gantt-utils";
 
 export interface StageBudgetControl {
