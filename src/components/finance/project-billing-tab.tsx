@@ -507,9 +507,6 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
 function DocumentsSection({
   title,
   emptyLabel,
-function DocumentsSection({
-  title,
-  emptyLabel,
   documents,
   projectLineNetByDoc,
 }: {
