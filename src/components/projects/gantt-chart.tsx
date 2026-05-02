@@ -816,9 +816,32 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                                     </span>
                                   )}
                                 </div>
-                                <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
-                                  {euros(cost)}
-                                </span>
+                                <div className="flex shrink-0 items-center gap-1.5 font-mono text-[10px] text-muted-foreground">
+                                  {showFinancials && budgetByAllocation?.get(a.id) && (() => {
+                                    const ba = budgetByAllocation.get(a.id)!;
+                                    return (
+                                      <>
+                                        {ba.actual_hours_logged > 0 && (
+                                          <span
+                                            className="rounded bg-foreground/10 px-1 py-px text-foreground/80"
+                                            title={t("gantt.alloc.actualBadge")}
+                                          >
+                                            ✓ {Math.round(ba.actual_hours_logged)}h · {euros(ba.actual_cost_consumed)}
+                                          </span>
+                                        )}
+                                        {ba.planned_future_hours > 0 && (
+                                          <span
+                                            className="rounded bg-primary/15 px-1 py-px text-foreground/80"
+                                            title={t("gantt.alloc.futureBadge")}
+                                          >
+                                            → {Math.round(ba.planned_future_hours)}h · {euros(ba.planned_future_cost)}
+                                          </span>
+                                        )}
+                                      </>
+                                    );
+                                  })()}
+                                  <span>{euros(cost)}</span>
+                                </div>
                               </div>
 
                               <div
