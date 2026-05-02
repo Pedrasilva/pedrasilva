@@ -362,7 +362,9 @@ function AppLayout() {
 
             <LanguageSwitcher className="hidden md:inline-flex" />
 
-            {showQuickCreate && <QuickCreateMenu />}
+            <div className="hidden md:flex items-center gap-0.5">
+              <GlobalTopNav />
+            </div>
 
             {/* Menu de utilizador (desktop) */}
             <DropdownMenu>
