@@ -736,6 +736,7 @@ function ProjectDetail() {
                 stagePlannedHours={stagePlannedHours}
                 defaultRates={defaultRates}
                 activities={activities ?? []}
+                historical={hist}
               />
             )}
 
