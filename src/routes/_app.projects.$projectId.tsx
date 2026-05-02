@@ -39,6 +39,7 @@ import { useProjectExpenses } from "@/lib/projects/use-project-expenses";
 import { ExternalServicesSection } from "@/components/projects/external-services-section";
 import { ProjectExpensesSection } from "@/components/projects/project-expenses-section";
 import { ProjectBillingTab } from "@/components/finance/project-billing-tab";
+import { HardDeleteProjectButton } from "@/components/projects/hard-delete-project-button";
 import { useHistoricalProjectTotals, EMPTY_HISTORICAL_TOTALS, type HistoricalProjectTotals } from "@/lib/projects/use-historical-time";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
