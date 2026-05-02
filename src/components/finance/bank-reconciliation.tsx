@@ -638,8 +638,8 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
                       <TableCell><StatusBadge status={tx.status} /></TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1 items-center">
-                          <Button size="sm" variant="outline" onClick={() => setMatchDocTx(tx)} title={t("finance:bankRec.actions.matchHint") as string}>
-                            {t("finance:bankRec.actions.match")}
+                          <Button size="sm" variant="outline" onClick={() => setMatchDocTx(tx)} title={t(tx.amount >= 0 ? "finance:bankRec.actions.matchIncomingHint" : "finance:bankRec.actions.matchOutgoingHint") as string}>
+                            {t(tx.amount >= 0 ? "finance:bankRec.actions.matchIncoming" : "finance:bankRec.actions.matchOutgoing")}
                           </Button>
                           <Button size="sm" variant="outline" onClick={() => setCreateDocTx(tx)} title={t("finance:bankRec.actions.createDocHint") as string}>
                             {t("finance:bankRec.actions.createDoc")}
