@@ -56,6 +56,12 @@ export interface ProjectInsights {
   };
   workInProgressHours: number;
   workDonePct: number;
+  imported: {
+    sources: string[];
+    loggedHours: number;
+    cost: number;
+    amount: number;
+  };
 }
 
 export function useProjectInsights(projectId: string) {
