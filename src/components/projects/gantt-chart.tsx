@@ -483,11 +483,25 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
               ? dayCount(stageWithBaseline.baseline_start_date!, stageWithBaseline.baseline_end_date!) * dayWidth
               : 0;
 
+            // When the parent stage is being dragged (pure shift), visually
+            // shift its child allocations by the same delta so resource bars
+            // follow the stage. Backend cascade already persists this on
+            // commit (useUpdateStageWithCascade). Per-allocation drafts win.
+            // TODO: when an allocation has a `manual_override` flag, skip the
+            // shift here. Default behaviour: linked allocations follow stage.
+            const stageDraftForShift = draftDates.get(stage.id);
+            const stageShiftDays =
+              drag?.type === "stage-move" && drag.id === stage.id && stageDraftForShift
+                ? differenceInCalendarDays(new Date(stageDraftForShift.start), new Date(stage.start_date))
+                : 0;
+            const shiftIso = (iso: string, delta: number): string =>
+              delta === 0 ? iso : format(addDays(new Date(iso), delta), "yyyy-MM-dd");
+
             let totalCost = 0;
             for (const a of stage.allocations) {
               const aDraft = draftDates.get(a.id);
-              const aS = aDraft?.start ?? a.start_date;
-              const aE = aDraft?.end ?? a.end_date;
+              const aS = aDraft?.start ?? shiftIso(a.start_date, stageShiftDays);
+              const aE = aDraft?.end ?? shiftIso(a.end_date, stageShiftDays);
               totalCost += allocationCost({
                 start_date: aS,
                 end_date: aE,
@@ -647,8 +661,8 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
 
                 {stage.allocations.map((a, idx) => {
                   const aDraft = draftDates.get(a.id);
-                  const aS = aDraft?.start ?? a.start_date;
-                  const aE = aDraft?.end ?? a.end_date;
+                  const aS = aDraft?.start ?? shiftIso(a.start_date, stageShiftDays);
+                  const aE = aDraft?.end ?? shiftIso(a.end_date, stageShiftDays);
                   const aX = differenceInCalendarDays(new Date(aS), origin) * dayWidth;
                   const aW = dayCount(aS, aE) * dayWidth;
                   const costRate = effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates);
