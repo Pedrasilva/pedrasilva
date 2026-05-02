@@ -38,6 +38,7 @@ import { useExternalServices } from "@/lib/projects/use-external-services";
 import { useProjectExpenses } from "@/lib/projects/use-project-expenses";
 import { ExternalServicesSection } from "@/components/projects/external-services-section";
 import { ProjectExpensesSection } from "@/components/projects/project-expenses-section";
+import { ProjectBillingTab } from "@/components/finance/project-billing-tab";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
