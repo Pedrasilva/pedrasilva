@@ -661,8 +661,8 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
 
                 {stage.allocations.map((a, idx) => {
                   const aDraft = draftDates.get(a.id);
-                  const aS = aDraft?.start ?? a.start_date;
-                  const aE = aDraft?.end ?? a.end_date;
+                  const aS = aDraft?.start ?? shiftIso(a.start_date, stageShiftDays);
+                  const aE = aDraft?.end ?? shiftIso(a.end_date, stageShiftDays);
                   const aX = differenceInCalendarDays(new Date(aS), origin) * dayWidth;
                   const aW = dayCount(aS, aE) * dayWidth;
                   const costRate = effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates);
