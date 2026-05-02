@@ -57,6 +57,9 @@ function ImportsContent() {
       setPreview(p);
       qc.invalidateQueries({ queryKey: ["import-jobs"] });
       toast.success(t("admin.imports.toastPreviewed"));
+      if (p.storageWarning) {
+        toast.warning(t("admin.imports.toastStorageWarning", { error: p.storageWarning }));
+      }
     },
     onError: (e: Error) => toast.error(e.message),
   });
