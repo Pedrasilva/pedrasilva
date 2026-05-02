@@ -125,6 +125,36 @@
         "company": "Empresa",
         "notes": "Notas"
       }
+    },
+    "projectsTools": {
+      "title": "Administração de Projetos",
+      "subtitle": "Ferramentas de reset e manutenção para dados de teste de projetos."
+    },
+    "projectReset": {
+      "title": "Repor dados de teste dos projetos",
+      "subtitle": "Apaga todos os projetos, etapas, tarefas, registos de tempo, despesas, materiais, faturas e importações históricas Accelo. Empresas, RH, documentos financeiros, transações bancárias e permissões são mantidos.",
+      "table": "Tabela",
+      "rows": "Linhas",
+      "total": "Total",
+      "kept": "Mantidos: empresas, colaboradores, utilizadores, permissões, documentos financeiros, pagamentos, transações bancárias e classificações.",
+      "action": "Repor dados de projetos",
+      "confirmTitle": "Apagar todos os dados de teste dos projetos?",
+      "confirmDescription": "Esta operação apaga permanentemente todos os projetos e registos dependentes. Não pode ser desfeita.",
+      "typeToConfirm": "Escreva {{phrase}} para confirmar",
+      "confirmAction": "Apagar dados de projetos",
+      "success": "Dados de teste dos projetos repostos."
+    },
+    "projectDelete": {
+      "action": "Apagar projeto",
+      "confirmTitle": "Apagar definitivamente este projeto?",
+      "confirmDescription": "Apenas administradores. O projeto só pode ser apagado se não tiver registos ligados.",
+      "dependency": "Dependência",
+      "count": "Quantidade",
+      "blocked": "O projeto tem registos ligados e não pode ser apagado.",
+      "blockedHint": "Remova ou desassocie os registos ligados antes de apagar este projeto.",
+      "typeToConfirm": "Escreva {{phrase}} para confirmar",
+      "confirmAction": "Apagar projeto",
+      "success": "Projeto apagado."
     }
   }
 }
