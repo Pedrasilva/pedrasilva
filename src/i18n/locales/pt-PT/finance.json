@@ -185,6 +185,10 @@
     "actions": {
       "match": "Associar documento",
       "matchHint": "Ligar esta transação a um documento financeiro existente",
+      "matchIncoming": "Associar fatura / registar recebimento",
+      "matchIncomingHint": "Ligar esta entrada a uma fatura emitida e registar o recebimento",
+      "matchOutgoing": "Associar fatura de fornecedor / registar pagamento",
+      "matchOutgoingHint": "Ligar esta saída a uma fatura de fornecedor e registar o pagamento",
       "createDoc": "Criar documento",
       "createDocHint": "Criar fatura/recibo a partir desta transação",
       "classify": "Classificar",
