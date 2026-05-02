@@ -620,12 +620,7 @@ function ProjectDetail() {
 
             {tab === "billing" && (
               <div className="mt-4">
-                <PlaceholderPanel
-                  icon={FileText}
-                  title={t("projects:detail.placeholder.billingTitle")}
-                  description={t("projects:detail.placeholder.billingDescription")}
-                  badge={t("projects:detail.placeholder.comingSoon")}
-                />
+                <ProjectBillingTab projectId={projectId} />
               </div>
             )}
 
