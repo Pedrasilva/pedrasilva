@@ -45,6 +45,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
 import { useSupplierDefaultClassifications } from "@/lib/finance/use-supplier-classifications";
 import { InlineCounterpartyDialog } from "@/components/finance/inline-counterparty-dialog";
+import { VatPresetPicker } from "@/components/finance/vat-preset-picker";
 import {
   useFinDocument,
   useCreateFinDocument,
@@ -699,15 +700,23 @@ function DocumentEditorPage() {
                         />
                       </TableCell>
                       <TableCell>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={l.vat_rate}
-                          onChange={(e) =>
-                            patchLine(i, { vat_rate: Number(e.target.value || 0) })
-                          }
-                          disabled={readOnly}
-                        />
+                        <div className="space-y-1">
+                          <VatPresetPicker
+                            disabled={readOnly}
+                            onPick={(rate, code) =>
+                              patchLine(i, { vat_rate: rate, vat_code: code })
+                            }
+                          />
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={l.vat_rate}
+                            onChange={(e) =>
+                              patchLine(i, { vat_rate: Number(e.target.value || 0) })
+                            }
+                            disabled={readOnly}
+                          />
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Input

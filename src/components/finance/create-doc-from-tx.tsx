@@ -52,6 +52,7 @@ import {
 import { useSupplierDefaultClassifications } from "@/lib/finance/use-supplier-classifications";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
 import { InlineCounterpartyDialog } from "@/components/finance/inline-counterparty-dialog";
+import { VatPresetPicker } from "@/components/finance/vat-preset-picker";
 
 const BUCKET = "financial-documents";
 
@@ -114,6 +115,7 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
     Math.abs(tx.amount).toFixed(2),
   );
   const [vatRate, setVatRate] = useState<string>("23");
+  const [vatCode, setVatCode] = useState<string | null>("NOR");
 
   // Attachment
   const [file, setFile] = useState<File | null>(null);
@@ -223,6 +225,7 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
             quantity: 1,
             unit_price_ex_vat: totals.net,
             vat_rate: Number(vatRate) || 0,
+            vat_code: vatCode,
             classification_id: classificationId,
             project_id: projectId,
             reimbursable: false,
@@ -529,12 +532,20 @@ export function CreateDocFromTxDialog({ tx, onClose, onCreated }: Props) {
               <Label className="text-xs">
                 {t("finance:createDoc.vatRate")}
               </Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={vatRate}
-                onChange={(e) => setVatRate(e.target.value)}
-              />
+              <div className="space-y-1">
+                <VatPresetPicker
+                  onPick={(rate, code) => {
+                    setVatRate(String(rate));
+                    setVatCode(code);
+                  }}
+                />
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={vatRate}
+                  onChange={(e) => setVatRate(e.target.value)}
+                />
+              </div>
             </div>
             <div>
               <Label className="text-xs">
