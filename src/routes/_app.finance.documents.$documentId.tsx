@@ -700,15 +700,23 @@ function DocumentEditorPage() {
                         />
                       </TableCell>
                       <TableCell>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={l.vat_rate}
-                          onChange={(e) =>
-                            patchLine(i, { vat_rate: Number(e.target.value || 0) })
-                          }
-                          disabled={readOnly}
-                        />
+                        <div className="space-y-1">
+                          <VatPresetPicker
+                            disabled={readOnly}
+                            onPick={(rate, code) =>
+                              patchLine(i, { vat_rate: rate, vat_code: code })
+                            }
+                          />
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={l.vat_rate}
+                            onChange={(e) =>
+                              patchLine(i, { vat_rate: Number(e.target.value || 0) })
+                            }
+                            disabled={readOnly}
+                          />
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Input
