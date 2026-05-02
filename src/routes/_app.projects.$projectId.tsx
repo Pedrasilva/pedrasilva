@@ -41,6 +41,8 @@ import { ProjectExpensesSection } from "@/components/projects/project-expenses-s
 import { ProjectBillingTab } from "@/components/finance/project-billing-tab";
 import { HardDeleteProjectButton } from "@/components/projects/hard-delete-project-button";
 import { useHistoricalProjectTotals, EMPTY_HISTORICAL_TOTALS, type HistoricalProjectTotals } from "@/lib/projects/use-historical-time";
+import { useStageBudgetControl } from "@/lib/projects/use-stage-budget-control";
+import { BudgetControlPanel } from "@/components/projects/budget-control-panel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
