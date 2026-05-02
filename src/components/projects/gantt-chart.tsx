@@ -610,6 +610,37 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                               {t("gantt.stage.overByAmount", { amount: euros(totalCost - budget) })}
                             </span>
                           )}
+                          {showFinancials && budgetByStage?.get(stage.id) && (() => {
+                            const bc = budgetByStage.get(stage.id)!;
+                            const ouCls =
+                              bc.projected_over_under < 0
+                                ? "bg-destructive/80 text-destructive-foreground"
+                                : bc.projected_over_under > 0
+                                  ? "bg-emerald-600/70 text-white"
+                                  : "bg-background/40";
+                            return (
+                              <span className="ml-1 inline-flex items-center gap-1.5 rounded bg-background/30 px-1.5 py-px font-mono">
+                                <span title={t("gantt.stage.budgetBadge.remaining")}>
+                                  R {euros(bc.remaining_budget)}
+                                </span>
+                                {bc.estimated_available_hours != null && (
+                                  <span title={t("gantt.stage.budgetBadge.estHours")}>
+                                    · ≈{Math.max(0, Math.round(bc.estimated_available_hours))}h
+                                  </span>
+                                )}
+                                <span title={t("gantt.stage.budgetBadge.future")}>
+                                  · F {euros(bc.planned_future_cost)}
+                                </span>
+                                <span
+                                  className={`rounded px-1 ${ouCls}`}
+                                  title={t("gantt.stage.budgetBadge.overUnder")}
+                                >
+                                  {bc.projected_over_under >= 0 ? "+" : ""}
+                                  {euros(bc.projected_over_under)}
+                                </span>
+                              </span>
+                            );
+                          })()}
                         </div>
                       </div>
                       <button
