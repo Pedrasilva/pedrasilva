@@ -49,7 +49,7 @@ import {
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
 import { ViewAsPicker } from "@/components/ViewAsPicker";
-import { QuickCreateMenu } from "@/components/QuickCreateMenu";
+import { GlobalTopNav } from "@/components/GlobalTopNav";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
 export const Route = createFileRoute("/_app")({
