@@ -100,6 +100,17 @@
         "companies_one": "{{count}} unmatched company",
         "companies_other": "{{count}} unmatched companies"
       },
+      "mapping": {
+        "action": "Map to collaborator",
+        "title": "Map source identity",
+        "description": "Link this source identifier to an existing collaborator. Future imports will reuse this mapping.",
+        "source": "Source identity from file",
+        "collaborator": "Collaborator",
+        "selectPlaceholder": "Select a collaborator…",
+        "save": "Save mapping",
+        "saving": "Saving…",
+        "saved": "Mapping saved. Re-validating preview…"
+      },
       "cols": {
         "date": "Date",
         "type": "Type",
