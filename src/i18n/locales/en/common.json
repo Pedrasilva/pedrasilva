@@ -79,6 +79,7 @@
       "sampleHint": "Showing {{shown}} of {{total}} rows",
       "toastPreviewed": "Preview ready. Review and confirm to commit.",
       "toastImported": "Imported {{imported}}, skipped {{skipped}}, errors {{errors}}.",
+      "toastStorageWarning": "Original file could not be archived to storage: {{error}}. Import will continue without a backup copy.",
       "types": {
         "acceloActivity": "Accelo activity / timesheet",
         "companies": "Companies, clients & suppliers"
