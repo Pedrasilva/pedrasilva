@@ -507,18 +507,18 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
 function DocumentsSection({
   title,
   emptyLabel,
+function DocumentsSection({
+  title,
+  emptyLabel,
   documents,
   projectLineNetByDoc,
-  t,
 }: {
   title: string;
   emptyLabel: string;
   documents: DocWithMeta[];
   projectLineNetByDoc: Map<string, number>;
-  t: (k: string, d?: string) => string;
 }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tt = t as any;
+  const { t } = useTranslation(["finance", "common"]);
   return (
     <Card>
       <CardHeader>
