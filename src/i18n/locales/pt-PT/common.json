@@ -79,6 +79,7 @@
       "sampleHint": "A mostrar {{shown}} de {{total}} linhas",
       "toastPreviewed": "Pré-visualização pronta. Reveja e confirme para importar.",
       "toastImported": "Importadas {{imported}}, ignoradas {{skipped}}, erros {{errors}}.",
+      "toastStorageWarning": "O ficheiro original não pôde ser arquivado: {{error}}. A importação continua sem cópia de segurança.",
       "types": {
         "acceloActivity": "Accelo atividade / timesheet",
         "companies": "Empresas, clientes e fornecedores"

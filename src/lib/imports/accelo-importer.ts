@@ -28,6 +28,7 @@ export type ImportPreview = {
   jobId: string;
   filename: string;
   storagePath: string | null;
+  storageWarning: string | null;
   totals: {
     rows: number;
     valid: number;
@@ -76,13 +77,14 @@ async function lookupMaps(rows: ParsedAcceloRow[]) {
 
   const projectByRef = new Map<string, string>();
   if (refs.length) {
-    const { data } = await supabase
-      .from("pm_projects")
-      .select("id,external_id,name")
-      .or(
-        `external_id.in.(${refs.map((r) => `"${r.replace(/"/g, "")}"`).join(",")})`,
-      );
-    (data ?? []).forEach((p) => {
+    // Safer than `.or(...)`: two separate `.in(...)` queries avoid PostgREST
+    // string-escaping issues when a project name/ref contains commas, quotes
+    // or parentheses. Both result sets are merged into the same lookup map.
+    const [byExt, byName] = await Promise.all([
+      supabase.from("pm_projects").select("id,external_id,name").in("external_id", refs),
+      supabase.from("pm_projects").select("id,external_id,name").in("name", refs),
+    ]);
+    [...(byExt.data ?? []), ...(byName.data ?? [])].forEach((p) => {
       if (p.external_id) projectByRef.set(p.external_id, p.id);
       if (p.name) projectByRef.set(p.name, p.id);
     });
@@ -170,11 +172,16 @@ export async function uploadAndPreviewAccelo(file: File): Promise<ImportPreview>
   const uid = userRes.data.user?.id;
   const storagePath = `${uid ?? "anon"}/${Date.now()}-${file.name}`;
   let uploadedPath: string | null = null;
+  let storageWarning: string | null = null;
   const up = await supabase.storage.from("import-files").upload(storagePath, file, {
     contentType: file.type || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     upsert: false,
   });
-  if (!up.error) uploadedPath = storagePath;
+  if (!up.error) {
+    uploadedPath = storagePath;
+  } else {
+    storageWarning = up.error.message;
+  }
 
   // Create job
   const { data: job, error: jobErr } = await supabase
@@ -256,6 +263,7 @@ export async function uploadAndPreviewAccelo(file: File): Promise<ImportPreview>
     jobId: job.id,
     filename: file.name,
     storagePath: uploadedPath,
+    storageWarning,
     totals,
     unmatched: {
       collaborators: Array.from(unmatchedCollabs.values()),

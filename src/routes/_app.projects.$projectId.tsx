@@ -39,6 +39,7 @@ import { useProjectExpenses } from "@/lib/projects/use-project-expenses";
 import { ExternalServicesSection } from "@/components/projects/external-services-section";
 import { ProjectExpensesSection } from "@/components/projects/project-expenses-section";
 import { ProjectBillingTab } from "@/components/finance/project-billing-tab";
+import { useHistoricalProjectTotals, EMPTY_HISTORICAL_TOTALS, type HistoricalProjectTotals } from "@/lib/projects/use-historical-time";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -95,6 +96,9 @@ function ProjectDetail() {
   const [dayWidth, setDayWidth] = useState(36);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [poolOpen, setPoolOpen] = useState(false);
+
+  const { data: historical } = useHistoricalProjectTotals(projectId);
+  const hist = historical ?? EMPTY_HISTORICAL_TOTALS;
 
   // Real time entries for this project (per stage via allocation→stage), split by billable
   const { data: timeRows } = useQuery({
@@ -283,8 +287,13 @@ function ProjectDetail() {
     },
     { revenue: 0, cost: 0 },
   );
-  const actualRevenue = actuals.revenue;
-  const actualCost = actuals.cost;
+  // Imported historical entries (e.g. Accelo) are not bound to allocations,
+  // so we add them at the project-total level only — never per-stage and never
+  // into editable timesheets. Idempotency on (source_system, external_id)
+  // prevents double counting on re-imports; live timesheet rows are never
+  // mirrored into historical_time_entries, so the same hour cannot appear twice.
+  const actualRevenue = actuals.revenue + hist.amount;
+  const actualCost = actuals.cost + hist.cost;
   const actualProfit = actualRevenue - actualCost;
   const budgetUsedPct = totalBudget > 0 ? actualCost / totalBudget : 0;
   const budgetOver = actualCost > totalBudget && totalBudget > 0;
@@ -727,6 +736,7 @@ function ProjectDetail() {
                 stagePlannedHours={stagePlannedHours}
                 defaultRates={defaultRates}
                 activities={activities ?? []}
+                historical={hist}
               />
             )}
 
@@ -1418,6 +1428,7 @@ function InsightsPanel({
   stageNonBillableHours,
   defaultRates,
   activities,
+  historical,
 }: {
   projectId: string;
   canEdit: boolean;
@@ -1437,6 +1448,7 @@ function InsightsPanel({
   stagePlannedHours: (id: string) => number;
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   activities: import("@/lib/projects/use-activities").Activity[];
+  historical: HistoricalProjectTotals;
 }) {
   type ResAgg = {
     id: string;
@@ -1540,12 +1552,18 @@ function InsightsPanel({
   //   actualProfit  = actualRevenue − actualCost
   // Per-resource breakdowns below are recomputed for charts only and use the
   // same formulas, so per-resource sums reconcile with the totals above.
+  // Hours coming from imported historical entries (e.g. Accelo) are not
+  // attached to allocations/tasks, so we add them at the project total level
+  // for hour pills only — never per-resource and never per-stage.
+  const histLoggedHours = historical.loggedHours;
+  const histBillable = historical.billableHours;
   const earnedValue = actualRevenue;
   const totalBillableHours = Array.from(billableHoursByRes.values()).reduce(
     (a, b) => a + b,
     0,
-  );
-  const totalNonBillableHours = Math.max(0, totalLoggedHours - totalBillableHours);
+  ) + histBillable;
+  const displayedLoggedHours = totalLoggedHours + histLoggedHours;
+  const totalNonBillableHours = Math.max(0, displayedLoggedHours - totalBillableHours);
   const loggedCost = actualCost;
   // Planned (forecast) sale value from allocations — used as the upper bound
   // for the "Forecast Value" bar.
@@ -1674,8 +1692,20 @@ function InsightsPanel({
         <div className="mt-2 grid grid-cols-3 gap-2 px-2 pb-3 text-xs">
           <HoursPill label="Billable" hours={totalBillableHours} tone="ok" />
           <HoursPill label="Non-billable" hours={totalNonBillableHours} tone="warn" />
-          <HoursPill label="Total logged" hours={totalLoggedHours} tone="muted" />
+          <HoursPill label="Total logged" hours={displayedLoggedHours} tone="muted" />
         </div>
+        {historical.rowCount > 0 && (
+          <div className="mx-2 mb-3 flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 px-2 py-1.5 text-[11px] text-muted-foreground">
+            <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+              {historical.sources.join(", ") || "imported"}
+            </Badge>
+            <span>
+              Includes {historical.rowCount} imported historical entr{historical.rowCount === 1 ? "y" : "ies"}
+              {" · "}
+              {Math.round(histLoggedHours)}h · {euros(historical.cost)} cost
+            </span>
+          </div>
+        )}
       </InsightCard>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
