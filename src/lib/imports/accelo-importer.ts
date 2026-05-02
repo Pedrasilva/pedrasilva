@@ -121,7 +121,7 @@ async function lookupMaps(rows: ParsedAcceloRow[]) {
     });
   }
 
-  return { collabByEmail, resourceByCollab, resourceByEmail, projectByRef, companyByName };
+  return { collabByEmail, mappingByIdentifier, resourceByCollab, resourceByEmail, projectByRef, companyByName };
 }
 
 function validateRows(
@@ -137,14 +137,22 @@ function validateRows(
     if (!row.entry_date) errors.push("Missing or invalid Date");
     if (!row.from_email) errors.push("Cannot extract email from 'From'");
 
-    const collab = row.from_email ? maps.collabByEmail.get(row.from_email) : undefined;
-    if (row.from_email && !collab) errors.push(`Unknown collaborator: ${row.from_email}`);
+    const emailKey = row.from_email?.toLowerCase() ?? null;
+    const direct = emailKey ? maps.collabByEmail.get(emailKey) : undefined;
+    const mapped = !direct && emailKey ? maps.mappingByIdentifier.get(emailKey) : undefined;
+    const collaborator_id = direct?.id ?? mapped?.collaborator_id ?? null;
 
-    const resource_id = collab
-      ? maps.resourceByCollab.get(collab.id) ?? null
-      : row.from_email
-        ? maps.resourceByEmail.get(row.from_email) ?? null
-        : null;
+    if (row.from_email && !collaborator_id) {
+      errors.push(`Unknown collaborator: ${row.from_email}`);
+    }
+
+    const resource_id = mapped?.resource_id
+      ? mapped.resource_id
+      : collaborator_id
+        ? maps.resourceByCollab.get(collaborator_id) ?? null
+        : emailKey
+          ? maps.resourceByEmail.get(emailKey) ?? null
+          : null;
 
     const project_id = row.reference ? maps.projectByRef.get(row.reference) ?? null : null;
     if (row.reference && !project_id) warnings.push(`Unmatched project: ${row.reference}`);
@@ -168,7 +176,7 @@ function validateRows(
       errors,
       warnings,
       matched: {
-        collaborator_id: collab?.id ?? null,
+        collaborator_id,
         resource_id,
         project_id,
         company_id,
