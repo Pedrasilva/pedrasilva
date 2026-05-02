@@ -531,17 +531,17 @@ function DocumentsSection({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t("finance:col.number", "Number")}</TableHead>
-                  <TableHead>{t("finance:col.type", "Type")}</TableHead>
-                  <TableHead>{t("finance:col.counterparty", "Counterparty")}</TableHead>
-                  <TableHead>{t("finance:col.issueDate", "Issue date")}</TableHead>
-                  <TableHead>{t("finance:col.dueDate", "Due date")}</TableHead>
-                  <TableHead>{t("finance:col.status", "Status")}</TableHead>
-                  <TableHead className="text-right">{t("finance:col.net", "Net")}</TableHead>
-                  <TableHead className="text-right">{t("finance:col.vat", "VAT")}</TableHead>
-                  <TableHead className="text-right">{t("finance:col.gross", "Gross")}</TableHead>
-                  <TableHead className="text-right">{t("finance:col.paid", "Paid")}</TableHead>
-                  <TableHead className="text-right">{t("finance:col.outstanding", "Outstanding")}</TableHead>
+                  <TableHead>{t("finance:documents.col.number", "Number")}</TableHead>
+                  <TableHead>{t("finance:documents.col.type", "Type")}</TableHead>
+                  <TableHead>{t("finance:documents.col.counterparty", "Counterparty")}</TableHead>
+                  <TableHead>{t("finance:documents.col.issueDate", "Issue date")}</TableHead>
+                  <TableHead>{t("finance:documents.col.dueDate", "Due date")}</TableHead>
+                  <TableHead>{t("finance:documents.col.status", "Status")}</TableHead>
+                  <TableHead className="text-right">{t("finance:documents.col.net", "Net")}</TableHead>
+                  <TableHead className="text-right">{t("finance:documents.col.vat", "VAT")}</TableHead>
+                  <TableHead className="text-right">{t("finance:documents.col.gross", "Gross")}</TableHead>
+                  <TableHead className="text-right">{t("finance:documents.col.paid", "Paid")}</TableHead>
+                  <TableHead className="text-right">{t("finance:documents.col.outstanding", "Outstanding")}</TableHead>
                   <TableHead className="text-right">{t("finance:projectBilling.cols.projectShare")}</TableHead>
                 </TableRow>
               </TableHeader>
