@@ -1428,6 +1428,7 @@ function InsightsPanel({
   stageNonBillableHours,
   defaultRates,
   activities,
+  historical,
 }: {
   projectId: string;
   canEdit: boolean;
@@ -1447,6 +1448,7 @@ function InsightsPanel({
   stagePlannedHours: (id: string) => number;
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   activities: import("@/lib/projects/use-activities").Activity[];
+  historical: HistoricalProjectTotals;
 }) {
   type ResAgg = {
     id: string;
