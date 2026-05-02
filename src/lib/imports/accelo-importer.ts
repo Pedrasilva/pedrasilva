@@ -371,7 +371,7 @@ export async function commitAcceloImport(
       profit: v.row.profit,
       status_text: v.row.status_text || null,
       invoice_number: v.row.invoice_number || null,
-      raw: v.row.raw,
+      raw: v.row.raw as never,
     }));
 
   let imported = 0;
