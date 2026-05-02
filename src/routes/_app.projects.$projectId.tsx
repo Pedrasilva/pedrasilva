@@ -719,6 +719,9 @@ function ProjectDetail() {
                         dayWidth={dayWidth}
                         resources={resources ?? []}
                         adapter={ganttAdapter}
+                        budgetByStage={budgetControl?.byStage}
+                        budgetByAllocation={budgetControl?.byAllocation}
+                        showFinancials={canSeeFinancials}
                       />
                     )}
                   </div>
