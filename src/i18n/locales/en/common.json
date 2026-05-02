@@ -54,5 +54,65 @@
       "5": "Fri",
       "6": "Sat"
     }
+  },
+  "admin": {
+    "imports": {
+      "title": "Imports",
+      "subtitle": "Controlled historical data imports.",
+      "newImport": "New import",
+      "newImportSub": "Upload a file, preview parsed rows, and confirm before committing.",
+      "importType": "Import type",
+      "file": "File",
+      "preview": "Preview",
+      "parsing": "Parsing…",
+      "previewTitle": "Preview",
+      "cancel": "Cancel",
+      "confirmImport": "Confirm import",
+      "importing": "Importing…",
+      "fixErrorsHint": "Resolve errors before committing.",
+      "history": "Import history",
+      "loading": "Loading…",
+      "empty": "No imports yet.",
+      "comingSoon": "coming soon",
+      "createMissingProjects": "Create basic project shells for unmatched references",
+      "createMissingCompanies": "Create unmatched companies as clients",
+      "sampleHint": "Showing {{shown}} of {{total}} rows",
+      "toastPreviewed": "Preview ready. Review and confirm to commit.",
+      "toastImported": "Imported {{imported}}, skipped {{skipped}}, errors {{errors}}.",
+      "types": {
+        "acceloActivity": "Accelo activity / timesheet",
+        "companies": "Companies, clients & suppliers"
+      },
+      "stats": {
+        "rows": "Rows",
+        "valid": "Valid",
+        "warnings": "Warnings",
+        "errors": "Errors",
+        "duplicates": "Duplicates"
+      },
+      "unmatched": {
+        "collaborators_one": "{{count}} unmatched collaborator",
+        "collaborators_other": "{{count}} unmatched collaborators",
+        "collaboratorsHint": "These collaborators don't exist in HR. Create them first or rows will be blocked.",
+        "projects_one": "{{count}} unmatched project",
+        "projects_other": "{{count}} unmatched projects",
+        "companies_one": "{{count}} unmatched company",
+        "companies_other": "{{count}} unmatched companies"
+      },
+      "cols": {
+        "date": "Date",
+        "type": "Type",
+        "file": "File",
+        "status": "Status",
+        "rows": "Rows",
+        "imported": "Imported",
+        "skipped": "Skipped",
+        "errors": "Errors",
+        "from": "From",
+        "project": "Project",
+        "company": "Company",
+        "notes": "Notes"
+      }
+    }
   }
 }

@@ -54,5 +54,65 @@
       "5": "Sex",
       "6": "Sáb"
     }
+  },
+  "admin": {
+    "imports": {
+      "title": "Importações",
+      "subtitle": "Importações controladas de dados históricos.",
+      "newImport": "Nova importação",
+      "newImportSub": "Envie um ficheiro, pré-visualize as linhas e confirme antes de gravar.",
+      "importType": "Tipo de importação",
+      "file": "Ficheiro",
+      "preview": "Pré-visualizar",
+      "parsing": "A analisar…",
+      "previewTitle": "Pré-visualização",
+      "cancel": "Cancelar",
+      "confirmImport": "Confirmar importação",
+      "importing": "A importar…",
+      "fixErrorsHint": "Resolva os erros antes de confirmar.",
+      "history": "Histórico de importações",
+      "loading": "A carregar…",
+      "empty": "Ainda não há importações.",
+      "comingSoon": "em breve",
+      "createMissingProjects": "Criar projetos base para referências não correspondidas",
+      "createMissingCompanies": "Criar empresas em falta como clientes",
+      "sampleHint": "A mostrar {{shown}} de {{total}} linhas",
+      "toastPreviewed": "Pré-visualização pronta. Reveja e confirme para importar.",
+      "toastImported": "Importadas {{imported}}, ignoradas {{skipped}}, erros {{errors}}.",
+      "types": {
+        "acceloActivity": "Accelo atividade / timesheet",
+        "companies": "Empresas, clientes e fornecedores"
+      },
+      "stats": {
+        "rows": "Linhas",
+        "valid": "Válidas",
+        "warnings": "Avisos",
+        "errors": "Erros",
+        "duplicates": "Duplicadas"
+      },
+      "unmatched": {
+        "collaborators_one": "{{count}} colaborador não correspondido",
+        "collaborators_other": "{{count}} colaboradores não correspondidos",
+        "collaboratorsHint": "Estes colaboradores não existem em RH. Crie-os primeiro ou as linhas ficarão bloqueadas.",
+        "projects_one": "{{count}} projeto não correspondido",
+        "projects_other": "{{count}} projetos não correspondidos",
+        "companies_one": "{{count}} empresa não correspondida",
+        "companies_other": "{{count}} empresas não correspondidas"
+      },
+      "cols": {
+        "date": "Data",
+        "type": "Tipo",
+        "file": "Ficheiro",
+        "status": "Estado",
+        "rows": "Linhas",
+        "imported": "Importadas",
+        "skipped": "Ignoradas",
+        "errors": "Erros",
+        "from": "De",
+        "project": "Projeto",
+        "company": "Empresa",
+        "notes": "Notas"
+      }
+    }
   }
 }
