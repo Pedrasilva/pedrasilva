@@ -125,6 +125,36 @@
         "company": "Company",
         "notes": "Notes"
       }
+    },
+    "projectsTools": {
+      "title": "Projects admin",
+      "subtitle": "Reset and maintenance tools for project test data."
+    },
+    "projectReset": {
+      "title": "Reset project test data",
+      "subtitle": "Wipes all projects, stages, tasks, time entries, expenses, materials, invoices and Accelo historical imports. Companies, HR, finance documents, bank transactions and permissions are kept.",
+      "table": "Table",
+      "rows": "Rows",
+      "total": "Total",
+      "kept": "Kept: companies, collaborators, users, permissions, financial documents, payments, bank transactions and classifications.",
+      "action": "Reset project data",
+      "confirmTitle": "Delete all project test data?",
+      "confirmDescription": "This permanently deletes every project and its dependent records. Cannot be undone.",
+      "typeToConfirm": "Type {{phrase}} to confirm",
+      "confirmAction": "Delete project data",
+      "success": "Project test data reset."
+    },
+    "projectDelete": {
+      "action": "Delete project",
+      "confirmTitle": "Hard-delete this project?",
+      "confirmDescription": "Admin-only. The project can only be deleted if it has no linked records.",
+      "dependency": "Dependency",
+      "count": "Count",
+      "blocked": "Project has linked records and cannot be deleted.",
+      "blockedHint": "Remove or detach the linked records before deleting this project.",
+      "typeToConfirm": "Type {{phrase}} to confirm",
+      "confirmAction": "Delete project",
+      "success": "Project deleted."
     }
   }
 }

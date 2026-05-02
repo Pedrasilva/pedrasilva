@@ -4574,6 +4574,10 @@ export type Database = {
         Args: { _force?: boolean; _import_id: string; _reason?: string }
         Returns: Json
       }
+      delete_project_hard: {
+        Args: { _confirm: string; _project_id: string }
+        Returns: Json
+      }
       finance_delete_unused_supplier_companies: {
         Args: { _confirm: string }
         Returns: Json
@@ -4674,6 +4678,11 @@ export type Database = {
           user_id: string
         }[]
       }
+      project_dependency_counts: {
+        Args: { _project_id: string }
+        Returns: Json
+      }
+      reset_project_test_data: { Args: { _confirm: string }; Returns: Json }
       set_user_admin: {
         Args: { _is_admin: boolean; _user_id: string }
         Returns: undefined
