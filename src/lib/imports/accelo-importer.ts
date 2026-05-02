@@ -28,6 +28,7 @@ export type ImportPreview = {
   jobId: string;
   filename: string;
   storagePath: string | null;
+  storageWarning: string | null;
   totals: {
     rows: number;
     valid: number;
