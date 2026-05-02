@@ -225,6 +225,20 @@ function computeControl({
       const ph = plannedHours(a);
       rateNum += ph * Number(a.cost_rate);
       rateDen += ph;
+
+      // Per-allocation actuals (proportional split of stage logged hours).
+      const w =
+        planMeta.totPlan > 0 ? ph / planMeta.totPlan : 0;
+      const aLogged = w * log.logged;
+      const aBillable = w * log.billable;
+      byAllocation.set(a.id, {
+        allocation_id: a.id,
+        actual_hours_logged: aLogged,
+        actual_billable_hours: aBillable,
+        actual_cost_consumed: aLogged * Number(a.cost_rate),
+        planned_future_hours: fh,
+        planned_future_cost: fh * Number(a.cost_rate),
+      });
     }
 
     const budget = Number(s.budget);
