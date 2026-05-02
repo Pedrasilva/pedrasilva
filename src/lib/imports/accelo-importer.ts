@@ -46,7 +46,11 @@ export type ImportPreview = {
 
 async function lookupMaps(rows: ParsedAcceloRow[]) {
   const emails = Array.from(
-    new Set(rows.map((r) => r.from_email).filter((e): e is string => !!e)),
+    new Set(
+      rows
+        .map((r) => r.from_email?.toLowerCase())
+        .filter((e): e is string => !!e),
+    ),
   );
   const refs = Array.from(new Set(rows.map((r) => r.reference).filter(Boolean)));
   const companies = Array.from(new Set(rows.map((r) => r.company).filter(Boolean)));
@@ -62,18 +66,34 @@ async function lookupMaps(rows: ParsedAcceloRow[]) {
     });
   }
 
-  const resourceByCollab = new Map<string, string>();
-  const resourceByEmail = new Map<string, string>();
-  const collabIds = Array.from(collabByEmail.values()).map((c) => c.id);
-  if (collabIds.length || emails.length) {
+  // Identity mapping fallback (Accelo-specific)
+  const mappingByIdentifier = new Map<string, { collaborator_id: string; resource_id: string | null }>();
+  if (emails.length) {
     const { data } = await supabase
-      .from("pm_resources")
-      .select("id,collaborator_id,email");
-    (data ?? []).forEach((r) => {
-      if (r.collaborator_id) resourceByCollab.set(r.collaborator_id, r.id);
-      if (r.email) resourceByEmail.set(r.email.toLowerCase(), r.id);
+      .from("import_identity_mappings")
+      .select("source_identifier,collaborator_id,resource_id")
+      .eq("source_system", SOURCE_SYSTEM)
+      .eq("active", true)
+      .in("source_identifier", emails);
+    (data ?? []).forEach((m) => {
+      if (m.source_identifier && m.collaborator_id) {
+        mappingByIdentifier.set(m.source_identifier.toLowerCase(), {
+          collaborator_id: m.collaborator_id,
+          resource_id: m.resource_id ?? null,
+        });
+      }
     });
   }
+
+  const resourceByCollab = new Map<string, string>();
+  const resourceByEmail = new Map<string, string>();
+  const { data: resData } = await supabase
+    .from("pm_resources")
+    .select("id,collaborator_id,email");
+  (resData ?? []).forEach((r) => {
+    if (r.collaborator_id) resourceByCollab.set(r.collaborator_id, r.id);
+    if (r.email) resourceByEmail.set(r.email.toLowerCase(), r.id);
+  });
 
   const projectByRef = new Map<string, string>();
   if (refs.length) {
@@ -101,7 +121,7 @@ async function lookupMaps(rows: ParsedAcceloRow[]) {
     });
   }
 
-  return { collabByEmail, resourceByCollab, resourceByEmail, projectByRef, companyByName };
+  return { collabByEmail, mappingByIdentifier, resourceByCollab, resourceByEmail, projectByRef, companyByName };
 }
 
 function validateRows(
@@ -117,14 +137,22 @@ function validateRows(
     if (!row.entry_date) errors.push("Missing or invalid Date");
     if (!row.from_email) errors.push("Cannot extract email from 'From'");
 
-    const collab = row.from_email ? maps.collabByEmail.get(row.from_email) : undefined;
-    if (row.from_email && !collab) errors.push(`Unknown collaborator: ${row.from_email}`);
+    const emailKey = row.from_email?.toLowerCase() ?? null;
+    const direct = emailKey ? maps.collabByEmail.get(emailKey) : undefined;
+    const mapped = !direct && emailKey ? maps.mappingByIdentifier.get(emailKey) : undefined;
+    const collaborator_id = direct?.id ?? mapped?.collaborator_id ?? null;
 
-    const resource_id = collab
-      ? maps.resourceByCollab.get(collab.id) ?? null
-      : row.from_email
-        ? maps.resourceByEmail.get(row.from_email) ?? null
-        : null;
+    if (row.from_email && !collaborator_id) {
+      errors.push(`Unknown collaborator: ${row.from_email}`);
+    }
+
+    const resource_id = mapped?.resource_id
+      ? mapped.resource_id
+      : collaborator_id
+        ? maps.resourceByCollab.get(collaborator_id) ?? null
+        : emailKey
+          ? maps.resourceByEmail.get(emailKey) ?? null
+          : null;
 
     const project_id = row.reference ? maps.projectByRef.get(row.reference) ?? null : null;
     if (row.reference && !project_id) warnings.push(`Unmatched project: ${row.reference}`);
@@ -148,7 +176,7 @@ function validateRows(
       errors,
       warnings,
       matched: {
-        collaborator_id: collab?.id ?? null,
+        collaborator_id,
         resource_id,
         project_id,
         company_id,
@@ -420,4 +448,91 @@ export async function listImportJobs() {
     .limit(50);
   if (error) throw error;
   return data ?? [];
+}
+
+export async function listCollaboratorsForMapping() {
+  const { data, error } = await supabase
+    .from("collaborators")
+    .select("id,nome,email")
+    .is("archived_at", null)
+    .order("nome");
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function saveIdentityMapping(input: {
+  source_identifier: string;
+  source_name: string | null;
+  collaborator_id: string;
+  resource_id?: string | null;
+  notes?: string | null;
+}) {
+  const userRes = await supabase.auth.getUser();
+  // Deactivate any existing active mapping for this (source_system, identifier)
+  await supabase
+    .from("import_identity_mappings")
+    .update({ active: false })
+    .eq("source_system", SOURCE_SYSTEM)
+    .eq("source_identifier", input.source_identifier.toLowerCase())
+    .eq("active", true);
+
+  const { error } = await supabase.from("import_identity_mappings").insert({
+    source_system: SOURCE_SYSTEM,
+    source_identifier: input.source_identifier.toLowerCase(),
+    source_name: input.source_name,
+    collaborator_id: input.collaborator_id,
+    resource_id: input.resource_id ?? null,
+    notes: input.notes ?? null,
+    active: true,
+    created_by: userRes.data.user?.id ?? null,
+  });
+  if (error) throw error;
+}
+
+/** Re-runs preview/validation against an already-uploaded file (no re-upload). */
+export async function revalidatePreview(file: File, jobId: string): Promise<ImportPreview> {
+  const buffer = await file.arrayBuffer();
+  const { rows } = parseAcceloActivityExport(buffer);
+  const externals = Array.from(new Set(rows.map((r) => r.external_id).filter(Boolean)));
+  const existing = new Set<string>();
+  if (externals.length) {
+    const { data } = await supabase
+      .from("historical_time_entries")
+      .select("external_id")
+      .eq("source_system", SOURCE_SYSTEM)
+      .in("external_id", externals);
+    (data ?? []).forEach((d) => d.external_id && existing.add(d.external_id));
+  }
+  const maps = await lookupMaps(rows);
+  const { validations, duplicates } = validateRows(rows, maps, existing);
+
+  const unmatchedCollabs = new Map<string, { email: string | null; name: string }>();
+  const unmatchedProjects = new Set<string>();
+  const unmatchedCompanies = new Set<string>();
+  validations.forEach((v) => {
+    if (!v.matched.collaborator_id && v.row.from_email)
+      unmatchedCollabs.set(v.row.from_email, { email: v.row.from_email, name: v.row.from_name });
+    if (!v.matched.project_id && v.row.reference) unmatchedProjects.add(v.row.reference);
+    if (!v.matched.company_id && v.row.company) unmatchedCompanies.add(v.row.company);
+  });
+
+  return {
+    jobId,
+    filename: file.name,
+    storagePath: null,
+    storageWarning: null,
+    totals: {
+      rows: validations.length,
+      valid: validations.filter((v) => v.status === "valid").length,
+      warning: validations.filter((v) => v.status === "warning").length,
+      error: validations.filter((v) => v.status === "error").length,
+      duplicates,
+    },
+    unmatched: {
+      collaborators: Array.from(unmatchedCollabs.values()),
+      projects: Array.from(unmatchedProjects),
+      companies: Array.from(unmatchedCompanies),
+    },
+    rows: validations,
+  };
 }

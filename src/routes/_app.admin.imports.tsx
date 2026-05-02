@@ -17,8 +17,19 @@ import {
   uploadAndPreviewAccelo,
   commitAcceloImport,
   listImportJobs,
+  listCollaboratorsForMapping,
+  saveIdentityMapping,
+  revalidatePreview,
   type ImportPreview,
 } from "@/lib/imports/accelo-importer";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_app/admin/imports")({
   component: ImportsPage,
@@ -42,6 +53,7 @@ function ImportsContent() {
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [createMissingProjects, setCreateMissingProjects] = useState(false);
   const [createMissingCompanies, setCreateMissingCompanies] = useState(true);
+  const [mappingTarget, setMappingTarget] = useState<{ email: string; name: string } | null>(null);
 
   const jobsQuery = useQuery({ queryKey: ["import-jobs"], queryFn: listImportJobs });
 
@@ -81,6 +93,15 @@ function ImportsContent() {
       setFile(null);
       qc.invalidateQueries({ queryKey: ["import-jobs"] });
     },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const revalidateMutation = useMutation({
+    mutationFn: async () => {
+      if (!file || !preview) throw new Error("No file");
+      return revalidatePreview(file, preview.jobId);
+    },
+    onSuccess: (p) => setPreview(p),
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -161,10 +182,22 @@ function ImportsContent() {
                 })}
                 hint={t("admin.imports.unmatched.collaboratorsHint")}
               >
-                <ul className="text-sm list-disc pl-5">
+                <ul className="text-sm space-y-1">
                   {preview.unmatched.collaborators.slice(0, 20).map((c) => (
-                    <li key={c.email ?? c.name}>
-                      {c.name} {c.email ? <span className="text-muted-foreground">&lt;{c.email}&gt;</span> : null}
+                    <li key={c.email ?? c.name} className="flex items-center justify-between gap-2">
+                      <span>
+                        {c.name}{" "}
+                        {c.email ? <span className="text-muted-foreground">&lt;{c.email}&gt;</span> : null}
+                      </span>
+                      {c.email && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setMappingTarget({ email: c.email!, name: c.name })}
+                        >
+                          {t("admin.imports.mapping.action")}
+                        </Button>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -275,7 +308,96 @@ function ImportsContent() {
           )}
         </CardContent>
       </Card>
+
+      <MappingDialog
+        target={mappingTarget}
+        onClose={() => setMappingTarget(null)}
+        onSaved={() => {
+          setMappingTarget(null);
+          revalidateMutation.mutate();
+        }}
+      />
     </div>
+  );
+}
+
+function MappingDialog({
+  target,
+  onClose,
+  onSaved,
+}: {
+  target: { email: string; name: string } | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const { t } = useTranslation("common");
+  const [collabId, setCollabId] = useState<string>("");
+  const collabs = useQuery({
+    queryKey: ["mapping-collaborators"],
+    queryFn: listCollaboratorsForMapping,
+    enabled: !!target,
+  });
+  const save = useMutation({
+    mutationFn: async () => {
+      if (!target || !collabId) throw new Error("Select a collaborator");
+      await saveIdentityMapping({
+        source_identifier: target.email,
+        source_name: target.name || null,
+        collaborator_id: collabId,
+      });
+    },
+    onSuccess: () => {
+      toast.success(t("admin.imports.mapping.saved"));
+      setCollabId("");
+      onSaved();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Dialog open={!!target} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t("admin.imports.mapping.title")}</DialogTitle>
+          <DialogDescription>{t("admin.imports.mapping.description")}</DialogDescription>
+        </DialogHeader>
+        {target && (
+          <div className="space-y-3">
+            <div className="rounded-md border p-3 text-sm">
+              <div className="text-muted-foreground text-xs">
+                {t("admin.imports.mapping.source")}
+              </div>
+              <div>{target.name}</div>
+              <div className="text-muted-foreground">&lt;{target.email}&gt;</div>
+            </div>
+            <div className="space-y-1">
+              <Label>{t("admin.imports.mapping.collaborator")}</Label>
+              <Select value={collabId} onValueChange={setCollabId}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("admin.imports.mapping.selectPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {(collabs.data ?? []).map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.nome}
+                      {c.email ? ` — ${c.email}` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            {t("admin.imports.cancel")}
+          </Button>
+          <Button onClick={() => save.mutate()} disabled={!collabId || save.isPending}>
+            {save.isPending ? t("admin.imports.mapping.saving") : t("admin.imports.mapping.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

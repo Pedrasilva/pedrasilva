@@ -2146,6 +2146,70 @@ export type Database = {
         }
         Relationships: []
       }
+      import_identity_mappings: {
+        Row: {
+          active: boolean
+          collaborator_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          resource_id: string | null
+          source_identifier: string
+          source_name: string | null
+          source_system: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          collaborator_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          resource_id?: string | null
+          source_identifier: string
+          source_name?: string | null
+          source_system: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          collaborator_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          resource_id?: string | null
+          source_identifier?: string
+          source_name?: string | null
+          source_system?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_identity_mappings_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "import_identity_mappings_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "import_identity_mappings_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       import_job_rows: {
         Row: {
           created_at: string

@@ -100,6 +100,17 @@
         "companies_one": "{{count}} empresa não correspondida",
         "companies_other": "{{count}} empresas não correspondidas"
       },
+      "mapping": {
+        "action": "Mapear para colaborador",
+        "title": "Mapear identidade de origem",
+        "description": "Associe este identificador de origem a um colaborador existente. Importações futuras reutilizam este mapeamento.",
+        "source": "Identidade de origem do ficheiro",
+        "collaborator": "Colaborador",
+        "selectPlaceholder": "Selecione um colaborador…",
+        "save": "Guardar mapeamento",
+        "saving": "A guardar…",
+        "saved": "Mapeamento guardado. A revalidar pré-visualização…"
+      },
       "cols": {
         "date": "Data",
         "type": "Tipo",
