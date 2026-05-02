@@ -78,7 +78,7 @@ interface LinkDragState {
   toSide: "start" | "end" | null;
 }
 
-export function GanttChart({ stages, origin, totalDays, dayWidth, resources, adapter }: Props) {
+export function GanttChart({ stages, origin, totalDays, dayWidth, resources, adapter, budgetByStage, budgetByAllocation, showFinancials }: Props) {
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
   const canvasRef = useRef<HTMLDivElement>(null);
