@@ -303,6 +303,12 @@ export function useProjectInsights(projectId: string) {
         financials: { services, materials, expenses: expensesRow, total },
         workInProgressHours: Math.max(0, plannedHours - loggedHours),
         workDonePct,
+        imported: {
+          sources: Array.from(histSources),
+          loggedHours: histBillable + histNonBillable,
+          cost: histCost,
+          amount: histAmount,
+        },
       };
     },
   });
