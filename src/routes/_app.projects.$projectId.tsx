@@ -1692,8 +1692,20 @@ function InsightsPanel({
         <div className="mt-2 grid grid-cols-3 gap-2 px-2 pb-3 text-xs">
           <HoursPill label="Billable" hours={totalBillableHours} tone="ok" />
           <HoursPill label="Non-billable" hours={totalNonBillableHours} tone="warn" />
-          <HoursPill label="Total logged" hours={totalLoggedHours} tone="muted" />
+          <HoursPill label="Total logged" hours={displayedLoggedHours} tone="muted" />
         </div>
+        {historical.rowCount > 0 && (
+          <div className="mx-2 mb-3 flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 px-2 py-1.5 text-[11px] text-muted-foreground">
+            <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+              {historical.sources.join(", ") || "imported"}
+            </Badge>
+            <span>
+              Includes {historical.rowCount} imported historical entr{historical.rowCount === 1 ? "y" : "ies"}
+              {" · "}
+              {Math.round(histLoggedHours)}h · {euros(historical.cost)} cost
+            </span>
+          </div>
+        )}
       </InsightCard>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
