@@ -297,7 +297,7 @@ function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }
 // ─────────────────────────────────────────────
 // Project
 // ─────────────────────────────────────────────
-function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function ProjectDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const { data: collaborators = [] } = useQuery({
@@ -464,7 +464,7 @@ const taskSchema = z.object({
   allocation_id: z.string().uuid(),
 });
 
-function TaskDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function TaskDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const { data: allocations = [] } = useQuery({
@@ -573,7 +573,7 @@ const expenseSchema = z.object({
   notas_colaborador: z.string().trim().max(2000).optional().or(z.literal("")),
 });
 
-function ExpenseDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function ExpenseDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const today = new Date().toISOString().slice(0, 10);
@@ -843,7 +843,7 @@ const logTimeSchema = z.object({
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
 });
 
-function LogTimeDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function LogTimeDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const { data: allocations = [] } = useAllocations(open);
@@ -950,7 +950,7 @@ const startTimerSchema = z.object({
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
 });
 
-function StartTimerDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function StartTimerDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const { data: allocations = [] } = useAllocations(open);
