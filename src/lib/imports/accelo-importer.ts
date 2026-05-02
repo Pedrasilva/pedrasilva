@@ -172,11 +172,16 @@ export async function uploadAndPreviewAccelo(file: File): Promise<ImportPreview>
   const uid = userRes.data.user?.id;
   const storagePath = `${uid ?? "anon"}/${Date.now()}-${file.name}`;
   let uploadedPath: string | null = null;
+  let storageWarning: string | null = null;
   const up = await supabase.storage.from("import-files").upload(storagePath, file, {
     contentType: file.type || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     upsert: false,
   });
-  if (!up.error) uploadedPath = storagePath;
+  if (!up.error) {
+    uploadedPath = storagePath;
+  } else {
+    storageWarning = up.error.message;
+  }
 
   // Create job
   const { data: job, error: jobErr } = await supabase
