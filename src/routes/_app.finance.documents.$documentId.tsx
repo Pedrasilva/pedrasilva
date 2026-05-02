@@ -87,25 +87,7 @@ const fmtDate = (s: string | null | undefined) => {
   }).format(d);
 };
 
-async function checkFinanceAccess(): Promise<boolean> {
-  const { data: { session } } = await supabase.auth.getSession();
-  const userId = session?.user?.id;
-  if (!userId) return false;
-  const { data: roleRow } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (roleRow) return true;
-  const { data: permRow } = await supabase
-    .from("user_permissions")
-    .select("permission_key")
-    .eq("user_id", userId)
-    .eq("permission_key", "finance.dashboard")
-    .maybeSingle();
-  return !!permRow;
-}
+import { checkFinanceAccess } from "@/lib/finance/access";
 
 export const Route = createFileRoute("/_app/finance/documents/$documentId")({
   beforeLoad: async () => {
