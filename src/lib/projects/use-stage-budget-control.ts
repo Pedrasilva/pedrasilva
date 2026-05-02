@@ -65,6 +65,15 @@ export interface ProjectBudgetControl extends Omit<StageBudgetControl, "stage_id
   imported_sources: string[];
 }
 
+export interface AllocationActuals {
+  allocation_id: string;
+  actual_hours_logged: number;
+  actual_billable_hours: number;
+  actual_cost_consumed: number;
+  planned_future_hours: number;
+  planned_future_cost: number;
+}
+
 interface AllocLite {
   id: string;
   start_date: string;
@@ -135,6 +144,7 @@ function computeControl({
   project_id,
 }: ComputeArgs): {
   byStage: Map<string, StageBudgetControl>;
+  byAllocation: Map<string, AllocationActuals>;
   project: ProjectBudgetControl;
 } {
   const today = todayIso();
@@ -177,6 +187,7 @@ function computeControl({
   }
 
   const byStage = new Map<string, StageBudgetControl>();
+  const byAllocation = new Map<string, AllocationActuals>();
   let projTotals = {
     budget: 0,
     logged: 0,
@@ -214,6 +225,20 @@ function computeControl({
       const ph = plannedHours(a);
       rateNum += ph * Number(a.cost_rate);
       rateDen += ph;
+
+      // Per-allocation actuals (proportional split of stage logged hours).
+      const w =
+        planMeta.totPlan > 0 ? ph / planMeta.totPlan : 0;
+      const aLogged = w * log.logged;
+      const aBillable = w * log.billable;
+      byAllocation.set(a.id, {
+        allocation_id: a.id,
+        actual_hours_logged: aLogged,
+        actual_billable_hours: aBillable,
+        actual_cost_consumed: aLogged * Number(a.cost_rate),
+        planned_future_hours: fh,
+        planned_future_cost: fh * Number(a.cost_rate),
+      });
     }
 
     const budget = Number(s.budget);
@@ -281,7 +306,7 @@ function computeControl({
     imported_sources: imported.sources,
   };
 
-  return { byStage, project };
+  return { byStage, byAllocation, project };
 }
 
 export interface UseStageBudgetControlArgs {

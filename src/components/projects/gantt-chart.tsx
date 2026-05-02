@@ -22,6 +22,11 @@ import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-ada
 
 export type StageWithProject = StageWithAllocations & { projectId: string };
 
+import type {
+  StageBudgetControl,
+  AllocationActuals,
+} from "@/lib/projects/use-stage-budget-control";
+
 interface Props {
   /**
    * `projectId` is kept for backwards compatibility with callers that pass
@@ -41,6 +46,15 @@ interface Props {
    * also drives feature flags (baseline ghost, leave/overload badges, etc.).
    */
   adapter: PlannerAdapter;
+  /**
+   * Optional budget control snapshot. When provided, the Gantt overlays a
+   * compact per-stage badge (remaining budget, est. hours, planned ahead,
+   * projected over/under) and shows per-allocation actual logged hours +
+   * cost consumed. Caller is responsible for permission gating.
+   */
+  budgetByStage?: Map<string, StageBudgetControl>;
+  budgetByAllocation?: Map<string, AllocationActuals>;
+  showFinancials?: boolean;
 }
 
 const STAGE_ROW_H = 92;
@@ -64,7 +78,7 @@ interface LinkDragState {
   toSide: "start" | "end" | null;
 }
 
-export function GanttChart({ stages, origin, totalDays, dayWidth, resources, adapter }: Props) {
+export function GanttChart({ stages, origin, totalDays, dayWidth, resources, adapter, budgetByStage, budgetByAllocation, showFinancials }: Props) {
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -596,6 +610,37 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                               {t("gantt.stage.overByAmount", { amount: euros(totalCost - budget) })}
                             </span>
                           )}
+                          {showFinancials && budgetByStage?.get(stage.id) && (() => {
+                            const bc = budgetByStage.get(stage.id)!;
+                            const ouCls =
+                              bc.projected_over_under < 0
+                                ? "bg-destructive/80 text-destructive-foreground"
+                                : bc.projected_over_under > 0
+                                  ? "bg-emerald-600/70 text-white"
+                                  : "bg-background/40";
+                            return (
+                              <span className="ml-1 inline-flex items-center gap-1.5 rounded bg-background/30 px-1.5 py-px font-mono">
+                                <span title={t("gantt.stage.budgetBadge.remaining")}>
+                                  R {euros(bc.remaining_budget)}
+                                </span>
+                                {bc.estimated_available_hours != null && (
+                                  <span title={t("gantt.stage.budgetBadge.estHours")}>
+                                    · ≈{Math.max(0, Math.round(bc.estimated_available_hours))}h
+                                  </span>
+                                )}
+                                <span title={t("gantt.stage.budgetBadge.future")}>
+                                  · F {euros(bc.planned_future_cost)}
+                                </span>
+                                <span
+                                  className={`rounded px-1 ${ouCls}`}
+                                  title={t("gantt.stage.budgetBadge.overUnder")}
+                                >
+                                  {bc.projected_over_under >= 0 ? "+" : ""}
+                                  {euros(bc.projected_over_under)}
+                                </span>
+                              </span>
+                            );
+                          })()}
                         </div>
                       </div>
                       <button
@@ -771,9 +816,32 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                                     </span>
                                   )}
                                 </div>
-                                <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
-                                  {euros(cost)}
-                                </span>
+                                <div className="flex shrink-0 items-center gap-1.5 font-mono text-[10px] text-muted-foreground">
+                                  {showFinancials && budgetByAllocation?.get(a.id) && (() => {
+                                    const ba = budgetByAllocation.get(a.id)!;
+                                    return (
+                                      <>
+                                        {ba.actual_hours_logged > 0 && (
+                                          <span
+                                            className="rounded bg-foreground/10 px-1 py-px text-foreground/80"
+                                            title={t("gantt.alloc.actualBadge")}
+                                          >
+                                            ✓ {Math.round(ba.actual_hours_logged)}h · {euros(ba.actual_cost_consumed)}
+                                          </span>
+                                        )}
+                                        {ba.planned_future_hours > 0 && (
+                                          <span
+                                            className="rounded bg-primary/15 px-1 py-px text-foreground/80"
+                                            title={t("gantt.alloc.futureBadge")}
+                                          >
+                                            → {Math.round(ba.planned_future_hours)}h · {euros(ba.planned_future_cost)}
+                                          </span>
+                                        )}
+                                      </>
+                                    );
+                                  })()}
+                                  <span>{euros(cost)}</span>
+                                </div>
                               </div>
 
                               <div

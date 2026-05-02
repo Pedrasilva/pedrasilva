@@ -411,7 +411,17 @@
       "deleteAction": "Apagar fase",
       "moveAllocation": "Mover alocação",
       "linkFromStart": "Arraste para outra fase para criar dependência (a partir do início)",
-      "linkFromEnd": "Arraste para outra fase para criar dependência (a partir do fim)"
+      "linkFromEnd": "Arraste para outra fase para criar dependência (a partir do fim)",
+      "budgetBadge": {
+        "remaining": "Orçamento restante",
+        "estHours": "Horas estimadas restantes",
+        "future": "Planeado em frente (custo futuro)",
+        "overUnder": "Projeção acima/abaixo"
+      }
+    },
+    "alloc": {
+      "actualBadge": "Horas reais registadas · custo consumido",
+      "futureBadge": "Horas futuras planeadas · custo"
     },
     "toasts": {
       "linkCreated": "Dependência criada",

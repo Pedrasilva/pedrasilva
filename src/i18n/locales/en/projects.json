@@ -411,7 +411,17 @@
       "deleteAction": "Delete stage",
       "moveAllocation": "Move allocation",
       "linkFromStart": "Drag to another stage to create a dependency (from start)",
-      "linkFromEnd": "Drag to another stage to create a dependency (from end)"
+      "linkFromEnd": "Drag to another stage to create a dependency (from end)",
+      "budgetBadge": {
+        "remaining": "Remaining budget",
+        "estHours": "Estimated hours remaining",
+        "future": "Planned ahead (future cost)",
+        "overUnder": "Projected over/under"
+      }
+    },
+    "alloc": {
+      "actualBadge": "Actual logged hours · cost consumed",
+      "futureBadge": "Future planned hours · cost"
     },
     "toasts": {
       "linkCreated": "Dependency created",

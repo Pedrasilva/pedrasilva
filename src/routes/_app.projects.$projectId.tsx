@@ -593,6 +593,14 @@ function ProjectDetail() {
 
             {tab === "overview" && (
               <div className="mt-4 space-y-4">
+                {budgetControl && canSeeFinancials && (
+                  <BudgetControlPanel
+                    project={budgetControl.project}
+                    byStage={budgetControl.byStage}
+                    stages={stages.map((s) => ({ id: s.id, name: s.name, color: s.color }))}
+                    showFinancials={canSeeFinancials}
+                  />
+                )}
                 <div className="rounded-lg border border-border bg-card">
                   <MilestonesTable
                     stages={stages}
@@ -711,6 +719,9 @@ function ProjectDetail() {
                         dayWidth={dayWidth}
                         resources={resources ?? []}
                         adapter={ganttAdapter}
+                        budgetByStage={budgetControl?.byStage}
+                        budgetByAllocation={budgetControl?.byAllocation}
+                        showFinancials={canSeeFinancials}
                       />
                     )}
                   </div>
