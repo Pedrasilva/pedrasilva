@@ -424,6 +424,7 @@ function ProjectDetail() {
           {/* RIGHT: primary status actions */}
           <div className="flex flex-shrink-0 items-center gap-2">
             <StatusToggle current={project.status} onChange={setStatus} />
+            <HardDeleteProjectButton projectId={project.id} />
           </div>
         </div>
 
