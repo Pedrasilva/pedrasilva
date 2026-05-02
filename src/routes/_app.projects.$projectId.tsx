@@ -1552,12 +1552,18 @@ function InsightsPanel({
   //   actualProfit  = actualRevenue − actualCost
   // Per-resource breakdowns below are recomputed for charts only and use the
   // same formulas, so per-resource sums reconcile with the totals above.
+  // Hours coming from imported historical entries (e.g. Accelo) are not
+  // attached to allocations/tasks, so we add them at the project total level
+  // for hour pills only — never per-resource and never per-stage.
+  const histLoggedHours = historical.loggedHours;
+  const histBillable = historical.billableHours;
   const earnedValue = actualRevenue;
   const totalBillableHours = Array.from(billableHoursByRes.values()).reduce(
     (a, b) => a + b,
     0,
-  );
-  const totalNonBillableHours = Math.max(0, totalLoggedHours - totalBillableHours);
+  ) + histBillable;
+  const displayedLoggedHours = totalLoggedHours + histLoggedHours;
+  const totalNonBillableHours = Math.max(0, displayedLoggedHours - totalBillableHours);
   const loggedCost = actualCost;
   // Planned (forecast) sale value from allocations — used as the upper bound
   // for the "Forecast Value" bar.
