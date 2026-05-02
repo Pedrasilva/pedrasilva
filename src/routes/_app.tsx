@@ -148,8 +148,8 @@ function AppLayout() {
   // Na landing/Hub (/) escondemos também — os módulos já estão no corpo da página.
   const isHomeArea = loc.pathname === "/";
   const hideHrNav = isHrArea || isProjectsArea || isHomeArea;
-  // Quick Create só em CRM e Projects.
-  const showQuickCreate = loc.pathname.startsWith("/crm") || loc.pathname.startsWith("/projects");
+  // Global top-nav (Time/Tasks/Schedule/Create) is always visible.
+
 
   const userInitial = (user?.email ?? "?").charAt(0).toUpperCase();
 
