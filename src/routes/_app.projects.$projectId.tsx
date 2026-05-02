@@ -97,6 +97,9 @@ function ProjectDetail() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [poolOpen, setPoolOpen] = useState(false);
 
+  const { data: historical } = useHistoricalProjectTotals(projectId);
+  const hist = historical ?? EMPTY_HISTORICAL_TOTALS;
+
   // Real time entries for this project (per stage via allocation→stage), split by billable
   const { data: timeRows } = useQuery({
     queryKey: ["pm-project-time", projectId],
