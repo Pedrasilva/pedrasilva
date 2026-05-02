@@ -182,10 +182,22 @@ function ImportsContent() {
                 })}
                 hint={t("admin.imports.unmatched.collaboratorsHint")}
               >
-                <ul className="text-sm list-disc pl-5">
+                <ul className="text-sm space-y-1">
                   {preview.unmatched.collaborators.slice(0, 20).map((c) => (
-                    <li key={c.email ?? c.name}>
-                      {c.name} {c.email ? <span className="text-muted-foreground">&lt;{c.email}&gt;</span> : null}
+                    <li key={c.email ?? c.name} className="flex items-center justify-between gap-2">
+                      <span>
+                        {c.name}{" "}
+                        {c.email ? <span className="text-muted-foreground">&lt;{c.email}&gt;</span> : null}
+                      </span>
+                      {c.email && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setMappingTarget({ email: c.email!, name: c.name })}
+                        >
+                          {t("admin.imports.mapping.action")}
+                        </Button>
+                      )}
                     </li>
                   ))}
                 </ul>
