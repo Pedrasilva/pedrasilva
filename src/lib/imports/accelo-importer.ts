@@ -213,8 +213,8 @@ export async function uploadAndPreviewAccelo(file: File): Promise<ImportPreview>
     const payload = validations.map((v) => ({
       import_job_id: job.id,
       row_number: v.row.rowIndex,
-      raw_data: v.row.raw,
-      parsed_data: { ...v.row, matched: v.matched },
+      raw_data: v.row.raw as never,
+      parsed_data: { ...v.row, matched: v.matched } as never,
       status: v.status,
       external_id: v.row.external_id || null,
       error_message: v.errors.join("; ") || null,
