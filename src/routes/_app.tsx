@@ -323,8 +323,6 @@ function AppLayout() {
               </Badge>
             )}
 
-            <ViewAsPicker variant="desktop" />
-
             <LanguageSwitcher className="hidden md:inline-flex" />
 
             <div className="hidden md:flex items-center gap-0.5">
@@ -349,6 +347,17 @@ function AppLayout() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {isRealAdmin && (
+                  <>
+                    <DropdownMenuLabel className="text-[11px] uppercase tracking-wide text-muted-foreground font-normal">
+                      Admin
+                    </DropdownMenuLabel>
+                    <div className="px-1 pb-1">
+                      <ViewAsPicker variant="mobile" />
+                    </div>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 <DropdownMenuItem onSelect={() => signOut()} className="cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />
                   Terminar sessão
