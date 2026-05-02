@@ -38,11 +38,7 @@ import {
   User as UserIcon,
   Utensils,
   FolderKanban,
-  GanttChartSquare,
   LayoutGrid,
-  ChevronDown,
-  CheckSquare,
-  Clock,
   TrendingUp,
   LineChart,
 } from "lucide-react";
