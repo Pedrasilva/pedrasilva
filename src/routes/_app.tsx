@@ -271,6 +271,47 @@ function AppLayout() {
             </nav>
           )}
 
+          {/* Analytics dropdown — only for users with financial permissions */}
+          {isProjectsArea && can("projects.financials") && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    "hidden md:inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+                    (loc.pathname.startsWith("/projects/financials") ||
+                      loc.pathname.startsWith("/projects/forecast") ||
+                      loc.pathname.startsWith("/projects/insights"))
+                      ? "bg-accent text-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                  )}
+                >
+                  <BarChart3 className="h-3.5 w-3.5" />
+                  {t("nav.analytics", "Analytics")}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-52">
+                <DropdownMenuItem asChild>
+                  <Link to="/projects/financials" className="flex items-center gap-2 cursor-pointer">
+                    <BarChart3 className="h-4 w-4" />
+                    {t("nav.financials")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/projects/forecast" className="flex items-center gap-2 cursor-pointer">
+                    <TrendingUp className="h-4 w-4" />
+                    {t("nav.forecast")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/projects/insights" className="flex items-center gap-2 cursor-pointer">
+                    <LineChart className="h-4 w-4" />
+                    {t("nav.insights")}
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
           {/* Spacer */}
           <div className="flex-1" />
 
