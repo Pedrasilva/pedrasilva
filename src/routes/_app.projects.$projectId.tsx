@@ -94,6 +94,7 @@ function ProjectDetail() {
   const { data: activities } = useProjectActivities(projectId);
   const updateProject = useUpdateProject();
   const { allowed: canSeeFinancials } = useHasPermission("projects.financials");
+  const { data: budgetControl } = useStageBudgetControl({ projectId, defaultRates });
 
   const [tab, setTab] = useState<TabKey>("overview");
   const [dayWidth, setDayWidth] = useState(36);
