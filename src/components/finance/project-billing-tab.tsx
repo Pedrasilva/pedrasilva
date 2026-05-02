@@ -422,7 +422,6 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
         emptyLabel={t("finance:projectBilling.sections.noClientInvoices")}
         documents={issued}
         projectLineNetByDoc={projectLineNetByDoc}
-        t={t}
       />
 
       {/* Section B: Supplier invoices / project costs */}
@@ -431,7 +430,6 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
         emptyLabel={t("finance:projectBilling.sections.noSupplierInvoices")}
         documents={received}
         projectLineNetByDoc={projectLineNetByDoc}
-        t={t}
       />
 
       {/* Section C: Payments / receipts */}
