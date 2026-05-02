@@ -1989,6 +1989,136 @@ export type Database = {
         }
         Relationships: []
       }
+      historical_time_entries: {
+        Row: {
+          amount: number
+          billable_hours: number
+          collaborator_email: string | null
+          collaborator_id: string | null
+          company_id: string | null
+          company_name: string | null
+          content: string | null
+          cost: number
+          created_at: string
+          entry_date: string
+          external_id: string
+          id: string
+          import_job_id: string | null
+          invoice_number: string | null
+          non_billable_hours: number
+          profit: number
+          project_id: string | null
+          project_reference: string | null
+          rate: number | null
+          rate_title: string | null
+          raw: Json
+          resource_id: string | null
+          source_system: string
+          status_text: string | null
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          billable_hours?: number
+          collaborator_email?: string | null
+          collaborator_id?: string | null
+          company_id?: string | null
+          company_name?: string | null
+          content?: string | null
+          cost?: number
+          created_at?: string
+          entry_date: string
+          external_id: string
+          id?: string
+          import_job_id?: string | null
+          invoice_number?: string | null
+          non_billable_hours?: number
+          profit?: number
+          project_id?: string | null
+          project_reference?: string | null
+          rate?: number | null
+          rate_title?: string | null
+          raw?: Json
+          resource_id?: string | null
+          source_system: string
+          status_text?: string | null
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          billable_hours?: number
+          collaborator_email?: string | null
+          collaborator_id?: string | null
+          company_id?: string | null
+          company_name?: string | null
+          content?: string | null
+          cost?: number
+          created_at?: string
+          entry_date?: string
+          external_id?: string
+          id?: string
+          import_job_id?: string | null
+          invoice_number?: string | null
+          non_billable_hours?: number
+          profit?: number
+          project_id?: string | null
+          project_reference?: string | null
+          rate?: number | null
+          rate_title?: string | null
+          raw?: Json
+          resource_id?: string | null
+          source_system?: string
+          status_text?: string | null
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "historical_time_entries_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "historical_time_entries_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "historical_time_entries_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "historical_time_entries_import_job_id_fkey"
+            columns: ["import_job_id"]
+            isOneToOne: false
+            referencedRelation: "import_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "historical_time_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "historical_time_entries_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       holidays: {
         Row: {
           created_at: string
@@ -2013,6 +2143,107 @@ export type Database = {
           nome?: string
           tipo?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      import_job_rows: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          external_id: string | null
+          id: string
+          import_job_id: string
+          parsed_data: Json
+          raw_data: Json
+          row_number: number
+          status: Database["public"]["Enums"]["import_row_status"]
+          warning_message: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          external_id?: string | null
+          id?: string
+          import_job_id: string
+          parsed_data?: Json
+          raw_data?: Json
+          row_number: number
+          status?: Database["public"]["Enums"]["import_row_status"]
+          warning_message?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          external_id?: string | null
+          id?: string
+          import_job_id?: string
+          parsed_data?: Json
+          raw_data?: Json
+          row_number?: number
+          status?: Database["public"]["Enums"]["import_row_status"]
+          warning_message?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_job_rows_import_job_id_fkey"
+            columns: ["import_job_id"]
+            isOneToOne: false
+            referencedRelation: "import_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          error_count: number
+          id: string
+          import_type: Database["public"]["Enums"]["import_type"]
+          imported_count: number
+          metadata: Json
+          original_filename: string | null
+          row_count: number
+          skipped_count: number
+          source_system: string
+          status: Database["public"]["Enums"]["import_job_status"]
+          storage_path: string | null
+          warning_count: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_count?: number
+          id?: string
+          import_type: Database["public"]["Enums"]["import_type"]
+          imported_count?: number
+          metadata?: Json
+          original_filename?: string | null
+          row_count?: number
+          skipped_count?: number
+          source_system?: string
+          status?: Database["public"]["Enums"]["import_job_status"]
+          storage_path?: string | null
+          warning_count?: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_count?: number
+          id?: string
+          import_type?: Database["public"]["Enums"]["import_type"]
+          imported_count?: number
+          metadata?: Json
+          original_filename?: string | null
+          row_count?: number
+          skipped_count?: number
+          source_system?: string
+          status?: Database["public"]["Enums"]["import_job_status"]
+          storage_path?: string | null
+          warning_count?: number
         }
         Relationships: []
       }
@@ -4501,6 +4732,20 @@ export type Database = {
         | "other"
       financial_period_status: "projected" | "active" | "validated" | "closed"
       financial_spending_policy: "mandatory" | "discretionary" | "pass_through"
+      import_job_status:
+        | "uploaded"
+        | "previewed"
+        | "validated"
+        | "imported"
+        | "failed"
+      import_row_status:
+        | "pending"
+        | "valid"
+        | "warning"
+        | "error"
+        | "imported"
+        | "skipped"
+      import_type: "accelo_activity_timesheet" | "companies_clients_suppliers"
       pm_allocation_status: "tentative" | "committed"
       pm_dep_type: "FS" | "SS" | "FF" | "SF"
       pm_expense_category:
@@ -4799,6 +5044,22 @@ export const Constants = {
       ],
       financial_period_status: ["projected", "active", "validated", "closed"],
       financial_spending_policy: ["mandatory", "discretionary", "pass_through"],
+      import_job_status: [
+        "uploaded",
+        "previewed",
+        "validated",
+        "imported",
+        "failed",
+      ],
+      import_row_status: [
+        "pending",
+        "valid",
+        "warning",
+        "error",
+        "imported",
+        "skipped",
+      ],
+      import_type: ["accelo_activity_timesheet", "companies_clients_suppliers"],
       pm_allocation_status: ["tentative", "committed"],
       pm_dep_type: ["FS", "SS", "FF", "SF"],
       pm_expense_category: [
