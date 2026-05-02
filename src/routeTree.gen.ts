@@ -41,6 +41,7 @@ import { Route as AppCrmOpportunitiesRouteImport } from './routes/_app.crm.oppor
 import { Route as AppCrmContactsRouteImport } from './routes/_app.crm.contacts'
 import { Route as AppCrmCompaniesRouteImport } from './routes/_app.crm.companies'
 import { Route as AppCrmAccountsRouteImport } from './routes/_app.crm.accounts'
+import { Route as AppAdminProjectsRouteImport } from './routes/_app.admin.projects'
 import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports'
 import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.finance.documents.index'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
@@ -212,6 +213,11 @@ const AppCrmAccountsRoute = AppCrmAccountsRouteImport.update({
   path: '/accounts',
   getParentRoute: () => AppCrmRoute,
 } as any)
+const AppAdminProjectsRoute = AppAdminProjectsRouteImport.update({
+  id: '/admin/projects',
+  path: '/admin/projects',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAdminImportsRoute = AppAdminImportsRouteImport.update({
   id: '/admin/imports',
   path: '/admin/imports',
@@ -277,6 +283,7 @@ export interface FileRoutesByFullPath {
   '/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/admin/imports': typeof AppAdminImportsRoute
+  '/admin/projects': typeof AppAdminProjectsRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
   '/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/crm/contacts': typeof AppCrmContactsRoute
@@ -318,6 +325,7 @@ export interface FileRoutesByTo {
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
   '/admin/imports': typeof AppAdminImportsRoute
+  '/admin/projects': typeof AppAdminProjectsRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
   '/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/crm/contacts': typeof AppCrmContactsRoute
@@ -363,6 +371,7 @@ export interface FileRoutesById {
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
   '/_app/admin/imports': typeof AppAdminImportsRoute
+  '/_app/admin/projects': typeof AppAdminProjectsRoute
   '/_app/crm/accounts': typeof AppCrmAccountsRouteWithChildren
   '/_app/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/_app/crm/contacts': typeof AppCrmContactsRoute
@@ -408,6 +417,7 @@ export interface FileRouteTypes {
     | '/hr'
     | '/api/notify-expense'
     | '/admin/imports'
+    | '/admin/projects'
     | '/crm/accounts'
     | '/crm/companies'
     | '/crm/contacts'
@@ -449,6 +459,7 @@ export interface FileRouteTypes {
     | '/api/notify-expense'
     | '/'
     | '/admin/imports'
+    | '/admin/projects'
     | '/crm/accounts'
     | '/crm/companies'
     | '/crm/contacts'
@@ -493,6 +504,7 @@ export interface FileRouteTypes {
     | '/api/notify-expense'
     | '/_app/'
     | '/_app/admin/imports'
+    | '/_app/admin/projects'
     | '/_app/crm/accounts'
     | '/_app/crm/companies'
     | '/_app/crm/contacts'
@@ -761,6 +773,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCrmAccountsRouteImport
       parentRoute: typeof AppCrmRoute
     }
+    '/_app/admin/projects': {
+      id: '/_app/admin/projects'
+      path: '/admin/projects'
+      fullPath: '/admin/projects'
+      preLoaderRoute: typeof AppAdminProjectsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/admin/imports': {
       id: '/_app/admin/imports'
       path: '/admin/imports'
@@ -965,6 +984,7 @@ interface AppRouteChildren {
   AppHrRoute: typeof AppHrRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppAdminImportsRoute: typeof AppAdminImportsRoute
+  AppAdminProjectsRoute: typeof AppAdminProjectsRoute
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRoute
   AppProjectsFinancialsRoute: typeof AppProjectsFinancialsRoute
   AppProjectsForecastRoute: typeof AppProjectsForecastRoute
@@ -982,6 +1002,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppHrRoute: AppHrRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppAdminImportsRoute: AppAdminImportsRoute,
+  AppAdminProjectsRoute: AppAdminProjectsRoute,
   AppProjectsProjectIdRoute: AppProjectsProjectIdRoute,
   AppProjectsFinancialsRoute: AppProjectsFinancialsRoute,
   AppProjectsForecastRoute: AppProjectsForecastRoute,
