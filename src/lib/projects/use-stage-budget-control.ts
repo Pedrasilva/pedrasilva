@@ -187,6 +187,7 @@ function computeControl({
   }
 
   const byStage = new Map<string, StageBudgetControl>();
+  const byAllocation = new Map<string, AllocationActuals>();
   let projTotals = {
     budget: 0,
     logged: 0,
