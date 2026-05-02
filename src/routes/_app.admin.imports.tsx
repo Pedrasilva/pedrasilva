@@ -96,6 +96,15 @@ function ImportsContent() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const revalidateMutation = useMutation({
+    mutationFn: async () => {
+      if (!file || !preview) throw new Error("No file");
+      return revalidatePreview(file, preview.jobId);
+    },
+    onSuccess: (p) => setPreview(p),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const hasErrors = preview && preview.totals.error > 0;
 
   return (
