@@ -76,13 +76,14 @@ async function lookupMaps(rows: ParsedAcceloRow[]) {
 
   const projectByRef = new Map<string, string>();
   if (refs.length) {
-    const { data } = await supabase
-      .from("pm_projects")
-      .select("id,external_id,name")
-      .or(
-        `external_id.in.(${refs.map((r) => `"${r.replace(/"/g, "")}"`).join(",")})`,
-      );
-    (data ?? []).forEach((p) => {
+    // Safer than `.or(...)`: two separate `.in(...)` queries avoid PostgREST
+    // string-escaping issues when a project name/ref contains commas, quotes
+    // or parentheses. Both result sets are merged into the same lookup map.
+    const [byExt, byName] = await Promise.all([
+      supabase.from("pm_projects").select("id,external_id,name").in("external_id", refs),
+      supabase.from("pm_projects").select("id,external_id,name").in("name", refs),
+    ]);
+    [...(byExt.data ?? []), ...(byName.data ?? [])].forEach((p) => {
       if (p.external_id) projectByRef.set(p.external_id, p.id);
       if (p.name) projectByRef.set(p.name, p.id);
     });
