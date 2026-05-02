@@ -185,6 +185,10 @@
     "actions": {
       "match": "Match document",
       "matchHint": "Link this transaction to an existing financial document",
+      "matchIncoming": "Match invoice / record payment",
+      "matchIncomingHint": "Link this incoming transfer to an issued invoice and record the payment",
+      "matchOutgoing": "Match supplier invoice / record payment",
+      "matchOutgoingHint": "Link this outgoing transfer to a supplier invoice and record the payment",
       "createDoc": "Create document",
       "createDocHint": "Create an invoice/receipt from this transaction",
       "classify": "Classify",
