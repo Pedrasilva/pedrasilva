@@ -286,12 +286,12 @@ function computeControl({
 
 export interface UseStageBudgetControlArgs {
   projectId: string;
-  defaultRates: DefaultRateInfo[] | undefined;
+  defaultRates: DefaultRatesMap;
 }
 
 export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudgetControlArgs) {
   return useQuery({
-    queryKey: ["stage-budget-control", projectId, (defaultRates ?? []).length],
+    queryKey: ["stage-budget-control", projectId, defaultRates ? defaultRates.size : 0],
     enabled: !!projectId,
     queryFn: async () => {
       const [{ data: stagesRaw, error: sErr }, { data: histRaw }] = await Promise.all([
