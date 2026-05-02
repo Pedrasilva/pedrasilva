@@ -2117,6 +2117,13 @@ export type Database = {
             referencedRelation: "pm_resources"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "historical_time_entries_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       holidays: {
@@ -2206,6 +2213,13 @@ export type Database = {
             columns: ["resource_id"]
             isOneToOne: false
             referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "import_identity_mappings_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2444,6 +2458,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "pm_activities_author_resource_id_fkey"
+            columns: ["author_resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "pm_activities_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
@@ -2506,6 +2527,13 @@ export type Database = {
             referencedRelation: "pm_resources"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pm_activity_replies_author_resource_id_fkey"
+            columns: ["author_resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       pm_allocations: {
@@ -2551,6 +2579,13 @@ export type Database = {
             columns: ["resource_id"]
             isOneToOne: false
             referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_allocations_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
             referencedColumns: ["id"]
           },
           {
@@ -3053,6 +3088,13 @@ export type Database = {
             referencedRelation: "pm_resources"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pm_project_rate_overrides_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       pm_projects: {
@@ -3187,6 +3229,13 @@ export type Database = {
             columns: ["resource_id"]
             isOneToOne: false
             referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_resource_rates_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
             referencedColumns: ["id"]
           },
         ]
@@ -3751,6 +3800,13 @@ export type Database = {
             columns: ["resource_id"]
             isOneToOne: false
             referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_allocations_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
             referencedColumns: ["id"]
           },
           {
@@ -4545,6 +4601,51 @@ export type Database = {
           year?: number | null
         }
         Relationships: []
+      }
+      pm_resources_public: {
+        Row: {
+          collaborator_id: string | null
+          color: string | null
+          created_at: string | null
+          id: string | null
+          name: string | null
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          collaborator_id?: string | null
+          color?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          collaborator_id?: string | null
+          color?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_resources_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_resources_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pm_suppliers_directory: {
         Row: {

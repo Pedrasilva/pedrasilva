@@ -1,0 +1,1 @@
+ALTER VIEW public.pm_resources_public SET (security_invoker = true);
