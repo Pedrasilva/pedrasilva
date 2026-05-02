@@ -250,7 +250,7 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
 
     // For payments we use document-level paid totals (no per-line allocation)
     // and prorate by the project share of the document subtotal when the doc spans projects.
-    const paidFor = (docId: string, direction: "issued" | "received") => {
+    const paidFor = (docId: string) => {
       const doc = docs.find((d) => d.id === docId);
       if (!doc) return 0;
       const docPaid = payments
@@ -263,18 +263,11 @@ export function ProjectBillingTab({ projectId }: { projectId: string }) {
         return doc.project_id === projectId ? docPaid : 0;
       }
       const share = projectNet / Number(doc.subtotal_ex_vat);
-      // direction-aware just for clarity
-      return docPaid * share * (direction === "issued" ? 1 : 1);
+      return docPaid * share;
     };
 
-    const totalReceived = issuedDocs.reduce(
-      (a, d) => a + paidFor(d.id, "issued"),
-      0,
-    );
-    const supplierPaid = receivedDocs.reduce(
-      (a, d) => a + paidFor(d.id, "received"),
-      0,
-    );
+    const totalReceived = issuedDocs.reduce((a, d) => a + paidFor(d.id), 0);
+    const supplierPaid = receivedDocs.reduce((a, d) => a + paidFor(d.id), 0);
 
     const outstandingClient = Math.max(0, totalInvoiced - totalReceived);
     const supplierOutstanding = Math.max(0, supplierCosts - supplierPaid);
