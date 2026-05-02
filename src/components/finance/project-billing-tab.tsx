@@ -519,6 +519,8 @@ function DocumentsSection({
   projectLineNetByDoc: Map<string, number>;
   t: (k: string, d?: string) => string;
 }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tt = t as any;
   return (
     <Card>
       <CardHeader>
