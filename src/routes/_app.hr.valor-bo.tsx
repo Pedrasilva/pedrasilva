@@ -27,13 +27,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { AdminOnly } from "@/components/AdminOnly";
+import { PermissionGate } from "@/components/PermissionGate";
 
 export const Route = createFileRoute("/_app/hr/valor-bo")({
   component: () => (
-    <AdminOnly>
+    <PermissionGate permission="hr.valor-bo">
       <ValorBOPage />
-    </AdminOnly>
+    </PermissionGate>
   ),
 });
 

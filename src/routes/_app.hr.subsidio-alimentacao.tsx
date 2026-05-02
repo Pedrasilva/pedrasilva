@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { AdminOnly } from "@/components/AdminOnly";
+import { PermissionGate } from "@/components/PermissionGate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,9 +31,9 @@ type Rate = {
 
 export const Route = createFileRoute("/_app/hr/subsidio-alimentacao")({
   component: () => (
-    <AdminOnly>
+    <PermissionGate permission="hr.subsidio-alimentacao">
       <SubsidioAlimentacaoPage />
-    </AdminOnly>
+    </PermissionGate>
   ),
 });
 
