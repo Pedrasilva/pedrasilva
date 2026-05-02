@@ -133,6 +133,7 @@ function AppLayout() {
   const settingsItems = [
     { to: "/hr/admin" as const, label: "Administração", icon: Shield, match: (p: string) => p.startsWith("/hr/admin") },
     { to: "/admin/imports" as const, label: "Importações", icon: Upload, match: (p: string) => p.startsWith("/admin/imports") },
+    { to: "/admin/projects" as const, label: "Projetos (admin)", icon: Shield, match: (p: string) => p.startsWith("/admin/projects") },
     { to: "/hr/valor-bo" as const, label: "Valor BO/hora", icon: Calculator, match: (p: string) => p.startsWith("/hr/valor-bo") },
     { to: "/hr/dias-uteis" as const, label: "Dias úteis", icon: CalendarCheck, match: (p: string) => p.startsWith("/hr/dias-uteis") },
     { to: "/hr/subsidio-alimentacao" as const, label: "Subsídio alimentação", icon: Utensils, match: (p: string) => p.startsWith("/hr/subsidio-alimentacao") },
