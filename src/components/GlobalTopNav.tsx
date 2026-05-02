@@ -142,7 +142,6 @@ export function GlobalTopNav() {
           <DropdownMenuItem asChild>
             <Link
               to="/projects/resources"
-              search={{ view: "mine" }}
               className="flex w-full cursor-pointer items-center gap-2"
             >
               <CalendarDays className="h-4 w-4 text-muted-foreground" /> {t("topNav.mySchedule")}
