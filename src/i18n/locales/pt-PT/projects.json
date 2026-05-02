@@ -17,6 +17,25 @@
     "forecast": "Previsão",
     "insights": "Análises"
   },
+  "topNav": {
+    "time": "Tempo",
+    "tasks": "Tarefas",
+    "schedule": "Agenda",
+    "create": "Criar",
+    "logTime": "Registar tempo",
+    "startTimer": "Iniciar timer",
+    "myTimesheet": "Minha folha de horas",
+    "myTasks": "Minhas tarefas",
+    "teamTasks": "Tarefas da equipa",
+    "createTask": "Criar tarefa",
+    "mySchedule": "Minha agenda",
+    "teamSchedule": "Agenda da equipa",
+    "globalGantt": "Gantt global",
+    "newTask": "Tarefa",
+    "newProject": "Projecto",
+    "newExpense": "Despesa",
+    "newMaterial": "Material / Serviço externo"
+  },
   "status": {
     "proposta": "Proposta",
     "em_curso": "Em curso",

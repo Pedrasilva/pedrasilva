@@ -17,6 +17,25 @@
     "forecast": "Forecast",
     "insights": "Insights"
   },
+  "topNav": {
+    "time": "Time",
+    "tasks": "Tasks",
+    "schedule": "Schedule",
+    "create": "Create",
+    "logTime": "Log time",
+    "startTimer": "Start timer",
+    "myTimesheet": "My timesheet",
+    "myTasks": "My tasks",
+    "teamTasks": "Team tasks",
+    "createTask": "Create task",
+    "mySchedule": "My schedule",
+    "teamSchedule": "Team schedule",
+    "globalGantt": "Global Gantt",
+    "newTask": "Task",
+    "newProject": "Project",
+    "newExpense": "Expense",
+    "newMaterial": "Material / External service"
+  },
   "status": {
     "proposta": "Proposal",
     "em_curso": "In progress",

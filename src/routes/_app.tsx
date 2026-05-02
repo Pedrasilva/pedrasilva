@@ -38,18 +38,14 @@ import {
   User as UserIcon,
   Utensils,
   FolderKanban,
-  GanttChartSquare,
   LayoutGrid,
-  ChevronDown,
-  CheckSquare,
-  Clock,
   TrendingUp,
   LineChart,
 } from "lucide-react";
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
 import { ViewAsPicker } from "@/components/ViewAsPicker";
-import { QuickCreateMenu } from "@/components/QuickCreateMenu";
+import { GlobalTopNav } from "@/components/GlobalTopNav";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
 export const Route = createFileRoute("/_app")({
@@ -148,8 +144,8 @@ function AppLayout() {
   // Na landing/Hub (/) escondemos também — os módulos já estão no corpo da página.
   const isHomeArea = loc.pathname === "/";
   const hideHrNav = isHrArea || isProjectsArea || isHomeArea;
-  // Quick Create só em CRM e Projects.
-  const showQuickCreate = loc.pathname.startsWith("/crm") || loc.pathname.startsWith("/projects");
+  // Global top-nav (Time/Tasks/Schedule/Create) is always visible.
+
 
   const userInitial = (user?.email ?? "?").charAt(0).toUpperCase();
 
@@ -248,30 +244,18 @@ function AppLayout() {
                 <FolderKanban className="h-4 w-4 text-primary" />
                 <span className="font-display text-sm font-semibold tracking-tight">{t("nav.projects")}</span>
               </Link>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
-                    loc.pathname === "/projects" || loc.pathname === "/projects/gantt"
-                      ? "bg-accent text-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
-                  )}
-                >
-                  <LayoutGrid className="h-3.5 w-3.5" />
-                  {t("nav.projects")}
-                  <ChevronDown className="h-3 w-3 opacity-60" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56">
-                  <DropdownMenuItem onClick={() => navigate({ to: "/projects" })}>
-                    <LayoutGrid className="mr-2 h-4 w-4 text-muted-foreground" />
-                    {t("nav.projectList")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate({ to: "/projects/gantt" })}>
-                    <GanttChartSquare className="mr-2 h-4 w-4 text-muted-foreground" />
-                    {t("nav.globalGantt")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Link
+                to="/projects"
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+                  loc.pathname === "/projects"
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                )}
+              >
+                <LayoutGrid className="h-3.5 w-3.5" />
+                {t("nav.projectList")}
+              </Link>
               <Link
                 to="/projects/resources"
                 className={cn(
@@ -283,30 +267,6 @@ function AppLayout() {
               >
                 <Users className="h-3.5 w-3.5" />
                 {t("nav.team")}
-              </Link>
-              <Link
-                to="/projects/my-tasks"
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
-                  loc.pathname.startsWith("/projects/my-tasks")
-                    ? "bg-accent text-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
-                )}
-              >
-                <CheckSquare className="h-3.5 w-3.5" />
-                {t("nav.myTasks")}
-              </Link>
-              <Link
-                to="/projects/timesheet"
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
-                  loc.pathname.startsWith("/projects/timesheet")
-                    ? "bg-accent text-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
-                )}
-              >
-                <Clock className="h-3.5 w-3.5" />
-                {t("nav.timesheet")}
               </Link>
               <Link
                 to="/projects/financials"
@@ -362,7 +322,9 @@ function AppLayout() {
 
             <LanguageSwitcher className="hidden md:inline-flex" />
 
-            {showQuickCreate && <QuickCreateMenu />}
+            <div className="hidden md:flex items-center gap-0.5">
+              <GlobalTopNav />
+            </div>
 
             {/* Menu de utilizador (desktop) */}
             <DropdownMenu>
