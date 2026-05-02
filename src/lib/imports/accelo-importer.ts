@@ -263,6 +263,7 @@ export async function uploadAndPreviewAccelo(file: File): Promise<ImportPreview>
     jobId: job.id,
     filename: file.name,
     storagePath: uploadedPath,
+    storageWarning,
     totals,
     unmatched: {
       collaborators: Array.from(unmatchedCollabs.values()),
