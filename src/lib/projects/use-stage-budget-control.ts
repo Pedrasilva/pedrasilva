@@ -144,6 +144,7 @@ function computeControl({
   project_id,
 }: ComputeArgs): {
   byStage: Map<string, StageBudgetControl>;
+  byAllocation: Map<string, AllocationActuals>;
   project: ProjectBudgetControl;
 } {
   const today = todayIso();
