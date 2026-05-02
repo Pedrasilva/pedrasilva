@@ -34,6 +34,7 @@ import {
   Wallet,
   Menu,
   Shield,
+  Upload,
   User as UserIcon,
   Utensils,
   FolderKanban,
