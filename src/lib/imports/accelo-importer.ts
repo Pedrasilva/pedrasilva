@@ -46,7 +46,11 @@ export type ImportPreview = {
 
 async function lookupMaps(rows: ParsedAcceloRow[]) {
   const emails = Array.from(
-    new Set(rows.map((r) => r.from_email).filter((e): e is string => !!e)),
+    new Set(
+      rows
+        .map((r) => r.from_email?.toLowerCase())
+        .filter((e): e is string => !!e),
+    ),
   );
   const refs = Array.from(new Set(rows.map((r) => r.reference).filter(Boolean)));
   const companies = Array.from(new Set(rows.map((r) => r.company).filter(Boolean)));
@@ -62,18 +66,34 @@ async function lookupMaps(rows: ParsedAcceloRow[]) {
     });
   }
 
-  const resourceByCollab = new Map<string, string>();
-  const resourceByEmail = new Map<string, string>();
-  const collabIds = Array.from(collabByEmail.values()).map((c) => c.id);
-  if (collabIds.length || emails.length) {
+  // Identity mapping fallback (Accelo-specific)
+  const mappingByIdentifier = new Map<string, { collaborator_id: string; resource_id: string | null }>();
+  if (emails.length) {
     const { data } = await supabase
-      .from("pm_resources")
-      .select("id,collaborator_id,email");
-    (data ?? []).forEach((r) => {
-      if (r.collaborator_id) resourceByCollab.set(r.collaborator_id, r.id);
-      if (r.email) resourceByEmail.set(r.email.toLowerCase(), r.id);
+      .from("import_identity_mappings")
+      .select("source_identifier,collaborator_id,resource_id")
+      .eq("source_system", SOURCE_SYSTEM)
+      .eq("active", true)
+      .in("source_identifier", emails);
+    (data ?? []).forEach((m) => {
+      if (m.source_identifier && m.collaborator_id) {
+        mappingByIdentifier.set(m.source_identifier.toLowerCase(), {
+          collaborator_id: m.collaborator_id,
+          resource_id: m.resource_id ?? null,
+        });
+      }
     });
   }
+
+  const resourceByCollab = new Map<string, string>();
+  const resourceByEmail = new Map<string, string>();
+  const { data: resData } = await supabase
+    .from("pm_resources")
+    .select("id,collaborator_id,email");
+  (resData ?? []).forEach((r) => {
+    if (r.collaborator_id) resourceByCollab.set(r.collaborator_id, r.id);
+    if (r.email) resourceByEmail.set(r.email.toLowerCase(), r.id);
+  });
 
   const projectByRef = new Map<string, string>();
   if (refs.length) {
