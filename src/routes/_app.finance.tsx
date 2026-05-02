@@ -54,29 +54,7 @@ import { SuppliersMasterData } from "@/components/finance/suppliers-master-data"
 import { AdminResetTool } from "@/components/finance/admin-reset-tool";
 import { FinanceInconsistencyReport } from "@/components/finance/finance-inconsistency-report";
 
-async function checkFinanceAccess(): Promise<boolean> {
-  const { data: { session } } = await supabase.auth.getSession();
-  const userId = session?.user?.id;
-  if (!userId) return false;
-
-  // Check admin role
-  const { data: roleRow } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (roleRow) return true;
-
-  // Check finance.dashboard permission
-  const { data: permRow } = await supabase
-    .from("user_permissions")
-    .select("permission_key")
-    .eq("user_id", userId)
-    .eq("permission_key", "finance.dashboard")
-    .maybeSingle();
-  return !!permRow;
-}
+import { checkFinanceAccess } from "@/lib/finance/access";
 
 export const Route = createFileRoute("/_app/finance")({
   beforeLoad: async () => {
