@@ -1116,6 +1116,7 @@ function MilestonesTable({
   stagePlannedHours,
   defaultRates,
   canSeeFinancials,
+  onEditPlan,
 }: {
   stages: ReturnType<typeof useProjectDetail>["data"] extends infer T
     ? T extends { stages: infer S }
