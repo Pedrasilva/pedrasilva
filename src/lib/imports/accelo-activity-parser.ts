@@ -24,7 +24,9 @@ export type AcceloRowKey =
   | "cost"
   | "profit"
   | "status"
-  | "invoice_number";
+  | "invoice_number"
+  | "stage"
+  | "stage_date_range";
 
 const HEADER_ALIASES: Record<AcceloRowKey, string[]> = {
   external_id: ["id#", "id #", "id"],
@@ -46,6 +48,20 @@ const HEADER_ALIASES: Record<AcceloRowKey, string[]> = {
   profit: ["profit"],
   status: ["status"],
   invoice_number: ["invoice number", "invoice #", "invoice"],
+  stage: ["stage", "milestone", "phase"],
+  stage_date_range: [
+    "stage date range",
+    "milestone date range",
+    "stage dates",
+    "milestone dates",
+    "date range",
+  ],
+};
+
+// Positional fallbacks (0-indexed): column K = 10 (stage), column O = 14 (date range)
+const POSITION_FALLBACK: Partial<Record<AcceloRowKey, number>> = {
+  stage: 10,
+  stage_date_range: 14,
 };
 
 const REQUIRED: AcceloRowKey[] = ["external_id", "from", "date"];
