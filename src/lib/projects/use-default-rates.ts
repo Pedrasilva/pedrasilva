@@ -26,7 +26,7 @@ export function useDefaultResourceRates() {
         supabase.from("collaborators").select("*").is("archived_at", null),
         supabase.from("salary_snapshots").select("*").order("reference_date", { ascending: false }),
         supabase.from("bo_settings").select("*").limit(1).maybeSingle(),
-        supabase.from("pm_resources").select("id, collaborator_id"),
+        supabase.from("pm_resources_public").select("id, collaborator_id"),
       ]);
       if (collabs.error) throw collabs.error;
       if (snaps.error) throw snaps.error;
