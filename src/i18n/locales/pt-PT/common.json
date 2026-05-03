@@ -70,6 +70,11 @@
       "confirmImport": "Confirmar importação",
       "importing": "A importar…",
       "fixErrorsHint": "Resolva os erros antes de confirmar.",
+      "failFast": {
+        "emptyStageMapping": "Existem linhas sem fase mas nenhuma atribuição válida de fase por defeito. Volte ao passo Fases e corrija o mapeamento.",
+        "missingDefaultStages_one": "{{count}} projeto ainda tem linhas sem fase e sem fase por defeito atribuída.",
+        "missingDefaultStages_other": "{{count}} projetos ainda têm linhas sem fase e sem fase por defeito atribuída."
+      },
       "history": "Histórico de importações",
       "loading": "A carregar…",
       "empty": "Ainda não há importações.",
@@ -141,7 +146,17 @@
           "entriesWithoutStage": "Entradas sem fase",
           "allocations": "Alocações",
           "reconstructionFailed": "A importação criou registos históricos mas nenhuma fase. A reconstrução de fases falhou.",
-          "openProject": "Abrir projeto"
+          "openProject": "Abrir projeto",
+          "retryFailed_one": "Repetir {{count}} projeto falhado",
+          "retryFailed_other": "Repetir {{count}} projetos falhados",
+          "exportDebug": "Exportar relatório de depuração"
+        },
+        "table": {
+          "project": "Projeto",
+          "stages": "Fases",
+          "status": "Estado",
+          "ok": "OK",
+          "failed": "Falhado"
         }
       },
       "stages": {

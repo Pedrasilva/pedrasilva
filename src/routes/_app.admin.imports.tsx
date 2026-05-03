@@ -129,26 +129,43 @@ function ImportsContent() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const buildCommitOptions = (restrictProjectIds?: string[]) => {
+    const createMissingProjects = Object.values(projectMapping).some((c) => c.mode === "create");
+    const stageMapping = buildCommitDefaultStageByProject(
+      unassignedStageProjectKeys,
+      defaultStageByProject,
+    );
+    return {
+      createMissingProjects,
+      createMissingCompanies,
+      projectMapping,
+      defaultStageByProject: stageMapping,
+      ...(restrictProjectIds && restrictProjectIds.length ? { restrictProjectIds } : {}),
+    };
+  };
+
   const commitMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (vars?: { restrictProjectIds?: string[] }) => {
       if (!preview) throw new Error("No preview");
-      const createMissingProjects = Object.values(projectMapping).some((c) => c.mode === "create");
-      const stageMapping = buildCommitDefaultStageByProject(
-        unassignedStageProjectKeys,
-        defaultStageByProject,
+      const opts = buildCommitOptions(vars?.restrictProjectIds);
+      // Fail-fast: if user assigned stages on Review but stripping invalid
+      // ones produced an empty mapping while there are stageless projects,
+      // block before round-tripping to Supabase.
+      if (
+        unassignedStageProjectKeys.length > 0 &&
+        Object.keys(opts.defaultStageByProject ?? {}).length === 0
+      ) {
+        throw new Error(t("admin.imports.failFast.emptyStageMapping"));
+      }
+      // Fail-fast: any stageless project missing a valid choice.
+      const missing = unassignedStageProjectKeys.filter(
+        (p) => !isValidDefaultStageChoice(defaultStageByProject[p.key]),
       );
-      console.debug("[accelo-import] commit options", {
-        createMissingProjects,
-        createMissingCompanies,
-        projectMapping,
-        defaultStageByProject: stageMapping,
-      });
-      return commitAcceloImport(preview, {
-        createMissingProjects,
-        createMissingCompanies,
-        projectMapping,
-        defaultStageByProject: stageMapping,
-      });
+      if (missing.length > 0) {
+        throw new Error(t("admin.imports.failFast.missingDefaultStages", { count: missing.length }));
+      }
+      console.debug("[accelo-import] commit options", opts);
+      return commitAcceloImport(preview, opts);
     },
     onSuccess: (r) => {
       setResult(r);
@@ -160,9 +177,6 @@ function ImportsContent() {
         }),
       );
       qc.invalidateQueries({ queryKey: ["import-jobs"] });
-      // Force every project/stage/budget/financial query to refetch so the
-      // newly imported stages, allocations and time entries are visible
-      // when the user navigates to the project page right after import.
       [
         ["projects"],
         ["pm-projects"],
@@ -316,7 +330,7 @@ function ImportsContent() {
           canCommit={canCommit}
           isCommitting={commitMutation.isPending}
           onBack={() => setStep("stages")}
-          onCommit={() => commitMutation.mutate()}
+          onCommit={() => commitMutation.mutate(undefined)}
           blockingErrors={blockingErrors}
           unmatchedCollabs={unmatchedCollabs}
           projectMappingComplete={projectMappingComplete}
@@ -327,6 +341,19 @@ function ImportsContent() {
         <ResultStep
           result={result}
           onReset={reset}
+          onRetryFailed={(ids) => commitMutation.mutate({ restrictProjectIds: ids })}
+          isRetrying={commitMutation.isPending}
+          debugPayload={{
+            jobId: preview?.jobId ?? null,
+            timestamp: new Date().toISOString(),
+            commitOptions: buildCommitOptions(),
+            projectMapping,
+            defaultStageByProject: buildCommitDefaultStageByProject(
+              unassignedStageProjectKeys,
+              defaultStageByProject,
+            ),
+            diagnostics: result.diagnostics,
+          }}
         />
       )}
 
@@ -1357,8 +1384,34 @@ function ReviewStep({
   );
 }
 
-function ResultStep({ result, onReset }: { result: CommitResult; onReset: () => void }) {
+function ResultStep({
+  result,
+  onReset,
+  onRetryFailed,
+  isRetrying,
+  debugPayload,
+}: {
+  result: CommitResult;
+  onReset: () => void;
+  onRetryFailed: (ids: string[]) => void;
+  isRetrying: boolean;
+  debugPayload: Record<string, unknown>;
+}) {
   const { t } = useTranslation("common");
+  const failed = (result.diagnostics ?? []).filter((d) => d.reconstructionFailed);
+
+  const downloadDebug = () => {
+    const blob = new Blob([JSON.stringify(debugPayload, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `accelo-import-debug-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -1391,44 +1444,79 @@ function ResultStep({ result, onReset }: { result: CommitResult; onReset: () => 
         )}
         {result.diagnostics && result.diagnostics.length > 0 && (
           <div className="space-y-2">
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              {t("admin.imports.result.diagnostics.title")}
+            <div className="flex items-center justify-between">
+              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {t("admin.imports.result.diagnostics.title")}
+              </div>
+              <div className="flex gap-2">
+                {failed.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    disabled={isRetrying}
+                    onClick={() => onRetryFailed(failed.map((d) => d.project_id))}
+                  >
+                    {isRetrying
+                      ? t("admin.imports.importing")
+                      : t("admin.imports.result.diagnostics.retryFailed", { count: failed.length })}
+                  </Button>
+                )}
+                <Button size="sm" variant="outline" onClick={downloadDebug}>
+                  {t("admin.imports.result.diagnostics.exportDebug")}
+                </Button>
+              </div>
             </div>
-            <div className="space-y-2">
-              {result.diagnostics.map((d) => (
-                <div
-                  key={d.project_id}
-                  className={`rounded-md border p-3 text-xs ${
-                    d.reconstructionFailed
-                      ? "border-red-300/60 bg-red-50 text-red-900 dark:border-red-700/60 dark:bg-red-950/30 dark:text-red-200"
-                      : "border-border bg-muted/30"
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="font-medium">{d.project_name ?? d.project_id}</div>
-                    <Link
-                      to="/projects/$projectId"
-                      params={{ projectId: d.project_id }}
+            <div className="overflow-x-auto rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("admin.imports.result.table.project")}</TableHead>
+                    <TableHead className="text-right">{t("admin.imports.result.table.stages")}</TableHead>
+                    <TableHead className="text-right">{t("admin.imports.result.diagnostics.historicalEntries")}</TableHead>
+                    <TableHead className="text-right">{t("admin.imports.result.diagnostics.historicalWithStage")}</TableHead>
+                    <TableHead className="text-right">{t("admin.imports.result.diagnostics.entriesWithoutStage")}</TableHead>
+                    <TableHead className="text-right">{t("admin.imports.result.diagnostics.allocations")}</TableHead>
+                    <TableHead>{t("admin.imports.result.table.status")}</TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {result.diagnostics.map((d) => (
+                    <TableRow
+                      key={d.project_id}
+                      className={d.reconstructionFailed ? "bg-red-50/50 dark:bg-red-950/20" : ""}
                     >
-                      <Button size="sm" variant="outline" className="h-7 text-xs">
-                        {t("admin.imports.result.diagnostics.openProject")}
-                      </Button>
-                    </Link>
-                  </div>
-                  <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5 sm:grid-cols-4">
-                    <span>{t("admin.imports.result.diagnostics.visibleStages")}: <strong>{d.visibleStagesForProject}</strong></span>
-                    <span>{t("admin.imports.result.diagnostics.historicalEntries")}: <strong>{d.historicalEntriesForProject}</strong></span>
-                    <span>{t("admin.imports.result.diagnostics.historicalWithStage")}: <strong>{d.historicalEntriesWithStage}</strong></span>
-                    <span>{t("admin.imports.result.diagnostics.entriesWithoutStage")}: <strong>{d.entriesWithoutStage}</strong></span>
-                    <span>{t("admin.imports.result.diagnostics.allocations")}: <strong>{d.allocationsForProject}</strong></span>
-                  </div>
-                  {d.reconstructionFailed && (
-                    <div className="mt-2 font-medium">
-                      {t("admin.imports.result.diagnostics.reconstructionFailed")}
-                    </div>
-                  )}
-                </div>
-              ))}
+                      <TableCell className="text-xs">
+                        <div className="font-medium">{d.project_name ?? "—"}</div>
+                        <div className="font-mono text-[10px] text-muted-foreground">{d.project_id}</div>
+                      </TableCell>
+                      <TableCell className="text-right text-xs">{d.visibleStagesForProject}</TableCell>
+                      <TableCell className="text-right text-xs">{d.historicalEntriesForProject}</TableCell>
+                      <TableCell className="text-right text-xs">{d.historicalEntriesWithStage}</TableCell>
+                      <TableCell className={`text-right text-xs ${d.entriesWithoutStage > 0 ? "font-semibold text-amber-700 dark:text-amber-400" : ""}`}>
+                        {d.entriesWithoutStage}
+                      </TableCell>
+                      <TableCell className="text-right text-xs">{d.allocationsForProject}</TableCell>
+                      <TableCell>
+                        {d.reconstructionFailed ? (
+                          <Badge variant="destructive">{t("admin.imports.result.table.failed")}</Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-emerald-500/60 text-emerald-700 dark:text-emerald-400">
+                            {t("admin.imports.result.table.ok")}
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Link to="/projects/$projectId" params={{ projectId: d.project_id }}>
+                          <Button size="sm" variant="outline" className="h-7 text-xs">
+                            {t("admin.imports.result.diagnostics.openProject")}
+                          </Button>
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </div>
         )}

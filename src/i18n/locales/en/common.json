@@ -70,6 +70,11 @@
       "confirmImport": "Confirm import",
       "importing": "Importing…",
       "fixErrorsHint": "Resolve errors before committing.",
+      "failFast": {
+        "emptyStageMapping": "Stageless rows detected but no valid default stage assignments. Go back to Stages and fix the mapping.",
+        "missingDefaultStages_one": "{{count}} project still has stageless rows without a default stage choice.",
+        "missingDefaultStages_other": "{{count}} projects still have stageless rows without a default stage choice."
+      },
       "history": "Import history",
       "loading": "Loading…",
       "empty": "No imports yet.",
@@ -141,7 +146,17 @@
           "entriesWithoutStage": "Entries without stage",
           "allocations": "Allocations",
           "reconstructionFailed": "Import created historical actuals but no stages. Stage reconstruction failed.",
-          "openProject": "Open project"
+          "openProject": "Open project",
+          "retryFailed_one": "Retry {{count}} failed project",
+          "retryFailed_other": "Retry {{count}} failed projects",
+          "exportDebug": "Export commit debug report"
+        },
+        "table": {
+          "project": "Project",
+          "stages": "Stages",
+          "status": "Status",
+          "ok": "OK",
+          "failed": "Failed"
         }
       },
       "stages": {

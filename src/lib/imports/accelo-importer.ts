@@ -333,6 +333,10 @@ export type CommitOptions = {
    *  project_id (after project resolution) OR by parent_reference when the
    *  project does not yet exist. */
   defaultStageByProject?: Record<string, DefaultStageChoice>;
+  /** When set, commit only processes rows whose resolved project_id (or
+   *  parent_reference for not-yet-created projects) is in this set. Used by
+   *  the "Retry failed projects" action to re-run commit on a subset. */
+  restrictProjectIds?: string[];
 };
 
 export type ProjectDiagnostic = {
@@ -470,11 +474,23 @@ export async function commitAcceloImport(
     return autoMatched;
   };
 
+  const restrict = options.restrictProjectIds && options.restrictProjectIds.length
+    ? new Set(options.restrictProjectIds)
+    : null;
+  const isAllowed = (ref: string | null | undefined, autoMatched: string | null) => {
+    if (!restrict) return true;
+    const pid = resolveProjectId(ref, autoMatched);
+    if (pid && restrict.has(pid)) return true;
+    if (ref && restrict.has(ref)) return true;
+    return false;
+  };
+
   const missingDefaultStageProjects = new Set<string>();
   for (const v of preview.rows) {
     if (v.status === "error") continue;
     const ref = refOf(v.row);
     if (ref && skipRefs.has(ref)) continue;
+    if (!isAllowed(ref, v.matched.project_id)) continue;
     if ((v.row.stage_name || "").trim()) continue;
     const project_id = resolveProjectId(ref, v.matched.project_id);
     if (!project_id) continue;
@@ -543,6 +559,7 @@ export async function commitAcceloImport(
     for (const v of preview.rows) {
       if (v.status === "error") continue;
       if (refOf(v.row) && skipRefs.has(refOf(v.row))) continue;
+      if (!isAllowed(refOf(v.row), v.matched.project_id)) continue;
       if ((v.row.stage_name || "").trim()) continue;
       const project_id = resolveProjectId(refOf(v.row), v.matched.project_id);
       if (!project_id) continue;
@@ -566,6 +583,7 @@ export async function commitAcceloImport(
 
     for (const [pkey, choice] of Object.entries(options.defaultStageByProject)) {
       const resolvedPid = projectByRef.get(pkey) ?? pkey;
+      if (restrict && !restrict.has(resolvedPid) && !restrict.has(pkey)) continue;
       const dates = datesByPid.get(resolvedPid);
       const today = new Date().toISOString().slice(0, 10);
       const start_date = dates?.min ?? today;
@@ -659,6 +677,7 @@ export async function commitAcceloImport(
   for (const v of preview.rows) {
     if (v.status === "error") continue;
     if (refOf(v.row) && skipRefs.has(refOf(v.row))) continue;
+    if (!isAllowed(refOf(v.row), v.matched.project_id)) continue;
     const project_id = resolveProjectId(refOf(v.row), v.matched.project_id);
     if (!project_id) continue;
     const name = (v.row.stage_name || "").trim();
@@ -829,6 +848,7 @@ export async function commitAcceloImport(
   const toInsert = preview.rows
     .filter((v) => v.status !== "error" && !existing.has(v.row.external_id))
     .filter((v) => !(refOf(v.row) && skipRefs.has(refOf(v.row))))
+    .filter((v) => isAllowed(refOf(v.row), v.matched.project_id))
     .map((v) => {
       const stageKey = rowToStageKey.get(v.row.rowIndex);
       const stage_id = stageKey ? stageIdByKey.get(stageKey) ?? null : null;
@@ -976,7 +996,7 @@ export async function commitAcceloImport(
         ...Array.from(stageGroups.values()).map((s) => s.project_id),
       ].filter(Boolean),
     ),
-  );
+  ).filter((pid) => !restrict || restrict.has(pid));
   const diagnostics: ProjectDiagnostic[] = [];
   let finalEntriesWithoutStage = 0;
   for (const pid of touchedProjectIds) {
