@@ -355,30 +355,49 @@ export async function commitAcceloImport(
   preview.rows.forEach((v) => {
     if (v.matched.project_id && v.row.reference) projectByRef.set(v.row.reference, v.matched.project_id);
   });
-  if (options.createMissingProjects) {
-    const missing = Array.from(
-      new Set(
-        preview.rows
-          .filter((v) => v.row.reference && !projectByRef.has(v.row.reference))
-          .map((v) => v.row.reference),
-      ),
-    );
-    for (const ref of missing) {
-      const sample = preview.rows.find((v) => v.row.reference === ref);
-      const company_id = sample ? companyByName.get(sample.row.company) ?? null : null;
-      const { data, error } = await supabase
-        .from("pm_projects")
-        .insert({
-          name: ref,
-          external_id: ref,
-          company_id,
-          status: "active",
-          notes: "Imported shell from Accelo",
-        })
-        .select("id")
-        .single();
-      if (!error && data) projectByRef.set(ref, data.id);
+  // Apply explicit user mapping first (overrides auto-match).
+  const skipRefs = new Set<string>();
+  if (options.projectMapping) {
+    for (const [ref, choice] of Object.entries(options.projectMapping)) {
+      if (choice.mode === "existing") projectByRef.set(ref, choice.project_id);
+      else if (choice.mode === "skip") skipRefs.add(ref);
     }
+  }
+
+  const refsToCreate = new Set<string>();
+  if (options.projectMapping) {
+    for (const [ref, choice] of Object.entries(options.projectMapping)) {
+      if (choice.mode === "create" && !projectByRef.has(ref)) refsToCreate.add(ref);
+    }
+  }
+  if (options.createMissingProjects) {
+    preview.rows.forEach((v) => {
+      if (
+        v.row.reference &&
+        !projectByRef.has(v.row.reference) &&
+        !skipRefs.has(v.row.reference)
+      ) {
+        refsToCreate.add(v.row.reference);
+      }
+    });
+  }
+  for (const ref of refsToCreate) {
+    const sample = preview.rows.find((v) => v.row.reference === ref);
+    const company_id = sample ? companyByName.get(sample.row.company) ?? null : null;
+    const choice = options.projectMapping?.[ref];
+    const name = choice?.mode === "create" && choice.name ? choice.name : ref;
+    const { data, error } = await supabase
+      .from("pm_projects")
+      .insert({
+        name,
+        external_id: ref,
+        company_id,
+        status: "active",
+        notes: "Imported shell from Accelo",
+      })
+      .select("id")
+      .single();
+    if (!error && data) projectByRef.set(ref, data.id);
   }
 
   // Build payload — only rows without errors and not duplicates
