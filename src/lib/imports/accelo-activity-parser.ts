@@ -165,7 +165,12 @@ export type ParsedAcceloRow = {
   from_email: string | null;
   to_text: string;
   company: string;
+  /** Raw reference as it appears in the file (may include a stage suffix). */
   reference: string;
+  /** Stage-marker stripped reference used as the project identity. */
+  parent_reference: string;
+  /** Stage name inferred from the reference suffix when the Stage column is empty. */
+  inferred_stage_name: string | null;
   entry_date: string | null;
   subject: string;
   content: string;
@@ -185,6 +190,35 @@ export type ParsedAcceloRow = {
   stage_parse_warning: string | null;
   raw: Record<string, unknown>;
 };
+
+// Stage-suffix patterns appended to an Accelo "Reference" value, e.g.
+//   "2602 Lifetime Penthouse - [2] Concept Design"
+//   "Project X — Fase 3 Estudo Prévio"
+//   "Project Y - Stage 4: Detail"
+const STAGE_SUFFIX_RE =
+  /\s*[-–—:]\s*(?:\[\s*\d+[a-zA-Z]?\s*\]|(?:fase|stage|phase|milestone|etapa)\s*[#nº]?\s*\d+[a-zA-Z]?)\s*[-–—:.]?\s*(.*)$/i;
+
+/** True when a string looks like a stage label (used as a guard before
+ *  auto-creating a project from a name). */
+export function looksLikeStageName(s: string | null | undefined): boolean {
+  if (!s) return false;
+  return /(^|\s)(\[\s*\d+|fase\s*\d|stage\s*\d|phase\s*\d|milestone\s*\d|etapa\s*\d)/i.test(s);
+}
+
+/** Splits an Accelo reference into the parent project identity + optional
+ *  stage-name suffix found after the marker. */
+export function splitReference(ref: string | null | undefined): {
+  parent: string;
+  stage: string | null;
+} {
+  const raw = (ref ?? "").trim();
+  if (!raw) return { parent: "", stage: null };
+  const m = raw.match(STAGE_SUFFIX_RE);
+  if (!m) return { parent: raw, stage: null };
+  const parent = raw.slice(0, m.index).trim();
+  const stage = (m[1] ?? "").trim() || null;
+  return { parent: parent || raw, stage };
+}
 
 // Parses stage date ranges in many real-world formats.
 // Accepts: "DD/MM/YY to DD/MM/YY", "DD-MM-YYYY - DD-MM-YYYY", "YYYY-MM-DD – YYYY-MM-DD",
