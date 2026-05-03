@@ -508,13 +508,82 @@ export async function commitAcceloImport(
   const maxIso = (a: string | null, b: string | null) =>
     !a ? b : !b ? a : a > b ? a : b;
 
+  // Pre-resolve default stage choices into stage IDs (creating new stages as needed).
+  // Keys can be project_id OR parent_reference (for not-yet-created projects).
+  const defaultStageIdByProject = new Map<string, string>();
+  if (options.defaultStageByProject) {
+    for (const [pkey, choice] of Object.entries(options.defaultStageByProject)) {
+      // Resolve pkey to a real project_id: it might already be one, or a ref.
+      const resolvedPid = projectByRef.get(pkey) ?? pkey;
+      if (choice.mode === "existing") {
+        defaultStageIdByProject.set(resolvedPid, choice.stage_id);
+      } else if (choice.mode === "create" && choice.name.trim()) {
+        // Create a stage with placeholder dates; will be widened below from row activity.
+        const today = new Date().toISOString().slice(0, 10);
+        const { data, error } = await supabase
+          .from("pm_stages")
+          .insert({
+            project_id: resolvedPid,
+            name: choice.name.trim(),
+            start_date: today,
+            end_date: today,
+            source: "imported_accelo",
+            external_id: `accelo_stage_manual:${resolvedPid}:${choice.name.trim()}`,
+          })
+          .select("id")
+          .single();
+        if (!error && data) defaultStageIdByProject.set(resolvedPid, data.id);
+      }
+    }
+  }
+
   for (const v of preview.rows) {
     if (v.status === "error") continue;
     if (refOf(v.row) && skipRefs.has(refOf(v.row))) continue;
     const project_id = resolveProjectId(refOf(v.row), v.matched.project_id);
     if (!project_id) continue;
     const name = (v.row.stage_name || "").trim();
-    if (!name) continue;
+    if (!name) {
+      // Try the user-supplied default stage for this project.
+      const fallbackId = defaultStageIdByProject.get(project_id);
+      if (fallbackId) {
+        // Use a synthetic stage key tied to the existing pm_stages row.
+        const stageKey: StageKey = `manual_default:${project_id}:${fallbackId}`;
+        rowToStageKey.set(v.row.rowIndex, stageKey);
+        // Pre-seed stageIdByKey so phase-B sees it.
+        stageIdByKey.set(stageKey, fallbackId);
+        // Track activity for date widening.
+        const cur = stageGroups.get(stageKey);
+        const activity = v.row.entry_date;
+        if (!cur) {
+          stageGroups.set(stageKey, {
+            project_id,
+            name: "",
+            explicit_start: null,
+            explicit_end: null,
+            activity_min: activity ?? null,
+            activity_max: activity ?? null,
+          });
+        } else {
+          cur.activity_min = minIso(cur.activity_min, activity ?? null);
+          cur.activity_max = maxIso(cur.activity_max, activity ?? null);
+        }
+        if (v.matched.resource_id) {
+          const aggKey = `${project_id}|__default|${v.matched.resource_id}`;
+          const aCur = allocAgg.get(aggKey);
+          const hours = (v.row.billable_hours ?? 0) + (v.row.non_billable_hours ?? 0);
+          if (aCur) aCur.total_hours += hours;
+          else
+            allocAgg.set(aggKey, {
+              project_id,
+              stage_key: stageKey,
+              resource_id: v.matched.resource_id,
+              total_hours: hours,
+            });
+        }
+      }
+      continue;
+    }
     const stageKey: StageKey = `accelo_stage:${project_id}:${name}`;
     const cur = stageGroups.get(stageKey);
     const explicit_start = v.row.stage_start_date;
