@@ -48,7 +48,9 @@ import {
   type ImportPreview,
   type ProjectMappingChoice,
   type CommitResult,
+  type DefaultStageChoice,
 } from "@/lib/imports/accelo-importer";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
