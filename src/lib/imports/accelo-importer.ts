@@ -6,6 +6,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import {
   parseAcceloActivityExport,
+  looksLikeStageName,
   type ParsedAcceloRow,
 } from "./accelo-activity-parser";
 
