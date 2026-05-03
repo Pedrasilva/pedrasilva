@@ -49,6 +49,56 @@ export type ImportPreview = {
   rows: RowValidation[];
 };
 
+type AllocationUpsertPayload = {
+  external_id: string;
+  stage_id: string;
+  resource_id: string;
+  start_date: string;
+  end_date: string;
+  hours_per_day: number;
+  total_hours_imported: number;
+  source: string;
+  is_locked: boolean;
+};
+
+async function upsertAllocationsByExternalId(payload: AllocationUpsertPayload[]): Promise<number> {
+  let saved = 0;
+  for (let i = 0; i < payload.length; i += 200) {
+    const chunk = payload.slice(i, i + 200);
+    const externalIds = chunk.map((a) => a.external_id);
+    const { data: existing, error: lookupErr } = await supabase
+      .from("pm_allocations")
+      .select("id,external_id")
+      .in("external_id", externalIds);
+    if (lookupErr) throw lookupErr;
+
+    const existingByExternal = new Map(
+      (existing ?? []).filter((a) => a.external_id).map((a) => [a.external_id!, a.id]),
+    );
+    const toInsert: AllocationUpsertPayload[] = [];
+    for (const allocation of chunk) {
+      const id = existingByExternal.get(allocation.external_id);
+      if (!id) {
+        toInsert.push(allocation);
+        continue;
+      }
+      const { error: updateErr } = await supabase
+        .from("pm_allocations")
+        .update(allocation)
+        .eq("id", id);
+      if (updateErr) throw updateErr;
+      saved++;
+    }
+
+    if (toInsert.length) {
+      const { error: insertErr } = await supabase.from("pm_allocations").insert(toInsert);
+      if (insertErr) throw insertErr;
+      saved += toInsert.length;
+    }
+  }
+  return saved;
+}
+
 async function lookupMaps(rows: ParsedAcceloRow[]) {
   const emails = Array.from(
     new Set(
