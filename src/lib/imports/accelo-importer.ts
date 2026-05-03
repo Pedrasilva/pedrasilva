@@ -978,6 +978,7 @@ export async function commitAcceloImport(
     ),
   );
   const diagnostics: ProjectDiagnostic[] = [];
+  let finalEntriesWithoutStage = 0;
   for (const pid of touchedProjectIds) {
     const [{ data: pRow }, stagesRes, histAllRes, histWithStageRes] = await Promise.all([
       supabase.from("pm_projects").select("id,name").eq("id", pid).maybeSingle(),
@@ -1015,6 +1016,7 @@ export async function commitAcceloImport(
     const histAll = histAllRes.count ?? 0;
     const histWithStage = histWithStageRes.count ?? 0;
     const histWithoutStage = Math.max(0, histAll - histWithStage);
+    finalEntriesWithoutStage += histWithoutStage;
     diagnostics.push({
       project_id: pid,
       project_name: pRow?.name ?? null,
@@ -1034,7 +1036,7 @@ export async function commitAcceloImport(
     stagesMatched,
     stagesCreated,
     allocationsUpserted,
-    entriesWithoutStage,
+    entriesWithoutStage: finalEntriesWithoutStage,
     entriesWithoutResource,
     diagnostics,
   };
