@@ -304,9 +304,17 @@ export async function uploadAndPreviewAccelo(file: File): Promise<ImportPreview>
   };
 }
 
+export type ProjectMappingChoice =
+  | { mode: "existing"; project_id: string }
+  | { mode: "create"; name?: string }
+  | { mode: "skip" };
+
 export type CommitOptions = {
   createMissingProjects: boolean;
   createMissingCompanies: boolean;
+  /** User-confirmed mapping from imported reference -> destination decision.
+   *  Takes priority over auto-matched project_id during commit. */
+  projectMapping?: Record<string, ProjectMappingChoice>;
 };
 
 export type CommitResult = {
@@ -347,30 +355,49 @@ export async function commitAcceloImport(
   preview.rows.forEach((v) => {
     if (v.matched.project_id && v.row.reference) projectByRef.set(v.row.reference, v.matched.project_id);
   });
-  if (options.createMissingProjects) {
-    const missing = Array.from(
-      new Set(
-        preview.rows
-          .filter((v) => v.row.reference && !projectByRef.has(v.row.reference))
-          .map((v) => v.row.reference),
-      ),
-    );
-    for (const ref of missing) {
-      const sample = preview.rows.find((v) => v.row.reference === ref);
-      const company_id = sample ? companyByName.get(sample.row.company) ?? null : null;
-      const { data, error } = await supabase
-        .from("pm_projects")
-        .insert({
-          name: ref,
-          external_id: ref,
-          company_id,
-          status: "active",
-          notes: "Imported shell from Accelo",
-        })
-        .select("id")
-        .single();
-      if (!error && data) projectByRef.set(ref, data.id);
+  // Apply explicit user mapping first (overrides auto-match).
+  const skipRefs = new Set<string>();
+  if (options.projectMapping) {
+    for (const [ref, choice] of Object.entries(options.projectMapping)) {
+      if (choice.mode === "existing") projectByRef.set(ref, choice.project_id);
+      else if (choice.mode === "skip") skipRefs.add(ref);
     }
+  }
+
+  const refsToCreate = new Set<string>();
+  if (options.projectMapping) {
+    for (const [ref, choice] of Object.entries(options.projectMapping)) {
+      if (choice.mode === "create" && !projectByRef.has(ref)) refsToCreate.add(ref);
+    }
+  }
+  if (options.createMissingProjects) {
+    preview.rows.forEach((v) => {
+      if (
+        v.row.reference &&
+        !projectByRef.has(v.row.reference) &&
+        !skipRefs.has(v.row.reference)
+      ) {
+        refsToCreate.add(v.row.reference);
+      }
+    });
+  }
+  for (const ref of refsToCreate) {
+    const sample = preview.rows.find((v) => v.row.reference === ref);
+    const company_id = sample ? companyByName.get(sample.row.company) ?? null : null;
+    const choice = options.projectMapping?.[ref];
+    const name = choice?.mode === "create" && choice.name ? choice.name : ref;
+    const { data, error } = await supabase
+      .from("pm_projects")
+      .insert({
+        name,
+        external_id: ref,
+        company_id,
+        status: "active",
+        notes: "Imported shell from Accelo",
+      })
+      .select("id")
+      .single();
+    if (!error && data) projectByRef.set(ref, data.id);
   }
 
   // Build payload — only rows without errors and not duplicates
@@ -384,8 +411,15 @@ export async function commitAcceloImport(
     );
   const existing = new Set((existingResp.data ?? []).map((d) => d.external_id));
 
+  const resolveProjectId = (ref: string | null | undefined, autoMatched: string | null) => {
+    if (ref && skipRefs.has(ref)) return null;
+    if (ref && projectByRef.has(ref)) return projectByRef.get(ref) ?? null;
+    return autoMatched;
+  };
+
   const toInsert = preview.rows
     .filter((v) => v.status !== "error" && !existing.has(v.row.external_id))
+    .filter((v) => !(v.row.reference && skipRefs.has(v.row.reference)))
     .map((v) => ({
       source_system: SOURCE_SYSTEM,
       external_id: v.row.external_id,
@@ -394,7 +428,7 @@ export async function commitAcceloImport(
       collaborator_id: v.matched.collaborator_id,
       resource_id: v.matched.resource_id,
       collaborator_email: v.row.from_email,
-      project_id: v.matched.project_id ?? projectByRef.get(v.row.reference) ?? null,
+      project_id: resolveProjectId(v.row.reference, v.matched.project_id),
       project_reference: v.row.reference || null,
       company_id: v.matched.company_id ?? companyByName.get(v.row.company) ?? null,
       company_name: v.row.company || null,
@@ -456,8 +490,8 @@ export async function commitAcceloImport(
 
   for (const v of preview.rows) {
     if (v.status === "error") continue;
-    const project_id =
-      v.matched.project_id ?? projectByRef.get(v.row.reference) ?? null;
+    if (v.row.reference && skipRefs.has(v.row.reference)) continue;
+    const project_id = resolveProjectId(v.row.reference, v.matched.project_id);
     if (!project_id) continue;
     const name = (v.row.stage_name || "").trim();
     const start = v.row.stage_start_date;
@@ -599,6 +633,15 @@ export async function listImportJobs() {
     .select("*")
     .order("created_at", { ascending: false })
     .limit(50);
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function listProjectsForMapping() {
+  const { data, error } = await supabase
+    .from("pm_projects")
+    .select("id,name,external_id")
+    .order("name");
   if (error) throw error;
   return data ?? [];
 }

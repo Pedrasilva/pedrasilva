@@ -142,6 +142,63 @@
           "hours": "Hours",
           "people": "People"
         }
+      },
+      "wizard": {
+        "back": "Back",
+        "next": "Next",
+        "steps": {
+          "upload": "Upload",
+          "projects": "Projects",
+          "people": "People",
+          "stages": "Stages",
+          "review": "Review",
+          "result": "Result"
+        },
+        "upload": {
+          "title": "Upload file",
+          "subtitle": "Select an import type and upload the source file. Parsing happens locally before any data is committed.",
+          "parseAndContinue": "Parse and continue"
+        },
+        "projects": {
+          "title": "Project mapping",
+          "subtitle": "Decide where each imported reference should land. Nothing is auto-merged at commit time.",
+          "cols": {
+            "reference": "Imported reference",
+            "action": "Action",
+            "target": "Target"
+          },
+          "choose": "Choose action",
+          "useExisting": "Use existing project",
+          "createNew": "Create new project",
+          "skipRef": "Skip this reference",
+          "selectProject": "Select project…",
+          "newName": "New project name",
+          "skippedHint": "Rows for this reference will be skipped.",
+          "allRequired": "All references must be mapped before continuing."
+        },
+        "people": {
+          "title": "People mapping",
+          "subtitle": "Match Accelo users to existing collaborators. Unmatched users block import.",
+          "matchedRows": "Matched rows",
+          "unmatched": "Unmatched users",
+          "allMatched": "All collaborators are matched.",
+          "blocking": "Resolve unmatched collaborators before continuing."
+        },
+        "review": {
+          "title": "Review and confirm",
+          "subtitle": "Final summary. Confirm to commit historical entries, stages and allocations.",
+          "rowsToImport": "Rows to import",
+          "projectsExisting": "Existing projects used",
+          "projectsNew": "New projects to create",
+          "projectsSkipped": "References skipped",
+          "companiesCreate": "Unmatched companies will be created as clients on commit.",
+          "companiesKeep": "Unmatched companies will be left blank on commit."
+        },
+        "result": {
+          "title": "Import complete",
+          "subtitle": "Historical entries, stages and allocations were upserted idempotently.",
+          "startNew": "Start a new import"
+        }
       }
     },
     "projectsTools": {
