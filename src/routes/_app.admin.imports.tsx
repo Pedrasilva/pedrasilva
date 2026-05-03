@@ -253,6 +253,10 @@ function ImportsContent() {
         <StagesStep
           preview={preview}
           mapping={projectMapping}
+          unassignedProjects={unassignedStageProjectKeys}
+          defaultStageByProject={defaultStageByProject}
+          setDefaultStageByProject={setDefaultStageByProject}
+          stagesAssignmentComplete={stagesAssignmentComplete}
           onBack={() => setStep("people")}
           onNext={() => setStep("review")}
         />
