@@ -14,6 +14,10 @@ const cases = [
   { input: "45323 to 45356", start: "2024-02-01", end: "2024-03-05", warn: false },
   // swapped → swap + warn
   { input: "05/03/24 to 01/02/24", start: "2024-02-01", end: "2024-03-05", warn: true },
+  // single date → start = end with warning
+  { input: "28/01/26", start: "2026-01-28", end: "2026-01-28", warn: true },
+  { input: "2025-10-28", start: "2025-10-28", end: "2025-10-28", warn: true },
+  { input: "Tue Oct 28 2025 12:00:00 GMT+0000", start: "2025-10-28", end: "2025-10-28", warn: true },
   // unparseable
   { input: "not a date at all", start: null, end: null, warn: true },
   { input: "", start: null, end: null, warn: false },
