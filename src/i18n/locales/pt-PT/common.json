@@ -125,6 +125,15 @@
         "company": "Empresa",
         "notes": "Notas"
       },
+      "result": {
+        "stagesMatched": "Fases correspondidas",
+        "stagesCreated": "Fases criadas",
+        "allocations": "Alocações de recursos",
+        "warnNoStage_one": "{{count}} entrada de tempo importada sem associação a fase",
+        "warnNoStage_other": "{{count}} entradas de tempo importadas sem associação a fase",
+        "warnNoResource_one": "{{count}} entrada de tempo importada sem associação a recurso",
+        "warnNoResource_other": "{{count}} entradas de tempo importadas sem associação a recurso"
+      },
       "stages": {
         "title": "Fases detetadas (reconstrução do Gantt)",
         "hint": "Fases extraídas da coluna K com intervalos de datas da coluna O. Serão criadas como fases importadas e bloqueadas no commit.",
