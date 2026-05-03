@@ -1080,6 +1080,20 @@ export async function commitAcceloImport(
     });
   }
 
+  // Hard diagnostic: imported_count=0 but historical rows landed for some
+  // touched project means commit accounting is inconsistent (rows skipped at
+  // upsert time but still present in DB from a prior partial run, OR rows
+  // ignored because of stale preview state). Surface loudly so we can fix it.
+  if (imported === 0) {
+    const writtenSomewhere = diagnostics.some((d) => d.historicalEntriesForProject > 0);
+    if (writtenSomewhere) {
+      console.error(
+        "[accelo-import] INCONSISTENT COMMIT: imported=0 but historical_time_entries exist for touched projects",
+        { diagnostics },
+      );
+    }
+  }
+
   return {
     imported,
     skipped,
