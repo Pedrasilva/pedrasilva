@@ -306,6 +306,11 @@ function ImportsContent() {
         <ReviewStep
           preview={preview}
           mapping={projectMapping}
+          unassignedProjects={unassignedStageProjectKeys}
+          defaultStageByProject={buildCommitDefaultStageByProject(
+            unassignedStageProjectKeys,
+            defaultStageByProject,
+          )}
           createMissingCompanies={createMissingCompanies}
           canCommit={canCommit}
           isCommitting={commitMutation.isPending}
@@ -393,6 +398,25 @@ function seedProjectMapping(preview: ImportPreview): Record<string, ProjectMappi
   }
   // Unmatched references → leave undefined (user must choose).
   return map;
+}
+
+function isValidDefaultStageChoice(choice: DefaultStageChoice | undefined): choice is DefaultStageChoice {
+  if (!choice) return false;
+  if (choice.mode === "existing") return Boolean(choice.stage_id);
+  return Boolean(choice.name.trim());
+}
+
+function buildCommitDefaultStageByProject(
+  unassignedProjects: UnassignedStageProject[],
+  choices: Record<string, DefaultStageChoice>,
+): Record<string, DefaultStageChoice> {
+  return Object.fromEntries(
+    unassignedProjects
+      .map((p) => [p.key, choices[p.key]] as const)
+      .filter((entry): entry is readonly [string, DefaultStageChoice] =>
+        isValidDefaultStageChoice(entry[1]),
+      ),
+  );
 }
 
 function WizardNav({ step, preview }: { step: StepId; preview: ImportPreview | null }) {
