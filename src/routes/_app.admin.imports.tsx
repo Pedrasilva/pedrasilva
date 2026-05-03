@@ -1419,6 +1419,7 @@ function ResultStep({ result, onReset }: { result: CommitResult; onReset: () => 
                     <span>{t("admin.imports.result.diagnostics.visibleStages")}: <strong>{d.visibleStagesForProject}</strong></span>
                     <span>{t("admin.imports.result.diagnostics.historicalEntries")}: <strong>{d.historicalEntriesForProject}</strong></span>
                     <span>{t("admin.imports.result.diagnostics.historicalWithStage")}: <strong>{d.historicalEntriesWithStage}</strong></span>
+                    <span>{t("admin.imports.result.diagnostics.entriesWithoutStage")}: <strong>{d.entriesWithoutStage}</strong></span>
                     <span>{t("admin.imports.result.diagnostics.allocations")}: <strong>{d.allocationsForProject}</strong></span>
                   </div>
                   {d.reconstructionFailed && (
