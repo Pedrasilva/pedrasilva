@@ -330,7 +330,7 @@ function ImportsContent() {
           canCommit={canCommit}
           isCommitting={commitMutation.isPending}
           onBack={() => setStep("stages")}
-          onCommit={() => commitMutation.mutate()}
+          onCommit={() => commitMutation.mutate(undefined)}
           blockingErrors={blockingErrors}
           unmatchedCollabs={unmatchedCollabs}
           projectMappingComplete={projectMappingComplete}
