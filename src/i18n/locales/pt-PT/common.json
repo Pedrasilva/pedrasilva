@@ -141,6 +141,11 @@
           "rows": "Linhas",
           "hours": "Horas",
           "people": "Pessoas"
+        },
+        "gantt": {
+          "title": "Pré-visualização do Gantt (apenas leitura)",
+          "hint": "Pré-visualização de como as fases aparecerão no Gantt do projeto após confirmar.",
+          "people": "pessoas"
         }
       },
       "wizard": {
