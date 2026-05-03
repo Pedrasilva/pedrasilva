@@ -165,6 +165,8 @@ function validateRows(
       duplicates++;
     }
 
+    if (row.stage_parse_warning) warnings.push(row.stage_parse_warning);
+
     const status: RowValidation["status"] = errors.length
       ? "error"
       : warnings.length
