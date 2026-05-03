@@ -141,7 +141,17 @@
           "entriesWithoutStage": "Entries without stage",
           "allocations": "Allocations",
           "reconstructionFailed": "Import created historical actuals but no stages. Stage reconstruction failed.",
-          "openProject": "Open project"
+          "openProject": "Open project",
+          "retryFailed_one": "Retry {{count}} failed project",
+          "retryFailed_other": "Retry {{count}} failed projects",
+          "exportDebug": "Export commit debug report"
+        },
+        "table": {
+          "project": "Project",
+          "stages": "Stages",
+          "status": "Status",
+          "ok": "OK",
+          "failed": "Failed"
         }
       },
       "stages": {
