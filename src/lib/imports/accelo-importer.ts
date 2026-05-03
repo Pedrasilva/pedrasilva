@@ -639,10 +639,6 @@ export async function commitAcceloImport(
   }
 
   // Match against existing pm_stages BEFORE upserting.
-  const stageIdByKey = new Map<StageKey, string>();
-  let stagesMatched = 0;
-  let stagesCreated = 0;
-  let allocationsUpserted = 0;
 
   const projectsWithStages = Array.from(
     new Set(Array.from(stageGroups.values()).map((s) => s.project_id)),
