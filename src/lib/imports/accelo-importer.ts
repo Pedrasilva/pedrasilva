@@ -294,7 +294,7 @@ export async function uploadAndPreviewAccelo(file: File): Promise<ImportPreview>
   validations.forEach((v) => {
     if (!v.matched.collaborator_id && v.row.from_email)
       unmatchedCollabs.set(v.row.from_email, { email: v.row.from_email, name: v.row.from_name });
-    if (!v.matched.project_id && v.row.reference) unmatchedProjects.add(v.row.reference);
+    if (!v.matched.project_id && refOf(v.row)) unmatchedProjects.add(refOf(v.row));
     if (!v.matched.company_id && v.row.company) unmatchedCompanies.add(v.row.company);
   });
 
@@ -362,7 +362,7 @@ export async function commitAcceloImport(
   // Optionally create missing project shells
   const projectByRef = new Map<string, string>();
   preview.rows.forEach((v) => {
-    if (v.matched.project_id && v.row.reference) projectByRef.set(v.row.reference, v.matched.project_id);
+    if (v.matched.project_id && refOf(v.row)) projectByRef.set(refOf(v.row), v.matched.project_id);
   });
   // Apply explicit user mapping first (overrides auto-match).
   const skipRefs = new Set<string>();
@@ -382,16 +382,16 @@ export async function commitAcceloImport(
   if (options.createMissingProjects) {
     preview.rows.forEach((v) => {
       if (
-        v.row.reference &&
-        !projectByRef.has(v.row.reference) &&
-        !skipRefs.has(v.row.reference)
+        refOf(v.row) &&
+        !projectByRef.has(refOf(v.row)) &&
+        !skipRefs.has(refOf(v.row))
       ) {
-        refsToCreate.add(v.row.reference);
+        refsToCreate.add(refOf(v.row));
       }
     });
   }
   for (const ref of refsToCreate) {
-    const sample = preview.rows.find((v) => v.row.reference === ref);
+    const sample = preview.rows.find((v) => refOf(v.row) === ref);
     const company_id = sample ? companyByName.get(sample.row.company) ?? null : null;
     const choice = options.projectMapping?.[ref];
     const name = choice?.mode === "create" && choice.name ? choice.name : ref;
@@ -428,7 +428,7 @@ export async function commitAcceloImport(
 
   const toInsert = preview.rows
     .filter((v) => v.status !== "error" && !existing.has(v.row.external_id))
-    .filter((v) => !(v.row.reference && skipRefs.has(v.row.reference)))
+    .filter((v) => !(refOf(v.row) && skipRefs.has(refOf(v.row))))
     .map((v) => ({
       source_system: SOURCE_SYSTEM,
       external_id: v.row.external_id,
@@ -437,8 +437,8 @@ export async function commitAcceloImport(
       collaborator_id: v.matched.collaborator_id,
       resource_id: v.matched.resource_id,
       collaborator_email: v.row.from_email,
-      project_id: resolveProjectId(v.row.reference, v.matched.project_id),
-      project_reference: v.row.reference || null,
+      project_id: resolveProjectId(refOf(v.row), v.matched.project_id),
+      project_reference: refOf(v.row) || null,
       company_id: v.matched.company_id ?? companyByName.get(v.row.company) ?? null,
       company_name: v.row.company || null,
       subject: v.row.subject || null,
@@ -499,8 +499,8 @@ export async function commitAcceloImport(
 
   for (const v of preview.rows) {
     if (v.status === "error") continue;
-    if (v.row.reference && skipRefs.has(v.row.reference)) continue;
-    const project_id = resolveProjectId(v.row.reference, v.matched.project_id);
+    if (refOf(v.row) && skipRefs.has(refOf(v.row))) continue;
+    const project_id = resolveProjectId(refOf(v.row), v.matched.project_id);
     if (!project_id) continue;
     const name = (v.row.stage_name || "").trim();
     const start = v.row.stage_start_date;
@@ -717,7 +717,7 @@ export async function revalidatePreview(file: File, jobId: string): Promise<Impo
   validations.forEach((v) => {
     if (!v.matched.collaborator_id && v.row.from_email)
       unmatchedCollabs.set(v.row.from_email, { email: v.row.from_email, name: v.row.from_name });
-    if (!v.matched.project_id && v.row.reference) unmatchedProjects.add(v.row.reference);
+    if (!v.matched.project_id && refOf(v.row)) unmatchedProjects.add(refOf(v.row));
     if (!v.matched.company_id && v.row.company) unmatchedCompanies.add(v.row.company);
   });
 
