@@ -204,3 +204,58 @@ test("commit creates default stage, links entries, creates allocations", async (
   expect(diag.historicalEntriesWithStage).toBe(2);
   expect(diag.allocationsForProject).toBeGreaterThanOrEqual(1);
 });
+
+test("commit resolves matched.project_id=null via projectMapping + DB fallback", async () => {
+  // Reset side-effect state from the previous test by appending a NEW project.
+  tables.pm_projects.push({ id: "P2", name: "Project 2", external_id: "REF-2" });
+  const { commitAcceloImport } = await import("../src/lib/imports/accelo-importer.ts");
+
+  const preview: any = {
+    jobId: "JOB-1",
+    storageWarning: null,
+    totals: { rows: 1, error: 0, warning: 0, duplicates: 0 },
+    unmatched: { collaborators: [], projects: ["REF-2"] },
+    rows: [
+      {
+        status: "warning",
+        // Critical: matched.project_id is null (stale preview snapshot).
+        matched: { project_id: null, resource_id: "R2", collaborator_id: "C2", company_id: null },
+        row: {
+          rowIndex: 10,
+          external_id: "EXT-10",
+          parent_reference: "REF-2",
+          reference: null,
+          stage_name: "",
+          stage_start_date: null,
+          stage_end_date: null,
+          entry_date: "2024-03-01",
+          billable_hours: 3,
+          non_billable_hours: 0,
+          amount: 60, cost: 30, profit: 30,
+          subject: "z", content: "", from_email: "x@y.z",
+          company: "", rate_title: null, rate: null,
+          status_text: null, invoice_number: null,
+          raw: {},
+        },
+      },
+    ],
+  };
+
+  const result = await commitAcceloImport(preview, {
+    createMissingProjects: false,
+    createMissingCompanies: false,
+    projectMapping: { "REF-2": { mode: "existing", project_id: "P2" } },
+    defaultStageByProject: { P2: { mode: "create", name: "Imported from Accelo" } },
+  });
+
+  const stage = tables.pm_stages.find((s) => s.project_id === "P2")!;
+  expect(stage).toBeDefined();
+  const entries = tables.historical_time_entries.filter((e) => e.project_id === "P2");
+  expect(entries.length).toBe(1);
+  expect(entries[0].stage_id).toBe(stage.id);
+  const allocs = tables.pm_allocations.filter((a) => a.stage_id === stage.id);
+  expect(allocs.length).toBe(1);
+  const diag = result.diagnostics.find((d) => d.project_id === "P2")!;
+  expect(diag.reconstructionFailed).toBe(false);
+  expect(diag.entriesWithoutStage).toBe(0);
+});
