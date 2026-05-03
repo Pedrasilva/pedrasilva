@@ -12,6 +12,10 @@ import {
 
 export const SOURCE_SYSTEM = "accelo";
 
+/** Project identity for an Accelo row — never the raw reference, since that
+ *  may include a stage suffix like "Project Name - [2] Concept". */
+const refOf = (r: ParsedAcceloRow): string => (r.parent_reference || r.reference || "").trim();
+
 export type RowValidation = {
   row: ParsedAcceloRow;
   status: "valid" | "warning" | "error";
