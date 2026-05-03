@@ -1005,17 +1005,7 @@ export async function commitAcceloImport(
 
   // Allocations (one per resource per stage).
   if (allocAgg.size && stageIdByKey.size) {
-    const allocPayload: {
-      external_id: string;
-      stage_id: string;
-      resource_id: string;
-      start_date: string;
-      end_date: string;
-      hours_per_day: number;
-      total_hours_imported: number;
-      source: string;
-      is_locked: boolean;
-    }[] = [];
+    const allocPayload: AllocationUpsertPayload[] = [];
     for (const a of allocAgg.values()) {
       const stage_id = stageIdByKey.get(a.stage_key);
       const dates = stageDates.get(a.stage_key);
@@ -1046,13 +1036,7 @@ export async function commitAcceloImport(
         is_locked: true,
       });
     }
-    for (let i = 0; i < allocPayload.length; i += 500) {
-      const chunk = allocPayload.slice(i, i + 500);
-      const { error } = await supabase
-        .from("pm_allocations")
-        .upsert(chunk, { onConflict: "external_id" });
-      if (!error) allocationsUpserted += chunk.length;
-    }
+    allocationsUpserted += await upsertAllocationsByExternalId(allocPayload);
   }
 
   await supabase
