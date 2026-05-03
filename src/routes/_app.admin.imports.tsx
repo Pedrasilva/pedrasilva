@@ -67,6 +67,7 @@ export const Route = createFileRoute("/_app/admin/imports")({
 type ImportTypeKey = "accelo_activity_timesheet" | "companies_clients_suppliers";
 
 type StepId = "upload" | "projects" | "people" | "stages" | "review" | "result";
+type UnassignedStageProject = { key: string; label: string; rows: number };
 
 const STEP_ORDER: StepId[] = ["upload", "projects", "people", "stages", "review", "result"];
 
@@ -105,6 +106,7 @@ function ImportsContent() {
     onSuccess: (p) => {
       setPreview(p);
       setProjectMapping(seedProjectMapping(p));
+      setDefaultStageByProject({});
       qc.invalidateQueries({ queryKey: ["import-jobs"] });
       toast.success(t("admin.imports.toastPreviewed"));
       if (p.storageWarning) {
@@ -131,11 +133,21 @@ function ImportsContent() {
     mutationFn: async () => {
       if (!preview) throw new Error("No preview");
       const createMissingProjects = Object.values(projectMapping).some((c) => c.mode === "create");
+      const stageMapping = buildCommitDefaultStageByProject(
+        unassignedStageProjectKeys,
+        defaultStageByProject,
+      );
+      console.debug("[accelo-import] commit options", {
+        createMissingProjects,
+        createMissingCompanies,
+        projectMapping,
+        defaultStageByProject: stageMapping,
+      });
       return commitAcceloImport(preview, {
         createMissingProjects,
         createMissingCompanies,
         projectMapping,
-        defaultStageByProject,
+        defaultStageByProject: stageMapping,
       });
     },
     onSuccess: (r) => {
@@ -152,6 +164,7 @@ function ImportsContent() {
       // newly imported stages, allocations and time entries are visible
       // when the user navigates to the project page right after import.
       [
+        ["projects"],
         ["pm-projects"],
         ["pm-project"],
         ["pm-stages-all"],
@@ -160,12 +173,21 @@ function ImportsContent() {
         ["pm-project-time"],
         ["pm-time-entries-all-project"],
         ["historical-time-totals"],
+        ["historical-time-totals-map"],
         ["stage-budget-control"],
         ["project-financial-summary"],
+        ["pm-project-insights"],
         ["project-insights"],
         ["external-services"],
         ["forecast-projects"],
-      ].forEach((k) => qc.invalidateQueries({ queryKey: k }));
+      ].forEach((k) => qc.invalidateQueries({ queryKey: k, refetchType: "all" }));
+      for (const d of r.diagnostics ?? []) {
+        qc.invalidateQueries({ queryKey: ["pm-project", d.project_id], refetchType: "all" });
+        qc.invalidateQueries({ queryKey: ["pm-project-time", d.project_id], refetchType: "all" });
+        qc.invalidateQueries({ queryKey: ["historical-time-totals", d.project_id], refetchType: "all" });
+        qc.invalidateQueries({ queryKey: ["project-financial-summary", d.project_id], refetchType: "all" });
+        qc.invalidateQueries({ queryKey: ["pm-project-insights", d.project_id], refetchType: "all" });
+      }
       setStep("result");
     },
     onError: (e: Error) => toast.error(e.message),
@@ -181,8 +203,8 @@ function ImportsContent() {
     : false;
   // Project keys (project_id or parent_reference) that have rows missing stage_name.
   const unassignedStageProjectKeys = useMemo(() => {
-    if (!preview) return [] as { key: string; label: string; rows: number }[];
-    const m = new Map<string, { key: string; label: string; rows: number }>();
+    if (!preview) return [] as UnassignedStageProject[];
+    const m = new Map<string, UnassignedStageProject>();
     for (const v of preview.rows) {
       if (v.status === "error") continue;
       if ((v.row.stage_name ?? "").trim()) continue;
@@ -203,7 +225,7 @@ function ImportsContent() {
     return Array.from(m.values());
   }, [preview, projectMapping]);
   const stagesAssignmentComplete = unassignedStageProjectKeys.every(
-    (p) => defaultStageByProject[p.key] != null,
+    (p) => isValidDefaultStageChoice(defaultStageByProject[p.key]),
   );
   const canCommit =
     !!preview &&
