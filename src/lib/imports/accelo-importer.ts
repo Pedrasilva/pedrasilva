@@ -502,6 +502,11 @@ export async function commitAcceloImport(
   >();
   /** rowIndex -> stageKey (for assigning stage_id during entry insert). */
   const rowToStageKey = new Map<number, StageKey>();
+  // Declared early so the empty-stage_name fallback path can pre-seed entries.
+  const stageIdByKey = new Map<StageKey, string>();
+  let stagesMatched = 0;
+  let stagesCreated = 0;
+  let allocationsUpserted = 0;
 
   const minIso = (a: string | null, b: string | null) =>
     !a ? b : !b ? a : a < b ? a : b;
