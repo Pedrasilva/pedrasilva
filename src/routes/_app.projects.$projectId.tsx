@@ -610,9 +610,10 @@ function ProjectDetail() {
                     stageActualRevenue={stageActualRevenue}
                     stageActualCost={stageActualCost}
                     stageLoggedHours={stageLoggedHours}
-                    stagePlannedHours={stagePlannedHours}
+                   stagePlannedHours={stagePlannedHours}
                     defaultRates={defaultRates}
                     canSeeFinancials={canSeeFinancials}
+                    onEditPlan={() => setTab("schedule")}
                   />
                 </div>
               </div>
@@ -1115,6 +1116,7 @@ function MilestonesTable({
   stagePlannedHours,
   defaultRates,
   canSeeFinancials,
+  onEditPlan,
 }: {
   stages: ReturnType<typeof useProjectDetail>["data"] extends infer T
     ? T extends { stages: infer S }
@@ -1130,6 +1132,7 @@ function MilestonesTable({
   stagePlannedHours: (id: string) => number;
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   canSeeFinancials: boolean;
+  onEditPlan?: () => void;
 }) {
   const [expanded, setExpanded] = useState<Set<string>>(
     () => new Set(stages?.map((s) => s.id) ?? []),
@@ -1200,7 +1203,11 @@ function MilestonesTable({
           </label>
         </div>
         <div className="flex items-center gap-2">
-          <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-foreground hover:bg-accent">
+          <button
+            type="button"
+            onClick={onEditPlan}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-foreground hover:bg-accent"
+          >
             <Pencil className="h-3.5 w-3.5" /> Edit Plan
           </button>
           <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-foreground hover:bg-accent">
