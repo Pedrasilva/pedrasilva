@@ -434,18 +434,42 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
       let impN = 0;
       let impC = 0;
       let impA = 0;
+      const importedByStage = new Map<
+        string,
+        { loggedHours: number; billableHours: number; nonBillableHours: number; cost: number; amount: number }
+      >();
       for (const r of (histRaw ?? []) as Array<{
         source_system: string;
         billable_hours: number | string | null;
         non_billable_hours: number | string | null;
         cost: number | string | null;
         amount: number | string | null;
+        stage_id: string | null;
       }>) {
         sources.add(r.source_system);
-        impB += Number(r.billable_hours ?? 0);
-        impN += Number(r.non_billable_hours ?? 0);
-        impC += Number(r.cost ?? 0);
-        impA += Number(r.amount ?? 0);
+        const b = Number(r.billable_hours ?? 0);
+        const n = Number(r.non_billable_hours ?? 0);
+        const c = Number(r.cost ?? 0);
+        const a = Number(r.amount ?? 0);
+        impB += b;
+        impN += n;
+        impC += c;
+        impA += a;
+        if (r.stage_id) {
+          const cur = importedByStage.get(r.stage_id) ?? {
+            loggedHours: 0,
+            billableHours: 0,
+            nonBillableHours: 0,
+            cost: 0,
+            amount: 0,
+          };
+          cur.loggedHours += b + n;
+          cur.billableHours += b;
+          cur.nonBillableHours += n;
+          cur.cost += c;
+          cur.amount += a;
+          importedByStage.set(r.stage_id, cur);
+        }
       }
 
       return computeControl({
@@ -461,6 +485,7 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
           amount: impA,
           sources: Array.from(sources),
         },
+        importedByStage,
         project_id: projectId,
       });
     },
