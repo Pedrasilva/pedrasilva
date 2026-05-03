@@ -171,6 +171,8 @@ export type ParsedAcceloRow = {
   parent_reference: string;
   /** Stage name inferred from the reference suffix when the Stage column is empty. */
   inferred_stage_name: string | null;
+  /** Where stage_name was sourced from. */
+  stage_source: "explicit" | "reference" | "subject" | "content" | "raw" | "none";
   entry_date: string | null;
   subject: string;
   content: string;
