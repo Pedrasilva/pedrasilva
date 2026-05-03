@@ -138,6 +138,7 @@
           "visibleStages": "Fases visíveis",
           "historicalEntries": "Entradas históricas",
           "historicalWithStage": "Entradas com fase",
+          "entriesWithoutStage": "Entradas sem fase",
           "allocations": "Alocações",
           "reconstructionFailed": "A importação criou registos históricos mas nenhuma fase. A reconstrução de fases falhou.",
           "openProject": "Abrir projeto"
