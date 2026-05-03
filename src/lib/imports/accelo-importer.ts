@@ -469,6 +469,25 @@ export async function commitAcceloImport(
     return autoMatched;
   };
 
+  const missingDefaultStageProjects = new Set<string>();
+  for (const v of preview.rows) {
+    if (v.status === "error") continue;
+    const ref = refOf(v.row);
+    if (ref && skipRefs.has(ref)) continue;
+    if ((v.row.stage_name || "").trim()) continue;
+    const project_id = resolveProjectId(ref, v.matched.project_id);
+    if (!project_id) continue;
+    const hasChoice = Boolean(
+      options.defaultStageByProject?.[project_id] ?? (ref ? options.defaultStageByProject?.[ref] : undefined),
+    );
+    if (!hasChoice) missingDefaultStageProjects.add(project_id);
+  }
+  if (missingDefaultStageProjects.size > 0) {
+    throw new Error(
+      `Missing default stage mapping for ${missingDefaultStageProjects.size} project(s) with stageless Accelo rows.`,
+    );
+  }
+
   // ---------------------------------------------------------------------------
   // Phase A — Build stage groups so we can resolve stage_id BEFORE inserting
   // historical_time_entries (otherwise per-stage actuals stay at 0).
@@ -552,6 +571,7 @@ export async function commitAcceloImport(
       const end_date = dates?.max ?? today;
       if (choice.mode === "existing") {
         defaultStageIdByProject.set(resolvedPid, choice.stage_id);
+        stagesMatched++;
         // Only widen dates if the existing stage looks like a placeholder
         // (same-day) AND was created by the importer — never overwrite manual edits.
         if (dates) {
@@ -572,19 +592,64 @@ export async function commitAcceloImport(
           }
         }
       } else if (choice.mode === "create" && choice.name.trim()) {
+        const stageName = choice.name.trim();
+        const existingByExternal = await supabase
+          .from("pm_stages")
+          .select("id, start_date, end_date, source")
+          .eq("project_id", resolvedPid)
+          .eq("external_id", `accelo_stage_manual:${resolvedPid}:${stageName}`)
+          .maybeSingle();
+        const existingStage = existingByExternal.data ?? null;
+        if (existingStage) {
+          defaultStageIdByProject.set(resolvedPid, existingStage.id);
+          stagesMatched++;
+          if (
+            dates &&
+            (existingStage.source === "imported_accelo" ||
+              (existingStage.start_date && existingStage.end_date && existingStage.start_date === existingStage.end_date))
+          ) {
+            await supabase.from("pm_stages").update({ start_date, end_date }).eq("id", existingStage.id);
+          }
+          continue;
+        }
+        const { data: sameProjectStages } = await supabase
+          .from("pm_stages")
+          .select("id, name, start_date, end_date, source, external_id")
+          .eq("project_id", resolvedPid);
+        const fuzzy = (sameProjectStages ?? []).find((s) => normStageName(s.name) === normStageName(stageName));
+        if (fuzzy) {
+          defaultStageIdByProject.set(resolvedPid, fuzzy.id);
+          stagesMatched++;
+          await supabase
+            .from("pm_stages")
+            .update({ external_id: fuzzy.external_id ?? `accelo_stage_manual:${resolvedPid}:${stageName}`, source: "imported_accelo" })
+            .eq("id", fuzzy.id)
+            .is("external_id", null);
+          if (
+            dates &&
+            (fuzzy.source === "imported_accelo" || (fuzzy.start_date && fuzzy.end_date && fuzzy.start_date === fuzzy.end_date))
+          ) {
+            await supabase.from("pm_stages").update({ start_date, end_date }).eq("id", fuzzy.id);
+          }
+          continue;
+        }
         const { data, error } = await supabase
           .from("pm_stages")
           .insert({
             project_id: resolvedPid,
-            name: choice.name.trim(),
+            name: stageName,
             start_date,
             end_date,
             source: "imported_accelo",
-            external_id: `accelo_stage_manual:${resolvedPid}:${choice.name.trim()}`,
+            external_id: `accelo_stage_manual:${resolvedPid}:${stageName}`,
+            is_locked: true,
           })
           .select("id")
           .single();
-        if (!error && data) defaultStageIdByProject.set(resolvedPid, data.id);
+        if (!error && data) {
+          defaultStageIdByProject.set(resolvedPid, data.id);
+          stagesCreated++;
+        }
       }
     }
   }
