@@ -744,6 +744,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                   const hasLeave = allocLeaveHours > 0;
                   const allocTotalHours = workingDays(aS, aE) * Number(a.hours_per_day);
                   const reducedCapacity = Math.max(0, allocTotalHours - allocLeaveHours);
+                  const isImported = a.is_locked === true || a.source === "imported_accelo";
 
                   return (
                     <div key={a.id} className="absolute group" style={{ left: aX, width: aW, top, height: ALLOC_ROW_H }}>
@@ -751,11 +752,14 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div
-                              className={`relative h-full cursor-grab rounded-md border-l-4 bg-card shadow-sm transition active:cursor-grabbing ${
-                                isOver ? "ring-2 ring-destructive/70 bg-destructive/5" : ""
-                              }`}
+                              className={`relative h-full rounded-md border-l-4 bg-card shadow-sm transition ${
+                                isImported
+                                  ? "cursor-default border border-dashed border-muted-foreground/40 opacity-70"
+                                  : "cursor-grab active:cursor-grabbing"
+                              } ${isOver ? "ring-2 ring-destructive/70 bg-destructive/5" : ""}`}
                               style={{ borderLeftColor: color }}
-                              onPointerDown={(e) =>
+                              onPointerDown={(e) => {
+                                if (isImported) return;
                                 startDrag(e, {
                                   type: "move",
                                   id: a.id,
@@ -763,31 +767,33 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                                   startX: e.clientX,
                                   origStart: a.start_date,
                                   origEnd: a.end_date,
-                                })
-                              }
+                                });
+                              }}
                             >
                               <div className="flex h-full items-center justify-between gap-1 px-2 text-xs">
                                 <div className="flex min-w-0 items-center gap-2">
-                                  <span
-                                    draggable
-                                    onPointerDown={(e) => e.stopPropagation()}
-                                    onDragStart={(e) => {
-                                      e.stopPropagation();
-                                      e.dataTransfer.setData(
-                                        "application/x-allocation",
-                                        JSON.stringify({
-                                          allocationId: a.id,
-                                          fromProjectId: stage.projectId,
-                                          durationDays,
-                                        }),
-                                      );
-                                      e.dataTransfer.effectAllowed = "move";
-                                    }}
-                                    className="shrink-0 cursor-grab text-muted-foreground/70 hover:text-foreground active:cursor-grabbing"
-                                    aria-label={t("gantt.stage.moveAllocation")}
-                                  >
-                                    <GripVertical className="h-3 w-3" />
-                                  </span>
+                                  {!isImported && (
+                                    <span
+                                      draggable
+                                      onPointerDown={(e) => e.stopPropagation()}
+                                      onDragStart={(e) => {
+                                        e.stopPropagation();
+                                        e.dataTransfer.setData(
+                                          "application/x-allocation",
+                                          JSON.stringify({
+                                            allocationId: a.id,
+                                            fromProjectId: stage.projectId,
+                                            durationDays,
+                                          }),
+                                        );
+                                        e.dataTransfer.effectAllowed = "move";
+                                      }}
+                                      className="shrink-0 cursor-grab text-muted-foreground/70 hover:text-foreground active:cursor-grabbing"
+                                      aria-label={t("gantt.stage.moveAllocation")}
+                                    >
+                                      <GripVertical className="h-3 w-3" />
+                                    </span>
+                                  )}
                                   <span className="shrink-0 -my-2 rounded-full ring-2 ring-background shadow-sm">
                                     <CollaboratorAvatar
                                       collaboratorId={a.resource.collaborator_id}
@@ -844,33 +850,37 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                                 </div>
                               </div>
 
-                              <div
-                                className="absolute left-0 top-0 z-10 h-full w-2 cursor-ew-resize bg-foreground/10 opacity-0 transition group-hover:opacity-100"
-                                onPointerDown={(e) =>
-                                  startDrag(e, {
-                                    type: "resize-l",
-                                    id: a.id,
-                                    projectId: stage.projectId,
-                                    startX: e.clientX,
-                                    origStart: a.start_date,
-                                    origEnd: a.end_date,
-                                  })
-                                }
-                              />
-                              <div
-                                className="absolute right-0 top-0 z-10 h-full w-2 cursor-ew-resize bg-foreground/10 opacity-0 transition group-hover:opacity-100"
-                                onPointerDown={(e) =>
-                                  startDrag(e, {
-                                    type: "resize-r",
-                                    id: a.id,
-                                    projectId: stage.projectId,
-                                    startX: e.clientX,
-                                    origStart: a.start_date,
-                                    origEnd: a.end_date,
-                                  })
-                                }
-                              />
-                              <AllocationEditor allocation={a} projectId={stage.projectId} adapter={adapter} />
+                              {!isImported && (
+                                <>
+                                  <div
+                                    className="absolute left-0 top-0 z-10 h-full w-2 cursor-ew-resize bg-foreground/10 opacity-0 transition group-hover:opacity-100"
+                                    onPointerDown={(e) =>
+                                      startDrag(e, {
+                                        type: "resize-l",
+                                        id: a.id,
+                                        projectId: stage.projectId,
+                                        startX: e.clientX,
+                                        origStart: a.start_date,
+                                        origEnd: a.end_date,
+                                      })
+                                    }
+                                  />
+                                  <div
+                                    className="absolute right-0 top-0 z-10 h-full w-2 cursor-ew-resize bg-foreground/10 opacity-0 transition group-hover:opacity-100"
+                                    onPointerDown={(e) =>
+                                      startDrag(e, {
+                                        type: "resize-r",
+                                        id: a.id,
+                                        projectId: stage.projectId,
+                                        startX: e.clientX,
+                                        origStart: a.start_date,
+                                        origEnd: a.end_date,
+                                      })
+                                    }
+                                  />
+                                  <AllocationEditor allocation={a} projectId={stage.projectId} adapter={adapter} />
+                                </>
+                              )}
                             </div>
                           </TooltipTrigger>
                           <TooltipContent side="top" align="start" className="max-w-xs p-0">

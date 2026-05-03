@@ -24,7 +24,9 @@ export type AcceloRowKey =
   | "cost"
   | "profit"
   | "status"
-  | "invoice_number";
+  | "invoice_number"
+  | "stage"
+  | "stage_date_range";
 
 const HEADER_ALIASES: Record<AcceloRowKey, string[]> = {
   external_id: ["id#", "id #", "id"],
@@ -46,6 +48,20 @@ const HEADER_ALIASES: Record<AcceloRowKey, string[]> = {
   profit: ["profit"],
   status: ["status"],
   invoice_number: ["invoice number", "invoice #", "invoice"],
+  stage: ["stage", "milestone", "phase"],
+  stage_date_range: [
+    "stage date range",
+    "milestone date range",
+    "stage dates",
+    "milestone dates",
+    "date range",
+  ],
+};
+
+// Positional fallbacks (0-indexed): column K = 10 (stage), column O = 14 (date range)
+const POSITION_FALLBACK: Partial<Record<AcceloRowKey, number>> = {
+  stage: 10,
+  stage_date_range: 14,
 };
 
 const REQUIRED: AcceloRowKey[] = ["external_id", "from", "date"];
@@ -118,8 +134,33 @@ export type ParsedAcceloRow = {
   profit: number;
   status_text: string;
   invoice_number: string;
+  stage_name: string;
+  stage_date_range_raw: string;
+  stage_start_date: string | null;
+  stage_end_date: string | null;
+  stage_parse_warning: string | null;
   raw: Record<string, unknown>;
 };
+
+// Parses "DD/MM/YY to DD/MM/YY" or "DD/MM/YYYY to DD/MM/YYYY" (also accepts " - " separator).
+export function parseStageDateRange(input: unknown): {
+  start: string | null;
+  end: string | null;
+  warning: string | null;
+} {
+  const s = String(input ?? "").trim();
+  if (!s) return { start: null, end: null, warning: null };
+  const m = s.split(/\s+(?:to|-|–|—|até)\s+/i);
+  if (m.length !== 2) {
+    return { start: null, end: null, warning: `Unrecognized stage date range: "${s}"` };
+  }
+  const start = toIsoDate(m[0]);
+  const end = toIsoDate(m[1]);
+  if (!start || !end) {
+    return { start: null, end: null, warning: `Could not parse stage date range: "${s}"` };
+  }
+  return { start, end, warning: null };
+}
 
 export type AcceloParseResult = {
   rows: ParsedAcceloRow[];
@@ -158,6 +199,11 @@ export function parseAcceloActivityExport(buffer: ArrayBuffer): AcceloParseResul
     }
   }
 
+  // Apply positional fallbacks (e.g. stage at column K, range at column O) when
+  // headers are missing/non-standard.
+  for (const [k, idx] of Object.entries(POSITION_FALLBACK) as [AcceloRowKey, number][]) {
+    if (colMap[k] === undefined) colMap[k] = idx;
+  }
   const resolvedHeaders: Partial<Record<AcceloRowKey, string>> = {};
   if (headerRowIndex !== null) {
     const header = aoa[headerRowIndex] || [];
@@ -200,6 +246,16 @@ export function parseAcceloActivityExport(buffer: ArrayBuffer): AcceloParseResul
         profit: toNumber(get("profit")),
         status_text: String(get("status") ?? "").trim(),
         invoice_number: String(get("invoice_number") ?? "").trim(),
+        stage_name: String(get("stage") ?? "").trim(),
+        stage_date_range_raw: String(get("stage_date_range") ?? "").trim(),
+        ...(() => {
+          const parsed = parseStageDateRange(get("stage_date_range"));
+          return {
+            stage_start_date: parsed.start,
+            stage_end_date: parsed.end,
+            stage_parse_warning: parsed.warning,
+          };
+        })(),
         raw,
       });
     }

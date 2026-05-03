@@ -165,6 +165,8 @@ function validateRows(
       duplicates++;
     }
 
+    if (row.stage_parse_warning) warnings.push(row.stage_parse_warning);
+
     const status: RowValidation["status"] = errors.length
       ? "error"
       : warnings.length
@@ -425,6 +427,157 @@ export async function commitAcceloImport(
   }
 
   const skipped = preview.rows.length - toInsert.length;
+
+  // ---------------------------------------------------------------------------
+  // Reconstruct historical Gantt: stages + per-resource allocations.
+  // Idempotent via deterministic external_id; safe to re-run.
+  // ---------------------------------------------------------------------------
+  type StageKey = string; // accelo_stage:{project}:{name}:{start}:{end}
+  type AllocKey = string; // accelo_allocation:{project}:{stage}:{resource}
+  const stageGroups = new Map<
+    StageKey,
+    {
+      project_id: string;
+      name: string;
+      start_date: string;
+      end_date: string;
+    }
+  >();
+  const allocAgg = new Map<
+    string, // project|name|start|end|resource
+    {
+      project_id: string;
+      stage_key: StageKey;
+      resource_id: string;
+      total_hours: number;
+    }
+  >();
+  const historicalStageLinks = new Map<string, StageKey>(); // external_id -> stage key
+
+  for (const v of preview.rows) {
+    if (v.status === "error") continue;
+    const project_id =
+      v.matched.project_id ?? projectByRef.get(v.row.reference) ?? null;
+    if (!project_id) continue;
+    const name = (v.row.stage_name || "").trim();
+    const start = v.row.stage_start_date;
+    const end = v.row.stage_end_date;
+    if (!name || !start || !end) continue;
+    const stageKey: StageKey = `accelo_stage:${project_id}:${name}:${start}:${end}`;
+    if (!stageGroups.has(stageKey)) {
+      stageGroups.set(stageKey, { project_id, name, start_date: start, end_date: end });
+    }
+    if (v.row.external_id) historicalStageLinks.set(v.row.external_id, stageKey);
+
+    if (v.matched.resource_id) {
+      const aggKey = `${project_id}|${name}|${start}|${end}|${v.matched.resource_id}`;
+      const cur = allocAgg.get(aggKey);
+      const hours = (v.row.billable_hours ?? 0) + (v.row.non_billable_hours ?? 0);
+      if (cur) cur.total_hours += hours;
+      else
+        allocAgg.set(aggKey, {
+          project_id,
+          stage_key: stageKey,
+          resource_id: v.matched.resource_id,
+          total_hours: hours,
+        });
+    }
+  }
+
+  // Upsert stages.
+  const stageIdByKey = new Map<StageKey, string>();
+  if (stageGroups.size) {
+    const stagePayload = Array.from(stageGroups.entries()).map(([key, s]) => ({
+      external_id: key,
+      project_id: s.project_id,
+      name: s.name,
+      start_date: s.start_date,
+      end_date: s.end_date,
+      source: "imported_accelo",
+      is_locked: true,
+    }));
+    const { data: upsertedStages, error: stageErr } = await supabase
+      .from("pm_stages")
+      .upsert(stagePayload, { onConflict: "external_id" })
+      .select("id, external_id");
+    if (!stageErr && upsertedStages) {
+      upsertedStages.forEach((s) => {
+        if (s.external_id) stageIdByKey.set(s.external_id, s.id);
+      });
+    }
+  }
+
+  // Upsert allocations (one per resource per stage).
+  if (allocAgg.size && stageIdByKey.size) {
+    const allocPayload: {
+      external_id: string;
+      stage_id: string;
+      resource_id: string;
+      start_date: string;
+      end_date: string;
+      hours_per_day: number;
+      total_hours_imported: number;
+      source: string;
+      is_locked: boolean;
+    }[] = [];
+    for (const a of allocAgg.values()) {
+      const stage_id = stageIdByKey.get(a.stage_key);
+      const stage = stageGroups.get(a.stage_key);
+      if (!stage_id || !stage) continue;
+      // Compute working days within stage range (Mon-Fri).
+      const startD = new Date(stage.start_date + "T00:00:00");
+      const endD = new Date(stage.end_date + "T00:00:00");
+      let working = 0;
+      for (
+        const d = new Date(startD);
+        d <= endD;
+        d.setDate(d.getDate() + 1)
+      ) {
+        const dow = d.getDay();
+        if (dow !== 0 && dow !== 6) working++;
+      }
+      working = Math.max(1, working);
+      const totalHours = a.total_hours > 0 ? a.total_hours : working * 4;
+      const hpd = Math.max(0.25, totalHours / working);
+      allocPayload.push({
+        external_id: `accelo_allocation:${a.project_id}:${stage_id}:${a.resource_id}`,
+        stage_id,
+        resource_id: a.resource_id,
+        start_date: stage.start_date,
+        end_date: stage.end_date,
+        hours_per_day: Math.round(hpd * 100) / 100,
+        total_hours_imported: Math.round(totalHours * 100) / 100,
+        source: "imported_accelo",
+        is_locked: true,
+      });
+    }
+    for (let i = 0; i < allocPayload.length; i += 500) {
+      await supabase
+        .from("pm_allocations")
+        .upsert(allocPayload.slice(i, i + 500), { onConflict: "external_id" });
+    }
+  }
+
+  // Link historical_time_entries.stage_id by external_id (idempotent).
+  if (historicalStageLinks.size && stageIdByKey.size) {
+    const updates = new Map<string, string[]>(); // stage_id -> [external_ids]
+    for (const [extId, stageKey] of historicalStageLinks) {
+      const stage_id = stageIdByKey.get(stageKey);
+      if (!stage_id) continue;
+      const arr = updates.get(stage_id) ?? [];
+      arr.push(extId);
+      updates.set(stage_id, arr);
+    }
+    for (const [stage_id, extIds] of updates) {
+      for (let i = 0; i < extIds.length; i += 500) {
+        await supabase
+          .from("historical_time_entries")
+          .update({ stage_id })
+          .eq("source_system", SOURCE_SYSTEM)
+          .in("external_id", extIds.slice(i, i + 500));
+      }
+    }
+  }
 
   await supabase
     .from("import_jobs")

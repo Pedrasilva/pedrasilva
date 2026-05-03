@@ -101,6 +101,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
         status_changed_at: null,
         created_at: a.created_at,
         updated_at: a.updated_at,
+        source: null,
+        is_locked: false,
+        external_id: null,
+        total_hours_imported: null,
         resource: resourceForAlloc,
       };
       const arr = m.get(a.stage_id) ?? [];
@@ -133,6 +137,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
       baseline_notes: null,
       baseline_start_date: null,
       baseline_target_hours: null,
+      source: null,
+      is_locked: false,
       allocations: allocByStage.get(s.id) ?? [],
     }));
   }, [stages, allocByStage, quoteId]);
