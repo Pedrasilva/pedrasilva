@@ -411,8 +411,15 @@ export async function commitAcceloImport(
     );
   const existing = new Set((existingResp.data ?? []).map((d) => d.external_id));
 
+  const resolveProjectId = (ref: string | null | undefined, autoMatched: string | null) => {
+    if (ref && skipRefs.has(ref)) return null;
+    if (ref && projectByRef.has(ref)) return projectByRef.get(ref) ?? null;
+    return autoMatched;
+  };
+
   const toInsert = preview.rows
     .filter((v) => v.status !== "error" && !existing.has(v.row.external_id))
+    .filter((v) => !(v.row.reference && skipRefs.has(v.row.reference)))
     .map((v) => ({
       source_system: SOURCE_SYSTEM,
       external_id: v.row.external_id,
@@ -421,7 +428,7 @@ export async function commitAcceloImport(
       collaborator_id: v.matched.collaborator_id,
       resource_id: v.matched.resource_id,
       collaborator_email: v.row.from_email,
-      project_id: v.matched.project_id ?? projectByRef.get(v.row.reference) ?? null,
+      project_id: resolveProjectId(v.row.reference, v.matched.project_id),
       project_reference: v.row.reference || null,
       company_id: v.matched.company_id ?? companyByName.get(v.row.company) ?? null,
       company_name: v.row.company || null,
