@@ -677,6 +677,7 @@ export async function commitAcceloImport(
   for (const v of preview.rows) {
     if (v.status === "error") continue;
     if (refOf(v.row) && skipRefs.has(refOf(v.row))) continue;
+    if (!isAllowed(refOf(v.row), v.matched.project_id)) continue;
     const project_id = resolveProjectId(refOf(v.row), v.matched.project_id);
     if (!project_id) continue;
     const name = (v.row.stage_name || "").trim();
