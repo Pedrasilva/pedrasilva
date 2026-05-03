@@ -1073,6 +1073,38 @@ function ResultStep({ result, onReset }: { result: CommitResult; onReset: () => 
             )}
           </div>
         )}
+        {result.diagnostics && result.diagnostics.length > 0 && (
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("admin.imports.result.diagnostics.title")}
+            </div>
+            <div className="space-y-2">
+              {result.diagnostics.map((d) => (
+                <div
+                  key={d.project_id}
+                  className={`rounded-md border p-3 text-xs ${
+                    d.reconstructionFailed
+                      ? "border-red-300/60 bg-red-50 text-red-900 dark:border-red-700/60 dark:bg-red-950/30 dark:text-red-200"
+                      : "border-border bg-muted/30"
+                  }`}
+                >
+                  <div className="font-medium">{d.project_name ?? d.project_id}</div>
+                  <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5 sm:grid-cols-4">
+                    <span>{t("admin.imports.result.diagnostics.visibleStages")}: <strong>{d.visibleStagesForProject}</strong></span>
+                    <span>{t("admin.imports.result.diagnostics.historicalEntries")}: <strong>{d.historicalEntriesForProject}</strong></span>
+                    <span>{t("admin.imports.result.diagnostics.historicalWithStage")}: <strong>{d.historicalEntriesWithStage}</strong></span>
+                    <span>{t("admin.imports.result.diagnostics.allocations")}: <strong>{d.allocationsForProject}</strong></span>
+                  </div>
+                  {d.reconstructionFailed && (
+                    <div className="mt-2 font-medium">
+                      {t("admin.imports.result.diagnostics.reconstructionFailed")}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="flex justify-end">
           <Button onClick={onReset}>{t("admin.imports.wizard.result.startNew")}</Button>
         </div>
