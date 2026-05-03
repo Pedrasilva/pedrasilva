@@ -104,9 +104,18 @@ function cleanDateInput(v: unknown): string {
 }
 
 function excelSerialToIso(n: number): string | null {
-  const d = XLSX.SSF.parse_date_code(n);
-  if (!d) return null;
-  return `${d.y.toString().padStart(4, "0")}-${String(d.m).padStart(2, "0")}-${String(d.d).padStart(2, "0")}`;
+  // Try XLSX.SSF first (handles 1900 leap-year bug correctly), fall back to math.
+  const ssf = (XLSX as unknown as { SSF?: { parse_date_code?: (n: number) => { y: number; m: number; d: number } | null } }).SSF;
+  const d = ssf?.parse_date_code?.(n);
+  if (d) {
+    return `${d.y.toString().padStart(4, "0")}-${String(d.m).padStart(2, "0")}-${String(d.d).padStart(2, "0")}`;
+  }
+  // Excel epoch: 1899-12-30 (accounts for the 1900 leap-year bug)
+  if (!Number.isFinite(n)) return null;
+  const ms = Math.round(n) * 86400000 + Date.UTC(1899, 11, 30);
+  const dt = new Date(ms);
+  if (Number.isNaN(dt.getTime())) return null;
+  return dt.toISOString().slice(0, 10);
 }
 
 function isValidYmd(y: number, m: number, d: number): boolean {
