@@ -772,26 +772,28 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                             >
                               <div className="flex h-full items-center justify-between gap-1 px-2 text-xs">
                                 <div className="flex min-w-0 items-center gap-2">
-                                  <span
-                                    draggable
-                                    onPointerDown={(e) => e.stopPropagation()}
-                                    onDragStart={(e) => {
-                                      e.stopPropagation();
-                                      e.dataTransfer.setData(
-                                        "application/x-allocation",
-                                        JSON.stringify({
-                                          allocationId: a.id,
-                                          fromProjectId: stage.projectId,
-                                          durationDays,
-                                        }),
-                                      );
-                                      e.dataTransfer.effectAllowed = "move";
-                                    }}
-                                    className="shrink-0 cursor-grab text-muted-foreground/70 hover:text-foreground active:cursor-grabbing"
-                                    aria-label={t("gantt.stage.moveAllocation")}
-                                  >
-                                    <GripVertical className="h-3 w-3" />
-                                  </span>
+                                  {!isImported && (
+                                    <span
+                                      draggable
+                                      onPointerDown={(e) => e.stopPropagation()}
+                                      onDragStart={(e) => {
+                                        e.stopPropagation();
+                                        e.dataTransfer.setData(
+                                          "application/x-allocation",
+                                          JSON.stringify({
+                                            allocationId: a.id,
+                                            fromProjectId: stage.projectId,
+                                            durationDays,
+                                          }),
+                                        );
+                                        e.dataTransfer.effectAllowed = "move";
+                                      }}
+                                      className="shrink-0 cursor-grab text-muted-foreground/70 hover:text-foreground active:cursor-grabbing"
+                                      aria-label={t("gantt.stage.moveAllocation")}
+                                    >
+                                      <GripVertical className="h-3 w-3" />
+                                    </span>
+                                  )}
                                   <span className="shrink-0 -my-2 rounded-full ring-2 ring-background shadow-sm">
                                     <CollaboratorAvatar
                                       collaboratorId={a.resource.collaborator_id}
