@@ -842,7 +842,9 @@ function StagesStep({
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">{s.warning ?? "—"}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {s.warning ?? (s.inferred ? t("admin.imports.stages.inferredFromActivity") : "—")}
+                      </TableCell>
                       <TableCell className="text-right text-xs">{s.rows}</TableCell>
                       <TableCell className="text-right text-xs">{s.hours.toFixed(1)}</TableCell>
                       <TableCell className="text-right text-xs">{s.people}</TableCell>
