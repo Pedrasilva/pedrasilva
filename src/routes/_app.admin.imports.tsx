@@ -669,19 +669,27 @@ function StagesStep({
   const { t } = useTranslation("common");
 
   const { stages, reconstructedCount, correctedCount, skippedCount, missingProject } = useMemo(() => {
+    const minIso = (a: string | null, b: string | null) =>
+      !a ? b : !b ? a : a < b ? a : b;
+    const maxIso = (a: string | null, b: string | null) =>
+      !a ? b : !b ? a : a > b ? a : b;
+
     const map = new Map<
       string,
       {
         key: string;
         project_label: string;
         stage_name: string;
-        start_date: string;
-        end_date: string;
+        explicit_start: string | null;
+        explicit_end: string | null;
+        activity_min: string | null;
+        activity_max: string | null;
         raw: string;
         warning: string | null;
         rows: number;
         hours: number;
         resourceIds: Set<string>;
+        inferred: boolean;
       }
     >();
     let skippedCount = 0;
@@ -693,13 +701,12 @@ function StagesStep({
       const rawRange = (v.row.stage_date_range_raw ?? "").trim();
       const start = v.row.stage_start_date;
       const end = v.row.stage_end_date;
-      // Count parse outcomes per row that actually has a stage + raw range
       if (name && rawRange && !seenStageRow.has(v.row.rowIndex)) {
         seenStageRow.add(v.row.rowIndex);
         if (!start || !end) skippedCount++;
         else if (v.row.stage_parse_warning) correctedCount++;
       }
-      if (!name || !start || !end) continue;
+      if (!name) continue;
       const ref = v.row.parent_reference || v.row.reference;
       const choice = ref ? mapping[ref] : undefined;
       const projectKey = choice?.mode === "existing"
@@ -713,30 +720,54 @@ function StagesStep({
         missingProject++;
         continue;
       }
-      const key = `${projectKey}|${name}|${start}|${end}`;
+      const key = `${projectKey}|${name}`;
       let entry = map.get(key);
       if (!entry) {
         entry = {
           key,
           project_label: ref ?? "—",
           stage_name: name,
-          start_date: start,
-          end_date: end,
+          explicit_start: start ?? null,
+          explicit_end: end ?? null,
+          activity_min: v.row.entry_date ?? null,
+          activity_max: v.row.entry_date ?? null,
           raw: rawRange,
           warning: v.row.stage_parse_warning,
           rows: 0,
           hours: 0,
           resourceIds: new Set<string>(),
+          inferred: false,
         };
         map.set(key, entry);
+      } else {
+        entry.explicit_start = entry.explicit_start ?? start ?? null;
+        entry.explicit_end = entry.explicit_end ?? end ?? null;
+        entry.activity_min = minIso(entry.activity_min, v.row.entry_date ?? null);
+        entry.activity_max = maxIso(entry.activity_max, v.row.entry_date ?? null);
+        if (!entry.raw && rawRange) entry.raw = rawRange;
       }
       entry.rows += 1;
       entry.hours += (v.row.billable_hours ?? 0) + (v.row.non_billable_hours ?? 0);
       if (v.matched.resource_id) entry.resourceIds.add(v.matched.resource_id);
     }
     const stages = Array.from(map.values())
-      .map((s) => ({ ...s, people: s.resourceIds.size }))
-      .sort((a, b) => a.start_date.localeCompare(b.start_date));
+      .map((s) => {
+        const start_date = s.explicit_start ?? s.activity_min;
+        const end_date = s.explicit_end ?? s.activity_max ?? start_date;
+        const inferred = !s.explicit_start || !s.explicit_end;
+        return {
+          ...s,
+          start_date: start_date ?? "",
+          end_date: end_date ?? "",
+          inferred,
+          people: s.resourceIds.size,
+        };
+      })
+      .filter((s) => s.start_date && s.end_date)
+      .sort((a, b) => {
+        const p = a.project_label.localeCompare(b.project_label);
+        return p !== 0 ? p : a.start_date.localeCompare(b.start_date);
+      });
     return { stages, reconstructedCount: stages.length, correctedCount, skippedCount, missingProject };
   }, [preview, mapping]);
 
@@ -811,7 +842,9 @@ function StagesStep({
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">{s.warning ?? "—"}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {s.warning ?? (s.inferred ? t("admin.imports.stages.inferredFromActivity") : "—")}
+                      </TableCell>
                       <TableCell className="text-right text-xs">{s.rows}</TableCell>
                       <TableCell className="text-right text-xs">{s.hours.toFixed(1)}</TableCell>
                       <TableCell className="text-right text-xs">{s.people}</TableCell>
