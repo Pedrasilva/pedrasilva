@@ -570,18 +570,21 @@ export async function commitAcceloImport(
     });
   }
 
-  // Upsert stages.
+  // Upsert stages (only those with resolvable date ranges).
   const stageIdByKey = new Map<StageKey, string>();
-  if (stageGroups.size) {
-    const stagePayload = Array.from(stageGroups.entries()).map(([key, s]) => ({
-      external_id: key,
-      project_id: s.project_id,
-      name: s.name,
-      start_date: s.start_date,
-      end_date: s.end_date,
-      source: "imported_accelo",
-      is_locked: true,
-    }));
+  if (stageDates.size) {
+    const stagePayload = Array.from(stageDates.entries()).map(([key, d]) => {
+      const s = stageGroups.get(key)!;
+      return {
+        external_id: key,
+        project_id: s.project_id,
+        name: s.name,
+        start_date: d.start_date,
+        end_date: d.end_date,
+        source: "imported_accelo",
+        is_locked: true,
+      };
+    });
     const { data: upsertedStages, error: stageErr } = await supabase
       .from("pm_stages")
       .upsert(stagePayload, { onConflict: "external_id" })
@@ -608,11 +611,10 @@ export async function commitAcceloImport(
     }[] = [];
     for (const a of allocAgg.values()) {
       const stage_id = stageIdByKey.get(a.stage_key);
-      const stage = stageGroups.get(a.stage_key);
-      if (!stage_id || !stage) continue;
-      // Compute working days within stage range (Mon-Fri).
-      const startD = new Date(stage.start_date + "T00:00:00");
-      const endD = new Date(stage.end_date + "T00:00:00");
+      const dates = stageDates.get(a.stage_key);
+      if (!stage_id || !dates) continue;
+      const startD = new Date(dates.start_date + "T00:00:00");
+      const endD = new Date(dates.end_date + "T00:00:00");
       let working = 0;
       for (
         const d = new Date(startD);
@@ -629,8 +631,8 @@ export async function commitAcceloImport(
         external_id: `accelo_allocation:${a.project_id}:${stage_id}:${a.resource_id}`,
         stage_id,
         resource_id: a.resource_id,
-        start_date: stage.start_date,
-        end_date: stage.end_date,
+        start_date: dates.start_date,
+        end_date: dates.end_date,
         hours_per_day: Math.round(hpd * 100) / 100,
         total_hours_imported: Math.round(totalHours * 100) / 100,
         source: "imported_accelo",
