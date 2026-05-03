@@ -248,6 +248,8 @@ function ImportsContent() {
               </Section>
             )}
 
+            <StageSummarySection preview={preview} />
+
             <RowsPreviewTable preview={preview} />
 
             <div className="flex justify-end gap-2">
