@@ -395,6 +395,12 @@ export async function commitAcceloImport(
     const company_id = sample ? companyByName.get(sample.row.company) ?? null : null;
     const choice = options.projectMapping?.[ref];
     const name = choice?.mode === "create" && choice.name ? choice.name : ref;
+    // Guard: never auto-create a project whose name still looks like a stage
+    // marker (e.g. "[2] Concept", "Fase 3"). The user must rename it explicitly.
+    if (looksLikeStageName(name) && choice?.mode !== "create") {
+      console.warn(`[accelo] Skipping auto-create for stage-like reference: ${name}`);
+      continue;
+    }
     const { data, error } = await supabase
       .from("pm_projects")
       .insert({
