@@ -748,34 +748,37 @@ function StagesStep({
         {stages.length === 0 ? (
           <p className="text-xs text-muted-foreground">{t("admin.imports.stages.noneDetected")}</p>
         ) : (
-          <div className="border rounded-md max-h-96 overflow-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("admin.imports.stages.cols.stage")}</TableHead>
-                  <TableHead>{t("admin.imports.stages.cols.project")}</TableHead>
-                  <TableHead>{t("admin.imports.stages.cols.start")}</TableHead>
-                  <TableHead>{t("admin.imports.stages.cols.end")}</TableHead>
-                  <TableHead className="text-right">{t("admin.imports.stages.cols.rows")}</TableHead>
-                  <TableHead className="text-right">{t("admin.imports.stages.cols.hours")}</TableHead>
-                  <TableHead className="text-right">{t("admin.imports.stages.cols.people")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {stages.map((s) => (
-                  <TableRow key={s.key}>
-                    <TableCell className="text-xs font-medium">{s.stage_name}</TableCell>
-                    <TableCell className="text-xs">{s.project_label}</TableCell>
-                    <TableCell className="text-xs">{s.start_date}</TableCell>
-                    <TableCell className="text-xs">{s.end_date}</TableCell>
-                    <TableCell className="text-right text-xs">{s.rows}</TableCell>
-                    <TableCell className="text-right text-xs">{s.hours.toFixed(1)}</TableCell>
-                    <TableCell className="text-right text-xs">{s.people}</TableCell>
+          <>
+            <GanttPreview stages={stages} />
+            <div className="border rounded-md max-h-96 overflow-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("admin.imports.stages.cols.stage")}</TableHead>
+                    <TableHead>{t("admin.imports.stages.cols.project")}</TableHead>
+                    <TableHead>{t("admin.imports.stages.cols.start")}</TableHead>
+                    <TableHead>{t("admin.imports.stages.cols.end")}</TableHead>
+                    <TableHead className="text-right">{t("admin.imports.stages.cols.rows")}</TableHead>
+                    <TableHead className="text-right">{t("admin.imports.stages.cols.hours")}</TableHead>
+                    <TableHead className="text-right">{t("admin.imports.stages.cols.people")}</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {stages.map((s) => (
+                    <TableRow key={s.key}>
+                      <TableCell className="text-xs font-medium">{s.stage_name}</TableCell>
+                      <TableCell className="text-xs">{s.project_label}</TableCell>
+                      <TableCell className="text-xs">{s.start_date}</TableCell>
+                      <TableCell className="text-xs">{s.end_date}</TableCell>
+                      <TableCell className="text-right text-xs">{s.rows}</TableCell>
+                      <TableCell className="text-right text-xs">{s.hours.toFixed(1)}</TableCell>
+                      <TableCell className="text-right text-xs">{s.people}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
 
         <StepFooter onBack={onBack} onNext={onNext} />
