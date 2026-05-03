@@ -848,33 +848,37 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                                 </div>
                               </div>
 
-                              <div
-                                className="absolute left-0 top-0 z-10 h-full w-2 cursor-ew-resize bg-foreground/10 opacity-0 transition group-hover:opacity-100"
-                                onPointerDown={(e) =>
-                                  startDrag(e, {
-                                    type: "resize-l",
-                                    id: a.id,
-                                    projectId: stage.projectId,
-                                    startX: e.clientX,
-                                    origStart: a.start_date,
-                                    origEnd: a.end_date,
-                                  })
-                                }
-                              />
-                              <div
-                                className="absolute right-0 top-0 z-10 h-full w-2 cursor-ew-resize bg-foreground/10 opacity-0 transition group-hover:opacity-100"
-                                onPointerDown={(e) =>
-                                  startDrag(e, {
-                                    type: "resize-r",
-                                    id: a.id,
-                                    projectId: stage.projectId,
-                                    startX: e.clientX,
-                                    origStart: a.start_date,
-                                    origEnd: a.end_date,
-                                  })
-                                }
-                              />
-                              <AllocationEditor allocation={a} projectId={stage.projectId} adapter={adapter} />
+                              {!isImported && (
+                                <>
+                                  <div
+                                    className="absolute left-0 top-0 z-10 h-full w-2 cursor-ew-resize bg-foreground/10 opacity-0 transition group-hover:opacity-100"
+                                    onPointerDown={(e) =>
+                                      startDrag(e, {
+                                        type: "resize-l",
+                                        id: a.id,
+                                        projectId: stage.projectId,
+                                        startX: e.clientX,
+                                        origStart: a.start_date,
+                                        origEnd: a.end_date,
+                                      })
+                                    }
+                                  />
+                                  <div
+                                    className="absolute right-0 top-0 z-10 h-full w-2 cursor-ew-resize bg-foreground/10 opacity-0 transition group-hover:opacity-100"
+                                    onPointerDown={(e) =>
+                                      startDrag(e, {
+                                        type: "resize-r",
+                                        id: a.id,
+                                        projectId: stage.projectId,
+                                        startX: e.clientX,
+                                        origStart: a.start_date,
+                                        origEnd: a.end_date,
+                                      })
+                                    }
+                                  />
+                                  <AllocationEditor allocation={a} projectId={stage.projectId} adapter={adapter} />
+                                </>
+                              )}
                             </div>
                           </TooltipTrigger>
                           <TooltipContent side="top" align="start" className="max-w-xs p-0">
