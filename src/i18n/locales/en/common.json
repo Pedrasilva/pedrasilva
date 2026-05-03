@@ -125,6 +125,15 @@
         "company": "Company",
         "notes": "Notes"
       },
+      "result": {
+        "stagesMatched": "Stages matched",
+        "stagesCreated": "Stages created",
+        "allocations": "Resource allocations",
+        "warnNoStage_one": "{{count}} time entry imported without stage association",
+        "warnNoStage_other": "{{count}} time entries imported without stage association",
+        "warnNoResource_one": "{{count}} time entry imported without resource association",
+        "warnNoResource_other": "{{count}} time entries imported without resource association"
+      },
       "stages": {
         "title": "Detected stages (Gantt reconstruction)",
         "hint": "Stages parsed from column K with date ranges from column O. These will be created as locked, imported stages on commit.",
