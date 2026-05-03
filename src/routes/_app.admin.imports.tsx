@@ -129,26 +129,43 @@ function ImportsContent() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const buildCommitOptions = (restrictProjectIds?: string[]) => {
+    const createMissingProjects = Object.values(projectMapping).some((c) => c.mode === "create");
+    const stageMapping = buildCommitDefaultStageByProject(
+      unassignedStageProjectKeys,
+      defaultStageByProject,
+    );
+    return {
+      createMissingProjects,
+      createMissingCompanies,
+      projectMapping,
+      defaultStageByProject: stageMapping,
+      ...(restrictProjectIds && restrictProjectIds.length ? { restrictProjectIds } : {}),
+    };
+  };
+
   const commitMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (vars?: { restrictProjectIds?: string[] }) => {
       if (!preview) throw new Error("No preview");
-      const createMissingProjects = Object.values(projectMapping).some((c) => c.mode === "create");
-      const stageMapping = buildCommitDefaultStageByProject(
-        unassignedStageProjectKeys,
-        defaultStageByProject,
+      const opts = buildCommitOptions(vars?.restrictProjectIds);
+      // Fail-fast: if user assigned stages on Review but stripping invalid
+      // ones produced an empty mapping while there are stageless projects,
+      // block before round-tripping to Supabase.
+      if (
+        unassignedStageProjectKeys.length > 0 &&
+        Object.keys(opts.defaultStageByProject ?? {}).length === 0
+      ) {
+        throw new Error(t("admin.imports.failFast.emptyStageMapping"));
+      }
+      // Fail-fast: any stageless project missing a valid choice.
+      const missing = unassignedStageProjectKeys.filter(
+        (p) => !isValidDefaultStageChoice(defaultStageByProject[p.key]),
       );
-      console.debug("[accelo-import] commit options", {
-        createMissingProjects,
-        createMissingCompanies,
-        projectMapping,
-        defaultStageByProject: stageMapping,
-      });
-      return commitAcceloImport(preview, {
-        createMissingProjects,
-        createMissingCompanies,
-        projectMapping,
-        defaultStageByProject: stageMapping,
-      });
+      if (missing.length > 0) {
+        throw new Error(t("admin.imports.failFast.missingDefaultStages", { count: missing.length }));
+      }
+      console.debug("[accelo-import] commit options", opts);
+      return commitAcceloImport(preview, opts);
     },
     onSuccess: (r) => {
       setResult(r);
@@ -160,9 +177,6 @@ function ImportsContent() {
         }),
       );
       qc.invalidateQueries({ queryKey: ["import-jobs"] });
-      // Force every project/stage/budget/financial query to refetch so the
-      // newly imported stages, allocations and time entries are visible
-      // when the user navigates to the project page right after import.
       [
         ["projects"],
         ["pm-projects"],
