@@ -787,6 +787,93 @@ function StagesStep({
   );
 }
 
+type GanttStage = {
+  key: string;
+  project_label: string;
+  stage_name: string;
+  start_date: string;
+  end_date: string;
+  people: number;
+  hours: number;
+};
+
+function GanttPreview({ stages }: { stages: GanttStage[] }) {
+  const { t } = useTranslation("common");
+  const { groups, minTs, maxTs, totalDays } = useMemo(() => {
+    const groups = new Map<string, GanttStage[]>();
+    let minTs = Infinity;
+    let maxTs = -Infinity;
+    for (const s of stages) {
+      const startTs = new Date(s.start_date).getTime();
+      const endTs = new Date(s.end_date).getTime();
+      if (Number.isFinite(startTs)) minTs = Math.min(minTs, startTs);
+      if (Number.isFinite(endTs)) maxTs = Math.max(maxTs, endTs);
+      const arr = groups.get(s.project_label) ?? [];
+      arr.push(s);
+      groups.set(s.project_label, arr);
+    }
+    const totalDays = Math.max(1, Math.round((maxTs - minTs) / 86400000) + 1);
+    return { groups, minTs, maxTs, totalDays };
+  }, [stages]);
+
+  if (!Number.isFinite(minTs) || !Number.isFinite(maxTs)) return null;
+
+  const palette = ["#3b82f6", "#22c55e", "#f59e0b", "#a855f7", "#ec4899", "#06b6d4", "#f97316"];
+  const projectColor = new Map<string, string>();
+  let i = 0;
+  for (const k of groups.keys()) {
+    projectColor.set(k, palette[i % palette.length]);
+    i++;
+  }
+
+  const fmt = (ts: number) => new Date(ts).toISOString().slice(0, 10);
+
+  return (
+    <div className="border rounded-md p-3 space-y-3 bg-muted/30">
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <span>{t("admin.imports.stages.gantt.title")}</span>
+        <span className="font-mono">{fmt(minTs)} → {fmt(maxTs)}</span>
+      </div>
+      <div className="space-y-3">
+        {Array.from(groups.entries()).map(([label, items]) => (
+          <div key={label} className="space-y-1">
+            <div className="text-[11px] font-medium truncate">{label}</div>
+            <div className="space-y-1">
+              {items.map((s) => {
+                const startTs = new Date(s.start_date).getTime();
+                const endTs = new Date(s.end_date).getTime();
+                const offsetDays = Math.round((startTs - minTs) / 86400000);
+                const spanDays = Math.max(1, Math.round((endTs - startTs) / 86400000) + 1);
+                const left = (offsetDays / totalDays) * 100;
+                const width = (spanDays / totalDays) * 100;
+                return (
+                  <div key={s.key} className="relative h-5 bg-background/60 rounded-sm overflow-hidden">
+                    <div
+                      className="absolute top-0 bottom-0 rounded-sm flex items-center px-1.5"
+                      style={{
+                        left: `${left}%`,
+                        width: `${Math.max(0.5, width)}%`,
+                        backgroundColor: projectColor.get(label),
+                        opacity: 0.85,
+                      }}
+                      title={`${s.stage_name} • ${s.start_date} → ${s.end_date} • ${s.people} ${t("admin.imports.stages.gantt.people")} • ${s.hours.toFixed(1)}h`}
+                    >
+                      <span className="text-[10px] text-white truncate font-medium">
+                        {s.stage_name}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="text-[10px] text-muted-foreground italic">{t("admin.imports.stages.gantt.hint")}</p>
+    </div>
+  );
+}
+
 function ReviewStep({
   preview,
   mapping,
