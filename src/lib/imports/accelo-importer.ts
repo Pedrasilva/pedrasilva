@@ -479,21 +479,27 @@ export async function commitAcceloImport(
 
   // ---------------------------------------------------------------------------
   // Reconstruct historical Gantt: stages + per-resource allocations.
-  // Idempotent via deterministic external_id; safe to re-run.
+  //
+  // Stage identity = project_id + stage_name. Date range comes from the
+  // explicit stage_date_range column when present; otherwise it is inferred
+  // from MIN/MAX of activity dates in that group. This guarantees one stage
+  // per (project, milestone) regardless of how the Accelo export reports
+  // dates per row, and it stays idempotent across reruns.
   // ---------------------------------------------------------------------------
-  type StageKey = string; // accelo_stage:{project}:{name}:{start}:{end}
-  type AllocKey = string; // accelo_allocation:{project}:{stage}:{resource}
+  type StageKey = string; // accelo_stage:{project}:{name}
   const stageGroups = new Map<
     StageKey,
     {
       project_id: string;
       name: string;
-      start_date: string;
-      end_date: string;
+      explicit_start: string | null;
+      explicit_end: string | null;
+      activity_min: string | null;
+      activity_max: string | null;
     }
   >();
   const allocAgg = new Map<
-    string, // project|name|start|end|resource
+    string, // project|name|resource
     {
       project_id: string;
       stage_key: StageKey;
@@ -503,26 +509,45 @@ export async function commitAcceloImport(
   >();
   const historicalStageLinks = new Map<string, StageKey>(); // external_id -> stage key
 
+  const minIso = (a: string | null, b: string | null) =>
+    !a ? b : !b ? a : a < b ? a : b;
+  const maxIso = (a: string | null, b: string | null) =>
+    !a ? b : !b ? a : a > b ? a : b;
+
   for (const v of preview.rows) {
     if (v.status === "error") continue;
     if (refOf(v.row) && skipRefs.has(refOf(v.row))) continue;
     const project_id = resolveProjectId(refOf(v.row), v.matched.project_id);
     if (!project_id) continue;
     const name = (v.row.stage_name || "").trim();
-    const start = v.row.stage_start_date;
-    const end = v.row.stage_end_date;
-    if (!name || !start || !end) continue;
-    const stageKey: StageKey = `accelo_stage:${project_id}:${name}:${start}:${end}`;
-    if (!stageGroups.has(stageKey)) {
-      stageGroups.set(stageKey, { project_id, name, start_date: start, end_date: end });
+    if (!name) continue;
+    const stageKey: StageKey = `accelo_stage:${project_id}:${name}`;
+    const cur = stageGroups.get(stageKey);
+    const explicit_start = v.row.stage_start_date;
+    const explicit_end = v.row.stage_end_date;
+    const activity = v.row.entry_date;
+    if (!cur) {
+      stageGroups.set(stageKey, {
+        project_id,
+        name,
+        explicit_start: explicit_start ?? null,
+        explicit_end: explicit_end ?? null,
+        activity_min: activity ?? null,
+        activity_max: activity ?? null,
+      });
+    } else {
+      cur.explicit_start = cur.explicit_start ?? explicit_start ?? null;
+      cur.explicit_end = cur.explicit_end ?? explicit_end ?? null;
+      cur.activity_min = minIso(cur.activity_min, activity ?? null);
+      cur.activity_max = maxIso(cur.activity_max, activity ?? null);
     }
     if (v.row.external_id) historicalStageLinks.set(v.row.external_id, stageKey);
 
     if (v.matched.resource_id) {
-      const aggKey = `${project_id}|${name}|${start}|${end}|${v.matched.resource_id}`;
-      const cur = allocAgg.get(aggKey);
+      const aggKey = `${project_id}|${name}|${v.matched.resource_id}`;
+      const aCur = allocAgg.get(aggKey);
       const hours = (v.row.billable_hours ?? 0) + (v.row.non_billable_hours ?? 0);
-      if (cur) cur.total_hours += hours;
+      if (aCur) aCur.total_hours += hours;
       else
         allocAgg.set(aggKey, {
           project_id,
@@ -531,6 +556,18 @@ export async function commitAcceloImport(
           total_hours: hours,
         });
     }
+  }
+
+  // Resolve final start/end per stage (explicit wins, else inferred from activity).
+  const stageDates = new Map<StageKey, { start_date: string; end_date: string }>();
+  for (const [key, s] of stageGroups) {
+    const start = s.explicit_start ?? s.activity_min;
+    const end = s.explicit_end ?? s.activity_max ?? start;
+    if (!start || !end) continue;
+    stageDates.set(key, {
+      start_date: start,
+      end_date: end < start ? start : end,
+    });
   }
 
   // Upsert stages.
