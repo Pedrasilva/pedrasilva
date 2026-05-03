@@ -666,7 +666,7 @@ function StagesStep({
 }) {
   const { t } = useTranslation("common");
 
-  const { stages, invalidRanges, missingProject } = useMemo(() => {
+  const { stages, parsedCount, correctedCount, skippedCount, missingProject } = useMemo(() => {
     const map = new Map<
       string,
       {
@@ -682,13 +682,21 @@ function StagesStep({
         resourceIds: Set<string>;
       }
     >();
-    let invalidRanges = 0;
+    let skippedCount = 0;
+    let correctedCount = 0;
     let missingProject = 0;
+    const seenStageRow = new Set<number>();
     for (const v of preview.rows) {
-      if (v.row.stage_parse_warning) invalidRanges++;
       const name = (v.row.stage_name ?? "").trim();
+      const rawRange = (v.row.stage_date_range_raw ?? "").trim();
       const start = v.row.stage_start_date;
       const end = v.row.stage_end_date;
+      // Count parse outcomes per row that actually has a stage + raw range
+      if (name && rawRange && !seenStageRow.has(v.row.rowIndex)) {
+        seenStageRow.add(v.row.rowIndex);
+        if (!start || !end) skippedCount++;
+        else if (v.row.stage_parse_warning) correctedCount++;
+      }
       if (!name || !start || !end) continue;
       const ref = v.row.reference;
       const choice = ref ? mapping[ref] : undefined;
@@ -712,7 +720,7 @@ function StagesStep({
           stage_name: name,
           start_date: start,
           end_date: end,
-          raw: v.row.stage_date_range_raw ?? "",
+          raw: rawRange,
           warning: v.row.stage_parse_warning,
           rows: 0,
           hours: 0,
@@ -727,7 +735,7 @@ function StagesStep({
     const stages = Array.from(map.values())
       .map((s) => ({ ...s, people: s.resourceIds.size }))
       .sort((a, b) => a.start_date.localeCompare(b.start_date));
-    return { stages, invalidRanges, missingProject };
+    return { stages, parsedCount: stages.length, correctedCount, skippedCount, missingProject };
   }, [preview, mapping]);
 
   return (
