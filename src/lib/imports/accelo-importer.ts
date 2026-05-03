@@ -330,7 +330,23 @@ export type CommitResult = {
   imported: number;
   skipped: number;
   errors: number;
+  stagesMatched: number;
+  stagesCreated: number;
+  allocationsUpserted: number;
+  entriesWithoutStage: number;
+  entriesWithoutResource: number;
 };
+
+/** Normalize a stage name for fuzzy matching against existing manual stages. */
+function normStageName(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[\[\]().:#\-–—_]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 export async function commitAcceloImport(
   preview: ImportPreview,
