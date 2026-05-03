@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -148,6 +148,24 @@ function ImportsContent() {
         }),
       );
       qc.invalidateQueries({ queryKey: ["import-jobs"] });
+      // Force every project/stage/budget/financial query to refetch so the
+      // newly imported stages, allocations and time entries are visible
+      // when the user navigates to the project page right after import.
+      [
+        ["pm-projects"],
+        ["pm-project"],
+        ["pm-stages-all"],
+        ["pm-stages-for-project"],
+        ["pm-allocations-all"],
+        ["pm-project-time"],
+        ["pm-time-entries-all-project"],
+        ["historical-time-totals"],
+        ["stage-budget-control"],
+        ["project-financial-summary"],
+        ["project-insights"],
+        ["external-services"],
+        ["forecast-projects"],
+      ].forEach((k) => qc.invalidateQueries({ queryKey: k }));
       setStep("result");
     },
     onError: (e: Error) => toast.error(e.message),
@@ -1294,7 +1312,17 @@ function ResultStep({ result, onReset }: { result: CommitResult; onReset: () => 
                       : "border-border bg-muted/30"
                   }`}
                 >
-                  <div className="font-medium">{d.project_name ?? d.project_id}</div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="font-medium">{d.project_name ?? d.project_id}</div>
+                    <Link
+                      to="/projects/$projectId"
+                      params={{ projectId: d.project_id }}
+                    >
+                      <Button size="sm" variant="outline" className="h-7 text-xs">
+                        {t("admin.imports.result.diagnostics.openProject")}
+                      </Button>
+                    </Link>
+                  </div>
                   <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5 sm:grid-cols-4">
                     <span>{t("admin.imports.result.diagnostics.visibleStages")}: <strong>{d.visibleStagesForProject}</strong></span>
                     <span>{t("admin.imports.result.diagnostics.historicalEntries")}: <strong>{d.historicalEntriesForProject}</strong></span>
@@ -1311,8 +1339,18 @@ function ResultStep({ result, onReset }: { result: CommitResult; onReset: () => 
             </div>
           </div>
         )}
-        <div className="flex justify-end">
-          <Button onClick={onReset}>{t("admin.imports.wizard.result.startNew")}</Button>
+        <div className="flex justify-end gap-2">
+          {result.diagnostics && result.diagnostics.length === 1 && (
+            <Link
+              to="/projects/$projectId"
+              params={{ projectId: result.diagnostics[0].project_id }}
+            >
+              <Button variant="default">
+                {t("admin.imports.result.diagnostics.openProject")}
+              </Button>
+            </Link>
+          )}
+          <Button variant="outline" onClick={onReset}>{t("admin.imports.wizard.result.startNew")}</Button>
         </div>
       </CardContent>
     </Card>
