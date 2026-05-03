@@ -698,7 +698,7 @@ function StagesStep({
         else if (v.row.stage_parse_warning) correctedCount++;
       }
       if (!name || !start || !end) continue;
-      const ref = v.row.reference;
+      const ref = v.row.parent_reference || v.row.reference;
       const choice = ref ? mapping[ref] : undefined;
       const projectKey = choice?.mode === "existing"
         ? choice.project_id
