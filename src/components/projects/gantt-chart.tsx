@@ -103,7 +103,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
     queryKey: ["gantt-leave"],
     enabled: features.leave,
     queryFn: async (): Promise<Map<string, LeaveInterval[]>> => {
-      const { data: rs } = await supabase.from("pm_resources").select("id, collaborator_id");
+      const { data: rs } = await supabase.from("pm_resources_public").select("id, collaborator_id");
       const collabToRes = new Map<string, string>();
       for (const r of (rs ?? []) as Array<{ id: string; collaborator_id: string | null }>) {
         if (r.collaborator_id) collabToRes.set(r.collaborator_id, r.id);
