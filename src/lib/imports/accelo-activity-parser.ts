@@ -134,8 +134,33 @@ export type ParsedAcceloRow = {
   profit: number;
   status_text: string;
   invoice_number: string;
+  stage_name: string;
+  stage_date_range_raw: string;
+  stage_start_date: string | null;
+  stage_end_date: string | null;
+  stage_parse_warning: string | null;
   raw: Record<string, unknown>;
 };
+
+// Parses "DD/MM/YY to DD/MM/YY" or "DD/MM/YYYY to DD/MM/YYYY" (also accepts " - " separator).
+export function parseStageDateRange(input: unknown): {
+  start: string | null;
+  end: string | null;
+  warning: string | null;
+} {
+  const s = String(input ?? "").trim();
+  if (!s) return { start: null, end: null, warning: null };
+  const m = s.split(/\s+(?:to|-|–|—|até)\s+/i);
+  if (m.length !== 2) {
+    return { start: null, end: null, warning: `Unrecognized stage date range: "${s}"` };
+  }
+  const start = toIsoDate(m[0]);
+  const end = toIsoDate(m[1]);
+  if (!start || !end) {
+    return { start: null, end: null, warning: `Could not parse stage date range: "${s}"` };
+  }
+  return { start, end, warning: null };
+}
 
 export type AcceloParseResult = {
   rows: ParsedAcceloRow[];
