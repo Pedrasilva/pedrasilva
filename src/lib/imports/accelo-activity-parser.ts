@@ -91,25 +91,60 @@ function toNumber(v: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+function cleanDateInput(v: unknown): string {
+  return String(v ?? "")
+    // strip zero-width and BOM
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    // normalize all dash variants and arrows to ASCII hyphen
+    .replace(/[\u2010-\u2015\u2212\u2192\u27F6]/g, "-")
+    // non-breaking spaces → regular space
+    .replace(/\u00A0/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function excelSerialToIso(n: number): string | null {
+  const d = XLSX.SSF.parse_date_code(n);
+  if (!d) return null;
+  return `${d.y.toString().padStart(4, "0")}-${String(d.m).padStart(2, "0")}-${String(d.d).padStart(2, "0")}`;
+}
+
+function isValidYmd(y: number, m: number, d: number): boolean {
+  if (m < 1 || m > 12 || d < 1 || d > 31) return false;
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
+}
+
 function toIsoDate(v: unknown): string | null {
   if (v === null || v === undefined || v === "") return null;
   if (v instanceof Date) return v.toISOString().slice(0, 10);
-  if (typeof v === "number") {
-    // Excel serial date
-    const d = XLSX.SSF.parse_date_code(v);
-    if (!d) return null;
-    return `${d.y.toString().padStart(4, "0")}-${String(d.m).padStart(2, "0")}-${String(d.d).padStart(2, "0")}`;
+  if (typeof v === "number") return excelSerialToIso(v);
+  const s = cleanDateInput(v);
+  if (!s) return null;
+  // Pure numeric string → Excel serial
+  if (/^\d+(\.\d+)?$/.test(s)) {
+    const n = Number(s);
+    if (n > 1000 && n < 80000) {
+      const iso = excelSerialToIso(n);
+      if (iso) return iso;
+    }
   }
-  const s = String(v).trim();
-  // dd/mm/yyyy or yyyy-mm-dd
-  const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-  if (m) {
-    let [_, a, b, c] = m;
-    if (c.length === 2) c = "20" + c;
-    return `${c}-${b.padStart(2, "0")}-${a.padStart(2, "0")}`;
+  // YYYY-MM-DD or YYYY/MM/DD
+  const ymd = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})\b/);
+  if (ymd) {
+    const y = +ymd[1], m = +ymd[2], d = +ymd[3];
+    if (isValidYmd(y, m, d)) return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
   }
-  const m2 = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (m2) return `${m2[1]}-${m2[2].padStart(2, "0")}-${m2[3].padStart(2, "0")}`;
+  // DD/MM/YY or DD/MM/YYYY (also DD-MM-YY[YY], DD.MM.YY[YY])
+  const dmy = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})\b/);
+  if (dmy) {
+    let a = +dmy[1], b = +dmy[2], c = +dmy[3];
+    if (c < 100) c += 2000;
+    // Prefer DD/MM (project default = European). Fallback to MM/DD if invalid.
+    if (isValidYmd(c, b, a)) return `${c}-${String(b).padStart(2, "0")}-${String(a).padStart(2, "0")}`;
+    if (isValidYmd(c, a, b)) return `${c}-${String(a).padStart(2, "0")}-${String(b).padStart(2, "0")}`;
+  }
+  // Last resort: native Date
   const d = new Date(s);
   return Number.isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
 }
@@ -142,22 +177,41 @@ export type ParsedAcceloRow = {
   raw: Record<string, unknown>;
 };
 
-// Parses "DD/MM/YY to DD/MM/YY" or "DD/MM/YYYY to DD/MM/YYYY" (also accepts " - " separator).
+// Parses stage date ranges in many real-world formats.
+// Accepts: "DD/MM/YY to DD/MM/YY", "DD-MM-YYYY - DD-MM-YYYY", "YYYY-MM-DD – YYYY-MM-DD",
+// "DD/MM/YY até DD/MM/YY", em-dash separators, Excel serial pairs, etc.
 export function parseStageDateRange(input: unknown): {
   start: string | null;
   end: string | null;
   warning: string | null;
 } {
-  const s = String(input ?? "").trim();
+  const s = cleanDateInput(input);
   if (!s) return { start: null, end: null, warning: null };
-  const m = s.split(/\s+(?:to|-|–|—|até)\s+/i);
-  if (m.length !== 2) {
+
+  // Try splitting on common separators (after dash normalization, all are "-").
+  // Use word "to"/"até" or a space-padded "-".
+  let parts: string[] = [];
+  const sep = s.split(/\s+(?:to|até|a)\s+|\s+-\s+/i);
+  if (sep.length === 2) {
+    parts = sep;
+  } else {
+    // Fallback: extract any two date-like tokens.
+    const tokens = s.match(/\d{1,4}[\/\-.]\d{1,2}[\/\-.]\d{1,4}|\d{4,5}/g);
+    if (tokens && tokens.length >= 2) parts = [tokens[0], tokens[1]];
+  }
+
+  if (parts.length !== 2) {
     return { start: null, end: null, warning: `Unrecognized stage date range: "${s}"` };
   }
-  const start = toIsoDate(m[0]);
-  const end = toIsoDate(m[1]);
+
+  const start = toIsoDate(parts[0]);
+  const end = toIsoDate(parts[1]);
   if (!start || !end) {
     return { start: null, end: null, warning: `Could not parse stage date range: "${s}"` };
+  }
+  if (start > end) {
+    // Swap rather than reject — common upstream typo.
+    return { start: end, end: start, warning: `Start/end were swapped in: "${s}"` };
   }
   return { start, end, warning: null };
 }
