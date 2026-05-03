@@ -115,8 +115,26 @@ export function HardDeleteProjectButton({ projectId }: { projectId: string }) {
           </div>
 
           {total > 0 ? (
-            <p className="text-xs text-destructive">{t("admin.projectDelete.blockedHint")}</p>
-          ) : (
+            <div className="space-y-2 rounded-md border border-destructive/40 bg-destructive/5 p-3">
+              <p className="text-xs text-destructive">{t("admin.projectDelete.blockedHint")}</p>
+              <label className="flex items-start gap-2 text-xs cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="mt-0.5"
+                  checked={cascade}
+                  onChange={(e) => setCascade(e.target.checked)}
+                />
+                <span>
+                  <span className="font-medium">{t("admin.projectDelete.cascadeToggle")}</span>
+                  <span className="block text-muted-foreground mt-0.5">
+                    {t("admin.projectDelete.cascadeWarning")}
+                  </span>
+                </span>
+              </label>
+            </div>
+          ) : null}
+
+          {(total === 0 || cascade) && (
             <div className="space-y-2">
               <Label className="text-xs">
                 {t("admin.projectDelete.typeToConfirm", { phrase: CONFIRM })}
@@ -128,17 +146,19 @@ export function HardDeleteProjectButton({ projectId }: { projectId: string }) {
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={del.isPending}>{t("cancel")}</AlertDialogCancel>
-          <AlertDialogAction asChild disabled={total > 0 || confirm !== CONFIRM || del.isPending}>
+          <AlertDialogAction asChild disabled={!canProceed || del.isPending}>
             <Button
               variant="destructive"
               onClick={(e) => {
                 e.preventDefault();
-                if (total === 0 && confirm === CONFIRM) del.mutate();
+                if (canProceed) del.mutate();
               }}
-              disabled={total > 0 || confirm !== CONFIRM || del.isPending}
+              disabled={!canProceed || del.isPending}
             >
               {del.isPending ? <Loader2 className="size-4 mr-1 animate-spin" /> : null}
-              {t("admin.projectDelete.confirmAction")}
+              {cascade
+                ? t("admin.projectDelete.confirmActionCascade")
+                : t("admin.projectDelete.confirmAction")}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>
