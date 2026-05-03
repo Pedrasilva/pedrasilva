@@ -248,6 +248,8 @@ function ImportsContent() {
               </Section>
             )}
 
+            <StageSummarySection preview={preview} />
+
             <RowsPreviewTable preview={preview} />
 
             <div className="flex justify-end gap-2">
@@ -416,9 +418,11 @@ function Stat({ label, value, tone }: { label: string; value: number; tone?: "su
 
 function Section({
   title, hint, tone, children,
-}: { title: string; hint?: string; tone: "warning" | "error"; children: React.ReactNode }) {
-  const Icon = tone === "error" ? AlertCircle : AlertTriangle;
-  const color = tone === "error" ? "text-destructive" : "text-amber-600";
+}: { title: string; hint?: string; tone: "warning" | "error" | "info"; children: React.ReactNode }) {
+  const Icon = tone === "error" ? AlertCircle : tone === "info" ? FileSpreadsheet : AlertTriangle;
+  const color =
+    tone === "error" ? "text-destructive" :
+    tone === "info" ? "text-foreground" : "text-amber-600";
   return (
     <div className="rounded-md border p-3 space-y-2">
       <div className={`flex items-center gap-2 text-sm font-medium ${color}`}>
@@ -475,5 +479,114 @@ function RowsPreviewTable({ preview }: { preview: ImportPreview }) {
         </Table>
       </div>
     </div>
+  );
+}
+
+type StageSummary = {
+  key: string;
+  project_id: string | null;
+  project_label: string;
+  stage_name: string;
+  start_date: string;
+  end_date: string;
+  rows: number;
+  hours: number;
+  people: number;
+};
+
+function StageSummarySection({ preview }: { preview: ImportPreview }) {
+  const { t } = useTranslation("common");
+
+  // Aggregate by project + stage_name + start + end (matches importer grouping).
+  const map = new Map<string, StageSummary & { resourceIds: Set<string> }>();
+  let invalidRanges = 0;
+  let missingProject = 0;
+  for (const v of preview.rows) {
+    if (v.row.stage_parse_warning) invalidRanges++;
+    const name = (v.row.stage_name ?? "").trim();
+    const start = v.row.stage_start_date;
+    const end = v.row.stage_end_date;
+    if (!name || !start || !end) continue;
+    const project_id = v.matched.project_id;
+    if (!project_id) {
+      missingProject++;
+      continue;
+    }
+    const key = `${project_id}|${name}|${start}|${end}`;
+    let entry = map.get(key);
+    if (!entry) {
+      entry = {
+        key,
+        project_id,
+        project_label: v.row.reference || "—",
+        stage_name: name,
+        start_date: start,
+        end_date: end,
+        rows: 0,
+        hours: 0,
+        people: 0,
+        resourceIds: new Set<string>(),
+      };
+      map.set(key, entry);
+    }
+    entry.rows += 1;
+    entry.hours += (v.row.billable_hours ?? 0) + (v.row.non_billable_hours ?? 0);
+    if (v.matched.resource_id) entry.resourceIds.add(v.matched.resource_id);
+  }
+  const stages = Array.from(map.values())
+    .map((s) => ({ ...s, people: s.resourceIds.size }))
+    .sort((a, b) => a.start_date.localeCompare(b.start_date));
+
+  return (
+    <Section
+      tone={stages.length === 0 ? "warning" : "info"}
+      title={t("admin.imports.stages.title")}
+      hint={t("admin.imports.stages.hint")}
+    >
+      {invalidRanges > 0 && (
+        <p className="text-xs text-amber-700 dark:text-amber-300 mb-1">
+          {t("admin.imports.stages.invalidRanges", { count: invalidRanges })}
+        </p>
+      )}
+      {missingProject > 0 && (
+        <p className="text-xs text-amber-700 dark:text-amber-300 mb-1">
+          {t("admin.imports.stages.missingProject", { count: missingProject })}
+        </p>
+      )}
+      {stages.length === 0 ? (
+        <p className="text-xs text-muted-foreground">
+          {t("admin.imports.stages.noneDetected")}
+        </p>
+      ) : (
+        <div className="border rounded-md max-h-72 overflow-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("admin.imports.stages.cols.stage")}</TableHead>
+                <TableHead>{t("admin.imports.stages.cols.project")}</TableHead>
+                <TableHead>{t("admin.imports.stages.cols.start")}</TableHead>
+                <TableHead>{t("admin.imports.stages.cols.end")}</TableHead>
+                <TableHead className="text-right">{t("admin.imports.stages.cols.rows")}</TableHead>
+                <TableHead className="text-right">{t("admin.imports.stages.cols.hours")}</TableHead>
+                <TableHead className="text-right">{t("admin.imports.stages.cols.people")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {stages.map((s) => (
+                <TableRow key={s.key}>
+                  <TableCell className="text-xs font-medium">{s.stage_name}</TableCell>
+                  <TableCell className="text-xs">{s.project_label}</TableCell>
+                  <TableCell className="text-xs">{s.start_date}</TableCell>
+                  <TableCell className="text-xs">{s.end_date}</TableCell>
+                  <TableCell className="text-right text-xs">{s.rows}</TableCell>
+                  <TableCell className="text-right text-xs">{s.hours.toFixed(1)}</TableCell>
+                  <TableCell className="text-right text-xs">{s.people}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </Section>
   );
 }
