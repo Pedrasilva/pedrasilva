@@ -124,6 +124,24 @@
         "project": "Project",
         "company": "Company",
         "notes": "Notes"
+      },
+      "stages": {
+        "title": "Detected stages (Gantt reconstruction)",
+        "hint": "Stages parsed from column K with date ranges from column O. These will be created as locked, imported stages on commit.",
+        "noneDetected": "No stages detected. Imported time entries will not produce a historical Gantt.",
+        "invalidRanges_one": "{{count}} row has an invalid stage date range and will be skipped for stage reconstruction.",
+        "invalidRanges_other": "{{count}} rows have invalid stage date ranges and will be skipped for stage reconstruction.",
+        "missingProject_one": "{{count}} stage row has no matched project and will not create a stage.",
+        "missingProject_other": "{{count}} stage rows have no matched project and will not create stages.",
+        "cols": {
+          "stage": "Stage",
+          "project": "Project",
+          "start": "Start",
+          "end": "End",
+          "rows": "Rows",
+          "hours": "Hours",
+          "people": "People"
+        }
       }
     },
     "projectsTools": {
