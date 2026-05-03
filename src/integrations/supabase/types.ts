@@ -4632,31 +4632,55 @@ export type Database = {
       }
       pm_resources_public: {
         Row: {
+          active: boolean | null
           collaborator_id: string | null
           color: string | null
           created_at: string | null
+          email: string | null
+          full_name: string | null
           id: string | null
           name: string | null
+          notes: string | null
+          phone: string | null
+          rate_effective_from: string | null
           role: string | null
+          team: string | null
           updated_at: string | null
+          weekly_capacity: number | null
         }
         Insert: {
+          active?: boolean | null
           collaborator_id?: string | null
           color?: string | null
           created_at?: string | null
+          email?: string | null
+          full_name?: string | null
           id?: string | null
           name?: string | null
+          notes?: string | null
+          phone?: string | null
+          rate_effective_from?: string | null
           role?: string | null
+          team?: string | null
           updated_at?: string | null
+          weekly_capacity?: number | null
         }
         Update: {
+          active?: boolean | null
           collaborator_id?: string | null
           color?: string | null
           created_at?: string | null
+          email?: string | null
+          full_name?: string | null
           id?: string | null
           name?: string | null
+          notes?: string | null
+          phone?: string | null
+          rate_effective_from?: string | null
           role?: string | null
+          team?: string | null
           updated_at?: string | null
+          weekly_capacity?: number | null
         }
         Relationships: [
           {
@@ -4692,6 +4716,77 @@ export type Database = {
           name?: string | null
         }
         Relationships: []
+      }
+      quote_allocations_public: {
+        Row: {
+          allocation_percentage: number | null
+          created_at: string | null
+          end_date: string | null
+          hours_per_day: number | null
+          id: string | null
+          notes: string | null
+          quote_id: string | null
+          resource_id: string | null
+          stage_id: string | null
+          start_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          allocation_percentage?: number | null
+          created_at?: string | null
+          end_date?: string | null
+          hours_per_day?: number | null
+          id?: string | null
+          notes?: string | null
+          quote_id?: string | null
+          resource_id?: string | null
+          stage_id?: string | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          allocation_percentage?: number | null
+          created_at?: string | null
+          end_date?: string | null
+          hours_per_day?: number | null
+          id?: string | null
+          notes?: string | null
+          quote_id?: string | null
+          resource_id?: string | null
+          stage_id?: string | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_allocations_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_allocations_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_allocations_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_allocations_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
