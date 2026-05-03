@@ -70,6 +70,11 @@
       "confirmImport": "Confirmar importação",
       "importing": "A importar…",
       "fixErrorsHint": "Resolva os erros antes de confirmar.",
+      "failFast": {
+        "emptyStageMapping": "Existem linhas sem fase mas nenhuma atribuição válida de fase por defeito. Volte ao passo Fases e corrija o mapeamento.",
+        "missingDefaultStages_one": "{{count}} projeto ainda tem linhas sem fase e sem fase por defeito atribuída.",
+        "missingDefaultStages_other": "{{count}} projetos ainda têm linhas sem fase e sem fase por defeito atribuída."
+      },
       "history": "Histórico de importações",
       "loading": "A carregar…",
       "empty": "Ainda não há importações.",
