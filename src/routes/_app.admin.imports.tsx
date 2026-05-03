@@ -453,7 +453,8 @@ function ProjectsStep({
   const refs = useMemo(() => {
     const set = new Set<string>();
     preview.rows.forEach((v) => {
-      if (v.row.reference) set.add(v.row.reference);
+      const ref = v.row.parent_reference || v.row.reference;
+      if (ref) set.add(ref);
     });
     return Array.from(set).sort();
   }, [preview]);
