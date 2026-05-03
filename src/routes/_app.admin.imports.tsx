@@ -760,8 +760,10 @@ function StagesStep({
                   <TableRow>
                     <TableHead>{t("admin.imports.stages.cols.stage")}</TableHead>
                     <TableHead>{t("admin.imports.stages.cols.project")}</TableHead>
+                    <TableHead>{t("admin.imports.stages.cols.raw")}</TableHead>
                     <TableHead>{t("admin.imports.stages.cols.start")}</TableHead>
                     <TableHead>{t("admin.imports.stages.cols.end")}</TableHead>
+                    <TableHead>{t("admin.imports.stages.cols.status")}</TableHead>
                     <TableHead className="text-right">{t("admin.imports.stages.cols.rows")}</TableHead>
                     <TableHead className="text-right">{t("admin.imports.stages.cols.hours")}</TableHead>
                     <TableHead className="text-right">{t("admin.imports.stages.cols.people")}</TableHead>
@@ -772,8 +774,20 @@ function StagesStep({
                     <TableRow key={s.key}>
                       <TableCell className="text-xs font-medium">{s.stage_name}</TableCell>
                       <TableCell className="text-xs">{s.project_label}</TableCell>
+                      <TableCell className="text-xs font-mono text-muted-foreground">{s.raw || "—"}</TableCell>
                       <TableCell className="text-xs">{s.start_date}</TableCell>
                       <TableCell className="text-xs">{s.end_date}</TableCell>
+                      <TableCell className="text-xs">
+                        {s.warning ? (
+                          <span className="text-amber-700 dark:text-amber-300" title={s.warning}>
+                            {t("admin.imports.stages.statusWarn")}
+                          </span>
+                        ) : (
+                          <span className="text-emerald-700 dark:text-emerald-300">
+                            {t("admin.imports.stages.statusOk")}
+                          </span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-right text-xs">{s.rows}</TableCell>
                       <TableCell className="text-right text-xs">{s.hours.toFixed(1)}</TableCell>
                       <TableCell className="text-right text-xs">{s.people}</TableCell>
