@@ -252,34 +252,55 @@ function computeControl({
     const avgRate = rateDen > 0 ? rateNum / rateDen : 0;
     const hasTeamRate = avgRate > 0;
 
+    // Fold imported (Accelo) actuals already linked to this stage.
+    const impStage = importedByStage.get(s.id);
+    const impLogged = impStage?.loggedHours ?? 0;
+    const impBillable = impStage?.billableHours ?? 0;
+    const impNonBillable = impStage?.nonBillableHours ?? 0;
+    const impCost = impStage?.cost ?? 0;
+    const impValue = impStage?.amount ?? 0;
+
     byStage.set(s.id, {
       stage_id: s.id,
       original_budget: budget,
-      actual_hours_logged: log.logged,
-      actual_billable_hours: log.billable,
-      actual_non_billable_hours: log.nonBillable,
-      actual_cost_consumed: cost,
-      actual_value_generated: value,
-      remaining_budget: remaining,
+      actual_hours_logged: log.logged + impLogged,
+      actual_billable_hours: log.billable + impBillable,
+      actual_non_billable_hours: log.nonBillable + impNonBillable,
+      actual_cost_consumed: cost + impCost,
+      actual_value_generated: value + impValue,
+      remaining_budget: remaining - impCost,
       planned_future_hours: plannedFutureH,
       planned_future_cost: plannedFutureC,
-      projected_over_under: remaining - plannedFutureC,
+      projected_over_under: remaining - impCost - plannedFutureC,
       average_team_hourly_rate: avgRate,
-      estimated_available_hours: hasTeamRate ? remaining / avgRate : null,
+      estimated_available_hours: hasTeamRate ? (remaining - impCost) / avgRate : null,
       has_team_rate: hasTeamRate,
     });
 
     projTotals.budget += budget;
-    projTotals.logged += log.logged;
-    projTotals.billable += log.billable;
-    projTotals.nonBillable += log.nonBillable;
-    projTotals.cost += cost;
-    projTotals.value += value;
+    projTotals.logged += log.logged + impLogged;
+    projTotals.billable += log.billable + impBillable;
+    projTotals.nonBillable += log.nonBillable + impNonBillable;
+    projTotals.cost += cost + impCost;
+    projTotals.value += value + impValue;
     projTotals.futureH += plannedFutureH;
     projTotals.futureC += plannedFutureC;
     projTotals.rateNum += rateNum;
     projTotals.rateDen += rateDen;
   }
+
+  // Fold imported actuals NOT attached to any stage into project-only total
+  // (so we don't double-count entries already credited per-stage above).
+  const stageImpLogged = Array.from(importedByStage.values()).reduce((a, x) => a + x.loggedHours, 0);
+  const stageImpBillable = Array.from(importedByStage.values()).reduce((a, x) => a + x.billableHours, 0);
+  const stageImpNonBillable = Array.from(importedByStage.values()).reduce((a, x) => a + x.nonBillableHours, 0);
+  const stageImpCost = Array.from(importedByStage.values()).reduce((a, x) => a + x.cost, 0);
+  const stageImpValue = Array.from(importedByStage.values()).reduce((a, x) => a + x.amount, 0);
+  const orphanLogged = Math.max(0, imported.loggedHours - stageImpLogged);
+  const orphanBillable = Math.max(0, imported.billableHours - stageImpBillable);
+  const orphanNonBillable = Math.max(0, imported.nonBillableHours - stageImpNonBillable);
+  const orphanCost = Math.max(0, imported.cost - stageImpCost);
+  const orphanValue = Math.max(0, imported.amount - stageImpValue);
 
   // Fold imported historical totals into PROJECT level only (no stage link).
   const totalLogged = projTotals.logged + imported.loggedHours;
