@@ -341,6 +341,19 @@ function ImportsContent() {
         <ResultStep
           result={result}
           onReset={reset}
+          onRetryFailed={(ids) => commitMutation.mutate({ restrictProjectIds: ids })}
+          isRetrying={commitMutation.isPending}
+          debugPayload={{
+            jobId: preview?.jobId ?? null,
+            timestamp: new Date().toISOString(),
+            commitOptions: buildCommitOptions(),
+            projectMapping,
+            defaultStageByProject: buildCommitDefaultStageByProject(
+              unassignedStageProjectKeys,
+              defaultStageByProject,
+            ),
+            diagnostics: result.diagnostics,
+          }}
         />
       )}
 
