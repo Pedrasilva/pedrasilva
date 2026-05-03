@@ -228,35 +228,51 @@ export function parseStageDateRange(input: unknown): {
   end: string | null;
   warning: string | null;
 } {
+  // Native Date / number inputs → treat as single date directly, no splitting.
+  if (input instanceof Date) {
+    const iso = toIsoDate(input);
+    return iso
+      ? { start: iso, end: iso, warning: "Single date detected — using same start and end" }
+      : { start: null, end: null, warning: "Unparseable date" };
+  }
+  if (typeof input === "number") {
+    const iso = toIsoDate(input);
+    return iso
+      ? { start: iso, end: iso, warning: "Single date detected — using same start and end" }
+      : { start: null, end: null, warning: "Unparseable date" };
+  }
+
   const s = cleanDateInput(input);
   if (!s) return { start: null, end: null, warning: null };
 
-  // Try splitting on common separators (after dash normalization, all are "-").
-  // Use word "to"/"até" or a space-padded "-".
-  let parts: string[] = [];
+  // Only treat as a range when an explicit separator splits the string in two.
   const sep = s.split(/\s+(?:to|até|a)\s+|\s+-\s+/i);
   if (sep.length === 2) {
-    parts = sep;
-  } else {
-    // Fallback: extract any two date-like tokens.
-    const tokens = s.match(/\d{1,4}[\/\-.]\d{1,2}[\/\-.]\d{1,4}|\d{4,5}/g);
-    if (tokens && tokens.length >= 2) parts = [tokens[0], tokens[1]];
+    const start = toIsoDate(sep[0]);
+    const end = toIsoDate(sep[1]);
+    if (start && end) {
+      if (start > end) {
+        return { start: end, end: start, warning: `Start/end were swapped in: "${s}"` };
+      }
+      return { start, end, warning: null };
+    }
+    // One side parsed but not the other → fall through to single-date attempt.
+    if (start && !end) {
+      return { start, end: start, warning: "Single date detected — using same start and end" };
+    }
+    if (!start && end) {
+      return { start: end, end, warning: "Single date detected — using same start and end" };
+    }
+    return { start: null, end: null, warning: "Unparseable date" };
   }
 
-  if (parts.length !== 2) {
-    return { start: null, end: null, warning: `Unrecognized stage date range: "${s}"` };
+  // No range separator — try as a single date.
+  const single = toIsoDate(s);
+  if (single) {
+    return { start: single, end: single, warning: "Single date detected — using same start and end" };
   }
 
-  const start = toIsoDate(parts[0]);
-  const end = toIsoDate(parts[1]);
-  if (!start || !end) {
-    return { start: null, end: null, warning: `Could not parse stage date range: "${s}"` };
-  }
-  if (start > end) {
-    // Swap rather than reject — common upstream typo.
-    return { start: end, end: start, warning: `Start/end were swapped in: "${s}"` };
-  }
-  return { start, end, warning: null };
+  return { start: null, end: null, warning: "Unparseable date" };
 }
 
 export type AcceloParseResult = {
