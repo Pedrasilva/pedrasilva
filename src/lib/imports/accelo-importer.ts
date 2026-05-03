@@ -1107,6 +1107,193 @@ export async function commitAcceloImport(
   };
 }
 
+export type RepairResult = {
+  project_id: string;
+  project_name: string | null;
+  stage_id: string;
+  stage_created: boolean;
+  entries_total: number;
+  entries_backfilled: number;
+  allocations_upserted: number;
+  diagnostic: ProjectDiagnostic;
+};
+
+/**
+ * Repair already-imported orphan historical entries for a project:
+ * - Ensures a default stage exists (creates "Imported" stage if none)
+ * - Sets stage start/end from MIN/MAX entry_date
+ * - Backfills stage_id on historical_time_entries
+ * - Creates one pm_allocations row per resource
+ * - Recomputes diagnostics
+ */
+export async function repairProjectOrphanEntries(input: {
+  project_id: string;
+  stage_name?: string;
+}): Promise<RepairResult> {
+  const { project_id } = input;
+  const stageName = (input.stage_name?.trim() || "Imported").slice(0, 200);
+
+  const { data: project, error: projErr } = await supabase
+    .from("pm_projects")
+    .select("id,name")
+    .eq("id", project_id)
+    .maybeSingle();
+  if (projErr) throw projErr;
+  if (!project) throw new Error(`Project ${project_id} not found`);
+
+  const { data: entries, error: entErr } = await supabase
+    .from("historical_time_entries")
+    .select("id,entry_date,resource_id,billable_hours,non_billable_hours,stage_id")
+    .eq("project_id", project_id);
+  if (entErr) throw entErr;
+  const all = entries ?? [];
+  if (!all.length) {
+    throw new Error("No historical entries exist for this project — nothing to repair.");
+  }
+
+  const dates = all.map((e) => e.entry_date).filter(Boolean).sort();
+  const start_date = dates[0]!;
+  const end_date = dates[dates.length - 1]!;
+
+  // Find or create stage
+  const { data: existingStages } = await supabase
+    .from("pm_stages")
+    .select("id,name,start_date,end_date")
+    .eq("project_id", project_id)
+    .order("sort_order", { ascending: true });
+
+  let stage_id: string;
+  let stage_created = false;
+  if (existingStages && existingStages.length) {
+    stage_id = existingStages[0].id;
+    // widen dates if needed
+    const ns = start_date < existingStages[0].start_date ? start_date : existingStages[0].start_date;
+    const ne = end_date > existingStages[0].end_date ? end_date : existingStages[0].end_date;
+    if (ns !== existingStages[0].start_date || ne !== existingStages[0].end_date) {
+      await supabase.from("pm_stages").update({ start_date: ns, end_date: ne }).eq("id", stage_id);
+    }
+  } else {
+    const external_id = `accelo_repair_stage:${project_id}`;
+    const { data: created, error: stErr } = await supabase
+      .from("pm_stages")
+      .insert({
+        project_id,
+        name: stageName,
+        start_date,
+        end_date,
+        budget: 0,
+        color: "#94a3b8",
+        sort_order: 0,
+        source: "imported_accelo_repair",
+        is_locked: true,
+        external_id,
+      })
+      .select("id")
+      .single();
+    if (stErr) throw stErr;
+    stage_id = created.id;
+    stage_created = true;
+  }
+
+  // Backfill stage_id on entries that lack one
+  const orphanIds = all.filter((e) => !e.stage_id).map((e) => e.id);
+  let entries_backfilled = 0;
+  for (let i = 0; i < orphanIds.length; i += 500) {
+    const chunk = orphanIds.slice(i, i + 500);
+    const { error, count } = await supabase
+      .from("historical_time_entries")
+      .update({ stage_id }, { count: "exact" })
+      .in("id", chunk);
+    if (!error) entries_backfilled += count ?? chunk.length;
+  }
+
+  // Aggregate hours per resource for allocations
+  const byResource = new Map<string, number>();
+  for (const e of all) {
+    if (!e.resource_id) continue;
+    const h = Number(e.billable_hours ?? 0) + Number(e.non_billable_hours ?? 0);
+    byResource.set(e.resource_id, (byResource.get(e.resource_id) ?? 0) + h);
+  }
+  let working = 0;
+  for (
+    const d = new Date(start_date + "T00:00:00"), endD = new Date(end_date + "T00:00:00");
+    d <= endD;
+    d.setDate(d.getDate() + 1)
+  ) {
+    const dow = d.getDay();
+    if (dow !== 0 && dow !== 6) working++;
+  }
+  working = Math.max(1, working);
+
+  let allocations_upserted = 0;
+  const allocPayload = Array.from(byResource.entries()).map(([resource_id, totalHours]) => {
+    const total = totalHours > 0 ? totalHours : working * 4;
+    const hpd = Math.max(0.25, total / working);
+    return {
+      external_id: `accelo_repair_allocation:${project_id}:${stage_id}:${resource_id}`,
+      stage_id,
+      resource_id,
+      start_date,
+      end_date,
+      hours_per_day: Math.round(hpd * 100) / 100,
+      total_hours_imported: Math.round(total * 100) / 100,
+      source: "imported_accelo_repair",
+      is_locked: true,
+    };
+  });
+  for (let i = 0; i < allocPayload.length; i += 500) {
+    const chunk = allocPayload.slice(i, i + 500);
+    const { error, count } = await supabase
+      .from("pm_allocations")
+      .upsert(chunk, { onConflict: "external_id", count: "exact" });
+    if (!error) allocations_upserted += count ?? chunk.length;
+  }
+
+  // Recompute diagnostics
+  const [stagesRes, histAllRes, histWithStageRes, stageList] = await Promise.all([
+    supabase.from("pm_stages").select("id", { count: "exact", head: true }).eq("project_id", project_id),
+    supabase.from("historical_time_entries").select("id", { count: "exact", head: true }).eq("project_id", project_id),
+    supabase
+      .from("historical_time_entries")
+      .select("id", { count: "exact", head: true })
+      .eq("project_id", project_id)
+      .not("stage_id", "is", null),
+    supabase.from("pm_stages").select("id").eq("project_id", project_id),
+  ]);
+  let allocCount = 0;
+  if (stageList.data && stageList.data.length) {
+    const { count } = await supabase
+      .from("pm_allocations")
+      .select("id", { count: "exact", head: true })
+      .in("stage_id", stageList.data.map((s) => s.id));
+    allocCount = count ?? 0;
+  }
+  const visibleStages = stagesRes.count ?? 0;
+  const histAll = histAllRes.count ?? 0;
+  const histWithStage = histWithStageRes.count ?? 0;
+  const histWithoutStage = Math.max(0, histAll - histWithStage);
+
+  return {
+    project_id,
+    project_name: project.name,
+    stage_id,
+    stage_created,
+    entries_total: all.length,
+    entries_backfilled,
+    allocations_upserted,
+    diagnostic: {
+      project_id,
+      project_name: project.name,
+      visibleStagesForProject: visibleStages,
+      historicalEntriesForProject: histAll,
+      historicalEntriesWithStage: histWithStage,
+      entriesWithoutStage: histWithoutStage,
+      allocationsForProject: allocCount,
+      reconstructionFailed: histAll > 0 && (visibleStages === 0 || histWithoutStage > 0),
+    },
+  };
+}
+
 export async function listImportJobs() {
   const { data, error } = await supabase
     .from("import_jobs")
