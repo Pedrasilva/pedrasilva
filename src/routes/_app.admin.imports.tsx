@@ -1222,6 +1222,8 @@ function GanttPreview({ stages }: { stages: GanttStage[] }) {
 function ReviewStep({
   preview,
   mapping,
+  unassignedProjects,
+  defaultStageByProject,
   createMissingCompanies,
   canCommit,
   isCommitting,
@@ -1233,6 +1235,8 @@ function ReviewStep({
 }: {
   preview: ImportPreview;
   mapping: Record<string, ProjectMappingChoice>;
+  unassignedProjects: UnassignedStageProject[];
+  defaultStageByProject: Record<string, DefaultStageChoice>;
   createMissingCompanies: boolean;
   canCommit: boolean;
   isCommitting: boolean;
@@ -1249,6 +1253,10 @@ function ReviewStep({
   const projectsSkipped = Object.values(mapping).filter((c) => c.mode === "skip").length;
 
   const rowsToImport = preview.totals.rows - preview.totals.error - preview.totals.duplicates;
+  const commitOptionsDebug = {
+    projectMapping: mapping,
+    defaultStageByProject,
+  };
 
   return (
     <Card>
@@ -1276,7 +1284,38 @@ function ReviewStep({
             : t("admin.imports.wizard.review.companiesKeep")}
         </div>
 
-        {(!projectMappingComplete || unmatchedCollabs > 0 || blockingErrors > 0) && (
+        {unassignedProjects.length > 0 && (
+          <div className="rounded-md border p-3 space-y-2 text-xs">
+            <div className="font-semibold text-foreground">
+              {t("admin.imports.wizard.review.stageAssignments")}
+            </div>
+            {unassignedProjects.map((p) => {
+              const choice = defaultStageByProject[p.key];
+              const label = choice?.mode === "existing"
+                ? t("admin.imports.wizard.review.stageExisting", { stageId: choice.stage_id })
+                : choice?.mode === "create"
+                  ? t("admin.imports.wizard.review.stageCreate", { name: choice.name })
+                  : t("admin.imports.wizard.review.stageMissing");
+              return (
+                <div key={p.key} className="flex items-center justify-between gap-3">
+                  <span className="truncate">{p.label}</span>
+                  <span className={choice ? "font-medium" : "font-medium text-destructive"}>{label}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <details className="rounded-md border bg-muted/30 p-3 text-xs">
+          <summary className="cursor-pointer font-semibold text-foreground">
+            {t("admin.imports.wizard.review.commitOptionsDebug")}
+          </summary>
+          <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-all text-[11px] text-muted-foreground">
+            {JSON.stringify(commitOptionsDebug, null, 2)}
+          </pre>
+        </details>
+
+        {(!canCommit || !projectMappingComplete || unmatchedCollabs > 0 || blockingErrors > 0) && (
           <ul className="text-xs space-y-1 text-destructive">
             {blockingErrors > 0 && (
               <li className="flex items-center gap-1">
@@ -1294,6 +1333,12 @@ function ReviewStep({
               <li className="flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
                 {t("admin.imports.wizard.projects.allRequired")}
+              </li>
+            )}
+            {unassignedProjects.length > 0 && !unassignedProjects.every((p) => isValidDefaultStageChoice(defaultStageByProject[p.key])) && (
+              <li className="flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                {t("admin.imports.stages.unassigned.blocking")}
               </li>
             )}
           </ul>
