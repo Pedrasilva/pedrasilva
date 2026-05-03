@@ -139,7 +139,8 @@
           "historicalEntries": "Entradas históricas",
           "historicalWithStage": "Entradas com fase",
           "allocations": "Alocações",
-          "reconstructionFailed": "A importação criou registos históricos mas nenhuma fase. A reconstrução de fases falhou."
+          "reconstructionFailed": "A importação criou registos históricos mas nenhuma fase. A reconstrução de fases falhou.",
+          "openProject": "Abrir projeto"
         }
       },
       "stages": {
