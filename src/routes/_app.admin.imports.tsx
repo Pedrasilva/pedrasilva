@@ -1659,3 +1659,100 @@ function Stat({ label, value, tone }: { label: string; value: number; tone?: "su
     </div>
   );
 }
+
+function RepairOrphanEntriesCard() {
+  const [projectId, setProjectId] = useState("");
+  const [stageName, setStageName] = useState("Imported");
+  const [result, setResult] = useState<RepairResult | null>(null);
+  const qc = useQueryClient();
+
+  const repairMutation = useMutation({
+    mutationFn: async () => {
+      const id = projectId.trim();
+      if (!id) throw new Error("Project ID is required");
+      return repairProjectOrphanEntries({ project_id: id, stage_name: stageName });
+    },
+    onSuccess: (r) => {
+      setResult(r);
+      toast.success(
+        `Repair complete: ${r.entries_backfilled} entries backfilled, ${r.allocations_upserted} allocations`,
+      );
+      const keys: Array<readonly unknown[]> = [
+        ["pm-project", r.project_id],
+        ["pm-stages-for-project", r.project_id],
+        ["pm-project-time", r.project_id],
+        ["historical-time-totals", r.project_id],
+        ["stage-budget-control", r.project_id],
+        ["project-financial-summary", r.project_id],
+        ["pm-project-insights", r.project_id],
+        ["pm-allocations-all"],
+        ["pm-stages-all"],
+      ];
+      keys.forEach((k) => qc.invalidateQueries({ queryKey: k, refetchType: "all" }));
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const d = result?.diagnostic;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Repair orphan historical entries</CardTitle>
+        <CardDescription>
+          For projects where historical_time_entries exist but stage_id is null and pm_stages = 0.
+          Creates a default stage from MIN/MAX entry_date, backfills stage_id, and creates per-resource allocations.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="md:col-span-2 space-y-1">
+            <Label>Project ID (UUID)</Label>
+            <Input
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+              placeholder="eaad9e59-1866-4ded-8037-fbbb0b05079d"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Default stage name</Label>
+            <Input value={stageName} onChange={(e) => setStageName(e.target.value)} />
+          </div>
+        </div>
+        <Button
+          onClick={() => repairMutation.mutate()}
+          disabled={repairMutation.isPending || !projectId.trim()}
+        >
+          {repairMutation.isPending ? "Repairing…" : "Run repair"}
+        </Button>
+
+        {result && d && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <Stat label="Stages" value={d.visibleStagesForProject} tone={d.visibleStagesForProject > 0 ? "success" : "error"} />
+              <Stat label="Entries (total)" value={d.historicalEntriesForProject} />
+              <Stat label="Entries with stage" value={d.historicalEntriesWithStage} tone={d.historicalEntriesWithStage > 0 ? "success" : "warning"} />
+              <Stat label="Entries without stage" value={d.entriesWithoutStage} tone={d.entriesWithoutStage === 0 ? "success" : "error"} />
+              <Stat label="Allocations" value={d.allocationsForProject} tone={d.allocationsForProject > 0 ? "success" : "warning"} />
+              <Stat label="Backfilled" value={result.entries_backfilled} tone="success" />
+              <Stat label="Allocations upserted" value={result.allocations_upserted} tone="success" />
+              <div className="rounded-md border p-3">
+                <div className="text-xs text-muted-foreground">Status</div>
+                <div className={`text-sm font-semibold ${d.reconstructionFailed ? "text-destructive" : "text-emerald-600"}`}>
+                  {d.reconstructionFailed ? "Failed" : "OK"}
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link to="/projects/$projectId" params={{ projectId: result.project_id }}>
+                  Open project
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
