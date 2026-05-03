@@ -996,7 +996,7 @@ export async function commitAcceloImport(
         ...Array.from(stageGroups.values()).map((s) => s.project_id),
       ].filter(Boolean),
     ),
-  );
+  ).filter((pid) => !restrict || restrict.has(pid));
   const diagnostics: ProjectDiagnostic[] = [];
   let finalEntriesWithoutStage = 0;
   for (const pid of touchedProjectIds) {
