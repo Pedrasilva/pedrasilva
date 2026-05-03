@@ -4798,10 +4798,12 @@ export type Database = {
         Args: { _force?: boolean; _import_id: string; _reason?: string }
         Returns: Json
       }
-      delete_project_hard: {
-        Args: { _confirm: string; _project_id: string }
-        Returns: Json
-      }
+      delete_project_hard:
+        | { Args: { _confirm: string; _project_id: string }; Returns: Json }
+        | {
+            Args: { _cascade?: boolean; _confirm: string; _project_id: string }
+            Returns: Json
+          }
       finance_delete_unused_supplier_companies: {
         Args: { _confirm: string }
         Returns: Json

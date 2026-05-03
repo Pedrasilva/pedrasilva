@@ -243,8 +243,11 @@
       "count": "Quantidade",
       "blocked": "O projeto tem registos ligados e não pode ser apagado.",
       "blockedHint": "Remova ou desassocie os registos ligados antes de apagar este projeto.",
+      "cascadeToggle": "Apagar também todos os registos ligados (cascata)",
+      "cascadeWarning": "Isto remove permanentemente todas as fases, tarefas, registos de tempo, despesas, materiais, faturas e linhas financeiras associadas a este projeto.",
       "typeToConfirm": "Escreva {{phrase}} para confirmar",
       "confirmAction": "Apagar projeto",
+      "confirmActionCascade": "Apagar projeto e todos os registos ligados",
       "success": "Projeto apagado."
     }
   }

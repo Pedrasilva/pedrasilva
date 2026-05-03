@@ -243,8 +243,11 @@
       "count": "Count",
       "blocked": "Project has linked records and cannot be deleted.",
       "blockedHint": "Remove or detach the linked records before deleting this project.",
+      "cascadeToggle": "Also delete all linked records (cascade)",
+      "cascadeWarning": "This will permanently remove every stage, task, time entry, expense, material, invoice and financial line tied to this project.",
       "typeToConfirm": "Type {{phrase}} to confirm",
       "confirmAction": "Delete project",
+      "confirmActionCascade": "Delete project and all linked records",
       "success": "Project deleted."
     }
   }
