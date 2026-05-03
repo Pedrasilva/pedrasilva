@@ -357,6 +357,8 @@ function ImportsContent() {
         />
       )}
 
+      <RepairOrphanEntriesCard />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t("admin.imports.history")}</CardTitle>
