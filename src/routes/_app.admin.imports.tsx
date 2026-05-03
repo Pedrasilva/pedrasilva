@@ -675,6 +675,8 @@ function StagesStep({
         stage_name: string;
         start_date: string;
         end_date: string;
+        raw: string;
+        warning: string | null;
         rows: number;
         hours: number;
         resourceIds: Set<string>;
@@ -710,6 +712,8 @@ function StagesStep({
           stage_name: name,
           start_date: start,
           end_date: end,
+          raw: v.row.stage_date_range_raw ?? "",
+          warning: v.row.stage_parse_warning,
           rows: 0,
           hours: 0,
           resourceIds: new Set<string>(),
