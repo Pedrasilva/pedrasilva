@@ -177,22 +177,41 @@ export type ParsedAcceloRow = {
   raw: Record<string, unknown>;
 };
 
-// Parses "DD/MM/YY to DD/MM/YY" or "DD/MM/YYYY to DD/MM/YYYY" (also accepts " - " separator).
+// Parses stage date ranges in many real-world formats.
+// Accepts: "DD/MM/YY to DD/MM/YY", "DD-MM-YYYY - DD-MM-YYYY", "YYYY-MM-DD – YYYY-MM-DD",
+// "DD/MM/YY até DD/MM/YY", em-dash separators, Excel serial pairs, etc.
 export function parseStageDateRange(input: unknown): {
   start: string | null;
   end: string | null;
   warning: string | null;
 } {
-  const s = String(input ?? "").trim();
+  const s = cleanDateInput(input);
   if (!s) return { start: null, end: null, warning: null };
-  const m = s.split(/\s+(?:to|-|–|—|até)\s+/i);
-  if (m.length !== 2) {
+
+  // Try splitting on common separators (after dash normalization, all are "-").
+  // Use word "to"/"até" or a space-padded "-".
+  let parts: string[] = [];
+  const sep = s.split(/\s+(?:to|até|a)\s+|\s+-\s+/i);
+  if (sep.length === 2) {
+    parts = sep;
+  } else {
+    // Fallback: extract any two date-like tokens.
+    const tokens = s.match(/\d{1,4}[\/\-.]\d{1,2}[\/\-.]\d{1,4}|\d{4,5}/g);
+    if (tokens && tokens.length >= 2) parts = [tokens[0], tokens[1]];
+  }
+
+  if (parts.length !== 2) {
     return { start: null, end: null, warning: `Unrecognized stage date range: "${s}"` };
   }
-  const start = toIsoDate(m[0]);
-  const end = toIsoDate(m[1]);
+
+  const start = toIsoDate(parts[0]);
+  const end = toIsoDate(parts[1]);
   if (!start || !end) {
     return { start: null, end: null, warning: `Could not parse stage date range: "${s}"` };
+  }
+  if (start > end) {
+    // Swap rather than reject — common upstream typo.
+    return { start: end, end: start, warning: `Start/end were swapped in: "${s}"` };
   }
   return { start, end, warning: null };
 }
