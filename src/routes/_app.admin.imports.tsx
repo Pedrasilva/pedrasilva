@@ -148,6 +148,24 @@ function ImportsContent() {
         }),
       );
       qc.invalidateQueries({ queryKey: ["import-jobs"] });
+      // Force every project/stage/budget/financial query to refetch so the
+      // newly imported stages, allocations and time entries are visible
+      // when the user navigates to the project page right after import.
+      [
+        ["pm-projects"],
+        ["pm-project"],
+        ["pm-stages-all"],
+        ["pm-stages-for-project"],
+        ["pm-allocations-all"],
+        ["pm-project-time"],
+        ["pm-time-entries-all-project"],
+        ["historical-time-totals"],
+        ["stage-budget-control"],
+        ["project-financial-summary"],
+        ["project-insights"],
+        ["external-services"],
+        ["forecast-projects"],
+      ].forEach((k) => qc.invalidateQueries({ queryKey: k }));
       setStep("result");
     },
     onError: (e: Error) => toast.error(e.message),
