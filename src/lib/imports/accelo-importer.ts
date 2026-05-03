@@ -1014,14 +1014,16 @@ export async function commitAcceloImport(
     const visibleStages = stagesRes.count ?? 0;
     const histAll = histAllRes.count ?? 0;
     const histWithStage = histWithStageRes.count ?? 0;
+    const histWithoutStage = Math.max(0, histAll - histWithStage);
     diagnostics.push({
       project_id: pid,
       project_name: pRow?.name ?? null,
       visibleStagesForProject: visibleStages,
       historicalEntriesForProject: histAll,
       historicalEntriesWithStage: histWithStage,
+      entriesWithoutStage: histWithoutStage,
       allocationsForProject: allocCount,
-      reconstructionFailed: histAll > 0 && visibleStages === 0,
+      reconstructionFailed: histAll > 0 && (visibleStages === 0 || histWithoutStage > 0),
     });
   }
 
