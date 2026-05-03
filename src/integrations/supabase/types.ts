@@ -2014,6 +2014,7 @@ export type Database = {
           raw: Json
           resource_id: string | null
           source_system: string
+          stage_id: string | null
           status_text: string | null
           subject: string | null
           updated_at: string
@@ -2042,6 +2043,7 @@ export type Database = {
           raw?: Json
           resource_id?: string | null
           source_system: string
+          stage_id?: string | null
           status_text?: string | null
           subject?: string | null
           updated_at?: string
@@ -2070,6 +2072,7 @@ export type Database = {
           raw?: Json
           resource_id?: string | null
           source_system?: string
+          stage_id?: string | null
           status_text?: string | null
           subject?: string | null
           updated_at?: string
@@ -2122,6 +2125,13 @@ export type Database = {
             columns: ["resource_id"]
             isOneToOne: false
             referencedRelation: "pm_resources_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "historical_time_entries_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
             referencedColumns: ["id"]
           },
         ]
@@ -2540,37 +2550,49 @@ export type Database = {
         Row: {
           created_at: string
           end_date: string
+          external_id: string | null
           hours_per_day: number
           id: string
+          is_locked: boolean
           resource_id: string
+          source: string | null
           stage_id: string
           start_date: string
           status: Database["public"]["Enums"]["pm_allocation_status"]
           status_changed_at: string | null
+          total_hours_imported: number | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           end_date: string
+          external_id?: string | null
           hours_per_day?: number
           id?: string
+          is_locked?: boolean
           resource_id: string
+          source?: string | null
           stage_id: string
           start_date: string
           status?: Database["public"]["Enums"]["pm_allocation_status"]
           status_changed_at?: string | null
+          total_hours_imported?: number | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           end_date?: string
+          external_id?: string | null
           hours_per_day?: number
           id?: string
+          is_locked?: boolean
           resource_id?: string
+          source?: string | null
           stage_id?: string
           start_date?: string
           status?: Database["public"]["Enums"]["pm_allocation_status"]
           status_changed_at?: string | null
+          total_hours_imported?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -3377,9 +3399,11 @@ export type Database = {
           end_date: string
           external_id: string | null
           id: string
+          is_locked: boolean
           name: string
           project_id: string
           sort_order: number
+          source: string | null
           start_date: string
           updated_at: string
         }
@@ -3396,9 +3420,11 @@ export type Database = {
           end_date: string
           external_id?: string | null
           id?: string
+          is_locked?: boolean
           name: string
           project_id: string
           sort_order?: number
+          source?: string | null
           start_date: string
           updated_at?: string
         }
@@ -3415,9 +3441,11 @@ export type Database = {
           end_date?: string
           external_id?: string | null
           id?: string
+          is_locked?: boolean
           name?: string
           project_id?: string
           sort_order?: number
+          source?: string | null
           start_date?: string
           updated_at?: string
         }
