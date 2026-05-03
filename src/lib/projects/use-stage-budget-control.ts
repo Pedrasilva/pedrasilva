@@ -302,12 +302,13 @@ function computeControl({
   const orphanCost = Math.max(0, imported.cost - stageImpCost);
   const orphanValue = Math.max(0, imported.amount - stageImpValue);
 
-  // Fold imported historical totals into PROJECT level only (no stage link).
-  const totalLogged = projTotals.logged + imported.loggedHours;
-  const totalBillable = projTotals.billable + imported.billableHours;
-  const totalNonBillable = projTotals.nonBillable + imported.nonBillableHours;
-  const totalCost = projTotals.cost + imported.cost;
-  const totalValue = projTotals.value + imported.amount;
+  // projTotals already include stage-linked imported actuals; only add the
+  // orphan portion (entries imported without a stage_id) at project level.
+  const totalLogged = projTotals.logged + orphanLogged;
+  const totalBillable = projTotals.billable + orphanBillable;
+  const totalNonBillable = projTotals.nonBillable + orphanNonBillable;
+  const totalCost = projTotals.cost + orphanCost;
+  const totalValue = projTotals.value + orphanValue;
   const projAvgRate = projTotals.rateDen > 0 ? projTotals.rateNum / projTotals.rateDen : 0;
   const projRemaining = projTotals.budget - totalCost;
   const projHasRate = projAvgRate > 0;
