@@ -49,6 +49,8 @@ import {
   type ProjectMappingChoice,
   type CommitResult,
   type DefaultStageChoice,
+  repairProjectOrphanEntries,
+  type RepairResult,
 } from "@/lib/imports/accelo-importer";
 import { supabase } from "@/integrations/supabase/client";
 import {
