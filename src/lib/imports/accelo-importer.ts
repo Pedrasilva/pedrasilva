@@ -326,6 +326,17 @@ export type CommitOptions = {
   projectMapping?: Record<string, ProjectMappingChoice>;
 };
 
+export type ProjectDiagnostic = {
+  project_id: string;
+  project_name: string | null;
+  visibleStagesForProject: number;
+  historicalEntriesForProject: number;
+  historicalEntriesWithStage: number;
+  allocationsForProject: number;
+  /** Set when historical entries exist but no stages — i.e. stage reconstruction failed. */
+  reconstructionFailed: boolean;
+};
+
 export type CommitResult = {
   imported: number;
   skipped: number;
@@ -335,6 +346,7 @@ export type CommitResult = {
   allocationsUpserted: number;
   entriesWithoutStage: number;
   entriesWithoutResource: number;
+  diagnostics: ProjectDiagnostic[];
 };
 
 /** Normalize a stage name for fuzzy matching against existing manual stages. */
@@ -759,6 +771,66 @@ export async function commitAcceloImport(
     })
     .eq("id", preview.jobId);
 
+  // ---------------------------------------------------------------------------
+  // Diagnostics — per touched project, count what actually landed in the DB.
+  // Surfaces in the result UI so we can tell A/B/C/D apart at a glance.
+  // ---------------------------------------------------------------------------
+  const touchedProjectIds = Array.from(
+    new Set(
+      [
+        ...Array.from(projectByRef.values()),
+        ...Array.from(stageGroups.values()).map((s) => s.project_id),
+      ].filter(Boolean),
+    ),
+  );
+  const diagnostics: ProjectDiagnostic[] = [];
+  for (const pid of touchedProjectIds) {
+    const [{ data: pRow }, stagesRes, histAllRes, histWithStageRes] = await Promise.all([
+      supabase.from("pm_projects").select("id,name").eq("id", pid).maybeSingle(),
+      supabase
+        .from("pm_stages")
+        .select("id", { count: "exact", head: true })
+        .eq("project_id", pid),
+      supabase
+        .from("historical_time_entries")
+        .select("id", { count: "exact", head: true })
+        .eq("project_id", pid),
+      supabase
+        .from("historical_time_entries")
+        .select("id", { count: "exact", head: true })
+        .eq("project_id", pid)
+        .not("stage_id", "is", null),
+    ]);
+    // Allocations linked to this project's stages
+    const { data: stageIds } = await supabase
+      .from("pm_stages")
+      .select("id")
+      .eq("project_id", pid);
+    let allocCount = 0;
+    if (stageIds && stageIds.length) {
+      const { count } = await supabase
+        .from("pm_allocations")
+        .select("id", { count: "exact", head: true })
+        .in(
+          "stage_id",
+          stageIds.map((s) => s.id),
+        );
+      allocCount = count ?? 0;
+    }
+    const visibleStages = stagesRes.count ?? 0;
+    const histAll = histAllRes.count ?? 0;
+    const histWithStage = histWithStageRes.count ?? 0;
+    diagnostics.push({
+      project_id: pid,
+      project_name: pRow?.name ?? null,
+      visibleStagesForProject: visibleStages,
+      historicalEntriesForProject: histAll,
+      historicalEntriesWithStage: histWithStage,
+      allocationsForProject: allocCount,
+      reconstructionFailed: histAll > 0 && visibleStages === 0,
+    });
+  }
+
   return {
     imported,
     skipped,
@@ -768,6 +840,7 @@ export async function commitAcceloImport(
     allocationsUpserted,
     entriesWithoutStage,
     entriesWithoutResource,
+    diagnostics,
   };
 }
 

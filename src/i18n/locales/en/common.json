@@ -132,7 +132,15 @@
         "warnNoStage_one": "{{count}} time entry imported without stage association",
         "warnNoStage_other": "{{count}} time entries imported without stage association",
         "warnNoResource_one": "{{count}} time entry imported without resource association",
-        "warnNoResource_other": "{{count}} time entries imported without resource association"
+        "warnNoResource_other": "{{count}} time entries imported without resource association",
+        "diagnostics": {
+          "title": "Per-project diagnostics",
+          "visibleStages": "Visible stages",
+          "historicalEntries": "Historical entries",
+          "historicalWithStage": "Entries with stage",
+          "allocations": "Allocations",
+          "reconstructionFailed": "Import created historical actuals but no stages. Stage reconstruction failed."
+        }
       },
       "stages": {
         "title": "Detected stages (Gantt reconstruction)",
