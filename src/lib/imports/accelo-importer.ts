@@ -848,6 +848,7 @@ export async function commitAcceloImport(
   const toInsert = preview.rows
     .filter((v) => v.status !== "error" && !existing.has(v.row.external_id))
     .filter((v) => !(refOf(v.row) && skipRefs.has(refOf(v.row))))
+    .filter((v) => isAllowed(refOf(v.row), v.matched.project_id))
     .map((v) => {
       const stageKey = rowToStageKey.get(v.row.rowIndex);
       const stage_id = stageKey ? stageIdByKey.get(stageKey) ?? null : null;
