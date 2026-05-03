@@ -903,7 +903,24 @@ function StagesStep({
           </>
         )}
 
-        <StepFooter onBack={onBack} onNext={onNext} />
+        <UnassignedStagesPanel
+          unassignedProjects={unassignedProjects}
+          defaultStageByProject={defaultStageByProject}
+          setDefaultStageByProject={setDefaultStageByProject}
+        />
+
+        <SourceBreakdown preview={preview} />
+
+        <StepFooter
+          onBack={onBack}
+          onNext={onNext}
+          nextDisabled={!stagesAssignmentComplete}
+          nextHint={
+            !stagesAssignmentComplete
+              ? t("admin.imports.stages.unassigned.blocking")
+              : null
+          }
+        />
       </CardContent>
     </Card>
   );
