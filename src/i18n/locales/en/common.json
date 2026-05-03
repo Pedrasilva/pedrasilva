@@ -138,6 +138,7 @@
           "visibleStages": "Visible stages",
           "historicalEntries": "Historical entries",
           "historicalWithStage": "Entries with stage",
+          "entriesWithoutStage": "Entries without stage",
           "allocations": "Allocations",
           "reconstructionFailed": "Import created historical actuals but no stages. Stage reconstruction failed.",
           "openProject": "Open project"
