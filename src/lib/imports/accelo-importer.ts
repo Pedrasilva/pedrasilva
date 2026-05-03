@@ -318,12 +318,21 @@ export type ProjectMappingChoice =
   | { mode: "create"; name?: string }
   | { mode: "skip" };
 
+export type DefaultStageChoice =
+  | { mode: "existing"; stage_id: string }
+  | { mode: "create"; name: string };
+
 export type CommitOptions = {
   createMissingProjects: boolean;
   createMissingCompanies: boolean;
   /** User-confirmed mapping from imported reference -> destination decision.
    *  Takes priority over auto-matched project_id during commit. */
   projectMapping?: Record<string, ProjectMappingChoice>;
+  /** For rows whose stage_name could not be detected, assign all such rows
+   *  in a given project to the chosen (existing or new) stage. Keyed by
+   *  project_id (after project resolution) OR by parent_reference when the
+   *  project does not yet exist. */
+  defaultStageByProject?: Record<string, DefaultStageChoice>;
 };
 
 export type ProjectDiagnostic = {
