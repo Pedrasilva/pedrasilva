@@ -161,7 +161,38 @@ function ImportsContent() {
         return c && c.mode !== "skip" ? true : c?.mode === "skip";
       }) && preview.unmatched.projects.every((ref) => projectMapping[ref] != null)
     : false;
-  const canCommit = !!preview && blockingErrors === 0 && unmatchedCollabs === 0 && projectMappingComplete;
+  // Project keys (project_id or parent_reference) that have rows missing stage_name.
+  const unassignedStageProjectKeys = useMemo(() => {
+    if (!preview) return [] as { key: string; label: string; rows: number }[];
+    const m = new Map<string, { key: string; label: string; rows: number }>();
+    for (const v of preview.rows) {
+      if (v.status === "error") continue;
+      if ((v.row.stage_name ?? "").trim()) continue;
+      const ref = v.row.parent_reference || v.row.reference;
+      const choice = ref ? projectMapping[ref] : undefined;
+      if (choice?.mode === "skip") continue;
+      const key =
+        choice?.mode === "existing"
+          ? choice.project_id
+          : choice?.mode === "create"
+            ? ref
+            : v.matched.project_id ?? ref;
+      if (!key) continue;
+      const cur = m.get(key);
+      if (cur) cur.rows++;
+      else m.set(key, { key, label: ref || "—", rows: 1 });
+    }
+    return Array.from(m.values());
+  }, [preview, projectMapping]);
+  const stagesAssignmentComplete = unassignedStageProjectKeys.every(
+    (p) => defaultStageByProject[p.key] != null,
+  );
+  const canCommit =
+    !!preview &&
+    blockingErrors === 0 &&
+    unmatchedCollabs === 0 &&
+    projectMappingComplete &&
+    stagesAssignmentComplete;
 
   const reset = () => {
     setStep("upload");
