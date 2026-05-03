@@ -610,9 +610,10 @@ function ProjectDetail() {
                     stageActualRevenue={stageActualRevenue}
                     stageActualCost={stageActualCost}
                     stageLoggedHours={stageLoggedHours}
-                    stagePlannedHours={stagePlannedHours}
+                   stagePlannedHours={stagePlannedHours}
                     defaultRates={defaultRates}
                     canSeeFinancials={canSeeFinancials}
+                    onEditPlan={() => setTab("schedule")}
                   />
                 </div>
               </div>
