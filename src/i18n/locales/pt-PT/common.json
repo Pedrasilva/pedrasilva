@@ -142,6 +142,63 @@
           "hours": "Horas",
           "people": "Pessoas"
         }
+      },
+      "wizard": {
+        "back": "Voltar",
+        "next": "Seguinte",
+        "steps": {
+          "upload": "Carregar",
+          "projects": "Projetos",
+          "people": "Pessoas",
+          "stages": "Fases",
+          "review": "Revisão",
+          "result": "Resultado"
+        },
+        "upload": {
+          "title": "Carregar ficheiro",
+          "subtitle": "Selecione o tipo de importação e envie o ficheiro de origem. A análise é feita localmente antes de gravar qualquer dado.",
+          "parseAndContinue": "Analisar e continuar"
+        },
+        "projects": {
+          "title": "Mapeamento de projetos",
+          "subtitle": "Decida onde cada referência importada deve aterrar. Nada é fundido automaticamente no commit.",
+          "cols": {
+            "reference": "Referência importada",
+            "action": "Ação",
+            "target": "Destino"
+          },
+          "choose": "Escolha a ação",
+          "useExisting": "Usar projeto existente",
+          "createNew": "Criar novo projeto",
+          "skipRef": "Ignorar esta referência",
+          "selectProject": "Selecionar projeto…",
+          "newName": "Nome do novo projeto",
+          "skippedHint": "As linhas desta referência serão ignoradas.",
+          "allRequired": "Todas as referências devem ser mapeadas antes de continuar."
+        },
+        "people": {
+          "title": "Mapeamento de pessoas",
+          "subtitle": "Associe utilizadores Accelo a colaboradores existentes. Utilizadores sem correspondência bloqueiam a importação.",
+          "matchedRows": "Linhas correspondidas",
+          "unmatched": "Utilizadores sem correspondência",
+          "allMatched": "Todos os colaboradores estão correspondidos.",
+          "blocking": "Resolva os colaboradores sem correspondência antes de continuar."
+        },
+        "review": {
+          "title": "Rever e confirmar",
+          "subtitle": "Resumo final. Confirme para gravar entradas históricas, fases e alocações.",
+          "rowsToImport": "Linhas a importar",
+          "projectsExisting": "Projetos existentes usados",
+          "projectsNew": "Novos projetos a criar",
+          "projectsSkipped": "Referências ignoradas",
+          "companiesCreate": "Empresas sem correspondência serão criadas como clientes no commit.",
+          "companiesKeep": "Empresas sem correspondência ficam por preencher no commit."
+        },
+        "result": {
+          "title": "Importação concluída",
+          "subtitle": "Entradas históricas, fases e alocações foram atualizadas de forma idempotente.",
+          "startNew": "Iniciar nova importação"
+        }
       }
     },
     "projectsTools": {
