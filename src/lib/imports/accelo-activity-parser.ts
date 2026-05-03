@@ -323,6 +323,9 @@ export function parseAcceloActivityExport(buffer: ArrayBuffer): AcceloParseResul
       header.forEach((h, idx) => {
         if (h !== null && h !== undefined && h !== "") raw[String(h)] = r[idx];
       });
+      const referenceRaw = String(get("reference") ?? "").trim();
+      const refSplit = splitReference(referenceRaw);
+      const stageColumn = String(get("stage") ?? "").trim();
       rows.push({
         rowIndex: i + 1,
         external_id: String(get("external_id") ?? "").trim(),
@@ -330,7 +333,9 @@ export function parseAcceloActivityExport(buffer: ArrayBuffer): AcceloParseResul
         from_email: extractEmail(fromRaw),
         to_text: String(get("to") ?? "").trim(),
         company: String(get("company") ?? "").trim(),
-        reference: String(get("reference") ?? "").trim(),
+        reference: referenceRaw,
+        parent_reference: refSplit.parent,
+        inferred_stage_name: !stageColumn && refSplit.stage ? refSplit.stage : null,
         entry_date: toIsoDate(get("date")),
         subject: String(get("subject") ?? "").trim(),
         content: String(get("content") ?? "").trim(),
@@ -343,7 +348,7 @@ export function parseAcceloActivityExport(buffer: ArrayBuffer): AcceloParseResul
         profit: toNumber(get("profit")),
         status_text: String(get("status") ?? "").trim(),
         invoice_number: String(get("invoice_number") ?? "").trim(),
-        stage_name: String(get("stage") ?? "").trim(),
+        stage_name: stageColumn || refSplit.stage || "",
         stage_date_range_raw: String(get("stage_date_range") ?? "").trim(),
         ...(() => {
           const parsed = parseStageDateRange(get("stage_date_range"));
