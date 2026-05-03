@@ -644,6 +644,9 @@ export async function listProjectsForMapping() {
     .order("name");
   if (error) throw error;
   return data ?? [];
+}
+
+export async function listCollaboratorsForMapping() {
   const { data, error } = await supabase
     .from("collaborators")
     .select("id,nome,email")
