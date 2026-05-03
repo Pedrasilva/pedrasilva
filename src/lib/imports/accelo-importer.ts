@@ -583,6 +583,7 @@ export async function commitAcceloImport(
 
     for (const [pkey, choice] of Object.entries(options.defaultStageByProject)) {
       const resolvedPid = projectByRef.get(pkey) ?? pkey;
+      if (restrict && !restrict.has(resolvedPid) && !restrict.has(pkey)) continue;
       const dates = datesByPid.get(resolvedPid);
       const today = new Date().toISOString().slice(0, 10);
       const start_date = dates?.min ?? today;
