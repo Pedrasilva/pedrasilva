@@ -132,6 +132,11 @@ interface ComputeArgs {
     amount: number;
     sources: string[];
   };
+  /** Imported actuals already attached to a stage_id (Accelo importer). */
+  importedByStage: Map<
+    string,
+    { loggedHours: number; billableHours: number; nonBillableHours: number; cost: number; amount: number }
+  >;
   project_id: string;
 }
 
