@@ -135,6 +135,7 @@ function ImportsContent() {
         createMissingProjects,
         createMissingCompanies,
         projectMapping,
+        defaultStageByProject,
       });
     },
     onSuccess: (r) => {
