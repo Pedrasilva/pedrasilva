@@ -130,12 +130,12 @@
         "hint": "Stages parsed from column K with date ranges from column O. These will be created as locked, imported stages on commit.",
         "noneDetected": "No stages detected. Imported time entries will not produce a historical Gantt.",
         "counters": {
-          "parsed_one": "{{count}} stage parsed",
-          "parsed_other": "{{count}} stages parsed",
-          "corrected_one": "{{count}} corrected with warning",
-          "corrected_other": "{{count}} corrected with warning",
-          "skipped_one": "{{count}} skipped (unparseable)",
-          "skipped_other": "{{count}} skipped (unparseable)"
+          "parsed_one": "{{count}} stage reconstructed",
+          "parsed_other": "{{count}} stages reconstructed",
+          "corrected_one": "{{count}} corrected row",
+          "corrected_other": "{{count}} corrected rows",
+          "skipped_one": "{{count}} skipped row",
+          "skipped_other": "{{count}} skipped rows"
         },
         "missingProject_one": "{{count}} stage row has no matched project and will not create a stage.",
         "missingProject_other": "{{count}} stage rows have no matched project and will not create stages.",
