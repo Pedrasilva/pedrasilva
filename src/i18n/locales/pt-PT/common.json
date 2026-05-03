@@ -132,7 +132,15 @@
         "warnNoStage_one": "{{count}} entrada de tempo importada sem associação a fase",
         "warnNoStage_other": "{{count}} entradas de tempo importadas sem associação a fase",
         "warnNoResource_one": "{{count}} entrada de tempo importada sem associação a recurso",
-        "warnNoResource_other": "{{count}} entradas de tempo importadas sem associação a recurso"
+        "warnNoResource_other": "{{count}} entradas de tempo importadas sem associação a recurso",
+        "diagnostics": {
+          "title": "Diagnóstico por projeto",
+          "visibleStages": "Fases visíveis",
+          "historicalEntries": "Entradas históricas",
+          "historicalWithStage": "Entradas com fase",
+          "allocations": "Alocações",
+          "reconstructionFailed": "A importação criou registos históricos mas nenhuma fase. A reconstrução de fases falhou."
+        }
       },
       "stages": {
         "title": "Fases detetadas (reconstrução do Gantt)",
