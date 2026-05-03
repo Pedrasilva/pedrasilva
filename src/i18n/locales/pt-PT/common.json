@@ -248,7 +248,12 @@
           "projectsNew": "Novos projetos a criar",
           "projectsSkipped": "Referências ignoradas",
           "companiesCreate": "Empresas sem correspondência serão criadas como clientes no commit.",
-          "companiesKeep": "Empresas sem correspondência ficam por preencher no commit."
+          "companiesKeep": "Empresas sem correspondência ficam por preencher no commit.",
+          "stageAssignments": "Atribuições de fase resolvidas",
+          "stageExisting": "Fase existente: {{stageId}}",
+          "stageCreate": "Nova fase: {{name}}",
+          "stageMissing": "Escolha de fase em falta",
+          "commitOptionsDebug": "JSON das opções de commit"
         },
         "result": {
           "title": "Importação concluída",
