@@ -1342,7 +1342,6 @@ export async function repairProjectOrphanEntries(input: {
   }
   working = Math.max(1, working);
 
-  let allocations_upserted = 0;
   const allocPayload = Array.from(byResource.entries()).map(([resource_id, totalHours]) => {
     const total = totalHours > 0 ? totalHours : working * 4;
     const hpd = Math.max(0.25, total / working);
@@ -1358,13 +1357,7 @@ export async function repairProjectOrphanEntries(input: {
       is_locked: true,
     };
   });
-  for (let i = 0; i < allocPayload.length; i += 500) {
-    const chunk = allocPayload.slice(i, i + 500);
-    const { error, count } = await supabase
-      .from("pm_allocations")
-      .upsert(chunk, { onConflict: "external_id", count: "exact" });
-    if (!error) allocations_upserted += count ?? chunk.length;
-  }
+  const allocations_upserted = await upsertAllocationsByExternalId(allocPayload);
 
   return {
     project_id,
