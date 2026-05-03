@@ -759,7 +759,16 @@ export async function commitAcceloImport(
     })
     .eq("id", preview.jobId);
 
-  return { imported, skipped, errors };
+  return {
+    imported,
+    skipped,
+    errors,
+    stagesMatched,
+    stagesCreated,
+    allocationsUpserted,
+    entriesWithoutStage,
+    entriesWithoutResource,
+  };
 }
 
 export async function listImportJobs() {
