@@ -91,7 +91,7 @@ export function useUpdateQuoteStageWithCascade(quoteId: string) {
 
         if (stageDeltas.size > 0) {
           const { data: allocs, error: aErr } = await db
-            .from("quote_allocations")
+            .from("quote_allocations_public")
             .select("id, stage_id, start_date, end_date")
             .in("stage_id", Array.from(stageDeltas.keys()));
           if (aErr) throw new Error(aErr.message);

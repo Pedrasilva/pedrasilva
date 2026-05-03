@@ -23,7 +23,7 @@ export function useResourceSchedules() {
     queryKey: ["pm-resource-schedules"],
     queryFn: async (): Promise<ResourceScheduleMap> => {
       const { data: resources, error: rErr } = await supabase
-        .from("pm_resources")
+        .from("pm_resources_public")
         .select("id, collaborator_id, weekly_capacity");
       if (rErr) throw rErr;
 

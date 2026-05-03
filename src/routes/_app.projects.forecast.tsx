@@ -90,7 +90,7 @@ function useLeaveByResource() {
     queryFn: async (): Promise<Map<string, Array<{ start: Date; end: Date }>>> => {
       // Map collaborator -> resource
       const { data: resources, error: rErr } = await supabase
-        .from("pm_resources")
+        .from("pm_resources_public")
         .select("id, collaborator_id");
       if (rErr) throw rErr;
       const collabToResource = new Map<string, string>();
