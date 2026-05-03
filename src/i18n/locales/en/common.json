@@ -136,12 +136,16 @@
         "cols": {
           "stage": "Stage",
           "project": "Project",
+          "raw": "Raw (col O)",
           "start": "Start",
           "end": "End",
+          "status": "Status",
           "rows": "Rows",
           "hours": "Hours",
           "people": "People"
         },
+        "statusOk": "OK",
+        "statusWarn": "Warning",
         "gantt": {
           "title": "Gantt preview (read-only)",
           "hint": "Visual preview of how stages will appear on the project Gantt after commit.",
