@@ -91,6 +91,7 @@ async function lookupMaps(rows: ParsedAcceloRow[]) {
     .from("pm_resources_public")
     .select("id,collaborator_id,email");
   (resData ?? []).forEach((r) => {
+    if (!r.id) return;
     if (r.collaborator_id) resourceByCollab.set(r.collaborator_id, r.id);
     if (r.email) resourceByEmail.set(r.email.toLowerCase(), r.id);
   });
