@@ -130,12 +130,12 @@
         "hint": "Fases extraídas da coluna K com intervalos de datas da coluna O. Serão criadas como fases importadas e bloqueadas no commit.",
         "noneDetected": "Nenhuma fase detetada. Os registos de tempo importados não geram Gantt histórico.",
         "counters": {
-          "parsed_one": "{{count}} fase processada",
-          "parsed_other": "{{count}} fases processadas",
-          "corrected_one": "{{count}} corrigida com aviso",
-          "corrected_other": "{{count}} corrigidas com aviso",
-          "skipped_one": "{{count}} ignorada (não interpretável)",
-          "skipped_other": "{{count}} ignoradas (não interpretáveis)"
+          "parsed_one": "{{count}} fase reconstruída",
+          "parsed_other": "{{count}} fases reconstruídas",
+          "corrected_one": "{{count}} linha corrigida",
+          "corrected_other": "{{count}} linhas corrigidas",
+          "skipped_one": "{{count}} linha ignorada",
+          "skipped_other": "{{count}} linhas ignoradas"
         },
         "missingProject_one": "{{count}} linha de fase não tem projeto correspondente e não criará fase.",
         "missingProject_other": "{{count}} linhas de fase não têm projeto correspondente e não criarão fases.",
