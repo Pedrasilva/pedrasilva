@@ -474,6 +474,17 @@ export async function commitAcceloImport(
     return autoMatched;
   };
 
+  const restrict = options.restrictProjectIds && options.restrictProjectIds.length
+    ? new Set(options.restrictProjectIds)
+    : null;
+  const isAllowed = (ref: string | null | undefined, autoMatched: string | null) => {
+    if (!restrict) return true;
+    const pid = resolveProjectId(ref, autoMatched);
+    if (pid && restrict.has(pid)) return true;
+    if (ref && restrict.has(ref)) return true;
+    return false;
+  };
+
   const missingDefaultStageProjects = new Set<string>();
   for (const v of preview.rows) {
     if (v.status === "error") continue;
