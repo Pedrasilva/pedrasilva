@@ -333,6 +333,10 @@ export type CommitOptions = {
    *  project_id (after project resolution) OR by parent_reference when the
    *  project does not yet exist. */
   defaultStageByProject?: Record<string, DefaultStageChoice>;
+  /** When set, commit only processes rows whose resolved project_id (or
+   *  parent_reference for not-yet-created projects) is in this set. Used by
+   *  the "Retry failed projects" action to re-run commit on a subset. */
+  restrictProjectIds?: string[];
 };
 
 export type ProjectDiagnostic = {
