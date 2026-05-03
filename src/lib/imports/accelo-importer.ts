@@ -49,6 +49,56 @@ export type ImportPreview = {
   rows: RowValidation[];
 };
 
+type AllocationUpsertPayload = {
+  external_id: string;
+  stage_id: string;
+  resource_id: string;
+  start_date: string;
+  end_date: string;
+  hours_per_day: number;
+  total_hours_imported: number;
+  source: string;
+  is_locked: boolean;
+};
+
+async function upsertAllocationsByExternalId(payload: AllocationUpsertPayload[]): Promise<number> {
+  let saved = 0;
+  for (let i = 0; i < payload.length; i += 200) {
+    const chunk = payload.slice(i, i + 200);
+    const externalIds = chunk.map((a) => a.external_id);
+    const { data: existing, error: lookupErr } = await supabase
+      .from("pm_allocations")
+      .select("id,external_id")
+      .in("external_id", externalIds);
+    if (lookupErr) throw lookupErr;
+
+    const existingByExternal = new Map(
+      (existing ?? []).filter((a) => a.external_id).map((a) => [a.external_id!, a.id]),
+    );
+    const toInsert: AllocationUpsertPayload[] = [];
+    for (const allocation of chunk) {
+      const id = existingByExternal.get(allocation.external_id);
+      if (!id) {
+        toInsert.push(allocation);
+        continue;
+      }
+      const { error: updateErr } = await supabase
+        .from("pm_allocations")
+        .update(allocation)
+        .eq("id", id);
+      if (updateErr) throw updateErr;
+      saved++;
+    }
+
+    if (toInsert.length) {
+      const { error: insertErr } = await supabase.from("pm_allocations").insert(toInsert);
+      if (insertErr) throw insertErr;
+      saved += toInsert.length;
+    }
+  }
+  return saved;
+}
+
 async function lookupMaps(rows: ParsedAcceloRow[]) {
   const emails = Array.from(
     new Set(
@@ -955,17 +1005,7 @@ export async function commitAcceloImport(
 
   // Allocations (one per resource per stage).
   if (allocAgg.size && stageIdByKey.size) {
-    const allocPayload: {
-      external_id: string;
-      stage_id: string;
-      resource_id: string;
-      start_date: string;
-      end_date: string;
-      hours_per_day: number;
-      total_hours_imported: number;
-      source: string;
-      is_locked: boolean;
-    }[] = [];
+    const allocPayload: AllocationUpsertPayload[] = [];
     for (const a of allocAgg.values()) {
       const stage_id = stageIdByKey.get(a.stage_key);
       const dates = stageDates.get(a.stage_key);
@@ -996,13 +1036,7 @@ export async function commitAcceloImport(
         is_locked: true,
       });
     }
-    for (let i = 0; i < allocPayload.length; i += 500) {
-      const chunk = allocPayload.slice(i, i + 500);
-      const { error } = await supabase
-        .from("pm_allocations")
-        .upsert(chunk, { onConflict: "external_id" });
-      if (!error) allocationsUpserted += chunk.length;
-    }
+    allocationsUpserted += await upsertAllocationsByExternalId(allocPayload);
   }
 
   await supabase
@@ -1308,7 +1342,6 @@ export async function repairProjectOrphanEntries(input: {
   }
   working = Math.max(1, working);
 
-  let allocations_upserted = 0;
   const allocPayload = Array.from(byResource.entries()).map(([resource_id, totalHours]) => {
     const total = totalHours > 0 ? totalHours : working * 4;
     const hpd = Math.max(0.25, total / working);
@@ -1324,13 +1357,7 @@ export async function repairProjectOrphanEntries(input: {
       is_locked: true,
     };
   });
-  for (let i = 0; i < allocPayload.length; i += 500) {
-    const chunk = allocPayload.slice(i, i + 500);
-    const { error, count } = await supabase
-      .from("pm_allocations")
-      .upsert(chunk, { onConflict: "external_id", count: "exact" });
-    if (!error) allocations_upserted += count ?? chunk.length;
-  }
+  const allocations_upserted = await upsertAllocationsByExternalId(allocPayload);
 
   return {
     project_id,
