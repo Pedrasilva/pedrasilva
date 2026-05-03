@@ -697,11 +697,19 @@ function PeopleStep({
 function StagesStep({
   preview,
   mapping,
+  unassignedProjects,
+  defaultStageByProject,
+  setDefaultStageByProject,
+  stagesAssignmentComplete,
   onBack,
   onNext,
 }: {
   preview: ImportPreview;
   mapping: Record<string, ProjectMappingChoice>;
+  unassignedProjects: { key: string; label: string; rows: number }[];
+  defaultStageByProject: Record<string, DefaultStageChoice>;
+  setDefaultStageByProject: React.Dispatch<React.SetStateAction<Record<string, DefaultStageChoice>>>;
+  stagesAssignmentComplete: boolean;
   onBack: () => void;
   onNext: () => void;
 }) {
