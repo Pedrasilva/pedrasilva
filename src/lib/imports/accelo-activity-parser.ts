@@ -91,25 +91,60 @@ function toNumber(v: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+function cleanDateInput(v: unknown): string {
+  return String(v ?? "")
+    // strip zero-width and BOM
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    // normalize all dash variants and arrows to ASCII hyphen
+    .replace(/[\u2010-\u2015\u2212\u2192\u27F6]/g, "-")
+    // non-breaking spaces → regular space
+    .replace(/\u00A0/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function excelSerialToIso(n: number): string | null {
+  const d = XLSX.SSF.parse_date_code(n);
+  if (!d) return null;
+  return `${d.y.toString().padStart(4, "0")}-${String(d.m).padStart(2, "0")}-${String(d.d).padStart(2, "0")}`;
+}
+
+function isValidYmd(y: number, m: number, d: number): boolean {
+  if (m < 1 || m > 12 || d < 1 || d > 31) return false;
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
+}
+
 function toIsoDate(v: unknown): string | null {
   if (v === null || v === undefined || v === "") return null;
   if (v instanceof Date) return v.toISOString().slice(0, 10);
-  if (typeof v === "number") {
-    // Excel serial date
-    const d = XLSX.SSF.parse_date_code(v);
-    if (!d) return null;
-    return `${d.y.toString().padStart(4, "0")}-${String(d.m).padStart(2, "0")}-${String(d.d).padStart(2, "0")}`;
+  if (typeof v === "number") return excelSerialToIso(v);
+  const s = cleanDateInput(v);
+  if (!s) return null;
+  // Pure numeric string → Excel serial
+  if (/^\d+(\.\d+)?$/.test(s)) {
+    const n = Number(s);
+    if (n > 1000 && n < 80000) {
+      const iso = excelSerialToIso(n);
+      if (iso) return iso;
+    }
   }
-  const s = String(v).trim();
-  // dd/mm/yyyy or yyyy-mm-dd
-  const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-  if (m) {
-    let [_, a, b, c] = m;
-    if (c.length === 2) c = "20" + c;
-    return `${c}-${b.padStart(2, "0")}-${a.padStart(2, "0")}`;
+  // YYYY-MM-DD or YYYY/MM/DD
+  const ymd = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})\b/);
+  if (ymd) {
+    const y = +ymd[1], m = +ymd[2], d = +ymd[3];
+    if (isValidYmd(y, m, d)) return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
   }
-  const m2 = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (m2) return `${m2[1]}-${m2[2].padStart(2, "0")}-${m2[3].padStart(2, "0")}`;
+  // DD/MM/YY or DD/MM/YYYY (also DD-MM-YY[YY], DD.MM.YY[YY])
+  const dmy = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})\b/);
+  if (dmy) {
+    let a = +dmy[1], b = +dmy[2], c = +dmy[3];
+    if (c < 100) c += 2000;
+    // Prefer DD/MM (project default = European). Fallback to MM/DD if invalid.
+    if (isValidYmd(c, b, a)) return `${c}-${String(b).padStart(2, "0")}-${String(a).padStart(2, "0")}`;
+    if (isValidYmd(c, a, b)) return `${c}-${String(a).padStart(2, "0")}-${String(b).padStart(2, "0")}`;
+  }
+  // Last resort: native Date
   const d = new Date(s);
   return Number.isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
 }
