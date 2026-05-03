@@ -32,6 +32,7 @@ export function HardDeleteProjectButton({ projectId }: { projectId: string }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [confirm, setConfirm] = useState("");
+  const [cascade, setCascade] = useState(false);
 
   const deps = useQuery({
     enabled: open && isAdmin,
@@ -47,6 +48,7 @@ export function HardDeleteProjectButton({ projectId }: { projectId: string }) {
   });
 
   const total = deps.data ? Object.values(deps.data).reduce((a, b) => a + (b ?? 0), 0) : 0;
+  const canProceed = (total === 0 || cascade) && confirm === CONFIRM;
 
   const del = useMutation({
     mutationFn: async () => {
@@ -54,6 +56,7 @@ export function HardDeleteProjectButton({ projectId }: { projectId: string }) {
       const { data, error } = await (supabase.rpc as any)("delete_project_hard", {
         _project_id: projectId,
         _confirm: confirm,
+        _cascade: cascade,
       });
       if (error) throw error;
       return data as { status: string; dependencies?: Counts };
