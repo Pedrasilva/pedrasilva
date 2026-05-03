@@ -175,6 +175,27 @@
           "title": "Pré-visualização do Gantt (apenas leitura)",
           "hint": "Pré-visualização de como as fases aparecerão no Gantt do projeto após confirmar.",
           "people": "pessoas"
+        },
+        "source": {
+          "explicit": "Explícito",
+          "reference": "Sufixo da referência",
+          "subject": "Assunto",
+          "content": "Conteúdo",
+          "raw": "Campos brutos",
+          "none": "Não detetado"
+        },
+        "unassigned": {
+          "title_one": "{{count}} projeto tem linhas sem fase detetada",
+          "title_other": "{{count}} projetos têm linhas sem fase detetada",
+          "hint": "Escolhe uma fase existente ou cria uma nova. As linhas ficam ligadas para que custos e horas por fase sejam preenchidos. A confirmação fica bloqueada até atribuíres uma fase a cada projeto.",
+          "rowCount_one": "{{count}} linha",
+          "rowCount_other": "{{count}} linhas",
+          "pickExisting": "Escolher fase existente…",
+          "noExisting": "Ainda não existem fases neste projeto.",
+          "or": "ou",
+          "newStage": "Criar nova fase…",
+          "clear": "Limpar",
+          "blocking": "Atribui uma fase a cada projeto com linhas pendentes antes de continuar."
         }
       },
       "wizard": {

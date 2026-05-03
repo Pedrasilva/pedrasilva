@@ -171,6 +171,8 @@ export type ParsedAcceloRow = {
   parent_reference: string;
   /** Stage name inferred from the reference suffix when the Stage column is empty. */
   inferred_stage_name: string | null;
+  /** Where stage_name was sourced from. */
+  stage_source: "explicit" | "reference" | "subject" | "content" | "raw" | "none";
   entry_date: string | null;
   subject: string;
   content: string;
@@ -218,6 +220,33 @@ export function splitReference(ref: string | null | undefined): {
   const parent = raw.slice(0, m.index).trim();
   const stage = (m[1] ?? "").trim() || null;
   return { parent: parent || raw, stage };
+}
+
+// Patterns recognized as stage labels inside subject / content / raw fields.
+const STAGE_PATTERNS: RegExp[] = [
+  /\[\s*\d+[a-zA-Z]?\s*\][^\n\r|;]*/,                        // "[2] Concept Design"
+  /\b(?:fase|stage|phase|milestone|etapa)\s*[#nº]?\s*\d+[a-zA-Z]?[^\n\r|;]*/i,
+  /\b(?:programa|programme|concept|conceito|estudo\s+pr[ée]vio|projeto\s+de\s+execu[çc][ãa]o|execu[çc][ãa]o|technical\s+design|detalhe|licenciamento|assist[êe]ncia\s+t[ée]cnica)\b[^\n\r|;]*/i,
+];
+
+/** Extracts a stage label from free text fields. */
+export function extractStageFromText(...sources: (string | null | undefined)[]): {
+  stage: string | null;
+  source: "subject" | "content" | "raw" | null;
+  matchedIn: string | null;
+} {
+  for (let i = 0; i < sources.length; i++) {
+    const text = (sources[i] ?? "").toString();
+    if (!text) continue;
+    for (const re of STAGE_PATTERNS) {
+      const m = text.match(re);
+      if (m) {
+        const cleaned = m[0].trim().replace(/\s+/g, " ").replace(/[.;,:|]+$/, "").trim();
+        if (cleaned) return { stage: cleaned, source: null, matchedIn: text };
+      }
+    }
+  }
+  return { stage: null, source: null, matchedIn: null };
 }
 
 // Parses stage date ranges in many real-world formats.
@@ -342,6 +371,38 @@ export function parseAcceloActivityExport(buffer: ArrayBuffer): AcceloParseResul
       const referenceRaw = String(get("reference") ?? "").trim();
       const refSplit = splitReference(referenceRaw);
       const stageColumn = String(get("stage") ?? "").trim();
+      const subject = String(get("subject") ?? "").trim();
+      const content = String(get("content") ?? "").trim();
+      // Stage resolution: explicit Stage column > reference suffix > subject > content > raw
+      let resolvedStage = stageColumn;
+      let stageSource: ParsedAcceloRow["stage_source"] = stageColumn ? "explicit" : "none";
+      if (!resolvedStage && refSplit.stage) {
+        resolvedStage = refSplit.stage;
+        stageSource = "reference";
+      }
+      if (!resolvedStage) {
+        const fromSubj = extractStageFromText(subject);
+        if (fromSubj.stage) {
+          resolvedStage = fromSubj.stage;
+          stageSource = "subject";
+        }
+      }
+      if (!resolvedStage) {
+        const fromContent = extractStageFromText(content);
+        if (fromContent.stage) {
+          resolvedStage = fromContent.stage;
+          stageSource = "content";
+        }
+      }
+      if (!resolvedStage) {
+        // Scan all raw cells for stage-like text
+        const rawText = Object.values(raw).map((v) => String(v ?? "")).join(" | ");
+        const fromRawScan = extractStageFromText(rawText);
+        if (fromRawScan.stage) {
+          resolvedStage = fromRawScan.stage;
+          stageSource = "raw";
+        }
+      }
       rows.push({
         rowIndex: i + 1,
         external_id: String(get("external_id") ?? "").trim(),
@@ -352,9 +413,10 @@ export function parseAcceloActivityExport(buffer: ArrayBuffer): AcceloParseResul
         reference: referenceRaw,
         parent_reference: refSplit.parent,
         inferred_stage_name: !stageColumn && refSplit.stage ? refSplit.stage : null,
+        stage_source: stageSource,
         entry_date: toIsoDate(get("date")),
-        subject: String(get("subject") ?? "").trim(),
-        content: String(get("content") ?? "").trim(),
+        subject,
+        content,
         rate_title: String(get("rate_title") ?? "").trim(),
         rate: toNumber(get("rate")),
         billable_hours: toNumber(get("billable")),
@@ -364,7 +426,7 @@ export function parseAcceloActivityExport(buffer: ArrayBuffer): AcceloParseResul
         profit: toNumber(get("profit")),
         status_text: String(get("status") ?? "").trim(),
         invoice_number: String(get("invoice_number") ?? "").trim(),
-        stage_name: stageColumn || refSplit.stage || "",
+        stage_name: resolvedStage,
         stage_date_range_raw: String(get("stage_date_range") ?? "").trim(),
         ...(() => {
           const parsed = parseStageDateRange(get("stage_date_range"));

@@ -48,7 +48,9 @@ import {
   type ImportPreview,
   type ProjectMappingChoice,
   type CommitResult,
+  type DefaultStageChoice,
 } from "@/lib/imports/accelo-importer";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -86,6 +88,7 @@ function ImportsContent() {
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [createMissingCompanies, setCreateMissingCompanies] = useState(true);
   const [projectMapping, setProjectMapping] = useState<Record<string, ProjectMappingChoice>>({});
+  const [defaultStageByProject, setDefaultStageByProject] = useState<Record<string, DefaultStageChoice>>({});
   const [mappingTarget, setMappingTarget] = useState<{ email: string; name: string } | null>(null);
   const [result, setResult] = useState<CommitResult | null>(null);
 
@@ -132,6 +135,7 @@ function ImportsContent() {
         createMissingProjects,
         createMissingCompanies,
         projectMapping,
+        defaultStageByProject,
       });
     },
     onSuccess: (r) => {
@@ -157,7 +161,38 @@ function ImportsContent() {
         return c && c.mode !== "skip" ? true : c?.mode === "skip";
       }) && preview.unmatched.projects.every((ref) => projectMapping[ref] != null)
     : false;
-  const canCommit = !!preview && blockingErrors === 0 && unmatchedCollabs === 0 && projectMappingComplete;
+  // Project keys (project_id or parent_reference) that have rows missing stage_name.
+  const unassignedStageProjectKeys = useMemo(() => {
+    if (!preview) return [] as { key: string; label: string; rows: number }[];
+    const m = new Map<string, { key: string; label: string; rows: number }>();
+    for (const v of preview.rows) {
+      if (v.status === "error") continue;
+      if ((v.row.stage_name ?? "").trim()) continue;
+      const ref = v.row.parent_reference || v.row.reference;
+      const choice = ref ? projectMapping[ref] : undefined;
+      if (choice?.mode === "skip") continue;
+      const key =
+        choice?.mode === "existing"
+          ? choice.project_id
+          : choice?.mode === "create"
+            ? ref
+            : v.matched.project_id ?? ref;
+      if (!key) continue;
+      const cur = m.get(key);
+      if (cur) cur.rows++;
+      else m.set(key, { key, label: ref || "—", rows: 1 });
+    }
+    return Array.from(m.values());
+  }, [preview, projectMapping]);
+  const stagesAssignmentComplete = unassignedStageProjectKeys.every(
+    (p) => defaultStageByProject[p.key] != null,
+  );
+  const canCommit =
+    !!preview &&
+    blockingErrors === 0 &&
+    unmatchedCollabs === 0 &&
+    projectMappingComplete &&
+    stagesAssignmentComplete;
 
   const reset = () => {
     setStep("upload");
@@ -218,6 +253,10 @@ function ImportsContent() {
         <StagesStep
           preview={preview}
           mapping={projectMapping}
+          unassignedProjects={unassignedStageProjectKeys}
+          defaultStageByProject={defaultStageByProject}
+          setDefaultStageByProject={setDefaultStageByProject}
+          stagesAssignmentComplete={stagesAssignmentComplete}
           onBack={() => setStep("people")}
           onNext={() => setStep("review")}
         />
@@ -658,11 +697,19 @@ function PeopleStep({
 function StagesStep({
   preview,
   mapping,
+  unassignedProjects,
+  defaultStageByProject,
+  setDefaultStageByProject,
+  stagesAssignmentComplete,
   onBack,
   onNext,
 }: {
   preview: ImportPreview;
   mapping: Record<string, ProjectMappingChoice>;
+  unassignedProjects: { key: string; label: string; rows: number }[];
+  defaultStageByProject: Record<string, DefaultStageChoice>;
+  setDefaultStageByProject: React.Dispatch<React.SetStateAction<Record<string, DefaultStageChoice>>>;
+  stagesAssignmentComplete: boolean;
   onBack: () => void;
   onNext: () => void;
 }) {
@@ -856,9 +903,168 @@ function StagesStep({
           </>
         )}
 
-        <StepFooter onBack={onBack} onNext={onNext} />
+        <UnassignedStagesPanel
+          unassignedProjects={unassignedProjects}
+          defaultStageByProject={defaultStageByProject}
+          setDefaultStageByProject={setDefaultStageByProject}
+        />
+
+        <SourceBreakdown preview={preview} />
+
+        <StepFooter
+          onBack={onBack}
+          onNext={onNext}
+          nextDisabled={!stagesAssignmentComplete}
+          nextHint={
+            !stagesAssignmentComplete
+              ? t("admin.imports.stages.unassigned.blocking")
+              : null
+          }
+        />
       </CardContent>
     </Card>
+  );
+}
+
+function UnassignedStagesPanel({
+  unassignedProjects,
+  defaultStageByProject,
+  setDefaultStageByProject,
+}: {
+  unassignedProjects: { key: string; label: string; rows: number }[];
+  defaultStageByProject: Record<string, DefaultStageChoice>;
+  setDefaultStageByProject: React.Dispatch<React.SetStateAction<Record<string, DefaultStageChoice>>>;
+}) {
+  const { t } = useTranslation("common");
+  if (unassignedProjects.length === 0) return null;
+  return (
+    <div className="rounded-md border border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20 p-3 space-y-3">
+      <div className="text-xs font-medium text-amber-800 dark:text-amber-200">
+        {t("admin.imports.stages.unassigned.title", { count: unassignedProjects.length })}
+      </div>
+      <div className="text-[11px] text-amber-700 dark:text-amber-300">
+        {t("admin.imports.stages.unassigned.hint")}
+      </div>
+      <div className="space-y-2">
+        {unassignedProjects.map((p) => (
+          <UnassignedStageRow
+            key={p.key}
+            project={p}
+            choice={defaultStageByProject[p.key]}
+            onChange={(c) =>
+              setDefaultStageByProject((prev) => {
+                const next = { ...prev };
+                if (c) next[p.key] = c;
+                else delete next[p.key];
+                return next;
+              })
+            }
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function UnassignedStageRow({
+  project,
+  choice,
+  onChange,
+}: {
+  project: { key: string; label: string; rows: number };
+  choice: DefaultStageChoice | undefined;
+  onChange: (c: DefaultStageChoice | null) => void;
+}) {
+  const { t } = useTranslation("common");
+  const stagesQ = useQuery({
+    queryKey: ["pm-stages-for-project", project.key],
+    queryFn: async () => {
+      // project.key may be a project_id (uuid) or a parent_reference; only query when uuid-shaped.
+      const isUuid = /^[0-9a-f]{8}-/i.test(project.key);
+      if (!isUuid) return [] as { id: string; name: string }[];
+      const { data } = await supabase
+        .from("pm_stages")
+        .select("id,name")
+        .eq("project_id", project.key)
+        .order("start_date");
+      return (data ?? []) as { id: string; name: string }[];
+    },
+  });
+  const [newName, setNewName] = useState("");
+  const stages = stagesQ.data ?? [];
+
+  return (
+    <div className="rounded-md border bg-background p-2 space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-xs font-medium truncate">{project.label}</div>
+        <Badge variant="secondary" className="text-[10px]">
+          {t("admin.imports.stages.unassigned.rowCount", { count: project.rows })}
+        </Badge>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Select
+          value={choice?.mode === "existing" ? choice.stage_id : ""}
+          onValueChange={(v) => onChange({ mode: "existing", stage_id: v })}
+        >
+          <SelectTrigger className="h-8 w-[220px] text-xs">
+            <SelectValue placeholder={t("admin.imports.stages.unassigned.pickExisting")} />
+          </SelectTrigger>
+          <SelectContent>
+            {stages.length === 0 ? (
+              <div className="px-2 py-1 text-xs text-muted-foreground">
+                {t("admin.imports.stages.unassigned.noExisting")}
+              </div>
+            ) : (
+              stages.map((s) => (
+                <SelectItem key={s.id} value={s.id} className="text-xs">
+                  {s.name}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+        <span className="text-[10px] text-muted-foreground">{t("admin.imports.stages.unassigned.or")}</span>
+        <Input
+          className="h-8 w-[200px] text-xs"
+          placeholder={t("admin.imports.stages.unassigned.newStage")}
+          value={choice?.mode === "create" ? choice.name : newName}
+          onChange={(e) => {
+            setNewName(e.target.value);
+            if (e.target.value.trim()) onChange({ mode: "create", name: e.target.value.trim() });
+            else onChange(null);
+          }}
+        />
+        {choice && (
+          <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => { setNewName(""); onChange(null); }}>
+            {t("admin.imports.stages.unassigned.clear")}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SourceBreakdown({ preview }: { preview: ImportPreview }) {
+  const { t } = useTranslation("common");
+  const counts = useMemo(() => {
+    const c = { explicit: 0, reference: 0, subject: 0, content: 0, raw: 0, none: 0 };
+    for (const v of preview.rows) {
+      const s = v.row.stage_source ?? "none";
+      c[s] = (c[s] ?? 0) + 1;
+    }
+    return c;
+  }, [preview]);
+  return (
+    <div className="flex flex-wrap gap-2 text-[11px]">
+      <span className="rounded border px-2 py-0.5">{t("admin.imports.stages.source.explicit")}: {counts.explicit}</span>
+      <span className="rounded border px-2 py-0.5">{t("admin.imports.stages.source.reference")}: {counts.reference}</span>
+      <span className="rounded border px-2 py-0.5">{t("admin.imports.stages.source.subject")}: {counts.subject}</span>
+      <span className="rounded border px-2 py-0.5">{t("admin.imports.stages.source.content")}: {counts.content}</span>
+      <span className="rounded border px-2 py-0.5">{t("admin.imports.stages.source.raw")}: {counts.raw}</span>
+      <span className={`rounded border px-2 py-0.5 ${counts.none > 0 ? "border-amber-400 text-amber-700 dark:text-amber-300" : ""}`}>
+        {t("admin.imports.stages.source.none")}: {counts.none}
+      </span>
+    </div>
   );
 }
 

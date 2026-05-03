@@ -175,6 +175,27 @@
           "title": "Gantt preview (read-only)",
           "hint": "Visual preview of how stages will appear on the project Gantt after commit.",
           "people": "people"
+        },
+        "source": {
+          "explicit": "Explicit",
+          "reference": "Reference suffix",
+          "subject": "Subject",
+          "content": "Content",
+          "raw": "Raw fields",
+          "none": "Not detected"
+        },
+        "unassigned": {
+          "title_one": "{{count}} project has rows without a detected stage",
+          "title_other": "{{count}} projects have rows without a detected stage",
+          "hint": "Pick an existing stage or create a new one. Rows will be linked so per-stage costs and hours are populated. Commit is blocked until every project is assigned.",
+          "rowCount_one": "{{count}} row",
+          "rowCount_other": "{{count}} rows",
+          "pickExisting": "Pick existing stage…",
+          "noExisting": "No stages exist on this project yet.",
+          "or": "or",
+          "newStage": "Create new stage…",
+          "clear": "Clear",
+          "blocking": "Assign a stage to every project with unassigned rows before continuing."
         }
       },
       "wizard": {
