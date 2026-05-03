@@ -53,7 +53,9 @@ async function lookupMaps(rows: ParsedAcceloRow[]) {
         .filter((e): e is string => !!e),
     ),
   );
-  const refs = Array.from(new Set(rows.map((r) => r.reference).filter(Boolean)));
+  const refs = Array.from(
+    new Set(rows.map((r) => r.parent_reference || r.reference).filter(Boolean)),
+  );
   const companies = Array.from(new Set(rows.map((r) => r.company).filter(Boolean)));
 
   const collabByEmail = new Map<string, { id: string }>();
