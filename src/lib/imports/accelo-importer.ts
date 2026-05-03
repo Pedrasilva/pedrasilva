@@ -1110,21 +1110,60 @@ export async function commitAcceloImport(
 export type RepairResult = {
   project_id: string;
   project_name: string | null;
-  stage_id: string;
+  stage_id: string | null;
   stage_created: boolean;
+  stage_reused_reason: "external_id" | "name" | "first_existing" | null;
   entries_total: number;
   entries_backfilled: number;
   allocations_upserted: number;
+  message: string | null;
   diagnostic: ProjectDiagnostic;
 };
 
+const REPAIR_STAGE_EXTID = (project_id: string) => `accelo_repair_stage:${project_id}`;
+
+async function recomputeProjectDiagnostic(
+  project_id: string,
+  project_name: string | null,
+): Promise<ProjectDiagnostic> {
+  const [stagesRes, histAllRes, histWithStageRes, stageList] = await Promise.all([
+    supabase.from("pm_stages").select("id", { count: "exact", head: true }).eq("project_id", project_id),
+    supabase.from("historical_time_entries").select("id", { count: "exact", head: true }).eq("project_id", project_id),
+    supabase
+      .from("historical_time_entries")
+      .select("id", { count: "exact", head: true })
+      .eq("project_id", project_id)
+      .not("stage_id", "is", null),
+    supabase.from("pm_stages").select("id").eq("project_id", project_id),
+  ]);
+  let allocCount = 0;
+  if (stageList.data && stageList.data.length) {
+    const { count } = await supabase
+      .from("pm_allocations")
+      .select("id", { count: "exact", head: true })
+      .in("stage_id", stageList.data.map((s) => s.id));
+    allocCount = count ?? 0;
+  }
+  const visibleStages = stagesRes.count ?? 0;
+  const histAll = histAllRes.count ?? 0;
+  const histWithStage = histWithStageRes.count ?? 0;
+  const histWithoutStage = Math.max(0, histAll - histWithStage);
+  return {
+    project_id,
+    project_name,
+    visibleStagesForProject: visibleStages,
+    historicalEntriesForProject: histAll,
+    historicalEntriesWithStage: histWithStage,
+    entriesWithoutStage: histWithoutStage,
+    allocationsForProject: allocCount,
+    reconstructionFailed: histAll > 0 && (visibleStages === 0 || histWithoutStage > 0),
+  };
+}
+
 /**
- * Repair already-imported orphan historical entries for a project:
- * - Ensures a default stage exists (creates "Imported" stage if none)
- * - Sets stage start/end from MIN/MAX entry_date
- * - Backfills stage_id on historical_time_entries
- * - Creates one pm_allocations row per resource
- * - Recomputes diagnostics
+ * Idempotent repair for already-imported orphan historical entries.
+ * Safe to run multiple times — reuses existing repair stage / named stage,
+ * only backfills entries with stage_id = NULL, and upserts allocations.
  */
 export async function repairProjectOrphanEntries(input: {
   project_id: string;
@@ -1147,67 +1186,111 @@ export async function repairProjectOrphanEntries(input: {
     .eq("project_id", project_id);
   if (entErr) throw entErr;
   const all = entries ?? [];
+
+  // No-op friendly path: nothing to repair.
   if (!all.length) {
-    throw new Error("No historical entries exist for this project — nothing to repair.");
+    return {
+      project_id,
+      project_name: project.name,
+      stage_id: null,
+      stage_created: false,
+      stage_reused_reason: null,
+      entries_total: 0,
+      entries_backfilled: 0,
+      allocations_upserted: 0,
+      message: "No historical entries exist for this project — nothing to repair.",
+      diagnostic: await recomputeProjectDiagnostic(project_id, project.name),
+    };
   }
 
   const dates = all.map((e) => e.entry_date).filter(Boolean).sort();
   const start_date = dates[0]!;
   const end_date = dates[dates.length - 1]!;
 
-  // Find or create stage
-  const { data: existingStages } = await supabase
-    .from("pm_stages")
-    .select("id,name,start_date,end_date")
-    .eq("project_id", project_id)
-    .order("sort_order", { ascending: true });
-
-  let stage_id: string;
+  // -- Idempotent stage resolution --
+  // 1) Reuse stage by canonical repair external_id.
+  // 2) Reuse stage by name (case-insensitive) in this project.
+  // 3) Else create with external_id = REPAIR_STAGE_EXTID.
+  let stage_id: string | null = null;
   let stage_created = false;
-  if (existingStages && existingStages.length) {
-    stage_id = existingStages[0].id;
-    // widen dates if needed
-    const ns = start_date < existingStages[0].start_date ? start_date : existingStages[0].start_date;
-    const ne = end_date > existingStages[0].end_date ? end_date : existingStages[0].end_date;
-    if (ns !== existingStages[0].start_date || ne !== existingStages[0].end_date) {
+  let stage_reused_reason: RepairResult["stage_reused_reason"] = null;
+  let existingStartDate: string | null = null;
+  let existingEndDate: string | null = null;
+
+  const repairExtId = REPAIR_STAGE_EXTID(project_id);
+  const { data: byExt } = await supabase
+    .from("pm_stages")
+    .select("id,start_date,end_date")
+    .eq("project_id", project_id)
+    .eq("external_id", repairExtId)
+    .maybeSingle();
+  if (byExt) {
+    stage_id = byExt.id;
+    existingStartDate = byExt.start_date;
+    existingEndDate = byExt.end_date;
+    stage_reused_reason = "external_id";
+  } else {
+    const { data: byName } = await supabase
+      .from("pm_stages")
+      .select("id,start_date,end_date,name")
+      .eq("project_id", project_id)
+      .ilike("name", stageName)
+      .limit(1);
+    if (byName && byName.length) {
+      stage_id = byName[0].id;
+      existingStartDate = byName[0].start_date;
+      existingEndDate = byName[0].end_date;
+      stage_reused_reason = "name";
+    } else {
+      const { data: created, error: stErr } = await supabase
+        .from("pm_stages")
+        .insert({
+          project_id,
+          name: stageName,
+          start_date,
+          end_date,
+          budget: 0,
+          color: "#94a3b8",
+          sort_order: 0,
+          source: "imported_accelo_repair",
+          is_locked: true,
+          external_id: repairExtId,
+        })
+        .select("id,start_date,end_date")
+        .single();
+      if (stErr) throw stErr;
+      stage_id = created.id;
+      existingStartDate = created.start_date;
+      existingEndDate = created.end_date;
+      stage_created = true;
+    }
+  }
+
+  // Widen reused stage's date range only if needed.
+  if (!stage_created && existingStartDate && existingEndDate) {
+    const ns = start_date < existingStartDate ? start_date : existingStartDate;
+    const ne = end_date > existingEndDate ? end_date : existingEndDate;
+    if (ns !== existingStartDate || ne !== existingEndDate) {
       await supabase.from("pm_stages").update({ start_date: ns, end_date: ne }).eq("id", stage_id);
     }
-  } else {
-    const external_id = `accelo_repair_stage:${project_id}`;
-    const { data: created, error: stErr } = await supabase
-      .from("pm_stages")
-      .insert({
-        project_id,
-        name: stageName,
-        start_date,
-        end_date,
-        budget: 0,
-        color: "#94a3b8",
-        sort_order: 0,
-        source: "imported_accelo_repair",
-        is_locked: true,
-        external_id,
-      })
-      .select("id")
-      .single();
-    if (stErr) throw stErr;
-    stage_id = created.id;
-    stage_created = true;
   }
 
-  // Backfill stage_id on entries that lack one
+  // Backfill ONLY entries with stage_id IS NULL (idempotent).
   const orphanIds = all.filter((e) => !e.stage_id).map((e) => e.id);
   let entries_backfilled = 0;
-  for (let i = 0; i < orphanIds.length; i += 500) {
-    const chunk = orphanIds.slice(i, i + 500);
-    const { error, count } = await supabase
-      .from("historical_time_entries")
-      .update({ stage_id }, { count: "exact" })
-      .in("id", chunk);
-    if (!error) entries_backfilled += count ?? chunk.length;
+  if (orphanIds.length) {
+    for (let i = 0; i < orphanIds.length; i += 500) {
+      const chunk = orphanIds.slice(i, i + 500);
+      const { error, count } = await supabase
+        .from("historical_time_entries")
+        .update({ stage_id }, { count: "exact" })
+        .in("id", chunk)
+        .is("stage_id", null);
+      if (!error) entries_backfilled += count ?? chunk.length;
+    }
   }
 
-  // Aggregate hours per resource for allocations
+  // Aggregate hours per resource (use ALL entries, including already-stage-tagged ones).
   const byResource = new Map<string, number>();
   for (const e of all) {
     if (!e.resource_id) continue;
@@ -1231,7 +1314,7 @@ export async function repairProjectOrphanEntries(input: {
     const hpd = Math.max(0.25, total / working);
     return {
       external_id: `accelo_repair_allocation:${project_id}:${stage_id}:${resource_id}`,
-      stage_id,
+      stage_id: stage_id!,
       resource_id,
       start_date,
       end_date,
@@ -1249,48 +1332,17 @@ export async function repairProjectOrphanEntries(input: {
     if (!error) allocations_upserted += count ?? chunk.length;
   }
 
-  // Recompute diagnostics
-  const [stagesRes, histAllRes, histWithStageRes, stageList] = await Promise.all([
-    supabase.from("pm_stages").select("id", { count: "exact", head: true }).eq("project_id", project_id),
-    supabase.from("historical_time_entries").select("id", { count: "exact", head: true }).eq("project_id", project_id),
-    supabase
-      .from("historical_time_entries")
-      .select("id", { count: "exact", head: true })
-      .eq("project_id", project_id)
-      .not("stage_id", "is", null),
-    supabase.from("pm_stages").select("id").eq("project_id", project_id),
-  ]);
-  let allocCount = 0;
-  if (stageList.data && stageList.data.length) {
-    const { count } = await supabase
-      .from("pm_allocations")
-      .select("id", { count: "exact", head: true })
-      .in("stage_id", stageList.data.map((s) => s.id));
-    allocCount = count ?? 0;
-  }
-  const visibleStages = stagesRes.count ?? 0;
-  const histAll = histAllRes.count ?? 0;
-  const histWithStage = histWithStageRes.count ?? 0;
-  const histWithoutStage = Math.max(0, histAll - histWithStage);
-
   return {
     project_id,
     project_name: project.name,
     stage_id,
     stage_created,
+    stage_reused_reason,
     entries_total: all.length,
     entries_backfilled,
     allocations_upserted,
-    diagnostic: {
-      project_id,
-      project_name: project.name,
-      visibleStagesForProject: visibleStages,
-      historicalEntriesForProject: histAll,
-      historicalEntriesWithStage: histWithStage,
-      entriesWithoutStage: histWithoutStage,
-      allocationsForProject: allocCount,
-      reconstructionFailed: histAll > 0 && (visibleStages === 0 || histWithoutStage > 0),
-    },
+    message: null,
+    diagnostic: await recomputeProjectDiagnostic(project_id, project.name),
   };
 }
 

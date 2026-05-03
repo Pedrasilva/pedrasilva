@@ -1674,9 +1674,13 @@ function RepairOrphanEntriesCard() {
     },
     onSuccess: (r) => {
       setResult(r);
-      toast.success(
-        `Repair complete: ${r.entries_backfilled} entries backfilled, ${r.allocations_upserted} allocations`,
-      );
+      if (r.message) {
+        toast.info(r.message);
+      } else {
+        toast.success(
+          `Repair complete: ${r.entries_backfilled} entries backfilled, ${r.allocations_upserted} allocations`,
+        );
+      }
       const keys: Array<readonly unknown[]> = [
         ["pm-project", r.project_id],
         ["pm-stages-for-project", r.project_id],
