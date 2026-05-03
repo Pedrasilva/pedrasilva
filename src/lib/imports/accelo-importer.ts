@@ -158,8 +158,9 @@ function validateRows(
           ? maps.resourceByEmail.get(emailKey) ?? null
           : null;
 
-    const project_id = row.reference ? maps.projectByRef.get(row.reference) ?? null : null;
-    if (row.reference && !project_id) warnings.push(`Unmatched project: ${row.reference}`);
+    const refKey = row.parent_reference || row.reference;
+    const project_id = refKey ? maps.projectByRef.get(refKey) ?? null : null;
+    if (refKey && !project_id) warnings.push(`Unmatched project: ${refKey}`);
 
     const company_id = row.company ? maps.companyByName.get(row.company) ?? null : null;
     if (row.company && !company_id) warnings.push(`Unmatched company: ${row.company}`);
