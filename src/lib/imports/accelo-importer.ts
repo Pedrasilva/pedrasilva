@@ -304,9 +304,17 @@ export async function uploadAndPreviewAccelo(file: File): Promise<ImportPreview>
   };
 }
 
+export type ProjectMappingChoice =
+  | { mode: "existing"; project_id: string }
+  | { mode: "create"; name?: string }
+  | { mode: "skip" };
+
 export type CommitOptions = {
   createMissingProjects: boolean;
   createMissingCompanies: boolean;
+  /** User-confirmed mapping from imported reference -> destination decision.
+   *  Takes priority over auto-matched project_id during commit. */
+  projectMapping?: Record<string, ProjectMappingChoice>;
 };
 
 export type CommitResult = {
