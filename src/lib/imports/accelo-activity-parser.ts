@@ -222,6 +222,33 @@ export function splitReference(ref: string | null | undefined): {
   return { parent: parent || raw, stage };
 }
 
+// Patterns recognized as stage labels inside subject / content / raw fields.
+const STAGE_PATTERNS: RegExp[] = [
+  /\[\s*\d+[a-zA-Z]?\s*\][^\n\r|;]*/,                        // "[2] Concept Design"
+  /\b(?:fase|stage|phase|milestone|etapa)\s*[#nº]?\s*\d+[a-zA-Z]?[^\n\r|;]*/i,
+  /\b(?:programa|programme|concept|conceito|estudo\s+pr[ée]vio|projeto\s+de\s+execu[çc][ãa]o|execu[çc][ãa]o|technical\s+design|detalhe|licenciamento|assist[êe]ncia\s+t[ée]cnica)\b[^\n\r|;]*/i,
+];
+
+/** Extracts a stage label from free text fields. */
+export function extractStageFromText(...sources: (string | null | undefined)[]): {
+  stage: string | null;
+  source: "subject" | "content" | "raw" | null;
+  matchedIn: string | null;
+} {
+  for (let i = 0; i < sources.length; i++) {
+    const text = (sources[i] ?? "").toString();
+    if (!text) continue;
+    for (const re of STAGE_PATTERNS) {
+      const m = text.match(re);
+      if (m) {
+        const cleaned = m[0].trim().replace(/\s+/g, " ").replace(/[.;,:|]+$/, "").trim();
+        if (cleaned) return { stage: cleaned, source: null, matchedIn: text };
+      }
+    }
+  }
+  return { stage: null, source: null, matchedIn: null };
+}
+
 // Parses stage date ranges in many real-world formats.
 // Accepts: "DD/MM/YY to DD/MM/YY", "DD-MM-YYYY - DD-MM-YYYY", "YYYY-MM-DD – YYYY-MM-DD",
 // "DD/MM/YY até DD/MM/YY", em-dash separators, Excel serial pairs, etc.
