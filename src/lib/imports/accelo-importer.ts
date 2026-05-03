@@ -326,6 +326,17 @@ export type CommitOptions = {
   projectMapping?: Record<string, ProjectMappingChoice>;
 };
 
+export type ProjectDiagnostic = {
+  project_id: string;
+  project_name: string | null;
+  visibleStagesForProject: number;
+  historicalEntriesForProject: number;
+  historicalEntriesWithStage: number;
+  allocationsForProject: number;
+  /** Set when historical entries exist but no stages — i.e. stage reconstruction failed. */
+  reconstructionFailed: boolean;
+};
+
 export type CommitResult = {
   imported: number;
   skipped: number;
@@ -335,6 +346,7 @@ export type CommitResult = {
   allocationsUpserted: number;
   entriesWithoutStage: number;
   entriesWithoutResource: number;
+  diagnostics: ProjectDiagnostic[];
 };
 
 /** Normalize a stage name for fuzzy matching against existing manual stages. */
