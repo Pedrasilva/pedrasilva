@@ -356,7 +356,7 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
           .eq("project_id", projectId),
         supabase
           .from("historical_time_entries")
-          .select("source_system, billable_hours, non_billable_hours, cost, amount")
+          .select("source_system, billable_hours, non_billable_hours, cost, amount, stage_id")
           .eq("project_id", projectId),
       ]);
       if (sErr) throw sErr;
