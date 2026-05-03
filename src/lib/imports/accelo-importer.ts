@@ -415,6 +415,37 @@ export async function commitAcceloImport(
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Commit-time DB re-resolution. If the preview saw matched.project_id=null
+  // (e.g. project was created in a prior step / by a parallel run), try to
+  // find it in pm_projects by external_id or name now. This guarantees that
+  // rows do NOT get skipped just because an earlier preview snapshot was stale.
+  // ---------------------------------------------------------------------------
+  const allRefs = Array.from(
+    new Set(
+      preview.rows
+        .map((v) => refOf(v.row))
+        .filter((ref): ref is string => Boolean(ref))
+        .filter((ref) => !projectByRef.has(ref) && !skipRefs.has(ref)),
+    ),
+  );
+  if (allRefs.length) {
+    const [byExt, byName] = await Promise.all([
+      supabase.from("pm_projects").select("id,external_id,name").in("external_id", allRefs),
+      supabase.from("pm_projects").select("id,external_id,name").in("name", allRefs),
+    ]);
+    [...(byExt.data ?? []), ...(byName.data ?? [])].forEach((p) => {
+      if (p.external_id && !projectByRef.has(p.external_id)) projectByRef.set(p.external_id, p.id);
+      if (p.name && !projectByRef.has(p.name)) projectByRef.set(p.name, p.id);
+    });
+    const stillUnresolved = allRefs.filter((r) => !projectByRef.has(r));
+    if (stillUnresolved.length) {
+      console.debug("[accelo-import] commit DB-fallback unresolved refs", stillUnresolved);
+    } else {
+      console.debug("[accelo-import] commit DB-fallback resolved all refs");
+    }
+  }
+
   const refsToCreate = new Set<string>();
   if (options.projectMapping) {
     for (const [ref, choice] of Object.entries(options.projectMapping)) {
