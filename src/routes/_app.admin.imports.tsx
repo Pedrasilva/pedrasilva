@@ -418,9 +418,11 @@ function Stat({ label, value, tone }: { label: string; value: number; tone?: "su
 
 function Section({
   title, hint, tone, children,
-}: { title: string; hint?: string; tone: "warning" | "error"; children: React.ReactNode }) {
-  const Icon = tone === "error" ? AlertCircle : AlertTriangle;
-  const color = tone === "error" ? "text-destructive" : "text-amber-600";
+}: { title: string; hint?: string; tone: "warning" | "error" | "info"; children: React.ReactNode }) {
+  const Icon = tone === "error" ? AlertCircle : tone === "info" ? FileSpreadsheet : AlertTriangle;
+  const color =
+    tone === "error" ? "text-destructive" :
+    tone === "info" ? "text-foreground" : "text-amber-600";
   return (
     <div className="rounded-md border p-3 space-y-2">
       <div className={`flex items-center gap-2 text-sm font-medium ${color}`}>
