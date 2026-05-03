@@ -666,7 +666,7 @@ function StagesStep({
 }) {
   const { t } = useTranslation("common");
 
-  const { stages, parsedCount, correctedCount, skippedCount, missingProject } = useMemo(() => {
+  const { stages, reconstructedCount, correctedCount, skippedCount, missingProject } = useMemo(() => {
     const map = new Map<
       string,
       {
@@ -735,7 +735,7 @@ function StagesStep({
     const stages = Array.from(map.values())
       .map((s) => ({ ...s, people: s.resourceIds.size }))
       .sort((a, b) => a.start_date.localeCompare(b.start_date));
-    return { stages, parsedCount: stages.length, correctedCount, skippedCount, missingProject };
+    return { stages, reconstructedCount: stages.length, correctedCount, skippedCount, missingProject };
   }, [preview, mapping]);
 
   return (
@@ -750,7 +750,7 @@ function StagesStep({
         <div className="flex flex-wrap gap-3 text-xs">
           <span className="rounded-md border px-2 py-1">
             <span className="text-emerald-700 dark:text-emerald-300 font-medium">
-              {t("admin.imports.stages.counters.parsed", { count: parsedCount })}
+              {t("admin.imports.stages.counters.parsed", { count: reconstructedCount })}
             </span>
           </span>
           <span className="rounded-md border px-2 py-1">
