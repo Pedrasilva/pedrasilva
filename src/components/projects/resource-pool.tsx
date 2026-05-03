@@ -47,7 +47,7 @@ function useLeaveByResource() {
     queryKey: ["pool-leave-by-resource"],
     queryFn: async (): Promise<Map<string, LeaveInterval[]>> => {
       const { data: resources, error: rErr } = await supabase
-        .from("pm_resources")
+        .from("pm_resources_public")
         .select("id, collaborator_id");
       if (rErr) throw rErr;
       const collabToResource = new Map<string, string>();

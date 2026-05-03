@@ -88,7 +88,7 @@ async function lookupMaps(rows: ParsedAcceloRow[]) {
   const resourceByCollab = new Map<string, string>();
   const resourceByEmail = new Map<string, string>();
   const { data: resData } = await supabase
-    .from("pm_resources")
+    .from("pm_resources_public")
     .select("id,collaborator_id,email");
   (resData ?? []).forEach((r) => {
     if (r.collaborator_id) resourceByCollab.set(r.collaborator_id, r.id);
