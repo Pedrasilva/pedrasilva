@@ -304,8 +304,9 @@ function seedProjectMapping(preview: ImportPreview): Record<string, ProjectMappi
   // Auto-matched references → "existing" with the auto-matched id.
   const matchedByRef = new Map<string, string>();
   preview.rows.forEach((v) => {
-    if (v.row.reference && v.matched.project_id) {
-      matchedByRef.set(v.row.reference, v.matched.project_id);
+    const ref = v.row.parent_reference || v.row.reference;
+    if (ref && v.matched.project_id) {
+      matchedByRef.set(ref, v.matched.project_id);
     }
   });
   for (const [ref, project_id] of matchedByRef) {
@@ -452,7 +453,8 @@ function ProjectsStep({
   const refs = useMemo(() => {
     const set = new Set<string>();
     preview.rows.forEach((v) => {
-      if (v.row.reference) set.add(v.row.reference);
+      const ref = v.row.parent_reference || v.row.reference;
+      if (ref) set.add(ref);
     });
     return Array.from(set).sort();
   }, [preview]);
@@ -698,7 +700,7 @@ function StagesStep({
         else if (v.row.stage_parse_warning) correctedCount++;
       }
       if (!name || !start || !end) continue;
-      const ref = v.row.reference;
+      const ref = v.row.parent_reference || v.row.reference;
       const choice = ref ? mapping[ref] : undefined;
       const projectKey = choice?.mode === "existing"
         ? choice.project_id

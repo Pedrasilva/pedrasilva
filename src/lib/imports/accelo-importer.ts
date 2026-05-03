@@ -6,10 +6,15 @@
 import { supabase } from "@/integrations/supabase/client";
 import {
   parseAcceloActivityExport,
+  looksLikeStageName,
   type ParsedAcceloRow,
 } from "./accelo-activity-parser";
 
 export const SOURCE_SYSTEM = "accelo";
+
+/** Project identity for an Accelo row — never the raw reference, since that
+ *  may include a stage suffix like "Project Name - [2] Concept". */
+const refOf = (r: ParsedAcceloRow): string => (r.parent_reference || r.reference || "").trim();
 
 export type RowValidation = {
   row: ParsedAcceloRow;
@@ -52,7 +57,9 @@ async function lookupMaps(rows: ParsedAcceloRow[]) {
         .filter((e): e is string => !!e),
     ),
   );
-  const refs = Array.from(new Set(rows.map((r) => r.reference).filter(Boolean)));
+  const refs = Array.from(
+    new Set(rows.map((r) => r.parent_reference || r.reference).filter(Boolean)),
+  );
   const companies = Array.from(new Set(rows.map((r) => r.company).filter(Boolean)));
 
   const collabByEmail = new Map<string, { id: string }>();
@@ -155,8 +162,9 @@ function validateRows(
           ? maps.resourceByEmail.get(emailKey) ?? null
           : null;
 
-    const project_id = row.reference ? maps.projectByRef.get(row.reference) ?? null : null;
-    if (row.reference && !project_id) warnings.push(`Unmatched project: ${row.reference}`);
+    const refKey = row.parent_reference || row.reference;
+    const project_id = refKey ? maps.projectByRef.get(refKey) ?? null : null;
+    if (refKey && !project_id) warnings.push(`Unmatched project: ${refKey}`);
 
     const company_id = row.company ? maps.companyByName.get(row.company) ?? null : null;
     if (row.company && !company_id) warnings.push(`Unmatched company: ${row.company}`);
@@ -286,7 +294,7 @@ export async function uploadAndPreviewAccelo(file: File): Promise<ImportPreview>
   validations.forEach((v) => {
     if (!v.matched.collaborator_id && v.row.from_email)
       unmatchedCollabs.set(v.row.from_email, { email: v.row.from_email, name: v.row.from_name });
-    if (!v.matched.project_id && v.row.reference) unmatchedProjects.add(v.row.reference);
+    if (!v.matched.project_id && refOf(v.row)) unmatchedProjects.add(refOf(v.row));
     if (!v.matched.company_id && v.row.company) unmatchedCompanies.add(v.row.company);
   });
 
@@ -354,7 +362,7 @@ export async function commitAcceloImport(
   // Optionally create missing project shells
   const projectByRef = new Map<string, string>();
   preview.rows.forEach((v) => {
-    if (v.matched.project_id && v.row.reference) projectByRef.set(v.row.reference, v.matched.project_id);
+    if (v.matched.project_id && refOf(v.row)) projectByRef.set(refOf(v.row), v.matched.project_id);
   });
   // Apply explicit user mapping first (overrides auto-match).
   const skipRefs = new Set<string>();
@@ -374,19 +382,25 @@ export async function commitAcceloImport(
   if (options.createMissingProjects) {
     preview.rows.forEach((v) => {
       if (
-        v.row.reference &&
-        !projectByRef.has(v.row.reference) &&
-        !skipRefs.has(v.row.reference)
+        refOf(v.row) &&
+        !projectByRef.has(refOf(v.row)) &&
+        !skipRefs.has(refOf(v.row))
       ) {
-        refsToCreate.add(v.row.reference);
+        refsToCreate.add(refOf(v.row));
       }
     });
   }
   for (const ref of refsToCreate) {
-    const sample = preview.rows.find((v) => v.row.reference === ref);
+    const sample = preview.rows.find((v) => refOf(v.row) === ref);
     const company_id = sample ? companyByName.get(sample.row.company) ?? null : null;
     const choice = options.projectMapping?.[ref];
     const name = choice?.mode === "create" && choice.name ? choice.name : ref;
+    // Guard: never auto-create a project whose name still looks like a stage
+    // marker (e.g. "[2] Concept", "Fase 3"). The user must rename it explicitly.
+    if (looksLikeStageName(name) && choice?.mode !== "create") {
+      console.warn(`[accelo] Skipping auto-create for stage-like reference: ${name}`);
+      continue;
+    }
     const { data, error } = await supabase
       .from("pm_projects")
       .insert({
@@ -420,7 +434,7 @@ export async function commitAcceloImport(
 
   const toInsert = preview.rows
     .filter((v) => v.status !== "error" && !existing.has(v.row.external_id))
-    .filter((v) => !(v.row.reference && skipRefs.has(v.row.reference)))
+    .filter((v) => !(refOf(v.row) && skipRefs.has(refOf(v.row))))
     .map((v) => ({
       source_system: SOURCE_SYSTEM,
       external_id: v.row.external_id,
@@ -429,8 +443,8 @@ export async function commitAcceloImport(
       collaborator_id: v.matched.collaborator_id,
       resource_id: v.matched.resource_id,
       collaborator_email: v.row.from_email,
-      project_id: resolveProjectId(v.row.reference, v.matched.project_id),
-      project_reference: v.row.reference || null,
+      project_id: resolveProjectId(refOf(v.row), v.matched.project_id),
+      project_reference: refOf(v.row) || null,
       company_id: v.matched.company_id ?? companyByName.get(v.row.company) ?? null,
       company_name: v.row.company || null,
       subject: v.row.subject || null,
@@ -491,8 +505,8 @@ export async function commitAcceloImport(
 
   for (const v of preview.rows) {
     if (v.status === "error") continue;
-    if (v.row.reference && skipRefs.has(v.row.reference)) continue;
-    const project_id = resolveProjectId(v.row.reference, v.matched.project_id);
+    if (refOf(v.row) && skipRefs.has(refOf(v.row))) continue;
+    const project_id = resolveProjectId(refOf(v.row), v.matched.project_id);
     if (!project_id) continue;
     const name = (v.row.stage_name || "").trim();
     const start = v.row.stage_start_date;
@@ -709,7 +723,7 @@ export async function revalidatePreview(file: File, jobId: string): Promise<Impo
   validations.forEach((v) => {
     if (!v.matched.collaborator_id && v.row.from_email)
       unmatchedCollabs.set(v.row.from_email, { email: v.row.from_email, name: v.row.from_name });
-    if (!v.matched.project_id && v.row.reference) unmatchedProjects.add(v.row.reference);
+    if (!v.matched.project_id && refOf(v.row)) unmatchedProjects.add(refOf(v.row));
     if (!v.matched.company_id && v.row.company) unmatchedCompanies.add(v.row.company);
   });
 
