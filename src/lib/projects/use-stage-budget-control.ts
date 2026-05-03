@@ -132,6 +132,11 @@ interface ComputeArgs {
     amount: number;
     sources: string[];
   };
+  /** Imported actuals already attached to a stage_id (Accelo importer). */
+  importedByStage: Map<
+    string,
+    { loggedHours: number; billableHours: number; nonBillableHours: number; cost: number; amount: number }
+  >;
   project_id: string;
 }
 
@@ -141,6 +146,7 @@ function computeControl({
   allocToStage,
   entries,
   imported,
+  importedByStage,
   project_id,
 }: ComputeArgs): {
   byStage: Map<string, StageBudgetControl>;
@@ -246,41 +252,63 @@ function computeControl({
     const avgRate = rateDen > 0 ? rateNum / rateDen : 0;
     const hasTeamRate = avgRate > 0;
 
+    // Fold imported (Accelo) actuals already linked to this stage.
+    const impStage = importedByStage.get(s.id);
+    const impLogged = impStage?.loggedHours ?? 0;
+    const impBillable = impStage?.billableHours ?? 0;
+    const impNonBillable = impStage?.nonBillableHours ?? 0;
+    const impCost = impStage?.cost ?? 0;
+    const impValue = impStage?.amount ?? 0;
+
     byStage.set(s.id, {
       stage_id: s.id,
       original_budget: budget,
-      actual_hours_logged: log.logged,
-      actual_billable_hours: log.billable,
-      actual_non_billable_hours: log.nonBillable,
-      actual_cost_consumed: cost,
-      actual_value_generated: value,
-      remaining_budget: remaining,
+      actual_hours_logged: log.logged + impLogged,
+      actual_billable_hours: log.billable + impBillable,
+      actual_non_billable_hours: log.nonBillable + impNonBillable,
+      actual_cost_consumed: cost + impCost,
+      actual_value_generated: value + impValue,
+      remaining_budget: remaining - impCost,
       planned_future_hours: plannedFutureH,
       planned_future_cost: plannedFutureC,
-      projected_over_under: remaining - plannedFutureC,
+      projected_over_under: remaining - impCost - plannedFutureC,
       average_team_hourly_rate: avgRate,
-      estimated_available_hours: hasTeamRate ? remaining / avgRate : null,
+      estimated_available_hours: hasTeamRate ? (remaining - impCost) / avgRate : null,
       has_team_rate: hasTeamRate,
     });
 
     projTotals.budget += budget;
-    projTotals.logged += log.logged;
-    projTotals.billable += log.billable;
-    projTotals.nonBillable += log.nonBillable;
-    projTotals.cost += cost;
-    projTotals.value += value;
+    projTotals.logged += log.logged + impLogged;
+    projTotals.billable += log.billable + impBillable;
+    projTotals.nonBillable += log.nonBillable + impNonBillable;
+    projTotals.cost += cost + impCost;
+    projTotals.value += value + impValue;
     projTotals.futureH += plannedFutureH;
     projTotals.futureC += plannedFutureC;
     projTotals.rateNum += rateNum;
     projTotals.rateDen += rateDen;
   }
 
-  // Fold imported historical totals into PROJECT level only (no stage link).
-  const totalLogged = projTotals.logged + imported.loggedHours;
-  const totalBillable = projTotals.billable + imported.billableHours;
-  const totalNonBillable = projTotals.nonBillable + imported.nonBillableHours;
-  const totalCost = projTotals.cost + imported.cost;
-  const totalValue = projTotals.value + imported.amount;
+  // Fold imported actuals NOT attached to any stage into project-only total
+  // (so we don't double-count entries already credited per-stage above).
+  const stageImpLogged = Array.from(importedByStage.values()).reduce((a, x) => a + x.loggedHours, 0);
+  const stageImpBillable = Array.from(importedByStage.values()).reduce((a, x) => a + x.billableHours, 0);
+  const stageImpNonBillable = Array.from(importedByStage.values()).reduce((a, x) => a + x.nonBillableHours, 0);
+  const stageImpCost = Array.from(importedByStage.values()).reduce((a, x) => a + x.cost, 0);
+  const stageImpValue = Array.from(importedByStage.values()).reduce((a, x) => a + x.amount, 0);
+  const orphanLogged = Math.max(0, imported.loggedHours - stageImpLogged);
+  const orphanBillable = Math.max(0, imported.billableHours - stageImpBillable);
+  const orphanNonBillable = Math.max(0, imported.nonBillableHours - stageImpNonBillable);
+  const orphanCost = Math.max(0, imported.cost - stageImpCost);
+  const orphanValue = Math.max(0, imported.amount - stageImpValue);
+
+  // projTotals already include stage-linked imported actuals; only add the
+  // orphan portion (entries imported without a stage_id) at project level.
+  const totalLogged = projTotals.logged + orphanLogged;
+  const totalBillable = projTotals.billable + orphanBillable;
+  const totalNonBillable = projTotals.nonBillable + orphanNonBillable;
+  const totalCost = projTotals.cost + orphanCost;
+  const totalValue = projTotals.value + orphanValue;
   const projAvgRate = projTotals.rateDen > 0 ? projTotals.rateNum / projTotals.rateDen : 0;
   const projRemaining = projTotals.budget - totalCost;
   const projHasRate = projAvgRate > 0;
@@ -328,7 +356,7 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
           .eq("project_id", projectId),
         supabase
           .from("historical_time_entries")
-          .select("source_system, billable_hours, non_billable_hours, cost, amount")
+          .select("source_system, billable_hours, non_billable_hours, cost, amount, stage_id")
           .eq("project_id", projectId),
       ]);
       if (sErr) throw sErr;
@@ -406,18 +434,42 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
       let impN = 0;
       let impC = 0;
       let impA = 0;
+      const importedByStage = new Map<
+        string,
+        { loggedHours: number; billableHours: number; nonBillableHours: number; cost: number; amount: number }
+      >();
       for (const r of (histRaw ?? []) as Array<{
         source_system: string;
         billable_hours: number | string | null;
         non_billable_hours: number | string | null;
         cost: number | string | null;
         amount: number | string | null;
+        stage_id: string | null;
       }>) {
         sources.add(r.source_system);
-        impB += Number(r.billable_hours ?? 0);
-        impN += Number(r.non_billable_hours ?? 0);
-        impC += Number(r.cost ?? 0);
-        impA += Number(r.amount ?? 0);
+        const b = Number(r.billable_hours ?? 0);
+        const n = Number(r.non_billable_hours ?? 0);
+        const c = Number(r.cost ?? 0);
+        const a = Number(r.amount ?? 0);
+        impB += b;
+        impN += n;
+        impC += c;
+        impA += a;
+        if (r.stage_id) {
+          const cur = importedByStage.get(r.stage_id) ?? {
+            loggedHours: 0,
+            billableHours: 0,
+            nonBillableHours: 0,
+            cost: 0,
+            amount: 0,
+          };
+          cur.loggedHours += b + n;
+          cur.billableHours += b;
+          cur.nonBillableHours += n;
+          cur.cost += c;
+          cur.amount += a;
+          importedByStage.set(r.stage_id, cur);
+        }
       }
 
       return computeControl({
@@ -433,6 +485,7 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
           amount: impA,
           sources: Array.from(sources),
         },
+        importedByStage,
         project_id: projectId,
       });
     },

@@ -1058,6 +1058,21 @@ function ResultStep({ result, onReset }: { result: CommitResult; onReset: () => 
           <Stat label={t("admin.imports.cols.skipped")} value={result.skipped} />
           <Stat label={t("admin.imports.cols.errors")} value={result.errors} tone={result.errors ? "error" : "success"} />
         </div>
+        <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
+          <Stat label={t("admin.imports.result.stagesMatched")} value={result.stagesMatched} />
+          <Stat label={t("admin.imports.result.stagesCreated")} value={result.stagesCreated} tone="success" />
+          <Stat label={t("admin.imports.result.allocations")} value={result.allocationsUpserted} />
+        </div>
+        {(result.entriesWithoutStage > 0 || result.entriesWithoutResource > 0) && (
+          <div className="rounded-md border border-amber-300/60 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-200">
+            {result.entriesWithoutStage > 0 && (
+              <div>{t("admin.imports.result.warnNoStage", { count: result.entriesWithoutStage })}</div>
+            )}
+            {result.entriesWithoutResource > 0 && (
+              <div>{t("admin.imports.result.warnNoResource", { count: result.entriesWithoutResource })}</div>
+            )}
+          </div>
+        )}
         <div className="flex justify-end">
           <Button onClick={onReset}>{t("admin.imports.wizard.result.startNew")}</Button>
         </div>

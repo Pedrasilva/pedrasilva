@@ -330,7 +330,23 @@ export type CommitResult = {
   imported: number;
   skipped: number;
   errors: number;
+  stagesMatched: number;
+  stagesCreated: number;
+  allocationsUpserted: number;
+  entriesWithoutStage: number;
+  entriesWithoutResource: number;
 };
+
+/** Normalize a stage name for fuzzy matching against existing manual stages. */
+function normStageName(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[\[\]().:#\-–—_]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 export async function commitAcceloImport(
   preview: ImportPreview,
@@ -432,61 +448,17 @@ export async function commitAcceloImport(
     return autoMatched;
   };
 
-  const toInsert = preview.rows
-    .filter((v) => v.status !== "error" && !existing.has(v.row.external_id))
-    .filter((v) => !(refOf(v.row) && skipRefs.has(refOf(v.row))))
-    .map((v) => ({
-      source_system: SOURCE_SYSTEM,
-      external_id: v.row.external_id,
-      import_job_id: preview.jobId,
-      entry_date: v.row.entry_date!,
-      collaborator_id: v.matched.collaborator_id,
-      resource_id: v.matched.resource_id,
-      collaborator_email: v.row.from_email,
-      project_id: resolveProjectId(refOf(v.row), v.matched.project_id),
-      project_reference: refOf(v.row) || null,
-      company_id: v.matched.company_id ?? companyByName.get(v.row.company) ?? null,
-      company_name: v.row.company || null,
-      subject: v.row.subject || null,
-      content: v.row.content || null,
-      rate_title: v.row.rate_title || null,
-      rate: v.row.rate || null,
-      billable_hours: v.row.billable_hours,
-      non_billable_hours: v.row.non_billable_hours,
-      amount: v.row.amount,
-      cost: v.row.cost,
-      profit: v.row.profit,
-      status_text: v.row.status_text || null,
-      invoice_number: v.row.invoice_number || null,
-      raw: v.row.raw as never,
-    }));
-
-  let imported = 0;
-  let errors = 0;
-  for (let i = 0; i < toInsert.length; i += 500) {
-    const chunk = toInsert.slice(i, i + 500);
-    const { error, count } = await supabase
-      .from("historical_time_entries")
-      .upsert(chunk, { onConflict: "source_system,external_id", count: "exact", ignoreDuplicates: false });
-    if (error) {
-      errors += chunk.length;
-    } else {
-      imported += count ?? chunk.length;
-    }
-  }
-
-  const skipped = preview.rows.length - toInsert.length;
-
   // ---------------------------------------------------------------------------
-  // Reconstruct historical Gantt: stages + per-resource allocations.
+  // Phase A — Build stage groups so we can resolve stage_id BEFORE inserting
+  // historical_time_entries (otherwise per-stage actuals stay at 0).
   //
-  // Stage identity = project_id + stage_name. Date range comes from the
-  // explicit stage_date_range column when present; otherwise it is inferred
-  // from MIN/MAX of activity dates in that group. This guarantees one stage
-  // per (project, milestone) regardless of how the Accelo export reports
-  // dates per row, and it stays idempotent across reruns.
+  // Stage identity = project_id + stage_name. We try, in order:
+  //   1. existing pm_stages.external_id = "accelo_stage:{project}:{name}"
+  //   2. existing pm_stages with normalized name match in same project
+  //      (so manually created stages are reused, not duplicated)
+  //   3. create a new pm_stages row using the explicit/inferred date range
   // ---------------------------------------------------------------------------
-  type StageKey = string; // accelo_stage:{project}:{name}
+  type StageKey = string;
   const stageGroups = new Map<
     StageKey,
     {
@@ -499,7 +471,7 @@ export async function commitAcceloImport(
     }
   >();
   const allocAgg = new Map<
-    string, // project|name|resource
+    string,
     {
       project_id: string;
       stage_key: StageKey;
@@ -507,7 +479,8 @@ export async function commitAcceloImport(
       total_hours: number;
     }
   >();
-  const historicalStageLinks = new Map<string, StageKey>(); // external_id -> stage key
+  /** rowIndex -> stageKey (for assigning stage_id during entry insert). */
+  const rowToStageKey = new Map<number, StageKey>();
 
   const minIso = (a: string | null, b: string | null) =>
     !a ? b : !b ? a : a < b ? a : b;
@@ -541,7 +514,7 @@ export async function commitAcceloImport(
       cur.activity_min = minIso(cur.activity_min, activity ?? null);
       cur.activity_max = maxIso(cur.activity_max, activity ?? null);
     }
-    if (v.row.external_id) historicalStageLinks.set(v.row.external_id, stageKey);
+    rowToStageKey.set(v.row.rowIndex, stageKey);
 
     if (v.matched.resource_id) {
       const aggKey = `${project_id}|${name}|${v.matched.resource_id}`;
@@ -570,10 +543,51 @@ export async function commitAcceloImport(
     });
   }
 
-  // Upsert stages (only those with resolvable date ranges).
+  // Match against existing pm_stages BEFORE upserting.
   const stageIdByKey = new Map<StageKey, string>();
-  if (stageDates.size) {
-    const stagePayload = Array.from(stageDates.entries()).map(([key, d]) => {
+  let stagesMatched = 0;
+  let stagesCreated = 0;
+  let allocationsUpserted = 0;
+
+  const projectsWithStages = Array.from(
+    new Set(Array.from(stageGroups.values()).map((s) => s.project_id)),
+  );
+  if (projectsWithStages.length) {
+    const { data: existingStages } = await supabase
+      .from("pm_stages")
+      .select("id, project_id, name, external_id")
+      .in("project_id", projectsWithStages);
+    const byExternal = new Map<string, string>();
+    const byNorm = new Map<string, string>();
+    for (const s of existingStages ?? []) {
+      if (s.external_id) byExternal.set(s.external_id, s.id);
+      byNorm.set(`${s.project_id}|${normStageName(s.name)}`, s.id);
+    }
+    for (const [key, group] of stageGroups) {
+      const ext = byExternal.get(key);
+      if (ext) {
+        stageIdByKey.set(key, ext);
+        stagesMatched++;
+        continue;
+      }
+      const fuzzy = byNorm.get(`${group.project_id}|${normStageName(group.name)}`);
+      if (fuzzy) {
+        stageIdByKey.set(key, fuzzy);
+        stagesMatched++;
+        // Stamp external_id so reruns hit the fast path; don't overwrite name/dates.
+        await supabase
+          .from("pm_stages")
+          .update({ external_id: key, source: "imported_accelo" })
+          .eq("id", fuzzy)
+          .is("external_id", null);
+      }
+    }
+  }
+
+  // Create stages that didn't match anything existing.
+  const toCreate = Array.from(stageDates.entries()).filter(([k]) => !stageIdByKey.has(k));
+  if (toCreate.length) {
+    const stagePayload = toCreate.map(([key, d]) => {
       const s = stageGroups.get(key)!;
       return {
         external_id: key,
@@ -585,18 +599,104 @@ export async function commitAcceloImport(
         is_locked: true,
       };
     });
-    const { data: upsertedStages, error: stageErr } = await supabase
+    const { data: created, error: stageErr } = await supabase
       .from("pm_stages")
       .upsert(stagePayload, { onConflict: "external_id" })
       .select("id, external_id");
-    if (!stageErr && upsertedStages) {
-      upsertedStages.forEach((s) => {
-        if (s.external_id) stageIdByKey.set(s.external_id, s.id);
+    if (!stageErr && created) {
+      created.forEach((s) => {
+        if (s.external_id) {
+          stageIdByKey.set(s.external_id, s.id);
+          stagesCreated++;
+        }
       });
     }
   }
 
-  // Upsert allocations (one per resource per stage).
+  // ---------------------------------------------------------------------------
+  // Phase B — historical_time_entries inserted WITH stage_id so per-stage
+  // budget panels reflect imported actuals immediately.
+  // ---------------------------------------------------------------------------
+  let entriesWithoutStage = 0;
+  let entriesWithoutResource = 0;
+
+  const toInsert = preview.rows
+    .filter((v) => v.status !== "error" && !existing.has(v.row.external_id))
+    .filter((v) => !(refOf(v.row) && skipRefs.has(refOf(v.row))))
+    .map((v) => {
+      const stageKey = rowToStageKey.get(v.row.rowIndex);
+      const stage_id = stageKey ? stageIdByKey.get(stageKey) ?? null : null;
+      if (!stage_id) entriesWithoutStage++;
+      if (!v.matched.resource_id) entriesWithoutResource++;
+      return {
+        source_system: SOURCE_SYSTEM,
+        external_id: v.row.external_id,
+        import_job_id: preview.jobId,
+        entry_date: v.row.entry_date!,
+        collaborator_id: v.matched.collaborator_id,
+        resource_id: v.matched.resource_id,
+        collaborator_email: v.row.from_email,
+        project_id: resolveProjectId(refOf(v.row), v.matched.project_id),
+        stage_id,
+        project_reference: refOf(v.row) || null,
+        company_id: v.matched.company_id ?? companyByName.get(v.row.company) ?? null,
+        company_name: v.row.company || null,
+        subject: v.row.subject || null,
+        content: v.row.content || null,
+        rate_title: v.row.rate_title || null,
+        rate: v.row.rate || null,
+        billable_hours: v.row.billable_hours,
+        non_billable_hours: v.row.non_billable_hours,
+        amount: v.row.amount,
+        cost: v.row.cost,
+        profit: v.row.profit,
+        status_text: v.row.status_text || null,
+        invoice_number: v.row.invoice_number || null,
+        raw: v.row.raw as never,
+      };
+    });
+
+  let imported = 0;
+  let errors = 0;
+  for (let i = 0; i < toInsert.length; i += 500) {
+    const chunk = toInsert.slice(i, i + 500);
+    const { error, count } = await supabase
+      .from("historical_time_entries")
+      .upsert(chunk, { onConflict: "source_system,external_id", count: "exact", ignoreDuplicates: false });
+    if (error) {
+      errors += chunk.length;
+    } else {
+      imported += count ?? chunk.length;
+    }
+  }
+
+  const skipped = preview.rows.length - toInsert.length;
+
+  // Backfill stage_id for re-imports (rows that already existed but were
+  // inserted before stage matching was wired up).
+  if (stageIdByKey.size) {
+    const backfill = new Map<string, string[]>(); // stage_id -> external_ids
+    for (const v of preview.rows) {
+      if (!v.row.external_id) continue;
+      const sk = rowToStageKey.get(v.row.rowIndex);
+      const sid = sk ? stageIdByKey.get(sk) : null;
+      if (!sid) continue;
+      const arr = backfill.get(sid) ?? [];
+      arr.push(v.row.external_id);
+      backfill.set(sid, arr);
+    }
+    for (const [stage_id, extIds] of backfill) {
+      for (let i = 0; i < extIds.length; i += 500) {
+        await supabase
+          .from("historical_time_entries")
+          .update({ stage_id })
+          .eq("source_system", SOURCE_SYSTEM)
+          .in("external_id", extIds.slice(i, i + 500));
+      }
+    }
+  }
+
+  // Allocations (one per resource per stage).
   if (allocAgg.size && stageIdByKey.size) {
     const allocPayload: {
       external_id: string;
@@ -640,30 +740,11 @@ export async function commitAcceloImport(
       });
     }
     for (let i = 0; i < allocPayload.length; i += 500) {
-      await supabase
+      const chunk = allocPayload.slice(i, i + 500);
+      const { error } = await supabase
         .from("pm_allocations")
-        .upsert(allocPayload.slice(i, i + 500), { onConflict: "external_id" });
-    }
-  }
-
-  // Link historical_time_entries.stage_id by external_id (idempotent).
-  if (historicalStageLinks.size && stageIdByKey.size) {
-    const updates = new Map<string, string[]>(); // stage_id -> [external_ids]
-    for (const [extId, stageKey] of historicalStageLinks) {
-      const stage_id = stageIdByKey.get(stageKey);
-      if (!stage_id) continue;
-      const arr = updates.get(stage_id) ?? [];
-      arr.push(extId);
-      updates.set(stage_id, arr);
-    }
-    for (const [stage_id, extIds] of updates) {
-      for (let i = 0; i < extIds.length; i += 500) {
-        await supabase
-          .from("historical_time_entries")
-          .update({ stage_id })
-          .eq("source_system", SOURCE_SYSTEM)
-          .in("external_id", extIds.slice(i, i + 500));
-      }
+        .upsert(chunk, { onConflict: "external_id" });
+      if (!error) allocationsUpserted += chunk.length;
     }
   }
 
@@ -678,7 +759,16 @@ export async function commitAcceloImport(
     })
     .eq("id", preview.jobId);
 
-  return { imported, skipped, errors };
+  return {
+    imported,
+    skipped,
+    errors,
+    stagesMatched,
+    stagesCreated,
+    allocationsUpserted,
+    entriesWithoutStage,
+    entriesWithoutResource,
+  };
 }
 
 export async function listImportJobs() {
