@@ -138,6 +138,7 @@
           "visibleStages": "Fases visíveis",
           "historicalEntries": "Entradas históricas",
           "historicalWithStage": "Entradas com fase",
+          "entriesWithoutStage": "Entradas sem fase",
           "allocations": "Alocações",
           "reconstructionFailed": "A importação criou registos históricos mas nenhuma fase. A reconstrução de fases falhou.",
           "openProject": "Abrir projeto"
@@ -248,7 +249,12 @@
           "projectsNew": "Novos projetos a criar",
           "projectsSkipped": "Referências ignoradas",
           "companiesCreate": "Empresas sem correspondência serão criadas como clientes no commit.",
-          "companiesKeep": "Empresas sem correspondência ficam por preencher no commit."
+          "companiesKeep": "Empresas sem correspondência ficam por preencher no commit.",
+          "stageAssignments": "Atribuições de fase resolvidas",
+          "stageExisting": "Fase existente: {{stageId}}",
+          "stageCreate": "Nova fase: {{name}}",
+          "stageMissing": "Escolha de fase em falta",
+          "commitOptionsDebug": "JSON das opções de commit"
         },
         "result": {
           "title": "Importação concluída",

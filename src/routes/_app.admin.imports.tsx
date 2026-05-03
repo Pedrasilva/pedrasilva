@@ -67,6 +67,7 @@ export const Route = createFileRoute("/_app/admin/imports")({
 type ImportTypeKey = "accelo_activity_timesheet" | "companies_clients_suppliers";
 
 type StepId = "upload" | "projects" | "people" | "stages" | "review" | "result";
+type UnassignedStageProject = { key: string; label: string; rows: number };
 
 const STEP_ORDER: StepId[] = ["upload", "projects", "people", "stages", "review", "result"];
 
@@ -105,6 +106,7 @@ function ImportsContent() {
     onSuccess: (p) => {
       setPreview(p);
       setProjectMapping(seedProjectMapping(p));
+      setDefaultStageByProject({});
       qc.invalidateQueries({ queryKey: ["import-jobs"] });
       toast.success(t("admin.imports.toastPreviewed"));
       if (p.storageWarning) {
@@ -131,11 +133,21 @@ function ImportsContent() {
     mutationFn: async () => {
       if (!preview) throw new Error("No preview");
       const createMissingProjects = Object.values(projectMapping).some((c) => c.mode === "create");
+      const stageMapping = buildCommitDefaultStageByProject(
+        unassignedStageProjectKeys,
+        defaultStageByProject,
+      );
+      console.debug("[accelo-import] commit options", {
+        createMissingProjects,
+        createMissingCompanies,
+        projectMapping,
+        defaultStageByProject: stageMapping,
+      });
       return commitAcceloImport(preview, {
         createMissingProjects,
         createMissingCompanies,
         projectMapping,
-        defaultStageByProject,
+        defaultStageByProject: stageMapping,
       });
     },
     onSuccess: (r) => {
@@ -152,6 +164,7 @@ function ImportsContent() {
       // newly imported stages, allocations and time entries are visible
       // when the user navigates to the project page right after import.
       [
+        ["projects"],
         ["pm-projects"],
         ["pm-project"],
         ["pm-stages-all"],
@@ -160,12 +173,21 @@ function ImportsContent() {
         ["pm-project-time"],
         ["pm-time-entries-all-project"],
         ["historical-time-totals"],
+        ["historical-time-totals-map"],
         ["stage-budget-control"],
         ["project-financial-summary"],
+        ["pm-project-insights"],
         ["project-insights"],
         ["external-services"],
         ["forecast-projects"],
-      ].forEach((k) => qc.invalidateQueries({ queryKey: k }));
+      ].forEach((k) => qc.invalidateQueries({ queryKey: k, refetchType: "all" }));
+      for (const d of r.diagnostics ?? []) {
+        qc.invalidateQueries({ queryKey: ["pm-project", d.project_id], refetchType: "all" });
+        qc.invalidateQueries({ queryKey: ["pm-project-time", d.project_id], refetchType: "all" });
+        qc.invalidateQueries({ queryKey: ["historical-time-totals", d.project_id], refetchType: "all" });
+        qc.invalidateQueries({ queryKey: ["project-financial-summary", d.project_id], refetchType: "all" });
+        qc.invalidateQueries({ queryKey: ["pm-project-insights", d.project_id], refetchType: "all" });
+      }
       setStep("result");
     },
     onError: (e: Error) => toast.error(e.message),
@@ -181,8 +203,8 @@ function ImportsContent() {
     : false;
   // Project keys (project_id or parent_reference) that have rows missing stage_name.
   const unassignedStageProjectKeys = useMemo(() => {
-    if (!preview) return [] as { key: string; label: string; rows: number }[];
-    const m = new Map<string, { key: string; label: string; rows: number }>();
+    if (!preview) return [] as UnassignedStageProject[];
+    const m = new Map<string, UnassignedStageProject>();
     for (const v of preview.rows) {
       if (v.status === "error") continue;
       if ((v.row.stage_name ?? "").trim()) continue;
@@ -203,7 +225,7 @@ function ImportsContent() {
     return Array.from(m.values());
   }, [preview, projectMapping]);
   const stagesAssignmentComplete = unassignedStageProjectKeys.every(
-    (p) => defaultStageByProject[p.key] != null,
+    (p) => isValidDefaultStageChoice(defaultStageByProject[p.key]),
   );
   const canCommit =
     !!preview &&
@@ -217,6 +239,7 @@ function ImportsContent() {
     setPreview(null);
     setFile(null);
     setProjectMapping({});
+    setDefaultStageByProject({});
     setResult(null);
   };
 
@@ -284,6 +307,11 @@ function ImportsContent() {
         <ReviewStep
           preview={preview}
           mapping={projectMapping}
+          unassignedProjects={unassignedStageProjectKeys}
+          defaultStageByProject={buildCommitDefaultStageByProject(
+            unassignedStageProjectKeys,
+            defaultStageByProject,
+          )}
           createMissingCompanies={createMissingCompanies}
           canCommit={canCommit}
           isCommitting={commitMutation.isPending}
@@ -371,6 +399,25 @@ function seedProjectMapping(preview: ImportPreview): Record<string, ProjectMappi
   }
   // Unmatched references → leave undefined (user must choose).
   return map;
+}
+
+function isValidDefaultStageChoice(choice: DefaultStageChoice | undefined): choice is DefaultStageChoice {
+  if (!choice) return false;
+  if (choice.mode === "existing") return Boolean(choice.stage_id);
+  return Boolean(choice.name.trim());
+}
+
+function buildCommitDefaultStageByProject(
+  unassignedProjects: UnassignedStageProject[],
+  choices: Record<string, DefaultStageChoice>,
+): Record<string, DefaultStageChoice> {
+  return Object.fromEntries(
+    unassignedProjects
+      .map((p) => [p.key, choices[p.key]] as const)
+      .filter((entry): entry is readonly [string, DefaultStageChoice] =>
+        isValidDefaultStageChoice(entry[1]),
+      ),
+  );
 }
 
 function WizardNav({ step, preview }: { step: StepId; preview: ImportPreview | null }) {
@@ -1176,6 +1223,8 @@ function GanttPreview({ stages }: { stages: GanttStage[] }) {
 function ReviewStep({
   preview,
   mapping,
+  unassignedProjects,
+  defaultStageByProject,
   createMissingCompanies,
   canCommit,
   isCommitting,
@@ -1187,6 +1236,8 @@ function ReviewStep({
 }: {
   preview: ImportPreview;
   mapping: Record<string, ProjectMappingChoice>;
+  unassignedProjects: UnassignedStageProject[];
+  defaultStageByProject: Record<string, DefaultStageChoice>;
   createMissingCompanies: boolean;
   canCommit: boolean;
   isCommitting: boolean;
@@ -1203,6 +1254,10 @@ function ReviewStep({
   const projectsSkipped = Object.values(mapping).filter((c) => c.mode === "skip").length;
 
   const rowsToImport = preview.totals.rows - preview.totals.error - preview.totals.duplicates;
+  const commitOptionsDebug = {
+    projectMapping: mapping,
+    defaultStageByProject,
+  };
 
   return (
     <Card>
@@ -1230,7 +1285,38 @@ function ReviewStep({
             : t("admin.imports.wizard.review.companiesKeep")}
         </div>
 
-        {(!projectMappingComplete || unmatchedCollabs > 0 || blockingErrors > 0) && (
+        {unassignedProjects.length > 0 && (
+          <div className="rounded-md border p-3 space-y-2 text-xs">
+            <div className="font-semibold text-foreground">
+              {t("admin.imports.wizard.review.stageAssignments")}
+            </div>
+            {unassignedProjects.map((p) => {
+              const choice = defaultStageByProject[p.key];
+              const label = choice?.mode === "existing"
+                ? t("admin.imports.wizard.review.stageExisting", { stageId: choice.stage_id })
+                : choice?.mode === "create"
+                  ? t("admin.imports.wizard.review.stageCreate", { name: choice.name })
+                  : t("admin.imports.wizard.review.stageMissing");
+              return (
+                <div key={p.key} className="flex items-center justify-between gap-3">
+                  <span className="truncate">{p.label}</span>
+                  <span className={choice ? "font-medium" : "font-medium text-destructive"}>{label}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <details className="rounded-md border bg-muted/30 p-3 text-xs">
+          <summary className="cursor-pointer font-semibold text-foreground">
+            {t("admin.imports.wizard.review.commitOptionsDebug")}
+          </summary>
+          <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-all text-[11px] text-muted-foreground">
+            {JSON.stringify(commitOptionsDebug, null, 2)}
+          </pre>
+        </details>
+
+        {(!canCommit || !projectMappingComplete || unmatchedCollabs > 0 || blockingErrors > 0) && (
           <ul className="text-xs space-y-1 text-destructive">
             {blockingErrors > 0 && (
               <li className="flex items-center gap-1">
@@ -1248,6 +1334,12 @@ function ReviewStep({
               <li className="flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
                 {t("admin.imports.wizard.projects.allRequired")}
+              </li>
+            )}
+            {unassignedProjects.length > 0 && !unassignedProjects.every((p) => isValidDefaultStageChoice(defaultStageByProject[p.key])) && (
+              <li className="flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                {t("admin.imports.stages.unassigned.blocking")}
               </li>
             )}
           </ul>
@@ -1327,6 +1419,7 @@ function ResultStep({ result, onReset }: { result: CommitResult; onReset: () => 
                     <span>{t("admin.imports.result.diagnostics.visibleStages")}: <strong>{d.visibleStagesForProject}</strong></span>
                     <span>{t("admin.imports.result.diagnostics.historicalEntries")}: <strong>{d.historicalEntriesForProject}</strong></span>
                     <span>{t("admin.imports.result.diagnostics.historicalWithStage")}: <strong>{d.historicalEntriesWithStage}</strong></span>
+                    <span>{t("admin.imports.result.diagnostics.entriesWithoutStage")}: <strong>{d.entriesWithoutStage}</strong></span>
                     <span>{t("admin.imports.result.diagnostics.allocations")}: <strong>{d.allocationsForProject}</strong></span>
                   </div>
                   {d.reconstructionFailed && (

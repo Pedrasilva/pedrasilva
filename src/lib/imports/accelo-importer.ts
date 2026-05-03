@@ -341,6 +341,7 @@ export type ProjectDiagnostic = {
   visibleStagesForProject: number;
   historicalEntriesForProject: number;
   historicalEntriesWithStage: number;
+  entriesWithoutStage: number;
   allocationsForProject: number;
   /** Set when historical entries exist but no stages — i.e. stage reconstruction failed. */
   reconstructionFailed: boolean;
@@ -469,6 +470,25 @@ export async function commitAcceloImport(
     return autoMatched;
   };
 
+  const missingDefaultStageProjects = new Set<string>();
+  for (const v of preview.rows) {
+    if (v.status === "error") continue;
+    const ref = refOf(v.row);
+    if (ref && skipRefs.has(ref)) continue;
+    if ((v.row.stage_name || "").trim()) continue;
+    const project_id = resolveProjectId(ref, v.matched.project_id);
+    if (!project_id) continue;
+    const hasChoice = Boolean(
+      options.defaultStageByProject?.[project_id] ?? (ref ? options.defaultStageByProject?.[ref] : undefined),
+    );
+    if (!hasChoice) missingDefaultStageProjects.add(project_id);
+  }
+  if (missingDefaultStageProjects.size > 0) {
+    throw new Error(
+      `Missing default stage mapping for ${missingDefaultStageProjects.size} project(s) with stageless Accelo rows.`,
+    );
+  }
+
   // ---------------------------------------------------------------------------
   // Phase A — Build stage groups so we can resolve stage_id BEFORE inserting
   // historical_time_entries (otherwise per-stage actuals stay at 0).
@@ -552,6 +572,7 @@ export async function commitAcceloImport(
       const end_date = dates?.max ?? today;
       if (choice.mode === "existing") {
         defaultStageIdByProject.set(resolvedPid, choice.stage_id);
+        stagesMatched++;
         // Only widen dates if the existing stage looks like a placeholder
         // (same-day) AND was created by the importer — never overwrite manual edits.
         if (dates) {
@@ -572,19 +593,65 @@ export async function commitAcceloImport(
           }
         }
       } else if (choice.mode === "create" && choice.name.trim()) {
+        const stageName = choice.name.trim();
+        const existingByExternal = await supabase
+          .from("pm_stages")
+          .select("id, start_date, end_date, source")
+          .eq("project_id", resolvedPid)
+          .eq("external_id", `accelo_stage_manual:${resolvedPid}:${stageName}`)
+          .maybeSingle();
+        const existingStage = existingByExternal.data ?? null;
+        if (existingStage) {
+          defaultStageIdByProject.set(resolvedPid, existingStage.id);
+          stagesMatched++;
+          if (
+            dates &&
+            (existingStage.source === "imported_accelo" ||
+              (existingStage.start_date && existingStage.end_date && existingStage.start_date === existingStage.end_date))
+          ) {
+            await supabase.from("pm_stages").update({ start_date, end_date }).eq("id", existingStage.id);
+          }
+          continue;
+        }
+        const { data: sameProjectStages } = await supabase
+          .from("pm_stages")
+          .select("id, name, start_date, end_date, source, external_id")
+          .eq("project_id", resolvedPid);
+        const fuzzy = (sameProjectStages ?? []).find((s) => normStageName(s.name) === normStageName(stageName));
+        if (fuzzy) {
+          defaultStageIdByProject.set(resolvedPid, fuzzy.id);
+          stagesMatched++;
+          await supabase
+            .from("pm_stages")
+            .update({ external_id: fuzzy.external_id ?? `accelo_stage_manual:${resolvedPid}:${stageName}`, source: "imported_accelo" })
+            .eq("id", fuzzy.id)
+            .is("external_id", null);
+          if (
+            dates &&
+            (fuzzy.source === "imported_accelo" || (fuzzy.start_date && fuzzy.end_date && fuzzy.start_date === fuzzy.end_date))
+          ) {
+            await supabase.from("pm_stages").update({ start_date, end_date }).eq("id", fuzzy.id);
+          }
+          continue;
+        }
         const { data, error } = await supabase
           .from("pm_stages")
           .insert({
             project_id: resolvedPid,
-            name: choice.name.trim(),
+            name: stageName,
             start_date,
             end_date,
             source: "imported_accelo",
-            external_id: `accelo_stage_manual:${resolvedPid}:${choice.name.trim()}`,
+            external_id: `accelo_stage_manual:${resolvedPid}:${stageName}`,
+            is_locked: true,
           })
           .select("id")
           .single();
-        if (!error && data) defaultStageIdByProject.set(resolvedPid, data.id);
+        if (error) throw error;
+        if (data) {
+          defaultStageIdByProject.set(resolvedPid, data.id);
+          stagesCreated++;
+        }
       }
     }
   }
@@ -598,41 +665,42 @@ export async function commitAcceloImport(
     if (!name) {
       // Try the user-supplied default stage for this project.
       const fallbackId = defaultStageIdByProject.get(project_id);
-      if (fallbackId) {
-        // Use a synthetic stage key tied to the existing pm_stages row.
-        const stageKey: StageKey = `manual_default:${project_id}:${fallbackId}`;
-        rowToStageKey.set(v.row.rowIndex, stageKey);
-        // Pre-seed stageIdByKey so phase-B sees it.
-        stageIdByKey.set(stageKey, fallbackId);
-        // Track activity for date widening.
-        const cur = stageGroups.get(stageKey);
-        const activity = v.row.entry_date;
-        if (!cur) {
-          stageGroups.set(stageKey, {
+      if (!fallbackId) {
+        throw new Error(`Default stage mapping did not resolve for project ${project_id}.`);
+      }
+      // Use a synthetic stage key tied to the existing pm_stages row.
+      const stageKey: StageKey = `manual_default:${project_id}:${fallbackId}`;
+      rowToStageKey.set(v.row.rowIndex, stageKey);
+      // Pre-seed stageIdByKey so phase-B sees it.
+      stageIdByKey.set(stageKey, fallbackId);
+      // Track activity for date widening.
+      const cur = stageGroups.get(stageKey);
+      const activity = v.row.entry_date;
+      if (!cur) {
+        stageGroups.set(stageKey, {
+          project_id,
+          name: "",
+          explicit_start: null,
+          explicit_end: null,
+          activity_min: activity ?? null,
+          activity_max: activity ?? null,
+        });
+      } else {
+        cur.activity_min = minIso(cur.activity_min, activity ?? null);
+        cur.activity_max = maxIso(cur.activity_max, activity ?? null);
+      }
+      if (v.matched.resource_id) {
+        const aggKey = `${project_id}|__default|${v.matched.resource_id}`;
+        const aCur = allocAgg.get(aggKey);
+        const hours = (v.row.billable_hours ?? 0) + (v.row.non_billable_hours ?? 0);
+        if (aCur) aCur.total_hours += hours;
+        else
+          allocAgg.set(aggKey, {
             project_id,
-            name: "",
-            explicit_start: null,
-            explicit_end: null,
-            activity_min: activity ?? null,
-            activity_max: activity ?? null,
+            stage_key: stageKey,
+            resource_id: v.matched.resource_id,
+            total_hours: hours,
           });
-        } else {
-          cur.activity_min = minIso(cur.activity_min, activity ?? null);
-          cur.activity_max = maxIso(cur.activity_max, activity ?? null);
-        }
-        if (v.matched.resource_id) {
-          const aggKey = `${project_id}|__default|${v.matched.resource_id}`;
-          const aCur = allocAgg.get(aggKey);
-          const hours = (v.row.billable_hours ?? 0) + (v.row.non_billable_hours ?? 0);
-          if (aCur) aCur.total_hours += hours;
-          else
-            allocAgg.set(aggKey, {
-              project_id,
-              stage_key: stageKey,
-              resource_id: v.matched.resource_id,
-              total_hours: hours,
-            });
-        }
       }
       continue;
     }
@@ -910,6 +978,7 @@ export async function commitAcceloImport(
     ),
   );
   const diagnostics: ProjectDiagnostic[] = [];
+  let finalEntriesWithoutStage = 0;
   for (const pid of touchedProjectIds) {
     const [{ data: pRow }, stagesRes, histAllRes, histWithStageRes] = await Promise.all([
       supabase.from("pm_projects").select("id,name").eq("id", pid).maybeSingle(),
@@ -946,14 +1015,17 @@ export async function commitAcceloImport(
     const visibleStages = stagesRes.count ?? 0;
     const histAll = histAllRes.count ?? 0;
     const histWithStage = histWithStageRes.count ?? 0;
+    const histWithoutStage = Math.max(0, histAll - histWithStage);
+    finalEntriesWithoutStage += histWithoutStage;
     diagnostics.push({
       project_id: pid,
       project_name: pRow?.name ?? null,
       visibleStagesForProject: visibleStages,
       historicalEntriesForProject: histAll,
       historicalEntriesWithStage: histWithStage,
+      entriesWithoutStage: histWithoutStage,
       allocationsForProject: allocCount,
-      reconstructionFailed: histAll > 0 && visibleStages === 0,
+      reconstructionFailed: histAll > 0 && (visibleStages === 0 || histWithoutStage > 0),
     });
   }
 
@@ -964,7 +1036,7 @@ export async function commitAcceloImport(
     stagesMatched,
     stagesCreated,
     allocationsUpserted,
-    entriesWithoutStage,
+    entriesWithoutStage: finalEntriesWithoutStage,
     entriesWithoutResource,
     diagnostics,
   };
