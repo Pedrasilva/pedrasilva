@@ -199,6 +199,11 @@ export function parseAcceloActivityExport(buffer: ArrayBuffer): AcceloParseResul
     }
   }
 
+  // Apply positional fallbacks (e.g. stage at column K, range at column O) when
+  // headers are missing/non-standard.
+  for (const [k, idx] of Object.entries(POSITION_FALLBACK) as [AcceloRowKey, number][]) {
+    if (colMap[k] === undefined) colMap[k] = idx;
+  }
   const resolvedHeaders: Partial<Record<AcceloRowKey, string>> = {};
   if (headerRowIndex !== null) {
     const header = aoa[headerRowIndex] || [];
@@ -241,6 +246,16 @@ export function parseAcceloActivityExport(buffer: ArrayBuffer): AcceloParseResul
         profit: toNumber(get("profit")),
         status_text: String(get("status") ?? "").trim(),
         invoice_number: String(get("invoice_number") ?? "").trim(),
+        stage_name: String(get("stage") ?? "").trim(),
+        stage_date_range_raw: String(get("stage_date_range") ?? "").trim(),
+        ...(() => {
+          const parsed = parseStageDateRange(get("stage_date_range"));
+          return {
+            stage_start_date: parsed.start,
+            stage_end_date: parsed.end,
+            stage_parse_warning: parsed.warning,
+          };
+        })(),
         raw,
       });
     }
