@@ -341,6 +341,7 @@ export type ProjectDiagnostic = {
   visibleStagesForProject: number;
   historicalEntriesForProject: number;
   historicalEntriesWithStage: number;
+  entriesWithoutStage: number;
   allocationsForProject: number;
   /** Set when historical entries exist but no stages — i.e. stage reconstruction failed. */
   reconstructionFailed: boolean;
@@ -646,7 +647,8 @@ export async function commitAcceloImport(
           })
           .select("id")
           .single();
-        if (!error && data) {
+        if (error) throw error;
+        if (data) {
           defaultStageIdByProject.set(resolvedPid, data.id);
           stagesCreated++;
         }
@@ -663,41 +665,42 @@ export async function commitAcceloImport(
     if (!name) {
       // Try the user-supplied default stage for this project.
       const fallbackId = defaultStageIdByProject.get(project_id);
-      if (fallbackId) {
-        // Use a synthetic stage key tied to the existing pm_stages row.
-        const stageKey: StageKey = `manual_default:${project_id}:${fallbackId}`;
-        rowToStageKey.set(v.row.rowIndex, stageKey);
-        // Pre-seed stageIdByKey so phase-B sees it.
-        stageIdByKey.set(stageKey, fallbackId);
-        // Track activity for date widening.
-        const cur = stageGroups.get(stageKey);
-        const activity = v.row.entry_date;
-        if (!cur) {
-          stageGroups.set(stageKey, {
+      if (!fallbackId) {
+        throw new Error(`Default stage mapping did not resolve for project ${project_id}.`);
+      }
+      // Use a synthetic stage key tied to the existing pm_stages row.
+      const stageKey: StageKey = `manual_default:${project_id}:${fallbackId}`;
+      rowToStageKey.set(v.row.rowIndex, stageKey);
+      // Pre-seed stageIdByKey so phase-B sees it.
+      stageIdByKey.set(stageKey, fallbackId);
+      // Track activity for date widening.
+      const cur = stageGroups.get(stageKey);
+      const activity = v.row.entry_date;
+      if (!cur) {
+        stageGroups.set(stageKey, {
+          project_id,
+          name: "",
+          explicit_start: null,
+          explicit_end: null,
+          activity_min: activity ?? null,
+          activity_max: activity ?? null,
+        });
+      } else {
+        cur.activity_min = minIso(cur.activity_min, activity ?? null);
+        cur.activity_max = maxIso(cur.activity_max, activity ?? null);
+      }
+      if (v.matched.resource_id) {
+        const aggKey = `${project_id}|__default|${v.matched.resource_id}`;
+        const aCur = allocAgg.get(aggKey);
+        const hours = (v.row.billable_hours ?? 0) + (v.row.non_billable_hours ?? 0);
+        if (aCur) aCur.total_hours += hours;
+        else
+          allocAgg.set(aggKey, {
             project_id,
-            name: "",
-            explicit_start: null,
-            explicit_end: null,
-            activity_min: activity ?? null,
-            activity_max: activity ?? null,
+            stage_key: stageKey,
+            resource_id: v.matched.resource_id,
+            total_hours: hours,
           });
-        } else {
-          cur.activity_min = minIso(cur.activity_min, activity ?? null);
-          cur.activity_max = maxIso(cur.activity_max, activity ?? null);
-        }
-        if (v.matched.resource_id) {
-          const aggKey = `${project_id}|__default|${v.matched.resource_id}`;
-          const aCur = allocAgg.get(aggKey);
-          const hours = (v.row.billable_hours ?? 0) + (v.row.non_billable_hours ?? 0);
-          if (aCur) aCur.total_hours += hours;
-          else
-            allocAgg.set(aggKey, {
-              project_id,
-              stage_key: stageKey,
-              resource_id: v.matched.resource_id,
-              total_hours: hours,
-            });
-        }
       }
       continue;
     }
