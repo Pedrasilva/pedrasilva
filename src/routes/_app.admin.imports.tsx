@@ -88,6 +88,7 @@ function ImportsContent() {
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [createMissingCompanies, setCreateMissingCompanies] = useState(true);
   const [projectMapping, setProjectMapping] = useState<Record<string, ProjectMappingChoice>>({});
+  const [defaultStageByProject, setDefaultStageByProject] = useState<Record<string, DefaultStageChoice>>({});
   const [mappingTarget, setMappingTarget] = useState<{ email: string; name: string } | null>(null);
   const [result, setResult] = useState<CommitResult | null>(null);
 
