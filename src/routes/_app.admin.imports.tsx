@@ -239,6 +239,7 @@ function ImportsContent() {
     setPreview(null);
     setFile(null);
     setProjectMapping({});
+    setDefaultStageByProject({});
     setResult(null);
   };
 
