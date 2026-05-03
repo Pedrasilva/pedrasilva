@@ -513,25 +513,72 @@ export async function commitAcceloImport(
   const maxIso = (a: string | null, b: string | null) =>
     !a ? b : !b ? a : a > b ? a : b;
 
-  // Pre-resolve default stage choices into stage IDs (creating new stages as needed).
+  // Pre-resolve default stage choices into stage IDs.
   // Keys can be project_id OR parent_reference (for not-yet-created projects).
   const defaultStageIdByProject = new Map<string, string>();
   if (options.defaultStageByProject) {
+    // Pass 1 — compute MIN/MAX entry_date per resolved project for rows that
+    // will be routed to a default stage (i.e. have no detected stage_name).
+    const datesByPid = new Map<string, { min: string | null; max: string | null }>();
+    for (const v of preview.rows) {
+      if (v.status === "error") continue;
+      if (refOf(v.row) && skipRefs.has(refOf(v.row))) continue;
+      if ((v.row.stage_name || "").trim()) continue;
+      const project_id = resolveProjectId(refOf(v.row), v.matched.project_id);
+      if (!project_id) continue;
+      // Only consider rows whose project actually has a default-stage choice.
+      const pkeyMatch =
+        options.defaultStageByProject[project_id] !== undefined
+          ? project_id
+          : refOf(v.row) && options.defaultStageByProject[refOf(v.row)] !== undefined
+            ? refOf(v.row)
+            : null;
+      if (!pkeyMatch) continue;
+      const d = v.row.entry_date;
+      if (!d) continue;
+      const cur = datesByPid.get(project_id);
+      if (!cur) datesByPid.set(project_id, { min: d, max: d });
+      else {
+        if (d < cur.min!) cur.min = d;
+        if (d > cur.max!) cur.max = d;
+      }
+    }
+
     for (const [pkey, choice] of Object.entries(options.defaultStageByProject)) {
-      // Resolve pkey to a real project_id: it might already be one, or a ref.
       const resolvedPid = projectByRef.get(pkey) ?? pkey;
+      const dates = datesByPid.get(resolvedPid);
+      const today = new Date().toISOString().slice(0, 10);
+      const start_date = dates?.min ?? today;
+      const end_date = dates?.max ?? today;
       if (choice.mode === "existing") {
         defaultStageIdByProject.set(resolvedPid, choice.stage_id);
+        // Only widen dates if the existing stage looks like a placeholder
+        // (same-day) AND was created by the importer — never overwrite manual edits.
+        if (dates) {
+          const { data: existing } = await supabase
+            .from("pm_stages")
+            .select("id, start_date, end_date, source")
+            .eq("id", choice.stage_id)
+            .maybeSingle();
+          if (
+            existing &&
+            (existing.source === "imported_accelo" ||
+              (existing.start_date && existing.end_date && existing.start_date === existing.end_date))
+          ) {
+            await supabase
+              .from("pm_stages")
+              .update({ start_date, end_date })
+              .eq("id", choice.stage_id);
+          }
+        }
       } else if (choice.mode === "create" && choice.name.trim()) {
-        // Create a stage with placeholder dates; will be widened below from row activity.
-        const today = new Date().toISOString().slice(0, 10);
         const { data, error } = await supabase
           .from("pm_stages")
           .insert({
             project_id: resolvedPid,
             name: choice.name.trim(),
-            start_date: today,
-            end_date: today,
+            start_date,
+            end_date,
             source: "imported_accelo",
             external_id: `accelo_stage_manual:${resolvedPid}:${choice.name.trim()}`,
           })
