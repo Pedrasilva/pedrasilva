@@ -637,7 +637,13 @@ export async function listImportJobs() {
   return data ?? [];
 }
 
-export async function listCollaboratorsForMapping() {
+export async function listProjectsForMapping() {
+  const { data, error } = await supabase
+    .from("pm_projects")
+    .select("id,name,external_id")
+    .order("name");
+  if (error) throw error;
+  return data ?? [];
   const { data, error } = await supabase
     .from("collaborators")
     .select("id,nome,email")
