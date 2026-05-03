@@ -248,7 +248,12 @@
           "projectsNew": "New projects to create",
           "projectsSkipped": "References skipped",
           "companiesCreate": "Unmatched companies will be created as clients on commit.",
-          "companiesKeep": "Unmatched companies will be left blank on commit."
+          "companiesKeep": "Unmatched companies will be left blank on commit.",
+          "stageAssignments": "Resolved stage assignments",
+          "stageExisting": "Existing stage: {{stageId}}",
+          "stageCreate": "New stage: {{name}}",
+          "stageMissing": "Missing stage choice",
+          "commitOptionsDebug": "Commit options JSON"
         },
         "result": {
           "title": "Import complete",
