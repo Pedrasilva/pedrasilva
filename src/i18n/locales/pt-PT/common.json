@@ -141,7 +141,17 @@
           "entriesWithoutStage": "Entradas sem fase",
           "allocations": "Alocações",
           "reconstructionFailed": "A importação criou registos históricos mas nenhuma fase. A reconstrução de fases falhou.",
-          "openProject": "Abrir projeto"
+          "openProject": "Abrir projeto",
+          "retryFailed_one": "Repetir {{count}} projeto falhado",
+          "retryFailed_other": "Repetir {{count}} projetos falhados",
+          "exportDebug": "Exportar relatório de depuração"
+        },
+        "table": {
+          "project": "Projeto",
+          "stages": "Fases",
+          "status": "Estado",
+          "ok": "OK",
+          "failed": "Falhado"
         }
       },
       "stages": {
