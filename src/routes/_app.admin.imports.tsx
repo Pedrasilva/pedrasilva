@@ -747,16 +747,28 @@ function StagesStep({
         <CardDescription>{t("admin.imports.stages.hint")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        {invalidRanges > 0 && (
-          <p className="text-xs text-amber-700 dark:text-amber-300">
-            {t("admin.imports.stages.invalidRanges", { count: invalidRanges })}
-          </p>
-        )}
-        {missingProject > 0 && (
-          <p className="text-xs text-amber-700 dark:text-amber-300">
-            {t("admin.imports.stages.missingProject", { count: missingProject })}
-          </p>
-        )}
+        <div className="flex flex-wrap gap-3 text-xs">
+          <span className="rounded-md border px-2 py-1">
+            <span className="text-emerald-700 dark:text-emerald-300 font-medium">
+              {t("admin.imports.stages.counters.parsed", { count: parsedCount })}
+            </span>
+          </span>
+          <span className="rounded-md border px-2 py-1">
+            <span className="text-amber-700 dark:text-amber-300 font-medium">
+              {t("admin.imports.stages.counters.corrected", { count: correctedCount })}
+            </span>
+          </span>
+          <span className="rounded-md border px-2 py-1">
+            <span className="text-rose-700 dark:text-rose-300 font-medium">
+              {t("admin.imports.stages.counters.skipped", { count: skippedCount })}
+            </span>
+          </span>
+          {missingProject > 0 && (
+            <span className="rounded-md border px-2 py-1 text-amber-700 dark:text-amber-300">
+              {t("admin.imports.stages.missingProject", { count: missingProject })}
+            </span>
+          )}
+        </div>
         {stages.length === 0 ? (
           <p className="text-xs text-muted-foreground">{t("admin.imports.stages.noneDetected")}</p>
         ) : (
@@ -772,6 +784,7 @@ function StagesStep({
                     <TableHead>{t("admin.imports.stages.cols.start")}</TableHead>
                     <TableHead>{t("admin.imports.stages.cols.end")}</TableHead>
                     <TableHead>{t("admin.imports.stages.cols.status")}</TableHead>
+                    <TableHead>{t("admin.imports.stages.cols.message")}</TableHead>
                     <TableHead className="text-right">{t("admin.imports.stages.cols.rows")}</TableHead>
                     <TableHead className="text-right">{t("admin.imports.stages.cols.hours")}</TableHead>
                     <TableHead className="text-right">{t("admin.imports.stages.cols.people")}</TableHead>
@@ -787,7 +800,7 @@ function StagesStep({
                       <TableCell className="text-xs">{s.end_date}</TableCell>
                       <TableCell className="text-xs">
                         {s.warning ? (
-                          <span className="text-amber-700 dark:text-amber-300" title={s.warning}>
+                          <span className="text-amber-700 dark:text-amber-300">
                             {t("admin.imports.stages.statusWarn")}
                           </span>
                         ) : (
@@ -796,6 +809,7 @@ function StagesStep({
                           </span>
                         )}
                       </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{s.warning ?? "—"}</TableCell>
                       <TableCell className="text-right text-xs">{s.rows}</TableCell>
                       <TableCell className="text-right text-xs">{s.hours.toFixed(1)}</TableCell>
                       <TableCell className="text-right text-xs">{s.people}</TableCell>
