@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
@@ -339,6 +339,17 @@ function EditOpportunityDialog({
     notas: "",
   });
 
+  useEffect(() => {
+    if (!opportunity) return;
+    setForm({
+      name: opportunity.name,
+      estimated_fee: String(opportunity.estimated_fee ?? ""),
+      probability: String(opportunity.probability ?? 50),
+      expected_start_date: opportunity.expected_start_date ?? "",
+      notas: opportunity.notas ?? "",
+    });
+  }, [opportunity]);
+
   const save = useMutation({
     mutationFn: async () => {
       if (!opportunity) return;
@@ -371,19 +382,7 @@ function EditOpportunityDialog({
         if (!open && !save.isPending) onClose();
       }}
     >
-      <DialogContent
-        className="max-w-lg"
-        onOpenAutoFocus={() => {
-          if (!opportunity) return;
-          setForm({
-            name: opportunity.name,
-            estimated_fee: String(opportunity.estimated_fee ?? ""),
-            probability: String(opportunity.probability ?? 50),
-            expected_start_date: opportunity.expected_start_date ?? "",
-            notas: opportunity.notas ?? "",
-          });
-        }}
-      >
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{t("opportunities.detail.editTitle") || "Edit opportunity"}</DialogTitle>
         </DialogHeader>
