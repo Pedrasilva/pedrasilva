@@ -39,6 +39,7 @@ function OpportunitiesPage() {
   const [view, setView] = useState<"pipeline" | "list">("pipeline");
   const [creatingFor, setCreatingFor] = useState<string | null>(null);
   const [chooserOpp, setChooserOpp] = useState<Row | null>(null);
+  const [editingOpp, setEditingOpp] = useState<Row | null>(null);
 
   const { data: opps = [], isLoading } = useQuery({
     queryKey: ["crm_opportunities"],
@@ -196,15 +197,17 @@ function OpportunitiesPage() {
                           size="icon"
                           className="absolute top-1 right-1 h-6 w-6"
                         >
-                          <Link
-                            to="/crm/opportunities/$opportunityId"
-                            params={{ opportunityId: o.id }}
-                            search={{ edit: 1 }}
+                          <button
+                            type="button"
                             aria-label={t("common.edit")}
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setEditingOpp(o);
+                            }}
                           >
                             <Pencil className="h-3 w-3" />
-                          </Link>
+                          </button>
                         </Button>
                         <div className="font-medium line-clamp-2 hover:underline pr-7">{o.name}</div>
                         <div className="mt-1 text-xs text-muted-foreground line-clamp-1">
@@ -312,7 +315,108 @@ function OpportunitiesPage() {
         }}
         isPending={createQuote.isPending}
       />
+      <EditOpportunityDialog
+        opportunity={editingOpp}
+        onClose={() => setEditingOpp(null)}
+      />
     </div>
+  );
+}
+
+function EditOpportunityDialog({
+  opportunity, onClose,
+}: {
+  opportunity: Row | null;
+  onClose: () => void;
+}) {
+  const { t } = useTranslation("crm");
+  const qc = useQueryClient();
+  const [form, setForm] = useState({
+    name: "",
+    estimated_fee: "",
+    probability: "50",
+    expected_start_date: "",
+    notas: "",
+  });
+
+  const save = useMutation({
+    mutationFn: async () => {
+      if (!opportunity) return;
+      if (!form.name.trim()) throw new Error(t("opportunities.detail.errorName") || "Name required");
+      const { error } = await supabase
+        .from("crm_opportunities")
+        .update({
+          name: form.name.trim(),
+          estimated_fee: form.estimated_fee ? Number(form.estimated_fee) : 0,
+          probability: form.probability ? Number(form.probability) : 0,
+          expected_start_date: form.expected_start_date || null,
+          notas: form.notas || null,
+        })
+        .eq("id", opportunity.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("opportunities.detail.savedToast") || "Saved");
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+      if (opportunity) qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunity.id] });
+      onClose();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Dialog
+      open={!!opportunity}
+      onOpenChange={(open) => {
+        if (!open && !save.isPending) onClose();
+      }}
+    >
+      <DialogContent
+        className="max-w-lg"
+        onOpenAutoFocus={() => {
+          if (!opportunity) return;
+          setForm({
+            name: opportunity.name,
+            estimated_fee: String(opportunity.estimated_fee ?? ""),
+            probability: String(opportunity.probability ?? 50),
+            expected_start_date: opportunity.expected_start_date ?? "",
+            notas: opportunity.notas ?? "",
+          });
+        }}
+      >
+        <DialogHeader>
+          <DialogTitle>{t("opportunities.detail.editTitle") || "Edit opportunity"}</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-3">
+          <div>
+            <Label className="text-xs">{t("common.name")}</Label>
+            <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <Label className="text-xs">{t("common.estimatedFee")}</Label>
+              <Input type="number" value={form.estimated_fee} onChange={(e) => setForm((f) => ({ ...f, estimated_fee: e.target.value }))} />
+            </div>
+            <div>
+              <Label className="text-xs">{t("common.probability")}</Label>
+              <Input type="number" min={0} max={100} value={form.probability} onChange={(e) => setForm((f) => ({ ...f, probability: e.target.value }))} />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">{t("common.expectedStart")}</Label>
+            <Input type="date" value={form.expected_start_date} onChange={(e) => setForm((f) => ({ ...f, expected_start_date: e.target.value }))} />
+          </div>
+          <div>
+            <Label className="text-xs">{t("common.notes")}</Label>
+            <Textarea rows={4} value={form.notas} onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))} />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose} disabled={save.isPending}>{t("common.cancel")}</Button>
+          <Button onClick={() => save.mutate()} disabled={save.isPending}>{save.isPending ? t("common.loading") : t("common.save")}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
