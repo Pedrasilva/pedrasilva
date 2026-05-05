@@ -23,6 +23,8 @@ import {
 import { Briefcase, Clock, Wrench } from "lucide-react";
 
 export const Route = createFileRoute("/_app/crm/opportunities/$opportunityId")({
+  validateSearch: (search: Record<string, unknown>): { edit?: 1 } =>
+    search.edit === 1 || search.edit === "1" ? { edit: 1 } : {},
   component: OpportunityDetail,
 });
 
@@ -116,8 +118,9 @@ function OpportunityDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const search = Route.useSearch();
   const [quoteOpen, setQuoteOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(search.edit === 1);
 
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   if (!opp) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
