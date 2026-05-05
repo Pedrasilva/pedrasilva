@@ -12,7 +12,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Target, LayoutGrid, List, FileText, ArrowRight, Briefcase, Clock, Wrench, Pencil } from "lucide-react";
+import { Plus, Target, LayoutGrid, List, FileText, ArrowRight, Briefcase, Clock, Wrench, Pencil, Trash2 } from "lucide-react";
 import { CompanyPicker } from "@/components/crm/company-picker";
 import { toast } from "sonner";
 import {
@@ -375,11 +375,25 @@ function EditOpportunityDialog({
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const remove = useMutation({
+    mutationFn: async () => {
+      if (!opportunity) return;
+      const { error } = await supabase.from("crm_opportunities").delete().eq("id", opportunity.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("opportunities.detail.deletedToast") || "Deleted");
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+      onClose();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   return (
     <Dialog
       open={!!opportunity}
       onOpenChange={(open) => {
-        if (!open && !save.isPending) onClose();
+        if (!open && !save.isPending && !remove.isPending) onClose();
       }}
     >
       <DialogContent className="max-w-lg">
@@ -410,9 +424,20 @@ function EditOpportunityDialog({
             <Textarea rows={4} value={form.notas} onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))} />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose} disabled={save.isPending}>{t("common.cancel")}</Button>
-          <Button onClick={() => save.mutate()} disabled={save.isPending}>{save.isPending ? t("common.loading") : t("common.save")}</Button>
+        <DialogFooter className="sm:justify-between">
+          <Button
+            variant="destructive"
+            onClick={() => {
+              if (opportunity && confirm(t("opportunities.detail.deleteConfirm"))) remove.mutate();
+            }}
+            disabled={save.isPending || remove.isPending}
+          >
+            <Trash2 className="h-4 w-4 mr-1" /> {t("common.delete")}
+          </Button>
+          <div className="flex gap-2">
+            <Button variant="ghost" onClick={onClose} disabled={save.isPending || remove.isPending}>{t("common.cancel")}</Button>
+            <Button onClick={() => save.mutate()} disabled={save.isPending || remove.isPending}>{save.isPending ? t("common.loading") : t("common.save")}</Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
