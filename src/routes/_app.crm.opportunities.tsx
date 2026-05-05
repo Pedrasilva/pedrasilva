@@ -526,10 +526,9 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
   const create = useMutation({
     mutationFn: async () => {
       if (!form.name.trim()) throw new Error(t("opportunities.dialog.errorName"));
-      if (!form.company_id) throw new Error(t("opportunities.dialog.errorCompany"));
       const { data, error } = await supabase.from("crm_opportunities").insert({
         name: form.name.trim(),
-        company_id: form.company_id,
+        company_id: form.company_id || null,
         stage: form.stage,
         estimated_fee: form.estimated_fee ? Number(form.estimated_fee) : 0,
         probability: Number(form.probability) || 0,
@@ -565,7 +564,7 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
             />
           </div>
           <div className="sm:col-span-2">
-            <Label>{t("common.company")} *</Label>
+            <Label>{t("common.company")}</Label>
             <CompanyPicker
               value={form.company_id || null}
               onChange={(id) => setForm((f) => ({ ...f, company_id: id }))}
@@ -626,7 +625,7 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
           <Button variant="ghost" onClick={onClose}>{t("common.cancel")}</Button>
           <Button
             onClick={() => create.mutate()}
-            disabled={create.isPending || !form.name.trim() || !form.company_id}
+            disabled={create.isPending || !form.name.trim()}
           >
             {t("common.create")}
           </Button>

@@ -1,0 +1,1 @@
+ALTER TABLE public.crm_opportunities ALTER COLUMN company_id DROP NOT NULL;

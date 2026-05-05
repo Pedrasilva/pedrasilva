@@ -1019,7 +1019,7 @@ export type Database = {
       }
       crm_opportunities: {
         Row: {
-          company_id: string
+          company_id: string | null
           created_at: string
           created_by: string | null
           estimated_fee: number
@@ -1034,7 +1034,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          company_id: string
+          company_id?: string | null
           created_at?: string
           created_by?: string | null
           estimated_fee?: number
@@ -1049,7 +1049,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          company_id?: string
+          company_id?: string | null
           created_at?: string
           created_by?: string | null
           estimated_fee?: number
