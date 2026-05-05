@@ -23,6 +23,9 @@ import {
 import { Briefcase, Clock, Wrench } from "lucide-react";
 
 export const Route = createFileRoute("/_app/crm/opportunities/$opportunityId")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    edit: search.edit === 1 || search.edit === "1" ? 1 : undefined,
+  }),
   component: OpportunityDetail,
 });
 
