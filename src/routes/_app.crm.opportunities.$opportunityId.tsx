@@ -157,13 +157,14 @@ function OpportunityDetail() {
             <Pencil className="h-4 w-4 mr-1" /> {t("common.edit")}
           </Button>
           <Button
-            variant="outline"
+            variant="destructive"
             size="sm"
             onClick={() => {
               if (confirm(t("opportunities.detail.deleteConfirm"))) remove.mutate();
             }}
+            disabled={remove.isPending}
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4 mr-1" /> {t("common.delete")}
           </Button>
         </div>
       </div>
