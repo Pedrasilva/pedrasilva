@@ -179,18 +179,18 @@ function OpportunitiesPage() {
                     return (
                       <div
                         key={o.id}
-                        onDoubleClick={() => handleCardDoubleClick(o.id)}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleCardDoubleClick(o.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleCardDoubleClick(o.id);
+                          }
+                        }}
                         className="rounded-md border bg-background p-2 text-sm hover:border-primary/40 hover:shadow-sm transition cursor-pointer select-none"
-                        title={t("opportunities.card.doubleClickHint")}
                       >
-                        <Link
-                          to="/crm/opportunities/$opportunityId"
-                          params={{ opportunityId: o.id }}
-                          className="block hover:underline"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="font-medium line-clamp-2">{o.name}</div>
-                        </Link>
+                        <div className="font-medium line-clamp-2 hover:underline">{o.name}</div>
                         <div className="mt-1 text-xs text-muted-foreground line-clamp-1">
                           {o.company?.nome ?? t("opportunities.card.noCompany")}
                         </div>
