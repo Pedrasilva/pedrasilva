@@ -526,10 +526,9 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
   const create = useMutation({
     mutationFn: async () => {
       if (!form.name.trim()) throw new Error(t("opportunities.dialog.errorName"));
-      if (!form.company_id) throw new Error(t("opportunities.dialog.errorCompany"));
       const { data, error } = await supabase.from("crm_opportunities").insert({
         name: form.name.trim(),
-        company_id: form.company_id,
+        company_id: form.company_id || null,
         stage: form.stage,
         estimated_fee: form.estimated_fee ? Number(form.estimated_fee) : 0,
         probability: Number(form.probability) || 0,
