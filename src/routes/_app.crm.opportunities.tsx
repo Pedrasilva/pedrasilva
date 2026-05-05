@@ -625,7 +625,7 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
           <Button variant="ghost" onClick={onClose}>{t("common.cancel")}</Button>
           <Button
             onClick={() => create.mutate()}
-            disabled={create.isPending || !form.name.trim() || !form.company_id}
+            disabled={create.isPending || !form.name.trim()}
           >
             {t("common.create")}
           </Button>
