@@ -564,7 +564,7 @@ function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () =>
             />
           </div>
           <div className="sm:col-span-2">
-            <Label>{t("common.company")} *</Label>
+            <Label>{t("common.company")}</Label>
             <CompanyPicker
               value={form.company_id || null}
               onChange={(id) => setForm((f) => ({ ...f, company_id: id }))}
