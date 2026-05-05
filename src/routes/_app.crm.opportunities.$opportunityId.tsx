@@ -146,6 +146,9 @@ function OpportunityDetail() {
             <span className={`h-2 w-2 rounded-full ${stage?.color}`} />
             {stage ? t(`stage.${stage.value}`) : ""}
           </span>
+          <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+            <Pencil className="h-4 w-4 mr-1" /> {t("common.edit")}
+          </Button>
           <Button
             variant="outline"
             size="sm"
