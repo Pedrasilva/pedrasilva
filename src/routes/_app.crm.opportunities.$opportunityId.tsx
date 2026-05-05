@@ -117,6 +117,7 @@ function OpportunityDetail() {
   });
 
   const [quoteOpen, setQuoteOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   if (!opp) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
