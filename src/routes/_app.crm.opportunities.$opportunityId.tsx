@@ -12,7 +12,10 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, FileText, Trash2, Pencil } from "lucide-react";
+import { ArrowLeft, Plus, FileText, Trash2, Pencil, AlertTriangle, Calendar as CalendarIcon, Mail, Phone, User } from "lucide-react";
+import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activity-timeline";
+import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
   formatEUR, OPPORTUNITY_STAGES, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
@@ -105,6 +108,26 @@ function OpportunityDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const updateField = useMutation({
+    mutationFn: async (patch: Partial<{
+      next_action: string | null;
+      next_action_date: string | null;
+      source: string | null;
+      contact_name: string | null;
+      contact_email: string | null;
+      contact_phone: string | null;
+    }>) => {
+      const { error } = await supabase
+        .from("crm_opportunities").update(patch).eq("id", opportunityId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunityId] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const remove = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from("crm_opportunities").delete().eq("id", opportunityId);
@@ -130,9 +153,10 @@ function OpportunityDetail() {
   if (!opp) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
 
   const stage = OPPORTUNITY_STAGES.find((s) => s.value === opp.stage);
+  const nextActionStatus = getNextActionStatus(opp.next_action_date);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Link
         to="/crm/opportunities"
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
@@ -144,12 +168,11 @@ function OpportunityDetail() {
         <div>
           <h2 className="text-2xl font-semibold tracking-tight">{opp.name}</h2>
           <p className="text-sm text-muted-foreground">
-            {opp.company?.nome ?? "—"}
-            {opp.contact && ` · ${contactFullName(opp.contact)}`}
+            {opp.company?.nome ?? t("opportunities.card.noCompany")}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs`}>
+          <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs">
             <span className={`h-2 w-2 rounded-full ${stage?.color}`} />
             {stage ? t(`stage.${stage.value}`) : ""}
           </span>
@@ -169,148 +192,224 @@ function OpportunityDetail() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="md:col-span-2">
-          <CardHeader><CardTitle className="text-base">{t("opportunities.detail.overview")}</CardTitle></CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <Label className="text-xs text-muted-foreground">{t("common.estimatedFee").replace(" (€)", "")}</Label>
-              <div className="text-lg font-semibold">{formatEUR(Number(opp.estimated_fee))}</div>
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">{t("common.probability").replace(" (%)", "")}</Label>
-              <div className="text-lg font-semibold">{opp.probability}%</div>
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">{t("common.expectedStart")}</Label>
-              <div className="text-sm">{opp.expected_start_date ?? "—"}</div>
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">{t("common.stage")}</Label>
-              <Select
-                value={opp.stage}
-                onValueChange={(v) => updateStage.mutate(v as OpportunityStage)}
-              >
-                <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {OPPORTUNITY_STAGES.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>{t(`stage.${s.value}`)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="sm:col-span-2">
-              <Label className="text-xs text-muted-foreground">{t("common.primaryContact")}</Label>
-              <Select
-                value={opp.primary_contact_id ?? "none"}
-                onValueChange={(v) => updateContact.mutate(v === "none" ? null : v)}
-              >
-                <SelectTrigger className="h-8"><SelectValue placeholder={t("common.noContact")} /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">{t("common.noContact")}</SelectItem>
-                  {contacts.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{contactFullName(c)}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="sm:col-span-2">
-              <Label className="text-xs text-muted-foreground">{t("common.notes")}</Label>
-              <p className="text-sm whitespace-pre-wrap">{opp.notas || "—"}</p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
+        {/* LEFT: summary */}
+        <div className="space-y-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">{t("opportunities.detail.nextActionTitle")}</CardTitle>
+            </CardHeader>
+            <CardContent
+              className={cn(
+                "space-y-2 rounded-b-lg",
+                nextActionStatus === "overdue" && "bg-destructive/10",
+                nextActionStatus === "soon" && "bg-amber-500/10",
+              )}
+            >
+              <Textarea
+                rows={2}
+                placeholder={t("opportunities.detail.nextActionPlaceholder")}
+                defaultValue={opp.next_action ?? ""}
+                onBlur={(e) => {
+                  if ((e.target.value || null) !== opp.next_action)
+                    updateField.mutate({ next_action: e.target.value || null });
+                }}
+                className="text-sm"
+              />
+              <div className="flex items-center gap-2">
+                <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  type="date"
+                  className="h-8"
+                  defaultValue={opp.next_action_date ?? ""}
+                  onChange={(e) =>
+                    updateField.mutate({ next_action_date: e.target.value || null })
+                  }
+                />
+              </div>
+              {nextActionStatus === "overdue" && (
+                <p className="flex items-center gap-1 text-xs text-destructive">
+                  <AlertTriangle className="h-3 w-3" /> {t("opportunities.detail.overdue")}
+                </p>
+              )}
+              {nextActionStatus === "soon" && (
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  {t("opportunities.detail.dueSoon")}
+                </p>
+              )}
+            </CardContent>
+          </Card>
 
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">{t("opportunities.detail.summary")}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div>
+                <Label className="text-xs text-muted-foreground">{t("common.stage")}</Label>
+                <Select
+                  value={opp.stage}
+                  onValueChange={(v) => updateStage.mutate(v as OpportunityStage)}
+                >
+                  <SelectTrigger className="h-8 mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {OPPORTUNITY_STAGES.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>{t(`stage.${s.value}`)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground">{t("common.estimatedFee").replace(" (€)", "")}</Label>
+                  <div className="font-semibold">{formatEUR(Number(opp.estimated_fee))}</div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">{t("common.probability").replace(" (%)", "")}</Label>
+                  <div className="font-semibold">{opp.probability}%</div>
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">{t("opportunities.detail.source")}</Label>
+                <Select
+                  value={opp.source ?? "none"}
+                  onValueChange={(v) =>
+                    updateField.mutate({ source: v === "none" ? null : (v as OpportunitySource) })
+                  }
+                >
+                  <SelectTrigger className="h-8 mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">—</SelectItem>
+                    {OPPORTUNITY_SOURCES.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>
+                        {t(`opportunities.detail.sourceOption.${s.value}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">{t("opportunities.detail.contact")}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <div className="flex items-center gap-2">
+                <User className="h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  className="h-8"
+                  placeholder={t("opportunities.detail.contactName")}
+                  defaultValue={opp.contact_name ?? ""}
+                  onBlur={(e) => {
+                    if ((e.target.value || null) !== opp.contact_name)
+                      updateField.mutate({ contact_name: e.target.value || null });
+                  }}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  className="h-8"
+                  type="email"
+                  placeholder={t("opportunities.detail.contactEmail")}
+                  defaultValue={opp.contact_email ?? ""}
+                  onBlur={(e) => {
+                    if ((e.target.value || null) !== opp.contact_email)
+                      updateField.mutate({ contact_email: e.target.value || null });
+                  }}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  className="h-8"
+                  placeholder={t("opportunities.detail.contactPhone")}
+                  defaultValue={opp.contact_phone ?? ""}
+                  onBlur={(e) => {
+                    if ((e.target.value || null) !== opp.contact_phone)
+                      updateField.mutate({ contact_phone: e.target.value || null });
+                  }}
+                />
+              </div>
+              {opp.company && (
+                <div className="pt-2 border-t">
+                  <Label className="text-xs text-muted-foreground">{t("opportunities.detail.company")}</Label>
+                  <Link
+                    to="/crm/companies/$companyId"
+                    params={{ companyId: opp.company.id }}
+                    className="block text-sm font-medium hover:underline"
+                  >
+                    {opp.company.nome}
+                  </Link>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm">{t("opportunities.detail.quotesSection")}</CardTitle>
+              {opp.company_id && (
+                <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => setQuoteOpen(true)}>
+                  <Plus className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent className="text-sm">
+              {quotes.length === 0 ? (
+                <div className="flex flex-col items-center gap-1 py-3 text-xs text-muted-foreground">
+                  <FileText className="h-5 w-5 opacity-50" />
+                  <span>{t("opportunities.detail.noQuotesTitle")}</span>
+                </div>
+              ) : (
+                <ul className="space-y-1">
+                  {quotes.map((q) => {
+                    const status = QUOTE_STATUSES.find((s) => s.value === q.quote_status);
+                    return (
+                      <li key={q.id}>
+                        <Link
+                          to="/crm/quotes/$quoteId"
+                          params={{ quoteId: q.id }}
+                          className="flex items-center justify-between gap-2 rounded px-2 py-1.5 hover:bg-muted text-xs"
+                        >
+                          <span className="flex items-center gap-2 min-w-0">
+                            <span className={`h-2 w-2 rounded-full shrink-0 ${status?.color}`} />
+                            <span className="truncate">{q.titulo}</span>
+                          </span>
+                          <span className="font-medium shrink-0">{formatEUR(Number(q.valor))}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* RIGHT: activity timeline */}
         <Card>
-          <CardHeader><CardTitle className="text-base">{t("opportunities.detail.company")}</CardTitle></CardHeader>
-          <CardContent className="text-sm space-y-2">
-            {opp.company ? (
-              <Link
-                to="/crm/companies/$companyId"
-                params={{ companyId: opp.company.id }}
-                className="font-medium hover:underline"
-              >
-                {opp.company.nome}
-              </Link>
-            ) : "—"}
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">{t("opportunities.activity.title")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <OpportunityActivityTimeline opportunityId={opp.id} />
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">{t("opportunities.detail.quotesSection")}</CardTitle>
-          <Button size="sm" onClick={() => setQuoteOpen(true)}>
-            <Plus className="h-4 w-4 mr-1" /> {t("opportunities.detail.newQuote")}
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {quotes.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 py-8 text-sm text-muted-foreground">
-              <FileText className="h-8 w-8 opacity-50" />
-              <span className="font-medium">{t("opportunities.detail.noQuotesTitle")}</span>
-              <span>{t("opportunities.detail.noQuotesHint")}</span>
-            </div>
-          ) : (
-            <table className="w-full text-sm">
-              <thead className="border-b">
-                <tr className="text-left text-xs text-muted-foreground">
-                  <th className="px-2 py-2">{t("opportunities.detail.quoteTitle")}</th>
-                  <th className="px-2 py-2">{t("opportunities.detail.quoteAccount")}</th>
-                  <th className="px-2 py-2">{t("opportunities.detail.quoteStructure")}</th>
-                  <th className="px-2 py-2">{t("opportunities.detail.quoteStatus")}</th>
-                  <th className="px-2 py-2 text-right">{t("opportunities.detail.quoteFee")}</th>
-                  <th className="px-2 py-2 text-right" aria-label="actions"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {quotes.map((q) => {
-                  const status = QUOTE_STATUSES.find((s) => s.value === q.quote_status);
-                  const struct = FEE_STRUCTURE_TYPES.find((s) => s.value === q.fee_structure_type);
-                  return (
-                    <tr key={q.id} className="border-b hover:bg-muted/30">
-                      <td className="px-2 py-2">
-                        <Link
-                          to="/crm/quotes/$quoteId"
-                          params={{ quoteId: q.id }}
-                          className="font-medium hover:underline"
-                        >
-                          {q.titulo}
-                        </Link>
-                      </td>
-                      <td className="px-2 py-2 text-muted-foreground">{q.account?.name ?? "—"}</td>
-                      <td className="px-2 py-2 text-muted-foreground">{struct ? t(`feeStructure.${struct.value}`) : ""}</td>
-                      <td className="px-2 py-2">
-                        <span className="inline-flex items-center gap-2 text-xs">
-                          <span className={`h-2 w-2 rounded-full ${status?.color}`} />
-                          {status ? t(`quoteStatus.${status.value}`) : ""}
-                        </span>
-                      </td>
-                      <td className="px-2 py-2 text-right font-medium">{formatEUR(Number(q.valor))}</td>
-                      <td className="px-2 py-2 text-right">
-                        <Button asChild variant="ghost" size="sm" className="h-7 px-2 text-xs">
-                          <Link to="/crm/quotes/$quoteId" params={{ quoteId: q.id }}>
-                            {t("opportunities.card.openQuote")}
-                          </Link>
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </CardContent>
-      </Card>
-
-      <NewQuoteDialog
-        open={quoteOpen}
-        onClose={() => setQuoteOpen(false)}
-        opportunityId={opp.id}
-        companyId={opp.company_id}
-        defaultTitle={opp.name}
-        defaultFee={Number(opp.estimated_fee)}
-      />
+      {opp.company_id && (
+        <NewQuoteDialog
+          open={quoteOpen}
+          onClose={() => setQuoteOpen(false)}
+          opportunityId={opp.id}
+          companyId={opp.company_id}
+          defaultTitle={opp.name}
+          defaultFee={Number(opp.estimated_fee)}
+        />
+      )}
 
       <EditOpportunityDialog
         open={editOpen}
@@ -319,6 +418,17 @@ function OpportunityDetail() {
       />
     </div>
   );
+}
+
+function getNextActionStatus(date: string | null): "overdue" | "soon" | "ok" | "none" {
+  if (!date) return "none";
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(date + "T00:00:00");
+  const diffDays = Math.floor((target.getTime() - today.getTime()) / 86400000);
+  if (diffDays < 0) return "overdue";
+  if (diffDays <= 3) return "soon";
+  return "ok";
 }
 
 function EditOpportunityDialog({

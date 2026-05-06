@@ -213,15 +213,36 @@ function OpportunitiesPage() {
                         <div className="mt-1 text-xs text-muted-foreground line-clamp-1">
                           {o.company?.nome ?? t("opportunities.card.noCompany")}
                         </div>
-                        {o.contact && (
-                          <div className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
-                            {contactFullName(o.contact)}
-                          </div>
-                        )}
                         <div className="mt-2 flex items-center justify-between">
                           <span className="text-xs text-muted-foreground">{o.probability}%</span>
                           <span className="font-semibold">{formatEUR(Number(o.estimated_fee))}</span>
                         </div>
+                        {(() => {
+                          const nad = (o as unknown as { next_action_date: string | null }).next_action_date;
+                          const na = (o as unknown as { next_action: string | null }).next_action;
+                          const la = (o as unknown as { last_activity_at: string | null }).last_activity_at;
+                          let dot = "⚪";
+                          if (nad) {
+                            const d = Math.floor((new Date(nad + "T00:00:00").getTime() - Date.now()) / 86400000);
+                            dot = d < 0 ? "🔴" : d <= 3 ? "🟡" : "";
+                          }
+                          const lastTxt = la
+                            ? t("opportunities.activity.dayAgo", { count: Math.max(0, Math.floor((Date.now() - new Date(la).getTime()) / 86400000)) })
+                            : t("opportunities.activity.noContact");
+                          return (
+                            <>
+                              {na && (
+                                <div className="mt-1 text-[10px] text-foreground/80 line-clamp-1">
+                                  {dot} {na}
+                                </div>
+                              )}
+                              {!na && dot && (
+                                <div className="mt-1 text-[10px] text-muted-foreground">{dot}</div>
+                              )}
+                              <div className="mt-0.5 text-[10px] text-muted-foreground">{lastTxt}</div>
+                            </>
+                          );
+                        })()}
                         <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
                           <FileText className="h-3 w-3" />
                           {quoteCount > 0

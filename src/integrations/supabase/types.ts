@@ -1020,46 +1020,67 @@ export type Database = {
       crm_opportunities: {
         Row: {
           company_id: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
           created_at: string
           created_by: string | null
           estimated_fee: number
           expected_start_date: string | null
           id: string
+          last_activity_at: string | null
           name: string
+          next_action: string | null
+          next_action_date: string | null
           notas: string | null
           primary_contact_id: string | null
           probability: number
           project_brief: string | null
+          source: string | null
           stage: Database["public"]["Enums"]["crm_opportunity_stage"]
           updated_at: string
         }
         Insert: {
           company_id?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
           created_by?: string | null
           estimated_fee?: number
           expected_start_date?: string | null
           id?: string
+          last_activity_at?: string | null
           name: string
+          next_action?: string | null
+          next_action_date?: string | null
           notas?: string | null
           primary_contact_id?: string | null
           probability?: number
           project_brief?: string | null
+          source?: string | null
           stage?: Database["public"]["Enums"]["crm_opportunity_stage"]
           updated_at?: string
         }
         Update: {
           company_id?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
           created_by?: string | null
           estimated_fee?: number
           expected_start_date?: string | null
           id?: string
+          last_activity_at?: string | null
           name?: string
+          next_action?: string | null
+          next_action_date?: string | null
           notas?: string | null
           primary_contact_id?: string | null
           probability?: number
           project_brief?: string | null
+          source?: string | null
           stage?: Database["public"]["Enums"]["crm_opportunity_stage"]
           updated_at?: string
         }
@@ -2418,6 +2439,41 @@ export type Database = {
           valor_dinheiro?: number
         }
         Relationships: []
+      }
+      opportunity_activities: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          opportunity_id: string
+          type: Database["public"]["Enums"]["opportunity_activity_type"]
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          opportunity_id: string
+          type?: Database["public"]["Enums"]["opportunity_activity_type"]
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          opportunity_id?: string
+          type?: Database["public"]["Enums"]["opportunity_activity_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_activities_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "crm_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pm_activities: {
         Row: {
@@ -5045,6 +5101,7 @@ export type Database = {
         | "imported"
         | "skipped"
       import_type: "accelo_activity_timesheet" | "companies_clients_suppliers"
+      opportunity_activity_type: "call" | "email" | "meeting" | "note"
       pm_allocation_status: "tentative" | "committed"
       pm_dep_type: "FS" | "SS" | "FF" | "SF"
       pm_expense_category:
@@ -5359,6 +5416,7 @@ export const Constants = {
         "skipped",
       ],
       import_type: ["accelo_activity_timesheet", "companies_clients_suppliers"],
+      opportunity_activity_type: ["call", "email", "meeting", "note"],
       pm_allocation_status: ["tentative", "committed"],
       pm_dep_type: ["FS", "SS", "FF", "SF"],
       pm_expense_category: [
