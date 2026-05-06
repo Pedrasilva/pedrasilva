@@ -12,7 +12,10 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, FileText, Trash2, Pencil } from "lucide-react";
+import { ArrowLeft, Plus, FileText, Trash2, Pencil, AlertTriangle, Calendar as CalendarIcon, Mail, Phone, User } from "lucide-react";
+import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activity-timeline";
+import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
   formatEUR, OPPORTUNITY_STAGES, QUOTE_STATUSES, FEE_STRUCTURE_TYPES,
