@@ -109,7 +109,14 @@ function OpportunityDetail() {
   });
 
   const updateField = useMutation({
-    mutationFn: async (patch: Record<string, unknown>) => {
+    mutationFn: async (patch: Partial<{
+      next_action: string | null;
+      next_action_date: string | null;
+      source: string | null;
+      contact_name: string | null;
+      contact_email: string | null;
+      contact_phone: string | null;
+    }>) => {
       const { error } = await supabase
         .from("crm_opportunities").update(patch).eq("id", opportunityId);
       if (error) throw error;
