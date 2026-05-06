@@ -102,6 +102,7 @@
       "stageUpdatedToast": "Stage updated",
       "contactUpdatedToast": "Contact updated",
       "overview": "Overview",
+      "summary": "Summary",
       "company": "Company",
       "quotesSection": "Quotes",
       "newQuote": "New quote",
@@ -111,7 +112,45 @@
       "quoteAccount": "Account",
       "quoteStructure": "Structure",
       "quoteStatus": "Status",
-      "quoteFee": "Fee"
+      "quoteFee": "Fee",
+      "nextActionTitle": "Next action",
+      "nextActionPlaceholder": "What's the next step?",
+      "overdue": "Overdue",
+      "dueSoon": "Due soon",
+      "source": "Source",
+      "sourceOption": {
+        "web": "Web",
+        "referral": "Referral",
+        "repeat": "Repeat client",
+        "other": "Other"
+      },
+      "contact": "Contact",
+      "contactName": "Contact name",
+      "contactEmail": "Email",
+      "contactPhone": "Phone"
+    },
+    "activity": {
+      "title": "Activity",
+      "add": "Add activity",
+      "empty": "No activity yet. Log the first interaction.",
+      "placeholder": "What happened? (Cmd/Ctrl+Enter to save)",
+      "shortcut": "Cmd/Ctrl + Enter to save",
+      "errorEmpty": "Content is required",
+      "justNow": "just now",
+      "minAgo_one": "{{count}} min ago",
+      "minAgo_other": "{{count}} min ago",
+      "hourAgo_one": "{{count}}h ago",
+      "hourAgo_other": "{{count}}h ago",
+      "dayAgo_one": "{{count}}d ago",
+      "dayAgo_other": "{{count}}d ago",
+      "lastContact": "Last contact {{time}}",
+      "noContact": "No contact yet",
+      "type": {
+        "call": "Call",
+        "email": "Email",
+        "meeting": "Meeting",
+        "note": "Note"
+      }
     }
   },
   "accounts": {
