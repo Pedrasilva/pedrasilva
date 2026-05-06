@@ -12,7 +12,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, FileText, Trash2, Pencil, AlertTriangle, Calendar as CalendarIcon, Mail, Phone, User } from "lucide-react";
+import { ArrowLeft, Plus, FileText, Trash2, AlertTriangle, Calendar as CalendarIcon, Mail, Phone, User } from "lucide-react";
 import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activity-timeline";
 import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
 import { cn } from "@/lib/utils";
@@ -26,8 +26,6 @@ import {
 import { Briefcase, Clock, Wrench } from "lucide-react";
 
 export const Route = createFileRoute("/_app/crm/opportunities/$opportunityId")({
-  validateSearch: (search: Record<string, unknown>): { edit?: 1 } =>
-    search.edit === 1 || search.edit === "1" ? { edit: 1 } : {},
   component: OpportunityDetail,
 });
 
@@ -141,13 +139,7 @@ function OpportunityDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const search = Route.useSearch();
   const [quoteOpen, setQuoteOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(search.edit === 1);
-
-  useEffect(() => {
-    if (search.edit === 1) setEditOpen(true);
-  }, [search.edit, opportunityId]);
 
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   if (!opp) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
@@ -176,9 +168,6 @@ function OpportunityDetail() {
             <span className={`h-2 w-2 rounded-full ${stage?.color}`} />
             {stage ? t(`stage.${stage.value}`) : ""}
           </span>
-          <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
-            <Pencil className="h-4 w-4 mr-1" /> {t("common.edit")}
-          </Button>
           <Button
             variant="destructive"
             size="sm"
@@ -411,11 +400,6 @@ function OpportunityDetail() {
         />
       )}
 
-      <EditOpportunityDialog
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        opportunity={opp}
-      />
     </div>
   );
 }
@@ -431,106 +415,6 @@ function getNextActionStatus(date: string | null): "overdue" | "soon" | "ok" | "
   return "ok";
 }
 
-function EditOpportunityDialog({
-  open, onClose, opportunity,
-}: {
-  open: boolean; onClose: () => void;
-  opportunity: CrmOpportunity;
-}) {
-  const { t } = useTranslation("crm");
-  const qc = useQueryClient();
-  const [form, setForm] = useState({
-    name: opportunity.name,
-    estimated_fee: String(opportunity.estimated_fee ?? ""),
-    probability: String(opportunity.probability ?? 50),
-    expected_start_date: opportunity.expected_start_date ?? "",
-    notas: opportunity.notas ?? "",
-  });
-
-  const save = useMutation({
-    mutationFn: async () => {
-      if (!form.name.trim()) throw new Error(t("opportunities.detail.errorName") || "Name required");
-      const { error } = await supabase
-        .from("crm_opportunities")
-        .update({
-          name: form.name.trim(),
-          estimated_fee: form.estimated_fee ? Number(form.estimated_fee) : 0,
-          probability: form.probability ? Number(form.probability) : 0,
-          expected_start_date: form.expected_start_date || null,
-          notas: form.notas || null,
-        })
-        .eq("id", opportunity.id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success(t("opportunities.detail.savedToast") || "Saved");
-      qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunity.id] });
-      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
-      onClose();
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{t("opportunities.detail.editTitle") || "Edit opportunity"}</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-3">
-          <div>
-            <Label className="text-xs">{t("common.name")}</Label>
-            <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <Label className="text-xs">{t("common.estimatedFee")}</Label>
-              <Input
-                type="number"
-                value={form.estimated_fee}
-                onChange={(e) => setForm((f) => ({ ...f, estimated_fee: e.target.value }))}
-              />
-            </div>
-            <div>
-              <Label className="text-xs">{t("common.probability")}</Label>
-              <Input
-                type="number"
-                min={0}
-                max={100}
-                value={form.probability}
-                onChange={(e) => setForm((f) => ({ ...f, probability: e.target.value }))}
-              />
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs">{t("common.expectedStart")}</Label>
-            <Input
-              type="date"
-              value={form.expected_start_date}
-              onChange={(e) => setForm((f) => ({ ...f, expected_start_date: e.target.value }))}
-            />
-          </div>
-          <div>
-            <Label className="text-xs">{t("common.notes")}</Label>
-            <Textarea
-              rows={4}
-              value={form.notas}
-              onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))}
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose} disabled={save.isPending}>
-            {t("common.cancel")}
-          </Button>
-          <Button onClick={() => save.mutate()} disabled={save.isPending}>
-            {save.isPending ? t("common.loading") : t("common.save")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 function NewQuoteDialog({
   open, onClose, opportunityId, companyId, defaultTitle, defaultFee,
