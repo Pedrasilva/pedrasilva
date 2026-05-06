@@ -408,11 +408,6 @@ function OpportunityDetail() {
         />
       )}
 
-      <EditOpportunityDialog
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        opportunity={opp}
-      />
     </div>
   );
 }
