@@ -191,25 +191,7 @@ function OpportunitiesPage() {
                         }}
                         className="relative rounded-md border bg-background p-2 text-sm hover:border-primary/40 hover:shadow-sm transition cursor-pointer select-none"
                       >
-                        <Button
-                          asChild
-                          variant="ghost"
-                          size="icon"
-                          className="absolute top-1 right-1 h-6 w-6"
-                        >
-                          <button
-                            type="button"
-                            aria-label={t("common.edit")}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setEditingOpp(o);
-                            }}
-                          >
-                            <Pencil className="h-3 w-3" />
-                          </button>
-                        </Button>
-                        <div className="font-medium line-clamp-2 hover:underline pr-7">{o.name}</div>
+                        <div className="font-medium line-clamp-2 hover:underline">{o.name}</div>
                         <div className="mt-1 text-xs text-muted-foreground line-clamp-1">
                           {o.company?.nome ?? t("opportunities.card.noCompany")}
                         </div>
