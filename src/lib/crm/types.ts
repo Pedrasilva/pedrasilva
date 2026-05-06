@@ -163,16 +163,50 @@ export type CrmAccount = {
   updated_at: string;
 };
 
+export type OpportunitySource = "web" | "referral" | "repeat" | "other";
+
+export type OpportunityActivityType = "call" | "email" | "meeting" | "note";
+
+export type OpportunityActivity = {
+  id: string;
+  opportunity_id: string;
+  type: OpportunityActivityType;
+  content: string;
+  created_by: string | null;
+  created_at: string;
+};
+
+export const OPPORTUNITY_ACTIVITY_TYPES: { value: OpportunityActivityType }[] = [
+  { value: "call" },
+  { value: "email" },
+  { value: "meeting" },
+  { value: "note" },
+];
+
+export const OPPORTUNITY_SOURCES: { value: OpportunitySource }[] = [
+  { value: "web" },
+  { value: "referral" },
+  { value: "repeat" },
+  { value: "other" },
+];
+
 export type CrmOpportunity = {
   id: string;
   name: string;
-  company_id: string;
+  company_id: string | null;
   primary_contact_id: string | null;
   stage: OpportunityStage;
   estimated_fee: number;
   probability: number;
   expected_start_date: string | null;
   notas: string | null;
+  next_action: string | null;
+  next_action_date: string | null;
+  source: OpportunitySource | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  last_activity_at: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
