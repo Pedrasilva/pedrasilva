@@ -318,10 +318,6 @@ function OpportunitiesPage() {
         }}
         isPending={createQuote.isPending}
       />
-      <EditOpportunityDialog
-        opportunity={editingOpp}
-        onClose={() => setEditingOpp(null)}
-      />
     </div>
   );
 }
