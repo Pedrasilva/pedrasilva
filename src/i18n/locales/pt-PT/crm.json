@@ -102,6 +102,7 @@
       "stageUpdatedToast": "Fase actualizada",
       "contactUpdatedToast": "Contacto actualizado",
       "overview": "Resumo",
+      "summary": "Resumo",
       "company": "Empresa",
       "quotesSection": "Propostas",
       "newQuote": "Nova proposta",
@@ -111,7 +112,45 @@
       "quoteAccount": "Conta",
       "quoteStructure": "Estrutura",
       "quoteStatus": "Estado",
-      "quoteFee": "Fee"
+      "quoteFee": "Fee",
+      "nextActionTitle": "Próxima acção",
+      "nextActionPlaceholder": "Qual é o próximo passo?",
+      "overdue": "Em atraso",
+      "dueSoon": "Em breve",
+      "source": "Origem",
+      "sourceOption": {
+        "web": "Web",
+        "referral": "Referência",
+        "repeat": "Cliente recorrente",
+        "other": "Outro"
+      },
+      "contact": "Contacto",
+      "contactName": "Nome do contacto",
+      "contactEmail": "Email",
+      "contactPhone": "Telefone"
+    },
+    "activity": {
+      "title": "Actividade",
+      "add": "Registar actividade",
+      "empty": "Ainda sem actividade. Registe a primeira interacção.",
+      "placeholder": "O que aconteceu? (Cmd/Ctrl+Enter para gravar)",
+      "shortcut": "Cmd/Ctrl + Enter para gravar",
+      "errorEmpty": "Conteúdo obrigatório",
+      "justNow": "agora mesmo",
+      "minAgo_one": "há {{count}} min",
+      "minAgo_other": "há {{count}} min",
+      "hourAgo_one": "há {{count}}h",
+      "hourAgo_other": "há {{count}}h",
+      "dayAgo_one": "há {{count}}d",
+      "dayAgo_other": "há {{count}}d",
+      "lastContact": "Último contacto {{time}}",
+      "noContact": "Sem contacto ainda",
+      "type": {
+        "call": "Chamada",
+        "email": "Email",
+        "meeting": "Reunião",
+        "note": "Nota"
+      }
     }
   },
   "accounts": {
