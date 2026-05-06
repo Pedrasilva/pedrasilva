@@ -108,6 +108,19 @@ function OpportunityDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const updateField = useMutation({
+    mutationFn: async (patch: Record<string, unknown>) => {
+      const { error } = await supabase
+        .from("crm_opportunities").update(patch).eq("id", opportunityId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["crm_opportunity", opportunityId] });
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const remove = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from("crm_opportunities").delete().eq("id", opportunityId);
