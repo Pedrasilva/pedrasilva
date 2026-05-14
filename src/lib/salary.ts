@@ -272,6 +272,7 @@ export function defaultSnapshot(
     premio_associado: 0,
     outros_beneficios: 0,
     beneficio_variavel: 0,
+    plano_reforma: 0,
     notas: null,
     localizacao: "continente",
     estado_civil: "solteiro",
