@@ -140,6 +140,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         premio_associado: Number(draft.premio_associado) || 0,
         outros_beneficios: Number(draft.outros_beneficios) || 0,
         beneficio_variavel: Number(draft.beneficio_variavel) || 0,
+        plano_reforma: Number(draft.plano_reforma) || 0,
         localizacao: draft.localizacao,
         estado_civil: draft.estado_civil,
         numero_titulares: Number(draft.numero_titulares) || 1,
