@@ -95,8 +95,8 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
   }, [mealRates, refYear]);
 
   const irsAuto = useMemo(
-    () => calcIrs(draft.valor_base || 0, brackets, draft.numero_dependentes),
-    [draft.valor_base, draft.numero_dependentes, brackets],
+    () => calcIrs((draft.valor_base || 0) + ((Number(draft.plano_reforma) || 0) / 12), brackets, draft.numero_dependentes),
+    [draft.valor_base, draft.plano_reforma, draft.numero_dependentes, brackets],
   );
 
   const effectiveMealDaily = draft.subsidio_alimentacao_manual
