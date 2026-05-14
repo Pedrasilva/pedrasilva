@@ -38,7 +38,7 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos", "subsidios_modo",
   "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual", "passe_anual",
   "subsidio_alimentacao_manual", "subsidio_alimentacao_diario_manual",
-  "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios", "beneficio_variavel",
+  "beneficio_carro", "beneficio_ticket", "premio_associado", "outros_beneficios", "beneficio_variavel", "plano_reforma",
   // Agregado familiar — trancado por ficha (snapshot histórico)
   "localizacao", "estado_civil", "numero_titulares", "numero_dependentes",
   "dependentes_com_deficiencia", "ano_fiscal",
@@ -95,8 +95,8 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
   }, [mealRates, refYear]);
 
   const irsAuto = useMemo(
-    () => calcIrs(draft.valor_base || 0, brackets, draft.numero_dependentes),
-    [draft.valor_base, draft.numero_dependentes, brackets],
+    () => calcIrs((draft.valor_base || 0) + ((Number(draft.plano_reforma) || 0) / 12), brackets, draft.numero_dependentes),
+    [draft.valor_base, draft.plano_reforma, draft.numero_dependentes, brackets],
   );
 
   const effectiveMealDaily = draft.subsidio_alimentacao_manual
@@ -140,6 +140,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         premio_associado: Number(draft.premio_associado) || 0,
         outros_beneficios: Number(draft.outros_beneficios) || 0,
         beneficio_variavel: Number(draft.beneficio_variavel) || 0,
+        plano_reforma: Number(draft.plano_reforma) || 0,
         localizacao: draft.localizacao,
         estado_civil: draft.estado_civil,
         numero_titulares: Number(draft.numero_titulares) || 1,
@@ -167,6 +168,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         Number(snapshot.premio_associado) !== financial.premio_associado ||
         Number(snapshot.outros_beneficios) !== financial.outros_beneficios ||
         Number(snapshot.beneficio_variavel) !== financial.beneficio_variavel ||
+        Number(snapshot.plano_reforma ?? 0) !== financial.plano_reforma ||
         snapshot.localizacao !== financial.localizacao ||
         snapshot.estado_civil !== financial.estado_civil ||
         Number(snapshot.numero_titulares) !== financial.numero_titulares ||

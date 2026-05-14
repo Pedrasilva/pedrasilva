@@ -21,6 +21,8 @@ export type Snapshot = {
   premio_associado: number;
   outros_beneficios: number;
   beneficio_variavel: number;
+  /** Plano de reforma (anual). Sujeito a IRS. */
+  plano_reforma: number;
   notas: string | null;
   // v2 — agregado familiar e cálculo automático IRS
   localizacao: string;
@@ -139,12 +141,17 @@ export function computeSnapshot(s: Snapshot) {
   // duodecimos_100 → base × 14 (12 mensais alargados, sem subsídios inteiros)
   const baseAnual = base * meses;
 
+  // Plano de reforma — benefício adicional sujeito a IRS (não SS).
+  // Acresce ao rendimento tributável para efeitos de cálculo de IRS.
+  const planoReformaAnual = s.plano_reforma ?? 0;
+  const planoReformaMensal = planoReformaAnual / 12;
+
   const ssAtelierMensal = baseMensalTributavel * s.ss_atelier_pct;
   const ssColaboradorMensal = baseMensalTributavel * s.ss_colaborador_pct;
-  const irsMensal = baseMensalTributavel * s.irs_pct;
+  const irsMensal = (baseMensalTributavel + planoReformaMensal) * s.irs_pct;
   const ssAtelierAnual = baseAnual * s.ss_atelier_pct;
   const ssColaboradorAnual = baseAnual * s.ss_colaborador_pct;
-  const irsAnual = baseAnual * s.irs_pct;
+  const irsAnual = (baseAnual + planoReformaAnual) * s.irs_pct;
 
   // Líquido "por mês típico" — base mensal tributável menos descontos sobre ela.
   // No tradicional ≡ liquido de um mês normal (14 vezes no ano).
@@ -164,9 +171,9 @@ export function computeSnapshot(s: Snapshot) {
   const passeAnual = s.passe_anual ?? 0;
   const passeMensal = passeAnual / 12;
 
-  // Bloco 4 — Benefícios
+  // Bloco 4 — Benefícios (inclui plano de reforma)
   const beneficiosAnual =
-    s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios + (s.beneficio_variavel ?? 0);
+    s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios + (s.beneficio_variavel ?? 0) + planoReformaAnual;
   const beneficiosMensal = beneficiosAnual / 12;
 
   // Resumo Bruto
@@ -176,7 +183,7 @@ export function computeSnapshot(s: Snapshot) {
   const brutoMensal = baseMensal12 + ssAtelier12 + alimentacaoMensal + ajudasMensal + passeMensal;
   // D41 = C41*12 + D37 (inclui benefícios anuais — alinhado com Excel original)
   const beneficiosAnualTmp =
-    s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios + (s.beneficio_variavel ?? 0);
+    s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios + (s.beneficio_variavel ?? 0) + planoReformaAnual;
   const brutoAnual = brutoMensal * 12 + beneficiosAnualTmp;
 
   // Líquido total mensal (líquido + alimentação + ajudas)
@@ -265,6 +272,7 @@ export function defaultSnapshot(
     premio_associado: 0,
     outros_beneficios: 0,
     beneficio_variavel: 0,
+    plano_reforma: 0,
     notas: null,
     localizacao: "continente",
     estado_civil: "solteiro",
