@@ -168,6 +168,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         Number(snapshot.premio_associado) !== financial.premio_associado ||
         Number(snapshot.outros_beneficios) !== financial.outros_beneficios ||
         Number(snapshot.beneficio_variavel) !== financial.beneficio_variavel ||
+        Number(snapshot.plano_reforma ?? 0) !== financial.plano_reforma ||
         snapshot.localizacao !== financial.localizacao ||
         snapshot.estado_civil !== financial.estado_civil ||
         Number(snapshot.numero_titulares) !== financial.numero_titulares ||
