@@ -141,12 +141,17 @@ export function computeSnapshot(s: Snapshot) {
   // duodecimos_100 → base × 14 (12 mensais alargados, sem subsídios inteiros)
   const baseAnual = base * meses;
 
+  // Plano de reforma — benefício adicional sujeito a IRS (não SS).
+  // Acresce ao rendimento tributável para efeitos de cálculo de IRS.
+  const planoReformaAnual = s.plano_reforma ?? 0;
+  const planoReformaMensal = planoReformaAnual / 12;
+
   const ssAtelierMensal = baseMensalTributavel * s.ss_atelier_pct;
   const ssColaboradorMensal = baseMensalTributavel * s.ss_colaborador_pct;
-  const irsMensal = baseMensalTributavel * s.irs_pct;
+  const irsMensal = (baseMensalTributavel + planoReformaMensal) * s.irs_pct;
   const ssAtelierAnual = baseAnual * s.ss_atelier_pct;
   const ssColaboradorAnual = baseAnual * s.ss_colaborador_pct;
-  const irsAnual = baseAnual * s.irs_pct;
+  const irsAnual = (baseAnual + planoReformaAnual) * s.irs_pct;
 
   // Líquido "por mês típico" — base mensal tributável menos descontos sobre ela.
   // No tradicional ≡ liquido de um mês normal (14 vezes no ano).
@@ -166,9 +171,9 @@ export function computeSnapshot(s: Snapshot) {
   const passeAnual = s.passe_anual ?? 0;
   const passeMensal = passeAnual / 12;
 
-  // Bloco 4 — Benefícios
+  // Bloco 4 — Benefícios (inclui plano de reforma)
   const beneficiosAnual =
-    s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios + (s.beneficio_variavel ?? 0);
+    s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios + (s.beneficio_variavel ?? 0) + planoReformaAnual;
   const beneficiosMensal = beneficiosAnual / 12;
 
   // Resumo Bruto
