@@ -21,6 +21,8 @@ export type Snapshot = {
   premio_associado: number;
   outros_beneficios: number;
   beneficio_variavel: number;
+  /** Plano de reforma (anual). Sujeito a IRS. */
+  plano_reforma: number;
   notas: string | null;
   // v2 — agregado familiar e cálculo automático IRS
   localizacao: string;
