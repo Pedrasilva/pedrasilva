@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtEUR, type Collaborator, type Snapshot } from "@/lib/salary";
 import { calcIrs, ESTADOS_CIVIS, loadBracketsWithMeta, LOCALIZACOES, pickTabela } from "@/lib/irs";
@@ -27,7 +28,6 @@ import { FieldStacked } from "./snapshot/inputs";
 type Props = {
   snapshot: Snapshot;
   collaborator: Collaborator;
-  onSavedNewSnapshot?: (newSnapshotId: string) => void;
 };
 
 const TABELA_LABEL: Record<string, string> = {
@@ -48,17 +48,23 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "dependentes_com_deficiencia", "ano_fiscal",
 ];
 
-export function SnapshotForm({ snapshot, collaborator, onSavedNewSnapshot }: Props) {
+export function SnapshotForm({ snapshot, collaborator }: Props) {
+  const { t } = useTranslation("hr");
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Snapshot>(snapshot);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [contextOpen, setContextOpen] = useState(false);
+  const pendingSaveSignature = useRef<string | null>(null);
 
   useEffect(() => setDraft(snapshot), [snapshot]);
 
   const isDirty = useMemo(
     () => TRACKED_FIELDS.some((k) => (draft[k] ?? null) !== (snapshot[k] ?? null)),
     [draft, snapshot],
+  );
+  const dirtySignature = useMemo(
+    () => JSON.stringify(TRACKED_FIELDS.map((k) => [k, draft[k] ?? null])),
+    [draft],
   );
 
   // Agregado familiar é trancado por ficha — usa o snapshot, NÃO o colaborador.
@@ -118,14 +124,17 @@ export function SnapshotForm({ snapshot, collaborator, onSavedNewSnapshot }: Pro
 
   const c = computeSnapshot(draftEffective);
 
-  // Financial / contextual fields are immutable on existing salary_snapshots rows
-  // (DB trigger enforces this). When any of these change we INSERT a new
-  // effective-dated snapshot instead of updating. Pure metadata edits
-  // (label / notas / is_effective) still update the existing row in-place.
+  // Save edits in-place. New historical/proposed sheets are created explicitly
+  // from the “Nova ficha” action in the collaborator page.
   const save = useMutation({
     mutationFn: async () => {
       const resolvedIrsPct = draft.irs_calculado_auto ? irsAuto.irs_pct_efectiva : Number(draft.irs_pct) || 0;
-      const financial = {
+      const payload = {
+        label: draft.label,
+        reference_date: draft.reference_date,
+        effective_from: draft.reference_date,
+        notas: draft.notas,
+        is_effective: draft.is_effective,
         irs_calculado_auto: draft.irs_calculado_auto,
         irs_pct: resolvedIrsPct,
         valor_base: Number(draft.valor_base) || 0,
@@ -153,92 +162,34 @@ export function SnapshotForm({ snapshot, collaborator, onSavedNewSnapshot }: Pro
         ano_fiscal: Number(draft.ano_fiscal) || new Date().getFullYear(),
       };
 
-      // Detect financial/contextual change vs the original snapshot.
-      const financialChanged =
-        Number(snapshot.valor_base) !== financial.valor_base ||
-        Number(snapshot.ss_atelier_pct) !== financial.ss_atelier_pct ||
-        Number(snapshot.ss_colaborador_pct) !== financial.ss_colaborador_pct ||
-        Number(snapshot.irs_pct) !== financial.irs_pct ||
-        Number(snapshot.meses_pagos) !== financial.meses_pagos ||
-        (snapshot.subsidios_modo ?? "tradicional") !== financial.subsidios_modo ||
-        Number(snapshot.subsidio_alimentacao_diario) !== financial.subsidio_alimentacao_diario ||
-        Boolean(snapshot.subsidio_alimentacao_manual) !== Boolean(financial.subsidio_alimentacao_manual) ||
-        Number(snapshot.subsidio_alimentacao_diario_manual) !== financial.subsidio_alimentacao_diario_manual ||
-        Number(snapshot.dias_uteis) !== financial.dias_uteis ||
-        Number(snapshot.ajudas_custo_anual) !== financial.ajudas_custo_anual ||
-        Number(snapshot.passe_anual ?? 0) !== financial.passe_anual ||
-        Number(snapshot.beneficio_carro) !== financial.beneficio_carro ||
-        Number(snapshot.beneficio_ticket) !== financial.beneficio_ticket ||
-        Number(snapshot.premio_associado) !== financial.premio_associado ||
-        Number(snapshot.outros_beneficios) !== financial.outros_beneficios ||
-        Number(snapshot.beneficio_variavel) !== financial.beneficio_variavel ||
-        Number(snapshot.plano_reforma ?? 0) !== financial.plano_reforma ||
-        snapshot.localizacao !== financial.localizacao ||
-        snapshot.estado_civil !== financial.estado_civil ||
-        Number(snapshot.numero_titulares) !== financial.numero_titulares ||
-        Number(snapshot.numero_dependentes) !== financial.numero_dependentes ||
-        Number(snapshot.dependentes_com_deficiencia) !== financial.dependentes_com_deficiencia ||
-        Number(snapshot.ano_fiscal) !== financial.ano_fiscal ||
-        Boolean(snapshot.irs_calculado_auto) !== Boolean(financial.irs_calculado_auto) ||
-        snapshot.reference_date !== draft.reference_date;
-
-      if (financialChanged) {
-        // Versioned write — copy from previous, apply edits, new effective_from.
-        const today = new Date().toISOString().slice(0, 10);
-        const newEffectiveFrom =
-          snapshot.reference_date !== draft.reference_date ? draft.reference_date : today;
-        const insertPayload = {
-          ...snapshot,
-          ...financial,
-          // Metadata can ride along with the new row.
-          label: draft.label,
-          notas: draft.notas,
-          is_effective: draft.is_effective,
-          reference_date: draft.reference_date,
-          effective_from: newEffectiveFrom,
-          effective_to: null,
-          source: "manual" as const,
-          import_log_id: null,
-        } as Record<string, unknown>;
-        delete insertPayload.id;
-        delete insertPayload.created_at;
-        delete insertPayload.updated_at;
-        const { data: inserted, error } = await supabase
-          .from("salary_snapshots")
-          .insert(insertPayload as never)
-          .select()
-          .single();
-        if (error) throw error;
-        return { kind: "inserted" as const, snapshot: inserted as Snapshot };
-      }
-
-      // Pure metadata change → update existing row (allowed by trigger).
       const { error } = await supabase
         .from("salary_snapshots")
-        .update({
-          label: draft.label,
-          notas: draft.notas,
-          is_effective: draft.is_effective,
-        })
+        .update(payload)
         .eq("id", snapshot.id);
       if (error) throw error;
-      return { kind: "updated" as const };
+      return true;
     },
-    onSuccess: (result) => {
+    onSuccess: () => {
       setLastSavedAt(new Date());
       qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
-      if (result.kind === "inserted") {
-        toast.success("Alterações guardadas numa nova versão da ficha (histórico preservado)");
-        if (onSavedNewSnapshot && result.snapshot?.id) {
-          onSavedNewSnapshot(result.snapshot.id);
-        }
-      } else {
-        toast.success("Ficha actualizada");
-      }
+      toast.success(t("snapshot.form.updatedToast"));
     },
-    onError: (e: Error) => toast.error(`Erro a guardar: ${e.message}`),
+    onError: (e: Error) => {
+      pendingSaveSignature.current = null;
+      toast.error(t("snapshot.form.saveError", { message: e.message }));
+    },
   });
+
+  useEffect(() => {
+    if (!isDirty || save.isPending || pendingSaveSignature.current === dirtySignature) return;
+    const timer = window.setTimeout(() => {
+      if (pendingSaveSignature.current === dirtySignature) return;
+      pendingSaveSignature.current = dirtySignature;
+      save.mutate();
+    }, 1200);
+    return () => window.clearTimeout(timer);
+  }, [dirtySignature, isDirty, save]);
 
   const remove = useMutation({
     mutationFn: async () => {
@@ -279,9 +230,25 @@ export function SnapshotForm({ snapshot, collaborator, onSavedNewSnapshot }: Pro
             </FieldStacked>
           </div>
           <div className="flex items-center gap-2">
-              <SaveStatus isDirty={isDirty} isSaving={save.isPending} lastSavedAt={lastSavedAt} />
-            <Button onClick={() => save.mutate()} disabled={save.isPending || !isDirty}>
-              <Save className="h-4 w-4" /> Guardar ficha
+              <SaveStatus
+                isDirty={isDirty}
+                isSaving={save.isPending}
+                lastSavedAt={lastSavedAt}
+                labels={{
+                  saving: t("snapshot.form.saving"),
+                  dirty: t("snapshot.form.autosavingSoon"),
+                  savedAt: (time: string) => t("snapshot.form.savedAt", { time }),
+                  idle: t("snapshot.form.idle"),
+                }}
+              />
+            <Button
+              onClick={() => {
+                pendingSaveSignature.current = dirtySignature;
+                save.mutate();
+              }}
+              disabled={save.isPending || !isDirty}
+            >
+              <Save className="h-4 w-4" /> {t("snapshot.form.saveButton")}
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -491,26 +458,32 @@ function Mini({ label, value }: { label: string; value: string }) {
 }
 
 function SaveStatus({
-  isDirty, isSaving, lastSavedAt,
-}: { isDirty: boolean; isSaving: boolean; lastSavedAt: Date | null }) {
+  isDirty, isSaving, lastSavedAt, labels,
+}: {
+  isDirty: boolean;
+  isSaving: boolean;
+  lastSavedAt: Date | null;
+  labels: { saving: string; dirty: string; savedAt: (time: string) => string; idle: string };
+}) {
   if (isSaving) {
     return (
       <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-        <Loader2 className="h-3 w-3 animate-spin" /> A guardar…
+        <Loader2 className="h-3 w-3 animate-spin" /> {labels.saving}
       </span>
     );
   }
   if (isDirty) {
     return (
-      <span className="text-[11px] text-[var(--clay)]">Alterações por guardar — clique em Guardar ficha</span>
+      <span className="text-[11px] text-[var(--clay)]">{labels.dirty}</span>
     );
   }
   if (lastSavedAt) {
+    const time = lastSavedAt.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
     return (
       <span className="flex items-center gap-1 text-[11px] text-[var(--sage)]">
-        <Check className="h-3 w-3" /> Guardado {lastSavedAt.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
+        <Check className="h-3 w-3" /> {labels.savedAt(time)}
       </span>
     );
   }
-  return <span className="text-[11px] text-muted-foreground">Sem alterações</span>;
+  return <span className="text-[11px] text-muted-foreground">{labels.idle}</span>;
 }

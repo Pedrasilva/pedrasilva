@@ -128,6 +128,15 @@
     }
   },
   "snapshot": {
+    "form": {
+      "saveButton": "Guardar ficha",
+      "saving": "A guardar…",
+      "autosavingSoon": "Alterações por guardar — autosave em instantes",
+      "savedAt": "Guardado {{time}}",
+      "idle": "Sem alterações",
+      "updatedToast": "Ficha actualizada",
+      "saveError": "Erro a guardar: {{message}}"
+    },
     "bruto": {
       "title": "Visão Bruto",
       "description": "Custo total para o atelier ao longo do ano.",

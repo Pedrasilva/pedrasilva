@@ -215,9 +215,8 @@ function CollaboratorPage() {
         label: newForm.label || t("hr:collaborator.defaults.snapshotFallback"),
         reference_date: newForm.reference_date,
         is_effective: newForm.is_effective,
-        // New effective-dated record. We never overwrite history (DB trigger
-        // enforces this); each save creates a new row whose effective_from
-        // mirrors the chosen reference_date.
+        // New effective-dated record. Regular edits happen in-place from the
+        // sheet form; this action is the explicit way to create a separate sheet.
         effective_from: newForm.reference_date,
         effective_to: null,
         source: "manual" as const,
@@ -795,7 +794,6 @@ function CollaboratorPage() {
               <SnapshotForm
                 snapshot={s}
                 collaborator={draft}
-                onSavedNewSnapshot={(newId) => setActiveTab(newId)}
               />
             </TabsContent>
           ))}
