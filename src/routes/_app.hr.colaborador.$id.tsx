@@ -298,7 +298,7 @@ function CollaboratorPage() {
                 <>
                   {" · "}
                   <span className="font-medium text-foreground">
-                    {t("hr:collaborator.archivedBadge")}
+                    {t("hr:collaborator.inactiveBadge")}
                   </span>
                 </>
               )}
@@ -336,29 +336,37 @@ function CollaboratorPage() {
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2 no-print">
+        <div className="flex items-center gap-3 no-print">
+          <div className="flex items-center gap-2 rounded-md border px-3 py-1.5">
+            <span
+              className={cn(
+                "text-xs font-medium",
+                !collab.archived_at ? "text-foreground" : "text-muted-foreground",
+              )}
+            >
+              {t("hr:collaborator.activeToggle.active")}
+            </span>
+            <Switch
+              checked={!collab.archived_at}
+              disabled={archiveMut.isPending || restoreMut.isPending}
+              onCheckedChange={(checked) => {
+                if (checked) setRestoreOpen(true);
+                else setArchiveOpen(true);
+              }}
+              aria-label={t("hr:collaborator.activeToggle.aria")}
+            />
+            <span
+              className={cn(
+                "text-xs font-medium",
+                collab.archived_at ? "text-foreground" : "text-muted-foreground",
+              )}
+            >
+              {t("hr:collaborator.activeToggle.inactive")}
+            </span>
+          </div>
           <Button variant="outline" size="sm" onClick={() => window.print()}>
             <Printer className="h-4 w-4" /> {t("hr:collaborator.printPdf")}
           </Button>
-          {collab.archived_at ? (
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={restoreMut.isPending}
-              onClick={() => setRestoreOpen(true)}
-            >
-              <ArchiveRestore className="h-4 w-4" />
-              {t("hr:collaborator.restoreButton")}
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setArchiveOpen(true)}
-            >
-              <Archive className="h-4 w-4" /> {t("hr:collaborator.archiveButton")}
-            </Button>
-          )}
         </div>
       </div>
 
