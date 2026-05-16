@@ -210,7 +210,11 @@ function MinhaFichaPage() {
 
           {/* Detalhe */}
           {selected && (
-            <SnapshotReadOnly snapshot={selected} collaborator={collaborator} />
+            <SnapshotReadOnly
+              snapshot={selected}
+              collaborator={collaborator}
+              allSnapshots={ordered}
+            />
           )}
         </div>
       )}
