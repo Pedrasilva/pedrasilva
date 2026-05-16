@@ -1,4 +1,72 @@
 {
+  "dashboard": {
+    "title": "HR cockpit",
+    "subtitle": "Operational overview of people, leave and benefits.",
+    "kpi": {
+      "activeCollaborators": "Active collaborators",
+      "archived": "Archived",
+      "onLeaveToday": "On leave today",
+      "upcomingLeave30": "Upcoming leave (30d)",
+      "pendingReimbursements": "Pending reimbursements",
+      "approvedUnpaidReimb": "Approved unpaid",
+      "monthlyPayroll": "Monthly payroll",
+      "workingDaysMonth": "Working days this month"
+    },
+    "alerts": {
+      "title": "Action required",
+      "empty": "No pending alerts. Everything looks clean.",
+      "benefitsPending": {
+        "title": "Benefit expenses awaiting approval",
+        "body": "{{count}} pending reimbursement(s) to review."
+      },
+      "benefitsStale": {
+        "title": "Stale pending reimbursements",
+        "body": "{{count}} reimbursement(s) pending for more than 14 days."
+      },
+      "vacationPending": {
+        "title": "Vacation requests awaiting decision",
+        "body": "{{count}} request(s) awaiting approval."
+      },
+      "approvedNoFei": {
+        "title": "Approved reimbursements without liability",
+        "body": "{{count}} approved reimbursement(s) missing a finance liability."
+      },
+      "feiPaidHrDrift": {
+        "title": "Finance/HR payment drift",
+        "body": "{{count}} paid liability(ies) not reflected on HR side."
+      },
+      "syncFailed": {
+        "title": "Finance → HR sync failures",
+        "body": "{{count}} settlement event(s) failed to sync back to HR."
+      },
+      "reimbNoPeriod": {
+        "title": "Reimbursements without period",
+        "body": "{{count}} approved reimbursement(s) missing a reference period."
+      },
+      "missingSalary": {
+        "title": "Collaborators without salary snapshot",
+        "body": "{{count}} active collaborator(s) missing salary data."
+      }
+    },
+    "capacity": {
+      "title": "Team capacity",
+      "current": "On leave today",
+      "next14": "On leave next 14 days",
+      "overlaps": "Overlapping leave days",
+      "empty": "No upcoming leave in the window."
+    },
+    "activity": {
+      "title": "Recent activity",
+      "empty": "No recent activity.",
+      "kind": {
+        "vacation_requested": "requested vacation",
+        "vacation_approved": "vacation approved",
+        "vacation_rejected": "vacation rejected",
+        "collaborator_created": "collaborator added",
+        "collaborator_archived": "collaborator archived"
+      }
+    }
+  },
   "module": {
     "title": "HR",
     "subtitle": "People",
