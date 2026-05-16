@@ -59,14 +59,15 @@ export function useDefaultResourceRates() {
       const backoffice = [...byCollab.values()].filter((a) => a.collab.departamento === "Backoffice");
       const totalBackoffice = backoffice.reduce((acc, a) => acc + a.vbg, 0);
 
-      // FTE-weighted BO overhead allocation: a 0.5 FTE absorbs half the
-      // overhead of a 1.0 FTE. Falls back to headcount if all FTE = 0.
+      // FTE-weighted BO overhead allocation: total pool is distributed
+      // proportionally to each collaborator's FTE. `cotaBoPerFte` is the
+      // BO share for 1.0 FTE; each collaborator absorbs `cotaBoPerFte × fte`.
       const fteTotalProjecto = projecto.reduce(
         (acc, a) => acc + computeCollaboratorFte(a.collab.daily_hours, a.collab.days_per_week, horasDia),
         0,
       );
 
-      const cotaBo = cotaBoPorColabProjecto({
+      const cotaBoPerFte = cotaBoPorColabProjecto({
         custosOperacionais: custosOp,
         custoBackofficeVbg: totalBackoffice,
         numColabProjecto: projecto.length,
@@ -78,11 +79,15 @@ export function useDefaultResourceRates() {
       for (const a of projecto) {
         if (a.vbg <= 0) continue;
         // Per-collaborator daily hours → part-timers get correct €/h
-        // (same annual burden divided by their own productive hours).
+        // (their actual annual cost divided by their own productive hours).
+        // The collaborator's own salary (VBG) is already the part-time annual
+        // cost — do NOT gross it up. Only the BO share is FTE-scaled so a
+        // 0.5 FTE absorbs half the overhead pool.
         const collabHorasDia = effectiveDailyHours(a.collab.daily_hours, horasDia);
+        const fte = computeCollaboratorFte(a.collab.daily_hours, a.collab.days_per_week, horasDia);
         const p = computePricing({
           vbgColaborador: a.vbg,
-          cotaBoAnual: cotaBo,
+          cotaBoAnual: cotaBoPerFte * fte,
           diasUteis,
           horasDia: collabHorasDia,
           margemLucroPct: 0.5,

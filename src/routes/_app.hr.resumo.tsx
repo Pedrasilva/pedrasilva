@@ -814,22 +814,25 @@ function PricingTable({
     }
   };
 
-  const totalH = diasUteis * horasDia;
-  const cotaBoH = totalH > 0 ? cotaBo / totalH : 0;
+  
 
   const computeRow = (r: Row) => {
     const ref = r.effective ?? r.proposed;
     const c = ref ? computeSnapshot(ref) : null;
-    // Per-collaborator productive hours → part-timers' annual burden is
-    // divided by THEIR own hours, not by the studio-wide full-time week.
+    // Per-collaborator productive hours. The collaborator's salary (VBG) is
+    // already their actual annual cost — never grossed up to full-time. Only
+    // the BO share is FTE-weighted: a 0.5 FTE absorbs half a 1.0 FTE share.
     const collabHorasDia = effectiveDailyHours(r.collab.daily_hours, horasDia);
+    const collabHorasAno = diasUteis * collabHorasDia;
+    const fte = computeCollaboratorFte(r.collab.daily_hours, r.collab.days_per_week, horasDia);
+    const cotaBoColab = cotaBo * fte;
     const baseArgs = c
-      ? { vbgColaborador: c.custoVBG, cotaBoAnual: cotaBo, diasUteis, horasDia: collabHorasDia }
+      ? { vbgColaborador: c.custoVBG, cotaBoAnual: cotaBoColab, diasUteis, horasDia: collabHorasDia }
       : null;
     return {
       c,
-      vbgH: c && totalH > 0 ? c.custoVBG / totalH : null,
-      cotaBoH,
+      vbgH: c && collabHorasAno > 0 ? c.custoVBG / collabHorasAno : null,
+      cotaBoH: collabHorasAno > 0 ? cotaBoColab / collabHorasAno : 0,
       p30: baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 0.3 }) : null,
       p50: baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 0.5 }) : null,
       p100: baseArgs ? computePricing({ ...baseArgs, margemLucroPct: 1.0 }) : null,
@@ -912,7 +915,7 @@ function PricingTable({
               </TableRow>
             )}
             {sortedRows.map((r) => {
-              const { c, p30, p50, p100, pCustom } = computeRow(r);
+              const { vbgH, cotaBoH, p30, p50, p100, pCustom } = computeRow(r);
               return (
                 <TableRow key={r.collab.id}>
                   <TableCell className="font-medium">
@@ -921,7 +924,7 @@ function PricingTable({
                     </Link>
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.custoVBG / totalH) : "—"}
+                    {vbgH != null ? fmtEUR(vbgH) : "—"}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
                     {fmtEUR(cotaBoH)}
