@@ -846,6 +846,23 @@
         "project": "Project team"
       }
     },
+    "capacityOverview": {
+      "title": "Team capacity & expected recovery",
+      "description": "Observational view of contractual capacity and target chargeability. Does NOT affect cost rates, pricing or profitability.",
+      "notDefined": "not defined",
+      "empty": "No collaborators.",
+      "headers": {
+        "collaborator": "Collaborator",
+        "fte": "FTE",
+        "weeklyCapacity": "Weekly capacity",
+        "targetChargeability": "Target chargeability",
+        "recoverableHours": "Expected recoverable / week"
+      },
+      "totals": {
+        "label": "Total ({{defined}}/{{total}} with target defined)"
+      },
+      "disclaimer": "Phase 0 observational only. Target chargeability does not feed any cost, rate, BO distribution, planner overload or profitability calculation."
+    },
     "pricing": {
       "title": "Pricing — Project Team",
       "description": "TGV/h and BO share/h = annual value ÷ ({{days}}×{{hours}}) h. Cost/h sums both, sale price = cost/h × (1 + margin).",
