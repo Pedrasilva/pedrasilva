@@ -715,11 +715,15 @@ function ExpensesTable({
   collaboratorsById?: Record<string, Collaborator>;
   onChanged: () => void;
 }) {
+  const { t, i18n } = useTranslation(["hr"]);
+  const isEn = i18n.language?.startsWith("en");
+  const dateLocale = isEn ? "en-GB" : "pt-PT";
+
   if (expenses.length === 0) {
     return (
       <Card>
         <CardContent className="py-10 text-center text-sm text-muted-foreground">
-          Sem despesas registadas.
+          {t("hr:beneficios.empty.noExpenses")}
         </CardContent>
       </Card>
     );
@@ -731,20 +735,20 @@ function ExpensesTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Data</TableHead>
-              {showCollaborator && <TableHead>Colaborador</TableHead>}
-              <TableHead>Categoria</TableHead>
-              <TableHead>Descrição</TableHead>
-              <TableHead className="text-right">Valor</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className="text-right">Acções</TableHead>
+              <TableHead>{t("hr:beneficios.table.date")}</TableHead>
+              {showCollaborator && <TableHead>{t("hr:beneficios.table.collaborator")}</TableHead>}
+              <TableHead>{t("hr:beneficios.table.category")}</TableHead>
+              <TableHead>{t("hr:beneficios.table.description")}</TableHead>
+              <TableHead className="text-right">{t("hr:beneficios.table.amount")}</TableHead>
+              <TableHead>{t("hr:beneficios.table.status")}</TableHead>
+              <TableHead className="text-right">{t("hr:beneficios.table.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {expenses.map((e) => (
               <TableRow key={e.id}>
                 <TableCell className="whitespace-nowrap text-sm">
-                  {new Date(e.data_despesa).toLocaleDateString("pt-PT")}
+                  {new Date(e.data_despesa).toLocaleDateString(dateLocale)}
                 </TableCell>
                 {showCollaborator && (
                   <TableCell className="text-sm">
@@ -753,7 +757,7 @@ function ExpensesTable({
                 )}
                 <TableCell className="text-sm">
                   <Badge variant="outline" className="font-normal">
-                    {expenseCategoryLabel(e)}
+                    {expenseCategoryLabel(e, isEn ? "en" : "pt")}
                   </Badge>
                 </TableCell>
                 <TableCell className="max-w-[280px] truncate text-sm" title={e.descricao}>
@@ -762,7 +766,7 @@ function ExpensesTable({
                 <TableCell className="text-right font-medium">{fmtEUR(e.valor)}</TableCell>
                 <TableCell>
                   <Badge variant="outline" className={cn("border whitespace-nowrap", STATUS_COLORS[e.estado])}>
-                    {STATUS_LABELS[e.estado]}
+                    {t(`hr:beneficios.status.${e.estado}`)}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
