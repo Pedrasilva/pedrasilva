@@ -384,9 +384,15 @@
     "back": "Back",
     "printPdf": "Print / PDF",
     "deleteButton": "Delete team member",
-    "archiveButton": "Archive",
-    "restoreButton": "Restore",
-    "archivedBadge": "Archived",
+    "archiveButton": "Mark as inactive",
+    "restoreButton": "Mark as active",
+    "archivedBadge": "Inactive",
+    "inactiveBadge": "Inactive",
+    "activeToggle": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "aria": "Collaborator status"
+    },
     "deleteDialog": {
       "title": "Delete team member",
       "description": "This removes the team member and all their snapshots.",
@@ -477,12 +483,12 @@
     "empty": "No team members yet. Create the first one above.",
     "noResults": "No team members match the current filters.",
     "activeBadge": "Active",
-    "archivedBadge": "Archived",
+    "archivedBadge": "Inactive",
     "filters": {
       "searchPlaceholder": "Search by name, email, number…",
       "allDepartments": "All departments",
       "statusActive": "Active",
-      "statusArchived": "Archived",
+      "statusArchived": "Inactive",
       "statusAll": "All"
     },
     "columns": {
@@ -493,8 +499,8 @@
     },
     "actions": {
       "open": "Open",
-      "archive": "Archive",
-      "restore": "Restore"
+      "archive": "Mark as inactive",
+      "restore": "Mark as active"
     },
     "archiveDialog": {
       "title": "Archive team member?",
@@ -523,8 +529,8 @@
       "restoring": "Restoring…"
     },
     "filterChip": {
-      "showingArchived": "Showing archived",
-      "showingAll": "Showing all (incl. archived)",
+      "showingArchived": "Showing inactive",
+      "showingAll": "Showing all (incl. inactive)",
       "clear": "Clear"
     },
     "archivedMeta": {
