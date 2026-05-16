@@ -229,7 +229,12 @@ export function SnapshotForm({ snapshot, collaborator, onSavedNewSnapshot }: Pro
       qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
       if (result.kind === "inserted") {
-        toast.success("Nova simulação salarial guardada");
+        toast.success("Alterações guardadas numa nova versão da ficha (histórico preservado)");
+        if (onSavedNewSnapshot && result.snapshot?.id) {
+          onSavedNewSnapshot(result.snapshot.id);
+        }
+      } else {
+        toast.success("Ficha actualizada");
       }
     },
     onError: (e: Error) => toast.error(`Erro a guardar: ${e.message}`),
