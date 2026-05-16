@@ -12,7 +12,8 @@ type EventType =
   | "edited"
   | "reopened"
   | "finance_linked"
-  | "finance_cancelled";
+  | "finance_cancelled"
+  | "finance_paid";
 
 type Event = {
   id: string;
@@ -36,6 +37,7 @@ const ICONS: Record<EventType, typeof Inbox> = {
   edited: Pencil,
   finance_linked: Link2,
   finance_cancelled: Unlink,
+  finance_paid: Wallet,
 };
 
 const COLORS: Record<EventType, string> = {
@@ -47,6 +49,7 @@ const COLORS: Record<EventType, string> = {
   edited: "text-slate-700 bg-slate-100",
   finance_linked: "text-indigo-700 bg-indigo-100",
   finance_cancelled: "text-slate-700 bg-slate-100",
+  finance_paid: "text-sky-700 bg-sky-100",
 };
 
 function fmt(iso: string, locale: string) {
