@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -20,10 +21,10 @@ export function DeleteExpenseDialog({
   open,
   onOpenChange,
   onConfirm,
-  title = "Apagar despesa",
-  description = "Esta acção é permanente. A despesa e a respectiva factura anexada serão removidas.",
-  confirmLabel = "Apagar",
-  loadingLabel = "A apagar…",
+  title,
+  description,
+  confirmLabel,
+  loadingLabel,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -34,6 +35,7 @@ export function DeleteExpenseDialog({
   confirmLabel?: string;
   loadingLabel?: string;
 }) {
+  const { t } = useTranslation(["hr"]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -59,17 +61,21 @@ export function DeleteExpenseDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-rose-600" />
-            {title}
+            {title ?? t("hr:beneficios.delete.title")}
           </DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogDescription>
+            {description ?? t("hr:beneficios.delete.descriptionGeneric")}
+          </DialogDescription>
         </DialogHeader>
 
         <DialogFooter className="gap-2 sm:gap-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>
-            Cancelar
+            {t("hr:beneficios.delete.cancel")}
           </Button>
           <Button variant="destructive" onClick={confirm} disabled={loading}>
-            {loading ? loadingLabel : confirmLabel}
+            {loading
+              ? (loadingLabel ?? t("hr:beneficios.delete.loading"))
+              : (confirmLabel ?? t("hr:beneficios.delete.confirm"))}
           </Button>
         </DialogFooter>
       </DialogContent>
