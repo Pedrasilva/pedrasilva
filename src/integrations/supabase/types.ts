@@ -4857,6 +4857,7 @@ export type Database = {
         Args: { _force?: boolean; _import_id: string; _reason?: string }
         Returns: Json
       }
+      can_approve_benefits: { Args: { _user_id: string }; Returns: boolean }
       delete_project_hard:
         | { Args: { _confirm: string; _project_id: string }; Returns: Json }
         | {
