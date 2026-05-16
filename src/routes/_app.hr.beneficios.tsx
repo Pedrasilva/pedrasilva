@@ -414,53 +414,21 @@ function CollaboratorBody({
       </div>
 
       {/* Filtros */}
-      <div className="flex flex-wrap items-end gap-2">
-        <div className="relative flex-1 min-w-[180px]">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <Input
-            className="pl-7"
-            placeholder="Procurar descrição ou notas…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        <Select value={estado} onValueChange={(v) => setEstado(v as ExpenseStatus | "todos")}>
-          <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os estados</SelectItem>
-            <SelectItem value="pendente">Pendentes</SelectItem>
-            <SelectItem value="aprovada">Aprovadas</SelectItem>
-            <SelectItem value="paga">Pagas</SelectItem>
-            <SelectItem value="rejeitada">Rejeitadas</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={categoryCode} onValueChange={(v) => setCategoryCode(v)}>
-          <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas as categorias</SelectItem>
-            {categoriesRows.map((c) => (
-              <SelectItem key={c.id} value={c.code}>{c.label_pt}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={String(year)} onValueChange={(v) => setYear(v === "all" ? "all" : Number(v))}>
-          <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os anos</SelectItem>
-            {years.map((y) => (
-              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => exportExpensesCsv(filtered, `beneficios-${collaborator.nome}-${year}.csv`)}
-          disabled={filtered.length === 0}
-        >
-          <Download className="h-4 w-4" /> Exportar CSV
-        </Button>
-      </div>
+      <ExpenseFilterBar
+        value={{ search, estado, categoryCode, year }}
+        onChange={(next) => {
+          setSearch(next.search);
+          setEstado(next.estado);
+          setCategoryCode(next.categoryCode);
+          setYear(next.year);
+        }}
+        categories={categoriesRows}
+        years={years}
+        onExportCsv={() =>
+          exportExpensesCsv(filtered, `beneficios-${collaborator.nome}-${year}.csv`)
+        }
+        exportDisabled={filtered.length === 0}
+      />
 
       <ExpensesTable expenses={filtered} canEdit isAdmin={false} onChanged={refetchAll} />
     </div>
