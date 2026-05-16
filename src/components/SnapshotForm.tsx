@@ -24,7 +24,11 @@ import { LiquidoTab } from "./snapshot/LiquidoTab";
 import { BrutoTab } from "./snapshot/BrutoTab";
 import { FieldStacked } from "./snapshot/inputs";
 
-type Props = { snapshot: Snapshot; collaborator: Collaborator };
+type Props = {
+  snapshot: Snapshot;
+  collaborator: Collaborator;
+  onSavedNewSnapshot?: (newSnapshotId: string) => void;
+};
 
 const TABELA_LABEL: Record<string, string> = {
   nao_casado: "Não casado",
