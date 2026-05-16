@@ -172,9 +172,14 @@ export function computeSnapshot(s: Snapshot) {
   const passeMensal = passeAnual / 12;
 
   // Bloco 4 — Benefícios (inclui plano de reforma)
-  const beneficiosAnual =
-    s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios + (s.beneficio_variavel ?? 0) + planoReformaAnual;
+  // O bónus variável é potencial / não garantido — separamos para que totais
+  // garantidos (excluindo bónus) possam ser apresentados ao lado do cenário com bónus.
+  const bonusVariavelAnual = s.beneficio_variavel ?? 0;
+  const beneficiosAnualGarantido =
+    s.beneficio_carro + s.beneficio_ticket + s.premio_associado + s.outros_beneficios + planoReformaAnual;
+  const beneficiosAnual = beneficiosAnualGarantido + bonusVariavelAnual;
   const beneficiosMensal = beneficiosAnual / 12;
+  const beneficiosMensalGarantido = beneficiosAnualGarantido / 12;
 
   // Resumo Bruto
   // C41 = E15 + E14 + D26 + D30  (mensal: base12m + ssAtelier12m + alimentacao + ajudas)
