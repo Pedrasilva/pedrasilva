@@ -27,7 +27,6 @@ import { FieldStacked } from "./snapshot/inputs";
 type Props = {
   snapshot: Snapshot;
   collaborator: Collaborator;
-  onSavedNewSnapshot?: (newSnapshotId: string) => void;
 };
 
 const TABELA_LABEL: Record<string, string> = {
@@ -48,7 +47,7 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "dependentes_com_deficiencia", "ano_fiscal",
 ];
 
-export function SnapshotForm({ snapshot, collaborator, onSavedNewSnapshot }: Props) {
+export function SnapshotForm({ snapshot, collaborator }: Props) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Snapshot>(snapshot);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
@@ -118,14 +117,16 @@ export function SnapshotForm({ snapshot, collaborator, onSavedNewSnapshot }: Pro
 
   const c = computeSnapshot(draftEffective);
 
-  // Financial / contextual fields are immutable on existing salary_snapshots rows
-  // (DB trigger enforces this). When any of these change we INSERT a new
-  // effective-dated snapshot instead of updating. Pure metadata edits
-  // (label / notas / is_effective) still update the existing row in-place.
+  // Save edits in-place. New historical/proposed sheets are created explicitly
+  // from the “Nova ficha” action in the collaborator page.
   const save = useMutation({
     mutationFn: async () => {
       const resolvedIrsPct = draft.irs_calculado_auto ? irsAuto.irs_pct_efectiva : Number(draft.irs_pct) || 0;
-      const financial = {
+      const payload = {
+        label: draft.label,
+        reference_date: draft.reference_date,
+        notas: draft.notas,
+        is_effective: draft.is_effective,
         irs_calculado_auto: draft.irs_calculado_auto,
         irs_pct: resolvedIrsPct,
         valor_base: Number(draft.valor_base) || 0,
@@ -153,73 +154,9 @@ export function SnapshotForm({ snapshot, collaborator, onSavedNewSnapshot }: Pro
         ano_fiscal: Number(draft.ano_fiscal) || new Date().getFullYear(),
       };
 
-      // Detect financial/contextual change vs the original snapshot.
-      const financialChanged =
-        Number(snapshot.valor_base) !== financial.valor_base ||
-        Number(snapshot.ss_atelier_pct) !== financial.ss_atelier_pct ||
-        Number(snapshot.ss_colaborador_pct) !== financial.ss_colaborador_pct ||
-        Number(snapshot.irs_pct) !== financial.irs_pct ||
-        Number(snapshot.meses_pagos) !== financial.meses_pagos ||
-        (snapshot.subsidios_modo ?? "tradicional") !== financial.subsidios_modo ||
-        Number(snapshot.subsidio_alimentacao_diario) !== financial.subsidio_alimentacao_diario ||
-        Boolean(snapshot.subsidio_alimentacao_manual) !== Boolean(financial.subsidio_alimentacao_manual) ||
-        Number(snapshot.subsidio_alimentacao_diario_manual) !== financial.subsidio_alimentacao_diario_manual ||
-        Number(snapshot.dias_uteis) !== financial.dias_uteis ||
-        Number(snapshot.ajudas_custo_anual) !== financial.ajudas_custo_anual ||
-        Number(snapshot.passe_anual ?? 0) !== financial.passe_anual ||
-        Number(snapshot.beneficio_carro) !== financial.beneficio_carro ||
-        Number(snapshot.beneficio_ticket) !== financial.beneficio_ticket ||
-        Number(snapshot.premio_associado) !== financial.premio_associado ||
-        Number(snapshot.outros_beneficios) !== financial.outros_beneficios ||
-        Number(snapshot.beneficio_variavel) !== financial.beneficio_variavel ||
-        Number(snapshot.plano_reforma ?? 0) !== financial.plano_reforma ||
-        snapshot.localizacao !== financial.localizacao ||
-        snapshot.estado_civil !== financial.estado_civil ||
-        Number(snapshot.numero_titulares) !== financial.numero_titulares ||
-        Number(snapshot.numero_dependentes) !== financial.numero_dependentes ||
-        Number(snapshot.dependentes_com_deficiencia) !== financial.dependentes_com_deficiencia ||
-        Number(snapshot.ano_fiscal) !== financial.ano_fiscal ||
-        Boolean(snapshot.irs_calculado_auto) !== Boolean(financial.irs_calculado_auto) ||
-        snapshot.reference_date !== draft.reference_date;
-
-      if (financialChanged) {
-        // Versioned write — copy from previous, apply edits, new effective_from.
-        const today = new Date().toISOString().slice(0, 10);
-        const newEffectiveFrom =
-          snapshot.reference_date !== draft.reference_date ? draft.reference_date : today;
-        const insertPayload = {
-          ...snapshot,
-          ...financial,
-          // Metadata can ride along with the new row.
-          label: draft.label,
-          notas: draft.notas,
-          is_effective: draft.is_effective,
-          reference_date: draft.reference_date,
-          effective_from: newEffectiveFrom,
-          effective_to: null,
-          source: "manual" as const,
-          import_log_id: null,
-        } as Record<string, unknown>;
-        delete insertPayload.id;
-        delete insertPayload.created_at;
-        delete insertPayload.updated_at;
-        const { data: inserted, error } = await supabase
-          .from("salary_snapshots")
-          .insert(insertPayload as never)
-          .select()
-          .single();
-        if (error) throw error;
-        return { kind: "inserted" as const, snapshot: inserted as Snapshot };
-      }
-
-      // Pure metadata change → update existing row (allowed by trigger).
       const { error } = await supabase
         .from("salary_snapshots")
-        .update({
-          label: draft.label,
-          notas: draft.notas,
-          is_effective: draft.is_effective,
-        })
+        .update(payload)
         .eq("id", snapshot.id);
       if (error) throw error;
       return { kind: "updated" as const };
@@ -228,14 +165,7 @@ export function SnapshotForm({ snapshot, collaborator, onSavedNewSnapshot }: Pro
       setLastSavedAt(new Date());
       qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
-      if (result.kind === "inserted") {
-        toast.success("Alterações guardadas numa nova versão da ficha (histórico preservado)");
-        if (onSavedNewSnapshot && result.snapshot?.id) {
-          onSavedNewSnapshot(result.snapshot.id);
-        }
-      } else {
-        toast.success("Ficha actualizada");
-      }
+      toast.success("Ficha actualizada");
     },
     onError: (e: Error) => toast.error(`Erro a guardar: ${e.message}`),
   });
