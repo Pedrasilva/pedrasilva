@@ -1059,3 +1059,130 @@ function SortHead<K extends string>({
     </TableHead>
   );
 }
+
+function CapacityOverviewTable({
+  rows,
+  standardDailyHours,
+}: {
+  rows: Row[];
+  standardDailyHours: number;
+}) {
+  const { t, i18n } = useTranslation(["hr"]);
+  const notDefined = t("hr:resumo.capacityOverview.notDefined");
+
+  const enriched = rows.map((r) => {
+    const dh = Number(r.collab.daily_hours ?? 8);
+    const dpw = Number(r.collab.days_per_week ?? 5);
+    const weekly = computeWeeklyCapacity(dh, dpw);
+    const fte = computeCollaboratorFte(dh, dpw, standardDailyHours);
+    const target = r.collab.target_chargeability_pct ?? null;
+    const recoverable = computeRecoverableHours(weekly, target);
+    return { r, dh, dpw, weekly, fte, target, recoverable };
+  });
+
+  const totalRecoverable = enriched.reduce(
+    (acc, e) => acc + (e.recoverable ?? 0),
+    0,
+  );
+  const definedCount = enriched.filter((e) => e.target != null).length;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">
+          {t("hr:resumo.capacityOverview.title")}
+        </CardTitle>
+        <CardDescription>
+          {t("hr:resumo.capacityOverview.description")}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0 overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("hr:resumo.capacityOverview.headers.collaborator")}</TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.capacityOverview.headers.fte")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.capacityOverview.headers.weeklyCapacity")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.capacityOverview.headers.targetChargeability")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("hr:resumo.capacityOverview.headers.recoverableHours")}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {enriched.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                  {t("hr:resumo.capacityOverview.empty")}
+                </TableCell>
+              </TableRow>
+            )}
+            {enriched.map((e) => {
+              const targetStr = formatChargeabilityPct(e.target, i18n.language);
+              return (
+                <TableRow key={e.r.collab.id}>
+                  <TableCell className="font-medium">
+                    <Link to="/hr/colaborador/$id" params={{ id: e.r.collab.id }}>
+                      {e.r.collab.nome}
+                    </Link>
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {new Intl.NumberFormat(i18n.language, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(e.fte)}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {formatHoursPerWeek(e.weekly, i18n.language)} h
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "text-right tabular-nums",
+                      targetStr == null && "text-muted-foreground italic",
+                    )}
+                  >
+                    {targetStr ?? notDefined}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "text-right tabular-nums",
+                      e.recoverable == null && "text-muted-foreground italic",
+                    )}
+                  >
+                    {e.recoverable == null
+                      ? notDefined
+                      : `${formatHoursPerWeek(e.recoverable, i18n.language)} h`}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell className="font-semibold" colSpan={3}>
+                {t("hr:resumo.capacityOverview.totals.label", {
+                  defined: definedCount,
+                  total: enriched.length,
+                })}
+              </TableCell>
+              <TableCell />
+              <TableCell className="text-right tabular-nums font-semibold">
+                {formatHoursPerWeek(totalRecoverable, i18n.language)} h
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        </Table>
+        <p className="px-4 pb-4 pt-2 text-[11px] text-muted-foreground">
+          {t("hr:resumo.capacityOverview.disclaimer")}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
