@@ -65,7 +65,7 @@ import {
   expenseCategoryLabel,
   type BenefitCategory,
   type BenefitCategoryRow,
-  type BenefitExpense,
+  type BenefitCategoryRow,
   type BenefitExpenseRow,
   type ExpenseStatus,
   type BenefitBalance,
