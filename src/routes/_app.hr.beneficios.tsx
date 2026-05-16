@@ -50,6 +50,9 @@ import {
   Trash2,
   FileImage,
   Settings2,
+  Search,
+  Download,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import { fmtEUR, type Snapshot, type Collaborator } from "@/lib/salary";
@@ -59,20 +62,40 @@ import {
   STATUS_COLORS,
   budgetsFromSnapshot,
   balanceByCategory,
+  expenseCategoryLabel,
   type BenefitCategory,
+  type BenefitCategoryRow,
   type BenefitExpense,
+  type BenefitExpenseRow,
   type ExpenseStatus,
   type BenefitBalance,
   type BenefitYearlyCredit,
 } from "@/lib/benefits";
 import { cn } from "@/lib/utils";
+import { BenefitExpenseTimeline } from "@/components/hr/BenefitExpenseTimeline";
 
-// As novas tabelas ainda não estão no types.ts gerado — usamos `as any` para o cliente.
+// As novas tabelas ainda não estão totalmente nos types — usamos `as any` pontualmente.
 // É seguro porque as RLS policies controlam o acesso.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = supabase as any;
 
 const CATS: BenefitCategory[] = ["carro", "ticket", "premio", "outros"];
+
+// Hook para carregar as categorias dinâmicas activas.
+function useBenefitCategories() {
+  return useQuery({
+    queryKey: ["benefit-categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("benefit_categories")
+        .select("id, code, label_pt, label_en, icon, legacy_enum, sort_order, active")
+        .eq("active", true)
+        .order("sort_order");
+      if (error) throw error;
+      return (data ?? []) as BenefitCategoryRow[];
+    },
+  });
+}
 
 import { PermissionGate } from "@/components/PermissionGate";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
