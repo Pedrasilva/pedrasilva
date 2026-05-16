@@ -595,6 +595,14 @@ function CollaboratorPage() {
         </Collapsible>
       </Card>
 
+      <CapacityRecoveryCard
+        dailyHours={Number(draft.daily_hours ?? 8)}
+        daysPerWeek={Number(draft.days_per_week ?? 5)}
+        targetChargeabilityPct={draft.target_chargeability_pct ?? null}
+        onChangeTarget={(v) => setField("target_chargeability_pct", v)}
+        canEdit={isAdmin}
+      />
+
       <Card>
         <Collapsible open={agregadoOpen} onOpenChange={setAgregadoOpen}>
           <CollapsibleTrigger asChild>
