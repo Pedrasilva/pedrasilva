@@ -1468,12 +1468,35 @@ function ExpensesTab({
   kind: "operational" | "materials";
 }) {
   const { t } = useTranslation(["finance", "common"]);
+  const { isAdmin } = useAuth();
+  const qc = useQueryClient();
   const expensesQ = useExpensesFull();
   const suppliersQ = useSuppliersMap();
   const categoriesQ = useCategoriesMap();
   const periodsQ = usePeriodsMap();
   const [monthFilter, setMonthFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [payingId, setPayingId] = useState<string | null>(null);
+
+  async function markBenefitPaid(rowId: string) {
+    if (!confirm(t("finance:expenses.markBenefitPaidConfirm"))) return;
+    setPayingId(rowId);
+    try {
+      const { error } = await supabase.rpc("finance_mark_benefit_paid", {
+        p_finance_item_id: rowId,
+      });
+      if (error) throw error;
+      toast.success(t("finance:expenses.toastPaid"));
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["finance", "expenses-full"] }),
+        qc.invalidateQueries({ queryKey: ["finance", "expenses", FINANCE_YEAR] }),
+      ]);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    } finally {
+      setPayingId(null);
+    }
+  }
 
   const periodOptions = useMemo(
     () =>
