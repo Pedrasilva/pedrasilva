@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Inbox, Check, X, BadgeEuro, Undo2, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -25,15 +26,6 @@ const ICONS = {
   edited: Pencil,
 } as const;
 
-const LABELS_PT: Record<Event["event_type"], string> = {
-  submitted: "Submetida",
-  approved: "Aprovada",
-  rejected: "Rejeitada",
-  paid: "Paga",
-  reopened: "Reaberta",
-  edited: "Editada",
-};
-
 const COLORS: Record<Event["event_type"], string> = {
   submitted: "text-muted-foreground bg-muted",
   approved: "text-emerald-700 bg-emerald-100",
@@ -43,15 +35,18 @@ const COLORS: Record<Event["event_type"], string> = {
   edited: "text-slate-700 bg-slate-100",
 };
 
-function fmt(iso: string) {
+function fmt(iso: string, locale: string) {
   try {
-    return new Date(iso).toLocaleString("pt-PT", { dateStyle: "medium", timeStyle: "short" });
+    return new Date(iso).toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" });
   } catch {
     return iso;
   }
 }
 
 export function BenefitExpenseTimeline({ expenseId }: { expenseId: string }) {
+  const { t, i18n } = useTranslation(["hr"]);
+  const locale = i18n.language?.startsWith("en") ? "en-GB" : "pt-PT";
+
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["benefit-expense-events", expenseId],
     queryFn: async () => {
@@ -79,17 +74,19 @@ export function BenefitExpenseTimeline({ expenseId }: { expenseId: string }) {
   });
 
   if (isLoading) {
-    return <p className="text-xs text-muted-foreground">A carregar histórico…</p>;
+    return <p className="text-xs text-muted-foreground">{t("hr:beneficios.history.loading")}</p>;
   }
   if (events.length === 0) {
-    return <p className="text-xs text-muted-foreground">Sem eventos.</p>;
+    return <p className="text-xs text-muted-foreground">{t("hr:beneficios.history.empty")}</p>;
   }
 
   return (
     <ol className="space-y-3">
       {events.map((e) => {
         const Icon = ICONS[e.event_type] ?? Inbox;
-        const actorName = e.actor_id ? actors[e.actor_id]?.nome ?? "Sistema" : "Sistema";
+        const actorName = e.actor_id
+          ? (actors[e.actor_id]?.nome ?? t("hr:beneficios.timeline.system"))
+          : t("hr:beneficios.timeline.system");
         return (
           <li key={e.id} className="flex gap-3">
             <span
@@ -102,10 +99,12 @@ export function BenefitExpenseTimeline({ expenseId }: { expenseId: string }) {
             </span>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium">
-                {LABELS_PT[e.event_type]}{" "}
-                <span className="font-normal text-muted-foreground">por {actorName}</span>
+                {t(`hr:beneficios.timeline.${e.event_type}`)}{" "}
+                <span className="font-normal text-muted-foreground">
+                  {t("hr:beneficios.timeline.by", { name: actorName })}
+                </span>
               </div>
-              <div className="text-xs text-muted-foreground">{fmt(e.created_at)}</div>
+              <div className="text-xs text-muted-foreground">{fmt(e.created_at, locale)}</div>
               {e.notes && (
                 <p className="mt-1 rounded bg-muted/50 px-2 py-1 text-xs whitespace-pre-wrap">
                   {e.notes}
