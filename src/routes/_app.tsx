@@ -45,7 +45,7 @@ import {
 import logoPsa from "@/assets/logo-psa.png";
 import { Badge } from "@/components/ui/badge";
 import { ViewAsPicker } from "@/components/ViewAsPicker";
-import { GlobalTopNav } from "@/components/GlobalTopNav";
+import { ModuleTopNav } from "@/components/ModuleTopNav";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
 export const Route = createFileRoute("/_app")({
@@ -354,7 +354,7 @@ function AppLayout() {
             <LanguageSwitcher className="hidden md:inline-flex" />
 
             <div className="hidden md:flex items-center gap-0.5">
-              <GlobalTopNav />
+              <ModuleTopNav />
             </div>
 
             {/* Menu de utilizador (desktop) */}

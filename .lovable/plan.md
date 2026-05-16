@@ -1,37 +1,44 @@
 ## Problema
 
-Quando entra em **Modo colaborador** (impersonação), o sidebar do HR continua a mostrar itens só de admin — *Resumo geral*, *Subsídio alimentação*, *Dias úteis*, *Valor BO/hora*, *Permissões*. Confunde o teste de UX porque o admin vê coisas que o colaborador real nunca veria.
+O `GlobalTopNav` (Tempo / Tarefas / Agenda / +) é renderizado em `_app.tsx` para todas as rotas. São atalhos do módulo **Projectos** que aparecem também em RH, CRM, Financeiro, etc. — confunde o utilizador e, no caso do "Modo colaborador" em `/hr/minha-ficha`, mostra ferramentas a que muitas vezes nem deveria ter acesso visual.
 
-## Causa
+## Objectivo
 
-Em `src/routes/_app.hr.tsx`, cinco itens fazem `show: isRealAdmin || can(...)`. O `isRealAdmin` ignora o estado de impersonação e dá sempre acesso. O `useAuth` já distingue:
+Cada módulo passa a ter a sua própria barra de atalhos no topo, coerente com o que existe na sidebar desse módulo. O slot continua no mesmo sítio do header global — só muda o conteúdo conforme a rota activa.
 
-- `isRealAdmin` — admin verdadeiro (sempre true para um admin)
-- `isAdmin` — `isRealAdmin && !viewAsUser` (cai para `false` em Modo colaborador)
+## Abordagem
 
-O `can()` interno já usa `isAdmin`, portanto é o que respeita a impersonação.
+1. Renomear o componente actual para `ProjectsTopNav` (conteúdo igual ao actual: Tempo, Tarefas, Agenda, +).
+2. Criar um novo `ModuleTopNav` em `src/components/ModuleTopNav.tsx` que:
+   - Usa `useLocation()` para detectar o módulo activo a partir do primeiro segmento (`/projects`, `/crm`, `/finance`, `/hr`, `/admin`, restantes → home).
+   - Renderiza o componente certo:
+     - **projects / home / `/`** → `ProjectsTopNav` (mantém Tempo · Tarefas · Agenda · +).
+     - **crm** → `CrmTopNav`: Oportunidades, Contas, Empresas, Contactos, +Oportunidade/+Empresa/+Contacto (respeita `can("crm.*")`).
+     - **finance** → `FinanceTopNav`: Documentos, Despesas empresa, Bancos, +Despesa/+Material (respeita `can("finance.*")`).
+     - **hr** → `HrTopNav`: Minha ficha, Férias, Benefícios (sempre); Colaboradores (só se `can("hr.colaboradores")`); botão "+" só para admin com `+Colaborador`. Em **Modo colaborador** segue as mesmas permissões que a sidebar já corrigida.
+     - **admin** → apenas o botão "+" omitido; nenhum atalho.
+3. Substituir em `src/routes/_app.tsx` o uso de `GlobalTopNav` por `ModuleTopNav`. O `LanguageSwitcher` e o menu de utilizador permanecem inalterados.
+4. As acções de criação rápidas (`LogTimeDialog`, `TaskDialog`, `QuickExpenseDialog`, etc.) ficam locais ao top-nav do módulo que as oferece — sem regressões na sidebar nem nas páginas.
 
-## Plano (mudança pequena, sem novos componentes)
+## i18n
 
-Em `src/routes/_app.hr.tsx`, substituir `isRealAdmin || can(...)` por apenas `can(...)` nos cinco itens afectados:
+- Adicionar chaves `topNav.*` em `common.json` (rótulos partilhados como `create`, `new`) e completar em `crm.json`, `finance.json`, `hr.json` para os atalhos novos (EN + PT-PT em paridade, conforme regra do projecto).
+- Reaproveitar `glossary:*` para termos canónicos (Oportunidade, Despesa, Colaborador, Férias).
 
-- *Resumo geral* (`/hr/resumo`)
-- *Subsídio alimentação* (`/hr/subsidio-alimentacao`)
-- *Dias úteis* (`/hr/dias-uteis`)
-- *Valor BO/hora* (`/hr/valor-bo`)
-- *Permissões* (`/hr/admin`) — este pode ficar `isRealAdmin && !viewAsUser` (= `isAdmin`) já que não tem chave `can`
+## Permissões
 
-Comportamento resultante:
+- Cada `*TopNav` usa `useAuth()` + `usePermissions()` para esconder itens a que o utilizador não tem acesso, alinhado com o que a sidebar do módulo já faz. Em "Modo colaborador" o `HrTopNav` mostra apenas Minha ficha / Férias / Benefícios.
 
-| Estado | Itens visíveis no sidebar HR |
-|---|---|
-| Admin (normal) | Tudo (via `isAdmin` em `can()`) |
-| Admin em *Modo colaborador* | Só itens com permissão real do colaborador (Minha ficha, Férias, Benefícios) |
-| Colaborador normal | Igual ao anterior |
+## Fora do âmbito
 
-Tira horizontal mobile reutiliza `visibleGroups`, portanto fica corrigida automaticamente.
+- Não alterar conteúdo das páginas nem as sidebars.
+- Não tocar nos diálogos de criação rápida (apenas mudam de "dono").
+- Não alterar lógica de auth/permissões — só consumo.
 
-## Notas
+## Ficheiros previstos
 
-- Não toca em `use-auth`, `use-permissions`, nem em routes — só na definição dos `show` flags.
-- Routes que ficam escondidos continuam acessíveis por URL directo para um admin não impersonado (não estamos a alterar guards de rota, só a navegação). Se quiser também bloquear acesso por URL em modo colaborador, é outra alteração (maior) e podemos fazer depois.
+- editar: `src/routes/_app.tsx`
+- novo: `src/components/ModuleTopNav.tsx`
+- novo: `src/components/topnav/CrmTopNav.tsx`, `FinanceTopNav.tsx`, `HrTopNav.tsx`
+- renomear/manter: `src/components/GlobalTopNav.tsx` → `src/components/topnav/ProjectsTopNav.tsx`
+- editar: `src/i18n/locales/{en,pt-PT}/{common,crm,finance,hr}.json`
