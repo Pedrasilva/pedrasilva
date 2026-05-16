@@ -193,8 +193,12 @@ export function computeSnapshot(s: Snapshot) {
   // Passe não entra no líquido — é um benefício isento pago pela empresa.
   const liquidoTotalMensal = liquido12m + alimentacaoMensal + ajudasMensal;
 
-  // VBG / Custo total RH (incluindo benefícios + passe)
-  const custoVBG = brutoAnual + beneficiosAnual + s.ajudas_custo_anual + passeAnual;
+  // VBG / Custo total RH = bruto anual completo.
+  // `brutoAnual` já inclui base×meses, SS patronal, subsídio de alimentação,
+  // ajudas de custo, passe e benefícios (ver linha 190: brutoMensal×12 + beneficiosAnual,
+  // onde brutoMensal soma baseMensal12 + ssAtelier12 + alimentacaoMensal + ajudasMensal + passeMensal).
+  // Somar de novo benefícios/ajudas/passe duplicava-os no donut e nos rollups.
+  const custoVBG = brutoAnual;
 
   return {
     base,
