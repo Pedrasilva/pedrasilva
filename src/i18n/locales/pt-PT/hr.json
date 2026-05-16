@@ -62,6 +62,14 @@
     "title": "Minha ficha",
     "subtitle": "Consulta das suas fichas salariais — efectiva e histórico.",
     "loadingProfile": "A carregar a sua ficha…",
+    "quickLinks": {
+      "vacationTitle": "As minhas férias",
+      "vacationSubtitle": "Pedir férias, ver dias gozados e estado dos pedidos.",
+      "vacationDaysThisYear": "dias de férias em {{year}}",
+      "benefitsTitle": "Os meus benefícios",
+      "benefitsSubtitle": "Saldo disponível, submeter facturas e ver histórico.",
+      "benefitsAvailable": "disponíveis"
+    },
     "loadingSnapshots": "A carregar fichas…",
     "notFoundTitle": "Ficha não encontrada",
     "notFoundDescription": "Não conseguimos associar a sua sessão ({{email}}) a um colaborador. Contacte o Backoffice para verificar o email registado.",

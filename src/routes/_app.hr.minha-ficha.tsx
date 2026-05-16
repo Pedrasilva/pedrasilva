@@ -25,7 +25,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ValueChainSummary } from "@/components/snapshot/ValueChainSummary";
 import { LiquidoTab } from "@/components/snapshot/LiquidoTab";
 import { BrutoTab } from "@/components/snapshot/BrutoTab";
-import { CircleAlert, FileText } from "lucide-react";
+import { CircleAlert, FileText, CalendarDays, Wallet, ArrowRight } from "lucide-react";
+import { balanceByCategory, type BenefitBalance, type BenefitExpense, type BenefitYearlyCredit } from "@/lib/benefits";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const sb = supabase as any;
 
 export const Route = createFileRoute("/_app/hr/minha-ficha")({
   component: MinhaFichaPage,
@@ -135,6 +139,9 @@ function MinhaFichaPage() {
           </div>
         </CardHeader>
       </Card>
+
+      {/* Atalhos: Férias + Benefícios */}
+      <QuickLinks collaborator={collaborator} />
 
       {loadingSnaps ? (
         <div className="text-sm text-muted-foreground">
@@ -482,6 +489,114 @@ function Mini({ label, value }: { label: string; value: string }) {
         {label}
       </div>
       <div className="text-sm font-semibold tabular-nums">{value}</div>
+    </div>
+  );
+}
+
+// =============================================================
+// Atalhos para Férias e Benefícios
+// =============================================================
+function QuickLinks({ collaborator }: { collaborator: Collaborator }) {
+  const { t } = useTranslation(["hr"]);
+  const year = new Date().getFullYear();
+
+  const { data: vacationDays = 0 } = useQuery({
+    queryKey: ["my-vacation-days", collaborator.id, year],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vacation_requests")
+        .select("dias_uteis, tipo, estado, data_inicio")
+        .eq("collaborator_id", collaborator.id)
+        .in("estado", ["pendente", "aprovada"])
+        .gte("data_inicio", `${year}-01-01`)
+        .lte("data_inicio", `${year}-12-31`);
+      if (error) throw error;
+      return (data ?? [])
+        .filter((r: { tipo: string }) => r.tipo === "ferias")
+        .reduce(
+          (sum: number, r: { dias_uteis: number }) => sum + (Number(r.dias_uteis) || 0),
+          0,
+        );
+    },
+  });
+
+  const { data: benefitsAvailable = 0 } = useQuery({
+    queryKey: ["my-benefits-available", collaborator.id],
+    queryFn: async () => {
+      const [balRes, credRes, expRes] = await Promise.all([
+        sb.from("benefit_balances").select("*").eq("collaborator_id", collaborator.id),
+        sb.from("benefit_yearly_credits").select("*").eq("collaborator_id", collaborator.id),
+        supabase
+          .from("benefit_expenses")
+          .select("*")
+          .eq("collaborator_id", collaborator.id),
+      ]);
+      if (balRes.error) throw balRes.error;
+      if (credRes.error) throw credRes.error;
+      if (expRes.error) throw expRes.error;
+      const balance = balanceByCategory({
+        balances: (balRes.data ?? []) as BenefitBalance[],
+        credits: (credRes.data ?? []) as BenefitYearlyCredit[],
+        expenses: (expRes.data ?? []) as BenefitExpense[],
+      });
+      return (
+        balance.carro.disponivel +
+        balance.ticket.disponivel +
+        balance.premio.disponivel +
+        balance.outros.disponivel
+      );
+    },
+  });
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      <Link
+        to="/hr/ferias"
+        className="group rounded-lg border bg-card p-4 transition-colors hover:border-primary/40 hover:bg-accent/40"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-sm font-semibold">
+              <CalendarDays className="h-4 w-4 text-[var(--hr-accent)]" />
+              {t("hr:myProfile.quickLinks.vacationTitle")}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t("hr:myProfile.quickLinks.vacationSubtitle")}
+            </p>
+            <div className="pt-2 text-xs">
+              <span className="font-semibold tabular-nums">{vacationDays}</span>{" "}
+              <span className="text-muted-foreground">
+                {t("hr:myProfile.quickLinks.vacationDaysThisYear", { year })}
+              </span>
+            </div>
+          </div>
+          <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+        </div>
+      </Link>
+
+      <Link
+        to="/hr/beneficios"
+        className="group rounded-lg border bg-card p-4 transition-colors hover:border-primary/40 hover:bg-accent/40"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-sm font-semibold">
+              <Wallet className="h-4 w-4 text-[var(--hr-accent)]" />
+              {t("hr:myProfile.quickLinks.benefitsTitle")}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t("hr:myProfile.quickLinks.benefitsSubtitle")}
+            </p>
+            <div className="pt-2 text-xs">
+              <span className="font-semibold tabular-nums">{fmtEUR(benefitsAvailable)}</span>{" "}
+              <span className="text-muted-foreground">
+                {t("hr:myProfile.quickLinks.benefitsAvailable")}
+              </span>
+            </div>
+          </div>
+          <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+        </div>
+      </Link>
     </div>
   );
 }

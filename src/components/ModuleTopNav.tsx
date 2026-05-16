@@ -71,19 +71,21 @@ function NavBtn({
 
 function HrTopNav() {
   const { t } = useTranslation("hr");
-  const { isAdmin } = useAuth();
+  const { isAdmin, isRealAdmin } = useAuth();
   const { permissions } = useMyPermissions();
   const can = (key: PermissionKey) => isAdmin || permissions.has(key);
+  const asCollab = isRealAdmin && !isAdmin;
+  const canOwn = (key: PermissionKey) => asCollab || can(key);
 
   return (
     <>
-      {can("hr.minha-ficha") && (
+      {canOwn("hr.minha-ficha") && (
         <NavBtn to="/hr/minha-ficha" label={t("nav.myProfile")} icon={UserIcon} />
       )}
-      {can("hr.ferias.own") && (
+      {canOwn("hr.ferias.own") && (
         <NavBtn to="/hr/ferias" label={t("nav.vacation")} icon={CalendarDays} />
       )}
-      {can("hr.beneficios.own") && (
+      {canOwn("hr.beneficios.own") && (
         <NavBtn to="/hr/beneficios" label={t("nav.benefits")} icon={Wallet} />
       )}
       {can("hr.colaboradores") && (

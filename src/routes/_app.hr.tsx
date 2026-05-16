@@ -46,6 +46,10 @@ function HrLayout() {
   const [collapsed, setCollapsed] = useState(false);
 
   const can = (key: PermissionKey) => isAdmin || permissions.has(key);
+  // No "Modo colaborador" o admin não tem entradas em user_permissions; mostramos
+  // o que um colaborador veria por omissão.
+  const asCollab = isRealAdmin && !isAdmin;
+  const canOwn = (key: PermissionKey) => asCollab || can(key);
 
   const groups = useMemo<NavGroup[]>(
     () => [
@@ -58,7 +62,7 @@ function HrLayout() {
             label: t("nav.myProfile"),
             icon: UserIcon,
             match: (p) => p.startsWith("/hr/minha-ficha"),
-            show: can("hr.minha-ficha"),
+            show: canOwn("hr.minha-ficha"),
           },
           {
             to: "/hr/colaboradores",
@@ -75,7 +79,7 @@ function HrLayout() {
             label: t("nav.vacation"),
             icon: CalendarDays,
             match: (p) => p.startsWith("/hr/ferias"),
-            show: can("hr.ferias.own"),
+            show: canOwn("hr.ferias.own"),
           },
         ],
       },
@@ -95,7 +99,7 @@ function HrLayout() {
             label: t("nav.benefits"),
             icon: Wallet,
             match: (p) => p.startsWith("/hr/beneficios"),
-            show: can("hr.beneficios.own"),
+            show: canOwn("hr.beneficios.own"),
           },
           {
             to: "/hr/subsidio-alimentacao",

@@ -62,6 +62,14 @@
     "title": "My profile",
     "subtitle": "View your salary snapshots — current and history.",
     "loadingProfile": "Loading your profile…",
+    "quickLinks": {
+      "vacationTitle": "My vacation",
+      "vacationSubtitle": "Request vacation, see days taken and request status.",
+      "vacationDaysThisYear": "vacation days in {{year}}",
+      "benefitsTitle": "My benefits",
+      "benefitsSubtitle": "Available balance, submit receipts and see history.",
+      "benefitsAvailable": "available"
+    },
     "loadingSnapshots": "Loading snapshots…",
     "notFoundTitle": "Profile not found",
     "notFoundDescription": "We could not link your session ({{email}}) to a team member. Contact Backoffice to verify the registered email.",
