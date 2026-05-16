@@ -45,6 +45,7 @@ import {
   Pencil,
   Check,
   X,
+  Eye,
 } from "lucide-react";
 import {
   useArchiveInternalCategory,
