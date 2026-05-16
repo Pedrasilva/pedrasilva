@@ -363,8 +363,6 @@
       "monthlyEquivalent": "Equivalente mensal: {{value}} / mês",
       "infoTooltip": "Inclui, por colaborador: salário base (×14, 13 ou 12 consoante o modo), Segurança Social patronal (23,75%), subsídio de alimentação, ajudas de custo, passe e benefícios anuais (carro, ticket, prémio, plano de reforma, bónus variável, outros). Não inclui SS do colaborador (11%) nem IRS — esses são descontos já contidos no bruto que a empresa paga."
     },
-      "infoTooltip": "Inclui, por colaborador: salário base (×14, 13 ou 12 consoante o modo), Segurança Social patronal (23,75%), subsídio de alimentação, ajudas de custo, passe e benefícios anuais (carro, ticket, prémio, plano de reforma, bónus variável, outros). Não inclui SS do colaborador (11%) nem IRS — esses são descontos já contidos no bruto que a empresa paga."
-    },
     "table": {
       "collaborator": "Colaborador",
       "metric": "Métrica",

@@ -345,13 +345,13 @@
       }
     },
     "valorBaseGlobal": {
-      "title": "Global base value — Current vs Proposed",
-      "description": "Sum of the base salary for all team members ({{withProposal}} of {{total}} with a proposed snapshot). Members without a proposal count with the current value. Annual = base × 14 months.",
-      "currentMonthly": "Monthly base — current",
-      "proposedMonthly": "Monthly base — proposed",
-      "monthlyIncrease": "Monthly increase (base only)",
+      "title": "Total monthly collaborator cost — Current vs Proposed",
+      "description": "Monthly average of the annual gross cost for all team members ({{withProposal}} of {{total}} with a proposed snapshot). Includes base salary, employer SS, allowances, per diems, transit and benefits. Members without a proposal count with the current value.",
+      "currentMonthly": "Monthly cost — current",
+      "proposedMonthly": "Monthly cost — proposed",
+      "monthlyIncrease": "Monthly increase",
       "annualPrefix": "Annual: {{value}}",
-      "annualX14Prefix": "Annual (×14): {{value}}"
+      "annualX14Prefix": "Annual: {{value}}"
     },
     "brutoGlobal": {
       "title": "Total annual collaborator cost — Current vs Proposed",
@@ -360,7 +360,9 @@
       "proposedAnnual": "Proposed annual cost",
       "additionalAnnual": "Additional annual cost",
       "vsCurrent": "vs current",
-      "monthlyEquivalent": "Monthly equivalent (total cost): {{value}} / month — includes employer SS, allowances and annualized benefits, so it's higher than the base-only increase.",
+      "monthlyEquivalent": "Monthly equivalent: {{value}} / month",
+      "infoTooltip": "Includes, per team member: base salary (×14, 13 or 12 depending on the mode), employer Social Security (23.75%), meal allowance, per diems, transit pass and annual benefits (car, ticket, bonus, retirement plan, variable bonus, others). Does NOT include employee Social Security (11%) or income tax — those are deductions already contained in the gross the company pays."
+    },
       "infoTooltip": "Includes, per team member: base salary (×14, 13 or 12 depending on the mode), employer Social Security (23.75%), meal allowance, per diems, transit pass and annual benefits (car, ticket, bonus, retirement plan, variable bonus, others). Does NOT include employee Social Security (11%) or income tax — those are deductions already contained in the gross the company pays."
     },
     "table": {
