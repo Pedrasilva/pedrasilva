@@ -774,6 +774,7 @@ function ExpenseActions({
   const [loadingUrl, setLoadingUrl] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   async function viewPhoto() {
     if (!expense.foto_path) return;
