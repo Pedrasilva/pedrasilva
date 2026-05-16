@@ -214,17 +214,69 @@ function useBenefitData(collaboratorId: string | null) {
     queryKey: ["benefit-expenses-all", collaboratorId],
     enabled: !!collaboratorId,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("benefit_expenses")
+      const { data, error } = await sb
+        .from("benefit_expenses_v")
         .select("*")
         .eq("collaborator_id", collaboratorId!)
         .order("data_despesa", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as BenefitExpense[];
+      return (data ?? []) as BenefitExpenseRow[];
     },
   });
 
   return { balancesQ, creditsQ, expensesQ };
+}
+
+// ---- Helpers partilhados ----
+
+function exportExpensesCsv(rows: BenefitExpenseRow[], filename: string) {
+  const head = ["Data", "Categoria", "Descrição", "Valor (EUR)", "Estado", "Notas colaborador", "Notas aprovação"];
+  const esc = (v: unknown) => {
+    const s = v == null ? "" : String(v);
+    return /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [head.join(";")].concat(
+    rows.map((r) =>
+      [
+        r.data_despesa,
+        expenseCategoryLabel(r),
+        r.descricao,
+        Number(r.valor).toFixed(2).replace(".", ","),
+        STATUS_LABELS[r.estado],
+        r.notas_colaborador ?? "",
+        r.notas_aprovacao ?? "",
+      ]
+        .map(esc)
+        .join(";"),
+    ),
+  );
+  const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function filterExpenses(
+  rows: BenefitExpenseRow[],
+  opts: { search: string; estado: ExpenseStatus | "todos"; categoryCode: string | "all"; year: number | "all" },
+): BenefitExpenseRow[] {
+  const q = opts.search.trim().toLowerCase();
+  return rows.filter((r) => {
+    if (opts.estado !== "todos" && r.estado !== opts.estado) return false;
+    if (opts.year !== "all" && r.ano_fiscal !== opts.year) return false;
+    if (opts.categoryCode !== "all") {
+      const code = r.category_code ?? "";
+      if (code !== opts.categoryCode) return false;
+    }
+    if (q) {
+      const hay = `${r.descricao} ${r.notas_colaborador ?? ""} ${r.notas_aprovacao ?? ""}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
 }
 
 function CollaboratorBody({
