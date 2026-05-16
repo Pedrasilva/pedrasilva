@@ -384,9 +384,15 @@
     "back": "Voltar",
     "printPdf": "Imprimir / PDF",
     "deleteButton": "Eliminar colaborador",
-    "archiveButton": "Arquivar",
-    "restoreButton": "Restaurar",
-    "archivedBadge": "Arquivado",
+    "archiveButton": "Marcar como não activo",
+    "restoreButton": "Marcar como activo",
+    "archivedBadge": "Não activo",
+    "inactiveBadge": "Não activo",
+    "activeToggle": {
+      "active": "Activo",
+      "inactive": "Não activo",
+      "aria": "Estado do colaborador"
+    },
     "deleteDialog": {
       "title": "Eliminar colaborador",
       "description": "Esta acção remove o colaborador e todas as suas fichas.",
@@ -477,12 +483,12 @@
     "empty": "Sem colaboradores ainda. Crie o primeiro acima.",
     "noResults": "Nenhum colaborador corresponde aos filtros actuais.",
     "activeBadge": "Activo",
-    "archivedBadge": "Arquivado",
+    "archivedBadge": "Não activo",
     "filters": {
       "searchPlaceholder": "Procurar por nome, email, número…",
       "allDepartments": "Todos os departamentos",
       "statusActive": "Activos",
-      "statusArchived": "Arquivados",
+      "statusArchived": "Não activos",
       "statusAll": "Todos"
     },
     "columns": {
@@ -493,8 +499,8 @@
     },
     "actions": {
       "open": "Abrir",
-      "archive": "Arquivar",
-      "restore": "Restaurar"
+      "archive": "Marcar como não activo",
+      "restore": "Marcar como activo"
     },
     "archiveDialog": {
       "title": "Arquivar colaborador?",
@@ -523,8 +529,8 @@
       "restoring": "A restaurar…"
     },
     "filterChip": {
-      "showingArchived": "A mostrar arquivados",
-      "showingAll": "A mostrar todos (incl. arquivados)",
+      "showingArchived": "A mostrar não activos",
+      "showingAll": "A mostrar todos (incl. não activos)",
       "clear": "Limpar"
     },
     "archivedMeta": {
