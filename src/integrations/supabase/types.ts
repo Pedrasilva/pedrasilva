@@ -5142,6 +5142,14 @@ export type Database = {
         Args: { _legacy: Database["public"]["Enums"]["benefit_category"] }
         Returns: string
       }
+      benefit_expense_cancel_finance_link: {
+        Args: { p_expense_id: string }
+        Returns: string
+      }
+      benefit_expense_link_to_finance: {
+        Args: { p_expense_id: string }
+        Returns: string
+      }
       benefit_expense_set_status: {
         Args: {
           _expense_id: string
