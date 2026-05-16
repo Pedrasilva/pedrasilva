@@ -963,11 +963,9 @@ function ExpenseActions({
           </Button>
         </>
       )}
-      {isAdmin && expense.estado === "aprovada" && (
-        <Button size="sm" variant="ghost" onClick={markPaid} title={t("hr:beneficios.actions.markPaid")}>
-          <BadgeEuro className="h-4 w-4 text-sky-600" />
-        </Button>
-      )}
+      {/* Manual HR mark-paid removed in Phase 2c.
+          Finance is now the payment authority — payment state mirrors
+          financial_expense_items via finance_mark_benefit_paid(). */}
       {(isAdmin || (canEdit && expense.estado === "pendente")) && (
         <Button size="sm" variant="ghost" onClick={() => setDeleteOpen(true)} title={t("hr:beneficios.actions.delete")}>
           <Trash2 className="h-4 w-4 text-rose-600" />
