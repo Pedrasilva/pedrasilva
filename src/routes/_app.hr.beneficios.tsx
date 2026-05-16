@@ -718,6 +718,103 @@ function ExpenseActions({
 }
 
 // =============================================================
+// Vista do aprovador (colaborador com permissão hr.beneficios.approve)
+// =============================================================
+function ApproverView() {
+  const qc = useQueryClient();
+  const [filterEstado, setFilterEstado] = useState<ExpenseStatus | "todos">("pendente");
+
+  const { data: collaborators = [] } = useQuery({
+    queryKey: ["collaborators", "active-for-approver"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("collaborators")
+        .select("*")
+        .is("archived_at", null)
+        .order("nome");
+      if (error) throw error;
+      return (data ?? []) as Collaborator[];
+    },
+  });
+
+  const { data: expenses = [], refetch } = useQuery({
+    queryKey: ["approver-expenses", filterEstado],
+    queryFn: async () => {
+      let q = supabase
+        .from("benefit_expenses")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (filterEstado !== "todos") q = q.eq("estado", filterEstado);
+      const { data, error } = await q;
+      if (error) throw error;
+      return (data ?? []) as BenefitExpense[];
+    },
+  });
+
+  const collaboratorsById = useMemo(() => {
+    const map: Record<string, Collaborator> = {};
+    for (const c of collaborators) map[c.id] = c;
+    return map;
+  }, [collaborators]);
+
+  const totals = useMemo(() => {
+    const t = { pendente: 0, aprovada: 0, paga: 0 };
+    for (const e of expenses) {
+      if (e.estado === "rejeitada") continue;
+      t[e.estado as "pendente" | "aprovada" | "paga"] += Number(e.valor) || 0;
+    }
+    return t;
+  }, [expenses]);
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="flex items-center gap-2 text-xl font-semibold tracking-tight">
+          <Check className="h-5 w-5" /> Aprovações de despesas
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Reveja as facturas submetidas pelos colaboradores e aprove ou rejeite.
+        </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <SummaryCard label="Pendentes" value={totals.pendente} className="border-amber-200" />
+        <SummaryCard label="Aprovadas" value={totals.aprovada} className="border-emerald-200" />
+        <SummaryCard label="Pagas" value={totals.paga} className="border-sky-200" />
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Label>Estado:</Label>
+        <Select value={filterEstado} onValueChange={(v) => setFilterEstado(v as ExpenseStatus | "todos")}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pendente">Pendentes</SelectItem>
+            <SelectItem value="aprovada">Aprovadas</SelectItem>
+            <SelectItem value="paga">Pagas</SelectItem>
+            <SelectItem value="rejeitada">Rejeitadas</SelectItem>
+            <SelectItem value="todos">Todas</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <ExpensesTable
+        expenses={expenses}
+        canEdit={false}
+        isAdmin
+        showCollaborator
+        collaboratorsById={collaboratorsById}
+        onChanged={() => {
+          refetch();
+          qc.invalidateQueries();
+        }}
+      />
+    </div>
+  );
+}
+
+// =============================================================
 // Vista admin
 // =============================================================
 function AdminView() {
