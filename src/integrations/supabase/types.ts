@@ -2005,6 +2005,67 @@ export type Database = {
           },
         ]
       }
+      financial_expense_payments: {
+        Row: {
+          amount: number
+          bank_transaction_id: string | null
+          created_at: string
+          created_by: string | null
+          expense_item_id: string
+          id: string
+          method: Database["public"]["Enums"]["financial_payment_method"]
+          notes: string | null
+          payment_date: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          bank_transaction_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          expense_item_id: string
+          id?: string
+          method?: Database["public"]["Enums"]["financial_payment_method"]
+          notes?: string | null
+          payment_date: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          bank_transaction_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          expense_item_id?: string
+          id?: string
+          method?: Database["public"]["Enums"]["financial_payment_method"]
+          notes?: string | null
+          payment_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_expense_payments_bank_transaction_id_fkey"
+            columns: ["bank_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "bank_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_expense_payments_expense_item_id_fkey"
+            columns: ["expense_item_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_expenses_v"
+            referencedColumns: ["finance_item_id"]
+          },
+          {
+            foreignKeyName: "financial_expense_payments_expense_item_id_fkey"
+            columns: ["expense_item_id"]
+            isOneToOne: false
+            referencedRelation: "financial_expense_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_import_logs: {
         Row: {
           created_at: string
