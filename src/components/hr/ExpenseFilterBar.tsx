@@ -1,4 +1,5 @@
 import { Search, Download } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +12,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
-  STATUS_LABELS,
   type BenefitCategoryRow,
   type ExpenseStatus,
 } from "@/lib/benefits";
@@ -44,15 +44,17 @@ export function ExpenseFilterBar({
   exportDisabled?: boolean;
   showChips?: boolean;
 }) {
+  const { t, i18n } = useTranslation(["hr"]);
+  const isEn = i18n.language?.startsWith("en");
   const set = <K extends keyof ExpenseFilterState>(k: K, v: ExpenseFilterState[K]) =>
     onChange({ ...value, [k]: v });
 
-  const chipOptions: Array<{ key: ExpenseStatus | "todos"; label: string }> = [
-    { key: "pendente", label: STATUS_LABELS.pendente + "s" },
-    { key: "aprovada", label: STATUS_LABELS.aprovada + "s" },
-    { key: "paga", label: STATUS_LABELS.paga + "s" },
-    { key: "rejeitada", label: STATUS_LABELS.rejeitada + "s" },
-    { key: "todos", label: "Todas" },
+  const chipOptions: Array<{ key: ExpenseStatus | "todos"; labelKey: string }> = [
+    { key: "pendente", labelKey: "hr:beneficios.filters.chipPending" },
+    { key: "aprovada", labelKey: "hr:beneficios.filters.chipApproved" },
+    { key: "paga", labelKey: "hr:beneficios.filters.chipPaid" },
+    { key: "rejeitada", labelKey: "hr:beneficios.filters.chipRejected" },
+    { key: "todos", labelKey: "hr:beneficios.filters.chipAll" },
   ];
 
   return (
@@ -72,7 +74,7 @@ export function ExpenseFilterBar({
                   variant={active ? "default" : "outline"}
                   className={cn("cursor-pointer font-normal", active && "shadow-sm")}
                 >
-                  {c.label}
+                  {t(c.labelKey)}
                 </Badge>
               </button>
             );
@@ -84,7 +86,7 @@ export function ExpenseFilterBar({
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
             className="pl-7"
-            placeholder="Procurar descrição ou notas…"
+            placeholder={t("hr:beneficios.filters.searchPlaceholder")}
             value={value.search}
             onChange={(e) => set("search", e.target.value)}
           />
@@ -96,20 +98,22 @@ export function ExpenseFilterBar({
           >
             <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="todos">Todos os estados</SelectItem>
-              <SelectItem value="pendente">Pendentes</SelectItem>
-              <SelectItem value="aprovada">Aprovadas</SelectItem>
-              <SelectItem value="paga">Pagas</SelectItem>
-              <SelectItem value="rejeitada">Rejeitadas</SelectItem>
+              <SelectItem value="todos">{t("hr:beneficios.filters.allStatuses")}</SelectItem>
+              <SelectItem value="pendente">{t("hr:beneficios.status.pendente")}</SelectItem>
+              <SelectItem value="aprovada">{t("hr:beneficios.status.aprovada")}</SelectItem>
+              <SelectItem value="paga">{t("hr:beneficios.status.paga")}</SelectItem>
+              <SelectItem value="rejeitada">{t("hr:beneficios.status.rejeitada")}</SelectItem>
             </SelectContent>
           </Select>
         )}
         <Select value={value.categoryCode} onValueChange={(v) => set("categoryCode", v)}>
           <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todas as categorias</SelectItem>
+            <SelectItem value="all">{t("hr:beneficios.filters.allCategories")}</SelectItem>
             {categories.map((c) => (
-              <SelectItem key={c.id} value={c.code}>{c.label_pt}</SelectItem>
+              <SelectItem key={c.id} value={c.code}>
+                {isEn ? c.label_en : c.label_pt}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -119,7 +123,7 @@ export function ExpenseFilterBar({
         >
           <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos os anos</SelectItem>
+            <SelectItem value="all">{t("hr:beneficios.filters.allYears")}</SelectItem>
             {years.map((y) => (
               <SelectItem key={y} value={String(y)}>{y}</SelectItem>
             ))}
@@ -132,7 +136,7 @@ export function ExpenseFilterBar({
             onClick={onExportCsv}
             disabled={exportDisabled}
           >
-            <Download className="h-4 w-4" /> Exportar CSV
+            <Download className="h-4 w-4" /> {t("hr:beneficios.filters.exportCsv")}
           </Button>
         )}
       </div>

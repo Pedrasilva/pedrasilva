@@ -957,6 +957,52 @@
       "manageBalances": "Gerir saldos",
       "balancesDialogTitle": "Saldos e créditos anuais",
       "balancesDialogDescription": "Defina o saldo inicial e os créditos por ano fiscal de cada colaborador. Sobras transitam automaticamente."
+    },
+    "historyHeader": "Histórico de despesas",
+    "loading": "A carregar…",
+    "timeline": {
+      "submitted": "Submetida",
+      "approved": "Aprovada",
+      "rejected": "Rejeitada",
+      "paid": "Paga",
+      "reopened": "Reaberta",
+      "edited": "Editada",
+      "by": "por {{name}}",
+      "system": "Sistema"
+    },
+    "csv": {
+      "headers": {
+        "date": "Data",
+        "category": "Categoria",
+        "description": "Descrição",
+        "amountEur": "Valor (EUR)",
+        "status": "Estado",
+        "collaboratorNotes": "Notas colaborador",
+        "approvalNotes": "Notas aprovação"
+      }
+    },
+    "admin2": {
+      "balanceSection": "Saldo inicial (uma vez)",
+      "balanceSectionSub": "Saldo já existente do colaborador antes da implementação deste sistema.",
+      "creditsSection": "Créditos anuais",
+      "creditsSectionSub": "Valor creditado em cada ano. Por norma, igual ao da ficha do colaborador desse ano.",
+      "creditFromFicha": "Creditar {{year}} a partir da ficha",
+      "fiscalYear": "Ano fiscal {{year}}",
+      "fichaSuggestion": "Ficha: {{value}}",
+      "collaboratorLabel": "Colaborador",
+      "collaboratorPlaceholder": "Escolha um colaborador…",
+      "deleteCredit": "apagar",
+      "balanceSaved": "Saldo inicial guardado",
+      "creditSaved": "Crédito {{year}} guardado",
+      "creditDeleted": "Crédito apagado",
+      "noFichaBenefits": "A ficha não tem benefícios atribuídos.",
+      "confirmDeleteCredit": "Apagar este crédito?"
+    },
+    "legacyCategory": {
+      "carro": "Carro",
+      "ticket": "Ticket / Cartão refeição",
+      "premio": "Prémio associado",
+      "outros": "Outros benefícios"
     }
   }
 }

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -113,14 +114,15 @@ function BeneficiosPage() {
   const { isAdmin } = useAuth();
   const { permissions } = useMyPermissions();
   const canApprove = permissions.has("hr.beneficios.approve");
+  const { t } = useTranslation(["hr"]);
 
   if (isAdmin) return <AdminView />;
   if (canApprove) {
     return (
       <Tabs defaultValue="mine" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="mine">Os meus benefícios</TabsTrigger>
-          <TabsTrigger value="approvals">Aprovações</TabsTrigger>
+          <TabsTrigger value="mine">{t("hr:beneficios.tabs.mine")}</TabsTrigger>
+          <TabsTrigger value="approvals">{t("hr:beneficios.tabs.approvals")}</TabsTrigger>
         </TabsList>
         <TabsContent value="mine" className="space-y-6">
           <CollaboratorView />
@@ -139,6 +141,7 @@ function BeneficiosPage() {
 // =============================================================
 function CollaboratorView() {
   const qc = useQueryClient();
+  const { t } = useTranslation(["hr", "common"]);
 
   const { data: myCollab, isLoading: loadingCollab } = useQuery({
     queryKey: ["my-collaborator"],
@@ -160,19 +163,17 @@ function CollaboratorView() {
     <div className="space-y-6">
       <div>
         <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-          <Wallet className="h-6 w-6" /> Os meus benefícios
+          <Wallet className="h-6 w-6" /> {t("hr:beneficios.title")}
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Acompanhe o saldo disponível e submeta as suas facturas.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("hr:beneficios.subtitle")}</p>
       </div>
 
       {loadingCollab ? (
-        <div className="text-sm text-muted-foreground">A carregar…</div>
+        <div className="text-sm text-muted-foreground">{t("common:loading")}</div>
       ) : !myCollab ? (
         <Card>
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            Não conseguimos identificar o seu perfil de colaborador. Contacte o administrador.
+            {t("hr:beneficios.empty.noProfile")}
           </CardContent>
         </Card>
       ) : (
@@ -229,20 +230,27 @@ function useBenefitData(collaboratorId: string | null) {
 
 // ---- Helpers partilhados ----
 
-function exportExpensesCsv(rows: BenefitExpenseRow[], filename: string) {
-  const head = ["Data", "Categoria", "Descrição", "Valor (EUR)", "Estado", "Notas colaborador", "Notas aprovação"];
+function exportExpensesCsv(
+  rows: BenefitExpenseRow[],
+  filename: string,
+  i18n: {
+    headers: string[];
+    status: (s: ExpenseStatus) => string;
+    categoryLabel: (e: BenefitExpenseRow) => string;
+  },
+) {
   const esc = (v: unknown) => {
     const s = v == null ? "" : String(v);
     return /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
-  const lines = [head.join(";")].concat(
+  const lines = [i18n.headers.join(";")].concat(
     rows.map((r) =>
       [
         r.data_despesa,
-        expenseCategoryLabel(r),
+        i18n.categoryLabel(r),
         r.descricao,
         Number(r.valor).toFixed(2).replace(".", ","),
-        STATUS_LABELS[r.estado],
+        i18n.status(r.estado),
         r.notas_colaborador ?? "",
         r.notas_aprovacao ?? "",
       ]
@@ -286,6 +294,8 @@ function CollaboratorBody({
   collaborator: Collaborator;
   onChanged: () => void;
 }) {
+  const { t, i18n } = useTranslation(["hr"]);
+  const isEn = i18n.language?.startsWith("en");
   const ano = collaborator.ano_fiscal;
   const { balancesQ, creditsQ, expensesQ } = useBenefitData(collaborator.id);
   const { data: categoriesRows = [] } = useBenefitCategories();
@@ -320,21 +330,20 @@ function CollaboratorBody({
     [expenses, search, estado, categoryCode, year],
   );
 
-  // Resumo anual (todas as despesas do ano seleccionado, ignora outros filtros)
   const yearScope = useMemo(
     () => (year === "all" ? expenses : expenses.filter((e) => e.ano_fiscal === year)),
     [expenses, year],
   );
   const yearTotals = useMemo(() => {
-    const t = { submetido: 0, aprovado: 0, pago: 0, rejeitado: 0 };
+    const tt = { submetido: 0, aprovado: 0, pago: 0, rejeitado: 0 };
     for (const e of yearScope) {
       const v = Number(e.valor) || 0;
-      if (e.estado === "rejeitada") t.rejeitado += v;
-      else t.submetido += v;
-      if (e.estado === "aprovada" || e.estado === "paga") t.aprovado += v;
-      if (e.estado === "paga") t.pago += v;
+      if (e.estado === "rejeitada") tt.rejeitado += v;
+      else tt.submetido += v;
+      if (e.estado === "aprovada" || e.estado === "paga") tt.aprovado += v;
+      if (e.estado === "paga") tt.pago += v;
     }
-    return t;
+    return tt;
   }, [yearScope]);
 
   const refetchAll = () => {
@@ -348,15 +357,29 @@ function CollaboratorBody({
     return (
       <Card>
         <CardContent className="py-10 text-center text-sm text-muted-foreground">
-          Ainda não tem saldo de benefícios atribuído. Contacte o administrador.
+          {t("hr:beneficios.empty.noBalance")}
         </CardContent>
       </Card>
     );
   }
 
+  const csvI18n = {
+    headers: [
+      t("hr:beneficios.csv.headers.date"),
+      t("hr:beneficios.csv.headers.category"),
+      t("hr:beneficios.csv.headers.description"),
+      t("hr:beneficios.csv.headers.amountEur"),
+      t("hr:beneficios.csv.headers.status"),
+      t("hr:beneficios.csv.headers.collaboratorNotes"),
+      t("hr:beneficios.csv.headers.approvalNotes"),
+    ],
+    status: (s: ExpenseStatus) => t(`hr:beneficios.status.${s}`),
+    categoryLabel: (e: BenefitExpenseRow) =>
+      expenseCategoryLabel(e, isEn ? "en" : "pt"),
+  };
+
   return (
     <div className="space-y-6">
-      {/* Resumo dos saldos */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cats.map((c) => {
           const b = balance[c];
@@ -365,25 +388,25 @@ function CollaboratorBody({
           return (
             <Card key={c}>
               <CardHeader className="pb-3">
-                <CardDescription>{CATEGORY_LABELS[c]}</CardDescription>
+                <CardDescription>{t(`hr:beneficios.legacyCategory.${c}`)}</CardDescription>
                 <CardTitle className={cn("text-xl", b.disponivel < 0 && "text-rose-600")}>
                   {fmtEUR(b.disponivel)}
                 </CardTitle>
-                <div className="text-xs text-muted-foreground">disponível</div>
+                <div className="text-xs text-muted-foreground">{t("hr:beneficios.balance.available")}</div>
               </CardHeader>
               <CardContent className="space-y-2">
                 <Progress value={pct} />
                 <div className="grid grid-cols-3 gap-1 text-[11px] text-muted-foreground">
                   <div>
-                    <div>Inicial</div>
+                    <div>{t("hr:beneficios.balance.initial")}</div>
                     <div className="font-medium text-foreground">{fmtEUR(b.inicial)}</div>
                   </div>
                   <div>
-                    <div>Creditado</div>
+                    <div>{t("hr:beneficios.balance.credited")}</div>
                     <div className="font-medium text-foreground">{fmtEUR(b.creditado)}</div>
                   </div>
                   <div>
-                    <div>Gasto</div>
+                    <div>{t("hr:beneficios.balance.spent")}</div>
                     <div className="font-medium text-foreground">{fmtEUR(b.gasto)}</div>
                   </div>
                 </div>
@@ -393,9 +416,8 @@ function CollaboratorBody({
         })}
       </div>
 
-      {/* Submissão + lista */}
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold">Histórico de despesas</h2>
+        <h2 className="text-lg font-semibold">{t("hr:beneficios.historyHeader")}</h2>
         <SubmitExpenseDialog
           collaboratorId={collaborator.id}
           anoFiscal={ano}
@@ -405,15 +427,13 @@ function CollaboratorBody({
         />
       </div>
 
-      {/* Resumo anual */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <YearTile label="Submetido" value={yearTotals.submetido} />
-        <YearTile label="Aprovado" value={yearTotals.aprovado} tone="emerald" />
-        <YearTile label="Pago" value={yearTotals.pago} tone="sky" />
-        <YearTile label="Rejeitado" value={yearTotals.rejeitado} tone="rose" />
+        <YearTile label={t("hr:beneficios.summary.submitted")} value={yearTotals.submetido} />
+        <YearTile label={t("hr:beneficios.summary.approved")} value={yearTotals.aprovado} tone="emerald" />
+        <YearTile label={t("hr:beneficios.summary.paid")} value={yearTotals.pago} tone="sky" />
+        <YearTile label={t("hr:beneficios.summary.rejected")} value={yearTotals.rejeitado} tone="rose" />
       </div>
 
-      {/* Filtros */}
       <ExpenseFilterBar
         value={{ search, estado, categoryCode, year }}
         onChange={(next) => {
@@ -425,7 +445,7 @@ function CollaboratorBody({
         categories={categoriesRows}
         years={years}
         onExportCsv={() =>
-          exportExpensesCsv(filtered, `beneficios-${collaborator.nome}-${year}.csv`)
+          exportExpensesCsv(filtered, `beneficios-${collaborator.nome}-${year}.csv`, csvI18n)
         }
         exportDisabled={filtered.length === 0}
       />
@@ -475,6 +495,8 @@ function SubmitExpenseDialog({
   categories: BenefitCategoryRow[];
   onCreated: () => void;
 }) {
+  const { t, i18n } = useTranslation(["hr"]);
+  const isEn = i18n.language?.startsWith("en");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     categoryId: "",
@@ -504,10 +526,10 @@ function SubmitExpenseDialog({
   const excede = restante != null && valorNum > restante;
 
   async function submit() {
-    if (!selectedCategory) return toast.error("Escolha uma categoria");
-    if (!form.descricao.trim()) return toast.error("Descrição obrigatória");
-    if (valorNum <= 0) return toast.error("Valor inválido");
-    if (!file) return toast.error("Anexe a foto/factura");
+    if (!selectedCategory) return toast.error(t("hr:beneficios.toasts.errors.categoryRequired"));
+    if (!form.descricao.trim()) return toast.error(t("hr:beneficios.toasts.errors.descriptionRequired"));
+    if (valorNum <= 0) return toast.error(t("hr:beneficios.toasts.errors.invalidAmount"));
+    if (!file) return toast.error(t("hr:beneficios.toasts.errors.receiptRequired"));
 
     setSubmitting(true);
     try {
@@ -533,12 +555,12 @@ function SubmitExpenseDialog({
       });
       if (error) throw error;
 
-      toast.success("Despesa submetida — aguarda aprovação");
+      toast.success(t("hr:beneficios.toasts.submitted"));
       reset();
       setOpen(false);
       onCreated();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro ao submeter");
+      toast.error(e instanceof Error ? e.message : t("hr:beneficios.toasts.errors.submit"));
     } finally {
       setSubmitting(false);
     }
@@ -554,39 +576,39 @@ function SubmitExpenseDialog({
     >
       <DialogTrigger asChild>
         <Button>
-          <Plus className="h-4 w-4" /> Submeter despesa
+          <Plus className="h-4 w-4" /> {t("hr:beneficios.submit.button")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Nova despesa</DialogTitle>
-          <DialogDescription>
-            Anexe a foto da factura e indique a categoria do benefício.
-          </DialogDescription>
+          <DialogTitle>{t("hr:beneficios.submit.dialogTitle")}</DialogTitle>
+          <DialogDescription>{t("hr:beneficios.submit.dialogDescription")}</DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2 space-y-1.5">
-            <Label>Categoria *</Label>
+            <Label>{t("hr:beneficios.submit.category")} *</Label>
             <Select
               value={form.categoryId}
               onValueChange={(v) => setForm((f) => ({ ...f, categoryId: v }))}
             >
               <SelectTrigger className="input-yellow">
-                <SelectValue placeholder="Escolha…" />
+                <SelectValue placeholder={t("hr:beneficios.submit.categoryPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {categories.length === 0 ? (
                   <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                    Sem categorias activas
+                    {t("hr:beneficios.empty.noExpenses")}
                   </div>
                 ) : (
                   categories.map((c) => {
                     const av = c.legacy_enum ? balance[c.legacy_enum].disponivel : null;
                     return (
                       <SelectItem key={c.id} value={c.id}>
-                        {c.label_pt}
-                        {av != null ? ` — disponível ${fmtEUR(av)}` : ""}
+                        {isEn ? c.label_en : c.label_pt}
+                        {av != null
+                          ? ` — ${t("hr:beneficios.submit.categoryAvailable", { value: fmtEUR(av) })}`
+                          : ""}
                       </SelectItem>
                     );
                   })
@@ -596,17 +618,17 @@ function SubmitExpenseDialog({
           </div>
 
           <div className="sm:col-span-2 space-y-1.5">
-            <Label>Descrição *</Label>
+            <Label>{t("hr:beneficios.submit.description")} *</Label>
             <Input
               className="input-yellow"
-              placeholder="Ex: Combustível Galp 12/03"
+              placeholder={t("hr:beneficios.submit.descriptionPlaceholder")}
               value={form.descricao}
               onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))}
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label>Valor (€) *</Label>
+            <Label>{t("hr:beneficios.submit.amount")} *</Label>
             <Input
               className="input-yellow"
               inputMode="decimal"
@@ -621,14 +643,14 @@ function SubmitExpenseDialog({
                 )}
               >
                 {excede
-                  ? `Excede o disponível (${fmtEUR(restante)})`
-                  : `Disponível: ${fmtEUR(restante)}`}
+                  ? t("hr:beneficios.submit.exceeds", { value: fmtEUR(restante) })
+                  : t("hr:beneficios.submit.available", { value: fmtEUR(restante) })}
               </div>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <Label>Data da despesa *</Label>
+            <Label>{t("hr:beneficios.submit.date")} *</Label>
             <Input
               type="date"
               className="input-yellow"
@@ -638,7 +660,7 @@ function SubmitExpenseDialog({
           </div>
 
           <div className="sm:col-span-2 space-y-1.5">
-            <Label>Foto / factura *</Label>
+            <Label>{t("hr:beneficios.submit.receipt")} *</Label>
             <Input
               type="file"
               accept="image/*,application/pdf"
@@ -653,7 +675,7 @@ function SubmitExpenseDialog({
           </div>
 
           <div className="sm:col-span-2 space-y-1.5">
-            <Label>Notas (opcional)</Label>
+            <Label>{t("hr:beneficios.submit.notes")}</Label>
             <Textarea
               rows={2}
               value={form.notas_colaborador}
@@ -664,10 +686,10 @@ function SubmitExpenseDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => setOpen(false)}>
-            Cancelar
+            {t("hr:beneficios.submit.cancel")}
           </Button>
           <Button onClick={submit} disabled={submitting}>
-            {submitting ? "A submeter…" : "Submeter"}
+            {submitting ? t("hr:beneficios.submit.submitting") : t("hr:beneficios.submit.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -693,11 +715,15 @@ function ExpensesTable({
   collaboratorsById?: Record<string, Collaborator>;
   onChanged: () => void;
 }) {
+  const { t, i18n } = useTranslation(["hr"]);
+  const isEn = i18n.language?.startsWith("en");
+  const dateLocale = isEn ? "en-GB" : "pt-PT";
+
   if (expenses.length === 0) {
     return (
       <Card>
         <CardContent className="py-10 text-center text-sm text-muted-foreground">
-          Sem despesas registadas.
+          {t("hr:beneficios.empty.noExpenses")}
         </CardContent>
       </Card>
     );
@@ -709,20 +735,20 @@ function ExpensesTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Data</TableHead>
-              {showCollaborator && <TableHead>Colaborador</TableHead>}
-              <TableHead>Categoria</TableHead>
-              <TableHead>Descrição</TableHead>
-              <TableHead className="text-right">Valor</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className="text-right">Acções</TableHead>
+              <TableHead>{t("hr:beneficios.table.date")}</TableHead>
+              {showCollaborator && <TableHead>{t("hr:beneficios.table.collaborator")}</TableHead>}
+              <TableHead>{t("hr:beneficios.table.category")}</TableHead>
+              <TableHead>{t("hr:beneficios.table.description")}</TableHead>
+              <TableHead className="text-right">{t("hr:beneficios.table.amount")}</TableHead>
+              <TableHead>{t("hr:beneficios.table.status")}</TableHead>
+              <TableHead className="text-right">{t("hr:beneficios.table.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {expenses.map((e) => (
               <TableRow key={e.id}>
                 <TableCell className="whitespace-nowrap text-sm">
-                  {new Date(e.data_despesa).toLocaleDateString("pt-PT")}
+                  {new Date(e.data_despesa).toLocaleDateString(dateLocale)}
                 </TableCell>
                 {showCollaborator && (
                   <TableCell className="text-sm">
@@ -731,7 +757,7 @@ function ExpensesTable({
                 )}
                 <TableCell className="text-sm">
                   <Badge variant="outline" className="font-normal">
-                    {expenseCategoryLabel(e)}
+                    {expenseCategoryLabel(e, isEn ? "en" : "pt")}
                   </Badge>
                 </TableCell>
                 <TableCell className="max-w-[280px] truncate text-sm" title={e.descricao}>
@@ -740,7 +766,7 @@ function ExpensesTable({
                 <TableCell className="text-right font-medium">{fmtEUR(e.valor)}</TableCell>
                 <TableCell>
                   <Badge variant="outline" className={cn("border whitespace-nowrap", STATUS_COLORS[e.estado])}>
-                    {STATUS_LABELS[e.estado]}
+                    {t(`hr:beneficios.status.${e.estado}`)}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
@@ -771,6 +797,7 @@ function ExpenseActions({
   isAdmin: boolean;
   onChanged: () => void;
 }) {
+  const { t } = useTranslation(["hr"]);
   const [loadingUrl, setLoadingUrl] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -786,7 +813,7 @@ function ExpenseActions({
       if (error) throw error;
       window.open(data.signedUrl, "_blank");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro ao abrir foto");
+      toast.error(e instanceof Error ? e.message : t("hr:beneficios.toasts.errors.openPhoto"));
     } finally {
       setLoadingUrl(false);
     }
@@ -810,7 +837,6 @@ function ExpenseActions({
     } catch {
       return;
     }
-
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData.session?.access_token;
@@ -825,14 +851,13 @@ function ExpenseActions({
     } catch {
       /* ignora */
     }
-
-    toast.success("Despesa aprovada — email enviado para contabilidade");
+    toast.success(t("hr:beneficios.toasts.approved"));
     onChanged();
   }
 
   async function confirmReject(reason: string) {
     await setStatus("rejeitada", reason);
-    toast.success("Despesa rejeitada — saldo devolvido");
+    toast.success(t("hr:beneficios.toasts.rejected"));
     onChanged();
   }
 
@@ -842,7 +867,7 @@ function ExpenseActions({
     } catch {
       return;
     }
-    toast.success("Marcada como paga");
+    toast.success(t("hr:beneficios.toasts.paid"));
     onChanged();
   }
 
@@ -857,37 +882,37 @@ function ExpenseActions({
       toast.error(error.message);
       throw error;
     }
-    toast.success("Despesa apagada");
+    toast.success(t("hr:beneficios.toasts.deleted"));
     onChanged();
   }
 
   return (
     <div className="flex items-center justify-end gap-1">
-      <Button size="sm" variant="ghost" onClick={() => setDetailOpen(true)} title="Detalhes">
+      <Button size="sm" variant="ghost" onClick={() => setDetailOpen(true)} title={t("hr:beneficios.actions.details")}>
         <Info className="h-4 w-4" />
       </Button>
       {expense.foto_path && (
-        <Button size="sm" variant="ghost" onClick={viewPhoto} disabled={loadingUrl} title="Ver factura">
+        <Button size="sm" variant="ghost" onClick={viewPhoto} disabled={loadingUrl} title={t("hr:beneficios.actions.viewReceipt")}>
           <FileImage className="h-4 w-4" />
         </Button>
       )}
       {isAdmin && expense.estado === "pendente" && (
         <>
-          <Button size="sm" variant="ghost" onClick={approve} title="Aprovar">
+          <Button size="sm" variant="ghost" onClick={approve} title={t("hr:beneficios.actions.approve")}>
             <Check className="h-4 w-4 text-emerald-600" />
           </Button>
-          <Button size="sm" variant="ghost" onClick={() => setRejectOpen(true)} title="Rejeitar">
+          <Button size="sm" variant="ghost" onClick={() => setRejectOpen(true)} title={t("hr:beneficios.actions.reject")}>
             <X className="h-4 w-4 text-rose-600" />
           </Button>
         </>
       )}
       {isAdmin && expense.estado === "aprovada" && (
-        <Button size="sm" variant="ghost" onClick={markPaid} title="Marcar como paga">
+        <Button size="sm" variant="ghost" onClick={markPaid} title={t("hr:beneficios.actions.markPaid")}>
           <BadgeEuro className="h-4 w-4 text-sky-600" />
         </Button>
       )}
       {(isAdmin || (canEdit && expense.estado === "pendente")) && (
-        <Button size="sm" variant="ghost" onClick={() => setDeleteOpen(true)} title="Apagar">
+        <Button size="sm" variant="ghost" onClick={() => setDeleteOpen(true)} title={t("hr:beneficios.actions.delete")}>
           <Trash2 className="h-4 w-4 text-rose-600" />
         </Button>
       )}
@@ -904,41 +929,41 @@ function ExpenseActions({
         onConfirm={remove}
         description={
           expense.estado === "pendente"
-            ? "Esta acção é permanente. A despesa pendente e a respectiva factura serão removidas."
-            : "Esta acção é permanente. A despesa e a respectiva factura serão removidas."
+            ? t("hr:beneficios.delete.descriptionPending")
+            : t("hr:beneficios.delete.descriptionGeneric")
         }
       />
 
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Detalhes da despesa</DialogTitle>
+            <DialogTitle>{t("hr:beneficios.detail.title")}</DialogTitle>
             <DialogDescription>
               {expenseCategoryLabel(expense)} · {fmtEUR(Number(expense.valor))} ·{" "}
               <Badge variant="outline" className={cn("border", STATUS_COLORS[expense.estado])}>
-                {STATUS_LABELS[expense.estado]}
+                {t(`hr:beneficios.status.${expense.estado}`)}
               </Badge>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 text-sm">
             <div>
-              <div className="text-xs text-muted-foreground">Descrição</div>
+              <div className="text-xs text-muted-foreground">{t("hr:beneficios.detail.description")}</div>
               <div>{expense.descricao}</div>
             </div>
             {expense.notas_colaborador && (
               <div>
-                <div className="text-xs text-muted-foreground">Notas do colaborador</div>
+                <div className="text-xs text-muted-foreground">{t("hr:beneficios.detail.collaboratorNotes")}</div>
                 <div className="whitespace-pre-wrap">{expense.notas_colaborador}</div>
               </div>
             )}
             {expense.notas_aprovacao && (
               <div>
-                <div className="text-xs text-muted-foreground">Notas de aprovação</div>
+                <div className="text-xs text-muted-foreground">{t("hr:beneficios.detail.approvalNotes")}</div>
                 <div className="whitespace-pre-wrap">{expense.notas_aprovacao}</div>
               </div>
             )}
             <div className="border-t pt-3">
-              <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Histórico</div>
+              <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t("hr:beneficios.detail.history")}</div>
               <BenefitExpenseTimeline expenseId={expense.id} />
             </div>
           </div>
