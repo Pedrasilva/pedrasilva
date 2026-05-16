@@ -814,7 +814,7 @@ function PricingTable({
     }
   };
 
-  const totalH = diasUteis * horasDia;
+  
 
   const computeRow = (r: Row) => {
     const ref = r.effective ?? r.proposed;
