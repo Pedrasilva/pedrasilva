@@ -7,10 +7,12 @@ import { useAuth } from "@/hooks/use-auth";
 import {
   type Collaborator,
   type Snapshot,
+  SUBSIDIOS_MODO_OPTIONS,
   computeSnapshot,
   fmtEUR,
   fmtDate,
 } from "@/lib/salary";
+import { ResumoCompare } from "@/components/ResumoCompare";
 import {
   Card,
   CardContent,
