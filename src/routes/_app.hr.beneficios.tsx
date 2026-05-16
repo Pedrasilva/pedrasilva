@@ -498,16 +498,18 @@ function SubmitExpenseDialog({
   collaboratorId,
   anoFiscal,
   balance,
+  categories,
   onCreated,
 }: {
   collaboratorId: string;
   anoFiscal: number;
   balance: Record<BenefitCategory, { disponivel: number }>;
+  categories: BenefitCategoryRow[];
   onCreated: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
-    categoria: "" as BenefitCategory | "",
+    categoryId: "",
     descricao: "",
     valor: "",
     data_despesa: new Date().toISOString().slice(0, 10),
@@ -518,7 +520,7 @@ function SubmitExpenseDialog({
 
   const reset = () => {
     setForm({
-      categoria: "",
+      categoryId: "",
       descricao: "",
       valor: "",
       data_despesa: new Date().toISOString().slice(0, 10),
@@ -527,15 +529,14 @@ function SubmitExpenseDialog({
     setFile(null);
   };
 
-  const availableCats = CATS.filter((c) => balance[c].disponivel > 0);
-
   const valorNum = Number(form.valor.replace(",", ".")) || 0;
-  const cat = form.categoria as BenefitCategory | "";
-  const restante = cat ? balance[cat].disponivel : 0;
-  const excede = !!cat && valorNum > restante;
+  const selectedCategory = categories.find((c) => c.id === form.categoryId) ?? null;
+  const legacyForSelected: BenefitCategory | null = selectedCategory?.legacy_enum ?? null;
+  const restante = legacyForSelected ? balance[legacyForSelected].disponivel : null;
+  const excede = restante != null && valorNum > restante;
 
   async function submit() {
-    if (!form.categoria) return toast.error("Escolha uma categoria");
+    if (!selectedCategory) return toast.error("Escolha uma categoria");
     if (!form.descricao.trim()) return toast.error("Descrição obrigatória");
     if (valorNum <= 0) return toast.error("Valor inválido");
     if (!file) return toast.error("Anexe a foto/factura");
@@ -549,10 +550,13 @@ function SubmitExpenseDialog({
         .upload(path, file, { contentType: file.type, upsert: false });
       if (upErr) throw upErr;
 
-      const { error } = await supabase.from("benefit_expenses").insert({
+      // Dual-write: legacy enum (fallback "outros") + new category_id
+      const legacy: BenefitCategory = selectedCategory.legacy_enum ?? "outros";
+      const { error } = await sb.from("benefit_expenses").insert({
         collaborator_id: collaboratorId,
         ano_fiscal: anoFiscal,
-        categoria: form.categoria as BenefitCategory,
+        categoria: legacy,
+        category_id: selectedCategory.id,
         descricao: form.descricao.trim(),
         valor: valorNum,
         data_despesa: form.data_despesa,
@@ -597,23 +601,27 @@ function SubmitExpenseDialog({
           <div className="sm:col-span-2 space-y-1.5">
             <Label>Categoria *</Label>
             <Select
-              value={form.categoria}
-              onValueChange={(v) => setForm((f) => ({ ...f, categoria: v as BenefitCategory }))}
+              value={form.categoryId}
+              onValueChange={(v) => setForm((f) => ({ ...f, categoryId: v }))}
             >
               <SelectTrigger className="input-yellow">
                 <SelectValue placeholder="Escolha…" />
               </SelectTrigger>
               <SelectContent>
-                {availableCats.length === 0 ? (
+                {categories.length === 0 ? (
                   <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                    Sem saldo disponível em nenhuma categoria
+                    Sem categorias activas
                   </div>
                 ) : (
-                  availableCats.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {CATEGORY_LABELS[c]} — disponível {fmtEUR(balance[c].disponivel)}
-                    </SelectItem>
-                  ))
+                  categories.map((c) => {
+                    const av = c.legacy_enum ? balance[c.legacy_enum].disponivel : null;
+                    return (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.label_pt}
+                        {av != null ? ` — disponível ${fmtEUR(av)}` : ""}
+                      </SelectItem>
+                    );
+                  })
                 )}
               </SelectContent>
             </Select>
