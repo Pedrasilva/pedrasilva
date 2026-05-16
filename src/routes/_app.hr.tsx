@@ -62,7 +62,7 @@ function HrLayout() {
             label: t("nav.myProfile"),
             icon: UserIcon,
             match: (p) => p.startsWith("/hr/minha-ficha"),
-            show: can("hr.minha-ficha"),
+            show: canOwn("hr.minha-ficha"),
           },
           {
             to: "/hr/colaboradores",
