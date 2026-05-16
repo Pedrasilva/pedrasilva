@@ -997,6 +997,12 @@
       "creditDeleted": "Credit deleted",
       "noFichaBenefits": "The salary sheet has no benefits assigned.",
       "confirmDeleteCredit": "Delete this credit?"
+    },
+    "legacyCategory": {
+      "carro": "Car",
+      "ticket": "Meal ticket / card",
+      "premio": "Performance bonus",
+      "outros": "Other benefits"
     }
   }
 }

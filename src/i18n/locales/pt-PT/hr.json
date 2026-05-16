@@ -997,6 +997,12 @@
       "creditDeleted": "Crédito apagado",
       "noFichaBenefits": "A ficha não tem benefícios atribuídos.",
       "confirmDeleteCredit": "Apagar este crédito?"
+    },
+    "legacyCategory": {
+      "carro": "Carro",
+      "ticket": "Ticket / Cartão refeição",
+      "premio": "Prémio associado",
+      "outros": "Outros benefícios"
     }
   }
 }
