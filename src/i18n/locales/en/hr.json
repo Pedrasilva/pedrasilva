@@ -662,7 +662,9 @@
       "number": "Number",
       "contractStatus": "Contract",
       "status": "Status",
-      "actions": "Actions"
+      "actions": "Actions",
+      "fte": "FTE",
+      "chargeability": "Chargeability"
     },
     "actions": {
       "open": "Open",

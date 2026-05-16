@@ -8,17 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  ArrowUp,
-  ArrowDown,
-  ArrowUpDown,
-  ChevronRight,
-  Archive,
-  ArchiveRestore,
-} from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import type { Collaborator } from "@/lib/salary";
+import { computeCollaboratorFte } from "@/lib/hr/fte";
 import { cn } from "@/lib/utils";
 
 export type CollabSortKey = "nome" | "departamento" | "numero" | "situacao" | "status";
@@ -29,8 +22,8 @@ type Props = {
   sortKey: CollabSortKey;
   sortDir: SortDir;
   onSortChange: (key: CollabSortKey) => void;
-  onArchive: (c: Collaborator) => void;
-  onRestore: (c: Collaborator) => void;
+  onArchive?: (c: Collaborator) => void;
+  onRestore?: (c: Collaborator) => void;
   busyId?: string | null;
 };
 
@@ -39,9 +32,6 @@ export function CollaboratorsTable({
   sortKey,
   sortDir,
   onSortChange,
-  onArchive,
-  onRestore,
-  busyId,
 }: Props) {
   const { t } = useTranslation(["hr", "glossary", "common"]);
   const navigate = useNavigate();
@@ -55,7 +45,8 @@ export function CollaboratorsTable({
           <SortHead label={t("hr:colaboradores.columns.number")} k="numero" current={sortKey} dir={sortDir} onClick={onSortChange} />
           <SortHead label={t("hr:colaboradores.columns.contractStatus")} k="situacao" current={sortKey} dir={sortDir} onClick={onSortChange} />
           <SortHead label={t("hr:colaboradores.columns.status")} k="status" current={sortKey} dir={sortDir} onClick={onSortChange} />
-          <TableHead className="w-[180px] text-right">{t("hr:colaboradores.columns.actions")}</TableHead>
+          <TableHead className="text-right">{t("hr:colaboradores.columns.fte", "FTE")}</TableHead>
+          <TableHead className="text-right">{t("hr:colaboradores.columns.chargeability", "Chargeability")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -93,43 +84,13 @@ export function CollaboratorsTable({
                   </Badge>
                 )}
               </TableCell>
-              <TableCell
-                className="text-right"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="inline-flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={open}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    {t("hr:colaboradores.actions.open")}
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </Button>
-                  {archived ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={busyId === c.id}
-                      onClick={() => onRestore(c)}
-                    >
-                      <ArchiveRestore className="h-3.5 w-3.5" />
-                      {t("hr:colaboradores.actions.restore")}
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={busyId === c.id}
-                      onClick={() => onArchive(c)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Archive className="h-3.5 w-3.5" />
-                      {t("hr:colaboradores.actions.archive")}
-                    </Button>
-                  )}
-                </div>
+              <TableCell className="text-right tabular-nums">
+                {computeCollaboratorFte(c.daily_hours, c.days_per_week).toFixed(2)}
+              </TableCell>
+              <TableCell className="text-right tabular-nums text-muted-foreground">
+                {c.target_chargeability_pct == null
+                  ? "—"
+                  : `${Number(c.target_chargeability_pct).toFixed(0)}%`}
               </TableCell>
             </TableRow>
           );
