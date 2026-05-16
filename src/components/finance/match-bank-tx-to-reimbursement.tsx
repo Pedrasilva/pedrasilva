@@ -219,7 +219,7 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
         p_payment_date: tx.transaction_date,
       });
       if (error) throw error;
-      toast.success(t("finance:bankRec.reimbursement.settled", { defaultValue: "Reembolso liquidado" }));
+      toast.success(t("finance:bankRec.reimbursement.settled"));
       onMatched?.();
       onClose();
     } catch (e) {
