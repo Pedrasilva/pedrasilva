@@ -721,6 +721,18 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
           onCreated={() => { setCreateDocTx(null); txQ.refetch(); counts.refetch(); }}
         />
       )}
+      {matchReimbTx && (
+        <MatchBankTxToReimbursementDialog
+          tx={{
+            id: matchReimbTx.id,
+            transaction_date: matchReimbTx.transaction_date,
+            description: matchReimbTx.description,
+            amount: Number(matchReimbTx.amount),
+          }}
+          onClose={() => setMatchReimbTx(null)}
+          onMatched={() => { setMatchReimbTx(null); txQ.refetch(); counts.refetch(); }}
+        />
+      )}
     </Card>
   );
 }
