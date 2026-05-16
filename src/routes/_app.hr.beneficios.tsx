@@ -721,24 +721,35 @@ function FinanceIndicator({
     );
   }
 
-  const statusKey = expense.finance_status ?? "confirmed";
-  const statusLabel = t(`hr:beneficios.finance.status.${statusKey}`, { defaultValue: statusKey });
-  const paid = expense.finance_paid_date
-    ? t("hr:beneficios.finance.paid", {
-        date: new Date(expense.finance_paid_date).toLocaleDateString(dateLocale),
-      })
-    : null;
-  const due = expense.finance_due_date
-    ? t("hr:beneficios.finance.due", {
-        date: new Date(expense.finance_due_date).toLocaleDateString(dateLocale),
-      })
-    : null;
-  const detail = paid ?? due;
+  // Finance is the payment authority — surface payment state directly.
+  if (expense.finance_paid_date) {
+    return (
+      <span className="text-[11px] text-sky-700 whitespace-nowrap">
+        {t("hr:beneficios.finance.paidVia", {
+          date: new Date(expense.finance_paid_date).toLocaleDateString(dateLocale),
+        })}
+      </span>
+    );
+  }
 
+  const statusKey = expense.finance_status ?? "confirmed";
+  if (statusKey === "confirmed" || statusKey === "projected") {
+    const due = expense.finance_due_date
+      ? ` · ${t("hr:beneficios.finance.due", {
+          date: new Date(expense.finance_due_date).toLocaleDateString(dateLocale),
+        })}`
+      : "";
+    return (
+      <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+        {t("hr:beneficios.finance.awaitingPayment")}{due}
+      </span>
+    );
+  }
+
+  const statusLabel = t(`hr:beneficios.finance.status.${statusKey}`, { defaultValue: statusKey });
   return (
     <span className="text-[11px] text-muted-foreground whitespace-nowrap">
       {t("hr:beneficios.finance.label")}: {statusLabel}
-      {detail ? ` · ${detail}` : ""}
     </span>
   );
 }
