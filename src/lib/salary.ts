@@ -135,11 +135,12 @@ export function computeSnapshot(s: Snapshot) {
     modo === "duodecimos_100" ? 2 / 12 : modo === "duodecimos_50" ? 1 / 12 : 0;
   const baseMensalTributavel = base * (1 + duodecimosFactor);
 
-  // Total anual de remuneração base sujeita a SS/IRS:
-  // tradicional → base × 14 (12 meses + 2 subsídios inteiros)
-  // duodecimos_50 → base × 13 (12 mensais alargados + 1 subsídio inteiro)
-  // duodecimos_100 → base × 14 (12 mensais alargados, sem subsídios inteiros)
-  const baseAnual = base * meses;
+  // Total anual de remuneração base sujeita a SS/IRS — sempre base × 14:
+  //  - tradicional: 12 mensais (×base) + 2 subsídios inteiros (×base) = base×14
+  //  - duodécimos 50%: 12 × base×13/12 (mensais alargados) + 1 subsídio inteiro = base×14
+  //  - duodécimos 100%: 12 × base×14/12 (mensais alargados, sem inteiros) = base×14
+  // Em todos os casos a empresa paga 14 salários e a SS/IRS incide sobre todo o valor.
+  const baseAnual = base * 14;
 
   // Plano de reforma — benefício adicional sujeito a IRS (não SS).
   // Acresce ao rendimento tributável para efeitos de cálculo de IRS.
