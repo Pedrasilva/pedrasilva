@@ -792,7 +792,11 @@ function CollaboratorPage() {
 
           {snapshots.map((s) => (
             <TabsContent key={s.id} value={s.id} className="mt-4">
-              <SnapshotForm snapshot={s} collaborator={draft} />
+              <SnapshotForm
+                snapshot={s}
+                collaborator={draft}
+                onSavedNewSnapshot={(newId) => setActiveTab(newId)}
+              />
             </TabsContent>
           ))}
 
