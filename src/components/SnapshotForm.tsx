@@ -236,7 +236,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                 labels={{
                   saving: t("snapshot.form.saving"),
                   dirty: t("snapshot.form.autosavingSoon"),
-                  savedAt: (time) => t("snapshot.form.savedAt", { time }),
+                  savedAt: (time: string) => t("snapshot.form.savedAt", { time }),
                   idle: t("snapshot.form.idle"),
                 }}
               />
@@ -457,26 +457,32 @@ function Mini({ label, value }: { label: string; value: string }) {
 }
 
 function SaveStatus({
-  isDirty, isSaving, lastSavedAt,
-}: { isDirty: boolean; isSaving: boolean; lastSavedAt: Date | null }) {
+  isDirty, isSaving, lastSavedAt, labels,
+}: {
+  isDirty: boolean;
+  isSaving: boolean;
+  lastSavedAt: Date | null;
+  labels: { saving: string; dirty: string; savedAt: (time: string) => string; idle: string };
+}) {
   if (isSaving) {
     return (
       <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-        <Loader2 className="h-3 w-3 animate-spin" /> A guardar…
+        <Loader2 className="h-3 w-3 animate-spin" /> {labels.saving}
       </span>
     );
   }
   if (isDirty) {
     return (
-      <span className="text-[11px] text-[var(--clay)]">Alterações por guardar — clique em Guardar ficha</span>
+      <span className="text-[11px] text-[var(--clay)]">{labels.dirty}</span>
     );
   }
   if (lastSavedAt) {
+    const time = lastSavedAt.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
     return (
       <span className="flex items-center gap-1 text-[11px] text-[var(--sage)]">
-        <Check className="h-3 w-3" /> Guardado {lastSavedAt.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}
+        <Check className="h-3 w-3" /> {labels.savedAt(time)}
       </span>
     );
   }
-  return <span className="text-[11px] text-muted-foreground">Sem alterações</span>;
+  return <span className="text-[11px] text-muted-foreground">{labels.idle}</span>;
 }
