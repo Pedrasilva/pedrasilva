@@ -48,7 +48,7 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "dependentes_com_deficiencia", "ano_fiscal",
 ];
 
-export function SnapshotForm({ snapshot, collaborator }: Props) {
+export function SnapshotForm({ snapshot, collaborator, onSavedNewSnapshot }: Props) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Snapshot>(snapshot);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
