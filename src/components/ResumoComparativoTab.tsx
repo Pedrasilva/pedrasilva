@@ -143,20 +143,22 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
     return { actual, proposto, delta, pct, comProposta, total: filtered.length };
   }, [filtered]);
 
-  // Comparação global do Valor Base — mensal e anual (×14 meses).
+  // Comparação global do Custo Total — mensal (anual/12) e anual.
+  // Usa o mesmo critério do card anual: bruto anual completo (base × meses
+  // + SS patronal + subsídio alimentação + ajudas custo + passe + benefícios).
   const valorBaseGlobal = useMemo(() => {
-    let actualMensal = 0;
-    let propostoMensal = 0;
+    let actualAnual = 0;
+    let propostoAnual = 0;
     let comProposta = 0;
     for (const r of filtered) {
-      const eff = r.effective?.valor_base ?? 0;
-      const prop = r.proposed?.valor_base ?? eff;
-      actualMensal += eff;
-      propostoMensal += prop;
+      const eff = r.effective ? computeSnapshot(r.effective).brutoAnual : 0;
+      const prop = r.proposed ? computeSnapshot(r.proposed).brutoAnual : eff;
+      actualAnual += eff;
+      propostoAnual += prop;
       if (r.proposed) comProposta += 1;
     }
-    const actualAnual = actualMensal * 14;
-    const propostoAnual = propostoMensal * 14;
+    const actualMensal = actualAnual / 12;
+    const propostoMensal = propostoAnual / 12;
     const deltaMensal = propostoMensal - actualMensal;
     const deltaAnual = propostoAnual - actualAnual;
     const pct = actualMensal > 0 ? deltaMensal / actualMensal : null;
