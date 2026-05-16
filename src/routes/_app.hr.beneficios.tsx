@@ -50,6 +50,9 @@ import {
   Trash2,
   FileImage,
   Settings2,
+  Search,
+  Download,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import { fmtEUR, type Snapshot, type Collaborator } from "@/lib/salary";
@@ -59,20 +62,40 @@ import {
   STATUS_COLORS,
   budgetsFromSnapshot,
   balanceByCategory,
+  expenseCategoryLabel,
   type BenefitCategory,
+  type BenefitCategoryRow,
   type BenefitExpense,
+  type BenefitExpenseRow,
   type ExpenseStatus,
   type BenefitBalance,
   type BenefitYearlyCredit,
 } from "@/lib/benefits";
 import { cn } from "@/lib/utils";
+import { BenefitExpenseTimeline } from "@/components/hr/BenefitExpenseTimeline";
 
-// As novas tabelas ainda não estão no types.ts gerado — usamos `as any` para o cliente.
+// As novas tabelas ainda não estão totalmente nos types — usamos `as any` pontualmente.
 // É seguro porque as RLS policies controlam o acesso.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = supabase as any;
 
 const CATS: BenefitCategory[] = ["carro", "ticket", "premio", "outros"];
+
+// Hook para carregar as categorias dinâmicas activas.
+function useBenefitCategories() {
+  return useQuery({
+    queryKey: ["benefit-categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("benefit_categories")
+        .select("id, code, label_pt, label_en, icon, legacy_enum, sort_order, active")
+        .eq("active", true)
+        .order("sort_order");
+      if (error) throw error;
+      return (data ?? []) as BenefitCategoryRow[];
+    },
+  });
+}
 
 import { PermissionGate } from "@/components/PermissionGate";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -191,17 +214,69 @@ function useBenefitData(collaboratorId: string | null) {
     queryKey: ["benefit-expenses-all", collaboratorId],
     enabled: !!collaboratorId,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("benefit_expenses")
+      const { data, error } = await sb
+        .from("benefit_expenses_v")
         .select("*")
         .eq("collaborator_id", collaboratorId!)
         .order("data_despesa", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as BenefitExpense[];
+      return (data ?? []) as BenefitExpenseRow[];
     },
   });
 
   return { balancesQ, creditsQ, expensesQ };
+}
+
+// ---- Helpers partilhados ----
+
+function exportExpensesCsv(rows: BenefitExpenseRow[], filename: string) {
+  const head = ["Data", "Categoria", "Descrição", "Valor (EUR)", "Estado", "Notas colaborador", "Notas aprovação"];
+  const esc = (v: unknown) => {
+    const s = v == null ? "" : String(v);
+    return /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [head.join(";")].concat(
+    rows.map((r) =>
+      [
+        r.data_despesa,
+        expenseCategoryLabel(r),
+        r.descricao,
+        Number(r.valor).toFixed(2).replace(".", ","),
+        STATUS_LABELS[r.estado],
+        r.notas_colaborador ?? "",
+        r.notas_aprovacao ?? "",
+      ]
+        .map(esc)
+        .join(";"),
+    ),
+  );
+  const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function filterExpenses(
+  rows: BenefitExpenseRow[],
+  opts: { search: string; estado: ExpenseStatus | "todos"; categoryCode: string | "all"; year: number | "all" },
+): BenefitExpenseRow[] {
+  const q = opts.search.trim().toLowerCase();
+  return rows.filter((r) => {
+    if (opts.estado !== "todos" && r.estado !== opts.estado) return false;
+    if (opts.year !== "all" && r.ano_fiscal !== opts.year) return false;
+    if (opts.categoryCode !== "all") {
+      const code = r.category_code ?? "";
+      if (code !== opts.categoryCode) return false;
+    }
+    if (q) {
+      const hay = `${r.descricao} ${r.notas_colaborador ?? ""} ${r.notas_aprovacao ?? ""}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
 }
 
 function CollaboratorBody({
@@ -213,6 +288,7 @@ function CollaboratorBody({
 }) {
   const ano = collaborator.ano_fiscal;
   const { balancesQ, creditsQ, expensesQ } = useBenefitData(collaborator.id);
+  const { data: categoriesRows = [] } = useBenefitCategories();
 
   const balances = balancesQ.data ?? [];
   const credits = creditsQ.data ?? [];
@@ -227,6 +303,39 @@ function CollaboratorBody({
     (c) => balance[c].inicial > 0 || balance[c].creditado > 0 || balance[c].gasto > 0,
   );
   const hasAny = cats.length > 0;
+
+  // Filtros
+  const [search, setSearch] = useState("");
+  const [estado, setEstado] = useState<ExpenseStatus | "todos">("todos");
+  const [categoryCode, setCategoryCode] = useState<string | "all">("all");
+  const years = useMemo(() => {
+    const s = new Set<number>(expenses.map((e) => e.ano_fiscal));
+    s.add(ano);
+    return Array.from(s).sort((a, b) => b - a);
+  }, [expenses, ano]);
+  const [year, setYear] = useState<number | "all">(ano);
+
+  const filtered = useMemo(
+    () => filterExpenses(expenses, { search, estado, categoryCode, year }),
+    [expenses, search, estado, categoryCode, year],
+  );
+
+  // Resumo anual (todas as despesas do ano seleccionado, ignora outros filtros)
+  const yearScope = useMemo(
+    () => (year === "all" ? expenses : expenses.filter((e) => e.ano_fiscal === year)),
+    [expenses, year],
+  );
+  const yearTotals = useMemo(() => {
+    const t = { submetido: 0, aprovado: 0, pago: 0, rejeitado: 0 };
+    for (const e of yearScope) {
+      const v = Number(e.valor) || 0;
+      if (e.estado === "rejeitada") t.rejeitado += v;
+      else t.submetido += v;
+      if (e.estado === "aprovada" || e.estado === "paga") t.aprovado += v;
+      if (e.estado === "paga") t.pago += v;
+    }
+    return t;
+  }, [yearScope]);
 
   const refetchAll = () => {
     balancesQ.refetch();
@@ -285,18 +394,100 @@ function CollaboratorBody({
       </div>
 
       {/* Submissão + lista */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">Histórico de despesas</h2>
         <SubmitExpenseDialog
           collaboratorId={collaborator.id}
           anoFiscal={ano}
           balance={balance}
+          categories={categoriesRows}
           onCreated={refetchAll}
         />
       </div>
 
-      <ExpensesTable expenses={expenses} canEdit isAdmin={false} onChanged={refetchAll} />
+      {/* Resumo anual */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <YearTile label="Submetido" value={yearTotals.submetido} />
+        <YearTile label="Aprovado" value={yearTotals.aprovado} tone="emerald" />
+        <YearTile label="Pago" value={yearTotals.pago} tone="sky" />
+        <YearTile label="Rejeitado" value={yearTotals.rejeitado} tone="rose" />
+      </div>
+
+      {/* Filtros */}
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="relative flex-1 min-w-[180px]">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input
+            className="pl-7"
+            placeholder="Procurar descrição ou notas…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <Select value={estado} onValueChange={(v) => setEstado(v as ExpenseStatus | "todos")}>
+          <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os estados</SelectItem>
+            <SelectItem value="pendente">Pendentes</SelectItem>
+            <SelectItem value="aprovada">Aprovadas</SelectItem>
+            <SelectItem value="paga">Pagas</SelectItem>
+            <SelectItem value="rejeitada">Rejeitadas</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={categoryCode} onValueChange={(v) => setCategoryCode(v)}>
+          <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as categorias</SelectItem>
+            {categoriesRows.map((c) => (
+              <SelectItem key={c.id} value={c.code}>{c.label_pt}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={String(year)} onValueChange={(v) => setYear(v === "all" ? "all" : Number(v))}>
+          <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os anos</SelectItem>
+            {years.map((y) => (
+              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => exportExpensesCsv(filtered, `beneficios-${collaborator.nome}-${year}.csv`)}
+          disabled={filtered.length === 0}
+        >
+          <Download className="h-4 w-4" /> Exportar CSV
+        </Button>
+      </div>
+
+      <ExpensesTable expenses={filtered} canEdit isAdmin={false} onChanged={refetchAll} />
     </div>
+  );
+}
+
+function YearTile({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone?: "emerald" | "sky" | "rose";
+}) {
+  const colorMap = {
+    emerald: "text-emerald-700",
+    sky: "text-sky-700",
+    rose: "text-rose-700",
+  } as const;
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardDescription className="text-xs">{label}</CardDescription>
+        <CardTitle className={cn("text-lg", tone && colorMap[tone])}>{fmtEUR(value)}</CardTitle>
+      </CardHeader>
+    </Card>
   );
 }
 
@@ -307,16 +498,18 @@ function SubmitExpenseDialog({
   collaboratorId,
   anoFiscal,
   balance,
+  categories,
   onCreated,
 }: {
   collaboratorId: string;
   anoFiscal: number;
   balance: Record<BenefitCategory, { disponivel: number }>;
+  categories: BenefitCategoryRow[];
   onCreated: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
-    categoria: "" as BenefitCategory | "",
+    categoryId: "",
     descricao: "",
     valor: "",
     data_despesa: new Date().toISOString().slice(0, 10),
@@ -327,7 +520,7 @@ function SubmitExpenseDialog({
 
   const reset = () => {
     setForm({
-      categoria: "",
+      categoryId: "",
       descricao: "",
       valor: "",
       data_despesa: new Date().toISOString().slice(0, 10),
@@ -336,15 +529,14 @@ function SubmitExpenseDialog({
     setFile(null);
   };
 
-  const availableCats = CATS.filter((c) => balance[c].disponivel > 0);
-
   const valorNum = Number(form.valor.replace(",", ".")) || 0;
-  const cat = form.categoria as BenefitCategory | "";
-  const restante = cat ? balance[cat].disponivel : 0;
-  const excede = !!cat && valorNum > restante;
+  const selectedCategory = categories.find((c) => c.id === form.categoryId) ?? null;
+  const legacyForSelected: BenefitCategory | null = selectedCategory?.legacy_enum ?? null;
+  const restante = legacyForSelected ? balance[legacyForSelected].disponivel : null;
+  const excede = restante != null && valorNum > restante;
 
   async function submit() {
-    if (!form.categoria) return toast.error("Escolha uma categoria");
+    if (!selectedCategory) return toast.error("Escolha uma categoria");
     if (!form.descricao.trim()) return toast.error("Descrição obrigatória");
     if (valorNum <= 0) return toast.error("Valor inválido");
     if (!file) return toast.error("Anexe a foto/factura");
@@ -358,10 +550,13 @@ function SubmitExpenseDialog({
         .upload(path, file, { contentType: file.type, upsert: false });
       if (upErr) throw upErr;
 
-      const { error } = await supabase.from("benefit_expenses").insert({
+      // Dual-write: legacy enum (fallback "outros") + new category_id
+      const legacy: BenefitCategory = selectedCategory.legacy_enum ?? "outros";
+      const { error } = await sb.from("benefit_expenses").insert({
         collaborator_id: collaboratorId,
         ano_fiscal: anoFiscal,
-        categoria: form.categoria as BenefitCategory,
+        categoria: legacy,
+        category_id: selectedCategory.id,
         descricao: form.descricao.trim(),
         valor: valorNum,
         data_despesa: form.data_despesa,
@@ -406,23 +601,27 @@ function SubmitExpenseDialog({
           <div className="sm:col-span-2 space-y-1.5">
             <Label>Categoria *</Label>
             <Select
-              value={form.categoria}
-              onValueChange={(v) => setForm((f) => ({ ...f, categoria: v as BenefitCategory }))}
+              value={form.categoryId}
+              onValueChange={(v) => setForm((f) => ({ ...f, categoryId: v }))}
             >
               <SelectTrigger className="input-yellow">
                 <SelectValue placeholder="Escolha…" />
               </SelectTrigger>
               <SelectContent>
-                {availableCats.length === 0 ? (
+                {categories.length === 0 ? (
                   <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                    Sem saldo disponível em nenhuma categoria
+                    Sem categorias activas
                   </div>
                 ) : (
-                  availableCats.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {CATEGORY_LABELS[c]} — disponível {fmtEUR(balance[c].disponivel)}
-                    </SelectItem>
-                  ))
+                  categories.map((c) => {
+                    const av = c.legacy_enum ? balance[c.legacy_enum].disponivel : null;
+                    return (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.label_pt}
+                        {av != null ? ` — disponível ${fmtEUR(av)}` : ""}
+                      </SelectItem>
+                    );
+                  })
                 )}
               </SelectContent>
             </Select>
@@ -446,7 +645,7 @@ function SubmitExpenseDialog({
               value={form.valor}
               onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))}
             />
-            {cat && (
+            {restante != null && (
               <div
                 className={cn(
                   "text-[11px]",
@@ -618,17 +817,23 @@ function ExpenseActions({
     }
   }
 
+  async function setStatus(to: ExpenseStatus, notes?: string | null) {
+    const { error } = await sb.rpc("benefit_expense_set_status", {
+      _expense_id: expense.id,
+      _to_status: to,
+      _notes: notes ?? null,
+    });
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    return true;
+  }
+
   async function approve() {
     const notas = window.prompt("Notas de aprovação (opcional)") ?? "";
-    const { error } = await supabase
-      .from("benefit_expenses")
-      .update({
-        estado: "aprovada",
-        notas_aprovacao: notas || null,
-        aprovado_em: new Date().toISOString(),
-      })
-      .eq("id", expense.id);
-    if (error) return toast.error(error.message);
+    const ok = await setStatus("aprovada", notas.trim() || null);
+    if (!ok) return;
 
     try {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -650,27 +855,20 @@ function ExpenseActions({
   }
 
   async function reject() {
-    const notas = window.prompt("Motivo da rejeição") ?? "";
-    if (!notas) return;
-    const { error } = await supabase
-      .from("benefit_expenses")
-      .update({
-        estado: "rejeitada",
-        notas_aprovacao: notas,
-        aprovado_em: new Date().toISOString(),
-      })
-      .eq("id", expense.id);
-    if (error) return toast.error(error.message);
+    const notas = window.prompt("Motivo da rejeição (obrigatório)") ?? "";
+    if (!notas.trim()) {
+      toast.error("Motivo obrigatório");
+      return;
+    }
+    const ok = await setStatus("rejeitada", notas.trim());
+    if (!ok) return;
     toast.success("Despesa rejeitada — saldo devolvido");
     onChanged();
   }
 
   async function markPaid() {
-    const { error } = await supabase
-      .from("benefit_expenses")
-      .update({ estado: "paga", pago_em: new Date().toISOString() })
-      .eq("id", expense.id);
-    if (error) return toast.error(error.message);
+    const ok = await setStatus("paga");
+    if (!ok) return;
     toast.success("Marcada como paga");
     onChanged();
   }
@@ -686,8 +884,13 @@ function ExpenseActions({
     onChanged();
   }
 
+  const [detailOpen, setDetailOpen] = useState(false);
+
   return (
     <div className="flex items-center justify-end gap-1">
+      <Button size="sm" variant="ghost" onClick={() => setDetailOpen(true)} title="Detalhes">
+        <Info className="h-4 w-4" />
+      </Button>
       {expense.foto_path && (
         <Button size="sm" variant="ghost" onClick={viewPhoto} disabled={loadingUrl} title="Ver factura">
           <FileImage className="h-4 w-4" />
@@ -713,6 +916,42 @@ function ExpenseActions({
           <Trash2 className="h-4 w-4 text-rose-600" />
         </Button>
       )}
+
+      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Detalhes da despesa</DialogTitle>
+            <DialogDescription>
+              {CATEGORY_LABELS[expense.categoria]} · {fmtEUR(Number(expense.valor))} ·{" "}
+              <Badge variant="outline" className={cn("border", STATUS_COLORS[expense.estado])}>
+                {STATUS_LABELS[expense.estado]}
+              </Badge>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 text-sm">
+            <div>
+              <div className="text-xs text-muted-foreground">Descrição</div>
+              <div>{expense.descricao}</div>
+            </div>
+            {expense.notas_colaborador && (
+              <div>
+                <div className="text-xs text-muted-foreground">Notas do colaborador</div>
+                <div className="whitespace-pre-wrap">{expense.notas_colaborador}</div>
+              </div>
+            )}
+            {expense.notas_aprovacao && (
+              <div>
+                <div className="text-xs text-muted-foreground">Notas de aprovação</div>
+                <div className="whitespace-pre-wrap">{expense.notas_aprovacao}</div>
+              </div>
+            )}
+            <div className="border-t pt-3">
+              <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Histórico</div>
+              <BenefitExpenseTimeline expenseId={expense.id} />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

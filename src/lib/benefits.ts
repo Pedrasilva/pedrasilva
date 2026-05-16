@@ -104,6 +104,40 @@ export type BenefitYearlyCredit = {
 
 const CATEGORIES: BenefitCategory[] = ["carro", "ticket", "premio", "outros"];
 
+// =============================================================
+// Categorias dinâmicas (Phase 1b — tabela benefit_categories)
+// =============================================================
+
+export type BenefitCategoryRow = {
+  id: string;
+  code: string;
+  label_pt: string;
+  label_en: string;
+  icon: string | null;
+  legacy_enum: BenefitCategory | null;
+  sort_order: number;
+  active: boolean;
+};
+
+/** Label da categoria a partir de uma linha de benefit_categories. */
+export function categoryLabel(row: BenefitCategoryRow, locale: "pt" | "en" = "pt"): string {
+  return locale === "en" ? row.label_en : row.label_pt;
+}
+
+/** Tipo da linha da view benefit_expenses_v (BenefitExpense + colunas resolvidas). */
+export type BenefitExpenseRow = BenefitExpense & {
+  category_code: string | null;
+  category_label_pt: string | null;
+  category_label_en: string | null;
+};
+
+/** Label para mostrar uma despesa, preferindo a categoria nova. */
+export function expenseCategoryLabel(e: BenefitExpenseRow, locale: "pt" | "en" = "pt"): string {
+  const v = locale === "en" ? e.category_label_en : e.category_label_pt;
+  if (v) return v;
+  return CATEGORY_LABELS[e.categoria];
+}
+
 const emptyByCat = <T>(zero: T): Record<BenefitCategory, T> => ({
   carro: zero,
   ticket: zero,

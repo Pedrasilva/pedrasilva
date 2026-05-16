@@ -1,59 +1,91 @@
+## Phase 1b — UI/UX & State Machine wiring
 
-## Objectivo
+Builds on the Phase 1a DB layer (categories, audit, `benefit_expense_set_status` RPC, audit events, notification queue). No new tables; no Finance integration; legacy enum stays in place.
 
-Na ficha do colaborador (`/hr/minha-ficha`), adicionar acesso rápido a **Férias** e **Benefícios** (que já existem), garantir que estão visíveis ao colaborador (incluindo no Modo colaborador do admin), e introduzir aprovação de despesas de benefícios por um colaborador designado — em vez de apenas pelo admin.
+### 1. State-machine wiring (mutations)
 
-## O que já existe (não recriar)
+`src/routes/_app.hr.beneficios.tsx` → `ExpenseActions`:
 
-- `/hr/ferias` — pedido de férias e ausências, dias úteis, calendário, estados pendente/aprovada/rejeitada (`vacation_requests`).
-- `/hr/beneficios` — vista do colaborador com saldo por categoria, submissão de factura (upload de foto), histórico e estado (`benefit_expenses` com `foto_path`, `estado`, `aprovado_por`, `aprovado_em`).
-- Permissões legacy `hr.ferias.own` e `hr.beneficios.own` já existem e já estão a controlar a sidebar / topnav.
+- Replace direct `update({estado: ...})` in `approve()`, `reject()`, `markPaid()` with:
+  ```
+  supabase.rpc('benefit_expense_set_status', {
+    p_expense_id, p_to_status, p_notes
+  })
+  ```
+- Reject still prompts a mandatory reason; pass as `p_notes`. Approve takes optional notes. Mark-paid takes no notes.
+- Keep `notify-expense` POST for accounting on approval (unchanged endpoint). Collaborator notifications are enqueued automatically by the DB trigger.
+- `remove()` and the foto signed URL flow stay as-is.
 
-## Mudanças propostas
+### 2. Category picker — additive, FK-based
 
-### 1. Atalhos a partir da Minha Ficha
+- New hook `useBenefitCategories()` (in-file): `select id, code, label_pt, label_en, icon, legacy_enum, sort_order from benefit_categories where active order by sort_order`.
+- `SubmitExpenseDialog`:
+  - Picker lists rows from `benefit_categories`, not the hard-coded `CATS`.
+  - Compute "available" per category by joining the active row's `legacy_enum` to current `balance[legacy]`. Rows whose `legacy_enum` is null show "—" available but remain selectable (no balance gate).
+  - On insert, write BOTH `category_id` (new) AND `categoria` (legacy enum from the picked row's `legacy_enum`, fallback `'outros'`) → backward compatible.
+- `ExpensesTable` row label: prefer the joined category label from `benefit_expenses_v` when available; otherwise fall back to `CATEGORY_LABELS[e.categoria]`. Switch `expensesQ` / approver / admin queries to read from `benefit_expenses_v` (same columns + `category_code`, `category_label_pt`).
 
-Em `src/routes/_app.hr.minha-ficha.tsx`, no topo da página adicionar dois cartões/botões grandes:
+### 3. Detail dialog + timeline
 
-- **As minhas férias** → `/hr/ferias` (com contador de dias gozados/disponíveis no ano, vindo da query já existente)
-- **Os meus benefícios** → `/hr/beneficios` (com saldo total disponível do ano)
+- New component `src/components/hr/BenefitExpenseTimeline.tsx`:
+  - Queries `benefit_expense_events` for an `expense_id`, joins `actor_id → collaborators.nome` via `pm_list_user_resource_map` (already used elsewhere).
+  - Renders with the existing `activity-timeline.tsx` primitive (icons: submitted → Inbox, approved → Check, rejected → X, paid → BadgeEuro, reopened → Undo).
+- New `ExpenseDetailDialog` in `_app.hr.beneficios.tsx`:
+  - Triggered by clicking a row (or new "Detalhes" button in `ExpenseActions`).
+  - Shows: header (category, value, status badge, dates), description, both notes fields, foto preview button, and `<BenefitExpenseTimeline>`.
 
-Cada cartão mostra um KPI rápido + CTA "Abrir". Visíveis sempre que o utilizador tem `hr.ferias.own` / `hr.beneficios.own` (já é o caso para colaboradores reais).
+### 4. Collaborator history — filters & yearly summary
 
-### 2. Garantir visibilidade no Modo colaborador
+In `CollaboratorBody`:
+- Filter bar above the table:
+  - Search (descricao / notas) — debounced text.
+  - Status select (todos / pendente / aprovada / paga / rejeitada).
+  - Category select (loaded from `benefit_categories`).
+  - Year select (distinct years from expenses, default = current `ano_fiscal`).
+- "Resumo anual" strip (4 small stat tiles): submetido, aprovado, pago, rejeitado — filtered by selected year.
+- CSV export button → builds a CSV from the currently filtered list (date, category, description, value, status, notes). Client-side `Blob` + `URL.createObjectURL`. No new dependency.
+- Mobile: below `md`, the table collapses to a stacked card list (reuse existing `Card` primitive; status badge + value on the right).
 
-No Modo colaborador (admin a ver como), `useMyPermissions` carrega as permissões do admin (não do colaborador impersonado) e o admin não tem entradas em `user_permissions`. Resultado: férias/benefícios desaparecem da sidebar nesse modo.
+### 5. Approver / Admin views — light improvements
 
-Correcção: nas verificações usadas para a sidebar HR e topnav (`hr.ferias.own`, `hr.beneficios.own`, `hr.minha-ficha`), considerar **também** `isRealAdmin && viewAsUser` como se fosse permissão concedida — assim o admin em Modo colaborador vê o que um colaborador veria. Permissões admin-only (gestão, valor-bo, etc.) continuam ocultas, como já configurámos antes.
+- Inline rejection-reason prompt replaced by a small dialog with a `Textarea` (Phase-1b polish; uses the new `set_status` RPC).
+- Approver view: add the same Year filter (defaults to current year), keep existing status filter.
+- Admin view: unchanged behaviorally; just routes mutations through the RPC.
+- "Aprovado por" column (showCollaborator variant): show `aprovado_por` resolved through `pm_list_user_resource_map` when present.
 
-### 3. Aprovação de despesas de benefícios por colaborador designado
+### 6. RLS tightening (one small migration)
 
-Hoje só o admin aprova (vista `AdminView` em `_app.hr.beneficios.tsx`). Vamos introduzir o papel de **aprovador de benefícios** atribuível a qualquer colaborador.
+Single follow-up migration (no Finance impact):
+- Drop the "approver can update" UPDATE policy on `benefit_expenses` so all status changes MUST go through `benefit_expense_set_status` (which is SECURITY DEFINER and checks `can_approve_benefits`).
+- Keep the "owner can update own pendente" policy → preserves edits-before-approval.
+- Owner DELETE on pendente stays.
 
-**Base de dados (migração):**
+### 7. i18n
 
-- Nova permissão legacy `hr.beneficios.approve` no catálogo (`src/lib/permissions.ts`).
-- Política RLS em `benefit_expenses`: permitir `UPDATE` (apenas das colunas `estado`, `notas_aprovacao`, `aprovado_por`, `aprovado_em`, `pago_em`) a utilizadores com permissão `hr.beneficios.approve` em `user_permissions` — através de função `security definer` `public.can_approve_benefits(uid)`. Continuar a permitir UPDATE total para admins. Manter as políticas existentes do colaborador (criar/editar/apagar enquanto pendente).
+- Add EN + PT keys for: filter bar labels, "Resumo anual" tiles, "Exportar CSV", "Detalhes", "Reabrir", "Aprovado por", timeline event labels (submitted/approved/rejected/paid/reopened), rejection-reason dialog labels. Use existing `hr` namespace; per glossary rules, reuse `common.*` for shared words (Cancel, Save, Search, Year).
 
-**UI:**
+### Files
 
-- Em `/hr/beneficios`, quando o utilizador não é admin mas tem `hr.beneficios.approve`, mostrar um separador adicional **"Aprovações"** dentro da vista do colaborador (tabs: "Os meus benefícios" / "Aprovações pendentes"). A vista de aprovações reutiliza a tabela existente do `AdminView` (lista de pedidos pendentes, abrir foto, aprovar/rejeitar com nota). Sem acesso à configuração de orçamentos / créditos (continua admin-only).
-- Em `/hr/admin` (gestão de permissões), permitir atribuir a nova chave `hr.beneficios.approve` a colaboradores específicos (usa o UI já existente de toggles de permissão).
+Created:
+- `src/components/hr/BenefitExpenseTimeline.tsx`
+- `supabase/migrations/<ts>_benefit_rls_set_status_only.sql`
 
-### 4. i18n
+Edited:
+- `src/routes/_app.hr.beneficios.tsx` (RPC mutations, picker from table, filters, CSV, detail dialog, mobile cards)
+- `src/lib/benefits.ts` (add `BenefitCategoryRow` type + `labelFor(row, locale)` helper)
+- `src/i18n/locales/en/hr.json`, `src/i18n/locales/pt-PT/hr.json`
 
-Adicionar chaves PT/EN para os atalhos da Minha Ficha (`myCard.vacation`, `myCard.benefits`, sub-labels com saldos) e para o separador "Aprovações" (`benefits.approvals.tab`, `benefits.approvals.empty`, etc.), seguindo as regras de namespace e paridade.
+### Out of scope (Phase 2)
 
-## Detalhes técnicos
+- Finance write-through (`financial_expense_items`, payroll, cash-flow).
+- Period-scoped budgets and two-stage approval.
+- True in-app notifications (queue drain + delivery worker — DB seam already in place).
+- Multi-attachment, OCR, NIF extraction.
+- Dropping the legacy `categoria` column.
 
-**Ficheiros afectados:**
+### Backward compatibility
 
-- `src/routes/_app.hr.minha-ficha.tsx` — secção nova com os dois cartões + queries de contagem (já há helper `countWeekdays` e `balanceByCategory`).
-- `src/routes/_app.hr.tsx` — flags `show` para `/hr/ferias`, `/hr/beneficios`, `/hr/minha-ficha`: `(isRealAdmin && viewAsUser) || can(...)`.
-- `src/components/ModuleTopNav.tsx` — mesma regra nos `NavBtn` correspondentes.
-- `src/lib/permissions.ts` — adicionar `hr.beneficios.approve` ao tipo e ao catálogo.
-- `src/routes/_app.hr.beneficios.tsx` — `BeneficiosPage` passa a decidir: admin → `AdminView`; senão → `CollaboratorView` com Tabs (sempre "Os meus benefícios"; se `can("hr.beneficios.approve")`, adicionar tab "Aprovações"). Extrair a tabela de aprovações pendentes do `AdminView` para componente partilhado `BenefitApprovalsTable`.
-- Migração SQL: função `can_approve_benefits` + política UPDATE em `benefit_expenses`.
-- `src/i18n/locales/{en,pt-PT}/hr.json` e `common.json` conforme necessário.
-
-**Sem alterações ao fluxo de Férias** além do atalho — a aprovação de férias mantém-se como está. Se mais tarde quisermos `hr.ferias.approve` análogo, fica para iteração futura (avisar e perguntar antes de avançar).
+- Legacy `categoria` enum kept and dual-written.
+- Old rows continue to resolve via `benefit_expenses_v` fallback.
+- Existing approver/admin flows preserved; only the mutation path moves to the RPC.
+- No removed columns, no removed routes, no permission key changes.
