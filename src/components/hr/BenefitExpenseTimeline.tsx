@@ -71,8 +71,8 @@ export function BenefitExpenseTimeline({ expenseId }: { expenseId: string }) {
       const { data, error } = await supabase.rpc("pm_list_user_resource_map");
       if (error) throw error;
       const map: ActorMap = {};
-      for (const r of (data ?? []) as Array<{ user_id: string; collaborator_nome: string | null }>) {
-        if (r.user_id) map[r.user_id] = { nome: r.collaborator_nome ?? "—" };
+      for (const r of (data ?? []) as Array<{ user_id: string; name: string | null }>) {
+        if (r.user_id) map[r.user_id] = { nome: r.name ?? "—" };
       }
       return map;
     },
