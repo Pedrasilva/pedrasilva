@@ -230,20 +230,27 @@ function useBenefitData(collaboratorId: string | null) {
 
 // ---- Helpers partilhados ----
 
-function exportExpensesCsv(rows: BenefitExpenseRow[], filename: string) {
-  const head = ["Data", "Categoria", "Descrição", "Valor (EUR)", "Estado", "Notas colaborador", "Notas aprovação"];
+function exportExpensesCsv(
+  rows: BenefitExpenseRow[],
+  filename: string,
+  i18n: {
+    headers: string[];
+    status: (s: ExpenseStatus) => string;
+    categoryLabel: (e: BenefitExpenseRow) => string;
+  },
+) {
   const esc = (v: unknown) => {
     const s = v == null ? "" : String(v);
     return /[",;\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
-  const lines = [head.join(";")].concat(
+  const lines = [i18n.headers.join(";")].concat(
     rows.map((r) =>
       [
         r.data_despesa,
-        expenseCategoryLabel(r),
+        i18n.categoryLabel(r),
         r.descricao,
         Number(r.valor).toFixed(2).replace(".", ","),
-        STATUS_LABELS[r.estado],
+        i18n.status(r.estado),
         r.notas_colaborador ?? "",
         r.notas_aprovacao ?? "",
       ]
