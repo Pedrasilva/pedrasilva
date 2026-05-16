@@ -40,6 +40,7 @@ import { Button } from "@/components/ui/button";
 import { PermissionGate } from "@/components/PermissionGate";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResumoComparativoTab } from "@/components/ResumoComparativoTab";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/hr/resumo")({
   component: () => (
