@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +22,7 @@ export function RejectExpenseDialog({
   /** Should throw on failure so the dialog keeps open. */
   onConfirm: (reason: string) => Promise<void>;
 }) {
+  const { t } = useTranslation(["hr"]);
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -51,32 +53,30 @@ export function RejectExpenseDialog({
     <Dialog open={open} onOpenChange={(v) => (!loading ? onOpenChange(v) : null)}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Rejeitar despesa</DialogTitle>
-          <DialogDescription>
-            Indique o motivo da rejeição. O colaborador será notificado e o saldo é devolvido.
-          </DialogDescription>
+          <DialogTitle>{t("hr:beneficios.reject.title")}</DialogTitle>
+          <DialogDescription>{t("hr:beneficios.reject.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-1.5">
-          <Label>Motivo *</Label>
+          <Label>{t("hr:beneficios.reject.reasonLabel")} *</Label>
           <Textarea
             rows={4}
             autoFocus
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Ex: Factura não corresponde ao colaborador / fora do âmbito da categoria…"
+            placeholder={t("hr:beneficios.reject.reasonPlaceholder")}
           />
           {!valid && reason.length > 0 && (
-            <p className="text-[11px] text-rose-600">Mínimo 3 caracteres.</p>
+            <p className="text-[11px] text-rose-600">{t("hr:beneficios.reject.minChars")}</p>
           )}
         </div>
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading}>
-            Cancelar
+            {t("hr:beneficios.reject.cancel")}
           </Button>
           <Button variant="destructive" onClick={confirm} disabled={!valid || loading}>
-            {loading ? "A rejeitar…" : "Rejeitar"}
+            {loading ? t("hr:beneficios.reject.loading") : t("hr:beneficios.reject.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>
