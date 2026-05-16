@@ -11,6 +11,7 @@ import {
 } from "@/lib/salary";
 import { computeValorBO } from "./_app.hr.valor-bo";
 import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
+import { computeCollaboratorFte, effectiveDailyHours } from "@/lib/hr/fte";
 import {
   Card,
   CardContent,
@@ -122,10 +123,17 @@ function ResumoPage() {
     horasDia,
   });
 
+  // FTE-weighted overhead allocation: part-timers absorb proportionally less.
+  const fteTotalProjecto = projecto.reduce(
+    (acc, r) => acc + computeCollaboratorFte(r.collab.daily_hours, r.collab.days_per_week, horasDia),
+    0,
+  );
+
   const cotaBo = cotaBoPorColabProjecto({
     custosOperacionais: custosOp,
     custoBackofficeVbg: totalBackoffice,
     numColabProjecto: projecto.length,
+    fteTotalProjecto,
   });
 
   const totalAtelier = totalGeral + custosOp;
@@ -800,8 +808,11 @@ function PricingTable({
   const computeRow = (r: Row) => {
     const ref = r.effective ?? r.proposed;
     const c = ref ? computeSnapshot(ref) : null;
+    // Per-collaborator productive hours → part-timers' annual burden is
+    // divided by THEIR own hours, not by the studio-wide full-time week.
+    const collabHorasDia = effectiveDailyHours(r.collab.daily_hours, horasDia);
     const baseArgs = c
-      ? { vbgColaborador: c.custoVBG, cotaBoAnual: cotaBo, diasUteis, horasDia }
+      ? { vbgColaborador: c.custoVBG, cotaBoAnual: cotaBo, diasUteis, horasDia: collabHorasDia }
       : null;
     return {
       c,
