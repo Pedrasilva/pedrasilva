@@ -817,17 +817,23 @@ function ExpenseActions({
     }
   }
 
+  async function setStatus(to: ExpenseStatus, notes?: string | null) {
+    const { error } = await sb.rpc("benefit_expense_set_status", {
+      _expense_id: expense.id,
+      _to_status: to,
+      _notes: notes ?? null,
+    });
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+    return true;
+  }
+
   async function approve() {
     const notas = window.prompt("Notas de aprovação (opcional)") ?? "";
-    const { error } = await supabase
-      .from("benefit_expenses")
-      .update({
-        estado: "aprovada",
-        notas_aprovacao: notas || null,
-        aprovado_em: new Date().toISOString(),
-      })
-      .eq("id", expense.id);
-    if (error) return toast.error(error.message);
+    const ok = await setStatus("aprovada", notas.trim() || null);
+    if (!ok) return;
 
     try {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -849,27 +855,20 @@ function ExpenseActions({
   }
 
   async function reject() {
-    const notas = window.prompt("Motivo da rejeição") ?? "";
-    if (!notas) return;
-    const { error } = await supabase
-      .from("benefit_expenses")
-      .update({
-        estado: "rejeitada",
-        notas_aprovacao: notas,
-        aprovado_em: new Date().toISOString(),
-      })
-      .eq("id", expense.id);
-    if (error) return toast.error(error.message);
+    const notas = window.prompt("Motivo da rejeição (obrigatório)") ?? "";
+    if (!notas.trim()) {
+      toast.error("Motivo obrigatório");
+      return;
+    }
+    const ok = await setStatus("rejeitada", notas.trim());
+    if (!ok) return;
     toast.success("Despesa rejeitada — saldo devolvido");
     onChanged();
   }
 
   async function markPaid() {
-    const { error } = await supabase
-      .from("benefit_expenses")
-      .update({ estado: "paga", pago_em: new Date().toISOString() })
-      .eq("id", expense.id);
-    if (error) return toast.error(error.message);
+    const ok = await setStatus("paga");
+    if (!ok) return;
     toast.success("Marcada como paga");
     onChanged();
   }
