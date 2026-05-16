@@ -1,4 +1,72 @@
 {
+  "dashboard": {
+    "title": "Cockpit de RH",
+    "subtitle": "Visão operacional de pessoas, ausências e benefícios.",
+    "kpi": {
+      "activeCollaborators": "Colaboradores ativos",
+      "archived": "Arquivados",
+      "onLeaveToday": "Ausentes hoje",
+      "upcomingLeave30": "Férias previstas (30d)",
+      "pendingReimbursements": "Reembolsos pendentes",
+      "approvedUnpaidReimb": "Aprovados por pagar",
+      "monthlyPayroll": "Massa salarial mensal",
+      "workingDaysMonth": "Dias úteis este mês"
+    },
+    "alerts": {
+      "title": "Ação necessária",
+      "empty": "Sem alertas pendentes. Está tudo em ordem.",
+      "benefitsPending": {
+        "title": "Despesas de benefícios por aprovar",
+        "body": "{{count}} reembolso(s) pendente(s) para revisão."
+      },
+      "benefitsStale": {
+        "title": "Reembolsos pendentes há muito tempo",
+        "body": "{{count}} reembolso(s) pendente(s) há mais de 14 dias."
+      },
+      "vacationPending": {
+        "title": "Pedidos de férias por decidir",
+        "body": "{{count}} pedido(s) à espera de aprovação."
+      },
+      "approvedNoFei": {
+        "title": "Reembolsos aprovados sem passivo",
+        "body": "{{count}} reembolso(s) aprovado(s) sem passivo financeiro."
+      },
+      "feiPaidHrDrift": {
+        "title": "Divergência de pagamento Finanças/RH",
+        "body": "{{count}} passivo(s) pago(s) não refletido(s) no RH."
+      },
+      "syncFailed": {
+        "title": "Falhas de sincronização Finanças → RH",
+        "body": "{{count}} evento(s) de liquidação não sincronizou(aram) para o RH."
+      },
+      "reimbNoPeriod": {
+        "title": "Reembolsos sem período",
+        "body": "{{count}} reembolso(s) aprovado(s) sem período de referência."
+      },
+      "missingSalary": {
+        "title": "Colaboradores sem dados salariais",
+        "body": "{{count}} colaborador(es) ativo(s) sem snapshot salarial."
+      }
+    },
+    "capacity": {
+      "title": "Capacidade da equipa",
+      "current": "Ausentes hoje",
+      "next14": "Ausentes nos próximos 14 dias",
+      "overlaps": "Dias com sobreposição",
+      "empty": "Sem ausências previstas na janela."
+    },
+    "activity": {
+      "title": "Atividade recente",
+      "empty": "Sem atividade recente.",
+      "kind": {
+        "vacation_requested": "pediu férias",
+        "vacation_approved": "férias aprovadas",
+        "vacation_rejected": "férias rejeitadas",
+        "collaborator_created": "colaborador adicionado",
+        "collaborator_archived": "colaborador arquivado"
+      }
+    }
+  },
   "module": {
     "title": "HR",
     "subtitle": "Pessoas",
