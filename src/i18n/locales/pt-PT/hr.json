@@ -349,7 +349,7 @@
       "description": "Soma do vencimento base de todos os colaboradores ({{withProposal}} de {{total}} com ficha proposta). Quem não tem proposta conta com o valor actual. Anual = base × 14 meses.",
       "currentMonthly": "Base mensal — actual",
       "proposedMonthly": "Base mensal — proposto",
-      "monthlyIncrease": "Aumento mensal",
+      "monthlyIncrease": "Aumento mensal (só base)",
       "annualPrefix": "Anual: {{value}}",
       "annualX14Prefix": "Anual (×14): {{value}}"
     },
@@ -360,7 +360,7 @@
       "proposedAnnual": "Custo anual proposto",
       "additionalAnnual": "Custo adicional anual",
       "vsCurrent": "vs actual",
-      "monthlyEquivalent": "Equivalente mensal: {{value}} / mês",
+      "monthlyEquivalent": "Equivalente mensal (custo total): {{value}} / mês — inclui SS patronal, subsídios e benefícios anualizados, por isso é superior ao aumento só da base.",
       "infoTooltip": "Inclui, por colaborador: salário base (×14, 13 ou 12 consoante o modo), Segurança Social patronal (23,75%), subsídio de alimentação, ajudas de custo, passe e benefícios anuais (carro, ticket, prémio, plano de reforma, bónus variável, outros). Não inclui SS do colaborador (11%) nem IRS — esses são descontos já contidos no bruto que a empresa paga."
     },
     "table": {
