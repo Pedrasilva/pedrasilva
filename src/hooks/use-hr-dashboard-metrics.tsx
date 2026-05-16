@@ -109,14 +109,22 @@ export function useHrDashboardMetrics() {
           );
         }
 
-        // Working days this month (only if config exists)
-        const { count: wdCount } = await supabase
-          .from("workdays")
-          .select("id", { count: "exact", head: true })
+        // Working days this month — count weekdays minus holidays in range
+        const { data: hols } = await supabase
+          .from("holidays")
+          .select("data")
           .gte("data", start)
-          .lte("data", end)
-          .eq("is_workday", true);
-        workingDaysThisMonth = wdCount ?? null;
+          .lte("data", end);
+        const holidaySet = new Set(((hols ?? []) as Array<{ data: string }>).map((h) => h.data));
+        let wd = 0;
+        const startD = new Date(start);
+        const endD = new Date(end);
+        for (let d = new Date(startD); d <= endD; d.setDate(d.getDate() + 1)) {
+          const iso = d.toISOString().slice(0, 10);
+          const dow = d.getDay();
+          if (dow !== 0 && dow !== 6 && !holidaySet.has(iso)) wd += 1;
+        }
+        workingDaysThisMonth = wd;
       }
 
       return {
