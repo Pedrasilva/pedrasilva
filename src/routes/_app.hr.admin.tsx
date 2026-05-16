@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,6 +45,7 @@ import {
   Pencil,
   Check,
   X,
+  Eye,
 } from "lucide-react";
 import {
   useArchiveInternalCategory,
@@ -318,6 +319,19 @@ function PermissionsMatrix({
   // Local edits keyed by `${userId}::${key}` -> granted boolean
   const [edits, setEdits] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
+  const navigate = useNavigate();
+  const { user: currentUser, isRealAdmin, setViewAsUser, setViewAsCollaboratorId } = useAuth();
+
+  const handleViewAs = (u: UserRow) => {
+    if (!u.collaborator_id) {
+      toast.error("Este utilizador não tem ficha de colaborador associada.");
+      return;
+    }
+    setViewAsUser(true);
+    setViewAsCollaboratorId(u.collaborator_id);
+    toast.success(`A ver a app como ${u.collaborator_nome ?? u.email}`);
+    navigate({ to: "/hr/minha-ficha" });
+  };
 
   // Reset local edits when fresh data arrives (e.g. after save)
   useEffect(() => {
@@ -499,17 +513,40 @@ function PermissionsMatrix({
                         u.is_admin && "bg-muted/40",
                       )}
                     >
-                      <div className="flex items-center gap-2 font-medium">
-                        {u.is_super_admin && (
-                          <Crown className="h-3.5 w-3.5 text-amber-500" />
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 font-medium">
+                            {u.is_super_admin && (
+                              <Crown className="h-3.5 w-3.5 text-amber-500" />
+                            )}
+                            <span className="truncate">
+                              {u.collaborator_nome ?? u.email}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-muted-foreground truncate">
+                            {u.collaborator_nome ? u.email : "sem ficha"}
+                            {u.is_admin && " · admin"}
+                          </div>
+                        </div>
+                        {isRealAdmin && u.user_id !== currentUser?.id && u.collaborator_id && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground"
+                                onClick={() => handleViewAs(u)}
+                                aria-label={`Ver a app como ${u.collaborator_nome ?? u.email}`}
+                              >
+                                <Eye className="h-3.5 w-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">
+                              Ver a app como este utilizador
+                            </TooltipContent>
+                          </Tooltip>
                         )}
-                        <span className="truncate">
-                          {u.collaborator_nome ?? u.email}
-                        </span>
-                      </div>
-                      <div className="text-[11px] text-muted-foreground truncate">
-                        {u.collaborator_nome ? u.email : "sem ficha"}
-                        {u.is_admin && " · admin"}
                       </div>
                     </td>
                     {PERMISSION_GROUPS.flatMap((g) =>
