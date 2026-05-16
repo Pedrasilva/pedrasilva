@@ -40,6 +40,7 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
       { key: "hr.minha-ficha", label: "Minha ficha", description: "Ver a sua própria ficha salarial" },
       { key: "hr.dias-uteis", label: "Dias úteis", description: "Calendário e feriados" },
       { key: "hr.beneficios.own", label: "Benefícios próprios", description: "Submeter despesas e ver saldo" },
+      { key: "hr.beneficios.approve", label: "Aprovar benefícios", description: "Aprovar/rejeitar despesas de benefícios de outros colaboradores" },
       { key: "hr.ferias.own", label: "Férias próprias", description: "Pedir e ver férias" },
       { key: "hr.colaboradores", label: "Colaboradores (todos)", description: "Ver lista e fichas de outros colaboradores" },
       { key: "hr.resumo", label: "Resumo comparativo", description: "Tabela comparativa de salários" },
