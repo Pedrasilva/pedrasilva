@@ -823,5 +823,140 @@
     "toasts": {
       "completed": "Imported {{inserted}} snapshot(s); {{skipped}} skipped"
     }
+  },
+  "beneficios": {
+    "title": "My benefits",
+    "subtitle": "Track your available balance and submit your receipts.",
+    "adminTitle": "Benefits — Management",
+    "adminSubtitle": "Approve expenses and manage initial balances and yearly credits per collaborator.",
+    "approverTitle": "Expense approvals",
+    "approverSubtitle": "Review receipts submitted by collaborators and approve or reject.",
+    "tabs": {
+      "mine": "My benefits",
+      "approvals": "Approvals"
+    },
+    "empty": {
+      "noProfile": "We could not identify your collaborator profile. Contact the administrator.",
+      "noBalance": "You do not have any benefit balance assigned yet. Contact the administrator.",
+      "noExpenses": "No expenses recorded."
+    },
+    "balance": {
+      "available": "available",
+      "initial": "Initial",
+      "credited": "Credited",
+      "spent": "Spent"
+    },
+    "summary": {
+      "submitted": "Submitted",
+      "approved": "Approved",
+      "paid": "Paid",
+      "rejected": "Rejected",
+      "pending": "Pending",
+      "approvedPlural": "Approved",
+      "paidPlural": "Paid"
+    },
+    "filters": {
+      "searchPlaceholder": "Search description or notes…",
+      "allStatuses": "All statuses",
+      "allCategories": "All categories",
+      "allYears": "All years",
+      "exportCsv": "Export CSV",
+      "chipPending": "Pending",
+      "chipApproved": "Approved",
+      "chipPaid": "Paid",
+      "chipRejected": "Rejected",
+      "chipAll": "All"
+    },
+    "status": {
+      "pendente": "Pending",
+      "aprovada": "Approved",
+      "rejeitada": "Rejected",
+      "paga": "Paid"
+    },
+    "table": {
+      "date": "Date",
+      "collaborator": "Collaborator",
+      "category": "Category",
+      "description": "Description",
+      "amount": "Amount",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "submit": {
+      "button": "Submit expense",
+      "dialogTitle": "New expense",
+      "dialogDescription": "Attach the receipt photo and select the benefit category.",
+      "category": "Category",
+      "categoryPlaceholder": "Choose…",
+      "categoryAvailable": "available {{value}}",
+      "description": "Description",
+      "descriptionPlaceholder": "e.g. Fuel Galp 12/03",
+      "amount": "Amount (€)",
+      "date": "Expense date",
+      "receipt": "Photo / receipt",
+      "notes": "Notes (optional)",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "submitting": "Submitting…",
+      "exceeds": "Exceeds available ({{value}})",
+      "available": "Available: {{value}}"
+    },
+    "actions": {
+      "details": "Details",
+      "viewReceipt": "View receipt",
+      "approve": "Approve",
+      "reject": "Reject",
+      "markPaid": "Mark as paid",
+      "delete": "Delete"
+    },
+    "detail": {
+      "title": "Expense details",
+      "description": "Description",
+      "collaboratorNotes": "Collaborator notes",
+      "approvalNotes": "Approval notes",
+      "history": "History"
+    },
+    "delete": {
+      "title": "Delete expense",
+      "descriptionPending": "This action is permanent. The pending expense and its attached receipt will be removed.",
+      "descriptionGeneric": "This action is permanent. The expense and its attached receipt will be removed.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "loading": "Deleting…"
+    },
+    "reject": {
+      "title": "Reject expense",
+      "description": "Provide a reason for the rejection. The collaborator will be notified and the balance refunded.",
+      "reasonLabel": "Reason",
+      "reasonPlaceholder": "e.g. Receipt does not match collaborator / out of category scope…",
+      "minChars": "Minimum 3 characters.",
+      "cancel": "Cancel",
+      "confirm": "Reject",
+      "loading": "Rejecting…"
+    },
+    "toasts": {
+      "submitted": "Expense submitted — pending approval",
+      "approved": "Expense approved — email sent to accounting",
+      "rejected": "Expense rejected — balance refunded",
+      "paid": "Marked as paid",
+      "deleted": "Expense deleted",
+      "errors": {
+        "categoryRequired": "Choose a category",
+        "descriptionRequired": "Description required",
+        "invalidAmount": "Invalid amount",
+        "receiptRequired": "Attach the receipt photo",
+        "submit": "Submission error",
+        "openPhoto": "Error opening photo"
+      }
+    },
+    "history": {
+      "loading": "Loading history…",
+      "empty": "No events."
+    },
+    "admin": {
+      "manageBalances": "Manage balances",
+      "balancesDialogTitle": "Balances and yearly credits",
+      "balancesDialogDescription": "Set the initial balance and yearly credits per fiscal year for each collaborator. Leftovers carry over automatically."
+    }
   }
 }
