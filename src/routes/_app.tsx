@@ -56,7 +56,7 @@ function AppLayout() {
   const loc = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation("projects");
-  const { session, loading, isAdmin, isRealAdmin, viewAsUser, setViewAsUser, user, signOut } = useAuth();
+  const { session, loading, isAdmin, isRealAdmin, viewAsUser, setViewAsUser, setViewAsCollaboratorId, user, signOut } = useAuth();
   const { permissions } = useMyPermissions();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -336,9 +336,19 @@ function AppLayout() {
           {/* Acções à direita */}
           <div className="flex items-center gap-1.5">
             {viewAsUser && (
-              <Badge variant="secondary" className="hidden md:inline-flex">
-                Modo colaborador
-              </Badge>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="hidden md:inline-flex h-8 gap-1.5"
+                onClick={() => {
+                  setViewAsUser(false);
+                  setViewAsCollaboratorId(null);
+                }}
+                title="Voltar a ver como super admin"
+              >
+                <span>Modo colaborador</span>
+                <span className="text-xs opacity-70">· Sair</span>
+              </Button>
             )}
 
             <LanguageSwitcher className="hidden md:inline-flex" />
