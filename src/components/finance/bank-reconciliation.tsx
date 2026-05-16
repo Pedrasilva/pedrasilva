@@ -24,6 +24,7 @@ import {
   type RuleRow,
 } from "@/lib/finance/bank-statement-parser";
 import { MatchBankTxToDocDialog } from "@/components/finance/match-bank-tx-to-doc";
+import { MatchBankTxToReimbursementDialog } from "@/components/finance/match-bank-tx-to-reimbursement";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
 import { useSupplierDefaultClassifications } from "@/lib/finance/use-supplier-classifications";
 import { BankImportsManager } from "@/components/finance/bank-imports-manager";
@@ -516,6 +517,7 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
   const [classifyTx, setClassifyTx] = useState<BankTx | null>(null);
   const [matchDocTx, setMatchDocTx] = useState<BankTx | null>(null);
   const [createDocTx, setCreateDocTx] = useState<BankTx | null>(null);
+  const [matchReimbTx, setMatchReimbTx] = useState<BankTx | null>(null);
   const { user } = useAuth();
 
   const txQ = useQuery({
@@ -654,6 +656,11 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
                               <DropdownMenuItem onClick={() => setClassifyTx(tx)}>
                                 {tx.status === "unclassified" ? t("finance:bankRec.actions.classify") : t("common:edit")}
                               </DropdownMenuItem>
+                              {tx.amount < 0 && (
+                                <DropdownMenuItem onClick={() => setMatchReimbTx(tx)}>
+                                  {t("finance:bankRec.actions.matchReimbursement", { defaultValue: "Match HR reimbursement" })}
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuSeparator />
                               {tx.status !== "internal_transfer" && (
                                 <DropdownMenuItem onClick={() => quickMarkStatus(tx, "internal_transfer")}>
@@ -712,6 +719,18 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
           }}
           onClose={() => setCreateDocTx(null)}
           onCreated={() => { setCreateDocTx(null); txQ.refetch(); counts.refetch(); }}
+        />
+      )}
+      {matchReimbTx && (
+        <MatchBankTxToReimbursementDialog
+          tx={{
+            id: matchReimbTx.id,
+            transaction_date: matchReimbTx.transaction_date,
+            description: matchReimbTx.description,
+            amount: Number(matchReimbTx.amount),
+          }}
+          onClose={() => setMatchReimbTx(null)}
+          onMatched={() => { setMatchReimbTx(null); txQ.refetch(); counts.refetch(); }}
         />
       )}
     </Card>
