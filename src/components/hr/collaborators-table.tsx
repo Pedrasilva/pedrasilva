@@ -33,12 +33,57 @@ export function CollaboratorsTable({
   sortDir,
   onSortChange,
 }: Props) {
-...
+  const { t } = useTranslation(["hr", "glossary", "common"]);
+  const navigate = useNavigate();
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <SortHead label={t("glossary:entity.employee")} k="nome" current={sortKey} dir={sortDir} onClick={onSortChange} />
+          <SortHead label={t("glossary:hr.department")} k="departamento" current={sortKey} dir={sortDir} onClick={onSortChange} />
+          <SortHead label={t("hr:colaboradores.columns.number")} k="numero" current={sortKey} dir={sortDir} onClick={onSortChange} />
+          <SortHead label={t("hr:colaboradores.columns.contractStatus")} k="situacao" current={sortKey} dir={sortDir} onClick={onSortChange} />
           <SortHead label={t("hr:colaboradores.columns.status")} k="status" current={sortKey} dir={sortDir} onClick={onSortChange} />
           <TableHead className="text-right">{t("hr:colaboradores.columns.fte", "FTE")}</TableHead>
           <TableHead className="text-right">{t("hr:colaboradores.columns.chargeability", "Chargeability")}</TableHead>
         </TableRow>
-...
+      </TableHeader>
+      <TableBody>
+        {rows.map((c) => {
+          const archived = !!c.archived_at;
+          const open = () =>
+            navigate({ to: "/hr/colaborador/$id", params: { id: c.id } });
+          return (
+            <TableRow
+              key={c.id}
+              className={cn(
+                "cursor-pointer hover:bg-muted/40",
+                archived && "opacity-60",
+              )}
+              onClick={open}
+            >
+              <TableCell className="font-medium">{c.nome}</TableCell>
+              <TableCell className="text-muted-foreground">
+                {t(`hr:enums.department.${c.departamento}`)}
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {c.numero_colaborador || "—"}
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {c.situacao_contractual || "—"}
+              </TableCell>
+              <TableCell>
+                {archived ? (
+                  <Badge variant="outline" className="text-muted-foreground">
+                    {t("hr:colaboradores.archivedBadge")}
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary">
+                    {t("hr:colaboradores.activeBadge")}
+                  </Badge>
+                )}
+              </TableCell>
               <TableCell className="text-right tabular-nums">
                 {computeCollaboratorFte(c.daily_hours, c.days_per_week).toFixed(2)}
               </TableCell>
