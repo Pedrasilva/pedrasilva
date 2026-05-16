@@ -47,7 +47,6 @@ import {
   Camera,
   Check,
   X,
-  BadgeEuro,
   Trash2,
   FileImage,
   Settings2,
