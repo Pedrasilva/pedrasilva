@@ -918,15 +918,7 @@ function ExpenseActions({
     onChanged();
   }
 
-  async function markPaid() {
-    try {
-      await setStatus("paga");
-    } catch {
-      return;
-    }
-    toast.success(t("hr:beneficios.toasts.paid"));
-    onChanged();
-  }
+  // markPaid removed — Finance is the payment authority (Phase 2c).
 
   async function remove() {
     // Storage cleanup is best-effort; RLS still allows owner to delete
