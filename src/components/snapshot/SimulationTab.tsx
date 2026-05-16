@@ -165,13 +165,24 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
           <FieldRow label="Outros">
             <NumIn value={draft.outros_beneficios} onChange={(n) => set("outros_beneficios", n)} />
           </FieldRow>
-          <FieldRow label="Variável">
-            <NumIn value={draft.beneficio_variavel ?? 0} onChange={(n) => set("beneficio_variavel", n)} />
-          </FieldRow>
           <FieldRow label="Plano de reforma (anual) — sujeito a IRS">
             <NumIn value={draft.plano_reforma ?? 0} onChange={(n) => set("plano_reforma", n)} />
           </FieldRow>
-          <CalcRow label="Total anual" value={fmtEUR(c.beneficiosAnual)} />
+          <CalcRow label="Total garantido (anual)" value={fmtEUR(c.beneficiosAnualGarantido)} />
+
+          <div className="mt-2 rounded-md border border-dashed border-[var(--clay)]/40 bg-[color-mix(in_oklab,var(--cream)_50%,transparent)] p-3 space-y-3">
+            <div className="space-y-0.5">
+              <div className="text-sm font-medium">Bónus anual (potencial)</div>
+              <div className="text-[11px] text-muted-foreground">
+                Valor variável, não garantido — pago apenas conforme os resultados do ano.
+                Está incluído no custo total para fins de planeamento (cenário máximo).
+              </div>
+            </div>
+            <FieldRow label="Bónus variável (anual)">
+              <NumIn value={draft.beneficio_variavel ?? 0} onChange={(n) => set("beneficio_variavel", n)} />
+            </FieldRow>
+            <CalcRow label="Total com bónus (anual)" value={fmtEUR(c.beneficiosAnual)} />
+          </div>
         </CardContent>
       </Card>
     </div>
