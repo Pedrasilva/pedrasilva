@@ -24,7 +24,11 @@ import { LiquidoTab } from "./snapshot/LiquidoTab";
 import { BrutoTab } from "./snapshot/BrutoTab";
 import { FieldStacked } from "./snapshot/inputs";
 
-type Props = { snapshot: Snapshot; collaborator: Collaborator };
+type Props = {
+  snapshot: Snapshot;
+  collaborator: Collaborator;
+  onSavedNewSnapshot?: (newSnapshotId: string) => void;
+};
 
 const TABELA_LABEL: Record<string, string> = {
   nao_casado: "Não casado",
@@ -44,7 +48,7 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   "dependentes_com_deficiencia", "ano_fiscal",
 ];
 
-export function SnapshotForm({ snapshot, collaborator }: Props) {
+export function SnapshotForm({ snapshot, collaborator, onSavedNewSnapshot }: Props) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Snapshot>(snapshot);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
@@ -225,7 +229,12 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
       if (result.kind === "inserted") {
-        toast.success("Nova simulação salarial guardada");
+        toast.success("Alterações guardadas numa nova versão da ficha (histórico preservado)");
+        if (onSavedNewSnapshot && result.snapshot?.id) {
+          onSavedNewSnapshot(result.snapshot.id);
+        }
+      } else {
+        toast.success("Ficha actualizada");
       }
     },
     onError: (e: Error) => toast.error(`Erro a guardar: ${e.message}`),
