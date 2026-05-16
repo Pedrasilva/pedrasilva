@@ -84,11 +84,65 @@
     },
     "tabs": {
       "net": "Visão Líquido",
-      "gross": "Visão Bruto"
+      "gross": "Visão Bruto",
+      "details": "Detalhes",
+      "compare": "Comparar"
     },
     "footerReadOnly": "Esta página é apenas de consulta. Para qualquer alteração contacte o Backoffice. Em caso de dúvida visite a secção de",
     "footerBenefitsLink": "Benefícios",
-    "footerSuffix": "."
+    "footerSuffix": ".",
+    "details": {
+      "intro": "Todos os campos da ficha. Apenas para consulta — para alterar contacte o Backoffice.",
+      "sections": {
+        "base": "Salário base",
+        "social": "Segurança social e IRS",
+        "meal": "Subsídio de alimentação",
+        "allowances": "Ajudas e passe",
+        "benefits": "Outros benefícios",
+        "household": "Agregado familiar (contexto fiscal)",
+        "meta": "Vigência e origem"
+      },
+      "fields": {
+        "valor_base": "Valor base mensal",
+        "subsidios_modo": "Regime de subsídios",
+        "meses_pagos": "Meses pagos por ano",
+        "ss_atelier_pct": "SS Atelier (patronal)",
+        "ss_colaborador_pct": "SS Colaborador",
+        "irs_pct": "IRS efectivo",
+        "irs_calculado_auto": "IRS calculado automaticamente",
+        "subsidio_alimentacao_diario": "Valor diário",
+        "dias_uteis": "Dias úteis / ano",
+        "subsidio_alimentacao_manual": "Override manual",
+        "ajudas_custo_anual": "Ajudas de custo (anual)",
+        "passe_anual": "Passe / transporte (anual)",
+        "beneficio_carro": "Viatura",
+        "beneficio_ticket": "Tickets / cartão",
+        "premio_associado": "Prémio associado",
+        "outros_beneficios": "Outros benefícios",
+        "beneficio_variavel": "Remuneração variável",
+        "plano_reforma": "Plano de reforma (anual)",
+        "localizacao": "Localização",
+        "estado_civil": "Estado civil",
+        "numero_titulares": "Nº titulares",
+        "numero_dependentes": "Nº dependentes",
+        "dependentes_com_deficiencia": "Dependentes c/ deficiência",
+        "ano_fiscal": "Ano fiscal",
+        "effective_from": "Em vigor desde",
+        "effective_to": "Em vigor até",
+        "source": "Origem",
+        "notas": "Notas"
+      },
+      "values": {
+        "sourceManual": "Manual",
+        "sourceExcel": "Importação Excel",
+        "sourceApi": "API",
+        "openEnded": "Sem limite",
+        "empty": "—",
+        "yes": "Sim",
+        "no": "Não"
+      },
+      "compareNeedsTwo": "Precisa de pelo menos duas fichas para comparar."
+    }
   },
   "mealAllowance": {
     "title": "Subsídio de alimentação",

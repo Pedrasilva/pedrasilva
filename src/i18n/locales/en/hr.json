@@ -84,11 +84,65 @@
     },
     "tabs": {
       "net": "Net View",
-      "gross": "Gross View"
+      "gross": "Gross View",
+      "details": "Details",
+      "compare": "Compare"
     },
     "footerReadOnly": "This page is read-only. For any change, contact Backoffice. For questions, see the",
     "footerBenefitsLink": "Benefits",
-    "footerSuffix": "section."
+    "footerSuffix": "section.",
+    "details": {
+      "intro": "All fields on file. Read-only — to change anything contact Backoffice.",
+      "sections": {
+        "base": "Base salary",
+        "social": "Social security and income tax",
+        "meal": "Meal allowance",
+        "allowances": "Per diem and transit",
+        "benefits": "Other benefits",
+        "household": "Household (tax context)",
+        "meta": "Validity and source"
+      },
+      "fields": {
+        "valor_base": "Monthly base",
+        "subsidios_modo": "Subsidy regime",
+        "meses_pagos": "Paid months per year",
+        "ss_atelier_pct": "SS Atelier (employer)",
+        "ss_colaborador_pct": "SS Employee",
+        "irs_pct": "Effective income tax",
+        "irs_calculado_auto": "Income tax auto-computed",
+        "subsidio_alimentacao_diario": "Daily value",
+        "dias_uteis": "Working days / year",
+        "subsidio_alimentacao_manual": "Manual override",
+        "ajudas_custo_anual": "Per diem (annual)",
+        "passe_anual": "Transit pass (annual)",
+        "beneficio_carro": "Vehicle",
+        "beneficio_ticket": "Tickets / card",
+        "premio_associado": "Associated bonus",
+        "outros_beneficios": "Other benefits",
+        "beneficio_variavel": "Variable pay",
+        "plano_reforma": "Pension plan (annual)",
+        "localizacao": "Location",
+        "estado_civil": "Marital status",
+        "numero_titulares": "# Holders",
+        "numero_dependentes": "# Dependents",
+        "dependentes_com_deficiencia": "Dependents w/ disability",
+        "ano_fiscal": "Tax year",
+        "effective_from": "In force from",
+        "effective_to": "In force until",
+        "source": "Source",
+        "notas": "Notes"
+      },
+      "values": {
+        "sourceManual": "Manual",
+        "sourceExcel": "Excel import",
+        "sourceApi": "API",
+        "openEnded": "Open-ended",
+        "empty": "—",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "compareNeedsTwo": "You need at least two snapshots to compare."
+    }
   },
   "mealAllowance": {
     "title": "Meal allowance",
