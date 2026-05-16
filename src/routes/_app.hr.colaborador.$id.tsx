@@ -74,6 +74,14 @@ import {
 import { ArchiveCollaboratorDialog } from "@/components/hr/archive-collaborator-dialog";
 import { RestoreCollaboratorDialog } from "@/components/hr/restore-collaborator-dialog";
 import { humanizeMutationError } from "@/lib/hr/error-messages";
+import { computeCollaboratorFte } from "@/lib/hr/fte";
+import {
+  computeWeeklyCapacity,
+  computeRecoverableHours,
+  formatChargeabilityPct,
+  formatHoursPerWeek,
+} from "@/lib/hr/chargeability";
+import { useAuth } from "@/hooks/use-auth";
 
 import { PermissionGate } from "@/components/PermissionGate";
 
@@ -156,7 +164,8 @@ function CollaboratorPage() {
       draft.dependentes_com_deficiencia !== collab.dependentes_com_deficiencia ||
       draft.ano_fiscal !== collab.ano_fiscal ||
       Number(draft.daily_hours ?? 8) !== Number(collab.daily_hours ?? 8) ||
-      Number(draft.days_per_week ?? 5) !== Number(collab.days_per_week ?? 5)
+      Number(draft.days_per_week ?? 5) !== Number(collab.days_per_week ?? 5) ||
+      (draft.target_chargeability_pct ?? null) !== (collab.target_chargeability_pct ?? null)
     );
   }, [collab, draft]);
 
@@ -198,6 +207,7 @@ function CollaboratorPage() {
       ano_fiscal: draft.ano_fiscal,
       daily_hours: Number(draft.daily_hours ?? 8),
       days_per_week: Number(draft.days_per_week ?? 5),
+      target_chargeability_pct: draft.target_chargeability_pct ?? null,
     });
   };
 
