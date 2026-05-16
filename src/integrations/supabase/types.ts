@@ -851,6 +851,7 @@ export type Database = {
           numero_titulares: number
           saldo_ferias_anterior: number
           situacao_contractual: string | null
+          target_chargeability_pct: number | null
           updated_at: string
         }
         Insert: {
@@ -880,6 +881,7 @@ export type Database = {
           numero_titulares?: number
           saldo_ferias_anterior?: number
           situacao_contractual?: string | null
+          target_chargeability_pct?: number | null
           updated_at?: string
         }
         Update: {
@@ -909,6 +911,7 @@ export type Database = {
           numero_titulares?: number
           saldo_ferias_anterior?: number
           situacao_contractual?: string | null
+          target_chargeability_pct?: number | null
           updated_at?: string
         }
         Relationships: []
