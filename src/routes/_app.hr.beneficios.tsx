@@ -847,13 +847,17 @@ function ExpenseActions({
   }
 
   async function remove() {
-    if (!confirm("Apagar esta despesa?")) return;
+    // Storage cleanup is best-effort; RLS still allows owner to delete
+    // their own foto when expense is `pendente` (preserved behavior).
     if (expense.foto_path) {
       await supabase.storage.from("benefit-receipts").remove([expense.foto_path]);
     }
     const { error } = await supabase.from("benefit_expenses").delete().eq("id", expense.id);
-    if (error) return toast.error(error.message);
-    toast.success("Apagada");
+    if (error) {
+      toast.error(error.message);
+      throw error;
+    }
+    toast.success("Despesa apagada");
     onChanged();
   }
 
