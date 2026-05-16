@@ -294,6 +294,8 @@ function CollaboratorBody({
   collaborator: Collaborator;
   onChanged: () => void;
 }) {
+  const { t, i18n } = useTranslation(["hr"]);
+  const isEn = i18n.language?.startsWith("en");
   const ano = collaborator.ano_fiscal;
   const { balancesQ, creditsQ, expensesQ } = useBenefitData(collaborator.id);
   const { data: categoriesRows = [] } = useBenefitCategories();
@@ -328,21 +330,20 @@ function CollaboratorBody({
     [expenses, search, estado, categoryCode, year],
   );
 
-  // Resumo anual (todas as despesas do ano seleccionado, ignora outros filtros)
   const yearScope = useMemo(
     () => (year === "all" ? expenses : expenses.filter((e) => e.ano_fiscal === year)),
     [expenses, year],
   );
   const yearTotals = useMemo(() => {
-    const t = { submetido: 0, aprovado: 0, pago: 0, rejeitado: 0 };
+    const tt = { submetido: 0, aprovado: 0, pago: 0, rejeitado: 0 };
     for (const e of yearScope) {
       const v = Number(e.valor) || 0;
-      if (e.estado === "rejeitada") t.rejeitado += v;
-      else t.submetido += v;
-      if (e.estado === "aprovada" || e.estado === "paga") t.aprovado += v;
-      if (e.estado === "paga") t.pago += v;
+      if (e.estado === "rejeitada") tt.rejeitado += v;
+      else tt.submetido += v;
+      if (e.estado === "aprovada" || e.estado === "paga") tt.aprovado += v;
+      if (e.estado === "paga") tt.pago += v;
     }
-    return t;
+    return tt;
   }, [yearScope]);
 
   const refetchAll = () => {
@@ -356,15 +357,29 @@ function CollaboratorBody({
     return (
       <Card>
         <CardContent className="py-10 text-center text-sm text-muted-foreground">
-          Ainda não tem saldo de benefícios atribuído. Contacte o administrador.
+          {t("hr:beneficios.empty.noBalance")}
         </CardContent>
       </Card>
     );
   }
 
+  const csvI18n = {
+    headers: [
+      t("hr:beneficios.csv.headers.date"),
+      t("hr:beneficios.csv.headers.category"),
+      t("hr:beneficios.csv.headers.description"),
+      t("hr:beneficios.csv.headers.amountEur"),
+      t("hr:beneficios.csv.headers.status"),
+      t("hr:beneficios.csv.headers.collaboratorNotes"),
+      t("hr:beneficios.csv.headers.approvalNotes"),
+    ],
+    status: (s: ExpenseStatus) => t(`hr:beneficios.status.${s}`),
+    categoryLabel: (e: BenefitExpenseRow) =>
+      expenseCategoryLabel(e, isEn ? "en" : "pt"),
+  };
+
   return (
     <div className="space-y-6">
-      {/* Resumo dos saldos */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cats.map((c) => {
           const b = balance[c];
@@ -373,25 +388,25 @@ function CollaboratorBody({
           return (
             <Card key={c}>
               <CardHeader className="pb-3">
-                <CardDescription>{CATEGORY_LABELS[c]}</CardDescription>
+                <CardDescription>{t(`hr:beneficios.legacyCategory.${c}`)}</CardDescription>
                 <CardTitle className={cn("text-xl", b.disponivel < 0 && "text-rose-600")}>
                   {fmtEUR(b.disponivel)}
                 </CardTitle>
-                <div className="text-xs text-muted-foreground">disponível</div>
+                <div className="text-xs text-muted-foreground">{t("hr:beneficios.balance.available")}</div>
               </CardHeader>
               <CardContent className="space-y-2">
                 <Progress value={pct} />
                 <div className="grid grid-cols-3 gap-1 text-[11px] text-muted-foreground">
                   <div>
-                    <div>Inicial</div>
+                    <div>{t("hr:beneficios.balance.initial")}</div>
                     <div className="font-medium text-foreground">{fmtEUR(b.inicial)}</div>
                   </div>
                   <div>
-                    <div>Creditado</div>
+                    <div>{t("hr:beneficios.balance.credited")}</div>
                     <div className="font-medium text-foreground">{fmtEUR(b.creditado)}</div>
                   </div>
                   <div>
-                    <div>Gasto</div>
+                    <div>{t("hr:beneficios.balance.spent")}</div>
                     <div className="font-medium text-foreground">{fmtEUR(b.gasto)}</div>
                   </div>
                 </div>
@@ -401,9 +416,8 @@ function CollaboratorBody({
         })}
       </div>
 
-      {/* Submissão + lista */}
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold">Histórico de despesas</h2>
+        <h2 className="text-lg font-semibold">{t("hr:beneficios.historyHeader")}</h2>
         <SubmitExpenseDialog
           collaboratorId={collaborator.id}
           anoFiscal={ano}
@@ -413,15 +427,13 @@ function CollaboratorBody({
         />
       </div>
 
-      {/* Resumo anual */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <YearTile label="Submetido" value={yearTotals.submetido} />
-        <YearTile label="Aprovado" value={yearTotals.aprovado} tone="emerald" />
-        <YearTile label="Pago" value={yearTotals.pago} tone="sky" />
-        <YearTile label="Rejeitado" value={yearTotals.rejeitado} tone="rose" />
+        <YearTile label={t("hr:beneficios.summary.submitted")} value={yearTotals.submetido} />
+        <YearTile label={t("hr:beneficios.summary.approved")} value={yearTotals.aprovado} tone="emerald" />
+        <YearTile label={t("hr:beneficios.summary.paid")} value={yearTotals.pago} tone="sky" />
+        <YearTile label={t("hr:beneficios.summary.rejected")} value={yearTotals.rejeitado} tone="rose" />
       </div>
 
-      {/* Filtros */}
       <ExpenseFilterBar
         value={{ search, estado, categoryCode, year }}
         onChange={(next) => {
@@ -433,7 +445,7 @@ function CollaboratorBody({
         categories={categoriesRows}
         years={years}
         onExportCsv={() =>
-          exportExpensesCsv(filtered, `beneficios-${collaborator.nome}-${year}.csv`)
+          exportExpensesCsv(filtered, `beneficios-${collaborator.nome}-${year}.csv`, csvI18n)
         }
         exportDisabled={filtered.length === 0}
       />
