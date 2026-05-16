@@ -236,9 +236,7 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {t("finance:bankRec.reimbursement.title", {
-              defaultValue: "Match to HR reimbursement",
-            })}
+            {t("finance:bankRec.reimbursement.title")}
           </DialogTitle>
         </DialogHeader>
 
