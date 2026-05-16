@@ -319,6 +319,19 @@ function PermissionsMatrix({
   // Local edits keyed by `${userId}::${key}` -> granted boolean
   const [edits, setEdits] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
+  const navigate = useNavigate();
+  const { user: currentUser, isRealAdmin, setViewAsUser, setViewAsCollaboratorId } = useAuth();
+
+  const handleViewAs = (u: UserRow) => {
+    if (!u.collaborator_id) {
+      toast.error("Este utilizador não tem ficha de colaborador associada.");
+      return;
+    }
+    setViewAsUser(true);
+    setViewAsCollaboratorId(u.collaborator_id);
+    toast.success(`A ver a app como ${u.collaborator_nome ?? u.email}`);
+    navigate({ to: "/hr/minha-ficha" });
+  };
 
   // Reset local edits when fresh data arrives (e.g. after save)
   useEffect(() => {
