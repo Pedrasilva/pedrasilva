@@ -995,6 +995,22 @@
         "approvalNotes": "Notas aprovação"
       }
     },
+    "backfill": {
+      "title": "Backfill para Finanças",
+      "subtitle": "Liga despesas de benefícios já aprovadas a Finanças. Idempotente — linhas já ligadas são ignoradas.",
+      "eligible": "Elegíveis",
+      "totalAmount": "Total estimado",
+      "withPeriod": "Vai associar a um período financeiro",
+      "withoutPeriod": "Sem período correspondente (period_id NULL)",
+      "dateRange": "De {{from}} a {{to}}",
+      "refreshPreview": "Atualizar pré-visualização",
+      "run": "Executar backfill",
+      "confirm": "Criar {{count}} responsabilidades em Finanças? Esta ação é idempotente e segura para reexecutar.",
+      "summaryTitle": "Backfill concluído",
+      "summary": "{{created}} ligadas, {{skipped}} ignoradas, {{failed}} falharam",
+      "summaryPeriods": "{{withPeriod}} com período, {{withoutPeriod}} sem período",
+      "toastDone": "Backfill: {{created}} ligadas, {{skipped}} ignoradas, {{failed}} falharam"
+    },
     "admin2": {
       "balanceSection": "Saldo inicial (uma vez)",
       "balanceSectionSub": "Saldo já existente do colaborador antes da implementação deste sistema.",
