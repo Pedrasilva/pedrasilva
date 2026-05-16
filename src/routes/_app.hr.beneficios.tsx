@@ -765,9 +765,12 @@ function ExpensesTable({
                 </TableCell>
                 <TableCell className="text-right font-medium">{fmtEUR(e.valor)}</TableCell>
                 <TableCell>
-                  <Badge variant="outline" className={cn("border whitespace-nowrap", STATUS_COLORS[e.estado])}>
-                    {t(`hr:beneficios.status.${e.estado}`)}
-                  </Badge>
+                  <div className="flex flex-col gap-1">
+                    <Badge variant="outline" className={cn("border whitespace-nowrap w-fit", STATUS_COLORS[e.estado])}>
+                      {t(`hr:beneficios.status.${e.estado}`)}
+                    </Badge>
+                    <FinanceIndicator expense={e} dateLocale={dateLocale} />
+                  </div>
                 </TableCell>
                 <TableCell className="text-right">
                   <ExpenseActions
