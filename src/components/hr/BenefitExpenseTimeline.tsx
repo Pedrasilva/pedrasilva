@@ -1,14 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { Inbox, Check, X, BadgeEuro, Undo2, Pencil } from "lucide-react";
+import { Inbox, Check, X, BadgeEuro, Undo2, Pencil, Link2, Unlink } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type EventType =
+  | "submitted"
+  | "approved"
+  | "rejected"
+  | "paid"
+  | "edited"
+  | "reopened"
+  | "finance_linked"
+  | "finance_cancelled";
 
 type Event = {
   id: string;
   expense_id: string;
   actor_id: string | null;
-  event_type: "submitted" | "approved" | "rejected" | "paid" | "edited" | "reopened";
+  event_type: EventType;
   from_status: string | null;
   to_status: string | null;
   notes: string | null;
@@ -17,22 +27,26 @@ type Event = {
 
 type ActorMap = Record<string, { nome: string }>;
 
-const ICONS = {
+const ICONS: Record<EventType, typeof Inbox> = {
   submitted: Inbox,
   approved: Check,
   rejected: X,
   paid: BadgeEuro,
   reopened: Undo2,
   edited: Pencil,
-} as const;
+  finance_linked: Link2,
+  finance_cancelled: Unlink,
+};
 
-const COLORS: Record<Event["event_type"], string> = {
+const COLORS: Record<EventType, string> = {
   submitted: "text-muted-foreground bg-muted",
   approved: "text-emerald-700 bg-emerald-100",
   rejected: "text-rose-700 bg-rose-100",
   paid: "text-sky-700 bg-sky-100",
   reopened: "text-amber-700 bg-amber-100",
   edited: "text-slate-700 bg-slate-100",
+  finance_linked: "text-indigo-700 bg-indigo-100",
+  finance_cancelled: "text-slate-700 bg-slate-100",
 };
 
 function fmt(iso: string, locale: string) {
