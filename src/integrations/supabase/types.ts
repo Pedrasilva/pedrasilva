@@ -1922,6 +1922,8 @@ export type Database = {
           notes: string | null
           paid_date: string | null
           period_id: string | null
+          source_ref_id: string | null
+          source_ref_table: string | null
           status: Database["public"]["Enums"]["financial_expense_status"]
           supplier_id: string | null
           updated_at: string
@@ -1942,6 +1944,8 @@ export type Database = {
           notes?: string | null
           paid_date?: string | null
           period_id?: string | null
+          source_ref_id?: string | null
+          source_ref_table?: string | null
           status?: Database["public"]["Enums"]["financial_expense_status"]
           supplier_id?: string | null
           updated_at?: string
@@ -1962,6 +1966,8 @@ export type Database = {
           notes?: string | null
           paid_date?: string | null
           period_id?: string | null
+          source_ref_id?: string | null
+          source_ref_table?: string | null
           status?: Database["public"]["Enums"]["financial_expense_status"]
           supplier_id?: string | null
           updated_at?: string
@@ -4793,6 +4799,13 @@ export type Database = {
           data_despesa: string | null
           descricao: string | null
           estado: Database["public"]["Enums"]["expense_status"] | null
+          finance_due_date: string | null
+          finance_item_id: string | null
+          finance_paid_date: string | null
+          finance_period_id: string | null
+          finance_status:
+            | Database["public"]["Enums"]["financial_expense_status"]
+            | null
           foto_path: string | null
           id: string | null
           notas_aprovacao: string | null
@@ -4822,6 +4835,20 @@ export type Database = {
             columns: ["collaborator_id"]
             isOneToOne: false
             referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_expense_items_period_id_fkey"
+            columns: ["finance_period_id"]
+            isOneToOne: false
+            referencedRelation: "financial_period_totals"
+            referencedColumns: ["period_id"]
+          },
+          {
+            foreignKeyName: "financial_expense_items_period_id_fkey"
+            columns: ["finance_period_id"]
+            isOneToOne: false
+            referencedRelation: "financial_periods"
             referencedColumns: ["id"]
           },
         ]
