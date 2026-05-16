@@ -861,3 +861,137 @@ function contractStatusKey(value: string): "permanent" | "fixedTerm" | "indefini
       return "permanent";
   }
 }
+
+function CapacityRecoveryCard({
+  dailyHours,
+  daysPerWeek,
+  targetChargeabilityPct,
+  onChangeTarget,
+  canEdit,
+}: {
+  dailyHours: number;
+  daysPerWeek: number;
+  targetChargeabilityPct: number | null;
+  onChangeTarget: (value: number | null) => void;
+  canEdit: boolean;
+}) {
+  const { t, i18n } = useTranslation(["hr"]);
+  const weeklyCapacity = computeWeeklyCapacity(dailyHours, daysPerWeek);
+  const fte = computeCollaboratorFte(dailyHours, daysPerWeek);
+  const recoverable = computeRecoverableHours(weeklyCapacity, targetChargeabilityPct);
+  const fteLabel = new Intl.NumberFormat(i18n.language, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(fte);
+  const targetLabel = formatChargeabilityPct(targetChargeabilityPct, i18n.language);
+  const notDefined = t("hr:collaborator.capacityRecovery.notDefined");
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">
+          {t("hr:collaborator.capacityRecovery.title")}
+        </CardTitle>
+        <CardDescription>
+          {t("hr:collaborator.capacityRecovery.help")}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <ReadOnlyStat
+            label={t("hr:collaborator.capacityRecovery.dailyHours")}
+            value={formatHoursPerWeek(dailyHours, i18n.language)}
+          />
+          <ReadOnlyStat
+            label={t("hr:collaborator.capacityRecovery.daysPerWeek")}
+            value={formatHoursPerWeek(daysPerWeek, i18n.language)}
+          />
+          <ReadOnlyStat
+            label={t("hr:collaborator.capacityRecovery.weeklyCapacity")}
+            value={`${formatHoursPerWeek(weeklyCapacity, i18n.language)} h`}
+          />
+          <ReadOnlyStat
+            label={t("hr:collaborator.capacityRecovery.fte")}
+            value={fteLabel}
+            hint={t("hr:collaborator.capacityRecovery.fteHint")}
+          />
+          <ReadOnlyStat
+            label={t("hr:collaborator.capacityRecovery.targetChargeability")}
+            value={targetLabel ?? notDefined}
+            muted={targetLabel == null}
+          />
+          <ReadOnlyStat
+            label={t("hr:collaborator.capacityRecovery.recoverableHours")}
+            value={
+              recoverable == null
+                ? notDefined
+                : `${formatHoursPerWeek(recoverable, i18n.language)} h`
+            }
+            muted={recoverable == null}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label={t("hr:collaborator.capacityRecovery.editLabel")}>
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              step="1"
+              placeholder={notDefined}
+              disabled={!canEdit}
+              className="input-yellow tabular-nums"
+              value={targetChargeabilityPct ?? ""}
+              onChange={(e) => {
+                const raw = e.target.value.trim();
+                if (raw === "") {
+                  onChangeTarget(null);
+                  return;
+                }
+                const n = Number(raw);
+                if (!Number.isFinite(n)) {
+                  onChangeTarget(null);
+                  return;
+                }
+                onChangeTarget(Math.max(0, Math.min(100, n)));
+              }}
+            />
+          </Field>
+          <div className="text-xs text-muted-foreground self-end pb-2">
+            {canEdit
+              ? t("hr:collaborator.capacityRecovery.editHint")
+              : t("hr:collaborator.capacityRecovery.readOnlyHint")}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ReadOnlyStat({
+  label,
+  value,
+  hint,
+  muted,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  muted?: boolean;
+}) {
+  return (
+    <div className="rounded-lg border bg-muted/30 p-3">
+      <div className="text-[11px] text-muted-foreground">{label}</div>
+      <div
+        className={cn(
+          "mt-1 text-base font-semibold tabular-nums",
+          muted && "text-muted-foreground font-normal italic",
+        )}
+      >
+        {value}
+      </div>
+      {hint && <div className="mt-1 text-[10px] text-muted-foreground">{hint}</div>}
+    </div>
+  );
+}
+
