@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Coins, Loader2, Play } from "lucide-react";
@@ -37,6 +38,7 @@ function fmtEUR(v: number | string | null | undefined): string {
 }
 
 export function PaymentLedgerBackfillCard() {
+  const { t } = useTranslation(["hr"]);
   const qc = useQueryClient();
   const [lastRun, setLastRun] = useState<RunResult | null>(null);
 
@@ -62,7 +64,11 @@ export function PaymentLedgerBackfillCard() {
     onSuccess: (res) => {
       setLastRun(res);
       toast.success(
-        `Backfill concluído — criados: ${res.created}, ignorados: ${res.skipped}, falhas: ${res.failed}`,
+        t("hr:beneficios.paymentLedgerBackfill.toastDone", {
+          created: res.created,
+          skipped: res.skipped,
+          failed: res.failed,
+        }),
       );
       qc.invalidateQueries({ queryKey: ["fei-payment-backfill-preview"] });
       qc.invalidateQueries({ queryKey: ["all-expenses"] });
@@ -78,31 +84,41 @@ export function PaymentLedgerBackfillCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Coins className="h-4 w-4" />
-          Backfill — Ledger de pagamentos
+          {t("hr:beneficios.paymentLedgerBackfill.title")}
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Cria linhas sintéticas no ledger de pagamentos para reembolsos HR já marcados como pagos no Finance mas sem registo de pagamento.
+          {t("hr:beneficios.paymentLedgerBackfill.subtitle")}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
         {previewQ.isLoading ? (
-          <p className="text-sm text-muted-foreground">A carregar…</p>
+          <p className="text-sm text-muted-foreground">
+            {t("hr:beneficios.paymentLedgerBackfill.loading")}
+          </p>
         ) : preview ? (
           <div className="grid gap-2 text-sm sm:grid-cols-2">
             <div>
-              <span className="text-muted-foreground">Elegíveis: </span>
+              <span className="text-muted-foreground">
+                {t("hr:beneficios.paymentLedgerBackfill.eligible")}:{" "}
+              </span>
               <span className="font-medium">{preview.eligible}</span>
             </div>
             <div>
-              <span className="text-muted-foreground">Total: </span>
+              <span className="text-muted-foreground">
+                {t("hr:beneficios.paymentLedgerBackfill.total")}:{" "}
+              </span>
               <span className="font-medium">{fmtEUR(preview.total_amount)}</span>
             </div>
             <div>
-              <span className="text-muted-foreground">Pagamento mais antigo: </span>
+              <span className="text-muted-foreground">
+                {t("hr:beneficios.paymentLedgerBackfill.oldest")}:{" "}
+              </span>
               <span className="font-medium">{preview.oldest_date ?? "—"}</span>
             </div>
             <div>
-              <span className="text-muted-foreground">Pagamento mais recente: </span>
+              <span className="text-muted-foreground">
+                {t("hr:beneficios.paymentLedgerBackfill.newest")}:{" "}
+              </span>
               <span className="font-medium">{preview.newest_date ?? "—"}</span>
             </div>
           </div>
@@ -117,20 +133,24 @@ export function PaymentLedgerBackfillCard() {
                 ) : (
                   <Play className="mr-2 h-4 w-4" />
                 )}
-                Executar backfill ({eligible})
+                {t("hr:beneficios.paymentLedgerBackfill.run", { count: eligible })}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Confirmar backfill do ledger</AlertDialogTitle>
+                <AlertDialogTitle>
+                  {t("hr:beneficios.paymentLedgerBackfill.confirmTitle")}
+                </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Vai criar {eligible} linha(s) sintética(s) no ledger de pagamentos. Sem ligação a movimentos bancários. Operação idempotente.
+                  {t("hr:beneficios.paymentLedgerBackfill.confirmBody", { count: eligible })}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogCancel>
+                  {t("hr:beneficios.paymentLedgerBackfill.cancel")}
+                </AlertDialogCancel>
                 <AlertDialogAction onClick={() => runM.mutate()}>
-                  Confirmar
+                  {t("hr:beneficios.paymentLedgerBackfill.confirm")}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -139,12 +159,23 @@ export function PaymentLedgerBackfillCard() {
 
         {lastRun ? (
           <div className="rounded-md border bg-muted/30 p-3 text-sm">
-            <div>Criados: <span className="font-medium">{lastRun.created}</span></div>
-            <div>Ignorados: <span className="font-medium">{lastRun.skipped}</span></div>
-            <div>Falhas: <span className="font-medium">{lastRun.failed}</span></div>
+            <div>
+              {t("hr:beneficios.paymentLedgerBackfill.created")}:{" "}
+              <span className="font-medium">{lastRun.created}</span>
+            </div>
+            <div>
+              {t("hr:beneficios.paymentLedgerBackfill.skipped")}:{" "}
+              <span className="font-medium">{lastRun.skipped}</span>
+            </div>
+            <div>
+              {t("hr:beneficios.paymentLedgerBackfill.failed")}:{" "}
+              <span className="font-medium">{lastRun.failed}</span>
+            </div>
             {lastRun.failures?.length ? (
               <details className="mt-2">
-                <summary className="cursor-pointer text-xs text-muted-foreground">Ver falhas</summary>
+                <summary className="cursor-pointer text-xs text-muted-foreground">
+                  {t("hr:beneficios.paymentLedgerBackfill.viewFailures")}
+                </summary>
                 <ul className="mt-1 space-y-1 text-xs">
                   {lastRun.failures.map((f, i) => (
                     <li key={i} className="font-mono">
