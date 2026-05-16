@@ -5263,6 +5263,8 @@ export type Database = {
         Returns: string
       }
       finance_reset_test_data: { Args: { _confirm: string }; Returns: Json }
+      financial_expense_payment_backfill_preview: { Args: never; Returns: Json }
+      financial_expense_payment_backfill_run: { Args: never; Returns: Json }
       get_my_collaborator_id: { Args: never; Returns: string }
       has_module_permission: {
         Args: { _key: string; _required_scope: string; _user_id: string }
