@@ -17,6 +17,9 @@ export type PricingInputs = {
   vbgColaborador: number;
   cotaBoAnual: number;
   diasUteis: number;
+  // Productive daily hours for THIS collaborator. Pass the collaborator's
+  // contractual `daily_hours` so part-timers get an FTE-aware €/h. Fall back
+  // to `bo_settings.horas_dia` only when no schedule is available.
   horasDia: number;
   margemLucroPct: number; // 0.25 = 25%
 };

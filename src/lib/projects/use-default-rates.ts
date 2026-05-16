@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, type Collaborator, type Snapshot } from "@/lib/salary";
 import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
+import { computeCollaboratorFte, effectiveDailyHours } from "@/lib/hr/fte";
 
 export type DefaultRateInfo = {
   sale: number;
@@ -58,21 +59,32 @@ export function useDefaultResourceRates() {
       const backoffice = [...byCollab.values()].filter((a) => a.collab.departamento === "Backoffice");
       const totalBackoffice = backoffice.reduce((acc, a) => acc + a.vbg, 0);
 
+      // FTE-weighted BO overhead allocation: a 0.5 FTE absorbs half the
+      // overhead of a 1.0 FTE. Falls back to headcount if all FTE = 0.
+      const fteTotalProjecto = projecto.reduce(
+        (acc, a) => acc + computeCollaboratorFte(a.collab.daily_hours, a.collab.days_per_week, horasDia),
+        0,
+      );
+
       const cotaBo = cotaBoPorColabProjecto({
         custosOperacionais: custosOp,
         custoBackofficeVbg: totalBackoffice,
         numColabProjecto: projecto.length,
+        fteTotalProjecto,
       });
 
       // Calcular default por colaborador de Projecto
       const byCollabRate = new Map<string, DefaultRateInfo>();
       for (const a of projecto) {
         if (a.vbg <= 0) continue;
+        // Per-collaborator daily hours → part-timers get correct €/h
+        // (same annual burden divided by their own productive hours).
+        const collabHorasDia = effectiveDailyHours(a.collab.daily_hours, horasDia);
         const p = computePricing({
           vbgColaborador: a.vbg,
           cotaBoAnual: cotaBo,
           diasUteis,
-          horasDia,
+          horasDia: collabHorasDia,
           margemLucroPct: 0.5,
         });
         byCollabRate.set(a.collab.id, {
