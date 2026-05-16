@@ -1085,14 +1085,14 @@ function AdminView() {
   const { data: expenses = [], refetch } = useQuery({
     queryKey: ["all-expenses", filterEstado],
     queryFn: async () => {
-      let q = supabase
-        .from("benefit_expenses")
+      let q = sb
+        .from("benefit_expenses_v")
         .select("*")
         .order("created_at", { ascending: false });
       if (filterEstado !== "todos") q = q.eq("estado", filterEstado);
       const { data, error } = await q;
       if (error) throw error;
-      return (data ?? []) as BenefitExpense[];
+      return (data ?? []) as BenefitExpenseRow[];
     },
   });
 
