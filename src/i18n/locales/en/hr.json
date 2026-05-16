@@ -578,6 +578,21 @@
       "daysPerWeek": "Days / week (contract)",
       "profitMarginOverride": "Profit Margin Override (%)"
     },
+    "capacityRecovery": {
+      "title": "Capacity and recovery",
+      "help": "FTE measures contractual capacity. Target chargeability measures the share of that capacity expected to be recovered through project work. Observational only — does not affect cost rates or profitability.",
+      "dailyHours": "Hours / day",
+      "daysPerWeek": "Days / week",
+      "weeklyCapacity": "Weekly capacity",
+      "fte": "Derived FTE",
+      "fteHint": "vs. studio-standard week",
+      "targetChargeability": "Target chargeability",
+      "recoverableHours": "Expected recoverable / week",
+      "editLabel": "Target chargeability (%)",
+      "editHint": "Leave empty to keep undefined. Range 0–100. Does not affect any financial calculation.",
+      "readOnlyHint": "Only HR admins can edit this value.",
+      "notDefined": "not defined"
+    },
     "placeholders": {
       "selectOption": "Select…",
       "emailExample": "name@company.com",

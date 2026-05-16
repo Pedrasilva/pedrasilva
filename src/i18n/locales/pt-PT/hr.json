@@ -578,6 +578,21 @@
       "daysPerWeek": "Dias / semana (contrato)",
       "profitMarginOverride": "Margem lucro override (%)"
     },
+    "capacityRecovery": {
+      "title": "Capacidade e recuperação",
+      "help": "FTE mede capacidade contratual. Target chargeability mede a percentagem dessa capacidade que se espera recuperar através de trabalho de projeto. Apenas observacional — não afecta custos nem rentabilidade.",
+      "dailyHours": "Horas / dia",
+      "daysPerWeek": "Dias / semana",
+      "weeklyCapacity": "Capacidade semanal",
+      "fte": "FTE derivado",
+      "fteHint": "vs. semana padrão do atelier",
+      "targetChargeability": "Target chargeability",
+      "recoverableHours": "Horas recuperáveis esperadas / sem.",
+      "editLabel": "Target chargeability (%)",
+      "editHint": "Deixar vazio para manter por definir. Intervalo 0–100. Não afecta nenhum cálculo financeiro.",
+      "readOnlyHint": "Apenas administradores de RH podem editar este valor.",
+      "notDefined": "não definido"
+    },
     "placeholders": {
       "selectOption": "Seleccionar…",
       "emailExample": "nome@empresa.com",
