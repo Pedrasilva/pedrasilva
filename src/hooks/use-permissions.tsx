@@ -8,8 +8,24 @@ import type { PermissionKey } from "@/lib/permissions";
  * Admins não dependem destas chaves (vêem tudo) — o hook devolve
  * `isAdmin: true` para o caller poder fazer short-circuit.
  */
+/** Baseline permissions every collaborator should have access to. Used as a
+ * virtual permission set when an admin impersonates a collaborator (the admin
+ * user row itself has no entries in `user_permissions` because admins bypass).
+ */
+const COLLABORATOR_BASELINE: PermissionKey[] = [
+  "hr.minha-ficha",
+  "hr.dias-uteis",
+  "hr.beneficios.own",
+  "hr.ferias.own",
+  "crm.companies",
+  "crm.contacts",
+  "crm.pipeline",
+  "projects.my-tasks",
+  "projects.timesheet",
+];
+
 export function useMyPermissions() {
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, isRealAdmin, viewAsUser, loading: authLoading } = useAuth();
 
   const query = useQuery({
     queryKey: ["my-permissions", user?.id],
@@ -24,10 +40,18 @@ export function useMyPermissions() {
     },
   });
 
+  const permissions = new Set<PermissionKey>(query.data ?? []);
+  // When an admin is impersonating a collaborator, grant the baseline
+  // collaborator permissions so "own"-scoped pages (férias, benefícios,
+  // minha-ficha, etc.) render instead of showing "Acesso restrito".
+  if (isRealAdmin && viewAsUser) {
+    for (const k of COLLABORATOR_BASELINE) permissions.add(k);
+  }
+
   return {
     isAdmin,
     loading: authLoading || query.isLoading,
-    permissions: new Set<PermissionKey>(query.data ?? []),
+    permissions,
   };
 }
 
