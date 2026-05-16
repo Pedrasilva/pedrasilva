@@ -1633,12 +1633,13 @@ function ExpensesTab({
                 {t("finance:expenses.col.amount")}
               </TableHead>
               <TableHead>{t("finance:expenses.col.status")}</TableHead>
+              {isAdmin && <TableHead className="text-right">{t("finance:expenses.col.actions")}</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-8">
+                <TableCell colSpan={isAdmin ? 9 : 8} className="text-center text-sm text-muted-foreground py-8">
                   {t(emptyKey)}
                 </TableCell>
               </TableRow>
@@ -1657,6 +1658,10 @@ function ExpensesTab({
                 r.vat_amount,
                 vatMode,
               );
+              const canMarkBenefitPaid =
+                isAdmin &&
+                r.source_ref_table === "benefit_expenses" &&
+                r.status === "confirmed";
               return (
                 <TableRow key={r.id}>
                   <TableCell className="text-sm">
@@ -1679,6 +1684,20 @@ function ExpensesTab({
                   <TableCell>
                     <ExpenseStatusBadge status={r.status} />
                   </TableCell>
+                  {isAdmin && (
+                    <TableCell className="text-right">
+                      {canMarkBenefitPaid && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={payingId === r.id}
+                          onClick={() => markBenefitPaid(r.id)}
+                        >
+                          {payingId === r.id ? t("common:loading") : t("finance:expenses.markBenefitPaid")}
+                        </Button>
+                      )}
+                    </TableCell>
+                  )}
                 </TableRow>
               );
             })}
@@ -1693,6 +1712,7 @@ function ExpensesTab({
                   {fmtEUR2(totals.total)}
                 </TableCell>
                 <TableCell />
+                {isAdmin && <TableCell />}
               </TableRow>
             </TableFooter>
           )}
