@@ -795,7 +795,6 @@ function CollaboratorPage() {
               <SnapshotForm
                 snapshot={s}
                 collaborator={draft}
-                onSavedNewSnapshot={(newId) => setActiveTab(newId)}
               />
             </TabsContent>
           ))}

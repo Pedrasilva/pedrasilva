@@ -159,9 +159,9 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         .update(payload)
         .eq("id", snapshot.id);
       if (error) throw error;
-      return { kind: "updated" as const };
+      return true;
     },
-    onSuccess: (result) => {
+    onSuccess: () => {
       setLastSavedAt(new Date());
       qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
