@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { Inbox, Check, X, BadgeEuro, Undo2, Pencil, Link2, Unlink } from "lucide-react";
+import { Inbox, Check, X, BadgeEuro, Undo2, Pencil, Link2, Unlink, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type EventType =
