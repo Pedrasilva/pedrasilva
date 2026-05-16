@@ -799,12 +799,14 @@ function ExpenseActions({
   isAdmin,
   onChanged,
 }: {
-  expense: BenefitExpense;
+  expense: BenefitExpenseRow;
   canEdit: boolean;
   isAdmin: boolean;
   onChanged: () => void;
 }) {
   const [loadingUrl, setLoadingUrl] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   async function viewPhoto() {
     if (!expense.foto_path) return;
@@ -830,15 +832,16 @@ function ExpenseActions({
     });
     if (error) {
       toast.error(error.message);
-      return false;
+      throw error;
     }
-    return true;
   }
 
   async function approve() {
-    const notas = window.prompt("Notas de aprovação (opcional)") ?? "";
-    const ok = await setStatus("aprovada", notas.trim() || null);
-    if (!ok) return;
+    try {
+      await setStatus("aprovada", null);
+    } catch {
+      return;
+    }
 
     try {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -859,21 +862,18 @@ function ExpenseActions({
     onChanged();
   }
 
-  async function reject() {
-    const notas = window.prompt("Motivo da rejeição (obrigatório)") ?? "";
-    if (!notas.trim()) {
-      toast.error("Motivo obrigatório");
-      return;
-    }
-    const ok = await setStatus("rejeitada", notas.trim());
-    if (!ok) return;
+  async function confirmReject(reason: string) {
+    await setStatus("rejeitada", reason);
     toast.success("Despesa rejeitada — saldo devolvido");
     onChanged();
   }
 
   async function markPaid() {
-    const ok = await setStatus("paga");
-    if (!ok) return;
+    try {
+      await setStatus("paga");
+    } catch {
+      return;
+    }
     toast.success("Marcada como paga");
     onChanged();
   }
@@ -888,8 +888,6 @@ function ExpenseActions({
     toast.success("Apagada");
     onChanged();
   }
-
-  const [detailOpen, setDetailOpen] = useState(false);
 
   return (
     <div className="flex items-center justify-end gap-1">
@@ -906,7 +904,7 @@ function ExpenseActions({
           <Button size="sm" variant="ghost" onClick={approve} title="Aprovar">
             <Check className="h-4 w-4 text-emerald-600" />
           </Button>
-          <Button size="sm" variant="ghost" onClick={reject} title="Rejeitar">
+          <Button size="sm" variant="ghost" onClick={() => setRejectOpen(true)} title="Rejeitar">
             <X className="h-4 w-4 text-rose-600" />
           </Button>
         </>
@@ -922,12 +920,18 @@ function ExpenseActions({
         </Button>
       )}
 
+      <RejectExpenseDialog
+        open={rejectOpen}
+        onOpenChange={setRejectOpen}
+        onConfirm={confirmReject}
+      />
+
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Detalhes da despesa</DialogTitle>
             <DialogDescription>
-              {CATEGORY_LABELS[expense.categoria]} · {fmtEUR(Number(expense.valor))} ·{" "}
+              {expenseCategoryLabel(expense)} · {fmtEUR(Number(expense.valor))} ·{" "}
               <Badge variant="outline" className={cn("border", STATUS_COLORS[expense.estado])}>
                 {STATUS_LABELS[expense.estado]}
               </Badge>
