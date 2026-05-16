@@ -75,6 +75,8 @@ const sb = supabase as any;
 const CATS: BenefitCategory[] = ["carro", "ticket", "premio", "outros"];
 
 import { PermissionGate } from "@/components/PermissionGate";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useMyPermissions } from "@/hooks/use-permissions";
 
 export const Route = createFileRoute("/_app/hr/beneficios")({
   component: () => (
@@ -86,7 +88,27 @@ export const Route = createFileRoute("/_app/hr/beneficios")({
 
 function BeneficiosPage() {
   const { isAdmin } = useAuth();
-  return isAdmin ? <AdminView /> : <CollaboratorView />;
+  const { permissions } = useMyPermissions();
+  const canApprove = permissions.has("hr.beneficios.approve");
+
+  if (isAdmin) return <AdminView />;
+  if (canApprove) {
+    return (
+      <Tabs defaultValue="mine" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="mine">Os meus benefícios</TabsTrigger>
+          <TabsTrigger value="approvals">Aprovações</TabsTrigger>
+        </TabsList>
+        <TabsContent value="mine" className="space-y-6">
+          <CollaboratorView />
+        </TabsContent>
+        <TabsContent value="approvals" className="space-y-6">
+          <ApproverView />
+        </TabsContent>
+      </Tabs>
+    );
+  }
+  return <CollaboratorView />;
 }
 
 // =============================================================
