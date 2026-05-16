@@ -739,7 +739,7 @@ function ExpensesTable({
                 </TableCell>
                 <TableCell className="text-right font-medium">{fmtEUR(e.valor)}</TableCell>
                 <TableCell>
-                  <Badge variant="outline" className={cn("border", STATUS_COLORS[e.estado])}>
+                  <Badge variant="outline" className={cn("border whitespace-nowrap", STATUS_COLORS[e.estado])}>
                     {STATUS_LABELS[e.estado]}
                   </Badge>
                 </TableCell>
