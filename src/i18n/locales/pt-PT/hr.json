@@ -907,7 +907,8 @@
       "approve": "Aprovar",
       "reject": "Rejeitar",
       "markPaid": "Marcar como paga",
-      "delete": "Apagar"
+      "delete": "Apagar",
+      "markPaidFinance": "Marcar como pago (Finanças)"
     },
     "detail": {
       "title": "Detalhes da despesa",
@@ -947,7 +948,8 @@
         "receiptRequired": "Anexe a foto/factura",
         "submit": "Erro ao submeter",
         "openPhoto": "Erro ao abrir foto"
-      }
+      },
+      "financePaid": "Marcado como pago via Finanças"
     },
     "history": {
       "loading": "A carregar histórico…",
@@ -970,7 +972,8 @@
       "finance_linked": "Ligada a Finanças",
       "finance_cancelled": "Ligação a Finanças cancelada",
       "by": "por {{name}}",
-      "system": "Sistema"
+      "system": "Sistema",
+      "finance_paid": "Pago via Finanças"
     },
     "finance": {
       "label": "Finanças",
@@ -982,7 +985,9 @@
         "confirmed": "confirmada",
         "paid": "paga",
         "cancelled": "cancelada"
-      }
+      },
+      "awaitingPayment": "A aguardar pagamento (Finanças)",
+      "paidVia": "Pago via Finanças em {{date}}"
     },
     "csv": {
       "headers": {

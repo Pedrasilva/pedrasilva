@@ -337,8 +337,12 @@
       "due": "Due",
       "paid": "Paid",
       "amount": "Amount",
-      "status": "Status"
-    }
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "markBenefitPaid": "Mark reimbursement as paid",
+    "markBenefitPaidConfirm": "Mark this benefit reimbursement as paid?",
+    "toastPaid": "Reimbursement marked as paid"
   },
   "materials": {
     "title": "Project materials",

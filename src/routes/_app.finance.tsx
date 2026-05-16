@@ -1385,6 +1385,8 @@ type ExpenseFull = {
   amount_inc_vat: number | null;
   actual_amount_inc_vat: number | null;
   vat_rate: number;
+  source_ref_table: string | null;
+  source_ref_id: string | null;
 };
 
 function useExpensesFull() {
@@ -1394,7 +1396,7 @@ function useExpensesFull() {
       const { data, error } = await supabase
         .from("financial_expense_items")
         .select(
-          "id, period_id, supplier_id, category_id, expense_type, status, description, due_date, paid_date, amount_ex_vat, vat_amount, amount_inc_vat, actual_amount_inc_vat, vat_rate",
+          "id, period_id, supplier_id, category_id, expense_type, status, description, due_date, paid_date, amount_ex_vat, vat_amount, amount_inc_vat, actual_amount_inc_vat, vat_rate, source_ref_table, source_ref_id",
         )
         .order("due_date", { ascending: true, nullsFirst: false });
       if (error) throw error;
@@ -1466,12 +1468,35 @@ function ExpensesTab({
   kind: "operational" | "materials";
 }) {
   const { t } = useTranslation(["finance", "common"]);
+  const { isAdmin } = useAuth();
+  const qc = useQueryClient();
   const expensesQ = useExpensesFull();
   const suppliersQ = useSuppliersMap();
   const categoriesQ = useCategoriesMap();
   const periodsQ = usePeriodsMap();
   const [monthFilter, setMonthFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [payingId, setPayingId] = useState<string | null>(null);
+
+  async function markBenefitPaid(rowId: string) {
+    if (!confirm(t("finance:expenses.markBenefitPaidConfirm"))) return;
+    setPayingId(rowId);
+    try {
+      const { error } = await supabase.rpc("finance_mark_benefit_paid", {
+        p_finance_item_id: rowId,
+      });
+      if (error) throw error;
+      toast.success(t("finance:expenses.toastPaid"));
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["finance", "expenses-full"] }),
+        qc.invalidateQueries({ queryKey: ["finance", "expenses", FINANCE_YEAR] }),
+      ]);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    } finally {
+      setPayingId(null);
+    }
+  }
 
   const periodOptions = useMemo(
     () =>
@@ -1608,12 +1633,13 @@ function ExpensesTab({
                 {t("finance:expenses.col.amount")}
               </TableHead>
               <TableHead>{t("finance:expenses.col.status")}</TableHead>
+              {isAdmin && <TableHead className="text-right">{t("finance:expenses.col.actions")}</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-8">
+                <TableCell colSpan={isAdmin ? 9 : 8} className="text-center text-sm text-muted-foreground py-8">
                   {t(emptyKey)}
                 </TableCell>
               </TableRow>
@@ -1632,6 +1658,10 @@ function ExpensesTab({
                 r.vat_amount,
                 vatMode,
               );
+              const canMarkBenefitPaid =
+                isAdmin &&
+                r.source_ref_table === "benefit_expenses" &&
+                r.status === "confirmed";
               return (
                 <TableRow key={r.id}>
                   <TableCell className="text-sm">
@@ -1654,6 +1684,20 @@ function ExpensesTab({
                   <TableCell>
                     <ExpenseStatusBadge status={r.status} />
                   </TableCell>
+                  {isAdmin && (
+                    <TableCell className="text-right">
+                      {canMarkBenefitPaid && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={payingId === r.id}
+                          onClick={() => markBenefitPaid(r.id)}
+                        >
+                          {payingId === r.id ? t("common:loading") : t("finance:expenses.markBenefitPaid")}
+                        </Button>
+                      )}
+                    </TableCell>
+                  )}
                 </TableRow>
               );
             })}
@@ -1668,6 +1712,7 @@ function ExpensesTab({
                   {fmtEUR2(totals.total)}
                 </TableCell>
                 <TableCell />
+                {isAdmin && <TableCell />}
               </TableRow>
             </TableFooter>
           )}

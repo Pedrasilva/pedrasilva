@@ -337,8 +337,12 @@
       "due": "Vencimento",
       "paid": "Paga",
       "amount": "Valor",
-      "status": "Estado"
-    }
+      "status": "Estado",
+      "actions": "Ações"
+    },
+    "markBenefitPaid": "Marcar reembolso como pago",
+    "markBenefitPaidConfirm": "Marcar este reembolso de benefícios como pago?",
+    "toastPaid": "Reembolso marcado como pago"
   },
   "materials": {
     "title": "Materiais de projecto",

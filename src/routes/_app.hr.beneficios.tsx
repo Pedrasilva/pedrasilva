@@ -47,7 +47,6 @@ import {
   Camera,
   Check,
   X,
-  BadgeEuro,
   Trash2,
   FileImage,
   Settings2,
@@ -721,24 +720,35 @@ function FinanceIndicator({
     );
   }
 
-  const statusKey = expense.finance_status ?? "confirmed";
-  const statusLabel = t(`hr:beneficios.finance.status.${statusKey}`, { defaultValue: statusKey });
-  const paid = expense.finance_paid_date
-    ? t("hr:beneficios.finance.paid", {
-        date: new Date(expense.finance_paid_date).toLocaleDateString(dateLocale),
-      })
-    : null;
-  const due = expense.finance_due_date
-    ? t("hr:beneficios.finance.due", {
-        date: new Date(expense.finance_due_date).toLocaleDateString(dateLocale),
-      })
-    : null;
-  const detail = paid ?? due;
+  // Finance is the payment authority — surface payment state directly.
+  if (expense.finance_paid_date) {
+    return (
+      <span className="text-[11px] text-sky-700 whitespace-nowrap">
+        {t("hr:beneficios.finance.paidVia", {
+          date: new Date(expense.finance_paid_date).toLocaleDateString(dateLocale),
+        })}
+      </span>
+    );
+  }
 
+  const statusKey = expense.finance_status ?? "confirmed";
+  if (statusKey === "confirmed" || statusKey === "projected") {
+    const due = expense.finance_due_date
+      ? ` · ${t("hr:beneficios.finance.due", {
+          date: new Date(expense.finance_due_date).toLocaleDateString(dateLocale),
+        })}`
+      : "";
+    return (
+      <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+        {t("hr:beneficios.finance.awaitingPayment")}{due}
+      </span>
+    );
+  }
+
+  const statusLabel = t(`hr:beneficios.finance.status.${statusKey}`, { defaultValue: statusKey });
   return (
     <span className="text-[11px] text-muted-foreground whitespace-nowrap">
       {t("hr:beneficios.finance.label")}: {statusLabel}
-      {detail ? ` · ${detail}` : ""}
     </span>
   );
 }
@@ -907,15 +917,7 @@ function ExpenseActions({
     onChanged();
   }
 
-  async function markPaid() {
-    try {
-      await setStatus("paga");
-    } catch {
-      return;
-    }
-    toast.success(t("hr:beneficios.toasts.paid"));
-    onChanged();
-  }
+  // markPaid removed — Finance is the payment authority (Phase 2c).
 
   async function remove() {
     // Storage cleanup is best-effort; RLS still allows owner to delete
@@ -952,11 +954,9 @@ function ExpenseActions({
           </Button>
         </>
       )}
-      {isAdmin && expense.estado === "aprovada" && (
-        <Button size="sm" variant="ghost" onClick={markPaid} title={t("hr:beneficios.actions.markPaid")}>
-          <BadgeEuro className="h-4 w-4 text-sky-600" />
-        </Button>
-      )}
+      {/* Manual HR mark-paid removed in Phase 2c.
+          Finance is now the payment authority — payment state mirrors
+          financial_expense_items via finance_mark_benefit_paid(). */}
       {(isAdmin || (canEdit && expense.estado === "pendente")) && (
         <Button size="sm" variant="ghost" onClick={() => setDeleteOpen(true)} title={t("hr:beneficios.actions.delete")}>
           <Trash2 className="h-4 w-4 text-rose-600" />
