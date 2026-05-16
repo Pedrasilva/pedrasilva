@@ -957,6 +957,46 @@
       "manageBalances": "Manage balances",
       "balancesDialogTitle": "Balances and yearly credits",
       "balancesDialogDescription": "Set the initial balance and yearly credits per fiscal year for each collaborator. Leftovers carry over automatically."
+    },
+    "historyHeader": "Expense history",
+    "loading": "Loading…",
+    "timeline": {
+      "submitted": "Submitted",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "paid": "Paid",
+      "reopened": "Reopened",
+      "edited": "Edited",
+      "by": "by {{name}}",
+      "system": "System"
+    },
+    "csv": {
+      "headers": {
+        "date": "Date",
+        "category": "Category",
+        "description": "Description",
+        "amountEur": "Amount (EUR)",
+        "status": "Status",
+        "collaboratorNotes": "Collaborator notes",
+        "approvalNotes": "Approval notes"
+      }
+    },
+    "admin2": {
+      "balanceSection": "Initial balance (one-off)",
+      "balanceSectionSub": "Balance the collaborator already had before this system was rolled out.",
+      "creditsSection": "Yearly credits",
+      "creditsSectionSub": "Amount credited each year. Usually equal to the collaborator's salary sheet for that year.",
+      "creditFromFicha": "Credit {{year}} from salary sheet",
+      "fiscalYear": "Fiscal year {{year}}",
+      "fichaSuggestion": "Sheet: {{value}}",
+      "collaboratorLabel": "Collaborator",
+      "collaboratorPlaceholder": "Choose a collaborator…",
+      "deleteCredit": "delete",
+      "balanceSaved": "Initial balance saved",
+      "creditSaved": "Credit {{year}} saved",
+      "creditDeleted": "Credit deleted",
+      "noFichaBenefits": "The salary sheet has no benefits assigned.",
+      "confirmDeleteCredit": "Delete this credit?"
     }
   }
 }
