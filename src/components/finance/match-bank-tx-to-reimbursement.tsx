@@ -71,14 +71,15 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
     queryKey: ["reimb-candidates", tx.id, txAbs],
     enabled: isOutflow,
     queryFn: async (): Promise<Candidate[]> => {
-      // 1. find supplier id
-      const { data: sup, error: supErr } = await supabase
-        .from("companies")
-        .select("id")
-        .eq("nome", REIMB_SUPPLIER_NAME)
-        .maybeSingle();
+      // 1. find supplier id via stable marker (RPC)
+      const { data: supId, error: supErr } = await supabase.rpc(
+        "get_reimbursement_supplier_id",
+      );
       if (supErr) throw supErr;
-      if (!sup) return [];
+      if (!supId) {
+        toast.error(t("finance:bankRec.reimbursement.noSupplier"));
+        return [];
+      }
 
       // 2. fetch confirmed reimbursement FEIs
       const { data: feis, error: feiErr } = await supabase
