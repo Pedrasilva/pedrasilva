@@ -915,7 +915,7 @@ function PricingTable({
               </TableRow>
             )}
             {sortedRows.map((r) => {
-              const { c, p30, p50, p100, pCustom } = computeRow(r);
+              const { c, vbgH, cotaBoH, p30, p50, p100, pCustom } = computeRow(r);
               return (
                 <TableRow key={r.collab.id}>
                   <TableCell className="font-medium">
@@ -924,7 +924,7 @@ function PricingTable({
                     </Link>
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.custoVBG / totalH) : "—"}
+                    {vbgH != null ? fmtEUR(vbgH) : "—"}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
                     {fmtEUR(cotaBoH)}
