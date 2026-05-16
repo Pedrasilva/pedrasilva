@@ -13,6 +13,7 @@ import { HrKpiCard } from "@/components/hr/dashboard/HrKpiCard";
 import { HrAlertList } from "@/components/hr/dashboard/HrAlertList";
 import { HrCapacityCard } from "@/components/hr/dashboard/HrCapacityCard";
 import { HrRecentActivityFeed } from "@/components/hr/dashboard/HrRecentActivityFeed";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const Route = createFileRoute("/_app/hr/")({
   component: HrDashboard,
