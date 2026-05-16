@@ -141,6 +141,7 @@ function BeneficiosPage() {
 // =============================================================
 function CollaboratorView() {
   const qc = useQueryClient();
+  const { t } = useTranslation(["hr", "common"]);
 
   const { data: myCollab, isLoading: loadingCollab } = useQuery({
     queryKey: ["my-collaborator"],
@@ -162,19 +163,17 @@ function CollaboratorView() {
     <div className="space-y-6">
       <div>
         <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-          <Wallet className="h-6 w-6" /> Os meus benefícios
+          <Wallet className="h-6 w-6" /> {t("hr:beneficios.title")}
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Acompanhe o saldo disponível e submeta as suas facturas.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("hr:beneficios.subtitle")}</p>
       </div>
 
       {loadingCollab ? (
-        <div className="text-sm text-muted-foreground">A carregar…</div>
+        <div className="text-sm text-muted-foreground">{t("common:loading")}</div>
       ) : !myCollab ? (
         <Card>
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            Não conseguimos identificar o seu perfil de colaborador. Contacte o administrador.
+            {t("hr:beneficios.empty.noProfile")}
           </CardContent>
         </Card>
       ) : (
