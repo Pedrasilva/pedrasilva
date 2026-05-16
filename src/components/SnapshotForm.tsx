@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtEUR, type Collaborator, type Snapshot } from "@/lib/salary";
 import { calcIrs, ESTADOS_CIVIS, loadBracketsWithMeta, LOCALIZACOES, pickTabela } from "@/lib/irs";
@@ -48,16 +49,22 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
 ];
 
 export function SnapshotForm({ snapshot, collaborator }: Props) {
+  const { t } = useTranslation("hr");
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Snapshot>(snapshot);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [contextOpen, setContextOpen] = useState(false);
+  const pendingSaveSignature = useRef<string | null>(null);
 
   useEffect(() => setDraft(snapshot), [snapshot]);
 
   const isDirty = useMemo(
     () => TRACKED_FIELDS.some((k) => (draft[k] ?? null) !== (snapshot[k] ?? null)),
     [draft, snapshot],
+  );
+  const dirtySignature = useMemo(
+    () => JSON.stringify(TRACKED_FIELDS.map((k) => [k, draft[k] ?? null])),
+    [draft],
   );
 
   // Agregado familiar é trancado por ficha — usa o snapshot, NÃO o colaborador.
@@ -165,10 +172,23 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       setLastSavedAt(new Date());
       qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
       qc.invalidateQueries({ queryKey: ["all-snapshots"] });
-      toast.success("Ficha actualizada");
+      toast.success(t("snapshot.form.updatedToast"));
     },
-    onError: (e: Error) => toast.error(`Erro a guardar: ${e.message}`),
+    onError: (e: Error) => {
+      pendingSaveSignature.current = null;
+      toast.error(t("snapshot.form.saveError", { message: e.message }));
+    },
   });
+
+  useEffect(() => {
+    if (!isDirty || save.isPending || pendingSaveSignature.current === dirtySignature) return;
+    const timer = window.setTimeout(() => {
+      if (pendingSaveSignature.current === dirtySignature) return;
+      pendingSaveSignature.current = dirtySignature;
+      save.mutate();
+    }, 1200);
+    return () => window.clearTimeout(timer);
+  }, [dirtySignature, isDirty, save]);
 
   const remove = useMutation({
     mutationFn: async () => {
@@ -209,9 +229,25 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
             </FieldStacked>
           </div>
           <div className="flex items-center gap-2">
-              <SaveStatus isDirty={isDirty} isSaving={save.isPending} lastSavedAt={lastSavedAt} />
-            <Button onClick={() => save.mutate()} disabled={save.isPending || !isDirty}>
-              <Save className="h-4 w-4" /> Guardar ficha
+              <SaveStatus
+                isDirty={isDirty}
+                isSaving={save.isPending}
+                lastSavedAt={lastSavedAt}
+                labels={{
+                  saving: t("snapshot.form.saving"),
+                  dirty: t("snapshot.form.autosavingSoon"),
+                  savedAt: (time) => t("snapshot.form.savedAt", { time }),
+                  idle: t("snapshot.form.idle"),
+                }}
+              />
+            <Button
+              onClick={() => {
+                pendingSaveSignature.current = dirtySignature;
+                save.mutate();
+              }}
+              disabled={save.isPending || !isDirty}
+            >
+              <Save className="h-4 w-4" /> {t("snapshot.form.saveButton")}
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
