@@ -24,6 +24,7 @@ import {
   type RuleRow,
 } from "@/lib/finance/bank-statement-parser";
 import { MatchBankTxToDocDialog } from "@/components/finance/match-bank-tx-to-doc";
+import { MatchBankTxToReimbursementDialog } from "@/components/finance/match-bank-tx-to-reimbursement";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
 import { useSupplierDefaultClassifications } from "@/lib/finance/use-supplier-classifications";
 import { BankImportsManager } from "@/components/finance/bank-imports-manager";
