@@ -132,6 +132,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       const payload = {
         label: draft.label,
         reference_date: draft.reference_date,
+        effective_from: draft.reference_date,
         notas: draft.notas,
         is_effective: draft.is_effective,
         irs_calculado_auto: draft.irs_calculado_auto,
