@@ -1,9 +1,10 @@
 /**
  * Bank-side "Match to HR reimbursement" dialog.
  *
- * Lists unpaid Finance expense items linked to HR benefit reimbursements
- * (supplier = "Reembolsos a Colaboradores"), filtered by amount/date
- * proximity to the bank transaction. Settlement goes through the
+ * Lists unpaid Finance expense items linked to HR benefit reimbursements.
+ * The reimbursement supplier is resolved via the stable
+ * `is_reimbursement_supplier` marker (RPC `get_reimbursement_supplier_id`)
+ * — never by display name. Settlement goes through the
  * `finance_settle_expense` SECURITY DEFINER RPC — no client-side
  * cross-table writes.
  */
@@ -24,7 +25,6 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-const REIMB_SUPPLIER_NAME = "Reembolsos a Colaboradores";
 const AMOUNT_TOLERANCE = 0.5; // €
 const DAY_WINDOW = 30;
 
