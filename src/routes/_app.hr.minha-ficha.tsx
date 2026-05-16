@@ -234,9 +234,11 @@ function MinhaFichaPage() {
 function SnapshotReadOnly({
   snapshot,
   collaborator,
+  allSnapshots,
 }: {
   snapshot: Snapshot;
   collaborator: Collaborator;
+  allSnapshots: Snapshot[];
 }) {
   const { t } = useTranslation(["hr"]);
   // Espelha o agregado familiar do colaborador, tal como faz a ficha completa
@@ -250,6 +252,7 @@ function SnapshotReadOnly({
     ano_fiscal: collaborator.ano_fiscal,
   };
   const c = computeSnapshot(draftEffective);
+  const canCompare = allSnapshots.length >= 2;
 
   return (
     <div className="space-y-5">
@@ -306,6 +309,12 @@ function SnapshotReadOnly({
           <TabsTrigger value="bruto">
             {t("hr:myProfile.tabs.gross")}
           </TabsTrigger>
+          <TabsTrigger value="details">
+            {t("hr:myProfile.tabs.details")}
+          </TabsTrigger>
+          <TabsTrigger value="compare">
+            {t("hr:myProfile.tabs.compare")}
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="liquido">
           <LiquidoTab draft={draftEffective} />
@@ -313,7 +322,155 @@ function SnapshotReadOnly({
         <TabsContent value="bruto">
           <BrutoTab draft={draftEffective} />
         </TabsContent>
+        <TabsContent value="details">
+          <DetailsTab snapshot={snapshot} collaborator={collaborator} />
+        </TabsContent>
+        <TabsContent value="compare">
+          {canCompare ? (
+            <ResumoCompare snapshots={allSnapshots} />
+          ) : (
+            <Card>
+              <CardContent className="py-10 text-center text-sm text-muted-foreground">
+                {t("hr:myProfile.details.compareNeedsTwo")}
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function DetailsTab({
+  snapshot,
+  collaborator,
+}: {
+  snapshot: Snapshot;
+  collaborator: Collaborator;
+}) {
+  const { t } = useTranslation(["hr"]);
+  const f = (k: string) => t(`hr:myProfile.details.fields.${k}`);
+  const v = (k: string) => t(`hr:myProfile.details.values.${k}`);
+  const yn = (b: boolean) => (b ? v("yes") : v("no"));
+  const pct = (n: number) =>
+    `${(n * 100).toLocaleString(undefined, { maximumFractionDigits: 2 })}%`;
+  const modoLabel =
+    SUBSIDIOS_MODO_OPTIONS.find((o) => o.value === snapshot.subsidios_modo)
+      ?.label ?? snapshot.subsidios_modo;
+  const sourceLabel =
+    snapshot.source === "excel_import"
+      ? v("sourceExcel")
+      : snapshot.source === "api"
+        ? v("sourceApi")
+        : v("sourceManual");
+
+  return (
+    <div className="space-y-5">
+      <p className="text-xs text-muted-foreground">
+        {t("hr:myProfile.details.intro")}
+      </p>
+
+      <Section title={t("hr:myProfile.details.sections.base")}>
+        <Row label={f("valor_base")} value={fmtEUR(snapshot.valor_base)} />
+        <Row label={f("subsidios_modo")} value={modoLabel} />
+        <Row label={f("meses_pagos")} value={String(snapshot.meses_pagos)} />
+      </Section>
+
+      <Section title={t("hr:myProfile.details.sections.social")}>
+        <Row label={f("ss_atelier_pct")} value={pct(snapshot.ss_atelier_pct)} />
+        <Row
+          label={f("ss_colaborador_pct")}
+          value={pct(snapshot.ss_colaborador_pct)}
+        />
+        <Row label={f("irs_pct")} value={pct(snapshot.irs_pct)} />
+        <Row
+          label={f("irs_calculado_auto")}
+          value={yn(snapshot.irs_calculado_auto)}
+        />
+      </Section>
+
+      <Section title={t("hr:myProfile.details.sections.meal")}>
+        <Row
+          label={f("subsidio_alimentacao_diario")}
+          value={fmtEUR(
+            snapshot.subsidio_alimentacao_manual
+              ? snapshot.subsidio_alimentacao_diario_manual
+              : snapshot.subsidio_alimentacao_diario,
+          )}
+        />
+        <Row label={f("dias_uteis")} value={String(snapshot.dias_uteis)} />
+        <Row
+          label={f("subsidio_alimentacao_manual")}
+          value={yn(snapshot.subsidio_alimentacao_manual)}
+        />
+      </Section>
+
+      <Section title={t("hr:myProfile.details.sections.allowances")}>
+        <Row
+          label={f("ajudas_custo_anual")}
+          value={fmtEUR(snapshot.ajudas_custo_anual)}
+        />
+        <Row label={f("passe_anual")} value={fmtEUR(snapshot.passe_anual)} />
+      </Section>
+
+      <Section title={t("hr:myProfile.details.sections.benefits")}>
+        <Row label={f("beneficio_carro")} value={fmtEUR(snapshot.beneficio_carro)} />
+        <Row label={f("beneficio_ticket")} value={fmtEUR(snapshot.beneficio_ticket)} />
+        <Row label={f("premio_associado")} value={fmtEUR(snapshot.premio_associado)} />
+        <Row label={f("outros_beneficios")} value={fmtEUR(snapshot.outros_beneficios)} />
+        <Row label={f("beneficio_variavel")} value={fmtEUR(snapshot.beneficio_variavel)} />
+        <Row label={f("plano_reforma")} value={fmtEUR(snapshot.plano_reforma)} />
+      </Section>
+
+      <Section title={t("hr:myProfile.details.sections.household")}>
+        <Row label={f("localizacao")} value={collaborator.localizacao || v("empty")} />
+        <Row label={f("estado_civil")} value={collaborator.estado_civil || v("empty")} />
+        <Row label={f("numero_titulares")} value={String(collaborator.numero_titulares)} />
+        <Row label={f("numero_dependentes")} value={String(collaborator.numero_dependentes)} />
+        <Row
+          label={f("dependentes_com_deficiencia")}
+          value={String(collaborator.dependentes_com_deficiencia)}
+        />
+        <Row label={f("ano_fiscal")} value={String(collaborator.ano_fiscal)} />
+      </Section>
+
+      <Section title={t("hr:myProfile.details.sections.meta")}>
+        <Row label={f("effective_from")} value={fmtDate(snapshot.effective_from)} />
+        <Row
+          label={f("effective_to")}
+          value={snapshot.effective_to ? fmtDate(snapshot.effective_to) : v("openEnded")}
+        />
+        <Row label={f("source")} value={sourceLabel} />
+        <Row label={f("notas")} value={snapshot.notas || v("empty")} />
+      </Section>
+    </div>
+  );
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
+        {children}
+      </CardContent>
+    </Card>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 border-b border-border/40 py-1.5 last:border-0">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="text-sm font-medium tabular-nums">{value}</span>
     </div>
   );
 }
