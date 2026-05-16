@@ -1,9 +1,10 @@
 /**
  * Bank-side "Match to HR reimbursement" dialog.
  *
- * Lists unpaid Finance expense items linked to HR benefit reimbursements
- * (supplier = "Reembolsos a Colaboradores"), filtered by amount/date
- * proximity to the bank transaction. Settlement goes through the
+ * Lists unpaid Finance expense items linked to HR benefit reimbursements.
+ * The reimbursement supplier is resolved via the stable
+ * `is_reimbursement_supplier` marker (RPC `get_reimbursement_supplier_id`)
+ * — never by display name. Settlement goes through the
  * `finance_settle_expense` SECURITY DEFINER RPC — no client-side
  * cross-table writes.
  */
@@ -24,7 +25,6 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-const REIMB_SUPPLIER_NAME = "Reembolsos a Colaboradores";
 const AMOUNT_TOLERANCE = 0.5; // €
 const DAY_WINDOW = 30;
 
@@ -71,14 +71,15 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
     queryKey: ["reimb-candidates", tx.id, txAbs],
     enabled: isOutflow,
     queryFn: async (): Promise<Candidate[]> => {
-      // 1. find supplier id
-      const { data: sup, error: supErr } = await supabase
-        .from("companies")
-        .select("id")
-        .eq("nome", REIMB_SUPPLIER_NAME)
-        .maybeSingle();
+      // 1. find supplier id via stable marker (RPC)
+      const { data: supId, error: supErr } = await supabase.rpc(
+        "get_reimbursement_supplier_id",
+      );
       if (supErr) throw supErr;
-      if (!sup) return [];
+      if (!supId) {
+        toast.error(t("finance:bankRec.reimbursement.noSupplier"));
+        return [];
+      }
 
       // 2. fetch confirmed reimbursement FEIs
       const { data: feis, error: feiErr } = await supabase
@@ -87,7 +88,7 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
           "id, description, due_date, actual_amount_inc_vat, amount_inc_vat, amount_ex_vat, source_ref_id",
         )
         .eq("source_ref_table", "benefit_expenses")
-        .eq("supplier_id", sup.id)
+        .eq("supplier_id", supId as unknown as string)
         .eq("status", "confirmed")
         .limit(500);
       if (feiErr) throw feiErr;
@@ -218,7 +219,7 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
         p_payment_date: tx.transaction_date,
       });
       if (error) throw error;
-      toast.success(t("finance:bankRec.reimbursement.settled", { defaultValue: "Reembolso liquidado" }));
+      toast.success(t("finance:bankRec.reimbursement.settled"));
       onMatched?.();
       onClose();
     } catch (e) {
@@ -235,9 +236,7 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {t("finance:bankRec.reimbursement.title", {
-              defaultValue: "Match to HR reimbursement",
-            })}
+            {t("finance:bankRec.reimbursement.title")}
           </DialogTitle>
         </DialogHeader>
 
@@ -265,18 +264,13 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
 
           {!isOutflow ? (
             <p className="text-sm text-muted-foreground">
-              {t("finance:bankRec.reimbursement.onlyOutflow", {
-                defaultValue: "Reimbursements are outflows. Pick a money-out transaction.",
-              })}
+              {t("finance:bankRec.reimbursement.onlyOutflow")}
             </p>
           ) : candidatesQ.isLoading ? (
             <p className="text-sm text-muted-foreground">{t("common:loading")}</p>
           ) : candidates.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {t("finance:bankRec.reimbursement.noCandidates", {
-                defaultValue:
-                  "No matching reimbursements (±0.50 €, ±30 days from this transaction).",
-              })}
+              {t("finance:bankRec.reimbursement.noCandidates")}
             </p>
           ) : (
             <div className="border rounded-md divide-y max-h-[420px] overflow-auto">
@@ -305,7 +299,6 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
                         {isPartial ? (
                           <Badge variant="secondary" className="text-[10px]">
                             {t("finance:bankRec.reimbursement.partial", {
-                              defaultValue: "Partial",
                               paid: fmtEUR(c.paid_so_far),
                             })}
                           </Badge>
@@ -320,7 +313,7 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
                       {settlingId === c.fei_id ? (
                         <Loader2 className="mr-2 size-3.5 animate-spin" />
                       ) : null}
-                      {t("finance:bankRec.reimbursement.settle", { defaultValue: "Settle" })}
+                      {t("finance:bankRec.reimbursement.settle")}
                     </Button>
                   </div>
                 );

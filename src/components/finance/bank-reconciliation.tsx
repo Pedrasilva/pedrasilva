@@ -658,7 +658,7 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
                               </DropdownMenuItem>
                               {tx.amount < 0 && (
                                 <DropdownMenuItem onClick={() => setMatchReimbTx(tx)}>
-                                  {t("finance:bankRec.actions.matchReimbursement", { defaultValue: "Match HR reimbursement" })}
+                                  {t("finance:bankRec.actions.matchReimbursement")}
                                 </DropdownMenuItem>
                               )}
                               <DropdownMenuSeparator />

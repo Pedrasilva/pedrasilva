@@ -1016,6 +1016,25 @@
       "summaryPeriods": "{{withPeriod}} com período, {{withoutPeriod}} sem período",
       "toastDone": "Backfill: {{created}} ligadas, {{skipped}} ignoradas, {{failed}} falharam"
     },
+    "paymentLedgerBackfill": {
+      "title": "Backfill — Ledger de pagamentos",
+      "subtitle": "Cria linhas sintéticas no ledger de pagamentos para reembolsos RH já marcados como pagos no Finance mas sem registo de pagamento.",
+      "loading": "A carregar…",
+      "eligible": "Elegíveis",
+      "total": "Total",
+      "oldest": "Pagamento mais antigo",
+      "newest": "Pagamento mais recente",
+      "run": "Executar backfill ({{count}})",
+      "confirmTitle": "Confirmar backfill do ledger",
+      "confirmBody": "Vai criar {{count}} linha(s) sintética(s) no ledger de pagamentos. Sem ligação a movimentos bancários. Operação idempotente.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "toastDone": "Backfill concluído — criados: {{created}}, ignorados: {{skipped}}, falhas: {{failed}}",
+      "created": "Criados",
+      "skipped": "Ignorados",
+      "failed": "Falhas",
+      "viewFailures": "Ver falhas"
+    },
     "admin2": {
       "balanceSection": "Saldo inicial (uma vez)",
       "balanceSectionSub": "Saldo já existente do colaborador antes da implementação deste sistema.",

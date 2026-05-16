@@ -196,13 +196,23 @@
       "transferHint": "Marcar como transferência interna entre contas",
       "ignore": "Ignorar",
       "ignoreHint": "Marcar como não relevante para contabilidade",
-      "more": "Mais acções"
+      "more": "Mais acções",
+      "matchReimbursement": "Associar reembolso RH"
     },
     "linkedTo": "Associada a {{ref}}",
     "alreadyLinked": {
       "title": "Já associada ao documento {{ref}}",
       "body": "Esta transação já está ligada a um documento financeiro. Adicionar uma classificação manual vai registar a mesma despesa duas vezes. Use apenas se precisar mesmo de imputar parte do valor a outro custo.",
       "override": "Compreendi — quero classificar mesmo assim"
+    },
+    "reimbursement": {
+      "title": "Associar a reembolso RH",
+      "settle": "Liquidar",
+      "settled": "Reembolso liquidado",
+      "onlyOutflow": "Os reembolsos são saídas. Escolha uma transação a débito.",
+      "noCandidates": "Sem reembolsos compatíveis (±0,50 € de valor, ±30 dias desta transação).",
+      "partial": "Parcial — pago {{paid}}",
+      "noSupplier": "Fornecedor de reembolsos não está configurado."
     }
   },
   "overview": {

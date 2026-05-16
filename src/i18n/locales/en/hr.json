@@ -1016,6 +1016,25 @@
       "summaryPeriods": "{{withPeriod}} with period, {{withoutPeriod}} without period",
       "toastDone": "Backfill: {{created}} linked, {{skipped}} skipped, {{failed}} failed"
     },
+    "paymentLedgerBackfill": {
+      "title": "Backfill — Payment ledger",
+      "subtitle": "Creates synthetic payment-ledger rows for HR reimbursements already marked as paid in Finance but without a payment record.",
+      "loading": "Loading…",
+      "eligible": "Eligible",
+      "total": "Total",
+      "oldest": "Oldest payment",
+      "newest": "Most recent payment",
+      "run": "Run backfill ({{count}})",
+      "confirmTitle": "Confirm ledger backfill",
+      "confirmBody": "This will create {{count}} synthetic payment-ledger row(s). No bank-transaction links are created. The operation is idempotent.",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "toastDone": "Backfill done — created: {{created}}, skipped: {{skipped}}, failed: {{failed}}",
+      "created": "Created",
+      "skipped": "Skipped",
+      "failed": "Failed",
+      "viewFailures": "View failures"
+    },
     "admin2": {
       "balanceSection": "Initial balance (one-off)",
       "balanceSectionSub": "Balance the collaborator already had before this system was rolled out.",

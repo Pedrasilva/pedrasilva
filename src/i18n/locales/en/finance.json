@@ -196,13 +196,23 @@
       "transferHint": "Mark as internal transfer between accounts",
       "ignore": "Ignore",
       "ignoreHint": "Mark as not relevant for accounting",
-      "more": "More actions"
+      "more": "More actions",
+      "matchReimbursement": "Match HR reimbursement"
     },
     "linkedTo": "Linked to {{ref}}",
     "alreadyLinked": {
       "title": "Already linked to document {{ref}}",
       "body": "This transaction is already linked to a financial document. Adding a manual classification will record the same expense twice. Use this only if you also need to attribute part of the amount to a different cost.",
       "override": "I understand — let me classify it anyway"
+    },
+    "reimbursement": {
+      "title": "Match to HR reimbursement",
+      "settle": "Settle",
+      "settled": "Reimbursement settled",
+      "onlyOutflow": "Reimbursements are outflows. Pick a money-out transaction.",
+      "noCandidates": "No matching reimbursements (±0.50 € amount, ±30 days from this transaction).",
+      "partial": "Partial — paid {{paid}}",
+      "noSupplier": "Reimbursement supplier is not configured."
     }
   },
   "overview": {
