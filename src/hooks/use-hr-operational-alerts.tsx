@@ -125,6 +125,7 @@ export function useHrOperationalAlerts() {
             severity: "critical",
             i18nKey: "approvedNoFei",
             count: approvedNoFeiCount,
+            href: "/hr/beneficios",
           });
         }
         if (feiPaidHrNotPagaCount > 0) {
@@ -134,6 +135,7 @@ export function useHrOperationalAlerts() {
             severity: "critical",
             i18nKey: "feiPaidHrDrift",
             count: feiPaidHrNotPagaCount,
+            href: "/hr/beneficios",
           });
         }
         if (syncFailedCount > 0) {
@@ -143,6 +145,7 @@ export function useHrOperationalAlerts() {
             severity: "critical",
             i18nKey: "syncFailed",
             count: syncFailedCount,
+            href: "/hr/beneficios",
           });
         }
         if (noPeriodCount > 0) {
@@ -152,6 +155,7 @@ export function useHrOperationalAlerts() {
             severity: "warning",
             i18nKey: "reimbNoPeriod",
             count: noPeriodCount,
+            href: "/hr/beneficios",
           });
         }
       }

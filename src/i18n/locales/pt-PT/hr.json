@@ -10,7 +10,14 @@
       "pendingReimbursements": "Reembolsos pendentes",
       "approvedUnpaidReimb": "Aprovados por pagar",
       "monthlyPayroll": "Massa salarial mensal",
-      "workingDaysMonth": "Dias úteis este mês"
+      "workingDaysMonth": "Dias úteis este mês",
+      "activeCollaboratorsHint": "Colaboradores não arquivados.",
+      "onLeaveTodayHint": "Períodos de férias aprovados que cobrem hoje.",
+      "pendingReimbursementsHint": "Despesas de benefícios à espera de aprovação RH.",
+      "upcomingLeave30Hint": "Férias aprovadas com início nos próximos 30 dias.",
+      "monthlyPayrollHint": "Soma dos salários base efetivos (bruto).",
+      "approvedUnpaidReimbHint": "Passivos aprovados ainda não pagos pelas Finanças.",
+      "workingDaysMonthHint": "Dias úteis deste mês menos feriados."
     },
     "alerts": {
       "title": "Ação necessária",
@@ -46,14 +53,20 @@
       "missingSalary": {
         "title": "Colaboradores sem dados salariais",
         "body": "{{count}} colaborador(es) ativo(s) sem snapshot salarial."
-      }
+      },
+      "allClear": "Nada a requerer atenção neste momento."
     },
     "capacity": {
       "title": "Capacidade da equipa",
       "current": "Ausentes hoje",
       "next14": "Ausentes nos próximos 14 dias",
       "overlaps": "Dias com sobreposição",
-      "empty": "Sem ausências previstas na janela."
+      "empty": "Sem ausências previstas na janela.",
+      "tabs": {
+        "today": "Hoje",
+        "next14": "Próximos 14 dias"
+      },
+      "emptyToday": "Ninguém ausente hoje."
     },
     "activity": {
       "title": "Atividade recente",
@@ -63,8 +76,16 @@
         "vacation_approved": "férias aprovadas",
         "vacation_rejected": "férias rejeitadas",
         "collaborator_created": "colaborador adicionado",
-        "collaborator_archived": "colaborador arquivado"
-      }
+        "collaborator_archived": "colaborador arquivado",
+        "benefit_submitted": "submeteu reembolso",
+        "benefit_approved": "reembolso aprovado",
+        "benefit_rejected": "reembolso rejeitado",
+        "benefit_paid": "reembolso pago",
+        "benefit_finance_paid": "liquidado pelas Finanças",
+        "benefit_sync_failed": "falha sincronização Finanças → RH"
+      },
+      "today": "Hoje",
+      "yesterday": "Ontem"
     }
   },
   "module": {
