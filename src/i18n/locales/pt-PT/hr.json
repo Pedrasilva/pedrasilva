@@ -846,6 +846,23 @@
         "project": "Equipa Projecto"
       }
     },
+    "capacityOverview": {
+      "title": "Capacidade da equipa e recuperação esperada",
+      "description": "Vista observacional de capacidade contratual e target chargeability. NÃO afecta custos, pricing ou rentabilidade.",
+      "notDefined": "não definido",
+      "empty": "Sem colaboradores.",
+      "headers": {
+        "collaborator": "Colaborador",
+        "fte": "FTE",
+        "weeklyCapacity": "Capacidade semanal",
+        "targetChargeability": "Target chargeability",
+        "recoverableHours": "Recuperável esperado / sem."
+      },
+      "totals": {
+        "label": "Total ({{defined}}/{{total}} com target definido)"
+      },
+      "disclaimer": "Fase 0 — apenas observacional. Target chargeability não alimenta cálculos de custo, taxas, distribuição de BO, sobrecarga do planner ou rentabilidade."
+    },
     "pricing": {
       "title": "Pricing — Equipa Projecto",
       "description": "VBG/h e Cota BO/h = valor anual ÷ ({{days}}×{{hours}}) h. Custo/h soma os dois, venda = custo/h × (1 + margem).",
