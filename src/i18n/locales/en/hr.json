@@ -907,7 +907,8 @@
       "approve": "Approve",
       "reject": "Reject",
       "markPaid": "Mark as paid",
-      "delete": "Delete"
+      "delete": "Delete",
+      "markPaidFinance": "Mark as paid (Finance)"
     },
     "detail": {
       "title": "Expense details",
@@ -947,7 +948,8 @@
         "receiptRequired": "Attach the receipt photo",
         "submit": "Submission error",
         "openPhoto": "Error opening photo"
-      }
+      },
+      "financePaid": "Marked as paid via Finance"
     },
     "history": {
       "loading": "Loading history…",
@@ -970,7 +972,8 @@
       "finance_linked": "Linked to Finance",
       "finance_cancelled": "Finance link cancelled",
       "by": "by {{name}}",
-      "system": "System"
+      "system": "System",
+      "finance_paid": "Paid via Finance"
     },
     "finance": {
       "label": "Finance",
@@ -982,7 +985,9 @@
         "confirmed": "confirmed",
         "paid": "paid",
         "cancelled": "cancelled"
-      }
+      },
+      "awaitingPayment": "Awaiting Finance payment",
+      "paidVia": "Paid via Finance on {{date}}"
     },
     "csv": {
       "headers": {
