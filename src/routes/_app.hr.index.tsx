@@ -137,5 +137,6 @@ function HrDashboard() {
         <HrRecentActivityFeed items={activityQ.data} loading={activityQ.isLoading} />
       </section>
     </div>
+    </TooltipProvider>
   );
 }
