@@ -55,6 +55,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 import {
   Collapsible,
   CollapsibleContent,
