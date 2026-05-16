@@ -147,6 +147,9 @@
         "perDiemMonthly": "+ Ajudas de custo mensais",
         "transitPassMonthly": "+ Passe / transporte público (mensal)",
         "benefitsMonthly": "+ Benefícios mensais",
+        "benefitsMonthlyGuaranteed": "+ Benefícios garantidos (média mensal: carro + ticket + prémio + outros + plano reforma)",
+        "bonusAnnualPotential": "+ Bónus anual potencial (não garantido) — {{amount}} se atribuído",
+        "bonusMonthlyEquivalent": "{{amount}} /mês equivalente",
         "totalHrCostMonthly": "= Custo total RH mensal (VBG)"
       },
       "composition": {
