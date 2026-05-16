@@ -101,11 +101,20 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
       accent: true,
     },
     {
-      label: t("snapshot.liquido.rows.benefitsMonthly"),
-      value: c.beneficiosMensal,
+      label: t("snapshot.liquido.rows.benefitsMonthlyGuaranteed"),
+      value: c.beneficiosMensalGarantido,
       muted: true,
     },
   );
+
+  if ((c.bonusVariavelAnual ?? 0) > 0.005) {
+    rows.push({
+      label: t("snapshot.liquido.rows.bonusAnnualPotential", { amount: fmtEUR(c.bonusVariavelAnual) }),
+      value: c.bonusVariavelAnual / 12,
+      muted: true,
+      raw: t("snapshot.liquido.rows.bonusMonthlyEquivalent", { amount: fmtEUR(c.bonusVariavelAnual / 12) }),
+    });
+  }
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
       <Card>

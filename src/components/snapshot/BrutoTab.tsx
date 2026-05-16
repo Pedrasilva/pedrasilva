@@ -98,14 +98,23 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
     { label: t("snapshot.bruto.rows.mealAllowanceMonthly"), value: c.alimentacaoMensal },
     { label: t("snapshot.bruto.rows.perDiemMonthly"), value: c.ajudasMensal },
     { label: t("snapshot.bruto.rows.transitPassMonthly"), value: c.passeMensal },
-    { label: t("snapshot.bruto.rows.benefitsMonthly"), value: c.beneficiosMensal },
-    {
-      label: t("snapshot.bruto.rows.totalHrCostMonthly"),
-      value: brutoMensalMedio + c.alimentacaoMensal + c.ajudasMensal + c.passeMensal + c.beneficiosMensal,
-      strong: true,
-      accent: true,
-    },
+    { label: t("snapshot.bruto.rows.benefitsMonthlyGuaranteed"), value: c.beneficiosMensalGarantido },
   );
+
+  if ((c.bonusVariavelAnual ?? 0) > 0.005) {
+    rows.push({
+      label: t("snapshot.bruto.rows.bonusAnnualPotential", { amount: fmtEUR(c.bonusVariavelAnual) }),
+      value: c.bonusVariavelAnual / 12,
+      muted: true,
+    });
+  }
+
+  rows.push({
+    label: t("snapshot.bruto.rows.totalHrCostMonthly"),
+    value: brutoMensalMedio + c.alimentacaoMensal + c.ajudasMensal + c.passeMensal + c.beneficiosMensal,
+    strong: true,
+    accent: true,
+  });
 
   const annualSlices = [
     { name: t("snapshot.bruto.composition.slices.baseAnnual"), value: c.baseMensal12 * 12, color: "var(--sage)" },
