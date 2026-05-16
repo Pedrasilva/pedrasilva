@@ -72,6 +72,7 @@ type UserRow = {
   collaborator_id: string | null;
   collaborator_nome: string | null;
   permissions: PermissionKey[];
+  pending?: boolean;
 };
 
 export const Route = createFileRoute("/_app/hr/admin")({
