@@ -104,6 +104,10 @@ export type Collaborator = {
   // forecast calculations across the project module.
   daily_hours: number;
   days_per_week: number;
+  // Observational HR field (Phase 0). Expected % of weekly capacity
+  // recoverable through project work. NULL = not defined. Does NOT feed
+  // any pricing / cost / planner calculation — display-only.
+  target_chargeability_pct?: number | null;
   // Soft-archive metadata. archived_at = null means active. Archived
   // collaborators are hidden from operational pickers but historical
   // records (snapshots, vacations, benefits) remain intact.

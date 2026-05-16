@@ -74,6 +74,14 @@ import {
 import { ArchiveCollaboratorDialog } from "@/components/hr/archive-collaborator-dialog";
 import { RestoreCollaboratorDialog } from "@/components/hr/restore-collaborator-dialog";
 import { humanizeMutationError } from "@/lib/hr/error-messages";
+import { computeCollaboratorFte } from "@/lib/hr/fte";
+import {
+  computeWeeklyCapacity,
+  computeRecoverableHours,
+  formatChargeabilityPct,
+  formatHoursPerWeek,
+} from "@/lib/hr/chargeability";
+import { useAuth } from "@/hooks/use-auth";
 
 import { PermissionGate } from "@/components/PermissionGate";
 
@@ -93,6 +101,7 @@ function CollaboratorPage() {
   const dateLocale = useDateLocale();
   const fmtSnapshotDate = (iso: string) =>
     format(parseISO(iso), "dd MMM yyyy", { locale: dateLocale });
+  const { isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("");
   const [newOpen, setNewOpen] = useState(false);
   const [dadosOpen, setDadosOpen] = useState(false);
@@ -156,7 +165,8 @@ function CollaboratorPage() {
       draft.dependentes_com_deficiencia !== collab.dependentes_com_deficiencia ||
       draft.ano_fiscal !== collab.ano_fiscal ||
       Number(draft.daily_hours ?? 8) !== Number(collab.daily_hours ?? 8) ||
-      Number(draft.days_per_week ?? 5) !== Number(collab.days_per_week ?? 5)
+      Number(draft.days_per_week ?? 5) !== Number(collab.days_per_week ?? 5) ||
+      (draft.target_chargeability_pct ?? null) !== (collab.target_chargeability_pct ?? null)
     );
   }, [collab, draft]);
 
@@ -198,6 +208,7 @@ function CollaboratorPage() {
       ano_fiscal: draft.ano_fiscal,
       daily_hours: Number(draft.daily_hours ?? 8),
       days_per_week: Number(draft.days_per_week ?? 5),
+      target_chargeability_pct: draft.target_chargeability_pct ?? null,
     });
   };
 
@@ -584,6 +595,14 @@ function CollaboratorPage() {
         </Collapsible>
       </Card>
 
+      <CapacityRecoveryCard
+        dailyHours={Number(draft.daily_hours ?? 8)}
+        daysPerWeek={Number(draft.days_per_week ?? 5)}
+        targetChargeabilityPct={draft.target_chargeability_pct ?? null}
+        onChangeTarget={(v) => setField("target_chargeability_pct", v)}
+        canEdit={isAdmin}
+      />
+
       <Card>
         <Collapsible open={agregadoOpen} onOpenChange={setAgregadoOpen}>
           <CollapsibleTrigger asChild>
@@ -842,3 +861,137 @@ function contractStatusKey(value: string): "permanent" | "fixedTerm" | "indefini
       return "permanent";
   }
 }
+
+function CapacityRecoveryCard({
+  dailyHours,
+  daysPerWeek,
+  targetChargeabilityPct,
+  onChangeTarget,
+  canEdit,
+}: {
+  dailyHours: number;
+  daysPerWeek: number;
+  targetChargeabilityPct: number | null;
+  onChangeTarget: (value: number | null) => void;
+  canEdit: boolean;
+}) {
+  const { t, i18n } = useTranslation(["hr"]);
+  const weeklyCapacity = computeWeeklyCapacity(dailyHours, daysPerWeek);
+  const fte = computeCollaboratorFte(dailyHours, daysPerWeek);
+  const recoverable = computeRecoverableHours(weeklyCapacity, targetChargeabilityPct);
+  const fteLabel = new Intl.NumberFormat(i18n.language, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(fte);
+  const targetLabel = formatChargeabilityPct(targetChargeabilityPct, i18n.language);
+  const notDefined = t("hr:collaborator.capacityRecovery.notDefined");
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">
+          {t("hr:collaborator.capacityRecovery.title")}
+        </CardTitle>
+        <CardDescription>
+          {t("hr:collaborator.capacityRecovery.help")}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <ReadOnlyStat
+            label={t("hr:collaborator.capacityRecovery.dailyHours")}
+            value={formatHoursPerWeek(dailyHours, i18n.language)}
+          />
+          <ReadOnlyStat
+            label={t("hr:collaborator.capacityRecovery.daysPerWeek")}
+            value={formatHoursPerWeek(daysPerWeek, i18n.language)}
+          />
+          <ReadOnlyStat
+            label={t("hr:collaborator.capacityRecovery.weeklyCapacity")}
+            value={`${formatHoursPerWeek(weeklyCapacity, i18n.language)} h`}
+          />
+          <ReadOnlyStat
+            label={t("hr:collaborator.capacityRecovery.fte")}
+            value={fteLabel}
+            hint={t("hr:collaborator.capacityRecovery.fteHint")}
+          />
+          <ReadOnlyStat
+            label={t("hr:collaborator.capacityRecovery.targetChargeability")}
+            value={targetLabel ?? notDefined}
+            muted={targetLabel == null}
+          />
+          <ReadOnlyStat
+            label={t("hr:collaborator.capacityRecovery.recoverableHours")}
+            value={
+              recoverable == null
+                ? notDefined
+                : `${formatHoursPerWeek(recoverable, i18n.language)} h`
+            }
+            muted={recoverable == null}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label={t("hr:collaborator.capacityRecovery.editLabel")}>
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              step="1"
+              placeholder={notDefined}
+              disabled={!canEdit}
+              className="input-yellow tabular-nums"
+              value={targetChargeabilityPct ?? ""}
+              onChange={(e) => {
+                const raw = e.target.value.trim();
+                if (raw === "") {
+                  onChangeTarget(null);
+                  return;
+                }
+                const n = Number(raw);
+                if (!Number.isFinite(n)) {
+                  onChangeTarget(null);
+                  return;
+                }
+                onChangeTarget(Math.max(0, Math.min(100, n)));
+              }}
+            />
+          </Field>
+          <div className="text-xs text-muted-foreground self-end pb-2">
+            {canEdit
+              ? t("hr:collaborator.capacityRecovery.editHint")
+              : t("hr:collaborator.capacityRecovery.readOnlyHint")}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ReadOnlyStat({
+  label,
+  value,
+  hint,
+  muted,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  muted?: boolean;
+}) {
+  return (
+    <div className="rounded-lg border bg-muted/30 p-3">
+      <div className="text-[11px] text-muted-foreground">{label}</div>
+      <div
+        className={cn(
+          "mt-1 text-base font-semibold tabular-nums",
+          muted && "text-muted-foreground font-normal italic",
+        )}
+      >
+        {value}
+      </div>
+      {hint && <div className="mt-1 text-[10px] text-muted-foreground">{hint}</div>}
+    </div>
+  );
+}
+
