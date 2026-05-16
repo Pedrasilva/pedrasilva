@@ -1385,6 +1385,8 @@ type ExpenseFull = {
   amount_inc_vat: number | null;
   actual_amount_inc_vat: number | null;
   vat_rate: number;
+  source_ref_table: string | null;
+  source_ref_id: string | null;
 };
 
 function useExpensesFull() {
@@ -1394,7 +1396,7 @@ function useExpensesFull() {
       const { data, error } = await supabase
         .from("financial_expense_items")
         .select(
-          "id, period_id, supplier_id, category_id, expense_type, status, description, due_date, paid_date, amount_ex_vat, vat_amount, amount_inc_vat, actual_amount_inc_vat, vat_rate",
+          "id, period_id, supplier_id, category_id, expense_type, status, description, due_date, paid_date, amount_ex_vat, vat_amount, amount_inc_vat, actual_amount_inc_vat, vat_rate, source_ref_table, source_ref_id",
         )
         .order("due_date", { ascending: true, nullsFirst: false });
       if (error) throw error;
