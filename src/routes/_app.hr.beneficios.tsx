@@ -288,6 +288,7 @@ function CollaboratorBody({
 }) {
   const ano = collaborator.ano_fiscal;
   const { balancesQ, creditsQ, expensesQ } = useBenefitData(collaborator.id);
+  const { data: categoriesRows = [] } = useBenefitCategories();
 
   const balances = balancesQ.data ?? [];
   const credits = creditsQ.data ?? [];
@@ -302,6 +303,39 @@ function CollaboratorBody({
     (c) => balance[c].inicial > 0 || balance[c].creditado > 0 || balance[c].gasto > 0,
   );
   const hasAny = cats.length > 0;
+
+  // Filtros
+  const [search, setSearch] = useState("");
+  const [estado, setEstado] = useState<ExpenseStatus | "todos">("todos");
+  const [categoryCode, setCategoryCode] = useState<string | "all">("all");
+  const years = useMemo(() => {
+    const s = new Set<number>(expenses.map((e) => e.ano_fiscal));
+    s.add(ano);
+    return Array.from(s).sort((a, b) => b - a);
+  }, [expenses, ano]);
+  const [year, setYear] = useState<number | "all">(ano);
+
+  const filtered = useMemo(
+    () => filterExpenses(expenses, { search, estado, categoryCode, year }),
+    [expenses, search, estado, categoryCode, year],
+  );
+
+  // Resumo anual (todas as despesas do ano seleccionado, ignora outros filtros)
+  const yearScope = useMemo(
+    () => (year === "all" ? expenses : expenses.filter((e) => e.ano_fiscal === year)),
+    [expenses, year],
+  );
+  const yearTotals = useMemo(() => {
+    const t = { submetido: 0, aprovado: 0, pago: 0, rejeitado: 0 };
+    for (const e of yearScope) {
+      const v = Number(e.valor) || 0;
+      if (e.estado === "rejeitada") t.rejeitado += v;
+      else t.submetido += v;
+      if (e.estado === "aprovada" || e.estado === "paga") t.aprovado += v;
+      if (e.estado === "paga") t.pago += v;
+    }
+    return t;
+  }, [yearScope]);
 
   const refetchAll = () => {
     balancesQ.refetch();
@@ -360,18 +394,100 @@ function CollaboratorBody({
       </div>
 
       {/* Submissão + lista */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">Histórico de despesas</h2>
         <SubmitExpenseDialog
           collaboratorId={collaborator.id}
           anoFiscal={ano}
           balance={balance}
+          categories={categoriesRows}
           onCreated={refetchAll}
         />
       </div>
 
-      <ExpensesTable expenses={expenses} canEdit isAdmin={false} onChanged={refetchAll} />
+      {/* Resumo anual */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <YearTile label="Submetido" value={yearTotals.submetido} />
+        <YearTile label="Aprovado" value={yearTotals.aprovado} tone="emerald" />
+        <YearTile label="Pago" value={yearTotals.pago} tone="sky" />
+        <YearTile label="Rejeitado" value={yearTotals.rejeitado} tone="rose" />
+      </div>
+
+      {/* Filtros */}
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="relative flex-1 min-w-[180px]">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input
+            className="pl-7"
+            placeholder="Procurar descrição ou notas…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <Select value={estado} onValueChange={(v) => setEstado(v as ExpenseStatus | "todos")}>
+          <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os estados</SelectItem>
+            <SelectItem value="pendente">Pendentes</SelectItem>
+            <SelectItem value="aprovada">Aprovadas</SelectItem>
+            <SelectItem value="paga">Pagas</SelectItem>
+            <SelectItem value="rejeitada">Rejeitadas</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={categoryCode} onValueChange={(v) => setCategoryCode(v)}>
+          <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas as categorias</SelectItem>
+            {categoriesRows.map((c) => (
+              <SelectItem key={c.id} value={c.code}>{c.label_pt}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={String(year)} onValueChange={(v) => setYear(v === "all" ? "all" : Number(v))}>
+          <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os anos</SelectItem>
+            {years.map((y) => (
+              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => exportExpensesCsv(filtered, `beneficios-${collaborator.nome}-${year}.csv`)}
+          disabled={filtered.length === 0}
+        >
+          <Download className="h-4 w-4" /> Exportar CSV
+        </Button>
+      </div>
+
+      <ExpensesTable expenses={filtered} canEdit isAdmin={false} onChanged={refetchAll} />
     </div>
+  );
+}
+
+function YearTile({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone?: "emerald" | "sky" | "rose";
+}) {
+  const colorMap = {
+    emerald: "text-emerald-700",
+    sky: "text-sky-700",
+    rose: "text-rose-700",
+  } as const;
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardDescription className="text-xs">{label}</CardDescription>
+        <CardTitle className={cn("text-lg", tone && colorMap[tone])}>{fmtEUR(value)}</CardTitle>
+      </CardHeader>
+    </Card>
   );
 }
 
