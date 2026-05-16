@@ -5146,6 +5146,8 @@ export type Database = {
         Args: { p_expense_id: string }
         Returns: string
       }
+      benefit_expense_finance_backfill_preview: { Args: never; Returns: Json }
+      benefit_expense_finance_backfill_run: { Args: never; Returns: Json }
       benefit_expense_link_to_finance: {
         Args: { p_expense_id: string }
         Returns: string

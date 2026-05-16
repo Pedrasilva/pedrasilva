@@ -74,6 +74,7 @@ import { BenefitExpenseTimeline } from "@/components/hr/BenefitExpenseTimeline";
 import { RejectExpenseDialog } from "@/components/hr/RejectExpenseDialog";
 import { DeleteExpenseDialog } from "@/components/hr/DeleteExpenseDialog";
 import { ExpenseFilterBar, type ExpenseFilterState } from "@/components/hr/ExpenseFilterBar";
+import { FinanceBackfillCard } from "@/components/hr/FinanceBackfillCard";
 
 // As novas tabelas ainda não estão totalmente nos types — usamos `as any` pontualmente.
 // É seguro porque as RLS policies controlam o acesso.
@@ -1064,6 +1065,7 @@ function AdminView() {
         </div>
         <ManageBalancesDialog collaborators={collaborators} />
       </div>
+      <FinanceBackfillCard />
       <ManagementView
         title=""
         subtitle=""

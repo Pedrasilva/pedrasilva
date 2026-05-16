@@ -995,6 +995,22 @@
         "approvalNotes": "Approval notes"
       }
     },
+    "backfill": {
+      "title": "Finance backfill",
+      "subtitle": "Link historical approved benefit expenses to Finance. Idempotent — already-linked rows are skipped.",
+      "eligible": "Eligible",
+      "totalAmount": "Estimated total",
+      "withPeriod": "Will match a financial period",
+      "withoutPeriod": "No matching period (period_id NULL)",
+      "dateRange": "From {{from}} to {{to}}",
+      "refreshPreview": "Refresh preview",
+      "run": "Run backfill",
+      "confirm": "Create {{count}} Finance liabilities? This action is idempotent and safe to rerun.",
+      "summaryTitle": "Backfill complete",
+      "summary": "{{created}} linked, {{skipped}} skipped, {{failed}} failed",
+      "summaryPeriods": "{{withPeriod}} with period, {{withoutPeriod}} without period",
+      "toastDone": "Backfill: {{created}} linked, {{skipped}} skipped, {{failed}} failed"
+    },
     "admin2": {
       "balanceSection": "Initial balance (one-off)",
       "balanceSectionSub": "Balance the collaborator already had before this system was rolled out.",
