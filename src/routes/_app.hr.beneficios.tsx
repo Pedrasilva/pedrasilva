@@ -887,7 +887,7 @@ function ExpenseActions({
         </Button>
       )}
       {(isAdmin || (canEdit && expense.estado === "pendente")) && (
-        <Button size="sm" variant="ghost" onClick={remove} title="Apagar">
+        <Button size="sm" variant="ghost" onClick={() => setDeleteOpen(true)} title="Apagar">
           <Trash2 className="h-4 w-4 text-rose-600" />
         </Button>
       )}
@@ -896,6 +896,17 @@ function ExpenseActions({
         open={rejectOpen}
         onOpenChange={setRejectOpen}
         onConfirm={confirmReject}
+      />
+
+      <DeleteExpenseDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={remove}
+        description={
+          expense.estado === "pendente"
+            ? "Esta acção é permanente. A despesa pendente e a respectiva factura serão removidas."
+            : "Esta acção é permanente. A despesa e a respectiva factura serão removidas."
+        }
       />
 
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
