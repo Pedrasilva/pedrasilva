@@ -50,8 +50,6 @@ import {
   Trash2,
   FileImage,
   Settings2,
-  Search,
-  Download,
   Info,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -73,6 +71,8 @@ import {
 import { cn } from "@/lib/utils";
 import { BenefitExpenseTimeline } from "@/components/hr/BenefitExpenseTimeline";
 import { RejectExpenseDialog } from "@/components/hr/RejectExpenseDialog";
+import { DeleteExpenseDialog } from "@/components/hr/DeleteExpenseDialog";
+import { ExpenseFilterBar, type ExpenseFilterState } from "@/components/hr/ExpenseFilterBar";
 
 // As novas tabelas ainda não estão totalmente nos types — usamos `as any` pontualmente.
 // É seguro porque as RLS policies controlam o acesso.
@@ -414,53 +414,21 @@ function CollaboratorBody({
       </div>
 
       {/* Filtros */}
-      <div className="flex flex-wrap items-end gap-2">
-        <div className="relative flex-1 min-w-[180px]">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <Input
-            className="pl-7"
-            placeholder="Procurar descrição ou notas…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        <Select value={estado} onValueChange={(v) => setEstado(v as ExpenseStatus | "todos")}>
-          <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os estados</SelectItem>
-            <SelectItem value="pendente">Pendentes</SelectItem>
-            <SelectItem value="aprovada">Aprovadas</SelectItem>
-            <SelectItem value="paga">Pagas</SelectItem>
-            <SelectItem value="rejeitada">Rejeitadas</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={categoryCode} onValueChange={(v) => setCategoryCode(v)}>
-          <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas as categorias</SelectItem>
-            {categoriesRows.map((c) => (
-              <SelectItem key={c.id} value={c.code}>{c.label_pt}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={String(year)} onValueChange={(v) => setYear(v === "all" ? "all" : Number(v))}>
-          <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os anos</SelectItem>
-            {years.map((y) => (
-              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => exportExpensesCsv(filtered, `beneficios-${collaborator.nome}-${year}.csv`)}
-          disabled={filtered.length === 0}
-        >
-          <Download className="h-4 w-4" /> Exportar CSV
-        </Button>
-      </div>
+      <ExpenseFilterBar
+        value={{ search, estado, categoryCode, year }}
+        onChange={(next) => {
+          setSearch(next.search);
+          setEstado(next.estado);
+          setCategoryCode(next.categoryCode);
+          setYear(next.year);
+        }}
+        categories={categoriesRows}
+        years={years}
+        onExportCsv={() =>
+          exportExpensesCsv(filtered, `beneficios-${collaborator.nome}-${year}.csv`)
+        }
+        exportDisabled={filtered.length === 0}
+      />
 
       <ExpensesTable expenses={filtered} canEdit isAdmin={false} onChanged={refetchAll} />
     </div>
@@ -771,7 +739,7 @@ function ExpensesTable({
                 </TableCell>
                 <TableCell className="text-right font-medium">{fmtEUR(e.valor)}</TableCell>
                 <TableCell>
-                  <Badge variant="outline" className={cn("border", STATUS_COLORS[e.estado])}>
+                  <Badge variant="outline" className={cn("border whitespace-nowrap", STATUS_COLORS[e.estado])}>
                     {STATUS_LABELS[e.estado]}
                   </Badge>
                 </TableCell>
@@ -806,6 +774,7 @@ function ExpenseActions({
   const [loadingUrl, setLoadingUrl] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   async function viewPhoto() {
     if (!expense.foto_path) return;
@@ -878,13 +847,17 @@ function ExpenseActions({
   }
 
   async function remove() {
-    if (!confirm("Apagar esta despesa?")) return;
+    // Storage cleanup is best-effort; RLS still allows owner to delete
+    // their own foto when expense is `pendente` (preserved behavior).
     if (expense.foto_path) {
       await supabase.storage.from("benefit-receipts").remove([expense.foto_path]);
     }
     const { error } = await supabase.from("benefit_expenses").delete().eq("id", expense.id);
-    if (error) return toast.error(error.message);
-    toast.success("Apagada");
+    if (error) {
+      toast.error(error.message);
+      throw error;
+    }
+    toast.success("Despesa apagada");
     onChanged();
   }
 
@@ -914,7 +887,7 @@ function ExpenseActions({
         </Button>
       )}
       {(isAdmin || (canEdit && expense.estado === "pendente")) && (
-        <Button size="sm" variant="ghost" onClick={remove} title="Apagar">
+        <Button size="sm" variant="ghost" onClick={() => setDeleteOpen(true)} title="Apagar">
           <Trash2 className="h-4 w-4 text-rose-600" />
         </Button>
       )}
@@ -923,6 +896,17 @@ function ExpenseActions({
         open={rejectOpen}
         onOpenChange={setRejectOpen}
         onConfirm={confirmReject}
+      />
+
+      <DeleteExpenseDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={remove}
+        description={
+          expense.estado === "pendente"
+            ? "Esta acção é permanente. A despesa pendente e a respectiva factura serão removidas."
+            : "Esta acção é permanente. A despesa e a respectiva factura serão removidas."
+        }
       />
 
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
@@ -969,95 +953,13 @@ function ExpenseActions({
 // =============================================================
 function ApproverView() {
   const qc = useQueryClient();
-  const [filterEstado, setFilterEstado] = useState<ExpenseStatus | "todos">("pendente");
-
-  const { data: collaborators = [] } = useQuery({
-    queryKey: ["collaborators", "active-for-approver"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("collaborators")
-        .select("*")
-        .is("archived_at", null)
-        .order("nome");
-      if (error) throw error;
-      return (data ?? []) as Collaborator[];
-    },
-  });
-
-  const { data: expenses = [], refetch } = useQuery({
-    queryKey: ["approver-expenses", filterEstado],
-    queryFn: async () => {
-      let q = sb
-        .from("benefit_expenses_v")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (filterEstado !== "todos") q = q.eq("estado", filterEstado);
-      const { data, error } = await q;
-      if (error) throw error;
-      return (data ?? []) as BenefitExpenseRow[];
-    },
-  });
-
-  const collaboratorsById = useMemo(() => {
-    const map: Record<string, Collaborator> = {};
-    for (const c of collaborators) map[c.id] = c;
-    return map;
-  }, [collaborators]);
-
-  const totals = useMemo(() => {
-    const t = { pendente: 0, aprovada: 0, paga: 0 };
-    for (const e of expenses) {
-      if (e.estado === "rejeitada") continue;
-      t[e.estado as "pendente" | "aprovada" | "paga"] += Number(e.valor) || 0;
-    }
-    return t;
-  }, [expenses]);
-
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="flex items-center gap-2 text-xl font-semibold tracking-tight">
-          <Check className="h-5 w-5" /> Aprovações de despesas
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Reveja as facturas submetidas pelos colaboradores e aprove ou rejeite.
-        </p>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-3">
-        <SummaryCard label="Pendentes" value={totals.pendente} className="border-amber-200" />
-        <SummaryCard label="Aprovadas" value={totals.aprovada} className="border-emerald-200" />
-        <SummaryCard label="Pagas" value={totals.paga} className="border-sky-200" />
-      </div>
-
-      <div className="flex items-center gap-2">
-        <Label>Estado:</Label>
-        <Select value={filterEstado} onValueChange={(v) => setFilterEstado(v as ExpenseStatus | "todos")}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="pendente">Pendentes</SelectItem>
-            <SelectItem value="aprovada">Aprovadas</SelectItem>
-            <SelectItem value="paga">Pagas</SelectItem>
-            <SelectItem value="rejeitada">Rejeitadas</SelectItem>
-            <SelectItem value="todos">Todas</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <ExpensesTable
-        expenses={expenses}
-        canEdit={false}
-        isAdmin
-        showCollaborator
-        collaboratorsById={collaboratorsById}
-        onChanged={() => {
-          refetch();
-          qc.invalidateQueries();
-        }}
-      />
-    </div>
+    <ManagementView
+      title="Aprovações de despesas"
+      subtitle="Reveja as facturas submetidas pelos colaboradores e aprove ou rejeite."
+      queryKey="approver-expenses"
+      onInvalidate={() => qc.invalidateQueries()}
+    />
   );
 }
 
@@ -1066,8 +968,6 @@ function ApproverView() {
 // =============================================================
 function AdminView() {
   const qc = useQueryClient();
-  const [filterEstado, setFilterEstado] = useState<ExpenseStatus | "todos">("pendente");
-
   const { data: collaborators = [] } = useQuery({
     queryKey: ["collaborators", "active"],
     queryFn: async () => {
@@ -1080,35 +980,6 @@ function AdminView() {
       return (data ?? []) as Collaborator[];
     },
   });
-
-  const { data: expenses = [], refetch } = useQuery({
-    queryKey: ["all-expenses", filterEstado],
-    queryFn: async () => {
-      let q = sb
-        .from("benefit_expenses_v")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (filterEstado !== "todos") q = q.eq("estado", filterEstado);
-      const { data, error } = await q;
-      if (error) throw error;
-      return (data ?? []) as BenefitExpenseRow[];
-    },
-  });
-
-  const collaboratorsById = useMemo(() => {
-    const map: Record<string, Collaborator> = {};
-    for (const c of collaborators) map[c.id] = c;
-    return map;
-  }, [collaborators]);
-
-  const totals = useMemo(() => {
-    const t = { pendente: 0, aprovada: 0, paga: 0 };
-    for (const e of expenses) {
-      if (e.estado === "rejeitada") continue;
-      t[e.estado as "pendente" | "aprovada" | "paga"] += Number(e.valor) || 0;
-    }
-    return t;
-  }, [expenses]);
 
   return (
     <div className="space-y-6">
@@ -1123,6 +994,102 @@ function AdminView() {
         </div>
         <ManageBalancesDialog collaborators={collaborators} />
       </div>
+      <ManagementView
+        title=""
+        subtitle=""
+        queryKey="all-expenses"
+        onInvalidate={() => qc.invalidateQueries()}
+        hideHeader
+      />
+    </div>
+  );
+}
+
+// Shared filter+table component for approver/admin views.
+// Reuses the same `ExpenseFilterBar` + `filterExpenses` helpers as
+// the collaborator view to keep behavior consistent.
+function ManagementView({
+  title,
+  subtitle,
+  queryKey,
+  onInvalidate,
+  hideHeader,
+}: {
+  title: string;
+  subtitle: string;
+  queryKey: string;
+  onInvalidate: () => void;
+  hideHeader?: boolean;
+}) {
+  const { data: collaborators = [] } = useQuery({
+    queryKey: ["collaborators", "active-mgmt"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("collaborators")
+        .select("*")
+        .is("archived_at", null)
+        .order("nome");
+      if (error) throw error;
+      return (data ?? []) as Collaborator[];
+    },
+  });
+  const { data: categoriesRows = [] } = useBenefitCategories();
+
+  const { data: expenses = [], refetch } = useQuery({
+    queryKey: [queryKey, "all"],
+    queryFn: async () => {
+      const { data, error } = await sb
+        .from("benefit_expenses_v")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as BenefitExpenseRow[];
+    },
+  });
+
+  const collaboratorsById = useMemo(() => {
+    const map: Record<string, Collaborator> = {};
+    for (const c of collaborators) map[c.id] = c;
+    return map;
+  }, [collaborators]);
+
+  const currentYear = new Date().getFullYear();
+  const [filters, setFilters] = useState<ExpenseFilterState>({
+    search: "",
+    estado: "pendente",
+    categoryCode: "all",
+    year: "all",
+  });
+  const years = useMemo(() => {
+    const s = new Set<number>(expenses.map((e) => e.ano_fiscal));
+    s.add(currentYear);
+    return Array.from(s).sort((a, b) => b - a);
+  }, [expenses, currentYear]);
+
+  const filtered = useMemo(
+    () => filterExpenses(expenses, filters),
+    [expenses, filters],
+  );
+
+  const totals = useMemo(() => {
+    const t = { pendente: 0, aprovada: 0, paga: 0 };
+    for (const e of expenses) {
+      if (e.estado === "rejeitada") continue;
+      t[e.estado as "pendente" | "aprovada" | "paga"] += Number(e.valor) || 0;
+    }
+    return t;
+  }, [expenses]);
+
+  return (
+    <div className="space-y-6">
+      {!hideHeader && (
+        <div>
+          <h2 className="flex items-center gap-2 text-xl font-semibold tracking-tight">
+            <Check className="h-5 w-5" /> {title}
+          </h2>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
+        </div>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <SummaryCard label="Pendentes" value={totals.pendente} className="border-amber-200" />
@@ -1130,39 +1097,32 @@ function AdminView() {
         <SummaryCard label="Pagas" value={totals.paga} className="border-sky-200" />
       </div>
 
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Label>Estado:</Label>
-          <Select value={filterEstado} onValueChange={(v) => setFilterEstado(v as ExpenseStatus | "todos")}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pendente">Pendentes</SelectItem>
-              <SelectItem value="aprovada">Aprovadas</SelectItem>
-              <SelectItem value="paga">Pagas</SelectItem>
-              <SelectItem value="rejeitada">Rejeitadas</SelectItem>
-              <SelectItem value="todos">Todas</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <ExpenseFilterBar
+        value={filters}
+        onChange={setFilters}
+        categories={categoriesRows}
+        years={years}
+        showChips
+        onExportCsv={() =>
+          exportExpensesCsv(filtered, `beneficios-gestao-${filters.year}.csv`)
+        }
+        exportDisabled={filtered.length === 0}
+      />
 
       <ExpensesTable
-        expenses={expenses}
+        expenses={filtered}
         canEdit={false}
         isAdmin
         showCollaborator
         collaboratorsById={collaboratorsById}
         onChanged={() => {
           refetch();
-          qc.invalidateQueries();
+          onInvalidate();
         }}
       />
     </div>
   );
 }
-
 function SummaryCard({
   label,
   value,

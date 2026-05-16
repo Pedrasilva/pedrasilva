@@ -823,5 +823,140 @@
     "toasts": {
       "completed": "Importadas {{inserted}} ficha(s); {{skipped}} ignoradas"
     }
+  },
+  "beneficios": {
+    "title": "Os meus benefícios",
+    "subtitle": "Acompanhe o saldo disponível e submeta as suas facturas.",
+    "adminTitle": "Benefícios — Gestão",
+    "adminSubtitle": "Aprove despesas e faça a gestão dos saldos e créditos anuais por colaborador.",
+    "approverTitle": "Aprovações de despesas",
+    "approverSubtitle": "Reveja as facturas submetidas pelos colaboradores e aprove ou rejeite.",
+    "tabs": {
+      "mine": "Os meus benefícios",
+      "approvals": "Aprovações"
+    },
+    "empty": {
+      "noProfile": "Não conseguimos identificar o seu perfil de colaborador. Contacte o administrador.",
+      "noBalance": "Ainda não tem saldo de benefícios atribuído. Contacte o administrador.",
+      "noExpenses": "Sem despesas registadas."
+    },
+    "balance": {
+      "available": "disponível",
+      "initial": "Inicial",
+      "credited": "Creditado",
+      "spent": "Gasto"
+    },
+    "summary": {
+      "submitted": "Submetido",
+      "approved": "Aprovado",
+      "paid": "Pago",
+      "rejected": "Rejeitado",
+      "pending": "Pendentes",
+      "approvedPlural": "Aprovadas",
+      "paidPlural": "Pagas"
+    },
+    "filters": {
+      "searchPlaceholder": "Procurar descrição ou notas…",
+      "allStatuses": "Todos os estados",
+      "allCategories": "Todas as categorias",
+      "allYears": "Todos os anos",
+      "exportCsv": "Exportar CSV",
+      "chipPending": "Pendentes",
+      "chipApproved": "Aprovadas",
+      "chipPaid": "Pagas",
+      "chipRejected": "Rejeitadas",
+      "chipAll": "Todas"
+    },
+    "status": {
+      "pendente": "Pendente",
+      "aprovada": "Aprovada",
+      "rejeitada": "Rejeitada",
+      "paga": "Paga"
+    },
+    "table": {
+      "date": "Data",
+      "collaborator": "Colaborador",
+      "category": "Categoria",
+      "description": "Descrição",
+      "amount": "Valor",
+      "status": "Estado",
+      "actions": "Acções"
+    },
+    "submit": {
+      "button": "Submeter despesa",
+      "dialogTitle": "Nova despesa",
+      "dialogDescription": "Anexe a foto da factura e indique a categoria do benefício.",
+      "category": "Categoria",
+      "categoryPlaceholder": "Escolha…",
+      "categoryAvailable": "disponível {{value}}",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Ex: Combustível Galp 12/03",
+      "amount": "Valor (€)",
+      "date": "Data da despesa",
+      "receipt": "Foto / factura",
+      "notes": "Notas (opcional)",
+      "cancel": "Cancelar",
+      "submit": "Submeter",
+      "submitting": "A submeter…",
+      "exceeds": "Excede o disponível ({{value}})",
+      "available": "Disponível: {{value}}"
+    },
+    "actions": {
+      "details": "Detalhes",
+      "viewReceipt": "Ver factura",
+      "approve": "Aprovar",
+      "reject": "Rejeitar",
+      "markPaid": "Marcar como paga",
+      "delete": "Apagar"
+    },
+    "detail": {
+      "title": "Detalhes da despesa",
+      "description": "Descrição",
+      "collaboratorNotes": "Notas do colaborador",
+      "approvalNotes": "Notas de aprovação",
+      "history": "Histórico"
+    },
+    "delete": {
+      "title": "Apagar despesa",
+      "descriptionPending": "Esta acção é permanente. A despesa pendente e a respectiva factura serão removidas.",
+      "descriptionGeneric": "Esta acção é permanente. A despesa e a respectiva factura serão removidas.",
+      "cancel": "Cancelar",
+      "confirm": "Apagar",
+      "loading": "A apagar…"
+    },
+    "reject": {
+      "title": "Rejeitar despesa",
+      "description": "Indique o motivo da rejeição. O colaborador será notificado e o saldo é devolvido.",
+      "reasonLabel": "Motivo",
+      "reasonPlaceholder": "Ex: Factura não corresponde ao colaborador / fora do âmbito da categoria…",
+      "minChars": "Mínimo 3 caracteres.",
+      "cancel": "Cancelar",
+      "confirm": "Rejeitar",
+      "loading": "A rejeitar…"
+    },
+    "toasts": {
+      "submitted": "Despesa submetida — aguarda aprovação",
+      "approved": "Despesa aprovada — email enviado para contabilidade",
+      "rejected": "Despesa rejeitada — saldo devolvido",
+      "paid": "Marcada como paga",
+      "deleted": "Despesa apagada",
+      "errors": {
+        "categoryRequired": "Escolha uma categoria",
+        "descriptionRequired": "Descrição obrigatória",
+        "invalidAmount": "Valor inválido",
+        "receiptRequired": "Anexe a foto/factura",
+        "submit": "Erro ao submeter",
+        "openPhoto": "Erro ao abrir foto"
+      }
+    },
+    "history": {
+      "loading": "A carregar histórico…",
+      "empty": "Sem eventos."
+    },
+    "admin": {
+      "manageBalances": "Gerir saldos",
+      "balancesDialogTitle": "Saldos e créditos anuais",
+      "balancesDialogDescription": "Defina o saldo inicial e os créditos por ano fiscal de cada colaborador. Sobras transitam automaticamente."
+    }
   }
 }

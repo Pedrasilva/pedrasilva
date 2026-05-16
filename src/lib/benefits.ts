@@ -1,5 +1,30 @@
 // Helpers para o sistema de despesas de benefícios.
 // Os tectos por categoria vêm da ficha salarial efectiva do colaborador.
+//
+// ---------------------------------------------------------------------------
+// LEGACY `categoria` enum (Phase 1 — dual-write)
+// ---------------------------------------------------------------------------
+// `benefit_expenses.categoria` (enum BenefitCategory) é a coluna legada,
+// usada por:
+//   - `benefit_balances` / `benefit_yearly_credits` (saldos por categoria),
+//   - `budgetsFromSnapshot()` que mapeia colunas da ficha salarial,
+//   - cálculo de saldo disponível em `balanceByCategory()`.
+//
+// Em Phase 1b foi adicionada a tabela `benefit_categories` com `category_id`
+// (FK) em `benefit_expenses`. O fluxo de submissão faz DUAL-WRITE:
+//   1. `categoria` (legacy enum, fallback "outros") — alimenta saldos,
+//   2. `category_id` (FK para benefit_categories) — alimenta UI/relatórios.
+//
+// A view `benefit_expenses_v` resolve `category_code`/`category_label_*`
+// para o frontend. O helper `expenseCategoryLabel()` deve ser o ÚNICO
+// ponto de renderização da categoria em UI.
+//
+// MIGRAÇÃO FUTURA (Phase 2+, fora de scope):
+//   - mover saldos para a chave `category_id`,
+//   - backfill `category_id` em registos antigos,
+//   - eventualmente remover a coluna `categoria` e o enum.
+// NÃO remover dual-write enquanto saldos dependerem do enum.
+// ---------------------------------------------------------------------------
 
 import type { Snapshot } from "./salary";
 
