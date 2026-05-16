@@ -516,6 +516,7 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
   const [classifyTx, setClassifyTx] = useState<BankTx | null>(null);
   const [matchDocTx, setMatchDocTx] = useState<BankTx | null>(null);
   const [createDocTx, setCreateDocTx] = useState<BankTx | null>(null);
+  const [matchReimbTx, setMatchReimbTx] = useState<BankTx | null>(null);
   const { user } = useAuth();
 
   const txQ = useQuery({
