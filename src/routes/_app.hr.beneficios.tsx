@@ -645,7 +645,7 @@ function SubmitExpenseDialog({
               value={form.valor}
               onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))}
             />
-            {cat && (
+            {restante != null && (
               <div
                 className={cn(
                   "text-[11px]",
