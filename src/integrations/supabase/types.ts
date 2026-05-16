@@ -428,6 +428,7 @@ export type Database = {
       benefit_balances: {
         Row: {
           categoria: Database["public"]["Enums"]["benefit_category"]
+          category_id: string | null
           collaborator_id: string
           created_at: string
           id: string
@@ -437,6 +438,7 @@ export type Database = {
         }
         Insert: {
           categoria: Database["public"]["Enums"]["benefit_category"]
+          category_id?: string | null
           collaborator_id: string
           created_at?: string
           id?: string
@@ -446,6 +448,7 @@ export type Database = {
         }
         Update: {
           categoria?: Database["public"]["Enums"]["benefit_category"]
+          category_id?: string | null
           collaborator_id?: string
           created_at?: string
           id?: string
@@ -454,6 +457,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "benefit_balances_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "benefit_balances_collaborator_id_fkey"
             columns: ["collaborator_id"]
@@ -466,6 +476,119 @@ export type Database = {
             columns: ["collaborator_id"]
             isOneToOne: false
             referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      benefit_categories: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          icon: string | null
+          id: string
+          label_en: string
+          label_pt: string
+          legacy_enum: Database["public"]["Enums"]["benefit_category"] | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          label_en: string
+          label_pt: string
+          legacy_enum?: Database["public"]["Enums"]["benefit_category"] | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          label_en?: string
+          label_pt?: string
+          legacy_enum?: Database["public"]["Enums"]["benefit_category"] | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      benefit_category_legacy_aliases: {
+        Row: {
+          category_id: string
+          legacy_enum: Database["public"]["Enums"]["benefit_category"]
+        }
+        Insert: {
+          category_id: string
+          legacy_enum: Database["public"]["Enums"]["benefit_category"]
+        }
+        Update: {
+          category_id?: string
+          legacy_enum?: Database["public"]["Enums"]["benefit_category"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_category_legacy_aliases_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      benefit_expense_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_type: string
+          expense_id: string
+          from_status: Database["public"]["Enums"]["expense_status"] | null
+          id: string
+          metadata: Json | null
+          notes: string | null
+          to_status: Database["public"]["Enums"]["expense_status"] | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_type: string
+          expense_id: string
+          from_status?: Database["public"]["Enums"]["expense_status"] | null
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          to_status?: Database["public"]["Enums"]["expense_status"] | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_type?: string
+          expense_id?: string
+          from_status?: Database["public"]["Enums"]["expense_status"] | null
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          to_status?: Database["public"]["Enums"]["expense_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_expense_events_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expense_events_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_expenses_v"
             referencedColumns: ["id"]
           },
         ]
@@ -476,6 +599,7 @@ export type Database = {
           aprovado_em: string | null
           aprovado_por: string | null
           categoria: Database["public"]["Enums"]["benefit_category"]
+          category_id: string | null
           collaborator_id: string
           created_at: string
           data_despesa: string
@@ -486,6 +610,7 @@ export type Database = {
           notas_aprovacao: string | null
           notas_colaborador: string | null
           pago_em: string | null
+          pago_por: string | null
           updated_at: string
           valor: number
         }
@@ -494,6 +619,7 @@ export type Database = {
           aprovado_em?: string | null
           aprovado_por?: string | null
           categoria: Database["public"]["Enums"]["benefit_category"]
+          category_id?: string | null
           collaborator_id: string
           created_at?: string
           data_despesa: string
@@ -504,6 +630,7 @@ export type Database = {
           notas_aprovacao?: string | null
           notas_colaborador?: string | null
           pago_em?: string | null
+          pago_por?: string | null
           updated_at?: string
           valor: number
         }
@@ -512,6 +639,7 @@ export type Database = {
           aprovado_em?: string | null
           aprovado_por?: string | null
           categoria?: Database["public"]["Enums"]["benefit_category"]
+          category_id?: string | null
           collaborator_id?: string
           created_at?: string
           data_despesa?: string
@@ -522,10 +650,18 @@ export type Database = {
           notas_aprovacao?: string | null
           notas_colaborador?: string | null
           pago_em?: string | null
+          pago_por?: string | null
           updated_at?: string
           valor?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "benefit_expenses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "benefit_expenses_collaborator_id_fkey"
             columns: ["collaborator_id"]
@@ -542,10 +678,53 @@ export type Database = {
           },
         ]
       }
+      benefit_notification_queue: {
+        Row: {
+          audience: string
+          created_at: string
+          event: string
+          expense_id: string
+          id: string
+          processed_at: string | null
+        }
+        Insert: {
+          audience?: string
+          created_at?: string
+          event: string
+          expense_id: string
+          id?: string
+          processed_at?: string | null
+        }
+        Update: {
+          audience?: string
+          created_at?: string
+          event?: string
+          expense_id?: string
+          id?: string
+          processed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_notification_queue_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_notification_queue_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_expenses_v"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       benefit_yearly_credits: {
         Row: {
           ano_fiscal: number
           categoria: Database["public"]["Enums"]["benefit_category"]
+          category_id: string | null
           collaborator_id: string
           created_at: string
           id: string
@@ -556,6 +735,7 @@ export type Database = {
         Insert: {
           ano_fiscal: number
           categoria: Database["public"]["Enums"]["benefit_category"]
+          category_id?: string | null
           collaborator_id: string
           created_at?: string
           id?: string
@@ -566,6 +746,7 @@ export type Database = {
         Update: {
           ano_fiscal?: number
           categoria?: Database["public"]["Enums"]["benefit_category"]
+          category_id?: string | null
           collaborator_id?: string
           created_at?: string
           id?: string
@@ -574,6 +755,13 @@ export type Database = {
           valor?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "benefit_yearly_credits_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "benefit_yearly_credits_collaborator_id_fkey"
             columns: ["collaborator_id"]
@@ -4590,6 +4778,54 @@ export type Database = {
       }
     }
     Views: {
+      benefit_expenses_v: {
+        Row: {
+          ano_fiscal: number | null
+          aprovado_em: string | null
+          aprovado_por: string | null
+          categoria: Database["public"]["Enums"]["benefit_category"] | null
+          category_code: string | null
+          category_id: string | null
+          category_label_en: string | null
+          category_label_pt: string | null
+          collaborator_id: string | null
+          created_at: string | null
+          data_despesa: string | null
+          descricao: string | null
+          estado: Database["public"]["Enums"]["expense_status"] | null
+          foto_path: string | null
+          id: string | null
+          notas_aprovacao: string | null
+          notas_colaborador: string | null
+          pago_em: string | null
+          pago_por: string | null
+          updated_at: string | null
+          valor: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_expenses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expenses_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expenses_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collaborators_directory: {
         Row: {
           ano_fiscal: number | null
@@ -4874,6 +5110,43 @@ export type Database = {
       bank_import_undo: {
         Args: { _force?: boolean; _import_id: string; _reason?: string }
         Returns: Json
+      }
+      benefit_category_from_legacy: {
+        Args: { _legacy: Database["public"]["Enums"]["benefit_category"] }
+        Returns: string
+      }
+      benefit_expense_set_status: {
+        Args: {
+          _expense_id: string
+          _notes?: string
+          _to_status: Database["public"]["Enums"]["expense_status"]
+        }
+        Returns: {
+          ano_fiscal: number
+          aprovado_em: string | null
+          aprovado_por: string | null
+          categoria: Database["public"]["Enums"]["benefit_category"]
+          category_id: string | null
+          collaborator_id: string
+          created_at: string
+          data_despesa: string
+          descricao: string
+          estado: Database["public"]["Enums"]["expense_status"]
+          foto_path: string | null
+          id: string
+          notas_aprovacao: string | null
+          notas_colaborador: string | null
+          pago_em: string | null
+          pago_por: string | null
+          updated_at: string
+          valor: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "benefit_expenses"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       can_approve_benefits: { Args: { _user_id: string }; Returns: boolean }
       delete_project_hard:
