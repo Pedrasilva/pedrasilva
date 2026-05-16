@@ -1046,6 +1046,8 @@ function ManagementView({
   onInvalidate: () => void;
   hideHeader?: boolean;
 }) {
+  const { t, i18n } = useTranslation(["hr"]);
+  const isEn = i18n.language?.startsWith("en");
   const { data: collaborators = [] } = useQuery({
     queryKey: ["collaborators", "active-mgmt"],
     queryFn: async () => {
