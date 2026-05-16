@@ -88,7 +88,7 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
           "id, description, due_date, actual_amount_inc_vat, amount_inc_vat, amount_ex_vat, source_ref_id",
         )
         .eq("source_ref_table", "benefit_expenses")
-        .eq("supplier_id", sup.id)
+        .eq("supplier_id", supId as unknown as string)
         .eq("status", "confirmed")
         .limit(500);
       if (feiErr) throw feiErr;
