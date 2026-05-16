@@ -264,18 +264,13 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
 
           {!isOutflow ? (
             <p className="text-sm text-muted-foreground">
-              {t("finance:bankRec.reimbursement.onlyOutflow", {
-                defaultValue: "Reimbursements are outflows. Pick a money-out transaction.",
-              })}
+              {t("finance:bankRec.reimbursement.onlyOutflow")}
             </p>
           ) : candidatesQ.isLoading ? (
             <p className="text-sm text-muted-foreground">{t("common:loading")}</p>
           ) : candidates.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {t("finance:bankRec.reimbursement.noCandidates", {
-                defaultValue:
-                  "No matching reimbursements (±0.50 €, ±30 days from this transaction).",
-              })}
+              {t("finance:bankRec.reimbursement.noCandidates")}
             </p>
           ) : (
             <div className="border rounded-md divide-y max-h-[420px] overflow-auto">
