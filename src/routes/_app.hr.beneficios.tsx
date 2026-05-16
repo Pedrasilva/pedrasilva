@@ -797,6 +797,7 @@ function ExpenseActions({
   isAdmin: boolean;
   onChanged: () => void;
 }) {
+  const { t } = useTranslation(["hr"]);
   const [loadingUrl, setLoadingUrl] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -812,7 +813,7 @@ function ExpenseActions({
       if (error) throw error;
       window.open(data.signedUrl, "_blank");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro ao abrir foto");
+      toast.error(e instanceof Error ? e.message : t("hr:beneficios.toasts.errors.openPhoto"));
     } finally {
       setLoadingUrl(false);
     }
@@ -836,7 +837,6 @@ function ExpenseActions({
     } catch {
       return;
     }
-
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData.session?.access_token;
@@ -851,14 +851,13 @@ function ExpenseActions({
     } catch {
       /* ignora */
     }
-
-    toast.success("Despesa aprovada — email enviado para contabilidade");
+    toast.success(t("hr:beneficios.toasts.approved"));
     onChanged();
   }
 
   async function confirmReject(reason: string) {
     await setStatus("rejeitada", reason);
-    toast.success("Despesa rejeitada — saldo devolvido");
+    toast.success(t("hr:beneficios.toasts.rejected"));
     onChanged();
   }
 
@@ -868,7 +867,7 @@ function ExpenseActions({
     } catch {
       return;
     }
-    toast.success("Marcada como paga");
+    toast.success(t("hr:beneficios.toasts.paid"));
     onChanged();
   }
 
@@ -883,37 +882,37 @@ function ExpenseActions({
       toast.error(error.message);
       throw error;
     }
-    toast.success("Despesa apagada");
+    toast.success(t("hr:beneficios.toasts.deleted"));
     onChanged();
   }
 
   return (
     <div className="flex items-center justify-end gap-1">
-      <Button size="sm" variant="ghost" onClick={() => setDetailOpen(true)} title="Detalhes">
+      <Button size="sm" variant="ghost" onClick={() => setDetailOpen(true)} title={t("hr:beneficios.actions.details")}>
         <Info className="h-4 w-4" />
       </Button>
       {expense.foto_path && (
-        <Button size="sm" variant="ghost" onClick={viewPhoto} disabled={loadingUrl} title="Ver factura">
+        <Button size="sm" variant="ghost" onClick={viewPhoto} disabled={loadingUrl} title={t("hr:beneficios.actions.viewReceipt")}>
           <FileImage className="h-4 w-4" />
         </Button>
       )}
       {isAdmin && expense.estado === "pendente" && (
         <>
-          <Button size="sm" variant="ghost" onClick={approve} title="Aprovar">
+          <Button size="sm" variant="ghost" onClick={approve} title={t("hr:beneficios.actions.approve")}>
             <Check className="h-4 w-4 text-emerald-600" />
           </Button>
-          <Button size="sm" variant="ghost" onClick={() => setRejectOpen(true)} title="Rejeitar">
+          <Button size="sm" variant="ghost" onClick={() => setRejectOpen(true)} title={t("hr:beneficios.actions.reject")}>
             <X className="h-4 w-4 text-rose-600" />
           </Button>
         </>
       )}
       {isAdmin && expense.estado === "aprovada" && (
-        <Button size="sm" variant="ghost" onClick={markPaid} title="Marcar como paga">
+        <Button size="sm" variant="ghost" onClick={markPaid} title={t("hr:beneficios.actions.markPaid")}>
           <BadgeEuro className="h-4 w-4 text-sky-600" />
         </Button>
       )}
       {(isAdmin || (canEdit && expense.estado === "pendente")) && (
-        <Button size="sm" variant="ghost" onClick={() => setDeleteOpen(true)} title="Apagar">
+        <Button size="sm" variant="ghost" onClick={() => setDeleteOpen(true)} title={t("hr:beneficios.actions.delete")}>
           <Trash2 className="h-4 w-4 text-rose-600" />
         </Button>
       )}
@@ -930,41 +929,41 @@ function ExpenseActions({
         onConfirm={remove}
         description={
           expense.estado === "pendente"
-            ? "Esta acção é permanente. A despesa pendente e a respectiva factura serão removidas."
-            : "Esta acção é permanente. A despesa e a respectiva factura serão removidas."
+            ? t("hr:beneficios.delete.descriptionPending")
+            : t("hr:beneficios.delete.descriptionGeneric")
         }
       />
 
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Detalhes da despesa</DialogTitle>
+            <DialogTitle>{t("hr:beneficios.detail.title")}</DialogTitle>
             <DialogDescription>
               {expenseCategoryLabel(expense)} · {fmtEUR(Number(expense.valor))} ·{" "}
               <Badge variant="outline" className={cn("border", STATUS_COLORS[expense.estado])}>
-                {STATUS_LABELS[expense.estado]}
+                {t(`hr:beneficios.status.${expense.estado}`)}
               </Badge>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 text-sm">
             <div>
-              <div className="text-xs text-muted-foreground">Descrição</div>
+              <div className="text-xs text-muted-foreground">{t("hr:beneficios.detail.description")}</div>
               <div>{expense.descricao}</div>
             </div>
             {expense.notas_colaborador && (
               <div>
-                <div className="text-xs text-muted-foreground">Notas do colaborador</div>
+                <div className="text-xs text-muted-foreground">{t("hr:beneficios.detail.collaboratorNotes")}</div>
                 <div className="whitespace-pre-wrap">{expense.notas_colaborador}</div>
               </div>
             )}
             {expense.notas_aprovacao && (
               <div>
-                <div className="text-xs text-muted-foreground">Notas de aprovação</div>
+                <div className="text-xs text-muted-foreground">{t("hr:beneficios.detail.approvalNotes")}</div>
                 <div className="whitespace-pre-wrap">{expense.notas_aprovacao}</div>
               </div>
             )}
             <div className="border-t pt-3">
-              <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Histórico</div>
+              <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t("hr:beneficios.detail.history")}</div>
               <BenefitExpenseTimeline expenseId={expense.id} />
             </div>
           </div>
