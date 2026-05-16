@@ -164,6 +164,31 @@ function AdminPage() {
     },
   });
 
+  const setPendingPermission = useMutation({
+    mutationFn: async ({
+      email,
+      key,
+      granted,
+    }: {
+      email: string;
+      key: PermissionKey;
+      granted: boolean;
+    }) => {
+      const { error } = await (supabase.rpc as unknown as (
+        fn: string,
+        args: Record<string, unknown>,
+      ) => Promise<{ error: Error | null }>)("set_pending_permission", {
+        _email: email,
+        _key: key,
+        _granted: granted,
+      });
+      if (error) throw error;
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ["admin-users-with-permissions"] });
+    },
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -199,9 +224,20 @@ function AdminPage() {
             users={users}
             isLoading={isLoading}
             onSave={async (changes) => {
-              // changes: { userId, key, granted }[]
               for (const c of changes) {
-                await setPermission.mutateAsync(c);
+                if (c.pending) {
+                  await setPendingPermission.mutateAsync({
+                    email: c.email,
+                    key: c.key,
+                    granted: c.granted,
+                  });
+                } else {
+                  await setPermission.mutateAsync({
+                    userId: c.userId,
+                    key: c.key,
+                    granted: c.granted,
+                  });
+                }
               }
             }}
           />
