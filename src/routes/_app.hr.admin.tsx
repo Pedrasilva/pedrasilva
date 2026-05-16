@@ -72,6 +72,7 @@ type UserRow = {
   collaborator_id: string | null;
   collaborator_nome: string | null;
   permissions: PermissionKey[];
+  pending?: boolean;
 };
 
 export const Route = createFileRoute("/_app/hr/admin")({
@@ -163,6 +164,31 @@ function AdminPage() {
     },
   });
 
+  const setPendingPermission = useMutation({
+    mutationFn: async ({
+      email,
+      key,
+      granted,
+    }: {
+      email: string;
+      key: PermissionKey;
+      granted: boolean;
+    }) => {
+      const { error } = await (supabase.rpc as unknown as (
+        fn: string,
+        args: Record<string, unknown>,
+      ) => Promise<{ error: Error | null }>)("set_pending_permission", {
+        _email: email,
+        _key: key,
+        _granted: granted,
+      });
+      if (error) throw error;
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ["admin-users-with-permissions"] });
+    },
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -198,9 +224,20 @@ function AdminPage() {
             users={users}
             isLoading={isLoading}
             onSave={async (changes) => {
-              // changes: { userId, key, granted }[]
               for (const c of changes) {
-                await setPermission.mutateAsync(c);
+                if (c.pending) {
+                  await setPendingPermission.mutateAsync({
+                    email: c.email,
+                    key: c.key,
+                    granted: c.granted,
+                  });
+                } else {
+                  await setPermission.mutateAsync({
+                    userId: c.userId,
+                    key: c.key,
+                    granted: c.granted,
+                  });
+                }
               }
             }}
           />
@@ -312,7 +349,13 @@ function PermissionsMatrix({
   users: UserRow[];
   isLoading: boolean;
   onSave: (
-    changes: { userId: string; key: PermissionKey; granted: boolean }[],
+    changes: {
+      userId: string;
+      email: string;
+      pending: boolean;
+      key: PermissionKey;
+      granted: boolean;
+    }[],
   ) => Promise<void>;
 }) {
   const [filter, setFilter] = useState("");
@@ -361,13 +404,25 @@ function PermissionsMatrix({
   };
 
   const pendingChanges = useMemo(() => {
-    const list: { userId: string; key: PermissionKey; granted: boolean }[] = [];
+    const list: {
+      userId: string;
+      email: string;
+      pending: boolean;
+      key: PermissionKey;
+      granted: boolean;
+    }[] = [];
     for (const u of users) {
       for (const g of PERMISSION_GROUPS) {
         for (const item of g.items) {
           const k = `${u.user_id}::${item.key}`;
           if (k in edits && edits[k] !== u.permissions.includes(item.key)) {
-            list.push({ userId: u.user_id, key: item.key, granted: edits[k] });
+            list.push({
+              userId: u.user_id,
+              email: u.email,
+              pending: !!u.pending,
+              key: item.key,
+              granted: edits[k],
+            });
           }
         }
       }
@@ -522,10 +577,19 @@ function PermissionsMatrix({
                             <span className="truncate">
                               {u.collaborator_nome ?? u.email}
                             </span>
+                            {u.pending && (
+                              <Badge
+                                variant="outline"
+                                className="shrink-0 border-amber-500/40 bg-amber-500/10 text-[10px] font-normal text-amber-700 dark:text-amber-300"
+                              >
+                                por convidar
+                              </Badge>
+                            )}
                           </div>
                           <div className="text-[11px] text-muted-foreground truncate">
                             {u.collaborator_nome ? u.email : "sem ficha"}
                             {u.is_admin && " · admin"}
+                            {u.pending && " · sem acesso ainda"}
                           </div>
                         </div>
                         {isRealAdmin && u.user_id !== currentUser?.id && u.collaborator_id && (

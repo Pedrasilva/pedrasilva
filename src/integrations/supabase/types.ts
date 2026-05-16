@@ -2475,6 +2475,24 @@ export type Database = {
           },
         ]
       }
+      pending_user_permissions: {
+        Row: {
+          created_at: string
+          email: string
+          permission_key: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          permission_key: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          permission_key?: string
+        }
+        Relationships: []
+      }
       pm_activities: {
         Row: {
           author_resource_id: string | null
@@ -4920,6 +4938,7 @@ export type Database = {
           email: string
           is_admin: boolean
           is_super_admin: boolean
+          pending: boolean
           permissions: string[]
           user_id: string
         }[]
@@ -4969,6 +4988,10 @@ export type Database = {
         Returns: Json
       }
       reset_project_test_data: { Args: { _confirm: string }; Returns: Json }
+      set_pending_permission: {
+        Args: { _email: string; _granted: boolean; _key: string }
+        Returns: undefined
+      }
       set_user_admin: {
         Args: { _is_admin: boolean; _user_id: string }
         Returns: undefined
