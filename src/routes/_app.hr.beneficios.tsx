@@ -1131,7 +1131,20 @@ function ManagementView({
         years={years}
         showChips
         onExportCsv={() =>
-          exportExpensesCsv(filtered, `beneficios-gestao-${filters.year}.csv`)
+          exportExpensesCsv(filtered, `beneficios-gestao-${filters.year}.csv`, {
+            headers: [
+              t("hr:beneficios.csv.headers.date"),
+              t("hr:beneficios.csv.headers.category"),
+              t("hr:beneficios.csv.headers.description"),
+              t("hr:beneficios.csv.headers.amountEur"),
+              t("hr:beneficios.csv.headers.status"),
+              t("hr:beneficios.csv.headers.collaboratorNotes"),
+              t("hr:beneficios.csv.headers.approvalNotes"),
+            ],
+            status: (s: ExpenseStatus) => t(`hr:beneficios.status.${s}`),
+            categoryLabel: (e: BenefitExpenseRow) =>
+              expenseCategoryLabel(e, isEn ? "en" : "pt"),
+          })
         }
         exportDisabled={filtered.length === 0}
       />
