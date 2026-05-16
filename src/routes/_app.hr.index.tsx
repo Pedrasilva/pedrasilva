@@ -42,6 +42,7 @@ function HrDashboard() {
   const m = metricsQ.data;
 
   return (
+    <TooltipProvider delayDuration={200}>
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-semibold">{t("dashboard.title")}</h1>
