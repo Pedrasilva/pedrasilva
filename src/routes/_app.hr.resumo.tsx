@@ -13,6 +13,12 @@ import { computeValorBO } from "./_app.hr.valor-bo";
 import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
 import { computeCollaboratorFte, effectiveDailyHours } from "@/lib/hr/fte";
 import {
+  computeWeeklyCapacity,
+  computeRecoverableHours,
+  formatChargeabilityPct,
+  formatHoursPerWeek,
+} from "@/lib/hr/chargeability";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -335,6 +341,11 @@ function ResumoPage() {
             title={t("hr:landing.departments.project")}
             rows={projecto}
             totalLabel={t("hr:resumo.rhTable.totals.production")}
+          />
+
+          <CapacityOverviewTable
+            rows={[...projecto, ...backoffice]}
+            standardDailyHours={horasDia}
           />
 
           <PricingTable
