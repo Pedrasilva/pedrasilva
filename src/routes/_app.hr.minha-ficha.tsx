@@ -140,6 +140,9 @@ function MinhaFichaPage() {
         </CardHeader>
       </Card>
 
+      {/* Atalhos: Férias + Benefícios */}
+      <QuickLinks collaborator={collaborator} />
+
       {loadingSnaps ? (
         <div className="text-sm text-muted-foreground">
           {t("hr:myProfile.loadingSnapshots")}
