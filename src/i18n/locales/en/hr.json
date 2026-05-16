@@ -349,7 +349,7 @@
       "description": "Sum of the base salary for all team members ({{withProposal}} of {{total}} with a proposed snapshot). Members without a proposal count with the current value. Annual = base × 14 months.",
       "currentMonthly": "Monthly base — current",
       "proposedMonthly": "Monthly base — proposed",
-      "monthlyIncrease": "Monthly increase",
+      "monthlyIncrease": "Monthly increase (base only)",
       "annualPrefix": "Annual: {{value}}",
       "annualX14Prefix": "Annual (×14): {{value}}"
     },
@@ -360,7 +360,7 @@
       "proposedAnnual": "Proposed annual cost",
       "additionalAnnual": "Additional annual cost",
       "vsCurrent": "vs current",
-      "monthlyEquivalent": "Monthly equivalent: {{value}} / month",
+      "monthlyEquivalent": "Monthly equivalent (total cost): {{value}} / month — includes employer SS, allowances and annualized benefits, so it's higher than the base-only increase.",
       "infoTooltip": "Includes, per team member: base salary (×14, 13 or 12 depending on the mode), employer Social Security (23.75%), meal allowance, per diems, transit pass and annual benefits (car, ticket, bonus, retirement plan, variable bonus, others). Does NOT include employee Social Security (11%) or income tax — those are deductions already contained in the gross the company pays."
     },
     "table": {
