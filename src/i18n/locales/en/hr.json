@@ -189,7 +189,10 @@
         "mealAllowanceMonthly": "+ Meal allowance (monthly)",
         "perDiemMonthly": "+ Per diem allowances (monthly)",
         "totalNetMonthly": "= Total monthly net",
-        "benefitsMonthly": "+ Benefits (monthly average: car + voucher + bonus + others)"
+        "benefitsMonthly": "+ Benefits (monthly average: car + voucher + bonus + others)",
+        "benefitsMonthlyGuaranteed": "+ Guaranteed benefits (monthly average: car + voucher + bonus + others + retirement plan)",
+        "bonusAnnualPotential": "+ Potential annual bonus (not guaranteed) — {{amount}} if awarded",
+        "bonusMonthlyEquivalent": "{{amount}} /mo equivalent"
       },
       "composition": {
         "annualTitle": "Annual composition",
