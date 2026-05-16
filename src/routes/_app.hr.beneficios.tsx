@@ -73,6 +73,7 @@ import {
 } from "@/lib/benefits";
 import { cn } from "@/lib/utils";
 import { BenefitExpenseTimeline } from "@/components/hr/BenefitExpenseTimeline";
+import { RejectExpenseDialog } from "@/components/hr/RejectExpenseDialog";
 
 // As novas tabelas ainda não estão totalmente nos types — usamos `as any` pontualmente.
 // É seguro porque as RLS policies controlam o acesso.
