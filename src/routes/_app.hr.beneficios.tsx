@@ -719,7 +719,7 @@ function ExpensesTable({
   collaboratorsById,
   onChanged,
 }: {
-  expenses: (BenefitExpense & { collaborator?: { nome: string } })[];
+  expenses: BenefitExpenseRow[];
   canEdit: boolean;
   isAdmin: boolean;
   showCollaborator?: boolean;
@@ -762,7 +762,11 @@ function ExpensesTable({
                     {collaboratorsById?.[e.collaborator_id]?.nome ?? "—"}
                   </TableCell>
                 )}
-                <TableCell className="text-sm">{CATEGORY_LABELS[e.categoria]}</TableCell>
+                <TableCell className="text-sm">
+                  <Badge variant="outline" className="font-normal">
+                    {expenseCategoryLabel(e)}
+                  </Badge>
+                </TableCell>
                 <TableCell className="max-w-[280px] truncate text-sm" title={e.descricao}>
                   {e.descricao}
                 </TableCell>
