@@ -349,7 +349,13 @@ function PermissionsMatrix({
   users: UserRow[];
   isLoading: boolean;
   onSave: (
-    changes: { userId: string; key: PermissionKey; granted: boolean }[],
+    changes: {
+      userId: string;
+      email: string;
+      pending: boolean;
+      key: PermissionKey;
+      granted: boolean;
+    }[],
   ) => Promise<void>;
 }) {
   const [filter, setFilter] = useState("");
