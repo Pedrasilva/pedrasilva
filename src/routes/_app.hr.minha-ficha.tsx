@@ -25,7 +25,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ValueChainSummary } from "@/components/snapshot/ValueChainSummary";
 import { LiquidoTab } from "@/components/snapshot/LiquidoTab";
 import { BrutoTab } from "@/components/snapshot/BrutoTab";
-import { CircleAlert, FileText } from "lucide-react";
+import { CircleAlert, FileText, CalendarDays, Wallet, ArrowRight } from "lucide-react";
+import { balanceByCategory, type BenefitBalance, type BenefitExpense, type BenefitYearlyCredit } from "@/lib/benefits";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const sb = supabase as any;
 
 export const Route = createFileRoute("/_app/hr/minha-ficha")({
   component: MinhaFichaPage,
