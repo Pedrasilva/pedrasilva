@@ -354,13 +354,14 @@
       "annualX14Prefix": "Annual (×14): {{value}}"
     },
     "brutoGlobal": {
-      "title": "Global annual gross — Current vs Proposed",
-      "description": "Sum of the annual gross for all team members ({{withProposal}} of {{total}} with a proposed snapshot). Members without a proposal count with the current value.",
-      "currentAnnual": "Current annual gross",
-      "proposedAnnual": "Proposed annual gross",
+      "title": "Total annual collaborator cost — Current vs Proposed",
+      "description": "Sum of the annual gross cost for all team members ({{withProposal}} of {{total}} with a proposed snapshot). Members without a proposal count with the current value.",
+      "currentAnnual": "Current annual cost",
+      "proposedAnnual": "Proposed annual cost",
       "additionalAnnual": "Additional annual cost",
       "vsCurrent": "vs current",
-      "monthlyEquivalent": "Monthly equivalent: {{value}} / month"
+      "monthlyEquivalent": "Monthly equivalent: {{value}} / month",
+      "infoTooltip": "Includes, per team member: base salary (×14, 13 or 12 depending on the mode), employer Social Security (23.75%), meal allowance, per diems, transit pass and annual benefits (car, ticket, bonus, retirement plan, variable bonus, others). Does NOT include employee Social Security (11%) or income tax — those are deductions already contained in the gross the company pays."
     },
     "table": {
       "collaborator": "Team member",
