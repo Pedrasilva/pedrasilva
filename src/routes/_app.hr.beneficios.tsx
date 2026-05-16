@@ -114,14 +114,15 @@ function BeneficiosPage() {
   const { isAdmin } = useAuth();
   const { permissions } = useMyPermissions();
   const canApprove = permissions.has("hr.beneficios.approve");
+  const { t } = useTranslation(["hr"]);
 
   if (isAdmin) return <AdminView />;
   if (canApprove) {
     return (
       <Tabs defaultValue="mine" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="mine">Os meus benefícios</TabsTrigger>
-          <TabsTrigger value="approvals">Aprovações</TabsTrigger>
+          <TabsTrigger value="mine">{t("hr:beneficios.tabs.mine")}</TabsTrigger>
+          <TabsTrigger value="approvals">{t("hr:beneficios.tabs.approvals")}</TabsTrigger>
         </TabsList>
         <TabsContent value="mine" className="space-y-6">
           <CollaboratorView />
