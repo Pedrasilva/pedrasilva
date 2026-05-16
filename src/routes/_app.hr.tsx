@@ -99,7 +99,7 @@ function HrLayout() {
             label: t("nav.benefits"),
             icon: Wallet,
             match: (p) => p.startsWith("/hr/beneficios"),
-            show: can("hr.beneficios.own"),
+            show: canOwn("hr.beneficios.own"),
           },
           {
             to: "/hr/subsidio-alimentacao",
