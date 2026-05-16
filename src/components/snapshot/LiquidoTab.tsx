@@ -101,7 +101,7 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
       accent: true,
     },
     {
-      label: "+ Benefícios garantidos (média mensal: carro + ticket + prémio + outros + plano reforma)",
+      label: t("snapshot.liquido.rows.benefitsMonthlyGuaranteed"),
       value: c.beneficiosMensalGarantido,
       muted: true,
     },
@@ -109,10 +109,10 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
 
   if ((c.bonusVariavelAnual ?? 0) > 0.005) {
     rows.push({
-      label: `+ Bónus anual potencial (não garantido) — ${fmtEUR(c.bonusVariavelAnual)} se atribuído`,
+      label: t("snapshot.liquido.rows.bonusAnnualPotential", { amount: fmtEUR(c.bonusVariavelAnual) }),
       value: c.bonusVariavelAnual / 12,
       muted: true,
-      raw: `${fmtEUR(c.bonusVariavelAnual / 12)} /mês equivalente`,
+      raw: t("snapshot.liquido.rows.bonusMonthlyEquivalent", { amount: fmtEUR(c.bonusVariavelAnual / 12) }),
     });
   }
   return (
