@@ -50,8 +50,6 @@ import {
   Trash2,
   FileImage,
   Settings2,
-  Search,
-  Download,
   Info,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -73,6 +71,8 @@ import {
 import { cn } from "@/lib/utils";
 import { BenefitExpenseTimeline } from "@/components/hr/BenefitExpenseTimeline";
 import { RejectExpenseDialog } from "@/components/hr/RejectExpenseDialog";
+import { DeleteExpenseDialog } from "@/components/hr/DeleteExpenseDialog";
+import { ExpenseFilterBar, type ExpenseFilterState } from "@/components/hr/ExpenseFilterBar";
 
 // As novas tabelas ainda não estão totalmente nos types — usamos `as any` pontualmente.
 // É seguro porque as RLS policies controlam o acesso.
