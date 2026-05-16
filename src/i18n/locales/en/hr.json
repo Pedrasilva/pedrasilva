@@ -10,7 +10,14 @@
       "pendingReimbursements": "Pending reimbursements",
       "approvedUnpaidReimb": "Approved unpaid",
       "monthlyPayroll": "Monthly payroll",
-      "workingDaysMonth": "Working days this month"
+      "workingDaysMonth": "Working days this month",
+      "activeCollaboratorsHint": "Collaborators not archived.",
+      "onLeaveTodayHint": "Approved vacation periods covering today.",
+      "pendingReimbursementsHint": "Benefit expenses awaiting HR approval.",
+      "upcomingLeave30Hint": "Approved leave starting in the next 30 days.",
+      "monthlyPayrollHint": "Sum of effective base salaries (gross).",
+      "approvedUnpaidReimbHint": "Approved liabilities not yet paid by Finance.",
+      "workingDaysMonthHint": "Weekdays this month minus public holidays."
     },
     "alerts": {
       "title": "Action required",
@@ -46,14 +53,20 @@
       "missingSalary": {
         "title": "Collaborators without salary snapshot",
         "body": "{{count}} active collaborator(s) missing salary data."
-      }
+      },
+      "allClear": "Nothing requiring attention right now."
     },
     "capacity": {
       "title": "Team capacity",
       "current": "On leave today",
       "next14": "On leave next 14 days",
       "overlaps": "Overlapping leave days",
-      "empty": "No upcoming leave in the window."
+      "empty": "No upcoming leave in the window.",
+      "tabs": {
+        "today": "Today",
+        "next14": "Next 14 days"
+      },
+      "emptyToday": "No one on leave today."
     },
     "activity": {
       "title": "Recent activity",
@@ -63,8 +76,16 @@
         "vacation_approved": "vacation approved",
         "vacation_rejected": "vacation rejected",
         "collaborator_created": "collaborator added",
-        "collaborator_archived": "collaborator archived"
-      }
+        "collaborator_archived": "collaborator archived",
+        "benefit_submitted": "submitted reimbursement",
+        "benefit_approved": "reimbursement approved",
+        "benefit_rejected": "reimbursement rejected",
+        "benefit_paid": "reimbursement paid",
+        "benefit_finance_paid": "settled by Finance",
+        "benefit_sync_failed": "Finance → HR sync failed"
+      },
+      "today": "Today",
+      "yesterday": "Yesterday"
     }
   },
   "module": {

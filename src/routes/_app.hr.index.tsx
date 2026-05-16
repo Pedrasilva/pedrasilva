@@ -48,12 +48,14 @@ function HrDashboard() {
       </header>
 
       {/* KPI strip */}
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         <HrKpiCard
           label={t("dashboard.kpi.activeCollaborators")}
           value={m?.activeCollaborators ?? 0}
           icon={Users}
           loading={metricsQ.isLoading}
+          href="/hr/colaboradores"
+          hint={t("dashboard.kpi.activeCollaboratorsHint")}
         />
         <HrKpiCard
           label={t("dashboard.kpi.onLeaveToday")}
@@ -61,6 +63,8 @@ function HrDashboard() {
           icon={Plane}
           loading={metricsQ.isLoading}
           tone={(m?.onLeaveToday ?? 0) > 0 ? "warning" : "default"}
+          href="/hr/ferias"
+          hint={t("dashboard.kpi.onLeaveTodayHint")}
         />
         <HrKpiCard
           label={t("dashboard.kpi.pendingReimbursements")}
@@ -68,12 +72,16 @@ function HrDashboard() {
           icon={ClipboardCheck}
           loading={metricsQ.isLoading}
           tone={(m?.pendingReimbursementApprovals ?? 0) > 0 ? "warning" : "default"}
+          href="/hr/beneficios"
+          hint={t("dashboard.kpi.pendingReimbursementsHint")}
         />
         <HrKpiCard
           label={t("dashboard.kpi.upcomingLeave30")}
           value={m?.upcomingLeaveNext30 ?? 0}
           icon={CalendarRange}
           loading={metricsQ.isLoading}
+          href="/hr/ferias"
+          hint={t("dashboard.kpi.upcomingLeave30Hint")}
         />
 
         {/* Finance-gated row */}
@@ -83,6 +91,7 @@ function HrDashboard() {
           icon={Wallet}
           loading={metricsQ.isLoading}
           hidden={!canFinance}
+          hint={t("dashboard.kpi.monthlyPayrollHint")}
         />
         <HrKpiCard
           label={t("dashboard.kpi.approvedUnpaidReimb")}
@@ -96,6 +105,8 @@ function HrDashboard() {
           loading={metricsQ.isLoading}
           hidden={!canFinance}
           tone={(m?.approvedUnpaidReimbursements ?? 0) > 0 ? "warning" : "default"}
+          href="/hr/beneficios"
+          hint={t("dashboard.kpi.approvedUnpaidReimbHint")}
         />
         <HrKpiCard
           label={t("dashboard.kpi.workingDaysMonth")}
@@ -103,6 +114,7 @@ function HrDashboard() {
           icon={CalendarCheck}
           loading={metricsQ.isLoading}
           hidden={!canFinance}
+          hint={t("dashboard.kpi.workingDaysMonthHint")}
         />
         <HrKpiCard
           label={t("dashboard.kpi.archived")}
