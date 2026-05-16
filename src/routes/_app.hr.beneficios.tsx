@@ -495,6 +495,8 @@ function SubmitExpenseDialog({
   categories: BenefitCategoryRow[];
   onCreated: () => void;
 }) {
+  const { t, i18n } = useTranslation(["hr"]);
+  const isEn = i18n.language?.startsWith("en");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     categoryId: "",
@@ -524,10 +526,10 @@ function SubmitExpenseDialog({
   const excede = restante != null && valorNum > restante;
 
   async function submit() {
-    if (!selectedCategory) return toast.error("Escolha uma categoria");
-    if (!form.descricao.trim()) return toast.error("Descrição obrigatória");
-    if (valorNum <= 0) return toast.error("Valor inválido");
-    if (!file) return toast.error("Anexe a foto/factura");
+    if (!selectedCategory) return toast.error(t("hr:beneficios.toasts.errors.categoryRequired"));
+    if (!form.descricao.trim()) return toast.error(t("hr:beneficios.toasts.errors.descriptionRequired"));
+    if (valorNum <= 0) return toast.error(t("hr:beneficios.toasts.errors.invalidAmount"));
+    if (!file) return toast.error(t("hr:beneficios.toasts.errors.receiptRequired"));
 
     setSubmitting(true);
     try {
@@ -553,12 +555,12 @@ function SubmitExpenseDialog({
       });
       if (error) throw error;
 
-      toast.success("Despesa submetida — aguarda aprovação");
+      toast.success(t("hr:beneficios.toasts.submitted"));
       reset();
       setOpen(false);
       onCreated();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro ao submeter");
+      toast.error(e instanceof Error ? e.message : t("hr:beneficios.toasts.errors.submit"));
     } finally {
       setSubmitting(false);
     }
@@ -574,39 +576,39 @@ function SubmitExpenseDialog({
     >
       <DialogTrigger asChild>
         <Button>
-          <Plus className="h-4 w-4" /> Submeter despesa
+          <Plus className="h-4 w-4" /> {t("hr:beneficios.submit.button")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Nova despesa</DialogTitle>
-          <DialogDescription>
-            Anexe a foto da factura e indique a categoria do benefício.
-          </DialogDescription>
+          <DialogTitle>{t("hr:beneficios.submit.dialogTitle")}</DialogTitle>
+          <DialogDescription>{t("hr:beneficios.submit.dialogDescription")}</DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2 space-y-1.5">
-            <Label>Categoria *</Label>
+            <Label>{t("hr:beneficios.submit.category")} *</Label>
             <Select
               value={form.categoryId}
               onValueChange={(v) => setForm((f) => ({ ...f, categoryId: v }))}
             >
               <SelectTrigger className="input-yellow">
-                <SelectValue placeholder="Escolha…" />
+                <SelectValue placeholder={t("hr:beneficios.submit.categoryPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 {categories.length === 0 ? (
                   <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                    Sem categorias activas
+                    {t("hr:beneficios.empty.noExpenses")}
                   </div>
                 ) : (
                   categories.map((c) => {
                     const av = c.legacy_enum ? balance[c.legacy_enum].disponivel : null;
                     return (
                       <SelectItem key={c.id} value={c.id}>
-                        {c.label_pt}
-                        {av != null ? ` — disponível ${fmtEUR(av)}` : ""}
+                        {isEn ? c.label_en : c.label_pt}
+                        {av != null
+                          ? ` — ${t("hr:beneficios.submit.categoryAvailable", { value: fmtEUR(av) })}`
+                          : ""}
                       </SelectItem>
                     );
                   })
@@ -616,17 +618,17 @@ function SubmitExpenseDialog({
           </div>
 
           <div className="sm:col-span-2 space-y-1.5">
-            <Label>Descrição *</Label>
+            <Label>{t("hr:beneficios.submit.description")} *</Label>
             <Input
               className="input-yellow"
-              placeholder="Ex: Combustível Galp 12/03"
+              placeholder={t("hr:beneficios.submit.descriptionPlaceholder")}
               value={form.descricao}
               onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))}
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label>Valor (€) *</Label>
+            <Label>{t("hr:beneficios.submit.amount")} *</Label>
             <Input
               className="input-yellow"
               inputMode="decimal"
@@ -641,14 +643,14 @@ function SubmitExpenseDialog({
                 )}
               >
                 {excede
-                  ? `Excede o disponível (${fmtEUR(restante)})`
-                  : `Disponível: ${fmtEUR(restante)}`}
+                  ? t("hr:beneficios.submit.exceeds", { value: fmtEUR(restante) })
+                  : t("hr:beneficios.submit.available", { value: fmtEUR(restante) })}
               </div>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <Label>Data da despesa *</Label>
+            <Label>{t("hr:beneficios.submit.date")} *</Label>
             <Input
               type="date"
               className="input-yellow"
@@ -658,7 +660,7 @@ function SubmitExpenseDialog({
           </div>
 
           <div className="sm:col-span-2 space-y-1.5">
-            <Label>Foto / factura *</Label>
+            <Label>{t("hr:beneficios.submit.receipt")} *</Label>
             <Input
               type="file"
               accept="image/*,application/pdf"
@@ -673,7 +675,7 @@ function SubmitExpenseDialog({
           </div>
 
           <div className="sm:col-span-2 space-y-1.5">
-            <Label>Notas (opcional)</Label>
+            <Label>{t("hr:beneficios.submit.notes")}</Label>
             <Textarea
               rows={2}
               value={form.notas_colaborador}
@@ -684,10 +686,10 @@ function SubmitExpenseDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => setOpen(false)}>
-            Cancelar
+            {t("hr:beneficios.submit.cancel")}
           </Button>
           <Button onClick={submit} disabled={submitting}>
-            {submitting ? "A submeter…" : "Submeter"}
+            {submitting ? t("hr:beneficios.submit.submitting") : t("hr:beneficios.submit.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>
