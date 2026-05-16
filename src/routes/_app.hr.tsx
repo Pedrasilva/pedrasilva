@@ -46,6 +46,10 @@ function HrLayout() {
   const [collapsed, setCollapsed] = useState(false);
 
   const can = (key: PermissionKey) => isAdmin || permissions.has(key);
+  // No "Modo colaborador" o admin não tem entradas em user_permissions; mostramos
+  // o que um colaborador veria por omissão.
+  const asCollab = isRealAdmin && !isAdmin;
+  const canOwn = (key: PermissionKey) => asCollab || can(key);
 
   const groups = useMemo<NavGroup[]>(
     () => [
