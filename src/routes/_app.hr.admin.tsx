@@ -577,10 +577,19 @@ function PermissionsMatrix({
                             <span className="truncate">
                               {u.collaborator_nome ?? u.email}
                             </span>
+                            {u.pending && (
+                              <Badge
+                                variant="outline"
+                                className="shrink-0 border-amber-500/40 bg-amber-500/10 text-[10px] font-normal text-amber-700 dark:text-amber-300"
+                              >
+                                por convidar
+                              </Badge>
+                            )}
                           </div>
                           <div className="text-[11px] text-muted-foreground truncate">
                             {u.collaborator_nome ? u.email : "sem ficha"}
                             {u.is_admin && " · admin"}
+                            {u.pending && " · sem acesso ainda"}
                           </div>
                         </div>
                         {isRealAdmin && u.user_id !== currentUser?.id && u.collaborator_id && (
