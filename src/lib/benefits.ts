@@ -154,6 +154,12 @@ export type BenefitExpenseRow = BenefitExpense & {
   category_code: string | null;
   category_label_pt: string | null;
   category_label_en: string | null;
+  // Phase 2b: read-only finance backlink (NULL until expense is approved)
+  finance_item_id: string | null;
+  finance_status: string | null;
+  finance_due_date: string | null;
+  finance_paid_date: string | null;
+  finance_period_id: string | null;
 };
 
 /** Label para mostrar uma despesa, preferindo a categoria nova. */
