@@ -35,11 +35,24 @@ export function computePricing(args: PricingInputs) {
   };
 }
 
+// BO overhead per Projecto collaborator.
+//
+// Historically this divided by raw `numColabProjecto` (headcount), which
+// over-allocated overhead to part-timers and under-allocated to full-timers.
+// When `fteTotalProjecto` is provided (sum of derived FTE units for Projecto
+// collaborators — see `computeCollaboratorFte`), it takes precedence and the
+// allocation becomes FTE-weighted: a 0.5 FTE absorbs half the overhead of a
+// 1.0 FTE. `numColabProjecto` remains the safe legacy fallback.
 export function cotaBoPorColabProjecto(args: {
   custosOperacionais: number;
   custoBackofficeVbg: number;
   numColabProjecto: number;
+  fteTotalProjecto?: number;
 }) {
-  if (args.numColabProjecto <= 0) return 0;
-  return (args.custosOperacionais + args.custoBackofficeVbg) / args.numColabProjecto;
+  const denom =
+    typeof args.fteTotalProjecto === "number" && args.fteTotalProjecto > 0
+      ? args.fteTotalProjecto
+      : args.numColabProjecto;
+  if (!denom || denom <= 0) return 0;
+  return (args.custosOperacionais + args.custoBackofficeVbg) / denom;
 }
