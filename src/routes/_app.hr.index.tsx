@@ -13,6 +13,7 @@ import { HrKpiCard } from "@/components/hr/dashboard/HrKpiCard";
 import { HrAlertList } from "@/components/hr/dashboard/HrAlertList";
 import { HrCapacityCard } from "@/components/hr/dashboard/HrCapacityCard";
 import { HrRecentActivityFeed } from "@/components/hr/dashboard/HrRecentActivityFeed";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const Route = createFileRoute("/_app/hr/")({
   component: HrDashboard,
@@ -41,6 +42,7 @@ function HrDashboard() {
   const m = metricsQ.data;
 
   return (
+    <TooltipProvider delayDuration={200}>
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-semibold">{t("dashboard.title")}</h1>
@@ -135,5 +137,6 @@ function HrDashboard() {
         <HrRecentActivityFeed items={activityQ.data} loading={activityQ.isLoading} />
       </section>
     </div>
+    </TooltipProvider>
   );
 }
