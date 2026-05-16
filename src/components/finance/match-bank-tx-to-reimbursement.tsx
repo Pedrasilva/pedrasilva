@@ -299,7 +299,6 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
                         {isPartial ? (
                           <Badge variant="secondary" className="text-[10px]">
                             {t("finance:bankRec.reimbursement.partial", {
-                              defaultValue: "Partial",
                               paid: fmtEUR(c.paid_so_far),
                             })}
                           </Badge>
@@ -314,7 +313,7 @@ export function MatchBankTxToReimbursementDialog({ tx, onClose, onMatched }: Pro
                       {settlingId === c.fei_id ? (
                         <Loader2 className="mr-2 size-3.5 animate-spin" />
                       ) : null}
-                      {t("finance:bankRec.reimbursement.settle", { defaultValue: "Settle" })}
+                      {t("finance:bankRec.reimbursement.settle")}
                     </Button>
                   </div>
                 );
