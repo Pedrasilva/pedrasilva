@@ -884,8 +884,13 @@ function ExpenseActions({
     onChanged();
   }
 
+  const [detailOpen, setDetailOpen] = useState(false);
+
   return (
     <div className="flex items-center justify-end gap-1">
+      <Button size="sm" variant="ghost" onClick={() => setDetailOpen(true)} title="Detalhes">
+        <Info className="h-4 w-4" />
+      </Button>
       {expense.foto_path && (
         <Button size="sm" variant="ghost" onClick={viewPhoto} disabled={loadingUrl} title="Ver factura">
           <FileImage className="h-4 w-4" />
@@ -911,6 +916,42 @@ function ExpenseActions({
           <Trash2 className="h-4 w-4 text-rose-600" />
         </Button>
       )}
+
+      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Detalhes da despesa</DialogTitle>
+            <DialogDescription>
+              {CATEGORY_LABELS[expense.categoria]} · {fmtEUR(Number(expense.valor))} ·{" "}
+              <Badge variant="outline" className={cn("border", STATUS_COLORS[expense.estado])}>
+                {STATUS_LABELS[expense.estado]}
+              </Badge>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 text-sm">
+            <div>
+              <div className="text-xs text-muted-foreground">Descrição</div>
+              <div>{expense.descricao}</div>
+            </div>
+            {expense.notas_colaborador && (
+              <div>
+                <div className="text-xs text-muted-foreground">Notas do colaborador</div>
+                <div className="whitespace-pre-wrap">{expense.notas_colaborador}</div>
+              </div>
+            )}
+            {expense.notas_aprovacao && (
+              <div>
+                <div className="text-xs text-muted-foreground">Notas de aprovação</div>
+                <div className="whitespace-pre-wrap">{expense.notas_aprovacao}</div>
+              </div>
+            )}
+            <div className="border-t pt-3">
+              <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Histórico</div>
+              <BenefitExpenseTimeline expenseId={expense.id} />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
