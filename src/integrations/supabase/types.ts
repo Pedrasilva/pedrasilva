@@ -5294,6 +5294,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      hr_dashboard_alerts_finance: { Args: never; Returns: Json }
       import_financial_data: {
         Args: {
           p_bank_accounts?: Json
