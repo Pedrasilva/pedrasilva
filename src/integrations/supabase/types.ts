@@ -5263,6 +5263,15 @@ export type Database = {
         Returns: string
       }
       finance_reset_test_data: { Args: { _confirm: string }; Returns: Json }
+      finance_settle_expense: {
+        Args: {
+          p_amount: number
+          p_bank_transaction_id: string
+          p_expense_item_id: string
+          p_payment_date: string
+        }
+        Returns: string
+      }
       financial_expense_payment_backfill_preview: { Args: never; Returns: Json }
       financial_expense_payment_backfill_run: { Args: never; Returns: Json }
       get_my_collaborator_id: { Args: never; Returns: string }
