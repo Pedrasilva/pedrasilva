@@ -116,9 +116,16 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
     accent: true,
   });
 
+  const ssTotalAnual = c.ssAtelierAnual + c.ssColaboradorAnual;
+  const ssTotalMensal = ssTotalAnual / 12;
+  const irsMensalEq = c.irsAnual / 12;
+  const baseLiquidaAnual = c.baseAnual - c.ssColaboradorAnual - c.irsAnual;
+  const baseLiquidaMensal = baseLiquidaAnual / 12;
+
   const annualSlices = [
-    { name: t("snapshot.bruto.composition.slices.baseAnnual"), value: c.baseMensal12 * 12, color: "var(--sage)" },
-    { name: t("snapshot.bruto.composition.slices.ssAtelier"), value: c.ssAtelier12 * 12, color: "var(--clay)" },
+    { name: t("snapshot.bruto.composition.slices.baseNetAnnual"), value: baseLiquidaAnual, color: "var(--sage)" },
+    { name: t("snapshot.bruto.composition.slices.ssTotal"), value: ssTotalAnual, color: "var(--clay)" },
+    { name: t("snapshot.bruto.composition.slices.incomeTaxAnnual"), value: c.irsAnual, color: "oklch(0.55 0.13 30)" },
     { name: t("snapshot.bruto.composition.slices.mealAllowance"), value: c.alimentacaoMensal * 12, color: "oklch(0.75 0.10 80)" },
     { name: t("snapshot.bruto.composition.slices.perDiem"), value: draft.ajudas_custo_anual, color: "oklch(0.65 0.13 50)" },
     { name: t("snapshot.bruto.composition.slices.transitPass"), value: c.passeAnual, color: "oklch(0.60 0.12 260)" },
@@ -126,8 +133,9 @@ export function BrutoTab({ draft }: { draft: Snapshot }) {
   ];
 
   const monthlySlices = [
-    { name: t("snapshot.bruto.composition.slices.baseMonthly"), value: c.baseMensal12, color: "var(--sage)" },
-    { name: t("snapshot.bruto.composition.slices.ssAtelier"), value: c.ssAtelier12, color: "var(--clay)" },
+    { name: t("snapshot.bruto.composition.slices.baseNetMonthly"), value: baseLiquidaMensal, color: "var(--sage)" },
+    { name: t("snapshot.bruto.composition.slices.ssTotal"), value: ssTotalMensal, color: "var(--clay)" },
+    { name: t("snapshot.bruto.composition.slices.incomeTaxMonthly"), value: irsMensalEq, color: "oklch(0.55 0.13 30)" },
     { name: t("snapshot.bruto.composition.slices.mealAllowance"), value: c.alimentacaoMensal, color: "oklch(0.75 0.10 80)" },
     { name: t("snapshot.bruto.composition.slices.perDiem"), value: c.ajudasMensal, color: "oklch(0.65 0.13 50)" },
     { name: t("snapshot.bruto.composition.slices.transitPass"), value: c.passeMensal, color: "oklch(0.60 0.12 260)" },
