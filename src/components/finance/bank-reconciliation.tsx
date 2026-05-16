@@ -656,6 +656,11 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
                               <DropdownMenuItem onClick={() => setClassifyTx(tx)}>
                                 {tx.status === "unclassified" ? t("finance:bankRec.actions.classify") : t("common:edit")}
                               </DropdownMenuItem>
+                              {tx.amount < 0 && (
+                                <DropdownMenuItem onClick={() => setMatchReimbTx(tx)}>
+                                  {t("finance:bankRec.actions.matchReimbursement", { defaultValue: "Match HR reimbursement" })}
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuSeparator />
                               {tx.status !== "internal_transfer" && (
                                 <DropdownMenuItem onClick={() => quickMarkStatus(tx, "internal_transfer")}>
