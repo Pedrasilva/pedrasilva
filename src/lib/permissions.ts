@@ -8,6 +8,7 @@ export type PermissionKey =
   | "hr.minha-ficha"
   | "hr.dias-uteis"
   | "hr.beneficios.own"
+  | "hr.beneficios.approve"
   | "hr.ferias.own"
   | "hr.colaboradores"
   | "hr.resumo"
