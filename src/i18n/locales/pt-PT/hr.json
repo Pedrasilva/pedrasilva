@@ -967,8 +967,22 @@
       "paid": "Paga",
       "reopened": "Reaberta",
       "edited": "Editada",
+      "finance_linked": "Ligada a Finanças",
+      "finance_cancelled": "Ligação a Finanças cancelada",
       "by": "por {{name}}",
       "system": "Sistema"
+    },
+    "finance": {
+      "label": "Finanças",
+      "notLinked": "sem ligação",
+      "due": "vence {{date}}",
+      "paid": "paga {{date}}",
+      "status": {
+        "projected": "projetada",
+        "confirmed": "confirmada",
+        "paid": "paga",
+        "cancelled": "cancelada"
+      }
     },
     "csv": {
       "headers": {

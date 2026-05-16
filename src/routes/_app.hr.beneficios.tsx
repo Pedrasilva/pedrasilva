@@ -700,6 +700,48 @@ function SubmitExpenseDialog({
 // =============================================================
 // Tabela de despesas (partilhada)
 // =============================================================
+function FinanceIndicator({
+  expense,
+  dateLocale,
+}: {
+  expense: BenefitExpenseRow;
+  dateLocale: string;
+}) {
+  const { t } = useTranslation(["hr"]);
+  // Only show finance info once the expense is past pending
+  if (expense.estado === "pendente") return null;
+
+  if (!expense.finance_item_id) {
+    if (expense.estado !== "aprovada" && expense.estado !== "paga") return null;
+    return (
+      <span className="text-[11px] text-muted-foreground">
+        {t("hr:beneficios.finance.label")}: {t("hr:beneficios.finance.notLinked")}
+      </span>
+    );
+  }
+
+  const statusKey = expense.finance_status ?? "confirmed";
+  const statusLabel = t(`hr:beneficios.finance.status.${statusKey}`, { defaultValue: statusKey });
+  const paid = expense.finance_paid_date
+    ? t("hr:beneficios.finance.paid", {
+        date: new Date(expense.finance_paid_date).toLocaleDateString(dateLocale),
+      })
+    : null;
+  const due = expense.finance_due_date
+    ? t("hr:beneficios.finance.due", {
+        date: new Date(expense.finance_due_date).toLocaleDateString(dateLocale),
+      })
+    : null;
+  const detail = paid ?? due;
+
+  return (
+    <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+      {t("hr:beneficios.finance.label")}: {statusLabel}
+      {detail ? ` · ${detail}` : ""}
+    </span>
+  );
+}
+
 function ExpensesTable({
   expenses,
   canEdit,
@@ -765,9 +807,12 @@ function ExpensesTable({
                 </TableCell>
                 <TableCell className="text-right font-medium">{fmtEUR(e.valor)}</TableCell>
                 <TableCell>
-                  <Badge variant="outline" className={cn("border whitespace-nowrap", STATUS_COLORS[e.estado])}>
-                    {t(`hr:beneficios.status.${e.estado}`)}
-                  </Badge>
+                  <div className="flex flex-col gap-1">
+                    <Badge variant="outline" className={cn("border whitespace-nowrap w-fit", STATUS_COLORS[e.estado])}>
+                      {t(`hr:beneficios.status.${e.estado}`)}
+                    </Badge>
+                    <FinanceIndicator expense={e} dateLocale={dateLocale} />
+                  </div>
                 </TableCell>
                 <TableCell className="text-right">
                   <ExpenseActions

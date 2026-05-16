@@ -967,8 +967,22 @@
       "paid": "Paid",
       "reopened": "Reopened",
       "edited": "Edited",
+      "finance_linked": "Linked to Finance",
+      "finance_cancelled": "Finance link cancelled",
       "by": "by {{name}}",
       "system": "System"
+    },
+    "finance": {
+      "label": "Finance",
+      "notLinked": "not linked",
+      "due": "due {{date}}",
+      "paid": "paid {{date}}",
+      "status": {
+        "projected": "projected",
+        "confirmed": "confirmed",
+        "paid": "paid",
+        "cancelled": "cancelled"
+      }
     },
     "csv": {
       "headers": {
