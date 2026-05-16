@@ -404,13 +404,25 @@ function PermissionsMatrix({
   };
 
   const pendingChanges = useMemo(() => {
-    const list: { userId: string; key: PermissionKey; granted: boolean }[] = [];
+    const list: {
+      userId: string;
+      email: string;
+      pending: boolean;
+      key: PermissionKey;
+      granted: boolean;
+    }[] = [];
     for (const u of users) {
       for (const g of PERMISSION_GROUPS) {
         for (const item of g.items) {
           const k = `${u.user_id}::${item.key}`;
           if (k in edits && edits[k] !== u.permissions.includes(item.key)) {
-            list.push({ userId: u.user_id, key: item.key, granted: edits[k] });
+            list.push({
+              userId: u.user_id,
+              email: u.email,
+              pending: !!u.pending,
+              key: item.key,
+              granted: edits[k],
+            });
           }
         }
       }
