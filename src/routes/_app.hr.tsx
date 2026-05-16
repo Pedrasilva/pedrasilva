@@ -79,7 +79,7 @@ function HrLayout() {
             label: t("nav.vacation"),
             icon: CalendarDays,
             match: (p) => p.startsWith("/hr/ferias"),
-            show: can("hr.ferias.own"),
+            show: canOwn("hr.ferias.own"),
           },
         ],
       },
