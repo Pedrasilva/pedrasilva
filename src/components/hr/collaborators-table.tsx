@@ -8,17 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  ArrowUp,
-  ArrowDown,
-  ArrowUpDown,
-  ChevronRight,
-  Archive,
-  ArchiveRestore,
-} from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import type { Collaborator } from "@/lib/salary";
+import { computeCollaboratorFte } from "@/lib/hr/fte";
 import { cn } from "@/lib/utils";
 
 export type CollabSortKey = "nome" | "departamento" | "numero" | "situacao" | "status";
