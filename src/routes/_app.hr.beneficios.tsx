@@ -1065,6 +1065,7 @@ function AdminView() {
         </div>
         <ManageBalancesDialog collaborators={collaborators} />
       </div>
+      <FinanceBackfillCard />
       <ManagementView
         title=""
         subtitle=""
