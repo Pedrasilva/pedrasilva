@@ -1131,9 +1131,13 @@ export type Database = {
       }
       companies: {
         Row: {
+          abbreviation: string | null
+          city: string | null
+          code: string | null
           company_type: string | null
           created_at: string
           created_by: string | null
+          currency: string
           default_classification_id: string | null
           email: string | null
           id: string
@@ -1142,19 +1146,26 @@ export type Database = {
           is_client: boolean
           is_reimbursement_supplier: boolean
           is_supplier: boolean
+          mobile: string | null
           morada: string | null
           nif: string | null
           nome: string
           notas: string | null
+          payment_terms: string | null
+          postal_code: string | null
           status: Database["public"]["Enums"]["company_status"]
           telefone: string | null
           updated_at: string
           website: string | null
         }
         Insert: {
+          abbreviation?: string | null
+          city?: string | null
+          code?: string | null
           company_type?: string | null
           created_at?: string
           created_by?: string | null
+          currency?: string
           default_classification_id?: string | null
           email?: string | null
           id?: string
@@ -1163,19 +1174,26 @@ export type Database = {
           is_client?: boolean
           is_reimbursement_supplier?: boolean
           is_supplier?: boolean
+          mobile?: string | null
           morada?: string | null
           nif?: string | null
           nome: string
           notas?: string | null
+          payment_terms?: string | null
+          postal_code?: string | null
           status?: Database["public"]["Enums"]["company_status"]
           telefone?: string | null
           updated_at?: string
           website?: string | null
         }
         Update: {
+          abbreviation?: string | null
+          city?: string | null
+          code?: string | null
           company_type?: string | null
           created_at?: string
           created_by?: string | null
+          currency?: string
           default_classification_id?: string | null
           email?: string | null
           id?: string
@@ -1184,10 +1202,13 @@ export type Database = {
           is_client?: boolean
           is_reimbursement_supplier?: boolean
           is_supplier?: boolean
+          mobile?: string | null
           morada?: string | null
           nif?: string | null
           nome?: string
           notas?: string | null
+          payment_terms?: string | null
+          postal_code?: string | null
           status?: Database["public"]["Enums"]["company_status"]
           telefone?: string | null
           updated_at?: string
@@ -1214,6 +1235,7 @@ export type Database = {
           notes: string | null
           paid_at: string | null
           status: Database["public"]["Enums"]["pm_expense_status"]
+          supplier_company_id: string | null
           supplier_id: string | null
           updated_at: string
           vendor: string | null
@@ -1228,6 +1250,7 @@ export type Database = {
           notes?: string | null
           paid_at?: string | null
           status?: Database["public"]["Enums"]["pm_expense_status"]
+          supplier_company_id?: string | null
           supplier_id?: string | null
           updated_at?: string
           vendor?: string | null
@@ -1242,11 +1265,19 @@ export type Database = {
           notes?: string | null
           paid_at?: string | null
           status?: Database["public"]["Enums"]["pm_expense_status"]
+          supplier_company_id?: string | null
           supplier_id?: string | null
           updated_at?: string
           vendor?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "company_expenses_supplier_company_id_fkey"
+            columns: ["supplier_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "company_expenses_supplier_id_fkey"
             columns: ["supplier_id"]
@@ -3182,6 +3213,7 @@ export type Database = {
           rebillable: boolean
           sale_price: number
           status: Database["public"]["Enums"]["pm_expense_status"]
+          supplier_company_id: string | null
           supplier_id: string | null
           updated_at: string
           vendor: string | null
@@ -3200,6 +3232,7 @@ export type Database = {
           rebillable?: boolean
           sale_price?: number
           status?: Database["public"]["Enums"]["pm_expense_status"]
+          supplier_company_id?: string | null
           supplier_id?: string | null
           updated_at?: string
           vendor?: string | null
@@ -3218,6 +3251,7 @@ export type Database = {
           rebillable?: boolean
           sale_price?: number
           status?: Database["public"]["Enums"]["pm_expense_status"]
+          supplier_company_id?: string | null
           supplier_id?: string | null
           updated_at?: string
           vendor?: string | null
@@ -3228,6 +3262,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_expenses_supplier_company_id_fkey"
+            columns: ["supplier_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
@@ -3539,6 +3580,7 @@ export type Database = {
           sale_price: number
           sale_price_manual: boolean
           status: Database["public"]["Enums"]["pm_external_service_status"]
+          supplier_company_id: string | null
           supplier_contact: string | null
           supplier_id: string | null
           supplier_name: string | null
@@ -3562,6 +3604,7 @@ export type Database = {
           sale_price?: number
           sale_price_manual?: boolean
           status?: Database["public"]["Enums"]["pm_external_service_status"]
+          supplier_company_id?: string | null
           supplier_contact?: string | null
           supplier_id?: string | null
           supplier_name?: string | null
@@ -3585,6 +3628,7 @@ export type Database = {
           sale_price?: number
           sale_price_manual?: boolean
           status?: Database["public"]["Enums"]["pm_external_service_status"]
+          supplier_company_id?: string | null
           supplier_contact?: string | null
           supplier_id?: string | null
           supplier_name?: string | null
@@ -3597,6 +3641,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_materials_supplier_company_id_fkey"
+            columns: ["supplier_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
@@ -4409,6 +4460,7 @@ export type Database = {
           sale_price_manual: boolean
           stage_id: string | null
           status: Database["public"]["Enums"]["quote_external_service_status"]
+          supplier_company_id: string | null
           supplier_id: string | null
           unit_cost: number
           updated_at: string
@@ -4427,6 +4479,7 @@ export type Database = {
           sale_price_manual?: boolean
           stage_id?: string | null
           status?: Database["public"]["Enums"]["quote_external_service_status"]
+          supplier_company_id?: string | null
           supplier_id?: string | null
           unit_cost?: number
           updated_at?: string
@@ -4445,6 +4498,7 @@ export type Database = {
           sale_price_manual?: boolean
           stage_id?: string | null
           status?: Database["public"]["Enums"]["quote_external_service_status"]
+          supplier_company_id?: string | null
           supplier_id?: string | null
           unit_cost?: number
           updated_at?: string
@@ -4462,6 +4516,13 @@ export type Database = {
             columns: ["stage_id"]
             isOneToOne: false
             referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_external_services_supplier_company_id_fkey"
+            columns: ["supplier_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
