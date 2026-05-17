@@ -668,8 +668,93 @@ export type Database = {
           },
         ]
       }
+      benefit_expense_ocr_extractions: {
+        Row: {
+          collaborator_id: string
+          confidence: Json | null
+          created_at: string
+          error: string | null
+          expense_id: string | null
+          extracted: Json | null
+          id: string
+          matched_company_id: string | null
+          processed_at: string | null
+          provider: string | null
+          raw_response: Json | null
+          status: string
+          storage_path: string
+        }
+        Insert: {
+          collaborator_id: string
+          confidence?: Json | null
+          created_at?: string
+          error?: string | null
+          expense_id?: string | null
+          extracted?: Json | null
+          id?: string
+          matched_company_id?: string | null
+          processed_at?: string | null
+          provider?: string | null
+          raw_response?: Json | null
+          status?: string
+          storage_path: string
+        }
+        Update: {
+          collaborator_id?: string
+          confidence?: Json | null
+          created_at?: string
+          error?: string | null
+          expense_id?: string | null
+          extracted?: Json | null
+          id?: string
+          matched_company_id?: string | null
+          processed_at?: string | null
+          provider?: string | null
+          raw_response?: Json | null
+          status?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_expense_ocr_extractions_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expense_ocr_extractions_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expense_ocr_extractions_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expense_ocr_extractions_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_expenses_v"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expense_ocr_extractions_matched_company_id_fkey"
+            columns: ["matched_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       benefit_expenses: {
         Row: {
+          amount_ex_vat: number | null
           ano_fiscal: number
           aprovado_em: string | null
           aprovado_por: string | null
@@ -679,17 +764,28 @@ export type Database = {
           created_at: string
           data_despesa: string
           descricao: string
+          document_number: string | null
           estado: Database["public"]["Enums"]["expense_status"]
           foto_path: string | null
           id: string
           notas_aprovacao: string | null
           notas_colaborador: string | null
+          ocr_extraction_id: string | null
           pago_em: string | null
           pago_por: string | null
+          payment_account_id: string | null
+          payment_source_label: string | null
+          payment_source_type: string | null
+          supplier_company_id: string | null
+          supplier_name_snapshot: string | null
+          supplier_nif: string | null
           updated_at: string
           valor: number
+          vat_amount: number | null
+          vat_rate: number | null
         }
         Insert: {
+          amount_ex_vat?: number | null
           ano_fiscal?: number
           aprovado_em?: string | null
           aprovado_por?: string | null
@@ -699,17 +795,28 @@ export type Database = {
           created_at?: string
           data_despesa: string
           descricao: string
+          document_number?: string | null
           estado?: Database["public"]["Enums"]["expense_status"]
           foto_path?: string | null
           id?: string
           notas_aprovacao?: string | null
           notas_colaborador?: string | null
+          ocr_extraction_id?: string | null
           pago_em?: string | null
           pago_por?: string | null
+          payment_account_id?: string | null
+          payment_source_label?: string | null
+          payment_source_type?: string | null
+          supplier_company_id?: string | null
+          supplier_name_snapshot?: string | null
+          supplier_nif?: string | null
           updated_at?: string
           valor: number
+          vat_amount?: number | null
+          vat_rate?: number | null
         }
         Update: {
+          amount_ex_vat?: number | null
           ano_fiscal?: number
           aprovado_em?: string | null
           aprovado_por?: string | null
@@ -719,15 +826,25 @@ export type Database = {
           created_at?: string
           data_despesa?: string
           descricao?: string
+          document_number?: string | null
           estado?: Database["public"]["Enums"]["expense_status"]
           foto_path?: string | null
           id?: string
           notas_aprovacao?: string | null
           notas_colaborador?: string | null
+          ocr_extraction_id?: string | null
           pago_em?: string | null
           pago_por?: string | null
+          payment_account_id?: string | null
+          payment_source_label?: string | null
+          payment_source_type?: string | null
+          supplier_company_id?: string | null
+          supplier_name_snapshot?: string | null
+          supplier_nif?: string | null
           updated_at?: string
           valor?: number
+          vat_amount?: number | null
+          vat_rate?: number | null
         }
         Relationships: [
           {
@@ -749,6 +866,27 @@ export type Database = {
             columns: ["collaborator_id"]
             isOneToOne: false
             referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expenses_ocr_extraction_id_fkey"
+            columns: ["ocr_extraction_id"]
+            isOneToOne: false
+            referencedRelation: "benefit_expense_ocr_extractions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expenses_payment_account_id_fkey"
+            columns: ["payment_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expenses_supplier_company_id_fkey"
+            columns: ["supplier_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -5301,6 +5439,7 @@ export type Database = {
           _to_status: Database["public"]["Enums"]["expense_status"]
         }
         Returns: {
+          amount_ex_vat: number | null
           ano_fiscal: number
           aprovado_em: string | null
           aprovado_por: string | null
@@ -5310,15 +5449,25 @@ export type Database = {
           created_at: string
           data_despesa: string
           descricao: string
+          document_number: string | null
           estado: Database["public"]["Enums"]["expense_status"]
           foto_path: string | null
           id: string
           notas_aprovacao: string | null
           notas_colaborador: string | null
+          ocr_extraction_id: string | null
           pago_em: string | null
           pago_por: string | null
+          payment_account_id: string | null
+          payment_source_label: string | null
+          payment_source_type: string | null
+          supplier_company_id: string | null
+          supplier_name_snapshot: string | null
+          supplier_nif: string | null
           updated_at: string
           valor: number
+          vat_amount: number | null
+          vat_rate: number | null
         }
         SetofOptions: {
           from: "*"
