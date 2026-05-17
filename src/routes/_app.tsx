@@ -141,9 +141,11 @@ function AppLayout() {
   const isHrArea = loc.pathname.startsWith("/hr");
   // No bloco Projects também escondemos a nav HR (tem a sua própria shell).
   const isProjectsArea = loc.pathname.startsWith("/projects");
+  // Finance has its own sidebar shell — hide HR nav inside /finance/*.
+  const isFinanceArea = loc.pathname.startsWith("/finance");
   // Na landing/Hub (/) escondemos também — os módulos já estão no corpo da página.
   const isHomeArea = loc.pathname === "/";
-  const hideHrNav = isHrArea || isProjectsArea || isHomeArea;
+  const hideHrNav = isHrArea || isProjectsArea || isFinanceArea || isHomeArea;
   // Global top-nav (Time/Tasks/Schedule/Create) is always visible.
 
 
