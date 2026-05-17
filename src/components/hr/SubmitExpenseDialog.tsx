@@ -332,6 +332,7 @@ export function SubmitExpenseDialog({
         vatMismatch,
         nifInvalid,
         failed: false,
+        isOwnCompanyNif: Boolean(result.supplier_is_own_company),
       });
       toast.success(t("hr:beneficios.submit.ocr.prefilled"));
     } catch (e) {
