@@ -34,6 +34,9 @@ import {
   QuickExpenseDialog,
   QuickMaterialDialog,
 } from "@/components/quick-finance-dialogs";
+import { useAuth } from "@/hooks/use-auth";
+import { useMyPermissions } from "@/hooks/use-permissions";
+import type { PermissionKey } from "@/lib/permissions";
 
 type Sheet =
   | null
@@ -47,10 +50,27 @@ type Sheet =
 export function GlobalTopNav() {
   const { t } = useTranslation("projects");
   const [sheet, setSheet] = useState<Sheet>(null);
+  const { isAdmin } = useAuth();
+  const { permissions } = useMyPermissions();
+  const can = (k: PermissionKey) => isAdmin || permissions.has(k);
+
+  const canTime = can("projects.timesheet");
+  const canTasks = can("projects.my-tasks");
+  const canSchedule = can("projects.resources") || can("projects.gantt");
+  const canCreateTask = canTasks;
+  const canCreateProject = can("projects.all");
+  const canCreateProjectExpense = can("projects.financials");
+  const canCreate =
+    canCreateTask || canCreateProject || canCreateProjectExpense;
+
+  if (!canTime && !canTasks && !canSchedule && !canCreate) {
+    return null;
+  }
 
   return (
     <>
       {/* Time */}
+      {canTime && (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
