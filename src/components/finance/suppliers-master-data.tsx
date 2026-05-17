@@ -170,5 +170,7 @@ export function SuppliersMasterData() {
         onSaved={invalidate}
       />
     </Card>
+    <CompaniesImportCard kind="supplier" />
+    </div>
   );
 }
