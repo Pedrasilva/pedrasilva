@@ -129,9 +129,11 @@ export function SubmitExpenseDialog({
   const [submitting, setSubmitting] = useState(false);
   const [ocr, setOcr] = useState<OcrState>(newOcr());
   const [accounts, setAccounts] = useState<{ id: string; account_name: string; bank_name: string | null }[]>([]);
+  const [ownCompanyNif, setOwnCompanyNif] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const extractFn = useServerFn(extractBenefitReceipt);
+  const getOwnNif = useServerFn(getOwnCompanyNif);
 
   // Load bank accounts lazily (best-effort; RLS may hide)
   useEffect(() => {
