@@ -909,5 +909,80 @@
       "audit": "Audit",
       "qa": "QA"
     }
+  },
+  "purchases": {
+    "title": "Purchases",
+    "subtitle": "Supplier invoices and credit notes. Payments are recorded against bank transactions.",
+    "new": "New purchase",
+    "newTitle": "New purchase",
+    "editTitle": "Edit purchase",
+    "editorSubtitle": "Multi-line supplier document with VAT, classification and optional project linkage.",
+    "searchPlaceholder": "Search by number, reference or supplier…",
+    "allSuppliers": "All suppliers",
+    "allStatuses": "All statuses",
+    "empty": "No purchase documents yet.",
+    "saved": "Purchase updated",
+    "created": "Purchase created",
+    "confirmed": "Purchase confirmed",
+    "cancelled": "Purchase cancelled",
+    "cancelConfirm": "Cancel this purchase? It will remain in history but stop affecting outstanding totals.",
+    "supplier": "Supplier",
+    "supplierPick": "Select supplier…",
+    "docType": "Document type",
+    "documentNumber": "Document number",
+    "externalRef": "Internal reference",
+    "externalRefHint": "Optional internal reference",
+    "issueDate": "Issue date",
+    "dueDate": "Due date",
+    "defaultClassification": "Default classification",
+    "project": "Project",
+    "projectPick": "Select project…",
+    "notes": "Notes",
+    "section": {
+      "header": "Document",
+      "lines": "Lines"
+    },
+    "addLine": "Add line",
+    "line": "Line",
+    "lineDescription": "Description",
+    "unitPrice": "Unit price (ex. VAT)",
+    "subtotal": "Subtotal",
+    "vat": "VAT",
+    "total": "Total",
+    "totalLabel": "Total inc. VAT",
+    "saveDraft": "Save draft",
+    "confirm": "Confirm",
+    "save": "Save",
+    "cancel": "Cancel document",
+    "status": {
+      "draft": "Draft",
+      "issued": "Confirmed",
+      "partially_paid": "Partially paid",
+      "paid": "Paid",
+      "cancelled": "Cancelled"
+    },
+    "col": {
+      "issueDate": "Date",
+      "supplier": "Supplier",
+      "number": "Document",
+      "due": "Due",
+      "total": "Total",
+      "outstanding": "Outstanding",
+      "status": "Status"
+    },
+    "kpi": {
+      "count": "Documents",
+      "total": "Total purchases",
+      "outstanding": "Outstanding",
+      "overdue": "Overdue"
+    },
+    "errors": {
+      "supplierRequired": "Select a supplier.",
+      "issueDateRequired": "Issue date is required.",
+      "linesRequired": "Add at least one line.",
+      "lineDescription": "Every line needs a description.",
+      "lineQuantity": "Quantity must be greater than 0.",
+      "linePrice": "Unit price must be 0 or more."
+    }
   }
 }

@@ -909,5 +909,80 @@
       "audit": "Auditoria",
       "qa": "QA"
     }
+  },
+  "purchases": {
+    "title": "Compras",
+    "subtitle": "Faturas e notas de crédito de fornecedores. Os pagamentos são registados sobre transações bancárias.",
+    "new": "Nova compra",
+    "newTitle": "Nova compra",
+    "editTitle": "Editar compra",
+    "editorSubtitle": "Documento de fornecedor multi-linha com IVA, classificação e ligação opcional a projeto.",
+    "searchPlaceholder": "Procurar por número, referência ou fornecedor…",
+    "allSuppliers": "Todos os fornecedores",
+    "allStatuses": "Todos os estados",
+    "empty": "Ainda não existem documentos de compra.",
+    "saved": "Compra atualizada",
+    "created": "Compra criada",
+    "confirmed": "Compra confirmada",
+    "cancelled": "Compra anulada",
+    "cancelConfirm": "Anular esta compra? Mantém-se no histórico mas deixa de afetar os valores em aberto.",
+    "supplier": "Fornecedor",
+    "supplierPick": "Selecionar fornecedor…",
+    "docType": "Tipo de documento",
+    "documentNumber": "Nº documento",
+    "externalRef": "Referência interna",
+    "externalRefHint": "Referência interna opcional",
+    "issueDate": "Data de emissão",
+    "dueDate": "Data de vencimento",
+    "defaultClassification": "Classificação por defeito",
+    "project": "Projeto",
+    "projectPick": "Selecionar projeto…",
+    "notes": "Notas",
+    "section": {
+      "header": "Documento",
+      "lines": "Linhas"
+    },
+    "addLine": "Adicionar linha",
+    "line": "Linha",
+    "lineDescription": "Descrição",
+    "unitPrice": "Preço unitário (s/IVA)",
+    "subtotal": "Subtotal",
+    "vat": "IVA",
+    "total": "Total",
+    "totalLabel": "Total c/IVA",
+    "saveDraft": "Guardar rascunho",
+    "confirm": "Confirmar",
+    "save": "Guardar",
+    "cancel": "Anular documento",
+    "status": {
+      "draft": "Rascunho",
+      "issued": "Confirmada",
+      "partially_paid": "Parcialmente paga",
+      "paid": "Paga",
+      "cancelled": "Anulada"
+    },
+    "col": {
+      "issueDate": "Data",
+      "supplier": "Fornecedor",
+      "number": "Documento",
+      "due": "Vencimento",
+      "total": "Total",
+      "outstanding": "Em aberto",
+      "status": "Estado"
+    },
+    "kpi": {
+      "count": "Documentos",
+      "total": "Total de compras",
+      "outstanding": "Em aberto",
+      "overdue": "Vencido"
+    },
+    "errors": {
+      "supplierRequired": "Selecione um fornecedor.",
+      "issueDateRequired": "A data de emissão é obrigatória.",
+      "linesRequired": "Adicione pelo menos uma linha.",
+      "lineDescription": "Cada linha precisa de descrição.",
+      "lineQuantity": "A quantidade tem de ser superior a 0.",
+      "linePrice": "O preço unitário tem de ser 0 ou superior."
+    }
   }
 }
