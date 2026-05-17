@@ -43,6 +43,9 @@
     "title": "Sem módulos disponíveis",
     "body": "A sua conta ainda não tem permissões atribuídas. Contacte um administrador."
   },
+  "hiddenModules": {
+    "note": "Alguns módulos estão ocultos. Vê apenas as áreas a que tem permissão de acesso."
+  },
   "relative": {
     "today": "Hoje",
     "tomorrow": "Amanhã",
