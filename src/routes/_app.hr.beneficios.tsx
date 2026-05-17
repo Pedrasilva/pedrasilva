@@ -51,6 +51,7 @@ import {
   FileImage,
   Settings2,
   Info,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { fmtEUR, type Snapshot, type Collaborator } from "@/lib/salary";
@@ -70,6 +71,7 @@ import {
 } from "@/lib/benefits";
 import { cn } from "@/lib/utils";
 import { BenefitExpenseTimeline } from "@/components/hr/BenefitExpenseTimeline";
+import { SubmitExpenseDialog } from "@/components/hr/SubmitExpenseDialog";
 import { RejectExpenseDialog } from "@/components/hr/RejectExpenseDialog";
 import { DeleteExpenseDialog } from "@/components/hr/DeleteExpenseDialog";
 import { ExpenseFilterBar, type ExpenseFilterState } from "@/components/hr/ExpenseFilterBar";
@@ -487,223 +489,7 @@ function YearTile({
   );
 }
 
-// =============================================================
-// Dialog de submissão
-// =============================================================
-function SubmitExpenseDialog({
-  collaboratorId,
-  anoFiscal,
-  balance,
-  categories,
-  onCreated,
-}: {
-  collaboratorId: string;
-  anoFiscal: number;
-  balance: Record<BenefitCategory, { disponivel: number }>;
-  categories: BenefitCategoryRow[];
-  onCreated: () => void;
-}) {
-  const { t, i18n } = useTranslation(["hr"]);
-  const isEn = i18n.language?.startsWith("en");
-  const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
-    categoryId: "",
-    descricao: "",
-    valor: "",
-    data_despesa: new Date().toISOString().slice(0, 10),
-    notas_colaborador: "",
-  });
-  const [file, setFile] = useState<File | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  const reset = () => {
-    setForm({
-      categoryId: "",
-      descricao: "",
-      valor: "",
-      data_despesa: new Date().toISOString().slice(0, 10),
-      notas_colaborador: "",
-    });
-    setFile(null);
-  };
-
-  const valorNum = Number(form.valor.replace(",", ".")) || 0;
-  const selectedCategory = categories.find((c) => c.id === form.categoryId) ?? null;
-  const legacyForSelected: BenefitCategory | null = selectedCategory?.legacy_enum ?? null;
-  const restante = legacyForSelected ? balance[legacyForSelected].disponivel : null;
-  const excede = restante != null && valorNum > restante;
-
-  async function submit() {
-    if (!selectedCategory) return toast.error(t("hr:beneficios.toasts.errors.categoryRequired"));
-    if (!form.descricao.trim()) return toast.error(t("hr:beneficios.toasts.errors.descriptionRequired"));
-    if (valorNum <= 0) return toast.error(t("hr:beneficios.toasts.errors.invalidAmount"));
-    if (!file) return toast.error(t("hr:beneficios.toasts.errors.receiptRequired"));
-
-    setSubmitting(true);
-    try {
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const path = `${collaboratorId}/${crypto.randomUUID()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("benefit-receipts")
-        .upload(path, file, { contentType: file.type, upsert: false });
-      if (upErr) throw upErr;
-
-      // Dual-write: legacy enum (fallback "outros") + new category_id
-      const legacy: BenefitCategory = selectedCategory.legacy_enum ?? "outros";
-      const { error } = await sb.from("benefit_expenses").insert({
-        collaborator_id: collaboratorId,
-        ano_fiscal: anoFiscal,
-        categoria: legacy,
-        category_id: selectedCategory.id,
-        descricao: form.descricao.trim(),
-        valor: valorNum,
-        data_despesa: form.data_despesa,
-        notas_colaborador: form.notas_colaborador.trim() || null,
-        foto_path: path,
-      });
-      if (error) throw error;
-
-      toast.success(t("hr:beneficios.toasts.submitted"));
-      reset();
-      setOpen(false);
-      onCreated();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("hr:beneficios.toasts.errors.submit"));
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        setOpen(v);
-        if (!v) reset();
-      }}
-    >
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4" /> {t("hr:beneficios.submit.button")}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{t("hr:beneficios.submit.dialogTitle")}</DialogTitle>
-          <DialogDescription>{t("hr:beneficios.submit.dialogDescription")}</DialogDescription>
-        </DialogHeader>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="sm:col-span-2 space-y-1.5">
-            <Label>{t("hr:beneficios.submit.category")} *</Label>
-            <Select
-              value={form.categoryId}
-              onValueChange={(v) => setForm((f) => ({ ...f, categoryId: v }))}
-            >
-              <SelectTrigger className="input-yellow">
-                <SelectValue placeholder={t("hr:beneficios.submit.categoryPlaceholder")} />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.length === 0 ? (
-                  <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                    {t("hr:beneficios.empty.noExpenses")}
-                  </div>
-                ) : (
-                  categories.map((c) => {
-                    const av = c.legacy_enum ? balance[c.legacy_enum].disponivel : null;
-                    return (
-                      <SelectItem key={c.id} value={c.id}>
-                        {isEn ? c.label_en : c.label_pt}
-                        {av != null
-                          ? ` — ${t("hr:beneficios.submit.categoryAvailable", { value: fmtEUR(av) })}`
-                          : ""}
-                      </SelectItem>
-                    );
-                  })
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="sm:col-span-2 space-y-1.5">
-            <Label>{t("hr:beneficios.submit.description")} *</Label>
-            <Input
-              className="input-yellow"
-              placeholder={t("hr:beneficios.submit.descriptionPlaceholder")}
-              value={form.descricao}
-              onChange={(e) => setForm((f) => ({ ...f, descricao: e.target.value }))}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>{t("hr:beneficios.submit.amount")} *</Label>
-            <Input
-              className="input-yellow"
-              inputMode="decimal"
-              value={form.valor}
-              onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))}
-            />
-            {restante != null && (
-              <div
-                className={cn(
-                  "text-[11px]",
-                  excede ? "text-rose-600" : "text-muted-foreground",
-                )}
-              >
-                {excede
-                  ? t("hr:beneficios.submit.exceeds", { value: fmtEUR(restante) })
-                  : t("hr:beneficios.submit.available", { value: fmtEUR(restante) })}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>{t("hr:beneficios.submit.date")} *</Label>
-            <Input
-              type="date"
-              className="input-yellow"
-              value={form.data_despesa}
-              onChange={(e) => setForm((f) => ({ ...f, data_despesa: e.target.value }))}
-            />
-          </div>
-
-          <div className="sm:col-span-2 space-y-1.5">
-            <Label>{t("hr:beneficios.submit.receipt")} *</Label>
-            <Input
-              type="file"
-              accept="image/*,application/pdf"
-              capture="environment"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            />
-            {file && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Camera className="h-3 w-3" /> {file.name}
-              </div>
-            )}
-          </div>
-
-          <div className="sm:col-span-2 space-y-1.5">
-            <Label>{t("hr:beneficios.submit.notes")}</Label>
-            <Textarea
-              rows={2}
-              value={form.notas_colaborador}
-              onChange={(e) => setForm((f) => ({ ...f, notas_colaborador: e.target.value }))}
-            />
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => setOpen(false)}>
-            {t("hr:beneficios.submit.cancel")}
-          </Button>
-          <Button onClick={submit} disabled={submitting}>
-            {submitting ? t("hr:beneficios.submit.submitting") : t("hr:beneficios.submit.submit")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
+// SubmitExpenseDialog now lives in @/components/hr/SubmitExpenseDialog
 
 // =============================================================
 // Tabela de despesas (partilhada)
@@ -822,7 +608,19 @@ function ExpensesTable({
                   </Badge>
                 </TableCell>
                 <TableCell className="max-w-[280px] truncate text-sm" title={e.descricao}>
-                  {e.descricao}
+                  <div className="flex items-center gap-1.5">
+                    <span className="truncate">{e.descricao}</span>
+                    {e.ocr_extraction_id && (
+                      <Badge
+                        variant="secondary"
+                        className="shrink-0 gap-1 px-1.5 py-0 text-[10px]"
+                        title={t("hr:beneficios.detail.ocrBadge")}
+                      >
+                        <Sparkles className="h-2.5 w-2.5" />
+                        {t("hr:beneficios.detail.ocrBadge")}
+                      </Badge>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="text-right font-medium">{fmtEUR(e.valor)}</TableCell>
                 <TableCell>
@@ -1014,6 +812,59 @@ function ExpenseActions({
               <div>
                 <div className="text-xs text-muted-foreground">{t("hr:beneficios.detail.approvalNotes")}</div>
                 <div className="whitespace-pre-wrap">{expense.notas_aprovacao}</div>
+              </div>
+            )}
+            {(expense.supplier_name_snapshot ||
+              expense.supplier_nif ||
+              expense.document_number ||
+              expense.vat_amount != null ||
+              expense.payment_source_type ||
+              expense.ocr_extraction_id) && (
+              <div className="border-t pt-3 space-y-2">
+                <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
+                  {t("hr:beneficios.detail.ocrSection")}
+                  {expense.ocr_extraction_id && (
+                    <Badge variant="secondary" className="gap-1 px-1.5 py-0 text-[10px]">
+                      <Sparkles className="h-2.5 w-2.5" />
+                      {t("hr:beneficios.detail.ocrBadge")}
+                    </Badge>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {(expense.supplier_name_snapshot || expense.supplier_nif) && (
+                    <div className="col-span-2">
+                      <div className="text-muted-foreground">{t("hr:beneficios.detail.supplier")}</div>
+                      <div>
+                        {expense.supplier_name_snapshot ?? "—"}
+                        {expense.supplier_nif ? ` · NIF ${expense.supplier_nif}` : ""}
+                      </div>
+                    </div>
+                  )}
+                  {expense.document_number && (
+                    <div>
+                      <div className="text-muted-foreground">{t("hr:beneficios.detail.documentNumber")}</div>
+                      <div>{expense.document_number}</div>
+                    </div>
+                  )}
+                  {(expense.vat_amount != null || expense.vat_rate != null) && (
+                    <div>
+                      <div className="text-muted-foreground">{t("hr:beneficios.detail.vat")}</div>
+                      <div>
+                        {expense.vat_amount != null ? fmtEUR(Number(expense.vat_amount)) : "—"}
+                        {expense.vat_rate != null ? ` (${expense.vat_rate}%)` : ""}
+                      </div>
+                    </div>
+                  )}
+                  {expense.payment_source_type && (
+                    <div className="col-span-2">
+                      <div className="text-muted-foreground">{t("hr:beneficios.detail.paymentSource")}</div>
+                      <div>
+                        {t(`hr:beneficios.submit.payment.types.${expense.payment_source_type}`)}
+                        {expense.payment_source_label ? ` · ${expense.payment_source_label}` : ""}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
             <div className="border-t pt-3">

@@ -1022,7 +1022,50 @@
       "submit": "Submeter",
       "submitting": "A submeter…",
       "exceeds": "Excede o disponível ({{value}})",
-      "available": "Disponível: {{value}}"
+      "available": "Disponível: {{value}}",
+      "ocr": {
+        "analyzing": "A analisar recibo…",
+        "prefilled": "Preenchido a partir do recibo",
+        "failed": "Não foi possível ler o recibo automaticamente. Preencha os campos manualmente.",
+        "lowConfidence": "Verifique este campo",
+        "nifInvalid": "OCR não conseguiu validar o NIF",
+        "vatMismatch": "Valor total e IVA não batem certo",
+        "badge": "OCR",
+        "fieldBadge": "OCR"
+      },
+      "supplier": {
+        "section": "Fornecedor",
+        "name": "Nome do fornecedor",
+        "namePlaceholder": "Ex: Galp Energia",
+        "nif": "NIF do fornecedor",
+        "nifPlaceholder": "9 dígitos",
+        "documentNumber": "Nº do documento",
+        "documentNumberPlaceholder": "Ex: FT 2024/12345",
+        "recognized": "Fornecedor reconhecido",
+        "newSupplier": "Fornecedor novo — será revisto pelo admin"
+      },
+      "vat": {
+        "section": "Detalhes de IVA (opcional)",
+        "amountExVat": "Valor sem IVA (€)",
+        "vatAmount": "Valor do IVA (€)",
+        "vatRate": "Taxa de IVA (%)"
+      },
+      "payment": {
+        "section": "Como foi pago?",
+        "type": "Origem de pagamento",
+        "label": "Descrição do pagamento (opcional)",
+        "labelPlaceholder": "Ex: Cartão CGD pessoal terminado em 1234",
+        "account": "Conta (opcional)",
+        "accountPlaceholder": "Escolher conta…",
+        "noAccount": "— nenhuma —",
+        "types": {
+          "personal": "Cartão/conta pessoal",
+          "company_card": "Cartão da empresa",
+          "company_account": "Conta da empresa",
+          "cash": "Dinheiro",
+          "unknown": "Outro / não sei"
+        }
+      }
     },
     "actions": {
       "details": "Detalhes",
@@ -1038,7 +1081,13 @@
       "description": "Descrição",
       "collaboratorNotes": "Notas do colaborador",
       "approvalNotes": "Notas de aprovação",
-      "history": "Histórico"
+      "history": "Histórico",
+      "supplier": "Fornecedor",
+      "documentNumber": "Nº do documento",
+      "vat": "IVA",
+      "paymentSource": "Origem de pagamento",
+      "ocrBadge": "OCR",
+      "ocrSection": "Metadados do recibo"
     },
     "delete": {
       "title": "Apagar despesa",

@@ -1022,7 +1022,50 @@
       "submit": "Submit",
       "submitting": "Submitting…",
       "exceeds": "Exceeds available ({{value}})",
-      "available": "Available: {{value}}"
+      "available": "Available: {{value}}",
+      "ocr": {
+        "analyzing": "Analyzing receipt…",
+        "prefilled": "Prefilled from receipt",
+        "failed": "Could not read receipt automatically. Please fill the fields manually.",
+        "lowConfidence": "Please double-check this field",
+        "nifInvalid": "OCR could not validate the NIF",
+        "vatMismatch": "Total and VAT amounts don't add up",
+        "badge": "OCR",
+        "fieldBadge": "OCR"
+      },
+      "supplier": {
+        "section": "Supplier",
+        "name": "Supplier name",
+        "namePlaceholder": "e.g. Galp Energia",
+        "nif": "Supplier NIF",
+        "nifPlaceholder": "9 digits",
+        "documentNumber": "Document number",
+        "documentNumberPlaceholder": "e.g. FT 2024/12345",
+        "recognized": "Recognized supplier",
+        "newSupplier": "New supplier — will be reviewed by admin"
+      },
+      "vat": {
+        "section": "VAT details (optional)",
+        "amountExVat": "Amount ex-VAT (€)",
+        "vatAmount": "VAT amount (€)",
+        "vatRate": "VAT rate (%)"
+      },
+      "payment": {
+        "section": "How was it paid?",
+        "type": "Payment source",
+        "label": "Payment label (optional)",
+        "labelPlaceholder": "e.g. Personal CGD card ending 1234",
+        "account": "Account (optional)",
+        "accountPlaceholder": "Select account…",
+        "noAccount": "— none —",
+        "types": {
+          "personal": "Personal card/account",
+          "company_card": "Company card",
+          "company_account": "Company account",
+          "cash": "Cash",
+          "unknown": "Other / not sure"
+        }
+      }
     },
     "actions": {
       "details": "Details",
@@ -1038,7 +1081,13 @@
       "description": "Description",
       "collaboratorNotes": "Collaborator notes",
       "approvalNotes": "Approval notes",
-      "history": "History"
+      "history": "History",
+      "supplier": "Supplier",
+      "documentNumber": "Document number",
+      "vat": "VAT",
+      "paymentSource": "Payment source",
+      "ocrBadge": "OCR",
+      "ocrSection": "Receipt metadata"
     },
     "delete": {
       "title": "Delete expense",
