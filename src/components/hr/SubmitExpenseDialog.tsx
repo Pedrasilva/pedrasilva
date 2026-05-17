@@ -152,6 +152,60 @@ export function SubmitExpenseDialog({
     };
   }, [open]);
 
+  // Fetch own-company (buyer) NIF once when the dialog opens.
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await getOwnNif();
+        if (!cancelled) setOwnCompanyNif(res?.nif ?? null);
+      } catch {
+        if (!cancelled) setOwnCompanyNif(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [open, getOwnNif]);
+
+  // Re-run supplier matching whenever the user edits the NIF manually.
+  // Debounced; canonical lookup against companies.nif (Finance shared).
+  useEffect(() => {
+    const raw = form.supplier_nif;
+    const norm = normalizePortugueseNif(raw);
+    if (!norm || !isValidPortugueseNif(norm)) {
+      setOcr((o) => ({
+        ...o,
+        matchedCompanyId: null,
+        matchedCompanyName: null,
+        isOwnCompanyNif: false,
+      }));
+      return;
+    }
+    if (ownCompanyNif && norm === ownCompanyNif) {
+      setOcr((o) => ({
+        ...o,
+        matchedCompanyId: null,
+        matchedCompanyName: null,
+        isOwnCompanyNif: true,
+      }));
+      return;
+    }
+    let cancelled = false;
+    const handle = setTimeout(async () => {
+      try {
+        const match = await findCompanyByNif(norm);
+        if (cancelled) return;
+        setOcr((o) => ({
+          ...o,
+          matchedCompanyId: match?.id ?? null,
+          matchedCompanyName: match?.nome ?? null,
+          isOwnCompanyNif: false,
+        }));
+      } catch { /* best-effort */ }
+    }, 350);
+    return () => { cancelled = true; clearTimeout(handle); };
+  }, [form.supplier_nif, ownCompanyNif]);
+
   const reset = () => {
     setForm({
       categoryId: "",
