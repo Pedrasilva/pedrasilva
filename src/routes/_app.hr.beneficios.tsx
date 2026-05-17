@@ -51,6 +51,7 @@ import {
   FileImage,
   Settings2,
   Info,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { fmtEUR, type Snapshot, type Collaborator } from "@/lib/salary";
