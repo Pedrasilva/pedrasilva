@@ -801,6 +801,59 @@ function ExpenseActions({
                 <div className="whitespace-pre-wrap">{expense.notas_aprovacao}</div>
               </div>
             )}
+            {(expense.supplier_name_snapshot ||
+              expense.supplier_nif ||
+              expense.document_number ||
+              expense.vat_amount != null ||
+              expense.payment_source_type ||
+              expense.ocr_extraction_id) && (
+              <div className="border-t pt-3 space-y-2">
+                <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
+                  {t("hr:beneficios.detail.ocrSection")}
+                  {expense.ocr_extraction_id && (
+                    <Badge variant="secondary" className="gap-1 px-1.5 py-0 text-[10px]">
+                      <Sparkles className="h-2.5 w-2.5" />
+                      {t("hr:beneficios.detail.ocrBadge")}
+                    </Badge>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {(expense.supplier_name_snapshot || expense.supplier_nif) && (
+                    <div className="col-span-2">
+                      <div className="text-muted-foreground">{t("hr:beneficios.detail.supplier")}</div>
+                      <div>
+                        {expense.supplier_name_snapshot ?? "—"}
+                        {expense.supplier_nif ? ` · NIF ${expense.supplier_nif}` : ""}
+                      </div>
+                    </div>
+                  )}
+                  {expense.document_number && (
+                    <div>
+                      <div className="text-muted-foreground">{t("hr:beneficios.detail.documentNumber")}</div>
+                      <div>{expense.document_number}</div>
+                    </div>
+                  )}
+                  {(expense.vat_amount != null || expense.vat_rate != null) && (
+                    <div>
+                      <div className="text-muted-foreground">{t("hr:beneficios.detail.vat")}</div>
+                      <div>
+                        {expense.vat_amount != null ? fmtEUR(Number(expense.vat_amount)) : "—"}
+                        {expense.vat_rate != null ? ` (${expense.vat_rate}%)` : ""}
+                      </div>
+                    </div>
+                  )}
+                  {expense.payment_source_type && (
+                    <div className="col-span-2">
+                      <div className="text-muted-foreground">{t("hr:beneficios.detail.paymentSource")}</div>
+                      <div>
+                        {t(`hr:beneficios.submit.payment.types.${expense.payment_source_type}`)}
+                        {expense.payment_source_label ? ` · ${expense.payment_source_label}` : ""}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
             <div className="border-t pt-3">
               <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{t("hr:beneficios.detail.history")}</div>
               <BenefitExpenseTimeline expenseId={expense.id} />
