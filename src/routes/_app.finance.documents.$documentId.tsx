@@ -14,6 +14,7 @@ import { ArrowLeft, Plus, Trash2, Upload, FileText, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInputWithPreview } from "@/components/finance/date-input-with-preview";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -402,8 +403,7 @@ function DocumentEditorPage() {
 
           <div className="space-y-1">
             <Label>{t("finance:documents.form.issueDate")}</Label>
-            <Input
-              type="date"
+            <DateInputWithPreview
               value={header.issue_date}
               onChange={(e) =>
                 setHeader((h) => ({ ...h, issue_date: e.target.value }))
@@ -414,8 +414,7 @@ function DocumentEditorPage() {
 
           <div className="space-y-1">
             <Label>{t("finance:documents.form.dueDate")}</Label>
-            <Input
-              type="date"
+            <DateInputWithPreview
               value={header.due_date ?? ""}
               onChange={(e) =>
                 setHeader((h) => ({ ...h, due_date: e.target.value || null }))
@@ -1008,8 +1007,7 @@ function PaymentsSection({
             </div>
             <div>
               <Label>{t("finance:documents.payments.date")}</Label>
-              <Input
-                type="date"
+              <DateInputWithPreview
                 value={manualDate}
                 onChange={(e) => setManualDate(e.target.value)}
               />

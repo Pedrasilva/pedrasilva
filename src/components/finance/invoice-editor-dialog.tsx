@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInputWithPreview } from "@/components/finance/date-input-with-preview";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -420,8 +421,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
                     <Label className="text-xs">
                       {t("finance:invoices.issueDate")} *
                     </Label>
-                    <Input
-                      type="date"
+                    <DateInputWithPreview
                       value={issueDate}
                       onChange={(e) => setIssueDate(e.target.value)}
                       disabled={isReadOnly}
@@ -431,8 +431,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
                     <Label className="text-xs">
                       {t("finance:invoices.dueDate")}
                     </Label>
-                    <Input
-                      type="date"
+                    <DateInputWithPreview
                       value={dueDate}
                       onChange={(e) => setDueDate(e.target.value)}
                       disabled={isReadOnly}

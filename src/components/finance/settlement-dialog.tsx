@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInputWithPreview } from "@/components/finance/date-input-with-preview";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -108,6 +109,8 @@ export function SettlementDialog({
       if (error) throw error;
       return data ?? [];
     },
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const bankTxQ = useQuery({
@@ -317,8 +320,7 @@ export function SettlementDialog({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>{t("finance:settlement.dialog.paymentDate")}</Label>
-              <Input
-                type="date"
+              <DateInputWithPreview
                 value={paymentDate}
                 onChange={(e) => setPaymentDate(e.target.value)}
               />

@@ -1038,7 +1038,7 @@
     "externalRefHint": "Referência interna opcional",
     "issueDate": "Data de emissão",
     "dueDate": "Data de vencimento",
-    "defaultClassification": "Classificação por omissão",
+    "defaultClassification": "Classificação por defeito",
     "project": "Projeto",
     "projectPick": "Selecionar projeto…",
     "notes": "Notas",

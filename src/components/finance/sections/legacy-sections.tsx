@@ -227,6 +227,9 @@ export function useFinanceData() {
       if (error) throw error;
       return (data ?? []) as BankAccount[];
     },
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const snapshotsQ = useQuery({
