@@ -403,8 +403,7 @@ function DocumentEditorPage() {
 
           <div className="space-y-1">
             <Label>{t("finance:documents.form.issueDate")}</Label>
-            <Input
-              type="date"
+            <DateInputWithPreview
               value={header.issue_date}
               onChange={(e) =>
                 setHeader((h) => ({ ...h, issue_date: e.target.value }))
@@ -415,8 +414,7 @@ function DocumentEditorPage() {
 
           <div className="space-y-1">
             <Label>{t("finance:documents.form.dueDate")}</Label>
-            <Input
-              type="date"
+            <DateInputWithPreview
               value={header.due_date ?? ""}
               onChange={(e) =>
                 setHeader((h) => ({ ...h, due_date: e.target.value || null }))
