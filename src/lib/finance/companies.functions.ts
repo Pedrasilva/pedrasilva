@@ -207,8 +207,18 @@ export const mergeCompanies = createServerFn({ method: "POST" })
       { table: "historical_time_entries", column: "company_id" },
     ];
 
+    // Typed table names are constrained by the generated types — dynamic
+    // table iteration needs an untyped escape hatch. Each entry above is a
+    // real column that points at companies(id); the loop is admin-only.
+    const adminAny = supabaseAdmin as unknown as {
+      from: (table: string) => {
+        update: (values: Record<string, string>) => {
+          eq: (col: string, val: string) => Promise<{ error: { message: string } | null }>;
+        };
+      };
+    };
     for (const m of moves) {
-      const { error } = await supabaseAdmin
+      const { error } = await adminAny
         .from(m.table)
         .update({ [m.column]: data.into_id })
         .eq(m.column, data.from_id);
