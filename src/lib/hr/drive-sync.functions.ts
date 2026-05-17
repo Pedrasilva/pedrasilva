@@ -221,7 +221,7 @@ async function loadExpensesWithSync() {
 
   const { data: sync } = await supabaseAdmin
     .from("benefit_expense_drive_sync")
-    .select("expense_id, status, attempts, last_error, drive_file_id");
+    .select("expense_id, status, attempts, last_error, drive_file_id, source_checksum");
   const syncMap = new Map((sync ?? []).map((s) => [s.expense_id, s]));
 
   return { expenses: (expenses ?? []) as ExpenseRow[], colMap, syncMap };
