@@ -422,8 +422,7 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
                     <Label className="text-xs">
                       {t("finance:purchases.issueDate")} *
                     </Label>
-                    <Input
-                      type="date"
+                    <DateInputWithPreview
                       value={issueDate}
                       onChange={(e) => setIssueDate(e.target.value)}
                       disabled={isReadOnly}
@@ -433,8 +432,7 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
                     <Label className="text-xs">
                       {t("finance:purchases.dueDate")}
                     </Label>
-                    <Input
-                      type="date"
+                    <DateInputWithPreview
                       value={dueDate}
                       onChange={(e) => setDueDate(e.target.value)}
                       disabled={isReadOnly}
