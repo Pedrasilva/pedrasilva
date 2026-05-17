@@ -340,7 +340,7 @@ function HubPage() {
             );
           })}
         </div>
-        {!isAdmin && visible.length < MODULES.length && (
+        {!isAdmin && visible.length > 0 && visible.length < MODULES.length && (
           <p className="mt-4 text-xs text-muted-foreground">
             {t("home:hiddenModules.note")}
           </p>
