@@ -1060,5 +1060,99 @@
       "lineQuantity": "Quantity must be greater than 0.",
       "linePrice": "Unit price must be 0 or more."
     }
+  },
+  "settlement": {
+    "common": {
+      "overdueOnly": "Overdue only",
+      "selectAll": "Select all",
+      "status": {
+        "issued": "Open",
+        "partially_paid": "Partial",
+        "paid": "Paid"
+      },
+      "col": {
+        "issueDate": "Issued",
+        "supplier": "Supplier",
+        "client": "Client",
+        "number": "Number",
+        "due": "Due",
+        "total": "Total",
+        "outstanding": "Outstanding",
+        "status": "Status"
+      }
+    },
+    "outflows": {
+      "title": "Supplier payments",
+      "subtitle": "Settle received documents against cash movement. Select one or more invoices to record a payment.",
+      "empty": "No supplier documents waiting for payment.",
+      "settleSelected_one": "Pay {{count}} document",
+      "settleSelected_other": "Pay {{count}} documents",
+      "searchPlaceholder": "Search by number, reference or supplier…",
+      "allCounterparties": "All suppliers",
+      "confirm": "Record payment",
+      "dialogTitle": "Record supplier payment",
+      "dialogSubtitle_one": "{{count}} document selected.",
+      "dialogSubtitle_other": "{{count}} documents selected.",
+      "successToast_one": "Payment recorded for {{count}} document · {{amount}}",
+      "successToast_other": "Payment recorded for {{count}} documents · {{amount}}",
+      "kpi": {
+        "count": "Open documents",
+        "outstanding": "Outstanding",
+        "overdue": "Overdue",
+        "selected": "Selected"
+      }
+    },
+    "receipts": {
+      "title": "Client receipts",
+      "subtitle": "Settle issued invoices against cash movement. Select one or more invoices to record a receipt.",
+      "empty": "No client documents waiting for receipt.",
+      "settleSelected_one": "Receive {{count}} invoice",
+      "settleSelected_other": "Receive {{count}} invoices",
+      "searchPlaceholder": "Search by number, reference or client…",
+      "allCounterparties": "All clients",
+      "confirm": "Record receipt",
+      "dialogTitle": "Record client receipt",
+      "dialogSubtitle_one": "{{count}} invoice selected.",
+      "dialogSubtitle_other": "{{count}} invoices selected.",
+      "successToast_one": "Receipt recorded for {{count}} invoice · {{amount}}",
+      "successToast_other": "Receipt recorded for {{count}} invoices · {{amount}}",
+      "kpi": {
+        "count": "Open invoices",
+        "outstanding": "Outstanding",
+        "overdue": "Overdue",
+        "selected": "Selected"
+      }
+    },
+    "dialog": {
+      "docCol": "Document",
+      "outstandingCol": "Outstanding",
+      "amountCol": "Amount",
+      "totalOutstanding": "Selected outstanding",
+      "totalToSettle": "Amount to settle",
+      "totalRemaining": "Remaining balance",
+      "paymentDate": "Date",
+      "method": "Method",
+      "bankAccount": "Bank account",
+      "bankAccountNone": "— Not specified —",
+      "bankTransaction": "Bank transaction",
+      "bankTxNone": "— None —",
+      "notes": "Notes",
+      "notesPlaceholder": "Optional reference or memo",
+      "methods": {
+        "bank_transfer": "Bank transfer",
+        "cash": "Cash",
+        "card": "Card",
+        "direct_debit": "Direct debit",
+        "other": "Other"
+      },
+      "errNoDocs": "No documents selected.",
+      "errDate": "Date is required.",
+      "errAmountInvalid": "Invalid amount for {{number}}.",
+      "errAmountPositive": "Amount must be greater than 0 for {{number}}.",
+      "errAmountTooHigh": "Amount for {{number}} exceeds outstanding ({{max}}).",
+      "errWrongStatus": "Document {{number}} cannot be settled in its current status.",
+      "errWrongDirection": "Wrong document direction for this workspace.",
+      "errSubmit": "Could not record settlement: {{msg}}"
+    }
   }
 }
