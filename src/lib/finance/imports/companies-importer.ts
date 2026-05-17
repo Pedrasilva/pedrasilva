@@ -541,7 +541,7 @@ export async function commitCompaniesImport(
       } else {
         const { error } = await supabase
           .from("companies")
-          .update(patch)
+          .update(patch as never)
           .eq("id", row.matchedCompany!.id);
         if (error) {
           status = "error";
