@@ -542,6 +542,81 @@ export type Database = {
           },
         ]
       }
+      benefit_drive_folders: {
+        Row: {
+          created_at: string
+          drive_folder_id: string
+          folder_path: string
+        }
+        Insert: {
+          created_at?: string
+          drive_folder_id: string
+          folder_path: string
+        }
+        Update: {
+          created_at?: string
+          drive_folder_id?: string
+          folder_path?: string
+        }
+        Relationships: []
+      }
+      benefit_expense_drive_sync: {
+        Row: {
+          attempts: number
+          created_at: string
+          drive_file_id: string | null
+          drive_file_name: string | null
+          drive_folder_id: string | null
+          expense_id: string
+          last_error: string | null
+          source_checksum: string | null
+          status: Database["public"]["Enums"]["benefit_drive_sync_status"]
+          synced_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          drive_file_id?: string | null
+          drive_file_name?: string | null
+          drive_folder_id?: string | null
+          expense_id: string
+          last_error?: string | null
+          source_checksum?: string | null
+          status?: Database["public"]["Enums"]["benefit_drive_sync_status"]
+          synced_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          drive_file_id?: string | null
+          drive_file_name?: string | null
+          drive_folder_id?: string | null
+          expense_id?: string
+          last_error?: string | null
+          source_checksum?: string | null
+          status?: Database["public"]["Enums"]["benefit_drive_sync_status"]
+          synced_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_expense_drive_sync_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: true
+            referencedRelation: "benefit_expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_expense_drive_sync_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: true
+            referencedRelation: "benefit_expenses_v"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       benefit_expense_events: {
         Row: {
           actor_id: string | null
@@ -5437,6 +5512,11 @@ export type Database = {
         | "internal_transfer"
         | "archived"
       benefit_category: "carro" | "ticket" | "premio" | "outros"
+      benefit_drive_sync_status:
+        | "pending"
+        | "synced"
+        | "failed"
+        | "skipped_rejected"
       company_status: "activo" | "prospecto" | "inactivo"
       crm_activity_type: "chamada" | "email" | "reuniao" | "nota" | "outro"
       crm_fee_structure: "fixed" | "staged" | "monthly"
@@ -5747,6 +5827,12 @@ export const Constants = {
         "archived",
       ],
       benefit_category: ["carro", "ticket", "premio", "outros"],
+      benefit_drive_sync_status: [
+        "pending",
+        "synced",
+        "failed",
+        "skipped_rejected",
+      ],
       company_status: ["activo", "prospecto", "inactivo"],
       crm_activity_type: ["chamada", "email", "reuniao", "nota", "outro"],
       crm_fee_structure: ["fixed", "staged", "monthly"],
