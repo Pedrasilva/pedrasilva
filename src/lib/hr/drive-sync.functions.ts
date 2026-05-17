@@ -267,7 +267,60 @@ async function uploadMultipart(
   return json.id;
 }
 
+// ---- Data fetching --------------------------------------------------------
+type ExpenseRow = {
+  id: string;
+  collaborator_id: string;
+  ano_fiscal: number;
+  categoria: string;
+  descricao: string | null;
+  valor: number;
+  data_despesa: string;
+  foto_path: string | null;
+  estado: string;
+  collaborator_name?: string;
+};
+
+async function loadExpensesWithSync() {
+  const { data: expenses, error } = await supabaseAdmin
+    .from("benefit_expenses")
+    .select("id, collaborator_id, ano_fiscal, categoria, descricao, valor, data_despesa, foto_path, estado");
+  if (error) throw new Error(`Failed to load expenses: ${error.message}`);
+
+  const colIds = Array.from(new Set((expenses ?? []).map((e) => e.collaborator_id)));
+  const { data: cols } = await supabaseAdmin
+    .from("collaborators")
+    .select("id, nome")
+    .in("id", colIds.length ? colIds : ["00000000-0000-0000-0000-000000000000"]);
+  const colMap = new Map((cols ?? []).map((c) => [c.id, c.nome as string]));
+
+  const { data: sync } = await supabaseAdmin
+    .from("benefit_expense_drive_sync")
+    .select("expense_id, status, attempts, last_error, drive_file_id, source_checksum");
+  const syncMap = new Map((sync ?? []).map((s) => [s.expense_id, s]));
+
+  return { expenses: (expenses ?? []) as ExpenseRow[], colMap, syncMap };
+}
+
 // ---- Server functions -----------------------------------------------------
+export const getDriveArchiveConfig = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<ArchiveConfigInfo> => {
+    await assertAdmin(context.userId);
+    const ctx = getArchiveCtx();
+    return {
+      mode: ctx.mode,
+      rootFolderId: ctx.mode === "rootFolder" ? ctx.rootParentId : null,
+      sharedDriveId: ctx.driveId,
+      rootName:
+        ctx.mode === "sharedDrive"
+          ? ctx.rootName
+          : ctx.mode === "rootFolder"
+            ? "(user-provided folder)"
+            : "PSA Hub",
+    };
+  });
+
 export const previewDriveSync = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<DrivePreview> => {
