@@ -51,6 +51,7 @@ import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_ap
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
 import { Route as AppFinanceReportsCashflowRouteImport } from './routes/_app.finance.reports.cashflow'
 import { Route as AppFinanceDocumentsDocumentIdRouteImport } from './routes/_app.finance.documents.$documentId'
+import { Route as AppFinanceBankingBalancesRouteImport } from './routes/_app.finance.banking.balances'
 import { Route as AppCrmQuotesQuoteIdRouteImport } from './routes/_app.crm.quotes.$quoteId'
 import { Route as AppCrmPipelineProposalIdRouteImport } from './routes/_app.crm.pipeline.$proposalId'
 import { Route as AppCrmOpportunitiesOpportunityIdRouteImport } from './routes/_app.crm.opportunities.$opportunityId'
@@ -271,6 +272,12 @@ const AppFinanceDocumentsDocumentIdRoute =
     path: '/documents/$documentId',
     getParentRoute: () => AppFinanceRoute,
   } as any)
+const AppFinanceBankingBalancesRoute =
+  AppFinanceBankingBalancesRouteImport.update({
+    id: '/banking/balances',
+    path: '/banking/balances',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppCrmQuotesQuoteIdRoute = AppCrmQuotesQuoteIdRouteImport.update({
   id: '/quotes/$quoteId',
   path: '/quotes/$quoteId',
@@ -342,6 +349,7 @@ export interface FileRoutesByFullPath {
   '/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
+  '/finance/banking/balances': typeof AppFinanceBankingBalancesRoute
   '/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
   '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
@@ -387,6 +395,7 @@ export interface FileRoutesByTo {
   '/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
+  '/finance/banking/balances': typeof AppFinanceBankingBalancesRoute
   '/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
   '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
@@ -437,6 +446,7 @@ export interface FileRoutesById {
   '/_app/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/_app/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/_app/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
+  '/_app/finance/banking/balances': typeof AppFinanceBankingBalancesRoute
   '/_app/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
   '/_app/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
@@ -487,6 +497,7 @@ export interface FileRouteTypes {
     | '/crm/opportunities/$opportunityId'
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
+    | '/finance/banking/balances'
     | '/finance/documents/$documentId'
     | '/finance/reports/cashflow'
     | '/hr/colaborador/$id'
@@ -532,6 +543,7 @@ export interface FileRouteTypes {
     | '/crm/opportunities/$opportunityId'
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
+    | '/finance/banking/balances'
     | '/finance/documents/$documentId'
     | '/finance/reports/cashflow'
     | '/hr/colaborador/$id'
@@ -581,6 +593,7 @@ export interface FileRouteTypes {
     | '/_app/crm/opportunities/$opportunityId'
     | '/_app/crm/pipeline/$proposalId'
     | '/_app/crm/quotes/$quoteId'
+    | '/_app/finance/banking/balances'
     | '/_app/finance/documents/$documentId'
     | '/_app/finance/reports/cashflow'
     | '/_app/hr/colaborador/$id'
@@ -890,6 +903,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceDocumentsDocumentIdRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/banking/balances': {
+      id: '/_app/finance/banking/balances'
+      path: '/banking/balances'
+      fullPath: '/finance/banking/balances'
+      preLoaderRoute: typeof AppFinanceBankingBalancesRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/crm/quotes/$quoteId': {
       id: '/_app/crm/quotes/$quoteId'
       path: '/quotes/$quoteId'
@@ -1000,6 +1020,7 @@ const AppCrmRouteWithChildren =
 
 interface AppFinanceRouteChildren {
   AppFinanceIndexRoute: typeof AppFinanceIndexRoute
+  AppFinanceBankingBalancesRoute: typeof AppFinanceBankingBalancesRoute
   AppFinanceDocumentsDocumentIdRoute: typeof AppFinanceDocumentsDocumentIdRoute
   AppFinanceReportsCashflowRoute: typeof AppFinanceReportsCashflowRoute
   AppFinanceDocumentsIndexRoute: typeof AppFinanceDocumentsIndexRoute
@@ -1007,6 +1028,7 @@ interface AppFinanceRouteChildren {
 
 const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinanceIndexRoute: AppFinanceIndexRoute,
+  AppFinanceBankingBalancesRoute: AppFinanceBankingBalancesRoute,
   AppFinanceDocumentsDocumentIdRoute: AppFinanceDocumentsDocumentIdRoute,
   AppFinanceReportsCashflowRoute: AppFinanceReportsCashflowRoute,
   AppFinanceDocumentsIndexRoute: AppFinanceDocumentsIndexRoute,
