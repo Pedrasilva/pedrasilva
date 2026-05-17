@@ -14,8 +14,16 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export async function checkFinanceAccess(): Promise<boolean> {
-  const { data: { session } } = await supabase.auth.getSession();
-  const userId = session?.user?.id;
+  // On hard navigation the Supabase session can still be hydrating from
+  // localStorage when beforeLoad runs. Retry briefly to avoid a false
+  // "unauthenticated" redirect on a logged-in user.
+  let userId: string | undefined;
+  for (let i = 0; i < 5; i++) {
+    const { data: { session } } = await supabase.auth.getSession();
+    userId = session?.user?.id;
+    if (userId) break;
+    await new Promise((r) => setTimeout(r, 100));
+  }
   if (!userId) return false;
 
   const { data: roleRow } = await supabase
