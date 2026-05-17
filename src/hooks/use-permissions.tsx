@@ -12,16 +12,16 @@ import type { PermissionKey } from "@/lib/permissions";
  * virtual permission set when an admin impersonates a collaborator (the admin
  * user row itself has no entries in `user_permissions` because admins bypass).
  */
+// Baseline only covers self-service "own" surfaces every collaborator gets
+// regardless of explicit permission grants. Module access (CRM, Projects
+// listings, Finance, etc.) must be granted explicitly via the admin
+// permission matrix — never auto-included here, otherwise impersonation
+// would leak access the real user does not have.
 const COLLABORATOR_BASELINE: PermissionKey[] = [
   "hr.minha-ficha",
   "hr.dias-uteis",
   "hr.beneficios.own",
   "hr.ferias.own",
-  "crm.companies",
-  "crm.contacts",
-  "crm.pipeline",
-  "projects.my-tasks",
-  "projects.timesheet",
 ];
 
 export function useMyPermissions() {
