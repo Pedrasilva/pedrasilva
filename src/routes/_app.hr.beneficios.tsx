@@ -832,12 +832,32 @@ function ExpenseActions({
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   {(expense.supplier_name_snapshot || expense.supplier_nif) && (
-                    <div className="col-span-2">
+                    <div className="col-span-2 space-y-1">
                       <div className="text-muted-foreground">{t("hr:beneficios.detail.supplier")}</div>
-                      <div>
-                        {expense.supplier_name_snapshot ?? "—"}
-                        {expense.supplier_nif ? ` · NIF ${expense.supplier_nif}` : ""}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span>
+                          {expense.supplier_name_snapshot ?? "—"}
+                          {expense.supplier_nif ? ` · NIF ${expense.supplier_nif}` : ""}
+                        </span>
+                        {expense.supplier_company_id ? (
+                          <Badge variant="secondary" className="gap-1">
+                            <Check className="h-3 w-3 text-emerald-600" />
+                            {t("hr:beneficios.detail.supplierLinked")}
+                          </Badge>
+                        ) : null}
                       </div>
+                      {isAdmin &&
+                        !expense.supplier_company_id &&
+                        expense.supplier_nif &&
+                        isValidPortugueseNif(expense.supplier_nif) &&
+                        (expense.supplier_name_snapshot ?? "").trim().length > 0 && (
+                          <CreateSupplierButton
+                            expenseId={expense.id}
+                            nif={expense.supplier_nif}
+                            name={expense.supplier_name_snapshot!}
+                            onLinked={onChanged}
+                          />
+                        )}
                     </div>
                   )}
                   {expense.document_number && (
