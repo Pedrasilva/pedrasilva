@@ -29,7 +29,13 @@ export function BenefitDriveSyncCard() {
   const qc = useQueryClient();
   const previewFn = useServerFn(previewDriveSync);
   const runFn = useServerFn(runDriveSync);
+  const cfgFn = useServerFn(getDriveArchiveConfig);
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const cfgQ = useQuery({
+    queryKey: ["benefit-drive-archive-config"],
+    queryFn: () => cfgFn(),
+  });
 
   const previewQ = useQuery({
     queryKey: ["benefit-drive-sync-preview"],
