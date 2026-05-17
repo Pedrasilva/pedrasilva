@@ -143,17 +143,23 @@ function BeneficiosPage() {
 function CollaboratorView() {
   const qc = useQueryClient();
   const { t } = useTranslation(["hr", "common"]);
+  const { viewAsUser, viewAsCollaboratorId } = useAuth();
+  const impersonatedId = viewAsUser ? viewAsCollaboratorId : null;
 
   const { data: myCollab, isLoading: loadingCollab } = useQuery({
-    queryKey: ["my-collaborator"],
+    queryKey: ["my-collaborator", impersonatedId ?? "self"],
     queryFn: async () => {
-      const { data: idData, error: idErr } = await supabase.rpc("get_my_collaborator_id");
-      if (idErr) throw idErr;
-      if (!idData) return null;
+      let targetId: string | null = impersonatedId;
+      if (!targetId) {
+        const { data: idData, error: idErr } = await supabase.rpc("get_my_collaborator_id");
+        if (idErr) throw idErr;
+        targetId = (idData as string | null) ?? null;
+      }
+      if (!targetId) return null;
       const { data, error } = await supabase
         .from("collaborators")
         .select("*")
-        .eq("id", idData)
+        .eq("id", targetId)
         .maybeSingle();
       if (error) throw error;
       return data as Collaborator | null;
