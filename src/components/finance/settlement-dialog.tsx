@@ -320,8 +320,7 @@ export function SettlementDialog({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>{t("finance:settlement.dialog.paymentDate")}</Label>
-              <Input
-                type="date"
+              <DateInputWithPreview
                 value={paymentDate}
                 onChange={(e) => setPaymentDate(e.target.value)}
               />
