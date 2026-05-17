@@ -78,6 +78,9 @@ import { ExpenseFilterBar, type ExpenseFilterState } from "@/components/hr/Expen
 import { FinanceBackfillCard } from "@/components/hr/FinanceBackfillCard";
 import { PaymentLedgerBackfillCard } from "@/components/hr/PaymentLedgerBackfillCard";
 import { BenefitDriveSyncCard } from "@/components/hr/BenefitDriveSyncCard";
+import { useServerFn } from "@tanstack/react-start";
+import { isValidPortugueseNif } from "@/lib/finance/nif";
+import { linkOrCreateSupplierForBenefitExpense } from "@/lib/hr/benefit-supplier.functions";
 
 // As novas tabelas ainda não estão totalmente nos types — usamos `as any` pontualmente.
 // É seguro porque as RLS policies controlam o acesso.
