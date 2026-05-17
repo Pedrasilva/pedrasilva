@@ -45,6 +45,50 @@ export type DriveSyncResult = {
 // ---- Helpers --------------------------------------------------------------
 const GATEWAY_BASE = "https://connector-gateway.lovable.dev/google_drive";
 
+// ---- Archive root configuration ------------------------------------------
+// Phase 1.5: Shared Drive support.
+//   GOOGLE_DRIVE_ARCHIVE_ROOT_FOLDER_ID  (preferred) — id of a folder you
+//     created inside a company-owned Shared Drive (e.g. "PSA Hub Archive").
+//     The connector account must have writer access to it.
+//   GOOGLE_DRIVE_SHARED_DRIVE_ID         (optional)  — id of the Shared Drive
+//     itself. Used as parent when no root folder id is provided.
+// If neither is set, falls back to the legacy My Drive layout (Phase 1).
+type ArchiveCtx =
+  | { mode: "rootFolder"; pathPrefix: string; rootParentId: string; driveId: string | null }
+  | { mode: "sharedDrive"; pathPrefix: string; rootParentId: string; driveId: string; rootName: string }
+  | { mode: "myDrive"; pathPrefix: ""; rootParentId: null; driveId: null };
+
+function getArchiveCtx(): ArchiveCtx {
+  const rootFolder = process.env.GOOGLE_DRIVE_ARCHIVE_ROOT_FOLDER_ID?.trim();
+  const sharedDrive = process.env.GOOGLE_DRIVE_SHARED_DRIVE_ID?.trim();
+  const rootName = process.env.GOOGLE_DRIVE_ARCHIVE_ROOT_NAME?.trim() || "PSA Hub Archive";
+  if (rootFolder) {
+    return {
+      mode: "rootFolder",
+      pathPrefix: `rootfolder:${rootFolder}`,
+      rootParentId: rootFolder,
+      driveId: sharedDrive || null,
+    };
+  }
+  if (sharedDrive) {
+    return {
+      mode: "sharedDrive",
+      pathPrefix: `shared:${sharedDrive}`,
+      rootParentId: sharedDrive,
+      driveId: sharedDrive,
+      rootName,
+    };
+  }
+  return { mode: "myDrive", pathPrefix: "", rootParentId: null, driveId: null };
+}
+
+export type ArchiveConfigInfo = {
+  mode: "rootFolder" | "sharedDrive" | "myDrive";
+  rootFolderId: string | null;
+  sharedDriveId: string | null;
+  rootName: string;
+};
+
 function slugify(s: string): string {
   return (s || "unknown")
     .normalize("NFD")
