@@ -214,6 +214,8 @@ export function ClientsMasterData() {
         onSaved={invalidate}
       />
     </Card>
+    <CompaniesImportCard kind="client" />
+    </div>
   );
 }
 
