@@ -622,14 +622,20 @@ export function SubmitExpenseDialog({
             <div className="text-xs font-semibold uppercase text-muted-foreground">
               {t("hr:beneficios.submit.supplier.section")}
             </div>
-            {ocr.matchedCompanyId && (
+            {ocr.isOwnCompanyNif && (
+              <Badge variant="outline" className="gap-1 border-amber-500 text-amber-700">
+                <AlertTriangle className="h-3 w-3" />
+                {t("hr:beneficios.submit.supplier.ownCompanyNif")}
+              </Badge>
+            )}
+            {!ocr.isOwnCompanyNif && ocr.matchedCompanyId && (
               <Badge variant="secondary" className="gap-1">
                 <CheckCircle2 className="h-3 w-3 text-emerald-600" />
                 {t("hr:beneficios.submit.supplier.recognized")}
                 {ocr.matchedCompanyName ? `: ${ocr.matchedCompanyName}` : ""}
               </Badge>
             )}
-            {!ocr.matchedCompanyId && supplierNifNormalized && supplierNifValid && (
+            {!ocr.isOwnCompanyNif && !ocr.matchedCompanyId && supplierNifNormalized && supplierNifValid && (
               <Badge variant="outline">{t("hr:beneficios.submit.supplier.newSupplier")}</Badge>
             )}
           </div>
