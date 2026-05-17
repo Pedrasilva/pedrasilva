@@ -244,10 +244,12 @@ export function BenefitDriveSyncCard() {
                     })}
                   </span>
                   <span className="block text-xs text-muted-foreground">
-                    {t("hr:beneficios.driveSync.confirmNote", {
-                      defaultValue:
-                        "Os ficheiros são copiados para a conta Google ligada ao conector. Nenhum ficheiro é apagado do Supabase ou do Drive.",
-                    })}
+                    {cfgQ.data?.mode === "myDrive"
+                      ? "Destino: My Drive da conta ligada ao conector. Recomenda-se configurar uma Shared Drive da empresa antes de volumes maiores."
+                      : cfgQ.data?.mode === "rootFolder"
+                        ? `Destino: pasta partilhada (root folder ${cfgQ.data.rootFolderId?.slice(0, 8)}…) numa Shared Drive da empresa.`
+                        : `Destino: Shared Drive ${cfgQ.data?.sharedDriveId?.slice(0, 8)}… / ${cfgQ.data?.rootName}.`}
+                    {" "}Nenhum ficheiro é apagado do Supabase ou do Drive.
                   </span>
                 </AlertDialogDescription>
               </AlertDialogHeader>
