@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Upload, FileSpreadsheet, AlertTriangle, CheckCircle2, Filter, X, Plus, Trash2, Loader2, Info, MoreHorizontal, Link2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Upload, FileSpreadsheet, AlertTriangle, AlertCircle, CheckCircle2, Filter, X, Plus, Trash2, Loader2, Info, MoreHorizontal, Link2, Search, ArrowUpRight, ArrowDownRight, FileText } from "lucide-react";
+import { AdminOnly } from "@/components/AdminOnly";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -509,48 +511,77 @@ function Stat({ label, value, tone = "neutral" }: { label: string; value: string
 }
 
 // =========================================================
-// Queue + Classify
+// Operator Queue (depth pass): list + detail + candidates
 // =========================================================
+type DirFilter = "all" | "in" | "out";
+type LinkFilter = "all" | "linked" | "unlinked";
+type StatusFilter = "unclassified" | "classified" | "ignored" | "internal_transfer" | "all";
+
+const fmtAmount = (n: number, ccy = "EUR") =>
+  new Intl.NumberFormat("pt-PT", { style: "currency", currency: ccy, minimumFractionDigits: 2 }).format(n || 0);
+
 function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: string; classifications: Classification[]; isPt: boolean }) {
   const { t } = useTranslation(["finance", "common"]);
-  const [filter, setFilter] = useState<"unclassified" | "classified" | "ignored" | "all">("unclassified");
+  const { user } = useAuth();
+
+  // Filters
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("unclassified");
+  const [dirFilter, setDirFilter] = useState<DirFilter>("all");
+  const [linkFilter, setLinkFilter] = useState<LinkFilter>("all");
+  const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [minAmount, setMinAmount] = useState("");
+  const [maxAmount, setMaxAmount] = useState("");
+
+  // Selection + action dialogs
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [classifyTx, setClassifyTx] = useState<BankTx | null>(null);
   const [matchDocTx, setMatchDocTx] = useState<BankTx | null>(null);
   const [createDocTx, setCreateDocTx] = useState<BankTx | null>(null);
   const [matchReimbTx, setMatchReimbTx] = useState<BankTx | null>(null);
-  const { user } = useAuth();
+
+  // Reset selection when account changes
+  useEffect(() => { setSelectedId(null); }, [accountId]);
 
   const txQ = useQuery({
-    queryKey: ["finance", "bank-tx", accountId, filter],
+    queryKey: ["finance", "bank-tx", accountId, statusFilter],
     queryFn: async (): Promise<BankTx[]> => {
-      let q = supabase.from("bank_transactions").select("id, bank_account_id, transaction_date, value_date, description, amount, running_balance, currency, status, suggested_classification_id, ignored_reason").eq("bank_account_id", accountId).order("transaction_date", { ascending: false }).limit(500);
-      if (filter !== "all") q = q.eq("status", filter);
+      let q = supabase
+        .from("bank_transactions")
+        .select("id, bank_account_id, transaction_date, value_date, description, amount, running_balance, currency, status, suggested_classification_id, ignored_reason")
+        .eq("bank_account_id", accountId)
+        .order("transaction_date", { ascending: false })
+        .limit(1000);
+      if (statusFilter !== "all") q = q.eq("status", statusFilter);
       const { data, error } = await q;
       if (error) throw error;
       return (data ?? []) as BankTx[];
     },
   });
 
-  const txIds = useMemo(() => (txQ.data ?? []).map((t) => t.id), [txQ.data]);
+  const txIds = useMemo(() => (txQ.data ?? []).map((x) => x.id), [txQ.data]);
 
-  // Map of bank_transaction_id -> linked document summary.
-  // Surfaces "Linked to X" badge so users don't double-classify.
+  // Linked-payment map (per tx)
   const linksQ = useQuery({
     queryKey: ["finance", "bank-tx-links", accountId, txIds],
     enabled: txIds.length > 0,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("financial_document_payments")
-        .select("bank_transaction_id, document_id, financial_documents(document_number)")
+        .select("bank_transaction_id, document_id, amount, financial_documents(document_number, direction, doc_type)")
         .in("bank_transaction_id", txIds);
       if (error) throw error;
-      const map = new Map<string, { documentId: string; documentNumber: string | null }>();
-      (data ?? []).forEach((row: { bank_transaction_id: string | null; document_id: string; financial_documents: { document_number: string | null } | { document_number: string | null }[] | null }) => {
+      const map = new Map<string, { documentId: string; documentNumber: string | null; direction: string | null; docType: string | null; amount: number }>();
+      (data ?? []).forEach((row: { bank_transaction_id: string | null; document_id: string; amount: number; financial_documents: { document_number: string | null; direction: string | null; doc_type: string | null } | { document_number: string | null; direction: string | null; doc_type: string | null }[] | null }) => {
         if (!row.bank_transaction_id) return;
         const fd = Array.isArray(row.financial_documents) ? row.financial_documents[0] : row.financial_documents;
         map.set(row.bank_transaction_id, {
           documentId: row.document_id,
           documentNumber: fd?.document_number ?? null,
+          direction: fd?.direction ?? null,
+          docType: fd?.doc_type ?? null,
+          amount: Number(row.amount ?? 0),
         });
       });
       return map;
@@ -570,6 +601,41 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
 
   const classMap = useMemo(() => new Map(classifications.map((c) => [c.id, c])), [classifications]);
 
+  // Client-side filtering
+  const filtered = useMemo(() => {
+    const rows = txQ.data ?? [];
+    const linksMap = linksQ.data;
+    const min = minAmount === "" ? null : Number(minAmount);
+    const max = maxAmount === "" ? null : Number(maxAmount);
+    const needle = search.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (dirFilter === "in" && r.amount < 0) return false;
+      if (dirFilter === "out" && r.amount >= 0) return false;
+      if (dateFrom && r.transaction_date < dateFrom) return false;
+      if (dateTo && r.transaction_date > dateTo) return false;
+      const abs = Math.abs(Number(r.amount));
+      if (min !== null && !Number.isNaN(min) && abs < min) return false;
+      if (max !== null && !Number.isNaN(max) && abs > max) return false;
+      if (needle && !r.description.toLowerCase().includes(needle)) return false;
+      if (linkFilter !== "all" && linksMap) {
+        const linked = linksMap.has(r.id);
+        if (linkFilter === "linked" && !linked) return false;
+        if (linkFilter === "unlinked" && linked) return false;
+      }
+      return true;
+    });
+  }, [txQ.data, linksQ.data, dirFilter, dateFrom, dateTo, minAmount, maxAmount, search, linkFilter]);
+
+  // Auto-select first row when filters change
+  useEffect(() => {
+    if (filtered.length === 0) { setSelectedId(null); return; }
+    if (!selectedId || !filtered.some((r) => r.id === selectedId)) {
+      setSelectedId(filtered[0].id);
+    }
+  }, [filtered, selectedId]);
+
+  const selectedTx = useMemo(() => filtered.find((r) => r.id === selectedId) ?? null, [filtered, selectedId]);
+
   async function quickMarkStatus(tx: BankTx, status: "ignored" | "internal_transfer") {
     const { error } = await supabase
       .from("bank_transactions")
@@ -581,159 +647,404 @@ function ReconciliationQueue({ accountId, classifications, isPt }: { accountId: 
     counts.refetch();
   }
 
+  const clearFilters = () => {
+    setDirFilter("all"); setLinkFilter("all"); setSearch(""); setDateFrom(""); setDateTo(""); setMinAmount(""); setMaxAmount("");
+  };
+
+  const hasFilters = dirFilter !== "all" || linkFilter !== "all" || search || dateFrom || dateTo || minAmount || maxAmount;
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base">{t("finance:bankRec.queueTitle")}</CardTitle>
-          <div className="flex items-center gap-2">
-            <Filter className="size-4 text-muted-foreground" />
-            <Select value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
-              <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
+    <div className="space-y-4">
+      <InconsistencyWarningCard />
+
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <CardTitle className="text-base">{t("finance:bankRec.queueTitle")}</CardTitle>
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1">
+                {(["unclassified", "classified", "ignored", "all"] as StatusFilter[]).map((s) => (
+                  <Button key={s} size="sm" variant={statusFilter === s ? "default" : "outline"} onClick={() => setStatusFilter(s)} className="h-7 text-xs">
+                    {t(`finance:bankRec.status.${s}`)}
+                    {s !== "all" && <span className="ml-1 opacity-60">({counts.data?.[s] ?? 0})</span>}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Filter bar */}
+          <div className="grid grid-cols-2 lg:grid-cols-6 gap-2 pt-3">
+            <div className="lg:col-span-2 relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+              <Input className="h-8 pl-7 text-xs" placeholder={t("finance:bankRec.operator.searchPlaceholder") as string} value={search} onChange={(e) => setSearch(e.target.value)} />
+            </div>
+            <Input type="date" className="h-8 text-xs" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} aria-label={t("finance:bankRec.operator.dateFrom") as string} />
+            <Input type="date" className="h-8 text-xs" value={dateTo} onChange={(e) => setDateTo(e.target.value)} aria-label={t("finance:bankRec.operator.dateTo") as string} />
+            <Select value={dirFilter} onValueChange={(v) => setDirFilter(v as DirFilter)}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="unclassified">{t("finance:bankRec.status.unclassified")} ({counts.data?.unclassified ?? 0})</SelectItem>
-                <SelectItem value="classified">{t("finance:bankRec.status.classified")} ({counts.data?.classified ?? 0})</SelectItem>
-                <SelectItem value="ignored">{t("finance:bankRec.status.ignored")} ({counts.data?.ignored ?? 0})</SelectItem>
-                <SelectItem value="all">{t("finance:bankRec.status.all")}</SelectItem>
+                <SelectItem value="all">{t("finance:bankRec.operator.direction.all")}</SelectItem>
+                <SelectItem value="in">{t("finance:bankRec.operator.direction.in")}</SelectItem>
+                <SelectItem value="out">{t("finance:bankRec.operator.direction.out")}</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={linkFilter} onValueChange={(v) => setLinkFilter(v as LinkFilter)}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("finance:bankRec.operator.linked.all")}</SelectItem>
+                <SelectItem value="linked">{t("finance:bankRec.operator.linked.linked")}</SelectItem>
+                <SelectItem value="unlinked">{t("finance:bankRec.operator.linked.unlinked")}</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input className="h-8 text-xs" type="number" step="0.01" placeholder={t("finance:bankRec.operator.minAmount") as string} value={minAmount} onChange={(e) => setMinAmount(e.target.value)} />
+            <Input className="h-8 text-xs" type="number" step="0.01" placeholder={t("finance:bankRec.operator.maxAmount") as string} value={maxAmount} onChange={(e) => setMaxAmount(e.target.value)} />
+            <div className="flex items-center justify-end gap-2 lg:col-span-3">
+              <span className="text-[11px] text-muted-foreground">{t("finance:bankRec.operator.resultsCount", { count: filtered.length })}</span>
+              {hasFilters && (
+                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={clearFilters}>
+                  <X className="size-3 mr-1" /> {t("finance:bankRec.operator.clearFilters")}
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {txQ.isLoading ? (
+            <p className="text-sm text-muted-foreground py-8 text-center">{t("common:loading")}</p>
+          ) : filtered.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-8 text-center">{t("finance:bankRec.noTransactions")}</p>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              {/* Left: list */}
+              <div className="lg:col-span-5 border rounded-md overflow-hidden bg-background">
+                <div className="max-h-[640px] overflow-auto divide-y">
+                  {filtered.map((tx) => {
+                    const linked = linksQ.data?.get(tx.id) ?? null;
+                    const sug = tx.suggested_classification_id ? classMap.get(tx.suggested_classification_id) : null;
+                    const isSelected = tx.id === selectedId;
+                    return (
+                      <button
+                        key={tx.id}
+                        type="button"
+                        onClick={() => setSelectedId(tx.id)}
+                        className={`w-full text-left px-3 py-2.5 hover:bg-muted/40 transition-colors ${isSelected ? "bg-muted/60 ring-1 ring-inset ring-primary/30" : ""}`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                              {tx.amount < 0 ? <ArrowUpRight className="size-3 text-destructive" /> : <ArrowDownRight className="size-3 text-emerald-600" />}
+                              <span>{tx.transaction_date}</span>
+                              <StatusBadge status={tx.status} />
+                              {linked && (
+                                <Badge variant="secondary" className="text-[10px] gap-1 py-0">
+                                  <Link2 className="size-2.5" />{linked.documentNumber ?? "—"}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="text-xs mt-1 line-clamp-2" title={tx.description}>{tx.description}</div>
+                            {sug && !linked && (
+                              <Badge variant="outline" className="mt-1 text-[10px]">
+                                {t("finance:bankRec.autoSuggested")}: {isPt ? sug.name_pt : sug.name_en}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className={`text-xs tabular-nums font-medium shrink-0 ${tx.amount < 0 ? "text-destructive" : "text-emerald-600"}`}>
+                            {fmtAmount(Number(tx.amount), tx.currency)}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Right: detail panel */}
+              <div className="lg:col-span-7">
+                {selectedTx ? (
+                  <TxDetailPanel
+                    tx={selectedTx}
+                    classifications={classifications}
+                    isPt={isPt}
+                    linked={linksQ.data?.get(selectedTx.id) ?? null}
+                    onClassify={() => setClassifyTx(selectedTx)}
+                    onMatchDoc={() => setMatchDocTx(selectedTx)}
+                    onCreateDoc={() => setCreateDocTx(selectedTx)}
+                    onMatchReimb={() => setMatchReimbTx(selectedTx)}
+                    onMarkIgnored={() => quickMarkStatus(selectedTx, "ignored")}
+                    onMarkTransfer={() => quickMarkStatus(selectedTx, "internal_transfer")}
+                  />
+                ) : (
+                  <div className="h-full border rounded-md flex items-center justify-center text-sm text-muted-foreground py-12">
+                    {t("finance:bankRec.operator.selectTx")}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </CardContent>
+
+        {classifyTx && (
+          <ClassifyDialog
+            tx={classifyTx}
+            classifications={classifications}
+            isPt={isPt}
+            linkedDocumentNumber={linksQ.data?.get(classifyTx.id)?.documentNumber ?? null}
+            onClose={() => setClassifyTx(null)}
+            onSaved={() => { setClassifyTx(null); txQ.refetch(); counts.refetch(); }}
+          />
+        )}
+        {matchDocTx && (
+          <MatchBankTxToDocDialog
+            tx={{ id: matchDocTx.id, transaction_date: matchDocTx.transaction_date, description: matchDocTx.description, amount: Number(matchDocTx.amount) }}
+            onClose={() => setMatchDocTx(null)}
+            onMatched={() => { txQ.refetch(); }}
+          />
+        )}
+        {createDocTx && (
+          <CreateDocFromTxDialog
+            tx={{ id: createDocTx.id, bank_account_id: createDocTx.bank_account_id, transaction_date: createDocTx.transaction_date, description: createDocTx.description, amount: Number(createDocTx.amount), currency: createDocTx.currency }}
+            onClose={() => setCreateDocTx(null)}
+            onCreated={() => { setCreateDocTx(null); txQ.refetch(); counts.refetch(); }}
+          />
+        )}
+        {matchReimbTx && (
+          <MatchBankTxToReimbursementDialog
+            tx={{ id: matchReimbTx.id, transaction_date: matchReimbTx.transaction_date, description: matchReimbTx.description, amount: Number(matchReimbTx.amount) }}
+            onClose={() => setMatchReimbTx(null)}
+            onMatched={() => { setMatchReimbTx(null); txQ.refetch(); counts.refetch(); }}
+          />
+        )}
+      </Card>
+    </div>
+  );
+}
+
+// =========================================================
+// Detail panel for a selected bank transaction
+// =========================================================
+type LinkedInfo = { documentId: string; documentNumber: string | null; direction: string | null; docType: string | null; amount: number } | null;
+
+function TxDetailPanel({
+  tx, classifications, isPt, linked,
+  onClassify, onMatchDoc, onCreateDoc, onMatchReimb, onMarkIgnored, onMarkTransfer,
+}: {
+  tx: BankTx;
+  classifications: Classification[];
+  isPt: boolean;
+  linked: LinkedInfo;
+  onClassify: () => void;
+  onMatchDoc: () => void;
+  onCreateDoc: () => void;
+  onMatchReimb: () => void;
+  onMarkIgnored: () => void;
+  onMarkTransfer: () => void;
+}) {
+  const { t } = useTranslation(["finance", "common"]);
+  const isOutflow = tx.amount < 0;
+
+  // Existing classification splits (if any)
+  const splitsQ = useQuery({
+    queryKey: ["finance", "bank-tx-splits", tx.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("bank_transaction_classifications")
+        .select("id, amount, notes, classification_id, financial_classifications(code, name_pt, name_en)")
+        .eq("bank_transaction_id", tx.id);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  // Candidate document matches (unlinked tx only)
+  const candidatesQ = useQuery({
+    queryKey: ["finance", "tx-candidates", tx.id, tx.amount, tx.transaction_date, !!linked],
+    enabled: !linked,
+    queryFn: async () => {
+      const wantDir = isOutflow ? "received" : "issued";
+      const target = Math.abs(Number(tx.amount));
+      const tolerance = Math.max(0.5, target * 0.01);
+      const lo = target - tolerance;
+      const hi = target + tolerance;
+      const refDate = new Date(tx.transaction_date);
+      const from = new Date(refDate); from.setDate(from.getDate() - 30);
+      const to = new Date(refDate); to.setDate(to.getDate() + 30);
+      const { data, error } = await supabase
+        .from("financial_documents")
+        .select("id, document_number, doc_type, direction, status, issue_date, due_date, total_inc_vat, outstanding_amount, counterparty_name_snapshot")
+        .eq("direction", wantDir)
+        .gte("outstanding_amount", lo)
+        .lte("outstanding_amount", hi)
+        .gte("issue_date", from.toISOString().slice(0, 10))
+        .lte("issue_date", to.toISOString().slice(0, 10))
+        .in("status", ["issued", "partially_paid", "draft"])
+        .limit(8);
+      if (error) throw error;
+      return (data ?? []).map((d) => ({ ...d, counterpartyName: d.counterparty_name_snapshot ?? null }));
+    },
+  });
+
+  return (
+    <div className="border rounded-md bg-card">
+      {/* Header */}
+      <div className="p-4 border-b">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="text-xs text-muted-foreground mb-1 flex items-center gap-2 flex-wrap">
+              <StatusBadge status={tx.status} />
+              <span>{tx.transaction_date}</span>
+              {tx.value_date && tx.value_date !== tx.transaction_date && (
+                <span className="text-[11px]">· {t("finance:bankRec.operator.valueDate")}: {tx.value_date}</span>
+              )}
+            </div>
+            <div className="text-sm font-medium break-words">{tx.description}</div>
+          </div>
+          <div className={`text-lg tabular-nums font-semibold shrink-0 ${tx.amount < 0 ? "text-destructive" : "text-emerald-600"}`}>
+            {fmtAmount(Number(tx.amount), tx.currency)}
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        {txQ.isLoading ? (
-          <p className="text-sm text-muted-foreground">{t("common:loading")}</p>
-        ) : (txQ.data ?? []).length === 0 ? (
-          <p className="text-sm text-muted-foreground py-8 text-center">{t("finance:bankRec.noTransactions")}</p>
-        ) : (
-          <div className="overflow-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("finance:bankRec.col.date")}</TableHead>
-                  <TableHead>{t("finance:bankRec.col.description")}</TableHead>
-                  <TableHead className="text-right">{t("finance:bankRec.col.amount")}</TableHead>
-                  <TableHead>{t("finance:bankRec.col.suggestion")}</TableHead>
-                  <TableHead>{t("finance:bankRec.col.status")}</TableHead>
-                  <TableHead className="text-right">{t("common:actions")}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(txQ.data ?? []).map((tx) => {
-                  const sug = tx.suggested_classification_id ? classMap.get(tx.suggested_classification_id) : null;
-                  const linked = linksQ.data?.get(tx.id) ?? null;
-                  return (
-                    <TableRow key={tx.id}>
-                      <TableCell className="text-xs">{tx.transaction_date}</TableCell>
-                      <TableCell className="text-xs max-w-[420px]">
-                        <div className="truncate" title={tx.description}>{tx.description}</div>
-                        {linked && (
-                          <Badge variant="secondary" className="mt-1 text-[10px] gap-1">
-                            <Link2 className="size-2.5" />
-                            {t("finance:bankRec.linkedTo", { ref: linked.documentNumber ?? "—" })}
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className={`text-right text-xs tabular-nums ${tx.amount < 0 ? "text-destructive" : "text-emerald-600"}`}>{tx.amount.toFixed(2)}</TableCell>
-                      <TableCell className="text-xs">{sug ? <Badge variant="outline">{isPt ? sug.name_pt : sug.name_en}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
-                      <TableCell><StatusBadge status={tx.status} /></TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1 items-center">
-                          <Button size="sm" variant="outline" onClick={() => setMatchDocTx(tx)} title={t(tx.amount >= 0 ? "finance:bankRec.actions.matchIncomingHint" : "finance:bankRec.actions.matchOutgoingHint") as string}>
-                            {t(tx.amount >= 0 ? "finance:bankRec.actions.matchIncoming" : "finance:bankRec.actions.matchOutgoing")}
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => setCreateDocTx(tx)} title={t("finance:bankRec.actions.createDocHint") as string}>
-                            {t("finance:bankRec.actions.createDoc")}
-                          </Button>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button size="sm" variant="ghost" title={t("finance:bankRec.actions.more") as string} aria-label={t("finance:bankRec.actions.more") as string}>
-                                <MoreHorizontal className="size-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56">
-                              <DropdownMenuItem onClick={() => setClassifyTx(tx)}>
-                                {tx.status === "unclassified" ? t("finance:bankRec.actions.classify") : t("common:edit")}
-                              </DropdownMenuItem>
-                              {tx.amount < 0 && (
-                                <DropdownMenuItem onClick={() => setMatchReimbTx(tx)}>
-                                  {t("finance:bankRec.actions.matchReimbursement")}
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuSeparator />
-                              {tx.status !== "internal_transfer" && (
-                                <DropdownMenuItem onClick={() => quickMarkStatus(tx, "internal_transfer")}>
-                                  {t("finance:bankRec.actions.transfer")}
-                                </DropdownMenuItem>
-                              )}
-                              {tx.status !== "ignored" && (
-                                <DropdownMenuItem onClick={() => quickMarkStatus(tx, "ignored")}>
-                                  {t("finance:bankRec.actions.ignore")}
-                                </DropdownMenuItem>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+      </div>
+
+      {/* Linked badge / classification splits */}
+      <div className="p-4 space-y-3 border-b">
+        {linked ? (
+          <div className="rounded-md border border-emerald-500/40 bg-emerald-500/10 p-3 text-xs flex items-start gap-2">
+            <Link2 className="size-4 text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <div className="font-medium text-emerald-700 dark:text-emerald-400">
+                {t("finance:bankRec.linkedTo", { ref: linked.documentNumber ?? "—" })}
+              </div>
+              <div className="text-muted-foreground mt-0.5">
+                {linked.direction === "issued" ? t("finance:bankRec.operator.linked.receipt") : t("finance:bankRec.operator.linked.payment")}
+                {" · "}{fmtAmount(linked.amount)}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {(splitsQ.data ?? []).length > 0 && (
+          <div className="space-y-1">
+            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{t("finance:bankRec.operator.classifications")}</div>
+            <div className="space-y-1">
+              {(splitsQ.data ?? []).map((s) => {
+                const fc = Array.isArray(s.financial_classifications) ? s.financial_classifications[0] : s.financial_classifications;
+                return (
+                  <div key={s.id} className="flex items-center justify-between text-xs border rounded px-2 py-1.5 bg-background">
+                    <div className="min-w-0">
+                      <div className="font-medium">{fc ? (isPt ? fc.name_pt : fc.name_en) : "—"}</div>
+                      {s.notes && <div className="text-[11px] text-muted-foreground truncate">{s.notes}</div>}
+                    </div>
+                    <div className="tabular-nums">{fmtAmount(Number(s.amount), tx.currency)}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
-      </CardContent>
+      </div>
 
-      {classifyTx && (
-        <ClassifyDialog
-          tx={classifyTx}
-          classifications={classifications}
-          isPt={isPt}
-          linkedDocumentNumber={linksQ.data?.get(classifyTx.id)?.documentNumber ?? null}
-          onClose={() => setClassifyTx(null)}
-          onSaved={() => { setClassifyTx(null); txQ.refetch(); counts.refetch(); }}
-        />
+      {/* Candidate suggestions (unlinked) */}
+      {!linked && (
+        <div className="p-4 space-y-2 border-b">
+          <div className="text-[11px] uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+            <FileText className="size-3" /> {t("finance:bankRec.operator.candidatesTitle")}
+          </div>
+          {candidatesQ.isLoading ? (
+            <div className="text-xs text-muted-foreground">{t("common:loading")}</div>
+          ) : (candidatesQ.data ?? []).length === 0 ? (
+            <div className="text-xs text-muted-foreground">{t("finance:bankRec.operator.noCandidates")}</div>
+          ) : (
+            <div className="space-y-1">
+              {(candidatesQ.data ?? []).map((d) => (
+                <button
+                  key={d.id}
+                  type="button"
+                  onClick={onMatchDoc}
+                  className="w-full text-left flex items-center justify-between gap-3 text-xs border rounded px-2 py-1.5 bg-background hover:bg-muted/50 transition-colors"
+                >
+                  <div className="min-w-0">
+                    <div className="font-medium truncate">{d.document_number ?? "—"} · {d.counterpartyName ?? "—"}</div>
+                    <div className="text-[11px] text-muted-foreground">{d.issue_date ?? "—"}{d.due_date ? ` → ${d.due_date}` : ""}</div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className="tabular-nums font-medium">{fmtAmount(Number(d.outstanding_amount))}</div>
+                    <div className="text-[10px] text-muted-foreground">{t("finance:bankRec.operator.candidateMatch")}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       )}
-      {matchDocTx && (
-        <MatchBankTxToDocDialog
-          tx={{
-            id: matchDocTx.id,
-            transaction_date: matchDocTx.transaction_date,
-            description: matchDocTx.description,
-            amount: Number(matchDocTx.amount),
-          }}
-          onClose={() => setMatchDocTx(null)}
-          onMatched={() => { txQ.refetch(); }}
-        />
-      )}
-      {createDocTx && (
-        <CreateDocFromTxDialog
-          tx={{
-            id: createDocTx.id,
-            bank_account_id: createDocTx.bank_account_id,
-            transaction_date: createDocTx.transaction_date,
-            description: createDocTx.description,
-            amount: Number(createDocTx.amount),
-            currency: createDocTx.currency,
-          }}
-          onClose={() => setCreateDocTx(null)}
-          onCreated={() => { setCreateDocTx(null); txQ.refetch(); counts.refetch(); }}
-        />
-      )}
-      {matchReimbTx && (
-        <MatchBankTxToReimbursementDialog
-          tx={{
-            id: matchReimbTx.id,
-            transaction_date: matchReimbTx.transaction_date,
-            description: matchReimbTx.description,
-            amount: Number(matchReimbTx.amount),
-          }}
-          onClose={() => setMatchReimbTx(null)}
-          onMatched={() => { setMatchReimbTx(null); txQ.refetch(); counts.refetch(); }}
-        />
-      )}
-    </Card>
+
+      {/* Actions */}
+      <div className="p-4 flex flex-wrap gap-2">
+        <Button size="sm" onClick={onMatchDoc}>
+          {t(isOutflow ? "finance:bankRec.actions.matchOutgoing" : "finance:bankRec.actions.matchIncoming")}
+        </Button>
+        <Button size="sm" variant="outline" onClick={onCreateDoc}>
+          {t("finance:bankRec.actions.createDoc")}
+        </Button>
+        <Button size="sm" variant="outline" onClick={onClassify}>
+          {tx.status === "unclassified" ? t("finance:bankRec.actions.classify") : t("common:edit")}
+        </Button>
+        {isOutflow && (
+          <Button size="sm" variant="outline" onClick={onMatchReimb}>
+            {t("finance:bankRec.actions.matchReimbursement")}
+          </Button>
+        )}
+        <div className="flex-1" />
+        {tx.status !== "internal_transfer" && (
+          <Button size="sm" variant="ghost" onClick={onMarkTransfer}>
+            {t("finance:bankRec.actions.transfer")}
+          </Button>
+        )}
+        {tx.status !== "ignored" && (
+          <Button size="sm" variant="ghost" onClick={onMarkIgnored}>
+            {t("finance:bankRec.actions.ignore")}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// =========================================================
+// Admin-only inconsistency warning card
+// =========================================================
+function InconsistencyWarningCard() {
+  const { t } = useTranslation(["finance"]);
+  const q = useQuery({
+    queryKey: ["finance", "inconsistency-report", "warning"],
+    queryFn: async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase.rpc as any)("finance_inconsistency_report");
+      if (error) throw error;
+      const counts = (data as { counts?: Record<string, number> } | null)?.counts ?? {};
+      const total =
+        (counts.linked_payment_not_classified ?? 0) +
+        (counts.classified_orphan ?? 0) +
+        (counts.payment_missing_bank_tx ?? 0);
+      return total;
+    },
+    staleTime: 60_000,
+  });
+
+  if (!q.data || q.data === 0) return null;
+
+  return (
+    <AdminOnly>
+      <Card className="border-amber-500/40 bg-amber-500/5">
+        <CardContent className="p-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm">
+            <AlertCircle className="size-4 text-amber-600 shrink-0" />
+            <span className="font-medium">{t("finance:bankRec.operator.inconsistencyWarning", { count: q.data })}</span>
+          </div>
+          <Button asChild size="sm" variant="outline">
+            <Link to="/finance/admin/inconsistencies">{t("finance:bankRec.operator.openInconsistencies")}</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    </AdminOnly>
   );
 }
 

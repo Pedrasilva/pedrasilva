@@ -275,6 +275,35 @@
       "noCandidates": "No matching reimbursements (±0.50 € amount, ±30 days from this transaction).",
       "partial": "Partial — paid {{paid}}",
       "noSupplier": "Reimbursement supplier is not configured."
+    },
+    "operator": {
+      "searchPlaceholder": "Search description…",
+      "dateFrom": "From",
+      "dateTo": "To",
+      "minAmount": "Min |amount|",
+      "maxAmount": "Max |amount|",
+      "clearFilters": "Clear filters",
+      "resultsCount": "{{count}} results",
+      "selectTx": "Select a transaction to see details and matching candidates.",
+      "valueDate": "Value date",
+      "classifications": "Classification splits",
+      "candidatesTitle": "Candidate documents",
+      "candidateMatch": "Match",
+      "noCandidates": "No open documents match the amount and date window.",
+      "inconsistencyWarning": "{{count}} reconciliation inconsistencies need review.",
+      "openInconsistencies": "Open report",
+      "direction": {
+        "all": "All flows",
+        "in": "Inflows",
+        "out": "Outflows"
+      },
+      "linked": {
+        "all": "Any link",
+        "linked": "Linked only",
+        "unlinked": "Unlinked only",
+        "payment": "Supplier payment",
+        "receipt": "Client receipt"
+      }
     }
   },
   "overview": {

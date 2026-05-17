@@ -275,6 +275,35 @@
       "noCandidates": "Sem reembolsos compatíveis (±0,50 € de valor, ±30 dias desta transação).",
       "partial": "Parcial — pago {{paid}}",
       "noSupplier": "Fornecedor de reembolsos não está configurado."
+    },
+    "operator": {
+      "searchPlaceholder": "Pesquisar descrição…",
+      "dateFrom": "De",
+      "dateTo": "Até",
+      "minAmount": "Mín |valor|",
+      "maxAmount": "Máx |valor|",
+      "clearFilters": "Limpar filtros",
+      "resultsCount": "{{count}} resultados",
+      "selectTx": "Seleciona uma transação para ver detalhes e candidatos.",
+      "valueDate": "Data valor",
+      "classifications": "Repartições por categoria",
+      "candidatesTitle": "Documentos candidatos",
+      "candidateMatch": "Ligar",
+      "noCandidates": "Sem documentos em aberto compatíveis com o valor e janela de data.",
+      "inconsistencyWarning": "{{count}} inconsistências de reconciliação a rever.",
+      "openInconsistencies": "Abrir relatório",
+      "direction": {
+        "all": "Todos os fluxos",
+        "in": "Entradas",
+        "out": "Saídas"
+      },
+      "linked": {
+        "all": "Qualquer ligação",
+        "linked": "Apenas ligadas",
+        "unlinked": "Apenas não ligadas",
+        "payment": "Pagamento a fornecedor",
+        "receipt": "Recebimento de cliente"
+      }
     }
   },
   "overview": {
