@@ -1007,8 +1007,7 @@ function PaymentsSection({
             </div>
             <div>
               <Label>{t("finance:documents.payments.date")}</Label>
-              <Input
-                type="date"
+              <DateInputWithPreview
                 value={manualDate}
                 onChange={(e) => setManualDate(e.target.value)}
               />
