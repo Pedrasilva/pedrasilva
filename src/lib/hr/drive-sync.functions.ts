@@ -140,6 +140,7 @@ async function assertAdmin(userId: string) {
 }
 
 // Find-or-create a folder under a parent. Caches by full path.
+// Shared-Drive-safe: always passes supportsAllDrives=true.
 async function ensureFolder(path: string, name: string, parentId: string | null): Promise<string> {
   // Cache lookup
   const cached = await supabaseAdmin
@@ -149,17 +150,21 @@ async function ensureFolder(path: string, name: string, parentId: string | null)
     .maybeSingle();
   if (cached.data?.drive_folder_id) return cached.data.drive_folder_id;
 
-  // Create (we use drive.file scope so we only see what we created — always create fresh under our parent)
+  // Create. We use drive.file scope so we only see what we created — always create fresh under our parent.
+  // supportsAllDrives=true is required when the parent lives in a Shared Drive.
   const body = {
     name,
     mimeType: "application/vnd.google-apps.folder",
     parents: parentId ? [parentId] : undefined,
   };
-  const res = await fetch(`${GATEWAY_BASE}/drive/v3/files?fields=id,name`, {
-    method: "POST",
-    headers: driveHeaders({ "Content-Type": "application/json" }),
-    body: JSON.stringify(body),
-  });
+  const res = await fetch(
+    `${GATEWAY_BASE}/drive/v3/files?fields=id,name&supportsAllDrives=true`,
+    {
+      method: "POST",
+      headers: driveHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify(body),
+    },
+  );
   const text = await res.text();
   if (!res.ok) {
     throw new Error(`Drive folder create failed [${res.status}]: ${text}`);
@@ -172,17 +177,43 @@ async function ensureFolder(path: string, name: string, parentId: string | null)
 }
 
 async function ensureFolderTree(collaboratorId: string, collaboratorName: string, year: number): Promise<string> {
-  const rootPath = "PSA Hub";
+  const ctx = getArchiveCtx();
+  const slug = `${slugify(collaboratorName)}-${collaboratorId.slice(0, 8)}`;
+
+  if (ctx.mode === "myDrive") {
+    // Legacy layout, kept verbatim so existing cached folders/files remain valid.
+    const rootPath = "PSA Hub";
+    const hrPath = `${rootPath}/HR Benefits`;
+    const yearPath = `${hrPath}/${year}`;
+    const collabPath = `${yearPath}/${slug}`;
+    const root = await ensureFolder(rootPath, "PSA Hub", null);
+    const hr = await ensureFolder(hrPath, "HR Benefits", root);
+    const year_ = await ensureFolder(yearPath, String(year), hr);
+    return ensureFolder(collabPath, slug, year_);
+  }
+
+  if (ctx.mode === "rootFolder") {
+    // Root folder is the user-provided "PSA Hub Archive" (inside a Shared Drive).
+    // We do not create or rename it — we only create the subtree under it.
+    const base = ctx.pathPrefix; // e.g. rootfolder:abc123
+    const hrPath = `${base}/HR Benefits`;
+    const yearPath = `${hrPath}/${year}`;
+    const collabPath = `${yearPath}/${slug}`;
+    const hr = await ensureFolder(hrPath, "HR Benefits", ctx.rootParentId);
+    const year_ = await ensureFolder(yearPath, String(year), hr);
+    return ensureFolder(collabPath, slug, year_);
+  }
+
+  // sharedDrive mode: create archive root folder inside the Shared Drive itself.
+  const base = ctx.pathPrefix; // e.g. shared:driveId
+  const rootPath = `${base}/${ctx.rootName}`;
   const hrPath = `${rootPath}/HR Benefits`;
   const yearPath = `${hrPath}/${year}`;
-  const slug = `${slugify(collaboratorName)}-${collaboratorId.slice(0, 8)}`;
   const collabPath = `${yearPath}/${slug}`;
-
-  const root = await ensureFolder(rootPath, "PSA Hub", null);
+  const root = await ensureFolder(rootPath, ctx.rootName, ctx.rootParentId);
   const hr = await ensureFolder(hrPath, "HR Benefits", root);
   const year_ = await ensureFolder(yearPath, String(year), hr);
-  const col = await ensureFolder(collabPath, slug, year_);
-  return col;
+  return ensureFolder(collabPath, slug, year_);
 }
 
 function buildFilename(opts: {
@@ -221,7 +252,7 @@ async function uploadMultipart(
   body.set(post, pre.length + bytes.length);
 
   const res = await fetch(
-    `${GATEWAY_BASE}/upload/drive/v3/files?uploadType=multipart&fields=id,name`,
+    `${GATEWAY_BASE}/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true&fields=id,name`,
     {
       method: "POST",
       headers: driveHeaders({ "Content-Type": `multipart/related; boundary=${boundary}` }),
@@ -234,41 +265,6 @@ async function uploadMultipart(
   }
   const json = JSON.parse(text) as { id: string };
   return json.id;
-}
-
-// ---- Data fetching --------------------------------------------------------
-type ExpenseRow = {
-  id: string;
-  collaborator_id: string;
-  ano_fiscal: number;
-  categoria: string;
-  descricao: string | null;
-  valor: number;
-  data_despesa: string;
-  foto_path: string | null;
-  estado: string;
-  collaborator_name?: string;
-};
-
-async function loadExpensesWithSync() {
-  const { data: expenses, error } = await supabaseAdmin
-    .from("benefit_expenses")
-    .select("id, collaborator_id, ano_fiscal, categoria, descricao, valor, data_despesa, foto_path, estado");
-  if (error) throw new Error(`Failed to load expenses: ${error.message}`);
-
-  const colIds = Array.from(new Set((expenses ?? []).map((e) => e.collaborator_id)));
-  const { data: cols } = await supabaseAdmin
-    .from("collaborators")
-    .select("id, nome")
-    .in("id", colIds.length ? colIds : ["00000000-0000-0000-0000-000000000000"]);
-  const colMap = new Map((cols ?? []).map((c) => [c.id, c.nome as string]));
-
-  const { data: sync } = await supabaseAdmin
-    .from("benefit_expense_drive_sync")
-    .select("expense_id, status, attempts, last_error, drive_file_id, source_checksum");
-  const syncMap = new Map((sync ?? []).map((s) => [s.expense_id, s]));
-
-  return { expenses: (expenses ?? []) as ExpenseRow[], colMap, syncMap };
 }
 
 // ---- Server functions -----------------------------------------------------
