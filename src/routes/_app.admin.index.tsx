@@ -43,6 +43,13 @@ const GROUPS: AdminGroup[] = [
           "Nome, NIF/VAT e definições de faturação usadas por Finance e pela deteção de fornecedor por OCR.",
         icon: Building2,
       },
+      {
+        to: "/finance",
+        label: "Fornecedores e clientes (master data)",
+        description:
+          "Tabela canónica de empresas partilhada por Finance, Projetos, HR e OCR. Abre o separador no Finance.",
+        icon: Users,
+      },
     ],
   },
   {
