@@ -54,7 +54,7 @@ function CompanySettingsPage() {
       .from("pm_invoice_settings")
       .update({
         company_name: companyName.trim() || null,
-        company_nif: normalized,
+        company_nif: normalized ?? null,
       })
       .eq("id", rowId);
     setSaving(false);
