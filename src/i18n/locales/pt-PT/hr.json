@@ -1089,7 +1089,8 @@
       "vat": "IVA",
       "paymentSource": "Origem de pagamento",
       "ocrBadge": "OCR",
-      "ocrSection": "Metadados do recibo"
+      "ocrSection": "Metadados do recibo",
+      "supplierLinked": "Fornecedor associado"
     },
     "delete": {
       "title": "Apagar despesa",
