@@ -1031,6 +1031,8 @@
         "nifInvalid": "OCR não conseguiu validar o NIF",
         "vatMismatch": "Valor total e IVA não batem certo",
         "ownCompanyNifHint": "Este é o NIF da nossa empresa — introduza o NIF do fornecedor.",
+        "ownNifMissing": "NIF da empresa não configurado — auto-detecção de fornecedor desativada.",
+        "ownNifMissingCta": "Configurar NIF da empresa →",
         "badge": "OCR",
         "fieldBadge": "OCR"
       },
@@ -1251,6 +1253,23 @@
       "confirmNote": "Os ficheiros são copiados para a conta Google ligada ao conector. Nenhum ficheiro é apagado do Supabase nem do Drive.",
       "confirmRun": "Sim, sincronizar",
       "toastDone": "Concluído: {{created}} carregados · {{skipped}} ignorados · {{failed}} falhados"
+    }
+  },
+  "companySettings": {
+    "title": "Definições da empresa",
+    "backToBenefits": "Voltar a Benefícios",
+    "cardTitle": "Identidade da própria empresa",
+    "cardDescription": "Utilizado para detetar quando um recibo contém, por engano, o nosso NIF em vez do NIF do fornecedor.",
+    "loading": "A carregar…",
+    "companyName": "Nome da empresa",
+    "companyNif": "NIF da empresa",
+    "nifHelper": "NIF português — 9 dígitos. Guardado na linha canónica de definições de faturação e partilhado entre OCR de Benefícios HR e Finanças.",
+    "nifValid": "NIF válido · {{value}}",
+    "save": "Guardar",
+    "saving": "A guardar…",
+    "saved": "Definições da empresa guardadas",
+    "errors": {
+      "invalidNif": "NIF português inválido (checksum falhou)"
     }
   }
 }

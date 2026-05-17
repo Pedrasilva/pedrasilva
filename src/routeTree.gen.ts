@@ -43,6 +43,7 @@ import { Route as AppCrmCompaniesRouteImport } from './routes/_app.crm.companies
 import { Route as AppCrmAccountsRouteImport } from './routes/_app.crm.accounts'
 import { Route as AppAdminProjectsRouteImport } from './routes/_app.admin.projects'
 import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports'
+import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin.company-settings'
 import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.finance.documents.index'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
@@ -223,6 +224,11 @@ const AppAdminImportsRoute = AppAdminImportsRouteImport.update({
   path: '/admin/imports',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminCompanySettingsRoute = AppAdminCompanySettingsRouteImport.update({
+  id: '/admin/company-settings',
+  path: '/admin/company-settings',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppFinanceDocumentsIndexRoute =
   AppFinanceDocumentsIndexRouteImport.update({
     id: '/documents/',
@@ -282,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/finance': typeof AppFinanceRouteWithChildren
   '/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
+  '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
@@ -324,6 +331,7 @@ export interface FileRoutesByTo {
   '/finance': typeof AppFinanceRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
+  '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
@@ -370,6 +378,7 @@ export interface FileRoutesById {
   '/_app/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/_app/admin/imports': typeof AppAdminImportsRoute
   '/_app/admin/projects': typeof AppAdminProjectsRoute
   '/_app/crm/accounts': typeof AppCrmAccountsRouteWithChildren
@@ -416,6 +425,7 @@ export interface FileRouteTypes {
     | '/finance'
     | '/hr'
     | '/api/notify-expense'
+    | '/admin/company-settings'
     | '/admin/imports'
     | '/admin/projects'
     | '/crm/accounts'
@@ -458,6 +468,7 @@ export interface FileRouteTypes {
     | '/finance'
     | '/api/notify-expense'
     | '/'
+    | '/admin/company-settings'
     | '/admin/imports'
     | '/admin/projects'
     | '/crm/accounts'
@@ -503,6 +514,7 @@ export interface FileRouteTypes {
     | '/_app/hr'
     | '/api/notify-expense'
     | '/_app/'
+    | '/_app/admin/company-settings'
     | '/_app/admin/imports'
     | '/_app/admin/projects'
     | '/_app/crm/accounts'
@@ -787,6 +799,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminImportsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/admin/company-settings': {
+      id: '/_app/admin/company-settings'
+      path: '/admin/company-settings'
+      fullPath: '/admin/company-settings'
+      preLoaderRoute: typeof AppAdminCompanySettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/finance/documents/': {
       id: '/_app/finance/documents/'
       path: '/documents'
@@ -983,6 +1002,7 @@ interface AppRouteChildren {
   AppFinanceRoute: typeof AppFinanceRouteWithChildren
   AppHrRoute: typeof AppHrRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
+  AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
   AppAdminImportsRoute: typeof AppAdminImportsRoute
   AppAdminProjectsRoute: typeof AppAdminProjectsRoute
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRoute
@@ -1001,6 +1021,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppFinanceRoute: AppFinanceRouteWithChildren,
   AppHrRoute: AppHrRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
+  AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
   AppAdminImportsRoute: AppAdminImportsRoute,
   AppAdminProjectsRoute: AppAdminProjectsRoute,
   AppProjectsProjectIdRoute: AppProjectsProjectIdRoute,
