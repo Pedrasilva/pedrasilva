@@ -36,6 +36,9 @@ export type ExtractBenefitReceiptResult = {
   extracted?: ExtractedFields;
   confidence?: Confidence;
   matched_company_id?: string | null;
+  /** True when extracted supplier NIF matches our own company NIF —
+   * receipts where the OCR mistakenly picked up the buyer NIF. */
+  supplier_is_own_company?: boolean;
   error?: string;
 };
 
