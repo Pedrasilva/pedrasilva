@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PlaceholderSection } from "@/components/finance/sections/legacy-sections";
+import { SettlementWorkspace } from "@/components/finance/settlement-workspace";
 
 export const Route = createFileRoute("/_app/finance/payments/outflows")({
-  component: () => <PlaceholderSection titleKey="finance:sidebar.items.outflows" />,
+  component: () => <SettlementWorkspace direction="received" />,
 });
