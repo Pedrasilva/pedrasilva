@@ -406,6 +406,93 @@ export function useRemoveFinDocPayment() {
 // Pickers
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Settlement history (read-only payment/receipt feed)
+// ---------------------------------------------------------------------------
+
+export type SettlementFilters = {
+  direction: FinDocDirection;
+  /** YYYY-MM-DD (inclusive). */
+  dateFrom?: string | null;
+  /** YYYY-MM-DD (inclusive). */
+  dateTo?: string | null;
+  counterpartyId?: string | null;
+  method?: Database["public"]["Enums"]["financial_payment_method"] | null;
+  /** "all" | "linked" | "unlinked" */
+  link?: "all" | "linked" | "unlinked";
+  limit?: number;
+};
+
+export type SettlementRow = FinDocPayment & {
+  document: Pick<
+    FinDoc,
+    | "id"
+    | "doc_type"
+    | "direction"
+    | "document_number"
+    | "external_reference"
+    | "counterparty_name_snapshot"
+    | "counterparty_supplier_id"
+    | "counterparty_client_id"
+    | "total_inc_vat"
+    | "currency"
+  > | null;
+  bank_transaction:
+    | (Pick<
+        Database["public"]["Tables"]["bank_transactions"]["Row"],
+        "id" | "transaction_date" | "description" | "amount" | "bank_account_id"
+      > & {
+        bank_account: Pick<
+          Database["public"]["Tables"]["bank_accounts"]["Row"],
+          "id" | "account_name" | "bank_name"
+        > | null;
+      })
+    | null;
+};
+
+export function useFinSettlements(filters: SettlementFilters) {
+  return useQuery({
+    queryKey: [...ROOT_KEY, "settlements", filters],
+    queryFn: async (): Promise<SettlementRow[]> => {
+      let q = supabase
+        .from("financial_document_payments")
+        .select(
+          `*,
+           document:financial_documents!inner(
+             id, doc_type, direction, document_number, external_reference,
+             counterparty_name_snapshot, counterparty_supplier_id,
+             counterparty_client_id, total_inc_vat, currency
+           ),
+           bank_transaction:bank_transactions(
+             id, transaction_date, description, amount, bank_account_id,
+             bank_account:bank_accounts(id, account_name, bank_name)
+           )`,
+        )
+        .eq("financial_documents.direction", filters.direction)
+        .order("payment_date", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(filters.limit ?? 200);
+
+      if (filters.dateFrom) q = q.gte("payment_date", filters.dateFrom);
+      if (filters.dateTo) q = q.lte("payment_date", filters.dateTo);
+      if (filters.method) q = q.eq("method", filters.method);
+      if (filters.link === "linked") q = q.not("bank_transaction_id", "is", null);
+      else if (filters.link === "unlinked") q = q.is("bank_transaction_id", null);
+      if (filters.counterpartyId) {
+        const col =
+          filters.direction === "received"
+            ? "financial_documents.counterparty_supplier_id"
+            : "financial_documents.counterparty_client_id";
+        q = q.eq(col, filters.counterpartyId);
+      }
+
+      const { data, error } = await q;
+      if (error) throw error;
+      return (data ?? []) as unknown as SettlementRow[];
+    },
+  });
+}
+
 export function useFinSuppliers() {
   return useQuery({
     queryKey: ["fin-suppliers"],
