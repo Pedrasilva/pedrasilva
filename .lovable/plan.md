@@ -1,91 +1,102 @@
-## Phase 1b — UI/UX & State Machine wiring
+## Finance Foundation — Shared Master Data + Import Engine
 
-Builds on the Phase 1a DB layer (categories, audit, `benefit_expense_set_status` RPC, audit events, notification queue). No new tables; no Finance integration; legacy enum stays in place.
+Goal: one canonical model for clients, suppliers, purchases, invoices, payments, and bank movements across HR, Projects, and Finance — then a safe staging/preview import engine — BEFORE touching supplier statements.
 
-### 1. State-machine wiring (mutations)
+---
 
-`src/routes/_app.hr.beneficios.tsx` → `ExpenseActions`:
+### 1. Current data-model audit
 
-- Replace direct `update({estado: ...})` in `approve()`, `reject()`, `markPaid()` with:
-  ```
-  supabase.rpc('benefit_expense_set_status', {
-    p_expense_id, p_to_status, p_notes
-  })
-  ```
-- Reject still prompts a mandatory reason; pass as `p_notes`. Approve takes optional notes. Mark-paid takes no notes.
-- Keep `notify-expense` POST for accounting on approval (unchanged endpoint). Collaborator notifications are enqueued automatically by the DB trigger.
-- `remove()` and the foto signed URL flow stay as-is.
+**Already canonical (keep & extend):**
+- `companies` — has `nif`, `is_client`, `is_supplier`, `is_active`, `is_reimbursement_supplier`, `default_classification_id`. Already referenced by `financial_documents`, `benefit_expenses`, `bank_transaction_classifications`, `crm_*`, `pm_projects`, `historical_time_entries`. **This is the canonical entity.**
+- `financial_documents` (+ `financial_document_lines`, `financial_document_payments`) — already polymorphic invoice/receipt/purchase/payment with `counterparty_supplier_id` / `counterparty_client_id` → companies, plus `doc_type`, `direction`, `status`, `vat`, `project_id`. **This is the canonical purchase/invoice/receipt.**
+- `bank_accounts`, `bank_transactions`, `bank_statement_imports`, `bank_transaction_classifications`, `bank_classification_rules`, `bank_balance_snapshots` — full bank/reconciliation stack already exists. **Reuse, do not parallel.**
+- `import_jobs` + `import_job_rows` (with `import_type`, `import_job_status`, `import_row_status`, `raw_data`/`parsed_data` jsonb) — **the staging engine already exists**, just needs new `import_type` values and per-type handlers.
 
-### 2. Category picker — additive, FK-based
+**Legacy / to phase out:**
+- `pm_suppliers` — duplicate supplier table (3 rows). Referenced by `pm_expenses`, `pm_materials`, `company_expenses`, `quote_external_services`. **Bridge → migrate FKs to `companies.id`, then drop.**
+- `financial_expense_items` / `financial_expense_payments` / `financial_income_items` — older expense model that points at `companies` already. Verify usage; likely fold into `financial_documents` long-term, but leave untouched in Phase 1.
 
-- New hook `useBenefitCategories()` (in-file): `select id, code, label_pt, label_en, icon, legacy_enum, sort_order from benefit_categories where active order by sort_order`.
-- `SubmitExpenseDialog`:
-  - Picker lists rows from `benefit_categories`, not the hard-coded `CATS`.
-  - Compute "available" per category by joining the active row's `legacy_enum` to current `balance[legacy]`. Rows whose `legacy_enum` is null show "—" available but remain selectable (no balance gate).
-  - On insert, write BOTH `category_id` (new) AND `categoria` (legacy enum from the picked row's `legacy_enum`, fallback `'outros'`) → backward compatible.
-- `ExpensesTable` row label: prefer the joined category label from `benefit_expenses_v` when available; otherwise fall back to `CATEGORY_LABELS[e.categoria]`. Switch `expensesQ` / approver / admin queries to read from `benefit_expenses_v` (same columns + `category_code`, `category_label_pt`).
+**Missing fields on `companies` (from screenshots):**
+- `code` (Nº fornecedor/cliente — 455, 201, 140…)
+- `abbreviation`
+- `postal_code`, `city` (currently only free-text `morada`)
+- `mobile` (separate from `telefone`)
+- `currency` (default EUR)
+- `payment_terms` (Pronto Pagamento, 30d, …)
+- `notes` is already `notas`
 
-### 3. Detail dialog + timeline
+**Missing fields on `financial_documents`:** already has the screenshot fields (doc_type, number, dates, vat, subtotal, total, status, project, classification, counterparty).
 
-- New component `src/components/hr/BenefitExpenseTimeline.tsx`:
-  - Queries `benefit_expense_events` for an `expense_id`, joins `actor_id → collaborators.nome` via `pm_list_user_resource_map` (already used elsewhere).
-  - Renders with the existing `activity-timeline.tsx` primitive (icons: submitted → Inbox, approved → Check, rejected → X, paid → BadgeEuro, reopened → Undo).
-- New `ExpenseDetailDialog` in `_app.hr.beneficios.tsx`:
-  - Triggered by clicking a row (or new "Detalhes" button in `ExpenseActions`).
-  - Shows: header (category, value, status badge, dates), description, both notes fields, foto preview button, and `<BenefitExpenseTimeline>`.
+---
 
-### 4. Collaborator history — filters & yearly summary
+### 2. Build sequence
 
-In `CollaboratorBody`:
-- Filter bar above the table:
-  - Search (descricao / notas) — debounced text.
-  - Status select (todos / pendente / aprovada / paga / rejeitada).
-  - Category select (loaded from `benefit_categories`).
-  - Year select (distinct years from expenses, default = current `ano_fiscal`).
-- "Resumo anual" strip (4 small stat tiles): submetido, aprovado, pago, rejeitado — filtered by selected year.
-- CSV export button → builds a CSV from the currently filtered list (date, category, description, value, status, notes). Client-side `Blob` + `URL.createObjectURL`. No new dependency.
-- Mobile: below `md`, the table collapses to a stacked card list (reuse existing `Card` primitive; status badge + value on the right).
+**Phase 1 — Master-data canonicalization (no UI yet)**
+1. Migration: add `code`, `abbreviation`, `postal_code`, `city`, `mobile`, `currency`, `payment_terms` to `companies`. Add unique partial index on `code` per role.
+2. Migration: bridge `pm_suppliers` → `companies`. For each `pm_suppliers` row, upsert into `companies` (match by `tax_id`/name, set `is_supplier=true`), then add nullable `supplier_company_id uuid → companies(id)` to `pm_expenses`, `pm_materials`, `company_expenses`, `quote_external_services`. Backfill, then in a later migration drop the old `supplier_id`.
+3. Server functions in `src/lib/finance/companies.functions.ts`: `listCompanies`, `getCompany`, `upsertCompany`, `mergeCompanies` (admin-only, NIF-aware, refuses own-company NIF — reuse the guard from `benefit-supplier.functions.ts`).
 
-### 5. Approver / Admin views — light improvements
+**Phase 2 — Suppliers & Clients screens**
+- Two thin views over the same `companies` table, filtered by `is_supplier` / `is_client` (a company can be both).
+- Routes: `/finance/suppliers`, `/finance/suppliers/$id`, `/finance/clients`, `/finance/clients/$id`.
+- Detail page shows: master fields, open balance (sum of unpaid `financial_documents` where direction matches), document list, linked HR/Project expenses, bank reconciliation links.
+- Reuse existing `src/components/finance/suppliers-master-data.tsx` / `clients-master-data.tsx` as starting points; extend with new fields.
 
-- Inline rejection-reason prompt replaced by a small dialog with a `Textarea` (Phase-1b polish; uses the new `set_status` RPC).
-- Approver view: add the same Year filter (defaults to current year), keep existing status filter.
-- Admin view: unchanged behaviorally; just routes mutations through the RPC.
-- "Aprovado por" column (showCollaborator variant): show `aprovado_por` resolved through `pm_list_user_resource_map` when present.
+**Phase 3 — Generic Excel import engine (reuse `import_jobs`)**
+- Add `import_type` enum values: `companies_suppliers`, `companies_clients`, `bank_accounts`, `bank_statement`, `supplier_statement` (last one stubbed only).
+- Generic flow under `/admin/imports/finance`:
+  1. Upload .xlsx → store in Supabase Storage → create `import_jobs` row with `status='uploaded'`.
+  2. Parse server-side (SheetJS already in deps; verify) into `import_job_rows.raw_data`.
+  3. Column-mapping UI: detect headers, propose mapping, persist mapping in `import_jobs.metadata`.
+  4. Validate + dedupe pass → fill `parsed_data`, set per-row `status` (`pending`/`warning`/`error`/`duplicate`).
+  5. Preview screen with row-level diff (new vs. existing match).
+  6. Explicit "Commit" button → idempotent insert/update, sets `imported_count`.
+- Server fns in `src/lib/finance/imports/*.functions.ts`, one handler per `import_type`. All admin-gated.
 
-### 6. RLS tightening (one small migration)
+**Phase 4 — First three imports (master data only)**
+- **Suppliers** (`Listagem de fornecedores.xlsx`): match by `nif` → fallback normalized `nome`. Upsert into `companies` with `is_supplier=true`.
+- **Clients** (`Listagem de clientes.xlsx`): same logic with `is_client=true`.
+- **Bank list** (`Extrato listagem de bancos.xlsx`): preview first — could be accounts list OR statement OR treasury extract. Route to `bank_accounts` upsert OR `bank_statement_imports` + `bank_transactions` based on detected shape.
 
-Single follow-up migration (no Finance impact):
-- Drop the "approver can update" UPDATE policy on `benefit_expenses` so all status changes MUST go through `benefit_expense_set_status` (which is SECURITY DEFINER and checks `can_approve_benefits`).
-- Keep the "owner can update own pendente" policy → preserves edits-before-approval.
-- Owner DELETE on pendente stays.
+**Phase 5 (deferred — not now): Supplier statement reconciliation.** Requires Phases 1–4 stable + open-document index per supplier.
 
-### 7. i18n
+---
 
-- Add EN + PT keys for: filter bar labels, "Resumo anual" tiles, "Exportar CSV", "Detalhes", "Reabrir", "Aprovado por", timeline event labels (submitted/approved/rejected/paid/reopened), rejection-reason dialog labels. Use existing `hr` namespace; per glossary rules, reuse `common.*` for shared words (Cancel, Save, Search, Year).
+### 3. Cross-module integration (already mostly correct)
 
-### Files
+- HR benefit OCR → already writes to `companies` via `linkOrCreateSupplierForBenefitExpense`. ✓
+- HR reimbursements → unchanged, still create `is_reimbursement_supplier` company liability. ✓
+- Projects → migrate `pm_*.supplier_id` to `companies.id` in Phase 1 step 2.
+- Finance purchases → already `financial_documents.counterparty_supplier_id → companies`. ✓
+- Bank reconciliation → already classifies to `companies` via `bank_transaction_classifications`. ✓
 
-Created:
-- `src/components/hr/BenefitExpenseTimeline.tsx`
-- `supabase/migrations/<ts>_benefit_rls_set_status_only.sql`
+---
 
-Edited:
-- `src/routes/_app.hr.beneficios.tsx` (RPC mutations, picker from table, filters, CSV, detail dialog, mobile cards)
-- `src/lib/benefits.ts` (add `BenefitCategoryRow` type + `labelFor(row, locale)` helper)
-- `src/i18n/locales/en/hr.json`, `src/i18n/locales/pt-PT/hr.json`
+### 4. Risks / safety rules
 
-### Out of scope (Phase 2)
+- **Never blind-import.** Every Excel import goes through `import_jobs` staging → preview → explicit commit.
+- **Own-company NIF guard** must run on every import row (reuse `pm_invoice_settings.company_nif`).
+- **`pm_suppliers` deprecation is a two-step migration** (add new FK, backfill, switch reads, then drop old FK) to avoid breaking Projects mid-flight.
+- **NIF normalization** (`normalizePortugueseNif`) must run on both sides of every match.
+- **No new bank tables.** The existing 6-table bank stack covers everything in the screenshots.
+- **No supplier statement import in Phase 1–4.** Doing it before canonical purchases would create duplicates.
 
-- Finance write-through (`financial_expense_items`, payroll, cash-flow).
-- Period-scoped budgets and two-stage approval.
-- True in-app notifications (queue drain + delivery worker — DB seam already in place).
-- Multi-attachment, OCR, NIF extraction.
-- Dropping the legacy `categoria` column.
+---
 
-### Backward compatibility
+### 5. Deliverables of Phase 1 (what I'll ship first if you approve)
 
-- Legacy `categoria` enum kept and dual-written.
-- Old rows continue to resolve via `benefit_expenses_v` fallback.
-- Existing approver/admin flows preserved; only the mutation path moves to the RPC.
-- No removed columns, no removed routes, no permission key changes.
+1. Migration: extend `companies` (code, abbreviation, postal_code, city, mobile, currency, payment_terms).
+2. Migration: add `supplier_company_id` to `pm_expenses`, `pm_materials`, `company_expenses`, `quote_external_services` + backfill from `pm_suppliers.tax_id`/name.
+3. `companies.functions.ts` server fns (list/get/upsert/merge, admin-gated, own-NIF guard).
+4. Skeleton routes `/finance/suppliers`, `/finance/clients` (list + detail), wired to canonical `companies`.
+5. Admin link in `/admin` hub for "Suppliers & clients (master data)".
+
+I will not touch `financial_documents`, bank tables, or imports until Phase 1 lands and you confirm.
+
+---
+
+### Open questions before I start
+
+1. OK to migrate `pm_suppliers` → `companies` now (a) backfill + dual-write, then (b) drop `pm_suppliers` in a follow-up migration once Projects UI reads the new FK? Or keep `pm_suppliers` indefinitely as a view over `companies`?
+2. For company `code` — should we auto-generate (next sequential like 455, 201) or only populate from imports/manual entry? Old accounting uses sequential numbers per role.
+3. Currency: lock to EUR for now (no multi-currency UI), or expose the field even though all rows will be EUR?
