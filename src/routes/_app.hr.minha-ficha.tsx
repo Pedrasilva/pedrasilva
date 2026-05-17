@@ -186,10 +186,14 @@ function SnapshotReadOnly({
   snapshot,
   collaborator,
   allSnapshots,
+  selectedId,
+  onSelect,
 }: {
   snapshot: Snapshot;
   collaborator: Collaborator;
   allSnapshots: Snapshot[];
+  selectedId: string;
+  onSelect: (id: string) => void;
 }) {
   const { t } = useTranslation(["hr"]);
   // Espelha o agregado familiar do colaborador, tal como faz a ficha completa
