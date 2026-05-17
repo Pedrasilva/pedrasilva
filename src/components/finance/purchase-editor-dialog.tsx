@@ -619,6 +619,16 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
                   disabled={isReadOnly}
                 />
               </section>
+
+              {isExisting && existing.data ? (
+                <>
+                  <Separator />
+                  <DocumentSettlementSection
+                    payments={existing.data.payments}
+                    currency={existing.data.document.currency ?? "EUR"}
+                  />
+                </>
+              ) : null}
             </div>
           )}
 
