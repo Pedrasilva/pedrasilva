@@ -50,6 +50,7 @@ import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.fina
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
 import { Route as AppFinanceReportsCashflowRouteImport } from './routes/_app.finance.reports.cashflow'
+import { Route as AppFinancePaymentsSuppliersRouteImport } from './routes/_app.finance.payments.suppliers'
 import { Route as AppFinancePaymentsExpensesRouteImport } from './routes/_app.finance.payments.expenses'
 import { Route as AppFinanceInvoicingInvoicesRouteImport } from './routes/_app.finance.invoicing.invoices'
 import { Route as AppFinanceInvoicingClientsRouteImport } from './routes/_app.finance.invoicing.clients'
@@ -271,6 +272,12 @@ const AppFinanceReportsCashflowRoute =
     path: '/reports/cashflow',
     getParentRoute: () => AppFinanceRoute,
   } as any)
+const AppFinancePaymentsSuppliersRoute =
+  AppFinancePaymentsSuppliersRouteImport.update({
+    id: '/payments/suppliers',
+    path: '/payments/suppliers',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppFinancePaymentsExpensesRoute =
   AppFinancePaymentsExpensesRouteImport.update({
     id: '/payments/expenses',
@@ -390,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/finance/invoicing/clients': typeof AppFinanceInvoicingClientsRoute
   '/finance/invoicing/invoices': typeof AppFinanceInvoicingInvoicesRoute
   '/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
+  '/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
@@ -441,6 +449,7 @@ export interface FileRoutesByTo {
   '/finance/invoicing/clients': typeof AppFinanceInvoicingClientsRoute
   '/finance/invoicing/invoices': typeof AppFinanceInvoicingInvoicesRoute
   '/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
+  '/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
@@ -497,6 +506,7 @@ export interface FileRoutesById {
   '/_app/finance/invoicing/clients': typeof AppFinanceInvoicingClientsRoute
   '/_app/finance/invoicing/invoices': typeof AppFinanceInvoicingInvoicesRoute
   '/_app/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
+  '/_app/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/_app/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
@@ -553,6 +563,7 @@ export interface FileRouteTypes {
     | '/finance/invoicing/clients'
     | '/finance/invoicing/invoices'
     | '/finance/payments/expenses'
+    | '/finance/payments/suppliers'
     | '/finance/reports/cashflow'
     | '/hr/colaborador/$id'
     | '/projects/resources/$resourceId'
@@ -604,6 +615,7 @@ export interface FileRouteTypes {
     | '/finance/invoicing/clients'
     | '/finance/invoicing/invoices'
     | '/finance/payments/expenses'
+    | '/finance/payments/suppliers'
     | '/finance/reports/cashflow'
     | '/hr/colaborador/$id'
     | '/projects/resources/$resourceId'
@@ -659,6 +671,7 @@ export interface FileRouteTypes {
     | '/_app/finance/invoicing/clients'
     | '/_app/finance/invoicing/invoices'
     | '/_app/finance/payments/expenses'
+    | '/_app/finance/payments/suppliers'
     | '/_app/finance/reports/cashflow'
     | '/_app/hr/colaborador/$id'
     | '/_app/projects/resources/$resourceId'
@@ -960,6 +973,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceReportsCashflowRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/payments/suppliers': {
+      id: '/_app/finance/payments/suppliers'
+      path: '/payments/suppliers'
+      fullPath: '/finance/payments/suppliers'
+      preLoaderRoute: typeof AppFinancePaymentsSuppliersRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/payments/expenses': {
       id: '/_app/finance/payments/expenses'
       path: '/payments/expenses'
@@ -1126,6 +1146,7 @@ interface AppFinanceRouteChildren {
   AppFinanceInvoicingClientsRoute: typeof AppFinanceInvoicingClientsRoute
   AppFinanceInvoicingInvoicesRoute: typeof AppFinanceInvoicingInvoicesRoute
   AppFinancePaymentsExpensesRoute: typeof AppFinancePaymentsExpensesRoute
+  AppFinancePaymentsSuppliersRoute: typeof AppFinancePaymentsSuppliersRoute
   AppFinanceReportsCashflowRoute: typeof AppFinanceReportsCashflowRoute
   AppFinanceDocumentsIndexRoute: typeof AppFinanceDocumentsIndexRoute
 }
@@ -1139,6 +1160,7 @@ const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinanceInvoicingClientsRoute: AppFinanceInvoicingClientsRoute,
   AppFinanceInvoicingInvoicesRoute: AppFinanceInvoicingInvoicesRoute,
   AppFinancePaymentsExpensesRoute: AppFinancePaymentsExpensesRoute,
+  AppFinancePaymentsSuppliersRoute: AppFinancePaymentsSuppliersRoute,
   AppFinanceReportsCashflowRoute: AppFinanceReportsCashflowRoute,
   AppFinanceDocumentsIndexRoute: AppFinanceDocumentsIndexRoute,
 }
