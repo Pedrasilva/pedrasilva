@@ -53,8 +53,8 @@ function CompanySettingsPage() {
     const { error } = await supabase
       .from("pm_invoice_settings")
       .update({
-        company_name: companyName.trim() || null,
-        company_nif: normalized ?? null,
+        company_name: companyName.trim(),
+        company_nif: normalized,
       })
       .eq("id", rowId);
     setSaving(false);
