@@ -160,6 +160,18 @@ export type BenefitExpenseRow = BenefitExpense & {
   finance_due_date: string | null;
   finance_paid_date: string | null;
   finance_period_id: string | null;
+  // Phase C: OCR + accounting metadata (all nullable)
+  ocr_extraction_id?: string | null;
+  supplier_company_id?: string | null;
+  supplier_nif?: string | null;
+  supplier_name_snapshot?: string | null;
+  document_number?: string | null;
+  vat_amount?: number | null;
+  vat_rate?: number | null;
+  amount_ex_vat?: number | null;
+  payment_source_type?: string | null;
+  payment_source_label?: string | null;
+  payment_account_id?: string | null;
 };
 
 /** Label para mostrar uma despesa, preferindo a categoria nova. */
