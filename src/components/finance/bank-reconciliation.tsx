@@ -870,19 +870,16 @@ function TxDetailPanel({
       const to = new Date(refDate); to.setDate(to.getDate() + 30);
       const { data, error } = await supabase
         .from("financial_documents")
-        .select("id, document_number, doc_type, direction, status, issue_date, due_date, total_amount, outstanding_amount, counterparty:companies(nome)")
+        .select("id, document_number, doc_type, direction, status, issue_date, due_date, total_inc_vat, outstanding_amount, counterparty_name_snapshot")
         .eq("direction", wantDir)
         .gte("outstanding_amount", lo)
         .lte("outstanding_amount", hi)
         .gte("issue_date", from.toISOString().slice(0, 10))
         .lte("issue_date", to.toISOString().slice(0, 10))
-        .in("status", ["issued", "received", "partially_paid", "overdue", "draft"])
+        .in("status", ["issued", "partially_paid", "draft"])
         .limit(8);
       if (error) throw error;
-      return (data ?? []).map((d: { id: string; document_number: string | null; doc_type: string; direction: string; status: string; issue_date: string | null; due_date: string | null; total_amount: number; outstanding_amount: number; counterparty: { nome: string | null } | { nome: string | null }[] | null }) => {
-        const cp = Array.isArray(d.counterparty) ? d.counterparty[0] : d.counterparty;
-        return { ...d, counterpartyName: cp?.nome ?? null };
-      });
+      return (data ?? []).map((d) => ({ ...d, counterpartyName: d.counterparty_name_snapshot ?? null }));
     },
   });
 
