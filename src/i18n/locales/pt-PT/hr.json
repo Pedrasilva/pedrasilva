@@ -1031,6 +1031,8 @@
         "nifInvalid": "OCR não conseguiu validar o NIF",
         "vatMismatch": "Valor total e IVA não batem certo",
         "ownCompanyNifHint": "Este é o NIF da nossa empresa — introduza o NIF do fornecedor.",
+        "ownNifMissing": "NIF da empresa não configurado — auto-detecção de fornecedor desativada.",
+        "ownNifMissingCta": "Configurar NIF da empresa →",
         "badge": "OCR",
         "fieldBadge": "OCR"
       },
