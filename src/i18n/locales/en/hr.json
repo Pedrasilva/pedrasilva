@@ -1180,6 +1180,25 @@
       "ticket": "Meal ticket / card",
       "premio": "Performance bonus",
       "outros": "Other benefits"
+    },
+    "driveSync": {
+      "title": "Google Drive archive — Receipts",
+      "subtitle": "Archives approved/paid receipts to Google Drive. Supabase Storage remains the source of truth.",
+      "eligible": "Eligible (approved/paid)",
+      "eligibleWithReceipt": "With receipt",
+      "alreadySynced": "Already synced",
+      "toUpload": "Will upload now",
+      "previousFailures": "Previous failures",
+      "skipped": "Skipped (pending/rejected/no receipt)",
+      "previewList": "Preview {{count}} files to upload",
+      "failedList": "{{count}} with previous failures (will retry)",
+      "refreshPreview": "Recompute preview",
+      "runBtn": "Sync {{count}} now",
+      "confirmTitle": "Confirm sync",
+      "confirmBody": "About to upload {{count}} files to Google Drive. Operation is idempotent — safe to rerun.",
+      "confirmNote": "Files are copied to the Google account linked to the connector. Nothing is deleted from Supabase or Drive.",
+      "confirmRun": "Yes, sync now",
+      "toastDone": "Done: {{created}} uploaded · {{skipped}} skipped · {{failed}} failed"
     }
   }
 }
