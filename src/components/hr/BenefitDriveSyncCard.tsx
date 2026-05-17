@@ -18,7 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { previewDriveSync, runDriveSync } from "@/lib/hr/drive-sync.functions";
+import { getDriveArchiveConfig, previewDriveSync, runDriveSync } from "@/lib/hr/drive-sync.functions";
 
 function fmtEUR(v: number) {
   return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(v ?? 0);
