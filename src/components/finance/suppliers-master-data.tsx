@@ -24,6 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CounterpartyEditor, type CompanyRow } from "./clients-master-data";
+import { CompaniesImportCard } from "./companies-import-card";
 
 const SELECT_COLS =
   "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, notas, is_client, is_supplier, is_active";
@@ -69,6 +70,7 @@ export function SuppliersMasterData() {
   };
 
   return (
+    <div className="space-y-6">
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div>
@@ -168,5 +170,7 @@ export function SuppliersMasterData() {
         onSaved={invalidate}
       />
     </Card>
+    <CompaniesImportCard kind="supplier" />
+    </div>
   );
 }

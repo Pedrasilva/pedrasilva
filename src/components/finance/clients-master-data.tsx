@@ -44,6 +44,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CompaniesImportCard } from "./companies-import-card";
 
 export type CompanyRow = {
   id: string;
@@ -111,6 +112,7 @@ export function ClientsMasterData() {
   };
 
   return (
+    <div className="space-y-6">
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div>
@@ -212,6 +214,8 @@ export function ClientsMasterData() {
         onSaved={invalidate}
       />
     </Card>
+    <CompaniesImportCard kind="client" />
+    </div>
   );
 }
 
