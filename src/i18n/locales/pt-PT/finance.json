@@ -1153,6 +1153,54 @@
       "errWrongStatus": "O documento {{number}} não pode ser liquidado no seu estado atual.",
       "errWrongDirection": "Direção de documento incorreta para esta área.",
       "errSubmit": "Não foi possível registar a liquidação: {{msg}}"
+    },
+    "history": {
+      "common": {
+        "totalLabel": "Total filtrado",
+        "summary": "{{count}} registos · {{linked}} ligados ao banco",
+        "searchPlaceholder": "Pesquisar por documento, entidade ou notas…",
+        "from": "De",
+        "to": "Até",
+        "allMethods": "Todos os métodos",
+        "linkFilter": "Ligação bancária",
+        "link": {
+          "all": "Todos",
+          "linked": "Ligados",
+          "unlinked": "Não ligados"
+        },
+        "notLinked": "Sem ligação bancária",
+        "unknownAccount": "Conta desconhecida"
+      },
+      "outflows": {
+        "title": "Histórico de pagamentos",
+        "subtitle": "Pagamentos recentes registados em documentos de fornecedor.",
+        "empty": "Ainda não há pagamentos registados."
+      },
+      "receipts": {
+        "title": "Histórico de recebimentos",
+        "subtitle": "Recebimentos recentes registados em faturas a cliente.",
+        "empty": "Ainda não há recebimentos registados."
+      },
+      "col": {
+        "date": "Data",
+        "document": "Documento",
+        "amount": "Valor",
+        "method": "Método",
+        "bank": "Banco"
+      },
+      "docType": {
+        "supplier_invoice": "Fatura de fornecedor",
+        "supplier_credit_note": "Nota de crédito de fornecedor",
+        "client_invoice": "Fatura a cliente",
+        "client_credit_note": "Nota de crédito a cliente",
+        "receipt": "Recibo",
+        "expense": "Despesa"
+      },
+      "docSection": {
+        "title": "Histórico de liquidações",
+        "empty": "Ainda não há pagamentos registados para este documento.",
+        "totalPaid": "Total pago"
+      }
     }
   }
 }
