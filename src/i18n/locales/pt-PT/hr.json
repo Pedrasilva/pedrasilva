@@ -1180,6 +1180,25 @@
       "ticket": "Ticket / Cartão refeição",
       "premio": "Prémio associado",
       "outros": "Outros benefícios"
+    },
+    "driveSync": {
+      "title": "Arquivo Google Drive — Recibos",
+      "subtitle": "Arquiva recibos aprovados/pagos para o Google Drive. O Supabase Storage continua a ser a fonte da verdade.",
+      "eligible": "Elegíveis (aprovadas/pagas)",
+      "eligibleWithReceipt": "Com recibo",
+      "alreadySynced": "Já sincronizados",
+      "toUpload": "A carregar agora",
+      "previousFailures": "Falhas anteriores",
+      "skipped": "Ignorados (pendentes/rejeitadas/sem recibo)",
+      "previewList": "Pré-visualizar {{count}} ficheiros a carregar",
+      "failedList": "{{count}} com falhas anteriores (serão reentregues)",
+      "refreshPreview": "Recalcular pré-visualização",
+      "runBtn": "Sincronizar {{count}} agora",
+      "confirmTitle": "Confirmar sincronização",
+      "confirmBody": "Vai carregar {{count}} ficheiros para o Google Drive. Operação idempotente — pode ser repetida com segurança.",
+      "confirmNote": "Os ficheiros são copiados para a conta Google ligada ao conector. Nenhum ficheiro é apagado do Supabase nem do Drive.",
+      "confirmRun": "Sim, sincronizar",
+      "toastDone": "Concluído: {{created}} carregados · {{skipped}} ignorados · {{failed}} falhados"
     }
   }
 }
