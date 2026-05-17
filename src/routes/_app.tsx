@@ -353,6 +353,21 @@ function AppLayout() {
 
             <LanguageSwitcher className="hidden md:inline-flex" />
 
+            {isRealAdmin && (
+              <Button
+                asChild
+                variant={loc.pathname.startsWith("/admin") ? "default" : "ghost"}
+                size="sm"
+                className="hidden md:inline-flex h-9 gap-1.5 px-2.5"
+                title="Administração"
+              >
+                <Link to="/admin">
+                  <Shield className="h-4 w-4" />
+                  <span className="hidden lg:inline">Admin</span>
+                </Link>
+              </Button>
+            )}
+
             <div className="hidden md:flex items-center gap-0.5">
               <ModuleTopNav />
             </div>
