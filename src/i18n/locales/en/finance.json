@@ -869,5 +869,45 @@
       "amount": "Amount",
       "projectShare": "Project share (net)"
     }
+  },
+  "sidebar": {
+    "brand": "Finance",
+    "brandSub": "Operations",
+    "groups": {
+      "overview": "Overview",
+      "payments": "Payments",
+      "invoicing": "Invoicing",
+      "banking": "Banking",
+      "reports": "Reports",
+      "data": "Data",
+      "admin": "Admin"
+    },
+    "items": {
+      "overview": "Overview",
+      "suppliers": "Suppliers",
+      "purchases": "Purchases",
+      "expenses": "Expenses",
+      "outflows": "Outflows",
+      "cards": "Cards",
+      "clients": "Clients",
+      "invoices": "Invoices",
+      "receipts": "Receipts",
+      "inflows": "Inflows",
+      "balances": "Bank balances",
+      "reconciliation": "Reconciliation",
+      "transactions": "Bank transactions",
+      "cashflow": "Cash flow",
+      "vat": "VAT",
+      "forecast": "Forecast",
+      "projectFinancials": "Project financials",
+      "classifications": "Financial fields",
+      "vatRates": "VAT rates",
+      "bankAccounts": "Bank accounts",
+      "rules": "Rules",
+      "importLogs": "Import logs",
+      "inconsistencies": "Inconsistencies",
+      "audit": "Audit",
+      "qa": "QA"
+    }
   }
 }
