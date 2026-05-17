@@ -114,6 +114,7 @@ export function BenefitDriveSyncCard() {
             )}
           </div>
         )}
+      </CardHeader>
       <CardContent className="space-y-4">
         {previewQ.isLoading ? (
           <p className="text-sm text-muted-foreground">
