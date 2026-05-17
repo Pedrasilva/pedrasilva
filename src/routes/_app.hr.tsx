@@ -109,33 +109,6 @@ function HrLayout() {
           },
         ],
       },
-      {
-        key: "configuracao",
-        label: t("sidebar.groups.configuration"),
-        items: [
-          {
-            to: "/hr/dias-uteis",
-            label: t("nav.workingDays"),
-            icon: CalendarCheck,
-            match: (p) => p.startsWith("/hr/dias-uteis"),
-            show: can("hr.dias-uteis"),
-          },
-          {
-            to: "/hr/valor-bo",
-            label: t("nav.boRate"),
-            icon: Calculator,
-            match: (p) => p.startsWith("/hr/valor-bo"),
-            show: can("hr.valor-bo"),
-          },
-          {
-            to: "/hr/admin",
-            label: t("nav.permissions"),
-            icon: Shield,
-            match: (p) => p.startsWith("/hr/admin"),
-            show: isAdmin,
-          },
-        ],
-      },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [isAdmin, isRealAdmin, permissions, t],
