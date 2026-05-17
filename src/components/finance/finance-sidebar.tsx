@@ -151,9 +151,8 @@ export function FinanceSidebar() {
       <SidebarContent>
         {GROUPS.map((group) => {
           if (group.adminOnly && !isRealAdmin) return null;
-          const anyActive = group.items.some((it) => isActive(it.to, it.end));
           return (
-            <SidebarGroup key={group.labelKey} defaultOpen={anyActive || !collapsed}>
+            <SidebarGroup key={group.labelKey}>
               <SidebarGroupLabel>{t(group.labelKey)}</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
