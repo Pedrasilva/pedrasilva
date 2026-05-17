@@ -984,5 +984,81 @@
       "lineQuantity": "A quantidade tem de ser superior a 0.",
       "linePrice": "O preço unitário tem de ser 0 ou superior."
     }
+  },
+  "invoices": {
+    "title": "Faturas",
+    "subtitle": "Faturas e notas de crédito a clientes. Recebimentos são registados nas transações bancárias.",
+    "new": "Nova fatura",
+    "newTitle": "Nova fatura",
+    "editTitle": "Editar fatura",
+    "editorSubtitle": "Documento de cliente multi-linha com IVA, classificação e ligação opcional ao projeto.",
+    "searchPlaceholder": "Procurar por número, referência ou cliente…",
+    "allClients": "Todos os clientes",
+    "allStatuses": "Todos os estados",
+    "empty": "Ainda não existem faturas.",
+    "saved": "Fatura atualizada",
+    "created": "Fatura criada",
+    "confirmed": "Fatura confirmada",
+    "cancelled": "Fatura cancelada",
+    "cancelConfirm": "Cancelar esta fatura? Mantém-se no histórico mas deixa de contar para valores em dívida.",
+    "client": "Cliente",
+    "clientPick": "Selecionar cliente…",
+    "docType": "Tipo de documento",
+    "documentNumber": "Número do documento",
+    "externalRef": "Referência interna",
+    "externalRefHint": "Referência interna opcional",
+    "issueDate": "Data de emissão",
+    "dueDate": "Data de vencimento",
+    "defaultClassification": "Classificação por omissão",
+    "project": "Projeto",
+    "projectPick": "Selecionar projeto…",
+    "notes": "Notas",
+    "section": {
+      "header": "Documento",
+      "lines": "Linhas"
+    },
+    "addLine": "Adicionar linha",
+    "line": "Linha",
+    "lineDescription": "Descrição",
+    "unitPrice": "Preço unitário (s/ IVA)",
+    "subtotal": "Subtotal",
+    "vat": "IVA",
+    "total": "Total",
+    "totalLabel": "Total c/ IVA",
+    "saveDraft": "Guardar rascunho",
+    "confirm": "Confirmar",
+    "save": "Guardar",
+    "cancel": "Cancelar documento",
+    "status": {
+      "draft": "Rascunho",
+      "issued": "Confirmada",
+      "partially_paid": "Parcialmente paga",
+      "paid": "Paga",
+      "cancelled": "Cancelada"
+    },
+    "col": {
+      "issueDate": "Data",
+      "client": "Cliente",
+      "number": "Documento",
+      "project": "Projeto",
+      "due": "Vencimento",
+      "total": "Total",
+      "outstanding": "Em dívida",
+      "status": "Estado"
+    },
+    "kpi": {
+      "count": "Documentos",
+      "total": "Total faturado",
+      "outstanding": "Em dívida",
+      "overdue": "Em atraso"
+    },
+    "errors": {
+      "clientRequired": "Selecione um cliente.",
+      "issueDateRequired": "A data de emissão é obrigatória.",
+      "linesRequired": "Adicione pelo menos uma linha.",
+      "lineDescription": "Cada linha precisa de descrição.",
+      "lineQuantity": "A quantidade deve ser maior que 0.",
+      "linePrice": "O preço unitário deve ser 0 ou superior."
+    }
   }
 }

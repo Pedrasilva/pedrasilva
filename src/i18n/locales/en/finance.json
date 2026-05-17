@@ -984,5 +984,81 @@
       "lineQuantity": "Quantity must be greater than 0.",
       "linePrice": "Unit price must be 0 or more."
     }
+  },
+  "invoices": {
+    "title": "Invoices",
+    "subtitle": "Client invoices and credit notes. Receipts are recorded against bank transactions.",
+    "new": "New invoice",
+    "newTitle": "New invoice",
+    "editTitle": "Edit invoice",
+    "editorSubtitle": "Multi-line client document with VAT, classification and optional project linkage.",
+    "searchPlaceholder": "Search by number, reference or client…",
+    "allClients": "All clients",
+    "allStatuses": "All statuses",
+    "empty": "No invoices yet.",
+    "saved": "Invoice updated",
+    "created": "Invoice created",
+    "confirmed": "Invoice confirmed",
+    "cancelled": "Invoice cancelled",
+    "cancelConfirm": "Cancel this invoice? It will remain in history but stop affecting outstanding totals.",
+    "client": "Client",
+    "clientPick": "Select client…",
+    "docType": "Document type",
+    "documentNumber": "Document number",
+    "externalRef": "Internal reference",
+    "externalRefHint": "Optional internal reference",
+    "issueDate": "Issue date",
+    "dueDate": "Due date",
+    "defaultClassification": "Default classification",
+    "project": "Project",
+    "projectPick": "Select project…",
+    "notes": "Notes",
+    "section": {
+      "header": "Document",
+      "lines": "Lines"
+    },
+    "addLine": "Add line",
+    "line": "Line",
+    "lineDescription": "Description",
+    "unitPrice": "Unit price (ex. VAT)",
+    "subtotal": "Subtotal",
+    "vat": "VAT",
+    "total": "Total",
+    "totalLabel": "Total inc. VAT",
+    "saveDraft": "Save draft",
+    "confirm": "Confirm",
+    "save": "Save",
+    "cancel": "Cancel document",
+    "status": {
+      "draft": "Draft",
+      "issued": "Confirmed",
+      "partially_paid": "Partially paid",
+      "paid": "Paid",
+      "cancelled": "Cancelled"
+    },
+    "col": {
+      "issueDate": "Date",
+      "client": "Client",
+      "number": "Document",
+      "project": "Project",
+      "due": "Due",
+      "total": "Total",
+      "outstanding": "Outstanding",
+      "status": "Status"
+    },
+    "kpi": {
+      "count": "Documents",
+      "total": "Total invoiced",
+      "outstanding": "Outstanding",
+      "overdue": "Overdue"
+    },
+    "errors": {
+      "clientRequired": "Select a client.",
+      "issueDateRequired": "Issue date is required.",
+      "linesRequired": "Add at least one line.",
+      "lineDescription": "Every line needs a description.",
+      "lineQuantity": "Quantity must be greater than 0.",
+      "linePrice": "Unit price must be 0 or more."
+    }
   }
 }
