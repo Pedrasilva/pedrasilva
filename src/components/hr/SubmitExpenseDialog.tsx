@@ -32,6 +32,8 @@ import {
 } from "@/lib/benefits";
 import { fmtEUR } from "@/lib/salary";
 import { extractBenefitReceipt } from "@/lib/hr/benefit-ocr.functions";
+import { getOwnCompanyNif } from "@/lib/finance/own-company.functions";
+import { findCompanyByNif } from "@/lib/finance/supplier-matching";
 import { normalizePortugueseNif, isValidPortugueseNif } from "@/lib/finance/nif";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,6 +50,7 @@ type OcrState = {
   vatMismatch: boolean;
   nifInvalid: boolean;
   failed: boolean;
+  isOwnCompanyNif: boolean;
 };
 
 const newOcr = (): OcrState => ({
@@ -59,6 +62,7 @@ const newOcr = (): OcrState => ({
   vatMismatch: false,
   nifInvalid: false,
   failed: false,
+  isOwnCompanyNif: false,
 });
 
 const LOW_CONF = 0.6;
@@ -125,9 +129,11 @@ export function SubmitExpenseDialog({
   const [submitting, setSubmitting] = useState(false);
   const [ocr, setOcr] = useState<OcrState>(newOcr());
   const [accounts, setAccounts] = useState<{ id: string; account_name: string; bank_name: string | null }[]>([]);
+  const [ownCompanyNif, setOwnCompanyNif] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const extractFn = useServerFn(extractBenefitReceipt);
+  const getOwnNif = useServerFn(getOwnCompanyNif);
 
   // Load bank accounts lazily (best-effort; RLS may hide)
   useEffect(() => {
@@ -145,6 +151,60 @@ export function SubmitExpenseDialog({
       cancelled = true;
     };
   }, [open]);
+
+  // Fetch own-company (buyer) NIF once when the dialog opens.
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await getOwnNif();
+        if (!cancelled) setOwnCompanyNif(res?.nif ?? null);
+      } catch {
+        if (!cancelled) setOwnCompanyNif(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [open, getOwnNif]);
+
+  // Re-run supplier matching whenever the user edits the NIF manually.
+  // Debounced; canonical lookup against companies.nif (Finance shared).
+  useEffect(() => {
+    const raw = form.supplier_nif;
+    const norm = normalizePortugueseNif(raw);
+    if (!norm || !isValidPortugueseNif(norm)) {
+      setOcr((o) => ({
+        ...o,
+        matchedCompanyId: null,
+        matchedCompanyName: null,
+        isOwnCompanyNif: false,
+      }));
+      return;
+    }
+    if (ownCompanyNif && norm === ownCompanyNif) {
+      setOcr((o) => ({
+        ...o,
+        matchedCompanyId: null,
+        matchedCompanyName: null,
+        isOwnCompanyNif: true,
+      }));
+      return;
+    }
+    let cancelled = false;
+    const handle = setTimeout(async () => {
+      try {
+        const match = await findCompanyByNif(norm);
+        if (cancelled) return;
+        setOcr((o) => ({
+          ...o,
+          matchedCompanyId: match?.id ?? null,
+          matchedCompanyName: match?.nome ?? null,
+          isOwnCompanyNif: false,
+        }));
+      } catch { /* best-effort */ }
+    }, 350);
+    return () => { cancelled = true; clearTimeout(handle); };
+  }, [form.supplier_nif, ownCompanyNif]);
 
   const reset = () => {
     setForm({
@@ -328,6 +388,7 @@ export function SubmitExpenseDialog({
         vatMismatch,
         nifInvalid,
         failed: false,
+        isOwnCompanyNif: Boolean(result.supplier_is_own_company),
       });
       toast.success(t("hr:beneficios.submit.ocr.prefilled"));
     } catch (e) {
@@ -561,14 +622,20 @@ export function SubmitExpenseDialog({
             <div className="text-xs font-semibold uppercase text-muted-foreground">
               {t("hr:beneficios.submit.supplier.section")}
             </div>
-            {ocr.matchedCompanyId && (
+            {ocr.isOwnCompanyNif && (
+              <Badge variant="outline" className="gap-1 border-amber-500 text-amber-700">
+                <AlertTriangle className="h-3 w-3" />
+                {t("hr:beneficios.submit.supplier.ownCompanyNif")}
+              </Badge>
+            )}
+            {!ocr.isOwnCompanyNif && ocr.matchedCompanyId && (
               <Badge variant="secondary" className="gap-1">
                 <CheckCircle2 className="h-3 w-3 text-emerald-600" />
                 {t("hr:beneficios.submit.supplier.recognized")}
                 {ocr.matchedCompanyName ? `: ${ocr.matchedCompanyName}` : ""}
               </Badge>
             )}
-            {!ocr.matchedCompanyId && supplierNifNormalized && supplierNifValid && (
+            {!ocr.isOwnCompanyNif && !ocr.matchedCompanyId && supplierNifNormalized && supplierNifValid && (
               <Badge variant="outline">{t("hr:beneficios.submit.supplier.newSupplier")}</Badge>
             )}
           </div>
@@ -596,6 +663,9 @@ export function SubmitExpenseDialog({
               />
               {(ocr.nifInvalid || (form.supplier_nif && !supplierNifValid)) && (
                 <FieldHint>{t("hr:beneficios.submit.ocr.nifInvalid")}</FieldHint>
+              )}
+              {ocr.isOwnCompanyNif && (
+                <FieldHint>{t("hr:beneficios.submit.ocr.ownCompanyNifHint")}</FieldHint>
               )}
             </div>
             <div className="sm:col-span-2 space-y-1.5">

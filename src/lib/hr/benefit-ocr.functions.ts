@@ -36,6 +36,9 @@ export type ExtractBenefitReceiptResult = {
   extracted?: ExtractedFields;
   confidence?: Confidence;
   matched_company_id?: string | null;
+  /** True when extracted supplier NIF matches our own company NIF —
+   * receipts where the OCR mistakenly picked up the buyer NIF. */
+  supplier_is_own_company?: boolean;
   error?: string;
 };
 
@@ -281,9 +284,36 @@ export const extractBenefitReceipt = createServerFn({ method: "POST" })
         confidence.vat_amount = Math.min(confidence.vat_amount ?? 0, 0.5);
       }
 
+      // ---- Own-company NIF guard ---------------------------------------
+      // If the receipt shows our own (buyer) NIF where the supplier NIF
+      // should be, treat it as own-company and skip supplier matching.
+      let ownCompanyNif: string | null = null;
+      {
+        const { data: settings } = await supabaseAdmin
+          .from("pm_invoice_settings")
+          .select("company_nif")
+          .order("singleton", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        ownCompanyNif = normalizePortugueseNif(settings?.company_nif ?? null);
+      }
+      const supplierIsOwnCompany =
+        !!ownCompanyNif &&
+        !!extracted.supplier_nif &&
+        normalizePortugueseNif(extracted.supplier_nif) === ownCompanyNif;
+      if (supplierIsOwnCompany) {
+        // Tell the user we couldn't confidently identify the supplier.
+        confidence.supplier_nif = Math.min(confidence.supplier_nif ?? 0, 0.1);
+        confidence.supplier_name = Math.min(confidence.supplier_name ?? 0, 0.1);
+      }
+
       // ---- Company matching by NIF -------------------------------------
       let matchedCompanyId: string | null = null;
-      if (extracted.supplier_nif && isValidPortugueseNif(extracted.supplier_nif)) {
+      if (
+        !supplierIsOwnCompany &&
+        extracted.supplier_nif &&
+        isValidPortugueseNif(extracted.supplier_nif)
+      ) {
         const { data: company } = await supabaseAdmin
           .from("companies")
           .select("id")
@@ -301,7 +331,7 @@ export const extractBenefitReceipt = createServerFn({ method: "POST" })
           status: "succeeded",
           provider: PROVIDER,
           raw_response: rawJson as never,
-          extracted: extracted as never,
+          extracted: { ...extracted, supplier_is_own_company: supplierIsOwnCompany } as never,
           confidence: confidence as never,
           matched_company_id: matchedCompanyId,
           processed_at: new Date().toISOString(),
@@ -320,6 +350,7 @@ export const extractBenefitReceipt = createServerFn({ method: "POST" })
         extracted,
         confidence,
         matched_company_id: matchedCompanyId,
+        supplier_is_own_company: supplierIsOwnCompany,
       };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

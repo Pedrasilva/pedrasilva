@@ -78,6 +78,9 @@ import { ExpenseFilterBar, type ExpenseFilterState } from "@/components/hr/Expen
 import { FinanceBackfillCard } from "@/components/hr/FinanceBackfillCard";
 import { PaymentLedgerBackfillCard } from "@/components/hr/PaymentLedgerBackfillCard";
 import { BenefitDriveSyncCard } from "@/components/hr/BenefitDriveSyncCard";
+import { useServerFn } from "@tanstack/react-start";
+import { isValidPortugueseNif } from "@/lib/finance/nif";
+import { linkOrCreateSupplierForBenefitExpense } from "@/lib/hr/benefit-supplier.functions";
 
 // As novas tabelas ainda não estão totalmente nos types — usamos `as any` pontualmente.
 // É seguro porque as RLS policies controlam o acesso.
@@ -832,12 +835,32 @@ function ExpenseActions({
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   {(expense.supplier_name_snapshot || expense.supplier_nif) && (
-                    <div className="col-span-2">
+                    <div className="col-span-2 space-y-1">
                       <div className="text-muted-foreground">{t("hr:beneficios.detail.supplier")}</div>
-                      <div>
-                        {expense.supplier_name_snapshot ?? "—"}
-                        {expense.supplier_nif ? ` · NIF ${expense.supplier_nif}` : ""}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span>
+                          {expense.supplier_name_snapshot ?? "—"}
+                          {expense.supplier_nif ? ` · NIF ${expense.supplier_nif}` : ""}
+                        </span>
+                        {expense.supplier_company_id ? (
+                          <Badge variant="secondary" className="gap-1">
+                            <Check className="h-3 w-3 text-emerald-600" />
+                            {t("hr:beneficios.detail.supplierLinked")}
+                          </Badge>
+                        ) : null}
                       </div>
+                      {isAdmin &&
+                        !expense.supplier_company_id &&
+                        expense.supplier_nif &&
+                        isValidPortugueseNif(expense.supplier_nif) &&
+                        (expense.supplier_name_snapshot ?? "").trim().length > 0 && (
+                          <CreateSupplierButton
+                            expenseId={expense.id}
+                            nif={expense.supplier_nif}
+                            name={expense.supplier_name_snapshot!}
+                            onLinked={onChanged}
+                          />
+                        )}
                     </div>
                   )}
                   {expense.document_number && (
@@ -1365,5 +1388,45 @@ function YearCreditRow({
         })}
       </CardContent>
     </Card>
+  );
+}
+
+function CreateSupplierButton({
+  expenseId,
+  nif,
+  name,
+  onLinked,
+}: {
+  expenseId: string;
+  nif: string;
+  name: string;
+  onLinked: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const link = useServerFn(linkOrCreateSupplierForBenefitExpense);
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      disabled={busy}
+      onClick={async () => {
+        setBusy(true);
+        try {
+          const res = await link({ data: { expense_id: expenseId, nif, name } });
+          toast.success(
+            res.created
+              ? `Fornecedor criado: ${res.company_name}`
+              : `Fornecedor ligado: ${res.company_name}`,
+          );
+          onLinked();
+        } catch (e) {
+          toast.error(e instanceof Error ? e.message : "Falhou criar fornecedor");
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      {busy ? "A criar…" : "Criar fornecedor"}
+    </Button>
   );
 }

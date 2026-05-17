@@ -1030,6 +1030,7 @@
         "lowConfidence": "Please double-check this field",
         "nifInvalid": "OCR could not validate the NIF",
         "vatMismatch": "Total and VAT amounts don't add up",
+        "ownCompanyNifHint": "This is our own company NIF — please enter the supplier's NIF instead.",
         "badge": "OCR",
         "fieldBadge": "OCR"
       },
@@ -1042,7 +1043,8 @@
         "documentNumber": "Document number",
         "documentNumberPlaceholder": "e.g. FT 2024/12345",
         "recognized": "Recognized supplier",
-        "newSupplier": "New supplier — will be reviewed by admin"
+        "newSupplier": "New supplier — pending review",
+        "ownCompanyNif": "Own-company NIF detected"
       },
       "vat": {
         "section": "VAT details (optional)",
@@ -1087,7 +1089,8 @@
       "vat": "VAT",
       "paymentSource": "Payment source",
       "ocrBadge": "OCR",
-      "ocrSection": "Receipt metadata"
+      "ocrSection": "Receipt metadata",
+      "supplierLinked": "Linked supplier"
     },
     "delete": {
       "title": "Delete expense",
