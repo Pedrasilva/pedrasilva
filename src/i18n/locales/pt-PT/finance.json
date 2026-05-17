@@ -869,5 +869,45 @@
       "amount": "Valor",
       "projectShare": "Quota-parte projeto (líq.)"
     }
+  },
+  "sidebar": {
+    "brand": "Finanças",
+    "brandSub": "Operações",
+    "groups": {
+      "overview": "Visão geral",
+      "payments": "Pagamentos",
+      "invoicing": "Faturação",
+      "banking": "Bancos",
+      "reports": "Relatórios",
+      "data": "Dados",
+      "admin": "Administração"
+    },
+    "items": {
+      "overview": "Visão geral",
+      "suppliers": "Fornecedores",
+      "purchases": "Compras",
+      "expenses": "Despesas",
+      "outflows": "Saídas",
+      "cards": "Cartões",
+      "clients": "Clientes",
+      "invoices": "Faturas",
+      "receipts": "Recibos",
+      "inflows": "Entradas",
+      "balances": "Saldos bancários",
+      "reconciliation": "Reconciliação",
+      "transactions": "Transações bancárias",
+      "cashflow": "Fluxo de caixa",
+      "vat": "IVA",
+      "forecast": "Previsão",
+      "projectFinancials": "Financeiro de projetos",
+      "classifications": "Campos financeiros",
+      "vatRates": "Taxas de IVA",
+      "bankAccounts": "Contas bancárias",
+      "rules": "Regras",
+      "importLogs": "Registos de importação",
+      "inconsistencies": "Inconsistências",
+      "audit": "Auditoria",
+      "qa": "QA"
+    }
   }
 }
