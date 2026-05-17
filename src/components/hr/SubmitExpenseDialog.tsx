@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
+import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -105,7 +107,9 @@ export function SubmitExpenseDialog({
 }) {
   const { t, i18n } = useTranslation(["hr"]);
   const isEn = i18n.language?.startsWith("en");
+  const { isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
+  const [ownNifLoaded, setOwnNifLoaded] = useState(false);
 
   const [form, setForm] = useState({
     categoryId: "",
