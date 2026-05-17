@@ -1390,3 +1390,43 @@ function YearCreditRow({
     </Card>
   );
 }
+
+function CreateSupplierButton({
+  expenseId,
+  nif,
+  name,
+  onLinked,
+}: {
+  expenseId: string;
+  nif: string;
+  name: string;
+  onLinked: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const link = useServerFn(linkOrCreateSupplierForBenefitExpense);
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      disabled={busy}
+      onClick={async () => {
+        setBusy(true);
+        try {
+          const res = await link({ data: { expense_id: expenseId, nif, name } });
+          toast.success(
+            res.created
+              ? `Fornecedor criado: ${res.company_name}`
+              : `Fornecedor ligado: ${res.company_name}`,
+          );
+          onLinked();
+        } catch (e) {
+          toast.error(e instanceof Error ? e.message : "Falhou criar fornecedor");
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      {busy ? "A criar…" : "Criar fornecedor"}
+    </Button>
+  );
+}
