@@ -342,6 +342,8 @@ export function SettlementWorkspace({ direction }: Props) {
         </CardContent>
       </Card>
 
+      <SettlementHistory direction={direction} />
+
       <SettlementDialog
         open={dialogOpen}
         direction={direction}
