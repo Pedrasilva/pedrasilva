@@ -19,6 +19,7 @@ import { Route as AppCrmRouteImport } from './routes/_app.crm'
 import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
 import { Route as AppCrmIndexRouteImport } from './routes/_app.crm.index'
+import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
 import { Route as AppProjectsTimesheetRouteImport } from './routes/_app.projects.timesheet'
 import { Route as AppProjectsResourcesRouteImport } from './routes/_app.projects.resources'
 import { Route as AppProjectsMyTasksRouteImport } from './routes/_app.projects.my-tasks'
@@ -102,6 +103,11 @@ const AppCrmIndexRoute = AppCrmIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppCrmRoute,
+} as any)
+const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppProjectsTimesheetRoute = AppProjectsTimesheetRouteImport.update({
   id: '/projects/timesheet',
@@ -313,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/projects/my-tasks': typeof AppProjectsMyTasksRoute
   '/projects/resources': typeof AppProjectsResourcesRouteWithChildren
   '/projects/timesheet': typeof AppProjectsTimesheetRoute
+  '/admin/': typeof AppAdminIndexRoute
   '/crm/': typeof AppCrmIndexRoute
   '/hr/': typeof AppHrIndexRoute
   '/projects/': typeof AppProjectsIndexRoute
@@ -356,6 +363,7 @@ export interface FileRoutesByTo {
   '/projects/my-tasks': typeof AppProjectsMyTasksRoute
   '/projects/resources': typeof AppProjectsResourcesRouteWithChildren
   '/projects/timesheet': typeof AppProjectsTimesheetRoute
+  '/admin': typeof AppAdminIndexRoute
   '/crm': typeof AppCrmIndexRoute
   '/hr': typeof AppHrIndexRoute
   '/projects': typeof AppProjectsIndexRoute
@@ -403,6 +411,7 @@ export interface FileRoutesById {
   '/_app/projects/my-tasks': typeof AppProjectsMyTasksRoute
   '/_app/projects/resources': typeof AppProjectsResourcesRouteWithChildren
   '/_app/projects/timesheet': typeof AppProjectsTimesheetRoute
+  '/_app/admin/': typeof AppAdminIndexRoute
   '/_app/crm/': typeof AppCrmIndexRoute
   '/_app/hr/': typeof AppHrIndexRoute
   '/_app/projects/': typeof AppProjectsIndexRoute
@@ -450,6 +459,7 @@ export interface FileRouteTypes {
     | '/projects/my-tasks'
     | '/projects/resources'
     | '/projects/timesheet'
+    | '/admin/'
     | '/crm/'
     | '/hr/'
     | '/projects/'
@@ -493,6 +503,7 @@ export interface FileRouteTypes {
     | '/projects/my-tasks'
     | '/projects/resources'
     | '/projects/timesheet'
+    | '/admin'
     | '/crm'
     | '/hr'
     | '/projects'
@@ -539,6 +550,7 @@ export interface FileRouteTypes {
     | '/_app/projects/my-tasks'
     | '/_app/projects/resources'
     | '/_app/projects/timesheet'
+    | '/_app/admin/'
     | '/_app/crm/'
     | '/_app/hr/'
     | '/_app/projects/'
@@ -630,6 +642,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/crm/'
       preLoaderRoute: typeof AppCrmIndexRouteImport
       parentRoute: typeof AppCrmRoute
+    }
+    '/_app/admin/': {
+      id: '/_app/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AppAdminIndexRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/projects/timesheet': {
       id: '/_app/projects/timesheet'
@@ -1013,6 +1032,7 @@ interface AppRouteChildren {
   AppProjectsMyTasksRoute: typeof AppProjectsMyTasksRoute
   AppProjectsResourcesRoute: typeof AppProjectsResourcesRouteWithChildren
   AppProjectsTimesheetRoute: typeof AppProjectsTimesheetRoute
+  AppAdminIndexRoute: typeof AppAdminIndexRoute
   AppProjectsIndexRoute: typeof AppProjectsIndexRoute
 }
 
@@ -1032,6 +1052,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProjectsMyTasksRoute: AppProjectsMyTasksRoute,
   AppProjectsResourcesRoute: AppProjectsResourcesRouteWithChildren,
   AppProjectsTimesheetRoute: AppProjectsTimesheetRoute,
+  AppAdminIndexRoute: AppAdminIndexRoute,
   AppProjectsIndexRoute: AppProjectsIndexRoute,
 }
 
