@@ -147,12 +147,8 @@ export const extractBenefitReceipt = createServerFn({ method: "POST" })
     const { storagePath } = data;
 
     // ---- Resolve caller's collaborator + role -----------------------------
-    const { data: callerCollab } = await supabase
-      .from("collaborators")
-      .select("id")
-      .eq("user_id", userId)
-      .maybeSingle();
-    const callerCollabId = (callerCollab as { id: string } | null)?.id ?? null;
+    const { data: myCollabId } = await supabase.rpc("get_my_collaborator_id");
+    const callerCollabId = (myCollabId as string | null) ?? null;
 
     const [{ data: isAdmin }, { data: canApprove }] = await Promise.all([
       supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
