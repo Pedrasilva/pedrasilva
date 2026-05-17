@@ -340,6 +340,11 @@ function HubPage() {
             );
           })}
         </div>
+        {!isAdmin && visible.length < MODULES.length && (
+          <p className="mt-4 text-xs text-muted-foreground">
+            {t("home:hiddenModules.note")}
+          </p>
+        )}
       </section>
 
       {/* FINANCE SNAPSHOT ================================================= */}

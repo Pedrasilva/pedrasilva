@@ -43,6 +43,9 @@
     "title": "No modules available",
     "body": "Your account does not have any permissions assigned yet. Please contact an administrator."
   },
+  "hiddenModules": {
+    "note": "Some modules are hidden. You only see the areas you have permission to access."
+  },
   "relative": {
     "today": "Today",
     "tomorrow": "Tomorrow",

@@ -34,6 +34,9 @@ import {
   QuickExpenseDialog,
   QuickMaterialDialog,
 } from "@/components/quick-finance-dialogs";
+import { useAuth } from "@/hooks/use-auth";
+import { useMyPermissions } from "@/hooks/use-permissions";
+import type { PermissionKey } from "@/lib/permissions";
 
 type Sheet =
   | null
@@ -47,10 +50,27 @@ type Sheet =
 export function GlobalTopNav() {
   const { t } = useTranslation("projects");
   const [sheet, setSheet] = useState<Sheet>(null);
+  const { isAdmin } = useAuth();
+  const { permissions } = useMyPermissions();
+  const can = (k: PermissionKey) => isAdmin || permissions.has(k);
+
+  const canTime = can("projects.timesheet");
+  const canTasks = can("projects.my-tasks");
+  const canSchedule = can("projects.resources") || can("projects.gantt");
+  const canCreateTask = canTasks;
+  const canCreateProject = can("projects.all");
+  const canCreateProjectExpense = can("projects.financials");
+  const canCreate =
+    canCreateTask || canCreateProject || canCreateProjectExpense;
+
+  if (!canTime && !canTasks && !canSchedule && !canCreate) {
+    return null;
+  }
 
   return (
     <>
       {/* Time */}
+      {canTime && (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -82,8 +102,10 @@ export function GlobalTopNav() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      )}
 
       {/* Tasks */}
+      {canTasks && (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -120,8 +142,10 @@ export function GlobalTopNav() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      )}
 
       {/* Schedule */}
+      {canSchedule && (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -160,8 +184,10 @@ export function GlobalTopNav() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      )}
 
       {/* Create (+) */}
+      {canCreate && (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -178,20 +204,29 @@ export function GlobalTopNav() {
           <DropdownMenuLabel className="text-[11px] uppercase tracking-wide text-muted-foreground">
             {t("topNav.create")}
           </DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => setSheet("task")} className="gap-2">
-            <CheckSquare className="h-4 w-4 text-muted-foreground" /> {t("topNav.newTask")}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSheet("project")} className="gap-2">
-            <Briefcase className="h-4 w-4 text-muted-foreground" /> {t("topNav.newProject")}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSheet("expense")} className="gap-2">
-            <Receipt className="h-4 w-4 text-muted-foreground" /> {t("topNav.newExpense")}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSheet("material")} className="gap-2">
-            <Package className="h-4 w-4 text-muted-foreground" /> {t("topNav.newMaterial")}
-          </DropdownMenuItem>
+          {canCreateTask && (
+            <DropdownMenuItem onClick={() => setSheet("task")} className="gap-2">
+              <CheckSquare className="h-4 w-4 text-muted-foreground" /> {t("topNav.newTask")}
+            </DropdownMenuItem>
+          )}
+          {canCreateProject && (
+            <DropdownMenuItem onClick={() => setSheet("project")} className="gap-2">
+              <Briefcase className="h-4 w-4 text-muted-foreground" /> {t("topNav.newProject")}
+            </DropdownMenuItem>
+          )}
+          {canCreateProjectExpense && (
+            <>
+              <DropdownMenuItem onClick={() => setSheet("expense")} className="gap-2">
+                <Receipt className="h-4 w-4 text-muted-foreground" /> {t("topNav.newExpense")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSheet("material")} className="gap-2">
+                <Package className="h-4 w-4 text-muted-foreground" /> {t("topNav.newMaterial")}
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
+      )}
 
       <LogTimeDialog open={sheet === "logTime"} onClose={() => setSheet(null)} />
       <StartTimerDialog open={sheet === "startTimer"} onClose={() => setSheet(null)} />
