@@ -1254,5 +1254,22 @@
       "confirmRun": "Yes, sync now",
       "toastDone": "Done: {{created}} uploaded · {{skipped}} skipped · {{failed}} failed"
     }
+  },
+  "companySettings": {
+    "title": "Company settings",
+    "backToBenefits": "Back to Benefits",
+    "cardTitle": "Own company identity",
+    "cardDescription": "Used to detect when a receipt accidentally contains our own VAT number instead of the supplier's.",
+    "loading": "Loading…",
+    "companyName": "Company name",
+    "companyNif": "Company NIF (VAT number)",
+    "nifHelper": "Portuguese NIF — 9 digits. Stored on the canonical invoice settings row and shared across HR Benefits OCR and Finance.",
+    "nifValid": "Valid NIF · {{value}}",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Company settings saved",
+    "errors": {
+      "invalidNif": "Invalid Portuguese NIF (checksum failed)"
+    }
   }
 }
