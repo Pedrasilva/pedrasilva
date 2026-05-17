@@ -49,17 +49,32 @@ import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin
 import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.finance.documents.index'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
+import { Route as AppFinanceReportsVatRouteImport } from './routes/_app.finance.reports.vat'
+import { Route as AppFinanceReportsProjectsRouteImport } from './routes/_app.finance.reports.projects'
+import { Route as AppFinanceReportsForecastRouteImport } from './routes/_app.finance.reports.forecast'
 import { Route as AppFinanceReportsCashflowRouteImport } from './routes/_app.finance.reports.cashflow'
 import { Route as AppFinancePaymentsSuppliersRouteImport } from './routes/_app.finance.payments.suppliers'
+import { Route as AppFinancePaymentsPurchasesRouteImport } from './routes/_app.finance.payments.purchases'
+import { Route as AppFinancePaymentsOutflowsRouteImport } from './routes/_app.finance.payments.outflows'
 import { Route as AppFinancePaymentsExpensesRouteImport } from './routes/_app.finance.payments.expenses'
+import { Route as AppFinancePaymentsCardsRouteImport } from './routes/_app.finance.payments.cards'
+import { Route as AppFinanceInvoicingReceiptsRouteImport } from './routes/_app.finance.invoicing.receipts'
 import { Route as AppFinanceInvoicingInvoicesRouteImport } from './routes/_app.finance.invoicing.invoices'
+import { Route as AppFinanceInvoicingInflowsRouteImport } from './routes/_app.finance.invoicing.inflows'
 import { Route as AppFinanceInvoicingClientsRouteImport } from './routes/_app.finance.invoicing.clients'
 import { Route as AppFinanceDocumentsDocumentIdRouteImport } from './routes/_app.finance.documents.$documentId'
+import { Route as AppFinanceDataVatRatesRouteImport } from './routes/_app.finance.data.vat-rates'
+import { Route as AppFinanceDataRulesRouteImport } from './routes/_app.finance.data.rules'
 import { Route as AppFinanceDataClassificationsRouteImport } from './routes/_app.finance.data.classifications'
+import { Route as AppFinanceDataCardsRouteImport } from './routes/_app.finance.data.cards'
+import { Route as AppFinanceDataBankAccountsRouteImport } from './routes/_app.finance.data.bank-accounts'
+import { Route as AppFinanceBankingTransactionsRouteImport } from './routes/_app.finance.banking.transactions'
 import { Route as AppFinanceBankingReconciliationRouteImport } from './routes/_app.finance.banking.reconciliation'
 import { Route as AppFinanceBankingBalancesRouteImport } from './routes/_app.finance.banking.balances'
+import { Route as AppFinanceAdminQaRouteImport } from './routes/_app.finance.admin.qa'
 import { Route as AppFinanceAdminInconsistenciesRouteImport } from './routes/_app.finance.admin.inconsistencies'
 import { Route as AppFinanceAdminImportsRouteImport } from './routes/_app.finance.admin.imports'
+import { Route as AppFinanceAdminAuditRouteImport } from './routes/_app.finance.admin.audit'
 import { Route as AppCrmQuotesQuoteIdRouteImport } from './routes/_app.crm.quotes.$quoteId'
 import { Route as AppCrmPipelineProposalIdRouteImport } from './routes/_app.crm.pipeline.$proposalId'
 import { Route as AppCrmOpportunitiesOpportunityIdRouteImport } from './routes/_app.crm.opportunities.$opportunityId'
@@ -268,6 +283,23 @@ const AppHrColaboradorIdRoute = AppHrColaboradorIdRouteImport.update({
   path: '/colaborador/$id',
   getParentRoute: () => AppHrRoute,
 } as any)
+const AppFinanceReportsVatRoute = AppFinanceReportsVatRouteImport.update({
+  id: '/reports/vat',
+  path: '/reports/vat',
+  getParentRoute: () => AppFinanceRoute,
+} as any)
+const AppFinanceReportsProjectsRoute =
+  AppFinanceReportsProjectsRouteImport.update({
+    id: '/reports/projects',
+    path: '/reports/projects',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceReportsForecastRoute =
+  AppFinanceReportsForecastRouteImport.update({
+    id: '/reports/forecast',
+    path: '/reports/forecast',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppFinanceReportsCashflowRoute =
   AppFinanceReportsCashflowRouteImport.update({
     id: '/reports/cashflow',
@@ -280,16 +312,45 @@ const AppFinancePaymentsSuppliersRoute =
     path: '/payments/suppliers',
     getParentRoute: () => AppFinanceRoute,
   } as any)
+const AppFinancePaymentsPurchasesRoute =
+  AppFinancePaymentsPurchasesRouteImport.update({
+    id: '/payments/purchases',
+    path: '/payments/purchases',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinancePaymentsOutflowsRoute =
+  AppFinancePaymentsOutflowsRouteImport.update({
+    id: '/payments/outflows',
+    path: '/payments/outflows',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppFinancePaymentsExpensesRoute =
   AppFinancePaymentsExpensesRouteImport.update({
     id: '/payments/expenses',
     path: '/payments/expenses',
     getParentRoute: () => AppFinanceRoute,
   } as any)
+const AppFinancePaymentsCardsRoute = AppFinancePaymentsCardsRouteImport.update({
+  id: '/payments/cards',
+  path: '/payments/cards',
+  getParentRoute: () => AppFinanceRoute,
+} as any)
+const AppFinanceInvoicingReceiptsRoute =
+  AppFinanceInvoicingReceiptsRouteImport.update({
+    id: '/invoicing/receipts',
+    path: '/invoicing/receipts',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppFinanceInvoicingInvoicesRoute =
   AppFinanceInvoicingInvoicesRouteImport.update({
     id: '/invoicing/invoices',
     path: '/invoicing/invoices',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceInvoicingInflowsRoute =
+  AppFinanceInvoicingInflowsRouteImport.update({
+    id: '/invoicing/inflows',
+    path: '/invoicing/inflows',
     getParentRoute: () => AppFinanceRoute,
   } as any)
 const AppFinanceInvoicingClientsRoute =
@@ -304,10 +365,37 @@ const AppFinanceDocumentsDocumentIdRoute =
     path: '/documents/$documentId',
     getParentRoute: () => AppFinanceRoute,
   } as any)
+const AppFinanceDataVatRatesRoute = AppFinanceDataVatRatesRouteImport.update({
+  id: '/data/vat-rates',
+  path: '/data/vat-rates',
+  getParentRoute: () => AppFinanceRoute,
+} as any)
+const AppFinanceDataRulesRoute = AppFinanceDataRulesRouteImport.update({
+  id: '/data/rules',
+  path: '/data/rules',
+  getParentRoute: () => AppFinanceRoute,
+} as any)
 const AppFinanceDataClassificationsRoute =
   AppFinanceDataClassificationsRouteImport.update({
     id: '/data/classifications',
     path: '/data/classifications',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceDataCardsRoute = AppFinanceDataCardsRouteImport.update({
+  id: '/data/cards',
+  path: '/data/cards',
+  getParentRoute: () => AppFinanceRoute,
+} as any)
+const AppFinanceDataBankAccountsRoute =
+  AppFinanceDataBankAccountsRouteImport.update({
+    id: '/data/bank-accounts',
+    path: '/data/bank-accounts',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
+const AppFinanceBankingTransactionsRoute =
+  AppFinanceBankingTransactionsRouteImport.update({
+    id: '/banking/transactions',
+    path: '/banking/transactions',
     getParentRoute: () => AppFinanceRoute,
   } as any)
 const AppFinanceBankingReconciliationRoute =
@@ -322,6 +410,11 @@ const AppFinanceBankingBalancesRoute =
     path: '/banking/balances',
     getParentRoute: () => AppFinanceRoute,
   } as any)
+const AppFinanceAdminQaRoute = AppFinanceAdminQaRouteImport.update({
+  id: '/admin/qa',
+  path: '/admin/qa',
+  getParentRoute: () => AppFinanceRoute,
+} as any)
 const AppFinanceAdminInconsistenciesRoute =
   AppFinanceAdminInconsistenciesRouteImport.update({
     id: '/admin/inconsistencies',
@@ -331,6 +424,11 @@ const AppFinanceAdminInconsistenciesRoute =
 const AppFinanceAdminImportsRoute = AppFinanceAdminImportsRouteImport.update({
   id: '/admin/imports',
   path: '/admin/imports',
+  getParentRoute: () => AppFinanceRoute,
+} as any)
+const AppFinanceAdminAuditRoute = AppFinanceAdminAuditRouteImport.update({
+  id: '/admin/audit',
+  path: '/admin/audit',
   getParentRoute: () => AppFinanceRoute,
 } as any)
 const AppCrmQuotesQuoteIdRoute = AppCrmQuotesQuoteIdRouteImport.update({
@@ -404,17 +502,32 @@ export interface FileRoutesByFullPath {
   '/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
+  '/finance/admin/audit': typeof AppFinanceAdminAuditRoute
   '/finance/admin/imports': typeof AppFinanceAdminImportsRoute
   '/finance/admin/inconsistencies': typeof AppFinanceAdminInconsistenciesRoute
+  '/finance/admin/qa': typeof AppFinanceAdminQaRoute
   '/finance/banking/balances': typeof AppFinanceBankingBalancesRoute
   '/finance/banking/reconciliation': typeof AppFinanceBankingReconciliationRoute
+  '/finance/banking/transactions': typeof AppFinanceBankingTransactionsRoute
+  '/finance/data/bank-accounts': typeof AppFinanceDataBankAccountsRoute
+  '/finance/data/cards': typeof AppFinanceDataCardsRoute
   '/finance/data/classifications': typeof AppFinanceDataClassificationsRoute
+  '/finance/data/rules': typeof AppFinanceDataRulesRoute
+  '/finance/data/vat-rates': typeof AppFinanceDataVatRatesRoute
   '/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
   '/finance/invoicing/clients': typeof AppFinanceInvoicingClientsRoute
+  '/finance/invoicing/inflows': typeof AppFinanceInvoicingInflowsRoute
   '/finance/invoicing/invoices': typeof AppFinanceInvoicingInvoicesRoute
+  '/finance/invoicing/receipts': typeof AppFinanceInvoicingReceiptsRoute
+  '/finance/payments/cards': typeof AppFinancePaymentsCardsRoute
   '/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
+  '/finance/payments/outflows': typeof AppFinancePaymentsOutflowsRoute
+  '/finance/payments/purchases': typeof AppFinancePaymentsPurchasesRoute
   '/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
+  '/finance/reports/forecast': typeof AppFinanceReportsForecastRoute
+  '/finance/reports/projects': typeof AppFinanceReportsProjectsRoute
+  '/finance/reports/vat': typeof AppFinanceReportsVatRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/finance/documents/': typeof AppFinanceDocumentsIndexRoute
@@ -458,17 +571,32 @@ export interface FileRoutesByTo {
   '/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
+  '/finance/admin/audit': typeof AppFinanceAdminAuditRoute
   '/finance/admin/imports': typeof AppFinanceAdminImportsRoute
   '/finance/admin/inconsistencies': typeof AppFinanceAdminInconsistenciesRoute
+  '/finance/admin/qa': typeof AppFinanceAdminQaRoute
   '/finance/banking/balances': typeof AppFinanceBankingBalancesRoute
   '/finance/banking/reconciliation': typeof AppFinanceBankingReconciliationRoute
+  '/finance/banking/transactions': typeof AppFinanceBankingTransactionsRoute
+  '/finance/data/bank-accounts': typeof AppFinanceDataBankAccountsRoute
+  '/finance/data/cards': typeof AppFinanceDataCardsRoute
   '/finance/data/classifications': typeof AppFinanceDataClassificationsRoute
+  '/finance/data/rules': typeof AppFinanceDataRulesRoute
+  '/finance/data/vat-rates': typeof AppFinanceDataVatRatesRoute
   '/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
   '/finance/invoicing/clients': typeof AppFinanceInvoicingClientsRoute
+  '/finance/invoicing/inflows': typeof AppFinanceInvoicingInflowsRoute
   '/finance/invoicing/invoices': typeof AppFinanceInvoicingInvoicesRoute
+  '/finance/invoicing/receipts': typeof AppFinanceInvoicingReceiptsRoute
+  '/finance/payments/cards': typeof AppFinancePaymentsCardsRoute
   '/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
+  '/finance/payments/outflows': typeof AppFinancePaymentsOutflowsRoute
+  '/finance/payments/purchases': typeof AppFinancePaymentsPurchasesRoute
   '/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
+  '/finance/reports/forecast': typeof AppFinanceReportsForecastRoute
+  '/finance/reports/projects': typeof AppFinanceReportsProjectsRoute
+  '/finance/reports/vat': typeof AppFinanceReportsVatRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/finance/documents': typeof AppFinanceDocumentsIndexRoute
@@ -517,17 +645,32 @@ export interface FileRoutesById {
   '/_app/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/_app/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/_app/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
+  '/_app/finance/admin/audit': typeof AppFinanceAdminAuditRoute
   '/_app/finance/admin/imports': typeof AppFinanceAdminImportsRoute
   '/_app/finance/admin/inconsistencies': typeof AppFinanceAdminInconsistenciesRoute
+  '/_app/finance/admin/qa': typeof AppFinanceAdminQaRoute
   '/_app/finance/banking/balances': typeof AppFinanceBankingBalancesRoute
   '/_app/finance/banking/reconciliation': typeof AppFinanceBankingReconciliationRoute
+  '/_app/finance/banking/transactions': typeof AppFinanceBankingTransactionsRoute
+  '/_app/finance/data/bank-accounts': typeof AppFinanceDataBankAccountsRoute
+  '/_app/finance/data/cards': typeof AppFinanceDataCardsRoute
   '/_app/finance/data/classifications': typeof AppFinanceDataClassificationsRoute
+  '/_app/finance/data/rules': typeof AppFinanceDataRulesRoute
+  '/_app/finance/data/vat-rates': typeof AppFinanceDataVatRatesRoute
   '/_app/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
   '/_app/finance/invoicing/clients': typeof AppFinanceInvoicingClientsRoute
+  '/_app/finance/invoicing/inflows': typeof AppFinanceInvoicingInflowsRoute
   '/_app/finance/invoicing/invoices': typeof AppFinanceInvoicingInvoicesRoute
+  '/_app/finance/invoicing/receipts': typeof AppFinanceInvoicingReceiptsRoute
+  '/_app/finance/payments/cards': typeof AppFinancePaymentsCardsRoute
   '/_app/finance/payments/expenses': typeof AppFinancePaymentsExpensesRoute
+  '/_app/finance/payments/outflows': typeof AppFinancePaymentsOutflowsRoute
+  '/_app/finance/payments/purchases': typeof AppFinancePaymentsPurchasesRoute
   '/_app/finance/payments/suppliers': typeof AppFinancePaymentsSuppliersRoute
   '/_app/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
+  '/_app/finance/reports/forecast': typeof AppFinanceReportsForecastRoute
+  '/_app/finance/reports/projects': typeof AppFinanceReportsProjectsRoute
+  '/_app/finance/reports/vat': typeof AppFinanceReportsVatRoute
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/_app/finance/documents/': typeof AppFinanceDocumentsIndexRoute
@@ -576,17 +719,32 @@ export interface FileRouteTypes {
     | '/crm/opportunities/$opportunityId'
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
+    | '/finance/admin/audit'
     | '/finance/admin/imports'
     | '/finance/admin/inconsistencies'
+    | '/finance/admin/qa'
     | '/finance/banking/balances'
     | '/finance/banking/reconciliation'
+    | '/finance/banking/transactions'
+    | '/finance/data/bank-accounts'
+    | '/finance/data/cards'
     | '/finance/data/classifications'
+    | '/finance/data/rules'
+    | '/finance/data/vat-rates'
     | '/finance/documents/$documentId'
     | '/finance/invoicing/clients'
+    | '/finance/invoicing/inflows'
     | '/finance/invoicing/invoices'
+    | '/finance/invoicing/receipts'
+    | '/finance/payments/cards'
     | '/finance/payments/expenses'
+    | '/finance/payments/outflows'
+    | '/finance/payments/purchases'
     | '/finance/payments/suppliers'
     | '/finance/reports/cashflow'
+    | '/finance/reports/forecast'
+    | '/finance/reports/projects'
+    | '/finance/reports/vat'
     | '/hr/colaborador/$id'
     | '/projects/resources/$resourceId'
     | '/finance/documents/'
@@ -630,17 +788,32 @@ export interface FileRouteTypes {
     | '/crm/opportunities/$opportunityId'
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
+    | '/finance/admin/audit'
     | '/finance/admin/imports'
     | '/finance/admin/inconsistencies'
+    | '/finance/admin/qa'
     | '/finance/banking/balances'
     | '/finance/banking/reconciliation'
+    | '/finance/banking/transactions'
+    | '/finance/data/bank-accounts'
+    | '/finance/data/cards'
     | '/finance/data/classifications'
+    | '/finance/data/rules'
+    | '/finance/data/vat-rates'
     | '/finance/documents/$documentId'
     | '/finance/invoicing/clients'
+    | '/finance/invoicing/inflows'
     | '/finance/invoicing/invoices'
+    | '/finance/invoicing/receipts'
+    | '/finance/payments/cards'
     | '/finance/payments/expenses'
+    | '/finance/payments/outflows'
+    | '/finance/payments/purchases'
     | '/finance/payments/suppliers'
     | '/finance/reports/cashflow'
+    | '/finance/reports/forecast'
+    | '/finance/reports/projects'
+    | '/finance/reports/vat'
     | '/hr/colaborador/$id'
     | '/projects/resources/$resourceId'
     | '/finance/documents'
@@ -688,17 +861,32 @@ export interface FileRouteTypes {
     | '/_app/crm/opportunities/$opportunityId'
     | '/_app/crm/pipeline/$proposalId'
     | '/_app/crm/quotes/$quoteId'
+    | '/_app/finance/admin/audit'
     | '/_app/finance/admin/imports'
     | '/_app/finance/admin/inconsistencies'
+    | '/_app/finance/admin/qa'
     | '/_app/finance/banking/balances'
     | '/_app/finance/banking/reconciliation'
+    | '/_app/finance/banking/transactions'
+    | '/_app/finance/data/bank-accounts'
+    | '/_app/finance/data/cards'
     | '/_app/finance/data/classifications'
+    | '/_app/finance/data/rules'
+    | '/_app/finance/data/vat-rates'
     | '/_app/finance/documents/$documentId'
     | '/_app/finance/invoicing/clients'
+    | '/_app/finance/invoicing/inflows'
     | '/_app/finance/invoicing/invoices'
+    | '/_app/finance/invoicing/receipts'
+    | '/_app/finance/payments/cards'
     | '/_app/finance/payments/expenses'
+    | '/_app/finance/payments/outflows'
+    | '/_app/finance/payments/purchases'
     | '/_app/finance/payments/suppliers'
     | '/_app/finance/reports/cashflow'
+    | '/_app/finance/reports/forecast'
+    | '/_app/finance/reports/projects'
+    | '/_app/finance/reports/vat'
     | '/_app/hr/colaborador/$id'
     | '/_app/projects/resources/$resourceId'
     | '/_app/finance/documents/'
@@ -992,6 +1180,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHrColaboradorIdRouteImport
       parentRoute: typeof AppHrRoute
     }
+    '/_app/finance/reports/vat': {
+      id: '/_app/finance/reports/vat'
+      path: '/reports/vat'
+      fullPath: '/finance/reports/vat'
+      preLoaderRoute: typeof AppFinanceReportsVatRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/reports/projects': {
+      id: '/_app/finance/reports/projects'
+      path: '/reports/projects'
+      fullPath: '/finance/reports/projects'
+      preLoaderRoute: typeof AppFinanceReportsProjectsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/reports/forecast': {
+      id: '/_app/finance/reports/forecast'
+      path: '/reports/forecast'
+      fullPath: '/finance/reports/forecast'
+      preLoaderRoute: typeof AppFinanceReportsForecastRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/reports/cashflow': {
       id: '/_app/finance/reports/cashflow'
       path: '/reports/cashflow'
@@ -1006,6 +1215,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinancePaymentsSuppliersRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/payments/purchases': {
+      id: '/_app/finance/payments/purchases'
+      path: '/payments/purchases'
+      fullPath: '/finance/payments/purchases'
+      preLoaderRoute: typeof AppFinancePaymentsPurchasesRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/payments/outflows': {
+      id: '/_app/finance/payments/outflows'
+      path: '/payments/outflows'
+      fullPath: '/finance/payments/outflows'
+      preLoaderRoute: typeof AppFinancePaymentsOutflowsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/payments/expenses': {
       id: '/_app/finance/payments/expenses'
       path: '/payments/expenses'
@@ -1013,11 +1236,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinancePaymentsExpensesRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/payments/cards': {
+      id: '/_app/finance/payments/cards'
+      path: '/payments/cards'
+      fullPath: '/finance/payments/cards'
+      preLoaderRoute: typeof AppFinancePaymentsCardsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/invoicing/receipts': {
+      id: '/_app/finance/invoicing/receipts'
+      path: '/invoicing/receipts'
+      fullPath: '/finance/invoicing/receipts'
+      preLoaderRoute: typeof AppFinanceInvoicingReceiptsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/invoicing/invoices': {
       id: '/_app/finance/invoicing/invoices'
       path: '/invoicing/invoices'
       fullPath: '/finance/invoicing/invoices'
       preLoaderRoute: typeof AppFinanceInvoicingInvoicesRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/invoicing/inflows': {
+      id: '/_app/finance/invoicing/inflows'
+      path: '/invoicing/inflows'
+      fullPath: '/finance/invoicing/inflows'
+      preLoaderRoute: typeof AppFinanceInvoicingInflowsRouteImport
       parentRoute: typeof AppFinanceRoute
     }
     '/_app/finance/invoicing/clients': {
@@ -1034,11 +1278,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceDocumentsDocumentIdRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/data/vat-rates': {
+      id: '/_app/finance/data/vat-rates'
+      path: '/data/vat-rates'
+      fullPath: '/finance/data/vat-rates'
+      preLoaderRoute: typeof AppFinanceDataVatRatesRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/data/rules': {
+      id: '/_app/finance/data/rules'
+      path: '/data/rules'
+      fullPath: '/finance/data/rules'
+      preLoaderRoute: typeof AppFinanceDataRulesRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/data/classifications': {
       id: '/_app/finance/data/classifications'
       path: '/data/classifications'
       fullPath: '/finance/data/classifications'
       preLoaderRoute: typeof AppFinanceDataClassificationsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/data/cards': {
+      id: '/_app/finance/data/cards'
+      path: '/data/cards'
+      fullPath: '/finance/data/cards'
+      preLoaderRoute: typeof AppFinanceDataCardsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/data/bank-accounts': {
+      id: '/_app/finance/data/bank-accounts'
+      path: '/data/bank-accounts'
+      fullPath: '/finance/data/bank-accounts'
+      preLoaderRoute: typeof AppFinanceDataBankAccountsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/banking/transactions': {
+      id: '/_app/finance/banking/transactions'
+      path: '/banking/transactions'
+      fullPath: '/finance/banking/transactions'
+      preLoaderRoute: typeof AppFinanceBankingTransactionsRouteImport
       parentRoute: typeof AppFinanceRoute
     }
     '/_app/finance/banking/reconciliation': {
@@ -1055,6 +1334,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceBankingBalancesRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/admin/qa': {
+      id: '/_app/finance/admin/qa'
+      path: '/admin/qa'
+      fullPath: '/finance/admin/qa'
+      preLoaderRoute: typeof AppFinanceAdminQaRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/admin/inconsistencies': {
       id: '/_app/finance/admin/inconsistencies'
       path: '/admin/inconsistencies'
@@ -1067,6 +1353,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/imports'
       fullPath: '/finance/admin/imports'
       preLoaderRoute: typeof AppFinanceAdminImportsRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
+    '/_app/finance/admin/audit': {
+      id: '/_app/finance/admin/audit'
+      path: '/admin/audit'
+      fullPath: '/finance/admin/audit'
+      preLoaderRoute: typeof AppFinanceAdminAuditRouteImport
       parentRoute: typeof AppFinanceRoute
     }
     '/_app/crm/quotes/$quoteId': {
@@ -1179,33 +1472,63 @@ const AppCrmRouteWithChildren =
 
 interface AppFinanceRouteChildren {
   AppFinanceIndexRoute: typeof AppFinanceIndexRoute
+  AppFinanceAdminAuditRoute: typeof AppFinanceAdminAuditRoute
   AppFinanceAdminImportsRoute: typeof AppFinanceAdminImportsRoute
   AppFinanceAdminInconsistenciesRoute: typeof AppFinanceAdminInconsistenciesRoute
+  AppFinanceAdminQaRoute: typeof AppFinanceAdminQaRoute
   AppFinanceBankingBalancesRoute: typeof AppFinanceBankingBalancesRoute
   AppFinanceBankingReconciliationRoute: typeof AppFinanceBankingReconciliationRoute
+  AppFinanceBankingTransactionsRoute: typeof AppFinanceBankingTransactionsRoute
+  AppFinanceDataBankAccountsRoute: typeof AppFinanceDataBankAccountsRoute
+  AppFinanceDataCardsRoute: typeof AppFinanceDataCardsRoute
   AppFinanceDataClassificationsRoute: typeof AppFinanceDataClassificationsRoute
+  AppFinanceDataRulesRoute: typeof AppFinanceDataRulesRoute
+  AppFinanceDataVatRatesRoute: typeof AppFinanceDataVatRatesRoute
   AppFinanceDocumentsDocumentIdRoute: typeof AppFinanceDocumentsDocumentIdRoute
   AppFinanceInvoicingClientsRoute: typeof AppFinanceInvoicingClientsRoute
+  AppFinanceInvoicingInflowsRoute: typeof AppFinanceInvoicingInflowsRoute
   AppFinanceInvoicingInvoicesRoute: typeof AppFinanceInvoicingInvoicesRoute
+  AppFinanceInvoicingReceiptsRoute: typeof AppFinanceInvoicingReceiptsRoute
+  AppFinancePaymentsCardsRoute: typeof AppFinancePaymentsCardsRoute
   AppFinancePaymentsExpensesRoute: typeof AppFinancePaymentsExpensesRoute
+  AppFinancePaymentsOutflowsRoute: typeof AppFinancePaymentsOutflowsRoute
+  AppFinancePaymentsPurchasesRoute: typeof AppFinancePaymentsPurchasesRoute
   AppFinancePaymentsSuppliersRoute: typeof AppFinancePaymentsSuppliersRoute
   AppFinanceReportsCashflowRoute: typeof AppFinanceReportsCashflowRoute
+  AppFinanceReportsForecastRoute: typeof AppFinanceReportsForecastRoute
+  AppFinanceReportsProjectsRoute: typeof AppFinanceReportsProjectsRoute
+  AppFinanceReportsVatRoute: typeof AppFinanceReportsVatRoute
   AppFinanceDocumentsIndexRoute: typeof AppFinanceDocumentsIndexRoute
 }
 
 const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinanceIndexRoute: AppFinanceIndexRoute,
+  AppFinanceAdminAuditRoute: AppFinanceAdminAuditRoute,
   AppFinanceAdminImportsRoute: AppFinanceAdminImportsRoute,
   AppFinanceAdminInconsistenciesRoute: AppFinanceAdminInconsistenciesRoute,
+  AppFinanceAdminQaRoute: AppFinanceAdminQaRoute,
   AppFinanceBankingBalancesRoute: AppFinanceBankingBalancesRoute,
   AppFinanceBankingReconciliationRoute: AppFinanceBankingReconciliationRoute,
+  AppFinanceBankingTransactionsRoute: AppFinanceBankingTransactionsRoute,
+  AppFinanceDataBankAccountsRoute: AppFinanceDataBankAccountsRoute,
+  AppFinanceDataCardsRoute: AppFinanceDataCardsRoute,
   AppFinanceDataClassificationsRoute: AppFinanceDataClassificationsRoute,
+  AppFinanceDataRulesRoute: AppFinanceDataRulesRoute,
+  AppFinanceDataVatRatesRoute: AppFinanceDataVatRatesRoute,
   AppFinanceDocumentsDocumentIdRoute: AppFinanceDocumentsDocumentIdRoute,
   AppFinanceInvoicingClientsRoute: AppFinanceInvoicingClientsRoute,
+  AppFinanceInvoicingInflowsRoute: AppFinanceInvoicingInflowsRoute,
   AppFinanceInvoicingInvoicesRoute: AppFinanceInvoicingInvoicesRoute,
+  AppFinanceInvoicingReceiptsRoute: AppFinanceInvoicingReceiptsRoute,
+  AppFinancePaymentsCardsRoute: AppFinancePaymentsCardsRoute,
   AppFinancePaymentsExpensesRoute: AppFinancePaymentsExpensesRoute,
+  AppFinancePaymentsOutflowsRoute: AppFinancePaymentsOutflowsRoute,
+  AppFinancePaymentsPurchasesRoute: AppFinancePaymentsPurchasesRoute,
   AppFinancePaymentsSuppliersRoute: AppFinancePaymentsSuppliersRoute,
   AppFinanceReportsCashflowRoute: AppFinanceReportsCashflowRoute,
+  AppFinanceReportsForecastRoute: AppFinanceReportsForecastRoute,
+  AppFinanceReportsProjectsRoute: AppFinanceReportsProjectsRoute,
+  AppFinanceReportsVatRoute: AppFinanceReportsVatRoute,
   AppFinanceDocumentsIndexRoute: AppFinanceDocumentsIndexRoute,
 }
 
