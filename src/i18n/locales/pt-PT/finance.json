@@ -333,8 +333,7 @@
     "netActualCashMovement": "Movimento líquido real",
     "simpleForecast": "Previsão simples",
     "simpleForecastSub": "Saldo bancário + recebimentos com vencimento este mês − pagamentos com vencimento este mês",
-    "qaSeedNotice": "Inclui registos de QA (QA-PUR-001, QA-INV-001).",
-    "qaSeedClean": "Sem registos de QA detectados."
+    "qaSeedNotice": "Inclui registos de QA (QA-PUR-001, QA-INV-001)."
   },
   "cashFlow": {
     "title": "Cash flow mensal",

@@ -302,26 +302,14 @@ export function OperationalOverview() {
         />
       </div>
 
-      <Card
-        className={cn(
-          "border-dashed",
-          hasQaSeed ? "border-amber-400/60" : "border-border",
-        )}
-      >
-        <CardContent className="p-3 flex items-start gap-2 text-xs text-muted-foreground">
-          <AlertCircle
-            className={cn(
-              "h-3.5 w-3.5 mt-0.5",
-              hasQaSeed ? "text-amber-600" : "text-muted-foreground",
-            )}
-          />
-          <span>
-            {hasQaSeed
-              ? t("finance:overview.qaSeedNotice")
-              : t("finance:overview.qaSeedClean")}
-          </span>
-        </CardContent>
-      </Card>
+      {hasQaSeed ? (
+        <Card className="border-dashed border-amber-400/60">
+          <CardContent className="p-3 flex items-start gap-2 text-xs text-muted-foreground">
+            <AlertCircle className="h-3.5 w-3.5 mt-0.5 text-amber-600" />
+            <span>{t("finance:overview.qaSeedNotice")}</span>
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }
