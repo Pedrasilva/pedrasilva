@@ -8,11 +8,8 @@ import type { PermissionKey } from "@/lib/permissions";
 import {
   Users,
   BarChart3,
-  Calculator,
   CalendarDays,
-  CalendarCheck,
   Wallet,
-  Shield,
   User as UserIcon,
   Utensils,
   PanelLeftClose,
