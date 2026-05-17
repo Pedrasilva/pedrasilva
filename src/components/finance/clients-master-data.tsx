@@ -44,6 +44,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CompaniesImportCard } from "./companies-import-card";
 
 export type CompanyRow = {
   id: string;
