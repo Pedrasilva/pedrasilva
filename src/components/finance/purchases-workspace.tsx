@@ -290,13 +290,15 @@ export function PurchasesWorkspace() {
                           {fmt(Number(d.total_inc_vat))}
                         </TableCell>
                         <TableCell className="text-right tabular-nums">
-                          {Number(d.outstanding_amount ?? 0) > 0 ? (
-                            <span className="font-medium">
-                              {fmt(Number(d.outstanding_amount ?? 0))}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
+                          <span
+                            className={
+                              Number(d.outstanding_amount ?? 0) > 0
+                                ? "font-medium"
+                                : "text-muted-foreground"
+                            }
+                          >
+                            {fmt(Number(d.outstanding_amount ?? 0))}
+                          </span>
                         </TableCell>
                         <TableCell>
                           <StatusBadge status={d.status} />
