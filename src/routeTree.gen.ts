@@ -58,6 +58,7 @@ import { Route as AppFinanceDocumentsDocumentIdRouteImport } from './routes/_app
 import { Route as AppFinanceDataClassificationsRouteImport } from './routes/_app.finance.data.classifications'
 import { Route as AppFinanceBankingReconciliationRouteImport } from './routes/_app.finance.banking.reconciliation'
 import { Route as AppFinanceBankingBalancesRouteImport } from './routes/_app.finance.banking.balances'
+import { Route as AppFinanceAdminInconsistenciesRouteImport } from './routes/_app.finance.admin.inconsistencies'
 import { Route as AppFinanceAdminImportsRouteImport } from './routes/_app.finance.admin.imports'
 import { Route as AppCrmQuotesQuoteIdRouteImport } from './routes/_app.crm.quotes.$quoteId'
 import { Route as AppCrmPipelineProposalIdRouteImport } from './routes/_app.crm.pipeline.$proposalId'
@@ -321,6 +322,12 @@ const AppFinanceBankingBalancesRoute =
     path: '/banking/balances',
     getParentRoute: () => AppFinanceRoute,
   } as any)
+const AppFinanceAdminInconsistenciesRoute =
+  AppFinanceAdminInconsistenciesRouteImport.update({
+    id: '/admin/inconsistencies',
+    path: '/admin/inconsistencies',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppFinanceAdminImportsRoute = AppFinanceAdminImportsRouteImport.update({
   id: '/admin/imports',
   path: '/admin/imports',
@@ -398,6 +405,7 @@ export interface FileRoutesByFullPath {
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
   '/finance/admin/imports': typeof AppFinanceAdminImportsRoute
+  '/finance/admin/inconsistencies': typeof AppFinanceAdminInconsistenciesRoute
   '/finance/banking/balances': typeof AppFinanceBankingBalancesRoute
   '/finance/banking/reconciliation': typeof AppFinanceBankingReconciliationRoute
   '/finance/data/classifications': typeof AppFinanceDataClassificationsRoute
@@ -451,6 +459,7 @@ export interface FileRoutesByTo {
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
   '/finance/admin/imports': typeof AppFinanceAdminImportsRoute
+  '/finance/admin/inconsistencies': typeof AppFinanceAdminInconsistenciesRoute
   '/finance/banking/balances': typeof AppFinanceBankingBalancesRoute
   '/finance/banking/reconciliation': typeof AppFinanceBankingReconciliationRoute
   '/finance/data/classifications': typeof AppFinanceDataClassificationsRoute
@@ -509,6 +518,7 @@ export interface FileRoutesById {
   '/_app/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/_app/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
   '/_app/finance/admin/imports': typeof AppFinanceAdminImportsRoute
+  '/_app/finance/admin/inconsistencies': typeof AppFinanceAdminInconsistenciesRoute
   '/_app/finance/banking/balances': typeof AppFinanceBankingBalancesRoute
   '/_app/finance/banking/reconciliation': typeof AppFinanceBankingReconciliationRoute
   '/_app/finance/data/classifications': typeof AppFinanceDataClassificationsRoute
@@ -567,6 +577,7 @@ export interface FileRouteTypes {
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
     | '/finance/admin/imports'
+    | '/finance/admin/inconsistencies'
     | '/finance/banking/balances'
     | '/finance/banking/reconciliation'
     | '/finance/data/classifications'
@@ -620,6 +631,7 @@ export interface FileRouteTypes {
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
     | '/finance/admin/imports'
+    | '/finance/admin/inconsistencies'
     | '/finance/banking/balances'
     | '/finance/banking/reconciliation'
     | '/finance/data/classifications'
@@ -677,6 +689,7 @@ export interface FileRouteTypes {
     | '/_app/crm/pipeline/$proposalId'
     | '/_app/crm/quotes/$quoteId'
     | '/_app/finance/admin/imports'
+    | '/_app/finance/admin/inconsistencies'
     | '/_app/finance/banking/balances'
     | '/_app/finance/banking/reconciliation'
     | '/_app/finance/data/classifications'
@@ -1042,6 +1055,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFinanceBankingBalancesRouteImport
       parentRoute: typeof AppFinanceRoute
     }
+    '/_app/finance/admin/inconsistencies': {
+      id: '/_app/finance/admin/inconsistencies'
+      path: '/admin/inconsistencies'
+      fullPath: '/finance/admin/inconsistencies'
+      preLoaderRoute: typeof AppFinanceAdminInconsistenciesRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/admin/imports': {
       id: '/_app/finance/admin/imports'
       path: '/admin/imports'
@@ -1160,6 +1180,7 @@ const AppCrmRouteWithChildren =
 interface AppFinanceRouteChildren {
   AppFinanceIndexRoute: typeof AppFinanceIndexRoute
   AppFinanceAdminImportsRoute: typeof AppFinanceAdminImportsRoute
+  AppFinanceAdminInconsistenciesRoute: typeof AppFinanceAdminInconsistenciesRoute
   AppFinanceBankingBalancesRoute: typeof AppFinanceBankingBalancesRoute
   AppFinanceBankingReconciliationRoute: typeof AppFinanceBankingReconciliationRoute
   AppFinanceDataClassificationsRoute: typeof AppFinanceDataClassificationsRoute
@@ -1175,6 +1196,7 @@ interface AppFinanceRouteChildren {
 const AppFinanceRouteChildren: AppFinanceRouteChildren = {
   AppFinanceIndexRoute: AppFinanceIndexRoute,
   AppFinanceAdminImportsRoute: AppFinanceAdminImportsRoute,
+  AppFinanceAdminInconsistenciesRoute: AppFinanceAdminInconsistenciesRoute,
   AppFinanceBankingBalancesRoute: AppFinanceBankingBalancesRoute,
   AppFinanceBankingReconciliationRoute: AppFinanceBankingReconciliationRoute,
   AppFinanceDataClassificationsRoute: AppFinanceDataClassificationsRoute,
