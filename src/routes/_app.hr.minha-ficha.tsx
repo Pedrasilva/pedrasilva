@@ -159,71 +159,15 @@ function MinhaFichaPage() {
           </CardHeader>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[260px_1fr]">
-          {/* Lista lateral de fichas */}
-          <Card className="lg:sticky lg:top-2 lg:self-start">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">
-                {t("hr:myProfile.history")}
-              </CardTitle>
-              <CardDescription className="text-xs">
-                {t("hr:myProfile.historyCount", { count: ordered.length })}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-2 pb-3 pt-0">
-              <ul className="flex flex-col gap-1">
-                {ordered.map((s) => {
-                  const active = (selected?.id ?? null) === s.id;
-                  return (
-                    <li key={s.id}>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedId(s.id)}
-                        className={
-                          "w-full rounded-md px-2.5 py-2 text-left text-sm transition-colors " +
-                          (active
-                            ? "bg-primary text-primary-foreground"
-                            : "hover:bg-accent")
-                        }
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="truncate font-medium">{s.label}</span>
-                          {s.is_effective && (
-                            <Badge
-                              variant={active ? "secondary" : "default"}
-                              className="shrink-0 text-[10px]"
-                            >
-                              {t("hr:myProfile.inForce")}
-                            </Badge>
-                          )}
-                        </div>
-                        <div
-                          className={
-                            "text-[11px] " +
-                            (active
-                              ? "text-primary-foreground/80"
-                              : "text-muted-foreground")
-                          }
-                        >
-                          {fmtDate(s.reference_date)}
-                        </div>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </CardContent>
-          </Card>
-
-          {/* Detalhe */}
-          {selected && (
-            <SnapshotReadOnly
-              snapshot={selected}
-              collaborator={collaborator}
-              allSnapshots={ordered}
-            />
-          )}
-        </div>
+        selected && (
+          <SnapshotReadOnly
+            snapshot={selected}
+            collaborator={collaborator}
+            allSnapshots={ordered}
+            selectedId={selected.id}
+            onSelect={setSelectedId}
+          />
+        )
       )}
 
       <p className="text-[11px] text-muted-foreground">
@@ -242,10 +186,14 @@ function SnapshotReadOnly({
   snapshot,
   collaborator,
   allSnapshots,
+  selectedId,
+  onSelect,
 }: {
   snapshot: Snapshot;
   collaborator: Collaborator;
   allSnapshots: Snapshot[];
+  selectedId: string;
+  onSelect: (id: string) => void;
 }) {
   const { t } = useTranslation(["hr"]);
   // Espelha o agregado familiar do colaborador, tal como faz a ficha completa
@@ -275,7 +223,30 @@ function SnapshotReadOnly({
                 })}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {allSnapshots.length > 1 && (
+                <div className="inline-flex rounded-md border bg-muted/30 p-0.5">
+                  {allSnapshots.map((s) => {
+                    const active = s.id === selectedId;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => onSelect(s.id)}
+                        title={fmtDate(s.reference_date)}
+                        className={
+                          "rounded px-2.5 py-1 text-xs font-medium transition-colors " +
+                          (active
+                            ? "bg-background text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground")
+                        }
+                      >
+                        {s.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
               {snapshot.is_effective ? (
                 <Badge>{t("hr:myProfile.inForce")}</Badge>
               ) : (
