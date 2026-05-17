@@ -1,102 +1,128 @@
-## Finance Foundation — Shared Master Data + Import Engine
 
-Goal: one canonical model for clients, suppliers, purchases, invoices, payments, and bank movements across HR, Projects, and Finance — then a safe staging/preview import engine — BEFORE touching supplier statements.
+# Finance Module Restructure
 
----
-
-### 1. Current data-model audit
-
-**Already canonical (keep & extend):**
-- `companies` — has `nif`, `is_client`, `is_supplier`, `is_active`, `is_reimbursement_supplier`, `default_classification_id`. Already referenced by `financial_documents`, `benefit_expenses`, `bank_transaction_classifications`, `crm_*`, `pm_projects`, `historical_time_entries`. **This is the canonical entity.**
-- `financial_documents` (+ `financial_document_lines`, `financial_document_payments`) — already polymorphic invoice/receipt/purchase/payment with `counterparty_supplier_id` / `counterparty_client_id` → companies, plus `doc_type`, `direction`, `status`, `vat`, `project_id`. **This is the canonical purchase/invoice/receipt.**
-- `bank_accounts`, `bank_transactions`, `bank_statement_imports`, `bank_transaction_classifications`, `bank_classification_rules`, `bank_balance_snapshots` — full bank/reconciliation stack already exists. **Reuse, do not parallel.**
-- `import_jobs` + `import_job_rows` (with `import_type`, `import_job_status`, `import_row_status`, `raw_data`/`parsed_data` jsonb) — **the staging engine already exists**, just needs new `import_type` values and per-type handlers.
-
-**Legacy / to phase out:**
-- `pm_suppliers` — duplicate supplier table (3 rows). Referenced by `pm_expenses`, `pm_materials`, `company_expenses`, `quote_external_services`. **Bridge → migrate FKs to `companies.id`, then drop.**
-- `financial_expense_items` / `financial_expense_payments` / `financial_income_items` — older expense model that points at `companies` already. Verify usage; likely fold into `financial_documents` long-term, but leave untouched in Phase 1.
-
-**Missing fields on `companies` (from screenshots):**
-- `code` (Nº fornecedor/cliente — 455, 201, 140…)
-- `abbreviation`
-- `postal_code`, `city` (currently only free-text `morada`)
-- `mobile` (separate from `telefone`)
-- `currency` (default EUR)
-- `payment_terms` (Pronto Pagamento, 30d, …)
-- `notes` is already `notas`
-
-**Missing fields on `financial_documents`:** already has the screenshot fields (doc_type, number, dates, vat, subtotal, total, status, project, classification, counterparty).
+Scope: navigation + layout + UX cleanup + terminology. **No backend rewrite.** Existing components are re-mounted in new route files; the current giant `_app.finance.tsx` becomes a thin shell.
 
 ---
 
-### 2. Build sequence
+## 1. Dedicated Finance shell (hide HR nav)
 
-**Phase 1 — Master-data canonicalization (no UI yet)**
-1. Migration: add `code`, `abbreviation`, `postal_code`, `city`, `mobile`, `currency`, `payment_terms` to `companies`. Add unique partial index on `code` per role.
-2. Migration: bridge `pm_suppliers` → `companies`. For each `pm_suppliers` row, upsert into `companies` (match by `tax_id`/name, set `is_supplier=true`), then add nullable `supplier_company_id uuid → companies(id)` to `pm_expenses`, `pm_materials`, `company_expenses`, `quote_external_services`. Backfill, then in a later migration drop the old `supplier_id`.
-3. Server functions in `src/lib/finance/companies.functions.ts`: `listCompanies`, `getCompany`, `upsertCompany`, `mergeCompanies` (admin-only, NIF-aware, refuses own-company NIF — reuse the guard from `benefit-supplier.functions.ts`).
+**`src/routes/_app.tsx`** — add `isFinanceArea = loc.pathname.startsWith("/finance")` and include it in `hideHrNav`. Also hide the HR settings dropdown and HR mobile sheet items inside Finance. Module-level top nav stays via `ModuleTopNav` which already routes to `FinanceTopNav`.
 
-**Phase 2 — Suppliers & Clients screens**
-- Two thin views over the same `companies` table, filtered by `is_supplier` / `is_client` (a company can be both).
-- Routes: `/finance/suppliers`, `/finance/suppliers/$id`, `/finance/clients`, `/finance/clients/$id`.
-- Detail page shows: master fields, open balance (sum of unpaid `financial_documents` where direction matches), document list, linked HR/Project expenses, bank reconciliation links.
-- Reuse existing `src/components/finance/suppliers-master-data.tsx` / `clients-master-data.tsx` as starting points; extend with new fields.
-
-**Phase 3 — Generic Excel import engine (reuse `import_jobs`)**
-- Add `import_type` enum values: `companies_suppliers`, `companies_clients`, `bank_accounts`, `bank_statement`, `supplier_statement` (last one stubbed only).
-- Generic flow under `/admin/imports/finance`:
-  1. Upload .xlsx → store in Supabase Storage → create `import_jobs` row with `status='uploaded'`.
-  2. Parse server-side (SheetJS already in deps; verify) into `import_job_rows.raw_data`.
-  3. Column-mapping UI: detect headers, propose mapping, persist mapping in `import_jobs.metadata`.
-  4. Validate + dedupe pass → fill `parsed_data`, set per-row `status` (`pending`/`warning`/`error`/`duplicate`).
-  5. Preview screen with row-level diff (new vs. existing match).
-  6. Explicit "Commit" button → idempotent insert/update, sets `imported_count`.
-- Server fns in `src/lib/finance/imports/*.functions.ts`, one handler per `import_type`. All admin-gated.
-
-**Phase 4 — First three imports (master data only)**
-- **Suppliers** (`Listagem de fornecedores.xlsx`): match by `nif` → fallback normalized `nome`. Upsert into `companies` with `is_supplier=true`.
-- **Clients** (`Listagem de clientes.xlsx`): same logic with `is_client=true`.
-- **Bank list** (`Extrato listagem de bancos.xlsx`): preview first — could be accounts list OR statement OR treasury extract. Route to `bank_accounts` upsert OR `bank_statement_imports` + `bank_transactions` based on detected shape.
-
-**Phase 5 (deferred — not now): Supplier statement reconciliation.** Requires Phases 1–4 stable + open-document index per supplier.
+**`src/components/ModuleTopNav.tsx`** — `FinanceTopNav` becomes minimal (just the sidebar toggle / module label); per-section navigation moves into the Finance sidebar.
 
 ---
 
-### 3. Cross-module integration (already mostly correct)
+## 2. Replace flat tabs with sidebar + child routes
 
-- HR benefit OCR → already writes to `companies` via `linkOrCreateSupplierForBenefitExpense`. ✓
-- HR reimbursements → unchanged, still create `is_reimbursement_supplier` company liability. ✓
-- Projects → migrate `pm_*.supplier_id` to `companies.id` in Phase 1 step 2.
-- Finance purchases → already `financial_documents.counterparty_supplier_id → companies`. ✓
-- Bank reconciliation → already classifies to `companies` via `bank_transaction_classifications`. ✓
+Convert `_app.finance.tsx` from a Tabs container into a **layout route** that renders a `<FinanceSidebar />` + `<Outlet />`. Create one child route per section so URLs are deep-linkable.
+
+```text
+src/routes/
+  _app.finance.tsx                       (layout: sidebar + Outlet, gate via checkFinanceAccess)
+  _app.finance.index.tsx                 → /finance              Overview (executive)
+  _app.finance.payments.suppliers.tsx    → /finance/payments/suppliers
+  _app.finance.payments.purchases.tsx    → /finance/payments/purchases   (placeholder)
+  _app.finance.payments.expenses.tsx     → /finance/payments/expenses    (was "expenses" + "materials" merged)
+  _app.finance.payments.outflows.tsx     → /finance/payments/outflows    (debts / future outbound)
+  _app.finance.payments.cards.tsx        → /finance/payments/cards       (placeholder)
+  _app.finance.invoicing.clients.tsx     → /finance/invoicing/clients
+  _app.finance.invoicing.invoices.tsx    → /finance/invoicing/invoices   (income tab)
+  _app.finance.invoicing.receipts.tsx    → /finance/invoicing/receipts   (placeholder)
+  _app.finance.invoicing.inflows.tsx     → /finance/invoicing/inflows    (placeholder)
+  _app.finance.banking.balances.tsx      → /finance/banking/balances
+  _app.finance.banking.reconciliation.tsx→ /finance/banking/reconciliation
+  _app.finance.banking.transactions.tsx  → /finance/banking/transactions (bank-imports-manager)
+  _app.finance.reports.cashflow.tsx      → /finance/reports/cashflow
+  _app.finance.reports.vat.tsx           → /finance/reports/vat          (placeholder)
+  _app.finance.reports.forecast.tsx      → /finance/reports/forecast     (placeholder)
+  _app.finance.reports.projects.tsx      → /finance/reports/projects     (ProjectFinancialPanel)
+  _app.finance.data.classifications.tsx  → /finance/data/classifications (FinancialClassificationsAdmin)
+  _app.finance.data.vat-rates.tsx        → /finance/data/vat-rates       (placeholder)
+  _app.finance.data.bank-accounts.tsx    → /finance/data/bank-accounts   (placeholder)
+  _app.finance.data.cards.tsx            → /finance/data/cards           (placeholder)
+  _app.finance.data.rules.tsx            → /finance/data/rules           (placeholder)
+  _app.finance.admin.imports.tsx         → /finance/admin/imports        (ImportLogs)
+  _app.finance.admin.inconsistencies.tsx → /finance/admin/inconsistencies(FinanceInconsistencyReport)
+  _app.finance.admin.audit.tsx           → /finance/admin/audit          (placeholder)
+  _app.finance.admin.qa.tsx              → /finance/admin/qa             (AdminResetTool)
+  _app.finance.documents.*               (keep existing)
+```
+
+Each child page imports the relevant **existing** component (e.g. `BankReconciliationTab`, `ClientsMasterData`, `SuppliersMasterData`, `DocumentsTab`, `FinancialClassificationsAdmin`, `FinanceInconsistencyReport`, `AdminResetTool`) — no business logic moves.
+
+The existing `OverviewTab`, `CashFlowTab`, `IncomeTab`, `ExpensesTab`, `DebtsTab`, `BankBalancesTab`, `ImportLogsTab` (currently inline in `_app.finance.tsx`) get extracted to `src/components/finance/sections/` and imported by their child routes. The big `_app.finance.tsx` shrinks to ~50 lines (layout shell).
 
 ---
 
-### 4. Risks / safety rules
+## 3. Finance sidebar component
 
-- **Never blind-import.** Every Excel import goes through `import_jobs` staging → preview → explicit commit.
-- **Own-company NIF guard** must run on every import row (reuse `pm_invoice_settings.company_nif`).
-- **`pm_suppliers` deprecation is a two-step migration** (add new FK, backfill, switch reads, then drop old FK) to avoid breaking Projects mid-flight.
-- **NIF normalization** (`normalizePortugueseNif`) must run on both sides of every match.
-- **No new bank tables.** The existing 6-table bank stack covers everything in the screenshots.
-- **No supplier statement import in Phase 1–4.** Doing it before canonical purchases would create duplicates.
+New `src/components/finance/finance-sidebar.tsx` using shadcn `Sidebar` with `collapsible="icon"`:
 
----
+- Header: "Finance" label + module badge.
+- Groups (collapsible, default open when active):
+  - **Overview** (single link)
+  - **Payments**: Suppliers, Purchases, Expenses, Outflows, Cards
+  - **Invoicing**: Clients, Invoices, Receipts, Inflows
+  - **Banking**: Balances, Reconciliation, Transactions
+  - **Reports**: Cash flow, VAT, Forecast, Project financials
+  - **Data**: Classifications, VAT rates, Bank accounts, Cards, Rules
+  - **Admin** (only `isRealAdmin`): Import logs, Inconsistencies, Audit, QA
 
-### 5. Deliverables of Phase 1 (what I'll ship first if you approve)
-
-1. Migration: extend `companies` (code, abbreviation, postal_code, city, mobile, currency, payment_terms).
-2. Migration: add `supplier_company_id` to `pm_expenses`, `pm_materials`, `company_expenses`, `quote_external_services` + backfill from `pm_suppliers.tax_id`/name.
-3. `companies.functions.ts` server fns (list/get/upsert/merge, admin-gated, own-NIF guard).
-4. Skeleton routes `/finance/suppliers`, `/finance/clients` (list + detail), wired to canonical `companies`.
-5. Admin link in `/admin` hub for "Suppliers & clients (master data)".
-
-I will not touch `financial_documents`, bank tables, or imports until Phase 1 lands and you confirm.
+Wire `SidebarProvider` + `SidebarTrigger` inside the Finance layout (not `_app.tsx`, to stay scoped).
 
 ---
 
-### Open questions before I start
+## 4. Executive Overview homepage (`/finance`)
 
-1. OK to migrate `pm_suppliers` → `companies` now (a) backfill + dual-write, then (b) drop `pm_suppliers` in a follow-up migration once Projects UI reads the new FK? Or keep `pm_suppliers` indefinitely as a view over `companies`?
-2. For company `code` — should we auto-generate (next sequential like 455, 201) or only populate from imports/manual entry? Old accounting uses sequential numbers per role.
-3. Currency: lock to EUR for now (no multi-currency UI), or expose the field even though all rows will be EUR?
+Replace the current `OverviewTab` content with an exec dashboard built from existing hooks/queries (no schema changes). Sections:
+
+1. **Top KPI strip** (5 cards): current bank balance (sum of latest snapshots), forecast EoM balance (opening + projected net), outstanding receivables (income with `invoice_status != paid`), upcoming payables (debt payments + unpaid expenses), net cash flow MTD.
+2. **Alerts panel**: overdue invoices, unclassified bank tx count (from `bank_transactions` where `suggested_classification_id` null), missing reconciliations, upcoming VAT deadline (static rule), upcoming supplier payments (7-day window).
+3. **Cash-flow trend**: small line chart of last 6 months closing balance + 3-month forward forecast (already in `buildCashFlow`). Use existing `recharts`.
+4. **Quick actions**: 5 buttons → import bank, create invoice, register supplier invoice, reconcile, add bank snapshot (link to existing dialogs/routes).
+5. **Operational queues** (2 columns): Money In (unpaid invoices list, top 5) | Money Out (upcoming payments list, top 5).
+
+Each section is its own small component under `src/components/finance/overview/`.
+
+---
+
+## 5. Remove "Materials" terminology
+
+- Finance UI: drop the "Materials" tab entirely. The Expenses page lists **all** expense rows; classification (project_cost vs operational) drives grouping. Update `buildCashFlow` to keep the cash math identical but rename `materials` field → `projectCosts` internally and merge into the displayed "Expenses" total (keep a breakdown row, labeled via classification).
+- Projects: rename UI label "Materials" → "External Services" wherever it appears in components/i18n. Keep DB column names (`pm_materials`, `expense_type='materials'`) untouched — UI-only.
+- i18n: add `finance.payments.expenses.*`, `projects.externalServices.*`; deprecate (but keep) `finance.tabs.materials` for backwards safety.
+
+---
+
+## 6. i18n
+
+Add EN + PT-PT keys for: sidebar groups/items, overview KPIs/alerts/quick actions, new section titles, "External Services". Maintain parity (script `scripts/check-i18n-parity.mjs` already enforces it).
+
+---
+
+## 7. Out of scope (explicit)
+
+- No new tables, no migrations.
+- No changes to `financial_classifications`, `bank_transactions`, `companies`, or any importer.
+- No DB rename of `pm_materials` / `expense_type='materials'`.
+- VAT rates, Cards, Rules, Audit pages ship as empty placeholder routes with a "Coming soon" card so the nav is complete but no half-built UI lands.
+
+---
+
+## Technical notes
+
+- Permissions stay gated by `checkFinanceAccess` (layout `beforeLoad`) + `finance.dashboard`. Admin section additionally gated by `isRealAdmin`.
+- `<Outlet />` must be added to the new `_app.finance.tsx` layout — without it child routes render blank.
+- `Tabs` import removed from layout; old anchors (`?tab=...`) are not preserved (the user accepted progressive reorganization).
+- `routeTree.gen.ts` regenerates automatically.
+- Existing components stay untouched except for label strings.
+
+## Deliverables in order
+
+1. Finance layout shell + sidebar + child route files (mounting existing components).
+2. Update `_app.tsx` to hide HR nav inside `/finance`.
+3. Extract `OverviewTab`/`CashFlowTab`/etc. into `sections/`.
+4. Build executive Overview homepage components.
+5. Rename Materials → External Services in Projects UI + i18n.
+6. EN/PT-PT i18n additions + parity check.
