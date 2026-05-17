@@ -1089,7 +1089,8 @@
       "vat": "VAT",
       "paymentSource": "Payment source",
       "ocrBadge": "OCR",
-      "ocrSection": "Receipt metadata"
+      "ocrSection": "Receipt metadata",
+      "supplierLinked": "Linked supplier"
     },
     "delete": {
       "title": "Delete expense",
