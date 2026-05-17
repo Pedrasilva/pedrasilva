@@ -507,6 +507,22 @@ export function SubmitExpenseDialog({
           <DialogDescription>{t("hr:beneficios.submit.dialogDescription")}</DialogDescription>
         </DialogHeader>
 
+
+        {isAdmin && ownNifLoaded && !ownCompanyNif && (
+          <div className="rounded-md border border-amber-400/60 bg-amber-50 px-3 py-2 text-[12px] text-amber-800 flex items-start gap-2">
+            <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+            <div className="flex-1">
+              <div>{t("hr:beneficios.submit.ocr.ownNifMissing")}</div>
+              <Link
+                to="/admin/company-settings"
+                className="underline underline-offset-2 font-medium"
+              >
+                {t("hr:beneficios.submit.ocr.ownNifMissingCta")}
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Receipt first — drives OCR */}
         <div className="space-y-1.5">
           <Label>{t("hr:beneficios.submit.receipt")} *</Label>
