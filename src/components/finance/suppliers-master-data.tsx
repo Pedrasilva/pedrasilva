@@ -23,25 +23,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CounterpartyEditor } from "./clients-master-data";
+import { CounterpartyEditor, type CompanyRow } from "./clients-master-data";
 
-type Supplier = {
-  id: string;
-  name: string;
-  nif: string | null;
-  email: string | null;
-  phone: string | null;
-  address: string | null;
-  notes: string | null;
-  is_active: boolean;
-  also_client: boolean;
-};
+const SELECT_COLS =
+  "id, nome, nif, code, abbreviation, email, telefone, mobile, morada, postal_code, city, currency, payment_terms, notas, is_client, is_supplier, is_active";
 
 export function SuppliersMasterData() {
   const { t } = useTranslation(["finance", "common"]);
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
-  const [editing, setEditing] = useState<Supplier | null>(null);
+  const [editing, setEditing] = useState<CompanyRow | null>(null);
   const [creating, setCreating] = useState(false);
 
   const { data: rows = [], isLoading } = useQuery({
@@ -49,21 +40,11 @@ export function SuppliersMasterData() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("companies")
-        .select("id, nome, nif, email, telefone, morada, notas, is_active, is_client")
+        .select(SELECT_COLS)
         .eq("is_supplier", true)
         .order("nome");
       if (error) throw error;
-      return (data ?? []).map((r) => ({
-        id: r.id,
-        name: r.nome,
-        nif: r.nif,
-        email: r.email,
-        phone: r.telefone,
-        address: r.morada,
-        notes: r.notas,
-        is_active: r.is_active,
-        also_client: r.is_client,
-      })) as Supplier[];
+      return (data ?? []) as CompanyRow[];
     },
   });
 
@@ -72,33 +53,20 @@ export function SuppliersMasterData() {
     if (!q) return rows;
     return rows.filter(
       (r) =>
-        r.name.toLowerCase().includes(q) ||
+        r.nome.toLowerCase().includes(q) ||
         (r.nif ?? "").toLowerCase().includes(q) ||
+        (r.code ?? "").toLowerCase().includes(q) ||
         (r.email ?? "").toLowerCase().includes(q),
     );
   }, [rows, search]);
 
   const invalidate = async () => {
     await qc.invalidateQueries({ queryKey: ["finance", "suppliers-master"] });
+    await qc.invalidateQueries({ queryKey: ["finance", "clients-master"] });
     await qc.invalidateQueries({ queryKey: ["fin-suppliers"] });
     await qc.invalidateQueries({ queryKey: ["finance", "suppliers"] });
+    await qc.invalidateQueries({ queryKey: ["companies"] });
   };
-
-  // Map supplier shape → editor's Company-like shape (name/nome, phone/telefone, etc.)
-  const editorRecord = editing
-    ? {
-        id: editing.id,
-        nome: editing.name,
-        nif: editing.nif,
-        email: editing.email,
-        telefone: editing.phone,
-        morada: editing.address,
-        notas: editing.notes,
-        is_client: editing.also_client,
-        is_supplier: true,
-        is_active: editing.is_active,
-      }
-    : undefined;
 
   return (
     <Card>
@@ -132,10 +100,12 @@ export function SuppliersMasterData() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-20">{t("finance:suppliersMaster.code")}</TableHead>
                   <TableHead>{t("finance:suppliersMaster.name")}</TableHead>
                   <TableHead>{t("finance:suppliersMaster.nif")}</TableHead>
                   <TableHead>{t("finance:suppliersMaster.email")}</TableHead>
                   <TableHead>{t("finance:suppliersMaster.phone")}</TableHead>
+                  <TableHead className="w-20">{t("finance:suppliersMaster.currency")}</TableHead>
                   <TableHead>{t("finance:suppliersMaster.status")}</TableHead>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
@@ -143,17 +113,21 @@ export function SuppliersMasterData() {
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                       {t("finance:suppliersMaster.empty")}
                     </TableCell>
                   </TableRow>
                 ) : (
                   filtered.map((r) => (
                     <TableRow key={r.id}>
-                      <TableCell className="font-medium">{r.name}</TableCell>
+                      <TableCell className="font-mono text-xs text-muted-foreground">
+                        {r.code ?? "—"}
+                      </TableCell>
+                      <TableCell className="font-medium">{r.nome}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{r.nif ?? "—"}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{r.email ?? "—"}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{r.phone ?? "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{r.telefone ?? "—"}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{r.currency}</TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {r.is_active ? (
@@ -161,7 +135,7 @@ export function SuppliersMasterData() {
                           ) : (
                             <Badge variant="outline">{t("finance:suppliersMaster.inactive")}</Badge>
                           )}
-                          {r.also_client ? (
+                          {r.is_client ? (
                             <Badge variant="outline">{t("finance:suppliersMaster.alsoClient")}</Badge>
                           ) : null}
                         </div>
@@ -190,7 +164,7 @@ export function SuppliersMasterData() {
         open={!!editing}
         onOpenChange={(v) => !v && setEditing(null)}
         kind="supplier"
-        record={editorRecord}
+        record={editing ?? undefined}
         onSaved={invalidate}
       />
     </Card>
