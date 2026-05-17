@@ -421,8 +421,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
                     <Label className="text-xs">
                       {t("finance:invoices.issueDate")} *
                     </Label>
-                    <Input
-                      type="date"
+                    <DateInputWithPreview
                       value={issueDate}
                       onChange={(e) => setIssueDate(e.target.value)}
                       disabled={isReadOnly}
@@ -432,8 +431,7 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
                     <Label className="text-xs">
                       {t("finance:invoices.dueDate")}
                     </Label>
-                    <Input
-                      type="date"
+                    <DateInputWithPreview
                       value={dueDate}
                       onChange={(e) => setDueDate(e.target.value)}
                       disabled={isReadOnly}
