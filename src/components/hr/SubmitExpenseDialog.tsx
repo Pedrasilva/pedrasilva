@@ -50,6 +50,7 @@ type OcrState = {
   vatMismatch: boolean;
   nifInvalid: boolean;
   failed: boolean;
+  isOwnCompanyNif: boolean;
 };
 
 const newOcr = (): OcrState => ({
@@ -61,6 +62,7 @@ const newOcr = (): OcrState => ({
   vatMismatch: false,
   nifInvalid: false,
   failed: false,
+  isOwnCompanyNif: false,
 });
 
 const LOW_CONF = 0.6;
