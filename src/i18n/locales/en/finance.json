@@ -1153,6 +1153,54 @@
       "errWrongStatus": "Document {{number}} cannot be settled in its current status.",
       "errWrongDirection": "Wrong document direction for this workspace.",
       "errSubmit": "Could not record settlement: {{msg}}"
+    },
+    "history": {
+      "common": {
+        "totalLabel": "Filtered total",
+        "summary": "{{count}} entries · {{linked}} linked to bank",
+        "searchPlaceholder": "Search by document, counterparty or notes…",
+        "from": "From",
+        "to": "To",
+        "allMethods": "All methods",
+        "linkFilter": "Bank link",
+        "link": {
+          "all": "All",
+          "linked": "Linked",
+          "unlinked": "Not linked"
+        },
+        "notLinked": "Not linked to bank",
+        "unknownAccount": "Unknown account"
+      },
+      "outflows": {
+        "title": "Payment history",
+        "subtitle": "Recent payments recorded against supplier documents.",
+        "empty": "No payments recorded yet."
+      },
+      "receipts": {
+        "title": "Receipt history",
+        "subtitle": "Recent receipts recorded against client invoices.",
+        "empty": "No receipts recorded yet."
+      },
+      "col": {
+        "date": "Date",
+        "document": "Document",
+        "amount": "Amount",
+        "method": "Method",
+        "bank": "Bank"
+      },
+      "docType": {
+        "supplier_invoice": "Supplier invoice",
+        "supplier_credit_note": "Supplier credit note",
+        "client_invoice": "Client invoice",
+        "client_credit_note": "Client credit note",
+        "receipt": "Receipt",
+        "expense": "Expense"
+      },
+      "docSection": {
+        "title": "Settlement history",
+        "empty": "No payments recorded against this document yet.",
+        "totalPaid": "Total paid"
+      }
     }
   }
 }

@@ -53,6 +53,7 @@ import {
 } from "@/lib/finance/use-documents";
 import { ClassificationPicker } from "@/components/finance/classification-picker";
 import { InlineCounterpartyDialog } from "@/components/finance/inline-counterparty-dialog";
+import { DocumentSettlementSection } from "@/components/finance/document-settlement-section";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -618,6 +619,16 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
                   disabled={isReadOnly}
                 />
               </section>
+
+              {isExisting && existing.data ? (
+                <>
+                  <Separator />
+                  <DocumentSettlementSection
+                    payments={existing.data.payments}
+                    currency={existing.data.document.currency ?? "EUR"}
+                  />
+                </>
+              ) : null}
             </div>
           )}
 

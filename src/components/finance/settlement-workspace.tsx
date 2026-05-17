@@ -55,6 +55,7 @@ import {
   type FinDoc,
 } from "@/lib/finance/use-documents";
 import { SettlementDialog } from "./settlement-dialog";
+import { SettlementHistory } from "./settlement-history";
 import { cn } from "@/lib/utils";
 
 export type SettlementDirection = "received" | "issued";
@@ -340,6 +341,8 @@ export function SettlementWorkspace({ direction }: Props) {
           )}
         </CardContent>
       </Card>
+
+      <SettlementHistory direction={direction} />
 
       <SettlementDialog
         open={dialogOpen}
