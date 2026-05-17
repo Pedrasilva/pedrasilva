@@ -1030,6 +1030,7 @@
         "lowConfidence": "Verifique este campo",
         "nifInvalid": "OCR não conseguiu validar o NIF",
         "vatMismatch": "Valor total e IVA não batem certo",
+        "ownCompanyNifHint": "Este é o NIF da nossa empresa — introduza o NIF do fornecedor.",
         "badge": "OCR",
         "fieldBadge": "OCR"
       },
@@ -1042,7 +1043,8 @@
         "documentNumber": "Nº do documento",
         "documentNumberPlaceholder": "Ex: FT 2024/12345",
         "recognized": "Fornecedor reconhecido",
-        "newSupplier": "Fornecedor novo — será revisto pelo admin"
+        "newSupplier": "Fornecedor novo — pendente de revisão",
+        "ownCompanyNif": "NIF da própria empresa detectado"
       },
       "vat": {
         "section": "Detalhes de IVA (opcional)",
