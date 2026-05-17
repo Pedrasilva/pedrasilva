@@ -608,7 +608,19 @@ function ExpensesTable({
                   </Badge>
                 </TableCell>
                 <TableCell className="max-w-[280px] truncate text-sm" title={e.descricao}>
-                  {e.descricao}
+                  <div className="flex items-center gap-1.5">
+                    <span className="truncate">{e.descricao}</span>
+                    {e.ocr_extraction_id && (
+                      <Badge
+                        variant="secondary"
+                        className="shrink-0 gap-1 px-1.5 py-0 text-[10px]"
+                        title={t("hr:beneficios.detail.ocrBadge")}
+                      >
+                        <Sparkles className="h-2.5 w-2.5" />
+                        {t("hr:beneficios.detail.ocrBadge")}
+                      </Badge>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="text-right font-medium">{fmtEUR(e.valor)}</TableCell>
                 <TableCell>
