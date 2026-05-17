@@ -1060,5 +1060,99 @@
       "lineQuantity": "A quantidade deve ser maior que 0.",
       "linePrice": "O preço unitário deve ser 0 ou superior."
     }
+  },
+  "settlement": {
+    "common": {
+      "overdueOnly": "Apenas em atraso",
+      "selectAll": "Selecionar tudo",
+      "status": {
+        "issued": "Em aberto",
+        "partially_paid": "Parcial",
+        "paid": "Liquidado"
+      },
+      "col": {
+        "issueDate": "Emissão",
+        "supplier": "Fornecedor",
+        "client": "Cliente",
+        "number": "Número",
+        "due": "Vencimento",
+        "total": "Total",
+        "outstanding": "Em dívida",
+        "status": "Estado"
+      }
+    },
+    "outflows": {
+      "title": "Pagamentos a fornecedores",
+      "subtitle": "Liquide documentos recebidos com movimento de caixa. Selecione uma ou mais faturas para registar um pagamento.",
+      "empty": "Sem documentos de fornecedor por pagar.",
+      "settleSelected_one": "Pagar {{count}} documento",
+      "settleSelected_other": "Pagar {{count}} documentos",
+      "searchPlaceholder": "Pesquisar por número, referência ou fornecedor…",
+      "allCounterparties": "Todos os fornecedores",
+      "confirm": "Registar pagamento",
+      "dialogTitle": "Registar pagamento a fornecedor",
+      "dialogSubtitle_one": "{{count}} documento selecionado.",
+      "dialogSubtitle_other": "{{count}} documentos selecionados.",
+      "successToast_one": "Pagamento registado para {{count}} documento · {{amount}}",
+      "successToast_other": "Pagamento registado para {{count}} documentos · {{amount}}",
+      "kpi": {
+        "count": "Documentos em aberto",
+        "outstanding": "Em dívida",
+        "overdue": "Em atraso",
+        "selected": "Selecionados"
+      }
+    },
+    "receipts": {
+      "title": "Recebimentos de clientes",
+      "subtitle": "Liquide faturas emitidas com movimento de caixa. Selecione uma ou mais faturas para registar um recebimento.",
+      "empty": "Sem faturas de cliente por receber.",
+      "settleSelected_one": "Receber {{count}} fatura",
+      "settleSelected_other": "Receber {{count}} faturas",
+      "searchPlaceholder": "Pesquisar por número, referência ou cliente…",
+      "allCounterparties": "Todos os clientes",
+      "confirm": "Registar recebimento",
+      "dialogTitle": "Registar recebimento de cliente",
+      "dialogSubtitle_one": "{{count}} fatura selecionada.",
+      "dialogSubtitle_other": "{{count}} faturas selecionadas.",
+      "successToast_one": "Recebimento registado para {{count}} fatura · {{amount}}",
+      "successToast_other": "Recebimento registado para {{count}} faturas · {{amount}}",
+      "kpi": {
+        "count": "Faturas em aberto",
+        "outstanding": "Em dívida",
+        "overdue": "Em atraso",
+        "selected": "Selecionadas"
+      }
+    },
+    "dialog": {
+      "docCol": "Documento",
+      "outstandingCol": "Em dívida",
+      "amountCol": "Valor",
+      "totalOutstanding": "Em dívida selecionado",
+      "totalToSettle": "Valor a liquidar",
+      "totalRemaining": "Saldo remanescente",
+      "paymentDate": "Data",
+      "method": "Método",
+      "bankAccount": "Conta bancária",
+      "bankAccountNone": "— Não especificada —",
+      "bankTransaction": "Movimento bancário",
+      "bankTxNone": "— Nenhum —",
+      "notes": "Notas",
+      "notesPlaceholder": "Referência ou memo opcional",
+      "methods": {
+        "bank_transfer": "Transferência bancária",
+        "cash": "Numerário",
+        "card": "Cartão",
+        "direct_debit": "Débito direto",
+        "other": "Outro"
+      },
+      "errNoDocs": "Nenhum documento selecionado.",
+      "errDate": "A data é obrigatória.",
+      "errAmountInvalid": "Valor inválido para {{number}}.",
+      "errAmountPositive": "O valor deve ser maior que 0 para {{number}}.",
+      "errAmountTooHigh": "O valor para {{number}} excede o em dívida ({{max}}).",
+      "errWrongStatus": "O documento {{number}} não pode ser liquidado no seu estado atual.",
+      "errWrongDirection": "Direção de documento incorreta para esta área.",
+      "errSubmit": "Não foi possível registar a liquidação: {{msg}}"
+    }
   }
 }
