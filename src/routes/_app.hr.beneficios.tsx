@@ -70,6 +70,7 @@ import {
 } from "@/lib/benefits";
 import { cn } from "@/lib/utils";
 import { BenefitExpenseTimeline } from "@/components/hr/BenefitExpenseTimeline";
+import { SubmitExpenseDialog } from "@/components/hr/SubmitExpenseDialog";
 import { RejectExpenseDialog } from "@/components/hr/RejectExpenseDialog";
 import { DeleteExpenseDialog } from "@/components/hr/DeleteExpenseDialog";
 import { ExpenseFilterBar, type ExpenseFilterState } from "@/components/hr/ExpenseFilterBar";
