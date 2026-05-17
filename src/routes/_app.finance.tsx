@@ -53,6 +53,7 @@ import { ClientsMasterData } from "@/components/finance/clients-master-data";
 import { SuppliersMasterData } from "@/components/finance/suppliers-master-data";
 import { AdminResetTool } from "@/components/finance/admin-reset-tool";
 import { FinanceInconsistencyReport } from "@/components/finance/finance-inconsistency-report";
+import { FinancialClassificationsAdmin } from "@/components/finance/financial-classifications-admin";
 
 import { checkFinanceAccess } from "@/lib/finance/access";
 
@@ -457,6 +458,7 @@ function FinanceDashboardPage() {
           <TabsTrigger value="importLogs">
             {t("finance:tabs.importLogs")}
           </TabsTrigger>
+          <TabsTrigger value="settings">{t("finance:financialClassifications.tab")}</TabsTrigger>
           <TabsTrigger value="admin">{t("finance:reset.tab")}</TabsTrigger>
         </TabsList>
 
@@ -498,6 +500,9 @@ function FinanceDashboardPage() {
         </TabsContent>
         <TabsContent value="importLogs" className="mt-6">
           <ImportLogsTab />
+        </TabsContent>
+        <TabsContent value="settings" className="mt-6">
+          <FinancialClassificationsAdmin />
         </TabsContent>
         <TabsContent value="admin" className="mt-6 space-y-6">
           <FinanceInconsistencyReport />
