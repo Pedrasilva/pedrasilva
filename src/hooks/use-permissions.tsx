@@ -17,11 +17,17 @@ import type { PermissionKey } from "@/lib/permissions";
 // listings, Finance, etc.) must be granted explicitly via the admin
 // permission matrix — never auto-included here, otherwise impersonation
 // would leak access the real user does not have.
+// Self-service surfaces every collaborator gets by default. These are
+// "own"-scoped pages (my own profile, my own leave, my own tasks, my own
+// timesheet) — never module-wide listings (CRM, Projects All, Finance, HR
+// admin) which must be granted explicitly via the permission matrix.
 const COLLABORATOR_BASELINE: PermissionKey[] = [
   "hr.minha-ficha",
   "hr.dias-uteis",
   "hr.beneficios.own",
   "hr.ferias.own",
+  "projects.my-tasks",
+  "projects.timesheet",
 ];
 
 export function useMyPermissions() {
