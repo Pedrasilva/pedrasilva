@@ -18,7 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { previewDriveSync, runDriveSync } from "@/lib/hr/drive-sync.functions";
+import { getDriveArchiveConfig, previewDriveSync, runDriveSync } from "@/lib/hr/drive-sync.functions";
 
 function fmtEUR(v: number) {
   return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(v ?? 0);
@@ -29,7 +29,13 @@ export function BenefitDriveSyncCard() {
   const qc = useQueryClient();
   const previewFn = useServerFn(previewDriveSync);
   const runFn = useServerFn(runDriveSync);
+  const cfgFn = useServerFn(getDriveArchiveConfig);
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const cfgQ = useQuery({
+    queryKey: ["benefit-drive-archive-config"],
+    queryFn: () => cfgFn(),
+  });
 
   const previewQ = useQuery({
     queryKey: ["benefit-drive-sync-preview"],
@@ -73,10 +79,41 @@ export function BenefitDriveSyncCard() {
               "Cópia arquivada dos recibos aprovados/pagos para o Google Drive. Supabase continua a ser a fonte da verdade.",
           })}
         </p>
-        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-          <FolderTree className="h-3 w-3" />
-          <span className="font-mono">PSA Hub / HR Benefits / {"{year}"} / {"{colaborador-id}"} / …</span>
-        </p>
+        {cfgQ.data && (
+          <div className="rounded border bg-muted/30 p-2 text-xs space-y-1">
+            <div className="flex items-center gap-1.5 font-medium">
+              <FolderTree className="h-3 w-3" />
+              {cfgQ.data.mode === "rootFolder" && (
+                <span>
+                  Arquivo: <span className="font-mono">Shared Drive · root folder {cfgQ.data.rootFolderId?.slice(0, 8)}…</span> / HR Benefits / {"{year}"} / {"{colab}"} / …
+                </span>
+              )}
+              {cfgQ.data.mode === "sharedDrive" && (
+                <span>
+                  Arquivo: <span className="font-mono">Shared Drive {cfgQ.data.sharedDriveId?.slice(0, 8)}…</span> / {cfgQ.data.rootName} / HR Benefits / {"{year}"} / …
+                </span>
+              )}
+              {cfgQ.data.mode === "myDrive" && (
+                <span>
+                  Arquivo: <span className="font-mono">My Drive (conta do conector)</span> / PSA Hub / HR Benefits / {"{year}"} / …
+                </span>
+              )}
+            </div>
+            {cfgQ.data.mode === "myDrive" ? (
+              <p className="text-amber-700">
+                Aviso: ficheiros pertencem à conta Google ligada ao conector. Para resiliência, configure
+                <span className="font-mono"> GOOGLE_DRIVE_ARCHIVE_ROOT_FOLDER_ID</span> com uma pasta dentro
+                de uma Shared Drive da empresa (ex.: <span className="font-mono">PSA Hub Archive</span>),
+                partilhada com a conta do conector com acesso de escrita. Ficheiros já arquivados em My Drive
+                permanecem onde estão — só novos sync vão para a Shared Drive.
+              </p>
+            ) : (
+              <p className="text-muted-foreground">
+                Conector OAuth (utilizador). Service account / domain-wide delegation continua como melhoria futura.
+              </p>
+            )}
+          </div>
+        )}
       </CardHeader>
       <CardContent className="space-y-4">
         {previewQ.isLoading ? (
@@ -207,10 +244,12 @@ export function BenefitDriveSyncCard() {
                     })}
                   </span>
                   <span className="block text-xs text-muted-foreground">
-                    {t("hr:beneficios.driveSync.confirmNote", {
-                      defaultValue:
-                        "Os ficheiros são copiados para a conta Google ligada ao conector. Nenhum ficheiro é apagado do Supabase ou do Drive.",
-                    })}
+                    {cfgQ.data?.mode === "myDrive"
+                      ? "Destino: My Drive da conta ligada ao conector. Recomenda-se configurar uma Shared Drive da empresa antes de volumes maiores."
+                      : cfgQ.data?.mode === "rootFolder"
+                        ? `Destino: pasta partilhada (root folder ${cfgQ.data.rootFolderId?.slice(0, 8)}…) numa Shared Drive da empresa.`
+                        : `Destino: Shared Drive ${cfgQ.data?.sharedDriveId?.slice(0, 8)}… / ${cfgQ.data?.rootName}.`}
+                    {" "}Nenhum ficheiro é apagado do Supabase ou do Drive.
                   </span>
                 </AlertDialogDescription>
               </AlertDialogHeader>

@@ -45,6 +45,50 @@ export type DriveSyncResult = {
 // ---- Helpers --------------------------------------------------------------
 const GATEWAY_BASE = "https://connector-gateway.lovable.dev/google_drive";
 
+// ---- Archive root configuration ------------------------------------------
+// Phase 1.5: Shared Drive support.
+//   GOOGLE_DRIVE_ARCHIVE_ROOT_FOLDER_ID  (preferred) — id of a folder you
+//     created inside a company-owned Shared Drive (e.g. "PSA Hub Archive").
+//     The connector account must have writer access to it.
+//   GOOGLE_DRIVE_SHARED_DRIVE_ID         (optional)  — id of the Shared Drive
+//     itself. Used as parent when no root folder id is provided.
+// If neither is set, falls back to the legacy My Drive layout (Phase 1).
+type ArchiveCtx =
+  | { mode: "rootFolder"; pathPrefix: string; rootParentId: string; driveId: string | null }
+  | { mode: "sharedDrive"; pathPrefix: string; rootParentId: string; driveId: string; rootName: string }
+  | { mode: "myDrive"; pathPrefix: ""; rootParentId: null; driveId: null };
+
+function getArchiveCtx(): ArchiveCtx {
+  const rootFolder = process.env.GOOGLE_DRIVE_ARCHIVE_ROOT_FOLDER_ID?.trim();
+  const sharedDrive = process.env.GOOGLE_DRIVE_SHARED_DRIVE_ID?.trim();
+  const rootName = process.env.GOOGLE_DRIVE_ARCHIVE_ROOT_NAME?.trim() || "PSA Hub Archive";
+  if (rootFolder) {
+    return {
+      mode: "rootFolder",
+      pathPrefix: `rootfolder:${rootFolder}`,
+      rootParentId: rootFolder,
+      driveId: sharedDrive || null,
+    };
+  }
+  if (sharedDrive) {
+    return {
+      mode: "sharedDrive",
+      pathPrefix: `shared:${sharedDrive}`,
+      rootParentId: sharedDrive,
+      driveId: sharedDrive,
+      rootName,
+    };
+  }
+  return { mode: "myDrive", pathPrefix: "", rootParentId: null, driveId: null };
+}
+
+export type ArchiveConfigInfo = {
+  mode: "rootFolder" | "sharedDrive" | "myDrive";
+  rootFolderId: string | null;
+  sharedDriveId: string | null;
+  rootName: string;
+};
+
 function slugify(s: string): string {
   return (s || "unknown")
     .normalize("NFD")
@@ -96,6 +140,7 @@ async function assertAdmin(userId: string) {
 }
 
 // Find-or-create a folder under a parent. Caches by full path.
+// Shared-Drive-safe: always passes supportsAllDrives=true.
 async function ensureFolder(path: string, name: string, parentId: string | null): Promise<string> {
   // Cache lookup
   const cached = await supabaseAdmin
@@ -105,17 +150,21 @@ async function ensureFolder(path: string, name: string, parentId: string | null)
     .maybeSingle();
   if (cached.data?.drive_folder_id) return cached.data.drive_folder_id;
 
-  // Create (we use drive.file scope so we only see what we created — always create fresh under our parent)
+  // Create. We use drive.file scope so we only see what we created — always create fresh under our parent.
+  // supportsAllDrives=true is required when the parent lives in a Shared Drive.
   const body = {
     name,
     mimeType: "application/vnd.google-apps.folder",
     parents: parentId ? [parentId] : undefined,
   };
-  const res = await fetch(`${GATEWAY_BASE}/drive/v3/files?fields=id,name`, {
-    method: "POST",
-    headers: driveHeaders({ "Content-Type": "application/json" }),
-    body: JSON.stringify(body),
-  });
+  const res = await fetch(
+    `${GATEWAY_BASE}/drive/v3/files?fields=id,name&supportsAllDrives=true`,
+    {
+      method: "POST",
+      headers: driveHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify(body),
+    },
+  );
   const text = await res.text();
   if (!res.ok) {
     throw new Error(`Drive folder create failed [${res.status}]: ${text}`);
@@ -128,17 +177,43 @@ async function ensureFolder(path: string, name: string, parentId: string | null)
 }
 
 async function ensureFolderTree(collaboratorId: string, collaboratorName: string, year: number): Promise<string> {
-  const rootPath = "PSA Hub";
+  const ctx = getArchiveCtx();
+  const slug = `${slugify(collaboratorName)}-${collaboratorId.slice(0, 8)}`;
+
+  if (ctx.mode === "myDrive") {
+    // Legacy layout, kept verbatim so existing cached folders/files remain valid.
+    const rootPath = "PSA Hub";
+    const hrPath = `${rootPath}/HR Benefits`;
+    const yearPath = `${hrPath}/${year}`;
+    const collabPath = `${yearPath}/${slug}`;
+    const root = await ensureFolder(rootPath, "PSA Hub", null);
+    const hr = await ensureFolder(hrPath, "HR Benefits", root);
+    const year_ = await ensureFolder(yearPath, String(year), hr);
+    return ensureFolder(collabPath, slug, year_);
+  }
+
+  if (ctx.mode === "rootFolder") {
+    // Root folder is the user-provided "PSA Hub Archive" (inside a Shared Drive).
+    // We do not create or rename it — we only create the subtree under it.
+    const base = ctx.pathPrefix; // e.g. rootfolder:abc123
+    const hrPath = `${base}/HR Benefits`;
+    const yearPath = `${hrPath}/${year}`;
+    const collabPath = `${yearPath}/${slug}`;
+    const hr = await ensureFolder(hrPath, "HR Benefits", ctx.rootParentId);
+    const year_ = await ensureFolder(yearPath, String(year), hr);
+    return ensureFolder(collabPath, slug, year_);
+  }
+
+  // sharedDrive mode: create archive root folder inside the Shared Drive itself.
+  const base = ctx.pathPrefix; // e.g. shared:driveId
+  const rootPath = `${base}/${ctx.rootName}`;
   const hrPath = `${rootPath}/HR Benefits`;
   const yearPath = `${hrPath}/${year}`;
-  const slug = `${slugify(collaboratorName)}-${collaboratorId.slice(0, 8)}`;
   const collabPath = `${yearPath}/${slug}`;
-
-  const root = await ensureFolder(rootPath, "PSA Hub", null);
+  const root = await ensureFolder(rootPath, ctx.rootName, ctx.rootParentId);
   const hr = await ensureFolder(hrPath, "HR Benefits", root);
   const year_ = await ensureFolder(yearPath, String(year), hr);
-  const col = await ensureFolder(collabPath, slug, year_);
-  return col;
+  return ensureFolder(collabPath, slug, year_);
 }
 
 function buildFilename(opts: {
@@ -177,7 +252,7 @@ async function uploadMultipart(
   body.set(post, pre.length + bytes.length);
 
   const res = await fetch(
-    `${GATEWAY_BASE}/upload/drive/v3/files?uploadType=multipart&fields=id,name`,
+    `${GATEWAY_BASE}/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true&fields=id,name`,
     {
       method: "POST",
       headers: driveHeaders({ "Content-Type": `multipart/related; boundary=${boundary}` }),
@@ -228,6 +303,24 @@ async function loadExpensesWithSync() {
 }
 
 // ---- Server functions -----------------------------------------------------
+export const getDriveArchiveConfig = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<ArchiveConfigInfo> => {
+    await assertAdmin(context.userId);
+    const ctx = getArchiveCtx();
+    return {
+      mode: ctx.mode,
+      rootFolderId: ctx.mode === "rootFolder" ? ctx.rootParentId : null,
+      sharedDriveId: ctx.driveId,
+      rootName:
+        ctx.mode === "sharedDrive"
+          ? ctx.rootName
+          : ctx.mode === "rootFolder"
+            ? "(user-provided folder)"
+            : "PSA Hub",
+    };
+  });
+
 export const previewDriveSync = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<DrivePreview> => {
