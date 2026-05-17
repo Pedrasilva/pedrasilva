@@ -18,6 +18,7 @@ import { Route as AppFinanceRouteImport } from './routes/_app.finance'
 import { Route as AppCrmRouteImport } from './routes/_app.crm'
 import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
+import { Route as AppFinanceIndexRouteImport } from './routes/_app.finance.index'
 import { Route as AppCrmIndexRouteImport } from './routes/_app.crm.index'
 import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
 import { Route as AppProjectsTimesheetRouteImport } from './routes/_app.projects.timesheet'
@@ -48,6 +49,7 @@ import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin
 import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.finance.documents.index'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
+import { Route as AppFinanceReportsCashflowRouteImport } from './routes/_app.finance.reports.cashflow'
 import { Route as AppFinanceDocumentsDocumentIdRouteImport } from './routes/_app.finance.documents.$documentId'
 import { Route as AppCrmQuotesQuoteIdRouteImport } from './routes/_app.crm.quotes.$quoteId'
 import { Route as AppCrmPipelineProposalIdRouteImport } from './routes/_app.crm.pipeline.$proposalId'
@@ -98,6 +100,11 @@ const AppHrIndexRoute = AppHrIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppHrRoute,
+} as any)
+const AppFinanceIndexRoute = AppFinanceIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppFinanceRoute,
 } as any)
 const AppCrmIndexRoute = AppCrmIndexRouteImport.update({
   id: '/',
@@ -252,6 +259,12 @@ const AppHrColaboradorIdRoute = AppHrColaboradorIdRouteImport.update({
   path: '/colaborador/$id',
   getParentRoute: () => AppHrRoute,
 } as any)
+const AppFinanceReportsCashflowRoute =
+  AppFinanceReportsCashflowRouteImport.update({
+    id: '/reports/cashflow',
+    path: '/reports/cashflow',
+    getParentRoute: () => AppFinanceRoute,
+  } as any)
 const AppFinanceDocumentsDocumentIdRoute =
   AppFinanceDocumentsDocumentIdRouteImport.update({
     id: '/documents/$documentId',
@@ -321,6 +334,7 @@ export interface FileRoutesByFullPath {
   '/projects/timesheet': typeof AppProjectsTimesheetRoute
   '/admin/': typeof AppAdminIndexRoute
   '/crm/': typeof AppCrmIndexRoute
+  '/finance/': typeof AppFinanceIndexRoute
   '/hr/': typeof AppHrIndexRoute
   '/projects/': typeof AppProjectsIndexRoute
   '/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
@@ -329,13 +343,13 @@ export interface FileRoutesByFullPath {
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
   '/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
+  '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/finance/documents/': typeof AppFinanceDocumentsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/finance': typeof AppFinanceRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
@@ -365,6 +379,7 @@ export interface FileRoutesByTo {
   '/projects/timesheet': typeof AppProjectsTimesheetRoute
   '/admin': typeof AppAdminIndexRoute
   '/crm': typeof AppCrmIndexRoute
+  '/finance': typeof AppFinanceIndexRoute
   '/hr': typeof AppHrIndexRoute
   '/projects': typeof AppProjectsIndexRoute
   '/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
@@ -373,6 +388,7 @@ export interface FileRoutesByTo {
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
   '/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
+  '/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/finance/documents': typeof AppFinanceDocumentsIndexRoute
@@ -413,6 +429,7 @@ export interface FileRoutesById {
   '/_app/projects/timesheet': typeof AppProjectsTimesheetRoute
   '/_app/admin/': typeof AppAdminIndexRoute
   '/_app/crm/': typeof AppCrmIndexRoute
+  '/_app/finance/': typeof AppFinanceIndexRoute
   '/_app/hr/': typeof AppHrIndexRoute
   '/_app/projects/': typeof AppProjectsIndexRoute
   '/_app/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
@@ -421,6 +438,7 @@ export interface FileRoutesById {
   '/_app/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/_app/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
   '/_app/finance/documents/$documentId': typeof AppFinanceDocumentsDocumentIdRoute
+  '/_app/finance/reports/cashflow': typeof AppFinanceReportsCashflowRoute
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/_app/finance/documents/': typeof AppFinanceDocumentsIndexRoute
@@ -461,6 +479,7 @@ export interface FileRouteTypes {
     | '/projects/timesheet'
     | '/admin/'
     | '/crm/'
+    | '/finance/'
     | '/hr/'
     | '/projects/'
     | '/crm/accounts/$accountId'
@@ -469,13 +488,13 @@ export interface FileRouteTypes {
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
     | '/finance/documents/$documentId'
+    | '/finance/reports/cashflow'
     | '/hr/colaborador/$id'
     | '/projects/resources/$resourceId'
     | '/finance/documents/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
-    | '/finance'
     | '/api/notify-expense'
     | '/'
     | '/admin/company-settings'
@@ -505,6 +524,7 @@ export interface FileRouteTypes {
     | '/projects/timesheet'
     | '/admin'
     | '/crm'
+    | '/finance'
     | '/hr'
     | '/projects'
     | '/crm/accounts/$accountId'
@@ -513,6 +533,7 @@ export interface FileRouteTypes {
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
     | '/finance/documents/$documentId'
+    | '/finance/reports/cashflow'
     | '/hr/colaborador/$id'
     | '/projects/resources/$resourceId'
     | '/finance/documents'
@@ -552,6 +573,7 @@ export interface FileRouteTypes {
     | '/_app/projects/timesheet'
     | '/_app/admin/'
     | '/_app/crm/'
+    | '/_app/finance/'
     | '/_app/hr/'
     | '/_app/projects/'
     | '/_app/crm/accounts/$accountId'
@@ -560,6 +582,7 @@ export interface FileRouteTypes {
     | '/_app/crm/pipeline/$proposalId'
     | '/_app/crm/quotes/$quoteId'
     | '/_app/finance/documents/$documentId'
+    | '/_app/finance/reports/cashflow'
     | '/_app/hr/colaborador/$id'
     | '/_app/projects/resources/$resourceId'
     | '/_app/finance/documents/'
@@ -635,6 +658,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/hr/'
       preLoaderRoute: typeof AppHrIndexRouteImport
       parentRoute: typeof AppHrRoute
+    }
+    '/_app/finance/': {
+      id: '/_app/finance/'
+      path: '/'
+      fullPath: '/finance/'
+      preLoaderRoute: typeof AppFinanceIndexRouteImport
+      parentRoute: typeof AppFinanceRoute
     }
     '/_app/crm/': {
       id: '/_app/crm/'
@@ -846,6 +876,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHrColaboradorIdRouteImport
       parentRoute: typeof AppHrRoute
     }
+    '/_app/finance/reports/cashflow': {
+      id: '/_app/finance/reports/cashflow'
+      path: '/reports/cashflow'
+      fullPath: '/finance/reports/cashflow'
+      preLoaderRoute: typeof AppFinanceReportsCashflowRouteImport
+      parentRoute: typeof AppFinanceRoute
+    }
     '/_app/finance/documents/$documentId': {
       id: '/_app/finance/documents/$documentId'
       path: '/documents/$documentId'
@@ -962,12 +999,16 @@ const AppCrmRouteWithChildren =
   AppCrmRoute._addFileChildren(AppCrmRouteChildren)
 
 interface AppFinanceRouteChildren {
+  AppFinanceIndexRoute: typeof AppFinanceIndexRoute
   AppFinanceDocumentsDocumentIdRoute: typeof AppFinanceDocumentsDocumentIdRoute
+  AppFinanceReportsCashflowRoute: typeof AppFinanceReportsCashflowRoute
   AppFinanceDocumentsIndexRoute: typeof AppFinanceDocumentsIndexRoute
 }
 
 const AppFinanceRouteChildren: AppFinanceRouteChildren = {
+  AppFinanceIndexRoute: AppFinanceIndexRoute,
   AppFinanceDocumentsDocumentIdRoute: AppFinanceDocumentsDocumentIdRoute,
+  AppFinanceReportsCashflowRoute: AppFinanceReportsCashflowRoute,
   AppFinanceDocumentsIndexRoute: AppFinanceDocumentsIndexRoute,
 }
 
@@ -1066,3 +1107,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
