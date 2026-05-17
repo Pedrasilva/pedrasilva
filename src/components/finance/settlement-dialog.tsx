@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInputWithPreview } from "@/components/finance/date-input-with-preview";
 import { Label } from "@/components/ui/label";
 import {
   Select,
