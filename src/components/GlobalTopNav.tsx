@@ -102,8 +102,10 @@ export function GlobalTopNav() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      )}
 
       {/* Tasks */}
+      {canTasks && (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -140,8 +142,10 @@ export function GlobalTopNav() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      )}
 
       {/* Schedule */}
+      {canSchedule && (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -180,8 +184,10 @@ export function GlobalTopNav() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      )}
 
       {/* Create (+) */}
+      {canCreate && (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -198,20 +204,29 @@ export function GlobalTopNav() {
           <DropdownMenuLabel className="text-[11px] uppercase tracking-wide text-muted-foreground">
             {t("topNav.create")}
           </DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => setSheet("task")} className="gap-2">
-            <CheckSquare className="h-4 w-4 text-muted-foreground" /> {t("topNav.newTask")}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSheet("project")} className="gap-2">
-            <Briefcase className="h-4 w-4 text-muted-foreground" /> {t("topNav.newProject")}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSheet("expense")} className="gap-2">
-            <Receipt className="h-4 w-4 text-muted-foreground" /> {t("topNav.newExpense")}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSheet("material")} className="gap-2">
-            <Package className="h-4 w-4 text-muted-foreground" /> {t("topNav.newMaterial")}
-          </DropdownMenuItem>
+          {canCreateTask && (
+            <DropdownMenuItem onClick={() => setSheet("task")} className="gap-2">
+              <CheckSquare className="h-4 w-4 text-muted-foreground" /> {t("topNav.newTask")}
+            </DropdownMenuItem>
+          )}
+          {canCreateProject && (
+            <DropdownMenuItem onClick={() => setSheet("project")} className="gap-2">
+              <Briefcase className="h-4 w-4 text-muted-foreground" /> {t("topNav.newProject")}
+            </DropdownMenuItem>
+          )}
+          {canCreateProjectExpense && (
+            <>
+              <DropdownMenuItem onClick={() => setSheet("expense")} className="gap-2">
+                <Receipt className="h-4 w-4 text-muted-foreground" /> {t("topNav.newExpense")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSheet("material")} className="gap-2">
+                <Package className="h-4 w-4 text-muted-foreground" /> {t("topNav.newMaterial")}
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
+      )}
 
       <LogTimeDialog open={sheet === "logTime"} onClose={() => setSheet(null)} />
       <StartTimerDialog open={sheet === "startTimer"} onClose={() => setSheet(null)} />
