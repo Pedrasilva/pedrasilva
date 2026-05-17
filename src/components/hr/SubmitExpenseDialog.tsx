@@ -664,6 +664,9 @@ export function SubmitExpenseDialog({
               {(ocr.nifInvalid || (form.supplier_nif && !supplierNifValid)) && (
                 <FieldHint>{t("hr:beneficios.submit.ocr.nifInvalid")}</FieldHint>
               )}
+              {ocr.isOwnCompanyNif && (
+                <FieldHint>{t("hr:beneficios.submit.ocr.ownCompanyNifHint")}</FieldHint>
+              )}
             </div>
             <div className="sm:col-span-2 space-y-1.5">
               <Label className="flex items-center gap-2">
