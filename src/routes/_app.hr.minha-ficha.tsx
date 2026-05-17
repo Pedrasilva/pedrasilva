@@ -223,7 +223,30 @@ function SnapshotReadOnly({
                 })}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {allSnapshots.length > 1 && (
+                <div className="inline-flex rounded-md border bg-muted/30 p-0.5">
+                  {allSnapshots.map((s) => {
+                    const active = s.id === selectedId;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => onSelect(s.id)}
+                        title={fmtDate(s.reference_date)}
+                        className={
+                          "rounded px-2.5 py-1 text-xs font-medium transition-colors " +
+                          (active
+                            ? "bg-background text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground")
+                        }
+                      >
+                        {s.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
               {snapshot.is_effective ? (
                 <Badge>{t("hr:myProfile.inForce")}</Badge>
               ) : (
