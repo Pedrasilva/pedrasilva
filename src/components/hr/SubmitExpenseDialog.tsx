@@ -166,6 +166,8 @@ export function SubmitExpenseDialog({
         if (!cancelled) setOwnCompanyNif(res?.nif ?? null);
       } catch {
         if (!cancelled) setOwnCompanyNif(null);
+      } finally {
+        if (!cancelled) setOwnNifLoaded(true);
       }
     })();
     return () => { cancelled = true; };
