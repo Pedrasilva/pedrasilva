@@ -751,7 +751,9 @@ function RhTable({
                 onClick={toggleSort}
               />
               <TableHead className="text-right">
-                {t("hr:resumo.rhTable.headers.avgBenefitsMonthly")}
+                <span title={t("hr:compensationLiquidity.avgBenefitsTooltip")}>
+                  {t("hr:resumo.rhTable.headers.avgBenefitsMonthly")}
+                </span>
               </TableHead>
               <SortHead
                 align="right"
