@@ -854,7 +854,7 @@ function CollaboratorPage() {
           ))}
 
           <TabsContent value="resumo" className="mt-4">
-            <ResumoCompare snapshots={snapshots} />
+            <ResumoCompare snapshots={snapshots} expenses={benefitExpenses} />
           </TabsContent>
         </Tabs>
       </div>

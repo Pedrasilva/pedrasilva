@@ -751,7 +751,7 @@ function RhTable({
                 onClick={toggleSort}
               />
               <TableHead className="text-right">
-                {t("hr:resumo.rhTable.headers.benefitsAnnual")}
+                {t("hr:resumo.rhTable.headers.avgBenefitsMonthly")}
               </TableHead>
               <SortHead
                 align="right"
@@ -814,7 +814,7 @@ function RhTable({
                       : "—"}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.beneficiosAnual) : "—"}
+                    {fmtEUR(avgBenefitsByCollab?.get(r.collab.id) ?? 0)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums font-semibold">
                     {c ? fmtEUR(c.custoVBG) : "—"}
