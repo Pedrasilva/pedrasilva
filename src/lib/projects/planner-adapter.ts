@@ -134,7 +134,7 @@ export const PROJECT_FEATURES: PlannerFeatures = {
   statusToggle: true,
   crossProjectMove: true,
   holidayShading: true,
-  allocationPercentage: false,
+  allocationPercentage: true,
 };
 
 export const QUOTE_FEATURES: PlannerFeatures = {
