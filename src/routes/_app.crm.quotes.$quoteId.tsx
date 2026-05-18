@@ -438,6 +438,21 @@ function QuoteDetail() {
   const [step, setStep] = useState<QuoteStep>("estimate");
   const [activeTab, setActiveTab] = useState<string>("overview");
 
+  // Sync the active tab whenever the workflow step changes so the visible
+  // tab triggers and the rendered TabsContent stay consistent. Without
+  // this, switching to "content" leaves the Tabs root on "overview" — a
+  // hidden trigger — and nothing renders.
+  const projectCategory = normalizeQuoteCategory(quote?.quote_category);
+  const stepIsProject = projectCategory === "project";
+  useEffect(() => {
+    if (step === "estimate") {
+      setActiveTab(stepIsProject ? "overview" : "overview");
+    } else if (step === "content") {
+      setActiveTab("proposal");
+    }
+  }, [step, stepIsProject]);
+
+
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   if (!quote) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
 
