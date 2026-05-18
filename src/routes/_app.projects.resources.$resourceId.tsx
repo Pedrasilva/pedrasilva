@@ -250,10 +250,10 @@ function ResourceDetailPage() {
                     type="button"
                     onClick={() => setForm({ ...form, hourly_rate: defaultRate })}
                     className="mt-1.5 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                    title="Valor de venda @ 50% calculado no Resumo Comparativo do HR"
+                    title="HR pricing table @ 75% margin (project default)"
                   >
                     <Sparkles className="h-3 w-3" />
-                    Sugestão HR @ 50%: {defaultRate.toFixed(2)}€/h
+                    HR default @ 75%: {defaultRate.toFixed(2)}€/h
                   </button>
                 )}
               </Field>
