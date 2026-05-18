@@ -150,7 +150,8 @@ function ResourcesPage() {
             <tbody>
               {filtered.map((r) => {
                 const rTeam = ((r.team as ResourceTeam) ?? "project") as ResourceTeam;
-                const isActive = r.active !== false;
+                const isActive = isResourceActive(r);
+                const hrArchived = !!(r.collaborator_id && archivedIds?.has(r.collaborator_id));
                 const hr = defaultRates?.get(r.id);
                 const manualSale = Number(r.hourly_rate);
                 const hasOverride = manualSale > 0;
@@ -165,6 +166,11 @@ function ResourcesPage() {
                       >
                         <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: r.color }} />
                         <span className="font-medium group-hover:underline">{r.name}</span>
+                        {hrArchived && (
+                          <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                            HR archived
+                          </span>
+                        )}
                         <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
                       </Link>
                     </td>
@@ -185,21 +191,45 @@ function ResourcesPage() {
                     </td>
                     <td className="px-4 py-3 text-right font-mono">
                       {saleValue > 0 ? (
-                        <div className="flex flex-col items-end leading-tight">
-                          <span>{euros(saleValue)}</span>
-                          <span
-                            className={`text-[10px] uppercase tracking-wider ${
-                              hasOverride ? "text-amber-600" : "text-muted-foreground"
-                            }`}
-                            title={
-                              hasOverride
-                                ? "Project override (manual rate set on this resource)"
-                                : "Inherited from HR pricing table @ 75% margin"
-                            }
-                          >
-                            {hasOverride ? "Project override" : "HR default · 75%"}
-                          </span>
-                        </div>
+                        <TooltipProvider delayDuration={150}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="inline-flex cursor-help flex-col items-end leading-tight">
+                                <span>{euros(saleValue)}</span>
+                                <span
+                                  className={`text-[10px] uppercase tracking-wider ${
+                                    hasOverride ? "text-amber-600" : "text-muted-foreground"
+                                  }`}
+                                >
+                                  {hasOverride ? "Project override" : "HR default · 75%"}
+                                </span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="left" className="max-w-xs text-left">
+                              {hasOverride ? (
+                                <div className="space-y-1">
+                                  <p className="font-medium">Project override</p>
+                                  <p className="text-[11px] opacity-90">
+                                    Manual sale rate set on this project resource. It overrides the HR
+                                    75% default.
+                                  </p>
+                                  {hr?.sale ? (
+                                    <p className="text-[11px] opacity-75">
+                                      HR default would be {euros(hr.sale)} (75% band).
+                                    </p>
+                                  ) : null}
+                                </div>
+                              ) : (
+                                <div className="space-y-1">
+                                  <p className="font-medium">HR default · 75%</p>
+                                  <p className="text-[11px] opacity-90">
+                                    Derived from the HR pricing table using the 75% sale-rate band.
+                                  </p>
+                                </div>
+                              )}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
@@ -211,9 +241,11 @@ function ResourcesPage() {
                     <td className="px-4 py-3 text-center">
                       <Switch
                         checked={isActive}
+                        disabled={hrArchived}
                         onCheckedChange={(v) => toggleActive(r, v)}
                       />
                     </td>
+
                     <td className="px-4 py-3 text-right">
                       <button
                         onClick={async (e) => {
