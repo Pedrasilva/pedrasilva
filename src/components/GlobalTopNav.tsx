@@ -169,8 +169,9 @@ export function GlobalTopNav() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-9 gap-1.5 px-2.5"
+            className={hubClass(scheduleActive)}
             aria-label={t("topNav.schedule")}
+            aria-current={scheduleActive ? "page" : undefined}
           >
             <CalendarDays className="h-4 w-4" />
             <span className="hidden lg:inline">{t("topNav.schedule")}</span>
