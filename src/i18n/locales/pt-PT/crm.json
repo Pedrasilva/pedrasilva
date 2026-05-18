@@ -382,7 +382,7 @@
       }
     },
     "tabs": {
-      "overview": "Resumo",
+      "overview": "Calculadora",
       "timeBased": "Tempo",
       "planning": "Planeamento",
       "external": "Serviços externos",
@@ -394,7 +394,9 @@
       "constructionCost": "Custo de construção (€)",
       "feePercentage": "Fee (%)",
       "pricingMultiplier": "Multiplicador de preço",
-      "proposalDescription": "Descrição da proposta"
+      "proposalDescription": "Descrição da proposta",
+      "calculatorIntroTitle": "Calculadora de honorários",
+      "calculatorIntroHint": "Calcule os honorários base e distribua-os por fases. Estado, conta, descrição da proposta e notas são geridos noutras etapas do workflow."
     },
     "timeBased": {
       "savedToast": "Definições baseadas em tempo guardadas",

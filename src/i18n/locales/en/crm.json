@@ -382,7 +382,7 @@
       }
     },
     "tabs": {
-      "overview": "Overview",
+      "overview": "Calculator",
       "timeBased": "Time-based",
       "planning": "Planning",
       "external": "External services",
@@ -394,7 +394,9 @@
       "constructionCost": "Construction cost (€)",
       "feePercentage": "Fee (%)",
       "pricingMultiplier": "Pricing multiplier",
-      "proposalDescription": "Proposal description"
+      "proposalDescription": "Proposal description",
+      "calculatorIntroTitle": "Fee calculator",
+      "calculatorIntroHint": "Calculate the base fee and distribute it across project phases. Status, account, proposal description and notes are managed elsewhere in the workflow."
     },
     "timeBased": {
       "savedToast": "Time-based settings saved",
