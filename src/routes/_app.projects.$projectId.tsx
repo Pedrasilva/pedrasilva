@@ -96,6 +96,12 @@ function ProjectDetail() {
   const { allowed: canSeeFinancials } = useHasPermission("projects.financials");
   const { data: budgetControl } = useStageBudgetControl({ projectId, defaultRates });
 
+  useRecordRecentlyViewed({
+    module: "projects",
+    href: `/projects/${projectId}`,
+    label: data?.project?.name ?? "",
+  });
+
   const [tab, setTab] = useState<TabKey>("overview");
   const [dayWidth, setDayWidth] = useState(36);
   const [sidebarOpen, setSidebarOpen] = useState(true);
