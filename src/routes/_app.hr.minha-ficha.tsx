@@ -210,6 +210,21 @@ function SnapshotReadOnly({
   const c = computeSnapshot(draftEffective);
   const canCompare = allSnapshots.length >= 2;
 
+  const { data: benefitExpenses = [] } = useQuery({
+    queryKey: ["my-benefit-expenses-12m", collaborator.id],
+    queryFn: async () => {
+      const from = new Date();
+      from.setMonth(from.getMonth() - 12);
+      const { data, error } = await supabase
+        .from("benefit_expenses")
+        .select("*")
+        .eq("collaborator_id", collaborator.id)
+        .gte("data_despesa", from.toISOString().slice(0, 10));
+      if (error) throw error;
+      return (data ?? []) as BenefitExpense[];
+    },
+  });
+
   return (
     <div className="space-y-5">
       <Card>
