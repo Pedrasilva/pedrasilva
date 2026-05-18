@@ -154,6 +154,16 @@ function DocumentEditorPage() {
   const [createSupplierOpen, setCreateSupplierOpen] = useState(false);
   const [createClientOpen, setCreateClientOpen] = useState(false);
 
+  useRecordRecentlyViewed({
+    module: "finance",
+    href: `/finance/documents/${documentId}`,
+    label: isNew
+      ? ""
+      : docQ.data?.document
+        ? `${docQ.data.document.document_number ?? docQ.data.document.external_reference ?? "Documento"}${docQ.data.document.counterparty_name_snapshot ? " · " + docQ.data.document.counterparty_name_snapshot : ""}`
+        : "",
+  });
+
   // Hydrate from server
   useEffect(() => {
     if (!isNew && docQ.data) {
