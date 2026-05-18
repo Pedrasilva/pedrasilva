@@ -68,7 +68,7 @@ function ResourceDetailPage() {
       team: ((member.team as ResourceTeam) ?? "project"),
       email: member.email ?? "",
       phone: member.phone ?? "",
-      // Se não tem rate definido, pré-preenche com o default do HR @ 50%
+      // Se não tem rate definido, pré-preenche com o default do HR @ 75%
       hourly_rate: stored > 0 ? stored : Number(defaultRate ?? 0),
       weekly_capacity: Number(member.weekly_capacity ?? 40),
       color: member.color ?? PALETTE[0],
@@ -250,10 +250,10 @@ function ResourceDetailPage() {
                     type="button"
                     onClick={() => setForm({ ...form, hourly_rate: defaultRate })}
                     className="mt-1.5 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                    title="Valor de venda @ 50% calculado no Resumo Comparativo do HR"
+                    title="HR pricing table @ 75% margin (project default)"
                   >
                     <Sparkles className="h-3 w-3" />
-                    Sugestão HR @ 50%: {defaultRate.toFixed(2)}€/h
+                    HR default @ 75%: {defaultRate.toFixed(2)}€/h
                   </button>
                 )}
               </Field>

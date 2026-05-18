@@ -106,7 +106,9 @@ function ResourcesPage() {
                 <th className="px-4 py-3 text-left">Name</th>
                 <th className="px-4 py-3 text-left">Role</th>
                 <th className="px-4 py-3 text-left">Team</th>
-                <th className="px-4 py-3 text-right">Rate</th>
+                <th className="px-4 py-3 text-right">Cost €/h</th>
+                <th className="px-4 py-3 text-right">Sale €/h (75%)</th>
+                <th className="px-4 py-3 text-right">Ref. 100%</th>
                 <th className="px-4 py-3 text-right">Capacity</th>
                 <th className="px-4 py-3 text-center">Active</th>
                 <th className="px-4 py-3"></th>
@@ -116,6 +118,10 @@ function ResourcesPage() {
               {filtered.map((r) => {
                 const rTeam = ((r.team as ResourceTeam) ?? "project") as ResourceTeam;
                 const isActive = r.active !== false;
+                const hr = defaultRates?.get(r.id);
+                const manualSale = Number(r.hourly_rate);
+                const hasOverride = manualSale > 0;
+                const saleValue = hasOverride ? manualSale : hr?.sale ?? 0;
                 return (
                   <tr key={r.id} className={`border-t border-border ${!isActive ? "opacity-60" : ""}`}>
                     <td className="px-4 py-3">
@@ -141,19 +147,32 @@ function ResourcesPage() {
                         {TEAM_LABEL[rTeam]}
                       </span>
                     </td>
+                    <td className="px-4 py-3 text-right font-mono text-muted-foreground">
+                      {hr?.cost ? euros(hr.cost) : "—"}
+                    </td>
                     <td className="px-4 py-3 text-right font-mono">
-                      {Number(r.hourly_rate) > 0 ? (
-                        `${euros(Number(r.hourly_rate))}/h`
-                      ) : defaultRates?.get(r.id)?.sale ? (
-                        <span
-                          className="text-muted-foreground italic"
-                          title="Sugestão automática @ 50% do Resumo Comparativo do HR (sem rate definido)"
-                        >
-                          {euros(defaultRates.get(r.id)!.sale)}/h*
-                        </span>
+                      {saleValue > 0 ? (
+                        <div className="flex flex-col items-end leading-tight">
+                          <span>{euros(saleValue)}</span>
+                          <span
+                            className={`text-[10px] uppercase tracking-wider ${
+                              hasOverride ? "text-amber-600" : "text-muted-foreground"
+                            }`}
+                            title={
+                              hasOverride
+                                ? "Project override (manual rate set on this resource)"
+                                : "Inherited from HR pricing table @ 75% margin"
+                            }
+                          >
+                            {hasOverride ? "Project override" : "HR default · 75%"}
+                          </span>
+                        </div>
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono text-muted-foreground">
+                      {hr?.sale100 ? euros(hr.sale100) : "—"}
                     </td>
                     <td className="px-4 py-3 text-right font-mono">{Number(r.weekly_capacity)} h/wk</td>
                     <td className="px-4 py-3 text-center">
@@ -184,7 +203,7 @@ function ResourcesPage() {
               })}
               {!filtered.length && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                  <td colSpan={9} className="px-4 py-10 text-center text-sm text-muted-foreground">
                     {all.length
                       ? `No one in this view yet.`
                       : "No team members yet. Add collaborators in the HR section to populate this list."}
@@ -195,8 +214,10 @@ function ResourcesPage() {
           </table>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          * Rate sugerido automaticamente a partir do Resumo Comparativo do HR (venda @ 50%) quando o
-          recurso ainda não tem rate definido. Edite o recurso para fixar um valor.
+          Sale rates default to the HR pricing table at the <strong>75% margin band</strong>. The 100%
+          band is shown for reference. <span className="text-amber-600">Project override</span> only
+          appears when a manual rate is set on the resource. Inactive collaborators are hidden by
+          default — use the <em>Inactive</em> tab to view them.
         </p>
       </div>
     </AppShell>

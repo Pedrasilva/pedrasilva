@@ -1263,7 +1263,7 @@ function useTrailingTrend(
   monthAnchor: Date,
   filteredResourceIds: Set<string>,
   resourceMap: Map<string, ResourceLite>,
-  defaults: Map<string, { sale: number; cost: number }> | undefined,
+  defaults: Map<string, { sale: number; sale100?: number; cost: number }> | undefined,
 ) {
   const start = format(startOfMonth(subMonths(monthAnchor, 11)), "yyyy-MM-dd");
   const end = format(endOfMonth(monthAnchor), "yyyy-MM-dd");
@@ -1952,7 +1952,7 @@ function useBusinessDevReport(
   monthStartISO: string,
   monthEndISO: string,
   resourceMap: Map<string, ResourceLite>,
-  defaults: Map<string, { sale: number; cost: number }> | undefined,
+  defaults: Map<string, { sale: number; sale100?: number; cost: number }> | undefined,
 ) {
   return useQuery({
     queryKey: ["fin-bd-report", monthStartISO, monthEndISO, resourceMap.size],
