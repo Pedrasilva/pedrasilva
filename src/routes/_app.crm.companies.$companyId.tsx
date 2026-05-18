@@ -37,6 +37,14 @@ function CompanyDetail() {
     },
   });
 
+  useRecordRecentlyViewed({
+    module: "crm",
+    href: `/crm/companies/${companyId}`,
+    label: company?.nome ?? "",
+  });
+
+
+
   const { data: contacts = [] } = useQuery({
     queryKey: ["company-contacts", companyId],
     queryFn: async () => {
