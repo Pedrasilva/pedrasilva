@@ -200,60 +200,79 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
               <Input id="a-end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
             </div>
           </div>
-          {showPercentage && (
-            <div>
-              <Label htmlFor="a-pct" className="text-xs">Alocação (%)</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="a-pct"
-                  type="number"
-                  min={0}
-                  max={100}
-                  step={5}
-                  value={pct}
-                  onChange={(e) => applyPct(Number(e.target.value))}
-                  className="w-24"
-                />
-                <div className="flex flex-wrap gap-1">
-                  {[100, 80, 50, 20, 10].map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => applyPct(p)}
-                      className={`rounded border px-2 py-0.5 text-[11px] transition ${
-                        pct === p
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border text-muted-foreground hover:bg-accent"
-                      }`}
-                    >
-                      {p}%
-                    </button>
-                  ))}
+          {showPercentage ? (
+            <>
+              <div className="rounded-md border border-border/60 bg-muted/30 px-2.5 py-2 text-[11px]">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Capacidade recuperável</span>
+                  <span className="font-mono">{round1(recoverableHoursPerDay)}h/dia</span>
+                </div>
+                {schedule?.targetChargeabilityPct != null && (
+                  <p className="mt-0.5 text-[10px] text-muted-foreground">
+                    {round1(schedule.dailyHours)}h × {schedule.targetChargeabilityPct}% (HR)
+                  </p>
+                )}
+                {schedule?.targetChargeabilityPct == null && (
+                  <p className="mt-0.5 text-[10px] text-muted-foreground">
+                    Sem chargeability definido em HR — assumido {round1(recoverableHoursPerDay)}h/dia.
+                  </p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="a-pct" className="text-xs">Alocação ao projecto (%)</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="a-pct"
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={5}
+                    value={pct}
+                    onChange={(e) => applyPct(Number(e.target.value))}
+                    className="w-24"
+                  />
+                  <div className="flex flex-wrap gap-1">
+                    {[100, 80, 50, 20, 10].map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => applyPct(p)}
+                        className={`rounded border px-2 py-0.5 text-[11px] transition ${
+                          pct === p
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border text-muted-foreground hover:bg-accent"
+                        }`}
+                      >
+                        {p}%
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <p className="mt-1 text-[10px] text-muted-foreground">
-                {pct}% = {pctToHours(pct)}h/dia (base 8h).
-              </p>
+              <div className="rounded-md bg-muted/60 px-2.5 py-2 text-[11px]">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Horas derivadas</span>
+                  <span className="font-mono">{derivedHours}h/dia</span>
+                </div>
+                <p className="mt-0.5 text-[10px] text-muted-foreground">
+                  {pct}% × {round1(recoverableHoursPerDay)}h recuperável
+                </p>
+              </div>
+            </>
+          ) : (
+            <div>
+              <Label htmlFor="a-h" className="text-xs">Horas por dia útil</Label>
+              <Input
+                id="a-h"
+                type="number"
+                min={0}
+                max={12}
+                step={0.5}
+                value={hours}
+                onChange={(e) => setHours(Number(e.target.value))}
+              />
             </div>
           )}
-          <div>
-            <Label htmlFor="a-h" className="text-xs">Horas por dia útil</Label>
-            <Input
-              id="a-h"
-              type="number"
-              min={0}
-              max={12}
-              step={0.5}
-              value={hours}
-              onChange={(e) => setHours(Number(e.target.value))}
-              disabled={showPercentage}
-            />
-            {showPercentage && (
-              <p className="mt-1 text-[10px] text-muted-foreground">
-                Derivado da % de alocação.
-              </p>
-            )}
-          </div>
           <div className="rounded-md bg-muted/60 p-3 text-xs">
             <div className="flex justify-between"><span className="text-muted-foreground">Dias úteis</span><span className="font-mono">{wd}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">Total horas</span><span className="font-mono">{totalH.toFixed(1)} h</span></div>
