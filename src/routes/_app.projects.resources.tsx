@@ -30,11 +30,30 @@ const TEAM_LABEL: Record<ResourceTeam, string> = {
   back_office: "Back Office",
 };
 
-type FullResource = Resource & { team?: string | null; active?: boolean };
+type FullResource = Resource & {
+  team?: string | null;
+  active?: boolean;
+  collaborator_id?: string | null;
+};
+
+function useArchivedCollaboratorIds() {
+  return useQuery({
+    queryKey: ["hr-archived-collaborator-ids"],
+    queryFn: async (): Promise<Set<string>> => {
+      const { data, error } = await supabase
+        .from("collaborators")
+        .select("id")
+        .not("archived_at", "is", null);
+      if (error) throw error;
+      return new Set((data ?? []).map((r) => r.id));
+    },
+  });
+}
 
 function ResourcesPage() {
   const { data: resources } = useResources();
   const { data: defaultRates } = useDefaultResourceRates();
+  const { data: archivedIds } = useArchivedCollaboratorIds();
   const update = useUpdateResource();
   const del = useDeleteResource();
 
@@ -42,16 +61,26 @@ function ResourcesPage() {
 
   const all = (resources ?? []) as FullResource[];
 
+  // Active = resource.active !== false AND linked HR collaborator is not archived.
+  // HR collaborator status is the source of truth — a person archived in HR
+  // must not appear in active project views even if pm_resources.active=true.
+  const isResourceActive = (r: FullResource) => {
+    if (r.active === false) return false;
+    if (r.collaborator_id && archivedIds?.has(r.collaborator_id)) return false;
+    return true;
+  };
+
   const filtered = useMemo(() => {
-    if (tab === "all") return all.filter((r) => r.active !== false);
-    if (tab === "inactive") return all.filter((r) => r.active === false);
+    if (tab === "all") return all.filter(isResourceActive);
+    if (tab === "inactive") return all.filter((r) => !isResourceActive(r));
     return all.filter(
-      (r) => r.active !== false && ((r.team as ResourceTeam) ?? "project") === tab,
+      (r) => isResourceActive(r) && ((r.team as ResourceTeam) ?? "project") === tab,
     );
-  }, [all, tab]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [all, tab, archivedIds]);
 
   const counts = useMemo(() => {
-    const active = all.filter((r) => r.active !== false);
+    const active = all.filter(isResourceActive);
     const proj = active.filter((r) => ((r.team as ResourceTeam) ?? "project") === "project").length;
     return {
       all: active.length,
@@ -59,7 +88,8 @@ function ResourcesPage() {
       back_office: active.length - proj,
       inactive: all.length - active.length,
     };
-  }, [all]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [all, archivedIds]);
 
   async function toggleActive(r: FullResource, next: boolean) {
     try {
