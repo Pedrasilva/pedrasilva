@@ -625,6 +625,11 @@ function CollaboratorPage() {
         canEdit={isAdmin}
       />
 
+      <MonthlyLiquidityCard
+        snapshot={effectiveSnapshot}
+        expenses={benefitExpenses}
+      />
+
       <Card>
         <Collapsible open={agregadoOpen} onOpenChange={setAgregadoOpen}>
           <CollapsibleTrigger asChild>
