@@ -698,6 +698,7 @@ export function useUpdateAllocation() {
       id: string;
       patch: Partial<Pick<Allocation, "start_date" | "end_date" | "hours_per_day" | "stage_id">> & {
         status?: AllocationStatus;
+        allocation_percentage?: number | null;
       };
       projectId: string;
     }): Promise<Allocation> => {
