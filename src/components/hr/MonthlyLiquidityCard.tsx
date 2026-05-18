@@ -89,7 +89,26 @@ export function MonthlyLiquidityCard({ snapshot, expenses, breakdown }: Props) {
               key={r.label}
               className={`flex items-baseline justify-between py-1.5 text-sm ${r.muted ? "text-muted-foreground" : ""}`}
             >
-              <span>{r.label}</span>
+              <span className="flex items-center gap-1.5">
+                {r.label}
+                {r.estimated && (
+                  <span className="rounded-sm border border-border/60 bg-muted/40 px-1 py-px text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
+                    {t("compensationLiquidity.estimatedBadge")}
+                  </span>
+                )}
+                {r.tooltip && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="size-3 opacity-60 hover:opacity-100" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs">
+                        {r.tooltip}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </span>
               <span className="font-mono tabular-nums">{fmtEUR(r.value)}</span>
             </div>
           ))}
