@@ -16,6 +16,8 @@ import {
   defaultQuoteTypeForCategory,
   type QuoteCategory,
 } from "@/lib/crm/types";
+import { QuoteTemplatePicker } from "@/components/quotes/quote-template-picker";
+import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";
 
 type OppOption = {
   id: string;
