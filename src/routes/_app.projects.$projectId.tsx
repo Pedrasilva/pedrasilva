@@ -10,6 +10,7 @@ import {
 } from "date-fns";
 import { pt } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
+import { useRecordRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { AppShell } from "@/components/projects/app-shell";
 import { GanttChart } from "@/components/projects/gantt-chart";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
