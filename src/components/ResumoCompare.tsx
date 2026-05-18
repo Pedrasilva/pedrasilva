@@ -201,7 +201,23 @@ export function ResumoCompare({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((r) => {
+              {rows.map((row, idx) => {
+                if (row.kind === "section") {
+                  return (
+                    <TableRow
+                      key={`sec-${idx}-${row.label}`}
+                      className="border-t-2 border-border bg-muted/40 hover:bg-muted/40"
+                    >
+                      <TableCell
+                        colSpan={5}
+                        className="py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+                      >
+                        {row.label}
+                      </TableCell>
+                    </TableRow>
+                  );
+                }
+                const r = row;
                 const delta = r.l != null && r.r != null ? r.r - r.l : null;
                 const pct = r.l && r.r != null ? (r.r - r.l) / r.l : null;
                 const cls =
@@ -212,9 +228,14 @@ export function ResumoCompare({
                       : delta < 0
                         ? "text-negative"
                         : "";
+                const rowCls =
+                  (r.strong ? "font-semibold " : "") +
+                  (r.accent ? "bg-[var(--sage)]/5 text-foreground" : "");
                 return (
-                  <TableRow key={r.label}>
-                    <TableCell className="font-medium">{r.label}</TableCell>
+                  <TableRow key={`m-${idx}-${r.label}`} className={rowCls}>
+                    <TableCell className={r.strong ? "font-semibold" : "font-medium"}>
+                      {r.label}
+                    </TableCell>
                     <TableCell className="text-right tabular-nums">
                       {r.l == null ? t("hr:collaborator.subline.empty") : fmtEUR(r.l)}
                     </TableCell>
