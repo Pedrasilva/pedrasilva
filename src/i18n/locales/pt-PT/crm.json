@@ -765,6 +765,28 @@
     },
     "actions": {
       "saveAs": "Guardar como modelo"
+    },
+    "list": {
+      "title": "Modelos de orçamento",
+      "description": "Modelos reutilizáveis para novos orçamentos. Guardados a partir da área de trabalho do orçamento.",
+      "empty": {
+        "title": "Ainda não há modelos",
+        "hint": "Abra qualquer orçamento e use 'Guardar como modelo' para criar o primeiro modelo reutilizável."
+      },
+      "columns": {
+        "name": "Nome",
+        "category": "Categoria",
+        "projectType": "Tipo de projeto",
+        "stages": "Fases",
+        "rules": "Regras de pagamento",
+        "blocks": "Blocos de conteúdo",
+        "status": "Estado",
+        "updated": "Atualizado"
+      },
+      "status": {
+        "active": "Ativo",
+        "inactive": "Inativo"
+      }
     }
   }
 }

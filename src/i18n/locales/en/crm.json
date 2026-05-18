@@ -765,6 +765,28 @@
     },
     "actions": {
       "saveAs": "Save as template"
+    },
+    "list": {
+      "title": "Quote templates",
+      "description": "Reusable templates for new quotes. Saved from the quote workspace.",
+      "empty": {
+        "title": "No templates yet",
+        "hint": "Open any quote and use 'Save as template' to create your first reusable template."
+      },
+      "columns": {
+        "name": "Name",
+        "category": "Category",
+        "projectType": "Project type",
+        "stages": "Stages",
+        "rules": "Payment rules",
+        "blocks": "Content blocks",
+        "status": "Status",
+        "updated": "Updated"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      }
     }
   }
 }
