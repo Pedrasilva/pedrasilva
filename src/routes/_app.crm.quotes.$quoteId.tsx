@@ -42,6 +42,8 @@ import {
   type QuoteStep,
 } from "@/components/quotes/quote-workflow-stepper";
 import { QuotePublishStep } from "@/components/quotes/quote-publish-step";
+import { SaveAsTemplateDialog } from "@/components/quotes/save-as-template-dialog";
+import { normalizeQuoteCategory as _normalizeQuoteCategory } from "@/lib/crm/types";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
