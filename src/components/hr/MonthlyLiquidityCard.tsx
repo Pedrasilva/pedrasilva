@@ -26,10 +26,22 @@ export function MonthlyLiquidityCard({ snapshot, expenses, breakdown }: Props) {
   const b =
     breakdown ?? computeMonthlyLiquidity({ snapshot, expenses: expenses ?? [] });
 
-  const rows: Array<{ label: string; value: number; muted?: boolean }> = [
+  const rows: Array<{
+    label: string;
+    value: number;
+    muted?: boolean;
+    estimated?: boolean;
+    tooltip?: string;
+  }> = [
     { label: t("compensationLiquidity.breakdown.netSalary"), value: b.netSalary },
     { label: t("compensationLiquidity.breakdown.mealAllowance"), value: b.mealAllowance },
-    { label: t("compensationLiquidity.breakdown.avgBenefits"), value: b.avgBenefits, muted: true },
+    {
+      label: t("compensationLiquidity.breakdown.avgBenefits"),
+      value: b.avgBenefits,
+      muted: true,
+      estimated: true,
+      tooltip: t("compensationLiquidity.avgBenefitsTooltip"),
+    },
     { label: t("compensationLiquidity.breakdown.transitPass"), value: b.transitPass, muted: true },
     { label: t("compensationLiquidity.breakdown.perDiem"), value: b.perDiem, muted: true },
   ];
