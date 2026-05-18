@@ -6,10 +6,11 @@
  * - Per-row "manual" badge so the user can see which rows are protected.
  * - Editing or marking-edited a row sets manual_override = true.
  */
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,7 +21,7 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, ArrowUp, ArrowDown, Wand2 } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Wand2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import {
   useQuotePaymentSchedule,
@@ -42,6 +43,100 @@ import {
   type QuotePaymentTrigger, type QuotePaymentAmountType,
 } from "@/lib/quotes/types";
 import { formatEUR } from "@/lib/crm/types";
+
+function AutoTextarea({
+  value,
+  onChange,
+  onBlur,
+  onKeyDown,
+  placeholder,
+  autoFocus,
+  className,
+  minHeight = 72,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onBlur?: () => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  placeholder?: string;
+  autoFocus?: boolean;
+  className?: string;
+  minHeight?: number;
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.max(minHeight, el.scrollHeight)}px`;
+  }, [value, minHeight]);
+  return (
+    <Textarea
+      ref={ref}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onBlur={onBlur}
+      onKeyDown={onKeyDown}
+      placeholder={placeholder}
+      autoFocus={autoFocus}
+      className={className}
+      style={{ minHeight, resize: "vertical", overflow: "hidden" }}
+    />
+  );
+}
+
+function InlineLabelEditor({
+  value,
+  onSave,
+}: {
+  value: string;
+  onSave: (next: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  useEffect(() => {
+    if (!editing) setDraft(value);
+  }, [value, editing]);
+  const commit = () => {
+    const next = draft.trim();
+    if (next && next !== value) onSave(next);
+    else setDraft(value);
+    setEditing(false);
+  };
+  if (editing) {
+    return (
+      <AutoTextarea
+        value={draft}
+        onChange={setDraft}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") {
+            setDraft(value);
+            setEditing(false);
+          } else if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+            commit();
+          }
+        }}
+        autoFocus
+        className="text-sm"
+        minHeight={70}
+      />
+    );
+  }
+  return (
+    <button
+      type="button"
+      onDoubleClick={() => setEditing(true)}
+      onClick={() => setEditing(true)}
+      className="group flex w-full items-start gap-1 text-left rounded hover:bg-muted/50 px-1 py-0.5 -mx-1"
+      title="Editar etiqueta"
+    >
+      <span className="whitespace-pre-wrap break-words flex-1">{value}</span>
+      <Pencil className="h-3 w-3 mt-1 opacity-0 group-hover:opacity-60 shrink-0" />
+    </button>
+  );
+}
 
 export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const { t } = useTranslation("crm");
@@ -284,7 +379,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-12" />
-                <TableHead>{t("workspace.payment.label")}</TableHead>
+                <TableHead className="min-w-[260px]">{t("workspace.payment.label")}</TableHead>
                 <TableHead>{t("workspace.payment.trigger")}</TableHead>
                 <TableHead>{t("common.stage")}</TableHead>
                 <TableHead className="text-right">{t("workspace.payment.amount")}</TableHead>
@@ -295,7 +390,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
             </TableHeader>
             <TableBody>
               {items.map((it, i) => (
-                <TableRow key={it.id}>
+                <TableRow key={it.id} className="align-top">
                   <TableCell>
                     <div className="flex flex-col">
                       <Button variant="ghost" size="sm" className="h-5 p-0" onClick={() => move(i, -1)}>
@@ -306,18 +401,23 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                       </Button>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span>{it.label}</span>
-                      {it.manual_override ? (
-                        <Badge variant="secondary" className="text-[10px] px-1 py-0">
-                          {t("workspace.payment.manualBadge")}
-                        </Badge>
-                      ) : it.generator_source ? (
-                        <Badge variant="outline" className="text-[10px] px-1 py-0">
-                          {it.generator_source}
-                        </Badge>
-                      ) : null}
+                  <TableCell className="align-top">
+                    <div className="flex flex-col gap-1">
+                      <InlineLabelEditor
+                        value={it.label}
+                        onSave={(next) => upsert.mutate({ id: it.id, label: next })}
+                      />
+                      <div className="flex items-center gap-2">
+                        {it.manual_override ? (
+                          <Badge variant="secondary" className="text-[10px] px-1 py-0">
+                            {t("workspace.payment.manualBadge")}
+                          </Badge>
+                        ) : it.generator_source ? (
+                          <Badge variant="outline" className="text-[10px] px-1 py-0">
+                            {it.generator_source}
+                          </Badge>
+                        ) : null}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -371,10 +471,11 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         <CardContent className="grid gap-3 md:grid-cols-3">
           <div className="md:col-span-3">
             <Label>{t("workspace.payment.label")}</Label>
-            <Input
+            <AutoTextarea
               value={draft.label}
-              onChange={(e) => setDraft((p) => ({ ...p, label: e.target.value }))}
+              onChange={(v) => setDraft((p) => ({ ...p, label: v }))}
               placeholder={t("workspace.payment.labelPlaceholder")}
+              minHeight={80}
             />
           </div>
           <div>
