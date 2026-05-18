@@ -141,6 +141,26 @@ function CollaboratorPage() {
     },
   });
 
+  const { data: benefitExpenses = [] } = useQuery({
+    queryKey: ["collaborator-benefit-expenses-12m", id],
+    queryFn: async () => {
+      const from = new Date();
+      from.setMonth(from.getMonth() - 12);
+      const { data, error } = await supabase
+        .from("benefit_expenses")
+        .select("*")
+        .eq("collaborator_id", id)
+        .gte("data_despesa", from.toISOString().slice(0, 10));
+      if (error) throw error;
+      return (data ?? []) as BenefitExpense[];
+    },
+  });
+
+  const effectiveSnapshot = useMemo(
+    () => snapshots.find((s) => s.is_effective) ?? snapshots[0] ?? null,
+    [snapshots],
+  );
+
   const [draft, setDraft] = useState<Collaborator | null>(null);
   useEffect(() => {
     if (collab) setDraft(collab);
