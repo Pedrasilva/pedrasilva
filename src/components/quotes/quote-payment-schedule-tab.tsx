@@ -6,10 +6,11 @@
  * - Per-row "manual" badge so the user can see which rows are protected.
  * - Editing or marking-edited a row sets manual_override = true.
  */
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,7 +21,7 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, ArrowUp, ArrowDown, Wand2 } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Wand2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import {
   useQuotePaymentSchedule,
