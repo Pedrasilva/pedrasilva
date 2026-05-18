@@ -43,7 +43,7 @@ export function useResourceSchedules() {
           .in("id", collabIds);
         if (cErr) throw cErr;
         collabMap = new Map(
-          ((collabs ?? []) as Array<{
+          ((collabs ?? []) as unknown as Array<{
             id: string;
             daily_hours: number;
             days_per_week: number;
