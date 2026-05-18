@@ -3874,6 +3874,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           hourly_rate: number
+          hourly_rate_is_override: boolean
           id: string
           name: string
           notes: string | null
@@ -3894,6 +3895,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           hourly_rate?: number
+          hourly_rate_is_override?: boolean
           id?: string
           name: string
           notes?: string | null
@@ -3914,6 +3916,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           hourly_rate?: number
+          hourly_rate_is_override?: boolean
           id?: string
           name?: string
           notes?: string | null
