@@ -441,7 +441,7 @@ function QuoteDetail() {
   if (!quote) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
 
   const status = QUOTE_STATUSES.find((s) => s.value === quote.quote_status);
-  const canConvert = quote.quote_status === "approved";
+  // canConvert lives on QuoteWorkflowActions in the header now.
   const pricingMultiplier = Number(form.pricing_multiplier) || 1;
   const category = normalizeQuoteCategory(quote.quote_category);
   const isProject = category === "project";
