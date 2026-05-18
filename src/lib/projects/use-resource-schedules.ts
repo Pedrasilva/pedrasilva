@@ -35,17 +35,30 @@ export function useResourceSchedules() {
         .map((r) => r.collaborator_id)
         .filter((x): x is string => !!x);
 
-      let collabMap = new Map<string, { dh: number; dpw: number }>();
+      let collabMap = new Map<string, { dh: number; dpw: number; tc: number | null }>();
       if (collabIds.length > 0) {
         const { data: collabs, error: cErr } = await supabase
           .from("collaborators_directory")
-          .select("id, daily_hours, days_per_week")
+          .select("id, daily_hours, days_per_week, target_chargeability_pct")
           .in("id", collabIds);
         if (cErr) throw cErr;
         collabMap = new Map(
-          ((collabs ?? []) as Array<{ id: string; daily_hours: number; days_per_week: number }>).map(
-            (c) => [c.id, { dh: Number(c.daily_hours), dpw: Number(c.days_per_week) }],
-          ),
+          ((collabs ?? []) as Array<{
+            id: string;
+            daily_hours: number;
+            days_per_week: number;
+            target_chargeability_pct: number | null;
+          }>).map((c) => [
+            c.id,
+            {
+              dh: Number(c.daily_hours),
+              dpw: Number(c.days_per_week),
+              tc:
+                c.target_chargeability_pct == null
+                  ? null
+                  : Number(c.target_chargeability_pct),
+            },
+          ]),
         );
       }
 
@@ -58,6 +71,11 @@ export function useResourceSchedules() {
         const c = r.collaborator_id ? collabMap.get(r.collaborator_id) : undefined;
         const dailyHours = c?.dh ?? DEFAULT_DAILY_HOURS;
         const daysPerWeek = c?.dpw ?? DEFAULT_DAYS_PER_WEEK;
+        const targetChargeabilityPct = c?.tc ?? null;
+        const recoverableHoursPerDay =
+          targetChargeabilityPct == null
+            ? dailyHours
+            : Math.round(dailyHours * (Math.max(0, Math.min(100, targetChargeabilityPct)) / 100) * 100) / 100;
         out.set(r.id, {
           resourceId: r.id,
           collaboratorId: r.collaborator_id,
@@ -66,6 +84,8 @@ export function useResourceSchedules() {
           // Prefer the contract-derived weekly capacity (kept in sync via DB
           // trigger) but fall back to whatever pm_resources stores.
           weeklyCapacity: dailyHours * daysPerWeek || Number(r.weekly_capacity) || 40,
+          targetChargeabilityPct,
+          recoverableHoursPerDay,
         });
       }
       return out;
