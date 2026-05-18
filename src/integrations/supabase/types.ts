@@ -1054,6 +1054,7 @@ export type Database = {
           estado_civil: string
           foto_path: string | null
           id: string
+          include_in_planning: boolean
           inicio_carreira: string | null
           language_preference: string
           localizacao: string
@@ -1084,6 +1085,7 @@ export type Database = {
           estado_civil?: string
           foto_path?: string | null
           id?: string
+          include_in_planning?: boolean
           inicio_carreira?: string | null
           language_preference?: string
           localizacao?: string
@@ -1114,6 +1116,7 @@ export type Database = {
           estado_civil?: string
           foto_path?: string | null
           id?: string
+          include_in_planning?: boolean
           inicio_carreira?: string | null
           language_preference?: string
           localizacao?: string

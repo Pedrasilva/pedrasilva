@@ -36,6 +36,7 @@ import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-servic
 import {
   useDefaultResourceRates, effectiveRates,
 } from "@/lib/projects/use-default-rates";
+import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
 import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
@@ -70,18 +71,10 @@ export function QuotePlanningTab({
   const allocations = allocQ.data ?? [];
   const externalServices = externalQ.data ?? [];
 
-  const { data: resources = [] } = useQuery({
-    queryKey: ["pm-resources-active"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("pm_resources")
-        .select("id, name, hourly_rate, cost_rate, color")
-        .eq("active", true)
-        .order("name");
-      if (error) throw error;
-      return data;
-    },
-  });
+  // Selectable team pool for the manual allocation dropdown — same filter
+  // as the Gantt resource pool (active + collaborator.include_in_planning +
+  // collaborator.archived_at IS NULL).
+  const { poolResources: resources } = useQuotePlanningPool();
   const { data: defaults } = useDefaultResourceRates();
   const stageMap = useMemo(
     () => Object.fromEntries(stages.map((s) => [s.id, s])),

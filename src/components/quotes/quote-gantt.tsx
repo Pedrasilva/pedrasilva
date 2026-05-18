@@ -17,14 +17,13 @@
 import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays } from "date-fns";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { GanttChart, type StageWithProject } from "@/components/projects/gantt-chart";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
+import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import type { Resource, AllocationWithResource } from "@/lib/projects/types";
 
 interface Props {
@@ -48,20 +47,12 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   const stagesQ = useQuoteStages(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
 
-  // Full Resource rows (need cost_rate / sale_rate / collaborator_id / role
-  // for Gantt's tooltip + avatar rendering).
-  const { data: resources = [] } = useQuery({
-    queryKey: ["pm-resources-active-full"],
-    queryFn: async (): Promise<Resource[]> => {
-      const { data, error } = await supabase
-        .from("pm_resources")
-        .select("*")
-        .eq("active", true)
-        .order("name");
-      if (error) throw error;
-      return (data ?? []) as Resource[];
-    },
-  });
+  // allResources: full active roster (needed so historical allocations
+  // referencing archived/excluded users still render on the Gantt).
+  // poolResources: filtered selectable Team Pool (drag source).
+  // rateMissing: resources whose effective €/h could not be resolved.
+  const { allResources, poolResources, rateMissing } = useQuotePlanningPool();
+  const resources = allResources;
 
   const adapter = useQuotePlannerAdapter(quoteId, resources);
 
@@ -258,7 +249,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             embedded
           />
         </div>
-        <ResourcePool resources={resources} collapsed={false} />
+        <ResourcePool resources={poolResources} collapsed={false} missingRateIds={rateMissing} />
       </div>
     </div>
   );
