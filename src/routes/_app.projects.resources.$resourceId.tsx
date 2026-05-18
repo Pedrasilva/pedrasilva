@@ -100,6 +100,7 @@ function ResourceDetailPage() {
 
   async function handleSave() {
     try {
+      const rate = Number(form.hourly_rate);
       await update.mutateAsync({
         id: resourceId,
         patch: {
@@ -108,7 +109,10 @@ function ResourceDetailPage() {
           team: form.team,
           email: form.email.trim() || null,
           phone: form.phone.trim() || null,
-          hourly_rate: Number(form.hourly_rate),
+          hourly_rate: rate,
+          // Saving a manual rate ⇒ explicit project override.
+          // If the user wiped it to 0, treat as "no override" so HR default applies.
+          hourly_rate_is_override: rate > 0,
           weekly_capacity: Number(form.weekly_capacity),
           color: form.color,
           notes: form.notes.trim() || null,
@@ -116,6 +120,19 @@ function ResourceDetailPage() {
         },
       });
       toast.success("Saved");
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
+  }
+
+  async function handleUseHrDefault() {
+    try {
+      await update.mutateAsync({
+        id: resourceId,
+        patch: { hourly_rate: 0, hourly_rate_is_override: false },
+      });
+      setForm((f) => ({ ...f, hourly_rate: Number(defaultRate ?? 0) }));
+      toast.success("Using HR default");
     } catch (err) {
       toast.error((err as Error).message);
     }
