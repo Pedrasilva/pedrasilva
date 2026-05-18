@@ -44,6 +44,100 @@ import {
 } from "@/lib/quotes/types";
 import { formatEUR } from "@/lib/crm/types";
 
+function AutoTextarea({
+  value,
+  onChange,
+  onBlur,
+  onKeyDown,
+  placeholder,
+  autoFocus,
+  className,
+  minHeight = 72,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onBlur?: () => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  placeholder?: string;
+  autoFocus?: boolean;
+  className?: string;
+  minHeight?: number;
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.max(minHeight, el.scrollHeight)}px`;
+  }, [value, minHeight]);
+  return (
+    <Textarea
+      ref={ref}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onBlur={onBlur}
+      onKeyDown={onKeyDown}
+      placeholder={placeholder}
+      autoFocus={autoFocus}
+      className={className}
+      style={{ minHeight, resize: "vertical", overflow: "hidden" }}
+    />
+  );
+}
+
+function InlineLabelEditor({
+  value,
+  onSave,
+}: {
+  value: string;
+  onSave: (next: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  useEffect(() => {
+    if (!editing) setDraft(value);
+  }, [value, editing]);
+  const commit = () => {
+    const next = draft.trim();
+    if (next && next !== value) onSave(next);
+    else setDraft(value);
+    setEditing(false);
+  };
+  if (editing) {
+    return (
+      <AutoTextarea
+        value={draft}
+        onChange={setDraft}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") {
+            setDraft(value);
+            setEditing(false);
+          } else if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+            commit();
+          }
+        }}
+        autoFocus
+        className="text-sm"
+        minHeight={70}
+      />
+    );
+  }
+  return (
+    <button
+      type="button"
+      onDoubleClick={() => setEditing(true)}
+      onClick={() => setEditing(true)}
+      className="group flex w-full items-start gap-1 text-left rounded hover:bg-muted/50 px-1 py-0.5 -mx-1"
+      title="Editar etiqueta"
+    >
+      <span className="whitespace-pre-wrap break-words flex-1">{value}</span>
+      <Pencil className="h-3 w-3 mt-1 opacity-0 group-hover:opacity-60 shrink-0" />
+    </button>
+  );
+}
+
 export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const { t } = useTranslation("crm");
   const itemsQ = useQuotePaymentSchedule(quoteId);
