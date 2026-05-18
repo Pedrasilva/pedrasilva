@@ -105,6 +105,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
         is_locked: false,
         external_id: null,
         total_hours_imported: null,
+        allocation_percentage: null,
         resource: resourceForAlloc,
       };
       const arr = m.get(a.stage_id) ?? [];

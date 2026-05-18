@@ -3127,6 +3127,7 @@ export type Database = {
       }
       pm_allocations: {
         Row: {
+          allocation_percentage: number | null
           created_at: string
           end_date: string
           external_id: string | null
@@ -3143,6 +3144,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          allocation_percentage?: number | null
           created_at?: string
           end_date: string
           external_id?: string | null
@@ -3159,6 +3161,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          allocation_percentage?: number | null
           created_at?: string
           end_date?: string
           external_id?: string | null
