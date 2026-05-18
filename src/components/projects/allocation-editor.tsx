@@ -38,6 +38,27 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
 
   const { data: schedules } = useResourceSchedules();
   const schedule = schedules?.get(allocation.resource.id);
+  const { data: defaultRates } = useDefaultResourceRates();
+
+  // Effective sale rate = explicit project override OR HR default @ 75%.
+  // Legacy pm_resources.hourly_rate defaults (100€/h) are ignored unless
+  // hourly_rate_is_override is true.
+  const resourceWithFlag = allocation.resource as typeof allocation.resource & {
+    hourly_rate_is_override?: boolean | null;
+  };
+  const isOverride =
+    resourceWithFlag.hourly_rate_is_override == null
+      ? undefined
+      : !!resourceWithFlag.hourly_rate_is_override;
+  const effectiveSale = effectiveSaleRate(
+    allocation.resource.hourly_rate,
+    allocation.resource.id,
+    defaultRates,
+    isOverride,
+  );
+  const hrDefaultSale = defaultRates?.get(allocation.resource.id)?.sale ?? 0;
+  const showsOverride = isOverride === true && Number(allocation.resource.hourly_rate) > 0;
+
   // Recoverable capacity per day from HR (daily_hours × target_chargeability_pct).
   // Falls back to contractual daily_hours, then to 8h when the resource is not
   // linked to an HR collaborator.
