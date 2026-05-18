@@ -379,7 +379,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-12" />
-                <TableHead>{t("workspace.payment.label")}</TableHead>
+                <TableHead className="min-w-[260px]">{t("workspace.payment.label")}</TableHead>
                 <TableHead>{t("workspace.payment.trigger")}</TableHead>
                 <TableHead>{t("common.stage")}</TableHead>
                 <TableHead className="text-right">{t("workspace.payment.amount")}</TableHead>
