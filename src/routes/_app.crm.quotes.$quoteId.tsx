@@ -420,30 +420,17 @@ function QuoteDetail() {
     setConvertOpen(true);
   };
 
-  // Pre-conversion integrity warnings — reuses the same builder as the
-  // Planning/Financial tabs so the user sees consistent signals everywhere.
+  // Loaders used for stepper completion ticks and (historically) the
+  // pre-conversion warnings banner. The banner now lives in the Publish
+  // step only, so we keep the queries (cheap, cached) but no longer
+  // compute warnings inline.
   // Hooks must run before any early return: never gate them on `quote`.
   const stagesQ = useQuoteStages(quoteId);
   const allocsQ = useQuoteAllocations(quoteId);
   const externalQ = useQuoteExternalServices(quoteId);
   const paymentQ = useQuotePaymentSchedule(quoteId);
-  const preConvertWarnings = useMemo(() => {
-    const stages = stagesQ.data ?? [];
-    const allocations = allocsQ.data ?? [];
-    const externalServices = externalQ.data ?? [];
-    const multiplier = Number(form.pricing_multiplier) || 1;
-    const summary = rollupQuote({
-      allocations,
-      externalServices,
-      pricingMultiplier: multiplier,
-    });
-    return buildQuoteWarnings({
-      stages,
-      allocations,
-      externalServices,
-      summary,
-    });
-  }, [stagesQ.data, allocsQ.data, externalQ.data, form.pricing_multiplier]);
+  void rollupQuote; // keep import — used by conversion mutation above
+
 
   // Linear workflow state — orchestration only. All underlying tabs and
   // components below are preserved unchanged; the stepper just filters
