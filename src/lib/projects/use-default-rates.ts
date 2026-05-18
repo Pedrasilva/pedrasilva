@@ -20,7 +20,7 @@ export const PROJECT_DEFAULT_MARGIN = 0.75;
 
 export type DefaultRateInfo = {
   sale: number; // 75% band — project default
-  sale100: number; // 100% band — reference
+  sale100?: number; // 100% band — reference
   cost: number;
 };
 
