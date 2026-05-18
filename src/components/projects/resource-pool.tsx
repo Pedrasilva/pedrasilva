@@ -15,6 +15,12 @@ interface Props {
   resources: Resource[];
   /** When true, render a thin icon-only rail (avatars + load bar). */
   collapsed?: boolean;
+  /**
+   * Optional: resource IDs whose effective €/h could not be resolved.
+   * When provided, those cards show a "Rate missing" warning instead of
+   * silently rendering €0/h. Backward compatible (omitted = legacy behaviour).
+   */
+  missingRateIds?: Set<string>;
 }
 
 function weekHoursForResource(
