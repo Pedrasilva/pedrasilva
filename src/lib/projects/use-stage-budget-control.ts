@@ -383,11 +383,13 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
             Number(a.resource.cost_rate),
             a.resource.id,
             defaultRates,
+            !!a.resource.hourly_rate_is_override,
           ),
           sale_rate: effectiveSaleRate(
             Number(a.resource.hourly_rate),
             a.resource.id,
             defaultRates,
+            !!a.resource.hourly_rate_is_override,
           ),
         })),
       }));
