@@ -1,10 +1,12 @@
 {
   "compensationLiquidity": {
     "title": "Liquidez mensal total",
-    "tooltip": "Inclui salário líquido, subsídio de alimentação e média mensal de benefícios/reembolsos.",
+    "tooltip": "Valor mensal estimado efectivamente percebido pelo colaborador: líquido + alimentação + ajudas + passe + média de benefícios recorrentes elegíveis. Exclui despesas rejeitadas e outliers únicos acima de 500€.",
     "perMonth": "por mês",
     "netCompensationLabel": "Líquido salarial:",
-    "windowNote": "Média de benefícios calculada sobre os últimos 12 meses (despesas aprovadas, pendentes e pagas).",
+    "windowNote": "Média de benefícios normalizada aos últimos 12 meses — apenas despesas elegíveis aprovadas/pagas; outliers pontuais excluídos.",
+    "estimatedBadge": "estimado",
+    "avgBenefitsTooltip": "Média mensal dos benefícios elegíveis nos últimos 12 meses. Outliers (despesas únicas > 500€) e rejeitadas são excluídos.",
     "breakdown": {
       "netSalary": "Salário líquido",
       "mealAllowance": "Subsídio alimentação",
