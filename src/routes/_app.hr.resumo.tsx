@@ -742,6 +742,14 @@ function RhTable({
               <TableHead className="text-right">
                 {t("hr:resumo.rhTable.headers.netMonthly")}
               </TableHead>
+              <SortHead
+                align="right"
+                label={t("hr:resumo.rhTable.headers.monthlyLiquidity")}
+                k="monthlyLiquidity"
+                sortKey={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+              />
               <TableHead className="text-right">
                 {t("hr:resumo.rhTable.headers.benefitsAnnual")}
               </TableHead>
