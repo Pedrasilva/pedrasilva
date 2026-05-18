@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtDate, fmtEUR, type Snapshot } from "@/lib/salary";
+import { computeAverageBenefits } from "@/lib/hr/compensation-liquidity";
+import type { BenefitExpense } from "@/lib/benefits";
 import {
   Card,
   CardContent,
@@ -26,7 +28,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
+export function ResumoCompare({
+  snapshots,
+  expenses = [],
+}: {
+  snapshots: Snapshot[];
+  expenses?: BenefitExpense[];
+}) {
   const { t, i18n } = useTranslation("hr");
   const effectives = snapshots.filter((s) => s.is_effective);
   const proposals = snapshots.filter((s) => !s.is_effective);
