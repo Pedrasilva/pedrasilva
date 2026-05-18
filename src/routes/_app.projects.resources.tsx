@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/projects/app-shell";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   useDeleteResource,
   useResources,
@@ -11,6 +13,7 @@ import {
   type ResourceTeam,
 } from "@/lib/projects/use-planner";
 import { useDefaultResourceRates } from "@/lib/projects/use-default-rates";
+import { supabase } from "@/integrations/supabase/client";
 import { ChevronRight, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { euros } from "@/lib/projects/gantt-utils";
@@ -27,11 +30,30 @@ const TEAM_LABEL: Record<ResourceTeam, string> = {
   back_office: "Back Office",
 };
 
-type FullResource = Resource & { team?: string | null; active?: boolean };
+type FullResource = Resource & {
+  team?: string | null;
+  active?: boolean;
+  collaborator_id?: string | null;
+};
+
+function useArchivedCollaboratorIds() {
+  return useQuery({
+    queryKey: ["hr-archived-collaborator-ids"],
+    queryFn: async (): Promise<Set<string>> => {
+      const { data, error } = await supabase
+        .from("collaborators")
+        .select("id")
+        .not("archived_at", "is", null);
+      if (error) throw error;
+      return new Set((data ?? []).map((r) => r.id));
+    },
+  });
+}
 
 function ResourcesPage() {
   const { data: resources } = useResources();
   const { data: defaultRates } = useDefaultResourceRates();
+  const { data: archivedIds } = useArchivedCollaboratorIds();
   const update = useUpdateResource();
   const del = useDeleteResource();
 
@@ -39,16 +61,26 @@ function ResourcesPage() {
 
   const all = (resources ?? []) as FullResource[];
 
+  // Active = resource.active !== false AND linked HR collaborator is not archived.
+  // HR collaborator status is the source of truth — a person archived in HR
+  // must not appear in active project views even if pm_resources.active=true.
+  const isResourceActive = (r: FullResource) => {
+    if (r.active === false) return false;
+    if (r.collaborator_id && archivedIds?.has(r.collaborator_id)) return false;
+    return true;
+  };
+
   const filtered = useMemo(() => {
-    if (tab === "all") return all.filter((r) => r.active !== false);
-    if (tab === "inactive") return all.filter((r) => r.active === false);
+    if (tab === "all") return all.filter(isResourceActive);
+    if (tab === "inactive") return all.filter((r) => !isResourceActive(r));
     return all.filter(
-      (r) => r.active !== false && ((r.team as ResourceTeam) ?? "project") === tab,
+      (r) => isResourceActive(r) && ((r.team as ResourceTeam) ?? "project") === tab,
     );
-  }, [all, tab]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [all, tab, archivedIds]);
 
   const counts = useMemo(() => {
-    const active = all.filter((r) => r.active !== false);
+    const active = all.filter(isResourceActive);
     const proj = active.filter((r) => ((r.team as ResourceTeam) ?? "project") === "project").length;
     return {
       all: active.length,
@@ -56,7 +88,8 @@ function ResourcesPage() {
       back_office: active.length - proj,
       inactive: all.length - active.length,
     };
-  }, [all]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [all, archivedIds]);
 
   async function toggleActive(r: FullResource, next: boolean) {
     try {
@@ -117,7 +150,8 @@ function ResourcesPage() {
             <tbody>
               {filtered.map((r) => {
                 const rTeam = ((r.team as ResourceTeam) ?? "project") as ResourceTeam;
-                const isActive = r.active !== false;
+                const isActive = isResourceActive(r);
+                const hrArchived = !!(r.collaborator_id && archivedIds?.has(r.collaborator_id));
                 const hr = defaultRates?.get(r.id);
                 const manualSale = Number(r.hourly_rate);
                 const hasOverride = manualSale > 0;
@@ -132,6 +166,11 @@ function ResourcesPage() {
                       >
                         <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: r.color }} />
                         <span className="font-medium group-hover:underline">{r.name}</span>
+                        {hrArchived && (
+                          <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                            HR archived
+                          </span>
+                        )}
                         <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
                       </Link>
                     </td>
@@ -152,21 +191,45 @@ function ResourcesPage() {
                     </td>
                     <td className="px-4 py-3 text-right font-mono">
                       {saleValue > 0 ? (
-                        <div className="flex flex-col items-end leading-tight">
-                          <span>{euros(saleValue)}</span>
-                          <span
-                            className={`text-[10px] uppercase tracking-wider ${
-                              hasOverride ? "text-amber-600" : "text-muted-foreground"
-                            }`}
-                            title={
-                              hasOverride
-                                ? "Project override (manual rate set on this resource)"
-                                : "Inherited from HR pricing table @ 75% margin"
-                            }
-                          >
-                            {hasOverride ? "Project override" : "HR default · 75%"}
-                          </span>
-                        </div>
+                        <TooltipProvider delayDuration={150}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="inline-flex cursor-help flex-col items-end leading-tight">
+                                <span>{euros(saleValue)}</span>
+                                <span
+                                  className={`text-[10px] uppercase tracking-wider ${
+                                    hasOverride ? "text-amber-600" : "text-muted-foreground"
+                                  }`}
+                                >
+                                  {hasOverride ? "Project override" : "HR default · 75%"}
+                                </span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="left" className="max-w-xs text-left">
+                              {hasOverride ? (
+                                <div className="space-y-1">
+                                  <p className="font-medium">Project override</p>
+                                  <p className="text-[11px] opacity-90">
+                                    Manual sale rate set on this project resource. It overrides the HR
+                                    75% default.
+                                  </p>
+                                  {hr?.sale ? (
+                                    <p className="text-[11px] opacity-75">
+                                      HR default would be {euros(hr.sale)} (75% band).
+                                    </p>
+                                  ) : null}
+                                </div>
+                              ) : (
+                                <div className="space-y-1">
+                                  <p className="font-medium">HR default · 75%</p>
+                                  <p className="text-[11px] opacity-90">
+                                    Derived from the HR pricing table using the 75% sale-rate band.
+                                  </p>
+                                </div>
+                              )}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
@@ -178,9 +241,11 @@ function ResourcesPage() {
                     <td className="px-4 py-3 text-center">
                       <Switch
                         checked={isActive}
+                        disabled={hrArchived}
                         onCheckedChange={(v) => toggleActive(r, v)}
                       />
                     </td>
+
                     <td className="px-4 py-3 text-right">
                       <button
                         onClick={async (e) => {
