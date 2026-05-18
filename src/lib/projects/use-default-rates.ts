@@ -117,15 +117,24 @@ export function useDefaultResourceRates() {
   });
 }
 
-// Helper: devolve o rate efectivo (manual se definido > 0, senão o default do HR, senão 0)
+// Helper: devolve o rate efectivo.
+// `isOverride` é o marcador explícito em pm_resources.hourly_rate_is_override.
+//   - true  → usa o valor manual (override do projecto).
+//   - false → ignora o valor manual (que pode ser legacy default) e cai no HR.
+//   - undefined → comportamento legacy (m>0 ⇒ override). Mantido para callers
+//     fora do modo projecto (ex: quotes) onde a flag não se aplica.
 export function effectiveSaleRate(
   manualRate: number | null | undefined,
   resourceId: string,
   defaults: Map<string, DefaultRateInfo> | undefined,
+  isOverride?: boolean,
 ): number {
   const m = Number(manualRate ?? 0);
+  const hrDefault = defaults?.get(resourceId)?.sale ?? 0;
+  if (isOverride === false) return hrDefault;
+  if (isOverride === true) return m > 0 ? m : hrDefault;
   if (m > 0) return m;
-  return defaults?.get(resourceId)?.sale ?? 0;
+  return hrDefault;
 }
 
 // Helper: devolve o custo/h efectivo. Se houver cost_rate manual > 0, usa-o.
@@ -134,20 +143,34 @@ export function effectiveCostRate(
   manualCost: number | null | undefined,
   resourceId: string,
   defaults: Map<string, DefaultRateInfo> | undefined,
+  isOverride?: boolean,
 ): number {
   const m = Number(manualCost ?? 0);
+  const hrDefault = defaults?.get(resourceId)?.cost ?? 0;
+  if (isOverride === false) return hrDefault;
+  if (isOverride === true) return m > 0 ? m : hrDefault;
   if (m > 0) return m;
-  return defaults?.get(resourceId)?.cost ?? 0;
+  return hrDefault;
 }
 
 // Devolve ambos os rates efectivos para um recurso de Projecto.
-// resource pode trazer hourly_rate (venda) e cost_rate (custo) manuais.
+// resource traz hourly_rate / cost_rate manuais e hourly_rate_is_override
+// (marcador explícito). Quando flag=false, qualquer valor manual é ignorado.
 export function effectiveRates(
-  resource: { id: string; hourly_rate?: number | null; cost_rate?: number | null },
+  resource: {
+    id: string;
+    hourly_rate?: number | null;
+    cost_rate?: number | null;
+    hourly_rate_is_override?: boolean | null;
+  },
   defaults: Map<string, DefaultRateInfo> | undefined,
 ): { sale: number; cost: number } {
+  const flag =
+    resource.hourly_rate_is_override == null
+      ? undefined
+      : !!resource.hourly_rate_is_override;
   return {
-    sale: effectiveSaleRate(resource.hourly_rate, resource.id, defaults),
-    cost: effectiveCostRate(resource.cost_rate, resource.id, defaults),
+    sale: effectiveSaleRate(resource.hourly_rate, resource.id, defaults, flag),
+    cost: effectiveCostRate(resource.cost_rate, resource.id, defaults, flag),
   };
 }
