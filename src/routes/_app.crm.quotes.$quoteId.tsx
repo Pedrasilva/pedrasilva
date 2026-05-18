@@ -436,6 +436,7 @@ function QuoteDetail() {
   // components below are preserved unchanged; the stepper just filters
   // which secondary tabs are surfaced per step.
   const [step, setStep] = useState<QuoteStep>("estimate");
+  const [activeTab, setActiveTab] = useState<string>("overview");
 
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   if (!quote) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
