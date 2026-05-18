@@ -289,8 +289,8 @@ function ForecastPage() {
         if (overlapStart > overlapEnd) continue;
 
         const resource = a.resource;
-        const cost = effectiveCostRate(resource.cost_rate, resource.id, defaultRates);
-        const sale = effectiveSaleRate(resource.hourly_rate, resource.id, defaultRates);
+        const cost = effectiveCostRate(resource.cost_rate, resource.id, defaultRates, !!resource.hourly_rate_is_override);
+        const sale = effectiveSaleRate(resource.hourly_rate, resource.id, defaultRates, !!resource.hourly_rate_is_override);
         const hpd = Number(a.hours_per_day);
 
         const leaves = leaveByResource?.get(resource.id) ?? [];
@@ -521,8 +521,8 @@ function ForecastPage() {
       const meta = e.task_id ? actual.taskMeta.get(e.task_id) : undefined;
       if (!meta) continue;
       const resource = resourceMap.get(meta.resource_id);
-      const cost = effectiveCostRate(resource?.cost_rate ?? meta.cost_rate, meta.resource_id, defaultRates);
-      const sale = effectiveSaleRate(resource?.hourly_rate ?? meta.sale_rate, meta.resource_id, defaultRates);
+      const cost = effectiveCostRate(resource?.cost_rate ?? meta.cost_rate, meta.resource_id, defaultRates, !!resource?.hourly_rate_is_override);
+      const sale = effectiveSaleRate(resource?.hourly_rate ?? meta.sale_rate, meta.resource_id, defaultRates, !!resource?.hourly_rate_is_override);
 
       const cur = m.get(meta.project_id) ?? { hours: 0, revenue: 0, cost: 0, billableHours: 0 };
       cur.hours += Number(e.hours);
@@ -566,8 +566,8 @@ function ForecastPage() {
           const oE = minDate([allocEnd, me]);
           if (oS > oE) continue;
           const resource = a.resource;
-          const c = effectiveCostRate(resource.cost_rate, resource.id, defaultRates);
-          const s = effectiveSaleRate(resource.hourly_rate, resource.id, defaultRates);
+          const c = effectiveCostRate(resource.cost_rate, resource.id, defaultRates, !!resource.hourly_rate_is_override);
+          const s = effectiveSaleRate(resource.hourly_rate, resource.id, defaultRates, !!resource.hourly_rate_is_override);
           const hpd = Number(a.hours_per_day);
           for (const d of eachDayOfInterval({ start: oS, end: oE })) {
             if (isWeekend(d)) continue;

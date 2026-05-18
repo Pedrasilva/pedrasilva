@@ -117,7 +117,7 @@ function GlobalGanttPage() {
       const cur = m.get(s.project_id) ?? { cost: 0, budget: 0 };
       cur.budget += Number(s.budget);
       for (const a of s.allocations) {
-        const costRate = effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates);
+        const costRate = effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override);
         cur.cost += allocationCost({
           start_date: a.start_date,
           end_date: a.end_date,

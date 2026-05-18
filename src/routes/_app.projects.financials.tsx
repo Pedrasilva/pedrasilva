@@ -450,11 +450,11 @@ function FinancialsPage() {
     for (const e of filteredEntries) {
       const h = Number(e.hours) || 0;
       const res = e.resource_id ? resourceMap.get(e.resource_id) : null;
-      const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults) : 0;
+      const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0;
       const saleRate = res
         ? (e.entry_type === "project" && monthData?.taskMap.get(e.task_id ?? "")?.sale_rate
             ? Number(monthData.taskMap.get(e.task_id ?? "")?.sale_rate)
-            : effectiveSaleRate(res.hourly_rate, res.id, defaults))
+            : effectiveSaleRate(res.hourly_rate, res.id, defaults, !!res.hourly_rate_is_override))
         : 0;
 
       const entryCost = h * costRate;
@@ -586,7 +586,7 @@ function FinancialsPage() {
       const cat = (e.internal_category ?? "").trim() || "Uncategorised";
       const h = Number(e.hours) || 0;
       const res = e.resource_id ? resourceMap.get(e.resource_id) : null;
-      const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults) : 0;
+      const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0;
       const cur = map.get(cat) ?? { category: cat, hours: 0, cost: 0 };
       cur.hours += h;
       cur.cost += h * costRate;
@@ -1338,11 +1338,11 @@ function useTrailingTrend(
         }
 
         const res = resourceId ? resourceMap.get(resourceId) : null;
-        const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults) : 0;
+        const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0;
         const saleRate = res
           ? (e.entry_type === "project" && taskMap.get(e.task_id ?? "")?.sale_rate
               ? Number(taskMap.get(e.task_id ?? "")?.sale_rate)
-              : effectiveSaleRate(res.hourly_rate, res.id, defaults))
+              : effectiveSaleRate(res.hourly_rate, res.id, defaults, !!res.hourly_rate_is_override))
           : 0;
         const h = Number(e.hours) || 0;
         const monthKey = e.entry_date.slice(0, 7);
@@ -2011,7 +2011,7 @@ function useBusinessDevReport(
         bdHours += h;
         const resId = userToRes.get(e.user_id) ?? null;
         const res = resId ? resourceMap.get(resId) : null;
-        const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults) : 0;
+        const costRate = res ? effectiveCostRate(res.cost_rate, res.id, defaults, !!res.hourly_rate_is_override) : 0;
         bdCost += h * costRate;
       }
 

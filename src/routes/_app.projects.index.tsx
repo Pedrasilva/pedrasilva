@@ -275,8 +275,8 @@ function DashboardPage() {
       cur.loggedHours += e.hours;
       if (resourceId) {
         const res = resources?.find((r) => r.id === resourceId);
-        const sale = effectiveSaleRate(res?.hourly_rate, resourceId, defaultRates);
-        const cost = effectiveCostRate(res?.cost_rate, resourceId, defaultRates);
+        const sale = effectiveSaleRate(res?.hourly_rate, resourceId, defaultRates, !!res?.hourly_rate_is_override);
+        const cost = effectiveCostRate(res?.cost_rate, resourceId, defaultRates, !!res?.hourly_rate_is_override);
         cur.cost += e.hours * cost;
         if (e.billable) cur.revenue += e.hours * sale;
       }
@@ -408,8 +408,8 @@ function DashboardPage() {
       const res = resourceId
         ? resources?.find((r) => r.id === resourceId)
         : undefined;
-      const saleRate = effectiveSaleRate(res?.hourly_rate, resourceId ?? "", defaultRates);
-      const costRate = effectiveCostRate(res?.cost_rate, resourceId ?? "", defaultRates);
+      const saleRate = effectiveSaleRate(res?.hourly_rate, resourceId ?? "", defaultRates, !!res?.hourly_rate_is_override);
+      const costRate = effectiveCostRate(res?.cost_rate, resourceId ?? "", defaultRates, !!res?.hourly_rate_is_override);
       cost += e.hours * costRate;
       totalLogged += e.hours;
       if (e.billable && e.entry_type === "project") {
