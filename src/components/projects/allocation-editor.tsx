@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Lock, FileQuestion } from "lucide-react";
 import { toast } from "sonner";
 import { allocationCost, allocationHours, euros, workingDays } from "@/lib/projects/gantt-utils";
+import { useResourceSchedules } from "@/lib/projects/use-resource-schedules";
 
 type AllocationStatus = "tentative" | "committed";
 
@@ -23,21 +24,35 @@ type AllocationWithStatus = AllocationWithResource & {
   allocation_percentage?: number | null;
 };
 
-const HOURS_PER_FULL_DAY = 8;
+const FALLBACK_DAILY_HOURS = 8;
 
-function pctToHours(pct: number): number {
-  // 100% = 8h, 50% = 4h, 20% = 1.6h. Round to 1 decimal.
-  return Math.round((pct / 100) * HOURS_PER_FULL_DAY * 10) / 10;
+function round1(n: number): number {
+  return Math.round(n * 10) / 10;
 }
 
 export function AllocationEditor({ allocation, projectId, adapter }: Props) {
   const [open, setOpen] = useState(false);
   const allocWithExtras = allocation as AllocationWithStatus;
-  const initialPct =
+
+  const { data: schedules } = useResourceSchedules();
+  const schedule = schedules?.get(allocation.resource.id);
+  // Recoverable capacity per day from HR (daily_hours × target_chargeability_pct).
+  // Falls back to contractual daily_hours, then to 8h when the resource is not
+  // linked to an HR collaborator.
+  const recoverableHoursPerDay =
+    schedule?.recoverableHoursPerDay ?? schedule?.dailyHours ?? FALLBACK_DAILY_HOURS;
+
+  // Derive initial pct: prefer stored allocation_percentage; otherwise back-compute
+  // from existing hours_per_day vs. recoverable capacity.
+  const storedPct =
     typeof allocWithExtras.allocation_percentage === "number"
       ? allocWithExtras.allocation_percentage
+      : null;
+  const backComputedPct =
+    recoverableHoursPerDay > 0
+      ? Math.round((Number(allocation.hours_per_day) / recoverableHoursPerDay) * 100)
       : 100;
-  const [pct, setPct] = useState<number>(initialPct);
+  const [pct, setPct] = useState<number>(storedPct ?? Math.min(100, Math.max(0, backComputedPct)));
   const [hours, setHours] = useState(Number(allocation.hours_per_day));
   const [start, setStart] = useState(allocation.start_date);
   const [end, setEnd] = useState(allocation.end_date);
@@ -49,20 +64,30 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
   const showPercentage = adapter.features.allocationPercentage;
   const pending = adapter.pending.allocation;
 
+  // Derived hours/day when % drives the allocation.
+  const derivedHours = round1((pct / 100) * recoverableHoursPerDay);
+  const effectiveHours = showPercentage ? derivedHours : hours;
+
   const wd = workingDays(start, end);
-  const totalH = allocationHours({ start_date: start, end_date: end, hours_per_day: hours });
+  const totalH = allocationHours({
+    start_date: start,
+    end_date: end,
+    hours_per_day: effectiveHours,
+  });
   const cost = allocationCost({
     start_date: start,
     end_date: end,
-    hours_per_day: hours,
+    hours_per_day: effectiveHours,
     hourly_rate: Number(allocation.resource.hourly_rate),
   });
 
   function applyPct(nextPct: number) {
-    setPct(nextPct);
-    // In allocation-% mode, % drives hours/day so the two stay in sync.
-    setHours(pctToHours(nextPct));
+    const clamped = Math.max(0, Math.min(100, nextPct));
+    setPct(clamped);
+    // Hours/day is derived from HR-recoverable capacity, not a flat 8h base.
+    setHours(round1((clamped / 100) * recoverableHoursPerDay));
   }
+
 
   async function save() {
     try {
