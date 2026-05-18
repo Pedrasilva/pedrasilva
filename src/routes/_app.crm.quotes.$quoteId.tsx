@@ -459,6 +459,33 @@ function QuoteDetail() {
   const category = normalizeQuoteCategory(quote.quote_category);
   const isProject = category === "project";
 
+  // Soft completion signals for the stepper. Non-blocking — these only
+  // drive the visual tick on each step.
+  const stagesCount = stagesQ.data?.length ?? 0;
+  const allocationsCount = allocsQ.data?.length ?? 0;
+  const paymentCount = paymentQ.data?.length ?? 0;
+  const hasProposalContent =
+    !!(form.proposal_description?.trim() || quote.proposal_description?.trim());
+  const completion = {
+    estimate: isProject ? stagesCount > 0 : allocationsCount > 0,
+    content: hasProposalContent,
+    publish: !!quote.pm_project_id,
+  } as const;
+
+  // Per-step visible secondary tabs. All TabsContent below remain mounted
+  // in the DOM (Radix Tabs only renders the active one); we just hide the
+  // triggers that are not part of the current step.
+  const estimateTabs = isProject
+    ? ["overview", "time-based", "planning", "external", "payment", "financial"]
+    : ["overview", "time-based", "financial"];
+  const contentTabs = ["proposal"];
+  const visibleTabs =
+    step === "estimate"
+      ? estimateTabs
+      : step === "content"
+        ? contentTabs
+        : [];
+
   return (
     <div className="space-y-6">
       {quote.opportunity ? (
