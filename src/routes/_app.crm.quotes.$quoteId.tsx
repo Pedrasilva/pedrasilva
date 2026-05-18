@@ -606,124 +606,124 @@ function QuoteDetail() {
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
-          <div className="grid gap-4 md:grid-cols-3">
-            <Card className="md:col-span-2">
-              <CardHeader><CardTitle className="text-base">{t("quotes.feeDetails")}</CardTitle></CardHeader>
-              <CardContent className="grid gap-3 sm:grid-cols-2">
-                <div className="sm:col-span-2">
-                  <Label>{t("common.title")}</Label>
-                  <Input value={form.titulo} onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))} />
-                </div>
-                <div>
-                  <Label>{t("common.estimatedFee")}</Label>
-                  <Input type="number" step="0.01" value={form.valor}
-                    onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))} />
-                </div>
-                <div>
-                  <Label>{t("common.feeStructure")}</Label>
-                  <Select value={form.fee_structure_type}
-                    onValueChange={(v) => setForm((f) => ({ ...f, fee_structure_type: v as FeeStructureType }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {FEE_STRUCTURE_TYPES.map((s) => (
-                        <SelectItem key={s.value} value={s.value}>{t(`feeStructure.${s.value}`)}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {/* Construction cost / fee percentage are project-quote
-                    concepts (% of construction value). Hidden for
-                    consultancy quotes which bill hourly. */}
-                {isProject && (
-                  <>
-                    <div>
-                      <Label>{t("workspace.overview.constructionCost")}</Label>
-                      <Input type="number" step="0.01" value={form.construction_cost}
-                        onChange={(e) => setForm((f) => ({ ...f, construction_cost: e.target.value }))} />
-                    </div>
-                    <div>
-                      <Label>{t("workspace.overview.feePercentage")}</Label>
-                      <Input type="number" step="0.01" value={form.fee_percentage}
-                        onChange={(e) => setForm((f) => ({ ...f, fee_percentage: e.target.value }))} />
-                    </div>
-                  </>
-                )}
-                <div>
-                  <Label>{t("workspace.overview.pricingMultiplier")}</Label>
-                  <Input type="number" step="0.01" value={form.pricing_multiplier}
-                    onChange={(e) => setForm((f) => ({ ...f, pricing_multiplier: e.target.value }))} />
-                </div>
-                <div>
-                  <Label>{t("common.account")}</Label>
-                  <Select value={form.account_id || "none"}
-                    onValueChange={(v) => setForm((f) => ({ ...f, account_id: v === "none" ? "" : v }))}>
-                    <SelectTrigger><SelectValue placeholder={t("common.noAccount")} /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">{t("common.noAccount")}</SelectItem>
-                      {accounts.map((a) => (<SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>{t("common.status")}</Label>
-                  <Select value={form.quote_status}
-                    onValueChange={(v) => setForm((f) => ({ ...f, quote_status: v as QuoteStatus }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {QUOTE_STATUSES.map((s) => (
-                        <SelectItem key={s.value} value={s.value}>
-                          {t(`quoteStatus.${s.value}`)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="sm:col-span-2">
-                  <Label>{t("workspace.overview.proposalDescription")}</Label>
-                  <Textarea rows={4} value={form.proposal_description}
-                    onChange={(e) => setForm((f) => ({ ...f, proposal_description: e.target.value }))} />
-                </div>
-                <div className="sm:col-span-2">
-                  <Label>{t("common.notes")}</Label>
-                  <Textarea rows={3} value={form.notas}
-                    onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))} />
-                </div>
-                <div className="sm:col-span-2 flex justify-end">
-                  <Button onClick={() => save.mutate()} disabled={save.isPending}>{t("common.save")}</Button>
-                </div>
+          {isProject && (
+            <Card className="mb-4">
+              <CardHeader>
+                <CardTitle className="text-base">
+                  {t("workspace.overview.calculatorIntroTitle")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  {t("workspace.overview.calculatorIntroHint")}
+                </p>
               </CardContent>
             </Card>
+          )}
 
-            <Card>
-              <CardHeader><CardTitle className="text-base">{t("quotes.convertSection")}</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">{t("quotes.convertHint")}</p>
-                <div className="rounded-md border p-3 text-xs space-y-1">
-                  <div><span className="text-muted-foreground">{t("quotes.statusValue")}</span>{status ? t(`quoteStatus.${status.value}`) : ""}</div>
-                  <div><span className="text-muted-foreground">{t("quotes.accountValue")}</span>{quote.account?.name ?? "—"}</div>
-                  <div><span className="text-muted-foreground">{t("quotes.feeValue")}</span>{formatEUR(Number(quote.valor))}</div>
-                  {!quote.account_id && (
-                    <div className="text-amber-600 dark:text-amber-400 mt-2">{t("quotes.convertNoAccountWarning")}</div>
-                  )}
-                  {quote.pm_project_id && (
-                    <div className="text-emerald-600 dark:text-emerald-400 mt-2">{t("quotes.projectAlreadyCreated")}</div>
-                  )}
-                </div>
-                {/* Non-blocking integrity warnings shown before conversion */}
-                {!quote.pm_project_id && preConvertWarnings.length > 0 && (
-                  <QuoteWarningsBanner warnings={preConvertWarnings} />
-                )}
-                <Button className="w-full" onClick={handleConvert} disabled={!canConvert || convert.isPending}>
-                  <Rocket className="h-4 w-4 mr-1" />
-                  {quote.pm_project_id ? t("quotes.openProjectButton") : t("quotes.convertButton")}
-                </Button>
-                {!canConvert && (<p className="text-xs text-muted-foreground">{t("quotes.approveFirstHint")}</p>)}
-              </CardContent>
-            </Card>
-          </div>
+          <Card>
+            <CardHeader><CardTitle className="text-base">{t("quotes.feeDetails")}</CardTitle></CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <Label>{t("common.title")}</Label>
+                <Input value={form.titulo} onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))} />
+              </div>
+              <div>
+                <Label>{t("common.estimatedFee")}</Label>
+                <Input type="number" step="0.01" value={form.valor}
+                  onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))} />
+              </div>
+              <div>
+                <Label>{t("common.feeStructure")}</Label>
+                <Select value={form.fee_structure_type}
+                  onValueChange={(v) => setForm((f) => ({ ...f, fee_structure_type: v as FeeStructureType }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {FEE_STRUCTURE_TYPES.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>{t(`feeStructure.${s.value}`)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* Construction cost / fee percentage are project-quote
+                  concepts (% of construction value). Hidden for
+                  consultancy quotes which bill hourly. */}
+              {isProject && (
+                <>
+                  <div>
+                    <Label>{t("workspace.overview.constructionCost")}</Label>
+                    <Input type="number" step="0.01" value={form.construction_cost}
+                      onChange={(e) => setForm((f) => ({ ...f, construction_cost: e.target.value }))} />
+                  </div>
+                  <div>
+                    <Label>{t("workspace.overview.feePercentage")}</Label>
+                    <Input type="number" step="0.01" value={form.fee_percentage}
+                      onChange={(e) => setForm((f) => ({ ...f, fee_percentage: e.target.value }))} />
+                  </div>
+                </>
+              )}
+              <div>
+                <Label>{t("workspace.overview.pricingMultiplier")}</Label>
+                <Input type="number" step="0.01" value={form.pricing_multiplier}
+                  onChange={(e) => setForm((f) => ({ ...f, pricing_multiplier: e.target.value }))} />
+              </div>
+              {/* Non-project quotes keep account/status/description/notes
+                  on this tab — they have no calculator and this is still
+                  their main metadata surface. For project quotes those
+                  fields live in the quote header (status), Publish step
+                  (account/conversion), Step 2 Content (description) and
+                  the activity stream (notes). */}
+              {!isProject && (
+                <>
+                  <div>
+                    <Label>{t("common.account")}</Label>
+                    <Select value={form.account_id || "none"}
+                      onValueChange={(v) => setForm((f) => ({ ...f, account_id: v === "none" ? "" : v }))}>
+                      <SelectTrigger><SelectValue placeholder={t("common.noAccount")} /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">{t("common.noAccount")}</SelectItem>
+                        {accounts.map((a) => (<SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>{t("common.status")}</Label>
+                    <Select value={form.quote_status}
+                      onValueChange={(v) => setForm((f) => ({ ...f, quote_status: v as QuoteStatus }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {QUOTE_STATUSES.map((s) => (
+                          <SelectItem key={s.value} value={s.value}>
+                            {t(`quoteStatus.${s.value}`)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label>{t("workspace.overview.proposalDescription")}</Label>
+                    <Textarea rows={4} value={form.proposal_description}
+                      onChange={(e) => setForm((f) => ({ ...f, proposal_description: e.target.value }))} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label>{t("common.notes")}</Label>
+                    <Textarea rows={3} value={form.notas}
+                      onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))} />
+                  </div>
+                </>
+              )}
+              <div className="sm:col-span-2 flex justify-end">
+                <Button onClick={() => save.mutate()} disabled={save.isPending}>{t("common.save")}</Button>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Construction-percentage architectural fee calculator. Project
-              Proposals only — Consultancy quotes bill hourly and skip this. */}
+              Proposals only — Consultancy quotes bill hourly and skip this.
+              The conversion-to-project card was intentionally removed from
+              this tab: conversion lives in the quote header (workflow
+              actions) and the Publish step, so it cannot compete visually
+              with the calculator. */}
           {isProject && (
             <div className="mt-4">
               <QuoteFeeCalculatorCard
@@ -741,6 +741,7 @@ function QuoteDetail() {
             </div>
           )}
         </TabsContent>
+
 
         {!isProject && (
           <TabsContent value="time-based" className="mt-4">
