@@ -92,8 +92,9 @@ export function GlobalTopNav() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-9 gap-1.5 px-2.5"
+            className={hubClass(timeActive)}
             aria-label={t("topNav.time")}
+            aria-current={timeActive ? "page" : undefined}
           >
             <Clock className="h-4 w-4" />
             <span className="hidden lg:inline">{t("topNav.time")}</span>
