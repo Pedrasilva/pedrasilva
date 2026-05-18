@@ -1,10 +1,12 @@
 {
   "compensationLiquidity": {
     "title": "Total monthly liquidity",
-    "tooltip": "Includes net salary, meal allowance, and average monthly benefits/reimbursements.",
+    "tooltip": "Estimated monthly value the collaborator actually perceives: net salary + meal allowance + per diem + transit pass + average of eligible recurring benefits. Excludes rejected expenses and single outliers above €500.",
     "perMonth": "per month",
     "netCompensationLabel": "Net salary compensation:",
-    "windowNote": "Benefits average computed over the last 12 months (approved, pending and paid expenses).",
+    "windowNote": "Benefits average is normalised over the last 12 months — only approved/paid eligible expenses; one-off outliers excluded.",
+    "estimatedBadge": "estimated",
+    "avgBenefitsTooltip": "Monthly average of eligible benefits over the last 12 months. Outliers (single expenses > €500) and rejected expenses are excluded.",
     "breakdown": {
       "netSalary": "Net salary",
       "mealAllowance": "Meal allowance",
