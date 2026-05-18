@@ -474,6 +474,7 @@ export type ResourceInput = {
   name: string;
   role?: string | null;
   hourly_rate: number;
+  hourly_rate_is_override?: boolean;
   weekly_capacity: number;
   color?: string;
   team?: ResourceTeam;

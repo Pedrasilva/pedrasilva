@@ -62,14 +62,17 @@ function ResourceDetailPage() {
   useEffect(() => {
     if (!member) return;
     const stored = Number(member.hourly_rate ?? 0);
+    const isOverride = !!(member as FullResource & { hourly_rate_is_override?: boolean })
+      .hourly_rate_is_override;
     setForm({
       name: member.name ?? "",
       role: member.role ?? "",
       team: ((member.team as ResourceTeam) ?? "project"),
       email: member.email ?? "",
       phone: member.phone ?? "",
-      // Se não tem rate definido, pré-preenche com o default do HR @ 75%
-      hourly_rate: stored > 0 ? stored : Number(defaultRate ?? 0),
+      // Only respect stored rate when it's an explicit override; otherwise
+      // pre-fill with HR default so legacy values aren't accidentally re-saved.
+      hourly_rate: isOverride && stored > 0 ? stored : Number(defaultRate ?? 0),
       weekly_capacity: Number(member.weekly_capacity ?? 40),
       color: member.color ?? PALETTE[0],
       notes: member.notes ?? "",
@@ -100,6 +103,7 @@ function ResourceDetailPage() {
 
   async function handleSave() {
     try {
+      const rate = Number(form.hourly_rate);
       await update.mutateAsync({
         id: resourceId,
         patch: {
@@ -108,7 +112,10 @@ function ResourceDetailPage() {
           team: form.team,
           email: form.email.trim() || null,
           phone: form.phone.trim() || null,
-          hourly_rate: Number(form.hourly_rate),
+          hourly_rate: rate,
+          // Saving a manual rate ⇒ explicit project override.
+          // If the user wiped it to 0, treat as "no override" so HR default applies.
+          hourly_rate_is_override: rate > 0,
           weekly_capacity: Number(form.weekly_capacity),
           color: form.color,
           notes: form.notes.trim() || null,
@@ -116,6 +123,19 @@ function ResourceDetailPage() {
         },
       });
       toast.success("Saved");
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
+  }
+
+  async function handleUseHrDefault() {
+    try {
+      await update.mutateAsync({
+        id: resourceId,
+        patch: { hourly_rate: 0, hourly_rate_is_override: false },
+      });
+      setForm((f) => ({ ...f, hourly_rate: Number(defaultRate ?? 0) }));
+      toast.success("Using HR default");
     } catch (err) {
       toast.error((err as Error).message);
     }
@@ -245,17 +265,37 @@ function ResourceDetailPage() {
                   value={form.hourly_rate}
                   onChange={(e) => setForm({ ...form, hourly_rate: Number(e.target.value) })}
                 />
-                {defaultRate != null && defaultRate > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, hourly_rate: defaultRate })}
-                    className="mt-1.5 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                    title="HR pricing table @ 75% margin (project default)"
-                  >
-                    <Sparkles className="h-3 w-3" />
-                    HR default @ 75%: {defaultRate.toFixed(2)}€/h
-                  </button>
-                )}
+                <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs">
+                  {(member as FullResource & { hourly_rate_is_override?: boolean })
+                    .hourly_rate_is_override ? (
+                    <span className="text-amber-600">Project override active</span>
+                  ) : (
+                    <span className="text-muted-foreground">Using HR default · 75%</span>
+                  )}
+                  {defaultRate != null && defaultRate > 0 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, hourly_rate: defaultRate })}
+                        className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                        title="Pre-fill input with HR default @ 75%"
+                      >
+                        <Sparkles className="h-3 w-3" />
+                        HR default @ 75%: {defaultRate.toFixed(2)}€/h
+                      </button>
+                      {(member as FullResource & { hourly_rate_is_override?: boolean })
+                        .hourly_rate_is_override && (
+                        <button
+                          type="button"
+                          onClick={handleUseHrDefault}
+                          className="text-muted-foreground underline hover:text-foreground"
+                        >
+                          Use HR default
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               </Field>
             </div>
           </Section>

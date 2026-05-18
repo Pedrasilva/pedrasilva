@@ -263,8 +263,8 @@ function ProjectDetail() {
         end_date: a.end_date,
         hours_per_day: Number(a.hours_per_day),
       }),
-      costRate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates),
-      saleRate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates),
+      costRate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
+      saleRate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
     }));
     const totPlan = planned.reduce((x, y) => x + y.h, 0);
     if (totPlan <= 0) return { revenue: 0, cost: 0, profit: 0 };
@@ -1367,10 +1367,10 @@ function MilestonesTable({
                         Number(a.hours_per_day);
                       const aPlannedCost =
                         aHours *
-                        effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates);
+                        effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override);
                       const aPlannedRevenue =
                         aHours *
-                        effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates);
+                        effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override);
                       return (
                         <tr key={a.id} className="border-b border-border last:border-b-0">
                           <td className="px-4 py-2.5">
@@ -1550,8 +1550,8 @@ function InsightsPanel({
         end_date: a.end_date,
         hours_per_day: Number(a.hours_per_day),
       }),
-      costRate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates),
-      saleRate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates),
+      costRate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
+      saleRate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
     }));
     const totPlan = planned.reduce((x, y) => x + y.h, 0);
     const logged = stageLoggedHours(s.id);

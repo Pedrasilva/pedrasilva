@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { AllocationWithResource } from "@/lib/projects/types";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { Trash2, Lock, FileQuestion } from "lucide-react";
 import { toast } from "sonner";
 import { allocationCost, allocationHours, euros, workingDays } from "@/lib/projects/gantt-utils";
 import { useResourceSchedules } from "@/lib/projects/use-resource-schedules";
+import { useDefaultResourceRates, effectiveSaleRate } from "@/lib/projects/use-default-rates";
 
 type AllocationStatus = "tentative" | "committed";
 
@@ -36,6 +38,27 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
 
   const { data: schedules } = useResourceSchedules();
   const schedule = schedules?.get(allocation.resource.id);
+  const { data: defaultRates } = useDefaultResourceRates();
+
+  // Effective sale rate = explicit project override OR HR default @ 75%.
+  // Legacy pm_resources.hourly_rate defaults (100€/h) are ignored unless
+  // hourly_rate_is_override is true.
+  const resourceWithFlag = allocation.resource as typeof allocation.resource & {
+    hourly_rate_is_override?: boolean | null;
+  };
+  const isOverride =
+    resourceWithFlag.hourly_rate_is_override == null
+      ? undefined
+      : !!resourceWithFlag.hourly_rate_is_override;
+  const effectiveSale = effectiveSaleRate(
+    allocation.resource.hourly_rate,
+    allocation.resource.id,
+    defaultRates,
+    isOverride,
+  );
+  const hrDefaultSale = defaultRates?.get(allocation.resource.id)?.sale ?? 0;
+  const showsOverride = isOverride === true && Number(allocation.resource.hourly_rate) > 0;
+
   // Recoverable capacity per day from HR (daily_hours × target_chargeability_pct).
   // Falls back to contractual daily_hours, then to 8h when the resource is not
   // linked to an HR collaborator.
@@ -78,7 +101,7 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
     start_date: start,
     end_date: end,
     hours_per_day: effectiveHours,
-    hourly_rate: Number(allocation.resource.hourly_rate),
+    hourly_rate: effectiveSale,
   });
 
   function applyPct(nextPct: number) {
@@ -150,9 +173,45 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
           <div className="flex items-center gap-2 border-b border-border pb-2">
             <div className="h-3 w-3 rounded-full" style={{ backgroundColor: allocation.resource.color }} />
             <p className="font-display text-base font-semibold">{allocation.resource.name}</p>
-            <span className="ml-auto text-xs text-muted-foreground">
-              {euros(Number(allocation.resource.hourly_rate))}/h
-            </span>
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="ml-auto inline-flex cursor-help flex-col items-end leading-tight">
+                    <span className="text-xs text-muted-foreground">{euros(effectiveSale)}/h</span>
+                    <span
+                      className={`text-[10px] uppercase tracking-wider ${
+                        showsOverride ? "text-amber-600" : "text-muted-foreground"
+                      }`}
+                    >
+                      {showsOverride ? "Project override" : "HR default · 75%"}
+                    </span>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs text-left">
+                  {showsOverride ? (
+                    <div className="space-y-1">
+                      <p className="font-medium">Project override</p>
+                      <p className="text-[11px] opacity-90">
+                        Manual sale rate set on this project resource. It overrides the HR
+                        75% default.
+                      </p>
+                      {hrDefaultSale > 0 && (
+                        <p className="text-[11px] opacity-75">
+                          HR default would be {euros(hrDefaultSale)} (75% band).
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <p className="font-medium">HR default · 75%</p>
+                      <p className="text-[11px] opacity-90">
+                        Derived from the HR pricing table using the 75% sale-rate band.
+                      </p>
+                    </div>
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {/* Status toggle: tentative ↔ committed (project-mode only) */}

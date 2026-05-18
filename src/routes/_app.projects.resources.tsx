@@ -153,9 +153,12 @@ function ResourcesPage() {
                 const isActive = isResourceActive(r);
                 const hrArchived = !!(r.collaborator_id && archivedIds?.has(r.collaborator_id));
                 const hr = defaultRates?.get(r.id);
+                // Only the explicit override flag counts. Legacy default values
+                // (hourly_rate=100 with no human action) must NOT show as override.
+                const hasOverride = !!(r as FullResource & { hourly_rate_is_override?: boolean })
+                  .hourly_rate_is_override;
                 const manualSale = Number(r.hourly_rate);
-                const hasOverride = manualSale > 0;
-                const saleValue = hasOverride ? manualSale : hr?.sale ?? 0;
+                const saleValue = hasOverride && manualSale > 0 ? manualSale : hr?.sale ?? 0;
                 return (
                   <tr key={r.id} className={`border-t border-border ${!isActive ? "opacity-60" : ""}`}>
                     <td className="px-4 py-3">

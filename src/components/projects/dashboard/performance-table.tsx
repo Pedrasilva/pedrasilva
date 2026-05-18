@@ -60,7 +60,7 @@ export function PerformanceTable({ projects, stages, resources, loading }: Props
                 start_date: al.start_date,
                 end_date: al.end_date,
                 hours_per_day: Number(al.hours_per_day),
-                hourly_rate: effectiveCostRate(al.resource.cost_rate, al.resource.id, defaultRates),
+                hourly_rate: effectiveCostRate(al.resource.cost_rate, al.resource.id, defaultRates, !!al.resource.hourly_rate_is_override),
               }),
             0,
           ),
@@ -110,7 +110,7 @@ export function PerformanceTable({ projects, stages, resources, loading }: Props
         };
         cur.active += 1;
         cur.hours += hours;
-        cur.value += hours * effectiveSaleRate(res.hourly_rate, res.id, defaultRates);
+        cur.value += hours * effectiveSaleRate(res.hourly_rate, res.id, defaultRates, !!res.hourly_rate_is_override);
         if (budgetTone === "good") cur.onBudgetGood += 1;
         else if (budgetTone === "warn") cur.onBudgetWarn += 1;
         else cur.onBudgetBad += 1;

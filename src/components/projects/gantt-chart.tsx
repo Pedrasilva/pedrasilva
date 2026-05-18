@@ -520,7 +520,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                 start_date: aS,
                 end_date: aE,
                 hours_per_day: Number(a.hours_per_day),
-                hourly_rate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates),
+                hourly_rate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
               });
             }
             const budget = Number(stage.budget);
@@ -710,7 +710,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                   const aE = aDraft?.end ?? shiftIso(a.end_date, stageShiftDays);
                   const aX = differenceInCalendarDays(new Date(aS), origin) * dayWidth;
                   const aW = dayCount(aS, aE) * dayWidth;
-                  const costRate = effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates);
+                  const costRate = effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override);
                   const cost = allocationCost({
                     start_date: aS,
                     end_date: aE,
