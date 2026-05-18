@@ -41,6 +41,8 @@ import { PermissionGate } from "@/components/PermissionGate";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResumoComparativoTab } from "@/components/ResumoComparativoTab";
 import { cn } from "@/lib/utils";
+import { computeAverageBenefits } from "@/lib/hr/compensation-liquidity";
+import type { BenefitExpense } from "@/lib/benefits";
 
 export const Route = createFileRoute("/_app/hr/resumo")({
   component: () => (
