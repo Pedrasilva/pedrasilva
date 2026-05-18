@@ -128,6 +128,12 @@ function CollaboratorPage() {
     },
   });
 
+  useRecordRecentlyViewed({
+    module: "hr",
+    href: `/hr/colaborador/${id}`,
+    label: collab?.nome ?? "",
+  });
+
   const { data: snapshots = [] } = useQuery({
     queryKey: ["snapshots", id],
     queryFn: async () => {
