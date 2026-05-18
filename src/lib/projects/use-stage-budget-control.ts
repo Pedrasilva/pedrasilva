@@ -366,7 +366,7 @@ export function useStageBudgetControl({ projectId, defaultRates }: UseStageBudge
         start_date: string;
         end_date: string;
         hours_per_day: number | string;
-        resource: { id: string; hourly_rate: number | string; cost_rate: number | string };
+        resource: { id: string; hourly_rate: number | string; cost_rate: number | string; hourly_rate_is_override?: boolean | null };
       };
       type RawStage = { id: string; budget: number | string; allocations: RawAlloc[] };
 
