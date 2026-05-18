@@ -27,6 +27,7 @@ import { LiquidoTab } from "@/components/snapshot/LiquidoTab";
 import { BrutoTab } from "@/components/snapshot/BrutoTab";
 import { CircleAlert, FileText, CalendarDays, Wallet, ArrowRight } from "lucide-react";
 import { balanceByCategory, type BenefitBalance, type BenefitExpense, type BenefitYearlyCredit } from "@/lib/benefits";
+import { MonthlyLiquidityCard } from "@/components/hr/MonthlyLiquidityCard";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = supabase as any;
