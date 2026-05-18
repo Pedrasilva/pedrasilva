@@ -82,6 +82,8 @@ import {
   formatHoursPerWeek,
 } from "@/lib/hr/chargeability";
 import { useAuth } from "@/hooks/use-auth";
+import { MonthlyLiquidityCard } from "@/components/hr/MonthlyLiquidityCard";
+import type { BenefitExpense } from "@/lib/benefits";
 
 import { PermissionGate } from "@/components/PermissionGate";
 
