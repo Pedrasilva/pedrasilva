@@ -14,6 +14,10 @@ export interface ResourceScheduleEntry extends ResourceSchedule {
   resourceId: string;
   collaboratorId: string | null;
   weeklyCapacity: number;
+  /** HR-defined target chargeability % (0..100). null when not configured. */
+  targetChargeabilityPct: number | null;
+  /** dailyHours × targetChargeabilityPct/100. Falls back to dailyHours when target is null. */
+  recoverableHoursPerDay: number;
 }
 
 export type ResourceScheduleMap = Map<string, ResourceScheduleEntry>;
