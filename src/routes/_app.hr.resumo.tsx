@@ -612,11 +612,16 @@ type RhSortKey =
   | "alimentacao"
   | "ajudas"
   | "liquido"
+  | "monthlyLiquidity"
   | "beneficios"
   | "vbg"
   | "anos";
 
-function rhValue(r: Row, k: RhSortKey): number | string | null {
+function rhValue(
+  r: Row,
+  k: RhSortKey,
+  avgBenefitsByCollab?: Map<string, number>,
+): number | string | null {
   const ref = r.effective ?? r.proposed;
   const c = ref ? computeSnapshot(ref) : null;
   switch (k) {
