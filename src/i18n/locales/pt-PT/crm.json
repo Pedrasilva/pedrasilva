@@ -717,5 +717,54 @@
         "hint": "Pré-visualização original. Mantida para comparação até o editor de blocos estar completo."
       }
     }
+  },
+  "templates": {
+    "picker": {
+      "label": "Começar a partir de um modelo (opcional)",
+      "blankTitle": "Orçamento em branco",
+      "blankDescription": "Começar com um orçamento vazio e construir do zero.",
+      "empty": "Ainda não há modelos disponíveis para esta categoria.",
+      "stagesCount_one": "{{count}} fase",
+      "stagesCount_other": "{{count}} fases",
+      "paymentRulesCount_one": "{{count}} regra de pagamento",
+      "paymentRulesCount_other": "{{count}} regras de pagamento",
+      "blocksCount_one": "{{count}} bloco de conteúdo",
+      "blocksCount_other": "{{count}} blocos de conteúdo"
+    },
+    "saveAs": {
+      "title": "Guardar como modelo",
+      "description": "Captura as fases, serviços, regras de pagamento e blocos de proposta deste orçamento num modelo reutilizável. O orçamento atual não é alterado.",
+      "confirm": "Guardar modelo",
+      "preservationHint": "As alocações não são incluídas — os modelos capturam a estrutura, não os recursos específicos."
+    },
+    "fields": {
+      "name": "Nome do modelo",
+      "description": "Descrição",
+      "category": "Categoria",
+      "projectType": "Tipo de projeto"
+    },
+    "category": {
+      "project": "Projeto",
+      "time_based": "Por tempo",
+      "retainer": "Avença"
+    },
+    "projectType": {
+      "office": "Escritórios",
+      "hotel": "Hotel",
+      "residential": "Residencial",
+      "mixed_use": "Uso misto",
+      "due_diligence": "Due diligence",
+      "construction": "Construção",
+      "generic": "Genérico"
+    },
+    "errors": {
+      "nameRequired": "O nome do modelo é obrigatório."
+    },
+    "toasts": {
+      "saved": "Modelo guardado."
+    },
+    "actions": {
+      "saveAs": "Guardar como modelo"
+    }
   }
 }
