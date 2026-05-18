@@ -341,6 +341,46 @@
     }
   },
   "workspace": {
+    "stepper": {
+      "ariaLabel": "Passos do fluxo da proposta",
+      "estimate": {
+        "title": "1 · Estimativa",
+        "hint": "Planeamento, externos, pagamento e financeiro"
+      },
+      "content": {
+        "title": "2 · Conteúdo",
+        "hint": "Editar o documento da proposta"
+      },
+      "publish": {
+        "title": "3 · Pré-visualizar e Publicar",
+        "hint": "Rever prontidão e publicar"
+      }
+    },
+    "publish": {
+      "title": "Pré-visualizar e Publicar",
+      "description": "Reveja a proposta e utilize as acções de fluxo existentes no cabeçalho para enviar, aprovar ou converter num projecto operacional.",
+      "placeholderNote": "A pré-visualização e publicação inline serão adicionadas numa fase posterior. Por enquanto, use o documento de proposta gerado no Passo 2 e as acções do cabeçalho para fazer avançar a proposta.",
+      "headerActionsHint": "As acções do cabeçalho (Enviar / Aprovar / Converter) continuam a ser a fonte de verdade para mudanças de estado.",
+      "readinessTitle": "Prontidão",
+      "softWarningHint": "Estes são apenas sinais informativos — nada é bloqueado.",
+      "checks": {
+        "estimate": {
+          "label": "Estimativa",
+          "ok": "Fases e alocações estão definidas.",
+          "todo": "Adicione fases e alocações no Passo 1."
+        },
+        "payment": {
+          "label": "Plano de pagamentos",
+          "ok": "O plano de pagamentos tem itens.",
+          "todo": "Adicione pagamentos no Passo 1 → Pagamento."
+        },
+        "content": {
+          "label": "Conteúdo da proposta",
+          "ok": "Existe uma descrição da proposta.",
+          "todo": "Escreva a proposta no Passo 2."
+        }
+      }
+    },
     "tabs": {
       "overview": "Resumo",
       "timeBased": "Tempo",

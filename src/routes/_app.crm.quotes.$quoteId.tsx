@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 import {
   formatEUR, QUOTE_STATUSES, FEE_STRUCTURE_TYPES, normalizeQuoteCategory,
   type FeeProposal, type QuoteStatus, type FeeStructureType,
@@ -36,9 +37,15 @@ import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
 import { QuoteTimeBasedSettingsTab } from "@/components/quotes/quote-time-based-settings-tab";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
 import { QuoteFeeCalculatorCard } from "@/components/quotes/quote-fee-calculator-card";
+import {
+  QuoteWorkflowStepper,
+  type QuoteStep,
+} from "@/components/quotes/quote-workflow-stepper";
+import { QuotePublishStep } from "@/components/quotes/quote-publish-step";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
+import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import { rollupQuote } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
 import { useMemo } from "react";
@@ -420,6 +427,7 @@ function QuoteDetail() {
   const stagesQ = useQuoteStages(quoteId);
   const allocsQ = useQuoteAllocations(quoteId);
   const externalQ = useQuoteExternalServices(quoteId);
+  const paymentQ = useQuotePaymentSchedule(quoteId);
   const preConvertWarnings = useMemo(() => {
     const stages = stagesQ.data ?? [];
     const allocations = allocsQ.data ?? [];
@@ -438,6 +446,11 @@ function QuoteDetail() {
     });
   }, [stagesQ.data, allocsQ.data, externalQ.data, form.pricing_multiplier]);
 
+  // Linear workflow state — orchestration only. All underlying tabs and
+  // components below are preserved unchanged; the stepper just filters
+  // which secondary tabs are surfaced per step.
+  const [step, setStep] = useState<QuoteStep>("estimate");
+
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   if (!quote) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
 
@@ -446,6 +459,33 @@ function QuoteDetail() {
   const pricingMultiplier = Number(form.pricing_multiplier) || 1;
   const category = normalizeQuoteCategory(quote.quote_category);
   const isProject = category === "project";
+
+  // Soft completion signals for the stepper. Non-blocking — these only
+  // drive the visual tick on each step.
+  const stagesCount = stagesQ.data?.length ?? 0;
+  const allocationsCount = allocsQ.data?.length ?? 0;
+  const paymentCount = paymentQ.data?.length ?? 0;
+  const hasProposalContent =
+    !!(form.proposal_description?.trim() || quote.proposal_description?.trim());
+  const completion = {
+    estimate: isProject ? stagesCount > 0 : allocationsCount > 0,
+    content: hasProposalContent,
+    publish: !!quote.pm_project_id,
+  } as const;
+
+  // Per-step visible secondary tabs. All TabsContent below remain mounted
+  // in the DOM (Radix Tabs only renders the active one); we just hide the
+  // triggers that are not part of the current step.
+  const estimateTabs = isProject
+    ? ["overview", "time-based", "planning", "external", "payment", "financial"]
+    : ["overview", "time-based", "financial"];
+  const contentTabs = ["proposal"];
+  const visibleTabs =
+    step === "estimate"
+      ? estimateTabs
+      : step === "content"
+        ? contentTabs
+        : [];
 
   return (
     <div className="space-y-6">
@@ -504,25 +544,55 @@ function QuoteDetail() {
         </div>
       </div>
 
-      <Tabs defaultValue="overview" className="w-full">
+      <QuoteWorkflowStepper
+        step={step}
+        onChange={setStep}
+        completion={completion}
+      />
+
+      {step === "publish" && (
+        <QuotePublishStep
+          quoteId={quoteId}
+          estimateReady={completion.estimate}
+          contentReady={completion.content}
+          paymentReady={paymentCount > 0}
+          hasProject={!!quote.pm_project_id}
+          projectId={quote.pm_project_id ?? null}
+        />
+      )}
+
+      <Tabs
+        defaultValue="overview"
+        className={cn("w-full", step === "publish" && "hidden")}
+      >
         <TabsList className="no-print">
-          <TabsTrigger value="overview">{t("workspace.tabs.overview")}</TabsTrigger>
+          {visibleTabs.includes("overview") && (
+            <TabsTrigger value="overview">{t("workspace.tabs.overview")}</TabsTrigger>
+          )}
           {/* Time-based tab is always shown — for project quotes the optional
               retainer/consultancy add-on figures live there, and for
               consultancy quotes it is the primary fee configuration tab. */}
-          <TabsTrigger value="time-based">{t("workspace.tabs.timeBased")}</TabsTrigger>
+          {visibleTabs.includes("time-based") && (
+            <TabsTrigger value="time-based">{t("workspace.tabs.timeBased")}</TabsTrigger>
+          )}
           {/* Planning (Gantt + stages), External services and Payment schedule
               are project-only — consultancy proposals do not have stages,
               dependencies or stage-driven payment milestones. */}
-          {isProject && (
-            <>
-              <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
-              <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
-              <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
-            </>
+          {isProject && visibleTabs.includes("planning") && (
+            <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
           )}
-          <TabsTrigger value="financial">{t("workspace.tabs.financial")}</TabsTrigger>
-          <TabsTrigger value="proposal">{t("workspace.tabs.proposal")}</TabsTrigger>
+          {isProject && visibleTabs.includes("external") && (
+            <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
+          )}
+          {isProject && visibleTabs.includes("payment") && (
+            <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
+          )}
+          {visibleTabs.includes("financial") && (
+            <TabsTrigger value="financial">{t("workspace.tabs.financial")}</TabsTrigger>
+          )}
+          {visibleTabs.includes("proposal") && (
+            <TabsTrigger value="proposal">{t("workspace.tabs.proposal")}</TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
