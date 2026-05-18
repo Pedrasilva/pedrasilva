@@ -21,11 +21,13 @@ import {
 import {
   Plus, Building2, User, Briefcase,
   CheckSquare, Receipt, CalendarDays,
-  Clock, Play, Package, Wallet,
+  Clock, Play, Package, Wallet, Target, FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { NewCompanyDialog } from "@/components/crm/new-company-dialog";
 import { CompanyPicker } from "@/components/crm/company-picker";
+import { QuickSaleDialog } from "@/components/crm/quick-sale-dialog";
+import { QuickQuoteDialog } from "@/components/crm/quick-quote-dialog";
 import {
   QuickExpenseDialog,
   QuickMaterialDialog,
@@ -36,7 +38,8 @@ type Sheet =
   | "task" | "logTime" | "startTimer"
   | "company" | "contact" | "project"
   | "expense" | "request"
-  | "projectExpense" | "material";
+  | "projectExpense" | "material"
+  | "sale" | "quote";
 
 export function QuickCreateMenu() {
   const { t } = useTranslation();
@@ -104,6 +107,12 @@ export function QuickCreateMenu() {
           <DropdownMenuLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             {t("projects:quickCreate.groups.crm")}
           </DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setSheet("sale")} className="gap-2">
+            <Target className="h-4 w-4 text-muted-foreground" /> {t("projects:quickCreate.sale.menuLabel")}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("quote")} className="gap-2">
+            <FileText className="h-4 w-4 text-muted-foreground" /> {t("projects:quickCreate.quote.menuLabel")}
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("company")} className="gap-2">
             <Building2 className="h-4 w-4 text-muted-foreground" /> {t("glossary:entity.company")}
           </DropdownMenuItem>
@@ -136,6 +145,8 @@ export function QuickCreateMenu() {
       <RequestDialog open={sheet === "request"} onClose={() => setSheet(null)} />
       <QuickExpenseDialog open={sheet === "projectExpense"} onClose={() => setSheet(null)} />
       <QuickMaterialDialog open={sheet === "material"} onClose={() => setSheet(null)} />
+      <QuickSaleDialog open={sheet === "sale"} onClose={() => setSheet(null)} />
+      <QuickQuoteDialog open={sheet === "quote"} onClose={() => setSheet(null)} />
     </>
   );
 }

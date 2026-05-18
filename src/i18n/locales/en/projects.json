@@ -135,6 +135,23 @@
     "benefitExpense": "Benefit reimbursement",
     "projectExpense": "Project / company expense",
     "material": "Material (external service)",
+    "sale": {
+      "menuLabel": "Sale / Opportunity",
+      "unknownCompanyHint": "Company unknown? Leave empty and fill the temporary contact below — you can link a company later.",
+      "contactName": "Temporary contact name",
+      "contactNamePlaceholder": "e.g. John Doe (lead from referral)",
+      "contactEmail": "Contact email",
+      "contactPhone": "Contact phone"
+    },
+    "quote": {
+      "menuLabel": "Quote",
+      "title": "New quote",
+      "description": "A quote always belongs to an opportunity. Pick one to continue.",
+      "opportunityLabel": "Opportunity",
+      "opportunityPlaceholder": "Select an opportunity",
+      "noEligibleHint": "No opportunities with a linked company yet. Create a Sale first and assign a company.",
+      "errorOpportunity": "An opportunity is required"
+    },
     "groups": {
       "finance": "Finance",
       "crm": "CRM",

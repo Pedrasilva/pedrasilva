@@ -135,6 +135,23 @@
     "benefitExpense": "Reembolso de benefício",
     "projectExpense": "Despesa de projecto / empresa",
     "material": "Material (serviço externo)",
+    "sale": {
+      "menuLabel": "Venda / Oportunidade",
+      "unknownCompanyHint": "Empresa desconhecida? Deixe em branco e preencha o contacto temporário abaixo — pode associar uma empresa mais tarde.",
+      "contactName": "Nome do contacto temporário",
+      "contactNamePlaceholder": "ex: João Silva (lead por referência)",
+      "contactEmail": "Email do contacto",
+      "contactPhone": "Telefone do contacto"
+    },
+    "quote": {
+      "menuLabel": "Proposta",
+      "title": "Nova proposta",
+      "description": "Uma proposta pertence sempre a uma oportunidade. Selecione uma para continuar.",
+      "opportunityLabel": "Oportunidade",
+      "opportunityPlaceholder": "Selecione uma oportunidade",
+      "noEligibleHint": "Ainda não há oportunidades com empresa associada. Crie primeiro uma Venda e associe-lhe uma empresa.",
+      "errorOpportunity": "É necessária uma oportunidade"
+    },
     "groups": {
       "finance": "Financeiro",
       "crm": "CRM",
