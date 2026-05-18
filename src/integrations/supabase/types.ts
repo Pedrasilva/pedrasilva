@@ -4837,6 +4837,310 @@ export type Database = {
           },
         ]
       }
+      quote_template_allocations: {
+        Row: {
+          created_at: string
+          default_allocation_pct: number
+          estimated_hours: number
+          id: string
+          notes: string | null
+          resource_role: string | null
+          stage_temp_key: string
+          template_id: string
+        }
+        Insert: {
+          created_at?: string
+          default_allocation_pct?: number
+          estimated_hours?: number
+          id?: string
+          notes?: string | null
+          resource_role?: string | null
+          stage_temp_key: string
+          template_id: string
+        }
+        Update: {
+          created_at?: string
+          default_allocation_pct?: number
+          estimated_hours?: number
+          id?: string
+          notes?: string | null
+          resource_role?: string | null
+          stage_temp_key?: string
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_template_allocations_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "quote_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_template_blocks: {
+        Row: {
+          block_title: string
+          created_at: string
+          id: string
+          proposal_block_id: string | null
+          required: boolean
+          sort_order: number
+          template_id: string
+        }
+        Insert: {
+          block_title: string
+          created_at?: string
+          id?: string
+          proposal_block_id?: string | null
+          required?: boolean
+          sort_order?: number
+          template_id: string
+        }
+        Update: {
+          block_title?: string
+          created_at?: string
+          id?: string
+          proposal_block_id?: string | null
+          required?: boolean
+          sort_order?: number
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_template_blocks_proposal_block_id_fkey"
+            columns: ["proposal_block_id"]
+            isOneToOne: false
+            referencedRelation: "proposal_blocks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_template_blocks_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "quote_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_template_dependencies: {
+        Row: {
+          created_at: string
+          dependency_type: Database["public"]["Enums"]["quote_dep_type"]
+          id: string
+          lag_days: number
+          predecessor_stage_temp_key: string
+          successor_stage_temp_key: string
+          template_id: string
+        }
+        Insert: {
+          created_at?: string
+          dependency_type?: Database["public"]["Enums"]["quote_dep_type"]
+          id?: string
+          lag_days?: number
+          predecessor_stage_temp_key: string
+          successor_stage_temp_key: string
+          template_id: string
+        }
+        Update: {
+          created_at?: string
+          dependency_type?: Database["public"]["Enums"]["quote_dep_type"]
+          id?: string
+          lag_days?: number
+          predecessor_stage_temp_key?: string
+          successor_stage_temp_key?: string
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_template_dependencies_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "quote_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_template_external_services: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          markup_type: Database["public"]["Enums"]["quote_markup_type"]
+          markup_value: number
+          quantity: number
+          stage_temp_key: string | null
+          supplier_type: string | null
+          template_id: string
+          unit_cost: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          markup_type?: Database["public"]["Enums"]["quote_markup_type"]
+          markup_value?: number
+          quantity?: number
+          stage_temp_key?: string | null
+          supplier_type?: string | null
+          template_id: string
+          unit_cost?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          markup_type?: Database["public"]["Enums"]["quote_markup_type"]
+          markup_value?: number
+          quantity?: number
+          stage_temp_key?: string | null
+          supplier_type?: string | null
+          template_id?: string
+          unit_cost?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_template_external_services_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "quote_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_template_payment_rules: {
+        Row: {
+          amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
+          amount_value: number
+          created_at: string
+          id: string
+          label: string
+          payment_terms_days: number
+          sort_order: number
+          stage_temp_key: string | null
+          template_id: string
+          trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
+        }
+        Insert: {
+          amount_type?: Database["public"]["Enums"]["quote_payment_amount_type"]
+          amount_value?: number
+          created_at?: string
+          id?: string
+          label: string
+          payment_terms_days?: number
+          sort_order?: number
+          stage_temp_key?: string | null
+          template_id: string
+          trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
+        }
+        Update: {
+          amount_type?: Database["public"]["Enums"]["quote_payment_amount_type"]
+          amount_value?: number
+          created_at?: string
+          id?: string
+          label?: string
+          payment_terms_days?: number
+          sort_order?: number
+          stage_temp_key?: string | null
+          template_id?: string
+          trigger_type?: Database["public"]["Enums"]["quote_payment_trigger"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_template_payment_rules_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "quote_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_template_stages: {
+        Row: {
+          billing_trigger_default: Database["public"]["Enums"]["quote_payment_trigger"]
+          color: string
+          created_at: string
+          duration_days: number
+          fee_percentage: number
+          id: string
+          sort_order: number
+          stage_temp_key: string
+          template_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          billing_trigger_default?: Database["public"]["Enums"]["quote_payment_trigger"]
+          color?: string
+          created_at?: string
+          duration_days?: number
+          fee_percentage?: number
+          id?: string
+          sort_order?: number
+          stage_temp_key: string
+          template_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          billing_trigger_default?: Database["public"]["Enums"]["quote_payment_trigger"]
+          color?: string
+          created_at?: string
+          duration_days?: number
+          fee_percentage?: number
+          id?: string
+          sort_order?: number
+          stage_temp_key?: string
+          template_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_template_stages_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "quote_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_templates: {
+        Row: {
+          category: Database["public"]["Enums"]["crm_quote_category"]
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          project_type: string
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["crm_quote_category"]
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          project_type?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["crm_quote_category"]
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          project_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       role_permissions: {
         Row: {
           permission_key: string
@@ -5671,6 +5975,24 @@ export type Database = {
       project_dependency_counts: {
         Args: { _project_id: string }
         Returns: Json
+      }
+      quote_instantiate_template: {
+        Args: {
+          _base_start_date?: string
+          _quote_id: string
+          _template_id: string
+        }
+        Returns: Json
+      }
+      quote_save_as_template: {
+        Args: {
+          _category: Database["public"]["Enums"]["crm_quote_category"]
+          _description: string
+          _name: string
+          _project_type: string
+          _quote_id: string
+        }
+        Returns: string
       }
       reset_project_test_data: { Args: { _confirm: string }; Returns: Json }
       set_pending_permission: {
