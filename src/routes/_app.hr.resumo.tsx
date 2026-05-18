@@ -768,7 +768,7 @@ function RhTable({
           <TableBody>
             {sortedRows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={11} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={12} className="text-center text-muted-foreground py-8">
                   {t("hr:resumo.rhTable.emptyDepartment")}
                 </TableCell>
               </TableRow>
@@ -804,6 +804,15 @@ function RhTable({
                   <TableCell className="text-right tabular-nums">
                     {c ? fmtEUR(c.liquidoTotalMensal) : "—"}
                   </TableCell>
+                  <TableCell className="text-right tabular-nums font-medium">
+                    {c
+                      ? fmtEUR(
+                          c.liquidoTotalMensal +
+                            c.passeMensal +
+                            (avgBenefitsByCollab?.get(r.collab.id) ?? 0),
+                        )
+                      : "—"}
+                  </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {c ? fmtEUR(c.beneficiosAnual) : "—"}
                   </TableCell>
@@ -827,7 +836,7 @@ function RhTable({
               <TableCell className="text-right tabular-nums font-semibold">
                 {fmtEUR(totalBrutoAnual)}
               </TableCell>
-              <TableCell colSpan={6} />
+              <TableCell colSpan={7} />
               <TableCell className="text-right tabular-nums font-semibold">
                 {fmtEUR(totalVbg)}
               </TableCell>
