@@ -821,6 +821,8 @@ function QuoteDetail() {
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
+      </AlertDialog>
+
       <SaveAsTemplateDialog
         open={saveTemplateOpen}
         onClose={() => setSaveTemplateOpen(false)}
