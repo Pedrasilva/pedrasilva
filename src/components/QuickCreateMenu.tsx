@@ -24,10 +24,10 @@ import {
   Clock, Play, Package, Wallet, Target, FileText,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useNavigate } from "@tanstack/react-router";
 import { NewCompanyDialog } from "@/components/crm/new-company-dialog";
 import { CompanyPicker } from "@/components/crm/company-picker";
-import { NewOpportunityDialog } from "@/routes/_app.crm.opportunities";
+import { QuickSaleDialog } from "@/components/crm/quick-sale-dialog";
+import { QuickQuoteDialog } from "@/components/crm/quick-quote-dialog";
 import {
   QuickExpenseDialog,
   QuickMaterialDialog,
