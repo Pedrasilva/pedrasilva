@@ -127,6 +127,9 @@ export type MonthlyLiquidityInput = {
   expenses?: BenefitExpense[];
   now?: Date;
   windowMonths?: number;
+  eligibleStates?: AverageBenefitsOptions["eligibleStates"];
+  eligibleCategories?: AverageBenefitsOptions["eligibleCategories"];
+  outlierThreshold?: AverageBenefitsOptions["outlierThreshold"];
 };
 
 export function computeMonthlyLiquidity({
@@ -134,6 +137,9 @@ export function computeMonthlyLiquidity({
   expenses = [],
   now,
   windowMonths,
+  eligibleStates,
+  eligibleCategories,
+  outlierThreshold,
 }: MonthlyLiquidityInput): LiquidityBreakdown {
   if (!snapshot) {
     return {
@@ -147,7 +153,13 @@ export function computeMonthlyLiquidity({
     };
   }
   const c = computeSnapshot(snapshot);
-  const avgBenefits = computeAverageBenefits(expenses, { now, windowMonths });
+  const avgBenefits = computeAverageBenefits(expenses, {
+    now,
+    windowMonths,
+    eligibleStates,
+    eligibleCategories,
+    outlierThreshold,
+  });
   const netCompensation = c.liquido12m + c.alimentacaoMensal;
   const total =
     netCompensation + c.passeMensal + c.ajudasMensal + avgBenefits;
