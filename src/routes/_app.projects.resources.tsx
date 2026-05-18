@@ -106,7 +106,9 @@ function ResourcesPage() {
                 <th className="px-4 py-3 text-left">Name</th>
                 <th className="px-4 py-3 text-left">Role</th>
                 <th className="px-4 py-3 text-left">Team</th>
-                <th className="px-4 py-3 text-right">Rate</th>
+                <th className="px-4 py-3 text-right">Cost €/h</th>
+                <th className="px-4 py-3 text-right">Sale €/h (75%)</th>
+                <th className="px-4 py-3 text-right">Ref. 100%</th>
                 <th className="px-4 py-3 text-right">Capacity</th>
                 <th className="px-4 py-3 text-center">Active</th>
                 <th className="px-4 py-3"></th>
