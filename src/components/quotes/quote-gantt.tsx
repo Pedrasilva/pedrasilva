@@ -249,7 +249,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             embedded
           />
         </div>
-        <ResourcePool resources={resources} collapsed={false} />
+        <ResourcePool resources={poolResources} collapsed={false} missingRateIds={rateMissing} />
       </div>
     </div>
   );
