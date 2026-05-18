@@ -140,7 +140,7 @@ function useResources() {
     queryFn: async (): Promise<ResourceLite[]> => {
       const { data, error } = await supabase
         .from("pm_resources")
-        .select("id, name, team, active, hourly_rate, cost_rate")
+        .select("id, name, team, active, hourly_rate, cost_rate, hourly_rate_is_override")
         .order("name");
       if (error) throw error;
       return (data ?? []) as ResourceLite[];
