@@ -341,6 +341,46 @@
     }
   },
   "workspace": {
+    "stepper": {
+      "ariaLabel": "Quote workflow steps",
+      "estimate": {
+        "title": "1 · Estimate",
+        "hint": "Plan, externals, payment & financials"
+      },
+      "content": {
+        "title": "2 · Content",
+        "hint": "Edit the proposal document"
+      },
+      "publish": {
+        "title": "3 · Preview & Publish",
+        "hint": "Review readiness and publish"
+      }
+    },
+    "publish": {
+      "title": "Preview & Publish",
+      "description": "Review the quote and use the existing workflow actions in the header to send, approve or convert it into an operational project.",
+      "placeholderNote": "Inline preview and publish are coming in a later phase. For now, use the proposal document generated from Step 2 and the header actions to drive the quote forward.",
+      "headerActionsHint": "Header actions (Send / Approve / Convert) remain the source of truth for status changes.",
+      "readinessTitle": "Readiness",
+      "softWarningHint": "These are soft signals only — nothing is blocked.",
+      "checks": {
+        "estimate": {
+          "label": "Estimate",
+          "ok": "Stages and allocations are in place.",
+          "todo": "Add stages and allocations in Step 1."
+        },
+        "payment": {
+          "label": "Payment schedule",
+          "ok": "Payment schedule has items.",
+          "todo": "Add scheduled payments in Step 1 → Payment."
+        },
+        "content": {
+          "label": "Proposal content",
+          "ok": "A proposal description is set.",
+          "todo": "Write the proposal in Step 2."
+        }
+      }
+    },
     "tabs": {
       "overview": "Overview",
       "timeBased": "Time-based",
