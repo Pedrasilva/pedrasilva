@@ -82,6 +82,8 @@ import {
   formatHoursPerWeek,
 } from "@/lib/hr/chargeability";
 import { useAuth } from "@/hooks/use-auth";
+import { MonthlyLiquidityCard } from "@/components/hr/MonthlyLiquidityCard";
+import type { BenefitExpense } from "@/lib/benefits";
 
 import { PermissionGate } from "@/components/PermissionGate";
 
@@ -138,6 +140,26 @@ function CollaboratorPage() {
       return data as Snapshot[];
     },
   });
+
+  const { data: benefitExpenses = [] } = useQuery({
+    queryKey: ["collaborator-benefit-expenses-12m", id],
+    queryFn: async () => {
+      const from = new Date();
+      from.setMonth(from.getMonth() - 12);
+      const { data, error } = await supabase
+        .from("benefit_expenses")
+        .select("*")
+        .eq("collaborator_id", id)
+        .gte("data_despesa", from.toISOString().slice(0, 10));
+      if (error) throw error;
+      return (data ?? []) as BenefitExpense[];
+    },
+  });
+
+  const effectiveSnapshot = useMemo(
+    () => snapshots.find((s) => s.is_effective) ?? snapshots[0] ?? null,
+    [snapshots],
+  );
 
   const [draft, setDraft] = useState<Collaborator | null>(null);
   useEffect(() => {
@@ -601,6 +623,11 @@ function CollaboratorPage() {
         targetChargeabilityPct={draft.target_chargeability_pct ?? null}
         onChangeTarget={(v) => setField("target_chargeability_pct", v)}
         canEdit={isAdmin}
+      />
+
+      <MonthlyLiquidityCard
+        snapshot={effectiveSnapshot}
+        expenses={benefitExpenses}
       />
 
       <Card>

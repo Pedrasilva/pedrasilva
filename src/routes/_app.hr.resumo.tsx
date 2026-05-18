@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -41,6 +41,8 @@ import { PermissionGate } from "@/components/PermissionGate";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResumoComparativoTab } from "@/components/ResumoComparativoTab";
 import { cn } from "@/lib/utils";
+import { computeAverageBenefits } from "@/lib/hr/compensation-liquidity";
+import type { BenefitExpense } from "@/lib/benefits";
 
 export const Route = createFileRoute("/_app/hr/resumo")({
   component: () => (
@@ -83,6 +85,34 @@ function ResumoPage() {
       return data as Snapshot[];
     },
   });
+
+  const { data: benefitExpenses12m = [] } = useQuery({
+    queryKey: ["all-benefit-expenses-12m"],
+    queryFn: async () => {
+      const from = new Date();
+      from.setMonth(from.getMonth() - 12);
+      const { data, error } = await supabase
+        .from("benefit_expenses")
+        .select("*")
+        .gte("data_despesa", from.toISOString().slice(0, 10));
+      if (error) throw error;
+      return (data ?? []) as BenefitExpense[];
+    },
+  });
+
+  const avgBenefitsByCollab = useMemo(() => {
+    const byCollab = new Map<string, BenefitExpense[]>();
+    for (const e of benefitExpenses12m) {
+      const arr = byCollab.get(e.collaborator_id) ?? [];
+      arr.push(e);
+      byCollab.set(e.collaborator_id, arr);
+    }
+    const out = new Map<string, number>();
+    for (const [cid, arr] of byCollab) {
+      out.set(cid, computeAverageBenefits(arr));
+    }
+    return out;
+  }, [benefitExpenses12m]);
 
   const { data: boSettings } = useQuery({
     queryKey: ["bo-settings"],
@@ -337,11 +367,13 @@ function ResumoPage() {
             title={t("hr:landing.departments.backoffice")}
             rows={backoffice}
             totalLabel={t("hr:resumo.rhTable.totals.backoffice")}
+            avgBenefitsByCollab={avgBenefitsByCollab}
           />
           <RhTable
             title={t("hr:landing.departments.project")}
             rows={projecto}
             totalLabel={t("hr:resumo.rhTable.totals.production")}
+            avgBenefitsByCollab={avgBenefitsByCollab}
           />
 
           <CapacityOverviewTable
@@ -580,11 +612,16 @@ type RhSortKey =
   | "alimentacao"
   | "ajudas"
   | "liquido"
+  | "monthlyLiquidity"
   | "beneficios"
   | "vbg"
   | "anos";
 
-function rhValue(r: Row, k: RhSortKey): number | string | null {
+function rhValue(
+  r: Row,
+  k: RhSortKey,
+  avgBenefitsByCollab?: Map<string, number>,
+): number | string | null {
   const ref = r.effective ?? r.proposed;
   const c = ref ? computeSnapshot(ref) : null;
   switch (k) {
@@ -602,6 +639,11 @@ function rhValue(r: Row, k: RhSortKey): number | string | null {
       return c?.ajudasMensal ?? null;
     case "liquido":
       return c?.liquidoTotalMensal ?? null;
+    case "monthlyLiquidity": {
+      if (!c) return null;
+      const avg = avgBenefitsByCollab?.get(r.collab.id) ?? 0;
+      return c.liquidoTotalMensal + c.passeMensal + avg;
+    }
     case "beneficios":
       return c?.beneficiosAnual ?? null;
     case "vbg":
@@ -619,10 +661,12 @@ function RhTable({
   title,
   rows,
   totalLabel,
+  avgBenefitsByCollab,
 }: {
   title: string;
   rows: Row[];
   totalLabel: string;
+  avgBenefitsByCollab?: Map<string, number>;
 }) {
   const { t, i18n } = useTranslation(["hr"]);
   const [sortKey, setSortKey] = useState<RhSortKey | null>(null);
@@ -638,8 +682,8 @@ function RhTable({
 
   const sortedRows = sortKey
     ? [...rows].sort((a, b) => {
-        const av = rhValue(a, sortKey);
-        const bv = rhValue(b, sortKey);
+        const av = rhValue(a, sortKey, avgBenefitsByCollab);
+        const bv = rhValue(b, sortKey, avgBenefitsByCollab);
         return compareValues(av, bv, sortDir, i18n.language);
       })
     : rows;
@@ -698,6 +742,14 @@ function RhTable({
               <TableHead className="text-right">
                 {t("hr:resumo.rhTable.headers.netMonthly")}
               </TableHead>
+              <SortHead
+                align="right"
+                label={t("hr:resumo.rhTable.headers.monthlyLiquidity")}
+                k="monthlyLiquidity"
+                sortKey={sortKey}
+                dir={sortDir}
+                onClick={toggleSort}
+              />
               <TableHead className="text-right">
                 {t("hr:resumo.rhTable.headers.benefitsAnnual")}
               </TableHead>
@@ -716,7 +768,7 @@ function RhTable({
           <TableBody>
             {sortedRows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={11} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={12} className="text-center text-muted-foreground py-8">
                   {t("hr:resumo.rhTable.emptyDepartment")}
                 </TableCell>
               </TableRow>
@@ -752,6 +804,15 @@ function RhTable({
                   <TableCell className="text-right tabular-nums">
                     {c ? fmtEUR(c.liquidoTotalMensal) : "—"}
                   </TableCell>
+                  <TableCell className="text-right tabular-nums font-medium">
+                    {c
+                      ? fmtEUR(
+                          c.liquidoTotalMensal +
+                            c.passeMensal +
+                            (avgBenefitsByCollab?.get(r.collab.id) ?? 0),
+                        )
+                      : "—"}
+                  </TableCell>
                   <TableCell className="text-right tabular-nums">
                     {c ? fmtEUR(c.beneficiosAnual) : "—"}
                   </TableCell>
@@ -775,7 +836,7 @@ function RhTable({
               <TableCell className="text-right tabular-nums font-semibold">
                 {fmtEUR(totalBrutoAnual)}
               </TableCell>
-              <TableCell colSpan={6} />
+              <TableCell colSpan={7} />
               <TableCell className="text-right tabular-nums font-semibold">
                 {fmtEUR(totalVbg)}
               </TableCell>

@@ -27,6 +27,7 @@ import { LiquidoTab } from "@/components/snapshot/LiquidoTab";
 import { BrutoTab } from "@/components/snapshot/BrutoTab";
 import { CircleAlert, FileText, CalendarDays, Wallet, ArrowRight } from "lucide-react";
 import { balanceByCategory, type BenefitBalance, type BenefitExpense, type BenefitYearlyCredit } from "@/lib/benefits";
+import { MonthlyLiquidityCard } from "@/components/hr/MonthlyLiquidityCard";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = supabase as any;
@@ -209,6 +210,21 @@ function SnapshotReadOnly({
   const c = computeSnapshot(draftEffective);
   const canCompare = allSnapshots.length >= 2;
 
+  const { data: benefitExpenses = [] } = useQuery({
+    queryKey: ["my-benefit-expenses-12m", collaborator.id],
+    queryFn: async () => {
+      const from = new Date();
+      from.setMonth(from.getMonth() - 12);
+      const { data, error } = await supabase
+        .from("benefit_expenses")
+        .select("*")
+        .eq("collaborator_id", collaborator.id)
+        .gte("data_despesa", from.toISOString().slice(0, 10));
+      if (error) throw error;
+      return (data ?? []) as BenefitExpense[];
+    },
+  });
+
   return (
     <div className="space-y-5">
       <Card>
@@ -276,6 +292,8 @@ function SnapshotReadOnly({
           />
         </CardContent>
       </Card>
+
+      <MonthlyLiquidityCard snapshot={snapshot} expenses={benefitExpenses} />
 
       <ValueChainSummary c={c} />
 
