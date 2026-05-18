@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/projects/app-shell";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   useDeleteResource,
   useResources,
@@ -11,6 +13,7 @@ import {
   type ResourceTeam,
 } from "@/lib/projects/use-planner";
 import { useDefaultResourceRates } from "@/lib/projects/use-default-rates";
+import { supabase } from "@/integrations/supabase/client";
 import { ChevronRight, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { euros } from "@/lib/projects/gantt-utils";
