@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtDate, fmtEUR, type Snapshot } from "@/lib/salary";
+import { computeAverageBenefits } from "@/lib/hr/compensation-liquidity";
+import type { BenefitExpense } from "@/lib/benefits";
 import {
   Card,
   CardContent,
@@ -26,7 +28,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
+export function ResumoCompare({
+  snapshots,
+  expenses = [],
+}: {
+  snapshots: Snapshot[];
+  expenses?: BenefitExpense[];
+}) {
   const { t, i18n } = useTranslation("hr");
   const effectives = snapshots.filter((s) => s.is_effective);
   const proposals = snapshots.filter((s) => !s.is_effective);
@@ -91,21 +99,59 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
   const cl = leftEffective ? computeSnapshot(leftEffective) : null;
   const cr = rightEffective ? computeSnapshot(rightEffective) : null;
 
-  const rows: Array<{ label: string; l: number | null; r: number | null; pct?: boolean }> = [
-    { label: t("hr:resumoCompare.metrics.baseMonthly"), l: left?.valor_base ?? null, r: right?.valor_base ?? null },
-    { label: t("hr:resumoCompare.metrics.baseAnnualX14"), l: cl?.baseAnual ?? null, r: cr?.baseAnual ?? null },
-    { label: t("hr:resumoCompare.metrics.grossMonthly"), l: cl?.brutoMensal ?? null, r: cr?.brutoMensal ?? null },
-    { label: t("hr:resumoCompare.metrics.grossAnnual"), l: cl?.brutoAnual ?? null, r: cr?.brutoAnual ?? null },
-    { label: t("hr:resumoCompare.metrics.netMonthly12"), l: cl?.liquido12m ?? null, r: cr?.liquido12m ?? null },
-    { label: t("hr:resumoCompare.metrics.mealAllowanceDaily"), l: leftEffective?.subsidio_alimentacao_diario ?? null, r: rightEffective?.subsidio_alimentacao_diario ?? null },
-    { label: t("hr:resumoCompare.metrics.mealAllowanceMonthly"), l: cl?.alimentacaoMensal ?? null, r: cr?.alimentacaoMensal ?? null },
-    { label: t("hr:resumoCompare.metrics.perDiemAnnual"), l: left?.ajudas_custo_anual ?? null, r: right?.ajudas_custo_anual ?? null },
-    { label: t("hr:resumoCompare.metrics.perDiemMonthly"), l: cl?.ajudasMensal ?? null, r: cr?.ajudasMensal ?? null },
-    { label: t("hr:resumoCompare.metrics.transitPassAnnual"), l: left?.passe_anual ?? null, r: right?.passe_anual ?? null },
-    { label: t("hr:resumoCompare.metrics.transitPassMonthly"), l: cl?.passeMensal ?? null, r: cr?.passeMensal ?? null },
-    { label: t("hr:resumoCompare.metrics.totalNetMonthly"), l: cl?.liquidoTotalMensal ?? null, r: cr?.liquidoTotalMensal ?? null },
-    { label: t("hr:resumoCompare.metrics.benefitsAnnual"), l: cl?.beneficiosAnual ?? null, r: cr?.beneficiosAnual ?? null },
-    { label: t("hr:resumoCompare.metrics.tgvAnnual"), l: cl?.custoVBG ?? null, r: cr?.custoVBG ?? null },
+  // Liquidez = collaborator-level (rolling 12m of approved/pending/paid).
+  // Both columns show the same value — it is per collaborator, not per snapshot.
+  const avgBenefitsMonthly = useMemo(
+    () => computeAverageBenefits(expenses),
+    [expenses],
+  );
+
+  const monthlyLiquidityL =
+    cl != null
+      ? cl.liquido12m +
+        cl.alimentacaoMensal +
+        cl.ajudasMensal +
+        cl.passeMensal +
+        avgBenefitsMonthly
+      : null;
+  const monthlyLiquidityR =
+    cr != null
+      ? cr.liquido12m +
+        cr.alimentacaoMensal +
+        cr.ajudasMensal +
+        cr.passeMensal +
+        avgBenefitsMonthly
+      : null;
+
+  type RowItem =
+    | { kind: "section"; label: string }
+    | {
+        kind: "metric";
+        label: string;
+        l: number | null;
+        r: number | null;
+        strong?: boolean;
+        accent?: boolean;
+      };
+
+  const rows: RowItem[] = [
+    { kind: "section", label: t("hr:resumoCompare.groups.payrollBase") },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.baseMonthly"), l: left?.valor_base ?? null, r: right?.valor_base ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.baseAnnualX14"), l: cl?.baseAnual ?? null, r: cr?.baseAnual ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.grossMonthly"), l: cl?.brutoMensal ?? null, r: cr?.brutoMensal ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.grossAnnual"), l: cl?.brutoAnual ?? null, r: cr?.brutoAnual ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.netMonthly12"), l: cl?.liquido12m ?? null, r: cr?.liquido12m ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.mealAllowanceDaily"), l: leftEffective?.subsidio_alimentacao_diario ?? null, r: rightEffective?.subsidio_alimentacao_diario ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.mealAllowanceMonthly"), l: cl?.alimentacaoMensal ?? null, r: cr?.alimentacaoMensal ?? null },
+
+    { kind: "section", label: t("hr:resumoCompare.groups.complements") },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.perDiemMonthly"), l: cl?.ajudasMensal ?? null, r: cr?.ajudasMensal ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.transitPassMonthly"), l: cl?.passeMensal ?? null, r: cr?.passeMensal ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.avgBenefitsMonthly"), l: avgBenefitsMonthly, r: avgBenefitsMonthly },
+
+    { kind: "section", label: t("hr:resumoCompare.groups.total") },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.monthlyLiquidity"), l: monthlyLiquidityL, r: monthlyLiquidityR, strong: true, accent: true },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.tgvAnnual"), l: cl?.custoVBG ?? null, r: cr?.custoVBG ?? null },
   ];
 
   const pctFormatter = new Intl.NumberFormat(i18n.language, {
@@ -155,7 +201,23 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((r) => {
+              {rows.map((row, idx) => {
+                if (row.kind === "section") {
+                  return (
+                    <TableRow
+                      key={`sec-${idx}-${row.label}`}
+                      className="border-t-2 border-border bg-muted/40 hover:bg-muted/40"
+                    >
+                      <TableCell
+                        colSpan={5}
+                        className="py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+                      >
+                        {row.label}
+                      </TableCell>
+                    </TableRow>
+                  );
+                }
+                const r = row;
                 const delta = r.l != null && r.r != null ? r.r - r.l : null;
                 const pct = r.l && r.r != null ? (r.r - r.l) / r.l : null;
                 const cls =
@@ -166,9 +228,14 @@ export function ResumoCompare({ snapshots }: { snapshots: Snapshot[] }) {
                       : delta < 0
                         ? "text-negative"
                         : "";
+                const rowCls =
+                  (r.strong ? "font-semibold " : "") +
+                  (r.accent ? "bg-[var(--sage)]/5 text-foreground" : "");
                 return (
-                  <TableRow key={r.label}>
-                    <TableCell className="font-medium">{r.label}</TableCell>
+                  <TableRow key={`m-${idx}-${r.label}`} className={rowCls}>
+                    <TableCell className={r.strong ? "font-semibold" : "font-medium"}>
+                      {r.label}
+                    </TableCell>
                     <TableCell className="text-right tabular-nums">
                       {r.l == null ? t("hr:collaborator.subline.empty") : fmtEUR(r.l)}
                     </TableCell>

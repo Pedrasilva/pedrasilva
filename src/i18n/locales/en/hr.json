@@ -365,7 +365,7 @@
         "christmasFullNovember": "+ Christmas allowance (paid in full in November)",
         "mealAllowanceMonthly": "+ Meal allowance (monthly)",
         "perDiemMonthly": "+ Per diem allowances (monthly)",
-        "totalNetMonthly": "= Total monthly net",
+        "totalNetMonthly": "= Total monthly liquidity",
         "benefitsMonthly": "+ Benefits (monthly average: car + voucher + bonus + others)",
         "benefitsMonthlyGuaranteed": "+ Guaranteed benefits (monthly average: car + voucher + bonus + others + retirement plan)",
         "bonusAnnualPotential": "+ Potential annual bonus (not guaranteed) — {{amount}} if awarded",
@@ -459,6 +459,11 @@
       "delta": "Δ",
       "deltaPct": "Δ %"
     },
+    "groups": {
+      "payrollBase": "Payroll base",
+      "complements": "Net complements",
+      "total": "Take-home total"
+    },
     "metrics": {
       "baseMonthly": "Monthly base value",
       "baseAnnualX14": "Base value × 14 months",
@@ -471,7 +476,9 @@
       "perDiemMonthly": "Per diem allowances (monthly)",
       "transitPassAnnual": "Transit pass (annual)",
       "transitPassMonthly": "Transit pass (monthly)",
-      "totalNetMonthly": "Total monthly net",
+      "avgBenefitsMonthly": "Average monthly benefits",
+      "monthlyLiquidity": "Total monthly liquidity",
+      "totalNetMonthly": "Total monthly liquidity",
       "benefitsAnnual": "Benefits (annual)",
       "tgvAnnual": "Total Gross Value (annual)"
     }
@@ -490,7 +497,7 @@
         "help": "Contractual monthly base salary"
       },
       "liquido": {
-        "label": "Total monthly net",
+        "label": "Total monthly liquidity",
         "help": "Net base + per diem + meal allowance"
       },
       "alimentacao": {
@@ -854,6 +861,7 @@
         "perDiem": "Per diem allowances",
         "netMonthly": "Monthly net",
         "monthlyLiquidity": "Total monthly liquidity",
+        "avgBenefitsMonthly": "Average monthly benefits",
         "benefitsAnnual": "Annual benefits",
         "tgv": "TGV"
       },

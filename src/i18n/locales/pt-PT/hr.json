@@ -365,7 +365,7 @@
         "christmasFullNovember": "+ Subsídio de Natal (pago por inteiro em Novembro)",
         "mealAllowanceMonthly": "+ Subsídio alimentação mensal",
         "perDiemMonthly": "+ Ajudas de custo mensais",
-        "totalNetMonthly": "= Líquido total mensal",
+        "totalNetMonthly": "= Liquidez mensal total",
         "benefitsMonthly": "+ Benefícios (média mensal: carro + ticket + prémio + outros)",
         "benefitsMonthlyGuaranteed": "+ Benefícios garantidos (média mensal: carro + ticket + prémio + outros + plano reforma)",
         "bonusAnnualPotential": "+ Bónus anual potencial (não garantido) — {{amount}} se atribuído",
@@ -459,6 +459,11 @@
       "delta": "Δ",
       "deltaPct": "Δ %"
     },
+    "groups": {
+      "payrollBase": "Payroll base",
+      "complements": "Complementos líquidos",
+      "total": "Total percebido"
+    },
     "metrics": {
       "baseMonthly": "Valor base mensal",
       "baseAnnualX14": "Valor base x 14 meses",
@@ -471,7 +476,9 @@
       "perDiemMonthly": "Ajudas de custo (mensal)",
       "transitPassAnnual": "Passe / transporte público (anual)",
       "transitPassMonthly": "Passe / transporte público (mensal)",
-      "totalNetMonthly": "Líquido total mensal",
+      "avgBenefitsMonthly": "Média benefícios mensal",
+      "monthlyLiquidity": "Liquidez mensal total",
+      "totalNetMonthly": "Liquidez mensal total",
       "benefitsAnnual": "Benefícios anual",
       "tgvAnnual": "Custo VBG anual"
     }
@@ -490,7 +497,7 @@
         "help": "Vencimento base mensal contratual"
       },
       "liquido": {
-        "label": "Líquido total mensal",
+        "label": "Liquidez mensal total",
         "help": "Líquido base + ajudas + alimentação"
       },
       "alimentacao": {
@@ -854,6 +861,7 @@
         "perDiem": "Ajudas de custo",
         "netMonthly": "Líquido mensal",
         "monthlyLiquidity": "Liquidez mensal total",
+        "avgBenefitsMonthly": "Média benefícios mensal",
         "benefitsAnnual": "Benefícios anual",
         "tgv": "VBG"
       },

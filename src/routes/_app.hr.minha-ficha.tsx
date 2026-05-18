@@ -323,7 +323,7 @@ function SnapshotReadOnly({
         </TabsContent>
         <TabsContent value="compare">
           {canCompare ? (
-            <ResumoCompare snapshots={allSnapshots} />
+            <ResumoCompare snapshots={allSnapshots} expenses={benefitExpenses} />
           ) : (
             <Card>
               <CardContent className="py-10 text-center text-sm text-muted-foreground">
