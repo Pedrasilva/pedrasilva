@@ -262,17 +262,37 @@ function ResourceDetailPage() {
                   value={form.hourly_rate}
                   onChange={(e) => setForm({ ...form, hourly_rate: Number(e.target.value) })}
                 />
-                {defaultRate != null && defaultRate > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, hourly_rate: defaultRate })}
-                    className="mt-1.5 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                    title="HR pricing table @ 75% margin (project default)"
-                  >
-                    <Sparkles className="h-3 w-3" />
-                    HR default @ 75%: {defaultRate.toFixed(2)}€/h
-                  </button>
-                )}
+                <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs">
+                  {(member as FullResource & { hourly_rate_is_override?: boolean })
+                    .hourly_rate_is_override ? (
+                    <span className="text-amber-600">Project override active</span>
+                  ) : (
+                    <span className="text-muted-foreground">Using HR default · 75%</span>
+                  )}
+                  {defaultRate != null && defaultRate > 0 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, hourly_rate: defaultRate })}
+                        className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                        title="Pre-fill input with HR default @ 75%"
+                      >
+                        <Sparkles className="h-3 w-3" />
+                        HR default @ 75%: {defaultRate.toFixed(2)}€/h
+                      </button>
+                      {(member as FullResource & { hourly_rate_is_override?: boolean })
+                        .hourly_rate_is_override && (
+                        <button
+                          type="button"
+                          onClick={handleUseHrDefault}
+                          className="text-muted-foreground underline hover:text-foreground"
+                        >
+                          Use HR default
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               </Field>
             </div>
           </Section>
