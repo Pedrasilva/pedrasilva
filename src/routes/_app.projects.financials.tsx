@@ -90,6 +90,7 @@ type ResourceLite = {
   active: boolean;
   hourly_rate: number | null;
   cost_rate: number | null;
+  hourly_rate_is_override: boolean | null;
 };
 
 type EntryLite = {
