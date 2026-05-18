@@ -1170,8 +1170,16 @@ function MilestonesTable({
 
   if (!stages || stages.length === 0) {
     return (
-      <div className="p-10 text-center text-sm text-muted-foreground">
-        Adiciona uma fase para começar.
+      <div className="flex flex-col items-center justify-center gap-3 p-10 text-center text-sm text-muted-foreground">
+        <span>Adiciona uma fase para começar.</span>
+        {onEditPlan && (
+          <button
+            onClick={onEditPlan}
+            className="inline-flex items-center gap-1.5 rounded-md bg-foreground px-3 py-1.5 text-xs font-medium text-background hover:opacity-90"
+          >
+            <Plus className="h-3.5 w-3.5" /> Nova fase
+          </button>
+        )}
       </div>
     );
   }
