@@ -367,11 +367,13 @@ function ResumoPage() {
             title={t("hr:landing.departments.backoffice")}
             rows={backoffice}
             totalLabel={t("hr:resumo.rhTable.totals.backoffice")}
+            avgBenefitsByCollab={avgBenefitsByCollab}
           />
           <RhTable
             title={t("hr:landing.departments.project")}
             rows={projecto}
             totalLabel={t("hr:resumo.rhTable.totals.production")}
+            avgBenefitsByCollab={avgBenefitsByCollab}
           />
 
           <CapacityOverviewTable
