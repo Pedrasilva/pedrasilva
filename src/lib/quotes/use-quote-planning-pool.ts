@@ -27,13 +27,13 @@ function useEligibleCollaboratorIds() {
   return useQuery({
     queryKey: ["planning-eligible-collaborators"],
     queryFn: async (): Promise<Set<string>> => {
-      const { data, error } = await supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = supabase as any;
+      const { data, error } = await db
         .from("collaborators")
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .select("id, include_in_planning, archived_at" as any)
+        .select("id, include_in_planning, archived_at")
         .is("archived_at", null)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .eq("include_in_planning" as any, true);
+        .eq("include_in_planning", true);
       if (error) throw error;
       return new Set(((data ?? []) as { id: string }[]).map((r) => r.id));
     },
