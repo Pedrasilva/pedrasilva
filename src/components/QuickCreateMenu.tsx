@@ -107,6 +107,12 @@ export function QuickCreateMenu() {
           <DropdownMenuLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             {t("projects:quickCreate.groups.crm")}
           </DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setSheet("sale")} className="gap-2">
+            <Target className="h-4 w-4 text-muted-foreground" /> {t("projects:quickCreate.sale.menuLabel")}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheet("quote")} className="gap-2">
+            <FileText className="h-4 w-4 text-muted-foreground" /> {t("projects:quickCreate.quote.menuLabel")}
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSheet("company")} className="gap-2">
             <Building2 className="h-4 w-4 text-muted-foreground" /> {t("glossary:entity.company")}
           </DropdownMenuItem>
