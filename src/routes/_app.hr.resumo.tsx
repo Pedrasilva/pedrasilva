@@ -86,6 +86,34 @@ function ResumoPage() {
     },
   });
 
+  const { data: benefitExpenses12m = [] } = useQuery({
+    queryKey: ["all-benefit-expenses-12m"],
+    queryFn: async () => {
+      const from = new Date();
+      from.setMonth(from.getMonth() - 12);
+      const { data, error } = await supabase
+        .from("benefit_expenses")
+        .select("*")
+        .gte("data_despesa", from.toISOString().slice(0, 10));
+      if (error) throw error;
+      return (data ?? []) as BenefitExpense[];
+    },
+  });
+
+  const avgBenefitsByCollab = useMemo(() => {
+    const byCollab = new Map<string, BenefitExpense[]>();
+    for (const e of benefitExpenses12m) {
+      const arr = byCollab.get(e.collaborator_id) ?? [];
+      arr.push(e);
+      byCollab.set(e.collaborator_id, arr);
+    }
+    const out = new Map<string, number>();
+    for (const [cid, arr] of byCollab) {
+      out.set(cid, computeAverageBenefits(arr));
+    }
+    return out;
+  }, [benefitExpenses12m]);
+
   const { data: boSettings } = useQuery({
     queryKey: ["bo-settings"],
     queryFn: async () => {
