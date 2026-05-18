@@ -145,6 +145,8 @@ export function QuickCreateMenu() {
       <RequestDialog open={sheet === "request"} onClose={() => setSheet(null)} />
       <QuickExpenseDialog open={sheet === "projectExpense"} onClose={() => setSheet(null)} />
       <QuickMaterialDialog open={sheet === "material"} onClose={() => setSheet(null)} />
+      <QuickSaleDialog open={sheet === "sale"} onClose={() => setSheet(null)} />
+      <QuickQuoteDialog open={sheet === "quote"} onClose={() => setSheet(null)} />
     </>
   );
 }
