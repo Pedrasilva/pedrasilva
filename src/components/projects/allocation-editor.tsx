@@ -101,7 +101,7 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
     start_date: start,
     end_date: end,
     hours_per_day: effectiveHours,
-    hourly_rate: Number(allocation.resource.hourly_rate),
+    hourly_rate: effectiveSale,
   });
 
   function applyPct(nextPct: number) {
