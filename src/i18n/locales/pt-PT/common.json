@@ -311,5 +311,77 @@
       "confirmActionCascade": "Apagar projeto e todos os registos ligados",
       "success": "Projeto apagado."
     }
+  },
+  "shell": {
+    "rail": {
+      "crm": "CRM / Vendas",
+      "projects": "Projetos",
+      "hr": "Equipa / RH",
+      "time": "Tempo / Trabalho",
+      "finance": "Finanças",
+      "insights": "Análises",
+      "settings": "Definições"
+    },
+    "section": {
+      "sharedLists": "Listas partilhadas",
+      "shortcuts": "Atalhos",
+      "reports": "Relatórios",
+      "recentlyViewed": "Vistos recentemente"
+    },
+    "utility": {
+      "help": "Ajuda",
+      "feedback": "Sugestões"
+    },
+    "link": {
+      "crm.companies": "Empresas",
+      "crm.contacts": "Contactos",
+      "crm.opportunities": "Oportunidades",
+      "crm.pipeline": "Pipeline",
+      "crm.accounts": "Contas",
+      "projects.all": "Todos os projetos",
+      "projects.myTasks": "As minhas tarefas",
+      "projects.team": "Equipa",
+      "projects.gantt": "Calendário (Gantt)",
+      "projects.timesheet": "Folha de horas",
+      "projects.financials": "Financeiro",
+      "projects.forecast": "Previsão",
+      "projects.insights": "Análises",
+      "hr.mySheet": "A minha ficha",
+      "hr.vacation": "Férias",
+      "hr.benefits": "Benefícios",
+      "hr.collaborators": "Colaboradores",
+      "hr.summary": "Resumo",
+      "time.timesheet": "A minha folha de horas",
+      "time.myTasks": "As minhas tarefas",
+      "finance.documents": "Documentos",
+      "finance.invoices": "Faturas",
+      "finance.suppliers": "Fornecedores",
+      "finance.banking": "Bancos",
+      "finance.cashflow": "Tesouraria",
+      "finance.forecast": "Previsão",
+      "finance.vat": "IVA",
+      "finance.projects": "Financeiro de projetos",
+      "insights.projects": "Análises de projetos",
+      "insights.forecast": "Previsão de projetos",
+      "insights.financials": "Financeiro de projetos",
+      "insights.cashflow": "Tesouraria",
+      "settings.general": "Geral",
+      "settings.company": "Definições da empresa",
+      "settings.hr": "Configuração RH",
+      "settings.imports": "Importações",
+      "settings.projectsAdmin": "Administração de projetos",
+      "settings.boValue": "Valor BO/hora",
+      "settings.workingDays": "Dias úteis",
+      "settings.mealAllowance": "Subsídio de alimentação"
+    },
+    "top": {
+      "create": "Criar",
+      "time": "Tempo",
+      "tasks": "Tarefas",
+      "schedule": "Agenda",
+      "inbox": "Caixa",
+      "account": "Conta"
+    }
   }
 }
+
