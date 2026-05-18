@@ -68,7 +68,7 @@ function ResourceDetailPage() {
       team: ((member.team as ResourceTeam) ?? "project"),
       email: member.email ?? "",
       phone: member.phone ?? "",
-      // Se não tem rate definido, pré-preenche com o default do HR @ 50%
+      // Se não tem rate definido, pré-preenche com o default do HR @ 75%
       hourly_rate: stored > 0 ? stored : Number(defaultRate ?? 0),
       weekly_capacity: Number(member.weekly_capacity ?? 40),
       color: member.color ?? PALETTE[0],
