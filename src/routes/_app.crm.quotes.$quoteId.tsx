@@ -821,7 +821,13 @@ function QuoteDetail() {
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      <SaveAsTemplateDialog
+        open={saveTemplateOpen}
+        onClose={() => setSaveTemplateOpen(false)}
+        quoteId={quoteId}
+        defaultName={quote.titulo}
+        defaultCategory={category}
+      />
     </div>
   );
 }
