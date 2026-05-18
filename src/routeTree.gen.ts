@@ -38,6 +38,7 @@ import { Route as AppHrDiasUteisRouteImport } from './routes/_app.hr.dias-uteis'
 import { Route as AppHrColaboradoresRouteImport } from './routes/_app.hr.colaboradores'
 import { Route as AppHrBeneficiosRouteImport } from './routes/_app.hr.beneficios'
 import { Route as AppHrAdminRouteImport } from './routes/_app.hr.admin'
+import { Route as AppCrmQuoteTemplatesRouteImport } from './routes/_app.crm.quote-templates'
 import { Route as AppCrmPipelineRouteImport } from './routes/_app.crm.pipeline'
 import { Route as AppCrmOpportunitiesRouteImport } from './routes/_app.crm.opportunities'
 import { Route as AppCrmContactsRouteImport } from './routes/_app.crm.contacts'
@@ -225,6 +226,11 @@ const AppHrAdminRoute = AppHrAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AppHrRoute,
+} as any)
+const AppCrmQuoteTemplatesRoute = AppCrmQuoteTemplatesRouteImport.update({
+  id: '/quote-templates',
+  path: '/quote-templates',
+  getParentRoute: () => AppCrmRoute,
 } as any)
 const AppCrmPipelineRoute = AppCrmPipelineRouteImport.update({
   id: '/pipeline',
@@ -475,6 +481,7 @@ export interface FileRoutesByFullPath {
   '/crm/contacts': typeof AppCrmContactsRoute
   '/crm/opportunities': typeof AppCrmOpportunitiesRouteWithChildren
   '/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
+  '/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
   '/hr/colaboradores': typeof AppHrColaboradoresRoute
@@ -544,6 +551,7 @@ export interface FileRoutesByTo {
   '/crm/contacts': typeof AppCrmContactsRoute
   '/crm/opportunities': typeof AppCrmOpportunitiesRouteWithChildren
   '/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
+  '/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
   '/hr/colaboradores': typeof AppHrColaboradoresRoute
@@ -618,6 +626,7 @@ export interface FileRoutesById {
   '/_app/crm/contacts': typeof AppCrmContactsRoute
   '/_app/crm/opportunities': typeof AppCrmOpportunitiesRouteWithChildren
   '/_app/crm/pipeline': typeof AppCrmPipelineRouteWithChildren
+  '/_app/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
   '/_app/hr/admin': typeof AppHrAdminRoute
   '/_app/hr/beneficios': typeof AppHrBeneficiosRoute
   '/_app/hr/colaboradores': typeof AppHrColaboradoresRoute
@@ -692,6 +701,7 @@ export interface FileRouteTypes {
     | '/crm/contacts'
     | '/crm/opportunities'
     | '/crm/pipeline'
+    | '/crm/quote-templates'
     | '/hr/admin'
     | '/hr/beneficios'
     | '/hr/colaboradores'
@@ -761,6 +771,7 @@ export interface FileRouteTypes {
     | '/crm/contacts'
     | '/crm/opportunities'
     | '/crm/pipeline'
+    | '/crm/quote-templates'
     | '/hr/admin'
     | '/hr/beneficios'
     | '/hr/colaboradores'
@@ -834,6 +845,7 @@ export interface FileRouteTypes {
     | '/_app/crm/contacts'
     | '/_app/crm/opportunities'
     | '/_app/crm/pipeline'
+    | '/_app/crm/quote-templates'
     | '/_app/hr/admin'
     | '/_app/hr/beneficios'
     | '/_app/hr/colaboradores'
@@ -1102,6 +1114,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/hr/admin'
       preLoaderRoute: typeof AppHrAdminRouteImport
       parentRoute: typeof AppHrRoute
+    }
+    '/_app/crm/quote-templates': {
+      id: '/_app/crm/quote-templates'
+      path: '/quote-templates'
+      fullPath: '/crm/quote-templates'
+      preLoaderRoute: typeof AppCrmQuoteTemplatesRouteImport
+      parentRoute: typeof AppCrmRoute
     }
     '/_app/crm/pipeline': {
       id: '/_app/crm/pipeline'
@@ -1453,6 +1472,7 @@ interface AppCrmRouteChildren {
   AppCrmContactsRoute: typeof AppCrmContactsRoute
   AppCrmOpportunitiesRoute: typeof AppCrmOpportunitiesRouteWithChildren
   AppCrmPipelineRoute: typeof AppCrmPipelineRouteWithChildren
+  AppCrmQuoteTemplatesRoute: typeof AppCrmQuoteTemplatesRoute
   AppCrmIndexRoute: typeof AppCrmIndexRoute
   AppCrmQuotesQuoteIdRoute: typeof AppCrmQuotesQuoteIdRoute
 }
@@ -1463,6 +1483,7 @@ const AppCrmRouteChildren: AppCrmRouteChildren = {
   AppCrmContactsRoute: AppCrmContactsRoute,
   AppCrmOpportunitiesRoute: AppCrmOpportunitiesRouteWithChildren,
   AppCrmPipelineRoute: AppCrmPipelineRouteWithChildren,
+  AppCrmQuoteTemplatesRoute: AppCrmQuoteTemplatesRoute,
   AppCrmIndexRoute: AppCrmIndexRoute,
   AppCrmQuotesQuoteIdRoute: AppCrmQuotesQuoteIdRoute,
 }
