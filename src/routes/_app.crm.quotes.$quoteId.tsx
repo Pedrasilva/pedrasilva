@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { useRecordRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -80,6 +81,14 @@ function QuoteDetail() {
       return data as FullQuote;
     },
   });
+
+  useRecordRecentlyViewed({
+    module: "crm",
+    href: `/crm/quotes/${quoteId}`,
+    label: quote?.titulo ?? "",
+  });
+
+
 
   const { data: accounts = [] } = useQuery({
     queryKey: ["crm_accounts_by_company", quote?.company_id],

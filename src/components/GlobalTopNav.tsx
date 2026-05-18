@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,6 +53,7 @@ export function GlobalTopNav() {
   const [sheet, setSheet] = useState<Sheet>(null);
   const { isAdmin } = useAuth();
   const { permissions } = useMyPermissions();
+  const loc = useLocation();
   const can = (k: PermissionKey) => isAdmin || permissions.has(k);
 
   const canTime = can("projects.timesheet");
@@ -62,6 +64,20 @@ export function GlobalTopNav() {
   const canCreateProjectExpense = can("projects.financials");
   const canCreate =
     canCreateTask || canCreateProject || canCreateProjectExpense;
+
+  // Active states reflect where the user currently is — keeps the hub
+  // glanceable even when its menu is closed.
+  const timeActive = loc.pathname.startsWith("/projects/timesheet");
+  const tasksActive = loc.pathname.startsWith("/projects/my-tasks");
+  const scheduleActive =
+    loc.pathname.startsWith("/projects/resources") ||
+    loc.pathname.startsWith("/projects/gantt");
+
+  const hubClass = (active: boolean) =>
+    cn(
+      "h-9 gap-1.5 px-2.5",
+      active && "bg-accent text-primary hover:bg-accent",
+    );
 
   if (!canTime && !canTasks && !canSchedule && !canCreate) {
     return null;
@@ -76,8 +92,9 @@ export function GlobalTopNav() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-9 gap-1.5 px-2.5"
+            className={hubClass(timeActive)}
             aria-label={t("topNav.time")}
+            aria-current={timeActive ? "page" : undefined}
           >
             <Clock className="h-4 w-4" />
             <span className="hidden lg:inline">{t("topNav.time")}</span>
@@ -111,8 +128,9 @@ export function GlobalTopNav() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-9 gap-1.5 px-2.5"
+            className={hubClass(tasksActive)}
             aria-label={t("topNav.tasks")}
+            aria-current={tasksActive ? "page" : undefined}
           >
             <CheckSquare className="h-4 w-4" />
             <span className="hidden lg:inline">{t("topNav.tasks")}</span>
@@ -151,8 +169,9 @@ export function GlobalTopNav() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-9 gap-1.5 px-2.5"
+            className={hubClass(scheduleActive)}
             aria-label={t("topNav.schedule")}
+            aria-current={scheduleActive ? "page" : undefined}
           >
             <CalendarDays className="h-4 w-4" />
             <span className="hidden lg:inline">{t("topNav.schedule")}</span>

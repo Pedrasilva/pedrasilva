@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { format, parseISO } from "date-fns";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import { supabase } from "@/integrations/supabase/client";
+import { useRecordRecentlyViewed } from "@/hooks/use-recently-viewed";
 import {
   type Collaborator,
   type Snapshot,
@@ -126,6 +127,12 @@ function CollaboratorPage() {
       if (error) throw error;
       return data as Collaborator;
     },
+  });
+
+  useRecordRecentlyViewed({
+    module: "hr",
+    href: `/hr/colaborador/${id}`,
+    label: collab?.nome ?? "",
   });
 
   const { data: snapshots = [] } = useQuery({

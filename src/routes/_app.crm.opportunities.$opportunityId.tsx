@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { useRecordRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,14 @@ function OpportunityDetail() {
       };
     },
   });
+
+  useRecordRecentlyViewed({
+    module: "crm",
+    href: `/crm/opportunities/${opportunityId}`,
+    label: opp?.name ?? "",
+  });
+
+
 
   const { data: contacts = [] } = useQuery({
     queryKey: ["contacts-by-company", opp?.company_id],

@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Trash2, Upload, FileText, X } from "lucide-react";
+import { useRecordRecentlyViewed } from "@/hooks/use-recently-viewed";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -152,6 +153,16 @@ function DocumentEditorPage() {
   const [lines, setLines] = useState<LineDraft[]>([emptyLine(0)]);
   const [createSupplierOpen, setCreateSupplierOpen] = useState(false);
   const [createClientOpen, setCreateClientOpen] = useState(false);
+
+  useRecordRecentlyViewed({
+    module: "finance",
+    href: `/finance/documents/${documentId}`,
+    label: isNew
+      ? ""
+      : docQ.data?.document
+        ? `${docQ.data.document.document_number ?? docQ.data.document.external_reference ?? "Documento"}${docQ.data.document.counterparty_name_snapshot ? " · " + docQ.data.document.counterparty_name_snapshot : ""}`
+        : "",
+  });
 
   // Hydrate from server
   useEffect(() => {
