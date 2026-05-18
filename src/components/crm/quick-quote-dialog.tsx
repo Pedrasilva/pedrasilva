@@ -16,6 +16,8 @@ import {
   defaultQuoteTypeForCategory,
   type QuoteCategory,
 } from "@/lib/crm/types";
+import { QuoteTemplatePicker } from "@/components/quotes/quote-template-picker";
+import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";
 
 type OppOption = {
   id: string;
@@ -47,6 +49,8 @@ export function QuickQuoteDialog({
 
   const [opportunityId, setOpportunityId] = useState<string>("");
   const [category, setCategory] = useState<QuoteCategory>("project");
+  const [templateId, setTemplateId] = useState<string | null>(null);
+  const instantiate = useInstantiateQuoteTemplate();
 
   const { data: opps = [], isLoading } = useQuery({
     queryKey: ["crm_opportunities_for_quick_quote"],
@@ -90,12 +94,20 @@ export function QuickQuoteDialog({
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      if (templateId) {
+        try {
+          await instantiate.mutateAsync({ quoteId: data.id, templateId });
+        } catch (e) {
+          toast.error((e as Error).message);
+        }
+      }
       toast.success(t("crm:quotes.newQuoteDialog.createdToast"));
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp", selected?.id] });
       setOpportunityId("");
       setCategory("project");
+      setTemplateId(null);
       onClose();
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: data.id } });
     },
@@ -142,7 +154,7 @@ export function QuickQuoteDialog({
 
           <div>
             <Label>{t("crm:quotes.newQuoteDialog.title")}</Label>
-            <Select value={category} onValueChange={(v) => setCategory(v as QuoteCategory)}>
+            <Select value={category} onValueChange={(v) => { setCategory(v as QuoteCategory); setTemplateId(null); }}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="project">
@@ -156,6 +168,13 @@ export function QuickQuoteDialog({
                 </SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div>
+            <Label>{t("crm:templates.picker.label")}</Label>
+            <div className="mt-1 max-h-64 overflow-y-auto">
+              <QuoteTemplatePicker category={category} value={templateId} onChange={setTemplateId} />
+            </div>
           </div>
         </div>
         <DialogFooter>
