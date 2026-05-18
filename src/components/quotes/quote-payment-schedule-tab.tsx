@@ -401,18 +401,23 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                       </Button>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span>{it.label}</span>
-                      {it.manual_override ? (
-                        <Badge variant="secondary" className="text-[10px] px-1 py-0">
-                          {t("workspace.payment.manualBadge")}
-                        </Badge>
-                      ) : it.generator_source ? (
-                        <Badge variant="outline" className="text-[10px] px-1 py-0">
-                          {it.generator_source}
-                        </Badge>
-                      ) : null}
+                  <TableCell className="align-top">
+                    <div className="flex flex-col gap-1">
+                      <InlineLabelEditor
+                        value={it.label}
+                        onSave={(next) => upsert.mutate({ id: it.id, label: next })}
+                      />
+                      <div className="flex items-center gap-2">
+                        {it.manual_override ? (
+                          <Badge variant="secondary" className="text-[10px] px-1 py-0">
+                            {t("workspace.payment.manualBadge")}
+                          </Badge>
+                        ) : it.generator_source ? (
+                          <Badge variant="outline" className="text-[10px] px-1 py-0">
+                            {it.generator_source}
+                          </Badge>
+                        ) : null}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
