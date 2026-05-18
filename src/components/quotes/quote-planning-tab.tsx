@@ -36,6 +36,7 @@ import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-servic
 import {
   useDefaultResourceRates, effectiveRates,
 } from "@/lib/projects/use-default-rates";
+import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
 import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
