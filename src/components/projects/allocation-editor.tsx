@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { AllocationWithResource } from "@/lib/projects/types";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { Trash2, Lock, FileQuestion } from "lucide-react";
 import { toast } from "sonner";
 import { allocationCost, allocationHours, euros, workingDays } from "@/lib/projects/gantt-utils";
 import { useResourceSchedules } from "@/lib/projects/use-resource-schedules";
+import { useDefaultResourceRates, effectiveSaleRate } from "@/lib/projects/use-default-rates";
 
 type AllocationStatus = "tentative" | "committed";
 
