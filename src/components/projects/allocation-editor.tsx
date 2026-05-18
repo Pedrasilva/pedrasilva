@@ -173,9 +173,45 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
           <div className="flex items-center gap-2 border-b border-border pb-2">
             <div className="h-3 w-3 rounded-full" style={{ backgroundColor: allocation.resource.color }} />
             <p className="font-display text-base font-semibold">{allocation.resource.name}</p>
-            <span className="ml-auto text-xs text-muted-foreground">
-              {euros(Number(allocation.resource.hourly_rate))}/h
-            </span>
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="ml-auto inline-flex cursor-help flex-col items-end leading-tight">
+                    <span className="text-xs text-muted-foreground">{euros(effectiveSale)}/h</span>
+                    <span
+                      className={`text-[10px] uppercase tracking-wider ${
+                        showsOverride ? "text-amber-600" : "text-muted-foreground"
+                      }`}
+                    >
+                      {showsOverride ? "Project override" : "HR default · 75%"}
+                    </span>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs text-left">
+                  {showsOverride ? (
+                    <div className="space-y-1">
+                      <p className="font-medium">Project override</p>
+                      <p className="text-[11px] opacity-90">
+                        Manual sale rate set on this project resource. It overrides the HR
+                        75% default.
+                      </p>
+                      {hrDefaultSale > 0 && (
+                        <p className="text-[11px] opacity-75">
+                          HR default would be {euros(hrDefaultSale)} (75% band).
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <p className="font-medium">HR default · 75%</p>
+                      <p className="text-[11px] opacity-90">
+                        Derived from the HR pricing table using the 75% sale-rate band.
+                      </p>
+                    </div>
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {/* Status toggle: tentative ↔ committed (project-mode only) */}
