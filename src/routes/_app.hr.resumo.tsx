@@ -639,6 +639,11 @@ function rhValue(
       return c?.ajudasMensal ?? null;
     case "liquido":
       return c?.liquidoTotalMensal ?? null;
+    case "monthlyLiquidity": {
+      if (!c) return null;
+      const avg = avgBenefitsByCollab?.get(r.collab.id) ?? 0;
+      return c.liquidoTotalMensal + c.passeMensal + avg;
+    }
     case "beneficios":
       return c?.beneficiosAnual ?? null;
     case "vbg":
