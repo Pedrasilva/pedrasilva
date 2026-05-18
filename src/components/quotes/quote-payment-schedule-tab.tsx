@@ -471,10 +471,11 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         <CardContent className="grid gap-3 md:grid-cols-3">
           <div className="md:col-span-3">
             <Label>{t("workspace.payment.label")}</Label>
-            <Input
+            <AutoTextarea
               value={draft.label}
-              onChange={(e) => setDraft((p) => ({ ...p, label: e.target.value }))}
+              onChange={(v) => setDraft((p) => ({ ...p, label: v }))}
               placeholder={t("workspace.payment.labelPlaceholder")}
+              minHeight={80}
             />
           </div>
           <div>
