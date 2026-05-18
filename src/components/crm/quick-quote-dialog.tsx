@@ -150,7 +150,13 @@ export function QuickQuoteDialog({
                 {t("projects:quickCreate.quote.noEligibleHint")}
               </p>
             )}
+          <div>
+            <Label>{t("crm:templates.picker.label")}</Label>
+            <div className="mt-1 max-h-64 overflow-y-auto">
+              <QuoteTemplatePicker category={category} value={templateId} onChange={setTemplateId} />
+            </div>
           </div>
+        </div>
 
           <div>
             <Label>{t("crm:quotes.newQuoteDialog.title")}</Label>
