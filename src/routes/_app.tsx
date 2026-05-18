@@ -176,13 +176,21 @@ function AppLayout() {
                         <Link
                           key={it.id}
                           to={it.to as never}
+                          aria-current={active ? "page" : undefined}
                           className={cn(
-                            "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                            "relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                             active
-                              ? "bg-primary text-primary-foreground"
-                              : "text-foreground hover:bg-accent",
+                              ? "bg-accent text-primary"
+                              : "text-foreground hover:bg-accent/60",
                           )}
                         >
+                          {active && (
+                            <span
+                              aria-hidden="true"
+                              className="absolute left-0 top-2 bottom-2 w-0.5 rounded-r bg-primary"
+                            />
+                          )}
                           <Icon className="h-4 w-4" />
                           {t(`shell.rail.${it.labelKey}`)}
                         </Link>
