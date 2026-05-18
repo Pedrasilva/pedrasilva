@@ -128,8 +128,9 @@ export function GlobalTopNav() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-9 gap-1.5 px-2.5"
+            className={hubClass(tasksActive)}
             aria-label={t("topNav.tasks")}
+            aria-current={tasksActive ? "page" : undefined}
           >
             <CheckSquare className="h-4 w-4" />
             <span className="hidden lg:inline">{t("topNav.tasks")}</span>
