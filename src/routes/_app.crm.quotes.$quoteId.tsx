@@ -572,7 +572,8 @@ function QuoteDetail() {
       )}
 
       <Tabs
-        defaultValue="overview"
+        value={activeTab}
+        onValueChange={setActiveTab}
         className={cn("w-full", step === "publish" && "hidden")}
       >
         <TabsList className="no-print">
