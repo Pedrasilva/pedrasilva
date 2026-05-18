@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Rocket, Trash2, ExternalLink } from "lucide-react";
+import { ArrowLeft, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { QuoteWorkflowActions } from "@/components/quotes/quote-workflow-actions";
 import {
