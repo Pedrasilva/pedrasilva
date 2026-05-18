@@ -90,16 +90,18 @@ export function useDefaultResourceRates() {
         // 0.5 FTE absorbs half the overhead pool.
         const collabHorasDia = effectiveDailyHours(a.collab.daily_hours, horasDia);
         const fte = computeCollaboratorFte(a.collab.daily_hours, a.collab.days_per_week, horasDia);
-        const p = computePricing({
+        const baseArgs = {
           vbgColaborador: a.vbg,
           cotaBoAnual: cotaBoPerFte * fte,
           diasUteis,
           horasDia: collabHorasDia,
-          margemLucroPct: 0.5,
-        });
+        };
+        const p75 = computePricing({ ...baseArgs, margemLucroPct: PROJECT_DEFAULT_MARGIN });
+        const p100 = computePricing({ ...baseArgs, margemLucroPct: 1.0 });
         byCollabRate.set(a.collab.id, {
-          sale: Math.round(p.vendaHora * 100) / 100,
-          cost: Math.round(p.custoHoraDesperdicio * 100) / 100,
+          sale: Math.round(p75.vendaHora * 100) / 100,
+          sale100: Math.round(p100.vendaHora * 100) / 100,
+          cost: Math.round(p75.custoHoraDesperdicio * 100) / 100,
         });
       }
 
