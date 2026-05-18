@@ -52,6 +52,14 @@ function OpportunityDetail() {
     },
   });
 
+  useRecordRecentlyViewed({
+    module: "crm",
+    href: `/crm/opportunities/${opportunityId}`,
+    label: opp?.name ?? "",
+  });
+
+
+
   const { data: contacts = [] } = useQuery({
     queryKey: ["contacts-by-company", opp?.company_id],
     queryFn: async () => {
