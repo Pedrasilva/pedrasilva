@@ -338,22 +338,37 @@ export function ProjectDialog({ open, onClose }: { open: boolean; onClose: () =>
         responsavel_id: form.responsavel_id || null,
         orcamento: form.orcamento ? Number(form.orcamento) : null,
       });
-      const payload = {
-        nome: parsed.nome,
-        codigo: parsed.codigo || null,
-        company_id: parsed.company_id ?? null,
-        responsavel_id: parsed.responsavel_id ?? null,
-        data_inicio: parsed.data_inicio || null,
-        data_fim: parsed.data_fim || null,
-        status: parsed.status,
-        orcamento: parsed.orcamento ?? null,
-        notas: parsed.notas || null,
+      // Map legacy quick-create form to pm_projects (the canonical Projects
+      // module table). Fields without a direct equivalent (responsavel_id,
+      // data_fim, orcamento, codigo) are folded into notes so they aren't lost.
+      const statusMap: Record<typeof parsed.status, "active" | "paused" | "archived"> = {
+        proposta: "active",
+        em_curso: "active",
+        pausado: "paused",
+        concluido: "archived",
+        cancelado: "archived",
       };
-      const { error } = await supabase.from("projects").insert(payload);
+      const extraNotes = [
+        parsed.codigo ? `Code: ${parsed.codigo}` : null,
+        parsed.data_fim ? `End date: ${parsed.data_fim}` : null,
+        parsed.orcamento != null ? `Budget: ${parsed.orcamento}` : null,
+        parsed.responsavel_id ? `Owner: ${parsed.responsavel_id}` : null,
+        parsed.notas || null,
+      ].filter(Boolean).join("\n");
+      const payload = {
+        name: parsed.nome,
+        company_id: parsed.company_id ?? null,
+        start_date: parsed.data_inicio || new Date().toISOString().slice(0, 10),
+        status: statusMap[parsed.status],
+        external_id: parsed.codigo || null,
+        notes: extraNotes || null,
+      };
+      const { error } = await supabase.from("pm_projects").insert(payload);
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(t("projects:quickCreate.toasts.projectCreated"));
+      qc.invalidateQueries({ queryKey: ["pm-projects"] });
       qc.invalidateQueries({ queryKey: ["projects"] });
       reset();
       onClose();
