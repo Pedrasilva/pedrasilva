@@ -311,5 +311,77 @@
       "confirmActionCascade": "Delete project and all linked records",
       "success": "Project deleted."
     }
+  },
+  "shell": {
+    "rail": {
+      "crm": "CRM / Sales",
+      "projects": "Projects",
+      "hr": "Team / HR",
+      "time": "Time / Work",
+      "finance": "Finance",
+      "insights": "Insights",
+      "settings": "Settings"
+    },
+    "section": {
+      "sharedLists": "Shared lists",
+      "shortcuts": "Shortcuts",
+      "reports": "Reports",
+      "recentlyViewed": "Recently viewed"
+    },
+    "utility": {
+      "help": "Help",
+      "feedback": "Feedback"
+    },
+    "link": {
+      "crm.companies": "Companies",
+      "crm.contacts": "Contacts",
+      "crm.opportunities": "Opportunities",
+      "crm.pipeline": "Pipeline",
+      "crm.accounts": "Accounts",
+      "projects.all": "All projects",
+      "projects.myTasks": "My tasks",
+      "projects.team": "Team",
+      "projects.gantt": "Schedule (Gantt)",
+      "projects.timesheet": "Timesheet",
+      "projects.financials": "Financials",
+      "projects.forecast": "Forecast",
+      "projects.insights": "Insights",
+      "hr.mySheet": "My sheet",
+      "hr.vacation": "Vacation",
+      "hr.benefits": "Benefits",
+      "hr.collaborators": "Collaborators",
+      "hr.summary": "Summary",
+      "time.timesheet": "My timesheet",
+      "time.myTasks": "My tasks",
+      "finance.documents": "Documents",
+      "finance.invoices": "Invoices",
+      "finance.suppliers": "Suppliers",
+      "finance.banking": "Banking",
+      "finance.cashflow": "Cash flow",
+      "finance.forecast": "Forecast",
+      "finance.vat": "VAT",
+      "finance.projects": "Project financials",
+      "insights.projects": "Project insights",
+      "insights.forecast": "Project forecast",
+      "insights.financials": "Project financials",
+      "insights.cashflow": "Cash flow",
+      "settings.general": "General",
+      "settings.company": "Company settings",
+      "settings.hr": "HR configuration",
+      "settings.imports": "Imports",
+      "settings.projectsAdmin": "Projects admin",
+      "settings.boValue": "BO value / hour",
+      "settings.workingDays": "Working days",
+      "settings.mealAllowance": "Meal allowance"
+    },
+    "top": {
+      "create": "Create",
+      "time": "Time",
+      "tasks": "Tasks",
+      "schedule": "Schedule",
+      "inbox": "Inbox",
+      "account": "Account"
+    }
   }
 }
+
