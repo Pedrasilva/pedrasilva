@@ -293,6 +293,8 @@ function SnapshotReadOnly({
         </CardContent>
       </Card>
 
+      <MonthlyLiquidityCard snapshot={snapshot} expenses={benefitExpenses} />
+
       <ValueChainSummary c={c} />
 
       <Tabs defaultValue="liquido">
