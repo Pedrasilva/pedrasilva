@@ -376,7 +376,7 @@ function QuoteCategoryChooserDialog({
   );
 }
 
-function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function NewOpportunityDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation("crm");
   const qc = useQueryClient();
 
