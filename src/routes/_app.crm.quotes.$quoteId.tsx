@@ -426,6 +426,7 @@ function QuoteDetail() {
   const stagesQ = useQuoteStages(quoteId);
   const allocsQ = useQuoteAllocations(quoteId);
   const externalQ = useQuoteExternalServices(quoteId);
+  const paymentQ = useQuotePaymentSchedule(quoteId);
   const preConvertWarnings = useMemo(() => {
     const stages = stagesQ.data ?? [];
     const allocations = allocsQ.data ?? [];
@@ -443,6 +444,11 @@ function QuoteDetail() {
       summary,
     });
   }, [stagesQ.data, allocsQ.data, externalQ.data, form.pricing_multiplier]);
+
+  // Linear workflow state — orchestration only. All underlying tabs and
+  // components below are preserved unchanged; the stepper just filters
+  // which secondary tabs are surfaced per step.
+  const [step, setStep] = useState<QuoteStep>("estimate");
 
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   if (!quote) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
