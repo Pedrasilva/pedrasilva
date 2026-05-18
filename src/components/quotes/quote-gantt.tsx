@@ -47,20 +47,12 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   const stagesQ = useQuoteStages(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
 
-  // Full Resource rows (need cost_rate / sale_rate / collaborator_id / role
-  // for Gantt's tooltip + avatar rendering).
-  const { data: resources = [] } = useQuery({
-    queryKey: ["pm-resources-active-full"],
-    queryFn: async (): Promise<Resource[]> => {
-      const { data, error } = await supabase
-        .from("pm_resources")
-        .select("*")
-        .eq("active", true)
-        .order("name");
-      if (error) throw error;
-      return (data ?? []) as Resource[];
-    },
-  });
+  // allResources: full active roster (needed so historical allocations
+  // referencing archived/excluded users still render on the Gantt).
+  // poolResources: filtered selectable Team Pool (drag source).
+  // rateMissing: resources whose effective €/h could not be resolved.
+  const { allResources, poolResources, rateMissing } = useQuotePlanningPool();
+  const resources = allResources;
 
   const adapter = useQuotePlannerAdapter(quoteId, resources);
 
