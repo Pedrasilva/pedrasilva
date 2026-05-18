@@ -742,13 +742,15 @@ function QuoteDetail() {
           )}
         </TabsContent>
 
-        <TabsContent value="time-based" className="mt-4">
-          <QuoteTimeBasedSettingsTab
-            quoteId={quoteId}
-            quoteType={quote.quote_type}
-            quoteCategory={quote.quote_category}
-          />
-        </TabsContent>
+        {!isProject && (
+          <TabsContent value="time-based" className="mt-4">
+            <QuoteTimeBasedSettingsTab
+              quoteId={quoteId}
+              quoteType={quote.quote_type}
+              quoteCategory={quote.quote_category}
+            />
+          </TabsContent>
+        )}
         {isProject && (
           <>
             <TabsContent value="planning" className="mt-4">
