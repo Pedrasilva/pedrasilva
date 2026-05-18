@@ -1,0 +1,2 @@
+ALTER TABLE public.pm_allocations ADD COLUMN IF NOT EXISTS allocation_percentage numeric;
+COMMENT ON COLUMN public.pm_allocations.allocation_percentage IS 'Percentage of the collaborator''s HR-recoverable daily capacity allocated to this project. Hours per day is derived as recoverable_hours_per_day × allocation_percentage / 100.';
