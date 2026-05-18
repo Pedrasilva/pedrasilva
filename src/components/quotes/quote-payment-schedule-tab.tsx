@@ -390,7 +390,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
             </TableHeader>
             <TableBody>
               {items.map((it, i) => (
-                <TableRow key={it.id}>
+                <TableRow key={it.id} className="align-top">
                   <TableCell>
                     <div className="flex flex-col">
                       <Button variant="ghost" size="sm" className="h-5 p-0" onClick={() => move(i, -1)}>
