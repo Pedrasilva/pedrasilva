@@ -478,8 +478,13 @@ function QuoteDetail() {
   // Per-step visible secondary tabs. All TabsContent below remain mounted
   // in the DOM (Radix Tabs only renders the active one); we just hide the
   // triggers that are not part of the current step.
+  // Project quotes no longer expose the "Tempo" tab — proposal type is set
+  // at quote-creation time and cannot be switched from within a Standard
+  // Project workspace. The two time-based proposal types keep the tab as
+  // their primary fee configuration surface. Phase-level retainer billing
+  // is intentionally deferred and is NOT a proposal-type switch.
   const estimateTabs = isProject
-    ? ["overview", "time-based", "planning", "external", "payment", "financial"]
+    ? ["overview", "planning", "external", "payment", "financial"]
     : ["overview", "time-based", "financial"];
   const contentTabs = ["proposal"];
   const visibleTabs =
