@@ -853,6 +853,7 @@
         "mealAllowance": "Meal allowance",
         "perDiem": "Per diem allowances",
         "netMonthly": "Monthly net",
+        "monthlyLiquidity": "Total monthly liquidity",
         "benefitsAnnual": "Annual benefits",
         "tgv": "TGV"
       },
