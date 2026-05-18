@@ -661,10 +661,12 @@ function RhTable({
   title,
   rows,
   totalLabel,
+  avgBenefitsByCollab,
 }: {
   title: string;
   rows: Row[];
   totalLabel: string;
+  avgBenefitsByCollab?: Map<string, number>;
 }) {
   const { t, i18n } = useTranslation(["hr"]);
   const [sortKey, setSortKey] = useState<RhSortKey | null>(null);
@@ -680,8 +682,8 @@ function RhTable({
 
   const sortedRows = sortKey
     ? [...rows].sort((a, b) => {
-        const av = rhValue(a, sortKey);
-        const bv = rhValue(b, sortKey);
+        const av = rhValue(a, sortKey, avgBenefitsByCollab);
+        const bv = rhValue(b, sortKey, avgBenefitsByCollab);
         return compareValues(av, bv, sortDir, i18n.language);
       })
     : rows;
