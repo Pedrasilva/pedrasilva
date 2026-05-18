@@ -543,25 +543,55 @@ function QuoteDetail() {
         </div>
       </div>
 
-      <Tabs defaultValue="overview" className="w-full">
+      <QuoteWorkflowStepper
+        step={step}
+        onChange={setStep}
+        completion={completion}
+      />
+
+      {step === "publish" && (
+        <QuotePublishStep
+          quoteId={quoteId}
+          estimateReady={completion.estimate}
+          contentReady={completion.content}
+          paymentReady={paymentCount > 0}
+          hasProject={!!quote.pm_project_id}
+          projectId={quote.pm_project_id ?? null}
+        />
+      )}
+
+      <Tabs
+        defaultValue="overview"
+        className={cn("w-full", step === "publish" && "hidden")}
+      >
         <TabsList className="no-print">
-          <TabsTrigger value="overview">{t("workspace.tabs.overview")}</TabsTrigger>
+          {visibleTabs.includes("overview") && (
+            <TabsTrigger value="overview">{t("workspace.tabs.overview")}</TabsTrigger>
+          )}
           {/* Time-based tab is always shown — for project quotes the optional
               retainer/consultancy add-on figures live there, and for
               consultancy quotes it is the primary fee configuration tab. */}
-          <TabsTrigger value="time-based">{t("workspace.tabs.timeBased")}</TabsTrigger>
+          {visibleTabs.includes("time-based") && (
+            <TabsTrigger value="time-based">{t("workspace.tabs.timeBased")}</TabsTrigger>
+          )}
           {/* Planning (Gantt + stages), External services and Payment schedule
               are project-only — consultancy proposals do not have stages,
               dependencies or stage-driven payment milestones. */}
-          {isProject && (
-            <>
-              <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
-              <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
-              <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
-            </>
+          {isProject && visibleTabs.includes("planning") && (
+            <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
           )}
-          <TabsTrigger value="financial">{t("workspace.tabs.financial")}</TabsTrigger>
-          <TabsTrigger value="proposal">{t("workspace.tabs.proposal")}</TabsTrigger>
+          {isProject && visibleTabs.includes("external") && (
+            <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
+          )}
+          {isProject && visibleTabs.includes("payment") && (
+            <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
+          )}
+          {visibleTabs.includes("financial") && (
+            <TabsTrigger value="financial">{t("workspace.tabs.financial")}</TabsTrigger>
+          )}
+          {visibleTabs.includes("proposal") && (
+            <TabsTrigger value="proposal">{t("workspace.tabs.proposal")}</TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
