@@ -82,6 +82,14 @@ function QuoteDetail() {
     },
   });
 
+  useRecordRecentlyViewed({
+    module: "crm",
+    href: `/crm/quotes/${quoteId}`,
+    label: quote?.titulo ?? "",
+  });
+
+
+
   const { data: accounts = [] } = useQuery({
     queryKey: ["crm_accounts_by_company", quote?.company_id],
     queryFn: async () => {
