@@ -253,7 +253,23 @@ export function ResourcePool({ resources, collapsed = false, missingRateIds }: P
               </div>
               <div className="mt-2">
                 <div className="flex items-baseline justify-between text-[10px]">
-                  <span className="text-muted-foreground">{euros(Number(r.hourly_rate))}/h</span>
+                  {missingRateIds?.has(r.id) ? (
+                    <TooltipProvider delayDuration={120}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="inline-flex items-center gap-1 rounded-sm border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 font-medium text-amber-700 dark:text-amber-300">
+                            <AlertTriangle className="h-3 w-3" />
+                            Rate missing
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" className="text-xs">
+                          Configure collaborator costing in HR
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    <span className="text-muted-foreground">{euros(Number(r.hourly_rate))}/h</span>
+                  )}
                   <span
                     className={`font-mono ${over ? "text-destructive font-semibold" : "text-muted-foreground"}`}
                   >
