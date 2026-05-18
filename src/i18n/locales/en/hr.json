@@ -1,4 +1,19 @@
 {
+  "compensationLiquidity": {
+    "title": "Total monthly liquidity",
+    "tooltip": "Includes net salary, meal allowance, and average monthly benefits/reimbursements.",
+    "perMonth": "per month",
+    "netCompensationLabel": "Net salary compensation:",
+    "windowNote": "Benefits average computed over the last 12 months (approved, pending and paid expenses).",
+    "breakdown": {
+      "netSalary": "Net salary",
+      "mealAllowance": "Meal allowance",
+      "perDiem": "Per diem allowances",
+      "transitPass": "Transit pass",
+      "avgBenefits": "Average benefits (12m)",
+      "total": "Total monthly liquidity"
+    }
+  },
   "dashboard": {
     "title": "HR cockpit",
     "subtitle": "Operational overview of people, leave and benefits.",

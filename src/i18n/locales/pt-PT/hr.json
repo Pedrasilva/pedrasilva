@@ -1,4 +1,19 @@
 {
+  "compensationLiquidity": {
+    "title": "Liquidez mensal total",
+    "tooltip": "Inclui salário líquido, subsídio de alimentação e média mensal de benefícios/reembolsos.",
+    "perMonth": "por mês",
+    "netCompensationLabel": "Líquido salarial:",
+    "windowNote": "Média de benefícios calculada sobre os últimos 12 meses (despesas aprovadas, pendentes e pagas).",
+    "breakdown": {
+      "netSalary": "Salário líquido",
+      "mealAllowance": "Subsídio alimentação",
+      "perDiem": "Ajudas de custo",
+      "transitPass": "Passe",
+      "avgBenefits": "Benefícios médios (12m)",
+      "total": "Liquidez mensal total"
+    }
+  },
   "dashboard": {
     "title": "Cockpit de RH",
     "subtitle": "Visão operacional de pessoas, ausências e benefícios.",
