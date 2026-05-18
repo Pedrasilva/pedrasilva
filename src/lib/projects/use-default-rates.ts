@@ -1,12 +1,14 @@
-// Calcula os rates "por defeito" para os recursos de Projecto (pm_resources)
-// quando estes não têm hourly_rate definido (ou está a 0).
+// Default project rates derived from the HR pricing table.
 //
-// O default é o valor de venda @ 50% calculado no Resumo Comparativo do HR:
+// The HR Resumo Comparativo computes sale rates at multiple margin bands
+// (30%, 50%, 100%). For Project Team billing we standardise on the 75% band
+// as the default sale rate, and also expose the 100% band for reference.
+//
 //   1. cota BO/colaborador = (custos op. + VBG total backoffice) / nº colab. projecto
 //   2. custo/h = (VBG_próprio + cota_BO) / (dias_uteis × horas_dia)
-//   3. custo/h × 1.20 (desperdício) × 1.50 (margem 50%) = venda/h @ 50%
+//   3. venda/h @ X% = custo/h × (1 + X)
 //
-// Devolve um Map<resource_id, { sale, cost, hasComputed }>.
+// Returns Map<resource_id, { sale (75% band), sale100 (100% band), cost }>.
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,8 +16,11 @@ import { computeSnapshot, type Collaborator, type Snapshot } from "@/lib/salary"
 import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
 import { computeCollaboratorFte, effectiveDailyHours } from "@/lib/hr/fte";
 
+export const PROJECT_DEFAULT_MARGIN = 0.75;
+
 export type DefaultRateInfo = {
-  sale: number;
+  sale: number; // 75% band — project default
+  sale100: number; // 100% band — reference
   cost: number;
 };
 
