@@ -42,6 +42,7 @@ import {
   type QuoteStep,
 } from "@/components/quotes/quote-workflow-stepper";
 import { QuotePublishStep } from "@/components/quotes/quote-publish-step";
+import { SaveAsTemplateDialog } from "@/components/quotes/save-as-template-dialog";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
@@ -410,6 +411,7 @@ function QuoteDetail() {
   // side-effect of approving or any other status transition.
   const [convertOpen, setConvertOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
 
   const handleConvert = () => {
     if (!quote) return;
@@ -538,6 +540,9 @@ function QuoteDetail() {
               <ExternalLink className="h-3 w-3" /> {t("quotes.openProject")}
             </Link>
           )}
+          <Button variant="outline" size="sm" onClick={() => setSaveTemplateOpen(true)}>
+            {t("templates.actions.saveAs")}
+          </Button>
           <Button variant="outline" size="sm" onClick={() => setDeleteOpen(true)}>
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -817,6 +822,14 @@ function QuoteDetail() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <SaveAsTemplateDialog
+        open={saveTemplateOpen}
+        onClose={() => setSaveTemplateOpen(false)}
+        quoteId={quoteId}
+        defaultName={quote.titulo}
+        defaultCategory={category}
+      />
     </div>
   );
 }

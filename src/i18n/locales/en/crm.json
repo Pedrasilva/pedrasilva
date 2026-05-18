@@ -717,5 +717,54 @@
         "hint": "Original auto-rendered preview. Kept for comparison until the block editor is complete."
       }
     }
+  },
+  "templates": {
+    "picker": {
+      "label": "Start from template (optional)",
+      "blankTitle": "Blank quote",
+      "blankDescription": "Start with an empty quote and build it from scratch.",
+      "empty": "No templates available for this category yet.",
+      "stagesCount_one": "{{count}} stage",
+      "stagesCount_other": "{{count}} stages",
+      "paymentRulesCount_one": "{{count}} payment rule",
+      "paymentRulesCount_other": "{{count}} payment rules",
+      "blocksCount_one": "{{count}} content block",
+      "blocksCount_other": "{{count}} content blocks"
+    },
+    "saveAs": {
+      "title": "Save as template",
+      "description": "Snapshot this quote's stages, services, payment rules and proposal blocks into a reusable template. The current quote is not modified.",
+      "confirm": "Save template",
+      "preservationHint": "Allocations are not included — templates capture structure, not specific resources."
+    },
+    "fields": {
+      "name": "Template name",
+      "description": "Description",
+      "category": "Category",
+      "projectType": "Project type"
+    },
+    "category": {
+      "project": "Project",
+      "time_based": "Time-based",
+      "retainer": "Retainer"
+    },
+    "projectType": {
+      "office": "Office",
+      "hotel": "Hotel",
+      "residential": "Residential",
+      "mixed_use": "Mixed-use",
+      "due_diligence": "Due diligence",
+      "construction": "Construction",
+      "generic": "Generic"
+    },
+    "errors": {
+      "nameRequired": "Template name is required."
+    },
+    "toasts": {
+      "saved": "Template saved."
+    },
+    "actions": {
+      "saveAs": "Save as template"
+    }
   }
 }
