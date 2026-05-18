@@ -645,7 +645,7 @@ function rhValue(
       return c.liquidoTotalMensal + c.passeMensal + avg;
     }
     case "beneficios":
-      return c?.beneficiosAnual ?? null;
+      return avgBenefitsByCollab?.get(r.collab.id) ?? 0;
     case "vbg":
       return c?.custoVBG ?? null;
     case "anos": {
