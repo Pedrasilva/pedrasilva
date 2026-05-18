@@ -36,9 +36,15 @@ import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
 import { QuoteTimeBasedSettingsTab } from "@/components/quotes/quote-time-based-settings-tab";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
 import { QuoteFeeCalculatorCard } from "@/components/quotes/quote-fee-calculator-card";
+import {
+  QuoteWorkflowStepper,
+  type QuoteStep,
+} from "@/components/quotes/quote-workflow-stepper";
+import { QuotePublishStep } from "@/components/quotes/quote-publish-step";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
+import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import { rollupQuote } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
 import { useMemo } from "react";
