@@ -62,14 +62,17 @@ function ResourceDetailPage() {
   useEffect(() => {
     if (!member) return;
     const stored = Number(member.hourly_rate ?? 0);
+    const isOverride = !!(member as FullResource & { hourly_rate_is_override?: boolean })
+      .hourly_rate_is_override;
     setForm({
       name: member.name ?? "",
       role: member.role ?? "",
       team: ((member.team as ResourceTeam) ?? "project"),
       email: member.email ?? "",
       phone: member.phone ?? "",
-      // Se não tem rate definido, pré-preenche com o default do HR @ 75%
-      hourly_rate: stored > 0 ? stored : Number(defaultRate ?? 0),
+      // Only respect stored rate when it's an explicit override; otherwise
+      // pre-fill with HR default so legacy values aren't accidentally re-saved.
+      hourly_rate: isOverride && stored > 0 ? stored : Number(defaultRate ?? 0),
       weekly_capacity: Number(member.weekly_capacity ?? 40),
       color: member.color ?? PALETTE[0],
       notes: member.notes ?? "",
