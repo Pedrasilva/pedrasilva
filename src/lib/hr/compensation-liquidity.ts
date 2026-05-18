@@ -44,16 +44,48 @@ export type AverageBenefitsOptions = {
   now?: Date;
   /** Janela em meses (default = 12). */
   windowMonths?: number;
+  /**
+   * Estados a considerar. Default: aprovada + paga + pendente — representam
+   * valor que o colaborador recebeu ou vai receber. Rejeitadas nunca contam.
+   */
+  eligibleStates?: ReadonlyArray<"pendente" | "aprovada" | "paga">;
+  /**
+   * Categorias elegíveis (subset do enum legacy). Default = todas. Permite
+   * excluir tipos de despesa que não devem entrar na liquidez percebida.
+   */
+  eligibleCategories?: ReadonlyArray<BenefitExpense["categoria"]>;
+  /**
+   * Tecto absoluto por despesa individual. Despesas acima deste valor são
+   * tratadas como outliers (compra única grande: portátil, viagem rara,
+   * equipamento) e excluídas do cálculo da média mensal. Default = 500€.
+   * Passar `null` para desactivar a regra.
+   */
+  outlierThreshold?: number | null;
 };
 
+const DEFAULT_ELIGIBLE_STATES: ReadonlyArray<"pendente" | "aprovada" | "paga"> = [
+  "aprovada",
+  "paga",
+];
+
+/** Tecto por defeito para considerar uma despesa "extraordinária". */
+export const DEFAULT_OUTLIER_THRESHOLD = 500;
+
 /**
- * Média mensal de benefícios/reembolsos. Considera despesas pendentes,
- * aprovadas e pagas (consomem o orçamento e correspondem a valor que o
- * colaborador recebe ou vai receber). Rejeitadas são ignoradas.
+ * Média mensal de benefícios/reembolsos efectivamente percebidos pelo
+ * colaborador. Calcula sempre por NORMALIZAÇÃO TEMPORAL:
  *
- * Janela móvel: últimos N meses (default 12) a partir de `now`.
- * Divide sempre por N para suavizar — meses sem despesas baixam a média,
- * meses com pico não a distorcem.
+ *     media_mensal = Σ(elegíveis na janela) / windowMonths
+ *
+ * Regras (alinhadas com a leitura "liquidez percebida", não custo da empresa):
+ *  • janela móvel default 12 meses,
+ *  • só estados aprovada/paga (configurável),
+ *  • categorias elegíveis configuráveis (default = todas),
+ *  • despesas acima do tecto de outlier excluídas (default 500€/despesa)
+ *    para evitar que compras únicas grandes distorçam a média,
+ *  • rejeitadas nunca contam.
+ *
+ * Função pura — nunca persistir.
  */
 export function computeAverageBenefits(
   expenses: BenefitExpense[],
@@ -62,6 +94,14 @@ export function computeAverageBenefits(
   const now = opts.now ?? new Date();
   const windowMonths = opts.windowMonths ?? 12;
   if (windowMonths <= 0) return 0;
+  const states = new Set(opts.eligibleStates ?? DEFAULT_ELIGIBLE_STATES);
+  const cats = opts.eligibleCategories
+    ? new Set(opts.eligibleCategories)
+    : null;
+  const outlier =
+    opts.outlierThreshold === undefined
+      ? DEFAULT_OUTLIER_THRESHOLD
+      : opts.outlierThreshold;
   const from = new Date(now);
   from.setMonth(from.getMonth() - windowMonths);
   const fromMs = from.getTime();
@@ -69,10 +109,15 @@ export function computeAverageBenefits(
   let sum = 0;
   for (const e of expenses) {
     if (e.estado === "rejeitada") continue;
+    if (!states.has(e.estado as "pendente" | "aprovada" | "paga")) continue;
+    if (cats && !cats.has(e.categoria)) continue;
     const t = e.data_despesa ? new Date(e.data_despesa).getTime() : NaN;
     if (!Number.isFinite(t)) continue;
     if (t < fromMs || t > nowMs) continue;
-    sum += Number(e.valor) || 0;
+    const v = Number(e.valor) || 0;
+    if (v <= 0) continue;
+    if (outlier != null && v > outlier) continue;
+    sum += v;
   }
   return sum / windowMonths;
 }
@@ -82,6 +127,9 @@ export type MonthlyLiquidityInput = {
   expenses?: BenefitExpense[];
   now?: Date;
   windowMonths?: number;
+  eligibleStates?: AverageBenefitsOptions["eligibleStates"];
+  eligibleCategories?: AverageBenefitsOptions["eligibleCategories"];
+  outlierThreshold?: AverageBenefitsOptions["outlierThreshold"];
 };
 
 export function computeMonthlyLiquidity({
@@ -89,6 +137,9 @@ export function computeMonthlyLiquidity({
   expenses = [],
   now,
   windowMonths,
+  eligibleStates,
+  eligibleCategories,
+  outlierThreshold,
 }: MonthlyLiquidityInput): LiquidityBreakdown {
   if (!snapshot) {
     return {
@@ -102,7 +153,13 @@ export function computeMonthlyLiquidity({
     };
   }
   const c = computeSnapshot(snapshot);
-  const avgBenefits = computeAverageBenefits(expenses, { now, windowMonths });
+  const avgBenefits = computeAverageBenefits(expenses, {
+    now,
+    windowMonths,
+    eligibleStates,
+    eligibleCategories,
+    outlierThreshold,
+  });
   const netCompensation = c.liquido12m + c.alimentacaoMensal;
   const total =
     netCompensation + c.passeMensal + c.ajudasMensal + avgBenefits;
