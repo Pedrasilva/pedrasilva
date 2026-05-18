@@ -26,7 +26,7 @@ import {
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import {
-  formatEUR, QUOTE_STATUSES, FEE_STRUCTURE_TYPES, normalizeQuoteCategory,
+  QUOTE_STATUSES, FEE_STRUCTURE_TYPES, normalizeQuoteCategory,
   type FeeProposal, type QuoteStatus, type FeeStructureType,
 } from "@/lib/crm/types";
 import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
