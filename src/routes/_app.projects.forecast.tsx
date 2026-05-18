@@ -221,7 +221,10 @@ function ForecastPage() {
   const { data: probabilities } = useProjectProbabilities();
 
   const resourceMap = useMemo(() => {
-    const m = new Map<string, { id: string; name: string; hourly_rate: number | null; cost_rate: number | null }>();
+    const m = new Map<
+      string,
+      { id: string; name: string; hourly_rate: number | null; cost_rate: number | null; hourly_rate_is_override?: boolean | null }
+    >();
     for (const r of resources ?? []) m.set(r.id, r);
     return m;
   }, [resources]);
