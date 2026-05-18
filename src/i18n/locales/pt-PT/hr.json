@@ -459,6 +459,11 @@
       "delta": "Δ",
       "deltaPct": "Δ %"
     },
+    "groups": {
+      "payrollBase": "Payroll base",
+      "complements": "Complementos líquidos",
+      "total": "Total percebido"
+    },
     "metrics": {
       "baseMonthly": "Valor base mensal",
       "baseAnnualX14": "Valor base x 14 meses",
@@ -471,7 +476,9 @@
       "perDiemMonthly": "Ajudas de custo (mensal)",
       "transitPassAnnual": "Passe / transporte público (anual)",
       "transitPassMonthly": "Passe / transporte público (mensal)",
-      "totalNetMonthly": "Líquido total mensal",
+      "avgBenefitsMonthly": "Média benefícios mensal",
+      "monthlyLiquidity": "Liquidez mensal total",
+      "totalNetMonthly": "Liquidez mensal total",
       "benefitsAnnual": "Benefícios anual",
       "tgvAnnual": "Custo VBG anual"
     }
