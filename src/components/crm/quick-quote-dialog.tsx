@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { Briefcase, Clock, Wrench } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -114,16 +115,54 @@ export function QuickQuoteDialog({
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const categoryCards: { value: QuoteCategory; icon: typeof Briefcase }[] = [
+    { value: "project", icon: Briefcase },
+    { value: "retainer", icon: Wrench },
+    { value: "time_based", icon: Clock },
+  ];
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("projects:quickCreate.quote.title")}</DialogTitle>
           <DialogDescription>
-            {t("projects:quickCreate.quote.description")}
+            {t("crm:quotes.newQuoteDialog.categoryChooserDescription")}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-3">
+        <div className="grid gap-4">
+          {/* Step 1 — proposal type (first-class architectural choice) */}
+          <div>
+            <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+              {t("crm:quotes.newQuoteDialog.quoteTypeLabel")}
+            </Label>
+            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              {categoryCards.map(({ value, icon: Icon }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => { setCategory(value); setTemplateId(null); }}
+                  className={`flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors ${
+                    category === value
+                      ? "border-primary bg-primary/5 ring-1 ring-primary"
+                      : "hover:bg-muted/50"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold">
+                      {t(`crm:quotes.newQuoteDialog.category.${value}.title`)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {t(`crm:quotes.newQuoteDialog.category.${value}.hint`)}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Step 2 — opportunity */}
           <div>
             <Label>{t("projects:quickCreate.quote.opportunityLabel")} *</Label>
             <Select
@@ -152,24 +191,7 @@ export function QuickQuoteDialog({
             )}
           </div>
 
-          <div>
-            <Label>{t("crm:quotes.newQuoteDialog.title")}</Label>
-            <Select value={category} onValueChange={(v) => { setCategory(v as QuoteCategory); setTemplateId(null); }}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="project">
-                  {t("crm:quotes.newQuoteDialog.category.project.title")}
-                </SelectItem>
-                <SelectItem value="time_based">
-                  {t("crm:quotes.newQuoteDialog.category.time_based.title")}
-                </SelectItem>
-                <SelectItem value="retainer">
-                  {t("crm:quotes.newQuoteDialog.category.retainer.title")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
+          {/* Step 3 — optional template (filtered by chosen type) */}
           <div>
             <Label>{t("crm:templates.picker.label")}</Label>
             <div className="mt-1 max-h-64 overflow-y-auto">

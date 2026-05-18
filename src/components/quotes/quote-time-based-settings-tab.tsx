@@ -119,62 +119,16 @@ export function QuoteTimeBasedSettingsTab({ quoteId, quoteType, quoteCategory }:
     return null;
   }
 
-  // Project category may show the kind-picker (optional add-on). The two
-  // dedicated categories (time_based / retainer) lock the editor.
-  const isProjectCategory = quoteCategory === "project" || (!quoteCategory && quoteType === "standard_project");
-
-  const switchKind = (next: "construction_retainer" | "consultancy_hours_package") => {
-    if (settings.kind === next) return;
-    setSettings(
-      next === "consultancy_hours_package"
-        ? defaultConsultancySettings()
-        : defaultRetainerSettings(),
-    );
-  };
+  // The kind-picker (switch between retainer / consultancy add-ons inside a
+  // standard project) has been retired — proposal type is now a first-class
+  // creation-time decision. A project quote no longer mounts this tab at all,
+  // so we always render the editor locked to whatever the saved settings
+  // describe. Phase-level retainer billing inside a project is a separate
+  // future concept and is intentionally NOT exposed here.
 
   return (
     <div className="space-y-4">
-      {isProjectCategory && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {t("workspace.timeBased.kindPickerTitle", "Time-based fee model")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <p className="text-xs text-muted-foreground">
-              {t(
-                "workspace.timeBased.kindPickerHint",
-                "This quote is a standard project. Use the panel below if you also want to surface monthly retainer or hourly consultancy figures inside the generated proposal.",
-              )}
-            </p>
-            <div className="inline-flex rounded-md border bg-muted/30 p-0.5 text-xs">
-              <button
-                type="button"
-                onClick={() => switchKind("construction_retainer")}
-                className={`rounded px-3 py-1 transition-colors ${
-                  settings.kind === "construction_retainer"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {t("quoteType.construction_retainer.label")}
-              </button>
-              <button
-                type="button"
-                onClick={() => switchKind("consultancy_hours_package")}
-                className={`rounded px-3 py-1 transition-colors ${
-                  settings.kind === "consultancy_hours_package"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {t("quoteType.consultancy_hours_package.label")}
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+
 
       {settings.kind === "construction_retainer" && (
         <RetainerPanel settings={settings} onChange={setSettings} />
