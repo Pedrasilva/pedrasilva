@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { fmtEUR, type Snapshot } from "@/lib/salary";
@@ -41,14 +42,16 @@ export function MonthlyLiquidityCard({ snapshot, expenses, breakdown }: Props) {
             <CardTitle className="flex items-center gap-2 text-base">
               <Wallet className="h-4 w-4 text-[var(--hr-accent)]" />
               {t("compensationLiquidity.title")}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className="size-3.5 opacity-60 hover:opacity-100" />
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs text-xs">
-                  {t("compensationLiquidity.tooltip")}
-                </TooltipContent>
-              </Tooltip>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="size-3.5 opacity-60 hover:opacity-100" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs text-xs">
+                    {t("compensationLiquidity.tooltip")}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </CardTitle>
             <p className="text-xs text-muted-foreground">
               {t("compensationLiquidity.netCompensationLabel")}{" "}
