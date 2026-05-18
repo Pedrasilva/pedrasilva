@@ -119,9 +119,13 @@ export function QuoteTimeBasedSettingsTab({ quoteId, quoteType, quoteCategory }:
     return null;
   }
 
-  // Project category may show the kind-picker (optional add-on). The two
-  // dedicated categories (time_based / retainer) lock the editor.
-  const isProjectCategory = quoteCategory === "project" || (!quoteCategory && quoteType === "standard_project");
+  // The kind-picker (switch between retainer / consultancy add-ons inside a
+  // standard project) has been retired — proposal type is now a first-class
+  // creation-time decision. A project quote no longer mounts this tab at all,
+  // so we always render the editor locked to whatever the saved settings
+  // describe. Phase-level retainer billing inside a project is a separate
+  // future concept and is intentionally NOT exposed here.
+  const isProjectCategory = false;
 
   const switchKind = (next: "construction_retainer" | "consultancy_hours_package") => {
     if (settings.kind === next) return;
