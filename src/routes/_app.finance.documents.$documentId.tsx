@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Trash2, Upload, FileText, X } from "lucide-react";
+import { useRecordRecentlyViewed } from "@/hooks/use-recently-viewed";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
