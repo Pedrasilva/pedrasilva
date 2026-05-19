@@ -105,16 +105,16 @@ function AllocationsWorkspace() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("collaborators")
-        .select("id, role")
+        .select("id, departamento")
         .in("id", collabIds);
       if (error) throw new Error(error.message);
-      return data ?? [];
+      return (data ?? []) as Array<{ id: string; departamento: string | null }>;
     },
   });
   const disciplineByResourceId = useMemo(() => {
     const roleByCollab = new Map<string, string>();
-    for (const c of (collabsQ.data ?? []) as Array<{ id: string; role: string | null }>) {
-      if (c.role) roleByCollab.set(c.id, c.role);
+    for (const c of collabsQ.data ?? []) {
+      if (c.departamento) roleByCollab.set(c.id, c.departamento);
     }
     const m = new Map<string, string>();
     for (const r of allResources ?? []) {
