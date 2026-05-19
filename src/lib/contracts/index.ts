@@ -13,4 +13,9 @@ export {
   useContractsByQuote,
   useCreateDraftContractFromQuote,
   useUpdateClauseContent,
+  useRegenerateDraftContract,
+  useIssueContract,
+  useSignContract,
+  useVoidContract,
+  useCreateRevisionContract,
 } from "./use-contracts";
