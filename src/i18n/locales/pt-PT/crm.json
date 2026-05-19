@@ -788,6 +788,7 @@
       "status": {
         "active": "Ativo",
         "inactive": "Inativo"
+      }
     }
   },
   "ontology": {
