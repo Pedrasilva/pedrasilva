@@ -44,15 +44,14 @@ export function useResolvedProposal(
     enabled: Boolean(quoteId),
     staleTime: 60_000,
     queryFn: async () => {
-      // Pull the matching fee_proposals row (most recent) + ontology slice.
+      // `quoteId` is the fee_proposals.id (PSA Hub uses a single table for
+      // quotes and proposals). Pull the ontology slice directly.
       const { data: fp } = await supabase
         .from("fee_proposals")
         .select(
           "id, ontology_family_code, ontology_preset_code, ontology_flags, ontology_metadata",
         )
-        .eq("quote_id", quoteId!)
-        .order("created_at", { ascending: false })
-        .limit(1)
+        .eq("id", quoteId!)
         .maybeSingle();
 
       const { data: stages } = await supabase
@@ -82,10 +81,22 @@ export function useResolvedProposal(
 
   const view = useMemo<ResolvedProposalView | null>(() => {
     if (!q.data) return null;
+    const fp = q.data.fp;
     const ctx = buildRenderContext({
       locale,
       proposalKind,
-      proposal: q.data.fp ?? null,
+      proposal: fp
+        ? {
+            ontology_family_code: fp.ontology_family_code,
+            ontology_preset_code: fp.ontology_preset_code,
+            ontology_flags: (fp.ontology_flags ?? null) as
+              | Record<string, unknown>
+              | null,
+            ontology_metadata: (fp.ontology_metadata ?? null) as
+              | Record<string, unknown>
+              | null,
+          }
+        : null,
       enabledPhases: q.data.phases,
       addonCodes: q.data.addons,
       tokens,
