@@ -1060,5 +1060,61 @@
         "score": "Pontuação {{score}}"
       }
     }
+  },
+  "operations": {
+    "title": "Cockpit de operações",
+    "subtitle": "Equipa, cobertura e capacidade deste projeto",
+    "backToProject": "Voltar ao projeto",
+    "emptyTitle": "Ainda sem sinal operacional",
+    "emptyBody": "Quando este projeto tiver linha de base comercial e alocações, o cockpit mostrará cobertura, capacidade e sugestões.",
+    "tabs": {
+      "coverage": "Cobertura",
+      "board": "Quadro de alocações",
+      "conflicts": "Conflitos",
+      "suggestions": "Sugestões"
+    },
+    "health": {
+      "title": "Saúde do projeto",
+      "staffing": "Cobertura de equipa",
+      "margin": "Margem prevista",
+      "recoverability": "Recuperabilidade",
+      "capacity": "Pressão de capacidade",
+      "delivery": "Risco de entrega"
+    },
+    "coverageTable": {
+      "stage": "Fase",
+      "planned": "Planeado",
+      "allocated": "Alocado",
+      "uncovered": "Por cobrir",
+      "coverage": "Cobertura",
+      "recoverability": "Recuperabilidade",
+      "risk": "Risco"
+    },
+    "board": {
+      "collaborator": "Colaborador",
+      "total": "Total",
+      "utilization": "Utilização",
+      "noAllocations": "Ainda sem alocações neste projeto.",
+      "openPlanner": "Abrir planeador"
+    },
+    "conflicts": {
+      "overloadTitle": "Colaboradores sobrecarregados",
+      "overloadEmpty": "Sem colaboradores sobrecarregados.",
+      "uncoveredTitle": "Fases por cobrir",
+      "uncoveredEmpty": "Todas as fases estão cobertas.",
+      "uncoveredHours": "{{hours}}h em falta",
+      "underUtilTitle": "Subutilizados",
+      "underUtilEmpty": "Sem subutilização detetada.",
+      "utilization": "{{pct}}% usado"
+    },
+    "suggestions": {
+      "title": "Sugestões de equipa",
+      "intro": "Sugestões determinísticas com base em correspondência de disciplina e capacidade disponível. Nada é atribuído automaticamente.",
+      "noPlaceholder": "Sem placeholder de disciplina para esta fase — ordenação apenas por capacidade.",
+      "match": "Disciplina compatível",
+      "available": "{{hours}}h disponíveis",
+      "loaded": "{{pct}}% carregado",
+      "score": "Pontuação {{score}}"
+    }
   }
 }

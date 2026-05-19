@@ -1060,5 +1060,61 @@
         "score": "Score {{score}}"
       }
     }
+  },
+  "operations": {
+    "title": "Operations cockpit",
+    "subtitle": "Staffing, coverage and capacity for this project",
+    "backToProject": "Back to project",
+    "emptyTitle": "No operational signal yet",
+    "emptyBody": "Once this project has a commercial baseline and allocations, the cockpit will show coverage, capacity and suggestions.",
+    "tabs": {
+      "coverage": "Coverage",
+      "board": "Allocation board",
+      "conflicts": "Conflicts",
+      "suggestions": "Suggestions"
+    },
+    "health": {
+      "title": "Project health",
+      "staffing": "Staffing coverage",
+      "margin": "Forecast margin",
+      "recoverability": "Recoverability",
+      "capacity": "Capacity pressure",
+      "delivery": "Delivery risk"
+    },
+    "coverageTable": {
+      "stage": "Stage",
+      "planned": "Planned",
+      "allocated": "Allocated",
+      "uncovered": "Uncovered",
+      "coverage": "Coverage",
+      "recoverability": "Recoverability",
+      "risk": "Risk"
+    },
+    "board": {
+      "collaborator": "Collaborator",
+      "total": "Total",
+      "utilization": "Utilization",
+      "noAllocations": "No allocations yet for this project.",
+      "openPlanner": "Open planner"
+    },
+    "conflicts": {
+      "overloadTitle": "Overloaded collaborators",
+      "overloadEmpty": "No overloaded collaborators.",
+      "uncoveredTitle": "Uncovered stages",
+      "uncoveredEmpty": "All stages are covered.",
+      "uncoveredHours": "{{hours}}h remaining",
+      "underUtilTitle": "Under-utilized",
+      "underUtilEmpty": "No under-utilization detected.",
+      "utilization": "{{pct}}% used"
+    },
+    "suggestions": {
+      "title": "Staffing suggestions",
+      "intro": "Deterministic suggestions based on discipline match and available capacity. Nothing is auto-assigned.",
+      "noPlaceholder": "No discipline placeholder for this stage — ranking by capacity only.",
+      "match": "Discipline match",
+      "available": "{{hours}}h available",
+      "loaded": "{{pct}}% loaded",
+      "score": "Score {{score}}"
+    }
   }
 }
