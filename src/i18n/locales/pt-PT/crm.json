@@ -848,5 +848,68 @@
     "generatedTooltip": "Gerada pelo bootstrap da ontologia. Editar esta fase marca-a como manual e protege-a de futuras reaplicações.",
     "manualBadge": "manual",
     "manualTooltip": "Esta fase é gerida manualmente e não será sobrescrita quando o preset for reaplicado."
+  },
+  "contracts": {
+    "card": {
+      "title": "Contrato",
+      "subtitle": "Gera um rascunho de contrato selado a partir desta proposta aprovada. Edições posteriores à proposta não o alteram.",
+      "onlyApproved": "Disponível quando a proposta estiver aprovada.",
+      "createDraft": "Criar rascunho de contrato",
+      "creating": "A criar…",
+      "openDraft": "Abrir rascunho",
+      "totalCount": "{{count}} contrato(s) para esta proposta"
+    },
+    "toast": {
+      "draftCreated": "Rascunho de contrato criado",
+      "reusedDraft": "Rascunho existente reutilizado"
+    },
+    "status": {
+      "draft": "Rascunho",
+      "issued": "Emitido",
+      "signed": "Assinado",
+      "superseded": "Substituído",
+      "void": "Anulado"
+    },
+    "kind": {
+      "standalone": "Autónomo",
+      "umbrella": "Guarda-chuva",
+      "sub_contract": "Sub-contrato",
+      "retainer": "Avença",
+      "addendum": "Adenda"
+    },
+    "tabs": {
+      "overview": "Resumo",
+      "clauses": "Cláusulas",
+      "exhibits": "Anexos",
+      "events": "Eventos"
+    },
+    "detail": {
+      "backToQuote": "Voltar à proposta",
+      "noNumber": "(sem número)",
+      "snapshotSummary": "Resumo do snapshot",
+      "generatedAt": "Gerado em",
+      "sourceQuote": "Proposta de origem",
+      "sourceCompany": "Cliente de origem",
+      "resolverVersion": "Versão do resolver"
+    },
+    "clauses": {
+      "empty": "Sem cláusulas geradas.",
+      "manualBadge": "manual",
+      "savedToast": "Cláusula guardada"
+    },
+    "exhibits": {
+      "empty": "Sem anexos gerados."
+    },
+    "events": {
+      "empty": "Sem eventos.",
+      "types": {
+        "draft_created": "Rascunho criado",
+        "regenerated_draft": "Rascunho regenerado",
+        "issued": "Emitido",
+        "signed": "Assinado",
+        "superseded": "Substituído",
+        "voided": "Anulado"
+      }
+    }
   }
 }
