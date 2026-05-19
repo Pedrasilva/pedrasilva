@@ -99,12 +99,19 @@ export function ResumoCompare({
   const cl = leftEffective ? computeSnapshot(leftEffective) : null;
   const cr = rightEffective ? computeSnapshot(rightEffective) : null;
 
-  // Liquidez = collaborator-level (rolling 12m of approved/pending/paid).
-  // Both columns show the same value — it is per collaborator, not per snapshot.
-  const avgBenefitsMonthly = useMemo(
+  // Liquidez mensal = compensação líquida + benefícios garantidos da ficha (carro,
+  // ticket, prémio de associado, outros, plano reforma) ÷ 12 + média móvel 12m de
+  // despesas de benefícios pontuais. O bónus variável NÃO entra (potencial, não
+  // garantido) e é mostrado em separado nas tabs Líquido/Bruto.
+  const avgExpensesMonthly = useMemo(
     () => computeAverageBenefits(expenses),
     [expenses],
   );
+
+  const guaranteedL = cl?.beneficiosMensalGarantido ?? 0;
+  const guaranteedR = cr?.beneficiosMensalGarantido ?? 0;
+  const avgBenefitsL = cl != null ? guaranteedL + avgExpensesMonthly : null;
+  const avgBenefitsR = cr != null ? guaranteedR + avgExpensesMonthly : null;
 
   const monthlyLiquidityL =
     cl != null
@@ -112,7 +119,7 @@ export function ResumoCompare({
         cl.alimentacaoMensal +
         cl.ajudasMensal +
         cl.passeMensal +
-        avgBenefitsMonthly
+        (avgBenefitsL ?? 0)
       : null;
   const monthlyLiquidityR =
     cr != null
@@ -120,7 +127,7 @@ export function ResumoCompare({
         cr.alimentacaoMensal +
         cr.ajudasMensal +
         cr.passeMensal +
-        avgBenefitsMonthly
+        (avgBenefitsR ?? 0)
       : null;
 
   type RowItem =
@@ -147,7 +154,8 @@ export function ResumoCompare({
     { kind: "section", label: t("hr:resumoCompare.groups.complements") },
     { kind: "metric", label: t("hr:resumoCompare.metrics.perDiemMonthly"), l: cl?.ajudasMensal ?? null, r: cr?.ajudasMensal ?? null },
     { kind: "metric", label: t("hr:resumoCompare.metrics.transitPassMonthly"), l: cl?.passeMensal ?? null, r: cr?.passeMensal ?? null },
-    { kind: "metric", label: t("hr:resumoCompare.metrics.avgBenefitsMonthly"), l: avgBenefitsMonthly, r: avgBenefitsMonthly },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.avgBenefitsMonthly"), l: avgBenefitsL, r: avgBenefitsR },
+
 
     { kind: "section", label: t("hr:resumoCompare.groups.total") },
     { kind: "metric", label: t("hr:resumoCompare.metrics.monthlyLiquidity"), l: monthlyLiquidityL, r: monthlyLiquidityR, strong: true, accent: true },
