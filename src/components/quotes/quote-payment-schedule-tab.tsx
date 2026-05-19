@@ -149,11 +149,55 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const { t } = useTranslation("crm");
   const itemsQ = useQuotePaymentSchedule(quoteId);
   const stagesQ = useQuoteStages(quoteId);
+  const allocationsQ = useQuoteAllocations(quoteId);
+  const externalsQ = useQuoteExternalServices(quoteId);
+  const quoteQ = useQuery({
+    queryKey: ["fee-proposal-summary", quoteId],
+    enabled: !!quoteId,
+    queryFn: async () => {
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { eq: (c: string, v: string) => { single: () => Promise<{ data: { pricing_multiplier: number | null; valor: number | null; quote_category: string | null } | null; error: { message: string } | null }> } } } })
+        .from("fee_proposals")
+        .select("pricing_multiplier,valor,quote_category")
+        .eq("id", quoteId)
+        .single();
+      if (error) throw new Error(error.message);
+      return data;
+    },
+  });
   const upsert = useUpsertQuotePaymentItem(quoteId);
   const remove = useDeleteQuotePaymentItem(quoteId);
   const applyGen = useApplyPaymentGenerator(quoteId);
   const items = itemsQ.data ?? [];
   const stages = stagesQ.data ?? [];
+  const allocations = allocationsQ.data ?? [];
+  const externals = externalsQ.data ?? [];
+  const pricingMultiplier = Number(quoteQ.data?.pricing_multiplier ?? 1) || 1;
+  const rollup = rollupQuote({
+    allocations,
+    externalServices: externals,
+    pricingMultiplier,
+    category: (quoteQ.data?.quote_category as "project" | "time_based" | "retainer" | "consultancy" | undefined) ?? undefined,
+  });
+  const totalFee = rollup.totalFee || Number(quoteQ.data?.valor ?? 0) || 0;
+  const stageFees = computeStageFees(stages, allocations, externals, pricingMultiplier);
+
+  const scheduleTotal = items.reduce(
+    (sum, it) =>
+      sum +
+      resolveScheduleItemAmount(
+        {
+          amount_type: it.amount_type,
+          amount_value: Number(it.amount_value ?? 0),
+          trigger_type: it.trigger_type,
+          stage_id: it.stage_id,
+        },
+        totalFee,
+        stageFees,
+      ),
+    0,
+  );
+  const totalMismatch =
+    totalFee > 0 && Math.abs(scheduleTotal - totalFee) > 0.5;
 
   const [draft, setDraft] = useState({
     label: "",
