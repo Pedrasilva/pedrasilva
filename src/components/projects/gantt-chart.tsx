@@ -1003,7 +1003,14 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
             const label = `${d.type}${lagText}`;
             const labelWidth = 14 + label.length * 6;
             return (
-              <g key={d.id}>
+              <g
+                key={d.id}
+                style={{ pointerEvents: "auto", cursor: "pointer" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingDep({ id: d.id, x: labelX, y: labelY });
+                }}
+              >
                 <path
                   d={path}
                   fill="none"
@@ -1012,6 +1019,8 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                   strokeOpacity={0.75}
                   markerEnd={`url(#dep-arrow-${d.type})`}
                 />
+                {/* invisible wider hit area */}
+                <path d={path} fill="none" stroke="transparent" strokeWidth={10} />
                 <g transform={`translate(${labelX - labelWidth / 2}, ${labelY - 8})`}>
                   <rect
                     width={labelWidth}
