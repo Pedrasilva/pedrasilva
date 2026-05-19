@@ -478,7 +478,7 @@
       "baseMonthly": "Valor base mensal",
       "baseAnnualX14": "Valor base x 14 meses",
       "grossMonthly": "Bruto mensal",
-      "grossAnnual": "Bruto anual",
+      "grossAnnual": "Custo payroll anual",
       "netMonthly12": "Líquido mensal (12)",
       "mealAllowanceDaily": "Subsídio alimentação diário",
       "mealAllowanceMonthly": "Subsídio alimentação mensal",
@@ -490,7 +490,8 @@
       "monthlyLiquidity": "Liquidez mensal total",
       "totalNetMonthly": "Liquidez mensal total",
       "benefitsAnnual": "Benefícios anual",
-      "tgvAnnual": "Custo VBG anual"
+      "tgvAnnual": "Custo VBG anual",
+      "globalAnnual": "Custo global anual"
     }
   },
   "resumoComparativo": {
