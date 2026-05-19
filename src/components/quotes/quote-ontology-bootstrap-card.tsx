@@ -132,43 +132,22 @@ export function QuoteOntologyBootstrapCard({
       return;
     }
     try {
-      // Build an enabled_phases override from optional toggles so users
-      // can include/exclude things like Workplace Strategy / FF&E / Telas
-      // Finais without rewriting the preset.
       const enabledOverride = Object.entries(optionalPhases)
         .filter(([, on]) => on)
         .map(([code]) => code);
 
-      // Compose a synthetic "preset" by mutating enabled_phases only when
-      // the user actually trimmed/extended the defaults. We do this by
-      // passing flags={__enabled_phases_override}; the bootstrap layer
-      // currently uses preset.enabled_phases directly, so we shadow it
-      // via a lightweight wrapper: temporarily mutate the preset in-memory.
-      const original = selectedPreset.enabled_phases;
-      const presetMutated = enabledOverride.length > 0 &&
+      const original = (selectedPreset.enabled_phases ?? []) as string[];
+      const overrideChanged =
         JSON.stringify([...enabledOverride].sort()) !==
-        JSON.stringify([...(original as string[] ?? [])].sort());
-
-      if (presetMutated) {
-        // Shadow: mutate the in-memory preset row that bootstrap will read
-        // back from the registry. Safer alternative: pass the override
-        // through the flags map; we keep it scoped here to avoid touching
-        // the orchestration contract.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (selectedPreset as any).enabled_phases = enabledOverride;
-      }
+        JSON.stringify([...original].sort());
 
       const result = await bootstrap({
         quoteId,
         presetCode: selectedPreset.code,
         projectStart,
+        enabledPhasesOverride: overrideChanged ? enabledOverride : undefined,
         flags: { ui_phase_overrides: enabledOverride },
       });
-
-      // Restore the in-memory preset to avoid leaking the override into
-      // unrelated reads of the cached registry row.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (selectedPreset as any).enabled_phases = original;
 
       setLastResult(result);
       toast.success(
