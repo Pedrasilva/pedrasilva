@@ -7,27 +7,17 @@ import { useAuth } from "@/hooks/use-auth";
 import {
   type Collaborator,
   type Snapshot,
-  SUBSIDIOS_MODO_OPTIONS,
-  computeSnapshot,
   fmtEUR,
-  fmtDate,
 } from "@/lib/salary";
-import { ResumoCompare } from "@/components/ResumoCompare";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ValueChainSummary } from "@/components/snapshot/ValueChainSummary";
-import { LiquidoTab } from "@/components/snapshot/LiquidoTab";
-import { BrutoTab } from "@/components/snapshot/BrutoTab";
 import { CircleAlert, FileText, CalendarDays, Wallet, ArrowRight } from "lucide-react";
 import { balanceByCategory, type BenefitBalance, type BenefitExpense, type BenefitYearlyCredit } from "@/lib/benefits";
-import { MonthlyLiquidityCard } from "@/components/hr/MonthlyLiquidityCard";
+import { SnapshotMirrorPanel } from "@/components/snapshot/SnapshotMirrorPanel";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = supabase as any;
