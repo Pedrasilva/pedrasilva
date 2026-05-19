@@ -1002,6 +1002,63 @@
       "remainingHours": "Uncovered hours",
       "overloaded": "Overloaded",
       "avgUtilization": "Avg utilization"
+    },
+    "workspace": {
+      "title": "Operations cockpit",
+      "subtitle": "Plan staffing, monitor coverage, surface conflicts",
+      "openLink": "Open operations cockpit",
+      "backToProject": "Back to project",
+      "emptyTitle": "No operational data yet",
+      "emptyBody": "Add stages, allocations or a commercial baseline to activate the cockpit.",
+      "tabs": {
+        "coverage": "Coverage",
+        "board": "Allocation board",
+        "conflicts": "Conflicts",
+        "suggestions": "Suggestions"
+      },
+      "health": {
+        "title": "Operational health",
+        "staffing": "Staffing coverage",
+        "margin": "Forecast margin",
+        "recoverability": "Recoverability drift",
+        "capacity": "Capacity pressure",
+        "delivery": "Delivery risk"
+      },
+      "coverageTable": {
+        "stage": "Stage",
+        "planned": "Planned",
+        "allocated": "Allocated",
+        "uncovered": "Uncovered",
+        "coverage": "Coverage",
+        "recoverability": "Recoverability",
+        "risk": "Risk"
+      },
+      "board": {
+        "collaborator": "Collaborator",
+        "total": "Total",
+        "utilization": "Util.",
+        "noAllocations": "No allocations yet — assign collaborators from the project planner.",
+        "openPlanner": "Edit in planner"
+      },
+      "conflicts": {
+        "overloadTitle": "Overloaded collaborators",
+        "overloadEmpty": "No collaborators are over their capacity envelope.",
+        "uncoveredTitle": "Uncovered stages",
+        "uncoveredEmpty": "All stages have allocations covering planned hours.",
+        "underUtilTitle": "Under-utilized collaborators",
+        "underUtilEmpty": "No collaborators are significantly under-utilized.",
+        "utilization": "{{pct}}% utilization",
+        "uncoveredHours": "{{hours}}h uncovered"
+      },
+      "suggestions": {
+        "title": "Staffing suggestions",
+        "intro": "Deterministic ranking — suggestions only, never auto-assigned.",
+        "noPlaceholder": "No placeholder envelope — add a baseline to enable matching.",
+        "match": "Discipline match",
+        "available": "Available {{hours}}h",
+        "loaded": "Currently {{pct}}% utilized",
+        "score": "Score {{score}}"
+      }
     }
   }
 }
