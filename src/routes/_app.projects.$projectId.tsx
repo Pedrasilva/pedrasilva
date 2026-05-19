@@ -45,6 +45,7 @@ import { useHistoricalProjectTotals, EMPTY_HISTORICAL_TOTALS, type HistoricalPro
 import { useStageBudgetControl } from "@/lib/projects/use-stage-budget-control";
 import { BudgetControlPanel } from "@/components/projects/budget-control-panel";
 import { CommercialBaselineCard } from "@/components/projects/commercial-baseline-card";
+import { ProjectForecastCard } from "@/components/projects/project-forecast-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -602,6 +603,7 @@ function ProjectDetail() {
             {tab === "overview" && (
               <div className="mt-4 space-y-4">
                 <CommercialBaselineCard projectId={projectId} />
+                <ProjectForecastCard projectId={projectId} />
                 {budgetControl && canSeeFinancials && (
                   <BudgetControlPanel
                     project={budgetControl.project}

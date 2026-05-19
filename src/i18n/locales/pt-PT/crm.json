@@ -982,5 +982,26 @@
         }
       }
     }
+  },
+  "forecast": {
+    "title": "Previsão e cobertura",
+    "stagesTitle": "Fases — alocado vs planeado",
+    "freezeSnapshot": "Congelar snapshot",
+    "snapshotFrozenToast": "Snapshot de previsão congelado",
+    "risk": {
+      "low": "risco baixo",
+      "medium": "risco médio",
+      "high": "risco alto"
+    },
+    "metrics": {
+      "forecastFee": "Honorários previstos",
+      "forecastCost": "Custo previsto",
+      "forecastMargin": "Margem prevista",
+      "staffingCoverage": "Cobertura de equipa",
+      "allocatedHours": "Horas alocadas",
+      "remainingHours": "Horas por cobrir",
+      "overloaded": "Sobrecarregados",
+      "avgUtilization": "Utilização média"
+    }
   }
 }
