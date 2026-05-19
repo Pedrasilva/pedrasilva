@@ -730,66 +730,47 @@ function RhTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <SortHead
-                label={t("hr:resumo.rhTable.headers.name")}
-                k="nome"
-                sortKey={sortKey}
-                dir={sortDir}
-                onClick={toggleSort}
-              />
+              <SortHead label={t("hr:resumo.rhTable.headers.name")} k="nome" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
               <TableHead>{t("hr:resumo.rhTable.headers.code")}</TableHead>
-              <SortHead
-                align="right"
-                label={t("hr:resumo.rhTable.headers.grossAnnual")}
-                k="brutoAnual"
-                sortKey={sortKey}
-                dir={sortDir}
-                onClick={toggleSort}
-              />
-              <TableHead className="text-right">
-                {t("hr:resumo.rhTable.headers.contractualBase")}
-              </TableHead>
-              <TableHead className="text-right">
-                {t("hr:resumo.rhTable.headers.grossMonthly")}
-              </TableHead>
-              <TableHead className="text-right">
-                {t("hr:resumo.rhTable.headers.mealAllowance")}
-              </TableHead>
-              <TableHead className="text-right">
-                {t("hr:resumo.rhTable.headers.perDiem")}
-              </TableHead>
-              <TableHead className="text-right">
-                {t("hr:resumo.rhTable.headers.netMonthly")}
-              </TableHead>
-              <SortHead
-                align="right"
-                label={t("hr:resumo.rhTable.headers.monthlyLiquidity")}
-                k="monthlyLiquidity"
-                sortKey={sortKey}
-                dir={sortDir}
-                onClick={toggleSort}
-              />
-              <TableHead className="text-right">
-                <span title={t("hr:compensationLiquidity.avgBenefitsTooltip")}>
-                  {t("hr:resumo.rhTable.headers.avgBenefitsMonthly")}
-                </span>
-              </TableHead>
-              <SortHead
-                align="right"
-                label={t("hr:resumo.rhTable.headers.tgv")}
-                k="vbg"
-                sortKey={sortKey}
-                dir={sortDir}
-                onClick={toggleSort}
-                bold
-              />
+              <TableHead>{t("hr:resumo.rhTable.headers.contractStatus")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.dailyHours")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.daysPerWeek")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.fte")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.targetChargeability")}</TableHead>
+              <SortHead align="right" label={t("hr:resumo.rhTable.headers.grossAnnual")} k="brutoAnual" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.contractualBase")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.grossMonthly")}</TableHead>
+              <TableHead>{t("hr:resumo.rhTable.headers.subsidiosMode")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.monthsPaid")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.ssEmployer")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.ssEmployee")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.irsPct")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.mealAllowance")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.perDiem")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.transportPass")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.netMonthly")}</TableHead>
+              <SortHead align="right" label={t("hr:resumo.rhTable.headers.monthlyLiquidity")} k="monthlyLiquidity" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.avgBenefitsMonthly")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.carBenefit")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.ticketBenefit")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.associatePrize")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.otherBenefits")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.variableBenefit")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.retirementPlan")}</TableHead>
+              <TableHead>{t("hr:resumo.rhTable.headers.location")}</TableHead>
+              <TableHead>{t("hr:resumo.rhTable.headers.maritalStatus")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.titulares")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.dependents")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.dependentsDisability")}</TableHead>
+              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.fiscalYear")}</TableHead>
+              <SortHead align="right" label={t("hr:resumo.rhTable.headers.tgv")} k="vbg" sortKey={sortKey} dir={sortDir} onClick={toggleSort} bold />
               <TableHead className="w-8"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedRows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={12} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={36} className="text-center text-muted-foreground py-8">
                   {t("hr:resumo.rhTable.emptyDepartment")}
                 </TableCell>
               </TableRow>
@@ -797,49 +778,55 @@ function RhTable({
             {sortedRows.map((r, idx) => {
               const ref = r.effective ?? r.proposed;
               const c = ref ? computeSnapshot(ref) : null;
+              const fte = computeCollaboratorFte(r.collab.daily_hours, r.collab.days_per_week, 8);
+              const fteFmt = new Intl.NumberFormat(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(fte);
+              const pct = (n: number | null | undefined) =>
+                n == null ? "—" : `${(n * 100).toLocaleString(i18n.language, { maximumFractionDigits: 2 })}%`;
+              const mealDaily = ref
+                ? ref.subsidio_alimentacao_manual
+                  ? ref.subsidio_alimentacao_diario_manual
+                  : ref.subsidio_alimentacao_diario
+                : 0;
               return (
                 <TableRow key={r.collab.id}>
-                  <TableCell className="font-medium">
-                    <Link to="/hr/colaborador/$id" params={{ id: r.collab.id }}>
-                      {r.collab.nome}
-                    </Link>
+                  <TableCell className="font-medium whitespace-nowrap">
+                    <Link to="/hr/colaborador/$id" params={{ id: r.collab.id }}>{r.collab.nome}</Link>
                   </TableCell>
-                  <TableCell className="text-muted-foreground tabular-nums">
-                    {idx + 1}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.brutoAnual) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.base) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.brutoMensal) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.alimentacaoMensal) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.ajudasMensal) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {c ? fmtEUR(c.liquidoTotalMensal) : "—"}
-                  </TableCell>
+                  <TableCell className="text-muted-foreground tabular-nums">{idx + 1}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{r.collab.situacao_contractual ?? "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{r.collab.daily_hours ?? "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{r.collab.days_per_week ?? "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fteFmt}</TableCell>
+                  <TableCell className="text-right tabular-nums">{r.collab.target_chargeability_pct != null ? `${r.collab.target_chargeability_pct}%` : "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.brutoAnual) : "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.base) : "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.brutoMensal) : "—"}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{ref?.subsidios_modo ?? "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{ref?.meses_pagos ?? "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{pct(ref?.ss_atelier_pct)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{pct(ref?.ss_colaborador_pct)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{pct(ref?.irs_pct)}</TableCell>
+                  <TableCell className="text-right tabular-nums" title={ref ? fmtEUR(mealDaily) + "/dia" : ""}>{c ? fmtEUR(c.alimentacaoMensal) : "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.ajudasMensal) : "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.passe_anual) : "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.liquidoTotalMensal) : "—"}</TableCell>
                   <TableCell className="text-right tabular-nums font-medium">
-                    {c
-                      ? fmtEUR(
-                          c.liquidoTotalMensal +
-                            c.passeMensal +
-                            (avgBenefitsByCollab?.get(r.collab.id) ?? 0),
-                        )
-                      : "—"}
+                    {c ? fmtEUR(c.liquidoTotalMensal + c.passeMensal + (avgBenefitsByCollab?.get(r.collab.id) ?? 0)) : "—"}
                   </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {fmtEUR(avgBenefitsByCollab?.get(r.collab.id) ?? 0)}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums font-semibold">
-                    {c ? fmtEUR(c.custoVBG) : "—"}
-                  </TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtEUR(avgBenefitsByCollab?.get(r.collab.id) ?? 0)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.beneficio_carro) : "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.beneficio_ticket) : "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.premio_associado) : "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.outros_beneficios) : "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.beneficio_variavel) : "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.plano_reforma ?? 0) : "—"}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{r.collab.localizacao || "—"}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{r.collab.estado_civil || "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{r.collab.numero_titulares}</TableCell>
+                  <TableCell className="text-right tabular-nums">{r.collab.numero_dependentes}</TableCell>
+                  <TableCell className="text-right tabular-nums">{r.collab.dependentes_com_deficiencia}</TableCell>
+                  <TableCell className="text-right tabular-nums">{r.collab.ano_fiscal}</TableCell>
+                  <TableCell className="text-right tabular-nums font-semibold">{c ? fmtEUR(c.custoVBG) : "—"}</TableCell>
                   <TableCell>
                     <Link to="/hr/colaborador/$id" params={{ id: r.collab.id }}>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -851,17 +838,11 @@ function RhTable({
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={2} className="font-semibold">
-                {totalLabel}
-              </TableCell>
-              <TableCell className="text-right tabular-nums font-semibold">
-                {fmtEUR(totalBrutoAnual)}
-              </TableCell>
-              <TableCell colSpan={7} />
-              <TableCell className="text-right tabular-nums font-semibold">
-                {fmtEUR(totalVbg)}
-              </TableCell>
-              <TableCell colSpan={1} />
+              <TableCell colSpan={7} className="font-semibold">{totalLabel}</TableCell>
+              <TableCell className="text-right tabular-nums font-semibold">{fmtEUR(totalBrutoAnual)}</TableCell>
+              <TableCell colSpan={26} />
+              <TableCell className="text-right tabular-nums font-semibold">{fmtEUR(totalVbg)}</TableCell>
+              <TableCell />
             </TableRow>
           </TableFooter>
         </Table>
