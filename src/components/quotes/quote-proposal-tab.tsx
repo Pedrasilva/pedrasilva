@@ -2295,6 +2295,22 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
   const [legacyOpen, setLegacyOpen] = useState(false);
   const [mode, setMode] = useState<"edit" | "preview">("edit");
 
+  // Proposal number for the toolbar badge — purely display, no mutations.
+  const { data: headerMeta } = useQuery({
+    queryKey: ["fee-proposal-header-number", quoteId],
+    enabled: Boolean(quoteId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("fee_proposals")
+        .select("proposal_number")
+        .eq("id", quoteId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+  const headerProposalNumber = headerMeta?.proposal_number ?? null;
+
   // Print always runs in preview mode: switch first, then trigger print on
   // the next paint so the DOM reflects the clean document.
   const handlePrint = () => {
@@ -2313,9 +2329,17 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2 no-print">
-        <p className="text-xs text-muted-foreground">
-          {t("workspace.proposal.clientFacingHint")}
-        </p>
+        <div className="flex items-center gap-2">
+          {headerProposalNumber && (
+            <Badge variant="outline" className="font-mono text-[11px]">
+              {t("workspace.proposal.proposalNumberLabel", "Proposal No.")} {headerProposalNumber}
+            </Badge>
+          )}
+          <p className="text-xs text-muted-foreground">
+            {t("workspace.proposal.clientFacingHint")}
+          </p>
+        </div>
+
         <div className="flex items-center gap-2">
           {canPreview && (
             <div
