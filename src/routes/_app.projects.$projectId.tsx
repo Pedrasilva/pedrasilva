@@ -603,6 +603,7 @@ function ProjectDetail() {
             {tab === "overview" && (
               <div className="mt-4 space-y-4">
                 <CommercialBaselineCard projectId={projectId} />
+                <ProjectForecastCard projectId={projectId} />
                 {budgetControl && canSeeFinancials && (
                   <BudgetControlPanel
                     project={budgetControl.project}
