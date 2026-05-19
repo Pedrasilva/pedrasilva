@@ -30,10 +30,17 @@ import {
   useApplyPaymentGenerator,
 } from "@/lib/quotes/use-quote-payment-schedule";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
+import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
+import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
+import { rollupQuote } from "@/lib/quotes/financial-rollups";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import {
   generateStageMilestones,
   generateThirds,
   generateMonthly,
+  computeStageFees,
+  resolveScheduleItemAmount,
   DEFAULT_STAGE_MILESTONE_OPTIONS,
   type GeneratorKind,
   type GeneratorItem,
