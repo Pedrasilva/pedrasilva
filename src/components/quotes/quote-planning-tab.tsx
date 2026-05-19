@@ -64,6 +64,7 @@ export function QuotePlanningTab({
   const delStage = useDeleteQuoteStage(quoteId);
   const createDep = useCreateQuoteDependency(quoteId);
   const delDep = useDeleteQuoteDependency(quoteId);
+  const updateDep = useUpdateQuoteDependency(quoteId);
   const upsertAlloc = useUpsertQuoteAllocation(quoteId);
   const delAlloc = useDeleteQuoteAllocation(quoteId);
 
