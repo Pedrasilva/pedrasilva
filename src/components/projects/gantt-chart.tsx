@@ -15,9 +15,13 @@ import { leaveHoursInRange, type LeaveInterval } from "@/lib/projects/leave-capa
 import { useResourceSchedules, buildDailyLimitMap, dailyHoursFor } from "@/lib/projects/use-resource-schedules";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { fmt } from "@/lib/projects/gantt-utils";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
+import type { DepType } from "@/lib/projects/dependencies";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 
 export type StageWithProject = StageWithAllocations & { projectId: string };
