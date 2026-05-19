@@ -4065,6 +4065,71 @@ export type Database = {
           },
         ]
       }
+      pm_project_forecast_metrics: {
+        Row: {
+          allocated_hours: number | null
+          capacity_risk_level:
+            | Database["public"]["Enums"]["pm_capacity_risk_level"]
+            | null
+          created_at: string
+          forecast_cost: number | null
+          forecast_fee: number | null
+          forecast_margin_pct: number | null
+          id: string
+          planned_cost: number | null
+          planned_fee: number | null
+          planned_margin_pct: number | null
+          project_id: string
+          remaining_hours: number | null
+          snapshot_date: string
+          staffing_coverage_pct: number | null
+        }
+        Insert: {
+          allocated_hours?: number | null
+          capacity_risk_level?:
+            | Database["public"]["Enums"]["pm_capacity_risk_level"]
+            | null
+          created_at?: string
+          forecast_cost?: number | null
+          forecast_fee?: number | null
+          forecast_margin_pct?: number | null
+          id?: string
+          planned_cost?: number | null
+          planned_fee?: number | null
+          planned_margin_pct?: number | null
+          project_id: string
+          remaining_hours?: number | null
+          snapshot_date?: string
+          staffing_coverage_pct?: number | null
+        }
+        Update: {
+          allocated_hours?: number | null
+          capacity_risk_level?:
+            | Database["public"]["Enums"]["pm_capacity_risk_level"]
+            | null
+          created_at?: string
+          forecast_cost?: number | null
+          forecast_fee?: number | null
+          forecast_margin_pct?: number | null
+          id?: string
+          planned_cost?: number | null
+          planned_fee?: number | null
+          planned_margin_pct?: number | null
+          project_id?: string
+          remaining_hours?: number | null
+          snapshot_date?: string
+          staffing_coverage_pct?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_project_forecast_metrics_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_project_rate_overrides: {
         Row: {
           created_at: string
@@ -4228,6 +4293,111 @@ export type Database = {
             columns: ["source_contract_id"]
             isOneToOne: false
             referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_resource_allocations_forecast: {
+        Row: {
+          allocated_hours: number
+          allocated_pct: number | null
+          allocation_date: string
+          allocation_id: string | null
+          bootstrap_run_id: string | null
+          collaborator_id: string | null
+          created_at: string
+          id: string
+          project_id: string
+          project_stage_id: string
+          resource_id: string | null
+          source: Database["public"]["Enums"]["pm_forecast_allocation_source"]
+          updated_at: string
+        }
+        Insert: {
+          allocated_hours?: number
+          allocated_pct?: number | null
+          allocation_date: string
+          allocation_id?: string | null
+          bootstrap_run_id?: string | null
+          collaborator_id?: string | null
+          created_at?: string
+          id?: string
+          project_id: string
+          project_stage_id: string
+          resource_id?: string | null
+          source?: Database["public"]["Enums"]["pm_forecast_allocation_source"]
+          updated_at?: string
+        }
+        Update: {
+          allocated_hours?: number
+          allocated_pct?: number | null
+          allocation_date?: string
+          allocation_id?: string | null
+          bootstrap_run_id?: string | null
+          collaborator_id?: string | null
+          created_at?: string
+          id?: string
+          project_id?: string
+          project_stage_id?: string
+          resource_id?: string | null
+          source?: Database["public"]["Enums"]["pm_forecast_allocation_source"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_resource_allocations_forecast_allocation_id_fkey"
+            columns: ["allocation_id"]
+            isOneToOne: false
+            referencedRelation: "pm_allocations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_resource_allocations_forecast_bootstrap_run_id_fkey"
+            columns: ["bootstrap_run_id"]
+            isOneToOne: false
+            referencedRelation: "project_bootstrap_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_resource_allocations_forecast_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_resource_allocations_forecast_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_resource_allocations_forecast_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_resource_allocations_forecast_project_stage_id_fkey"
+            columns: ["project_stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_resource_allocations_forecast_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_resource_allocations_forecast_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
             referencedColumns: ["id"]
           },
         ]
@@ -4414,6 +4584,59 @@ export type Database = {
           },
           {
             foreignKeyName: "pm_stage_allocation_placeholders_project_stage_id_fkey"
+            columns: ["project_stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_stage_capacity_snapshots: {
+        Row: {
+          allocated_hours: number | null
+          created_at: string
+          id: string
+          planned_cost: number | null
+          planned_hours: number | null
+          planned_margin_pct: number | null
+          planned_revenue: number | null
+          project_stage_id: string
+          recoverability_pct: number | null
+          remaining_hours: number | null
+          snapshot_date: string
+          staffing_coverage_pct: number | null
+        }
+        Insert: {
+          allocated_hours?: number | null
+          created_at?: string
+          id?: string
+          planned_cost?: number | null
+          planned_hours?: number | null
+          planned_margin_pct?: number | null
+          planned_revenue?: number | null
+          project_stage_id: string
+          recoverability_pct?: number | null
+          remaining_hours?: number | null
+          snapshot_date?: string
+          staffing_coverage_pct?: number | null
+        }
+        Update: {
+          allocated_hours?: number | null
+          created_at?: string
+          id?: string
+          planned_cost?: number | null
+          planned_hours?: number | null
+          planned_margin_pct?: number | null
+          planned_revenue?: number | null
+          project_stage_id?: string
+          recoverability_pct?: number | null
+          remaining_hours?: number | null
+          snapshot_date?: string
+          staffing_coverage_pct?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_stage_capacity_snapshots_project_stage_id_fkey"
             columns: ["project_stage_id"]
             isOneToOne: false
             referencedRelation: "pm_stages"
@@ -7304,6 +7527,7 @@ export type Database = {
         | "quote_snapshot"
         | "manual"
       pm_allocation_status: "tentative" | "committed"
+      pm_capacity_risk_level: "low" | "medium" | "high"
       pm_dep_type: "FS" | "SS" | "FF" | "SF"
       pm_expense_category:
         | "travel"
@@ -7321,6 +7545,7 @@ export type Database = {
         | "partially_paid"
         | "paid"
         | "cancelled"
+      pm_forecast_allocation_source: "manual" | "imported" | "derived"
       pm_invoice_status: "draft" | "sent" | "paid" | "overdue" | "cancelled"
       pm_markup_type: "percent" | "fixed"
       pm_project_status: "active" | "paused" | "archived"
@@ -7639,6 +7864,7 @@ export const Constants = {
         "manual",
       ],
       pm_allocation_status: ["tentative", "committed"],
+      pm_capacity_risk_level: ["low", "medium", "high"],
       pm_dep_type: ["FS", "SS", "FF", "SF"],
       pm_expense_category: [
         "travel",
@@ -7658,6 +7884,7 @@ export const Constants = {
         "paid",
         "cancelled",
       ],
+      pm_forecast_allocation_source: ["manual", "imported", "derived"],
       pm_invoice_status: ["draft", "sent", "paid", "overdue", "cancelled"],
       pm_markup_type: ["percent", "fixed"],
       pm_project_status: ["active", "paused", "archived"],
