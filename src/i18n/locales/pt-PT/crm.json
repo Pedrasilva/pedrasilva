@@ -890,7 +890,21 @@
       "generatedAt": "Gerado em",
       "sourceQuote": "Proposta de origem",
       "sourceCompany": "Cliente de origem",
-      "resolverVersion": "Versão do resolver"
+      "resolverVersion": "Versão do resolver",
+      "issuedAt": "Emitido em",
+      "signedAt": "Assinado em",
+      "revisionBadge": "Revisão {{n}}",
+      "revision": "Revisão",
+      "viewParent": "Ver revisão anterior",
+      "viewReplacement": "Ver substituto",
+      "lineageCount": "{{n}} revisões nesta linhagem",
+      "lineageTitle": "Linhagem de revisões",
+      "currentRevision": "atual",
+      "openRevision": "Abrir",
+      "lockedIssued": "Este contrato foi emitido e está bloqueado. As cláusulas e anexos não podem ser editados; a regeneração está desativada.",
+      "lockedSigned": "Este contrato está assinado e é imutável. Crie uma nova revisão para alterar os seus termos.",
+      "lockedSuperseded": "Este contrato foi substituído por uma revisão mais recente.",
+      "lockedVoid": "Este contrato foi anulado."
     },
     "clauses": {
       "empty": "Sem cláusulas geradas.",
@@ -908,8 +922,24 @@
         "issued": "Emitido",
         "signed": "Assinado",
         "superseded": "Substituído",
-        "voided": "Anulado"
+        "voided": "Anulado",
+        "revision_created": "Revisão criada"
       }
+    },
+    "actions": {
+      "regenerate": "Regenerar a partir da proposta atual",
+      "regeneratedToast": "Rascunho regenerado a partir da proposta atual",
+      "issue": "Emitir contrato",
+      "issueConfirm": "Emitir este contrato? Após a emissão, cláusulas e anexos ficam bloqueados.",
+      "issuedToast": "Contrato emitido",
+      "sign": "Marcar como assinado",
+      "signConfirm": "Marcar este contrato como assinado? Tornar-se-á imutável.",
+      "signedToast": "Contrato marcado como assinado",
+      "void": "Anular rascunho",
+      "voidConfirm": "Anular este rascunho de contrato? Será arquivado como anulado.",
+      "voidedToast": "Rascunho anulado",
+      "createRevision": "Criar contrato revisto",
+      "revisionCreatedToast": "Rascunho de contrato revisto criado"
     }
   }
 }

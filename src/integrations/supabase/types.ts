@@ -1501,8 +1501,11 @@ export type Database = {
           issued_at: string | null
           language: string
           ontology_snapshot_json: Json
+          parent_contract_id: string | null
           proposal_snapshot_json: Json
           resolver_version: string
+          revision_number: number
+          root_contract_id: string | null
           signed_at: string | null
           snapshot_json: Json
           source_company_id: string | null
@@ -1526,8 +1529,11 @@ export type Database = {
           issued_at?: string | null
           language?: string
           ontology_snapshot_json?: Json
+          parent_contract_id?: string | null
           proposal_snapshot_json?: Json
           resolver_version?: string
+          revision_number?: number
+          root_contract_id?: string | null
           signed_at?: string | null
           snapshot_json?: Json
           source_company_id?: string | null
@@ -1551,8 +1557,11 @@ export type Database = {
           issued_at?: string | null
           language?: string
           ontology_snapshot_json?: Json
+          parent_contract_id?: string | null
           proposal_snapshot_json?: Json
           resolver_version?: string
+          revision_number?: number
+          root_contract_id?: string | null
           signed_at?: string | null
           snapshot_json?: Json
           source_company_id?: string | null
@@ -1565,6 +1574,20 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "contracts_parent_contract_id_fkey"
+            columns: ["parent_contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_root_contract_id_fkey"
+            columns: ["root_contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "contracts_source_company_id_fkey"
             columns: ["source_company_id"]
