@@ -22,6 +22,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { buildProjectBootstrapSnapshot } from "./bootstrap-snapshot";
 import { resolveProjectBootstrapPreview } from "./bootstrap-resolver";
 import {
+  resolveProjectCommercialBaseline,
+  resolveStageCommercialBaselines,
+  resolveAllocationPlaceholders,
+} from "./commercial-baseline";
+import type {
+  ProjectCommercialBaselineRow,
+  StageCommercialBaselineRow,
+  StageAllocationPlaceholderRow,
+} from "./baseline-types";
+import {
   PROJECT_BOOTSTRAP_RESOLVER_VERSION,
   type ProjectBootstrapPreview,
   type ProjectBootstrapRunRow,
@@ -205,6 +215,58 @@ export function useApplyProjectBootstrap() {
           if (depErr) throw new Error(depErr.message);
         }
 
+        // 6b. Stage 6B — commercial baselines + allocation placeholders.
+        const projectBaseline = resolveProjectCommercialBaseline(snapshot);
+        const { error: projBlErr } = await db
+          .from("pm_project_commercial_baselines")
+          .insert({
+            project_id: projectId,
+            bootstrap_run_id: bootstrapRunId,
+            source_contract_id: input.contractId,
+            ...projectBaseline,
+          });
+        if (projBlErr) throw new Error(projBlErr.message);
+
+        const stageBaselines = resolveStageCommercialBaselines(snapshot)
+          .map((sb) => {
+            const sid = keyToStageId.get(sb.source_contract_phase_key);
+            if (!sid) return null;
+            const { project_stage_id: _ignored, ...rest } = sb;
+            return {
+              project_stage_id: sid,
+              project_id: projectId,
+              bootstrap_run_id: bootstrapRunId,
+              ...rest,
+            };
+          })
+          .filter((r): r is NonNullable<typeof r> => r !== null);
+        if (stageBaselines.length) {
+          const { error: stgBlErr } = await db
+            .from("pm_stage_commercial_baselines")
+            .insert(stageBaselines);
+          if (stgBlErr) throw new Error(stgBlErr.message);
+        }
+
+        const placeholders = resolveAllocationPlaceholders(snapshot)
+          .map((ph) => {
+            const sid = keyToStageId.get(ph.source_contract_phase_key);
+            if (!sid) return null;
+            const { project_stage_id: _ignored, source_contract_phase_key: _k, ...rest } =
+              ph;
+            return {
+              project_stage_id: sid,
+              bootstrap_run_id: bootstrapRunId,
+              ...rest,
+            };
+          })
+          .filter((r): r is NonNullable<typeof r> => r !== null);
+        if (placeholders.length) {
+          const { error: phErr } = await db
+            .from("pm_stage_allocation_placeholders")
+            .insert(placeholders);
+          if (phErr) throw new Error(phErr.message);
+        }
+
         // 7. Flip run to applied.
         const { error: flipErr } = await db
           .from("project_bootstrap_runs")
@@ -218,6 +280,8 @@ export function useApplyProjectBootstrap() {
                 project_id: projectId,
                 stages: stagesPayload.length,
                 dependencies: depRows.length,
+                stage_baselines: stageBaselines.length,
+                allocation_placeholders: placeholders.length,
               },
             },
           })
@@ -229,6 +293,8 @@ export function useApplyProjectBootstrap() {
           project_id: projectId,
           stages: stagesPayload.length,
           dependencies: depRows.length,
+          stage_baselines: stageBaselines.length,
+          allocation_placeholders: placeholders.length,
         });
 
         return { bootstrapRunId, projectId: projectId! };
@@ -255,6 +321,67 @@ export function useApplyProjectBootstrap() {
     onSuccess: (_res, vars) => {
       qc.invalidateQueries({ queryKey: ["project-bootstrap-run", vars.contractId] });
       qc.invalidateQueries({ queryKey: ["contract", vars.contractId] });
+    },
+  });
+}
+
+/* -------------------------------------------------------------------------- */
+/* Stage 6B — Baseline reads                                                  */
+/* -------------------------------------------------------------------------- */
+
+export function useProjectCommercialBaseline(projectId: string | null | undefined) {
+  return useQuery<ProjectCommercialBaselineRow | null>({
+    enabled: !!projectId,
+    queryKey: ["pm-project-commercial-baseline", projectId],
+    queryFn: async () => {
+      const { data, error } = await db
+        .from("pm_project_commercial_baselines")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      return (data ?? null) as ProjectCommercialBaselineRow | null;
+    },
+  });
+}
+
+export function useStageCommercialBaselines(projectId: string | null | undefined) {
+  return useQuery<StageCommercialBaselineRow[]>({
+    enabled: !!projectId,
+    queryKey: ["pm-stage-commercial-baselines", projectId],
+    queryFn: async () => {
+      const { data, error } = await db
+        .from("pm_stage_commercial_baselines")
+        .select("*")
+        .eq("project_id", projectId);
+      if (error) throw new Error(error.message);
+      return (data ?? []) as StageCommercialBaselineRow[];
+    },
+  });
+}
+
+export function useStageAllocationPlaceholders(projectId: string | null | undefined) {
+  return useQuery<StageAllocationPlaceholderRow[]>({
+    enabled: !!projectId,
+    queryKey: ["pm-stage-allocation-placeholders", projectId],
+    queryFn: async () => {
+      if (!projectId) return [];
+      // Join via stage's project_id by selecting nested fk filter.
+      const { data: stageRows, error: stageErr } = await db
+        .from("pm_stages")
+        .select("id")
+        .eq("project_id", projectId);
+      if (stageErr) throw new Error(stageErr.message);
+      const stageIds = (stageRows ?? []).map((r: { id: string }) => r.id);
+      if (!stageIds.length) return [];
+      const { data, error } = await db
+        .from("pm_stage_allocation_placeholders")
+        .select("*")
+        .in("project_stage_id", stageIds);
+      if (error) throw new Error(error.message);
+      return (data ?? []) as StageAllocationPlaceholderRow[];
     },
   });
 }

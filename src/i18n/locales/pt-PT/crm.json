@@ -959,7 +959,28 @@
       "alreadyBootstrapped": "Este contrato já foi convertido em projeto.",
       "openProject": "Abrir projeto",
       "onlySigned": "Apenas contratos assinados podem criar um projeto.",
-      "loadingPreview": "A construir pré-visualização…"
+      "loadingPreview": "A construir pré-visualização…",
+      "baseline": {
+        "title": "Baseline comercial",
+        "sealed": "selada a partir do contrato assinado",
+        "soldFee": "Honorários vendidos",
+        "internalFee": "Honorários internos",
+        "externalFee": "Honorários externos",
+        "plannedDuration": "Duração planeada",
+        "constructionMonths": "Obra (AT)",
+        "targetChargeability": "Chargeability alvo",
+        "targetRecoverability": "Recuperabilidade planeada",
+        "targetMargin": "Margem planeada",
+        "stagesTitle": "Baselines por fase",
+        "placeholdersBadge": "Envelopes de equipa",
+        "placeholdersSummary": "{{count}} funções placeholder · ~{{hours}}h previstas — ainda sem colaboradores atribuídos.",
+        "phaseClass": {
+          "finite": "Finita",
+          "operational_recurring": "Operacional",
+          "parallel_addon": "Add-on paralelo",
+          "support_only": "Suporte"
+        }
+      }
     }
   }
 }

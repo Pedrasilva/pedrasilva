@@ -3983,6 +3983,88 @@ export type Database = {
           },
         ]
       }
+      pm_project_commercial_baselines: {
+        Row: {
+          baseline_json: Json
+          bootstrap_run_id: string
+          created_at: string
+          id: string
+          planned_construction_months: number | null
+          planned_duration_weeks: number | null
+          project_id: string
+          sold_consultant_fee: number | null
+          sold_external_fee: number | null
+          sold_fee_total: number | null
+          sold_internal_fee: number | null
+          sold_reimbursable_allowance: number | null
+          source_contract_id: string | null
+          target_chargeability_pct: number | null
+          target_gross_margin_pct: number | null
+          target_recoverability_pct: number | null
+          updated_at: string
+        }
+        Insert: {
+          baseline_json?: Json
+          bootstrap_run_id: string
+          created_at?: string
+          id?: string
+          planned_construction_months?: number | null
+          planned_duration_weeks?: number | null
+          project_id: string
+          sold_consultant_fee?: number | null
+          sold_external_fee?: number | null
+          sold_fee_total?: number | null
+          sold_internal_fee?: number | null
+          sold_reimbursable_allowance?: number | null
+          source_contract_id?: string | null
+          target_chargeability_pct?: number | null
+          target_gross_margin_pct?: number | null
+          target_recoverability_pct?: number | null
+          updated_at?: string
+        }
+        Update: {
+          baseline_json?: Json
+          bootstrap_run_id?: string
+          created_at?: string
+          id?: string
+          planned_construction_months?: number | null
+          planned_duration_weeks?: number | null
+          project_id?: string
+          sold_consultant_fee?: number | null
+          sold_external_fee?: number | null
+          sold_fee_total?: number | null
+          sold_internal_fee?: number | null
+          sold_reimbursable_allowance?: number | null
+          source_contract_id?: string | null
+          target_chargeability_pct?: number | null
+          target_gross_margin_pct?: number | null
+          target_recoverability_pct?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_project_commercial_baselines_bootstrap_run_id_fkey"
+            columns: ["bootstrap_run_id"]
+            isOneToOne: true
+            referencedRelation: "project_bootstrap_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_project_commercial_baselines_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_project_commercial_baselines_source_contract_id_fkey"
+            columns: ["source_contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_project_rate_overrides: {
         Row: {
           created_at: string
@@ -4275,6 +4357,145 @@ export type Database = {
             columns: ["collaborator_id"]
             isOneToOne: false
             referencedRelation: "collaborators_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_stage_allocation_placeholders: {
+        Row: {
+          bootstrap_run_id: string
+          confidence_pct: number | null
+          created_at: string
+          discipline: string | null
+          expected_duration_weeks: number | null
+          expected_fte: number | null
+          expected_hours: number | null
+          id: string
+          project_stage_id: string
+          role: string | null
+          source: Database["public"]["Enums"]["pm_allocation_placeholder_source"]
+          updated_at: string
+        }
+        Insert: {
+          bootstrap_run_id: string
+          confidence_pct?: number | null
+          created_at?: string
+          discipline?: string | null
+          expected_duration_weeks?: number | null
+          expected_fte?: number | null
+          expected_hours?: number | null
+          id?: string
+          project_stage_id: string
+          role?: string | null
+          source?: Database["public"]["Enums"]["pm_allocation_placeholder_source"]
+          updated_at?: string
+        }
+        Update: {
+          bootstrap_run_id?: string
+          confidence_pct?: number | null
+          created_at?: string
+          discipline?: string | null
+          expected_duration_weeks?: number | null
+          expected_fte?: number | null
+          expected_hours?: number | null
+          id?: string
+          project_stage_id?: string
+          role?: string | null
+          source?: Database["public"]["Enums"]["pm_allocation_placeholder_source"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_stage_allocation_placeholders_bootstrap_run_id_fkey"
+            columns: ["bootstrap_run_id"]
+            isOneToOne: false
+            referencedRelation: "project_bootstrap_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_stage_allocation_placeholders_project_stage_id_fkey"
+            columns: ["project_stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_stage_commercial_baselines: {
+        Row: {
+          baseline_json: Json
+          bootstrap_run_id: string
+          created_at: string
+          delivery_mode: string | null
+          estimated_external_cost: number | null
+          estimated_hours: number | null
+          estimated_internal_cost: number | null
+          id: string
+          phase_class: string | null
+          project_id: string
+          project_stage_id: string
+          sold_fee: number | null
+          source_contract_phase_key: string | null
+          target_margin_pct: number | null
+          target_recoverability_pct: number | null
+          updated_at: string
+        }
+        Insert: {
+          baseline_json?: Json
+          bootstrap_run_id: string
+          created_at?: string
+          delivery_mode?: string | null
+          estimated_external_cost?: number | null
+          estimated_hours?: number | null
+          estimated_internal_cost?: number | null
+          id?: string
+          phase_class?: string | null
+          project_id: string
+          project_stage_id: string
+          sold_fee?: number | null
+          source_contract_phase_key?: string | null
+          target_margin_pct?: number | null
+          target_recoverability_pct?: number | null
+          updated_at?: string
+        }
+        Update: {
+          baseline_json?: Json
+          bootstrap_run_id?: string
+          created_at?: string
+          delivery_mode?: string | null
+          estimated_external_cost?: number | null
+          estimated_hours?: number | null
+          estimated_internal_cost?: number | null
+          id?: string
+          phase_class?: string | null
+          project_id?: string
+          project_stage_id?: string
+          sold_fee?: number | null
+          source_contract_phase_key?: string | null
+          target_margin_pct?: number | null
+          target_recoverability_pct?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_stage_commercial_baselines_bootstrap_run_id_fkey"
+            columns: ["bootstrap_run_id"]
+            isOneToOne: false
+            referencedRelation: "project_bootstrap_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_stage_commercial_baselines_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_stage_commercial_baselines_project_stage_id_fkey"
+            columns: ["project_stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
             referencedColumns: ["id"]
           },
         ]
@@ -7078,6 +7299,10 @@ export type Database = {
         | "skipped"
       import_type: "accelo_activity_timesheet" | "companies_clients_suppliers"
       opportunity_activity_type: "call" | "email" | "meeting" | "note"
+      pm_allocation_placeholder_source:
+        | "ontology_default"
+        | "quote_snapshot"
+        | "manual"
       pm_allocation_status: "tentative" | "committed"
       pm_dep_type: "FS" | "SS" | "FF" | "SF"
       pm_expense_category:
@@ -7408,6 +7633,11 @@ export const Constants = {
       ],
       import_type: ["accelo_activity_timesheet", "companies_clients_suppliers"],
       opportunity_activity_type: ["call", "email", "meeting", "note"],
+      pm_allocation_placeholder_source: [
+        "ontology_default",
+        "quote_snapshot",
+        "manual",
+      ],
       pm_allocation_status: ["tentative", "committed"],
       pm_dep_type: ["FS", "SS", "FF", "SF"],
       pm_expense_category: [
