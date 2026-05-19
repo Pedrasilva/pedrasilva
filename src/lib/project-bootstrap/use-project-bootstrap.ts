@@ -324,3 +324,64 @@ export function useApplyProjectBootstrap() {
     },
   });
 }
+
+/* -------------------------------------------------------------------------- */
+/* Stage 6B — Baseline reads                                                  */
+/* -------------------------------------------------------------------------- */
+
+export function useProjectCommercialBaseline(projectId: string | null | undefined) {
+  return useQuery<ProjectCommercialBaselineRow | null>({
+    enabled: !!projectId,
+    queryKey: ["pm-project-commercial-baseline", projectId],
+    queryFn: async () => {
+      const { data, error } = await db
+        .from("pm_project_commercial_baselines")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      return (data ?? null) as ProjectCommercialBaselineRow | null;
+    },
+  });
+}
+
+export function useStageCommercialBaselines(projectId: string | null | undefined) {
+  return useQuery<StageCommercialBaselineRow[]>({
+    enabled: !!projectId,
+    queryKey: ["pm-stage-commercial-baselines", projectId],
+    queryFn: async () => {
+      const { data, error } = await db
+        .from("pm_stage_commercial_baselines")
+        .select("*")
+        .eq("project_id", projectId);
+      if (error) throw new Error(error.message);
+      return (data ?? []) as StageCommercialBaselineRow[];
+    },
+  });
+}
+
+export function useStageAllocationPlaceholders(projectId: string | null | undefined) {
+  return useQuery<StageAllocationPlaceholderRow[]>({
+    enabled: !!projectId,
+    queryKey: ["pm-stage-allocation-placeholders", projectId],
+    queryFn: async () => {
+      if (!projectId) return [];
+      // Join via stage's project_id by selecting nested fk filter.
+      const { data: stageRows, error: stageErr } = await db
+        .from("pm_stages")
+        .select("id")
+        .eq("project_id", projectId);
+      if (stageErr) throw new Error(stageErr.message);
+      const stageIds = (stageRows ?? []).map((r: { id: string }) => r.id);
+      if (!stageIds.length) return [];
+      const { data, error } = await db
+        .from("pm_stage_allocation_placeholders")
+        .select("*")
+        .in("project_stage_id", stageIds);
+      if (error) throw new Error(error.message);
+      return (data ?? []) as StageAllocationPlaceholderRow[];
+    },
+  });
+}
