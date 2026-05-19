@@ -32,6 +32,7 @@ import {
 import {
   useQuoteDependencies, useCreateQuoteDependency, useDeleteQuoteDependency,
 } from "@/lib/quotes/use-quote-dependencies";
+import { useUpdateQuoteDependency } from "@/lib/quotes/use-quote-planner";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import {
   useDefaultResourceRates, effectiveRates,
