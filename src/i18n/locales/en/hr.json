@@ -650,7 +650,9 @@
       "summaryTab": "Summary",
       "newButton": "New snapshot",
       "empty": "No snapshots yet. Create the first one (e.g. \"Current\" with today's date).",
-      "archivedBlocked": "This team member is archived. Restore them to add new snapshots."
+      "archivedBlocked": "This team member is archived. Restore them to add new snapshots.",
+      "editorTitle": "Edit snapshot fields",
+      "editorDescription": "Adjust the underlying salary, benefits, and tax fields of this snapshot. The summary above updates as you save."
     },
     "newDialog": {
       "title": "New salary snapshot",
