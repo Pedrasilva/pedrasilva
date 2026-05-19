@@ -8,6 +8,7 @@ export * from "./staffing-coverage";
 export * from "./recoverability";
 export * from "./capacity";
 export * from "./project-metrics";
+export * from "./allocation-suggestions";
 export {
   useProjectForecastEnvelope,
   useFreezeProjectForecastSnapshot,

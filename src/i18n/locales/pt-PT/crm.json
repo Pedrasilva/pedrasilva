@@ -1002,6 +1002,63 @@
       "remainingHours": "Horas por cobrir",
       "overloaded": "Sobrecarregados",
       "avgUtilization": "Utilização média"
+    },
+    "workspace": {
+      "title": "Cockpit operacional",
+      "subtitle": "Planeie equipa, monitorize cobertura, identifique conflitos",
+      "openLink": "Abrir cockpit operacional",
+      "backToProject": "Voltar ao projecto",
+      "emptyTitle": "Sem dados operacionais",
+      "emptyBody": "Adicione fases, alocações ou um baseline comercial para activar o cockpit.",
+      "tabs": {
+        "coverage": "Cobertura",
+        "board": "Mapa de alocação",
+        "conflicts": "Conflitos",
+        "suggestions": "Sugestões"
+      },
+      "health": {
+        "title": "Saúde operacional",
+        "staffing": "Cobertura de equipa",
+        "margin": "Margem prevista",
+        "recoverability": "Desvio de recuperabilidade",
+        "capacity": "Pressão de capacidade",
+        "delivery": "Risco de entrega"
+      },
+      "coverageTable": {
+        "stage": "Fase",
+        "planned": "Planeadas",
+        "allocated": "Alocadas",
+        "uncovered": "Por cobrir",
+        "coverage": "Cobertura",
+        "recoverability": "Recuperabilidade",
+        "risk": "Risco"
+      },
+      "board": {
+        "collaborator": "Colaborador",
+        "total": "Total",
+        "utilization": "Util.",
+        "noAllocations": "Sem alocações — atribua colaboradores no planeador do projecto.",
+        "openPlanner": "Editar no planeador"
+      },
+      "conflicts": {
+        "overloadTitle": "Colaboradores sobrecarregados",
+        "overloadEmpty": "Nenhum colaborador acima da sua capacidade.",
+        "uncoveredTitle": "Fases por cobrir",
+        "uncoveredEmpty": "Todas as fases têm alocações a cobrir as horas planeadas.",
+        "underUtilTitle": "Colaboradores subutilizados",
+        "underUtilEmpty": "Nenhum colaborador significativamente subutilizado.",
+        "utilization": "{{pct}}% de utilização",
+        "uncoveredHours": "{{hours}}h por cobrir"
+      },
+      "suggestions": {
+        "title": "Sugestões de equipa",
+        "intro": "Ranking determinístico — apenas sugestões, nunca atribuição automática.",
+        "noPlaceholder": "Sem envelope de placeholder — adicione um baseline para activar correspondência.",
+        "match": "Disciplina correspondente",
+        "available": "Disponível {{hours}}h",
+        "loaded": "Actualmente a {{pct}}% de utilização",
+        "score": "Pontuação {{score}}"
+      }
     }
   }
 }

@@ -603,6 +603,14 @@ function ProjectDetail() {
             {tab === "overview" && (
               <div className="mt-4 space-y-4">
                 <CommercialBaselineCard projectId={projectId} />
+                <div className="flex justify-end">
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/projects/$projectId/allocations" params={{ projectId }}>
+                      <TrendingUp className="mr-1.5 h-3.5 w-3.5" />
+                      {t("crm:workspace.openLink", { defaultValue: "Open operations cockpit" })}
+                    </Link>
+                  </Button>
+                </div>
                 <ProjectForecastCard projectId={projectId} />
                 {budgetControl && canSeeFinancials && (
                   <BudgetControlPanel
