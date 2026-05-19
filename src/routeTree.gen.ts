@@ -49,6 +49,7 @@ import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports
 import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin.company-settings'
 import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.finance.documents.index'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
+import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_app.projects.$projectId.allocations'
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
 import { Route as AppFinanceReportsVatRouteImport } from './routes/_app.finance.reports.vat'
 import { Route as AppFinanceReportsProjectsRouteImport } from './routes/_app.finance.reports.projects'
@@ -285,6 +286,12 @@ const AppProjectsResourcesResourceIdRoute =
     path: '/$resourceId',
     getParentRoute: () => AppProjectsResourcesRoute,
   } as any)
+const AppProjectsProjectIdAllocationsRoute =
+  AppProjectsProjectIdAllocationsRouteImport.update({
+    id: '/allocations',
+    path: '/allocations',
+    getParentRoute: () => AppProjectsProjectIdRoute,
+  } as any)
 const AppHrColaboradorIdRoute = AppHrColaboradorIdRouteImport.update({
   id: '/colaborador/$id',
   path: '/colaborador/$id',
@@ -498,7 +505,7 @@ export interface FileRoutesByFullPath {
   '/hr/resumo': typeof AppHrResumoRoute
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
-  '/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/projects/financials': typeof AppProjectsFinancialsRoute
   '/projects/forecast': typeof AppProjectsForecastRoute
   '/projects/gantt': typeof AppProjectsGanttRoute
@@ -544,6 +551,7 @@ export interface FileRoutesByFullPath {
   '/finance/reports/projects': typeof AppFinanceReportsProjectsRoute
   '/finance/reports/vat': typeof AppFinanceReportsVatRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
+  '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/finance/documents/': typeof AppFinanceDocumentsIndexRoute
 }
@@ -569,7 +577,7 @@ export interface FileRoutesByTo {
   '/hr/resumo': typeof AppHrResumoRoute
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
-  '/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/projects/financials': typeof AppProjectsFinancialsRoute
   '/projects/forecast': typeof AppProjectsForecastRoute
   '/projects/gantt': typeof AppProjectsGanttRoute
@@ -615,6 +623,7 @@ export interface FileRoutesByTo {
   '/finance/reports/projects': typeof AppFinanceReportsProjectsRoute
   '/finance/reports/vat': typeof AppFinanceReportsVatRoute
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
+  '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/finance/documents': typeof AppFinanceDocumentsIndexRoute
 }
@@ -645,7 +654,7 @@ export interface FileRoutesById {
   '/_app/hr/resumo': typeof AppHrResumoRoute
   '/_app/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/_app/hr/valor-bo': typeof AppHrValorBoRoute
-  '/_app/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/_app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/_app/projects/financials': typeof AppProjectsFinancialsRoute
   '/_app/projects/forecast': typeof AppProjectsForecastRoute
   '/_app/projects/gantt': typeof AppProjectsGanttRoute
@@ -691,6 +700,7 @@ export interface FileRoutesById {
   '/_app/finance/reports/projects': typeof AppFinanceReportsProjectsRoute
   '/_app/finance/reports/vat': typeof AppFinanceReportsVatRoute
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
+  '/_app/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
   '/_app/finance/documents/': typeof AppFinanceDocumentsIndexRoute
 }
@@ -767,6 +777,7 @@ export interface FileRouteTypes {
     | '/finance/reports/projects'
     | '/finance/reports/vat'
     | '/hr/colaborador/$id'
+    | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
     | '/finance/documents/'
   fileRoutesByTo: FileRoutesByTo
@@ -838,6 +849,7 @@ export interface FileRouteTypes {
     | '/finance/reports/projects'
     | '/finance/reports/vat'
     | '/hr/colaborador/$id'
+    | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
     | '/finance/documents'
   id:
@@ -913,6 +925,7 @@ export interface FileRouteTypes {
     | '/_app/finance/reports/projects'
     | '/_app/finance/reports/vat'
     | '/_app/hr/colaborador/$id'
+    | '/_app/projects/$projectId/allocations'
     | '/_app/projects/resources/$resourceId'
     | '/_app/finance/documents/'
   fileRoutesById: FileRoutesById
@@ -1204,6 +1217,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/projects/resources/$resourceId'
       preLoaderRoute: typeof AppProjectsResourcesResourceIdRouteImport
       parentRoute: typeof AppProjectsResourcesRoute
+    }
+    '/_app/projects/$projectId/allocations': {
+      id: '/_app/projects/$projectId/allocations'
+      path: '/allocations'
+      fullPath: '/projects/$projectId/allocations'
+      preLoaderRoute: typeof AppProjectsProjectIdAllocationsRouteImport
+      parentRoute: typeof AppProjectsProjectIdRoute
     }
     '/_app/hr/colaborador/$id': {
       id: '/_app/hr/colaborador/$id'
@@ -1609,6 +1629,17 @@ const AppHrRouteChildren: AppHrRouteChildren = {
 
 const AppHrRouteWithChildren = AppHrRoute._addFileChildren(AppHrRouteChildren)
 
+interface AppProjectsProjectIdRouteChildren {
+  AppProjectsProjectIdAllocationsRoute: typeof AppProjectsProjectIdAllocationsRoute
+}
+
+const AppProjectsProjectIdRouteChildren: AppProjectsProjectIdRouteChildren = {
+  AppProjectsProjectIdAllocationsRoute: AppProjectsProjectIdAllocationsRoute,
+}
+
+const AppProjectsProjectIdRouteWithChildren =
+  AppProjectsProjectIdRoute._addFileChildren(AppProjectsProjectIdRouteChildren)
+
 interface AppProjectsResourcesRouteChildren {
   AppProjectsResourcesResourceIdRoute: typeof AppProjectsResourcesResourceIdRoute
 }
@@ -1628,7 +1659,7 @@ interface AppRouteChildren {
   AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
   AppAdminImportsRoute: typeof AppAdminImportsRoute
   AppAdminProjectsRoute: typeof AppAdminProjectsRoute
-  AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRoute
+  AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRouteWithChildren
   AppProjectsFinancialsRoute: typeof AppProjectsFinancialsRoute
   AppProjectsForecastRoute: typeof AppProjectsForecastRoute
   AppProjectsGanttRoute: typeof AppProjectsGanttRoute
@@ -1648,7 +1679,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
   AppAdminImportsRoute: AppAdminImportsRoute,
   AppAdminProjectsRoute: AppAdminProjectsRoute,
-  AppProjectsProjectIdRoute: AppProjectsProjectIdRoute,
+  AppProjectsProjectIdRoute: AppProjectsProjectIdRouteWithChildren,
   AppProjectsFinancialsRoute: AppProjectsFinancialsRoute,
   AppProjectsForecastRoute: AppProjectsForecastRoute,
   AppProjectsGanttRoute: AppProjectsGanttRoute,
