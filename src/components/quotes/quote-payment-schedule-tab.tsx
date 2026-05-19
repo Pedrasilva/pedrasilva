@@ -311,6 +311,30 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
 
   return (
     <div className="space-y-6">
+      {totalFee > 0 && (
+        <div
+          className={`rounded-md border p-3 text-sm flex items-center justify-between gap-3 ${
+            totalMismatch
+              ? "border-destructive/50 bg-destructive/10 text-destructive"
+              : "border-border bg-muted/30 text-muted-foreground"
+          }`}
+        >
+          <div>
+            <span className="font-medium">{formatEUR(scheduleTotal)}</span>
+            <span className="opacity-70"> / {formatEUR(totalFee)} </span>
+            <span className="opacity-70">
+              ({t("workspace.payment.scheduleTotalLabel", { defaultValue: "Schedule total vs proposal fee (excl. VAT)" })})
+            </span>
+          </div>
+          {totalMismatch && (
+            <span className="text-xs font-medium">
+              {t("workspace.payment.totalMismatchWarning", {
+                defaultValue: "Schedule total does not match the proposal fee.",
+              })}
+            </span>
+          )}
+        </div>
+      )}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
           <CardTitle className="text-base">{t("workspace.payment.title")}</CardTitle>
