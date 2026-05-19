@@ -2289,7 +2289,19 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
           />
         </div>
       ) : (
-        <div className="no-print">
+        <div className="no-print space-y-4">
+          <QuoteProposalIntelligencePanel
+            quoteId={quoteId}
+            documentId={document?.id}
+            proposalKind={toRenderKind(
+              quoteTypeToProposalKind(quoteType),
+            )}
+            tokens={{
+              clientName,
+              accountName,
+              proposalTitle: props.title,
+            }}
+          />
           <GeneratedDocumentSection
             quoteId={quoteId}
             document={document}
