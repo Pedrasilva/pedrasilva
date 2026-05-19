@@ -478,7 +478,7 @@
       "baseMonthly": "Monthly base value",
       "baseAnnualX14": "Base value × 14 months",
       "grossMonthly": "Monthly gross",
-      "grossAnnual": "Annual gross",
+      "grossAnnual": "Annual payroll cost",
       "netMonthly12": "Monthly net (12)",
       "mealAllowanceDaily": "Meal allowance — daily",
       "mealAllowanceMonthly": "Meal allowance — monthly",
@@ -490,7 +490,8 @@
       "monthlyLiquidity": "Total monthly liquidity",
       "totalNetMonthly": "Total monthly liquidity",
       "benefitsAnnual": "Benefits (annual)",
-      "tgvAnnual": "Total Gross Value (annual)"
+      "tgvAnnual": "Total Gross Value (annual)",
+      "globalAnnual": "Total annual cost"
     }
   },
   "resumoComparativo": {
