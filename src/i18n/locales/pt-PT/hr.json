@@ -131,6 +131,14 @@
     "boRate": "Valor BO/hora",
     "permissions": "Permissões"
   },
+  "compensationGate": {
+    "title": "Compensação oculta",
+    "description": "Pode abrir esta ficha, mas não tem permissão para ver salário, benefícios, liquidez ou custos. Peça a um administrador a permissão \"Ver compensação\"."
+  },
+  "resumoCompensationGate": {
+    "title": "Valores ocultos",
+    "description": "Pode ver esta comparação, mas os valores salariais estão ocultos. Peça a um administrador a permissão \"Resumo — ver valores\"."
+  },
   "landing": {
     "title": "Colaboradores",
     "subtitle": "Cada colaborador tem uma ficha com fichas salariais por data.",

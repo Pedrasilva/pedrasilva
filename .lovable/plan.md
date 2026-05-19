@@ -1,85 +1,107 @@
-# Global Navigation Refactor (Accelo-inspired)
+## Causa do problema
 
-Replace PSA Hub's current horizontal top nav with a persistent **left vertical module rail**, **top-right global action icons**, and a **bottom-left utility area**. The Projects module's content (dashboards, Gantt, materials, expenses, rates, billing, allocations) is frozen — only the shell changes.
+Três fatores compostos:
 
-## New shell structure
+1. **Permissões pouco granulares.** Hoje só existem `hr.colaboradores` (lista + ficha + valores tudo num só), `hr.resumo` (tabela inteira com valores) e `hr.minha-ficha`. Não há separação entre "ver ficha" vs. "ver compensação". Quem recebe `hr.colaboradores` recebe automaticamente acesso financeiro — ou nada.
 
-```text
-┌──┬──────────────────────────────────────────────────────────┐
-│  │  page title / breadcrumb       [+] [⏱] [✓] [📅] [📥] [👤]│
-│R ├──────────────────────────────────────────────────────────┤
-│a │                                                          │
-│i │                    page content (Outlet)                 │
-│l │                                                          │
-│  ├──────────────────────────────────────────────────────────┤
-│⚙ │  (bottom: Help · Feedback · Settings)                    │
-└──┴──────────────────────────────────────────────────────────┘
+2. **RLS é binária admin-only nas tabelas sensíveis.** `salary_snapshots` e `bo_settings` só permitem leitura a `admin` ou ao próprio colaborador. Um utilizador não-admin com `hr.colaboradores` marcado na grelha passa o `PermissionGate` (UI), mas a query devolve 0 linhas → valores aparecem a "—" / 0,00 €. A UI mostra acesso, a RLS bloqueia. Foi exatamente o sintoma da Irene em `/projects/resources` e é o mesmo padrão aqui.
+
+3. **`isAdmin` no client mistura real admin e view-as.** `useAuth` expõe `isAdmin` (efetivo, considera view-as) e `isRealAdmin`. Várias queries assumem `isAdmin = bypass RLS`, mas RLS no servidor vê sempre o utilizador autenticado real. Em view-as, a UI relaxa, a RLS não.
+
+## Permissões atuais (HR namespace)
+
+```
+hr.minha-ficha           própria ficha
+hr.dias-uteis            calendário/feriados
+hr.beneficios.own        próprias despesas benefícios
+hr.beneficios.approve    aprovar benefícios de outros
+hr.ferias.own            próprias férias
+hr.colaboradores         lista + ficha + valores (tudo)
+hr.resumo                resumo comparativo (com valores)
+hr.subsidio-alimentacao  config SA
+hr.valor-bo              config valor BO/hora
 ```
 
-## Left module rail (top → bottom)
+## Permissões novas (aditivas)
 
-Each item: icon + tooltip; click opens a structured flyout panel.
+```
+hr.colaborador.view                 abrir ficha de outros (sem valores)
+hr.colaborador.compensation.view    salário, benefícios, liquidez, custos na ficha
+hr.colaborador.edit                 editar ficha
+hr.resumo.compensation.view         valores no resumo comparativo
+hr.admin                            gerir permissões HR (alias para has_role admin)
+```
 
-1. **CRM / Sales** — companies, contacts, opportunities, pipeline, quotes
-2. **Projects** — projects, gantt, resources, timesheet, my tasks, forecast, financials, insights
-3. **Team / HR** — collaborators, my sheet, benefits, meal allowance, holidays, working days, summary
-4. **Time / Work** — log time, my timesheet, my tasks, weekly view
-5. **Finance** — documents, invoicing, payments, banking, reports, data, admin
-6. **Insights / Reports** — project insights, forecast, cashflow, VAT, project financials
+`hr.colaboradores` mantém-se = ver lista. `hr.resumo` mantém-se = ver tabela sem valores. As keys antigas continuam a funcionar (compatibilidade), mas perdem o significado "tudo incluído".
 
-Bottom of rail: **Help**, **Feedback**, **Settings** (admin/imports/company-settings).
+### Compatibilidade
 
-Each flyout has the structure: header tabs (where useful), "Shared lists", "Recently viewed" (stub: most-recent routes), "Shortcuts", "Reports".
+Migração aditiva: quem hoje tem `hr.colaboradores` recebe também `hr.colaborador.view` + `hr.colaborador.compensation.view`. Quem tem `hr.resumo` recebe `hr.resumo.compensation.view`. Resultado funcional = status quo, mas a partir daí o admin pode revogar só a parte de compensação.
 
-## Top-right global icon hubs
+## Camadas a alterar
 
-- **Create (+)** — Task, Project, Company, Contact, Opportunity, Quote, Expense, Material, Collaborator (re-uses existing `QuickCreateMenu` dialogs)
-- **Time (⏱)** — Log time, My timesheet, Weekly view, Team timesheet overview
-- **Tasks (✓)** — New task, My open tasks, My managed tasks, Boards by status/deadline/assignee
-- **Schedule (📅)** — My schedule, Team scheduling, Schedule dashboard (Gantt)
-- **Inbox (📥)** — Work tray placeholder (notifications/approvals; wire existing alerts)
-- **User (👤)** — My account, Preferences, Language, Notifications, View-as picker (admin), Logout
+### 1. Migration SQL (aditivo)
 
-## What moves OUT of the top horizontal nav
+- Backfill `user_permissions` para os utilizadores existentes com as 5 novas keys conforme regra acima.
+- Atualizar RLS:
+  - `salary_snapshots SELECT`: admin OR own OR `has_permission(auth.uid(), 'hr.colaborador.compensation.view')` OR `has_permission(auth.uid(), 'hr.resumo.compensation.view')`.
+  - `bo_settings SELECT`: admin OR `has_permission(... 'hr.colaborador.compensation.view')` OR `... 'hr.resumo.compensation.view')` OR `... 'hr.valor-bo')`.
+  - `collaborators SELECT`: adicionar branch `has_permission(auth.uid(), 'hr.colaborador.view')` (sem expor salário — a tabela `collaborators` não tem salário, só perfil).
+- `bo_settings INSERT` e `salary_snapshots INSERT` já têm `WITH CHECK` admin — manter.
 
-- Module switcher chips (CRM/Projects/HR/Finance/Admin) → left rail
-- "Tempo / Tarefas / Agenda" text links → top-right icon hubs
-- Admin entry → bottom-left Settings (still gated by role)
-- Language switcher → inside User dropdown
+### 2. `src/lib/permissions.ts`
 
-## Files to add
+- Adicionar as 5 keys ao `PermissionKey` union.
+- Adicionar à grelha do admin com labels EN+PT e descrição clara da diferença "view ficha" vs "view valores".
 
-- `src/components/shell/AppRail.tsx` — vertical icon rail + flyout host
-- `src/components/shell/RailFlyout.tsx` — structured flyout panel
-- `src/components/shell/TopActions.tsx` — top-right icon hubs container
-- `src/components/shell/menus/CreateMenu.tsx` (wraps existing `QuickCreateMenu`)
-- `src/components/shell/menus/TimeMenu.tsx`
-- `src/components/shell/menus/TasksMenu.tsx`
-- `src/components/shell/menus/ScheduleMenu.tsx`
-- `src/components/shell/menus/InboxMenu.tsx`
-- `src/components/shell/menus/UserMenu.tsx`
-- `src/components/shell/SettingsMenu.tsx` (bottom-left)
-- `src/components/shell/nav-config.ts` — single source of truth for rail items + flyout sections
-- i18n keys in `src/i18n/locales/{en,pt-PT}/common.json` under `nav.*`
+### 3. UI gating (PT/EN parity)
 
-## Files to edit
+- `src/routes/_app.hr.colaborador.$id.tsx`: trocar `PermissionGate hr.colaboradores` por `hr.colaborador.view`; mascarar blocos de compensação (Salário, Benefícios, Liquidez, Custos, ResumoCompare) se não tiver `hr.colaborador.compensation.view`. Mascaramento = renderizar "—" e esconder donut/highlight cards de valores.
+- `src/routes/_app.hr.resumo.tsx`: gate continua `hr.resumo`; colunas/células de valor escondidas/mascaradas se não tiver `hr.resumo.compensation.view`.
+- `src/routes/_app.hr.colaboradores.tsx`: gate continua `hr.colaboradores` (lista).
+- `src/routes/_app.hr.tsx` (nav): adicionar item "Ficha de colaborador" condicionado a `hr.colaborador.view`.
 
-- `src/routes/_app.tsx` — swap `GlobalTopNav`/`ModuleTopNav` for new shell (rail + slim top bar)
-- `src/components/GlobalTopNav.tsx` — slim down to title + `TopActions` (or replaced)
-- `src/components/ModuleTopNav.tsx` — removed from `_app.tsx` (kept for now if used elsewhere)
-- `src/components/projects/app-shell.tsx` — already a passthrough; no change
+### 4. Hook helpers
 
-## What stays unchanged
+- `useHasPermission`/`useMyPermissions` — nenhuma mudança lógica, mas adicionar helper `useCanViewCompensation(scope: 'card' | 'resumo')` para concentrar a decisão.
 
-- All files under `src/routes/_app.projects.*` (content, tabs, Gantt, allocations, financials)
-- `src/components/projects/*` (allocation-editor, etc.)
-- `src/lib/projects/*` (rates, planner, schedules, ownership)
-- Finance, HR, CRM data hooks and pages — only their entry points move
+### 5. View-as
 
-## Validation
+- Verificar que `useMyPermissions` durante `viewAsUser` lê as permissões do alvo (não do admin) — hoje já lê com `user.id` real do auth, mas em view-as o admin continua admin para RLS. Garantir que as queries usam `isAdmin` efetivo só para UI, não como bypass de dados sensíveis durante view-as. Adicionar nota: em view-as, mascarar compensação a menos que o alvo tivesse `hr.colaborador.compensation.view`.
 
-- Typecheck clean
-- i18n parity (EN + PT for every new `nav.*` key, added in same edit)
-- Project module routes still render identically (no content drift)
-- Mobile: rail collapses to a top sheet trigger; top-right icons remain accessible
-- Existing role-gating preserved (admin items only show for admins via `PermissionGate`)
+## Validação por perfil
+
+| Perfil | Lista | Abrir ficha | Salário/benefícios na ficha | Resumo | Valores no resumo |
+|---|---|---|---|---|---|
+| Admin real | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HR (todas keys novas) | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Gestor (`hr.colaboradores` + `hr.colaborador.view`) | ✓ | ✓ | mascarado | – | – |
+| Colaborador normal | – | só própria | só própria | – | – |
+| Admin em view-as colaborador | – | só do alvo | só do alvo | – | – |
+
+## Riscos de segurança identificados
+
+1. **Leitura cruzada de `salary_snapshots`** se a nova policy for demasiado permissiva. Mitigação: ligar a `has_permission` (já testado em `has_role`) e nunca a `OR true`.
+2. **View-as não simula RLS no servidor.** Documentar e mascarar UI. Se for crítico, mover queries sensíveis para server functions com `requireSupabaseAuth` e impor regra "se viewAs ativo, comparar permissões do alvo".
+3. **Backfill pode promover utilizadores que tinham `hr.colaboradores` por engano.** Antes de aplicar, o admin deve rever a lista atual em `user_permissions`. A migração inclui um `SELECT ... FOR REVIEW` query que devolve quem ficaria com `hr.colaborador.compensation.view`.
+4. **PII em `collaborators`** (morada, NIF, IBAN — se existirem). Adicionar branch `hr.colaborador.view` expõe estes campos. Mitigação: criar view `collaborators_basic` sem PII sensível e usá-la quando a chamada não tem `hr.colaborador.compensation.view`. (Marca para fase 2 se hoje a tabela só tem dados de perfil.)
+
+## Ficheiros previstos
+
+- `supabase/migrations/<ts>_hr_granular_permissions.sql` (novo)
+- `src/lib/permissions.ts`
+- `src/routes/_app.hr.colaborador.$id.tsx`
+- `src/routes/_app.hr.resumo.tsx`
+- `src/routes/_app.hr.tsx`
+- `src/components/ResumoCompare.tsx` (mascaramento condicional)
+- `src/components/snapshot/SalaryDonut.tsx` + `HighlightCard.tsx` (mascaramento de valores)
+- `src/i18n/locales/{en,pt-PT}/hr.json` (labels novas + "Valor oculto")
+- `src/hooks/use-permissions.tsx` (helper `useCanViewHrCompensation`)
+
+## Não tocar
+
+Férias, benefícios (próprios/aprovação), folha salarial, dashboard HR, importadores, IRS, BO settings dos cálculos de pricing, dias úteis.
+
+## Próximo passo
+
+Aprova o plano para eu emitir a migração SQL primeiro (com o `SELECT` de revisão do backfill), depois aplicar as alterações UI/permissions.ts numa segunda passagem.

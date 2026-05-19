@@ -87,10 +87,11 @@ import { MonthlyLiquidityCard } from "@/components/hr/MonthlyLiquidityCard";
 import type { BenefitExpense } from "@/lib/benefits";
 
 import { PermissionGate } from "@/components/PermissionGate";
+import { useHasPermission } from "@/hooks/use-permissions";
 
 export const Route = createFileRoute("/_app/hr/colaborador/$id")({
   component: () => (
-    <PermissionGate permission="hr.colaboradores">
+    <PermissionGate permission="hr.colaborador.view">
       <CollaboratorPage />
     </PermissionGate>
   ),
@@ -105,6 +106,7 @@ function CollaboratorPage() {
   const fmtSnapshotDate = (iso: string) =>
     format(parseISO(iso), "dd MMM yyyy", { locale: dateLocale });
   const { isAdmin } = useAuth();
+  const { allowed: canViewCompensation } = useHasPermission("hr.colaborador.compensation.view");
   const [activeTab, setActiveTab] = useState<string>("");
   const [newOpen, setNewOpen] = useState(false);
   const [dadosOpen, setDadosOpen] = useState(false);
@@ -632,10 +634,12 @@ function CollaboratorPage() {
         canEdit={isAdmin}
       />
 
-      <MonthlyLiquidityCard
-        snapshot={effectiveSnapshot}
-        expenses={benefitExpenses}
-      />
+      {canViewCompensation && (
+        <MonthlyLiquidityCard
+          snapshot={effectiveSnapshot}
+          expenses={benefitExpenses}
+        />
+      )}
 
       <Card>
         <Collapsible open={agregadoOpen} onOpenChange={setAgregadoOpen}>
@@ -738,133 +742,142 @@ function CollaboratorPage() {
         </Collapsible>
       </Card>
 
-      <div>
-        <Tabs value={tabValue} onValueChange={setActiveTab}>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <TabsList className="h-auto flex-wrap">
-              {snapshots.map((s) => (
-                <TabsTrigger key={s.id} value={s.id} className="gap-2">
-                  <span>{s.label}</span>
-                  <span className="text-[10px] text-muted-foreground">
-                    {fmtSnapshotDate(s.reference_date)}
-                  </span>
-                  {s.is_effective && (
-                    <span className="rounded-full bg-positive/15 px-1.5 py-0.5 text-[10px] font-semibold text-positive">
-                      {t("hr:myProfile.inForce")}
+      {!canViewCompensation ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("hr:compensationGate.title")}</CardTitle>
+            <CardDescription>{t("hr:compensationGate.description")}</CardDescription>
+          </CardHeader>
+        </Card>
+      ) : (
+        <div>
+          <Tabs value={tabValue} onValueChange={setActiveTab}>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <TabsList className="h-auto flex-wrap">
+                {snapshots.map((s) => (
+                  <TabsTrigger key={s.id} value={s.id} className="gap-2">
+                    <span>{s.label}</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {fmtSnapshotDate(s.reference_date)}
                     </span>
-                  )}
+                    {s.is_effective && (
+                      <span className="rounded-full bg-positive/15 px-1.5 py-0.5 text-[10px] font-semibold text-positive">
+                        {t("hr:myProfile.inForce")}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                ))}
+                <TabsTrigger value="resumo" className="gap-1">
+                  <BarChart3 className="h-3 w-3" /> {t("hr:collaborator.snapshots.summaryTab")}
                 </TabsTrigger>
-              ))}
-              <TabsTrigger value="resumo" className="gap-1">
-                <BarChart3 className="h-3 w-3" /> {t("hr:collaborator.snapshots.summaryTab")}
-              </TabsTrigger>
-            </TabsList>
+              </TabsList>
 
-            <Dialog open={newOpen} onOpenChange={(o) => !collab.archived_at && setNewOpen(o)}>
-              <DialogTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={!!collab.archived_at}
-                  title={
-                    collab.archived_at
-                      ? t("hr:collaborator.snapshots.archivedBlocked")
-                      : undefined
-                  }
-                >
-                  <Plus className="h-4 w-4" /> {t("hr:collaborator.snapshots.newButton")}
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>{t("hr:collaborator.newDialog.title")}</DialogTitle>
-                  <DialogDescription>
-                    {t("hr:collaborator.newDialog.description")}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label={t("hr:collaborator.newDialog.label")}>
-                    <Input
-                      className="input-yellow"
-                      value={newForm.label}
-                      onChange={(e) => setNewForm((f) => ({ ...f, label: e.target.value }))}
-                    />
-                  </Field>
-                  <Field label={t("hr:collaborator.newDialog.referenceDate")}>
-                    <Input
-                      type="date"
-                      className="input-yellow"
-                      value={newForm.reference_date}
-                      onChange={(e) =>
-                        setNewForm((f) => ({ ...f, reference_date: e.target.value }))
-                      }
-                    />
-                  </Field>
-                  <Field label={t("hr:collaborator.newDialog.copyFrom")}>
-                    <Select
-                      value={newForm.copyFrom || "none"}
-                      onValueChange={(v) =>
-                        setNewForm((f) => ({ ...f, copyFrom: v === "none" ? "" : v }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("hr:collaborator.newDialog.copyFromBlank")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">{t("hr:collaborator.newDialog.copyFromBlank")}</SelectItem>
-                        {snapshots.map((s) => (
-                          <SelectItem key={s.id} value={s.id}>
-                            {s.label} · {fmtSnapshotDate(s.reference_date)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                  <Field label={t("hr:collaborator.newDialog.effective")}>
-                    <div className="flex h-9 items-center">
-                      <Switch
-                        checked={newForm.is_effective}
-                        onCheckedChange={(v) =>
-                          setNewForm((f) => ({ ...f, is_effective: v }))
+              <Dialog open={newOpen} onOpenChange={(o) => !collab.archived_at && setNewOpen(o)}>
+                <DialogTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={!!collab.archived_at}
+                    title={
+                      collab.archived_at
+                        ? t("hr:collaborator.snapshots.archivedBlocked")
+                        : undefined
+                    }
+                  >
+                    <Plus className="h-4 w-4" /> {t("hr:collaborator.snapshots.newButton")}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>{t("hr:collaborator.newDialog.title")}</DialogTitle>
+                    <DialogDescription>
+                      {t("hr:collaborator.newDialog.description")}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <Field label={t("hr:collaborator.newDialog.label")}>
+                      <Input
+                        className="input-yellow"
+                        value={newForm.label}
+                        onChange={(e) => setNewForm((f) => ({ ...f, label: e.target.value }))}
+                      />
+                    </Field>
+                    <Field label={t("hr:collaborator.newDialog.referenceDate")}>
+                      <Input
+                        type="date"
+                        className="input-yellow"
+                        value={newForm.reference_date}
+                        onChange={(e) =>
+                          setNewForm((f) => ({ ...f, reference_date: e.target.value }))
                         }
                       />
-                    </div>
-                  </Field>
-                </div>
-                <DialogFooter>
-                  <Button variant="ghost" onClick={() => setNewOpen(false)}>
-                    {t("hr:collaborator.newDialog.cancel")}
-                  </Button>
-                  <Button onClick={() => createSnap.mutate()} disabled={createSnap.isPending}>
-                    {t("hr:collaborator.newDialog.create")}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
+                    </Field>
+                    <Field label={t("hr:collaborator.newDialog.copyFrom")}>
+                      <Select
+                        value={newForm.copyFrom || "none"}
+                        onValueChange={(v) =>
+                          setNewForm((f) => ({ ...f, copyFrom: v === "none" ? "" : v }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("hr:collaborator.newDialog.copyFromBlank")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">{t("hr:collaborator.newDialog.copyFromBlank")}</SelectItem>
+                          {snapshots.map((s) => (
+                            <SelectItem key={s.id} value={s.id}>
+                              {s.label} · {fmtSnapshotDate(s.reference_date)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field label={t("hr:collaborator.newDialog.effective")}>
+                      <div className="flex h-9 items-center">
+                        <Switch
+                          checked={newForm.is_effective}
+                          onCheckedChange={(v) =>
+                            setNewForm((f) => ({ ...f, is_effective: v }))
+                          }
+                        />
+                      </div>
+                    </Field>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="ghost" onClick={() => setNewOpen(false)}>
+                      {t("hr:collaborator.newDialog.cancel")}
+                    </Button>
+                    <Button onClick={() => createSnap.mutate()} disabled={createSnap.isPending}>
+                      {t("hr:collaborator.newDialog.create")}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
 
-          {snapshots.length === 0 && (
-            <Card className="mt-4">
-              <CardContent className="py-12 text-center text-sm text-muted-foreground">
-                {t("hr:collaborator.snapshots.empty")}
-              </CardContent>
-            </Card>
-          )}
+            {snapshots.length === 0 && (
+              <Card className="mt-4">
+                <CardContent className="py-12 text-center text-sm text-muted-foreground">
+                  {t("hr:collaborator.snapshots.empty")}
+                </CardContent>
+              </Card>
+            )}
 
-          {snapshots.map((s) => (
-            <TabsContent key={s.id} value={s.id} className="mt-4">
-              <SnapshotForm
-                snapshot={s}
-                collaborator={draft}
-              />
+            {snapshots.map((s) => (
+              <TabsContent key={s.id} value={s.id} className="mt-4">
+                <SnapshotForm
+                  snapshot={s}
+                  collaborator={draft}
+                />
+              </TabsContent>
+            ))}
+
+            <TabsContent value="resumo" className="mt-4">
+              <ResumoCompare snapshots={snapshots} expenses={benefitExpenses} />
             </TabsContent>
-          ))}
-
-          <TabsContent value="resumo" className="mt-4">
-            <ResumoCompare snapshots={snapshots} expenses={benefitExpenses} />
-          </TabsContent>
-        </Tabs>
-      </div>
+          </Tabs>
+        </div>
+      )}
     </div>
   );
 }

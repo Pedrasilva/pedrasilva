@@ -131,6 +131,14 @@
     "boRate": "BO rate",
     "permissions": "Permissions"
   },
+  "compensationGate": {
+    "title": "Compensation hidden",
+    "description": "You can open this profile, but you don't have permission to view salary, benefits, liquidity or cost values. Ask an administrator for the \"View compensation\" permission."
+  },
+  "resumoCompensationGate": {
+    "title": "Values hidden",
+    "description": "You can see this comparison, but salary values are hidden. Ask an administrator for the \"Summary — view values\" permission."
+  },
   "landing": {
     "title": "Team members",
     "subtitle": "Each member has a profile with salary snapshots over time.",
