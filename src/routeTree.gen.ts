@@ -79,6 +79,7 @@ import { Route as AppFinanceAdminAuditRouteImport } from './routes/_app.finance.
 import { Route as AppCrmQuotesQuoteIdRouteImport } from './routes/_app.crm.quotes.$quoteId'
 import { Route as AppCrmPipelineProposalIdRouteImport } from './routes/_app.crm.pipeline.$proposalId'
 import { Route as AppCrmOpportunitiesOpportunityIdRouteImport } from './routes/_app.crm.opportunities.$opportunityId'
+import { Route as AppCrmContractsContractIdRouteImport } from './routes/_app.crm.contracts.$contractId'
 import { Route as AppCrmCompaniesCompanyIdRouteImport } from './routes/_app.crm.companies.$companyId'
 import { Route as AppCrmAccountsAccountIdRouteImport } from './routes/_app.crm.accounts.$accountId'
 
@@ -454,6 +455,12 @@ const AppCrmOpportunitiesOpportunityIdRoute =
     path: '/$opportunityId',
     getParentRoute: () => AppCrmOpportunitiesRoute,
   } as any)
+const AppCrmContractsContractIdRoute =
+  AppCrmContractsContractIdRouteImport.update({
+    id: '/contracts/$contractId',
+    path: '/contracts/$contractId',
+    getParentRoute: () => AppCrmRoute,
+  } as any)
 const AppCrmCompaniesCompanyIdRoute =
   AppCrmCompaniesCompanyIdRouteImport.update({
     id: '/$companyId',
@@ -506,6 +513,7 @@ export interface FileRoutesByFullPath {
   '/projects/': typeof AppProjectsIndexRoute
   '/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
   '/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
+  '/crm/contracts/$contractId': typeof AppCrmContractsContractIdRoute
   '/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
@@ -576,6 +584,7 @@ export interface FileRoutesByTo {
   '/projects': typeof AppProjectsIndexRoute
   '/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
   '/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
+  '/crm/contracts/$contractId': typeof AppCrmContractsContractIdRoute
   '/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
@@ -651,6 +660,7 @@ export interface FileRoutesById {
   '/_app/projects/': typeof AppProjectsIndexRoute
   '/_app/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
   '/_app/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
+  '/_app/crm/contracts/$contractId': typeof AppCrmContractsContractIdRoute
   '/_app/crm/opportunities/$opportunityId': typeof AppCrmOpportunitiesOpportunityIdRoute
   '/_app/crm/pipeline/$proposalId': typeof AppCrmPipelineProposalIdRoute
   '/_app/crm/quotes/$quoteId': typeof AppCrmQuotesQuoteIdRoute
@@ -726,6 +736,7 @@ export interface FileRouteTypes {
     | '/projects/'
     | '/crm/accounts/$accountId'
     | '/crm/companies/$companyId'
+    | '/crm/contracts/$contractId'
     | '/crm/opportunities/$opportunityId'
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
@@ -796,6 +807,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/crm/accounts/$accountId'
     | '/crm/companies/$companyId'
+    | '/crm/contracts/$contractId'
     | '/crm/opportunities/$opportunityId'
     | '/crm/pipeline/$proposalId'
     | '/crm/quotes/$quoteId'
@@ -870,6 +882,7 @@ export interface FileRouteTypes {
     | '/_app/projects/'
     | '/_app/crm/accounts/$accountId'
     | '/_app/crm/companies/$companyId'
+    | '/_app/crm/contracts/$contractId'
     | '/_app/crm/opportunities/$opportunityId'
     | '/_app/crm/pipeline/$proposalId'
     | '/_app/crm/quotes/$quoteId'
@@ -1402,6 +1415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCrmOpportunitiesOpportunityIdRouteImport
       parentRoute: typeof AppCrmOpportunitiesRoute
     }
+    '/_app/crm/contracts/$contractId': {
+      id: '/_app/crm/contracts/$contractId'
+      path: '/contracts/$contractId'
+      fullPath: '/crm/contracts/$contractId'
+      preLoaderRoute: typeof AppCrmContractsContractIdRouteImport
+      parentRoute: typeof AppCrmRoute
+    }
     '/_app/crm/companies/$companyId': {
       id: '/_app/crm/companies/$companyId'
       path: '/$companyId'
@@ -1474,6 +1494,7 @@ interface AppCrmRouteChildren {
   AppCrmPipelineRoute: typeof AppCrmPipelineRouteWithChildren
   AppCrmQuoteTemplatesRoute: typeof AppCrmQuoteTemplatesRoute
   AppCrmIndexRoute: typeof AppCrmIndexRoute
+  AppCrmContractsContractIdRoute: typeof AppCrmContractsContractIdRoute
   AppCrmQuotesQuoteIdRoute: typeof AppCrmQuotesQuoteIdRoute
 }
 
@@ -1485,6 +1506,7 @@ const AppCrmRouteChildren: AppCrmRouteChildren = {
   AppCrmPipelineRoute: AppCrmPipelineRouteWithChildren,
   AppCrmQuoteTemplatesRoute: AppCrmQuoteTemplatesRoute,
   AppCrmIndexRoute: AppCrmIndexRoute,
+  AppCrmContractsContractIdRoute: AppCrmContractsContractIdRoute,
   AppCrmQuotesQuoteIdRoute: AppCrmQuotesQuoteIdRoute,
 }
 
