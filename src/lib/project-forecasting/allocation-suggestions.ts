@@ -30,6 +30,12 @@ export interface SuggestionContext {
   placeholder?: PlaceholderRow;
   resources: ResourceRow[];
   capacityByResourceId: Map<string, CollaboratorCapacity>;
+  /**
+   * Optional resolver: maps resource_id → discipline label (lowercased).
+   * Disciplines live on the collaborator (HR) layer, not on pm_resources,
+   * so callers must pre-resolve.
+   */
+  disciplineByResourceId?: Map<string, string>;
 }
 
 /**
@@ -54,9 +60,12 @@ export function suggestCollaboratorsForStage(
       0,
       (cap?.capacity_hours ?? 0) - (cap?.allocated_hours ?? 0),
     );
+    const resourceDiscipline =
+      ctx.disciplineByResourceId?.get(r.id)?.toLowerCase() ?? null;
     const disciplineMatch =
       !!wantedDiscipline &&
-      (r.discipline ?? "").toLowerCase() === wantedDiscipline;
+      !!resourceDiscipline &&
+      resourceDiscipline === wantedDiscipline;
 
     const utilizationBonus = Math.max(0, 40 - (util / 100) * 40); // 0..40
     const matchBonus = disciplineMatch ? 60 : 0;
