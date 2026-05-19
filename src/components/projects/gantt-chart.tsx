@@ -91,6 +91,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
   const [hoveredStage, setHoveredStage] = useState<string | null>(null);
   const [link, setLink] = useState<LinkDragState | null>(null);
   const [linkHoverStage, setLinkHoverStage] = useState<string | null>(null);
+  const [editingDep, setEditingDep] = useState<{ id: string; x: number; y: number } | null>(null);
 
   // All planner mutations + dependency reads come from the adapter — there is
   // no direct pm_* coupling left in this component.
