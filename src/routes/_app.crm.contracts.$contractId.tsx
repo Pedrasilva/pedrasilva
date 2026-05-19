@@ -379,7 +379,9 @@ function ContractDetailPage() {
               </CardContent>
             </Card>
           )}
+          {isSigned && <ContractBootstrapCard contractId={contract.id} />}
         </TabsContent>
+
 
         <TabsContent value="clauses" className="mt-4 space-y-3">
           {clauses.map((c) => {
