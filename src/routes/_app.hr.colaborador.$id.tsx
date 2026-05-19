@@ -634,10 +634,12 @@ function CollaboratorPage() {
         canEdit={isAdmin}
       />
 
-      <MonthlyLiquidityCard
-        snapshot={effectiveSnapshot}
-        expenses={benefitExpenses}
-      />
+      {canViewCompensation && (
+        <MonthlyLiquidityCard
+          snapshot={effectiveSnapshot}
+          expenses={benefitExpenses}
+        />
+      )}
 
       <Card>
         <Collapsible open={agregadoOpen} onOpenChange={setAgregadoOpen}>
