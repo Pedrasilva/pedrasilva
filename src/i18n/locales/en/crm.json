@@ -561,6 +561,8 @@
     },
     "proposal": {
       "documentLabel": "Proposal",
+      "proposalNumberLabel": "Proposal No.",
+      "projectLabel": "Project",
       "issueDate": "Issued",
       "noClient": "Client to be confirmed",
       "clientFacingHint": "Client-facing summary. Internal cost, margin and per-allocation hours are hidden.",
