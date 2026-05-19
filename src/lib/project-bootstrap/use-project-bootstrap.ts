@@ -37,10 +37,6 @@ import {
   type ProjectBootstrapRunRow,
   type ProjectBootstrapSnapshot,
 } from "./types";
-  type ProjectBootstrapPreview,
-  type ProjectBootstrapRunRow,
-  type ProjectBootstrapSnapshot,
-} from "./types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
