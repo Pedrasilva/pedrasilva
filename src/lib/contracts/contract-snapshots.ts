@@ -21,27 +21,12 @@ import {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
 
-interface QuoteRow {
-  id: string;
-  titulo: string;
-  quote_status: string;
-  quote_type: string | null;
-  quote_category: string | null;
-  currency: string | null;
-  total_fee: number | null;
-  sold_fee: number | null;
-  pricing_multiplier: number | null;
-  is_public_tender: boolean | null;
-  pm_project_id: string | null;
-  company_id: string | null;
-  opportunity_id: string | null;
-  proposal_kind: string | null;
-  ontology_family_code: string | null;
-  ontology_preset_code: string | null;
-  ontology_delivery_mode: string | null;
-  ontology_flags: unknown;
-  ontology_metadata: unknown;
-  ontology_bootstrapped_at: string | null;
+function daysBetween(start?: string | null, end?: string | null): number | null {
+  if (!start || !end) return null;
+  const a = new Date(start).getTime();
+  const b = new Date(end).getTime();
+  if (Number.isNaN(a) || Number.isNaN(b)) return null;
+  return Math.max(0, Math.round((b - a) / (1000 * 60 * 60 * 24)));
 }
 
 export async function buildContractSnapshot(
@@ -51,50 +36,49 @@ export async function buildContractSnapshot(
     db
       .from("fee_proposals")
       .select(
-        "id, titulo, quote_status, quote_type, quote_category, currency, total_fee, sold_fee, pricing_multiplier, is_public_tender, pm_project_id, company_id, opportunity_id, proposal_kind, ontology_family_code, ontology_preset_code, ontology_delivery_mode, ontology_flags, ontology_metadata, ontology_bootstrapped_at",
+        "id, titulo, quote_status, quote_type, quote_category, valor, pricing_multiplier, pm_project_id, company_id, opportunity_id, ontology_family_code, ontology_preset_code, ontology_delivery_mode, ontology_flags, ontology_metadata, ontology_bootstrapped_at",
       )
       .eq("id", quoteId)
       .maybeSingle(),
     db
       .from("quote_stages")
-      .select("id, name, fee_amount, sort_order, duration_days, ontology_phase_code")
+      .select("id, name, budget, sort_order, start_date, end_date, phase_code")
       .eq("quote_id", quoteId)
       .order("sort_order", { ascending: true }),
     db
-      .from("quote_payment_schedule")
-      .select("id, label, sequence, amount, due_date, notes")
+      .from("quote_payment_schedule_items")
+      .select("id, label, sort_order, amount_value, expected_invoice_date, notes")
       .eq("quote_id", quoteId)
-      .order("sequence", { ascending: true }),
+      .order("sort_order", { ascending: true }),
     db
       .from("quote_external_services")
-      .select("id, name, purchase_price, sale_price, quantity")
+      .select("id, description, purchase_price, sale_price, quantity")
       .eq("quote_id", quoteId),
   ]);
 
   if (quoteRes.error) throw new Error(quoteRes.error.message);
-  const quote = quoteRes.data as QuoteRow | null;
+  const quote = quoteRes.data as Record<string, unknown> | null;
   if (!quote) throw new Error(`Quote ${quoteId} not found`);
 
+  const companyId = quote.company_id as string | null;
+  const opportunityId = quote.opportunity_id as string | null;
+
   const [companyRes, oppRes] = await Promise.all([
-    quote.company_id
-      ? db.from("companies").select("id, nome").eq("id", quote.company_id).maybeSingle()
+    companyId
+      ? db.from("companies").select("id, nome").eq("id", companyId).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
-    quote.opportunity_id
-      ? db
-          .from("crm_opportunities")
-          .select("id, name")
-          .eq("id", quote.opportunity_id)
-          .maybeSingle()
+    opportunityId
+      ? db.from("crm_opportunities").select("id, name").eq("id", opportunityId).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
   ]);
 
   const proposal: ContractProposalSnapshot = {
-    quote_id: quote.id,
-    title: quote.titulo,
-    quote_status: quote.quote_status,
-    quote_type: quote.quote_type,
-    quote_category: quote.quote_category,
-    currency: quote.currency ?? "EUR",
+    quote_id: quote.id as string,
+    title: (quote.titulo as string) ?? "(sem título)",
+    quote_status: quote.quote_status as string,
+    quote_type: (quote.quote_type as string | null) ?? null,
+    quote_category: (quote.quote_category as string | null) ?? null,
+    currency: "EUR",
     company: {
       id: (companyRes.data as { id?: string } | null)?.id ?? null,
       name: (companyRes.data as { nome?: string } | null)?.nome ?? null,
@@ -103,72 +87,75 @@ export async function buildContractSnapshot(
       id: (oppRes.data as { id?: string } | null)?.id ?? null,
       name: (oppRes.data as { name?: string } | null)?.name ?? null,
     },
-    pm_project_id: quote.pm_project_id,
-    proposal_kind: quote.proposal_kind,
-    is_public_tender: !!quote.is_public_tender,
+    pm_project_id: (quote.pm_project_id as string | null) ?? null,
+    proposal_kind: null,
+    is_public_tender: false,
   };
 
-  const enabledPhases =
-    (stagesRes.data ?? []).map(
-      (s: {
-        name: string;
-        sort_order: number | null;
-        duration_days: number | null;
-        fee_amount: number | null;
-        ontology_phase_code: string | null;
-      }) => ({
-        code: s.ontology_phase_code,
-        name: s.name,
-        order: s.sort_order ?? 0,
-        duration_days: s.duration_days,
-        fee_amount: s.fee_amount,
-      }),
-    );
+  type StageRow = {
+    name: string;
+    sort_order: number | null;
+    budget: number | null;
+    start_date: string | null;
+    end_date: string | null;
+    phase_code: string | null;
+  };
+  const enabledPhases = ((stagesRes.data ?? []) as StageRow[]).map((s) => ({
+    code: s.phase_code,
+    name: s.name,
+    order: s.sort_order ?? 0,
+    duration_days: daysBetween(s.start_date, s.end_date),
+    fee_amount: s.budget != null ? Number(s.budget) : null,
+  }));
 
   const ontology: ContractOntologySnapshot = {
-    family_code: quote.ontology_family_code,
-    preset_code: quote.ontology_preset_code,
-    delivery_mode: quote.ontology_delivery_mode,
+    family_code: (quote.ontology_family_code as string | null) ?? null,
+    preset_code: (quote.ontology_preset_code as string | null) ?? null,
+    delivery_mode: (quote.ontology_delivery_mode as string | null) ?? null,
     flags: (quote.ontology_flags as Record<string, unknown>) ?? {},
     metadata: (quote.ontology_metadata as Record<string, unknown>) ?? {},
     enabled_phases: enabledPhases,
-    bootstrapped_at: quote.ontology_bootstrapped_at,
+    bootstrapped_at: (quote.ontology_bootstrapped_at as string | null) ?? null,
   };
 
-  const externalServices =
-    (externalsRes.data ?? []).map(
-      (e: { name: string; purchase_price: number | null; sale_price: number | null; quantity: number | null }) => ({
-        name: e.name,
-        purchase_price: e.purchase_price,
-        sale_price: e.sale_price,
-        quantity: e.quantity,
-      }),
-    );
+  type ExtRow = {
+    description: string;
+    purchase_price: number | null;
+    sale_price: number | null;
+    quantity: number | null;
+  };
+  const externalServices = ((externalsRes.data ?? []) as ExtRow[]).map((e) => ({
+    name: e.description,
+    purchase_price: e.purchase_price,
+    sale_price: e.sale_price,
+    quantity: e.quantity,
+  }));
 
-  const paymentSchedule =
-    (paymentsRes.data ?? []).map(
-      (p: { label: string | null; sequence: number; amount: number; due_date: string | null; notes: string | null }) => ({
-        label: p.label,
-        sequence: p.sequence,
-        amount: Number(p.amount) || 0,
-        due_date: p.due_date,
-        notes: p.notes,
-      }),
-    );
+  type PayRow = {
+    label: string | null;
+    sort_order: number;
+    amount_value: number;
+    expected_invoice_date: string | null;
+    notes: string | null;
+  };
+  const paymentSchedule = ((paymentsRes.data ?? []) as PayRow[]).map((p) => ({
+    label: p.label,
+    sequence: p.sort_order,
+    amount: Number(p.amount_value) || 0,
+    due_date: p.expected_invoice_date,
+    notes: p.notes,
+  }));
 
-  const hasAtRetainer =
-    ((quote.ontology_metadata as Record<string, unknown> | null)?.["addons"] as
-      | string[]
-      | undefined)?.includes("at_retainer") ?? false;
+  const metadata = (quote.ontology_metadata as Record<string, unknown> | null) ?? {};
+  const addons = Array.isArray(metadata["addons"]) ? (metadata["addons"] as string[]) : [];
+  const hasAtRetainer = addons.includes("at_retainer");
 
-  const recurring =
-    quote.quote_type === "retainer" ||
-    quote.quote_type === "time_based_retainer" ||
-    quote.proposal_kind === "retainer";
+  const quoteType = String(quote.quote_type ?? "");
+  const recurring = quoteType.includes("retainer");
 
   const commercial: ContractCommercialSnapshot = {
-    total_fee: Number(quote.sold_fee ?? quote.total_fee ?? 0) || 0,
-    pricing_multiplier: quote.pricing_multiplier,
+    total_fee: Number(quote.valor ?? 0) || 0,
+    pricing_multiplier: (quote.pricing_multiplier as number | null) ?? null,
     payment_schedule: paymentSchedule,
     external_services: externalServices,
     has_at_retainer: hasAtRetainer,
