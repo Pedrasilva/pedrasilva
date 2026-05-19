@@ -959,7 +959,28 @@
       "alreadyBootstrapped": "This contract has already been bootstrapped.",
       "openProject": "Open project",
       "onlySigned": "Only signed contracts can bootstrap a project.",
-      "loadingPreview": "Building preview…"
+      "loadingPreview": "Building preview…",
+      "baseline": {
+        "title": "Commercial baseline",
+        "sealed": "sealed from signed contract",
+        "soldFee": "Sold fee",
+        "internalFee": "Internal fee",
+        "externalFee": "External fee",
+        "plannedDuration": "Planned duration",
+        "constructionMonths": "Construction (AT)",
+        "targetChargeability": "Target chargeability",
+        "targetRecoverability": "Planned recovery",
+        "targetMargin": "Planned margin",
+        "stagesTitle": "Stage baselines",
+        "placeholdersBadge": "Placeholder envelopes",
+        "placeholdersSummary": "{{count}} placeholder roles · ~{{hours}}h expected — no collaborators assigned yet.",
+        "phaseClass": {
+          "finite": "Finite",
+          "operational_recurring": "Operational",
+          "parallel_addon": "Parallel add-on",
+          "support_only": "Support"
+        }
+      }
     }
   }
 }
