@@ -778,7 +778,7 @@ function RhTable({
             {sortedRows.map((r, idx) => {
               const ref = r.effective ?? r.proposed;
               const c = ref ? computeSnapshot(ref) : null;
-              const fte = computeCollaboratorFte(r.collab.daily_hours, r.collab.days_per_week, horasDia);
+              const fte = computeCollaboratorFte(r.collab.daily_hours, r.collab.days_per_week, 8);
               const fteFmt = new Intl.NumberFormat(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(fte);
               const pct = (n: number | null | undefined) =>
                 n == null ? "—" : `${(n * 100).toLocaleString(i18n.language, { maximumFractionDigits: 2 })}%`;
