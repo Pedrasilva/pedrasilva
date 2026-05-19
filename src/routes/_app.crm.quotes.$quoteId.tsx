@@ -37,6 +37,7 @@ import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
 import { QuoteTimeBasedSettingsTab } from "@/components/quotes/quote-time-based-settings-tab";
 import { QuoteFeeCalculatorCard } from "@/components/quotes/quote-fee-calculator-card";
 import { QuoteOntologyBootstrapCard } from "@/components/quotes/quote-ontology-bootstrap-card";
+import { QuoteCreateContractCard } from "@/components/quotes/quote-create-contract-card";
 import {
   QuoteWorkflowStepper,
   type QuoteStep,
