@@ -1353,6 +1353,255 @@ export type Database = {
           },
         ]
       }
+      contract_clauses: {
+        Row: {
+          clause_key: string
+          content: string
+          contract_id: string
+          created_at: string
+          id: string
+          is_generated: boolean
+          manual_override: boolean
+          sort_order: number
+          source_ontology_component: string | null
+          source_resolver: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          clause_key: string
+          content?: string
+          contract_id: string
+          created_at?: string
+          id?: string
+          is_generated?: boolean
+          manual_override?: boolean
+          sort_order?: number
+          source_ontology_component?: string | null
+          source_resolver?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          clause_key?: string
+          content?: string
+          contract_id?: string
+          created_at?: string
+          id?: string
+          is_generated?: boolean
+          manual_override?: boolean
+          sort_order?: number
+          source_ontology_component?: string | null
+          source_resolver?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_clauses_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_events: {
+        Row: {
+          contract_id: string
+          created_at: string
+          created_by: string | null
+          event_type: string
+          id: string
+          metadata: Json
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          created_by?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          created_by?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_events_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_exhibits: {
+        Row: {
+          content_json: Json
+          contract_id: string
+          created_at: string
+          exhibit_key: string
+          id: string
+          sort_order: number
+          source_id: string | null
+          source_type: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content_json?: Json
+          contract_id: string
+          created_at?: string
+          exhibit_key: string
+          id?: string
+          sort_order?: number
+          source_id?: string | null
+          source_type?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content_json?: Json
+          contract_id?: string
+          created_at?: string
+          exhibit_key?: string
+          id?: string
+          sort_order?: number
+          source_id?: string | null
+          source_type?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_exhibits_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contracts: {
+        Row: {
+          commercial_snapshot_json: Json
+          contract_kind: Database["public"]["Enums"]["contract_kind"]
+          contract_number: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          generated_at: string
+          id: string
+          issued_at: string | null
+          language: string
+          ontology_snapshot_json: Json
+          proposal_snapshot_json: Json
+          resolver_version: string
+          signed_at: string | null
+          snapshot_json: Json
+          source_company_id: string | null
+          source_opportunity_id: string | null
+          source_project_id: string | null
+          source_quote_id: string | null
+          status: Database["public"]["Enums"]["contract_status"]
+          superseded_by_contract_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          commercial_snapshot_json?: Json
+          contract_kind?: Database["public"]["Enums"]["contract_kind"]
+          contract_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          generated_at?: string
+          id?: string
+          issued_at?: string | null
+          language?: string
+          ontology_snapshot_json?: Json
+          proposal_snapshot_json?: Json
+          resolver_version?: string
+          signed_at?: string | null
+          snapshot_json?: Json
+          source_company_id?: string | null
+          source_opportunity_id?: string | null
+          source_project_id?: string | null
+          source_quote_id?: string | null
+          status?: Database["public"]["Enums"]["contract_status"]
+          superseded_by_contract_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          commercial_snapshot_json?: Json
+          contract_kind?: Database["public"]["Enums"]["contract_kind"]
+          contract_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          generated_at?: string
+          id?: string
+          issued_at?: string | null
+          language?: string
+          ontology_snapshot_json?: Json
+          proposal_snapshot_json?: Json
+          resolver_version?: string
+          signed_at?: string | null
+          snapshot_json?: Json
+          source_company_id?: string | null
+          source_opportunity_id?: string | null
+          source_project_id?: string | null
+          source_quote_id?: string | null
+          status?: Database["public"]["Enums"]["contract_status"]
+          superseded_by_contract_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_source_company_id_fkey"
+            columns: ["source_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_source_opportunity_id_fkey"
+            columns: ["source_opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "crm_opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_source_project_id_fkey"
+            columns: ["source_project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_source_quote_id_fkey"
+            columns: ["source_quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_superseded_by_contract_id_fkey"
+            columns: ["superseded_by_contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_accounts: {
         Row: {
           billing_details: string | null
@@ -6581,6 +6830,13 @@ export type Database = {
         | "failed"
         | "skipped_rejected"
       company_status: "activo" | "prospecto" | "inactivo"
+      contract_kind:
+        | "standalone"
+        | "umbrella"
+        | "sub_contract"
+        | "retainer"
+        | "addendum"
+      contract_status: "draft" | "issued" | "signed" | "superseded" | "void"
       crm_activity_type: "chamada" | "email" | "reuniao" | "nota" | "outro"
       crm_fee_structure: "fixed" | "staged" | "monthly"
       crm_opportunity_stage:
@@ -6897,6 +7153,14 @@ export const Constants = {
         "skipped_rejected",
       ],
       company_status: ["activo", "prospecto", "inactivo"],
+      contract_kind: [
+        "standalone",
+        "umbrella",
+        "sub_contract",
+        "retainer",
+        "addendum",
+      ],
+      contract_status: ["draft", "issued", "signed", "superseded", "void"],
       crm_activity_type: ["chamada", "email", "reuniao", "nota", "outro"],
       crm_fee_structure: ["fixed", "staged", "monthly"],
       crm_opportunity_stage: ["lead", "proposal", "negotiation", "won", "lost"],
