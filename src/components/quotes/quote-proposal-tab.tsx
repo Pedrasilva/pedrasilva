@@ -2009,17 +2009,54 @@ function ProposalPrintDocument({
   blocks,
   clientName,
   accountName,
+  proposalKind,
 }: {
   document: QuoteProposalDocument;
   blocks: QuoteProposalDocumentBlock[];
   clientName: string | null;
   accountName: string | null;
+  proposalKind: ProposalRenderKind;
 }) {
   const { t } = useTranslation("crm");
   const locale = useDateLocale();
   const { data: branding } = useFirmBranding();
   const firmName = branding?.company_name?.trim() || null;
   const issueDate = format(new Date(), "d MMMM yyyy", { locale });
+
+  // Fetch proposal_number directly from fee_proposals (PSA "YYNN" sequence).
+  const { data: proposalMeta } = useQuery({
+    queryKey: ["fee-proposal-cover-meta", document.quote_id],
+    enabled: Boolean(document.quote_id),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("fee_proposals")
+        .select("proposal_number, ontology_family_code, project_name")
+        .eq("id", document.quote_id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+  const proposalNumber = proposalMeta?.proposal_number ?? null;
+  const projectName = proposalMeta?.project_name ?? null;
+
+  // Ontology-aware cover letter. When the proposal lacks ontology metadata,
+  // `view.coverLetter` is undefined and the letter page is simply omitted.
+  const { view } = useResolvedProposal({
+    quoteId: document.quote_id,
+    proposalKind,
+    tokens: {
+      proposalTitle: document.title,
+      proposalCode: proposalNumber,
+      clientName,
+      accountName,
+      projectName,
+      firmName,
+    },
+  });
+  const coverLetter = view?.coverLetter;
+  const familyLabel = view?.cover?.familyLabel ?? null;
+
 
   // Drop excluded blocks; keep original sort order.
   const visible = useMemo(
