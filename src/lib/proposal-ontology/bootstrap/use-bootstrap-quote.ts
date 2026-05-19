@@ -30,6 +30,8 @@ export interface BootstrapFromPresetInput {
   defaultDurationDays?: number;
   budgetsByPhase?: Record<string, number>;
   flags?: Record<string, unknown>;
+  /** UI override of preset.enabled_phases — see bootstrap/types.ts. */
+  enabledPhasesOverride?: string[];
 }
 
 export function useBootstrapQuoteFromPreset() {
