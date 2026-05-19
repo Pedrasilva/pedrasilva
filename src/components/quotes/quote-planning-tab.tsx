@@ -32,6 +32,7 @@ import {
 import {
   useQuoteDependencies, useCreateQuoteDependency, useDeleteQuoteDependency,
 } from "@/lib/quotes/use-quote-dependencies";
+import { useUpdateQuoteDependency } from "@/lib/quotes/use-quote-planner";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import {
   useDefaultResourceRates, effectiveRates,
@@ -63,6 +64,7 @@ export function QuotePlanningTab({
   const delStage = useDeleteQuoteStage(quoteId);
   const createDep = useCreateQuoteDependency(quoteId);
   const delDep = useDeleteQuoteDependency(quoteId);
+  const updateDep = useUpdateQuoteDependency(quoteId);
   const upsertAlloc = useUpsertQuoteAllocation(quoteId);
   const delAlloc = useDeleteQuoteAllocation(quoteId);
 
@@ -409,9 +411,39 @@ export function QuotePlanningTab({
               {deps.map((d) => (
                 <TableRow key={d.id}>
                   <TableCell>{stageMap[d.predecessor_stage_id]?.name ?? "—"}</TableCell>
-                  <TableCell>{d.type}</TableCell>
+                  <TableCell>
+                    <Select
+                      value={d.type}
+                      onValueChange={(v) =>
+                        updateDep
+                          .mutateAsync({ id: d.id, patch: { type: v as QuoteDepType } })
+                          .catch((e) => toast.error((e as Error).message))
+                      }
+                    >
+                      <SelectTrigger className="h-8"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {QUOTE_DEP_TYPES.map((dt) => (
+                          <SelectItem key={dt.value} value={dt.value}>{dt.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
                   <TableCell>{stageMap[d.successor_stage_id]?.name ?? "—"}</TableCell>
-                  <TableCell className="text-right">{d.lag_days}</TableCell>
+                  <TableCell className="text-right">
+                    <Input
+                      type="number"
+                      className="h-8 text-right"
+                      key={`lag-${d.id}-${d.lag_days}`}
+                      defaultValue={d.lag_days}
+                      onBlur={(e) => {
+                        const v = Number(e.target.value) || 0;
+                        if (v === d.lag_days) return;
+                        updateDep
+                          .mutateAsync({ id: d.id, patch: { lag_days: v } })
+                          .catch((err) => toast.error((err as Error).message));
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>
                     <Button variant="ghost" size="sm" onClick={() => delDep.mutate(d.id)}>
                       <Trash2 className="h-4 w-4" />

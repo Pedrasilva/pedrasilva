@@ -15,9 +15,13 @@ import { leaveHoursInRange, type LeaveInterval } from "@/lib/projects/leave-capa
 import { useResourceSchedules, buildDailyLimitMap, dailyHoursFor } from "@/lib/projects/use-resource-schedules";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { fmt } from "@/lib/projects/gantt-utils";
 import { useDateLocale } from "@/i18n/use-date-locale";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
+import type { DepType } from "@/lib/projects/dependencies";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 
 export type StageWithProject = StageWithAllocations & { projectId: string };
@@ -87,6 +91,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
   const [hoveredStage, setHoveredStage] = useState<string | null>(null);
   const [link, setLink] = useState<LinkDragState | null>(null);
   const [linkHoverStage, setLinkHoverStage] = useState<string | null>(null);
+  const [editingDep, setEditingDep] = useState<{ id: string; x: number; y: number } | null>(null);
 
   // All planner mutations + dependency reads come from the adapter — there is
   // no direct pm_* coupling left in this component.
@@ -998,7 +1003,14 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
             const label = `${d.type}${lagText}`;
             const labelWidth = 14 + label.length * 6;
             return (
-              <g key={d.id}>
+              <g
+                key={d.id}
+                style={{ pointerEvents: "auto", cursor: "pointer" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingDep({ id: d.id, x: labelX, y: labelY });
+                }}
+              >
                 <path
                   d={path}
                   fill="none"
@@ -1007,6 +1019,8 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                   strokeOpacity={0.75}
                   markerEnd={`url(#dep-arrow-${d.type})`}
                 />
+                {/* invisible wider hit area */}
+                <path d={path} fill="none" stroke="transparent" strokeWidth={10} />
                 <g transform={`translate(${labelX - labelWidth / 2}, ${labelY - 8})`}>
                   <rect
                     width={labelWidth}
@@ -1080,6 +1094,74 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
             );
           })()}
         </svg>
+        {editingDep && (() => {
+          const dep = deps.find((x) => x.id === editingDep.id);
+          if (!dep) return null;
+          return (
+            <>
+              <div
+                className="absolute inset-0 z-20"
+                onClick={() => setEditingDep(null)}
+              />
+              <div
+                className="absolute z-30 rounded-md border border-border bg-popover p-2 shadow-md"
+                style={{ left: editingDep.x + 8, top: editingDep.y + 8 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={dep.type}
+                    disabled={!adapter.updateDependency}
+                    onValueChange={(v) => {
+                      if (!adapter.updateDependency) return;
+                      adapter
+                        .updateDependency({ id: dep.id, patch: { type: v as DepType } })
+                        .catch((err) => toast.error((err as Error).message));
+                    }}
+                  >
+                    <SelectTrigger className="h-8 w-[150px] text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(["FS", "SS", "FF", "SF"] as DepType[]).map((tp) => (
+                        <SelectItem key={tp} value={tp} className="text-xs">
+                          {t(`gantt.dependency.typeDescriptions.${tp}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    type="number"
+                    defaultValue={dep.lag_days}
+                    disabled={!adapter.updateDependency}
+                    className="h-8 w-16 text-xs"
+                    title={t("gantt.dependency.lagWorkingDays")}
+                    onBlur={(e) => {
+                      if (!adapter.updateDependency) return;
+                      const v = Number(e.target.value) || 0;
+                      if (v === dep.lag_days) return;
+                      adapter
+                        .updateDependency({ id: dep.id, patch: { lag_days: v } })
+                        .catch((err) => toast.error((err as Error).message));
+                    }}
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      adapter
+                        .deleteDependency(dep.id)
+                        .then(() => setEditingDep(null))
+                        .catch((err) => toast.error((err as Error).message));
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                  </Button>
+                </div>
+              </div>
+            </>
+          );
+        })()}
       </div>
     </div>
   );
