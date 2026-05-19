@@ -154,14 +154,14 @@ function AllocationsWorkspace() {
             <Button asChild variant="ghost" size="sm" className="-ml-2 mb-2 h-7">
               <Link to="/projects/$projectId" params={{ projectId }}>
                 <ArrowLeft className="mr-1 h-3.5 w-3.5" />
-                {t("workspace.backToProject")}
+                {t("operations.backToProject")}
               </Link>
             </Button>
             <h1 className="font-display text-2xl font-semibold">
-              {t("workspace.title")}
+              {t("operations.title")}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {project.project.name} — {t("workspace.subtitle")}
+              {project.project.name} — {t("operations.subtitle")}
             </p>
           </div>
         </div>
@@ -169,10 +169,10 @@ function AllocationsWorkspace() {
         {!hasSignal && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">{t("workspace.emptyTitle")}</CardTitle>
+              <CardTitle className="text-base">{t("operations.emptyTitle")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">{t("workspace.emptyBody")}</p>
+              <p className="text-sm text-muted-foreground">{t("operations.emptyBody")}</p>
             </CardContent>
           </Card>
         )}
@@ -185,19 +185,19 @@ function AllocationsWorkspace() {
               <TabsList>
                 <TabsTrigger value="coverage">
                   <Layers className="mr-1.5 h-3.5 w-3.5" />
-                  {t("workspace.tabs.coverage")}
+                  {t("operations.tabs.coverage")}
                 </TabsTrigger>
                 <TabsTrigger value="board">
                   <Users className="mr-1.5 h-3.5 w-3.5" />
-                  {t("workspace.tabs.board")}
+                  {t("operations.tabs.board")}
                 </TabsTrigger>
                 <TabsTrigger value="conflicts">
                   <AlertTriangle className="mr-1.5 h-3.5 w-3.5" />
-                  {t("workspace.tabs.conflicts")}
+                  {t("operations.tabs.conflicts")}
                 </TabsTrigger>
                 <TabsTrigger value="suggestions">
                   <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-                  {t("workspace.tabs.suggestions")}
+                  {t("operations.tabs.suggestions")}
                 </TabsTrigger>
               </TabsList>
 
@@ -286,15 +286,15 @@ function HealthHeader({
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">{t("workspace.health.title")}</CardTitle>
+        <CardTitle className="text-base">{t("operations.health.title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-          <HealthTile label={t("workspace.health.staffing")} value={fmtPct(m.staffing_coverage_pct)} sev={staffing} />
-          <HealthTile label={t("workspace.health.margin")} value={fmtPct(m.forecast_margin_pct)} sev={margin} />
-          <HealthTile label={t("workspace.health.recoverability")} value={fmtPct(recAvg || null)} sev={recSev} />
-          <HealthTile label={t("workspace.health.capacity")} value={`${envelope.capacitySummary.overloaded}/${envelope.capacitySummary.total}`} sev={capacity} />
-          <HealthTile label={t("workspace.health.delivery")} value={t(`forecast.risk.${deliverySev === "ok" ? "low" : deliverySev === "warn" ? "medium" : "high"}`)} sev={deliverySev} />
+          <HealthTile label={t("operations.health.staffing")} value={fmtPct(m.staffing_coverage_pct)} sev={staffing} />
+          <HealthTile label={t("operations.health.margin")} value={fmtPct(m.forecast_margin_pct)} sev={margin} />
+          <HealthTile label={t("operations.health.recoverability")} value={fmtPct(recAvg || null)} sev={recSev} />
+          <HealthTile label={t("operations.health.capacity")} value={`${envelope.capacitySummary.overloaded}/${envelope.capacitySummary.total}`} sev={capacity} />
+          <HealthTile label={t("operations.health.delivery")} value={t(`forecast.risk.${deliverySev === "ok" ? "low" : deliverySev === "warn" ? "medium" : "high"}`)} sev={deliverySev} />
         </div>
       </CardContent>
     </Card>
@@ -335,13 +335,13 @@ function CoverageTable({
         <table className="w-full text-sm">
           <thead className="bg-muted/40 text-[11px] uppercase tracking-wide text-muted-foreground">
             <tr>
-              <th className="px-3 py-2 text-left">{t("workspace.coverageTable.stage")}</th>
-              <th className="px-3 py-2 text-right">{t("workspace.coverageTable.planned")}</th>
-              <th className="px-3 py-2 text-right">{t("workspace.coverageTable.allocated")}</th>
-              <th className="px-3 py-2 text-right">{t("workspace.coverageTable.uncovered")}</th>
-              <th className="px-3 py-2 text-right">{t("workspace.coverageTable.coverage")}</th>
-              <th className="px-3 py-2 text-right">{t("workspace.coverageTable.recoverability")}</th>
-              <th className="px-3 py-2 text-right">{t("workspace.coverageTable.risk")}</th>
+              <th className="px-3 py-2 text-left">{t("operations.coverageTable.stage")}</th>
+              <th className="px-3 py-2 text-right">{t("operations.coverageTable.planned")}</th>
+              <th className="px-3 py-2 text-right">{t("operations.coverageTable.allocated")}</th>
+              <th className="px-3 py-2 text-right">{t("operations.coverageTable.uncovered")}</th>
+              <th className="px-3 py-2 text-right">{t("operations.coverageTable.coverage")}</th>
+              <th className="px-3 py-2 text-right">{t("operations.coverageTable.recoverability")}</th>
+              <th className="px-3 py-2 text-right">{t("operations.coverageTable.risk")}</th>
             </tr>
           </thead>
           <tbody>
@@ -437,7 +437,7 @@ function AllocationBoard({
     return (
       <Card>
         <CardContent className="p-6 text-center text-sm text-muted-foreground">
-          {t("workspace.board.noAllocations")}
+          {t("operations.board.noAllocations")}
         </CardContent>
       </Card>
     );
@@ -450,15 +450,15 @@ function AllocationBoard({
           <thead className="bg-muted/40 text-[11px] uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="sticky left-0 z-10 bg-muted/40 px-3 py-2 text-left">
-                {t("workspace.board.collaborator")}
+                {t("operations.board.collaborator")}
               </th>
               {stages.map((s) => (
                 <th key={s.id} className="px-3 py-2 text-right">
                   {s.name}
                 </th>
               ))}
-              <th className="px-3 py-2 text-right">{t("workspace.board.total")}</th>
-              <th className="px-3 py-2 text-right">{t("workspace.board.utilization")}</th>
+              <th className="px-3 py-2 text-right">{t("operations.board.total")}</th>
+              <th className="px-3 py-2 text-right">{t("operations.board.utilization")}</th>
             </tr>
           </thead>
           <tbody>
@@ -503,7 +503,7 @@ function AllocationBoard({
         <div className="border-t bg-muted/20 px-3 py-2 text-right">
           <Button asChild variant="ghost" size="sm">
             <Link to="/projects/$projectId" params={{ projectId }}>
-              {t("workspace.board.openPlanner")} →
+              {t("operations.board.openPlanner")} →
             </Link>
           </Button>
         </div>
@@ -535,36 +535,36 @@ function ConflictsView({
   return (
     <div className="grid gap-4 md:grid-cols-3">
       <ConflictCard
-        title={t("workspace.conflicts.overloadTitle")}
-        empty={t("workspace.conflicts.overloadEmpty")}
+        title={t("operations.conflicts.overloadTitle")}
+        empty={t("operations.conflicts.overloadEmpty")}
         items={overloaded.map((c) => ({
           key: c.resource_id,
           label: (resourceById.get(c.resource_id)?.name as string) ?? c.resource_id.slice(0, 8),
-          detail: t("workspace.conflicts.utilization", { pct: Math.round(c.utilization_pct) }),
+          detail: t("operations.conflicts.utilization", { pct: Math.round(c.utilization_pct) }),
           sev: "bad" as Severity,
         }))}
       />
       <ConflictCard
-        title={t("workspace.conflicts.uncoveredTitle")}
-        empty={t("workspace.conflicts.uncoveredEmpty")}
+        title={t("operations.conflicts.uncoveredTitle")}
+        empty={t("operations.conflicts.uncoveredEmpty")}
         items={uncovered.map((c) => ({
           key: c.project_stage_id,
           label:
             (stageById.get(c.project_stage_id)?.name as string) ??
             c.project_stage_id.slice(0, 8),
-          detail: t("workspace.conflicts.uncoveredHours", {
+          detail: t("operations.conflicts.uncoveredHours", {
             hours: Math.round(c.remaining_hours),
           }),
           sev: "warn" as Severity,
         }))}
       />
       <ConflictCard
-        title={t("workspace.conflicts.underUtilTitle")}
-        empty={t("workspace.conflicts.underUtilEmpty")}
+        title={t("operations.conflicts.underUtilTitle")}
+        empty={t("operations.conflicts.underUtilEmpty")}
         items={underUtil.map((c) => ({
           key: c.resource_id,
           label: (resourceById.get(c.resource_id)?.name as string) ?? c.resource_id.slice(0, 8),
-          detail: t("workspace.conflicts.utilization", { pct: Math.round(c.utilization_pct) }),
+          detail: t("operations.conflicts.utilization", { pct: Math.round(c.utilization_pct) }),
           sev: "warn" as Severity,
         }))}
       />
@@ -655,8 +655,8 @@ function SuggestionsView({
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm">{t("workspace.suggestions.title")}</CardTitle>
-        <p className="text-xs text-muted-foreground">{t("workspace.suggestions.intro")}</p>
+        <CardTitle className="text-sm">{t("operations.suggestions.title")}</CardTitle>
+        <p className="text-xs text-muted-foreground">{t("operations.suggestions.intro")}</p>
       </CardHeader>
       <CardContent className="space-y-4">
         {stages.map((stage) => {
@@ -686,7 +686,7 @@ function SuggestionsView({
               </div>
               {!placeholder && (
                 <p className="mb-2 text-[11px] text-muted-foreground">
-                  {t("workspace.suggestions.noPlaceholder")}
+                  {t("operations.suggestions.noPlaceholder")}
                 </p>
               )}
               <ul className="space-y-1.5">
@@ -700,17 +700,17 @@ function SuggestionsView({
                       <span className="font-medium">{s.resource_name}</span>
                       {s.discipline_match && (
                         <Badge variant="secondary" className="h-4 text-[10px]">
-                          {t("workspace.suggestions.match")}
+                          {t("operations.suggestions.match")}
                         </Badge>
                       )}
                     </div>
                     <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                       <span className="font-mono">
                         {s.available_hours > 0
-                          ? t("workspace.suggestions.available", { hours: Math.round(s.available_hours) })
-                          : t("workspace.suggestions.loaded", { pct: Math.round(s.current_utilization_pct) })}
+                          ? t("operations.suggestions.available", { hours: Math.round(s.available_hours) })
+                          : t("operations.suggestions.loaded", { pct: Math.round(s.current_utilization_pct) })}
                       </span>
-                      <span className="font-mono">{t("workspace.suggestions.score", { score: s.score })}</span>
+                      <span className="font-mono">{t("operations.suggestions.score", { score: s.score })}</span>
                     </div>
                   </li>
                 ))}
