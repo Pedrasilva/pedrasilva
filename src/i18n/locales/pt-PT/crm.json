@@ -717,6 +717,35 @@
       "legacyPreview": {
         "title": "Pré-visualização antiga",
         "hint": "Pré-visualização original. Mantida para comparação até o editor de blocos estar completo."
+      },
+      "intelligence": {
+        "title": "Inteligência de Proposta",
+        "assistive": "assistente",
+        "subtitle": "Secções, narrativas de fase e cláusulas sugeridas a partir da ontologia. Insira o que precisar — tudo permanece editável.",
+        "legacyHint": "Esta proposta está em modo de documento manual.",
+        "noDocumentHint": "Gere primeiro um rascunho de proposta para activar as inserções.",
+        "insert": "Inserir",
+        "alreadyIn": "Já no documento",
+        "insertAllMissing": "Inserir tudo o que falta",
+        "nothingMissing": "Todas as sugestões já estão no documento.",
+        "confirmDuplicate": "\"{{title}}\" já está no documento. Inserir um duplicado?",
+        "toastInserted": "Inserido: {{title}}",
+        "toastInsertedMany": "Inseridos {{count}} blocos sugeridos",
+        "group": {
+          "cover": "Capa",
+          "coverLetter": "Carta de apresentação",
+          "structure": "Estrutura sugerida",
+          "phases": "Narrativas de fase",
+          "clauses": "Cláusulas",
+          "commercial": "Notas comerciais"
+        },
+        "phase": {
+          "outputs": "Resultados",
+          "deliverables": "Entregáveis",
+          "exclusions": "Exclusões",
+          "notes": "Notas",
+          "coordination": "Âmbito de coordenação"
+        }
       }
     }
   },
