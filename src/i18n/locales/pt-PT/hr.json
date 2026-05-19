@@ -650,7 +650,9 @@
       "summaryTab": "Resumo",
       "newButton": "Nova ficha",
       "empty": "Ainda não existem fichas. Crie a primeira (ex: \"Actual\" com a data actual).",
-      "archivedBlocked": "Este colaborador está arquivado. Restaure-o para adicionar novas fichas."
+      "archivedBlocked": "Este colaborador está arquivado. Restaure-o para adicionar novas fichas.",
+      "editorTitle": "Editar campos da ficha",
+      "editorDescription": "Ajuste os valores de remuneração, benefícios e fiscalidade desta ficha. O resumo acima actualiza ao guardar."
     },
     "newDialog": {
       "title": "Nova ficha salarial",
