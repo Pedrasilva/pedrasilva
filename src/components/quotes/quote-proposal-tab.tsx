@@ -91,7 +91,10 @@ import {
   retainerMonthlyEstimate,
 } from "@/lib/quotes/time-based-settings";
 import { QuoteProposalIntelligencePanel } from "@/components/quotes/quote-proposal-intelligence-panel";
-import type { ProposalRenderKind } from "@/lib/proposal-rendering";
+import {
+  useResolvedProposal,
+  type ProposalRenderKind,
+} from "@/lib/proposal-rendering";
 
 function toRenderKind(kind: ProposalKind): ProposalRenderKind {
   switch (kind) {
