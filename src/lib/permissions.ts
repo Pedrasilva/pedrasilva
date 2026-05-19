@@ -11,7 +11,12 @@ export type PermissionKey =
   | "hr.beneficios.approve"
   | "hr.ferias.own"
   | "hr.colaboradores"
+  | "hr.colaborador.view"
+  | "hr.colaborador.compensation.view"
+  | "hr.colaborador.edit"
   | "hr.resumo"
+  | "hr.resumo.compensation.view"
+  | "hr.admin"
   | "hr.subsidio-alimentacao"
   | "hr.valor-bo"
   // CRM
