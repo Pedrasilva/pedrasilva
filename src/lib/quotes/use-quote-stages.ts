@@ -39,9 +39,11 @@ export function useUpsertQuoteStage(quoteId: string) {
     mutationFn: async (input: QuoteStageInsert | QuoteStageUpdate) => {
       if ("id" in input && input.id) {
         const { id, ...rest } = input;
+        // Any user edit stamps manual_override=true so a future ontology
+        // re-bootstrap will preserve this row (see proposal-ontology/bootstrap).
         const { data, error } = await db
           .from("quote_stages")
-          .update(rest)
+          .update({ ...rest, manual_override: true })
           .eq("id", id)
           .select()
           .single();
