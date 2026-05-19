@@ -28,6 +28,7 @@ import {
   useCreateRevisionContract,
 } from "@/lib/contracts";
 import type { ContractRow } from "@/lib/contracts";
+import { ContractBootstrapCard } from "@/components/contracts/contract-bootstrap-card";
 
 export const Route = createFileRoute("/_app/crm/contracts/$contractId")({
   component: ContractDetailPage,
@@ -378,7 +379,9 @@ function ContractDetailPage() {
               </CardContent>
             </Card>
           )}
+          {isSigned && <ContractBootstrapCard contractId={contract.id} />}
         </TabsContent>
+
 
         <TabsContent value="clauses" className="mt-4 space-y-3">
           {clauses.map((c) => {

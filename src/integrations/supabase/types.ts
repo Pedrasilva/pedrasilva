@@ -4038,6 +4038,7 @@ export type Database = {
       pm_projects: {
         Row: {
           account_id: string | null
+          bootstrap_run_id: string | null
           client: string | null
           color: string
           company_id: string | null
@@ -4053,12 +4054,14 @@ export type Database = {
           sold_fee: number | null
           sold_internal_fee: number | null
           sold_pricing_multiplier: number | null
+          source_contract_id: string | null
           start_date: string
           status: Database["public"]["Enums"]["pm_project_status"]
           updated_at: string
         }
         Insert: {
           account_id?: string | null
+          bootstrap_run_id?: string | null
           client?: string | null
           color?: string
           company_id?: string | null
@@ -4074,12 +4077,14 @@ export type Database = {
           sold_fee?: number | null
           sold_internal_fee?: number | null
           sold_pricing_multiplier?: number | null
+          source_contract_id?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["pm_project_status"]
           updated_at?: string
         }
         Update: {
           account_id?: string | null
+          bootstrap_run_id?: string | null
           client?: string | null
           color?: string
           company_id?: string | null
@@ -4095,6 +4100,7 @@ export type Database = {
           sold_fee?: number | null
           sold_internal_fee?: number | null
           sold_pricing_multiplier?: number | null
+          source_contract_id?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["pm_project_status"]
           updated_at?: string
@@ -4105,6 +4111,13 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "crm_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_projects_bootstrap_run_id_fkey"
+            columns: ["bootstrap_run_id"]
+            isOneToOne: false
+            referencedRelation: "project_bootstrap_runs"
             referencedColumns: ["id"]
           },
           {
@@ -4126,6 +4139,13 @@ export type Database = {
             columns: ["quote_id"]
             isOneToOne: false
             referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_projects_source_contract_id_fkey"
+            columns: ["source_contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
             referencedColumns: ["id"]
           },
         ]
@@ -4261,38 +4281,58 @@ export type Database = {
       }
       pm_stage_dependencies: {
         Row: {
+          bootstrap_run_id: string | null
           created_at: string
           id: string
           lag_days: number
           predecessor_id: string
+          source_contract_id: string | null
           successor_id: string
           type: Database["public"]["Enums"]["pm_dep_type"]
           updated_at: string
         }
         Insert: {
+          bootstrap_run_id?: string | null
           created_at?: string
           id?: string
           lag_days?: number
           predecessor_id: string
+          source_contract_id?: string | null
           successor_id: string
           type?: Database["public"]["Enums"]["pm_dep_type"]
           updated_at?: string
         }
         Update: {
+          bootstrap_run_id?: string | null
           created_at?: string
           id?: string
           lag_days?: number
           predecessor_id?: string
+          source_contract_id?: string | null
           successor_id?: string
           type?: Database["public"]["Enums"]["pm_dep_type"]
           updated_at?: string
         }
         Relationships: [
           {
+            foreignKeyName: "pm_stage_dependencies_bootstrap_run_id_fkey"
+            columns: ["bootstrap_run_id"]
+            isOneToOne: false
+            referencedRelation: "project_bootstrap_runs"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "pm_stage_dependencies_predecessor_id_fkey"
             columns: ["predecessor_id"]
             isOneToOne: false
             referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_stage_dependencies_source_contract_id_fkey"
+            columns: ["source_contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
             referencedColumns: ["id"]
           },
           {
@@ -4312,6 +4352,7 @@ export type Database = {
           baseline_notes: string | null
           baseline_start_date: string | null
           baseline_target_hours: number | null
+          bootstrap_run_id: string | null
           budget: number
           color: string
           created_at: string
@@ -4323,6 +4364,8 @@ export type Database = {
           project_id: string
           sort_order: number
           source: string | null
+          source_contract_id: string | null
+          source_contract_phase_key: string | null
           start_date: string
           updated_at: string
         }
@@ -4333,6 +4376,7 @@ export type Database = {
           baseline_notes?: string | null
           baseline_start_date?: string | null
           baseline_target_hours?: number | null
+          bootstrap_run_id?: string | null
           budget?: number
           color?: string
           created_at?: string
@@ -4344,6 +4388,8 @@ export type Database = {
           project_id: string
           sort_order?: number
           source?: string | null
+          source_contract_id?: string | null
+          source_contract_phase_key?: string | null
           start_date: string
           updated_at?: string
         }
@@ -4354,6 +4400,7 @@ export type Database = {
           baseline_notes?: string | null
           baseline_start_date?: string | null
           baseline_target_hours?: number | null
+          bootstrap_run_id?: string | null
           budget?: number
           color?: string
           created_at?: string
@@ -4365,15 +4412,31 @@ export type Database = {
           project_id?: string
           sort_order?: number
           source?: string | null
+          source_contract_id?: string | null
+          source_contract_phase_key?: string | null
           start_date?: string
           updated_at?: string
         }
         Relationships: [
           {
+            foreignKeyName: "pm_stages_bootstrap_run_id_fkey"
+            columns: ["bootstrap_run_id"]
+            isOneToOne: false
+            referencedRelation: "project_bootstrap_runs"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "pm_stages_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_stages_source_contract_id_fkey"
+            columns: ["source_contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
             referencedColumns: ["id"]
           },
         ]
@@ -4522,6 +4585,76 @@ export type Database = {
             columns: ["task_id"]
             isOneToOne: false
             referencedRelation: "pm_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_bootstrap_runs: {
+        Row: {
+          applied_at: string | null
+          contract_id: string
+          created_at: string
+          created_by: string | null
+          error_json: Json | null
+          id: string
+          resolver_version: string
+          result_json: Json
+          snapshot_json: Json
+          source_quote_id: string | null
+          status: Database["public"]["Enums"]["project_bootstrap_status"]
+          target_project_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          applied_at?: string | null
+          contract_id: string
+          created_at?: string
+          created_by?: string | null
+          error_json?: Json | null
+          id?: string
+          resolver_version?: string
+          result_json?: Json
+          snapshot_json?: Json
+          source_quote_id?: string | null
+          status?: Database["public"]["Enums"]["project_bootstrap_status"]
+          target_project_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          applied_at?: string | null
+          contract_id?: string
+          created_at?: string
+          created_by?: string | null
+          error_json?: Json | null
+          id?: string
+          resolver_version?: string
+          result_json?: Json
+          snapshot_json?: Json
+          source_quote_id?: string | null
+          status?: Database["public"]["Enums"]["project_bootstrap_status"]
+          target_project_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_bootstrap_runs_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_bootstrap_runs_source_quote_id_fkey"
+            columns: ["source_quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_bootstrap_runs_target_project_id_fkey"
+            columns: ["target_project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
             referencedColumns: ["id"]
           },
         ]
@@ -6975,6 +7108,7 @@ export type Database = {
         | "finance"
       pm_task_status: "pending" | "active" | "paused" | "done"
       pm_time_entry_type: "project" | "internal" | "non_working"
+      project_bootstrap_status: "preview" | "applied" | "failed" | "void"
       project_status:
         | "proposta"
         | "em_curso"
@@ -7307,6 +7441,7 @@ export const Constants = {
       ],
       pm_task_status: ["pending", "active", "paused", "done"],
       pm_time_entry_type: ["project", "internal", "non_working"],
+      project_bootstrap_status: ["preview", "applied", "failed", "void"],
       project_status: [
         "proposta",
         "em_curso",

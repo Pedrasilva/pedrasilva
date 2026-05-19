@@ -923,7 +923,9 @@
         "signed": "Signed",
         "superseded": "Superseded",
         "voided": "Voided",
-        "revision_created": "Revision created"
+        "revision_created": "Revision created",
+        "project_bootstrap_applied": "Project bootstrapped",
+        "project_bootstrap_failed": "Project bootstrap failed"
       }
     },
     "actions": {
@@ -940,6 +942,24 @@
       "voidedToast": "Draft voided",
       "createRevision": "Create revised contract",
       "revisionCreatedToast": "Revised draft contract created"
+    },
+    "bootstrap": {
+      "title": "Project bootstrap",
+      "subtitle": "Create the operational project from this signed contract. The project is sealed against the signed snapshot — later proposal edits will not affect it.",
+      "previewTitle": "Bootstrap preview",
+      "projectName": "Project name",
+      "stagesCount": "Stages",
+      "dependenciesCount": "Dependencies",
+      "warnings": "Warnings",
+      "skipped": "Skipped",
+      "unsupported": "Deferred to later stages",
+      "apply": "Bootstrap project",
+      "applyConfirm": "Create the project from this signed contract? This action records an immutable bootstrap run.",
+      "appliedToast": "Project bootstrapped",
+      "alreadyBootstrapped": "This contract has already been bootstrapped.",
+      "openProject": "Open project",
+      "onlySigned": "Only signed contracts can bootstrap a project.",
+      "loadingPreview": "Building preview…"
     }
   }
 }

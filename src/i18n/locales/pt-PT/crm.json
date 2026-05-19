@@ -923,7 +923,9 @@
         "signed": "Assinado",
         "superseded": "Substituído",
         "voided": "Anulado",
-        "revision_created": "Revisão criada"
+        "revision_created": "Revisão criada",
+        "project_bootstrap_applied": "Projeto criado a partir do contrato",
+        "project_bootstrap_failed": "Falha na criação do projeto"
       }
     },
     "actions": {
@@ -940,6 +942,24 @@
       "voidedToast": "Rascunho anulado",
       "createRevision": "Criar contrato revisto",
       "revisionCreatedToast": "Rascunho de contrato revisto criado"
+    },
+    "bootstrap": {
+      "title": "Criação de projeto",
+      "subtitle": "Criar o projeto operacional a partir deste contrato assinado. O projeto fica selado contra a versão assinada — edições posteriores à proposta não o afetam.",
+      "previewTitle": "Pré-visualização",
+      "projectName": "Nome do projeto",
+      "stagesCount": "Fases",
+      "dependenciesCount": "Dependências",
+      "warnings": "Avisos",
+      "skipped": "Ignorado",
+      "unsupported": "Adiado para fases futuras",
+      "apply": "Criar projeto",
+      "applyConfirm": "Criar o projeto a partir deste contrato assinado? Esta ação regista um bootstrap imutável.",
+      "appliedToast": "Projeto criado",
+      "alreadyBootstrapped": "Este contrato já foi convertido em projeto.",
+      "openProject": "Abrir projeto",
+      "onlySigned": "Apenas contratos assinados podem criar um projeto.",
+      "loadingPreview": "A construir pré-visualização…"
     }
   }
 }
