@@ -211,6 +211,23 @@ function ResumoPage() {
     window.print();
   };
 
+  if (!canViewResumoCompensation) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("hr:resumo.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("hr:resumo.subtitle")}</p>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("hr:resumoCompensationGate.title")}</CardTitle>
+            <CardDescription>{t("hr:resumoCompensationGate.description")}</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 print-area">
       <div className="flex items-start justify-between gap-4">
