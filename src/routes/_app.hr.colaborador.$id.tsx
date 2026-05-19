@@ -65,6 +65,7 @@ import {
 import { ArrowLeft, Plus, Archive, ArchiveRestore, BarChart3, Save, Printer, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { SnapshotForm } from "@/components/SnapshotForm";
+import { SnapshotMirrorPanel } from "@/components/snapshot/SnapshotMirrorPanel";
 import { ResumoCompare } from "@/components/ResumoCompare";
 import { CollaboratorPhotoUploader } from "@/components/CollaboratorPhotoUploader";
 import {
