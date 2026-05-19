@@ -4285,6 +4285,57 @@ export type Database = {
           },
         ]
       }
+      proposal_addon_modules: {
+        Row: {
+          applicability: Json
+          code: string
+          created_at: string
+          default_billing_behavior: Json
+          default_consultant_ownership: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          label_en: string
+          label_pt: string
+          metadata: Json
+          parallel_or_sequential: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          applicability?: Json
+          code: string
+          created_at?: string
+          default_billing_behavior?: Json
+          default_consultant_ownership?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          label_en: string
+          label_pt: string
+          metadata?: Json
+          parallel_or_sequential?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          applicability?: Json
+          code?: string
+          created_at?: string
+          default_billing_behavior?: Json
+          default_consultant_ownership?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          label_en?: string
+          label_pt?: string
+          metadata?: Json
+          parallel_or_sequential?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       proposal_block_categories: {
         Row: {
           created_at: string
@@ -4374,6 +4425,400 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "proposal_block_categories"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      proposal_commercial_components: {
+        Row: {
+          code: string
+          component_kind: string
+          created_at: string
+          default_amount_type: string | null
+          default_billing_behavior: Json
+          description: string | null
+          id: string
+          is_active: boolean
+          label_en: string
+          label_pt: string
+          metadata: Json
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          component_kind: string
+          created_at?: string
+          default_amount_type?: string | null
+          default_billing_behavior?: Json
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          label_en: string
+          label_pt: string
+          metadata?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          component_kind?: string
+          created_at?: string
+          default_amount_type?: string | null
+          default_billing_behavior?: Json
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          label_en?: string
+          label_pt?: string
+          metadata?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      proposal_delivery_modes: {
+        Row: {
+          code: string
+          created_at: string
+          description_en: string | null
+          description_pt: string | null
+          fee_scaling_hint: number | null
+          id: string
+          is_active: boolean
+          label_en: string
+          label_pt: string
+          metadata: Json
+          operational_implications: Json
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description_en?: string | null
+          description_pt?: string | null
+          fee_scaling_hint?: number | null
+          id?: string
+          is_active?: boolean
+          label_en: string
+          label_pt: string
+          metadata?: Json
+          operational_implications?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description_en?: string | null
+          description_pt?: string | null
+          fee_scaling_hint?: number | null
+          id?: string
+          is_active?: boolean
+          label_en?: string
+          label_pt?: string
+          metadata?: Json
+          operational_implications?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      proposal_families: {
+        Row: {
+          code: string
+          created_at: string
+          default_billing_topology: Json
+          default_delivery_mode: string | null
+          default_enabled_phases: string[]
+          default_planning_behavior: Json
+          default_procurement_mode: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          label_en: string
+          label_pt: string
+          metadata: Json
+          optional_phases: string[]
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          default_billing_topology?: Json
+          default_delivery_mode?: string | null
+          default_enabled_phases?: string[]
+          default_planning_behavior?: Json
+          default_procurement_mode?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          label_en: string
+          label_pt: string
+          metadata?: Json
+          optional_phases?: string[]
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          default_billing_topology?: Json
+          default_delivery_mode?: string | null
+          default_enabled_phases?: string[]
+          default_planning_behavior?: Json
+          default_procurement_mode?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          label_en?: string
+          label_pt?: string
+          metadata?: Json
+          optional_phases?: string[]
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      proposal_flags: {
+        Row: {
+          code: string
+          created_at: string
+          default_value: Json | null
+          description: string | null
+          effects: Json
+          enum_values: Json | null
+          flag_kind: string
+          id: string
+          is_active: boolean
+          label_en: string
+          label_pt: string
+          metadata: Json
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          default_value?: Json | null
+          description?: string | null
+          effects?: Json
+          enum_values?: Json | null
+          flag_kind?: string
+          id?: string
+          is_active?: boolean
+          label_en: string
+          label_pt: string
+          metadata?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          default_value?: Json | null
+          description?: string | null
+          effects?: Json
+          enum_values?: Json | null
+          flag_kind?: string
+          id?: string
+          is_active?: boolean
+          label_en?: string
+          label_pt?: string
+          metadata?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      proposal_phase_aliases: {
+        Row: {
+          alias_set: string
+          created_at: string
+          description: string | null
+          id: string
+          label: string
+          locale: string
+          metadata: Json
+          phase_code: string
+          short_label: string | null
+          updated_at: string
+        }
+        Insert: {
+          alias_set: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          label: string
+          locale?: string
+          metadata?: Json
+          phase_code: string
+          short_label?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alias_set?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          label?: string
+          locale?: string
+          metadata?: Json
+          phase_code?: string
+          short_label?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_phase_aliases_phase_code_fkey"
+            columns: ["phase_code"]
+            isOneToOne: false
+            referencedRelation: "proposal_phases"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      proposal_phases: {
+        Row: {
+          code: string
+          created_at: string
+          default_billing_behavior: Json
+          default_order: number
+          description_en: string | null
+          description_pt: string | null
+          display_code: string
+          family_applicability: string[]
+          id: string
+          is_active: boolean
+          is_jurisdiction_specific: boolean
+          is_optional_default: boolean
+          jurisdiction_applicability: string[]
+          label_en: string
+          label_pt: string
+          metadata: Json
+          operational_flags: Json
+          phase_class: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          default_billing_behavior?: Json
+          default_order: number
+          description_en?: string | null
+          description_pt?: string | null
+          display_code: string
+          family_applicability?: string[]
+          id?: string
+          is_active?: boolean
+          is_jurisdiction_specific?: boolean
+          is_optional_default?: boolean
+          jurisdiction_applicability?: string[]
+          label_en: string
+          label_pt: string
+          metadata?: Json
+          operational_flags?: Json
+          phase_class?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          default_billing_behavior?: Json
+          default_order?: number
+          description_en?: string | null
+          description_pt?: string | null
+          display_code?: string
+          family_applicability?: string[]
+          id?: string
+          is_active?: boolean
+          is_jurisdiction_specific?: boolean
+          is_optional_default?: boolean
+          jurisdiction_applicability?: string[]
+          label_en?: string
+          label_pt?: string
+          metadata?: Json
+          operational_flags?: Json
+          phase_class?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      proposal_presets: {
+        Row: {
+          at_defaults: Json
+          bim_defaults: Json
+          code: string
+          created_at: string
+          default_addons: string[]
+          default_delivery_mode: string | null
+          default_dependencies: Json
+          default_flags: Json
+          description: string | null
+          enabled_phases: string[]
+          family_code: string | null
+          id: string
+          is_active: boolean
+          label_en: string
+          label_pt: string
+          metadata: Json
+          planning_topology: Json
+          procurement_behavior: Json
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          at_defaults?: Json
+          bim_defaults?: Json
+          code: string
+          created_at?: string
+          default_addons?: string[]
+          default_delivery_mode?: string | null
+          default_dependencies?: Json
+          default_flags?: Json
+          description?: string | null
+          enabled_phases?: string[]
+          family_code?: string | null
+          id?: string
+          is_active?: boolean
+          label_en: string
+          label_pt: string
+          metadata?: Json
+          planning_topology?: Json
+          procurement_behavior?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          at_defaults?: Json
+          bim_defaults?: Json
+          code?: string
+          created_at?: string
+          default_addons?: string[]
+          default_delivery_mode?: string | null
+          default_dependencies?: Json
+          default_flags?: Json
+          description?: string | null
+          enabled_phases?: string[]
+          family_code?: string | null
+          id?: string
+          is_active?: boolean
+          label_en?: string
+          label_pt?: string
+          metadata?: Json
+          planning_topology?: Json
+          procurement_behavior?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_presets_family_code_fkey"
+            columns: ["family_code"]
+            isOneToOne: false
+            referencedRelation: "proposal_families"
+            referencedColumns: ["code"]
           },
         ]
       }
