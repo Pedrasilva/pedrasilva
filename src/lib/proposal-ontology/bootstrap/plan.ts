@@ -37,8 +37,8 @@ export function computeBootstrapPlan(input: BootstrapInput): BootstrapPlan {
   const { preset, phases, projectStart } = input;
   const defaultDur = input.defaultDurationDays ?? DEFAULT_DURATION_DAYS;
 
-  // ---------- 1. Resolve enabled phases from the preset ----------
-  const enabled = (preset.enabled_phases ?? []).filter(Boolean);
+  // ---------- 1. Resolve enabled phases from the preset (with optional UI override) ----------
+  const enabled = (input.enabledPhasesOverride ?? preset.enabled_phases ?? []).filter(Boolean);
   const phaseByCode = new Map(phases.map((p) => [p.code, p]));
   const enabledPhases: ProposalPhase[] = enabled
     .map((code) => phaseByCode.get(code))

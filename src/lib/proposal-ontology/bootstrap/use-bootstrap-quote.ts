@@ -30,6 +30,8 @@ export interface BootstrapFromPresetInput {
   defaultDurationDays?: number;
   budgetsByPhase?: Record<string, number>;
   flags?: Record<string, unknown>;
+  /** UI override of preset.enabled_phases — see bootstrap/types.ts. */
+  enabledPhasesOverride?: string[];
 }
 
 export function useBootstrapQuoteFromPreset() {
@@ -88,6 +90,7 @@ export function useBootstrapQuoteFromPreset() {
         defaultDurationDays: input.defaultDurationDays,
         budgetsByPhase: input.budgetsByPhase,
         flags: input.flags,
+        enabledPhasesOverride: input.enabledPhasesOverride,
       });
 
       const result = await applyMutation.mutateAsync({ quoteId: input.quoteId, plan });

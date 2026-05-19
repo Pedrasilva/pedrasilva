@@ -42,6 +42,13 @@ export interface BootstrapInput {
   budgetsByPhase?: Record<string, number>;
   /** Flags resolved for this proposal (e.g. { bim_enabled: true }). */
   flags?: Record<string, unknown>;
+  /**
+   * Optional override for preset.enabled_phases. When provided, the bootstrap
+   * planner uses this list instead of the preset's default phase set. Lets the
+   * UI offer lightweight include/exclude toggles (Workplace Strategy, FF&E,
+   * Telas Finais, ...) without redefining the preset.
+   */
+  enabledPhasesOverride?: string[];
 }
 
 export interface BootstrapStagePlan {

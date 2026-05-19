@@ -36,6 +36,7 @@ import { QuoteFinancialSummaryTab } from "@/components/quotes/quote-financial-su
 import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
 import { QuoteTimeBasedSettingsTab } from "@/components/quotes/quote-time-based-settings-tab";
 import { QuoteFeeCalculatorCard } from "@/components/quotes/quote-fee-calculator-card";
+import { QuoteOntologyBootstrapCard } from "@/components/quotes/quote-ontology-bootstrap-card";
 import {
   QuoteWorkflowStepper,
   type QuoteStep,
@@ -738,6 +739,22 @@ function QuoteDetail() {
                     fee_percentage: feePct ? String(Number(feePct.toFixed(4))) : "",
                   }));
                 }}
+              />
+            </div>
+          )}
+
+          {/* Ontology bootstrap — intelligent defaults for stages, dependencies
+              and payment schedule. Sits beneath the calculator so the user
+              flow stays: 1) compute fee → 2) generate planning skeleton.
+              Manual edits on existing rows are always preserved. */}
+          {isProject && (
+            <div className="mt-4">
+              <QuoteOntologyBootstrapCard
+                quoteId={quoteId}
+                initialFamilyCode={(quote as unknown as { ontology_family_code?: string | null }).ontology_family_code ?? null}
+                initialPresetCode={(quote as unknown as { ontology_preset_code?: string | null }).ontology_preset_code ?? null}
+                initialDeliveryMode={(quote as unknown as { ontology_delivery_mode?: string | null }).ontology_delivery_mode ?? null}
+                initialBootstrappedAt={(quote as unknown as { ontology_bootstrapped_at?: string | null }).ontology_bootstrapped_at ?? null}
               />
             </div>
           )}

@@ -244,15 +244,35 @@ export function QuotePlanningTab({
                 <TableRow key={s.id}>
                   <TableCell className="text-muted-foreground">{i + 1}</TableCell>
                   <TableCell>
-                    <Input
-                      key={`name-${s.id}-${s.updated_at}`}
-                      defaultValue={s.name}
-                      onBlur={(e) => {
-                        if (e.target.value.trim() && e.target.value !== s.name) {
-                          upsertStage.mutate({ id: s.id, name: e.target.value.trim() });
-                        }
-                      }}
-                    />
+                    <div className="flex items-center gap-1.5">
+                      <Input
+                        key={`name-${s.id}-${s.updated_at}`}
+                        defaultValue={s.name}
+                        onBlur={(e) => {
+                          if (e.target.value.trim() && e.target.value !== s.name) {
+                            upsertStage.mutate({ id: s.id, name: e.target.value.trim() });
+                          }
+                        }}
+                      />
+                      {/* Lightweight ontology provenance badges. Only render
+                          when the row actually carries the metadata so manual
+                          legacy stages stay visually clean. */}
+                      {s.manual_override ? (
+                        <span
+                          className="text-[10px] uppercase tracking-wide rounded border px-1.5 py-0.5 text-muted-foreground bg-muted/40"
+                          title={t("ontology.manualTooltip")}
+                        >
+                          {t("ontology.manualBadge")}
+                        </span>
+                      ) : s.is_generated ? (
+                        <span
+                          className="text-[10px] uppercase tracking-wide rounded border border-emerald-500/40 px-1.5 py-0.5 text-emerald-700 dark:text-emerald-400 bg-emerald-500/10"
+                          title={t("ontology.generatedTooltip")}
+                        >
+                          {t("ontology.generatedBadge")}
+                        </span>
+                      ) : null}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Input

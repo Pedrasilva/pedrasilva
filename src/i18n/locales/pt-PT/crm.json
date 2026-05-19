@@ -790,5 +790,34 @@
         "inactive": "Inativo"
       }
     }
+  },
+  "ontology": {
+    "title": "Bootstrap de planeamento",
+    "subtitle": "Gera fases, dependências e marcos de pagamento a partir de um preset canónico. As edições manuais nunca são sobrescritas.",
+    "family": "Família",
+    "familyPh": "Escolhe uma família",
+    "preset": "Preset",
+    "presetPh": "Escolhe um preset",
+    "projectStart": "Início do projeto",
+    "deliveryMode": "Modo de entrega",
+    "optionalPhases": "Fases opcionais",
+    "apply": "Aplicar preset",
+    "reapply": "Reaplicar preset",
+    "bootstrappedBadge": "configurado",
+    "preserveManualHint": "Linhas manuais são preservadas ao reaplicar.",
+    "applyToast": "Planeamento gerado · {{stages}} fases · {{payments}} pagamentos",
+    "errorNoPreset": "Escolhe primeiro um preset.",
+    "summaryTitle": "Resumo do bootstrap",
+    "summary": {
+      "stages": "Fases (criadas + atualizadas)",
+      "dependencies": "Dependências geradas",
+      "payments": "Marcos de pagamento gerados",
+      "preserved": "Linhas manuais preservadas",
+      "removed": "removidas"
+    },
+    "generatedBadge": "auto",
+    "generatedTooltip": "Gerada pelo bootstrap da ontologia. Editar esta fase marca-a como manual e protege-a de futuras reaplicações.",
+    "manualBadge": "manual",
+    "manualTooltip": "Esta fase é gerida manualmente e não será sobrescrita quando o preset for reaplicado."
   }
 }
