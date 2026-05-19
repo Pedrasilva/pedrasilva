@@ -561,6 +561,8 @@
     },
     "proposal": {
       "documentLabel": "Proposta",
+      "proposalNumberLabel": "Proposta n.º",
+      "projectLabel": "Projeto",
       "issueDate": "Emitida em",
       "noClient": "Cliente a confirmar",
       "clientFacingHint": "Vista para o cliente. Custo interno, margem e horas por alocação ficam ocultos.",
