@@ -205,6 +205,58 @@ export function useApplyProjectBootstrap() {
           if (depErr) throw new Error(depErr.message);
         }
 
+        // 6b. Stage 6B — commercial baselines + allocation placeholders.
+        const projectBaseline = resolveProjectCommercialBaseline(snapshot);
+        const { error: projBlErr } = await db
+          .from("pm_project_commercial_baselines")
+          .insert({
+            project_id: projectId,
+            bootstrap_run_id: bootstrapRunId,
+            source_contract_id: input.contractId,
+            ...projectBaseline,
+          });
+        if (projBlErr) throw new Error(projBlErr.message);
+
+        const stageBaselines = resolveStageCommercialBaselines(snapshot)
+          .map((sb) => {
+            const sid = keyToStageId.get(sb.source_contract_phase_key);
+            if (!sid) return null;
+            const { project_stage_id: _ignored, ...rest } = sb;
+            return {
+              project_stage_id: sid,
+              project_id: projectId,
+              bootstrap_run_id: bootstrapRunId,
+              ...rest,
+            };
+          })
+          .filter((r): r is NonNullable<typeof r> => r !== null);
+        if (stageBaselines.length) {
+          const { error: stgBlErr } = await db
+            .from("pm_stage_commercial_baselines")
+            .insert(stageBaselines);
+          if (stgBlErr) throw new Error(stgBlErr.message);
+        }
+
+        const placeholders = resolveAllocationPlaceholders(snapshot)
+          .map((ph) => {
+            const sid = keyToStageId.get(ph.source_contract_phase_key);
+            if (!sid) return null;
+            const { project_stage_id: _ignored, source_contract_phase_key: _k, ...rest } =
+              ph;
+            return {
+              project_stage_id: sid,
+              bootstrap_run_id: bootstrapRunId,
+              ...rest,
+            };
+          })
+          .filter((r): r is NonNullable<typeof r> => r !== null);
+        if (placeholders.length) {
+          const { error: phErr } = await db
+            .from("pm_stage_allocation_placeholders")
+            .insert(placeholders);
+          if (phErr) throw new Error(phErr.message);
+        }
+
         // 7. Flip run to applied.
         const { error: flipErr } = await db
           .from("project_bootstrap_runs")
@@ -218,6 +270,8 @@ export function useApplyProjectBootstrap() {
                 project_id: projectId,
                 stages: stagesPayload.length,
                 dependencies: depRows.length,
+                stage_baselines: stageBaselines.length,
+                allocation_placeholders: placeholders.length,
               },
             },
           })
@@ -229,6 +283,8 @@ export function useApplyProjectBootstrap() {
           project_id: projectId,
           stages: stagesPayload.length,
           dependencies: depRows.length,
+          stage_baselines: stageBaselines.length,
+          allocation_placeholders: placeholders.length,
         });
 
         return { bootstrapRunId, projectId: projectId! };
