@@ -38,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import { ChevronRight, ArrowUp, ArrowDown, ArrowUpDown, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PermissionGate } from "@/components/PermissionGate";
+import { useHasPermission } from "@/hooks/use-permissions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResumoComparativoTab } from "@/components/ResumoComparativoTab";
 import { cn } from "@/lib/utils";
@@ -60,6 +61,7 @@ type Row = {
 
 function ResumoPage() {
   const { t, i18n } = useTranslation(["hr", "common", "glossary"]);
+  const { allowed: canViewResumoCompensation } = useHasPermission("hr.resumo.compensation.view");
 
   const { data: collaborators = [] } = useQuery({
     queryKey: ["collaborators", "active"],
