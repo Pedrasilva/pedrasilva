@@ -759,7 +759,12 @@ function QuoteDetail() {
               />
             </div>
           )}
+
+          <div className="mt-4">
+            <QuoteCreateContractCard quoteId={quoteId} quoteStatus={quote.quote_status} />
+          </div>
         </TabsContent>
+
 
 
         {!isProject && (
