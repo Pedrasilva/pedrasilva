@@ -410,7 +410,7 @@ function ResumoPage() {
         </TabsContent>
 
         <TabsContent value="comparativo">
-          <ResumoComparativoTab rows={rows} />
+          <ResumoComparativoTab rows={rows} expensesByCollab={benefitExpenses12m} />
         </TabsContent>
       </Tabs>
     </div>

@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { computeSnapshot, fmtEUR, type Collaborator, type Snapshot } from "@/lib/salary";
+import { computeAverageBenefits } from "@/lib/hr/compensation-liquidity";
+import type { BenefitExpense } from "@/lib/benefits";
 import {
   Card,
   CardContent,
@@ -41,7 +43,7 @@ const METRIC_KEYS: MetricKey[] = [
   "custoVBG",
 ];
 
-function valueFor(snap: Snapshot | null, key: MetricKey, mealDaily: number): number | null {
+function aggValueFor(snap: Snapshot | null, key: MetricKey, mealDaily: number): number | null {
   if (!snap) return null;
   const eff = { ...snap, subsidio_alimentacao_diario: mealDaily || snap.subsidio_alimentacao_diario };
   const c = computeSnapshot(eff);
@@ -61,7 +63,74 @@ function valueFor(snap: Snapshot | null, key: MetricKey, mealDaily: number): num
   }
 }
 
-export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
+type DisplayRow =
+  | { kind: "section"; label: string }
+  | {
+      kind: "metric";
+      label: string;
+      eff: number | null;
+      prop: number | null;
+      strong?: boolean;
+      accent?: boolean;
+    };
+
+function buildDisplayRows(
+  t: (k: string) => string,
+  snapEff: Snapshot | null,
+  snapProp: Snapshot | null,
+  mealEff: number,
+  mealProp: number,
+  avgExpensesMonthly: number,
+): DisplayRow[] {
+  const lEff = snapEff
+    ? { ...snapEff, subsidio_alimentacao_diario: mealEff || snapEff.subsidio_alimentacao_diario }
+    : null;
+  const rEff = snapProp
+    ? { ...snapProp, subsidio_alimentacao_diario: mealProp || snapProp.subsidio_alimentacao_diario }
+    : null;
+  const cl = lEff ? computeSnapshot(lEff) : null;
+  const cr = rEff ? computeSnapshot(rEff) : null;
+
+  const guaranteedL = cl?.beneficiosMensalGarantido ?? 0;
+  const guaranteedR = cr?.beneficiosMensalGarantido ?? 0;
+  const avgBenefitsL = cl != null ? guaranteedL + avgExpensesMonthly : null;
+  const avgBenefitsR = cr != null ? guaranteedR + avgExpensesMonthly : null;
+
+  const monthlyLiquidityL =
+    cl != null
+      ? cl.liquido12m + cl.alimentacaoMensal + cl.ajudasMensal + cl.passeMensal + (avgBenefitsL ?? 0)
+      : null;
+  const monthlyLiquidityR =
+    cr != null
+      ? cr.liquido12m + cr.alimentacaoMensal + cr.ajudasMensal + cr.passeMensal + (avgBenefitsR ?? 0)
+      : null;
+
+  return [
+    { kind: "section", label: t("hr:resumoCompare.groups.payrollBase") },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.baseMonthly"), eff: snapEff?.valor_base ?? null, prop: snapProp?.valor_base ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.baseAnnualX14"), eff: cl?.baseAnual ?? null, prop: cr?.baseAnual ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.grossMonthly"), eff: cl?.brutoMensal ?? null, prop: cr?.brutoMensal ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.grossAnnual"), eff: cl?.brutoAnual ?? null, prop: cr?.brutoAnual ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.netMonthly12"), eff: cl?.liquido12m ?? null, prop: cr?.liquido12m ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.mealAllowanceDaily"), eff: lEff?.subsidio_alimentacao_diario ?? null, prop: rEff?.subsidio_alimentacao_diario ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.mealAllowanceMonthly"), eff: cl?.alimentacaoMensal ?? null, prop: cr?.alimentacaoMensal ?? null },
+    { kind: "section", label: t("hr:resumoCompare.groups.complements") },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.perDiemMonthly"), eff: cl?.ajudasMensal ?? null, prop: cr?.ajudasMensal ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.transitPassMonthly"), eff: cl?.passeMensal ?? null, prop: cr?.passeMensal ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.avgBenefitsMonthly"), eff: avgBenefitsL, prop: avgBenefitsR },
+    { kind: "section", label: t("hr:resumoCompare.groups.total") },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.monthlyLiquidity"), eff: monthlyLiquidityL, prop: monthlyLiquidityR, strong: true, accent: true },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.tgvAnnual"), eff: cl?.custoVBG ?? null, prop: cr?.custoVBG ?? null },
+  ];
+}
+
+export function ResumoComparativoTab({
+  rows,
+  expensesByCollab = [],
+}: {
+  rows: Row[];
+  expensesByCollab?: BenefitExpense[];
+}) {
   const { t, i18n } = useTranslation("hr");
   const [filter, setFilter] = useState("");
   const [metric, setMetric] = useState<MetricKey>("liquido");
@@ -92,7 +161,6 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
 
   const mealDailyFor = (s: Snapshot | null): number => {
     if (!s) return 0;
-    // Override manual tem prioridade sobre a tabela anual
     if (s.subsidio_alimentacao_manual) return s.subsidio_alimentacao_diario_manual ?? 0;
     if (mealRates.length === 0) return s.subsidio_alimentacao_diario ?? 0;
     const y = Number((s.reference_date ?? "").slice(0, 4));
@@ -104,6 +172,18 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
     return Number(mealRates[0].valor_cartao);
   };
 
+  const avgExpensesByCollab = useMemo(() => {
+    const by = new Map<string, BenefitExpense[]>();
+    for (const e of expensesByCollab) {
+      const arr = by.get(e.collaborator_id) ?? [];
+      arr.push(e);
+      by.set(e.collaborator_id, arr);
+    }
+    const out = new Map<string, number>();
+    for (const [cid, arr] of by) out.set(cid, computeAverageBenefits(arr));
+    return out;
+  }, [expensesByCollab]);
+
   const filtered = useMemo(() => {
     const q = filter.trim().toLowerCase();
     if (!q) return rows;
@@ -114,16 +194,19 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
     return filtered.map((r) => {
       const eMeal = mealDailyFor(r.effective);
       const pMeal = mealDailyFor(r.proposed);
-      const detail = metrics.map((m) => {
-        const eff = valueFor(r.effective, m.key, eMeal);
-        const prop = valueFor(r.proposed, m.key, pMeal);
-        const delta = eff != null && prop != null ? prop - eff : null;
-        const pct = eff && prop != null ? (prop - eff) / eff : null;
-        return { key: m.key, label: m.label, eff, prop, delta, pct };
-      });
-      return { row: r, detail };
+      const avgExp = avgExpensesByCollab.get(r.collab.id) ?? 0;
+      const display = buildDisplayRows(t, r.effective, r.proposed, eMeal, pMeal, avgExp);
+      const byKey: Record<MetricKey, { eff: number | null; prop: number | null }> = {
+        valorBase: { eff: aggValueFor(r.effective, "valorBase", eMeal), prop: aggValueFor(r.proposed, "valorBase", pMeal) },
+        liquido: { eff: aggValueFor(r.effective, "liquido", eMeal), prop: aggValueFor(r.proposed, "liquido", pMeal) },
+        alimentacao: { eff: aggValueFor(r.effective, "alimentacao", eMeal), prop: aggValueFor(r.proposed, "alimentacao", pMeal) },
+        ajudas: { eff: aggValueFor(r.effective, "ajudas", eMeal), prop: aggValueFor(r.proposed, "ajudas", pMeal) },
+        beneficios: { eff: aggValueFor(r.effective, "beneficios", eMeal), prop: aggValueFor(r.proposed, "beneficios", pMeal) },
+        custoVBG: { eff: aggValueFor(r.effective, "custoVBG", eMeal), prop: aggValueFor(r.proposed, "custoVBG", pMeal) },
+      };
+      return { row: r, display, byKey };
     });
-  }, [filtered, mealRates, metrics]);
+  }, [filtered, mealRates, avgExpensesByCollab, t]);
 
   // Comparação global Bruto Anual (todos os colaboradores filtrados).
   // Quando não há ficha proposta, assume-se o valor actual (sem alteração).
@@ -143,9 +226,6 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
     return { actual, proposto, delta, pct, comProposta, total: filtered.length };
   }, [filtered]);
 
-  // Comparação global do Custo Total — mensal (anual/12) e anual.
-  // Usa o mesmo critério do card anual: bruto anual completo (base × meses
-  // + SS patronal + subsídio alimentação + ajudas custo + passe + benefícios).
   const valorBaseGlobal = useMemo(() => {
     let actualAnual = 0;
     let propostoAnual = 0;
@@ -180,7 +260,7 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
     let prop = 0;
     let countBoth = 0;
     for (const c of computed) {
-      const m = c.detail.find((d) => d.key === metric);
+      const m = c.byKey[metric];
       if (!m) continue;
       if (m.eff != null && m.prop != null) {
         eff += m.eff;
@@ -434,13 +514,14 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                   </TableCell>
                 </TableRow>
               )}
-              {computed.map(({ row, detail }) => {
+              {computed.map(({ row, display }) => {
                 const hasEff = !!row.effective;
                 const hasProp = !!row.proposed;
+                const rowSpan = display.length + 1;
                 return (
                   <Fragment key={row.collab.id}>
                     <TableRow className="bg-muted/30">
-                      <TableCell className="font-medium" rowSpan={metrics.length + 1}>
+                      <TableCell className="font-medium align-top" rowSpan={rowSpan}>
                         <Link
                           to="/hr/colaborador/$id"
                           params={{ id: row.collab.id }}
@@ -465,18 +546,40 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                               : t("hr:resumoComparativo.table.noSnapshots")}
                       </TableCell>
                     </TableRow>
-                    {detail.map((d) => {
+                    {display.map((d, idx) => {
+                      if (d.kind === "section") {
+                        return (
+                          <TableRow
+                            key={`${row.collab.id}-sec-${idx}`}
+                            className="bg-muted/40 hover:bg-muted/40"
+                          >
+                            <TableCell
+                              colSpan={5}
+                              className="py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+                            >
+                              {d.label}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      }
+                      const delta = d.eff != null && d.prop != null ? d.prop - d.eff : null;
+                      const pct = d.eff && d.prop != null ? (d.prop - d.eff) / d.eff : null;
                       const cls =
-                        d.delta == null
+                        delta == null
                           ? "text-muted-foreground"
-                          : d.delta > 0
+                          : delta > 0
                             ? "text-positive"
-                            : d.delta < 0
+                            : delta < 0
                               ? "text-negative"
                               : "";
+                      const rowCls =
+                        (d.strong ? "font-semibold " : "") +
+                        (d.accent ? "bg-[var(--sage)]/5 text-foreground" : "");
                       return (
-                        <TableRow key={row.collab.id + d.key}>
-                          <TableCell className="text-sm">{d.label}</TableCell>
+                        <TableRow key={`${row.collab.id}-m-${idx}`} className={rowCls}>
+                          <TableCell className={d.strong ? "text-sm font-semibold" : "text-sm"}>
+                            {d.label}
+                          </TableCell>
                           <TableCell className="text-right tabular-nums">
                             {d.eff == null ? dash : fmtEUR(d.eff)}
                           </TableCell>
@@ -484,10 +587,10 @@ export function ResumoComparativoTab({ rows }: { rows: Row[] }) {
                             {d.prop == null ? dash : fmtEUR(d.prop)}
                           </TableCell>
                           <TableCell className={"text-right tabular-nums " + cls}>
-                            {d.delta == null ? dash : (d.delta > 0 ? "+" : "") + fmtEUR(d.delta)}
+                            {delta == null ? dash : (delta > 0 ? "+" : "") + fmtEUR(delta)}
                           </TableCell>
                           <TableCell className={"text-right tabular-nums " + cls}>
-                            {d.pct == null ? dash : pctFormatter.format(d.pct)}
+                            {pct == null ? dash : pctFormatter.format(pct)}
                           </TableCell>
                         </TableRow>
                       );
