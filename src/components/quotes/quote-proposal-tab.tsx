@@ -90,6 +90,19 @@ import {
   parseTimeBasedSettings,
   retainerMonthlyEstimate,
 } from "@/lib/quotes/time-based-settings";
+import { QuoteProposalIntelligencePanel } from "@/components/quotes/quote-proposal-intelligence-panel";
+import type { ProposalRenderKind } from "@/lib/proposal-rendering";
+
+function toRenderKind(kind: ProposalKind): ProposalRenderKind {
+  switch (kind) {
+    case "phased_consultancy":
+    case "consultancy_hours_package":
+    case "construction_retainer":
+      return kind;
+    default:
+      return "fee_proposal";
+  }
+}
 
 interface QuoteProposalTabProps {
   quoteId: string;
@@ -2276,7 +2289,19 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
           />
         </div>
       ) : (
-        <div className="no-print">
+        <div className="no-print space-y-4">
+          <QuoteProposalIntelligencePanel
+            quoteId={quoteId}
+            documentId={document?.id}
+            proposalKind={toRenderKind(
+              quoteTypeToProposalKind(quoteType),
+            )}
+            tokens={{
+              clientName,
+              accountName,
+              proposalTitle: props.title,
+            }}
+          />
           <GeneratedDocumentSection
             quoteId={quoteId}
             document={document}

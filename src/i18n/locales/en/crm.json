@@ -717,6 +717,35 @@
       "legacyPreview": {
         "title": "Legacy proposal preview",
         "hint": "Original auto-rendered preview. Kept for comparison until the block editor is complete."
+      },
+      "intelligence": {
+        "title": "Proposal Intelligence",
+        "assistive": "assistive",
+        "subtitle": "Suggested sections, phase narratives and clauses derived from the ontology. Insert what you need — everything stays editable.",
+        "legacyHint": "This proposal is using manual document mode.",
+        "noDocumentHint": "Generate a proposal draft first to enable insertions.",
+        "insert": "Insert",
+        "alreadyIn": "Already in document",
+        "insertAllMissing": "Insert all missing",
+        "nothingMissing": "All suggestions already in document.",
+        "confirmDuplicate": "\"{{title}}\" is already in the document. Insert a duplicate?",
+        "toastInserted": "Inserted: {{title}}",
+        "toastInsertedMany": "Inserted {{count}} suggested blocks",
+        "group": {
+          "cover": "Cover",
+          "coverLetter": "Cover letter",
+          "structure": "Suggested structure",
+          "phases": "Phase narratives",
+          "clauses": "Clauses",
+          "commercial": "Commercial notes"
+        },
+        "phase": {
+          "outputs": "Outputs",
+          "deliverables": "Deliverables",
+          "exclusions": "Exclusions",
+          "notes": "Notes",
+          "coordination": "Coordination scope"
+        }
       }
     }
   },
