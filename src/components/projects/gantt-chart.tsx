@@ -1094,6 +1094,74 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
             );
           })()}
         </svg>
+        {editingDep && (() => {
+          const dep = deps.find((x) => x.id === editingDep.id);
+          if (!dep) return null;
+          return (
+            <>
+              <div
+                className="absolute inset-0 z-20"
+                onClick={() => setEditingDep(null)}
+              />
+              <div
+                className="absolute z-30 rounded-md border border-border bg-popover p-2 shadow-md"
+                style={{ left: editingDep.x + 8, top: editingDep.y + 8 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={dep.type}
+                    disabled={!adapter.updateDependency}
+                    onValueChange={(v) => {
+                      if (!adapter.updateDependency) return;
+                      adapter
+                        .updateDependency({ id: dep.id, patch: { type: v as DepType } })
+                        .catch((err) => toast.error((err as Error).message));
+                    }}
+                  >
+                    <SelectTrigger className="h-8 w-[150px] text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(["FS", "SS", "FF", "SF"] as DepType[]).map((tp) => (
+                        <SelectItem key={tp} value={tp} className="text-xs">
+                          {t(`gantt.dependency.typeDescriptions.${tp}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    type="number"
+                    defaultValue={dep.lag_days}
+                    disabled={!adapter.updateDependency}
+                    className="h-8 w-16 text-xs"
+                    title={t("gantt.dependency.lagWorkingDays")}
+                    onBlur={(e) => {
+                      if (!adapter.updateDependency) return;
+                      const v = Number(e.target.value) || 0;
+                      if (v === dep.lag_days) return;
+                      adapter
+                        .updateDependency({ id: dep.id, patch: { lag_days: v } })
+                        .catch((err) => toast.error((err as Error).message));
+                    }}
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      adapter
+                        .deleteDependency(dep.id)
+                        .then(() => setEditingDep(null))
+                        .catch((err) => toast.error((err as Error).message));
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                  </Button>
+                </div>
+              </div>
+            </>
+          );
+        })()}
       </div>
     </div>
   );
