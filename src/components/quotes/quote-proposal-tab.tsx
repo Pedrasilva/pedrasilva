@@ -2367,7 +2367,9 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
             blocks={blocks}
             clientName={clientName}
             accountName={accountName}
+            proposalKind={toRenderKind(quoteTypeToProposalKind(quoteType))}
           />
+
         </div>
       ) : (
         <div className="no-print space-y-4">
