@@ -106,6 +106,7 @@ function CollaboratorPage() {
   const fmtSnapshotDate = (iso: string) =>
     format(parseISO(iso), "dd MMM yyyy", { locale: dateLocale });
   const { isAdmin } = useAuth();
+  const { allowed: canViewCompensation } = useHasPermission("hr.colaborador.compensation.view");
   const [activeTab, setActiveTab] = useState<string>("");
   const [newOpen, setNewOpen] = useState(false);
   const [dadosOpen, setDadosOpen] = useState(false);
