@@ -2148,14 +2148,27 @@ function ProposalPrintDocument({
         </div>
       </footer>
 
-      {/* Cover / title block */}
-      <section className="proposal-print-block proposal-avoid-break proposal-cover">
-        <p className="proposal-cover-eyebrow">{t("workspace.proposal.documentLabel")}</p>
+      {/* Page 1 — Cover */}
+      <section className="proposal-print-block proposal-avoid-break proposal-cover proposal-page-cover">
+        <p className="proposal-cover-eyebrow">
+          {t("workspace.proposal.documentLabel")}
+          {familyLabel ? ` · ${familyLabel}` : ""}
+        </p>
         <h1 className="proposal-print-heading proposal-cover-title">{document.title}</h1>
+        {proposalNumber && (
+          <p className="proposal-cover-number text-sm font-medium tracking-wide">
+            {t("workspace.proposal.proposalNumberLabel", "Proposal No.")} {proposalNumber}
+          </p>
+        )}
         {(clientName || accountName) && (
           <p className="proposal-cover-client">
             {clientName ?? t("workspace.proposal.noClient")}
             {accountName ? ` · ${accountName}` : ""}
+          </p>
+        )}
+        {projectName && projectName !== document.title && (
+          <p className="proposal-cover-project text-sm">
+            {t("workspace.proposal.projectLabel", "Project")}: {projectName}
           </p>
         )}
         <p className="proposal-cover-date">
@@ -2166,20 +2179,46 @@ function ProposalPrintDocument({
         </p>
       </section>
 
+      {/* Page 2 — Cover letter (only when ontology resolves one) */}
+      {coverLetter && (
+        <section className="proposal-print-block proposal-avoid-break proposal-page-break-before proposal-cover-letter">
+          <p className="proposal-cover-letter-greeting mb-3 text-sm">
+            {coverLetter.greeting}
+          </p>
+          <div className="proposal-cover-letter-body space-y-3 text-sm leading-relaxed">
+            {coverLetter.paragraphs.map((p, i) => (
+              <p key={i} className="whitespace-pre-wrap">{p}</p>
+            ))}
+          </div>
+          <p className="proposal-cover-letter-closing mt-4 text-sm">
+            {coverLetter.closing}
+          </p>
+          <p className="proposal-cover-letter-signatory mt-1 text-sm font-medium">
+            {coverLetter.signatory}
+          </p>
+        </section>
+      )}
+
+      {/* Page 3+ — Editable proposal body. First block is forced to a new page
+          so that ordering / editing / include-exclude of blocks below remain
+          untouched by the cover + letter additions. */}
       {renderable.length === 0 ? (
-        <p className="text-sm italic text-muted-foreground">
+        <p className="text-sm italic text-muted-foreground proposal-page-break-before">
           {t("workspace.proposal.document.noBlocks")}
         </p>
       ) : (
         <div className="space-y-7">
-          {renderable.map((b) => {
+          {renderable.map((b, idx) => {
             const slug =
               (b as unknown as { slug?: string | null }).slug ??
               inferSlugFromContent(b.generated_content as GenContent);
             const sanitizedContent =
               b.block_type === "generated_section" ? "" : getRenderableText(b);
             return (
-              <section key={b.id} className="proposal-print-block">
+              <section
+                key={b.id}
+                className={`proposal-print-block${idx === 0 ? " proposal-page-break-before" : ""}`}
+              >
                 {b.block_title && (
                   <h2 className="proposal-print-heading mb-2 text-base font-semibold leading-snug">
                     {b.block_title}
@@ -2198,6 +2237,7 @@ function ProposalPrintDocument({
             );
           })}
         </div>
+
       )}
 
       {/* Acceptance / signature block — always shown at the end of the
