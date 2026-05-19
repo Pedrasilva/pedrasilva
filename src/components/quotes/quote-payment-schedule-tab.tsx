@@ -283,6 +283,8 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         stageEndPercent: endPct,
         deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
         paymentTermsDays: Number.isFinite(terms) && terms > 0 ? terms : null,
+        stageFees,
+        totalFee,
       });
     } else if (kind === "thirds") {
       generated = generateThirds(stages);
