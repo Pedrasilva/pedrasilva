@@ -153,16 +153,21 @@ export function computeMonthlyLiquidity({
     };
   }
   const c = computeSnapshot(snapshot);
-  const avgBenefits = computeAverageBenefits(expenses, {
+  // Benefícios mensais = média móvel das despesas pontuais + benefícios garantidos
+  // contratualizados na ficha (carro, ticket, prémio associado, outros, plano reforma).
+  // O bónus variável fica fora — é potencial, não garantido.
+  const avgExpenses = computeAverageBenefits(expenses, {
     now,
     windowMonths,
     eligibleStates,
     eligibleCategories,
     outlierThreshold,
   });
+  const avgBenefits = avgExpenses + (c.beneficiosMensalGarantido ?? 0);
   const netCompensation = c.liquido12m + c.alimentacaoMensal;
   const total =
     netCompensation + c.passeMensal + c.ajudasMensal + avgBenefits;
+
   return {
     netSalary: c.liquido12m,
     mealAllowance: c.alimentacaoMensal,
