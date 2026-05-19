@@ -87,10 +87,11 @@ import { MonthlyLiquidityCard } from "@/components/hr/MonthlyLiquidityCard";
 import type { BenefitExpense } from "@/lib/benefits";
 
 import { PermissionGate } from "@/components/PermissionGate";
+import { useHasPermission } from "@/hooks/use-permissions";
 
 export const Route = createFileRoute("/_app/hr/colaborador/$id")({
   component: () => (
-    <PermissionGate permission="hr.colaboradores">
+    <PermissionGate permission="hr.colaborador.view">
       <CollaboratorPage />
     </PermissionGate>
   ),
