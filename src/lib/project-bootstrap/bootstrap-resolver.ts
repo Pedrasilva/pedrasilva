@@ -29,9 +29,6 @@ export function resolveProjectBootstrapPreview(
   // Stages from sealed ontology phases.
   const stages: PreviewStage[] = (ontology.enabled_phases ?? []).map((p, idx) => {
     const key = p.code ?? `phase-${idx + 1}`;
-    if (!p.start_date_iso && !p.duration_days) {
-      // legacy snapshot — no dates available
-    }
     return {
       key,
       name: p.name,
