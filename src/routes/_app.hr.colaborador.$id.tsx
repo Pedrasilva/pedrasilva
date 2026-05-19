@@ -864,11 +864,28 @@ function CollaboratorPage() {
             )}
 
             {snapshots.map((s) => (
-              <TabsContent key={s.id} value={s.id} className="mt-4">
-                <SnapshotForm
+              <TabsContent key={s.id} value={s.id} className="mt-4 space-y-6">
+                <SnapshotMirrorPanel
                   snapshot={s}
                   collaborator={draft}
+                  allSnapshots={snapshots}
+                  selectedId={s.id}
+                  expenses={benefitExpenses}
+                  showSnapshotPicker={false}
                 />
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">
+                      {t("hr:collaborator.snapshots.editorTitle")}
+                    </CardTitle>
+                    <CardDescription>
+                      {t("hr:collaborator.snapshots.editorDescription")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <SnapshotForm snapshot={s} collaborator={draft} />
+                  </CardContent>
+                </Card>
               </TabsContent>
             ))}
 
