@@ -96,6 +96,23 @@ function buildDisplayRows(
   const avgBenefitsL = cl != null ? guaranteedL + avgExpensesMonthly : null;
   const avgBenefitsR = cr != null ? guaranteedR + avgExpensesMonthly : null;
 
+  // Payroll anual = base × 14 + SS patronal + subsídio de alimentação.
+  // (Não inclui ajudas de custo, passe nem benefícios — esses entram no global.)
+  const payrollAnnualL =
+    cl != null ? cl.baseAnual + cl.ssAtelierAnual + cl.alimentacaoAnual : null;
+  const payrollAnnualR =
+    cr != null ? cr.baseAnual + cr.ssAtelierAnual + cr.alimentacaoAnual : null;
+
+  // Custo global anual = payroll + ajudas anuais + passe anual + benefícios médios anuais garantidos.
+  const globalAnnualL =
+    cl != null && payrollAnnualL != null
+      ? payrollAnnualL + cl.ajudasMensal * 12 + cl.passeAnual + (avgBenefitsL ?? 0) * 12
+      : null;
+  const globalAnnualR =
+    cr != null && payrollAnnualR != null
+      ? payrollAnnualR + cr.ajudasMensal * 12 + cr.passeAnual + (avgBenefitsR ?? 0) * 12
+      : null;
+
   const monthlyLiquidityL =
     cl != null
       ? cl.liquido12m + cl.alimentacaoMensal + cl.ajudasMensal + cl.passeMensal + (avgBenefitsL ?? 0)
@@ -110,7 +127,7 @@ function buildDisplayRows(
     { kind: "metric", label: t("hr:resumoCompare.metrics.baseMonthly"), eff: snapEff?.valor_base ?? null, prop: snapProp?.valor_base ?? null },
     { kind: "metric", label: t("hr:resumoCompare.metrics.baseAnnualX14"), eff: cl?.baseAnual ?? null, prop: cr?.baseAnual ?? null },
     { kind: "metric", label: t("hr:resumoCompare.metrics.grossMonthly"), eff: cl?.brutoMensal ?? null, prop: cr?.brutoMensal ?? null },
-    { kind: "metric", label: t("hr:resumoCompare.metrics.grossAnnual"), eff: cl?.brutoAnual ?? null, prop: cr?.brutoAnual ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.grossAnnual"), eff: payrollAnnualL, prop: payrollAnnualR },
     { kind: "metric", label: t("hr:resumoCompare.metrics.netMonthly12"), eff: cl?.liquido12m ?? null, prop: cr?.liquido12m ?? null },
     { kind: "metric", label: t("hr:resumoCompare.metrics.mealAllowanceDaily"), eff: lEff?.subsidio_alimentacao_diario ?? null, prop: rEff?.subsidio_alimentacao_diario ?? null },
     { kind: "metric", label: t("hr:resumoCompare.metrics.mealAllowanceMonthly"), eff: cl?.alimentacaoMensal ?? null, prop: cr?.alimentacaoMensal ?? null },
@@ -120,7 +137,7 @@ function buildDisplayRows(
     { kind: "metric", label: t("hr:resumoCompare.metrics.avgBenefitsMonthly"), eff: avgBenefitsL, prop: avgBenefitsR },
     { kind: "section", label: t("hr:resumoCompare.groups.total") },
     { kind: "metric", label: t("hr:resumoCompare.metrics.monthlyLiquidity"), eff: monthlyLiquidityL, prop: monthlyLiquidityR, strong: true, accent: true },
-    { kind: "metric", label: t("hr:resumoCompare.metrics.tgvAnnual"), eff: cl?.custoVBG ?? null, prop: cr?.custoVBG ?? null },
+    { kind: "metric", label: t("hr:resumoCompare.metrics.globalAnnual"), eff: globalAnnualL, prop: globalAnnualR, strong: true },
   ];
 }
 
