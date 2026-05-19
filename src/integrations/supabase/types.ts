@@ -1852,6 +1852,24 @@ export type Database = {
           },
         ]
       }
+      fee_proposal_number_counters: {
+        Row: {
+          last_seq: number
+          updated_at: string
+          year_prefix: string
+        }
+        Insert: {
+          last_seq?: number
+          updated_at?: string
+          year_prefix: string
+        }
+        Update: {
+          last_seq?: number
+          updated_at?: string
+          year_prefix?: string
+        }
+        Relationships: []
+      }
       fee_proposals: {
         Row: {
           account_id: string | null
@@ -1880,6 +1898,7 @@ export type Database = {
           probabilidade: number
           project_fee_calculation: Json
           proposal_description: string | null
+          proposal_number: string | null
           quote_category: Database["public"]["Enums"]["crm_quote_category"]
           quote_mode_ready: boolean
           quote_status: Database["public"]["Enums"]["crm_quote_status"]
@@ -1917,6 +1936,7 @@ export type Database = {
           probabilidade?: number
           project_fee_calculation?: Json
           proposal_description?: string | null
+          proposal_number?: string | null
           quote_category?: Database["public"]["Enums"]["crm_quote_category"]
           quote_mode_ready?: boolean
           quote_status?: Database["public"]["Enums"]["crm_quote_status"]
@@ -1954,6 +1974,7 @@ export type Database = {
           probabilidade?: number
           project_fee_calculation?: Json
           proposal_description?: string | null
+          proposal_number?: string | null
           quote_category?: Database["public"]["Enums"]["crm_quote_category"]
           quote_mode_ready?: boolean
           quote_status?: Database["public"]["Enums"]["crm_quote_status"]
@@ -7155,6 +7176,7 @@ export type Database = {
       }
     }
     Functions: {
+      allocate_proposal_number: { Args: { p_date?: string }; Returns: string }
       bank_import_move_account: {
         Args: { _import_id: string; _new_account_id: string }
         Returns: Json

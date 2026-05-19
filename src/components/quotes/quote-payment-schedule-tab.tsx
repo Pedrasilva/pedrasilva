@@ -30,10 +30,17 @@ import {
   useApplyPaymentGenerator,
 } from "@/lib/quotes/use-quote-payment-schedule";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
+import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
+import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
+import { rollupQuote } from "@/lib/quotes/financial-rollups";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import {
   generateStageMilestones,
   generateThirds,
   generateMonthly,
+  computeStageFees,
+  resolveScheduleItemAmount,
   DEFAULT_STAGE_MILESTONE_OPTIONS,
   type GeneratorKind,
   type GeneratorItem,
@@ -142,11 +149,55 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const { t } = useTranslation("crm");
   const itemsQ = useQuotePaymentSchedule(quoteId);
   const stagesQ = useQuoteStages(quoteId);
+  const allocationsQ = useQuoteAllocations(quoteId);
+  const externalsQ = useQuoteExternalServices(quoteId);
+  const quoteQ = useQuery({
+    queryKey: ["fee-proposal-summary", quoteId],
+    enabled: !!quoteId,
+    queryFn: async () => {
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { eq: (c: string, v: string) => { single: () => Promise<{ data: { pricing_multiplier: number | null; valor: number | null; quote_category: string | null } | null; error: { message: string } | null }> } } } })
+        .from("fee_proposals")
+        .select("pricing_multiplier,valor,quote_category")
+        .eq("id", quoteId)
+        .single();
+      if (error) throw new Error(error.message);
+      return data;
+    },
+  });
   const upsert = useUpsertQuotePaymentItem(quoteId);
   const remove = useDeleteQuotePaymentItem(quoteId);
   const applyGen = useApplyPaymentGenerator(quoteId);
   const items = itemsQ.data ?? [];
   const stages = stagesQ.data ?? [];
+  const allocations = allocationsQ.data ?? [];
+  const externals = externalsQ.data ?? [];
+  const pricingMultiplier = Number(quoteQ.data?.pricing_multiplier ?? 1) || 1;
+  const rollup = rollupQuote({
+    allocations,
+    externalServices: externals,
+    pricingMultiplier,
+    category: (quoteQ.data?.quote_category as "project" | "time_based" | "retainer" | "consultancy" | undefined) ?? undefined,
+  });
+  const totalFee = rollup.totalFee || Number(quoteQ.data?.valor ?? 0) || 0;
+  const stageFees = computeStageFees(stages, allocations, externals, pricingMultiplier);
+
+  const scheduleTotal = items.reduce(
+    (sum, it) =>
+      sum +
+      resolveScheduleItemAmount(
+        {
+          amount_type: it.amount_type,
+          amount_value: Number(it.amount_value ?? 0),
+          trigger_type: it.trigger_type,
+          stage_id: it.stage_id,
+        },
+        totalFee,
+        stageFees,
+      ),
+    0,
+  );
+  const totalMismatch =
+    totalFee > 0 && Math.abs(scheduleTotal - totalFee) > 0.5;
 
   const [draft, setDraft] = useState({
     label: "",
@@ -232,6 +283,8 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         stageEndPercent: endPct,
         deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
         paymentTermsDays: Number.isFinite(terms) && terms > 0 ? terms : null,
+        stageFees,
+        totalFee,
       });
     } else if (kind === "thirds") {
       generated = generateThirds(stages);
@@ -258,6 +311,30 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
 
   return (
     <div className="space-y-6">
+      {totalFee > 0 && (
+        <div
+          className={`rounded-md border p-3 text-sm flex items-center justify-between gap-3 ${
+            totalMismatch
+              ? "border-destructive/50 bg-destructive/10 text-destructive"
+              : "border-border bg-muted/30 text-muted-foreground"
+          }`}
+        >
+          <div>
+            <span className="font-medium">{formatEUR(scheduleTotal)}</span>
+            <span className="opacity-70"> / {formatEUR(totalFee)} </span>
+            <span className="opacity-70">
+              ({t("workspace.payment.scheduleTotalLabel", { defaultValue: "Schedule total vs proposal fee (excl. VAT)" })})
+            </span>
+          </div>
+          {totalMismatch && (
+            <span className="text-xs font-medium">
+              {t("workspace.payment.totalMismatchWarning", {
+                defaultValue: "Schedule total does not match the proposal fee.",
+              })}
+            </span>
+          )}
+        </div>
+      )}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
           <CardTitle className="text-base">{t("workspace.payment.title")}</CardTitle>
