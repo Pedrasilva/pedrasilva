@@ -22,7 +22,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { buildProjectBootstrapSnapshot } from "./bootstrap-snapshot";
 import { resolveProjectBootstrapPreview } from "./bootstrap-resolver";
 import {
+  resolveProjectCommercialBaseline,
+  resolveStageCommercialBaselines,
+  resolveAllocationPlaceholders,
+} from "./commercial-baseline";
+import type {
+  ProjectCommercialBaselineRow,
+  StageCommercialBaselineRow,
+  StageAllocationPlaceholderRow,
+} from "./baseline-types";
+import {
   PROJECT_BOOTSTRAP_RESOLVER_VERSION,
+  type ProjectBootstrapPreview,
+  type ProjectBootstrapRunRow,
+  type ProjectBootstrapSnapshot,
+} from "./types";
   type ProjectBootstrapPreview,
   type ProjectBootstrapRunRow,
   type ProjectBootstrapSnapshot,
