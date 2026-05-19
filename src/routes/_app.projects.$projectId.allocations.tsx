@@ -664,7 +664,7 @@ function SuggestionsView({
           const phList = placeholdersByStage.get(stage.id) ?? [];
           const placeholder = phList[0];
           const suggestions = suggestCollaboratorsForStage({
-            stage: stage as Parameters<typeof suggestCollaboratorsForStage>[0]["stage"],
+            stage: stage as unknown as Parameters<typeof suggestCollaboratorsForStage>[0]["stage"],
             placeholder,
             resources,
             capacityByResourceId: capByResource,
