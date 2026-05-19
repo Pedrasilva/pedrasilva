@@ -890,7 +890,21 @@
       "generatedAt": "Generated at",
       "sourceQuote": "Source quote",
       "sourceCompany": "Source company",
-      "resolverVersion": "Resolver version"
+      "resolverVersion": "Resolver version",
+      "issuedAt": "Issued at",
+      "signedAt": "Signed at",
+      "revisionBadge": "Revision {{n}}",
+      "revision": "Revision",
+      "viewParent": "View previous revision",
+      "viewReplacement": "View replacement",
+      "lineageCount": "{{n}} revisions in this lineage",
+      "lineageTitle": "Revision lineage",
+      "currentRevision": "current",
+      "openRevision": "Open",
+      "lockedIssued": "This contract is issued and locked. Clauses and exhibits cannot be edited; regeneration is disabled.",
+      "lockedSigned": "This contract is signed and immutable. Create a new revision to change its terms.",
+      "lockedSuperseded": "This contract has been superseded by a newer revision.",
+      "lockedVoid": "This contract has been voided."
     },
     "clauses": {
       "empty": "No clauses generated.",
@@ -908,8 +922,24 @@
         "issued": "Issued",
         "signed": "Signed",
         "superseded": "Superseded",
-        "voided": "Voided"
+        "voided": "Voided",
+        "revision_created": "Revision created"
       }
+    },
+    "actions": {
+      "regenerate": "Regenerate from latest proposal",
+      "regeneratedToast": "Draft regenerated from latest proposal",
+      "issue": "Issue contract",
+      "issueConfirm": "Issue this contract? Once issued, clauses and exhibits become locked.",
+      "issuedToast": "Contract issued",
+      "sign": "Mark as signed",
+      "signConfirm": "Mark this contract as signed? It will become immutable.",
+      "signedToast": "Contract marked as signed",
+      "void": "Void draft",
+      "voidConfirm": "Void this draft contract? It will be archived as void.",
+      "voidedToast": "Draft voided",
+      "createRevision": "Create revised contract",
+      "revisionCreatedToast": "Revised draft contract created"
     }
   }
 }
