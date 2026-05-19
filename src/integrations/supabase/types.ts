@@ -1594,6 +1594,12 @@ export type Database = {
           fee_structure_type: Database["public"]["Enums"]["crm_fee_structure"]
           id: string
           notas: string | null
+          ontology_bootstrapped_at: string | null
+          ontology_delivery_mode: string | null
+          ontology_family_code: string | null
+          ontology_flags: Json
+          ontology_metadata: Json
+          ontology_preset_code: string | null
           opportunity_id: string | null
           parent_quote_id: string | null
           pipeline_status: Database["public"]["Enums"]["proposal_status"]
@@ -1625,6 +1631,12 @@ export type Database = {
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           id?: string
           notas?: string | null
+          ontology_bootstrapped_at?: string | null
+          ontology_delivery_mode?: string | null
+          ontology_family_code?: string | null
+          ontology_flags?: Json
+          ontology_metadata?: Json
+          ontology_preset_code?: string | null
           opportunity_id?: string | null
           parent_quote_id?: string | null
           pipeline_status?: Database["public"]["Enums"]["proposal_status"]
@@ -1656,6 +1668,12 @@ export type Database = {
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           id?: string
           notas?: string | null
+          ontology_bootstrapped_at?: string | null
+          ontology_delivery_mode?: string | null
+          ontology_family_code?: string | null
+          ontology_flags?: Json
+          ontology_metadata?: Json
+          ontology_preset_code?: string | null
           opportunity_id?: string | null
           parent_quote_id?: string | null
           pipeline_status?: Database["public"]["Enums"]["proposal_status"]
@@ -1695,6 +1713,27 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "contacts"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_proposals_ontology_delivery_fk"
+            columns: ["ontology_delivery_mode"]
+            isOneToOne: false
+            referencedRelation: "proposal_delivery_modes"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "fee_proposals_ontology_family_fk"
+            columns: ["ontology_family_code"]
+            isOneToOne: false
+            referencedRelation: "proposal_families"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "fee_proposals_ontology_preset_fk"
+            columns: ["ontology_preset_code"]
+            isOneToOne: false
+            referencedRelation: "proposal_presets"
+            referencedColumns: ["code"]
           },
           {
             foreignKeyName: "fee_proposals_opportunity_id_fkey"
@@ -5180,8 +5219,11 @@ export type Database = {
       quote_stage_dependencies: {
         Row: {
           created_at: string
+          generator_source: string | null
           id: string
+          is_generated: boolean
           lag_days: number
+          manual_override: boolean
           predecessor_stage_id: string
           quote_id: string
           successor_stage_id: string
@@ -5190,8 +5232,11 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          generator_source?: string | null
           id?: string
+          is_generated?: boolean
           lag_days?: number
+          manual_override?: boolean
           predecessor_stage_id: string
           quote_id: string
           successor_stage_id: string
@@ -5200,8 +5245,11 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          generator_source?: string | null
           id?: string
+          is_generated?: boolean
           lag_days?: number
+          manual_override?: boolean
           predecessor_stage_id?: string
           quote_id?: string
           successor_stage_id?: string
@@ -5234,48 +5282,77 @@ export type Database = {
       }
       quote_stages: {
         Row: {
+          addon_module_code: string | null
           budget: number
           color: string
           created_at: string
           description: string | null
           end_date: string
           external_id: string | null
+          generator_source: string | null
           id: string
+          is_generated: boolean
+          manual_override: boolean
           name: string
+          phase_code: string | null
           quote_id: string
           sort_order: number
           start_date: string
           updated_at: string
         }
         Insert: {
+          addon_module_code?: string | null
           budget?: number
           color?: string
           created_at?: string
           description?: string | null
           end_date: string
           external_id?: string | null
+          generator_source?: string | null
           id?: string
+          is_generated?: boolean
+          manual_override?: boolean
           name: string
+          phase_code?: string | null
           quote_id: string
           sort_order?: number
           start_date: string
           updated_at?: string
         }
         Update: {
+          addon_module_code?: string | null
           budget?: number
           color?: string
           created_at?: string
           description?: string | null
           end_date?: string
           external_id?: string | null
+          generator_source?: string | null
           id?: string
+          is_generated?: boolean
+          manual_override?: boolean
           name?: string
+          phase_code?: string | null
           quote_id?: string
           sort_order?: number
           start_date?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "quote_stages_addon_module_fk"
+            columns: ["addon_module_code"]
+            isOneToOne: false
+            referencedRelation: "proposal_addon_modules"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "quote_stages_phase_code_fk"
+            columns: ["phase_code"]
+            isOneToOne: false
+            referencedRelation: "proposal_phases"
+            referencedColumns: ["code"]
+          },
           {
             foreignKeyName: "quote_stages_quote_id_fkey"
             columns: ["quote_id"]
