@@ -90,6 +90,7 @@ export function useBootstrapQuoteFromPreset() {
         defaultDurationDays: input.defaultDurationDays,
         budgetsByPhase: input.budgetsByPhase,
         flags: input.flags,
+        enabledPhasesOverride: input.enabledPhasesOverride,
       });
 
       const result = await applyMutation.mutateAsync({ quoteId: input.quoteId, plan });
