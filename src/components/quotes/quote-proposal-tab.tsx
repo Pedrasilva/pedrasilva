@@ -2030,7 +2030,7 @@ function ProposalPrintDocument({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("fee_proposals")
-        .select("proposal_number, ontology_family_code, project_name")
+        .select("proposal_number, ontology_family_code, titulo")
         .eq("id", document.quote_id)
         .maybeSingle();
       if (error) throw error;
@@ -2038,7 +2038,8 @@ function ProposalPrintDocument({
     },
   });
   const proposalNumber = proposalMeta?.proposal_number ?? null;
-  const projectName = proposalMeta?.project_name ?? null;
+  const projectName = proposalMeta?.titulo ?? document.title ?? null;
+
 
   // Ontology-aware cover letter. When the proposal lacks ontology metadata,
   // `view.coverLetter` is undefined and the letter page is simply omitted.
