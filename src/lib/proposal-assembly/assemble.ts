@@ -49,9 +49,14 @@ const WORKPLACE_CANONICAL_PHASES = [
 ];
 
 function phasesForAssembly(input: AssemblyInput): AssemblyInput["data"]["stages"] {
-  if (input.data.stages.length > 0) return input.data.stages;
   if (input.family !== "workplace") return [];
-  return WORKPLACE_CANONICAL_PHASES.map((p) => ({ ...p }));
+  const liveByCode = new Map(input.data.stages.map((s) => [s.code, s]));
+  return WORKPLACE_CANONICAL_PHASES.map((p) => ({
+    ...p,
+    ...liveByCode.get(p.code),
+    code: p.code,
+    name: p.name,
+  }));
 }
 
 function phaseMetadata(s: AssemblyInput["data"]["stages"][number], currency: string | null | undefined, language: AssemblyInput["language"]): string {
@@ -244,13 +249,12 @@ function addAttachmentPayloads(
     });
   }
   if (att.id === "III") {
-    // Gantt appendix — payload reference only; rendered by gantt-appendix block.
     blocks.push({
       localId: `${att.sectionId}.gantt`,
-      title: input.language === "pt-PT" ? "Diagrama de Gantt" : "Gantt Diagram",
+      title: input.language === "pt-PT" ? "Sequência indicativa de fases" : "Indicative phase sequence",
       content: renderProgrammeRows(phases, lang),
       payload: {
-        kind: "gantt_appendix",
+        kind: "programme_summary",
         quoteId: input.data.quote.id,
         settings: {
           showMilestones: true,
@@ -265,23 +269,17 @@ function addAttachmentPayloads(
   if (att.id === "IV") {
     blocks.push({
       localId: `${att.sectionId}.fee_table`,
-      title: input.language === "pt-PT" ? "Quadro de Honorários" : "Fee Table",
-      content: input.data.stages
-        .map((s) => `${s.code} — ${s.name}: ${s.fee ?? "—"}`)
-        .join("\n"),
-      payload: { kind: "fee_table", stages: input.data.stages },
+      title: input.language === "pt-PT" ? "Quadro de honorários" : "Fee schedule",
+      content: renderFeeScheduleRows(phases, input.data.quote.currency, lang),
+      payload: { kind: "fee_summary", stages: phases },
     });
-    if (input.data.paymentSchedule.length > 0) {
-      blocks.push({
-        localId: `${att.sectionId}.payment_schedule`,
-        title:
-          input.language === "pt-PT" ? "Calendário de Pagamentos" : "Payment Schedule",
-        content: input.data.paymentSchedule
-          .map((p) => `${p.label} (${p.trigger}): ${p.amount}`)
-          .join("\n"),
-        payload: { kind: "payment_schedule", rows: input.data.paymentSchedule },
-      });
-    }
+    blocks.push({
+      localId: `${att.sectionId}.payment_schedule`,
+      title:
+        input.language === "pt-PT" ? "Calendário de pagamentos" : "Payment schedule",
+      content: renderPaymentScheduleRows(input.data.paymentSchedule, input.data.quote.currency, lang),
+      payload: { kind: "payment_summary", rows: input.data.paymentSchedule },
+    });
   }
   if (att.id === "V") {
     blocks.push({
