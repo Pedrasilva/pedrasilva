@@ -71,8 +71,8 @@ export function ProposalAssemblyPanel(props: Props) {
     II: true,
     III: true,
     IV: true,
-    V: false,
-    VI: false,
+    V: true,
+    VI: true,
   });
   const [flags, setFlags] = useState<AssemblyFlags>({
     showHours: true,
