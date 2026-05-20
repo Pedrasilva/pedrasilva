@@ -31,6 +31,14 @@ import {
   consultancyDownpayment,
   consultancyBlockValue,
 } from "./time-based-settings";
+import {
+  assembleProposal,
+  type AssemblyAppendixToggles,
+  type AssemblyFlags,
+  type ProposalDeliveryMode,
+  type ProposalFamily,
+  type ProposalPreset,
+} from "../proposal-assembly";
 
 export interface GenerateProposalArgs {
   quoteId: string;
@@ -58,6 +66,153 @@ export interface GenerateProposalResult {
   missingSlugs: string[];
 }
 
+const WORKPLACE_APPENDICES: AssemblyAppendixToggles = {
+  I: true,
+  II: true,
+  III: true,
+  IV: true,
+  V: false,
+  VI: false,
+};
+
+const WORKPLACE_FLAGS: AssemblyFlags = {
+  showHours: true,
+  showDurations: true,
+  showConsultantTrack: false,
+};
+
+function daysBetween(start: string | null | undefined, end: string | null | undefined) {
+  if (!start || !end) return null;
+  const a = new Date(`${start}T00:00:00Z`).getTime();
+  const b = new Date(`${end}T00:00:00Z`).getTime();
+  if (!Number.isFinite(a) || !Number.isFinite(b) || b < a) return null;
+  return Math.max(1, Math.round((b - a) / 86_400_000) + 1);
+}
+
+function normalizeWorkplacePreset(value: unknown): ProposalPreset {
+  return value === "small_fitout" || value === "headquarters" || value === "large_corporate_fitout"
+    ? value
+    : "large_corporate_fitout";
+}
+
+function normalizeDeliveryMode(value: unknown): ProposalDeliveryMode {
+  return value === "consultant_led" || value === "design_build" || value === "psa_led"
+    ? value
+    : "psa_led";
+}
+
+async function createWorkplaceAssemblyDocument(args: {
+  quote: Record<string, unknown>;
+  language: string;
+  stages: Array<Record<string, unknown>>;
+  paymentSchedule: Array<Record<string, unknown>>;
+}): Promise<GenerateProposalResult> {
+  const quoteId = String(args.quote.id);
+  const family: ProposalFamily = "workplace";
+  const preset = normalizeWorkplacePreset(args.quote.ontology_preset_code);
+  const deliveryMode = normalizeDeliveryMode(args.quote.ontology_delivery_mode);
+  const assembled = assembleProposal({
+    family,
+    preset,
+    deliveryMode,
+    language: args.language === "en" ? "en" : "pt-PT",
+    flags: WORKPLACE_FLAGS,
+    addOns: [],
+    appendices: WORKPLACE_APPENDICES,
+    assemblyKey: `${quoteId}:${args.language}:v1`,
+    data: {
+      quote: {
+        id: quoteId,
+        code: typeof args.quote.proposal_number === "string" ? args.quote.proposal_number : null,
+        title: typeof args.quote.titulo === "string" ? args.quote.titulo : null,
+        project_name: typeof args.quote.titulo === "string" ? args.quote.titulo : null,
+        client_name: null,
+        currency: "EUR",
+        proposal_date:
+          typeof args.quote.data_proposta === "string"
+            ? args.quote.data_proposta
+            : new Date().toISOString().slice(0, 10),
+        proposal_version: "v1",
+      },
+      stages: args.stages.map((s, index) => ({
+        code: String(s.phase_code ?? s.stage_code ?? s.code ?? `P${index + 1}`),
+        name: String(s.name ?? s.title ?? ""),
+        duration_days:
+          typeof s.duration_days === "number"
+            ? s.duration_days
+            : daysBetween(s.start_date as string | null, s.end_date as string | null),
+        estimated_hours:
+          typeof s.estimated_hours === "number" ? s.estimated_hours : null,
+        fee: typeof s.budget === "number" ? s.budget : s.budget != null ? Number(s.budget) : null,
+      })),
+      paymentSchedule: args.paymentSchedule.map((p) => ({
+        label: String(p.label ?? p.description ?? p.payment_trigger ?? p.trigger ?? ""),
+        trigger: String(p.payment_trigger ?? p.trigger ?? ""),
+        amount: typeof p.amount === "number" ? p.amount : p.amount != null ? Number(p.amount) : 0,
+      })),
+      feeBreakdown: null,
+      exclusions: [],
+    },
+  });
+
+  const { data: insertedDoc, error: docErr } = await supabase
+    .from("quote_proposal_documents")
+    .insert({
+      quote_id: quoteId,
+      title: String(args.quote.titulo ?? "Proposal"),
+      language: args.language,
+      status: "draft",
+      revision_number: 1,
+      snapshot_json: {
+        proposal_kind: "workplace_assembly_v1",
+        assembly_family: family,
+        assembly_preset: preset,
+        assembly_delivery_mode: deliveryMode,
+      },
+      generated_at: new Date().toISOString(),
+    })
+    .select("id")
+    .single();
+  if (docErr || !insertedDoc) {
+    throw new Error(`Failed to create assembled proposal document: ${docErr?.message ?? "unknown error"}`);
+  }
+
+  const rows = assembled.containers.flatMap((container, containerIndex) =>
+    container.enabled
+      ? container.blocks.map((block, blockIndex) => ({
+          proposal_document_id: insertedDoc.id,
+          proposal_block_id: null,
+          block_title: block.title,
+          block_type: "editable_text" as const,
+          content: block.content,
+          generated_content: {
+            generated_from_assembly: true,
+            container_id: container.id,
+            section_id: container.sectionId,
+            local_id: block.localId,
+            payload: block.payload ?? null,
+          },
+          sort_order: (containerIndex + 1) * 100 + blockIndex * 10,
+          is_included: true,
+          is_locked: container.locked === "full",
+          assembly_section_id: container.sectionId,
+          assembly_provenance: container.provenance,
+          assembly_locked: container.locked,
+        }))
+      : [],
+  );
+  if (rows.length === 0) throw new Error("Assembly planner returned no insertable blocks");
+  const { error: blocksErr } = await supabase
+    .from("quote_proposal_document_blocks")
+    .insert(rows as never);
+  if (blocksErr) {
+    await supabase.from("quote_proposal_documents").delete().eq("id", insertedDoc.id);
+    throw new Error(`Failed to create assembled proposal blocks: ${blocksErr.message}`);
+  }
+
+  return { documentId: insertedDoc.id as string, blocksCreated: rows.length, missingSlugs: [] };
+}
+
 async function runGenerate(
   args: GenerateProposalArgs,
 ): Promise<GenerateProposalResult> {
@@ -67,7 +222,7 @@ async function runGenerate(
   const { data: quote, error: quoteErr } = await supabase
     .from("fee_proposals")
     .select(
-      "id, titulo, valor, proposal_description, pricing_multiplier, data_proposta, opportunity_id, company_id, contact_id, revision_number, quote_type, quote_category, time_based_settings",
+        "id, titulo, valor, proposal_description, pricing_multiplier, data_proposta, opportunity_id, company_id, contact_id, revision_number, quote_type, quote_category, time_based_settings, proposal_number, ontology_family_code, ontology_preset_code, ontology_delivery_mode",
     )
     .eq("id", args.quoteId)
     .maybeSingle();
@@ -106,7 +261,7 @@ async function runGenerate(
       : Promise.resolve({ data: null, error: null }),
     supabase
       .from("quote_stages")
-      .select("id, name, start_date, end_date, sort_order")
+      .select("*")
       .eq("quote_id", args.quoteId)
       .order("sort_order", { ascending: true }),
     supabase
@@ -155,6 +310,18 @@ async function runGenerate(
     const err = new Error("no_blocks");
     err.name = "EmptyLibraryError";
     throw err;
+  }
+
+  const isWorkplaceAssemblyRequest =
+    quote.ontology_family_code === "workplace" &&
+    (args.proposalKind === "fixed_project" || args.proposalKind === "psa_interior_fitout");
+  if (isWorkplaceAssemblyRequest) {
+    return createWorkplaceAssemblyDocument({
+      quote: quote as Record<string, unknown>,
+      language,
+      stages: (stagesRes.data ?? []) as Array<Record<string, unknown>>,
+      paymentSchedule: (paymentRes.data ?? []) as Array<Record<string, unknown>>,
+    });
   }
 
   const ctx: QuoteContext = {
