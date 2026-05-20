@@ -752,12 +752,14 @@ function GeneratedDocumentSection({
   isLoadingDocument,
   quoteType,
   quoteCategory,
+  ontologyFamilyCode,
 }: {
   quoteId: string;
   document: QuoteProposalDocument | null;
   isLoadingDocument: boolean;
   quoteType?: string | null;
   quoteCategory?: "project" | "time_based" | "retainer" | "consultancy" | null;
+  ontologyFamilyCode?: string | null;
 }) {
   const { t } = useTranslation("crm");
   const locale = useDateLocale();
@@ -775,7 +777,7 @@ function GeneratedDocumentSection({
     () => proposalKindsForCategory(quoteCategory ?? "project"),
     [quoteCategory],
   );
-  const isWorkplaceAssemblyQuote = props.ontologyFamilyCode === "workplace";
+  const isWorkplaceAssemblyQuote = ontologyFamilyCode === "workplace";
   const fallbackKind = isWorkplaceAssemblyQuote
     ? "psa_interior_fitout"
     : quoteCategory
