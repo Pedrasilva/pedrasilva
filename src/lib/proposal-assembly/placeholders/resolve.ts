@@ -166,10 +166,10 @@ export function resolvePlaceholders(text: string, map: Record<string, string>): 
 }
 
 function componentFallback(key: string): string {
-  if (key === "proposal_gantt") return "Programme to be confirmed.";
+  if (key === "proposal_gantt") return "Programme to be confirmed following validation of project stages.";
   if (key === "payment_schedule_table") return "Payment schedule to be confirmed.";
   if (key === "project_stage_fee_table" || key === "construction_stage_fee_table") {
-    return "Fee schedule to be confirmed.";
+    return "Detailed fee schedule to be confirmed.";
   }
   return "";
 }
