@@ -17,7 +17,10 @@ import {
   buildPlaceholderMap,
   resolvePlaceholders,
 } from "./placeholders/resolve";
-import { lookupSectionTemplate } from "./registries/section-templates";
+import {
+  lookupSectionTemplate,
+  lookupPhaseTemplate,
+} from "./registries/section-templates";
 import {
   ATTACHMENT_TEMPLATES,
   type AttachmentTemplate,
@@ -70,23 +73,43 @@ export function assembleProposal(input: AssemblyInput): AssembledProposal {
       },
     ];
 
-    // Phase narratives section emits one extra editable block per stage.
+    // Phase narratives section emits one editable block per stage, using a
+    // per-phase template when one is registered for the (family/preset/mode,
+    // stageCode) tuple. Unknown stage codes fall back to a one-liner so the
+    // block remains useful and editable rather than empty.
     if (sectionId === "phase_narratives") {
       for (const s of input.data.stages) {
-        const phaseTitle =
-          input.language === "pt-PT" ? `Fase ${s.code} — ${s.name}` : `Phase ${s.code} — ${s.name}`;
-        const phaseBody =
-          input.language === "pt-PT"
-            ? `Duração estimada: ${s.duration_days ?? "—"} dias. Honorários: ${
-                s.fee != null ? `${s.fee} ${input.data.quote.currency ?? "EUR"}` : "—"
-              }.`
-            : `Estimated duration: ${s.duration_days ?? "—"} days. Fee: ${
-                s.fee != null ? `${s.fee} ${input.data.quote.currency ?? "EUR"}` : "—"
-              }.`;
+        const phaseTpl = lookupPhaseTemplate(
+          input.family,
+          input.preset,
+          input.deliveryMode,
+          s.code,
+        );
+        let phaseTitle: string;
+        let phaseBodyRaw: string;
+        if (phaseTpl) {
+          phaseTitle = input.language === "pt-PT" ? phaseTpl.titlePt : phaseTpl.titleEn;
+          phaseBodyRaw = input.language === "pt-PT" ? phaseTpl.bodyPt : phaseTpl.bodyEn;
+        } else {
+          phaseTitle =
+            input.language === "pt-PT"
+              ? `Fase ${s.code} — ${s.name}`
+              : `Phase ${s.code} — ${s.name}`;
+          phaseBodyRaw =
+            input.language === "pt-PT"
+              ? `Duração estimada: ${s.duration_days ?? "—"} dias. Honorários: ${
+                  s.fee != null ? `${s.fee} ${input.data.quote.currency ?? "EUR"}` : "—"
+                }.`
+              : `Estimated duration: ${s.duration_days ?? "—"} days. Fee: ${
+                  s.fee != null ? `${s.fee} ${input.data.quote.currency ?? "EUR"}` : "—"
+                }.`;
+        }
+        const phaseResolved = resolvePlaceholders(phaseBodyRaw, map);
+        phaseResolved.unresolved.forEach((u) => unresolved.add(u));
         blocks.push({
           localId: `${sectionId}.${s.code}`,
           title: phaseTitle,
-          content: phaseBody,
+          content: phaseResolved.output,
           payload: { stageCode: s.code },
         });
       }
