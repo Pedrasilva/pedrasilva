@@ -41,7 +41,7 @@ const MAIN_ORDER: AssemblyMainSectionId[] = [
 const WORKPLACE_CANONICAL_PHASES = [
   { code: "P1", name: "Workplace Strategy / Programme Definition" },
   { code: "P2", name: "Concept Design" },
-  { code: "P4", name: "Developed / Schematic Design" },
+  { code: "P3", name: "Developed / Schematic Design" },
   { code: "P5", name: "Technical Design" },
   { code: "P6", name: "Procurement / Tender Support" },
   { code: "P7", name: "Construction Assistance" },
@@ -267,6 +267,13 @@ function addAttachmentPayloads(
     });
   }
   if (att.id === "IV") {
+    blocks.push({
+      localId: `${att.sectionId}.basis`,
+      title: input.language === "pt-PT" ? "Base comercial" : "Commercial basis",
+      content: lang === "pt-PT"
+        ? "• As fases de projecto são previstas como honorários fixos, facturados por marco após validação.\n• A Assistência à Obra, quando incluída, opera como retainer mensal alinhado com o programa de obra confirmado.\n• Valores finais, impostos, despesas reembolsáveis e marcos de facturação são confirmados antes da emissão contratual."
+        : "• Design stages are intended as fixed-fee milestones, invoiced by milestone after validation.\n• Construction Assistance, where included, operates as a monthly retainer aligned with the confirmed construction programme.\n• Final values, taxes, reimbursable expenses and invoicing milestones are confirmed before contractual issue.",
+    });
     blocks.push({
       localId: `${att.sectionId}.fee_table`,
       title: input.language === "pt-PT" ? "Quadro de honorários" : "Fee schedule",
