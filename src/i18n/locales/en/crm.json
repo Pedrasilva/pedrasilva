@@ -290,8 +290,8 @@
   },
   "quoteType": {
     "standard_project": {
-      "label": "Standard Project Proposal",
-      "hint": "Stages, Gantt, resources, external services and a generated proposal. Use for fixed/staged design projects."
+      "label": "Project Proposal",
+      "hint": "Stages, Gantt, resources, external services and the workplace proposal package. Use for fixed/staged design projects."
     },
     "construction_retainer": {
       "label": "Construction Retainer",
