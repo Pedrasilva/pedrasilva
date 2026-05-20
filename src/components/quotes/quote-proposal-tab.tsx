@@ -2347,12 +2347,12 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
     }
     if (mode !== "preview") {
       flushSync(() => setMode("preview"));
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => window.print());
-      });
     } else {
-      window.print();
+      await new Promise((resolve) => requestAnimationFrame(resolve));
     }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => window.print());
+    });
   };
 
   const canPreview = Boolean(document);
