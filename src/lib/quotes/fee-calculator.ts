@@ -4,6 +4,13 @@
  * Pure functions reproducing the algorithm from the company's reference
  * Excel sheet "P0000_Fee_calculator". Used by Project Proposals only.
  *
+ * FUTURE — blended-rate path: once commercial role rates exist, a parallel
+ * resolver will compute fees from a role mix (see
+ * `src/lib/proposal-roles` + `resolvePhaseStaffingMix` in
+ * `src/lib/proposal-rendering`) instead of construction value. That path is
+ * NOT yet implemented; the % of construction algorithm below remains the
+ * only fee model in use.
+ *
  * Algorithm (Architecture only):
  *   construction_value     = area × cost_per_m²            (or entered directly)
  *   structure_value        = construction_value × 16%
