@@ -31,11 +31,13 @@ export const ATTACHMENT_TEMPLATES: AttachmentTemplate[] = [
     defaultEnabled: true,
     locked: "semi",
     introEn:
-      "The following general conditions apply to the engagement described in this proposal. " +
-      "These clauses are semi-locked: edit only where the client engagement specifically requires it.",
+      "The general conditions below govern the engagement described in this proposal. They " +
+      "are semi-locked: edit only where the specific client contract requires deviation from " +
+      "PSA's standard terms.",
     introPt:
-      "As condições gerais que se seguem aplicam-se à contratação descrita nesta proposta. " +
-      "Estas cláusulas são semi-bloqueadas: editar apenas quando a contratação o exigir.",
+      "As condições gerais que se seguem regem a contratação descrita nesta proposta. São " +
+      "semi-bloqueadas: editar apenas quando o contrato específico do cliente exigir desvio " +
+      "face aos termos-padrão da PSA.",
   },
   {
     id: "II",
@@ -45,9 +47,15 @@ export const ATTACHMENT_TEMPLATES: AttachmentTemplate[] = [
     defaultEnabled: true,
     locked: "none",
     introEn:
-      "The matrix below lists deliverables per project phase, including responsibility and format.",
+      "The matrix below lists deliverables per project phase — drawings, schedules, " +
+      "specifications and coordination outputs — with responsibility (PSA, consultant, " +
+      "client, contractor) and issue format. It is the procurement-facing reference for " +
+      "what each fee buys.",
     introPt:
-      "A matriz seguinte lista os entregáveis por fase do projecto, incluindo responsabilidade e formato.",
+      "A matriz seguinte lista os entregáveis por fase do projecto — desenhos, mapas, " +
+      "especificações e outputs de coordenação — com responsabilidade (PSA, consultor, " +
+      "cliente, empreiteiro) e formato de entrega. É a referência para procurement do que " +
+      "cada honorário cobre.",
   },
   {
     id: "III",
@@ -57,11 +65,13 @@ export const ATTACHMENT_TEMPLATES: AttachmentTemplate[] = [
     defaultEnabled: true,
     locked: "none",
     introEn:
-      "Programme overview for {project_name}. Total duration {overall_project_duration} days. " +
-      "{proposal_gantt}",
+      "Programme overview for {project_name}. Total duration {overall_project_duration} " +
+      "working days. The Gantt below shows project stages, key milestones and the " +
+      "construction-assistance retainer window.\n\n{proposal_gantt}",
     introPt:
-      "Programa geral para {project_name}. Duração total: {overall_project_duration} dias. " +
-      "{proposal_gantt}",
+      "Programa geral para {project_name}. Duração total: {overall_project_duration} dias " +
+      "úteis. O Gantt abaixo apresenta as fases de projecto, marcos principais e a janela do " +
+      "retainer de assistência à obra.\n\n{proposal_gantt}",
   },
   {
     id: "IV",
@@ -71,11 +81,17 @@ export const ATTACHMENT_TEMPLATES: AttachmentTemplate[] = [
     defaultEnabled: true,
     locked: "none",
     introEn:
-      "Detailed fees per phase and corresponding payment milestones.\n\n" +
-      "{project_stage_fee_table}\n\n{construction_stage_fee_table}\n\n{payment_schedule_table}",
+      "Detailed fees per phase and corresponding payment milestones. Project stages are " +
+      "billed as fixed fees on milestone sign-off; construction assistance is billed monthly " +
+      "as a retainer over {construction_duration} months at {construction_monthly_fee} per " +
+      "month.\n\n{project_stage_fee_table}\n\n{construction_stage_fee_table}\n\n" +
+      "{payment_schedule_table}",
     introPt:
-      "Honorários detalhados por fase e respectivos marcos de pagamento.\n\n" +
-      "{project_stage_fee_table}\n\n{construction_stage_fee_table}\n\n{payment_schedule_table}",
+      "Honorários detalhados por fase e respectivos marcos de pagamento. As fases de projecto " +
+      "são facturadas como honorários fixos contra aprovação de marco; a assistência à obra é " +
+      "facturada mensalmente como retainer durante {construction_duration} meses ao valor de " +
+      "{construction_monthly_fee} por mês.\n\n{project_stage_fee_table}\n\n" +
+      "{construction_stage_fee_table}\n\n{payment_schedule_table}",
   },
   {
     id: "V",
@@ -85,9 +101,13 @@ export const ATTACHMENT_TEMPLATES: AttachmentTemplate[] = [
     defaultEnabled: false,
     locked: "none",
     introEn:
-      "Optional services available on request, priced separately and not included in the base fee.",
+      "Services available on request, priced separately and not included in the base fee. " +
+      "Typical add-ons include BIM uplift, sustainability certification support, post-" +
+      "occupancy studies and wayfinding/signage design.",
     introPt:
-      "Serviços opcionais disponíveis a pedido, com orçamento separado e não incluídos no honorário base.",
+      "Serviços disponíveis a pedido, com orçamento separado e não incluídos no honorário " +
+      "base. Add-ons típicos incluem upgrade BIM, apoio a certificação de sustentabilidade, " +
+      "estudos pós-ocupação e design de sinalética/wayfinding.",
   },
   {
     id: "VI",
@@ -97,9 +117,15 @@ export const ATTACHMENT_TEMPLATES: AttachmentTemplate[] = [
     defaultEnabled: false,
     locked: "none",
     introEn:
-      "Coordination interfaces with external consultants engaged directly by the client.",
+      "Coordination interfaces with external consultants engaged directly by the client " +
+      "(MEP, structure, QS, acoustics, AV, security, fire). Includes the cadence of " +
+      "coordination meetings, the model/drawing exchange protocol and the issue-resolution " +
+      "path during design and construction.",
     introPt:
-      "Interfaces de coordenação com consultores externos contratados directamente pelo cliente.",
+      "Interfaces de coordenação com consultores externos contratados directamente pelo " +
+      "cliente (MEP, estrutura, QS, acústica, AV, segurança, incêndio). Inclui a cadência de " +
+      "reuniões de coordenação, o protocolo de troca de modelos/desenhos e o circuito de " +
+      "resolução de issues em projecto e obra.",
   },
 ];
 
