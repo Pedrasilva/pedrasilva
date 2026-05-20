@@ -1331,5 +1331,17 @@
     "errors": {
       "invalidNif": "NIF português inválido (checksum falhou)"
     }
+  },
+  "commercialRole": {
+    "title": "Função comercial",
+    "sub": "Função usada em documentos comerciais. Independente do cargo HR interno.",
+    "proposalRole": "Função em proposta",
+    "proposalRolePlaceholder": "Selecionar função",
+    "billingRole": "Função de faturação",
+    "billingRolePlaceholder": "Opcional — assume a função da proposta",
+    "seniorityLevel": "Nível de senioridade",
+    "seniorityRange": "A senioridade deve estar entre 0 e 100.",
+    "none": "— Não definido —",
+    "unassigned": "Não atribuído"
   }
 }
