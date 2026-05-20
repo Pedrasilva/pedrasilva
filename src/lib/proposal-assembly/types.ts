@@ -121,6 +121,8 @@ export interface AssemblyData {
   stages: Array<{
     code: string;            // e.g. "P1"..."P6", "CA"
     name: string;
+    start_date?: string | null;
+    end_date?: string | null;
     duration_days?: number | null;
     estimated_hours?: number | null;
     fee?: number | null;
