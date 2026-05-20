@@ -142,11 +142,17 @@ export function resolvePlaceholders(text: string, map: Record<string, string>): 
   // Tidy up artefacts created by collapsed empty placeholders.
   output = output
     .replace(/prepared for\s*(?=[.,;:!?\n]|$)/gi, "prepared for the client")
+    .replace(/\bDear\s*(?=,)/gi, "Dear Client")
+    .replace(/^requires\s+/gim, "The client requires ")
+    .replace(/\bTotal duration\s+working days\.?/gi, "Programme duration to be confirmed following phase validation.")
+    .replace(/\bDuração total:\s+dias\s+úteis\.?/gi, "Duração do programa a confirmar após validação das fases.")
     .replace(/for,\s*/gi, "")
     .replace(/for\s+[.,;:!?]/gi, "")
+    .replace(/\bThe overall programme runs for\s*working days\s*across\s*briefing,\s*design,\s*tender\s*and\s*close-out\.?/gi, "The project programme will be confirmed following validation of the proposed stages.")
     .replace(/\bThe overall programme runs for\s*working days\.?/gi, "The project programme will be confirmed following validation of the proposed stages.")
-    .replace(/\bOverall programme:\s*working days\.?/gi, "Programme to be confirmed.")
+    .replace(/\bOverall programme:\s*working days\.?/gi, "Programme duration to be confirmed following phase validation.")
     .replace(/\bthroughout the\s*-day programme\b/gi, "throughout the confirmed programme")
+    .replace(/\bthroughout the\s+day programme\b/gi, "throughout the confirmed programme")
     .replace(/\bembedded\s+throughout\s+the\s+-day\s+programme\b/gi, "embedded throughout the confirmed programme")
     .replace(/\bConstruction is supported through a monthly retainer over\s*months\s*at\s*per month\s*\(\s*hours\/month\s*\),?/gi, "Construction Assistance, where included, will be structured as a monthly retainer aligned with the confirmed construction programme,")
     .replace(/\bConstruction assistance is delivered as a monthly retainer over\s*months\s*at\s*per month\s*\(\s*hours\/month\s*\)\.?/gi, "Construction Assistance, where included, will be structured as a monthly retainer aligned with the confirmed construction programme.")
