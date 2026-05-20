@@ -2235,7 +2235,7 @@ function ProposalPrintDocument({
               >
                 {b.block_title && (
                   <h2 className="proposal-print-heading mb-2 text-base font-semibold leading-snug">
-                    {b.block_title}
+                    {displayBlockTitle(b.block_title)}
                   </h2>
                 )}
                 {b.block_type === "generated_section" ? (
