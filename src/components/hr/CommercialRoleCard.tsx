@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 /**
  * Commercial / proposal-facing role for a collaborator. Edited here, surfaced
@@ -39,7 +39,6 @@ export function CommercialRoleCard({
   readOnly?: boolean;
 }) {
   const { t, i18n } = useTranslation(["hr", "common"]);
-  const { toast } = useToast();
   const qc = useQueryClient();
   const { data: roles = [], isLoading } = useProposalRoles();
   const isPt = i18n.language?.startsWith("pt");
@@ -91,10 +90,10 @@ export function CommercialRoleCard({
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["collaborators"] });
       qc.invalidateQueries({ queryKey: ["collaborator", collaborator.id] });
-      toast({ title: t("common:saved", { defaultValue: "Saved" }) });
+      toast.success(t("common:saved", { defaultValue: "Saved" }));
     },
     onError: (e: Error) => {
-      toast({ title: e.message, variant: "destructive" });
+      toast.error(e.message);
     },
   });
 
