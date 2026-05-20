@@ -104,6 +104,43 @@ assert.ok(exec.blocks[0].content.includes("6"), "construction_duration resolved"
 const phases = a.containers.find((c) => c.sectionId === "phase_narratives");
 assert.equal(phases.blocks.length, 1 + fixture.data.stages.length);
 
+// QA: Construction Assistance phase must read as a monthly retainer, not a
+// fixed-deliverable package.
+const caBlock = phases.blocks.find((b) => b.payload?.stageCode === "CA");
+assert.ok(caBlock, "CA phase block present");
+assert.ok(/retainer/i.test(caBlock.content), "CA phase reads as retainer");
+assert.ok(
+  /not a fixed-deliverable/i.test(caBlock.content),
+  "CA phase explicitly distinguishes retainer from fixed deliverables",
+);
+assert.ok(
+  caBlock.content.includes("6") && caBlock.content.includes("€"),
+  "CA phase resolves construction_duration + monthly fee",
+);
+
+// QA: graceful collapse — partial data should not leave literal `{token}` in
+// rendered narrative, and should not produce double blank lines.
+const partial = assembleProposal({
+  ...fixture,
+  data: {
+    ...fixture.data,
+    feeBreakdown: { total: 48000 }, // no monthly retainer fields
+  },
+});
+const partialExec = partial.containers.find((c) => c.sectionId === "executive_summary");
+assert.ok(
+  !/\{construction_monthly_fee\}/.test(partialExec.blocks[0].content),
+  "empty known placeholders collapse instead of leaking literal tokens",
+);
+assert.ok(
+  !/\n\n\n/.test(partialExec.blocks[0].content),
+  "no triple newlines after collapse",
+);
+
+// QA: attachment IV references retainer billing explicitly.
+const attIV = a.containers.find((c) => c.sectionId === "attachment_iv");
+assert.ok(/retainer/i.test(attIV.blocks[0].content), "Attachment IV mentions retainer");
+
 console.log(
   `ok — ${a.containers.length} containers, ${a.unresolvedPlaceholders.length} unresolved placeholders` +
     (a.unresolvedPlaceholders.length ? ` (${a.unresolvedPlaceholders.join(", ")})` : ""),
