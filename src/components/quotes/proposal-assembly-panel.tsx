@@ -149,7 +149,14 @@ export function ProposalAssemblyPanel(props: Props) {
 
   const handleInsert = async () => {
     try {
-      const res = await insert.mutateAsync({ assembled: preview });
+      if (!props.documentId) throw new Error("documentId is required");
+      if (preview.containers.length === 0) {
+        throw new Error("Assembly planner returned no containers");
+      }
+      const res = await insert.mutateAsync({
+        assembled: preview,
+        documentId: props.documentId,
+      });
       toast.success(
         t("crm:proposalAssembly.inserted", { count: res?.inserted ?? 0 }),
       );
