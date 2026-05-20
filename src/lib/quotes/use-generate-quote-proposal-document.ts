@@ -305,13 +305,6 @@ async function runGenerate(
   ].find(Boolean);
   if (firstError) throw new Error(firstError.message);
 
-  const masterBlocks = (masterBlocksRes.data ?? []) as MasterBlock[];
-  if (masterBlocks.length === 0) {
-    const err = new Error("no_blocks");
-    err.name = "EmptyLibraryError";
-    throw err;
-  }
-
   const isWorkplaceAssemblyRequest =
     quote.ontology_family_code === "workplace" &&
     (args.proposalKind === "fixed_project" || args.proposalKind === "psa_interior_fitout");
@@ -322,6 +315,13 @@ async function runGenerate(
       stages: (stagesRes.data ?? []) as Array<Record<string, unknown>>,
       paymentSchedule: (paymentRes.data ?? []) as Array<Record<string, unknown>>,
     });
+  }
+
+  const masterBlocks = (masterBlocksRes.data ?? []) as MasterBlock[];
+  if (masterBlocks.length === 0) {
+    const err = new Error("no_blocks");
+    err.name = "EmptyLibraryError";
+    throw err;
   }
 
   const ctx: QuoteContext = {
