@@ -2,7 +2,10 @@
  * Inserts an `AssembledProposal` into an existing proposal document by
  * writing one `quote_proposal_document_blocks` row per `ProposalBlockSeed`.
  *
- * - Appends assembly rows at the end (does not delete pre-existing blocks).
+ * - Replaces prior assembly rows for the same document so repeated assembly
+ *   stays deterministic instead of stacking duplicate containers.
+ * - Appends fresh assembly rows after the existing rows (does not delete
+ *   legacy rows).
  * - Marks any pre-existing NON-assembly blocks as `is_included = false`
  *   so the assembled containers become the actual source of truth for
  *   export/print rendering. Rows are preserved (not deleted) so the user
@@ -27,7 +30,17 @@ export function useAssembleProposalInsert(documentId: string | undefined) {
       const { assembled } = args;
       if (assembled.containers.length === 0) return { inserted: 0, suppressed: 0 };
 
-      // Read existing blocks so we can (a) compute next sort_order and
+      // Remove stale assembly output for this same document first. Legacy /
+      // manual rows remain preserved, but only one assembled V1 package can
+      // be active for export at a time.
+      const { error: deleteAssemblyErr } = await supabase
+        .from("quote_proposal_document_blocks")
+        .delete()
+        .eq("proposal_document_id", documentId)
+        .not("assembly_section_id", "is", null);
+      if (deleteAssemblyErr) throw deleteAssemblyErr;
+
+      // Read remaining blocks so we can (a) compute next sort_order and
       // (b) suppress legacy non-assembly rows.
       const { data: existing, error: readErr } = await supabase
         .from("quote_proposal_document_blocks")

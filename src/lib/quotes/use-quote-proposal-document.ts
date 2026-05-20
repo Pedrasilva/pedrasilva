@@ -39,11 +39,27 @@ export function useLatestQuoteProposalDocument(quoteId: string | undefined) {
         .order("created_at", { ascending: false });
       if (error) throw error;
       if (!data || data.length === 0) return null;
+      const documentIds = data.map((d) => d.id);
+      const { data: assembledRows, error: assembledErr } = await supabase
+        .from("quote_proposal_document_blocks")
+        .select("proposal_document_id")
+        .in("proposal_document_id", documentIds)
+        .not("assembly_section_id", "is", null);
+      if (assembledErr) throw assembledErr;
+      const assembledDocumentIds = new Set(
+        (assembledRows ?? []).map((r) => r.proposal_document_id),
+      );
       // Prefer draft, then ready, then most recent of others.
+      // Within the same status class, an ontology-assembled document is the
+      // source of truth for editor preview / print export. This prevents a
+      // later legacy regeneration from silently becoming the active export.
       const sorted = [...data].sort((a, b) => {
         const pa = STATUS_PRIORITY[a.status] ?? 99;
         const pb = STATUS_PRIORITY[b.status] ?? 99;
         if (pa !== pb) return pa - pb;
+        const aa = assembledDocumentIds.has(a.id) ? 0 : 1;
+        const ab = assembledDocumentIds.has(b.id) ? 0 : 1;
+        if (aa !== ab) return aa - ab;
         return (b.created_at ?? "").localeCompare(a.created_at ?? "");
       });
       return sorted[0];

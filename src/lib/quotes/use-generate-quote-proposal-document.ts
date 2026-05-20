@@ -290,10 +290,29 @@ async function runGenerate(
       .eq("status", "draft");
     if (existing && existing.length > 0) {
       const ids = existing.map((r) => r.id);
+      const { data: assembledDraftBlocks, error: assembledDraftErr } = await supabase
+        .from("quote_proposal_document_blocks")
+        .select("proposal_document_id")
+        .in("proposal_document_id", ids)
+        .not("assembly_section_id", "is", null);
+      if (assembledDraftErr) {
+        throw new Error(`Could not inspect assembled drafts: ${assembledDraftErr.message}`);
+      }
+      const assembledDraftIds = new Set(
+        (assembledDraftBlocks ?? []).map((r) => r.proposal_document_id),
+      );
+      const replaceableIds = ids.filter((id) => !assembledDraftIds.has(id));
+      if (replaceableIds.length === 0) {
+        return {
+          documentId: ids[0] as string,
+          blocksCreated: 0,
+          missingSlugs: [],
+        };
+      }
       const { error: delErr } = await supabase
         .from("quote_proposal_documents")
         .delete()
-        .in("id", ids);
+        .in("id", replaceableIds);
       if (delErr) throw new Error(`Could not replace draft: ${delErr.message}`);
     }
   }
