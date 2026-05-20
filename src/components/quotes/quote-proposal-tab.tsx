@@ -2073,13 +2073,23 @@ function ProposalPrintDocument({
   const familyLabel = view?.cover?.familyLabel ?? null;
 
 
-  // Drop excluded blocks; keep original sort order.
+  // Drop excluded blocks; keep original sort order. If the document contains
+  // assembled ontology rows, print/export is assembly-authoritative and must
+  // not render legacy generic rows that may still be preserved in the editor.
+  const hasAssemblyBlocks = useMemo(
+    () => blocks.some((b) => b.assembly_section_id !== null),
+    [blocks],
+  );
   const visible = useMemo(
     () =>
       [...blocks]
-        .filter((b) => b.is_included)
+        .filter(
+          (b) =>
+            b.is_included &&
+            (!hasAssemblyBlocks || b.assembly_section_id !== null),
+        )
         .sort((a, b) => a.sort_order - b.sort_order),
-    [blocks],
+    [blocks, hasAssemblyBlocks],
   );
 
   const getRenderableText = (b: QuoteProposalDocumentBlock): string =>
