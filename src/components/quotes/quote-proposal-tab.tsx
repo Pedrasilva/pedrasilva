@@ -215,6 +215,19 @@ function asNum(v: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/**
+ * Strip internal provenance prefix ("Generated ") from block titles before
+ * surfacing them to clients. Block titles like "Generated Stage Summary"
+ * originate from the master `proposal_blocks` registry where the prefix
+ * marks the row as auto-assembled; it must never leak into the
+ * client-facing render or the editor card heading. Provenance metadata
+ * stays intact on the underlying record — this is render-layer only.
+ */
+function displayBlockTitle(raw: string | null | undefined): string {
+  if (!raw) return "";
+  return raw.replace(/^\s*Generated\s+/i, "").trim();
+}
+
 function GeneratedSectionRenderer({
   slug,
   content,
