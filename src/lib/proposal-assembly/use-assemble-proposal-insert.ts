@@ -110,6 +110,9 @@ export function useAssembleProposalInsert(documentId: string | undefined) {
           queryKey: ["quote-proposal-document-blocks", documentId],
         });
       }
+      qc.invalidateQueries({
+        queryKey: ["quote-proposal-documents"],
+      });
     },
   });
 }

@@ -2313,6 +2313,7 @@ function ProposalPrintDocument({
 export function QuoteProposalTab(props: QuoteProposalTabProps) {
   const { quoteId, clientName, accountName, quoteType } = props;
   const { t } = useTranslation("crm");
+  const qc = useQueryClient();
   const { data: document = null, isLoading: isLoadingDocument } =
     useLatestQuoteProposalDocument(quoteId);
   const { data: blocks = [] } = useQuoteProposalDocumentBlocks(document?.id);
@@ -2337,15 +2338,21 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
 
   // Print always runs in preview mode: switch first, then trigger print on
   // the next paint so the DOM reflects the clean document.
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    if (document?.id) {
+      await qc.invalidateQueries({ queryKey: ["quote-proposal-documents", quoteId] });
+      await qc.invalidateQueries({ queryKey: ["quote-proposal-document-blocks", document.id] });
+      await qc.refetchQueries({ queryKey: ["quote-proposal-documents", quoteId], type: "active" });
+      await qc.refetchQueries({ queryKey: ["quote-proposal-document-blocks", document.id], type: "active" });
+    }
     if (mode !== "preview") {
       flushSync(() => setMode("preview"));
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => window.print());
-      });
     } else {
-      window.print();
+      await new Promise((resolve) => requestAnimationFrame(resolve));
     }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => window.print());
+    });
   };
 
   const canPreview = Boolean(document);

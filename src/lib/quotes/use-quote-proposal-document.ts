@@ -49,17 +49,17 @@ export function useLatestQuoteProposalDocument(quoteId: string | undefined) {
       const assembledDocumentIds = new Set(
         (assembledRows ?? []).map((r) => r.proposal_document_id),
       );
-      // Prefer draft, then ready, then most recent of others.
-      // Within the same status class, an ontology-assembled document is the
-      // source of truth for editor preview / print export. This prevents a
-      // later legacy regeneration from silently becoming the active export.
+      // Hard guard: any ontology-assembled document is the source of truth
+      // for editor preview / print export, regardless of draft/ready status.
+      // This prevents a later legacy regeneration from silently becoming the
+      // active export document for the quote.
       const sorted = [...data].sort((a, b) => {
-        const pa = STATUS_PRIORITY[a.status] ?? 99;
-        const pb = STATUS_PRIORITY[b.status] ?? 99;
-        if (pa !== pb) return pa - pb;
         const aa = assembledDocumentIds.has(a.id) ? 0 : 1;
         const ab = assembledDocumentIds.has(b.id) ? 0 : 1;
         if (aa !== ab) return aa - ab;
+        const pa = STATUS_PRIORITY[a.status] ?? 99;
+        const pb = STATUS_PRIORITY[b.status] ?? 99;
+        if (pa !== pb) return pa - pb;
         return (b.created_at ?? "").localeCompare(a.created_at ?? "");
       });
       return sorted[0];
