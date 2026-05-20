@@ -135,8 +135,30 @@ export function resolvePlaceholders(text: string, map: Record<string, string>): 
     unresolved.add(key);
     return full;
   });
+  output = output.replace(RAW_COMPONENT_TOKEN_RE, (full, key: string) => {
+    if (Object.prototype.hasOwnProperty.call(map, key)) {
+      resolved.add(key);
+      return map[key] || componentFallback(key);
+    }
+    unresolved.add(key);
+    return "";
+  });
   // Tidy up artefacts created by collapsed empty placeholders.
   output = output
+    .replace(/prepared for\s*(?=[.,;:!?\n]|$)/gi, "prepared for the client")
+    .replace(/for,\s*/gi, "")
+    .replace(/for\s+[.,;:!?]/gi, "")
+    .replace(/\bThe overall programme runs for\s*working days\.?/gi, "The project programme will be confirmed following validation of the proposed stages.")
+    .replace(/\bOverall programme:\s*working days\.?/gi, "Programme to be confirmed.")
+    .replace(/\bthroughout the\s*-day programme\b/gi, "throughout the confirmed programme")
+    .replace(/\bembedded\s+throughout\s+the\s+-day\s+programme\b/gi, "embedded throughout the confirmed programme")
+    .replace(/\bConstruction is supported through a monthly retainer over\s*months\s*at\s*per month\s*\(\s*hours\/month\s*\),?/gi, "Construction Assistance, where included, will be structured as a monthly retainer aligned with the confirmed construction programme,")
+    .replace(/\bConstruction assistance is delivered as a monthly retainer over\s*months\s*at\s*per month\s*\(\s*hours\/month\s*\)\.?/gi, "Construction Assistance, where included, will be structured as a monthly retainer aligned with the confirmed construction programme.")
+    .replace(/\bas a retainer over\s*months\s*at\s*per month\.?/gi, "as a monthly retainer aligned with the confirmed construction programme.")
+    .replace(/\bfor\s+working days\b/gi, "for a duration to be confirmed")
+    .replace(/\bover\s+months\b/gi, "over a duration to be confirmed")
+    .replace(/\bat\s+per month\b/gi, "at a monthly fee to be confirmed")
+    .replace(/\(\s*hours\/month\s*\)/gi, "")
     .replace(/[ \t]{2,}/g, " ")
     .replace(/ +([.,;:)\]])/g, "$1")
     .replace(/\(\s+\)/g, "")
@@ -148,4 +170,13 @@ export function resolvePlaceholders(text: string, map: Record<string, string>): 
     resolved: [...resolved],
     unresolved: [...unresolved],
   };
+}
+
+function componentFallback(key: string): string {
+  if (key === "proposal_gantt") return "Programme to be confirmed.";
+  if (key === "payment_schedule_table") return "Payment schedule to be confirmed.";
+  if (key === "project_stage_fee_table" || key === "construction_stage_fee_table") {
+    return "Fee schedule to be confirmed.";
+  }
+  return "";
 }
