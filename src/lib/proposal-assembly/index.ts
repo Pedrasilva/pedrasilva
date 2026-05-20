@@ -18,3 +18,7 @@ export {
   resolvePlaceholders,
 } from "./placeholders/resolve";
 export { useAssembleProposalInsert } from "./use-assemble-proposal-insert";
+export { SCENARIOS, SCENARIO_SMALL, SCENARIO_MEDIUM, SCENARIO_LARGE } from "./scenarios";
+export type { ScenarioId } from "./scenarios";
+export { detectManualEdits } from "./manual-edit-detector";
+export type { EditFinding, EditReport, StoredBlock } from "./manual-edit-detector";
