@@ -773,11 +773,14 @@ function GeneratedDocumentSection({
   // Filter the offered proposal kinds by the quote's top-level category so
   // a Time-based / Retainer quote never sees Project block-sets (and vice-
   // versa). Defaults to the project set when no category is provided.
-  const allowedKinds = useMemo(
-    () => proposalKindsForCategory(quoteCategory ?? "project"),
-    [quoteCategory],
-  );
   const isWorkplaceAssemblyQuote = ontologyFamilyCode === "workplace";
+  const allowedKinds = useMemo(
+    () =>
+      isWorkplaceAssemblyQuote
+        ? (["psa_interior_fitout"] as readonly ProposalKind[])
+        : proposalKindsForCategory(quoteCategory ?? "project"),
+    [isWorkplaceAssemblyQuote, quoteCategory],
+  );
   const fallbackKind = isWorkplaceAssemblyQuote
     ? "psa_interior_fitout"
     : quoteCategory
