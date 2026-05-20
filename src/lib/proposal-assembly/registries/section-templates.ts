@@ -302,8 +302,117 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
   },
 };
 
+/**
+ * Build a delivery-mode variant by surgically overriding only the sections
+ * whose tone changes with the engagement model. Phases and signature stay
+ * the same; cover letter, executive summary and scope intro shift to reflect
+ * the relationship with the local team / contractor.
+ */
+function withDeliveryModeOverrides(
+  base: SectionTemplateMap,
+  overrides: Partial<SectionTemplateMap>,
+): SectionTemplateMap {
+  return { ...base, ...overrides };
+}
+
+const WORKPLACE_LARGE_CONSULTANT_LED: SectionTemplateMap = withDeliveryModeOverrides(
+  WORKPLACE_LARGE_PSA,
+  {
+    cover_letter: {
+      titleEn: "Cover Letter",
+      titlePt: "Carta de Apresentação",
+      bodyEn:
+        "Dear {client_name},\n\n" +
+        "Thank you for the opportunity to support {project_name}. Under this engagement PSA " +
+        "operates in an oversight and design-authority role, with a local lead consultant " +
+        "carrying day-to-day delivery on the ground. Our scope safeguards design intent, " +
+        "coordination quality and commercial alignment throughout the programme.\n\n" +
+        "Each design stage is a fixed-fee deliverable; construction assistance runs as a lean " +
+        "monthly retainer focused on design-intent oversight rather than full site presence. " +
+        "Attachments I–VI carry the conditions, deliverables matrix, programme and fee schedule.",
+      bodyPt:
+        "Caro(a) {client_name},\n\n" +
+        "Agradecemos a oportunidade de apoiar {project_name}. Neste modelo, a PSA assume um " +
+        "papel de supervisão e autoridade de projecto, com um consultor local responsável pela " +
+        "entrega diária no terreno. O nosso âmbito salvaguarda design intent, qualidade de " +
+        "coordenação e alinhamento comercial ao longo do programa.\n\n" +
+        "Cada fase de projecto é um entregável de honorários fixos; a assistência à obra " +
+        "decorre como retainer mensal enxuto, focado na supervisão de design intent e não em " +
+        "presença permanente em obra. Os Anexos I–VI reúnem condições, matriz de entregáveis, " +
+        "programa e calendário de honorários.",
+    },
+    executive_summary: {
+      titleEn: "Executive Summary",
+      titlePt: "Sumário Executivo",
+      bodyEn:
+        "{project_name} is a workplace fit-out for {client_name} delivered under a PSA-oversight " +
+        "model with a local lead consultant. Overall programme: {overall_project_duration} " +
+        "working days.\n\n" +
+        "Construction assistance is a {construction_duration}-month oversight retainer at " +
+        "{construction_monthly_fee} per month ({construction_monthly_hours} hours/month), " +
+        "covering design-intent reviews, sample approvals and milestone site visits. Routine " +
+        "site supervision is carried by the local consultant.",
+      bodyPt:
+        "{project_name} é um fit-out para {client_name}, entregue ao abrigo de um modelo de " +
+        "supervisão PSA com consultor local. Programa global: {overall_project_duration} dias " +
+        "úteis.\n\n" +
+        "A assistência à obra é um retainer de supervisão de {construction_duration} meses ao " +
+        "valor de {construction_monthly_fee} por mês ({construction_monthly_hours} horas/mês), " +
+        "cobrindo revisões de design intent, aprovações de amostras e visitas a obra em marcos. " +
+        "A fiscalização de rotina é assegurada pelo consultor local.",
+    },
+  },
+);
+
+const WORKPLACE_LARGE_DESIGN_BUILD: SectionTemplateMap = withDeliveryModeOverrides(
+  WORKPLACE_LARGE_PSA,
+  {
+    cover_letter: {
+      titleEn: "Cover Letter",
+      titlePt: "Carta de Apresentação",
+      bodyEn:
+        "Dear {client_name},\n\n" +
+        "Thank you for the opportunity to propose on {project_name}. Under this design-build " +
+        "engagement PSA carries the design responsibility while delivery is contracted through " +
+        "a single-point design-build partner. Our role focuses on design authorship, technical " +
+        "definition and design-intent enforcement at site stage.\n\n" +
+        "Project stages are fixed-fee deliverables. Construction assistance runs as a monthly " +
+        "retainer aligned with the design-build partner's site programme.",
+      bodyPt:
+        "Caro(a) {client_name},\n\n" +
+        "Agradecemos a oportunidade de propor para {project_name}. Neste modelo design-build, " +
+        "a PSA assume a responsabilidade de projecto enquanto a execução é contratada através " +
+        "de um parceiro design-build com ponto único de responsabilidade. O nosso papel foca-se " +
+        "em autoria de projecto, definição técnica e garantia de design intent em obra.\n\n" +
+        "As fases de projecto são entregáveis de honorários fixos. A assistência à obra " +
+        "decorre como retainer mensal alinhado com o programa de obra do parceiro design-build.",
+    },
+    scope_overview: {
+      titleEn: "Scope Overview",
+      titlePt: "Âmbito Geral",
+      bodyEn:
+        "Scope covers all design stages from briefing through tender support to the design-" +
+        "build partner, and into construction-stage design-intent oversight and close-out. " +
+        "Deliverables per phase are itemised in Attachment II; programme in Attachment III; " +
+        "fees in Attachment IV.",
+      bodyPt:
+        "O âmbito cobre todas as fases de projecto, do briefing ao apoio ao concurso do " +
+        "parceiro design-build, e à supervisão de design intent em obra e encerramento. Os " +
+        "entregáveis por fase constam do Anexo II; o programa do Anexo III; e os honorários " +
+        "do Anexo IV.",
+    },
+  },
+);
+
 export const SECTION_TEMPLATES: Record<string, SectionTemplateMap> = {
   [key("workplace", "large_corporate_fitout", "psa_led")]: WORKPLACE_LARGE_PSA,
+  [key("workplace", "large_corporate_fitout", "consultant_led")]: WORKPLACE_LARGE_CONSULTANT_LED,
+  [key("workplace", "large_corporate_fitout", "design_build")]: WORKPLACE_LARGE_DESIGN_BUILD,
+  // Small fit-out reuses the large-corporate templates for V1; preset
+  // refinement (shorter cover letter, reduced phase set) is tracked under
+  // operational testing feedback rather than forking the template tree.
+  [key("workplace", "small_fitout", "psa_led")]: WORKPLACE_LARGE_PSA,
+  [key("workplace", "small_fitout", "consultant_led")]: WORKPLACE_LARGE_CONSULTANT_LED,
 };
 
 export function lookupSectionTemplate(
@@ -323,11 +432,15 @@ export function lookupPhaseTemplate(
   deliveryMode: ProposalDeliveryMode,
   stageCode: string,
 ): PhaseTemplate | null {
+  // Phase templates are delivery-mode-agnostic for V1 workplace presets:
+  // construction-as-retainer wording is intentionally consistent across
+  // psa_led, consultant_led and design_build engagements. Per-mode phase
+  // refinement is tracked under operational testing feedback.
   if (
     family === "workplace" &&
-    preset === "large_corporate_fitout" &&
-    deliveryMode === "psa_led"
+    (preset === "large_corporate_fitout" || preset === "small_fitout")
   ) {
+    void deliveryMode;
     return WORKPLACE_PHASE_TEMPLATES[stageCode] ?? null;
   }
   return null;
