@@ -275,7 +275,7 @@ export function useApplyBootstrapPlan() {
       qc.invalidateQueries({ queryKey: ["quote-dependencies", vars.quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-payment-schedule", vars.quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-financials", vars.quoteId] });
-      qc.invalidateQueries({ queryKey: ["fee-proposal", vars.quoteId] });
+      qc.invalidateQueries({ queryKey: ["fee_proposal", vars.quoteId] });
       qc.invalidateQueries({ queryKey: ["quotes"] });
     },
   });
