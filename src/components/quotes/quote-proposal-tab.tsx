@@ -91,6 +91,7 @@ import {
   retainerMonthlyEstimate,
 } from "@/lib/quotes/time-based-settings";
 import { QuoteProposalIntelligencePanel } from "@/components/quotes/quote-proposal-intelligence-panel";
+import { ProposalAssemblyPanel } from "@/components/quotes/proposal-assembly-panel";
 import {
   useResolvedProposal,
   type ProposalRenderKind,
@@ -2397,6 +2398,16 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
         </div>
       ) : (
         <div className="no-print space-y-4">
+          <div className="flex justify-end">
+            <ProposalAssemblyPanel
+              quoteId={quoteId}
+              documentId={document?.id}
+              quoteCode={null}
+              quoteTitle={props.title ?? null}
+              clientName={clientName}
+              hasExistingBlocks={(blocks?.length ?? 0) > 0}
+            />
+          </div>
           <QuoteProposalIntelligencePanel
             quoteId={quoteId}
             documentId={document?.id}

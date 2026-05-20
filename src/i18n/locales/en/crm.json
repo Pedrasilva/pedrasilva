@@ -1118,5 +1118,30 @@
       "loaded": "{{pct}}% loaded",
       "score": "Score {{score}}"
     }
+  },
+  "proposalAssembly": {
+    "title": "Assemble proposal",
+    "subtitle": "Generate a structured editable proposal from the workplace template.",
+    "open": "Assemble…",
+    "family": "Family",
+    "preset": "Preset",
+    "deliveryMode": "Delivery mode",
+    "language": "Language",
+    "appendices": "Appendices",
+    "flags": "Options",
+    "flag.showHours": "Show hours",
+    "flag.showDurations": "Show durations",
+    "flag.showConsultantTrack": "Show consultant track",
+    "appendix.I": "I — General Conditions",
+    "appendix.II": "II — Scope & Deliverables",
+    "appendix.III": "III — Programme",
+    "appendix.IV": "IV — Fee & Payment",
+    "appendix.V": "V — Optional Services",
+    "appendix.VI": "VI — Consultant Interfaces",
+    "insert": "Insert into proposal",
+    "inserted": "Inserted {{count}} blocks",
+    "unresolved": "{{count}} placeholder(s) could not be resolved: {{list}}",
+    "warning.existingBlocks": "This document already has blocks. New sections will be appended at the end.",
+    "presetLocked": "Only Workplace / Large Corporate Fitout / PSA-led is available in this version."
   }
 }
