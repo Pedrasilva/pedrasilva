@@ -215,6 +215,19 @@ function asNum(v: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/**
+ * Strip internal provenance prefix ("Generated ") from block titles before
+ * surfacing them to clients. Block titles like "Generated Stage Summary"
+ * originate from the master `proposal_blocks` registry where the prefix
+ * marks the row as auto-assembled; it must never leak into the
+ * client-facing render or the editor card heading. Provenance metadata
+ * stays intact on the underlying record — this is render-layer only.
+ */
+function displayBlockTitle(raw: string | null | undefined): string {
+  if (!raw) return "";
+  return raw.replace(/^\s*Generated\s+/i, "").trim();
+}
+
 function GeneratedSectionRenderer({
   slug,
   content,
@@ -600,7 +613,7 @@ function GeneratedBlockCard({ block, blocks, index, documentId }: GeneratedBlock
     >
       <header className="mb-2 flex items-start justify-between gap-2">
         <div className="flex items-start gap-2">
-          <h3 className="text-sm font-semibold leading-tight">{block.block_title}</h3>
+          <h3 className="text-sm font-semibold leading-tight">{displayBlockTitle(block.block_title)}</h3>
           {isLocked && (
             <Badge variant="secondary" className="gap-1">
               <Lock className="h-3 w-3" />
@@ -2222,7 +2235,7 @@ function ProposalPrintDocument({
               >
                 {b.block_title && (
                   <h2 className="proposal-print-heading mb-2 text-base font-semibold leading-snug">
-                    {b.block_title}
+                    {displayBlockTitle(b.block_title)}
                   </h2>
                 )}
                 {b.block_type === "generated_section" ? (

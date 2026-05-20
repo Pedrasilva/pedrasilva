@@ -755,11 +755,18 @@ function buildComputed(
     : { start_date: null, end_date: null };
 
   // Roles aggregated by role label (client-safe — no individual names).
+  // Allocations without a real role label are dropped (NOT bucketed under
+  // a synthetic "Team Member"): otherwise the proposal exposes a
+  // placeholder like "Team Member · 744h" that reads as unresolved on
+  // commercial-grade documents. When no resource has a role set, the
+  // resulting empty array is filtered out by `blockHasContent` so the
+  // Role Summary block is omitted from the client-facing render.
   const roleMap = new Map<string, number>();
   for (const a of ctx.allocations) {
-    const role =
-      (a.resource && (a.resource as { role?: string | null }).role) ||
-      "Team Member";
+    const rawRole =
+      a.resource && (a.resource as { role?: string | null }).role;
+    const role = typeof rawRole === "string" ? rawRole.trim() : "";
+    if (!role) continue;
     const { hours } = quoteAllocationLine(a);
     roleMap.set(role, (roleMap.get(role) ?? 0) + hours);
   }
