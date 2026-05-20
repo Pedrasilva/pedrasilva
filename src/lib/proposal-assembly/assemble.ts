@@ -38,6 +38,33 @@ const MAIN_ORDER: AssemblyMainSectionId[] = [
   "signature",
 ];
 
+const WORKPLACE_CANONICAL_PHASES = [
+  { code: "P1", name: "Workplace Strategy / Programme Definition" },
+  { code: "P2", name: "Concept Design" },
+  { code: "P4", name: "Developed / Schematic Design" },
+  { code: "P5", name: "Technical Design" },
+  { code: "P6", name: "Procurement / Tender Support" },
+  { code: "P7", name: "Construction Assistance" },
+  { code: "P8", name: "Close Out" },
+];
+
+function phasesForAssembly(input: AssemblyInput): AssemblyInput["data"]["stages"] {
+  if (input.data.stages.length > 0) return input.data.stages;
+  if (input.family !== "workplace") return [];
+  return WORKPLACE_CANONICAL_PHASES.map((p) => ({ ...p }));
+}
+
+function phaseMetadata(s: AssemblyInput["data"]["stages"][number], currency: string | null | undefined, language: AssemblyInput["language"]): string {
+  const bits: string[] = [];
+  if (s.duration_days != null) bits.push(language === "pt-PT" ? `Duração: ${s.duration_days} dias úteis` : `Duration: ${s.duration_days} working days`);
+  if (s.estimated_hours != null) bits.push(language === "pt-PT" ? `Horas estimadas: ${s.estimated_hours}` : `Estimated hours: ${s.estimated_hours}`);
+  if (s.fee != null) {
+    const formatted = new Intl.NumberFormat("en-GB", { style: "currency", currency: currency ?? "EUR", maximumFractionDigits: 2 }).format(Number(s.fee));
+    bits.push(language === "pt-PT" ? `Honorários: ${formatted}` : `Fee: ${formatted}`);
+  }
+  return bits.length ? `\n${language === "pt-PT" ? "Metadados" : "Metadata"}: ${bits.join(" · ")}.` : "";
+}
+
 export function assembleProposal(input: AssemblyInput): AssembledProposal {
   const map = buildPlaceholderMap(input.data);
   map.language = input.language;
@@ -78,7 +105,7 @@ export function assembleProposal(input: AssemblyInput): AssembledProposal {
     // stageCode) tuple. Unknown stage codes fall back to a one-liner so the
     // block remains useful and editable rather than empty.
     if (sectionId === "phase_narratives") {
-      for (const s of input.data.stages) {
+      for (const s of phasesForAssembly(input)) {
         const phaseTpl = lookupPhaseTemplate(
           input.family,
           input.preset,
@@ -109,7 +136,7 @@ export function assembleProposal(input: AssemblyInput): AssembledProposal {
         blocks.push({
           localId: `${sectionId}.${s.code}`,
           title: phaseTitle,
-          content: phaseResolved.output,
+          content: `${phaseResolved.output}${phaseMetadata(s, input.data.quote.currency, input.language)}`,
           payload: { stageCode: s.code },
         });
       }
