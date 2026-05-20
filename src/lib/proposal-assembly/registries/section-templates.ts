@@ -221,12 +221,11 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
       "with the confirmed construction programme, " +
       "ensuring design intent and coordination continuity from site mobilisation to handover.",
     bodyPt:
-      "{project_name} é um fit-out de escritórios corporativos de grande dimensão para " +
-      "{client_name}, entregue ao abrigo do modelo integrado de projecto e coordenação da PSA. " +
-      "O programa global decorre durante {overall_project_duration} dias úteis, cobrindo " +
-      "briefing, projecto, concurso e encerramento.\n\n" +
-      "A obra é acompanhada por retainer mensal durante {construction_duration} meses ao valor " +
-      "de {construction_monthly_fee} por mês ({construction_monthly_hours} horas/mês), " +
+      "{project_name} é um fit-out de workplace entregue ao abrigo do modelo integrado de " +
+      "projecto e coordenação da PSA. A duração do programa será confirmada após validação " +
+      "das fases, cobrindo briefing, projecto, concurso e encerramento.\n\n" +
+      "A Assistência à Obra, quando incluída, é estruturada como retainer mensal alinhado " +
+      "com o programa de obra confirmado, " +
       "garantindo continuidade de design intent e coordenação desde a mobilização até à recepção.",
   },
   project_understanding: {
@@ -239,7 +238,7 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
       "building services alignment, FF&E procurement and tenant-fit interface with the " +
       "base-building all need to land on the same date.",
     bodyPt:
-      "{client_name} pretende um workplace que suporte trabalho focado, colaboração e presença " +
+      "O cliente pretende um workplace que suporte trabalho focado, colaboração e presença " +
       "de marca, com o rigor operacional esperado de um grande ocupante corporativo. Lemos o " +
       "projecto tanto como um exercício de coordenação como de desenho: planeamento espacial, " +
       "alinhamento de especialidades, procurement de FF&E e interface tenant-fit com a " +
@@ -260,7 +259,7 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
       "Trabalhamos em ciclos curtos e iterativos com a equipa do cliente, validamos decisões " +
       "contra orçamento, programa e drivers operacionais, e cada marco é aprovado antes da " +
       "abertura da fase seguinte. A coordenação com consultores, senhorio e empreiteiro está " +
-      "embebida ao longo dos {overall_project_duration} dias do programa, não reservada a uma " +
+      "embebida ao longo do programa confirmado, não reservada a uma " +
       "única fase técnica.",
   },
   scope_overview: {
@@ -303,7 +302,9 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
     bodyPt:
       "O quadro abaixo apresenta os honorários por fase de projecto (preço fixo) e o retainer " +
       "de assistência à obra. O detalhe completo e os marcos de pagamento constam do Anexo IV.\n\n" +
-      "{project_stage_fee_table}\n\n{construction_stage_fee_table}",
+      "{project_stage_fee_table}\n\n" +
+      "A Assistência à Obra, quando incluída, é estruturada como retainer mensal alinhado " +
+      "com o programa de obra confirmado.",
   },
   signature: {
     titleEn: "Signature",
