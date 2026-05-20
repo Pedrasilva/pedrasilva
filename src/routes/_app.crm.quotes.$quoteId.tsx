@@ -802,6 +802,7 @@ function QuoteDetail() {
             accountName={quote.account?.name ?? null}
             quoteType={quote.quote_type ?? "standard_project"}
             quoteCategory={quote.quote_category}
+            ontologyFamilyCode={(quote as unknown as { ontology_family_code?: string | null }).ontology_family_code ?? null}
           />
         </TabsContent>
       </Tabs>
