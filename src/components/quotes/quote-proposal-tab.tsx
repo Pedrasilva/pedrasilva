@@ -784,7 +784,9 @@ function GeneratedDocumentSection({
   const fallbackKind = isWorkplaceAssemblyQuote
     ? "psa_interior_fitout"
     : quoteCategory
-      ? defaultProposalKindForCategory(quoteCategory)
+      ? quoteCategory === "project"
+        ? "psa_interior_fitout"
+        : defaultProposalKindForCategory(quoteCategory)
       : quoteTypeToProposalKind(quoteType);
   const persistedRaw =
     (document?.snapshot_json as { proposal_kind?: ProposalKind } | null)
