@@ -94,8 +94,10 @@ export function useBootstrapQuoteFromPreset() {
       });
 
       const result = await applyMutation.mutateAsync({ quoteId: input.quoteId, plan });
-      // Make sure consumers re-read the proposal row too.
-      qc.invalidateQueries({ queryKey: ["fee-proposal", input.quoteId] });
+      // Make sure consumers re-read the proposal row too. The quote detail
+      // route uses the underscore key; the older hyphenated key left
+      // ontology_family_code stale in the Proposal tab after Apply.
+      qc.invalidateQueries({ queryKey: ["fee_proposal", input.quoteId] });
       return result;
     },
     [applyMutation, qc],
