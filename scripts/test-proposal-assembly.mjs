@@ -10,10 +10,6 @@
  * Run: node scripts/test-proposal-assembly.mjs
  */
 import { strict as assert } from "node:assert";
-import { register } from "node:module";
-import { pathToFileURL } from "node:url";
-
-register("ts-node/esm", pathToFileURL("./"));
 
 const { assembleProposal } = await import("../src/lib/proposal-assembly/assemble.ts");
 
