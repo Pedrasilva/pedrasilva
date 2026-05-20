@@ -114,6 +114,12 @@ export type Collaborator = {
   archived_at?: string | null;
   archived_by?: string | null;
   archive_reason?: string | null;
+  // Proposal role abstraction (commercial / proposal-facing). Independent
+  // from `departamento` / internal HR title. Read by the proposal engine,
+  // never exposed in operational planning. All optional.
+  proposal_role?: string | null;
+  billing_role?: string | null;
+  seniority_level?: number | null;
 };
 
 export function computeSnapshot(s: Snapshot) {

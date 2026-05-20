@@ -1331,5 +1331,17 @@
     "errors": {
       "invalidNif": "Invalid Portuguese NIF (checksum failed)"
     }
+  },
+  "commercialRole": {
+    "title": "Commercial role",
+    "sub": "Proposal-facing role used in commercial documents. Independent from internal HR title.",
+    "proposalRole": "Proposal role",
+    "proposalRolePlaceholder": "Select a role",
+    "billingRole": "Billing role",
+    "billingRolePlaceholder": "Optional — defaults to proposal role",
+    "seniorityLevel": "Seniority level",
+    "seniorityRange": "Seniority must be between 0 and 100.",
+    "none": "— Not set —",
+    "unassigned": "Unassigned"
   }
 }

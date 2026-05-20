@@ -1,107 +1,80 @@
-## Causa do problema
 
-Três fatores compostos:
+# Proposal Role Abstraction Layer — Foundational Infra
 
-1. **Permissões pouco granulares.** Hoje só existem `hr.colaboradores` (lista + ficha + valores tudo num só), `hr.resumo` (tabela inteira com valores) e `hr.minha-ficha`. Não há separação entre "ver ficha" vs. "ver compensação". Quem recebe `hr.colaboradores` recebe automaticamente acesso financeiro — ou nada.
+This is **additive-only infrastructure**. No existing Gantt, planning, HR, fee, or proposal-UI behavior changes. We introduce a clean separation between *named operational resources* (planning) and *anonymous proposal roles* (commercial output).
 
-2. **RLS é binária admin-only nas tabelas sensíveis.** `salary_snapshots` e `bo_settings` só permitem leitura a `admin` ou ao próprio colaborador. Um utilizador não-admin com `hr.colaboradores` marcado na grelha passa o `PermissionGate` (UI), mas a query devolve 0 linhas → valores aparecem a "—" / 0,00 €. A UI mostra acesso, a RLS bloqueia. Foi exatamente o sintoma da Irene em `/projects/resources` e é o mesmo padrão aqui.
+## 1. Database (migration)
 
-3. **`isAdmin` no client mistura real admin e view-as.** `useAuth` expõe `isAdmin` (efetivo, considera view-as) e `isRealAdmin`. Várias queries assumem `isAdmin = bypass RLS`, mas RLS no servidor vê sempre o utilizador autenticado real. Em view-as, a UI relaxa, a RLS não.
+Add nullable columns to both `collaborators` and `pm_resources`:
 
-## Permissões atuais (HR namespace)
+- `proposal_role text` — commercial-facing role label (e.g. "Senior Architect")
+- `billing_role text` — optional future commercial abstraction (may differ from proposal_role)
+- `seniority_level int` — numeric rank for future analytics/blended rates
 
-```
-hr.minha-ficha           própria ficha
-hr.dias-uteis            calendário/feriados
-hr.beneficios.own        próprias despesas benefícios
-hr.beneficios.approve    aprovar benefícios de outros
-hr.ferias.own            próprias férias
-hr.colaboradores         lista + ficha + valores (tudo)
-hr.resumo                resumo comparativo (com valores)
-hr.subsidio-alimentacao  config SA
-hr.valor-bo              config valor BO/hora
-```
+Plus a reference catalog table `proposal_roles` (id, code, label_en, label_pt, default_seniority, sort_order, archived_at) seeded with the example roles: Partner, Director, Senior Architect, Architect, Junior Architect, BIM Coordinator, Interior Architect, Technical Coordinator. RLS: authenticated read; admin write.
 
-## Permissões novas (aditivas)
+No existing column is dropped, renamed, or altered. No defaults backfill — existing rows simply have NULL until edited.
 
-```
-hr.colaborador.view                 abrir ficha de outros (sem valores)
-hr.colaborador.compensation.view    salário, benefícios, liquidez, custos na ficha
-hr.colaborador.edit                 editar ficha
-hr.resumo.compensation.view         valores no resumo comparativo
-hr.admin                            gerir permissões HR (alias para has_role admin)
-```
+## 2. HR surface (minimal)
 
-`hr.colaboradores` mantém-se = ver lista. `hr.resumo` mantém-se = ver tabela sem valores. As keys antigas continuam a funcionar (compatibilidade), mas perdem o significado "tudo incluído".
+- Add a "Commercial role" group in the collaborator form / `SnapshotMirrorPanel` mirror: read/edit `proposal_role`, `billing_role`, `seniority_level` via a `<Select>` populated from `proposal_roles`. Read-only on `/hr/colaborador/$id` mirror panel; editable on the source form.
+- i18n: `glossary.commercialRole`, `glossary.billingRole`, `glossary.seniorityLevel` (EN + PT parity).
+- No changes to existing HR titles, departments, or job logic — proposal_role lives alongside.
 
-### Compatibilidade
+## 3. Aggregation helpers (new module)
 
-Migração aditiva: quem hoje tem `hr.colaboradores` recebe também `hr.colaborador.view` + `hr.colaborador.compensation.view`. Quem tem `hr.resumo` recebe `hr.resumo.compensation.view`. Resultado funcional = status quo, mas a partir daí o admin pode revogar só a parte de compensação.
+`src/lib/proposal-roles/` (new):
 
-## Camadas a alterar
+- `types.ts` — `ProposalRole`, `RoleAllocationSummary = { role: string; roleId: string|null; hours: number; resourceCount: number }`
+- `aggregate.ts`:
+  - `aggregateAllocationsByProposalRole(allocations, resources)` — pure function
+  - `aggregateStageAllocationsByProposalRole(stageId, ...)`
+  - `aggregatePhaseAllocationsByProposalRole(phaseId, ...)`
+  - Fallback: when a resource has no `proposal_role`, bucket under `"Unassigned"` (i18n key) — never leaks the collaborator name.
+- `use-proposal-roles.ts` — React Query hook to load the catalog.
 
-### 1. Migration SQL (aditivo)
+These read from the existing `quote_allocations` / `pm_allocations` + `pm_resources` data — no changes to the planning engine, no new writes.
 
-- Backfill `user_permissions` para os utilizadores existentes com as 5 novas keys conforme regra acima.
-- Atualizar RLS:
-  - `salary_snapshots SELECT`: admin OR own OR `has_permission(auth.uid(), 'hr.colaborador.compensation.view')` OR `has_permission(auth.uid(), 'hr.resumo.compensation.view')`.
-  - `bo_settings SELECT`: admin OR `has_permission(... 'hr.colaborador.compensation.view')` OR `... 'hr.resumo.compensation.view')` OR `... 'hr.valor-bo')`.
-  - `collaborators SELECT`: adicionar branch `has_permission(auth.uid(), 'hr.colaborador.view')` (sem expor salário — a tabela `collaborators` não tem salário, só perfil).
-- `bo_settings INSERT` e `salary_snapshots INSERT` já têm `WITH CHECK` admin — manter.
+## 4. Proposal resolvers (new, unwired)
 
-### 2. `src/lib/permissions.ts`
+`src/lib/proposal-rendering/resolvers/staffing.ts` (new):
 
-- Adicionar as 5 keys ao `PermissionKey` union.
-- Adicionar à grelha do admin com labels EN+PT e descrição clara da diferença "view ficha" vs "view valores".
+- `resolvePhaseDuration(phaseId, ctx)` → `{ weeks, startDate, endDate }`
+- `resolvePhaseEstimatedHours(phaseId, ctx)` → number
+- `resolvePhaseStaffingMix(phaseId, ctx)` → `RoleAllocationSummary[]`
 
-### 3. UI gating (PT/EN parity)
+Re-exported from `src/lib/proposal-rendering/index.ts`. **Not yet wired into any rendered block** — purely available for future ontology blocks. Existing proposal generator stays untouched.
 
-- `src/routes/_app.hr.colaborador.$id.tsx`: trocar `PermissionGate hr.colaboradores` por `hr.colaborador.view`; mascarar blocos de compensação (Salário, Benefícios, Liquidez, Custos, ResumoCompare) se não tiver `hr.colaborador.compensation.view`. Mascaramento = renderizar "—" e esconder donut/highlight cards de valores.
-- `src/routes/_app.hr.resumo.tsx`: gate continua `hr.resumo`; colunas/células de valor escondidas/mascaradas se não tiver `hr.resumo.compensation.view`.
-- `src/routes/_app.hr.colaboradores.tsx`: gate continua `hr.colaboradores` (lista).
-- `src/routes/_app.hr.tsx` (nav): adicionar item "Ficha de colaborador" condicionado a `hr.colaborador.view`.
+## 5. Fee engine
 
-### 4. Hook helpers
+No code changes. Add a TODO/architecture comment in `src/lib/quotes/fee-calculator.ts` pointing to `proposal-roles` for the future blended-rate path. No new tables, no pricing logic touched.
 
-- `useHasPermission`/`useMyPermissions` — nenhuma mudança lógica, mas adicionar helper `useCanViewCompensation(scope: 'card' | 'resumo')` para concentrar a decisão.
+## 6. Out of scope (explicit)
 
-### 5. View-as
+- No edits to `gantt-chart.tsx`, `quote-planning-tab.tsx`, allocation editors, `proposal-generator.ts`, payment/invoice generation, or any RLS on existing tables.
+- No UI replacement of named resources with roles in planning views.
+- No blended pricing or new fee math.
 
-- Verificar que `useMyPermissions` durante `viewAsUser` lê as permissões do alvo (não do admin) — hoje já lê com `user.id` real do auth, mas em view-as o admin continua admin para RLS. Garantir que as queries usam `isAdmin` efetivo só para UI, não como bypass de dados sensíveis durante view-as. Adicionar nota: em view-as, mascarar compensação a menos que o alvo tivesse `hr.colaborador.compensation.view`.
+## Files touched
 
-## Validação por perfil
+**New:**
+- migration (collaborators + pm_resources columns, `proposal_roles` table + RLS + seed)
+- `src/lib/proposal-roles/types.ts`
+- `src/lib/proposal-roles/aggregate.ts`
+- `src/lib/proposal-roles/use-proposal-roles.ts`
+- `src/lib/proposal-roles/index.ts`
+- `src/lib/proposal-rendering/resolvers/staffing.ts`
 
-| Perfil | Lista | Abrir ficha | Salário/benefícios na ficha | Resumo | Valores no resumo |
-|---|---|---|---|---|---|
-| Admin real | ✓ | ✓ | ✓ | ✓ | ✓ |
-| HR (todas keys novas) | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Gestor (`hr.colaboradores` + `hr.colaborador.view`) | ✓ | ✓ | mascarado | – | – |
-| Colaborador normal | – | só própria | só própria | – | – |
-| Admin em view-as colaborador | – | só do alvo | só do alvo | – | – |
+**Edited (small, additive):**
+- `src/lib/proposal-rendering/index.ts` (re-export resolvers)
+- `src/lib/quotes/fee-calculator.ts` (architecture comment only)
+- `src/components/snapshot/SnapshotMirrorPanel.tsx` (display proposal_role / billing_role / seniority)
+- collaborator edit form (the existing one rendering the snapshot/profile fields) — add 3 inputs
+- `src/i18n/locales/{en,pt-PT}/glossary.json` + `hr.json` (new keys, parity)
 
-## Riscos de segurança identificados
+## Validation
 
-1. **Leitura cruzada de `salary_snapshots`** se a nova policy for demasiado permissiva. Mitigação: ligar a `has_permission` (já testado em `has_role`) e nunca a `OR true`.
-2. **View-as não simula RLS no servidor.** Documentar e mascarar UI. Se for crítico, mover queries sensíveis para server functions com `requireSupabaseAuth` e impor regra "se viewAs ativo, comparar permissões do alvo".
-3. **Backfill pode promover utilizadores que tinham `hr.colaboradores` por engano.** Antes de aplicar, o admin deve rever a lista atual em `user_permissions`. A migração inclui um `SELECT ... FOR REVIEW` query que devolve quem ficaria com `hr.colaborador.compensation.view`.
-4. **PII em `collaborators`** (morada, NIF, IBAN — se existirem). Adicionar branch `hr.colaborador.view` expõe estes campos. Mitigação: criar view `collaborators_basic` sem PII sensível e usá-la quando a chamada não tem `hr.colaborador.compensation.view`. (Marca para fase 2 se hoje a tabela só tem dados de perfil.)
-
-## Ficheiros previstos
-
-- `supabase/migrations/<ts>_hr_granular_permissions.sql` (novo)
-- `src/lib/permissions.ts`
-- `src/routes/_app.hr.colaborador.$id.tsx`
-- `src/routes/_app.hr.resumo.tsx`
-- `src/routes/_app.hr.tsx`
-- `src/components/ResumoCompare.tsx` (mascaramento condicional)
-- `src/components/snapshot/SalaryDonut.tsx` + `HighlightCard.tsx` (mascaramento de valores)
-- `src/i18n/locales/{en,pt-PT}/hr.json` (labels novas + "Valor oculto")
-- `src/hooks/use-permissions.tsx` (helper `useCanViewHrCompensation`)
-
-## Não tocar
-
-Férias, benefícios (próprios/aprovação), folha salarial, dashboard HR, importadores, IRS, BO settings dos cálculos de pricing, dias úteis.
-
-## Próximo passo
-
-Aprova o plano para eu emitir a migração SQL primeiro (com o `SELECT` de revisão do backfill), depois aplicar as alterações UI/permissions.ts numa segunda passagem.
+- Build passes; types regenerate after migration.
+- `aggregateAllocationsByProposalRole` unit-tested via a small `scripts/test-proposal-role-aggregation.mjs` with a fixture: 2 collaborators mapped to "Senior Architect" + 1 to "Architect" → expected `[{role:"Senior Architect", hours:80}, {role:"Architect", hours:40}]`.
+- Existing Gantt / quote planning page renders unchanged (`/crm/quotes/...`).
+- i18n parity check passes for new keys.

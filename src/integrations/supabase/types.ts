@@ -1042,6 +1042,7 @@ export type Database = {
           archive_reason: string | null
           archived_at: string | null
           archived_by: string | null
+          billing_role: string | null
           created_at: string
           daily_hours: number
           data_nascimento: string | null
@@ -1063,7 +1064,9 @@ export type Database = {
           numero_colaborador: string | null
           numero_dependentes: number
           numero_titulares: number
+          proposal_role: string | null
           saldo_ferias_anterior: number
+          seniority_level: number | null
           situacao_contractual: string | null
           target_chargeability_pct: number | null
           updated_at: string
@@ -1073,6 +1076,7 @@ export type Database = {
           archive_reason?: string | null
           archived_at?: string | null
           archived_by?: string | null
+          billing_role?: string | null
           created_at?: string
           daily_hours?: number
           data_nascimento?: string | null
@@ -1094,7 +1098,9 @@ export type Database = {
           numero_colaborador?: string | null
           numero_dependentes?: number
           numero_titulares?: number
+          proposal_role?: string | null
           saldo_ferias_anterior?: number
+          seniority_level?: number | null
           situacao_contractual?: string | null
           target_chargeability_pct?: number | null
           updated_at?: string
@@ -1104,6 +1110,7 @@ export type Database = {
           archive_reason?: string | null
           archived_at?: string | null
           archived_by?: string | null
+          billing_role?: string | null
           created_at?: string
           daily_hours?: number
           data_nascimento?: string | null
@@ -1125,7 +1132,9 @@ export type Database = {
           numero_colaborador?: string | null
           numero_dependentes?: number
           numero_titulares?: number
+          proposal_role?: string | null
           saldo_ferias_anterior?: number
+          seniority_level?: number | null
           situacao_contractual?: string | null
           target_chargeability_pct?: number | null
           updated_at?: string
@@ -4474,6 +4483,7 @@ export type Database = {
       pm_resources: {
         Row: {
           active: boolean
+          billing_role: string | null
           collaborator_id: string | null
           color: string
           cost_rate: number
@@ -4486,15 +4496,18 @@ export type Database = {
           name: string
           notes: string | null
           phone: string | null
+          proposal_role: string | null
           rate_effective_from: string
           role: string | null
           sale_rate: number
+          seniority_level: number | null
           team: string
           updated_at: string
           weekly_capacity: number
         }
         Insert: {
           active?: boolean
+          billing_role?: string | null
           collaborator_id?: string | null
           color?: string
           cost_rate?: number
@@ -4507,15 +4520,18 @@ export type Database = {
           name: string
           notes?: string | null
           phone?: string | null
+          proposal_role?: string | null
           rate_effective_from?: string
           role?: string | null
           sale_rate?: number
+          seniority_level?: number | null
           team?: string
           updated_at?: string
           weekly_capacity?: number
         }
         Update: {
           active?: boolean
+          billing_role?: string | null
           collaborator_id?: string | null
           color?: string
           cost_rate?: number
@@ -4528,9 +4544,11 @@ export type Database = {
           name?: string
           notes?: string | null
           phone?: string | null
+          proposal_role?: string | null
           rate_effective_from?: string
           role?: string | null
           sale_rate?: number
+          seniority_level?: number | null
           team?: string
           updated_at?: string
           weekly_capacity?: number
@@ -5730,6 +5748,42 @@ export type Database = {
             referencedColumns: ["code"]
           },
         ]
+      }
+      proposal_roles: {
+        Row: {
+          archived_at: string | null
+          code: string
+          created_at: string
+          default_seniority: number | null
+          id: string
+          label_en: string
+          label_pt: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          code: string
+          created_at?: string
+          default_seniority?: number | null
+          id?: string
+          label_en: string
+          label_pt: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          code?: string
+          created_at?: string
+          default_seniority?: number | null
+          id?: string
+          label_en?: string
+          label_pt?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       quote_allocations: {
         Row: {

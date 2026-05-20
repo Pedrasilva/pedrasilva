@@ -23,6 +23,7 @@ import { ValueChainSummary } from "@/components/snapshot/ValueChainSummary";
 import { LiquidoTab } from "@/components/snapshot/LiquidoTab";
 import { BrutoTab } from "@/components/snapshot/BrutoTab";
 import { MonthlyLiquidityCard } from "@/components/hr/MonthlyLiquidityCard";
+import { CommercialRoleCard } from "@/components/hr/CommercialRoleCard";
 import type { BenefitExpense } from "@/lib/benefits";
 
 /**
@@ -142,6 +143,8 @@ export function SnapshotMirrorPanel({
       </Card>
 
       <MonthlyLiquidityCard snapshot={snapshot} expenses={benefitExpenses} />
+
+      <CommercialRoleCard collaborator={collaborator} readOnly />
 
       <ValueChainSummary c={c} />
 
