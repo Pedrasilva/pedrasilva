@@ -617,8 +617,8 @@
           "consultancyHoursPackageHint": "Hourly package with block value and minimum commitment.",
           "constructionRetainer": "Construction Retainer",
           "constructionRetainerHint": "Monthly retainer for construction support and reimbursable expenses.",
-          "psaInteriorFitout": "Interior Fit-Out (full template)",
-          "psaInteriorFitoutHint": "Full architectural fee proposal: scope, base info, stages, fees, payment, travelling, exclusions, validity & signature."
+          "psaInteriorFitout": "Workplace Proposal Package",
+          "psaInteriorFitoutHint": "Ontology-assembled workplace proposal: cover letter, executive summary, phase narratives and Attachments I–VI."
         },
         "consultancy": {
           "sectionTitle": "Consultancy commercial settings",
