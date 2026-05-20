@@ -225,12 +225,30 @@ function addAttachmentPayloads(
   input: AssemblyInput,
   blocks: ProposalBlockSeed[],
 ) {
+  const phases = phasesForAssembly(input);
+  const lang = input.language;
+  if (att.id === "I") {
+    blocks.push({
+      localId: `${att.sectionId}.conditions`,
+      title: lang === "pt-PT" ? "Condições aplicáveis" : "Applicable conditions",
+      content: lang === "pt-PT"
+        ? "1. Âmbito: a proposta cobre serviços de arquitectura e coordenação conforme descritos nas fases e anexos.\n2. Exclusões: taxas oficiais, licenças, custos de obra, procurement directo, viagens extraordinárias e serviços de consultores externos não estão incluídos salvo indicação expressa.\n3. Aprovações: cada fase avança após validação escrita do cliente. Alterações após aprovação podem implicar honorários adicionais.\n4. Coordenação: a PSA coordena informação de projecto recebida dentro dos prazos acordados; atrasos de terceiros podem afectar programa e fee.\n5. Propriedade intelectual: desenhos e documentos permanecem propriedade intelectual da PSA até pagamento integral dos honorários aplicáveis."
+        : "1. Scope: this proposal covers architectural design and coordination services described in the phases and attachments.\n2. Exclusions: statutory fees, permits, construction costs, direct procurement, extraordinary travel and external consultant services are excluded unless expressly stated.\n3. Approvals: each phase proceeds after written client sign-off. Changes after approval may require additional fees.\n4. Coordination: PSA coordinates project information received within agreed timeframes; third-party delays may affect programme and fee.\n5. Intellectual property: drawings and documents remain PSA intellectual property until the applicable fees are paid in full.",
+    });
+  }
+  if (att.id === "II") {
+    blocks.push({
+      localId: `${att.sectionId}.matrix`,
+      title: lang === "pt-PT" ? "Matriz de fases e entregáveis" : "Phase and deliverables matrix",
+      content: renderDeliverablesMatrix(phases, lang),
+    });
+  }
   if (att.id === "III") {
     // Gantt appendix — payload reference only; rendered by gantt-appendix block.
     blocks.push({
       localId: `${att.sectionId}.gantt`,
       title: input.language === "pt-PT" ? "Diagrama de Gantt" : "Gantt Diagram",
-      content: "[[proposal_gantt]]",
+      content: renderProgrammeRows(phases, lang),
       payload: {
         kind: "gantt_appendix",
         quoteId: input.data.quote.id,
@@ -265,11 +283,54 @@ function addAttachmentPayloads(
       });
     }
   }
-  if (att.id === "V" && input.addOns.length > 0) {
+  if (att.id === "V") {
     blocks.push({
       localId: `${att.sectionId}.addons`,
       title: input.language === "pt-PT" ? "Serviços opcionais" : "Optional services",
-      content: input.addOns.map((a) => `• ${a}`).join("\n"),
+      content: renderOptionalServices(input.addOns, lang),
     });
   }
+  if (att.id === "VI") {
+    blocks.push({
+      localId: `${att.sectionId}.interfaces`,
+      title: input.language === "pt-PT" ? "Interfaces de responsabilidade" : "Responsibility interfaces",
+      content: renderConsultantInterfaces(lang),
+    });
+  }
+}
+
+function renderProgrammeRows(phases: AssemblyInput["data"]["stages"], lang: AssemblyInput["language"]): string {
+  const rows = phases.filter((s) => s.start_date || s.end_date || s.duration_days);
+  if (rows.length === 0) return lang === "pt-PT" ? "Programa a confirmar." : "Programme to be confirmed.";
+  return [
+    lang === "pt-PT" ? "Fase | Início | Fim | Duração" : "Phase | Start | End | Duration",
+    "--- | --- | --- | ---",
+    ...rows.map((s) => `${s.code} — ${s.name} | ${s.start_date ?? "TBC"} | ${s.end_date ?? "TBC"} | ${s.duration_days != null ? `${s.duration_days} working days` : "TBC"}`),
+  ].join("\n");
+}
+
+function renderDeliverablesMatrix(phases: AssemblyInput["data"]["stages"], lang: AssemblyInput["language"]): string {
+  const rows = phases.length > 0 ? phases : WORKPLACE_CANONICAL_PHASES;
+  const en = ["Phase | Key tasks | Deliverables | Responsibility", "--- | --- | --- | ---"];
+  const pt = ["Fase | Tarefas-chave | Entregáveis | Responsabilidade", "--- | --- | --- | ---"];
+  const out = lang === "pt-PT" ? pt : en;
+  for (const s of rows) {
+    out.push(lang === "pt-PT"
+      ? `${s.code} — ${s.name} | Briefing, desenho, coordenação e revisão conforme fase | Pacote de desenhos, notas de coordenação, registo de decisões e entregáveis de fase | PSA lidera; cliente aprova; consultores/empreiteiro contribuem quando aplicável`
+      : `${s.code} — ${s.name} | Briefing, design, coordination and review appropriate to the phase | Drawing package, coordination notes, decision register and phase deliverables | PSA leads; client approves; consultants/contractor contribute where applicable`);
+  }
+  return out.join("\n");
+}
+
+function renderOptionalServices(addOns: string[], lang: AssemblyInput["language"]): string {
+  const defaults = lang === "pt-PT"
+    ? ["BIM / gestão de modelo", "Sustentabilidade e certificação", "Sinalética e wayfinding", "Estudos pós-ocupação", "Procurement FF&E alargado"]
+    : ["BIM / model management", "Sustainability and certification support", "Signage and wayfinding", "Post-occupancy studies", "Extended FF&E procurement"];
+  return (addOns.length > 0 ? addOns : defaults).map((a) => `• ${a}`).join("\n");
+}
+
+function renderConsultantInterfaces(lang: AssemblyInput["language"]): string {
+  return lang === "pt-PT"
+    ? "Interface | Responsabilidade PSA | Responsabilidade consultor/cliente\n--- | --- | ---\nMEP | Coordenação de layouts, tectos, equipamentos visíveis e inputs de design intent | Dimensionamento técnico, cálculos, desenhos e conformidade regulamentar\nEstrutura | Coordenação de interferências e aberturas relevantes | Verificação estrutural, detalhes e aprovações técnicas\nQS / Cost Management | Alinhamento de scope, clarificações e value-engineering de design | Estimativas, BoQ, relatórios de custo e recomendações comerciais\nEmpreiteiro | Respostas de design intent, revisão de amostras e shop drawings | Metodologia, execução, segurança, programa de obra e qualidade final"
+    : "Interface | PSA responsibility | Consultant/client responsibility\n--- | --- | ---\nMEP | Coordinate layouts, ceilings, visible equipment and design-intent inputs | Technical sizing, calculations, drawings and regulatory compliance\nStructure | Coordinate relevant clashes, openings and design constraints | Structural verification, details and technical approvals\nQS / Cost Management | Align scope, clarifications and design-led value engineering | Estimates, BoQ, cost reporting and commercial recommendations\nContractor | Design-intent responses, sample and shop-drawing review | Methodology, execution, safety, site programme and final quality";
 }
