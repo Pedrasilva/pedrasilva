@@ -2462,6 +2462,7 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
             isLoadingDocument={isLoadingDocument}
             quoteType={quoteType}
             quoteCategory={props.quoteCategory ?? null}
+            ontologyFamilyCode={props.ontologyFamilyCode ?? null}
           />
         </div>
       )}
