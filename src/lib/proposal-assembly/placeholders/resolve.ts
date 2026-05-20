@@ -68,14 +68,29 @@ export function buildPlaceholderMap(data: AssemblyData): Record<string, string> 
 export function resolvePlaceholders(text: string, map: Record<string, string>): ResolveResult {
   const resolved = new Set<string>();
   const unresolved = new Set<string>();
-  const output = text.replace(TOKEN_RE, (full, key: string) => {
-    if (Object.prototype.hasOwnProperty.call(map, key) && map[key] !== "") {
+  let output = text.replace(TOKEN_RE, (full, key: string) => {
+    if (Object.prototype.hasOwnProperty.call(map, key)) {
+      const value = map[key];
+      if (value !== "") {
+        resolved.add(key);
+        return value;
+      }
+      // Known token, empty value → collapse gracefully (don't leave the literal
+      // `{token}` in the rendered proposal, but also don't flag as unresolved).
       resolved.add(key);
-      return map[key];
+      return "";
     }
     unresolved.add(key);
     return full;
   });
+  // Tidy up artefacts created by collapsed empty placeholders.
+  output = output
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/ +([.,;:)\]])/g, "$1")
+    .replace(/\(\s+\)/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .trim();
   return {
     output,
     resolved: [...resolved],
