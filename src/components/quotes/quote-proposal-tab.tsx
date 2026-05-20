@@ -119,6 +119,7 @@ interface QuoteProposalTabProps {
   quoteType?: string | null;
   /** Top-level category — restricts which proposal block-sets are offered. */
   quoteCategory?: "project" | "time_based" | "retainer" | "consultancy" | null;
+  ontologyFamilyCode?: string | null;
 }
 
 function safeDate(d: string, locale: Locale | undefined): string {
@@ -774,9 +775,12 @@ function GeneratedDocumentSection({
     () => proposalKindsForCategory(quoteCategory ?? "project"),
     [quoteCategory],
   );
-  const fallbackKind = quoteCategory
-    ? defaultProposalKindForCategory(quoteCategory)
-    : quoteTypeToProposalKind(quoteType);
+  const isWorkplaceAssemblyQuote = props.ontologyFamilyCode === "workplace";
+  const fallbackKind = isWorkplaceAssemblyQuote
+    ? "psa_interior_fitout"
+    : quoteCategory
+      ? defaultProposalKindForCategory(quoteCategory)
+      : quoteTypeToProposalKind(quoteType);
   const persistedRaw =
     (document?.snapshot_json as { proposal_kind?: ProposalKind } | null)
       ?.proposal_kind ?? fallbackKind;
