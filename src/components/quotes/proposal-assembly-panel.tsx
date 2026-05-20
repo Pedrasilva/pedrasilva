@@ -47,6 +47,14 @@ import {
 } from "@/lib/proposal-assembly";
 import type { Locale } from "@/lib/proposal-rendering";
 
+function daysBetween(start: string | null | undefined, end: string | null | undefined) {
+  if (!start || !end) return null;
+  const a = new Date(`${start}T00:00:00Z`).getTime();
+  const b = new Date(`${end}T00:00:00Z`).getTime();
+  if (!Number.isFinite(a) || !Number.isFinite(b) || b < a) return null;
+  return Math.max(1, Math.round((b - a) / 86_400_000) + 1);
+}
+
 interface Props {
   quoteId: string;
   documentId: string | undefined;
@@ -106,17 +114,19 @@ export function ProposalAssemblyPanel(props: Props) {
           proposal_version: "v1",
         },
         stages: (stages as Array<Record<string, unknown>>).map((s) => ({
-          code: String(s.code ?? s.stage_code ?? s.id ?? ""),
+          code: String(s.phase_code ?? s.code ?? s.stage_code ?? s.id ?? ""),
           name: String(s.name ?? s.title ?? ""),
+          start_date: typeof s.start_date === "string" ? (s.start_date as string) : null,
+          end_date: typeof s.end_date === "string" ? (s.end_date as string) : null,
           duration_days:
             typeof s.duration_days === "number"
               ? (s.duration_days as number)
-              : null,
+              : daysBetween(s.start_date as string | null, s.end_date as string | null),
           estimated_hours:
             typeof s.estimated_hours === "number"
               ? (s.estimated_hours as number)
               : null,
-          fee: typeof s.fee === "number" ? (s.fee as number) : null,
+          fee: typeof s.fee === "number" ? (s.fee as number) : typeof s.budget === "number" ? (s.budget as number) : null,
         })),
         paymentSchedule: (schedule as Array<Record<string, unknown>>).map(
           (p) => ({

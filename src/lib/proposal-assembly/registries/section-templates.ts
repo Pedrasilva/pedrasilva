@@ -44,90 +44,88 @@ export interface PhaseTemplate {
 
 export const WORKPLACE_PHASE_TEMPLATES: Record<string, PhaseTemplate> = {
   P1: {
-    titleEn: "Phase 1 — Workplace Strategy",
-    titlePt: "Fase 1 — Estratégia de Workplace",
+    titleEn: "Phase 1 — Workplace Strategy / Programme Definition",
+    titlePt: "Fase 1 — Estratégia de Workplace / Definição de Programa",
     bodyEn:
-      "We establish the brief through stakeholder interviews, headcount and growth modelling, " +
-      "and a workplace diagnostic of the existing operation. Outputs include a programme of " +
-      "spaces, adjacency diagrams and a validated test-fit against the target floorplate. " +
-      "Duration: {phase_duration_P1} working days. Fee: {phase_fee_P1}.",
+      "Narrative: We establish the project brief through stakeholder interviews, headcount and growth modelling, and a workplace diagnostic of the existing operation.\n" +
+      "Key tasks: briefing workshops; workplace observation; area benchmark review; programme of spaces; adjacency and operational-priority mapping.\n" +
+      "Deliverables: validated brief, space programme, adjacency diagrams, test-fit assumptions and decision register.\n" +
+      "Coordination notes: client leadership, HR/operations, IT and facilities inputs are consolidated before concept design begins.",
     bodyPt:
-      "Estabelecemos o briefing através de entrevistas com stakeholders, modelação de headcount " +
-      "e crescimento, e diagnóstico do workplace existente. Os outputs incluem o programa de " +
-      "espaços, diagramas de adjacências e um test-fit validado contra a planta-alvo. " +
-      "Duração: {phase_duration_P1} dias úteis. Honorários: {phase_fee_P1}.",
+      "Narrativa: Estabelecemos o briefing através de entrevistas com stakeholders, modelação de headcount e crescimento, e diagnóstico do workplace existente.\n" +
+      "Tarefas-chave: workshops de briefing; observação do workplace; revisão de benchmarks de área; programa de espaços; mapeamento de adjacências e prioridades operacionais.\n" +
+      "Entregáveis: briefing validado, programa de espaços, diagramas de adjacências, pressupostos de test-fit e registo de decisões.\n" +
+      "Notas de coordenação: inputs de liderança, HR/operações, IT e facilities são consolidados antes do início do conceito.",
   },
   P2: {
     titleEn: "Phase 2 — Concept Design",
     titlePt: "Fase 2 — Projecto de Conceito",
     bodyEn:
-      "Spatial concept, design language and key materiality are defined and tested against " +
-      "the strategic brief. Deliverables include concept plans, character imagery, " +
-      "preliminary FF&E direction and a coordination kick-off with base-building and MEP. " +
-      "Duration: {phase_duration_P2} working days. Fee: {phase_fee_P2}.",
+      "Narrative: Spatial concept, design language and key materiality are defined and tested against the strategic brief.\n" +
+      "Key tasks: concept planning; look-and-feel direction; material and workplace-setting studies; early budget alignment; base-building and MEP coordination kick-off.\n" +
+      "Deliverables: concept plans, mood/material direction, preliminary FF&E direction, key precedent imagery and concept-stage coordination notes.\n" +
+      "Coordination notes: concept options are reviewed with the client and consultant team before a preferred direction is frozen.",
     bodyPt:
-      "Definimos o conceito espacial, a linguagem de projecto e a materialidade-chave, " +
-      "validados contra o briefing estratégico. Entregáveis incluem plantas de conceito, " +
-      "imagens de carácter, orientação preliminar de FF&E e kick-off de coordenação com " +
-      "base-building e MEP. Duração: {phase_duration_P2} dias úteis. Honorários: {phase_fee_P2}.",
+      "Narrativa: Definimos o conceito espacial, a linguagem de projecto e a materialidade-chave, validados contra o briefing estratégico.\n" +
+      "Tarefas-chave: plantas de conceito; direcção visual; estudos de materiais e settings de workplace; alinhamento preliminar de orçamento; kick-off de coordenação com base-building e MEP.\n" +
+      "Entregáveis: plantas de conceito, direcção de materiais, orientação preliminar de FF&E, imagens de referência e notas de coordenação da fase.\n" +
+      "Notas de coordenação: opções de conceito são revistas com cliente e consultores antes de congelar a direcção preferencial.",
   },
   P3: {
     titleEn: "Phase 3 — Schematic / Developed Design",
     titlePt: "Fase 3 — Projecto Base / Desenvolvido",
     bodyEn:
-      "The concept is developed to a coordinated schematic design integrating architecture, " +
-      "MEP, structure, AV and security. Outputs include developed plans, RCPs, key sections, " +
-      "FF&E schedule v1 and a cost-plan alignment with the QS. " +
-      "Duration: {phase_duration_P3} working days. Fee: {phase_fee_P3}.",
+      "Narrative: The approved concept is developed into a coordinated schematic design integrating architecture, MEP, structure, AV, security and workplace operational requirements.\n" +
+      "Key tasks: developed plans; reflected ceiling and lighting coordination; key sections and elevations; finishes strategy; FF&E schedule v1; QS cost-plan alignment.\n" +
+      "Deliverables: developed drawing package, outline specifications, FF&E schedule v1, coordinated consultant comments and cost-plan review notes.\n" +
+      "Coordination notes: design decisions are checked against budget, programme, landlord constraints and consultant interfaces before technical design.",
     bodyPt:
-      "Desenvolvemos o conceito até ao projecto base coordenado, integrando arquitectura, " +
-      "MEP, estrutura, AV e segurança. Outputs incluem plantas desenvolvidas, RCPs, cortes-chave, " +
-      "mapa de FF&E v1 e alinhamento do cost-plan com o QS. " +
-      "Duração: {phase_duration_P3} dias úteis. Honorários: {phase_fee_P3}.",
+      "Narrativa: O conceito aprovado é desenvolvido para projecto base coordenado, integrando arquitectura, MEP, estrutura, AV, segurança e requisitos operacionais de workplace.\n" +
+      "Tarefas-chave: plantas desenvolvidas; coordenação de tectos e iluminação; cortes e alçados-chave; estratégia de acabamentos; mapa de FF&E v1; alinhamento com cost-plan do QS.\n" +
+      "Entregáveis: pacote de desenho desenvolvido, especificações preliminares, mapa FF&E v1, comentários coordenados de consultores e notas de revisão de custo.\n" +
+      "Notas de coordenação: decisões são verificadas contra orçamento, programa, constrangimentos de landlord e interfaces de consultores antes do projecto técnico.",
   },
   P4: {
-    titleEn: "Phase 4 — Technical Design",
-    titlePt: "Fase 4 — Projecto de Execução",
+    titleEn: "Phase 4 — Developed / Schematic Design",
+    titlePt: "Fase 4 — Anteprojeto / Projecto Desenvolvido",
     bodyEn:
-      "Tender-ready technical documentation: detail drawings, finishes schedules, joinery and " +
-      "FF&E specifications, and full consultant coordination. Output is a fully coordinated " +
-      "tender package suitable for fixed-price bidding. " +
-      "Duration: {phase_duration_P4} working days. Fee: {phase_fee_P4}.",
+      "Narrative: Developed design resolves the selected concept into a client-approved, consultant-coordinated package ready to move into technical documentation.\n" +
+      "Key tasks: room-by-room design development; finishes and joinery intent; furniture layouts; consultant coordination workshops; budget and programme checkpoint.\n" +
+      "Deliverables: developed plans, RCPs, key elevations/sections, finishes outline, FF&E intent and coordinated design issues log.\n" +
+      "Coordination notes: this phase closes open design assumptions before the technical package is produced.",
     bodyPt:
-      "Documentação técnica pronta para concurso: desenhos de pormenor, mapas de acabamentos, " +
-      "especificações de carpintarias e FF&E, e coordenação completa de consultores. O output é " +
-      "um caderno de encargos coordenado, apto a concurso de preço fixo. " +
-      "Duração: {phase_duration_P4} dias úteis. Honorários: {phase_fee_P4}.",
+      "Narrativa: O anteprojeto resolve o conceito seleccionado num pacote aprovado pelo cliente e coordenado com consultores, pronto para documentação técnica.\n" +
+      "Tarefas-chave: desenvolvimento por espaço; intenção de acabamentos e carpintarias; layouts de mobiliário; workshops de coordenação; checkpoint de orçamento e programa.\n" +
+      "Entregáveis: plantas desenvolvidas, RCPs, alçados/cortes-chave, mapa preliminar de acabamentos, intenção FF&E e log de temas coordenados.\n" +
+      "Notas de coordenação: esta fase fecha pressupostos de design antes da produção do pacote técnico.",
   },
   P5: {
-    titleEn: "Phase 5 — Procurement / Tender Support",
-    titlePt: "Fase 5 — Apoio ao Concurso",
+    titleEn: "Phase 5 — Technical Design",
+    titlePt: "Fase 5 — Projecto de Execução",
     bodyEn:
-      "We support the client through contractor pre-qualification, tender clarifications, " +
-      "technical scoring, value engineering review and award recommendation. Engagement is " +
-      "scoped to the tender window agreed with the client and QS. " +
-      "Duration: {phase_duration_P5} working days. Fee: {phase_fee_P5}.",
+      "Narrative: Technical design converts the approved design into a coordinated tender/construction package.\n" +
+      "Key tasks: technical drawings; details; finishes schedules; joinery and FF&E specifications; coordination with MEP, structure, AV, security and fire consultants.\n" +
+      "Deliverables: tender-ready drawing set, schedules, outline specifications, coordinated consultant package and design-risk register.\n" +
+      "Coordination notes: the package is prepared so contractors can price on a consistent technical basis.",
     bodyPt:
-      "Apoiamos o cliente na pré-qualificação de empreiteiros, esclarecimentos a concurso, " +
-      "avaliação técnica, revisão de value engineering e recomendação de adjudicação. O " +
-      "envolvimento é dimensionado para a janela de concurso acordada com o cliente e o QS. " +
-      "Duração: {phase_duration_P5} dias úteis. Honorários: {phase_fee_P5}.",
+      "Narrativa: O projecto de execução transforma o desenho aprovado num pacote técnico coordenado para concurso/obra.\n" +
+      "Tarefas-chave: desenhos técnicos; pormenores; mapas de acabamentos; especificações de carpintarias e FF&E; coordenação com MEP, estrutura, AV, segurança e incêndio.\n" +
+      "Entregáveis: pacote de desenhos para concurso, mapas, especificações, pacote coordenado de consultores e registo de riscos de projecto.\n" +
+      "Notas de coordenação: o pacote é preparado para permitir preços de empreiteiro sobre uma base técnica consistente.",
   },
   P6: {
-    titleEn: "Phase 6 — Construction Assistance (Monthly Retainer)",
-    titlePt: "Fase 6 — Assistência à Obra (Retainer Mensal)",
+    titleEn: "Phase 6 — Procurement / Tender Support",
+    titlePt: "Fase 6 — Procurement / Apoio ao Concurso",
     bodyEn:
-      "Construction assistance is delivered as a monthly retainer over " +
-      "{construction_duration} months at {construction_monthly_fee} per month " +
-      "({construction_monthly_hours} hours/month). Scope includes site visits, RFI responses, " +
-      "shop-drawing and sample review, snag management and design intent safeguarding. " +
-      "It is a time-based operational service, not a fixed-deliverable package.",
+      "Narrative: We support the client through procurement so the tendered scope remains aligned with the approved design intent and commercial baseline.\n" +
+      "Key tasks: contractor pre-qualification support; tender clarifications; addenda; technical scoring; value-engineering review; award recommendation input.\n" +
+      "Deliverables: clarification log, tender-response notes, technical evaluation input, value-engineering commentary and award recommendation support.\n" +
+      "Coordination notes: PSA coordinates design responses with QS, client procurement and consultants during the tender window.",
     bodyPt:
-      "A assistência à obra é prestada como retainer mensal durante {construction_duration} " +
-      "meses ao valor de {construction_monthly_fee} por mês ({construction_monthly_hours} " +
-      "horas/mês). O âmbito inclui visitas a obra, resposta a RFIs, revisão de desenhos de " +
-      "fabrico e amostras, gestão de listas de remates e salvaguarda do design intent. " +
-      "É um serviço operacional baseado em tempo, não um pacote de entregáveis fixos.",
+      "Narrativa: Apoiamos o cliente no procurement para que o âmbito em concurso permaneça alinhado com o design intent aprovado e a base comercial.\n" +
+      "Tarefas-chave: apoio à pré-qualificação de empreiteiros; esclarecimentos; adendas; avaliação técnica; revisão de value engineering; apoio à recomendação de adjudicação.\n" +
+      "Entregáveis: log de esclarecimentos, notas de resposta a concurso, input de avaliação técnica, comentários de value engineering e apoio à recomendação.\n" +
+      "Notas de coordenação: a PSA coordena respostas de projecto com QS, procurement do cliente e consultores durante a janela de concurso.",
   },
   CA: {
     titleEn: "Construction Assistance (Monthly Retainer)",
@@ -146,18 +144,32 @@ export const WORKPLACE_PHASE_TEMPLATES: Record<string, PhaseTemplate> = {
       "É um serviço operacional baseado em tempo, não um pacote de entregáveis fixos.",
   },
   P7: {
-    titleEn: "Phase 7 — Close Out",
-    titlePt: "Fase 7 — Encerramento",
+    titleEn: "Phase 7 — Construction Assistance (Monthly Retainer)",
+    titlePt: "Fase 7 — Assistência à Obra (Retainer Mensal)",
     bodyEn:
-      "Practical completion walk-through, snag-list close-out, as-built coordination with the " +
-      "contractor, handover of the operations and maintenance pack, and a post-occupancy " +
-      "review at 8–12 weeks. " +
-      "Duration: {phase_duration_P7} working days. Fee: {phase_fee_P7}.",
+      "Narrative: Construction Assistance is a time-based operational service, delivered as a monthly retainer aligned with the confirmed construction programme rather than as a fixed-deliverable package.\n" +
+      "Key tasks: site visits; RFI responses; shop-drawing and sample review; coordination issue resolution; snag management; design-intent safeguarding.\n" +
+      "Deliverables: site-visit notes, RFI/design responses, reviewed samples or shop drawings, snag inputs and design-intent clarifications.\n" +
+      "Coordination notes: PSA supports the contractor, consultants and client team through agreed meetings and response windows during construction.",
     bodyPt:
-      "Vistoria de recepção provisória, encerramento de remates, coordenação de telas finais " +
-      "com o empreiteiro, entrega do dossier de operação e manutenção, e revisão pós-ocupação " +
-      "às 8–12 semanas. " +
-      "Duração: {phase_duration_P7} dias úteis. Honorários: {phase_fee_P7}.",
+      "Narrativa: A Assistência à Obra é um serviço operacional baseado em tempo, prestado como retainer mensal alinhado com o programa de obra confirmado e não como pacote de entregáveis fixos.\n" +
+      "Tarefas-chave: visitas a obra; resposta a RFIs; revisão de desenhos de fabrico e amostras; resolução de temas de coordenação; gestão de remates; salvaguarda de design intent.\n" +
+      "Entregáveis: notas de visita, respostas RFI/design, amostras ou desenhos revistos, inputs de snagging e esclarecimentos de design intent.\n" +
+      "Notas de coordenação: a PSA apoia empreiteiro, consultores e cliente através de reuniões e janelas de resposta acordadas durante a obra.",
+  },
+  P8: {
+    titleEn: "Phase 8 — Close Out / Handover",
+    titlePt: "Fase 8 — Encerramento / Entrega",
+    bodyEn:
+      "Narrative: Close Out consolidates completion, handover and lessons learned so the workplace can move into operation with clear records.\n" +
+      "Key tasks: practical-completion walk-through; snag-list close-out support; as-built coordination with the contractor; O&M pack review; post-occupancy review planning.\n" +
+      "Deliverables: close-out notes, snag status input, handover/O&M review comments, as-built coordination comments and post-occupancy review agenda.\n" +
+      "Coordination notes: PSA closes design and coordination issues with the contractor and client facilities team before final handover.",
+    bodyPt:
+      "Narrativa: O encerramento consolida conclusão, entrega e aprendizagem para que o workplace entre em operação com registos claros.\n" +
+      "Tarefas-chave: vistoria de recepção provisória; apoio ao fecho de remates; coordenação de telas finais com empreiteiro; revisão do dossier O&M; planeamento de revisão pós-ocupação.\n" +
+      "Entregáveis: notas de encerramento, input de estado de remates, comentários ao dossier O&M, comentários de telas finais e agenda de revisão pós-ocupação.\n" +
+      "Notas de coordenação: a PSA fecha temas de design e coordenação com empreiteiro e facilities do cliente antes da entrega final.",
   },
 };
 

@@ -137,6 +137,8 @@ async function createWorkplaceAssemblyDocument(args: {
       stages: args.stages.map((s, index) => ({
         code: String(s.phase_code ?? s.stage_code ?? s.code ?? `P${index + 1}`),
         name: String(s.name ?? s.title ?? ""),
+        start_date: typeof s.start_date === "string" ? s.start_date : null,
+        end_date: typeof s.end_date === "string" ? s.end_date : null,
         duration_days:
           typeof s.duration_days === "number"
             ? s.duration_days

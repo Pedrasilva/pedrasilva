@@ -1937,6 +1937,11 @@ function sanitizeProseForDisplay(text: string): string {
   let out = text;
   // Remove standalone `{{var}}` tokens.
   out = out.replace(/\{\{\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\}\}/g, "");
+  out = out
+    .replace(/\[\[(project_stage_fee_table|construction_stage_fee_table)\]\]/gi, "Fee schedule to be confirmed.")
+    .replace(/\[\[payment_schedule_table\]\]/gi, "Payment schedule to be confirmed.")
+    .replace(/\[\[proposal_gantt\]\]/gi, "Programme to be confirmed.")
+    .replace(/\{\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\}/g, "");
   // Remove whole lines that collapse to an empty location predicate, including
   // markdown-emphasised subjects stored in older generated documents.
   out = out
@@ -1958,6 +1963,14 @@ function sanitizeProseForDisplay(text: string): string {
   // Orphan copula left dangling after removals: " is ." / " is ," / " is<EOL>".
   out = out.replace(/\s+\bis\s*(?=[.,;:!?])/gi, "");
   out = out.replace(/\s+\bis\s*$/gim, "");
+  out = out
+    .replace(/prepared for\s*(?=[.,;:!?\n]|$)/gi, "prepared for the client")
+    .replace(/large corporate workplace fit-out for,?/gi, "large corporate workplace fit-out to be developed under PSA’s integrated design and coordination model")
+    .replace(/\bprogramme runs for\s*working days\b/gi, "project programme will be confirmed following validation of the proposed stages")
+    .replace(/\bover\s+months\s+at\s+per month\b/gi, "as a monthly retainer aligned with the confirmed construction programme")
+    .replace(/\(\s*hours\/month\s*\)/gi, "")
+    .replace(/\bthe\s+-day programme\b/gi, "the confirmed programme")
+    .replace(/\bfor,\b/gi, "");
   // Tidy " ." → "." after removals.
   out = out.replace(/\s+([.,;:!?])/g, "$1");
   // Drop bare-subject stub lines: with emphasis allow up to 4 words,
