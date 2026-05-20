@@ -1,80 +1,201 @@
+# Proposal Container & Assembly Layer — Milestone 1
 
-# Proposal Role Abstraction Layer — Foundational Infra
+Build the **structured prefilled proposal container** system. Not an AI generator — a deterministic assembly engine that emits **editable blocks** seeded from ontology, fee engine, planning engine, and CRM data. First canonical target: `workplace / large_corporate_fitout / psa_led` → **Workplace Proposal Template V1**.
 
-This is **additive-only infrastructure**. No existing Gantt, planning, HR, fee, or proposal-UI behavior changes. We introduce a clean separation between *named operational resources* (planning) and *anonymous proposal roles* (commercial output).
+Additive only. Existing proposal builder, generated_content, blocks, drag/drop, fee calculator, payment generator, Gantt, and legacy proposals stay untouched.
 
-## 1. Database (migration)
+---
 
-Add nullable columns to both `collaborators` and `pm_resources`:
+## 1. New module: `src/lib/proposal-assembly/`
 
-- `proposal_role text` — commercial-facing role label (e.g. "Senior Architect")
-- `billing_role text` — optional future commercial abstraction (may differ from proposal_role)
-- `seniority_level int` — numeric rank for future analytics/blended rates
+Pure / deterministic. No React, no Supabase calls — receives data, returns container tree.
 
-Plus a reference catalog table `proposal_roles` (id, code, label_en, label_pt, default_seniority, sort_order, archived_at) seeded with the example roles: Partner, Director, Senior Architect, Architect, Junior Architect, BIM Coordinator, Interior Architect, Technical Coordinator. RLS: authenticated read; admin write.
+```
+src/lib/proposal-assembly/
+├── types.ts                       # ProposalContainer, ProposalSection, Attachment, Placeholder, AssemblyInput/Output, Provenance
+├── registries/
+│   ├── families.ts                # workplace, residential, retail… (V1: workplace only)
+│   ├── presets.ts                 # large_corporate_fitout, small_fitout… (V1: large_corporate_fitout)
+│   ├── delivery-modes.ts          # psa_led, consultant_led, design_build (V1: psa_led)
+│   ├── section-templates.ts       # MAIN section catalog with seeded narratives (EN/PT)
+│   ├── attachment-templates.ts    # Attachments I–VI definitions
+│   └── clause-templates.ts        # General Conditions clauses (reuses existing CLAUSE_REGISTRY where possible)
+├── placeholders/
+│   ├── catalog.ts                 # {project_name}, {phase_duration_P1}, {construction_monthly_fee}, …
+│   └── resolve.ts                 # resolvePlaceholders(text, ctx) → string
+├── renderers/
+│   ├── cover-page.ts
+│   ├── cover-letter.ts
+│   ├── executive-summary.ts
+│   ├── phase-narratives.ts        # delegates to existing resolveAllPhaseNarratives
+│   ├── fee-summary.ts             # from fee-calculator output
+│   ├── exclusions.ts              # derived from family + add-ons + delivery_mode
+│   ├── programme.ts               # Attachment III — wraps existing quote-gantt as appendix block
+│   ├── fee-payment-appendix.ts    # Attachment IV
+│   ├── scope-deliverables.ts      # Attachment II
+│   ├── optional-services.ts       # Attachment V
+│   ├── consultant-interfaces.ts   # Attachment VI
+│   └── general-conditions.ts      # Attachment I (semi-locked clauses)
+├── assemble.ts                    # main orchestrator: AssemblyInput → AssembledProposal
+└── index.ts
+```
 
-No existing column is dropped, renamed, or altered. No defaults backfill — existing rows simply have NULL until edited.
+### Container shape
 
-## 2. HR surface (minimal)
+```ts
+type ProposalContainer = {
+  id: string;                       // stable per (assemblyKey, sectionId)
+  kind: "main" | "attachment";
+  sectionId: string;                // cover_page, exec_summary, attachment_iii, …
+  title: { en: string; pt: string };
+  order: number;
+  enabled: boolean;                 // toggleable
+  locked: "none" | "semi" | "full"; // semi = general conditions
+  blocks: ProposalBlock[];          // shape compatible with existing block schema
+  provenance: {
+    source: "ontology" | "fee_engine" | "planning_engine" | "crm" | "clause_template" | "manual";
+    templateKey?: string;
+    seededAt: string;
+    placeholdersResolved: string[];
+  };
+};
+```
 
-- Add a "Commercial role" group in the collaborator form / `SnapshotMirrorPanel` mirror: read/edit `proposal_role`, `billing_role`, `seniority_level` via a `<Select>` populated from `proposal_roles`. Read-only on `/hr/colaborador/$id` mirror panel; editable on the source form.
-- i18n: `glossary.commercialRole`, `glossary.billingRole`, `glossary.seniorityLevel` (EN + PT parity).
-- No changes to existing HR titles, departments, or job logic — proposal_role lives alongside.
+Output blocks use the existing `proposal_blocks` schema so the editor keeps full edit/delete/reorder/hide capability post-insertion.
 
-## 3. Aggregation helpers (new module)
+---
 
-`src/lib/proposal-roles/` (new):
+## 2. Assembly engine
 
-- `types.ts` — `ProposalRole`, `RoleAllocationSummary = { role: string; roleId: string|null; hours: number; resourceCount: number }`
-- `aggregate.ts`:
-  - `aggregateAllocationsByProposalRole(allocations, resources)` — pure function
-  - `aggregateStageAllocationsByProposalRole(stageId, ...)`
-  - `aggregatePhaseAllocationsByProposalRole(phaseId, ...)`
-  - Fallback: when a resource has no `proposal_role`, bucket under `"Unassigned"` (i18n key) — never leaks the collaborator name.
-- `use-proposal-roles.ts` — React Query hook to load the catalog.
+```ts
+assembleProposal({
+  quoteId,
+  family: "workplace",
+  preset: "large_corporate_fitout",
+  deliveryMode: "psa_led",
+  language: "pt-PT" | "en",
+  flags: { showHours, showDurations, showConsultantTrack, … },
+  addOns: string[],
+  appendices: { I: true, II: true, III: true, IV: true, V: false, VI: false },
+  data: { quote, stages, dependencies, allocations, feeBreakdown, paymentSchedule, ontology, project }
+}) → AssembledProposal { containers, unresolvedPlaceholders, warnings }
+```
 
-These read from the existing `quote_allocations` / `pm_allocations` + `pm_resources` data — no changes to the planning engine, no new writes.
+Composition order (when enabled):
+1. cover_page → cover_letter → exec_summary → project_understanding → design_approach → scope_overview → phase_narratives → fee_summary → signature
+2. attachment_i (General Conditions) → attachment_ii (Scope Matrix) → attachment_iii (Programme/Gantt) → attachment_iv (Fee & Payment) → attachment_v (Optional) → attachment_vi (Consultants)
 
-## 4. Proposal resolvers (new, unwired)
+Each renderer:
+- pulls its seed narrative from `section-templates.ts` for `(family, preset, deliveryMode, language)`,
+- runs `resolvePlaceholders(text, ctx)`,
+- emits 1–N editable blocks,
+- records provenance.
 
-`src/lib/proposal-rendering/resolvers/staffing.ts` (new):
+---
 
-- `resolvePhaseDuration(phaseId, ctx)` → `{ weeks, startDate, endDate }`
-- `resolvePhaseEstimatedHours(phaseId, ctx)` → number
-- `resolvePhaseStaffingMix(phaseId, ctx)` → `RoleAllocationSummary[]`
+## 3. Placeholder catalog (V1)
 
-Re-exported from `src/lib/proposal-rendering/index.ts`. **Not yet wired into any rendered block** — purely available for future ontology blocks. Existing proposal generator stays untouched.
+Resolved against `RenderContext` + quote data:
 
-## 5. Fee engine
+```
+{project_name} {project_code} {client_name} {proposal_date} {proposal_version}
+{overall_project_duration} {construction_duration}
+{phase_duration_P1..P6} {phase_fee_P1..P6} {phase_hours_P1..P6}
+{construction_monthly_fee} {construction_monthly_hours}
+{project_stage_fee_table} {construction_stage_fee_table}
+{proposal_gantt} {payment_schedule_table} {exclusions_list}
+{currency} {language}
+```
 
-No code changes. Add a TODO/architecture comment in `src/lib/quotes/fee-calculator.ts` pointing to `proposal-roles` for the future blended-rate path. No new tables, no pricing logic touched.
+Unknown placeholders are left literal and reported in `unresolvedPlaceholders` (visible in builder warnings).
 
-## 6. Out of scope (explicit)
+---
 
-- No edits to `gantt-chart.tsx`, `quote-planning-tab.tsx`, allocation editors, `proposal-generator.ts`, payment/invoice generation, or any RLS on existing tables.
-- No UI replacement of named resources with roles in planning views.
-- No blended pricing or new fee math.
+## 4. Gantt appendix (Attachment III)
 
-## Files touched
+Do **not** reimplement Gantt. Add a new block type `gantt_appendix` that:
+- references quoteId + render settings `{ showMilestones, showConsultants, showProcurement, landscape, detailLevel: "executive" | "detailed" }`,
+- renders via a thin wrapper around the existing `quote-gantt.tsx` in read-only "executive" mode,
+- placeholder `{proposal_gantt}` in body content resolves to this block reference.
 
-**New:**
-- migration (collaborators + pm_resources columns, `proposal_roles` table + RLS + seed)
-- `src/lib/proposal-roles/types.ts`
-- `src/lib/proposal-roles/aggregate.ts`
-- `src/lib/proposal-roles/use-proposal-roles.ts`
-- `src/lib/proposal-roles/index.ts`
-- `src/lib/proposal-rendering/resolvers/staffing.ts`
+V1 ships executive mode only; flag fields exist in the block payload for future expansion.
 
-**Edited (small, additive):**
-- `src/lib/proposal-rendering/index.ts` (re-export resolvers)
-- `src/lib/quotes/fee-calculator.ts` (architecture comment only)
-- `src/components/snapshot/SnapshotMirrorPanel.tsx` (display proposal_role / billing_role / seniority)
-- collaborator edit form (the existing one rendering the snapshot/profile fields) — add 3 inputs
-- `src/i18n/locales/{en,pt-PT}/glossary.json` + `hr.json` (new keys, parity)
+---
 
-## Validation
+## 5. Fee & Payment appendix (Attachment IV)
 
-- Build passes; types regenerate after migration.
-- `aggregateAllocationsByProposalRole` unit-tested via a small `scripts/test-proposal-role-aggregation.mjs` with a fixture: 2 collaborators mapped to "Senior Architect" + 1 to "Architect" → expected `[{role:"Senior Architect", hours:80}, {role:"Architect", hours:40}]`.
-- Existing Gantt / quote planning page renders unchanged (`/crm/quotes/...`).
-- i18n parity check passes for new keys.
+Pulls directly from `fee-calculator.ts` and `payment-generators.ts` outputs. Two sub-tables:
+- Project stages fee table (phase × duration × hours × fee)
+- Construction assistance retainer block (monthly fee × duration × periodic review wording)
+
+Independent regeneration: each appendix has a "Regenerate from current data" action that re-runs only its renderer.
+
+---
+
+## 6. UI surfaces (minimal, additive)
+
+Add to existing proposal builder (`quote-proposal-tab.tsx` area):
+
+1. **"Assemble proposal" action** — opens a side panel:
+   - Family / Preset / Delivery mode (V1: defaults locked to workplace/large_corporate_fitout/psa_led, others disabled)
+   - Language toggle
+   - Appendix checkboxes (I–VI)
+   - Flag toggles (show hours, show durations, show consultant track)
+   - "Insert" button → calls `assembleProposal`, inserts containers as blocks via existing `useInsertProposalBlocks` hook, preserves any existing custom blocks (insert at end with confirm if blocks already present).
+
+2. **Container chip in block toolbar** — shows `provenance.source` and a "Regenerate this section" affordance for assembled blocks.
+
+3. **Unresolved placeholders banner** — surfaces `unresolvedPlaceholders` in the existing `quote-warnings-banner.tsx`.
+
+No changes to drag/drop, manual block creation, or the document editor.
+
+---
+
+## 7. Database (single small migration)
+
+Additive columns on `proposal_blocks` only:
+
+- `assembly_section_id text NULL` — e.g. `cover_page`, `attachment_iii`
+- `assembly_provenance jsonb NULL` — `{ source, templateKey, seededAt, placeholdersResolved, assemblyKey }`
+- `assembly_locked text NULL CHECK (assembly_locked IN ('none','semi','full')) DEFAULT NULL`
+
+No new tables. No data backfill. Legacy blocks have NULL → treated as manual. RLS unchanged (inherits existing `proposal_blocks` policies).
+
+---
+
+## 8. i18n
+
+Add `proposalAssembly` namespace (EN + PT, parity-checked):
+- container titles (cover_page, exec_summary, attachment_i…attachment_vi)
+- seed narratives for workplace/large_corporate_fitout/psa_led
+- assembly panel labels, flag labels, provenance chip labels, regenerate confirmations
+
+All glossary terms (Phase, Stage, Construction Assistance, Fee, Retainer) referenced via `glossary:*` per project memory.
+
+---
+
+## 9. Validation
+
+- `scripts/test-proposal-assembly.mjs` — assembles a fixture quote, asserts:
+  - container count + order matches spec,
+  - all V1 placeholders resolve against fixture data,
+  - appendix toggles correctly include/exclude containers,
+  - second assembly call is deterministic (stable container IDs).
+- Existing tests untouched.
+- Build + i18n parity check.
+
+---
+
+## 10. Out of scope (per spec section 10)
+
+No proposal versioning, no contract gen, no project bootstrap wiring, no detachable export, no AI narrative refinement, no proposal library UI, no jurisdiction clauses, no multilingual rendering beyond EN/PT seed pairs.
+
+---
+
+## Files
+
+**New (~22):** the entire `src/lib/proposal-assembly/` tree, `src/components/quotes/proposal-assembly-panel.tsx`, `src/components/quotes/blocks/gantt-appendix-block.tsx`, migration, test script, 2 i18n files.
+
+**Edited (~6):** `src/components/quotes/quote-proposal-tab.tsx` (add Assemble action), `quote-warnings-banner.tsx` (unresolved placeholders), `use-insert-proposal-blocks.ts` (pass through assembly metadata), `src/integrations/supabase/types.ts` (auto), 2 glossary/hr i18n touch-ups if new shared terms emerge.
+
+Confirm to proceed and I'll start with the migration, then the assembly module, then UI wiring.
