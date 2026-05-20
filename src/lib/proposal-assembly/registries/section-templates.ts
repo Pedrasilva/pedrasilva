@@ -297,7 +297,9 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
     bodyEn:
       "The fee summary below sets out the fixed-fee project stages and the construction-" +
       "assistance retainer. Detailed breakdown and payment milestones are in Attachment IV.\n\n" +
-      "{project_stage_fee_table}\n\n{construction_stage_fee_table}",
+      "{project_stage_fee_table}\n\n" +
+      "Construction Assistance, where included, is structured as a monthly retainer aligned " +
+      "with the confirmed construction programme.",
     bodyPt:
       "O quadro abaixo apresenta os honorários por fase de projecto (preço fixo) e o retainer " +
       "de assistência à obra. O detalhe completo e os marcos de pagamento constam do Anexo IV.\n\n" +
@@ -357,11 +359,9 @@ const WORKPLACE_LARGE_CONSULTANT_LED: SectionTemplateMap = withDeliveryModeOverr
       titleEn: "Executive Summary",
       titlePt: "Sumário Executivo",
       bodyEn:
-        "{project_name} is a workplace fit-out for {client_name} delivered under a PSA-oversight " +
-        "model with a local lead consultant. Overall programme: {overall_project_duration} " +
-        "working days.\n\n" +
-        "Construction assistance is a {construction_duration}-month oversight retainer at " +
-        "{construction_monthly_fee} per month ({construction_monthly_hours} hours/month), " +
+        "{project_name} is a workplace fit-out delivered under a PSA-oversight model with a " +
+        "local lead consultant. Programme duration will be confirmed following phase validation.\n\n" +
+        "Construction assistance, where included, is structured as a monthly oversight retainer, " +
         "covering design-intent reviews, sample approvals and milestone site visits. Routine " +
         "site supervision is carried by the local consultant.",
       bodyPt:
