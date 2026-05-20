@@ -71,8 +71,8 @@ const WORKPLACE_APPENDICES: AssemblyAppendixToggles = {
   II: true,
   III: true,
   IV: true,
-  V: false,
-  VI: false,
+  V: true,
+  VI: true,
 };
 
 const WORKPLACE_FLAGS: AssemblyFlags = {
@@ -306,8 +306,8 @@ async function runGenerate(
   if (firstError) throw new Error(firstError.message);
 
   const isWorkplaceAssemblyRequest =
-    quote.ontology_family_code === "workplace" &&
-    (args.proposalKind === "fixed_project" || args.proposalKind === "psa_interior_fitout");
+    args.proposalKind === "psa_interior_fitout" ||
+    (quote.ontology_family_code === "workplace" && args.proposalKind === "fixed_project");
   if (isWorkplaceAssemblyRequest) {
     return createWorkplaceAssemblyDocument({
       quote: quote as Record<string, unknown>,

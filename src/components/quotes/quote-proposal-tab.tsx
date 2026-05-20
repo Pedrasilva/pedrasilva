@@ -773,15 +773,20 @@ function GeneratedDocumentSection({
   // Filter the offered proposal kinds by the quote's top-level category so
   // a Time-based / Retainer quote never sees Project block-sets (and vice-
   // versa). Defaults to the project set when no category is provided.
-  const allowedKinds = useMemo(
-    () => proposalKindsForCategory(quoteCategory ?? "project"),
-    [quoteCategory],
-  );
   const isWorkplaceAssemblyQuote = ontologyFamilyCode === "workplace";
+  const allowedKinds = useMemo(
+    () =>
+      isWorkplaceAssemblyQuote || quoteCategory === "project"
+        ? (["psa_interior_fitout"] as readonly ProposalKind[])
+        : proposalKindsForCategory(quoteCategory ?? "project"),
+    [isWorkplaceAssemblyQuote, quoteCategory],
+  );
   const fallbackKind = isWorkplaceAssemblyQuote
     ? "psa_interior_fitout"
     : quoteCategory
-      ? defaultProposalKindForCategory(quoteCategory)
+      ? quoteCategory === "project"
+        ? "psa_interior_fitout"
+        : defaultProposalKindForCategory(quoteCategory)
       : quoteTypeToProposalKind(quoteType);
   const persistedRaw =
     (document?.snapshot_json as { proposal_kind?: ProposalKind } | null)
@@ -793,6 +798,10 @@ function GeneratedDocumentSection({
     ? persistedRaw
     : fallbackKind;
   const [proposalKind, setProposalKind] = useState<ProposalKind>(persistedKind);
+
+  useEffect(() => {
+    setProposalKind(persistedKind);
+  }, [persistedKind]);
 
   // Consultancy commercial settings. Initialised in-memory; we hydrate them
   // from fee_proposals.time_based_settings when the saved JSON exists so the

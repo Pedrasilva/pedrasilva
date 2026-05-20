@@ -290,8 +290,8 @@
   },
   "quoteType": {
     "standard_project": {
-      "label": "Proposta de Projeto Standard",
-      "hint": "Fases, Gantt, recursos, serviços externos e proposta gerada. Para projetos de honorários fixos ou por fases."
+      "label": "Proposta de Projeto",
+      "hint": "Fases, Gantt, recursos, serviços externos e pacote de proposta workplace. Para projetos de honorários fixos ou por fases."
     },
     "construction_retainer": {
       "label": "Retainer de Obra",
@@ -617,8 +617,8 @@
           "consultancyHoursPackageHint": "Pacote à hora com valor do bloco e compromisso mínimo.",
           "constructionRetainer": "Retainer de Obra",
           "constructionRetainerHint": "Retainer mensal para acompanhamento de obra e despesas reembolsáveis.",
-          "psaInteriorFitout": "Fit-Out Interior (modelo completo)",
-          "psaInteriorFitoutHint": "Proposta arquitectónica completa: âmbito, informação de base, fases, honorários, pagamento, deslocações, exclusões, validade e assinatura."
+          "psaInteriorFitout": "Pacote de Proposta Workplace",
+          "psaInteriorFitoutHint": "Proposta workplace montada pela ontologia: carta de apresentação, sumário executivo, narrativas de fase e Anexos I–VI."
         },
         "consultancy": {
           "sectionTitle": "Configurações comerciais da consultoria",

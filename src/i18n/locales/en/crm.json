@@ -290,8 +290,8 @@
   },
   "quoteType": {
     "standard_project": {
-      "label": "Standard Project Proposal",
-      "hint": "Stages, Gantt, resources, external services and a generated proposal. Use for fixed/staged design projects."
+      "label": "Project Proposal",
+      "hint": "Stages, Gantt, resources, external services and the workplace proposal package. Use for fixed/staged design projects."
     },
     "construction_retainer": {
       "label": "Construction Retainer",
@@ -617,8 +617,8 @@
           "consultancyHoursPackageHint": "Hourly package with block value and minimum commitment.",
           "constructionRetainer": "Construction Retainer",
           "constructionRetainerHint": "Monthly retainer for construction support and reimbursable expenses.",
-          "psaInteriorFitout": "Interior Fit-Out (full template)",
-          "psaInteriorFitoutHint": "Full architectural fee proposal: scope, base info, stages, fees, payment, travelling, exclusions, validity & signature."
+          "psaInteriorFitout": "Workplace Proposal Package",
+          "psaInteriorFitoutHint": "Ontology-assembled workplace proposal: cover letter, executive summary, phase narratives and Attachments I–VI."
         },
         "consultancy": {
           "sectionTitle": "Consultancy commercial settings",
