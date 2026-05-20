@@ -776,7 +776,7 @@ function GeneratedDocumentSection({
   const isWorkplaceAssemblyQuote = ontologyFamilyCode === "workplace";
   const allowedKinds = useMemo(
     () =>
-      isWorkplaceAssemblyQuote
+      isWorkplaceAssemblyQuote || quoteCategory === "project"
         ? (["psa_interior_fitout"] as readonly ProposalKind[])
         : proposalKindsForCategory(quoteCategory ?? "project"),
     [isWorkplaceAssemblyQuote, quoteCategory],
