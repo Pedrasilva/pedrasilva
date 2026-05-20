@@ -71,7 +71,7 @@ function phaseMetadata(s: AssemblyInput["data"]["stages"][number], currency: str
 }
 
 export function assembleProposal(input: AssemblyInput): AssembledProposal {
-  const map = buildPlaceholderMap(input.data);
+  const map = buildPlaceholderMap(input.data, input.language);
   map.language = input.language;
 
   const containers: ProposalContainer[] = [];
