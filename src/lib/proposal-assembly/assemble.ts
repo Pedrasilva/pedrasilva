@@ -41,7 +41,7 @@ const MAIN_ORDER: AssemblyMainSectionId[] = [
 const WORKPLACE_CANONICAL_PHASES = [
   { code: "P1", name: "Workplace Strategy / Programme Definition" },
   { code: "P2", name: "Concept Design" },
-  { code: "P4", name: "Developed / Schematic Design" },
+  { code: "P3", name: "Developed / Schematic Design" },
   { code: "P5", name: "Technical Design" },
   { code: "P6", name: "Procurement / Tender Support" },
   { code: "P7", name: "Construction Assistance" },
@@ -49,9 +49,14 @@ const WORKPLACE_CANONICAL_PHASES = [
 ];
 
 function phasesForAssembly(input: AssemblyInput): AssemblyInput["data"]["stages"] {
-  if (input.data.stages.length > 0) return input.data.stages;
   if (input.family !== "workplace") return [];
-  return WORKPLACE_CANONICAL_PHASES.map((p) => ({ ...p }));
+  const liveByCode = new Map(input.data.stages.map((s) => [s.code, s]));
+  return WORKPLACE_CANONICAL_PHASES.map((p) => ({
+    ...p,
+    ...liveByCode.get(p.code),
+    code: p.code,
+    name: p.name,
+  }));
 }
 
 function phaseMetadata(s: AssemblyInput["data"]["stages"][number], currency: string | null | undefined, language: AssemblyInput["language"]): string {
@@ -66,7 +71,7 @@ function phaseMetadata(s: AssemblyInput["data"]["stages"][number], currency: str
 }
 
 export function assembleProposal(input: AssemblyInput): AssembledProposal {
-  const map = buildPlaceholderMap(input.data);
+  const map = buildPlaceholderMap(input.data, input.language);
   map.language = input.language;
 
   const containers: ProposalContainer[] = [];
@@ -244,13 +249,12 @@ function addAttachmentPayloads(
     });
   }
   if (att.id === "III") {
-    // Gantt appendix — payload reference only; rendered by gantt-appendix block.
     blocks.push({
       localId: `${att.sectionId}.gantt`,
-      title: input.language === "pt-PT" ? "Diagrama de Gantt" : "Gantt Diagram",
+      title: input.language === "pt-PT" ? "Sequência indicativa de fases" : "Indicative phase sequence",
       content: renderProgrammeRows(phases, lang),
       payload: {
-        kind: "gantt_appendix",
+        kind: "programme_summary",
         quoteId: input.data.quote.id,
         settings: {
           showMilestones: true,
@@ -264,24 +268,25 @@ function addAttachmentPayloads(
   }
   if (att.id === "IV") {
     blocks.push({
-      localId: `${att.sectionId}.fee_table`,
-      title: input.language === "pt-PT" ? "Quadro de Honorários" : "Fee Table",
-      content: input.data.stages
-        .map((s) => `${s.code} — ${s.name}: ${s.fee ?? "—"}`)
-        .join("\n"),
-      payload: { kind: "fee_table", stages: input.data.stages },
+      localId: `${att.sectionId}.basis`,
+      title: input.language === "pt-PT" ? "Base comercial" : "Commercial basis",
+      content: lang === "pt-PT"
+        ? "• As fases de projecto são previstas como honorários fixos, facturados por marco após validação.\n• A Assistência à Obra, quando incluída, opera como retainer mensal alinhado com o programa de obra confirmado.\n• Valores finais, impostos, despesas reembolsáveis e marcos de facturação são confirmados antes da emissão contratual."
+        : "• Design stages are intended as fixed-fee milestones, invoiced by milestone after validation.\n• Construction Assistance, where included, operates as a monthly retainer aligned with the confirmed construction programme.\n• Final values, taxes, reimbursable expenses and invoicing milestones are confirmed before contractual issue.",
     });
-    if (input.data.paymentSchedule.length > 0) {
-      blocks.push({
-        localId: `${att.sectionId}.payment_schedule`,
-        title:
-          input.language === "pt-PT" ? "Calendário de Pagamentos" : "Payment Schedule",
-        content: input.data.paymentSchedule
-          .map((p) => `${p.label} (${p.trigger}): ${p.amount}`)
-          .join("\n"),
-        payload: { kind: "payment_schedule", rows: input.data.paymentSchedule },
-      });
-    }
+    blocks.push({
+      localId: `${att.sectionId}.fee_table`,
+      title: input.language === "pt-PT" ? "Quadro de honorários" : "Fee schedule",
+      content: renderFeeScheduleRows(phases, input.data.quote.currency, lang),
+      payload: { kind: "fee_summary", stages: phases },
+    });
+    blocks.push({
+      localId: `${att.sectionId}.payment_schedule`,
+      title:
+        input.language === "pt-PT" ? "Calendário de pagamentos" : "Payment schedule",
+      content: renderPaymentScheduleRows(input.data.paymentSchedule, input.data.quote.currency, lang),
+      payload: { kind: "payment_summary", rows: input.data.paymentSchedule },
+    });
   }
   if (att.id === "V") {
     blocks.push({
@@ -301,25 +306,48 @@ function addAttachmentPayloads(
 
 function renderProgrammeRows(phases: AssemblyInput["data"]["stages"], lang: AssemblyInput["language"]): string {
   const rows = phases.filter((s) => s.start_date || s.end_date || s.duration_days);
-  if (rows.length === 0) return lang === "pt-PT" ? "Programa a confirmar." : "Programme to be confirmed.";
-  return [
-    lang === "pt-PT" ? "Fase | Início | Fim | Duração" : "Phase | Start | End | Duration",
-    "--- | --- | --- | ---",
-    ...rows.map((s) => `${s.code} — ${s.name} | ${s.start_date ?? "TBC"} | ${s.end_date ?? "TBC"} | ${s.duration_days != null ? `${s.duration_days} working days` : "TBC"}`),
-  ].join("\n");
+  if (rows.length === 0) {
+    const fallback = phases.length > 0 ? phases : WORKPLACE_CANONICAL_PHASES;
+    return [
+      lang === "pt-PT"
+        ? "Programa a confirmar após validação das fases do projecto. Sequência base proposta:"
+        : "Programme to be confirmed following validation of project stages. Proposed baseline sequence:",
+      ...fallback.map((s) => `• ${s.name}`),
+    ].join("\n");
+  }
+  return rows
+    .map((s) => {
+      const dates = [s.start_date, s.end_date].filter(Boolean).join(" → ") || (lang === "pt-PT" ? "datas a confirmar" : "dates to be confirmed");
+      const duration = s.duration_days != null ? `${s.duration_days} ${lang === "pt-PT" ? "dias úteis" : "working days"}` : (lang === "pt-PT" ? "duração a confirmar" : "duration to be confirmed");
+      return `• ${s.name}: ${dates}; ${duration}.`;
+    })
+    .join("\n");
 }
 
 function renderDeliverablesMatrix(phases: AssemblyInput["data"]["stages"], lang: AssemblyInput["language"]): string {
   const rows = phases.length > 0 ? phases : WORKPLACE_CANONICAL_PHASES;
-  const en = ["Phase | Key tasks | Deliverables | Responsibility", "--- | --- | --- | ---"];
-  const pt = ["Fase | Tarefas-chave | Entregáveis | Responsabilidade", "--- | --- | --- | ---"];
-  const out = lang === "pt-PT" ? pt : en;
-  for (const s of rows) {
-    out.push(lang === "pt-PT"
-      ? `${s.code} — ${s.name} | Briefing, desenho, coordenação e revisão conforme fase | Pacote de desenhos, notas de coordenação, registo de decisões e entregáveis de fase | PSA lidera; cliente aprova; consultores/empreiteiro contribuem quando aplicável`
-      : `${s.code} — ${s.name} | Briefing, design, coordination and review appropriate to the phase | Drawing package, coordination notes, decision register and phase deliverables | PSA leads; client approves; consultants/contractor contribute where applicable`);
-  }
-  return out.join("\n");
+  return rows.map((s) => lang === "pt-PT"
+    ? `${s.name}\n• Tarefas-chave: briefing, desenho, coordenação e revisão adequados à fase.\n• Entregáveis: pacote de desenhos, notas de coordenação, registo de decisões e entregáveis da fase.\n• Responsabilidade: PSA lidera; cliente aprova; consultores/empreiteiro contribuem quando aplicável.`
+    : `${s.name}\n• Key tasks: briefing, design, coordination and review appropriate to the phase.\n• Deliverables: drawing package, coordination notes, decision register and phase deliverables.\n• Responsibility: PSA leads; client approves; consultants/contractor contribute where applicable.`)
+    .join("\n\n");
+}
+
+function renderFeeScheduleRows(phases: AssemblyInput["data"]["stages"], currency: string | null | undefined, lang: AssemblyInput["language"]): string {
+  const feeRows = phases.filter((s) => s.fee != null && Number.isFinite(Number(s.fee)) && Number(s.fee) > 0);
+  if (feeRows.length === 0) return lang === "pt-PT" ? "Quadro detalhado de honorários a confirmar." : "Detailed fee schedule to be confirmed.";
+  return feeRows.map((s) => {
+    const formatted = new Intl.NumberFormat("en-GB", { style: "currency", currency: currency ?? "EUR", maximumFractionDigits: 2 }).format(Number(s.fee));
+    return `• ${s.name}: ${formatted}`;
+  }).join("\n");
+}
+
+function renderPaymentScheduleRows(rows: AssemblyInput["data"]["paymentSchedule"], currency: string | null | undefined, lang: AssemblyInput["language"]): string {
+  const validRows = rows.filter((p) => Number.isFinite(Number(p.amount)) && Number(p.amount) > 0);
+  if (validRows.length === 0) return lang === "pt-PT" ? "Calendário de pagamentos a confirmar." : "Payment schedule to be confirmed.";
+  return validRows.map((p) => {
+    const formatted = new Intl.NumberFormat("en-GB", { style: "currency", currency: currency ?? "EUR", maximumFractionDigits: 2 }).format(Number(p.amount));
+    return `• ${p.label || (lang === "pt-PT" ? "Marco" : "Milestone")}: ${p.trigger || (lang === "pt-PT" ? "a confirmar" : "to be confirmed")} — ${formatted}`;
+  }).join("\n");
 }
 
 function renderOptionalServices(addOns: string[], lang: AssemblyInput["language"]): string {
@@ -331,6 +359,6 @@ function renderOptionalServices(addOns: string[], lang: AssemblyInput["language"
 
 function renderConsultantInterfaces(lang: AssemblyInput["language"]): string {
   return lang === "pt-PT"
-    ? "Interface | Responsabilidade PSA | Responsabilidade consultor/cliente\n--- | --- | ---\nMEP | Coordenação de layouts, tectos, equipamentos visíveis e inputs de design intent | Dimensionamento técnico, cálculos, desenhos e conformidade regulamentar\nEstrutura | Coordenação de interferências e aberturas relevantes | Verificação estrutural, detalhes e aprovações técnicas\nQS / Cost Management | Alinhamento de scope, clarificações e value-engineering de design | Estimativas, BoQ, relatórios de custo e recomendações comerciais\nEmpreiteiro | Respostas de design intent, revisão de amostras e shop drawings | Metodologia, execução, segurança, programa de obra e qualidade final"
-    : "Interface | PSA responsibility | Consultant/client responsibility\n--- | --- | ---\nMEP | Coordinate layouts, ceilings, visible equipment and design-intent inputs | Technical sizing, calculations, drawings and regulatory compliance\nStructure | Coordinate relevant clashes, openings and design constraints | Structural verification, details and technical approvals\nQS / Cost Management | Align scope, clarifications and design-led value engineering | Estimates, BoQ, cost reporting and commercial recommendations\nContractor | Design-intent responses, sample and shop-drawing review | Methodology, execution, safety, site programme and final quality";
+    ? "MEP\n• PSA: coordenação de layouts, tectos, equipamentos visíveis e inputs de design intent.\n• Consultor/cliente: dimensionamento técnico, cálculos, desenhos e conformidade regulamentar.\n\nEstrutura\n• PSA: coordenação de interferências e aberturas relevantes.\n• Consultor/cliente: verificação estrutural, detalhes e aprovações técnicas.\n\nQS / Cost Management\n• PSA: alinhamento de scope, clarificações e value-engineering de design.\n• Consultor/cliente: estimativas, BoQ, relatórios de custo e recomendações comerciais.\n\nEmpreiteiro\n• PSA: respostas de design intent, revisão de amostras e shop drawings.\n• Empreiteiro: metodologia, execução, segurança, programa de obra e qualidade final."
+    : "MEP\n• PSA: coordinate layouts, ceilings, visible equipment and design-intent inputs.\n• Consultant/client: technical sizing, calculations, drawings and regulatory compliance.\n\nStructure\n• PSA: coordinate relevant clashes, openings and design constraints.\n• Consultant/client: structural verification, details and technical approvals.\n\nQS / Cost Management\n• PSA: align scope, clarifications and design-led value engineering.\n• Consultant/client: estimates, BoQ, cost reporting and commercial recommendations.\n\nContractor\n• PSA: design-intent responses, sample and shop-drawing review.\n• Contractor: methodology, execution, safety, site programme and final quality.";
 }

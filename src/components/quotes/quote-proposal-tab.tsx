@@ -1938,9 +1938,10 @@ function sanitizeProseForDisplay(text: string): string {
   // Remove standalone `{{var}}` tokens.
   out = out.replace(/\{\{\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\}\}/g, "");
   out = out
-    .replace(/\[\[(project_stage_fee_table|construction_stage_fee_table)\]\]/gi, "Fee schedule to be confirmed.")
+    .replace(/\[\[(project_stage_fee_table|construction_stage_fee_table)\]\]/gi, "Detailed fee schedule to be confirmed.")
     .replace(/\[\[payment_schedule_table\]\]/gi, "Payment schedule to be confirmed.")
-    .replace(/\[\[proposal_gantt\]\]/gi, "Programme to be confirmed.")
+    .replace(/\[\[proposal_gantt\]\]/gi, "Programme to be confirmed following validation of project stages.")
+    .replace(/\[\[[a-zA-Z_][a-zA-Z0-9_]*\]\]/g, "")
     .replace(/\{\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\}/g, "");
   // Remove whole lines that collapse to an empty location predicate, including
   // markdown-emphasised subjects stored in older generated documents.
@@ -1965,8 +1966,12 @@ function sanitizeProseForDisplay(text: string): string {
   out = out.replace(/\s+\bis\s*$/gim, "");
   out = out
     .replace(/prepared for\s*(?=[.,;:!?\n]|$)/gi, "prepared for the client")
+    .replace(/\bDear\s*(?=,)/gi, "Dear Client")
+    .replace(/^requires\s+/gim, "The client requires ")
     .replace(/large corporate workplace fit-out for,?/gi, "large corporate workplace fit-out to be developed under PSA’s integrated design and coordination model")
-    .replace(/\bprogramme runs for\s*working days\b/gi, "project programme will be confirmed following validation of the proposed stages")
+    .replace(/\bprogramme runs for\s*working days\s*across\s*briefing,\s*design,\s*tender\s*and\s*close-out\.?/gi, "programme will be confirmed following validation of the proposed stages.")
+    .replace(/\bprogramme runs for\s*working days\b/gi, "programme will be confirmed following validation of the proposed stages")
+    .replace(/\bTotal duration\s+working days\.?/gi, "Programme duration to be confirmed following phase validation.")
     .replace(/\bover\s+months\s+at\s+per month\b/gi, "as a monthly retainer aligned with the confirmed construction programme")
     .replace(/\(\s*hours\/month\s*\)/gi, "")
     .replace(/\bthe\s+-day programme\b/gi, "the confirmed programme")

@@ -103,6 +103,7 @@ function normalizeDeliveryMode(value: unknown): ProposalDeliveryMode {
 
 async function createWorkplaceAssemblyDocument(args: {
   quote: Record<string, unknown>;
+  clientName: string | null;
   language: string;
   stages: Array<Record<string, unknown>>;
   paymentSchedule: Array<Record<string, unknown>>;
@@ -126,7 +127,7 @@ async function createWorkplaceAssemblyDocument(args: {
         code: typeof args.quote.proposal_number === "string" ? args.quote.proposal_number : null,
         title: typeof args.quote.titulo === "string" ? args.quote.titulo : null,
         project_name: typeof args.quote.titulo === "string" ? args.quote.titulo : null,
-        client_name: null,
+        client_name: args.clientName,
         currency: "EUR",
         proposal_date:
           typeof args.quote.data_proposta === "string"
@@ -311,8 +312,13 @@ async function runGenerate(
     args.proposalKind === "psa_interior_fitout" ||
     (quote.ontology_family_code === "workplace" && args.proposalKind === "fixed_project");
   if (isWorkplaceAssemblyRequest) {
+    const contactName = contactRes.data
+      ? [contactRes.data.primeiro_nome, contactRes.data.apelido].filter(Boolean).join(" ").trim()
+      : "";
+    const clientName = contactName || companyRes.data?.nome || null;
     return createWorkplaceAssemblyDocument({
       quote: quote as Record<string, unknown>,
+      clientName,
       language,
       stages: (stagesRes.data ?? []) as Array<Record<string, unknown>>,
       paymentSchedule: (paymentRes.data ?? []) as Array<Record<string, unknown>>,

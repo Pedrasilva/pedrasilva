@@ -65,13 +65,14 @@ export const ATTACHMENT_TEMPLATES: AttachmentTemplate[] = [
     defaultEnabled: true,
     locked: "none",
     introEn:
-      "Programme overview for {project_name}. Total duration {overall_project_duration} " +
-      "working days. The Gantt below shows project stages, key milestones and the " +
-      "construction-assistance retainer window.\n\n{proposal_gantt}",
+      "Programme overview for {project_name}. The working programme will be validated with " +
+      "the client team before detailed mobilisation. Where dates or durations are not yet " +
+      "confirmed, this attachment provides a readable phase sequence rather than an empty " +
+      "Gantt placeholder.",
     introPt:
-      "Programa geral para {project_name}. Duração total: {overall_project_duration} dias " +
-      "úteis. O Gantt abaixo apresenta as fases de projecto, marcos principais e a janela do " +
-      "retainer de assistência à obra.\n\n{proposal_gantt}",
+      "Programa geral para {project_name}. O programa de trabalho será validado com a equipa " +
+      "do cliente antes da mobilização detalhada. Quando datas ou durações ainda não estejam " +
+      "confirmadas, este anexo apresenta uma sequência de fases legível em vez de um Gantt vazio.",
   },
   {
     id: "IV",
@@ -81,17 +82,15 @@ export const ATTACHMENT_TEMPLATES: AttachmentTemplate[] = [
     defaultEnabled: true,
     locked: "none",
     introEn:
-      "Detailed fees per phase and corresponding payment milestones. Project stages are " +
-      "billed as fixed fees on milestone sign-off; construction assistance is billed monthly " +
-      "as a retainer over {construction_duration} months at {construction_monthly_fee} per " +
-      "month.\n\n{project_stage_fee_table}\n\n{construction_stage_fee_table}\n\n" +
-      "{payment_schedule_table}",
+      "Detailed commercial schedules are confirmed once the stage scope, fee basis and " +
+      "payment milestones are validated. Project stages are intended to operate as fixed-fee " +
+      "milestones, while Construction Assistance, where included, is structured as a monthly " +
+      "retainer aligned with the construction programme.",
     introPt:
-      "Honorários detalhados por fase e respectivos marcos de pagamento. As fases de projecto " +
-      "são facturadas como honorários fixos contra aprovação de marco; a assistência à obra é " +
-      "facturada mensalmente como retainer durante {construction_duration} meses ao valor de " +
-      "{construction_monthly_fee} por mês.\n\n{project_stage_fee_table}\n\n" +
-      "{construction_stage_fee_table}\n\n{payment_schedule_table}",
+      "Os quadros comerciais detalhados são confirmados após validação do âmbito das fases, " +
+      "base de honorários e marcos de pagamento. As fases de projecto operam como marcos de " +
+      "honorários fixos, enquanto a Assistência à Obra, quando incluída, é estruturada como " +
+      "retainer mensal alinhado com o programa de obra.",
   },
   {
     id: "V",

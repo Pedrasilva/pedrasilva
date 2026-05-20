@@ -131,15 +131,13 @@ export const WORKPLACE_PHASE_TEMPLATES: Record<string, PhaseTemplate> = {
     titleEn: "Construction Assistance (Monthly Retainer)",
     titlePt: "Assistência à Obra (Retainer Mensal)",
     bodyEn:
-      "Construction assistance is delivered as a monthly retainer over " +
-      "{construction_duration} months at {construction_monthly_fee} per month " +
-      "({construction_monthly_hours} hours/month). Scope includes site visits, RFI responses, " +
+      "Construction assistance is delivered as a monthly retainer aligned with the confirmed " +
+      "construction programme. Scope includes site visits, RFI responses, " +
       "shop-drawing and sample review, snag management and design intent safeguarding. " +
       "It is a time-based operational service, not a fixed-deliverable package.",
     bodyPt:
-      "A assistência à obra é prestada como retainer mensal durante {construction_duration} " +
-      "meses ao valor de {construction_monthly_fee} por mês ({construction_monthly_hours} " +
-      "horas/mês). O âmbito inclui visitas a obra, resposta a RFIs, revisão de desenhos de " +
+      "A assistência à obra é prestada como retainer mensal alinhado com o programa de obra " +
+      "confirmado. O âmbito inclui visitas a obra, resposta a RFIs, revisão de desenhos de " +
       "fabrico e amostras, gestão de listas de remates e salvaguarda do design intent. " +
       "É um serviço operacional baseado em tempo, não um pacote de entregáveis fixos.",
   },
@@ -190,7 +188,7 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
     titleEn: "Cover Letter",
     titlePt: "Carta de Apresentação",
     bodyEn:
-      "Dear {client_name},\n\n" +
+      "Dear Client,\n\n" +
       "Thank you for the opportunity to propose on {project_name}. The following document " +
       "sets out our methodology, programme and commercial terms for the workplace fit-out, " +
       "delivered under our PSA-led model with end-to-end design and coordination responsibility.\n\n" +
@@ -214,32 +212,31 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
     titleEn: "Executive Summary",
     titlePt: "Sumário Executivo",
     bodyEn:
-      "{project_name} is a large corporate workplace fit-out for {client_name}, delivered " +
-      "under PSA's integrated design and coordination model. The overall programme runs for " +
-      "{overall_project_duration} working days across briefing, design, tender and close-out.\n\n" +
-      "Construction is supported through a monthly retainer over {construction_duration} months " +
-      "at {construction_monthly_fee} per month ({construction_monthly_hours} hours/month), " +
+      "{project_name} is a workplace fit-out delivered under PSA's integrated design and " +
+      "coordination model. Programme duration will be confirmed following phase validation " +
+      "across briefing, design, tender and close-out.\n\n" +
+      "Construction Assistance, where included, is structured as a monthly retainer aligned " +
+      "with the confirmed construction programme, " +
       "ensuring design intent and coordination continuity from site mobilisation to handover.",
     bodyPt:
-      "{project_name} é um fit-out de escritórios corporativos de grande dimensão para " +
-      "{client_name}, entregue ao abrigo do modelo integrado de projecto e coordenação da PSA. " +
-      "O programa global decorre durante {overall_project_duration} dias úteis, cobrindo " +
-      "briefing, projecto, concurso e encerramento.\n\n" +
-      "A obra é acompanhada por retainer mensal durante {construction_duration} meses ao valor " +
-      "de {construction_monthly_fee} por mês ({construction_monthly_hours} horas/mês), " +
+      "{project_name} é um fit-out de workplace entregue ao abrigo do modelo integrado de " +
+      "projecto e coordenação da PSA. A duração do programa será confirmada após validação " +
+      "das fases, cobrindo briefing, projecto, concurso e encerramento.\n\n" +
+      "A Assistência à Obra, quando incluída, é estruturada como retainer mensal alinhado " +
+      "com o programa de obra confirmado, " +
       "garantindo continuidade de design intent e coordenação desde a mobilização até à recepção.",
   },
   project_understanding: {
     titleEn: "Project Understanding",
     titlePt: "Compreensão do Projecto",
     bodyEn:
-      "{client_name} requires a workplace that supports focused work, collaboration and brand " +
+      "The client requires a workplace that supports focused work, collaboration and brand " +
       "presence, with the operational rigour expected of a large corporate occupier. We read " +
       "the project as a coordination exercise as much as a design one: spatial planning, " +
       "building services alignment, FF&E procurement and tenant-fit interface with the " +
       "base-building all need to land on the same date.",
     bodyPt:
-      "{client_name} pretende um workplace que suporte trabalho focado, colaboração e presença " +
+      "O cliente pretende um workplace que suporte trabalho focado, colaboração e presença " +
       "de marca, com o rigor operacional esperado de um grande ocupante corporativo. Lemos o " +
       "projecto tanto como um exercício de coordenação como de desenho: planeamento espacial, " +
       "alinhamento de especialidades, procurement de FF&E e interface tenant-fit com a " +
@@ -253,14 +250,14 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
       "work in short iterative cycles with the client team, decisions are validated against " +
       "budget, programme and operational drivers, and each milestone is signed off before the " +
       "next phase opens. Coordination with consultants, landlord and contractor is embedded " +
-      "throughout the {overall_project_duration}-day programme rather than reserved to a " +
+      "throughout the confirmed programme rather than reserved to a " +
       "single technical phase.",
     bodyPt:
       "A nossa abordagem para {project_name} equilibra rigor funcional com contenção material. " +
       "Trabalhamos em ciclos curtos e iterativos com a equipa do cliente, validamos decisões " +
       "contra orçamento, programa e drivers operacionais, e cada marco é aprovado antes da " +
       "abertura da fase seguinte. A coordenação com consultores, senhorio e empreiteiro está " +
-      "embebida ao longo dos {overall_project_duration} dias do programa, não reservada a uma " +
+      "embebida ao longo do programa confirmado, não reservada a uma " +
       "única fase técnica.",
   },
   scope_overview: {
@@ -297,11 +294,15 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
     bodyEn:
       "The fee summary below sets out the fixed-fee project stages and the construction-" +
       "assistance retainer. Detailed breakdown and payment milestones are in Attachment IV.\n\n" +
-      "{project_stage_fee_table}\n\n{construction_stage_fee_table}",
+      "{project_stage_fee_table}\n\n" +
+      "Construction Assistance, where included, is structured as a monthly retainer aligned " +
+      "with the confirmed construction programme.",
     bodyPt:
       "O quadro abaixo apresenta os honorários por fase de projecto (preço fixo) e o retainer " +
       "de assistência à obra. O detalhe completo e os marcos de pagamento constam do Anexo IV.\n\n" +
-      "{project_stage_fee_table}\n\n{construction_stage_fee_table}",
+      "{project_stage_fee_table}\n\n" +
+      "A Assistência à Obra, quando incluída, é estruturada como retainer mensal alinhado " +
+      "com o programa de obra confirmado.",
   },
   signature: {
     titleEn: "Signature",
@@ -334,7 +335,7 @@ const WORKPLACE_LARGE_CONSULTANT_LED: SectionTemplateMap = withDeliveryModeOverr
       titleEn: "Cover Letter",
       titlePt: "Carta de Apresentação",
       bodyEn:
-        "Dear {client_name},\n\n" +
+        "Dear Client,\n\n" +
         "Thank you for the opportunity to support {project_name}. Under this engagement PSA " +
         "operates in an oversight and design-authority role, with a local lead consultant " +
         "carrying day-to-day delivery on the ground. Our scope safeguards design intent, " +
@@ -357,19 +358,15 @@ const WORKPLACE_LARGE_CONSULTANT_LED: SectionTemplateMap = withDeliveryModeOverr
       titleEn: "Executive Summary",
       titlePt: "Sumário Executivo",
       bodyEn:
-        "{project_name} is a workplace fit-out for {client_name} delivered under a PSA-oversight " +
-        "model with a local lead consultant. Overall programme: {overall_project_duration} " +
-        "working days.\n\n" +
-        "Construction assistance is a {construction_duration}-month oversight retainer at " +
-        "{construction_monthly_fee} per month ({construction_monthly_hours} hours/month), " +
+        "{project_name} is a workplace fit-out delivered under a PSA-oversight model with a " +
+        "local lead consultant. Programme duration will be confirmed following phase validation.\n\n" +
+        "Construction assistance, where included, is structured as a monthly oversight retainer, " +
         "covering design-intent reviews, sample approvals and milestone site visits. Routine " +
         "site supervision is carried by the local consultant.",
       bodyPt:
         "{project_name} é um fit-out para {client_name}, entregue ao abrigo de um modelo de " +
-        "supervisão PSA com consultor local. Programa global: {overall_project_duration} dias " +
-        "úteis.\n\n" +
-        "A assistência à obra é um retainer de supervisão de {construction_duration} meses ao " +
-        "valor de {construction_monthly_fee} por mês ({construction_monthly_hours} horas/mês), " +
+        "supervisão PSA com consultor local. A duração do programa será confirmada após validação das fases.\n\n" +
+        "A assistência à obra, quando incluída, é estruturada como retainer mensal de supervisão, " +
         "cobrindo revisões de design intent, aprovações de amostras e visitas a obra em marcos. " +
         "A fiscalização de rotina é assegurada pelo consultor local.",
     },
@@ -383,7 +380,7 @@ const WORKPLACE_LARGE_DESIGN_BUILD: SectionTemplateMap = withDeliveryModeOverrid
       titleEn: "Cover Letter",
       titlePt: "Carta de Apresentação",
       bodyEn:
-        "Dear {client_name},\n\n" +
+        "Dear Client,\n\n" +
         "Thank you for the opportunity to propose on {project_name}. Under this design-build " +
         "engagement PSA carries the design responsibility while delivery is contracted through " +
         "a single-point design-build partner. Our role focuses on design authorship, technical " +

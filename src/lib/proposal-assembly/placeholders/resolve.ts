@@ -35,63 +35,50 @@ function stageLabel(s: AssemblyData["stages"][number]): string {
 }
 
 function renderProjectStageFeeTable(data: AssemblyData, currency: string): string {
-  const rows = data.stages.filter((s) => s.fee != null && Number.isFinite(Number(s.fee)));
-  if (rows.length === 0) return "Fee schedule to be confirmed.";
-  return [
-    "Phase | Fee",
-    "--- | ---",
-    ...rows.map((s) => `${stageLabel(s)} | ${fmtMoney(Number(s.fee), currency)}`),
-  ].join("\n");
+  const rows = data.stages.filter((s) => s.fee != null && Number.isFinite(Number(s.fee)) && Number(s.fee) > 0);
+  if (rows.length === 0) return "Detailed fee schedule to be confirmed.";
+  return rows.map((s) => `• ${stageLabel(s)}: ${fmtMoney(Number(s.fee), currency)}`).join("\n");
 }
 
 function renderConstructionFeeTable(data: AssemblyData, currency: string): string {
   const months = data.feeBreakdown?.constructionDurationMonths;
   const monthlyFee = data.feeBreakdown?.constructionMonthlyFee;
   const monthlyHours = data.feeBreakdown?.constructionMonthlyHours;
-  if (months == null && monthlyFee == null && monthlyHours == null) {
+  if (months == null || monthlyFee == null || monthlyHours == null) {
     return "Construction Assistance, where included, will be structured as a monthly retainer aligned with the confirmed construction programme.";
   }
-  const rows = [
-    months != null ? `Duration | ${fmtNumber(months)} months` : null,
-    monthlyFee != null ? `Monthly fee | ${fmtMoney(monthlyFee, currency)}` : null,
-    monthlyHours != null ? `Monthly allowance | ${fmtNumber(monthlyHours)} hours/month` : null,
-  ].filter(Boolean);
-  return ["Construction Assistance Retainer", "Item | Value", "--- | ---", ...rows].join("\n");
+  return `Construction Assistance Retainer: ${fmtNumber(months)} months at ${fmtMoney(monthlyFee, currency)} per month, with an allowance of ${fmtNumber(monthlyHours)} hours/month.`;
 }
 
 function renderPaymentSchedule(data: AssemblyData, currency: string): string {
-  if (data.paymentSchedule.length === 0) return "Payment schedule to be confirmed.";
-  return [
-    "Milestone | Trigger | Amount",
-    "--- | --- | ---",
-    ...data.paymentSchedule.map((p) => `${p.label || "Milestone"} | ${p.trigger || "To be confirmed"} | ${fmtMoney(p.amount, currency)}`),
-  ].join("\n");
+  const rows = data.paymentSchedule.filter((p) => Number.isFinite(Number(p.amount)) && Number(p.amount) > 0);
+  if (rows.length === 0) return "Payment schedule to be confirmed.";
+  return rows.map((p) => `• ${p.label || "Milestone"}: ${p.trigger || "To be confirmed"} — ${fmtMoney(p.amount, currency)}`).join("\n");
 }
 
 function renderProgramme(data: AssemblyData): string {
   const rows = data.stages.filter((s) => s.start_date || s.end_date || s.duration_days);
-  if (rows.length === 0) return "Programme to be confirmed.";
-  return [
-    "Phase | Start | End | Duration",
-    "--- | --- | --- | ---",
-    ...rows.map((s) => {
-      const duration = s.duration_days != null ? `${fmtNumber(s.duration_days)} working days` : "To be confirmed";
-      return `${stageLabel(s)} | ${s.start_date ?? "To be confirmed"} | ${s.end_date ?? "To be confirmed"} | ${duration}`;
-    }),
-  ].join("\n");
+  if (rows.length === 0) return "Programme to be confirmed following validation of project stages.";
+  return rows.map((s) => {
+    const duration = s.duration_days != null ? `${fmtNumber(s.duration_days)} working days` : "duration to be confirmed";
+    const dates = [s.start_date, s.end_date].filter(Boolean).join(" → ") || "dates to be confirmed";
+    return `• ${stageLabel(s)}: ${dates}; ${duration}.`;
+  }).join("\n");
 }
 
-export function buildPlaceholderMap(data: AssemblyData): Record<string, string> {
+export function buildPlaceholderMap(data: AssemblyData, language: string = "en"): Record<string, string> {
   const currency = data.quote.currency ?? "EUR";
+  const clientFallback = language === "pt-PT" ? "o cliente" : "the client";
+  const projectFallback = language === "pt-PT" ? "o projecto" : "the project";
   const overallDuration = data.stages.reduce(
     (acc, s) => acc + (s.duration_days ?? 0),
     0,
   );
 
   const map: Record<string, string> = {
-    project_name: data.quote.project_name ?? data.quote.title ?? "",
+    project_name: data.quote.project_name ?? data.quote.title ?? projectFallback,
     project_code: data.quote.code ?? "",
-    client_name: data.quote.client_name ?? "",
+    client_name: data.quote.client_name ?? clientFallback,
     proposal_date: data.quote.proposal_date ?? new Date().toISOString().slice(0, 10),
     proposal_version: data.quote.proposal_version ?? "v1",
     currency,
@@ -133,7 +120,7 @@ export function resolvePlaceholders(text: string, map: Record<string, string>): 
       return "";
     }
     unresolved.add(key);
-    return full;
+    return "";
   });
   output = output.replace(RAW_COMPONENT_TOKEN_RE, (full, key: string) => {
     if (Object.prototype.hasOwnProperty.call(map, key)) {
@@ -146,11 +133,17 @@ export function resolvePlaceholders(text: string, map: Record<string, string>): 
   // Tidy up artefacts created by collapsed empty placeholders.
   output = output
     .replace(/prepared for\s*(?=[.,;:!?\n]|$)/gi, "prepared for the client")
+    .replace(/\bDear\s*(?=,)/gi, "Dear Client")
+    .replace(/^requires\s+/gim, "The client requires ")
+    .replace(/\bTotal duration\s+working days\.?/gi, "Programme duration to be confirmed following phase validation.")
+    .replace(/\bDuração total:\s+dias\s+úteis\.?/gi, "Duração do programa a confirmar após validação das fases.")
     .replace(/for,\s*/gi, "")
     .replace(/for\s+[.,;:!?]/gi, "")
+    .replace(/\bThe overall programme runs for\s*working days\s*across\s*briefing,\s*design,\s*tender\s*and\s*close-out\.?/gi, "The project programme will be confirmed following validation of the proposed stages.")
     .replace(/\bThe overall programme runs for\s*working days\.?/gi, "The project programme will be confirmed following validation of the proposed stages.")
-    .replace(/\bOverall programme:\s*working days\.?/gi, "Programme to be confirmed.")
+    .replace(/\bOverall programme:\s*working days\.?/gi, "Programme duration to be confirmed following phase validation.")
     .replace(/\bthroughout the\s*-day programme\b/gi, "throughout the confirmed programme")
+    .replace(/\bthroughout the\s+day programme\b/gi, "throughout the confirmed programme")
     .replace(/\bembedded\s+throughout\s+the\s+-day\s+programme\b/gi, "embedded throughout the confirmed programme")
     .replace(/\bConstruction is supported through a monthly retainer over\s*months\s*at\s*per month\s*\(\s*hours\/month\s*\),?/gi, "Construction Assistance, where included, will be structured as a monthly retainer aligned with the confirmed construction programme,")
     .replace(/\bConstruction assistance is delivered as a monthly retainer over\s*months\s*at\s*per month\s*\(\s*hours\/month\s*\)\.?/gi, "Construction Assistance, where included, will be structured as a monthly retainer aligned with the confirmed construction programme.")
@@ -173,10 +166,10 @@ export function resolvePlaceholders(text: string, map: Record<string, string>): 
 }
 
 function componentFallback(key: string): string {
-  if (key === "proposal_gantt") return "Programme to be confirmed.";
+  if (key === "proposal_gantt") return "Programme to be confirmed following validation of project stages.";
   if (key === "payment_schedule_table") return "Payment schedule to be confirmed.";
   if (key === "project_stage_fee_table" || key === "construction_stage_fee_table") {
-    return "Fee schedule to be confirmed.";
+    return "Detailed fee schedule to be confirmed.";
   }
   return "";
 }
