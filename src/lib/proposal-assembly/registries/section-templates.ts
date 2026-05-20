@@ -335,7 +335,7 @@ const WORKPLACE_LARGE_CONSULTANT_LED: SectionTemplateMap = withDeliveryModeOverr
       titleEn: "Cover Letter",
       titlePt: "Carta de Apresentação",
       bodyEn:
-        "Dear {client_name},\n\n" +
+        "Dear Client,\n\n" +
         "Thank you for the opportunity to support {project_name}. Under this engagement PSA " +
         "operates in an oversight and design-authority role, with a local lead consultant " +
         "carrying day-to-day delivery on the ground. Our scope safeguards design intent, " +
@@ -365,10 +365,8 @@ const WORKPLACE_LARGE_CONSULTANT_LED: SectionTemplateMap = withDeliveryModeOverr
         "site supervision is carried by the local consultant.",
       bodyPt:
         "{project_name} é um fit-out para {client_name}, entregue ao abrigo de um modelo de " +
-        "supervisão PSA com consultor local. Programa global: {overall_project_duration} dias " +
-        "úteis.\n\n" +
-        "A assistência à obra é um retainer de supervisão de {construction_duration} meses ao " +
-        "valor de {construction_monthly_fee} por mês ({construction_monthly_hours} horas/mês), " +
+        "supervisão PSA com consultor local. A duração do programa será confirmada após validação das fases.\n\n" +
+        "A assistência à obra, quando incluída, é estruturada como retainer mensal de supervisão, " +
         "cobrindo revisões de design intent, aprovações de amostras e visitas a obra em marcos. " +
         "A fiscalização de rotina é assegurada pelo consultor local.",
     },
@@ -382,7 +380,7 @@ const WORKPLACE_LARGE_DESIGN_BUILD: SectionTemplateMap = withDeliveryModeOverrid
       titleEn: "Cover Letter",
       titlePt: "Carta de Apresentação",
       bodyEn:
-        "Dear {client_name},\n\n" +
+        "Dear Client,\n\n" +
         "Thank you for the opportunity to propose on {project_name}. Under this design-build " +
         "engagement PSA carries the design responsibility while delivery is contracted through " +
         "a single-point design-build partner. Our role focuses on design authorship, technical " +
