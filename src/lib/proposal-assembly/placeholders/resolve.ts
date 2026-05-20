@@ -14,6 +14,7 @@ export interface ResolveResult {
 }
 
 const TOKEN_RE = /\{([a-z_0-9]+)\}/g;
+const RAW_COMPONENT_TOKEN_RE = /\[\[([a-z_0-9]+)\]\]/g;
 
 function fmtNumber(n: number | null | undefined, fallback = ""): string {
   if (n == null || !Number.isFinite(n)) return fallback;
@@ -27,6 +28,57 @@ function fmtMoney(n: number | null | undefined, currency = "EUR"): string {
     currency,
     maximumFractionDigits: 2,
   }).format(n);
+}
+
+function stageLabel(s: AssemblyData["stages"][number]): string {
+  return [s.code, s.name].filter(Boolean).join(" — ");
+}
+
+function renderProjectStageFeeTable(data: AssemblyData, currency: string): string {
+  const rows = data.stages.filter((s) => s.fee != null && Number.isFinite(Number(s.fee)));
+  if (rows.length === 0) return "Fee schedule to be confirmed.";
+  return [
+    "Phase | Fee",
+    "--- | ---",
+    ...rows.map((s) => `${stageLabel(s)} | ${fmtMoney(Number(s.fee), currency)}`),
+  ].join("\n");
+}
+
+function renderConstructionFeeTable(data: AssemblyData, currency: string): string {
+  const months = data.feeBreakdown?.constructionDurationMonths;
+  const monthlyFee = data.feeBreakdown?.constructionMonthlyFee;
+  const monthlyHours = data.feeBreakdown?.constructionMonthlyHours;
+  if (months == null && monthlyFee == null && monthlyHours == null) {
+    return "Construction Assistance, where included, will be structured as a monthly retainer aligned with the confirmed construction programme.";
+  }
+  const rows = [
+    months != null ? `Duration | ${fmtNumber(months)} months` : null,
+    monthlyFee != null ? `Monthly fee | ${fmtMoney(monthlyFee, currency)}` : null,
+    monthlyHours != null ? `Monthly allowance | ${fmtNumber(monthlyHours)} hours/month` : null,
+  ].filter(Boolean);
+  return ["Construction Assistance Retainer", "Item | Value", "--- | ---", ...rows].join("\n");
+}
+
+function renderPaymentSchedule(data: AssemblyData, currency: string): string {
+  if (data.paymentSchedule.length === 0) return "Payment schedule to be confirmed.";
+  return [
+    "Milestone | Trigger | Amount",
+    "--- | --- | ---",
+    ...data.paymentSchedule.map((p) => `${p.label || "Milestone"} | ${p.trigger || "To be confirmed"} | ${fmtMoney(p.amount, currency)}`),
+  ].join("\n");
+}
+
+function renderProgramme(data: AssemblyData): string {
+  const rows = data.stages.filter((s) => s.start_date || s.end_date || s.duration_days);
+  if (rows.length === 0) return "Programme to be confirmed.";
+  return [
+    "Phase | Start | End | Duration",
+    "--- | --- | --- | ---",
+    ...rows.map((s) => {
+      const duration = s.duration_days != null ? `${fmtNumber(s.duration_days)} working days` : "To be confirmed";
+      return `${stageLabel(s)} | ${s.start_date ?? "To be confirmed"} | ${s.end_date ?? "To be confirmed"} | ${duration}`;
+    }),
+  ].join("\n");
 }
 
 export function buildPlaceholderMap(data: AssemblyData): Record<string, string> {
@@ -48,10 +100,10 @@ export function buildPlaceholderMap(data: AssemblyData): Record<string, string> 
     construction_duration: fmtNumber(data.feeBreakdown?.constructionDurationMonths),
     construction_monthly_fee: fmtMoney(data.feeBreakdown?.constructionMonthlyFee, currency),
     construction_monthly_hours: fmtNumber(data.feeBreakdown?.constructionMonthlyHours),
-    project_stage_fee_table: "[[project_stage_fee_table]]",
-    construction_stage_fee_table: "[[construction_stage_fee_table]]",
-    payment_schedule_table: "[[payment_schedule_table]]",
-    proposal_gantt: "[[proposal_gantt]]",
+    project_stage_fee_table: renderProjectStageFeeTable(data, currency),
+    construction_stage_fee_table: renderConstructionFeeTable(data, currency),
+    payment_schedule_table: renderPaymentSchedule(data, currency),
+    proposal_gantt: renderProgramme(data),
     exclusions_list: (data.exclusions ?? []).map((e) => `• ${e}`).join("\n"),
   };
 
