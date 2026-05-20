@@ -51,3 +51,14 @@ export type {
 
 export { useResolvedProposal } from "./hooks/use-resolved-proposal";
 export type { UseResolvedProposalArgs } from "./hooks/use-resolved-proposal";
+
+// Staffing resolvers (proposal role abstraction — unwired infrastructure).
+export {
+  resolvePhaseDuration,
+  resolvePhaseEstimatedHours,
+  resolvePhaseStaffingMix,
+} from "./resolvers/staffing";
+export type {
+  PhaseDuration,
+  StaffingResolverContext,
+} from "./resolvers/staffing";
