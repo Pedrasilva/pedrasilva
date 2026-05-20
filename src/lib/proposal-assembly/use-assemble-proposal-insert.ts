@@ -2,10 +2,10 @@
  * Inserts an `AssembledProposal` into an existing proposal document by
  * writing one `quote_proposal_document_blocks` row per `ProposalBlockSeed`.
  *
- * - Replaces prior assembly rows for the same document so repeated assembly
- *   stays deterministic instead of stacking duplicate containers.
- * - Appends fresh assembly rows after the existing rows (does not delete
- *   legacy rows).
+ * - Inserts fresh assembly rows before any cleanup so a failed cleanup cannot
+ *   leave the active document without ontology containers.
+ * - Removes prior assembly rows for the same document after the new rows are
+ *   safely committed, so repeated assembly stays deterministic.
  * - Marks any pre-existing NON-assembly blocks as `is_included = false`
  *   so the assembled containers become the actual source of truth for
  *   export/print rendering. Rows are preserved (not deleted) so the user
@@ -37,8 +37,8 @@ export function useAssembleProposalInsert(documentId: string | undefined) {
         throw new Error("Assembly planner returned no containers");
       }
 
-      // Read remaining blocks so we can (a) compute next sort_order and
-      // (b) suppress legacy non-assembly rows.
+      // Read current blocks so we can compute next sort_order and identify
+      // cleanup targets. Cleanup happens after insert, never before.
       const { data: existing, error: readErr } = await supabase
         .from("quote_proposal_document_blocks")
         .select("id, sort_order, assembly_section_id, is_included")
@@ -53,6 +53,9 @@ export function useAssembleProposalInsert(documentId: string | undefined) {
       // generator (Standard Introduction, Generic Project Description, …).
       const legacyIds = (existing ?? [])
         .filter((r) => r.assembly_section_id == null && r.is_included !== false)
+        .map((r) => r.id);
+      const priorAssemblyIds = (existing ?? [])
+        .filter((r) => r.assembly_section_id != null)
         .map((r) => r.id);
 
       const rows: Array<Record<string, unknown>> = [];
@@ -83,18 +86,44 @@ export function useAssembleProposalInsert(documentId: string | undefined) {
         }
       }
 
-      if (rows.length === 0) return { inserted: 0, suppressed };
+      if (rows.length === 0) {
+        throw new Error("Assembly planner returned no insertable blocks");
+      }
 
-      const { error } = await supabase
+      const { data: insertedRows, error } = await supabase
         .from("quote_proposal_document_blocks")
-        .insert(rows as never);
+        .insert(rows as never)
+        .select("id, proposal_document_id, assembly_section_id");
       if (error) throw error;
-      return { inserted: rows.length, suppressed };
+      if (!insertedRows || insertedRows.length === 0) {
+        throw new Error("Assembly insert returned no rows");
+      }
+
+      if (priorAssemblyIds.length > 0) {
+        const { error: deleteAssemblyErr } = await supabase
+          .from("quote_proposal_document_blocks")
+          .delete()
+          .in("id", priorAssemblyIds);
+        if (deleteAssemblyErr) throw deleteAssemblyErr;
+      }
+
+      let suppressed = 0;
+      if (legacyIds.length > 0) {
+        const { error: suppressErr } = await supabase
+          .from("quote_proposal_document_blocks")
+          .update({ is_included: false })
+          .in("id", legacyIds);
+        if (suppressErr) throw suppressErr;
+        suppressed = legacyIds.length;
+      }
+
+      return { inserted: insertedRows.length, suppressed, documentId: targetDocumentId };
     },
-    onSuccess: () => {
-      if (documentId) {
+    onSuccess: (_data, vars) => {
+      const targetDocumentId = vars.documentId ?? documentId;
+      if (targetDocumentId) {
         qc.invalidateQueries({
-          queryKey: ["quote-proposal-document-blocks", documentId],
+          queryKey: ["quote-proposal-document-blocks", targetDocumentId],
         });
       }
       qc.invalidateQueries({
