@@ -290,8 +290,8 @@
   },
   "quoteType": {
     "standard_project": {
-      "label": "Proposta de Projeto Standard",
-      "hint": "Fases, Gantt, recursos, serviços externos e proposta gerada. Para projetos de honorários fixos ou por fases."
+      "label": "Proposta de Projeto",
+      "hint": "Fases, Gantt, recursos, serviços externos e pacote de proposta workplace. Para projetos de honorários fixos ou por fases."
     },
     "construction_retainer": {
       "label": "Retainer de Obra",
