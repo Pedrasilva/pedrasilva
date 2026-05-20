@@ -299,25 +299,48 @@ function addAttachmentPayloads(
 
 function renderProgrammeRows(phases: AssemblyInput["data"]["stages"], lang: AssemblyInput["language"]): string {
   const rows = phases.filter((s) => s.start_date || s.end_date || s.duration_days);
-  if (rows.length === 0) return lang === "pt-PT" ? "Programa a confirmar." : "Programme to be confirmed.";
-  return [
-    lang === "pt-PT" ? "Fase | Início | Fim | Duração" : "Phase | Start | End | Duration",
-    "--- | --- | --- | ---",
-    ...rows.map((s) => `${s.code} — ${s.name} | ${s.start_date ?? "TBC"} | ${s.end_date ?? "TBC"} | ${s.duration_days != null ? `${s.duration_days} working days` : "TBC"}`),
-  ].join("\n");
+  if (rows.length === 0) {
+    const fallback = phases.length > 0 ? phases : WORKPLACE_CANONICAL_PHASES;
+    return [
+      lang === "pt-PT"
+        ? "Programa a confirmar após validação das fases do projecto. Sequência base proposta:"
+        : "Programme to be confirmed following validation of project stages. Proposed baseline sequence:",
+      ...fallback.map((s) => `• ${s.name}`),
+    ].join("\n");
+  }
+  return rows
+    .map((s) => {
+      const dates = [s.start_date, s.end_date].filter(Boolean).join(" → ") || (lang === "pt-PT" ? "datas a confirmar" : "dates to be confirmed");
+      const duration = s.duration_days != null ? `${s.duration_days} ${lang === "pt-PT" ? "dias úteis" : "working days"}` : (lang === "pt-PT" ? "duração a confirmar" : "duration to be confirmed");
+      return `• ${s.name}: ${dates}; ${duration}.`;
+    })
+    .join("\n");
 }
 
 function renderDeliverablesMatrix(phases: AssemblyInput["data"]["stages"], lang: AssemblyInput["language"]): string {
   const rows = phases.length > 0 ? phases : WORKPLACE_CANONICAL_PHASES;
-  const en = ["Phase | Key tasks | Deliverables | Responsibility", "--- | --- | --- | ---"];
-  const pt = ["Fase | Tarefas-chave | Entregáveis | Responsabilidade", "--- | --- | --- | ---"];
-  const out = lang === "pt-PT" ? pt : en;
-  for (const s of rows) {
-    out.push(lang === "pt-PT"
-      ? `${s.code} — ${s.name} | Briefing, desenho, coordenação e revisão conforme fase | Pacote de desenhos, notas de coordenação, registo de decisões e entregáveis de fase | PSA lidera; cliente aprova; consultores/empreiteiro contribuem quando aplicável`
-      : `${s.code} — ${s.name} | Briefing, design, coordination and review appropriate to the phase | Drawing package, coordination notes, decision register and phase deliverables | PSA leads; client approves; consultants/contractor contribute where applicable`);
-  }
-  return out.join("\n");
+  return rows.map((s) => lang === "pt-PT"
+    ? `${s.name}\n• Tarefas-chave: briefing, desenho, coordenação e revisão adequados à fase.\n• Entregáveis: pacote de desenhos, notas de coordenação, registo de decisões e entregáveis da fase.\n• Responsabilidade: PSA lidera; cliente aprova; consultores/empreiteiro contribuem quando aplicável.`
+    : `${s.name}\n• Key tasks: briefing, design, coordination and review appropriate to the phase.\n• Deliverables: drawing package, coordination notes, decision register and phase deliverables.\n• Responsibility: PSA leads; client approves; consultants/contractor contribute where applicable.`)
+    .join("\n\n");
+}
+
+function renderFeeScheduleRows(phases: AssemblyInput["data"]["stages"], currency: string | null | undefined, lang: AssemblyInput["language"]): string {
+  const feeRows = phases.filter((s) => s.fee != null && Number.isFinite(Number(s.fee)) && Number(s.fee) > 0);
+  if (feeRows.length === 0) return lang === "pt-PT" ? "Quadro detalhado de honorários a confirmar." : "Detailed fee schedule to be confirmed.";
+  return feeRows.map((s) => {
+    const formatted = new Intl.NumberFormat("en-GB", { style: "currency", currency: currency ?? "EUR", maximumFractionDigits: 2 }).format(Number(s.fee));
+    return `• ${s.name}: ${formatted}`;
+  }).join("\n");
+}
+
+function renderPaymentScheduleRows(rows: AssemblyInput["data"]["paymentSchedule"], currency: string | null | undefined, lang: AssemblyInput["language"]): string {
+  const validRows = rows.filter((p) => Number.isFinite(Number(p.amount)) && Number(p.amount) > 0);
+  if (validRows.length === 0) return lang === "pt-PT" ? "Calendário de pagamentos a confirmar." : "Payment schedule to be confirmed.";
+  return validRows.map((p) => {
+    const formatted = new Intl.NumberFormat("en-GB", { style: "currency", currency: currency ?? "EUR", maximumFractionDigits: 2 }).format(Number(p.amount));
+    return `• ${p.label || (lang === "pt-PT" ? "Marco" : "Milestone")}: ${p.trigger || (lang === "pt-PT" ? "a confirmar" : "to be confirmed")} — ${formatted}`;
+  }).join("\n");
 }
 
 function renderOptionalServices(addOns: string[], lang: AssemblyInput["language"]): string {
