@@ -1118,5 +1118,30 @@
       "loaded": "{{pct}}% carregado",
       "score": "Pontuação {{score}}"
     }
+  },
+  "proposalAssembly": {
+    "title": "Montar proposta",
+    "subtitle": "Gerar uma proposta editável estruturada a partir do template Workplace.",
+    "open": "Montar…",
+    "family": "Família",
+    "preset": "Preset",
+    "deliveryMode": "Modelo de entrega",
+    "language": "Idioma",
+    "appendices": "Anexos",
+    "flags": "Opções",
+    "flag.showHours": "Mostrar horas",
+    "flag.showDurations": "Mostrar durações",
+    "flag.showConsultantTrack": "Mostrar consultores",
+    "appendix.I": "I — Condições Gerais",
+    "appendix.II": "II — Âmbito e Entregáveis",
+    "appendix.III": "III — Programa",
+    "appendix.IV": "IV — Honorários e Pagamentos",
+    "appendix.V": "V — Serviços Opcionais",
+    "appendix.VI": "VI — Interfaces com Consultores",
+    "insert": "Inserir na proposta",
+    "inserted": "Inseridos {{count}} blocos",
+    "unresolved": "{{count}} marcador(es) não resolvido(s): {{list}}",
+    "warning.existingBlocks": "Este documento já tem blocos. As novas secções serão acrescentadas no fim.",
+    "presetLocked": "Apenas Workplace / Large Corporate Fitout / PSA-led está disponível nesta versão."
   }
 }
