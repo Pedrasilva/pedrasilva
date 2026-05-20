@@ -2402,7 +2402,7 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
             <ProposalAssemblyPanel
               quoteId={quoteId}
               documentId={document?.id}
-              quoteCode={props.code ?? null}
+              quoteCode={null}
               quoteTitle={props.title ?? null}
               clientName={clientName}
               hasExistingBlocks={(blocks?.length ?? 0) > 0}
