@@ -131,15 +131,13 @@ export const WORKPLACE_PHASE_TEMPLATES: Record<string, PhaseTemplate> = {
     titleEn: "Construction Assistance (Monthly Retainer)",
     titlePt: "Assistência à Obra (Retainer Mensal)",
     bodyEn:
-      "Construction assistance is delivered as a monthly retainer over " +
-      "{construction_duration} months at {construction_monthly_fee} per month " +
-      "({construction_monthly_hours} hours/month). Scope includes site visits, RFI responses, " +
+      "Construction assistance is delivered as a monthly retainer aligned with the confirmed " +
+      "construction programme. Scope includes site visits, RFI responses, " +
       "shop-drawing and sample review, snag management and design intent safeguarding. " +
       "It is a time-based operational service, not a fixed-deliverable package.",
     bodyPt:
-      "A assistência à obra é prestada como retainer mensal durante {construction_duration} " +
-      "meses ao valor de {construction_monthly_fee} por mês ({construction_monthly_hours} " +
-      "horas/mês). O âmbito inclui visitas a obra, resposta a RFIs, revisão de desenhos de " +
+      "A assistência à obra é prestada como retainer mensal alinhado com o programa de obra " +
+      "confirmado. O âmbito inclui visitas a obra, resposta a RFIs, revisão de desenhos de " +
       "fabrico e amostras, gestão de listas de remates e salvaguarda do design intent. " +
       "É um serviço operacional baseado em tempo, não um pacote de entregáveis fixos.",
   },
