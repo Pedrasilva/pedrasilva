@@ -6029,6 +6029,9 @@ export type Database = {
       }
       quote_proposal_document_blocks: {
         Row: {
+          assembly_locked: string | null
+          assembly_provenance: Json | null
+          assembly_section_id: string | null
           block_title: string
           block_type: Database["public"]["Enums"]["proposal_block_type"]
           content: string
@@ -6043,6 +6046,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          assembly_locked?: string | null
+          assembly_provenance?: Json | null
+          assembly_section_id?: string | null
           block_title: string
           block_type?: Database["public"]["Enums"]["proposal_block_type"]
           content?: string
@@ -6057,6 +6063,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          assembly_locked?: string | null
+          assembly_provenance?: Json | null
+          assembly_section_id?: string | null
           block_title?: string
           block_type?: Database["public"]["Enums"]["proposal_block_type"]
           content?: string
