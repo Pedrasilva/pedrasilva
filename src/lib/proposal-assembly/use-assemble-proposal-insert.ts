@@ -2,7 +2,15 @@
  * Inserts an `AssembledProposal` into an existing proposal document by
  * writing one `quote_proposal_document_blocks` row per `ProposalBlockSeed`.
  *
- * - Appends at the end (does not delete pre-existing blocks).
+ * - Appends assembly rows at the end (does not delete pre-existing blocks).
+ * - Marks any pre-existing NON-assembly blocks as `is_included = false`
+ *   so the assembled containers become the actual source of truth for
+ *   export/print rendering. Rows are preserved (not deleted) so the user
+ *   can still re-include them from the editor if they want fragments back.
+ *   Without this step the print pipeline would render the legacy generic
+ *   blocks (Standard Introduction, Generic Project Description, …) BEFORE
+ *   the assembled workplace containers, making the PDF look like the
+ *   legacy generic renderer is still the source of truth.
  * - Stores assembly metadata on the new additive columns:
  *     assembly_section_id, assembly_provenance, assembly_locked.
  * - Inserted blocks remain editable / deletable / reorderable.
@@ -17,16 +25,35 @@ export function useAssembleProposalInsert(documentId: string | undefined) {
     mutationFn: async (args: { assembled: AssembledProposal }) => {
       if (!documentId) throw new Error("documentId is required");
       const { assembled } = args;
-      if (assembled.containers.length === 0) return { inserted: 0 };
+      if (assembled.containers.length === 0) return { inserted: 0, suppressed: 0 };
 
+      // Read existing blocks so we can (a) compute next sort_order and
+      // (b) suppress legacy non-assembly rows.
       const { data: existing, error: readErr } = await supabase
         .from("quote_proposal_document_blocks")
-        .select("sort_order")
+        .select("id, sort_order, assembly_section_id, is_included")
         .eq("proposal_document_id", documentId)
-        .order("sort_order", { ascending: false })
-        .limit(1);
+        .order("sort_order", { ascending: false });
       if (readErr) throw readErr;
+
       const baseOrder = existing?.[0]?.sort_order ?? 0;
+
+      // Identify pre-existing blocks NOT produced by the assembly system.
+      // These are the legacy generic blocks seeded by the old proposal
+      // generator (Standard Introduction, Generic Project Description, …).
+      const legacyIds = (existing ?? [])
+        .filter((r) => r.assembly_section_id == null && r.is_included !== false)
+        .map((r) => r.id);
+
+      let suppressed = 0;
+      if (legacyIds.length > 0) {
+        const { error: suppressErr } = await supabase
+          .from("quote_proposal_document_blocks")
+          .update({ is_included: false })
+          .in("id", legacyIds);
+        if (suppressErr) throw suppressErr;
+        suppressed = legacyIds.length;
+      }
 
       const rows: Array<Record<string, unknown>> = [];
       let i = 1;
@@ -56,13 +83,13 @@ export function useAssembleProposalInsert(documentId: string | undefined) {
         }
       }
 
-      if (rows.length === 0) return { inserted: 0 };
+      if (rows.length === 0) return { inserted: 0, suppressed };
 
       const { error } = await supabase
         .from("quote_proposal_document_blocks")
         .insert(rows as never);
       if (error) throw error;
-      return { inserted: rows.length };
+      return { inserted: rows.length, suppressed };
     },
     onSuccess: () => {
       if (documentId) {
