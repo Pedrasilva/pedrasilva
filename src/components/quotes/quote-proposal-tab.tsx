@@ -613,7 +613,7 @@ function GeneratedBlockCard({ block, blocks, index, documentId }: GeneratedBlock
     >
       <header className="mb-2 flex items-start justify-between gap-2">
         <div className="flex items-start gap-2">
-          <h3 className="text-sm font-semibold leading-tight">{block.block_title}</h3>
+          <h3 className="text-sm font-semibold leading-tight">{displayBlockTitle(block.block_title)}</h3>
           {isLocked && (
             <Badge variant="secondary" className="gap-1">
               <Lock className="h-3 w-3" />
