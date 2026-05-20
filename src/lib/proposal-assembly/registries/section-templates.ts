@@ -190,7 +190,7 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
     titleEn: "Cover Letter",
     titlePt: "Carta de Apresentação",
     bodyEn:
-      "Dear {client_name},\n\n" +
+      "Dear Client,\n\n" +
       "Thank you for the opportunity to propose on {project_name}. The following document " +
       "sets out our methodology, programme and commercial terms for the workplace fit-out, " +
       "delivered under our PSA-led model with end-to-end design and coordination responsibility.\n\n" +
@@ -214,11 +214,11 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
     titleEn: "Executive Summary",
     titlePt: "Sumário Executivo",
     bodyEn:
-      "{project_name} is a large corporate workplace fit-out for {client_name}, delivered " +
-      "under PSA's integrated design and coordination model. The overall programme runs for " +
-      "{overall_project_duration} working days across briefing, design, tender and close-out.\n\n" +
-      "Construction is supported through a monthly retainer over {construction_duration} months " +
-      "at {construction_monthly_fee} per month ({construction_monthly_hours} hours/month), " +
+      "{project_name} is a workplace fit-out delivered under PSA's integrated design and " +
+      "coordination model. Programme duration will be confirmed following phase validation " +
+      "across briefing, design, tender and close-out.\n\n" +
+      "Construction Assistance, where included, is structured as a monthly retainer aligned " +
+      "with the confirmed construction programme, " +
       "ensuring design intent and coordination continuity from site mobilisation to handover.",
     bodyPt:
       "{project_name} é um fit-out de escritórios corporativos de grande dimensão para " +
@@ -233,7 +233,7 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
     titleEn: "Project Understanding",
     titlePt: "Compreensão do Projecto",
     bodyEn:
-      "{client_name} requires a workplace that supports focused work, collaboration and brand " +
+      "The client requires a workplace that supports focused work, collaboration and brand " +
       "presence, with the operational rigour expected of a large corporate occupier. We read " +
       "the project as a coordination exercise as much as a design one: spatial planning, " +
       "building services alignment, FF&E procurement and tenant-fit interface with the " +
@@ -253,7 +253,7 @@ const WORKPLACE_LARGE_PSA: SectionTemplateMap = {
       "work in short iterative cycles with the client team, decisions are validated against " +
       "budget, programme and operational drivers, and each milestone is signed off before the " +
       "next phase opens. Coordination with consultants, landlord and contractor is embedded " +
-      "throughout the {overall_project_duration}-day programme rather than reserved to a " +
+      "throughout the confirmed programme rather than reserved to a " +
       "single technical phase.",
     bodyPt:
       "A nossa abordagem para {project_name} equilibra rigor funcional com contenção material. " +
