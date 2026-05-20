@@ -77,17 +77,19 @@ function renderProgramme(data: AssemblyData): string {
   ].join("\n");
 }
 
-export function buildPlaceholderMap(data: AssemblyData): Record<string, string> {
+export function buildPlaceholderMap(data: AssemblyData, language: string = "en"): Record<string, string> {
   const currency = data.quote.currency ?? "EUR";
+  const clientFallback = language === "pt-PT" ? "o cliente" : "the client";
+  const projectFallback = language === "pt-PT" ? "o projecto" : "the project";
   const overallDuration = data.stages.reduce(
     (acc, s) => acc + (s.duration_days ?? 0),
     0,
   );
 
   const map: Record<string, string> = {
-    project_name: data.quote.project_name ?? data.quote.title ?? "the project",
+    project_name: data.quote.project_name ?? data.quote.title ?? projectFallback,
     project_code: data.quote.code ?? "",
-    client_name: data.quote.client_name ?? "the client",
+    client_name: data.quote.client_name ?? clientFallback,
     proposal_date: data.quote.proposal_date ?? new Date().toISOString().slice(0, 10),
     proposal_version: data.quote.proposal_version ?? "v1",
     currency,
