@@ -35,8 +35,8 @@ function stageLabel(s: AssemblyData["stages"][number]): string {
 }
 
 function renderProjectStageFeeTable(data: AssemblyData, currency: string): string {
-  const rows = data.stages.filter((s) => s.fee != null && Number.isFinite(Number(s.fee)));
-  if (rows.length === 0) return "Fee schedule to be confirmed.";
+  const rows = data.stages.filter((s) => s.fee != null && Number.isFinite(Number(s.fee)) && Number(s.fee) > 0);
+  if (rows.length === 0) return "Detailed fee schedule to be confirmed.";
   return [
     "Phase | Fee",
     "--- | ---",
@@ -48,29 +48,25 @@ function renderConstructionFeeTable(data: AssemblyData, currency: string): strin
   const months = data.feeBreakdown?.constructionDurationMonths;
   const monthlyFee = data.feeBreakdown?.constructionMonthlyFee;
   const monthlyHours = data.feeBreakdown?.constructionMonthlyHours;
-  if (months == null && monthlyFee == null && monthlyHours == null) {
+  if (months == null || monthlyFee == null || monthlyHours == null) {
     return "Construction Assistance, where included, will be structured as a monthly retainer aligned with the confirmed construction programme.";
   }
-  const rows = [
-    months != null ? `Duration | ${fmtNumber(months)} months` : null,
-    monthlyFee != null ? `Monthly fee | ${fmtMoney(monthlyFee, currency)}` : null,
-    monthlyHours != null ? `Monthly allowance | ${fmtNumber(monthlyHours)} hours/month` : null,
-  ].filter(Boolean);
-  return ["Construction Assistance Retainer", "Item | Value", "--- | ---", ...rows].join("\n");
+  return `Construction Assistance Retainer: ${fmtNumber(months)} months at ${fmtMoney(monthlyFee, currency)} per month, with an allowance of ${fmtNumber(monthlyHours)} hours/month.`;
 }
 
 function renderPaymentSchedule(data: AssemblyData, currency: string): string {
-  if (data.paymentSchedule.length === 0) return "Payment schedule to be confirmed.";
+  const rows = data.paymentSchedule.filter((p) => Number.isFinite(Number(p.amount)) && Number(p.amount) > 0);
+  if (rows.length === 0) return "Payment schedule to be confirmed.";
   return [
     "Milestone | Trigger | Amount",
     "--- | --- | ---",
-    ...data.paymentSchedule.map((p) => `${p.label || "Milestone"} | ${p.trigger || "To be confirmed"} | ${fmtMoney(p.amount, currency)}`),
+    ...rows.map((p) => `${p.label || "Milestone"} | ${p.trigger || "To be confirmed"} | ${fmtMoney(p.amount, currency)}`),
   ].join("\n");
 }
 
 function renderProgramme(data: AssemblyData): string {
   const rows = data.stages.filter((s) => s.start_date || s.end_date || s.duration_days);
-  if (rows.length === 0) return "Programme to be confirmed.";
+  if (rows.length === 0) return "Programme to be confirmed following validation of project stages.";
   return [
     "Phase | Start | End | Duration",
     "--- | --- | --- | ---",
@@ -89,9 +85,9 @@ export function buildPlaceholderMap(data: AssemblyData): Record<string, string> 
   );
 
   const map: Record<string, string> = {
-    project_name: data.quote.project_name ?? data.quote.title ?? "",
+    project_name: data.quote.project_name ?? data.quote.title ?? "the project",
     project_code: data.quote.code ?? "",
-    client_name: data.quote.client_name ?? "",
+    client_name: data.quote.client_name ?? "the client",
     proposal_date: data.quote.proposal_date ?? new Date().toISOString().slice(0, 10),
     proposal_version: data.quote.proposal_version ?? "v1",
     currency,
@@ -133,7 +129,7 @@ export function resolvePlaceholders(text: string, map: Record<string, string>): 
       return "";
     }
     unresolved.add(key);
-    return full;
+    return "";
   });
   output = output.replace(RAW_COMPONENT_TOKEN_RE, (full, key: string) => {
     if (Object.prototype.hasOwnProperty.call(map, key)) {
