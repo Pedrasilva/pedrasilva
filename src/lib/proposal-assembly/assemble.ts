@@ -17,7 +17,10 @@ import {
   buildPlaceholderMap,
   resolvePlaceholders,
 } from "./placeholders/resolve";
-import { lookupSectionTemplate } from "./registries/section-templates";
+import {
+  lookupSectionTemplate,
+  lookupPhaseTemplate,
+} from "./registries/section-templates";
 import {
   ATTACHMENT_TEMPLATES,
   type AttachmentTemplate,
