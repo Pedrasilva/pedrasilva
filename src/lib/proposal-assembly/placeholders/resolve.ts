@@ -37,11 +37,7 @@ function stageLabel(s: AssemblyData["stages"][number]): string {
 function renderProjectStageFeeTable(data: AssemblyData, currency: string): string {
   const rows = data.stages.filter((s) => s.fee != null && Number.isFinite(Number(s.fee)) && Number(s.fee) > 0);
   if (rows.length === 0) return "Detailed fee schedule to be confirmed.";
-  return [
-    "Phase | Fee",
-    "--- | ---",
-    ...rows.map((s) => `${stageLabel(s)} | ${fmtMoney(Number(s.fee), currency)}`),
-  ].join("\n");
+  return rows.map((s) => `• ${stageLabel(s)}: ${fmtMoney(Number(s.fee), currency)}`).join("\n");
 }
 
 function renderConstructionFeeTable(data: AssemblyData, currency: string): string {
@@ -57,24 +53,17 @@ function renderConstructionFeeTable(data: AssemblyData, currency: string): strin
 function renderPaymentSchedule(data: AssemblyData, currency: string): string {
   const rows = data.paymentSchedule.filter((p) => Number.isFinite(Number(p.amount)) && Number(p.amount) > 0);
   if (rows.length === 0) return "Payment schedule to be confirmed.";
-  return [
-    "Milestone | Trigger | Amount",
-    "--- | --- | ---",
-    ...rows.map((p) => `${p.label || "Milestone"} | ${p.trigger || "To be confirmed"} | ${fmtMoney(p.amount, currency)}`),
-  ].join("\n");
+  return rows.map((p) => `• ${p.label || "Milestone"}: ${p.trigger || "To be confirmed"} — ${fmtMoney(p.amount, currency)}`).join("\n");
 }
 
 function renderProgramme(data: AssemblyData): string {
   const rows = data.stages.filter((s) => s.start_date || s.end_date || s.duration_days);
   if (rows.length === 0) return "Programme to be confirmed following validation of project stages.";
-  return [
-    "Phase | Start | End | Duration",
-    "--- | --- | --- | ---",
-    ...rows.map((s) => {
-      const duration = s.duration_days != null ? `${fmtNumber(s.duration_days)} working days` : "To be confirmed";
-      return `${stageLabel(s)} | ${s.start_date ?? "To be confirmed"} | ${s.end_date ?? "To be confirmed"} | ${duration}`;
-    }),
-  ].join("\n");
+  return rows.map((s) => {
+    const duration = s.duration_days != null ? `${fmtNumber(s.duration_days)} working days` : "duration to be confirmed";
+    const dates = [s.start_date, s.end_date].filter(Boolean).join(" → ") || "dates to be confirmed";
+    return `• ${stageLabel(s)}: ${dates}; ${duration}.`;
+  }).join("\n");
 }
 
 export function buildPlaceholderMap(data: AssemblyData, language: string = "en"): Record<string, string> {
