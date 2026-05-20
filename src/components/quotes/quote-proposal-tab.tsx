@@ -119,6 +119,7 @@ interface QuoteProposalTabProps {
   quoteType?: string | null;
   /** Top-level category — restricts which proposal block-sets are offered. */
   quoteCategory?: "project" | "time_based" | "retainer" | "consultancy" | null;
+  ontologyFamilyCode?: string | null;
 }
 
 function safeDate(d: string, locale: Locale | undefined): string {
@@ -751,12 +752,14 @@ function GeneratedDocumentSection({
   isLoadingDocument,
   quoteType,
   quoteCategory,
+  ontologyFamilyCode,
 }: {
   quoteId: string;
   document: QuoteProposalDocument | null;
   isLoadingDocument: boolean;
   quoteType?: string | null;
   quoteCategory?: "project" | "time_based" | "retainer" | "consultancy" | null;
+  ontologyFamilyCode?: string | null;
 }) {
   const { t } = useTranslation("crm");
   const locale = useDateLocale();
@@ -774,9 +777,12 @@ function GeneratedDocumentSection({
     () => proposalKindsForCategory(quoteCategory ?? "project"),
     [quoteCategory],
   );
-  const fallbackKind = quoteCategory
-    ? defaultProposalKindForCategory(quoteCategory)
-    : quoteTypeToProposalKind(quoteType);
+  const isWorkplaceAssemblyQuote = ontologyFamilyCode === "workplace";
+  const fallbackKind = isWorkplaceAssemblyQuote
+    ? "psa_interior_fitout"
+    : quoteCategory
+      ? defaultProposalKindForCategory(quoteCategory)
+      : quoteTypeToProposalKind(quoteType);
   const persistedRaw =
     (document?.snapshot_json as { proposal_kind?: ProposalKind } | null)
       ?.proposal_kind ?? fallbackKind;
@@ -2456,6 +2462,7 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
             isLoadingDocument={isLoadingDocument}
             quoteType={quoteType}
             quoteCategory={props.quoteCategory ?? null}
+            ontologyFamilyCode={props.ontologyFamilyCode ?? null}
           />
         </div>
       )}
