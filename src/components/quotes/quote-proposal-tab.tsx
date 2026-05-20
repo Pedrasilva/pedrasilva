@@ -797,6 +797,10 @@ function GeneratedDocumentSection({
     : fallbackKind;
   const [proposalKind, setProposalKind] = useState<ProposalKind>(persistedKind);
 
+  useEffect(() => {
+    setProposalKind(persistedKind);
+  }, [persistedKind]);
+
   // Consultancy commercial settings. Initialised in-memory; we hydrate them
   // from fee_proposals.time_based_settings when the saved JSON exists so the
   // user does not need to re-enter rate/hours after picking the kind on the
