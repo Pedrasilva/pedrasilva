@@ -25,27 +25,24 @@ import type { AssembledProposal } from "./types";
 export function useAssembleProposalInsert(documentId: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (args: { assembled: AssembledProposal }) => {
-      if (!documentId) throw new Error("documentId is required");
+    mutationFn: async (args: { assembled: AssembledProposal; documentId?: string }) => {
+      const targetDocumentId = args.documentId ?? documentId;
+      if (!targetDocumentId) throw new Error("documentId is required");
       const { assembled } = args;
-      if (assembled.containers.length === 0) return { inserted: 0, suppressed: 0 };
-
-      // Remove stale assembly output for this same document first. Legacy /
-      // manual rows remain preserved, but only one assembled V1 package can
-      // be active for export at a time.
-      const { error: deleteAssemblyErr } = await supabase
-        .from("quote_proposal_document_blocks")
-        .delete()
-        .eq("proposal_document_id", documentId)
-        .not("assembly_section_id", "is", null);
-      if (deleteAssemblyErr) throw deleteAssemblyErr;
+      if (assembled.input.family !== "workplace") {
+        throw new Error(`Unsupported proposal family: ${assembled.input.family}`);
+      }
+      if (!assembled.input.preset) throw new Error("ontology_preset_code is required");
+      if (assembled.containers.length === 0) {
+        throw new Error("Assembly planner returned no containers");
+      }
 
       // Read remaining blocks so we can (a) compute next sort_order and
       // (b) suppress legacy non-assembly rows.
       const { data: existing, error: readErr } = await supabase
         .from("quote_proposal_document_blocks")
         .select("id, sort_order, assembly_section_id, is_included")
-        .eq("proposal_document_id", documentId)
+        .eq("proposal_document_id", targetDocumentId)
         .order("sort_order", { ascending: false });
       if (readErr) throw readErr;
 
@@ -58,23 +55,13 @@ export function useAssembleProposalInsert(documentId: string | undefined) {
         .filter((r) => r.assembly_section_id == null && r.is_included !== false)
         .map((r) => r.id);
 
-      let suppressed = 0;
-      if (legacyIds.length > 0) {
-        const { error: suppressErr } = await supabase
-          .from("quote_proposal_document_blocks")
-          .update({ is_included: false })
-          .in("id", legacyIds);
-        if (suppressErr) throw suppressErr;
-        suppressed = legacyIds.length;
-      }
-
       const rows: Array<Record<string, unknown>> = [];
       let i = 1;
       for (const container of assembled.containers) {
         if (!container.enabled) continue;
         for (const block of container.blocks) {
           rows.push({
-            proposal_document_id: documentId,
+            proposal_document_id: targetDocumentId,
             block_title: block.title,
             block_type: "editable_text" as const,
             content: block.content,
