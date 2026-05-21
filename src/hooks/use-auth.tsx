@@ -38,7 +38,8 @@ const VIEW_AS_ID_KEY = "psa.viewAsCollaboratorId";
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isRealAdmin, setIsRealAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [sessionLoading, setSessionLoading] = useState(true);
+  const [roleLoading, setRoleLoading] = useState(true);
   const [viewAsUser, setViewAsUserState] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return window.sessionStorage.getItem(VIEW_AS_KEY) === "1";
