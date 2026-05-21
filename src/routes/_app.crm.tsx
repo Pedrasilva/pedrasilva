@@ -23,7 +23,10 @@ function CRMLayout() {
   const allowed = isAdmin || CRM_KEYS.some((k) => permissions.has(k));
 
   useEffect(() => {
-    if (loading) return;
+    if (loading) {
+      setChecked(false);
+      return;
+    }
     setChecked(true);
     if (!allowed) navigate({ to: "/" });
   }, [loading, allowed, navigate]);
