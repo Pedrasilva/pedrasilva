@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Briefcase, Clock, Wrench } from "lucide-react";
+import { Briefcase, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -115,9 +115,10 @@ export function QuickQuoteDialog({
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // Construction Retainer removed per spec — Project Proposal is the priority,
+  // Time-Based Proposal remains visible as a future option.
   const categoryCards: { value: QuoteCategory; icon: typeof Briefcase }[] = [
     { value: "project", icon: Briefcase },
-    { value: "retainer", icon: Wrench },
     { value: "time_based", icon: Clock },
   ];
 
@@ -136,7 +137,7 @@ export function QuickQuoteDialog({
             <Label className="text-xs uppercase tracking-wider text-muted-foreground">
               {t("crm:quotes.newQuoteDialog.quoteTypeLabel")}
             </Label>
-            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
               {categoryCards.map(({ value, icon: Icon }) => (
                 <button
                   key={value}
