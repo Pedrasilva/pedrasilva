@@ -73,28 +73,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       if (s?.user) {
+        setRoleLoading(true);
         setTimeout(() => fetchRole(s.user.id), 0);
       } else {
         setIsRealAdmin(false);
+        setRoleLoading(false);
         setViewAsUser(false);
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
+    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
       setSession(s);
-      if (s?.user) fetchRole(s.user.id);
-      setLoading(false);
+      if (s?.user) {
+        await fetchRole(s.user.id);
+      } else {
+        setRoleLoading(false);
+      }
+      setSessionLoading(false);
     });
 
     return () => sub.subscription.unsubscribe();
   }, []);
 
   async function fetchRole(userId: string) {
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
-    setIsRealAdmin(!!data?.some((r) => r.role === "admin"));
+    try {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      setIsRealAdmin(!!data?.some((r) => r.role === "admin"));
+    } finally {
+      setRoleLoading(false);
+    }
   }
 
   const signOut = async () => {
