@@ -137,7 +137,7 @@ export function QuickQuoteDialog({
             <Label className="text-xs uppercase tracking-wider text-muted-foreground">
               {t("crm:quotes.newQuoteDialog.quoteTypeLabel")}
             </Label>
-            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
               {categoryCards.map(({ value, icon: Icon }) => (
                 <button
                   key={value}
