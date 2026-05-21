@@ -113,6 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const isAdmin = isRealAdmin && !viewAsUser;
+  const loading = sessionLoading || (!!session && roleLoading);
 
   return (
     <Ctx.Provider
