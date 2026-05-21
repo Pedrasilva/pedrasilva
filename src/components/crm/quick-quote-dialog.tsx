@@ -115,9 +115,10 @@ export function QuickQuoteDialog({
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // Construction Retainer removed per spec — Project Proposal is the priority,
+  // Time-Based Proposal remains visible as a future option.
   const categoryCards: { value: QuoteCategory; icon: typeof Briefcase }[] = [
     { value: "project", icon: Briefcase },
-    { value: "retainer", icon: Wrench },
     { value: "time_based", icon: Clock },
   ];
 
