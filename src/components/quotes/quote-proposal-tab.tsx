@@ -909,6 +909,9 @@ function GeneratedDocumentSection({
   quoteId,
   document,
   isLoadingDocument,
+  title,
+  clientName,
+  accountName,
   quoteType,
   quoteCategory,
   ontologyFamilyCode,
@@ -916,6 +919,9 @@ function GeneratedDocumentSection({
   quoteId: string;
   document: QuoteProposalDocument | null;
   isLoadingDocument: boolean;
+  title: string;
+  clientName: string | null;
+  accountName: string | null;
   quoteType?: string | null;
   quoteCategory?: "project" | "time_based" | "retainer" | "consultancy" | null;
   ontologyFamilyCode?: string | null;
@@ -926,6 +932,7 @@ function GeneratedDocumentSection({
   const { data: blocks = [], isLoading: isLoadingBlocks } =
     useQuoteProposalDocumentBlocks(document?.id);
   const generate = useGenerateQuoteProposalDocument();
+  const placeholderMap = useQuoteBuilderPlaceholderMap({ quoteId, title, clientName, accountName });
 
   // Read prior choice from snapshot when regenerating; otherwise default
   // from quote_type (commercial classification chosen at quote creation).
@@ -1770,6 +1777,7 @@ function GeneratedDocumentSection({
                   blocks={blocks}
                   index={i}
                   documentId={document.id}
+                  placeholderMap={placeholderMap}
                 />
               ))}
             </div>
