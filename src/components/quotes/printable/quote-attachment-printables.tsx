@@ -453,7 +453,7 @@ function PaymentRows({
   rows: Array<{ id: string; label: string; trigger: string; stageName: string | null; amount: number }>;
   total: number;
   currency: string;
-  t: (k: string, d?: string) => string;
+  t: ReturnType<typeof useTranslation>["t"];
 }) {
   return (
     <table className="w-full text-xs" style={{ borderCollapse: "collapse" }}>
