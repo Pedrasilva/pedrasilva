@@ -57,7 +57,7 @@ export function QuotePlanningTab({
   quoteId: string;
   pricingMultiplier?: number;
 }) {
-  const { t } = useTranslation("crm");
+  const { t, i18n } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
   const depsQ = useQuoteDependencies(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
