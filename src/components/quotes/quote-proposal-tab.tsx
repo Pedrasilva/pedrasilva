@@ -93,6 +93,12 @@ import {
 import { QuoteProposalIntelligencePanel } from "@/components/quotes/quote-proposal-intelligence-panel";
 import { ProposalAssemblyPanel } from "@/components/quotes/proposal-assembly-panel";
 import {
+  GanttPrintable,
+  PaymentSchedulePrintable,
+  hasAttachmentToken,
+  splitOnAttachmentTokens,
+} from "@/components/quotes/printable/quote-attachment-printables";
+import {
   useResolvedProposal,
   type ProposalRenderKind,
 } from "@/lib/proposal-rendering";
