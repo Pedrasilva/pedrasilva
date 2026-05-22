@@ -134,17 +134,17 @@ export function SimulationTab({ draft, set }: { draft: Snapshot; set: Setter }) 
           <CardTitle className="text-base">Ajudas de custo</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <FieldRow label="Valor anual">
-            <NumIn value={draft.ajudas_custo_anual}
-              onChange={(n) => set("ajudas_custo_anual", n)} />
+          <FieldRow label="Valor mensal">
+            <NumIn value={Math.round(((draft.ajudas_custo_anual ?? 0) / 12) * 100) / 100}
+              onChange={(n) => set("ajudas_custo_anual", Math.round((n || 0) * 12 * 100) / 100)} />
           </FieldRow>
-          <CalcRow label="Média mensal" value={fmtEUR(c.ajudasMensal)} />
+          <CalcRow label="Total anual" value={fmtEUR(draft.ajudas_custo_anual ?? 0)} />
           <div className="border-t pt-3" />
-          <FieldRow label="Passe / Transporte público (anual)">
-            <NumIn value={draft.passe_anual}
-              onChange={(n) => set("passe_anual", n)} />
+          <FieldRow label="Passe / Transporte público (mensal)">
+            <NumIn value={Math.round(((draft.passe_anual ?? 0) / 12) * 100) / 100}
+              onChange={(n) => set("passe_anual", Math.round((n || 0) * 12 * 100) / 100)} />
           </FieldRow>
-          <CalcRow label="Passe — média mensal" value={fmtEUR(c.passeMensal)} />
+          <CalcRow label="Passe — total anual" value={fmtEUR(draft.passe_anual ?? 0)} />
         </CardContent>
       </Card>
 
