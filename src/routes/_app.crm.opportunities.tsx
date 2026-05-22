@@ -338,49 +338,87 @@ function QuoteCategoryChooserDialog({
 }: {
   opp: Row | null;
   onClose: () => void;
-  onPick: (category: QuoteCategory) => void;
+  onPick: (category: QuoteCategory, templateId: string | null) => void;
   isPending: boolean;
 }) {
   const { t } = useTranslation("crm");
+  const [step, setStep] = useState<1 | 2>(1);
+  const [category, setCategory] = useState<QuoteCategory>("project");
+  const [templateId, setTemplateId] = useState<string | null>(null);
+
   const cards: { value: QuoteCategory; icon: typeof Briefcase }[] = [
     { value: "project", icon: Briefcase },
     { value: "time_based", icon: Clock },
-    { value: "retainer", icon: Wrench },
   ];
+
+  const handleClose = () => {
+    if (isPending) return;
+    setStep(1);
+    setTemplateId(null);
+    onClose();
+  };
+
   return (
-    <Dialog open={!!opp} onOpenChange={(v) => !v && !isPending && onClose()}>
+    <Dialog open={!!opp} onOpenChange={(v) => !v && handleClose()}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("quotes.newQuoteDialog.title")}</DialogTitle>
           <DialogDescription>
-            {t("quotes.newQuoteDialog.categoryChooserDescription")}
+            {step === 1
+              ? t("quotes.newQuoteDialog.categoryChooserDescription")
+              : t("templates.picker.label")}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-2 sm:grid-cols-3">
-          {cards.map(({ value, icon: Icon }) => (
-            <button
-              key={value}
-              type="button"
-              disabled={isPending}
-              onClick={() => onPick(value)}
-              className="flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors hover:bg-muted/50 hover:border-primary/40 disabled:opacity-50"
-            >
-              <div className="flex items-center gap-2">
-                <Icon className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold">
-                  {t(`quotes.newQuoteDialog.category.${value}.title`)}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {t(`quotes.newQuoteDialog.category.${value}.hint`)}
-              </p>
-            </button>
-          ))}
-        </div>
+
+        {step === 1 ? (
+          <div className="grid gap-2 sm:grid-cols-2">
+            {cards.map(({ value, icon: Icon }) => (
+              <button
+                key={value}
+                type="button"
+                disabled={isPending}
+                onClick={() => { setCategory(value); setStep(2); }}
+                className="flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors hover:bg-muted/50 hover:border-primary/40 disabled:opacity-50"
+              >
+                <div className="flex items-center gap-2">
+                  <Icon className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold">
+                    {t(`quotes.newQuoteDialog.category.${value}.title`)}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t(`quotes.newQuoteDialog.category.${value}.hint`)}
+                </p>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-3">
+            <Label>{t("templates.picker.label")}</Label>
+            <div className="max-h-72 overflow-y-auto">
+              <QuoteTemplatePicker
+                category={category}
+                value={templateId}
+                onChange={setTemplateId}
+              />
+            </div>
+          </div>
+        )}
+
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose} disabled={isPending}>
+          {step === 2 && (
+            <Button variant="ghost" onClick={() => setStep(1)} disabled={isPending}>
+              {t("common.back")}
+            </Button>
+          )}
+          <Button variant="ghost" onClick={handleClose} disabled={isPending}>
             {t("common.cancel")}
           </Button>
+          {step === 2 && (
+            <Button onClick={() => onPick(category, templateId)} disabled={isPending}>
+              {t("quotes.newQuoteDialog.createButton")}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
