@@ -94,6 +94,20 @@ const GROUPS: AdminGroup[] = [
     ],
   },
   {
+    title: "Catálogos comerciais",
+    description: "Listas partilhadas pelas fichas de colaborador e pelo Quote Builder.",
+    links: [
+      {
+        to: "/admin/proposal-roles",
+        label: "Títulos / Funções comerciais",
+        description:
+          "Junior Architect, Architect, Senior Architect, Partner, Project Lead… Catálogo usado nas fichas e nas propostas. Horas e valor de venda no Quote Builder são apresentados por título.",
+        icon: Users,
+      },
+    ],
+  },
+  {
+
     title: "Ferramentas de sistema",
     links: [
       {
