@@ -11,8 +11,14 @@ import type { Resource } from "@/lib/projects/types";
 const db = supabase as any;
 
 export type QuoteAllocationWithResource = QuoteAllocation & {
-  resource: (Pick<Resource, "id" | "name" | "color"> & { role?: string | null }) | null;
+  resource:
+    | (Pick<Resource, "id" | "name" | "color"> & {
+        role?: string | null;
+        proposal_role?: string | null;
+      })
+    | null;
 };
+
 
 export type QuoteAllocationInsert = {
   quote_id: string;
