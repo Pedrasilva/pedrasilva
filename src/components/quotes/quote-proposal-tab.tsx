@@ -120,6 +120,8 @@ interface QuoteProposalTabProps {
   /** Top-level category — restricts which proposal block-sets are offered. */
   quoteCategory?: "project" | "time_based" | "retainer" | "consultancy" | null;
   ontologyFamilyCode?: string | null;
+  initialMode?: "edit" | "preview";
+  showAssemblyTools?: boolean;
 }
 
 function safeDate(d: string, locale: Locale | undefined): string {
@@ -199,6 +201,158 @@ function formatCurrency(value: number, currency = "EUR"): string {
   } catch {
     return `${value.toFixed(0)} ${currency}`;
   }
+}
+
+const DOUBLE_BRACE_TOKEN_RE = /\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}/g;
+const SINGLE_BRACE_TOKEN_RE = /\{\s*([a-z_][a-z_0-9]*)\s*\}/g;
+
+function formatMoneyValue(value: number | null | undefined, currency = "EUR") {
+  if (value == null || !Number.isFinite(Number(value))) return "";
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 2,
+  }).format(Number(value));
+}
+
+function daysBetweenInclusive(start: string | null | undefined, end: string | null | undefined) {
+  if (!start || !end) return null;
+  const a = new Date(`${start}T00:00:00Z`).getTime();
+  const b = new Date(`${end}T00:00:00Z`).getTime();
+  if (!Number.isFinite(a) || !Number.isFinite(b) || b < a) return null;
+  return Math.max(1, Math.round((b - a) / 86_400_000) + 1);
+}
+
+function monthsBetweenInclusive(start: string | null | undefined, end: string | null | undefined) {
+  if (!start || !end) return null;
+  const a = new Date(`${start}T00:00:00Z`);
+  const b = new Date(`${end}T00:00:00Z`);
+  if (!Number.isFinite(a.getTime()) || !Number.isFinite(b.getTime()) || b < a) return null;
+  return Math.max(1, (b.getUTCFullYear() - a.getUTCFullYear()) * 12 + b.getUTCMonth() - a.getUTCMonth() + 1);
+}
+
+function useQuoteBuilderPlaceholderMap(args: {
+  quoteId: string;
+  title: string;
+  clientName: string | null;
+  accountName: string | null;
+}) {
+  const locale = useDateLocale();
+  const { data: stages = [] } = useQuoteStages(args.quoteId);
+  const { data: allocations = [] } = useQuoteAllocations(args.quoteId);
+  const { data: schedule = [] } = useQuotePaymentSchedule(args.quoteId);
+  const { data: quoteMeta } = useQuery({
+    queryKey: ["fee-proposal-live-placeholders", args.quoteId],
+    enabled: Boolean(args.quoteId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("fee_proposals")
+        .select("titulo, valor, data_proposta, proposal_number, quote_type, time_based_settings")
+        .eq("id", args.quoteId)
+        .maybeSingle();
+      if (error) throw error;
+      return data as {
+        titulo: string | null;
+        valor: number | null;
+        data_proposta: string | null;
+        proposal_number: string | null;
+        quote_type: string | null;
+        time_based_settings: unknown;
+      } | null;
+    },
+  });
+
+  return useMemo(() => {
+    const currency = "EUR";
+    const title = quoteMeta?.titulo || args.title;
+    const client = args.clientName || args.accountName || "";
+    const issueDate = quoteMeta?.data_proposta
+      ? safeDate(quoteMeta.data_proposta, locale)
+      : format(new Date(), "d MMM yyyy", { locale });
+    const hoursByStage = new Map<string, number>();
+    for (const allocation of allocations) {
+      const stageId = allocation.stage_id;
+      if (!stageId) continue;
+      const { hours } = quoteAllocationLine(allocation);
+      hoursByStage.set(stageId, (hoursByStage.get(stageId) ?? 0) + hours);
+    }
+
+    const parsedSettings = parseTimeBasedSettings(
+      quoteMeta?.time_based_settings,
+      quoteMeta?.quote_type,
+    );
+    const retainerMonthlyFee = parsedSettings?.kind === "construction_retainer"
+      ? retainerMonthlyEstimate(parsedSettings)
+      : null;
+    const retainerMonthlyHours = parsedSettings?.kind === "construction_retainer"
+      ? parsedSettings.monthly_resources.reduce((sum, row) => sum + Number(row.hours_per_month || 0), 0)
+      : null;
+    const retainerDuration = parsedSettings?.kind === "construction_retainer"
+      ? parsedSettings.construction_duration_months ?? monthsBetweenInclusive(parsedSettings.start_date, parsedSettings.estimated_end_date)
+      : null;
+
+    const map: Record<string, string> = {
+      "proposal.title": title,
+      "proposal.date": issueDate,
+      "proposal.number": quoteMeta?.proposal_number ?? "",
+      "project.name": title,
+      "project.location": "",
+      "project.area": "",
+      "client.name": client,
+      project_name: title,
+      project_code: quoteMeta?.proposal_number ?? "",
+      client_name: client,
+      proposal_date: issueDate,
+      proposal_version: "v1",
+      currency,
+      "stages.numbered_list": stages
+        .map((stage, index) => `${String(index + 1).padStart(2, "0")} — ${stage.name}`)
+        .join("\n"),
+      "payment.schedule": schedule
+        .map((item) => {
+          const raw = Number(item.amount_value ?? 0);
+          const amount = item.amount_type === "percent"
+            ? (Number(quoteMeta?.valor ?? 0) * raw) / 100
+            : raw;
+          return `• ${item.label || item.trigger_type}: ${formatMoneyValue(amount, currency)}`;
+        })
+        .join("\n"),
+      construction_duration: retainerDuration ? `${retainerDuration} months` : "",
+      construction_monthly_fee: retainerMonthlyFee ? formatMoneyValue(retainerMonthlyFee, currency) : "",
+      construction_monthly_hours: retainerMonthlyHours ? `${retainerMonthlyHours}` : "",
+    };
+
+    stages.forEach((stage, index) => {
+      const n = index + 1;
+      const durationDays = daysBetweenInclusive(stage.start_date, stage.end_date);
+      const hours = hoursByStage.get(stage.id) ?? null;
+      const fee = stage.budget == null ? null : Number(stage.budget);
+      map[`stage.${n}.title`] = stage.name;
+      map[`stage.${n}.duration`] = durationDays ? `${durationDays} working days` : "";
+      map[`stage.${n}.hours`] = hours != null ? `${Math.round(hours)}` : "";
+      map[`stage.${n}.fee`] = fee != null ? formatMoneyValue(fee, currency) : "";
+      map[`stage.${n}.monthly_fee`] = retainerMonthlyFee ? formatMoneyValue(retainerMonthlyFee, currency) : "";
+      map[`stage.${n}.monthly_hours`] = retainerMonthlyHours ? `${retainerMonthlyHours}` : "";
+      map[`stage.${n}.retainer_review_cycle`] = retainerDuration ? "Monthly" : "";
+      if (stage.phase_code) {
+        map[`phase_duration_${stage.phase_code}`] = map[`stage.${n}.duration`];
+        map[`phase_hours_${stage.phase_code}`] = map[`stage.${n}.hours`];
+        map[`phase_fee_${stage.phase_code}`] = map[`stage.${n}.fee`];
+      }
+    });
+
+    return map;
+  }, [allocations, args.accountName, args.clientName, args.title, locale, quoteMeta, schedule, stages]);
+}
+
+function resolveQuoteBuilderPlaceholders(text: string, map: Record<string, string>) {
+  if (!text) return text;
+  return text
+    .replace(DOUBLE_BRACE_TOKEN_RE, (_match, key: string) => map[key] ?? "")
+    .replace(SINGLE_BRACE_TOKEN_RE, (_match, key: string) => map[key] ?? "")
+    .replace(/\[Proposal Title \/ RFP Title\]/g, map["proposal.title"] ?? "")
+    .replace(/\[Issue Date\]/g, map["proposal.date"] ?? "")
+    .replace(/\[Client Name\]/g, map["client.name"] ?? "");
 }
 
 // Type guards for the various generated_content shapes produced by
@@ -549,9 +703,10 @@ interface GeneratedBlockCardProps {
   blocks: QuoteProposalDocumentBlock[];
   index: number;
   documentId: string;
+  placeholderMap: Record<string, string>;
 }
 
-function GeneratedBlockCard({ block, blocks, index, documentId }: GeneratedBlockCardProps) {
+function GeneratedBlockCard({ block, blocks, index, documentId, placeholderMap }: GeneratedBlockCardProps) {
   const { t } = useTranslation("crm");
   const locale = useDateLocale();
   const isGenerated = block.block_type === "generated_section";
@@ -576,6 +731,10 @@ function GeneratedBlockCard({ block, blocks, index, documentId }: GeneratedBlock
   const canEdit = !isLocked && !isGenerated;
   const isFirst = index === 0;
   const isLast = index === blocks.length - 1;
+  const displayContent = useMemo(
+    () => resolveQuoteBuilderPlaceholders(block.content ?? "", placeholderMap),
+    [block.content, placeholderMap],
+  );
 
   const handleSave = async () => {
     try {
@@ -722,7 +881,7 @@ function GeneratedBlockCard({ block, blocks, index, documentId }: GeneratedBlock
         </div>
       ) : (
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-          {block.content}
+          {displayContent}
         </p>
       )}
     </article>
@@ -750,6 +909,9 @@ function GeneratedDocumentSection({
   quoteId,
   document,
   isLoadingDocument,
+  title,
+  clientName,
+  accountName,
   quoteType,
   quoteCategory,
   ontologyFamilyCode,
@@ -757,6 +919,9 @@ function GeneratedDocumentSection({
   quoteId: string;
   document: QuoteProposalDocument | null;
   isLoadingDocument: boolean;
+  title: string;
+  clientName: string | null;
+  accountName: string | null;
   quoteType?: string | null;
   quoteCategory?: "project" | "time_based" | "retainer" | "consultancy" | null;
   ontologyFamilyCode?: string | null;
@@ -767,6 +932,7 @@ function GeneratedDocumentSection({
   const { data: blocks = [], isLoading: isLoadingBlocks } =
     useQuoteProposalDocumentBlocks(document?.id);
   const generate = useGenerateQuoteProposalDocument();
+  const placeholderMap = useQuoteBuilderPlaceholderMap({ quoteId, title, clientName, accountName });
 
   // Read prior choice from snapshot when regenerating; otherwise default
   // from quote_type (commercial classification chosen at quote creation).
@@ -1611,6 +1777,7 @@ function GeneratedDocumentSection({
                   blocks={blocks}
                   index={i}
                   documentId={document.id}
+                  placeholderMap={placeholderMap}
                 />
               ))}
             </div>
@@ -2057,12 +2224,14 @@ function ProposalPrintDocument({
   clientName,
   accountName,
   proposalKind,
+  placeholderMap,
 }: {
   document: QuoteProposalDocument;
   blocks: QuoteProposalDocumentBlock[];
   clientName: string | null;
   accountName: string | null;
   proposalKind: ProposalRenderKind;
+  placeholderMap: Record<string, string>;
 }) {
   const { t } = useTranslation("crm");
   const locale = useDateLocale();
@@ -2126,7 +2295,7 @@ function ProposalPrintDocument({
   );
 
   const getRenderableText = (b: QuoteProposalDocumentBlock): string =>
-    sanitizeProseForDisplay(b.content ?? "");
+    sanitizeProseForDisplay(resolveQuoteBuilderPlaceholders(b.content ?? "", placeholderMap));
 
   // Decide if a block has renderable content; used to hide empty blocks.
   function blockHasContent(b: QuoteProposalDocumentBlock): boolean {
@@ -2351,7 +2520,13 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
     useLatestQuoteProposalDocument(quoteId);
   const { data: blocks = [] } = useQuoteProposalDocumentBlocks(document?.id);
   const [legacyOpen, setLegacyOpen] = useState(false);
-  const [mode, setMode] = useState<"edit" | "preview">("edit");
+  const [mode, setMode] = useState<"edit" | "preview">(props.initialMode ?? "edit");
+  const placeholderMap = useQuoteBuilderPlaceholderMap({
+    quoteId,
+    title: props.title,
+    clientName,
+    accountName,
+  });
 
   // Proposal number for the toolbar badge — purely display, no mutations.
   const { data: headerMeta } = useQuery({
@@ -2456,21 +2631,24 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
             clientName={clientName}
             accountName={accountName}
             proposalKind={toRenderKind(quoteTypeToProposalKind(quoteType))}
+            placeholderMap={placeholderMap}
           />
 
         </div>
       ) : (
         <div className="no-print space-y-4">
-          <div className="flex justify-end">
-            <ProposalAssemblyPanel
-              quoteId={quoteId}
-              documentId={document?.id}
-              quoteCode={null}
-              quoteTitle={props.title ?? null}
-              clientName={clientName}
-              hasExistingBlocks={(blocks?.length ?? 0) > 0}
-            />
-          </div>
+          {props.showAssemblyTools !== false && (
+            <div className="flex justify-end">
+              <ProposalAssemblyPanel
+                quoteId={quoteId}
+                documentId={document?.id}
+                quoteCode={null}
+                quoteTitle={props.title ?? null}
+                clientName={clientName}
+                hasExistingBlocks={(blocks?.length ?? 0) > 0}
+              />
+            </div>
+          )}
           <QuoteProposalIntelligencePanel
             quoteId={quoteId}
             documentId={document?.id}
@@ -2487,6 +2665,9 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
             quoteId={quoteId}
             document={document}
             isLoadingDocument={isLoadingDocument}
+            title={props.title}
+            clientName={clientName}
+            accountName={accountName}
             quoteType={quoteType}
             quoteCategory={props.quoteCategory ?? null}
             ontologyFamilyCode={props.ontologyFamilyCode ?? null}

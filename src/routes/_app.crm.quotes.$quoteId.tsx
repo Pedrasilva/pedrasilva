@@ -570,6 +570,16 @@ function QuoteDetail() {
           paymentReady={paymentCount > 0}
           hasProject={!!quote.pm_project_id}
           projectId={quote.pm_project_id ?? null}
+          pricingMultiplier={pricingMultiplier}
+          title={form.titulo || quote.titulo}
+          description={form.proposal_description || quote.proposal_description || quote.notas}
+          clientName={quote.company?.nome ?? null}
+          accountName={quote.account?.name ?? null}
+          quoteType={quote.quote_type ?? "standard_project"}
+          quoteCategory={quote.quote_category}
+          ontologyFamilyCode={(quote as unknown as { ontology_family_code?: string | null }).ontology_family_code ?? null}
+          onEditEstimate={() => setStep("estimate")}
+          onEditContent={() => setStep("content")}
         />
       )}
 

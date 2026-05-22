@@ -363,6 +363,8 @@
       "description": "Review the quote and use the existing workflow actions in the header to send, approve or convert it into an operational project.",
       "placeholderNote": "Inline preview and publish are coming in a later phase. For now, use the proposal document generated from Step 2 and the header actions to drive the quote forward.",
       "headerActionsHint": "Header actions (Send / Approve / Convert) remain the source of truth for status changes.",
+      "editEstimate": "Edit estimate",
+      "editContent": "Edit content",
       "readinessTitle": "Readiness",
       "softWarningHint": "These are soft signals only — nothing is blocked.",
       "checks": {

@@ -1,8 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Rocket, FileCheck2, Wallet, Workflow, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Rocket, FileCheck2, Wallet, Workflow, ExternalLink, FileText, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
 
 /**
  * Step 3 — Preview & Publish placeholder.
@@ -19,6 +21,16 @@ export function QuotePublishStep({
   paymentReady,
   hasProject,
   projectId,
+  pricingMultiplier,
+  title,
+  description,
+  clientName,
+  accountName,
+  quoteType,
+  quoteCategory,
+  ontologyFamilyCode,
+  onEditEstimate,
+  onEditContent,
 }: {
   quoteId: string;
   estimateReady: boolean;
@@ -26,6 +38,16 @@ export function QuotePublishStep({
   paymentReady: boolean;
   hasProject: boolean;
   projectId: string | null;
+  pricingMultiplier: number;
+  title: string;
+  description: string | null;
+  clientName: string | null;
+  accountName: string | null;
+  quoteType?: string | null;
+  quoteCategory?: "project" | "time_based" | "retainer" | "consultancy" | null;
+  ontologyFamilyCode?: string | null;
+  onEditEstimate: () => void;
+  onEditContent: () => void;
 }) {
   const { t } = useTranslation("crm");
 
@@ -36,8 +58,9 @@ export function QuotePublishStep({
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <Card>
+    <div className="space-y-4">
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Rocket className="h-4 w-4 text-primary" />
@@ -48,9 +71,16 @@ export function QuotePublishStep({
           <p className="text-muted-foreground">
             {t("workspace.publish.description")}
           </p>
-          <p className="rounded-md border bg-muted/40 p-3 text-xs text-muted-foreground">
-            {t("workspace.publish.placeholderNote")}
-          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" onClick={onEditEstimate}>
+              <Calculator className="mr-1 h-4 w-4" />
+              {t("workspace.publish.editEstimate")}
+            </Button>
+            <Button size="sm" variant="outline" onClick={onEditContent}>
+              <FileText className="mr-1 h-4 w-4" />
+              {t("workspace.publish.editContent")}
+            </Button>
+          </div>
           <p className="text-xs text-muted-foreground">
             {t("workspace.publish.headerActionsHint")}
           </p>
@@ -65,9 +95,9 @@ export function QuotePublishStep({
             </Link>
           )}
         </CardContent>
-      </Card>
+        </Card>
 
-      <Card>
+        <Card>
         <CardHeader>
           <CardTitle className="text-base">
             {t("workspace.publish.readinessTitle")}
@@ -106,7 +136,22 @@ export function QuotePublishStep({
           </p>
           <span className="sr-only">{quoteId}</span>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
+
+      <QuoteProposalTab
+        quoteId={quoteId}
+        pricingMultiplier={pricingMultiplier}
+        title={title}
+        description={description}
+        clientName={clientName}
+        accountName={accountName}
+        quoteType={quoteType}
+        quoteCategory={quoteCategory}
+        ontologyFamilyCode={ontologyFamilyCode}
+        initialMode="preview"
+        showAssemblyTools={false}
+      />
     </div>
   );
 }
