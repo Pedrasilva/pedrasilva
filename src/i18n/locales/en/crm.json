@@ -44,6 +44,8 @@
     "save": "Save changes",
     "create": "Create",
     "cancel": "Cancel",
+    "next": "Next",
+    "back": "Back",
     "delete": "Delete",
     "edit": "Edit",
     "name": "Name",

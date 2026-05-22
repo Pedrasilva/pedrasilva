@@ -24,7 +24,9 @@ import {
   type CrmOpportunity, type OpportunityStage, type FeeProposal, type FeeStructureType,
   type QuoteType, type QuoteCategory, type Contact, contactFullName,
 } from "@/lib/crm/types";
-import { Briefcase, Clock, Wrench } from "lucide-react";
+import { Briefcase, Clock } from "lucide-react";
+import { QuoteTemplatePicker } from "@/components/quotes/quote-template-picker";
+import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";
 
 export const Route = createFileRoute("/_app/crm/opportunities/$opportunityId")({
   component: OpportunityDetail,
@@ -450,6 +452,9 @@ function NewQuoteDialog({
     enabled: open,
   });
 
+  const [step, setStep] = useState<1 | 2>(1);
+  const [templateId, setTemplateId] = useState<string | null>(null);
+  const instantiate = useInstantiateQuoteTemplate();
   const [form, setForm] = useState({
     titulo: defaultTitle,
     valor: String(defaultFee || ""),
@@ -460,20 +465,26 @@ function NewQuoteDialog({
     notas: "",
   });
 
+  // Reset internal step whenever the dialog reopens.
+  useEffect(() => {
+    if (open) {
+      setStep(1);
+      setTemplateId(null);
+    }
+  }, [open]);
+
   const setCategory = (cat: QuoteCategory) =>
     setForm((f) => ({
       ...f,
       quote_category: cat,
       quote_type: defaultQuoteTypeForCategory(cat),
-      // Time-based and Retainer always bill monthly. Project keeps its choice.
+      // Time-based is always monthly. Project keeps its choice.
       fee_structure_type: cat === "project" ? f.fee_structure_type : "monthly",
     }));
 
   const create = useMutation({
     mutationFn: async () => {
       if (!form.titulo.trim()) throw new Error(t("quotes.newQuoteDialog.errorTitle"));
-      // Project quotes honour the chosen fee structure; the two time-based
-      // categories are always monthly.
       const feeStructure: FeeStructureType =
         form.quote_category === "project" ? form.fee_structure_type : "monthly";
       const { data, error } = await supabase
@@ -497,24 +508,34 @@ function NewQuoteDialog({
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      // Pre-fill the new quote from the chosen master template (stages,
+      // dependencies, payment rules, proposal blocks). Skipped if the user
+      // picked "Blank".
+      if (templateId) {
+        try {
+          await instantiate.mutateAsync({ quoteId: data.id, templateId });
+        } catch (e) {
+          toast.error((e as Error).message);
+        }
+      }
       toast.success(t("quotes.newQuoteDialog.createdToast"));
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp", opportunityId] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       onClose();
-      // Send the user straight into the quote workspace.
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: data.id } });
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // Construction Retainer removed per spec — only Project Proposal and
+  // Time-Based Proposal remain as first-class quote categories.
   const categoryCards: {
     value: QuoteCategory;
     icon: typeof Briefcase;
   }[] = [
     { value: "project", icon: Briefcase },
     { value: "time_based", icon: Clock },
-    { value: "retainer", icon: Wrench },
   ];
 
   return (
@@ -523,112 +544,145 @@ function NewQuoteDialog({
         <DialogHeader>
           <DialogTitle>{t("quotes.newQuoteDialog.title")}</DialogTitle>
           <DialogDescription>
-            {t("quotes.newQuoteDialog.categoryChooserDescription")}
+            {step === 1
+              ? t("quotes.newQuoteDialog.categoryChooserDescription")
+              : t("templates.picker.label")}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4">
-          {/* ── Step 1: 3-card top-level chooser ───────────────────── */}
-          <div className="grid gap-2 sm:grid-cols-3">
-            {categoryCards.map(({ value, icon: Icon }) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setCategory(value)}
-                className={`flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors ${
-                  form.quote_category === value
-                    ? "border-primary bg-primary/5 ring-1 ring-primary"
-                    : "hover:bg-muted/50"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Icon className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-semibold">
-                    {t(`quotes.newQuoteDialog.category.${value}.title`)}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {t(`quotes.newQuoteDialog.category.${value}.hint`)}
-                </p>
-              </button>
-            ))}
+        {step === 1 ? (
+          <div className="grid gap-4">
+            {/* Frame 1 — Proposal type */}
+            <div className="grid gap-2 sm:grid-cols-2">
+              {categoryCards.map(({ value, icon: Icon }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setCategory(value)}
+                  className={`flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors ${
+                    form.quote_category === value
+                      ? "border-primary bg-primary/5 ring-1 ring-primary"
+                      : "hover:bg-muted/50"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold">
+                      {t(`quotes.newQuoteDialog.category.${value}.title`)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {t(`quotes.newQuoteDialog.category.${value}.hint`)}
+                  </p>
+                </button>
+              ))}
+            </div>
           </div>
-
-          {/* ── Step 2: details ───────────────────────────────────── */}
-          <div>
-            <Label>{t("common.title")} *</Label>
-            <Input
-              value={form.titulo}
-              onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))}
-            />
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
+        ) : (
+          <div className="grid gap-4">
+            {/* Frame 2 — Template, then quote details */}
             <div>
-              <Label>{t("common.estimatedFee")}</Label>
+              <Label>{t("templates.picker.label")}</Label>
+              <div className="mt-1 max-h-72 overflow-y-auto">
+                <QuoteTemplatePicker
+                  category={form.quote_category}
+                  value={templateId}
+                  onChange={setTemplateId}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label>{t("common.title")} *</Label>
               <Input
-                type="number"
-                step="0.01"
-                value={form.valor}
-                onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))}
+                value={form.titulo}
+                onChange={(e) => setForm((f) => ({ ...f, titulo: e.target.value }))}
               />
             </div>
-            {/* Fee structure dropdown is project-only. Time-based and
-                Retainer are forced to monthly. */}
-            {form.quote_category === "project" && (
+
+            <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <Label>{t("common.feeStructure")}</Label>
-                <Select
-                  value={form.fee_structure_type}
-                  onValueChange={(v) => setForm((f) => ({ ...f, fee_structure_type: v as FeeStructureType }))}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {FEE_STRUCTURE_TYPES.map((s) => (
-                      <SelectItem key={s.value} value={s.value}>{t(`feeStructure.${s.value}`)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>{t("common.estimatedFee")}</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={form.valor}
+                  onChange={(e) => setForm((f) => ({ ...f, valor: e.target.value }))}
+                />
               </div>
-            )}
+              {form.quote_category === "project" && (
+                <div>
+                  <Label>{t("common.feeStructure")}</Label>
+                  <Select
+                    value={form.fee_structure_type}
+                    onValueChange={(v) =>
+                      setForm((f) => ({ ...f, fee_structure_type: v as FeeStructureType }))
+                    }
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {FEE_STRUCTURE_TYPES.map((s) => (
+                        <SelectItem key={s.value} value={s.value}>
+                          {t(`feeStructure.${s.value}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <Label>{t("quotes.newQuoteDialog.accountOptional")}</Label>
+              <Select
+                value={form.account_id || "none"}
+                onValueChange={(v) => setForm((f) => ({ ...f, account_id: v === "none" ? "" : v }))}
+              >
+                <SelectTrigger><SelectValue placeholder={t("common.noAccount")} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{t("quotes.newQuoteDialog.noAccountSetBefore")}</SelectItem>
+                  {accounts.map((a) => (
+                    <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {accounts.length === 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t("quotes.newQuoteDialog.noAccountsHint")}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label>{t("common.notes")}</Label>
+              <Textarea
+                rows={2}
+                value={form.notas}
+                onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))}
+              />
+            </div>
           </div>
-          <div>
-            <Label>{t("quotes.newQuoteDialog.accountOptional")}</Label>
-            <Select
-              value={form.account_id || "none"}
-              onValueChange={(v) => setForm((f) => ({ ...f, account_id: v === "none" ? "" : v }))}
-            >
-              <SelectTrigger><SelectValue placeholder={t("common.noAccount")} /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{t("quotes.newQuoteDialog.noAccountSetBefore")}</SelectItem>
-                {accounts.map((a) => (
-                  <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {accounts.length === 0 && (
-              <p className="text-xs text-muted-foreground mt-1">
-                {t("quotes.newQuoteDialog.noAccountsHint")}
-              </p>
-            )}
-          </div>
-          <div>
-            <Label>{t("common.notes")}</Label>
-            <Textarea
-              rows={2}
-              value={form.notas}
-              onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))}
-            />
-          </div>
-        </div>
+        )}
+
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>{t("common.cancel")}</Button>
-          <Button
-            onClick={() => create.mutate()}
-            disabled={create.isPending || !form.titulo.trim()}
-          >
-            {t("quotes.newQuoteDialog.createButton")}
-          </Button>
+          {step === 1 ? (
+            <>
+              <Button variant="ghost" onClick={onClose}>{t("common.cancel")}</Button>
+              <Button onClick={() => setStep(2)}>{t("common.next") /* fallback handled below */}</Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" onClick={() => setStep(1)} disabled={create.isPending}>
+                {t("common.back")}
+              </Button>
+              <Button
+                onClick={() => create.mutate()}
+                disabled={create.isPending || !form.titulo.trim()}
+              >
+                {t("quotes.newQuoteDialog.createButton")}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
