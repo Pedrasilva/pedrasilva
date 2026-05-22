@@ -94,9 +94,14 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
   rows.push(
     { label: t("snapshot.liquido.rows.mealAllowanceMonthly"), value: c.alimentacaoMensal },
     { label: t("snapshot.liquido.rows.perDiemMonthly"), value: c.ajudasMensal },
+  );
+  if ((c.passeMensal ?? 0) > 0.005) {
+    rows.push({ label: t("snapshot.liquido.rows.transitPassMonthly"), value: c.passeMensal });
+  }
+  rows.push(
     {
       label: t("snapshot.liquido.rows.totalNetMonthly"),
-      value: liquidoMensalMedio + c.alimentacaoMensal + c.ajudasMensal,
+      value: liquidoMensalMedio + c.alimentacaoMensal + c.ajudasMensal + (c.passeMensal ?? 0),
       strong: true,
       accent: true,
     },
