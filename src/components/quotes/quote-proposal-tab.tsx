@@ -354,7 +354,12 @@ function useQuoteBuilderPlaceholderMap(args: {
 function resolveQuoteBuilderPlaceholders(text: string, map: Record<string, string>) {
   if (!text) return text;
   return text
-    .replace(DOUBLE_BRACE_TOKEN_RE, (_match, key: string) => map[key] ?? "")
+    .replace(DOUBLE_BRACE_TOKEN_RE, (match, key: string) => {
+      // Preserve attachment.* tokens — they are rendered as live React
+      // components by splitOnAttachmentTokens, not as inline text.
+      if (key.startsWith("attachment.")) return match;
+      return map[key] ?? "";
+    })
     .replace(SINGLE_BRACE_TOKEN_RE, (_match, key: string) => map[key] ?? "")
     .replace(/\[Proposal Title \/ RFP Title\]/g, map["proposal.title"] ?? "")
     .replace(/\[Issue Date\]/g, map["proposal.date"] ?? "")
