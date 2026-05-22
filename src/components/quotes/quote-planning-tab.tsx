@@ -596,8 +596,14 @@ export function QuotePlanningTab({
                 >
                   <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                   <SelectContent>
-                    {resources.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
+                    {resources.map((r) => (
+                      <SelectItem key={r.id} value={r.id}>
+                        {roleLabel(r.proposal_role)}
+                        <span className="ml-2 text-xs text-muted-foreground">{r.name}</span>
+                      </SelectItem>
+                    ))}
                   </SelectContent>
+
                 </Select>
               </div>
               <div>
