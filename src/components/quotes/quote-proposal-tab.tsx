@@ -93,6 +93,12 @@ import {
 import { QuoteProposalIntelligencePanel } from "@/components/quotes/quote-proposal-intelligence-panel";
 import { ProposalAssemblyPanel } from "@/components/quotes/proposal-assembly-panel";
 import {
+  GanttPrintable,
+  PaymentSchedulePrintable,
+  hasAttachmentToken,
+  splitOnAttachmentTokens,
+} from "@/components/quotes/printable/quote-attachment-printables";
+import {
   useResolvedProposal,
   type ProposalRenderKind,
 } from "@/lib/proposal-rendering";
@@ -348,7 +354,12 @@ function useQuoteBuilderPlaceholderMap(args: {
 function resolveQuoteBuilderPlaceholders(text: string, map: Record<string, string>) {
   if (!text) return text;
   return text
-    .replace(DOUBLE_BRACE_TOKEN_RE, (_match, key: string) => map[key] ?? "")
+    .replace(DOUBLE_BRACE_TOKEN_RE, (match, key: string) => {
+      // Preserve attachment.* tokens — they are rendered as live React
+      // components by splitOnAttachmentTokens, not as inline text.
+      if (key.startsWith("attachment.")) return match;
+      return map[key] ?? "";
+    })
     .replace(SINGLE_BRACE_TOKEN_RE, (_match, key: string) => map[key] ?? "")
     .replace(/\[Proposal Title \/ RFP Title\]/g, map["proposal.title"] ?? "")
     .replace(/\[Issue Date\]/g, map["proposal.date"] ?? "")
@@ -2438,8 +2449,13 @@ function ProposalPrintDocument({
             const slug =
               (b as unknown as { slug?: string | null }).slug ??
               inferSlugFromContent(b.generated_content as GenContent);
+            const rawContent = b.content ?? "";
+            const isAttachmentBlock =
+              b.block_type !== "generated_section" && hasAttachmentToken(rawContent);
             const sanitizedContent =
-              b.block_type === "generated_section" ? "" : getRenderableText(b);
+              b.block_type === "generated_section" || isAttachmentBlock
+                ? ""
+                : getRenderableText(b);
             return (
               <section
                 key={b.id}
@@ -2456,6 +2472,24 @@ function ProposalPrintDocument({
                     content={b.generated_content as GenContent}
                     locale={locale}
                   />
+                ) : isAttachmentBlock ? (
+                  <div className="space-y-3">
+                    {splitOnAttachmentTokens(rawContent).map((seg, i) =>
+                      seg.kind === "text" ? (
+                        <ProseBlock
+                          key={i}
+                          text={sanitizeProseForDisplay(
+                            resolveQuoteBuilderPlaceholders(seg.value, placeholderMap),
+                          )}
+                          alreadySanitized
+                        />
+                      ) : seg.token === "gantt" ? (
+                        <GanttPrintable key={i} quoteId={document.quote_id} />
+                      ) : (
+                        <PaymentSchedulePrintable key={i} quoteId={document.quote_id} />
+                      ),
+                    )}
+                  </div>
                 ) : (
                   <ProseBlock text={sanitizedContent} alreadySanitized />
                 )}
