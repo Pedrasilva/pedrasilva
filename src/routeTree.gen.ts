@@ -44,6 +44,7 @@ import { Route as AppCrmOpportunitiesRouteImport } from './routes/_app.crm.oppor
 import { Route as AppCrmContactsRouteImport } from './routes/_app.crm.contacts'
 import { Route as AppCrmCompaniesRouteImport } from './routes/_app.crm.companies'
 import { Route as AppCrmAccountsRouteImport } from './routes/_app.crm.accounts'
+import { Route as AppAdminProposalRolesRouteImport } from './routes/_app.admin.proposal-roles'
 import { Route as AppAdminProjectsRouteImport } from './routes/_app.admin.projects'
 import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports'
 import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin.company-settings'
@@ -258,6 +259,11 @@ const AppCrmAccountsRoute = AppCrmAccountsRouteImport.update({
   id: '/accounts',
   path: '/accounts',
   getParentRoute: () => AppCrmRoute,
+} as any)
+const AppAdminProposalRolesRoute = AppAdminProposalRolesRouteImport.update({
+  id: '/admin/proposal-roles',
+  path: '/admin/proposal-roles',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppAdminProjectsRoute = AppAdminProjectsRouteImport.update({
   id: '/admin/projects',
@@ -490,6 +496,7 @@ export interface FileRoutesByFullPath {
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
+  '/admin/proposal-roles': typeof AppAdminProposalRolesRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
   '/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/crm/contacts': typeof AppCrmContactsRoute
@@ -562,6 +569,7 @@ export interface FileRoutesByTo {
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
+  '/admin/proposal-roles': typeof AppAdminProposalRolesRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
   '/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/crm/contacts': typeof AppCrmContactsRoute
@@ -639,6 +647,7 @@ export interface FileRoutesById {
   '/_app/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/_app/admin/imports': typeof AppAdminImportsRoute
   '/_app/admin/projects': typeof AppAdminProjectsRoute
+  '/_app/admin/proposal-roles': typeof AppAdminProposalRolesRoute
   '/_app/crm/accounts': typeof AppCrmAccountsRouteWithChildren
   '/_app/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/_app/crm/contacts': typeof AppCrmContactsRoute
@@ -716,6 +725,7 @@ export interface FileRouteTypes {
     | '/admin/company-settings'
     | '/admin/imports'
     | '/admin/projects'
+    | '/admin/proposal-roles'
     | '/crm/accounts'
     | '/crm/companies'
     | '/crm/contacts'
@@ -788,6 +798,7 @@ export interface FileRouteTypes {
     | '/admin/company-settings'
     | '/admin/imports'
     | '/admin/projects'
+    | '/admin/proposal-roles'
     | '/crm/accounts'
     | '/crm/companies'
     | '/crm/contacts'
@@ -864,6 +875,7 @@ export interface FileRouteTypes {
     | '/_app/admin/company-settings'
     | '/_app/admin/imports'
     | '/_app/admin/projects'
+    | '/_app/admin/proposal-roles'
     | '/_app/crm/accounts'
     | '/_app/crm/companies'
     | '/_app/crm/contacts'
@@ -1182,6 +1194,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/crm/accounts'
       preLoaderRoute: typeof AppCrmAccountsRouteImport
       parentRoute: typeof AppCrmRoute
+    }
+    '/_app/admin/proposal-roles': {
+      id: '/_app/admin/proposal-roles'
+      path: '/admin/proposal-roles'
+      fullPath: '/admin/proposal-roles'
+      preLoaderRoute: typeof AppAdminProposalRolesRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/admin/projects': {
       id: '/_app/admin/projects'
@@ -1659,6 +1678,7 @@ interface AppRouteChildren {
   AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
   AppAdminImportsRoute: typeof AppAdminImportsRoute
   AppAdminProjectsRoute: typeof AppAdminProjectsRoute
+  AppAdminProposalRolesRoute: typeof AppAdminProposalRolesRoute
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRouteWithChildren
   AppProjectsFinancialsRoute: typeof AppProjectsFinancialsRoute
   AppProjectsForecastRoute: typeof AppProjectsForecastRoute
@@ -1679,6 +1699,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
   AppAdminImportsRoute: AppAdminImportsRoute,
   AppAdminProjectsRoute: AppAdminProjectsRoute,
+  AppAdminProposalRolesRoute: AppAdminProposalRolesRoute,
   AppProjectsProjectIdRoute: AppProjectsProjectIdRouteWithChildren,
   AppProjectsFinancialsRoute: AppProjectsFinancialsRoute,
   AppProjectsForecastRoute: AppProjectsForecastRoute,
@@ -1701,13 +1722,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
