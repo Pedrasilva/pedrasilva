@@ -2444,8 +2444,13 @@ function ProposalPrintDocument({
             const slug =
               (b as unknown as { slug?: string | null }).slug ??
               inferSlugFromContent(b.generated_content as GenContent);
+            const rawContent = b.content ?? "";
+            const isAttachmentBlock =
+              b.block_type !== "generated_section" && hasAttachmentToken(rawContent);
             const sanitizedContent =
-              b.block_type === "generated_section" ? "" : getRenderableText(b);
+              b.block_type === "generated_section" || isAttachmentBlock
+                ? ""
+                : getRenderableText(b);
             return (
               <section
                 key={b.id}
@@ -2462,6 +2467,24 @@ function ProposalPrintDocument({
                     content={b.generated_content as GenContent}
                     locale={locale}
                   />
+                ) : isAttachmentBlock ? (
+                  <div className="space-y-3">
+                    {splitOnAttachmentTokens(rawContent).map((seg, i) =>
+                      seg.kind === "text" ? (
+                        <ProseBlock
+                          key={i}
+                          text={sanitizeProseForDisplay(
+                            resolveQuoteBuilderPlaceholders(seg.value, placeholderMap),
+                          )}
+                          alreadySanitized
+                        />
+                      ) : seg.token === "gantt" ? (
+                        <GanttPrintable key={i} quoteId={document.quote_id} />
+                      ) : (
+                        <PaymentSchedulePrintable key={i} quoteId={document.quote_id} />
+                      ),
+                    )}
+                  </div>
                 ) : (
                   <ProseBlock text={sanitizedContent} alreadySanitized />
                 )}
