@@ -324,7 +324,7 @@ function useQuoteBuilderPlaceholderMap(args: {
 
     stages.forEach((stage, index) => {
       const n = index + 1;
-      const durationDays = stage.duration_days ?? daysBetweenInclusive(stage.start_date, stage.end_date);
+      const durationDays = daysBetweenInclusive(stage.start_date, stage.end_date);
       const hours = hoursByStage.get(stage.id) ?? null;
       const fee = stage.budget == null ? null : Number(stage.budget);
       map[`stage.${n}.title`] = stage.name;
@@ -703,9 +703,10 @@ interface GeneratedBlockCardProps {
   blocks: QuoteProposalDocumentBlock[];
   index: number;
   documentId: string;
+  placeholderMap: Record<string, string>;
 }
 
-function GeneratedBlockCard({ block, blocks, index, documentId }: GeneratedBlockCardProps) {
+function GeneratedBlockCard({ block, blocks, index, documentId, placeholderMap }: GeneratedBlockCardProps) {
   const { t } = useTranslation("crm");
   const locale = useDateLocale();
   const isGenerated = block.block_type === "generated_section";
@@ -730,6 +731,10 @@ function GeneratedBlockCard({ block, blocks, index, documentId }: GeneratedBlock
   const canEdit = !isLocked && !isGenerated;
   const isFirst = index === 0;
   const isLast = index === blocks.length - 1;
+  const displayContent = useMemo(
+    () => resolveQuoteBuilderPlaceholders(block.content ?? "", placeholderMap),
+    [block.content, placeholderMap],
+  );
 
   const handleSave = async () => {
     try {
@@ -876,7 +881,7 @@ function GeneratedBlockCard({ block, blocks, index, documentId }: GeneratedBlock
         </div>
       ) : (
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-          {block.content}
+          {displayContent}
         </p>
       )}
     </article>
