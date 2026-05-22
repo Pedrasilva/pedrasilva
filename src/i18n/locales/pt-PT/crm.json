@@ -363,6 +363,8 @@
       "description": "Reveja a proposta e utilize as acções de fluxo existentes no cabeçalho para enviar, aprovar ou converter num projecto operacional.",
       "placeholderNote": "A pré-visualização e publicação inline serão adicionadas numa fase posterior. Por enquanto, use o documento de proposta gerado no Passo 2 e as acções do cabeçalho para fazer avançar a proposta.",
       "headerActionsHint": "As acções do cabeçalho (Enviar / Aprovar / Converter) continuam a ser a fonte de verdade para mudanças de estado.",
+      "editEstimate": "Editar estimativa",
+      "editContent": "Editar conteúdo",
       "readinessTitle": "Prontidão",
       "softWarningHint": "Estes são apenas sinais informativos — nada é bloqueado.",
       "checks": {
