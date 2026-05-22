@@ -42,6 +42,8 @@ import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
 import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
 import { formatEUR } from "@/lib/crm/types";
+import { useProposalRoles } from "@/lib/proposal-roles";
+
 
 const PCT_PRESETS = [100, 80, 50, 20, 10] as const;
 const pctToHpd = (pct: number) => Math.max(0, Math.min(24, (pct / 100) * 8));
@@ -55,7 +57,7 @@ export function QuotePlanningTab({
   quoteId: string;
   pricingMultiplier?: number;
 }) {
-  const { t } = useTranslation("crm");
+  const { t, i18n } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
   const depsQ = useQuoteDependencies(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
@@ -78,6 +80,19 @@ export function QuotePlanningTab({
   // collaborator.archived_at IS NULL).
   const { poolResources: resources } = useQuotePlanningPool();
   const { data: defaults } = useDefaultResourceRates();
+  const { data: proposalRoles = [] } = useProposalRoles();
+  const isPt = (i18n.language ?? "").startsWith("pt");
+  const roleLabel = useMemo(() => {
+    const byCode: Record<string, string> = {};
+    for (const r of proposalRoles) {
+      byCode[r.code] = isPt ? r.label_pt : r.label_en;
+    }
+    return (code: string | null | undefined): string => {
+      if (!code) return isPt ? "Sem título" : "Untitled";
+      return byCode[code] ?? code;
+    };
+  }, [proposalRoles, isPt]);
+
   const stageMap = useMemo(
     () => Object.fromEntries(stages.map((s) => [s.id, s])),
     [stages],
@@ -536,9 +551,12 @@ export function QuotePlanningTab({
                         className="inline-block h-2 w-2 rounded-full"
                         style={{ background: a.resource?.color ?? "#a78bfa" }}
                       />
-                      {a.resource?.name ?? "—"}
+                      <span className="font-medium">
+                        {roleLabel(a.resource?.proposal_role)}
+                      </span>
                     </div>
                   </TableCell>
+
                   <TableCell>{stageMap[a.stage_id]?.name ?? "—"}</TableCell>
                   <TableCell>{a.start_date}</TableCell>
                   <TableCell>{a.end_date}</TableCell>
@@ -578,8 +596,14 @@ export function QuotePlanningTab({
                 >
                   <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
                   <SelectContent>
-                    {resources.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
+                    {resources.map((r) => (
+                      <SelectItem key={r.id} value={r.id}>
+                        {roleLabel(r.proposal_role)}
+                        <span className="ml-2 text-xs text-muted-foreground">{r.name}</span>
+                      </SelectItem>
+                    ))}
                   </SelectContent>
+
                 </Select>
               </div>
               <div>

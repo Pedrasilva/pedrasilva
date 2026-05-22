@@ -68,6 +68,8 @@ import { SnapshotForm } from "@/components/SnapshotForm";
 import { SnapshotMirrorPanel } from "@/components/snapshot/SnapshotMirrorPanel";
 import { ResumoCompare } from "@/components/ResumoCompare";
 import { CollaboratorPhotoUploader } from "@/components/CollaboratorPhotoUploader";
+import { CommercialRoleCard } from "@/components/hr/CommercialRoleCard";
+
 import {
   useArchiveCollaborator,
   useRestoreCollaborator,
@@ -742,6 +744,10 @@ function CollaboratorPage() {
           </CollapsibleContent>
         </Collapsible>
       </Card>
+
+      <CommercialRoleCard collaborator={draft} />
+
+
 
       {!canViewCompensation ? (
         <Card>
