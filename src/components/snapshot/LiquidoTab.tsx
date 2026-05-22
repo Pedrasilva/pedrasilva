@@ -100,15 +100,19 @@ export function LiquidoTab({ draft }: { draft: Snapshot }) {
   }
   rows.push(
     {
-      label: t("snapshot.liquido.rows.totalNetMonthly"),
-      value: liquidoMensalMedio + c.alimentacaoMensal + c.ajudasMensal + (c.passeMensal ?? 0),
-      strong: true,
-      accent: true,
-    },
-    {
       label: t("snapshot.liquido.rows.benefitsMonthlyGuaranteed"),
       value: c.beneficiosMensalGarantido,
-      muted: true,
+    },
+    {
+      label: t("snapshot.liquido.rows.totalNetMonthly"),
+      value:
+        liquidoMensalMedio +
+        c.alimentacaoMensal +
+        c.ajudasMensal +
+        (c.passeMensal ?? 0) +
+        c.beneficiosMensalGarantido,
+      strong: true,
+      accent: true,
     },
   );
 
