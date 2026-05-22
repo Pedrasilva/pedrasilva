@@ -2224,12 +2224,14 @@ function ProposalPrintDocument({
   clientName,
   accountName,
   proposalKind,
+  placeholderMap,
 }: {
   document: QuoteProposalDocument;
   blocks: QuoteProposalDocumentBlock[];
   clientName: string | null;
   accountName: string | null;
   proposalKind: ProposalRenderKind;
+  placeholderMap: Record<string, string>;
 }) {
   const { t } = useTranslation("crm");
   const locale = useDateLocale();
@@ -2293,7 +2295,7 @@ function ProposalPrintDocument({
   );
 
   const getRenderableText = (b: QuoteProposalDocumentBlock): string =>
-    sanitizeProseForDisplay(b.content ?? "");
+    sanitizeProseForDisplay(resolveQuoteBuilderPlaceholders(b.content ?? "", placeholderMap));
 
   // Decide if a block has renderable content; used to hide empty blocks.
   function blockHasContent(b: QuoteProposalDocumentBlock): boolean {
@@ -2518,7 +2520,13 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
     useLatestQuoteProposalDocument(quoteId);
   const { data: blocks = [] } = useQuoteProposalDocumentBlocks(document?.id);
   const [legacyOpen, setLegacyOpen] = useState(false);
-  const [mode, setMode] = useState<"edit" | "preview">("edit");
+  const [mode, setMode] = useState<"edit" | "preview">(props.initialMode ?? "edit");
+  const placeholderMap = useQuoteBuilderPlaceholderMap({
+    quoteId,
+    title: props.title,
+    clientName,
+    accountName,
+  });
 
   // Proposal number for the toolbar badge — purely display, no mutations.
   const { data: headerMeta } = useQuery({
@@ -2623,21 +2631,24 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
             clientName={clientName}
             accountName={accountName}
             proposalKind={toRenderKind(quoteTypeToProposalKind(quoteType))}
+            placeholderMap={placeholderMap}
           />
 
         </div>
       ) : (
         <div className="no-print space-y-4">
-          <div className="flex justify-end">
-            <ProposalAssemblyPanel
-              quoteId={quoteId}
-              documentId={document?.id}
-              quoteCode={null}
-              quoteTitle={props.title ?? null}
-              clientName={clientName}
-              hasExistingBlocks={(blocks?.length ?? 0) > 0}
-            />
-          </div>
+          {props.showAssemblyTools !== false && (
+            <div className="flex justify-end">
+              <ProposalAssemblyPanel
+                quoteId={quoteId}
+                documentId={document?.id}
+                quoteCode={null}
+                quoteTitle={props.title ?? null}
+                clientName={clientName}
+                hasExistingBlocks={(blocks?.length ?? 0) > 0}
+              />
+            </div>
+          )}
           <QuoteProposalIntelligencePanel
             quoteId={quoteId}
             documentId={document?.id}
@@ -2654,6 +2665,9 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
             quoteId={quoteId}
             document={document}
             isLoadingDocument={isLoadingDocument}
+            title={props.title}
+            clientName={clientName}
+            accountName={accountName}
             quoteType={quoteType}
             quoteCategory={props.quoteCategory ?? null}
             ontologyFamilyCode={props.ontologyFamilyCode ?? null}
