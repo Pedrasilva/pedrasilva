@@ -200,9 +200,10 @@ export function computeSnapshot(s: Snapshot) {
   // D41 = C41*12 + D37 (inclui benefícios anuais — alinhado com Excel original)
   const brutoAnual = brutoMensal * 12 + beneficiosAnual;
 
-  // Líquido total mensal (líquido + alimentação + ajudas)
-  // Passe não entra no líquido — é um benefício isento pago pela empresa.
-  const liquidoTotalMensal = liquido12m + alimentacaoMensal + ajudasMensal;
+  // Líquido total mensal (líquido + alimentação + ajudas + passe)
+  // Passe / transporte público é uma ajuda de custo isenta paga ao colaborador,
+  // por isso entra no que ele efectivamente recebe por mês.
+  const liquidoTotalMensal = liquido12m + alimentacaoMensal + ajudasMensal + passeMensal;
 
   // VBG / Custo total RH = bruto anual completo.
   // `brutoAnual` já inclui base×meses, SS patronal, subsídio de alimentação,
