@@ -743,6 +743,10 @@ function CollaboratorPage() {
         </Collapsible>
       </Card>
 
+      <CommercialRoleCard collaborator={draft} />
+
+
+
       {!canViewCompensation ? (
         <Card>
           <CardHeader>
