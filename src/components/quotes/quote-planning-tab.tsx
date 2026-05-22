@@ -80,6 +80,19 @@ export function QuotePlanningTab({
   // collaborator.archived_at IS NULL).
   const { poolResources: resources } = useQuotePlanningPool();
   const { data: defaults } = useDefaultResourceRates();
+  const { data: proposalRoles = [] } = useProposalRoles();
+  const isPt = (i18n.language ?? "").startsWith("pt");
+  const roleLabel = useMemo(() => {
+    const byCode: Record<string, string> = {};
+    for (const r of proposalRoles) {
+      byCode[r.code] = isPt ? r.label_pt : r.label_en;
+    }
+    return (code: string | null | undefined): string => {
+      if (!code) return isPt ? "Sem título" : "Untitled";
+      return byCode[code] ?? code;
+    };
+  }, [proposalRoles, isPt]);
+
   const stageMap = useMemo(
     () => Object.fromEntries(stages.map((s) => [s.id, s])),
     [stages],
