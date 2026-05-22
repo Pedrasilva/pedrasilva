@@ -57,8 +57,10 @@ function OpportunitiesPage() {
     },
   });
 
+  const instantiate = useInstantiateQuoteTemplate();
+
   const createQuote = useMutation({
-    mutationFn: async ({ opp, category }: { opp: Row; category: QuoteCategory }) => {
+    mutationFn: async ({ opp, category, templateId }: { opp: Row; category: QuoteCategory; templateId?: string | null }) => {
       const quote_type = defaultQuoteTypeForCategory(category);
       const fee_structure_type = category === "project" ? "fixed" : "monthly";
       const { data, error } = await supabase
@@ -79,6 +81,13 @@ function OpportunitiesPage() {
         .select("id")
         .single();
       if (error) throw error;
+      if (templateId) {
+        try {
+          await instantiate.mutateAsync({ quoteId: data.id, templateId });
+        } catch (e) {
+          toast.error((e as Error).message);
+        }
+      }
       return data;
     },
     onSuccess: (data) => {
