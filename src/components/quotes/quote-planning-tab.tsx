@@ -551,9 +551,12 @@ export function QuotePlanningTab({
                         className="inline-block h-2 w-2 rounded-full"
                         style={{ background: a.resource?.color ?? "#a78bfa" }}
                       />
-                      {a.resource?.name ?? "—"}
+                      <span className="font-medium">
+                        {roleLabel(a.resource?.proposal_role)}
+                      </span>
                     </div>
                   </TableCell>
+
                   <TableCell>{stageMap[a.stage_id]?.name ?? "—"}</TableCell>
                   <TableCell>{a.start_date}</TableCell>
                   <TableCell>{a.end_date}</TableCell>
