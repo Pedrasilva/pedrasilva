@@ -313,10 +313,10 @@ function OpportunitiesPage() {
       <QuoteCategoryChooserDialog
         opp={chooserOpp}
         onClose={() => setChooserOpp(null)}
-        onPick={(category) => {
+        onPick={(category, templateId) => {
           if (!chooserOpp) return;
           setCreatingFor(chooserOpp.id);
-          createQuote.mutate({ opp: chooserOpp, category });
+          createQuote.mutate({ opp: chooserOpp, category, templateId });
         }}
         isPending={createQuote.isPending}
       />
