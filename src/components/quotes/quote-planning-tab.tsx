@@ -42,6 +42,8 @@ import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
 import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
 import { formatEUR } from "@/lib/crm/types";
+import { useProposalRoles } from "@/lib/proposal-roles";
+
 
 const PCT_PRESETS = [100, 80, 50, 20, 10] as const;
 const pctToHpd = (pct: number) => Math.max(0, Math.min(24, (pct / 100) * 8));
