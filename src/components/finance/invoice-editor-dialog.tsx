@@ -17,7 +17,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, FileText, X, CheckCircle2 } from "lucide-react";
+import { Loader2, Plus, Trash2, FileText, X, CheckCircle2, BadgeCheck, ExternalLink } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { issueFiscalInvoice } from "@/lib/integrations/invoicexpress.functions";
 import {
   Dialog,
   DialogContent,
@@ -278,6 +281,44 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
     }
   }
 
+  const issueFiscal = useServerFn(issueFiscalInvoice);
+  const qc = useQueryClient();
+  const [issuingFiscal, setIssuingFiscal] = useState(false);
+
+  const docRow = existing.data?.document as
+    | (Record<string, unknown> & {
+        invoicexpress_id?: number | null;
+        atcud?: string | null;
+        permalink_pdf?: string | null;
+      })
+    | undefined;
+  const ixId = docRow?.invoicexpress_id ?? null;
+  const atcud = docRow?.atcud ?? null;
+  const permalinkPdf = docRow?.permalink_pdf ?? null;
+
+  async function handleIssueFiscal() {
+    if (!documentId) {
+      toast.error(t("finance:invoices.fiscal.saveFirst"));
+      return;
+    }
+    setIssuingFiscal(true);
+    try {
+      const res = await issueFiscal({ data: { documentId } });
+      toast.success(t("finance:invoices.fiscal.issued"));
+      if (res.permalink_pdf) window.open(res.permalink_pdf, "_blank");
+      await qc.invalidateQueries({ queryKey: ["fin-doc", documentId] });
+      await qc.invalidateQueries({ queryKey: ["fin-documents"] });
+    } catch (e) {
+      toast.error(
+        `${t("finance:invoices.fiscal.issueFailed")}: ${
+          e instanceof Error ? e.message : String(e)
+        }`,
+      );
+    } finally {
+      setIssuingFiscal(false);
+    }
+  }
+
   const busy =
     create.isPending ||
     update.isPending ||
@@ -298,6 +339,28 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
                       : t("finance:invoices.newTitle")}
                   </DialogTitle>
                   <StatusBadge status={status} />
+                  {ixId && (
+                    <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-600 gap-1">
+                      <BadgeCheck className="size-3" />
+                      AT
+                    </Badge>
+                  )}
+                  {atcud && (
+                    <span className="text-[11px] text-muted-foreground font-mono">
+                      {t("finance:invoices.fiscal.atcud")}: {atcud}
+                    </span>
+                  )}
+                  {permalinkPdf && (
+                    <a
+                      href={permalinkPdf}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-primary hover:underline inline-flex items-center gap-1"
+                    >
+                      <ExternalLink className="size-3" />
+                      {t("finance:invoices.fiscal.viewPdf")}
+                    </a>
+                  )}
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">
@@ -697,6 +760,25 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
                         : t("finance:invoices.save")}
                     </Button>
                   </>
+                )}
+                {isExisting && !ixId && status !== "cancelled" && (
+                  <Button
+                    size="sm"
+                    variant="default"
+                    className="bg-emerald-600 hover:bg-emerald-700"
+                    onClick={handleIssueFiscal}
+                    disabled={busy || issuingFiscal}
+                    title={t("finance:invoices.fiscal.issue") as string}
+                  >
+                    {issuingFiscal ? (
+                      <Loader2 className="size-4 animate-spin mr-1" />
+                    ) : (
+                      <BadgeCheck className="size-4 mr-1" />
+                    )}
+                    {issuingFiscal
+                      ? t("finance:invoices.fiscal.issuing")
+                      : t("finance:invoices.fiscal.issue")}
+                  </Button>
                 )}
               </div>
             </div>
