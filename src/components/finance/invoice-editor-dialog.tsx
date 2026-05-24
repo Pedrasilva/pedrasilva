@@ -286,15 +286,15 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
   const [issuingFiscal, setIssuingFiscal] = useState(false);
 
   const docRow = existing.data?.document as
-    | (typeof existing.data extends infer T
-        ? T extends { document: infer D } ? D : never
-        : never)
+    | (Record<string, unknown> & {
+        invoicexpress_id?: number | null;
+        atcud?: string | null;
+        permalink_pdf?: string | null;
+      })
     | undefined;
-  const ixId = (docRow as { invoicexpress_id?: number | null } | undefined)
-    ?.invoicexpress_id ?? null;
-  const atcud = (docRow as { atcud?: string | null } | undefined)?.atcud ?? null;
-  const permalinkPdf = (docRow as { permalink_pdf?: string | null } | undefined)
-    ?.permalink_pdf ?? null;
+  const ixId = docRow?.invoicexpress_id ?? null;
+  const atcud = docRow?.atcud ?? null;
+  const permalinkPdf = docRow?.permalink_pdf ?? null;
 
   async function handleIssueFiscal() {
     if (!documentId) {
