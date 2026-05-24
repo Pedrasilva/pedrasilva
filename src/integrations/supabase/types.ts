@@ -2378,6 +2378,7 @@ export type Database = {
       }
       financial_documents: {
         Row: {
+          atcud: string | null
           classification_id: string | null
           counterparty_client_id: string | null
           counterparty_name_snapshot: string | null
@@ -2392,12 +2393,20 @@ export type Database = {
           external_reference: string | null
           file_path: string | null
           id: string
+          invoicexpress_id: number | null
+          invoicexpress_status: string | null
+          invoicexpress_type: string | null
           issue_date: string
+          issued_at: string | null
+          last_sync_at: string | null
+          last_sync_error: string | null
           notes: string | null
           ocr_metadata: Json | null
           outstanding_amount: number | null
           paid_amount: number
+          permalink_pdf: string | null
           project_id: string | null
+          series: string | null
           source: Database["public"]["Enums"]["financial_doc_source"]
           source_ref_id: string | null
           source_ref_table: string | null
@@ -2409,6 +2418,7 @@ export type Database = {
           vat_period: string | null
         }
         Insert: {
+          atcud?: string | null
           classification_id?: string | null
           counterparty_client_id?: string | null
           counterparty_name_snapshot?: string | null
@@ -2423,12 +2433,20 @@ export type Database = {
           external_reference?: string | null
           file_path?: string | null
           id?: string
+          invoicexpress_id?: number | null
+          invoicexpress_status?: string | null
+          invoicexpress_type?: string | null
           issue_date: string
+          issued_at?: string | null
+          last_sync_at?: string | null
+          last_sync_error?: string | null
           notes?: string | null
           ocr_metadata?: Json | null
           outstanding_amount?: number | null
           paid_amount?: number
+          permalink_pdf?: string | null
           project_id?: string | null
+          series?: string | null
           source?: Database["public"]["Enums"]["financial_doc_source"]
           source_ref_id?: string | null
           source_ref_table?: string | null
@@ -2440,6 +2458,7 @@ export type Database = {
           vat_period?: string | null
         }
         Update: {
+          atcud?: string | null
           classification_id?: string | null
           counterparty_client_id?: string | null
           counterparty_name_snapshot?: string | null
@@ -2454,12 +2473,20 @@ export type Database = {
           external_reference?: string | null
           file_path?: string | null
           id?: string
+          invoicexpress_id?: number | null
+          invoicexpress_status?: string | null
+          invoicexpress_type?: string | null
           issue_date?: string
+          issued_at?: string | null
+          last_sync_at?: string | null
+          last_sync_error?: string | null
           notes?: string | null
           ocr_metadata?: Json | null
           outstanding_amount?: number | null
           paid_amount?: number
+          permalink_pdf?: string | null
           project_id?: string | null
+          series?: string | null
           source?: Database["public"]["Enums"]["financial_doc_source"]
           source_ref_id?: string | null
           source_ref_table?: string | null
