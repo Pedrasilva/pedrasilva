@@ -1105,6 +1105,16 @@
       "lineDescription": "Every line needs a description.",
       "lineQuantity": "Quantity must be greater than 0.",
       "linePrice": "Unit price must be 0 or more."
+    },
+    "fiscal": {
+      "issue": "Issue AT invoice",
+      "issuing": "Issuing…",
+      "issued": "Invoice issued on InvoiceXpress",
+      "issueFailed": "Failed to issue invoice",
+      "atcud": "ATCUD",
+      "viewPdf": "View certified PDF",
+      "alreadyIssued": "Already certified — ATCUD locked",
+      "saveFirst": "Save the invoice as draft before issuing."
     }
   },
   "settlement": {
