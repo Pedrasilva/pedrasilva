@@ -281,6 +281,44 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
     }
   }
 
+  const issueFiscal = useServerFn(issueFiscalInvoice);
+  const qc = useQueryClient();
+  const [issuingFiscal, setIssuingFiscal] = useState(false);
+
+  const docRow = existing.data?.document as
+    | (typeof existing.data extends infer T
+        ? T extends { document: infer D } ? D : never
+        : never)
+    | undefined;
+  const ixId = (docRow as { invoicexpress_id?: number | null } | undefined)
+    ?.invoicexpress_id ?? null;
+  const atcud = (docRow as { atcud?: string | null } | undefined)?.atcud ?? null;
+  const permalinkPdf = (docRow as { permalink_pdf?: string | null } | undefined)
+    ?.permalink_pdf ?? null;
+
+  async function handleIssueFiscal() {
+    if (!documentId) {
+      toast.error(t("finance:invoices.fiscal.saveFirst"));
+      return;
+    }
+    setIssuingFiscal(true);
+    try {
+      const res = await issueFiscal({ data: { documentId } });
+      toast.success(t("finance:invoices.fiscal.issued"));
+      if (res.permalink_pdf) window.open(res.permalink_pdf, "_blank");
+      await qc.invalidateQueries({ queryKey: ["fin-doc", documentId] });
+      await qc.invalidateQueries({ queryKey: ["fin-documents"] });
+    } catch (e) {
+      toast.error(
+        `${t("finance:invoices.fiscal.issueFailed")}: ${
+          e instanceof Error ? e.message : String(e)
+        }`,
+      );
+    } finally {
+      setIssuingFiscal(false);
+    }
+  }
+
   const busy =
     create.isPending ||
     update.isPending ||
