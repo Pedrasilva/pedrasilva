@@ -339,6 +339,28 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
                       : t("finance:invoices.newTitle")}
                   </DialogTitle>
                   <StatusBadge status={status} />
+                  {ixId && (
+                    <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-600 gap-1">
+                      <BadgeCheck className="size-3" />
+                      AT
+                    </Badge>
+                  )}
+                  {atcud && (
+                    <span className="text-[11px] text-muted-foreground font-mono">
+                      {t("finance:invoices.fiscal.atcud")}: {atcud}
+                    </span>
+                  )}
+                  {permalinkPdf && (
+                    <a
+                      href={permalinkPdf}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-primary hover:underline inline-flex items-center gap-1"
+                    >
+                      <ExternalLink className="size-3" />
+                      {t("finance:invoices.fiscal.viewPdf")}
+                    </a>
+                  )}
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">
