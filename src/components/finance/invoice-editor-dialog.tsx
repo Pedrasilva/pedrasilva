@@ -761,6 +761,25 @@ export function InvoiceEditorDialog({ open, documentId, onClose }: Props) {
                     </Button>
                   </>
                 )}
+                {isExisting && !ixId && status !== "cancelled" && (
+                  <Button
+                    size="sm"
+                    variant="default"
+                    className="bg-emerald-600 hover:bg-emerald-700"
+                    onClick={handleIssueFiscal}
+                    disabled={busy || issuingFiscal}
+                    title={t("finance:invoices.fiscal.issue") as string}
+                  >
+                    {issuingFiscal ? (
+                      <Loader2 className="size-4 animate-spin mr-1" />
+                    ) : (
+                      <BadgeCheck className="size-4 mr-1" />
+                    )}
+                    {issuingFiscal
+                      ? t("finance:invoices.fiscal.issuing")
+                      : t("finance:invoices.fiscal.issue")}
+                  </Button>
+                )}
               </div>
             </div>
           </div>
