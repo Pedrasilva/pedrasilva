@@ -1,10 +1,5 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -13,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FinanceSidebar } from "@/components/finance/finance-sidebar";
+import { FinanceTopNav } from "@/components/finance/finance-top-nav";
 import {
   FinanceShellProvider,
   useFinanceShell,
@@ -33,17 +28,13 @@ export const Route = createFileRoute("/_app/finance")({
 function FinanceLayout() {
   return (
     <FinanceShellProvider>
-      <SidebarProvider>
-        <div className="finance-shell flex min-h-[calc(100vh-3.5rem)] w-full">
-          <FinanceSidebar />
-          <SidebarInset className="flex-1">
-            <FinanceHeader />
-            <main className="flex-1 px-4 sm:px-6 py-6 lg:py-8">
-              <Outlet />
-            </main>
-          </SidebarInset>
-        </div>
-      </SidebarProvider>
+      <div className="flex min-h-[calc(100vh-3.5rem)] w-full flex-col">
+        <FinanceHeader />
+        <FinanceTopNav />
+        <main className="flex-1 px-4 sm:px-6 py-6 lg:py-8">
+          <Outlet />
+        </main>
+      </div>
     </FinanceShellProvider>
   );
 }
@@ -53,7 +44,6 @@ function FinanceHeader() {
   const { vatMode, setVatMode } = useFinanceShell();
   return (
     <header className="sticky top-14 z-30 flex h-12 items-center gap-3 border-b bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <SidebarTrigger />
       <div className="text-sm font-semibold tracking-tight">
         {t("finance:page.title")}
       </div>
