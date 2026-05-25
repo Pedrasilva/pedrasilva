@@ -779,3 +779,12 @@
   }
 }
 
+
+/* Finance shell: offset the fixed sidebar to sit beside the global AppRail
+   (w-14 = 3.5rem) instead of underneath it. AppRail is hidden below md, so
+   this offset only applies at md and up. */
+@media (min-width: 768px) {
+  .finance-shell [data-side="left"] > div:nth-child(2) {
+    left: 3.5rem;
+  }
+}

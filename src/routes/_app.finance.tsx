@@ -34,7 +34,7 @@ function FinanceLayout() {
   return (
     <FinanceShellProvider>
       <SidebarProvider>
-        <div className="flex min-h-[calc(100vh-3.5rem)] w-full">
+        <div className="finance-shell flex min-h-[calc(100vh-3.5rem)] w-full">
           <FinanceSidebar />
           <SidebarInset className="flex-1">
             <FinanceHeader />
