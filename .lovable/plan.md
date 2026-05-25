@@ -1,43 +1,65 @@
-# Fix finance sidebar overlap with global rail
+## Goal
 
-## Problem
+Replace the finance left sidebar with a horizontal secondary nav under the finance header, so the full viewport width is available for tables and reports.
 
-The global `AppRail` (56px / `w-14`, sticky at the viewport's left edge) and the shadcn `<Sidebar>` inside `FinanceSidebar` are both anchored to `left: 0`. The shadcn primitive uses `position: fixed`, so it renders **underneath** the rail — every label in the screenshot is clipped on the left (`são geral`, `rnecedores`, `mpras`, …).
+## Layout change
 
-## Fix
-
-Anchor the finance sidebar 56px from the left so it sits flush against the rail.
-
-Scope: only the finance shell (`src/routes/_app.finance.tsx`). No changes to the shadcn `Sidebar` primitive (would affect other surfaces), no changes to `AppRail`.
-
-## Technical details
-
-Wrap the `<SidebarProvider>` subtree in a container that:
-
-1. Adds left padding equal to the rail width so the *content* (`<SidebarInset>` / `<Outlet />`) clears the rail.
-2. Overrides the fixed sidebar panel's `left` to `3.5rem` (= `w-14`) via a scoped CSS selector targeting the data attribute shadcn already emits (`[data-sidebar="sidebar"]` on the inner fixed panel) so the rail and the finance sidebar are visually adjacent.
-
-Concretely in `src/routes/_app.finance.tsx`, around the existing `<SidebarProvider>`:
-
-```text
-<div className="finance-shell flex min-h-screen w-full">
-  <SidebarProvider>
-    <FinanceSidebar />
-    <SidebarInset> … <Outlet /> … </SidebarInset>
-  </SidebarProvider>
-</div>
+Before:
+```
+┌──┬─────────┬───────────────────────┐
+│  │ Finance │  Header (VAT toggle)  │
+│Ra│ Sidebar ├───────────────────────┤
+│il│ (groups)│  Content              │
+└──┴─────────┴───────────────────────┘
 ```
 
-Add a small scoped style block (or one rule in `src/styles.css` under a `.finance-shell` selector) that offsets the fixed sidebar wrapper by `var(--app-rail-width, 3.5rem)` and adjusts the inset's left margin by the same amount. Define `--app-rail-width: 3.5rem` once at the layout root so the value stays in sync with `AppRail`'s `w-14`.
+After:
+```
+┌──┬──────────────────────────────────┐
+│  │  Header: title • VAT toggle      │
+│Ra├──────────────────────────────────┤
+│il│  Tabs: Documentos · Faturação ·  │
+│  │        Pagamentos · Bancos ·     │
+│  │        Relatórios · Dados · Admin│
+│  ├──────────────────────────────────┤
+│  │  Sub-items (pills, contextual)   │
+│  ├──────────────────────────────────┤
+│  │  Content (full width)            │
+└──┴──────────────────────────────────┘
+```
 
-Mobile (`md:` and below): `AppRail` is already `hidden md:flex` and the finance sidebar switches to off-canvas, so the offset must only apply at `md` and up — gate the selector with `@media (min-width: 768px)`.
+## Nav pattern
 
-Collapsed state: the icon-collapsed sidebar (`group-data-[collapsible=icon]`) keeps the same `left` offset, so no extra handling is needed — it just becomes a 56px-wide strip next to the 56px rail.
+Two-row horizontal nav:
+- **Row 1 — Groups** as tabs (Documentos, Faturação, Pagamentos, Bancos, Relatórios, Dados, Admin). Active tab = current group derived from pathname.
+- **Row 2 — Items** of the active group as pills (e.g. under Faturação: Faturas, Recibos, Clientes, Entradas). The active item is highlighted.
+
+Both rows are sticky under the global top nav and horizontally scrollable on narrow viewports. Icons stay (small, left of label) so scanning matches today's sidebar.
+
+## Files to change
+
+1. **New `src/components/finance/finance-top-nav.tsx`** — renders the two rows from the same group/item config currently in `finance-sidebar.tsx`. Reads active route via `useRouterState` and `Link` from `@tanstack/react-router`. Uses existing shadcn `Tabs` for row 1 and styled `Link` pills for row 2 (or a single component with two visual tiers).
+2. **`src/components/finance/finance-sidebar.tsx`** — extract the nav config (groups + items + icons + i18n keys) into a sibling `finance-nav-config.ts` so both sidebar and top-nav share it. Keep the sidebar file for now but unused (delete in a follow-up once the top-nav ships cleanly).
+3. **`src/routes/_app.finance.tsx`** — remove `SidebarProvider` / `FinanceSidebar` / `SidebarInset` / `SidebarTrigger`. Replace with a plain flex column: `<FinanceHeader />` + `<FinanceTopNav />` + `<main>`. Keep `FinanceShellProvider` and the VAT toggle in the header.
+4. **`src/styles.css`** — remove the `.finance-shell` sidebar offset rule added in the previous fix (no longer needed).
+5. **i18n** — reuse existing `finance:nav.*` keys; no new strings unless we shorten any group label that's too long for a tab (verify in PT-PT). Any new key added in EN + PT in the same edit.
+
+## Behavior
+
+- Active group/item resolved from `location.pathname` against the shared config.
+- Keyboard: tabs navigable with arrow keys (shadcn `Tabs` default).
+- Mobile (<768px): both rows become horizontally scrollable strips with snap; no off-canvas drawer needed.
+- VAT toggle stays in the sticky header (row above the tabs), unchanged behavior.
+
+## Out of scope
+
+- No changes to finance pages themselves.
+- No change to the global `AppRail`.
+- Sidebar component file kept on disk this turn; removal in a follow-up to keep the diff focused and reversible.
 
 ## Verification
 
-1. `/finance` at ≥768px: rail visible at the left edge, finance sidebar starts at x=56px, all group labels (`Geral`, `Documentos`, `Operação`, `Bancos`, `Relatórios`, `Dados`) and item labels render in full.
-2. Toggle the finance sidebar collapsed: it shrinks to icons at x=56px; content reflows; no overlap.
-3. Resize below `md`: rail hides, finance sidebar becomes the off-canvas sheet as before; no leftover left padding on content.
-4. Navigate `/finance → /finance/documents/invoices → /finance/banks/reconciliation`: active state highlights correctly; no layout shift.
-5. Navigate `/` (home) and `/projects`: unaffected — the override is scoped to `.finance-shell`.
+- `/finance/invoicing/invoices` (current route) shows the invoices table at full width with "Faturação" tab active and "Faturas" pill active.
+- Clicking each tab updates row 2 and navigates to the group's index/first item.
+- VAT toggle still works.
+- No leftover sidebar artifacts or CSS offset.
