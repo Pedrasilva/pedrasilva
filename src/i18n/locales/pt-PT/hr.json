@@ -503,6 +503,22 @@
       "searchPlaceholder": "Nome…",
       "metricLabel": "Métrica do total"
     },
+    "exportExcel": "Exportar Excel",
+    "exportFilename": "resumo-comparativo",
+    "exportSheets": {
+      "summary": "Resumo",
+      "detail": "Detalhe por colaborador"
+    },
+    "exportHeaders": {
+      "collaborator": "Colaborador",
+      "department": "Departamento",
+      "section": "Secção",
+      "metric": "Métrica",
+      "current": "Actual",
+      "proposed": "Proposto",
+      "delta": "Δ",
+      "deltaPct": "Δ %"
+    },
     "metrics": {
       "valorBase": {
         "label": "Valor base mensal",

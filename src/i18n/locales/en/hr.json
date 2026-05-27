@@ -503,6 +503,22 @@
       "searchPlaceholder": "Name…",
       "metricLabel": "Total metric"
     },
+    "exportExcel": "Export Excel",
+    "exportFilename": "comparative-summary",
+    "exportSheets": {
+      "summary": "Summary",
+      "detail": "Per team member"
+    },
+    "exportHeaders": {
+      "collaborator": "Team member",
+      "department": "Department",
+      "section": "Section",
+      "metric": "Metric",
+      "current": "Current",
+      "proposed": "Proposed",
+      "delta": "Δ",
+      "deltaPct": "Δ %"
+    },
     "metrics": {
       "valorBase": {
         "label": "Monthly base value",

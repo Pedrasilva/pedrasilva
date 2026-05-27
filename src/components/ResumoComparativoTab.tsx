@@ -23,8 +23,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { ChevronRight, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ChevronRight, Info, FileSpreadsheet } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import * as XLSX from "xlsx";
 
 type Row = {
   collab: Collaborator;
@@ -297,12 +299,90 @@ export function ResumoComparativoTab({
     maximumFractionDigits: 2,
   });
 
+  const handleExportExcel = () => {
+    const H = (k: string) => t(`hr:resumoComparativo.exportHeaders.${k}`);
+    const pctNum = (n: number | null) => (n == null ? null : Number((n * 100).toFixed(2)));
+    const round2 = (n: number | null) => (n == null ? null : Number(n.toFixed(2)));
+
+    // Sheet 1 — Summary (KPIs)
+    const summaryRows: (string | number | null)[][] = [
+      [t("hr:resumoComparativo.title")],
+      [],
+      [t("hr:resumoComparativo.valorBaseGlobal.title")],
+      [t("hr:resumoComparativo.valorBaseGlobal.currentMonthly"), round2(valorBaseGlobal.actualMensal)],
+      [t("hr:resumoComparativo.valorBaseGlobal.proposedMonthly"), round2(valorBaseGlobal.propostoMensal)],
+      [t("hr:resumoComparativo.valorBaseGlobal.monthlyIncrease"), round2(valorBaseGlobal.deltaMensal)],
+      [t("hr:resumoComparativo.valorBaseGlobal.annualPrefix", { value: "" }).replace(":", "").trim() + " — actual", round2(valorBaseGlobal.actualAnual)],
+      [t("hr:resumoComparativo.valorBaseGlobal.annualPrefix", { value: "" }).replace(":", "").trim() + " — proposto", round2(valorBaseGlobal.propostoAnual)],
+      [],
+      [t("hr:resumoComparativo.brutoGlobal.title")],
+      [t("hr:resumoComparativo.brutoGlobal.currentAnnual"), round2(brutoGlobal.actual)],
+      [t("hr:resumoComparativo.brutoGlobal.proposedAnnual"), round2(brutoGlobal.proposto)],
+      [t("hr:resumoComparativo.brutoGlobal.additionalAnnual"), round2(brutoGlobal.delta)],
+      ["Δ %", pctNum(brutoGlobal.pct)],
+      [],
+      [t("hr:resumoComparativo.table.totalLabel", { count: totals.countBoth }), metricLabel],
+      [H("current"), round2(totals.eff)],
+      [H("proposed"), round2(totals.prop)],
+      [H("delta"), round2(totals.delta)],
+      [H("deltaPct"), pctNum(totals.pct)],
+    ];
+    const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+    wsSummary["!cols"] = [{ wch: 48 }, { wch: 18 }];
+
+    // Sheet 2 — Per-collaborator detail
+    const detailRows: (string | number | null)[][] = [
+      [H("collaborator"), H("department"), H("section"), H("metric"), H("current"), H("proposed"), H("delta"), H("deltaPct")],
+    ];
+    let currentSection = "";
+    for (const { row, display } of computed) {
+      const dept = t(`hr:enums.department.${row.collab.departamento}`);
+      for (const d of display) {
+        if (d.kind === "section") {
+          currentSection = d.label;
+          continue;
+        }
+        const delta = d.eff != null && d.prop != null ? d.prop - d.eff : null;
+        const pct = d.eff && d.prop != null ? (d.prop - d.eff) / d.eff : null;
+        detailRows.push([
+          row.collab.nome,
+          dept,
+          currentSection,
+          d.label,
+          round2(d.eff),
+          round2(d.prop),
+          round2(delta),
+          pctNum(pct),
+        ]);
+      }
+    }
+    const wsDetail = XLSX.utils.aoa_to_sheet(detailRows);
+    wsDetail["!cols"] = [{ wch: 28 }, { wch: 14 }, { wch: 22 }, { wch: 36 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 10 }];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, wsSummary, t("hr:resumoComparativo.exportSheets.summary"));
+    XLSX.utils.book_append_sheet(wb, wsDetail, t("hr:resumoComparativo.exportSheets.detail"));
+    const today = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(wb, `${t("hr:resumoComparativo.exportFilename")}-${today}.xlsx`);
+  };
+
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">{t("hr:resumoComparativo.title")}</CardTitle>
-          <CardDescription>{t("hr:resumoComparativo.description")}</CardDescription>
+        <CardHeader className="pb-3 flex-row items-start justify-between gap-3 space-y-0">
+          <div className="min-w-0">
+            <CardTitle className="text-base">{t("hr:resumoComparativo.title")}</CardTitle>
+            <CardDescription>{t("hr:resumoComparativo.description")}</CardDescription>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportExcel}
+            className="no-print shrink-0"
+          >
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            {t("hr:resumoComparativo.exportExcel")}
+          </Button>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap items-end gap-3">
