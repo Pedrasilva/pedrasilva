@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
   type Collaborator,
@@ -1213,13 +1214,12 @@ function CapacityOverviewTable({
                   <TableCell className="text-right tabular-nums">
                     {formatHoursPerWeek(e.weekly, i18n.language)} h
                   </TableCell>
-                  <TableCell
-                    className={cn(
-                      "text-right tabular-nums",
-                      targetStr == null && "text-muted-foreground italic",
-                    )}
-                  >
-                    {targetStr ?? notDefined}
+                  <TableCell className="text-right tabular-nums p-1">
+                    <EditableChargeabilityCell
+                      collaboratorId={e.r.collab.id}
+                      value={e.target}
+                      notDefinedLabel={notDefined}
+                    />
                   </TableCell>
                   <TableCell
                     className={cn(
@@ -1257,4 +1257,97 @@ function CapacityOverviewTable({
     </Card>
   );
 }
+
+function EditableChargeabilityCell({
+  collaboratorId,
+  value,
+  notDefinedLabel,
+}: {
+  collaboratorId: string;
+  value: number | null;
+  notDefinedLabel: string;
+}) {
+  const { t } = useTranslation(["hr"]);
+  const { allowed: canEdit } = useHasPermission("hr.colaborador.edit");
+  const qc = useQueryClient();
+  const [draft, setDraft] = useState<string>(value == null ? "" : String(value));
+
+  useEffect(() => {
+    setDraft(value == null ? "" : String(value));
+  }, [value]);
+
+  const mutation = useMutation({
+    mutationFn: async (next: number | null) => {
+      const { error } = await supabase
+        .from("collaborators")
+        .update({ target_chargeability_pct: next })
+        .eq("id", collaboratorId);
+      if (error) throw error;
+      return next;
+    },
+    onSuccess: () => {
+      toast.success(t("hr:collaborator.toasts.saved", { defaultValue: "Saved" }));
+      qc.invalidateQueries({ queryKey: ["collaborators"] });
+      qc.invalidateQueries({ queryKey: ["collaborator", collaboratorId] });
+    },
+    onError: (e: Error) => {
+      toast.error(e.message);
+      setDraft(value == null ? "" : String(value));
+    },
+  });
+
+  if (!canEdit) {
+    return (
+      <span className={cn(value == null && "text-muted-foreground italic")}>
+        {value == null ? notDefinedLabel : `${value}%`}
+      </span>
+    );
+  }
+
+  const commit = () => {
+    const trimmed = draft.trim();
+    let next: number | null;
+    if (trimmed === "") {
+      next = null;
+    } else {
+      const n = Number(trimmed.replace(",", "."));
+      if (!Number.isFinite(n) || n < 0 || n > 100) {
+        toast.error(t("hr:resumo.capacityOverview.invalidTarget", { defaultValue: "Value must be between 0 and 100" }));
+        setDraft(value == null ? "" : String(value));
+        return;
+      }
+      next = Math.round(n * 10) / 10;
+    }
+    if (next === (value ?? null)) return;
+    mutation.mutate(next);
+  };
+
+  return (
+    <div className="flex items-center justify-end gap-1">
+      <Input
+        type="number"
+        inputMode="decimal"
+        min={0}
+        max={100}
+        step={1}
+        value={draft}
+        placeholder={notDefinedLabel}
+        disabled={mutation.isPending}
+        onChange={(ev) => setDraft(ev.target.value)}
+        onBlur={commit}
+        onKeyDown={(ev) => {
+          if (ev.key === "Enter") {
+            ev.currentTarget.blur();
+          } else if (ev.key === "Escape") {
+            setDraft(value == null ? "" : String(value));
+            ev.currentTarget.blur();
+          }
+        }}
+        className="h-8 w-20 text-right tabular-nums"
+      />
+      <span className="text-muted-foreground text-xs">%</span>
+    </div>
+  );
+}
+
 
