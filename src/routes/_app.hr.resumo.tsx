@@ -1214,13 +1214,12 @@ function CapacityOverviewTable({
                   <TableCell className="text-right tabular-nums">
                     {formatHoursPerWeek(e.weekly, i18n.language)} h
                   </TableCell>
-                  <TableCell
-                    className={cn(
-                      "text-right tabular-nums",
-                      targetStr == null && "text-muted-foreground italic",
-                    )}
-                  >
-                    {targetStr ?? notDefined}
+                  <TableCell className="text-right tabular-nums p-1">
+                    <EditableChargeabilityCell
+                      collaboratorId={e.r.collab.id}
+                      value={e.target}
+                      notDefinedLabel={notDefined}
+                    />
                   </TableCell>
                   <TableCell
                     className={cn(
