@@ -370,6 +370,15 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
             >
               {t("workspace.payment.genMonthly")}
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={applyGen.isPending}
+              onClick={() => runGenerator("by_stage_billing")}
+              title={t("workspace.payment.genByStageBillingHint", { defaultValue: "Use each stage's billing model (stage / monthly / retainer)" })}
+            >
+              {t("workspace.payment.genByStageBilling", { defaultValue: "Per stage model" })}
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
