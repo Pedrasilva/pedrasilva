@@ -1086,3 +1086,119 @@ function ReadOnlyStat({
   );
 }
 
+type ResourceClass = "project" | "backoffice" | "hybrid";
+
+function ResourceClassificationCard({
+  classification,
+  backofficePct,
+  dailyHours,
+  daysPerWeek,
+  canEdit,
+  onChange,
+}: {
+  classification: ResourceClass;
+  backofficePct: number;
+  dailyHours: number;
+  daysPerWeek: number;
+  canEdit: boolean;
+  onChange: (next: { classification: ResourceClass; backofficePct: number }) => void;
+}) {
+  const { t } = useTranslation(["hr"]);
+  const fte = computeCollaboratorFte(dailyHours, daysPerWeek);
+  const boPct =
+    classification === "project"
+      ? 0
+      : classification === "backoffice"
+        ? 100
+        : Math.max(0, Math.min(100, Number(backofficePct) || 0));
+  const projectPct = 100 - boPct;
+  const boFte = (fte * boPct) / 100;
+  const projectFte = (fte * projectPct) / 100;
+
+  const handleClassChange = (next: ResourceClass) => {
+    let nextPct = boPct;
+    if (next === "project") nextPct = 0;
+    else if (next === "backoffice") nextPct = 100;
+    else if (next === "hybrid") nextPct = classification === "hybrid" ? boPct : 80;
+    onChange({ classification: next, backofficePct: nextPct });
+  };
+
+  const handleBoChange = (v: number) => {
+    const clamped = Math.max(0, Math.min(100, Math.round(v)));
+    onChange({ classification: "hybrid", backofficePct: clamped });
+  };
+
+  const fmtPct = (n: number) => `${n.toFixed(0)}%`;
+  const fmtFte = (n: number) => n.toFixed(2);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">{t("hr:collaborator.resourceClassification.title")}</CardTitle>
+        <CardDescription>{t("hr:collaborator.resourceClassification.help")}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Field label={t("hr:collaborator.resourceClassification.field")}>
+            <Select
+              value={classification}
+              onValueChange={(v) => handleClassChange(v as ResourceClass)}
+              disabled={!canEdit}
+            >
+              <SelectTrigger className={canEdit ? "input-yellow" : undefined}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="project">{t("hr:collaborator.resourceClassification.options.project")}</SelectItem>
+                <SelectItem value="backoffice">{t("hr:collaborator.resourceClassification.options.backoffice")}</SelectItem>
+                <SelectItem value="hybrid">{t("hr:collaborator.resourceClassification.options.hybrid")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label={t("hr:collaborator.resourceClassification.backofficePct")}>
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              step={5}
+              className={cn(
+                "tabular-nums",
+                classification === "hybrid" && canEdit ? "input-yellow" : undefined,
+              )}
+              value={boPct}
+              disabled={!canEdit || classification !== "hybrid"}
+              onChange={(e) => handleBoChange(Number(e.target.value))}
+            />
+          </Field>
+          <Field label={t("hr:collaborator.resourceClassification.projectPct")}>
+            <Input type="number" className="tabular-nums" value={projectPct} disabled readOnly />
+          </Field>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <ReadOnlyStat
+            label={t("hr:collaborator.resourceClassification.fte")}
+            value={fmtFte(fte)}
+            hint={t("hr:collaborator.resourceClassification.fteHint")}
+          />
+          <ReadOnlyStat
+            label={t("hr:collaborator.resourceClassification.boFte")}
+            value={`${fmtFte(boFte)} (${fmtPct(boPct)})`}
+          />
+          <ReadOnlyStat
+            label={t("hr:collaborator.resourceClassification.projectFte")}
+            value={`${fmtFte(projectFte)} (${fmtPct(projectPct)})`}
+          />
+        </div>
+
+        {!canEdit && (
+          <p className="text-[11px] text-muted-foreground">
+            {t("hr:collaborator.resourceClassification.readOnlyHint")}
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+
