@@ -469,6 +469,8 @@
       "zoomLabel": "Zoom",
       "zoomWeek": "Week",
       "zoomMonth": "Month",
+      "zoomQuarter": "Quarter",
+      "zoomYear": "Year",
       "zoomFit": "Fit"
     },
     "warnings": {
