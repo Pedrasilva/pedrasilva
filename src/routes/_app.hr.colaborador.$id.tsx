@@ -753,6 +753,19 @@ function CollaboratorPage() {
 
       <CommercialRoleCard collaborator={draft} />
 
+      <ResourceClassificationCard
+        classification={draft.resource_classification ?? (draft.departamento === "Backoffice" ? "backoffice" : "project")}
+        backofficePct={Number(draft.backoffice_pct ?? (draft.departamento === "Backoffice" ? 100 : 0))}
+        dailyHours={Number(draft.daily_hours ?? 8)}
+        daysPerWeek={Number(draft.days_per_week ?? 5)}
+        canEdit={canEditCollaborator}
+        onChange={(next) => {
+          setField("resource_classification", next.classification);
+          setField("backoffice_pct", next.backofficePct);
+        }}
+      />
+
+
 
 
       {!canViewCompensation ? (
