@@ -120,7 +120,16 @@ export type Collaborator = {
   proposal_role?: string | null;
   billing_role?: string | null;
   seniority_level?: number | null;
+  // Resource classification — planning/reporting split between recoverable
+  // Project work and non-recoverable Back Office overhead. Independent from
+  // `departamento` (HR label) and from contractual FTE. `backoffice_pct` is
+  // the share of capacity spent on Back Office; project share = 100 - it.
+  // For "project" classification BO% is 0, for "backoffice" it is 100, for
+  // "hybrid" it is editable (default 80).
+  resource_classification?: "project" | "backoffice" | "hybrid";
+  backoffice_pct?: number;
 };
+
 
 export function computeSnapshot(s: Snapshot) {
   const base = s.valor_base || 0;
