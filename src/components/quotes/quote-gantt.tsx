@@ -170,12 +170,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   const computedDayWidth = useMemo(() => {
     if (dayWidthProp !== undefined) return dayWidthProp;
     if (zoom === "fit") {
-      // Aim to fit the whole quote into ~1100px of timeline real estate.
       const target = 1100;
-      const w = Math.floor(target / Math.max(1, totalDays));
-      // Clamp so bars stay readable (min 4px/day) but don't get absurdly wide
-      // for tiny quotes (max 32px/day = same as week).
-      return Math.max(4, Math.min(32, w));
+      const w = target / Math.max(1, totalDays);
+      // Clamp: min 1px/day so very long quotes still fit; max 32px/day.
+      return Math.max(1, Math.min(32, w));
     }
     return ZOOM_DAY_WIDTHS[zoom];
   }, [zoom, totalDays, dayWidthProp]);
