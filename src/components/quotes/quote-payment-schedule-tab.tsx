@@ -39,6 +39,7 @@ import {
   generateStageMilestones,
   generateThirds,
   generateMonthly,
+  generateByStageBilling,
   computeStageFees,
   resolveScheduleItemAmount,
   DEFAULT_STAGE_MILESTONE_OPTIONS,
@@ -290,6 +291,8 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       generated = generateThirds(stages);
     } else if (kind === "monthly") {
       generated = generateMonthly(stages);
+    } else if (kind === "by_stage_billing") {
+      generated = generateByStageBilling(stages, stageFees);
     }
 
     if (generated.length === 0) {
@@ -366,6 +369,15 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
               onClick={() => runGenerator("monthly")}
             >
               {t("workspace.payment.genMonthly")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={applyGen.isPending}
+              onClick={() => runGenerator("by_stage_billing")}
+              title={t("workspace.payment.genByStageBillingHint", { defaultValue: "Use each stage's billing model (stage / monthly / retainer)" })}
+            >
+              {t("workspace.payment.genByStageBilling", { defaultValue: "Per stage model" })}
             </Button>
           </div>
         </CardHeader>

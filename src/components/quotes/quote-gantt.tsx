@@ -31,15 +31,15 @@ interface Props {
   dayWidth?: number;
 }
 
-type ZoomMode = "week" | "month" | "fit";
+type ZoomMode = "week" | "month" | "quarter" | "year" | "fit";
 
-// Day widths chosen so that:
-//   week  → ~32px/day (detailed planning, default)
-//   month → ~10px/day (compact, multi-month overview)
-//   fit   → computed from totalDays so the whole quote fits in ~1100px
+// Day widths per zoom level. Header granularity adapts to dayWidth
+// (see GanttChart) so labels remain legible at every level.
 const ZOOM_DAY_WIDTHS: Record<Exclude<ZoomMode, "fit">, number> = {
   week: 32,
   month: 10,
+  quarter: 4,
+  year: 1.5,
 };
 
 export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
@@ -170,12 +170,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   const computedDayWidth = useMemo(() => {
     if (dayWidthProp !== undefined) return dayWidthProp;
     if (zoom === "fit") {
-      // Aim to fit the whole quote into ~1100px of timeline real estate.
       const target = 1100;
-      const w = Math.floor(target / Math.max(1, totalDays));
-      // Clamp so bars stay readable (min 4px/day) but don't get absurdly wide
-      // for tiny quotes (max 32px/day = same as week).
-      return Math.max(4, Math.min(32, w));
+      const w = target / Math.max(1, totalDays);
+      // Clamp: min 1px/day so very long quotes still fit; max 32px/day.
+      return Math.max(1, Math.min(32, w));
     }
     return ZOOM_DAY_WIDTHS[zoom];
   }, [zoom, totalDays, dayWidthProp]);
@@ -226,6 +224,24 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
               onClick={() => setZoom("month")}
             >
               {t("workspace.planning.zoomMonth", { defaultValue: "Month" })}
+            </Button>
+            <Button
+              type="button"
+              variant={zoom === "quarter" ? "default" : "ghost"}
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setZoom("quarter")}
+            >
+              {t("workspace.planning.zoomQuarter", { defaultValue: "Quarter" })}
+            </Button>
+            <Button
+              type="button"
+              variant={zoom === "year" ? "default" : "ghost"}
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setZoom("year")}
+            >
+              {t("workspace.planning.zoomYear", { defaultValue: "Year" })}
             </Button>
             <Button
               type="button"
