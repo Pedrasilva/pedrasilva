@@ -11,7 +11,7 @@ import type { QuoteAllocationWithResource } from "./use-quote-allocations";
 import type { QuoteExternalServiceWithSupplier } from "./use-quote-external-services";
 import { quoteAllocationLine } from "./financial-rollups";
 
-export type GeneratorKind = "milestones" | "thirds" | "monthly";
+export type GeneratorKind = "milestones" | "thirds" | "monthly" | "by_stage_billing";
 
 export interface GeneratorItem {
   label: string;
