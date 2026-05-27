@@ -469,6 +469,8 @@
       "zoomLabel": "Zoom",
       "zoomWeek": "Semana",
       "zoomMonth": "Mês",
+      "zoomQuarter": "Trimestre",
+      "zoomYear": "Ano",
       "zoomFit": "Ajustar"
     },
     "warnings": {
