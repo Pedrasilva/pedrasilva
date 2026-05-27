@@ -291,6 +291,8 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       generated = generateThirds(stages);
     } else if (kind === "monthly") {
       generated = generateMonthly(stages);
+    } else if (kind === "by_stage_billing") {
+      generated = generateByStageBilling(stages, stageFees);
     }
 
     if (generated.length === 0) {
