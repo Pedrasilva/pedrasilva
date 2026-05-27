@@ -14,10 +14,20 @@
  * upcoming Payments workspace, which keeps cash truth on `bank_transactions`.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, FileText, X, CheckCircle2 } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  Trash2,
+  FileText,
+  X,
+  CheckCircle2,
+  Upload,
+  Sparkles,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -55,7 +65,12 @@ import {
 import { ClassificationPicker } from "@/components/finance/classification-picker";
 import { InlineCounterpartyDialog } from "@/components/finance/inline-counterparty-dialog";
 import { DocumentSettlementSection } from "@/components/finance/document-settlement-section";
+import { supabase } from "@/integrations/supabase/client";
+import { extractPurchaseDocument } from "@/lib/finance/purchase-ocr.functions";
 import { cn } from "@/lib/utils";
+
+const OCR_BUCKET = "financial-documents";
+
 
 type Props = {
   open: boolean;
