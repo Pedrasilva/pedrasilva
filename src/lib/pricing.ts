@@ -22,12 +22,23 @@ export type PricingInputs = {
   // to `bo_settings.horas_dia` only when no schedule is available.
   horasDia: number;
   margemLucroPct: number; // 0.25 = 25%
+  // Optional target chargeability as a fraction (0..1). When provided and > 0,
+  // the cost per hour is computed over BILLABLE hours only — i.e. divided by
+  // (diasUteis × horasDia × chargeability) — so non-billable time is recovered
+  // through the rate. Defaults to 1.0 (legacy behaviour: assumes 100% of
+  // available hours are billable).
+  chargeabilityPct?: number;
 };
 
 export function computePricing(args: PricingInputs) {
   const custoAnual = args.vbgColaborador + args.cotaBoAnual;
+  const chargeability =
+    typeof args.chargeabilityPct === "number" && args.chargeabilityPct > 0
+      ? Math.min(1, args.chargeabilityPct)
+      : 1;
   const horasAno = Math.max(1, args.diasUteis * args.horasDia);
-  const custoHora = custoAnual / horasAno;
+  const horasFacturaveis = Math.max(1, horasAno * chargeability);
+  const custoHora = custoAnual / horasFacturaveis;
   const custoHoraDesperdicio = custoHora * (1 + TAXA_DESPERDICIO);
   const vendaHora = custoHoraDesperdicio * (1 + args.margemLucroPct);
   return {
@@ -35,6 +46,8 @@ export function computePricing(args: PricingInputs) {
     custoHora,
     custoHoraDesperdicio,
     vendaHora,
+    chargeabilityPct: chargeability,
+    horasFacturaveis,
   };
 }
 
