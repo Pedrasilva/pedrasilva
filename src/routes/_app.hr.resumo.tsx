@@ -889,8 +889,12 @@ function PricingTable({
     const collabHorasAno = diasUteis * collabHorasDia;
     const fte = computeCollaboratorFte(r.collab.daily_hours, r.collab.days_per_week, horasDia);
     const cotaBoColab = cotaBo * fte;
+    const chargeabilityPct =
+      r.collab.target_chargeability_pct != null
+        ? Number(r.collab.target_chargeability_pct) / 100
+        : undefined;
     const baseArgs = c
-      ? { vbgColaborador: c.custoVBG, cotaBoAnual: cotaBoColab, diasUteis, horasDia: collabHorasDia }
+      ? { vbgColaborador: c.custoVBG, cotaBoAnual: cotaBoColab, diasUteis, horasDia: collabHorasDia, chargeabilityPct }
       : null;
     return {
       c,
