@@ -944,7 +944,7 @@
     },
     "pricing": {
       "title": "Pricing — Project Team",
-      "description": "TGV/h and BO share/h = annual value ÷ ({{days}}×{{hours}}) h. Cost/h sums both, sale price = cost/h × (1 + margin).",
+      "description": "TGV/h and BO share/h divide annual cost by BILLABLE hours ({{days}}×{{hours}} h × chargeability). Cost/h sums both and absorbs non-billable time; sale price = cost/h × (1 + margin). When chargeability is unset, 100% is assumed.",
       "headers": {
         "collaborator": "Team member",
         "tgvPerHour": "TGV/h",
