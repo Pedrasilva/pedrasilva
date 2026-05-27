@@ -643,6 +643,24 @@
       "readOnlyHint": "Apenas administradores de RH podem editar este valor.",
       "notDefined": "não definido"
     },
+    "resourceClassification": {
+      "title": "Classificação do recurso",
+      "help": "Divisão de planeamento entre trabalho de Projecto (recuperável) e Back Office (overhead). Independente do departamento e do FTE contractual. O registo de horas reais sobrepõe-se a esta assunção quando existe.",
+      "field": "Classificação",
+      "options": {
+        "project": "Projecto",
+        "backoffice": "Back Office",
+        "hybrid": "Híbrido"
+      },
+      "backofficePct": "% Back Office",
+      "projectPct": "% Projecto",
+      "fte": "FTE (contractual)",
+      "fteHint": "vs. semana padrão do atelier",
+      "boFte": "Equivalente FTE Back Office",
+      "projectFte": "Equivalente FTE Projecto",
+      "readOnlyHint": "Apenas administradores de RH podem editar este valor."
+    },
+
     "placeholders": {
       "selectOption": "Seleccionar…",
       "emailExample": "nome@empresa.com",
