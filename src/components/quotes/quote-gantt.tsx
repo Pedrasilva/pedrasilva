@@ -227,6 +227,24 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             </Button>
             <Button
               type="button"
+              variant={zoom === "quarter" ? "default" : "ghost"}
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setZoom("quarter")}
+            >
+              {t("workspace.planning.zoomQuarter", { defaultValue: "Quarter" })}
+            </Button>
+            <Button
+              type="button"
+              variant={zoom === "year" ? "default" : "ghost"}
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setZoom("year")}
+            >
+              {t("workspace.planning.zoomYear", { defaultValue: "Year" })}
+            </Button>
+            <Button
+              type="button"
               variant={zoom === "fit" ? "default" : "ghost"}
               size="sm"
               className="h-7 px-2 text-xs"
