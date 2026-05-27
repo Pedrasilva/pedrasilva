@@ -1042,6 +1042,7 @@ export type Database = {
           archive_reason: string | null
           archived_at: string | null
           archived_by: string | null
+          backoffice_pct: number
           billing_role: string | null
           created_at: string
           daily_hours: number
@@ -1065,6 +1066,7 @@ export type Database = {
           numero_dependentes: number
           numero_titulares: number
           proposal_role: string | null
+          resource_classification: Database["public"]["Enums"]["resource_classification"]
           saldo_ferias_anterior: number
           seniority_level: number | null
           situacao_contractual: string | null
@@ -1076,6 +1078,7 @@ export type Database = {
           archive_reason?: string | null
           archived_at?: string | null
           archived_by?: string | null
+          backoffice_pct?: number
           billing_role?: string | null
           created_at?: string
           daily_hours?: number
@@ -1099,6 +1102,7 @@ export type Database = {
           numero_dependentes?: number
           numero_titulares?: number
           proposal_role?: string | null
+          resource_classification?: Database["public"]["Enums"]["resource_classification"]
           saldo_ferias_anterior?: number
           seniority_level?: number | null
           situacao_contractual?: string | null
@@ -1110,6 +1114,7 @@ export type Database = {
           archive_reason?: string | null
           archived_at?: string | null
           archived_by?: string | null
+          backoffice_pct?: number
           billing_role?: string | null
           created_at?: string
           daily_hours?: number
@@ -1133,6 +1138,7 @@ export type Database = {
           numero_dependentes?: number
           numero_titulares?: number
           proposal_role?: string | null
+          resource_classification?: Database["public"]["Enums"]["resource_classification"]
           saldo_ferias_anterior?: number
           seniority_level?: number | null
           situacao_contractual?: string | null
@@ -7709,6 +7715,7 @@ export type Database = {
         | "sent"
         | "accepted"
         | "archived"
+      resource_classification: "project" | "backoffice" | "hybrid"
       subsidios_modo: "tradicional" | "duodecimos_50" | "duodecimos_100"
     }
     CompositeTypes: {
@@ -8055,6 +8062,7 @@ export const Constants = {
         "accepted",
         "archived",
       ],
+      resource_classification: ["project", "backoffice", "hybrid"],
       subsidios_modo: ["tradicional", "duodecimos_50", "duodecimos_100"],
     },
   },
