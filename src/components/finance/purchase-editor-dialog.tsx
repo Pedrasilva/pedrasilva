@@ -360,6 +360,7 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
       classification_id: classificationId,
       currency: "EUR",
       notes: notes.trim() || null,
+      ...(filePath && !isExisting ? { file_path: filePath } : {}),
     };
 
     const payloadLines: DocumentInputLine[] = lines.map((l, i) => ({
