@@ -152,6 +152,12 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
       setClassificationId(null);
       setNotes("");
       setLines([newLine()]);
+      setFilePath(null);
+      setFileName(null);
+      setAnalyzing(false);
+      setOcrFilled(new Set());
+      setOcrFailed(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
     const full = existing.data;
