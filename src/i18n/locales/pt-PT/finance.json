@@ -1029,6 +1029,14 @@
       "lineDescription": "Cada linha precisa de descrição.",
       "lineQuantity": "A quantidade tem de ser superior a 0.",
       "linePrice": "O preço unitário tem de ser 0 ou superior."
+    },
+    "ocr": {
+      "title": "Preenchimento automático da fatura",
+      "subtitle": "Carregue a fatura do fornecedor (PDF ou imagem). Vamos lê-la e preencher os campos abaixo.",
+      "analyzing": "A ler fatura…",
+      "prefilled": "Campos preenchidos automaticamente",
+      "failed": "Não foi possível ler a fatura. Preencha os campos manualmente.",
+      "noSupplierMatch": "Fornecedor \"{{name}}\" não encontrado — crie ou selecione um."
     }
   },
   "invoices": {

@@ -1029,6 +1029,14 @@
       "lineDescription": "Every line needs a description.",
       "lineQuantity": "Quantity must be greater than 0.",
       "linePrice": "Unit price must be 0 or more."
+    },
+    "ocr": {
+      "title": "Smart fill from invoice",
+      "subtitle": "Upload the supplier invoice (PDF or image). We will read it and prefill the fields below.",
+      "analyzing": "Reading invoice…",
+      "prefilled": "Fields auto-filled",
+      "failed": "Could not read the invoice. Fill in the fields manually.",
+      "noSupplierMatch": "Supplier \"{{name}}\" not found — please create or pick one."
     }
   },
   "invoices": {

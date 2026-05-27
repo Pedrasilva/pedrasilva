@@ -14,10 +14,20 @@
  * upcoming Payments workspace, which keeps cash truth on `bank_transactions`.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, FileText, X, CheckCircle2 } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  Trash2,
+  FileText,
+  X,
+  CheckCircle2,
+  Upload,
+  Sparkles,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -55,7 +65,12 @@ import {
 import { ClassificationPicker } from "@/components/finance/classification-picker";
 import { InlineCounterpartyDialog } from "@/components/finance/inline-counterparty-dialog";
 import { DocumentSettlementSection } from "@/components/finance/document-settlement-section";
+import { supabase } from "@/integrations/supabase/client";
+import { extractPurchaseDocument } from "@/lib/finance/purchase-ocr.functions";
 import { cn } from "@/lib/utils";
+
+const OCR_BUCKET = "financial-documents";
+
 
 type Props = {
   open: boolean;
@@ -112,6 +127,16 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
   const [lines, setLines] = useState<EditorLine[]>([newLine()]);
   const [createSupplier, setCreateSupplier] = useState(false);
 
+  // ---- OCR / file upload (create mode) -----------------------------------
+  const [filePath, setFilePath] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [ocrFilled, setOcrFilled] = useState<Set<string>>(new Set());
+  const [ocrFailed, setOcrFailed] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const extractFn = useServerFn(extractPurchaseDocument);
+
+
   // Hydrate when editing
   useEffect(() => {
     if (!open) return;
@@ -127,6 +152,12 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
       setClassificationId(null);
       setNotes("");
       setLines([newLine()]);
+      setFilePath(null);
+      setFileName(null);
+      setAnalyzing(false);
+      setOcrFilled(new Set());
+      setOcrFailed(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
     const full = existing.data;
@@ -177,6 +208,117 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
     setLines((prev) => [...prev, newLine()]);
   }
 
+  // ---- OCR handler -------------------------------------------------------
+  async function onFileSelected(f: File | null) {
+    if (!f) return;
+    setOcrFailed(false);
+    setOcrFilled(new Set());
+    // Cleanup any previous staged upload
+    if (filePath) {
+      await supabase.storage.from(OCR_BUCKET).remove([filePath]).catch(() => {});
+    }
+    setAnalyzing(true);
+    setFileName(f.name);
+    try {
+      const ext = f.name.split(".").pop()?.toLowerCase() || "bin";
+      const path = `purchases/staging/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from(OCR_BUCKET)
+        .upload(path, f, { contentType: f.type, upsert: false });
+      if (upErr) throw upErr;
+      setFilePath(path);
+
+      const result = await extractFn({ data: { storagePath: path } });
+      if (!result.ok || !result.extracted) {
+        setOcrFailed(true);
+        toast.warning(t("finance:purchases.ocr.failed"));
+        return;
+      }
+      const ex = result.extracted;
+      const filled = new Set<string>();
+
+      if (result.matched_supplier_id && !supplierId) {
+        setSupplierId(result.matched_supplier_id);
+        filled.add("supplier");
+      } else if (!supplierId && ex.supplier_name) {
+        // No supplier match — surface in notes so user knows to create it
+        toast.info(
+          t("finance:purchases.ocr.noSupplierMatch", { name: ex.supplier_name }),
+        );
+      }
+      if (ex.document_number && !documentNumber) {
+        setDocumentNumber(ex.document_number);
+        filled.add("documentNumber");
+      }
+      if (ex.issue_date) {
+        const todayIso = new Date().toISOString().slice(0, 10);
+        if (!issueDate || issueDate === todayIso) {
+          setIssueDate(ex.issue_date);
+          filled.add("issueDate");
+        }
+      }
+      if (ex.due_date && !dueDate) {
+        setDueDate(ex.due_date);
+        filled.add("dueDate");
+      }
+
+      // Prefill the first empty line with totals
+      if (ex.total_amount != null || ex.amount_ex_vat != null) {
+        const vatRate = ex.vat_rate != null ? Number(ex.vat_rate) : 23;
+        const unitPrice =
+          ex.amount_ex_vat != null
+            ? Number(ex.amount_ex_vat)
+            : ex.total_amount != null
+              ? Number(ex.total_amount) / (1 + vatRate / 100)
+              : 0;
+        const desc =
+          [ex.supplier_name, ex.document_number].filter(Boolean).join(" · ") ||
+          (ex.category_guess ?? "");
+        setLines((prev) => {
+          // Replace first line only if it's still the empty default
+          if (
+            prev.length === 1 &&
+            !prev[0].description &&
+            prev[0].unit_price_ex_vat === 0
+          ) {
+            return [
+              {
+                ...prev[0],
+                description: desc,
+                quantity: 1,
+                unit_price_ex_vat: Number(unitPrice.toFixed(2)),
+                vat_rate: vatRate,
+              },
+            ];
+          }
+          return prev;
+        });
+        filled.add("line0");
+      }
+
+      setOcrFilled(filled);
+      toast.success(t("finance:purchases.ocr.prefilled"));
+    } catch (e) {
+      console.error("Purchase OCR error", e);
+      setOcrFailed(true);
+      toast.warning(t("finance:purchases.ocr.failed"));
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  async function clearFile() {
+    if (filePath) {
+      await supabase.storage.from(OCR_BUCKET).remove([filePath]).catch(() => {});
+    }
+    setFilePath(null);
+    setFileName(null);
+    setOcrFilled(new Set());
+    setOcrFailed(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+
   function validate(): string | null {
     if (!supplierId) return t("finance:purchases.errors.supplierRequired");
     if (!issueDate) return t("finance:purchases.errors.issueDateRequired");
@@ -218,6 +360,7 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
       classification_id: classificationId,
       currency: "EUR",
       notes: notes.trim() || null,
+      ...(filePath && !isExisting ? { file_path: filePath } : {}),
     };
 
     const payloadLines: DocumentInputLine[] = lines.map((l, i) => ({
@@ -325,8 +468,74 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
             </div>
           ) : (
             <div className="px-6 py-5 space-y-6">
+              {/* OCR upload — create mode only */}
+              {!isExisting && (
+                <section className="space-y-2 rounded-lg border border-dashed bg-muted/30 p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      <Sparkles className="size-3.5 text-primary" />
+                      {t("finance:purchases.ocr.title")}
+                    </div>
+                    {(ocrFilled.size > 0 || analyzing || ocrFailed) && (
+                      <div className="text-xs">
+                        {analyzing && (
+                          <span className="inline-flex items-center gap-1 text-primary">
+                            <Loader2 className="size-3 animate-spin" />
+                            {t("finance:purchases.ocr.analyzing")}
+                          </span>
+                        )}
+                        {!analyzing && ocrFilled.size > 0 && !ocrFailed && (
+                          <span className="inline-flex items-center gap-1 text-emerald-600">
+                            <CheckCircle2 className="size-3" />
+                            {t("finance:purchases.ocr.prefilled")}
+                          </span>
+                        )}
+                        {!analyzing && ocrFailed && (
+                          <span className="text-amber-600">
+                            {t("finance:purchases.ocr.failed")}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {t("finance:purchases.ocr.subtitle")}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={(e) =>
+                        onFileSelected(e.target.files?.[0] ?? null)
+                      }
+                      disabled={analyzing}
+                      className="text-xs"
+                    />
+                    {fileName && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={clearFile}
+                        disabled={analyzing}
+                        title={t("common:remove") as string}
+                      >
+                        <X className="size-4" />
+                      </Button>
+                    )}
+                  </div>
+                  {fileName && (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <FileText className="size-3" />
+                      {fileName}
+                    </div>
+                  )}
+                </section>
+              )}
+
               {/* Header — counterparty & metadata */}
               <section className="space-y-3">
+
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   {t("finance:purchases.section.header")}
                 </h3>
