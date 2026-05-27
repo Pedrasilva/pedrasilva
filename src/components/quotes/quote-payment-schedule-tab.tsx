@@ -39,6 +39,7 @@ import {
   generateStageMilestones,
   generateThirds,
   generateMonthly,
+  generateByStageBilling,
   computeStageFees,
   resolveScheduleItemAmount,
   DEFAULT_STAGE_MILESTONE_OPTIONS,
