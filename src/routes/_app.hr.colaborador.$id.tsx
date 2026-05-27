@@ -200,9 +200,12 @@ function CollaboratorPage() {
       draft.ano_fiscal !== collab.ano_fiscal ||
       Number(draft.daily_hours ?? 8) !== Number(collab.daily_hours ?? 8) ||
       Number(draft.days_per_week ?? 5) !== Number(collab.days_per_week ?? 5) ||
-      (draft.target_chargeability_pct ?? null) !== (collab.target_chargeability_pct ?? null)
+      (draft.target_chargeability_pct ?? null) !== (collab.target_chargeability_pct ?? null) ||
+      (draft.resource_classification ?? "project") !== (collab.resource_classification ?? "project") ||
+      Number(draft.backoffice_pct ?? 0) !== Number(collab.backoffice_pct ?? 0)
     );
   }, [collab, draft]);
+
 
   const updateCollab = useMutation({
     mutationFn: async (patch: Partial<Collaborator>) => {
