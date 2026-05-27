@@ -246,8 +246,11 @@ function CollaboratorPage() {
       daily_hours: Number(draft.daily_hours ?? 8),
       days_per_week: Number(draft.days_per_week ?? 5),
       target_chargeability_pct: draft.target_chargeability_pct ?? null,
+      resource_classification: draft.resource_classification ?? "project",
+      backoffice_pct: Number(draft.backoffice_pct ?? 0),
     });
   };
+
 
   const createSnap = useMutation({
     mutationFn: async () => {
