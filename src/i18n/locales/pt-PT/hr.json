@@ -944,7 +944,7 @@
     },
     "pricing": {
       "title": "Pricing — Equipa Projecto",
-      "description": "VBG/h e Cota BO/h = valor anual ÷ ({{days}}×{{hours}}) h. Custo/h soma os dois, venda = custo/h × (1 + margem).",
+      "description": "VBG/h e Cota BO/h dividem o valor anual por horas facturáveis ({{days}}×{{hours}} h × chargeability). Custo/h soma os dois e absorve o tempo não-facturável; venda = custo/h × (1 + margem). Sem chargeability definido, assume-se 100%.",
       "headers": {
         "collaborator": "Colaborador",
         "tgvPerHour": "VBG/h",
