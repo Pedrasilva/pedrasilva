@@ -31,15 +31,15 @@ interface Props {
   dayWidth?: number;
 }
 
-type ZoomMode = "week" | "month" | "fit";
+type ZoomMode = "week" | "month" | "quarter" | "year" | "fit";
 
-// Day widths chosen so that:
-//   week  → ~32px/day (detailed planning, default)
-//   month → ~10px/day (compact, multi-month overview)
-//   fit   → computed from totalDays so the whole quote fits in ~1100px
+// Day widths per zoom level. Header granularity adapts to dayWidth
+// (see GanttChart) so labels remain legible at every level.
 const ZOOM_DAY_WIDTHS: Record<Exclude<ZoomMode, "fit">, number> = {
   week: 32,
   month: 10,
+  quarter: 4,
+  year: 1.5,
 };
 
 export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
