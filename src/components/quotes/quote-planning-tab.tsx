@@ -251,6 +251,7 @@ export function QuotePlanningTab({
                 <TableHead className="w-36">{t("workspace.planning.endDate")}</TableHead>
                 <TableHead className="w-32 text-right">{t("workspace.planning.budget")}</TableHead>
                 <TableHead className="w-32 text-right">{t("workspace.planning.calcFee")}</TableHead>
+                <TableHead className="w-44">{t("workspace.planning.billing", { defaultValue: "Group / Billing" })}</TableHead>
                 <TableHead className="w-16" />
               </TableRow>
             </TableHeader>
