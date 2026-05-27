@@ -23,8 +23,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { ChevronRight, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ChevronRight, Info, FileSpreadsheet } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import * as XLSX from "xlsx";
 
 type Row = {
   collab: Collaborator;
