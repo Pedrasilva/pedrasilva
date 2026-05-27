@@ -208,6 +208,117 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
     setLines((prev) => [...prev, newLine()]);
   }
 
+  // ---- OCR handler -------------------------------------------------------
+  async function onFileSelected(f: File | null) {
+    if (!f) return;
+    setOcrFailed(false);
+    setOcrFilled(new Set());
+    // Cleanup any previous staged upload
+    if (filePath) {
+      await supabase.storage.from(OCR_BUCKET).remove([filePath]).catch(() => {});
+    }
+    setAnalyzing(true);
+    setFileName(f.name);
+    try {
+      const ext = f.name.split(".").pop()?.toLowerCase() || "bin";
+      const path = `purchases/staging/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from(OCR_BUCKET)
+        .upload(path, f, { contentType: f.type, upsert: false });
+      if (upErr) throw upErr;
+      setFilePath(path);
+
+      const result = await extractFn({ data: { storagePath: path } });
+      if (!result.ok || !result.extracted) {
+        setOcrFailed(true);
+        toast.warning(t("finance:purchases.ocr.failed"));
+        return;
+      }
+      const ex = result.extracted;
+      const filled = new Set<string>();
+
+      if (result.matched_supplier_id && !supplierId) {
+        setSupplierId(result.matched_supplier_id);
+        filled.add("supplier");
+      } else if (!supplierId && ex.supplier_name) {
+        // No supplier match — surface in notes so user knows to create it
+        toast.info(
+          t("finance:purchases.ocr.noSupplierMatch", { name: ex.supplier_name }),
+        );
+      }
+      if (ex.document_number && !documentNumber) {
+        setDocumentNumber(ex.document_number);
+        filled.add("documentNumber");
+      }
+      if (ex.issue_date) {
+        const todayIso = new Date().toISOString().slice(0, 10);
+        if (!issueDate || issueDate === todayIso) {
+          setIssueDate(ex.issue_date);
+          filled.add("issueDate");
+        }
+      }
+      if (ex.due_date && !dueDate) {
+        setDueDate(ex.due_date);
+        filled.add("dueDate");
+      }
+
+      // Prefill the first empty line with totals
+      if (ex.total_amount != null || ex.amount_ex_vat != null) {
+        const vatRate = ex.vat_rate != null ? Number(ex.vat_rate) : 23;
+        const unitPrice =
+          ex.amount_ex_vat != null
+            ? Number(ex.amount_ex_vat)
+            : ex.total_amount != null
+              ? Number(ex.total_amount) / (1 + vatRate / 100)
+              : 0;
+        const desc =
+          [ex.supplier_name, ex.document_number].filter(Boolean).join(" · ") ||
+          (ex.category_guess ?? "");
+        setLines((prev) => {
+          // Replace first line only if it's still the empty default
+          if (
+            prev.length === 1 &&
+            !prev[0].description &&
+            prev[0].unit_price_ex_vat === 0
+          ) {
+            return [
+              {
+                ...prev[0],
+                description: desc,
+                quantity: 1,
+                unit_price_ex_vat: Number(unitPrice.toFixed(2)),
+                vat_rate: vatRate,
+              },
+            ];
+          }
+          return prev;
+        });
+        filled.add("line0");
+      }
+
+      setOcrFilled(filled);
+      toast.success(t("finance:purchases.ocr.prefilled"));
+    } catch (e) {
+      console.error("Purchase OCR error", e);
+      setOcrFailed(true);
+      toast.warning(t("finance:purchases.ocr.failed"));
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  async function clearFile() {
+    if (filePath) {
+      await supabase.storage.from(OCR_BUCKET).remove([filePath]).catch(() => {});
+    }
+    setFilePath(null);
+    setFileName(null);
+    setOcrFilled(new Set());
+    setOcrFailed(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+
   function validate(): string | null {
     if (!supplierId) return t("finance:purchases.errors.supplierRequired");
     if (!issueDate) return t("finance:purchases.errors.issueDateRequired");
