@@ -643,6 +643,24 @@
       "readOnlyHint": "Only HR admins can edit this value.",
       "notDefined": "not defined"
     },
+    "resourceClassification": {
+      "title": "Resource classification",
+      "help": "Planning split between recoverable Project work and Back Office overhead. Independent from department and contractual FTE. Time tracking overrides this planning assumption when real hours are logged.",
+      "field": "Classification",
+      "options": {
+        "project": "Project",
+        "backoffice": "Back Office",
+        "hybrid": "Hybrid"
+      },
+      "backofficePct": "Back Office %",
+      "projectPct": "Project %",
+      "fte": "FTE (contractual)",
+      "fteHint": "vs. studio-standard week",
+      "boFte": "Back Office FTE equivalent",
+      "projectFte": "Project FTE equivalent",
+      "readOnlyHint": "Only HR admins can edit this value."
+    },
+
     "placeholders": {
       "selectOption": "Select…",
       "emailExample": "name@company.com",
