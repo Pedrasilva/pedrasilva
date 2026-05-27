@@ -468,8 +468,74 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
             </div>
           ) : (
             <div className="px-6 py-5 space-y-6">
+              {/* OCR upload — create mode only */}
+              {!isExisting && (
+                <section className="space-y-2 rounded-lg border border-dashed bg-muted/30 p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      <Sparkles className="size-3.5 text-primary" />
+                      {t("finance:purchases.ocr.title")}
+                    </div>
+                    {(ocrFilled.size > 0 || analyzing || ocrFailed) && (
+                      <div className="text-xs">
+                        {analyzing && (
+                          <span className="inline-flex items-center gap-1 text-primary">
+                            <Loader2 className="size-3 animate-spin" />
+                            {t("finance:purchases.ocr.analyzing")}
+                          </span>
+                        )}
+                        {!analyzing && ocrFilled.size > 0 && !ocrFailed && (
+                          <span className="inline-flex items-center gap-1 text-emerald-600">
+                            <CheckCircle2 className="size-3" />
+                            {t("finance:purchases.ocr.prefilled")}
+                          </span>
+                        )}
+                        {!analyzing && ocrFailed && (
+                          <span className="text-amber-600">
+                            {t("finance:purchases.ocr.failed")}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {t("finance:purchases.ocr.subtitle")}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={(e) =>
+                        onFileSelected(e.target.files?.[0] ?? null)
+                      }
+                      disabled={analyzing}
+                      className="text-xs"
+                    />
+                    {fileName && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={clearFile}
+                        disabled={analyzing}
+                        title={t("common:remove") as string}
+                      >
+                        <X className="size-4" />
+                      </Button>
+                    )}
+                  </div>
+                  {fileName && (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <FileText className="size-3" />
+                      {fileName}
+                    </div>
+                  )}
+                </section>
+              )}
+
               {/* Header — counterparty & metadata */}
               <section className="space-y-3">
+
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   {t("finance:purchases.section.header")}
                 </h3>
