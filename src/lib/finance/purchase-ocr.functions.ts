@@ -138,7 +138,7 @@ export const extractPurchaseDocument = createServerFn({ method: "POST" })
       supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
       supabase.rpc("has_permission", {
         _user_id: userId,
-        _permission_key: "finance.dashboard",
+        _key: "finance.dashboard",
       }),
     ]);
     if (!isAdmin && !hasFinance) {
