@@ -6249,6 +6249,7 @@ export type Database = {
       quote_stages: {
         Row: {
           addon_module_code: string | null
+          billing_model: string
           budget: number
           color: string
           created_at: string
@@ -6261,13 +6262,16 @@ export type Database = {
           manual_override: boolean
           name: string
           phase_code: string | null
+          phase_group: string
           quote_id: string
+          retainer_monthly_amount: number
           sort_order: number
           start_date: string
           updated_at: string
         }
         Insert: {
           addon_module_code?: string | null
+          billing_model?: string
           budget?: number
           color?: string
           created_at?: string
@@ -6280,13 +6284,16 @@ export type Database = {
           manual_override?: boolean
           name: string
           phase_code?: string | null
+          phase_group?: string
           quote_id: string
+          retainer_monthly_amount?: number
           sort_order?: number
           start_date: string
           updated_at?: string
         }
         Update: {
           addon_module_code?: string | null
+          billing_model?: string
           budget?: number
           color?: string
           created_at?: string
@@ -6299,7 +6306,9 @@ export type Database = {
           manual_override?: boolean
           name?: string
           phase_code?: string | null
+          phase_group?: string
           quote_id?: string
+          retainer_monthly_amount?: number
           sort_order?: number
           start_date?: string
           updated_at?: string
