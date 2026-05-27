@@ -329,6 +329,81 @@ export function generateMonthly(stages: QuoteStage[]): GeneratorItem[] {
   return items;
 }
 
+/**
+ * Per-stage billing generator. Walks each stage and emits items based on
+ * the stage's billing_model:
+ *   - 'stage'    → one fixed payment at stage_end equal to the stage fee
+ *   - 'monthly'  → stage fee split evenly across its calendar months
+ *   - 'retainer' → retainer_monthly_amount × each month of the stage span
+ */
+export function generateByStageBilling(
+  stages: QuoteStage[],
+  stageFees: Record<string, number>,
+): GeneratorItem[] {
+  if (stages.length === 0) return [];
+  const sorted = [...stages].sort((a, b) => a.sort_order - b.sort_order);
+  const items: GeneratorItem[] = [];
+  let order = 0;
+  for (const s of sorted) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const model = ((s as any).billing_model ?? "stage") as "stage" | "monthly" | "retainer";
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const retainer = Number((s as any).retainer_monthly_amount ?? 0);
+    if (model === "retainer") {
+      const months = monthsBetween(s.start_date, s.end_date);
+      months.forEach((m, i) => {
+        items.push({
+          label: `${s.name} — ${formatYearMonth(m)} (retainer)`,
+          trigger_type: "monthly",
+          amount_type: "fixed",
+          amount_value: round2(retainer),
+          stage_id: s.id,
+          expected_invoice_date: m,
+          expected_payment_date: null,
+          sort_order: order++,
+          generator_source: "by_stage_billing",
+        });
+        void i;
+      });
+    } else if (model === "monthly") {
+      const months = monthsBetween(s.start_date, s.end_date);
+      if (months.length === 0) continue;
+      const fee = stageFees[s.id] ?? 0;
+      const per = round2(fee / months.length);
+      months.forEach((m, i) => {
+        const amt = i === months.length - 1
+          ? round2(fee - per * (months.length - 1))
+          : per;
+        items.push({
+          label: `${s.name} — ${formatYearMonth(m)}`,
+          trigger_type: "monthly",
+          amount_type: "fixed",
+          amount_value: amt,
+          stage_id: s.id,
+          expected_invoice_date: m,
+          expected_payment_date: null,
+          sort_order: order++,
+          generator_source: "by_stage_billing",
+        });
+      });
+    } else {
+      // 'stage' — single payment at stage end
+      items.push({
+        label: s.name,
+        trigger_type: "stage_end",
+        amount_type: "fixed",
+        amount_value: round2(stageFees[s.id] ?? 0),
+        stage_id: s.id,
+        expected_invoice_date: s.end_date,
+        expected_payment_date: null,
+        sort_order: order++,
+        generator_source: "by_stage_billing",
+      });
+    }
+  }
+  return items;
+}
+
 // ----------------- helpers -----------------
 
 function midpointISO(startISO: string, endISO: string): string {
