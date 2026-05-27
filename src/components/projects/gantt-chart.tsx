@@ -419,35 +419,85 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
             </div>
           ))}
         </div>
-        <div className="flex h-9">
-          {Array.from({ length: totalDays }).map((_, i) => {
-            const d = addDays(origin, i);
-            const isWeek = isWeekend(d);
-            const isMonStart = startOfWeek(d, { weekStartsOn: 1 }).getDate() === d.getDate();
-            const isToday = differenceInCalendarDays(d, today) === 0;
-            const weekday = format(d, "EEEEE", { locale: dateLocale });
-            return (
-              <div
-                key={i}
-                className={`relative flex flex-col items-center justify-center gap-0 leading-none ${
-                  isWeek ? "bg-muted/30 text-muted-foreground/60" : "text-muted-foreground"
-                } ${isMonStart ? "border-l border-canvas-line-strong" : "border-l border-border/20"}`}
-                style={{ width: dayWidth, minWidth: dayWidth }}
-              >
-                <span className="text-[9px] uppercase tracking-wide">{weekday}</span>
-                <span
-                  className={`mt-0.5 font-mono text-[11px] ${
-                    isToday
-                      ? "flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold"
-                      : ""
-                  }`}
+        {dayWidth >= 14 && (
+          <div className="flex h-9">
+            {Array.from({ length: totalDays }).map((_, i) => {
+              const d = addDays(origin, i);
+              const isWeek = isWeekend(d);
+              const isMonStart = startOfWeek(d, { weekStartsOn: 1 }).getDate() === d.getDate();
+              const isToday = differenceInCalendarDays(d, today) === 0;
+              const weekday = format(d, "EEEEE", { locale: dateLocale });
+              return (
+                <div
+                  key={i}
+                  className={`relative flex flex-col items-center justify-center gap-0 leading-none ${
+                    isWeek ? "bg-muted/30 text-muted-foreground/60" : "text-muted-foreground"
+                  } ${isMonStart ? "border-l border-canvas-line-strong" : "border-l border-border/20"}`}
+                  style={{ width: dayWidth, minWidth: dayWidth }}
                 >
-                  {d.getDate()}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+                  <span className="text-[9px] uppercase tracking-wide">{weekday}</span>
+                  <span
+                    className={`mt-0.5 font-mono text-[11px] ${
+                      isToday
+                        ? "flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold"
+                        : ""
+                    }`}
+                  >
+                    {d.getDate()}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {dayWidth < 14 && dayWidth >= 5 && (
+          <div className="flex h-5">
+            {Array.from({ length: Math.ceil(totalDays / 7) }).map((_, wi) => {
+              const startDay = wi * 7;
+              const d = addDays(origin, startDay);
+              const daysInCell = Math.min(7, totalDays - startDay);
+              return (
+                <div
+                  key={wi}
+                  className="flex items-center justify-center border-l border-border/30 text-[9px] text-muted-foreground"
+                  style={{ width: daysInCell * dayWidth, minWidth: daysInCell * dayWidth }}
+                >
+                  {format(d, "d/M", { locale: dateLocale })}
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {dayWidth < 5 && (
+          <div className="flex h-5">
+            {(() => {
+              const cells: { label: string; days: number }[] = [];
+              for (let i = 0; i < totalDays; ) {
+                const d = addDays(origin, i);
+                const q = Math.floor(d.getMonth() / 3) + 1;
+                const label = `Q${q} ${d.getFullYear()}`;
+                let span = 0;
+                while (i + span < totalDays) {
+                  const dd = addDays(origin, i + span);
+                  const qq = Math.floor(dd.getMonth() / 3) + 1;
+                  if (qq !== q || dd.getFullYear() !== d.getFullYear()) break;
+                  span++;
+                }
+                cells.push({ label, days: span });
+                i += span;
+              }
+              return cells.map((c, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-center border-l border-border/30 text-[9px] text-muted-foreground"
+                  style={{ width: c.days * dayWidth, minWidth: c.days * dayWidth }}
+                >
+                  {c.label}
+                </div>
+              ));
+            })()}
+          </div>
+        )}
         {todayInRange && (
           <div
             className="pointer-events-none absolute bottom-0 z-10 h-full w-px bg-primary/60"
