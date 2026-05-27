@@ -127,6 +127,16 @@ export function PurchaseEditorDialog({ open, documentId, onClose }: Props) {
   const [lines, setLines] = useState<EditorLine[]>([newLine()]);
   const [createSupplier, setCreateSupplier] = useState(false);
 
+  // ---- OCR / file upload (create mode) -----------------------------------
+  const [filePath, setFilePath] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [ocrFilled, setOcrFilled] = useState<Set<string>>(new Set());
+  const [ocrFailed, setOcrFailed] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const extractFn = useServerFn(extractPurchaseDocument);
+
+
   // Hydrate when editing
   useEffect(() => {
     if (!open) return;
