@@ -80,6 +80,11 @@ import { RestoreCollaboratorDialog } from "@/components/hr/restore-collaborator-
 import { humanizeMutationError } from "@/lib/hr/error-messages";
 import { computeCollaboratorFte } from "@/lib/hr/fte";
 import {
+  getResourceSplit,
+  splitMonthlyCompanyCostFromSnapshot,
+} from "@/lib/finance/hybrid-resource-cost";
+import { fmtEUR } from "@/lib/salary";
+import {
   computeWeeklyCapacity,
   computeRecoverableHours,
   formatChargeabilityPct,
