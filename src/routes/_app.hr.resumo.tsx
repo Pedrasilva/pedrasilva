@@ -188,6 +188,17 @@ function ResumoPage() {
   const horasCaso2 = projecto.length * diasUteis * horasDia;
   const custoHoraCaso1 = horasCaso1 > 0 ? totalAtelier / horasCaso1 : 0;
   const custoHoraCaso2 = horasCaso2 > 0 ? totalAtelier / horasCaso2 : 0;
+
+  // Hybrid attribution (Step 2). Splits each collaborator's average monthly
+  // company cost between Back Office and Project capacity buckets using
+  // resource_classification + backoffice_pct. Total cost is preserved — this
+  // is a managerial attribution, not a change to payroll reality.
+  const hybridAgg = aggregateResourceSplit(
+    rows.map((r) => ({
+      collaborator: r.collab,
+      monthlyCost: r.effective ? computeSnapshot(r.effective).brutoMensal : 0,
+    })),
+  );
   const fmtH = (n: number) =>
     new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 0 }).format(n);
   const fmtPct = (n: number) =>
