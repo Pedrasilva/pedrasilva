@@ -1092,37 +1092,51 @@ function ReadOnlyStat({
 type ResourceClass = "project" | "backoffice" | "hybrid";
 
 function ResourceClassificationCard({
-  classification,
-  backofficePct,
-  dailyHours,
-  daysPerWeek,
+  collaborator,
+  snapshot,
+  showCost,
   canEdit,
   onChange,
 }: {
-  classification: ResourceClass;
-  backofficePct: number;
-  dailyHours: number;
-  daysPerWeek: number;
+  collaborator: Collaborator;
+  snapshot: Snapshot | null;
+  showCost: boolean;
   canEdit: boolean;
   onChange: (next: { classification: ResourceClass; backofficePct: number }) => void;
 }) {
   const { t } = useTranslation(["hr"]);
-  const fte = computeCollaboratorFte(dailyHours, daysPerWeek);
-  const boPct =
-    classification === "project"
-      ? 0
-      : classification === "backoffice"
-        ? 100
-        : Math.max(0, Math.min(100, Number(backofficePct) || 0));
-  const projectPct = 100 - boPct;
-  const boFte = (fte * boPct) / 100;
-  const projectFte = (fte * projectPct) / 100;
+  // Apply a sensible default for legacy collaborators where the classification
+  // is still NULL: Backoffice department → "backoffice", everyone else → "project".
+  const effectiveClassification: ResourceClass =
+    (collaborator.resource_classification as ResourceClass | null) ??
+    (collaborator.departamento === "Backoffice" ? "backoffice" : "project");
+  const effectiveBoPct =
+    collaborator.backoffice_pct ??
+    (collaborator.departamento === "Backoffice" ? 100 : 0);
+
+  // Single source of truth for the split math.
+  const split = getResourceSplit({
+    resource_classification: effectiveClassification,
+    backoffice_pct: effectiveBoPct,
+    daily_hours: collaborator.daily_hours,
+    days_per_week: collaborator.days_per_week,
+  });
+  const costSplit = showCost
+    ? splitMonthlyCompanyCostFromSnapshot(
+        {
+          resource_classification: effectiveClassification,
+          backoffice_pct: effectiveBoPct,
+        },
+        snapshot,
+      )
+    : null;
 
   const handleClassChange = (next: ResourceClass) => {
-    let nextPct = boPct;
+    let nextPct = split.backoffice_pct;
     if (next === "project") nextPct = 0;
     else if (next === "backoffice") nextPct = 100;
-    else if (next === "hybrid") nextPct = classification === "hybrid" ? boPct : 80;
+    else if (next === "hybrid")
+      nextPct = effectiveClassification === "hybrid" ? split.backoffice_pct : 80;
     onChange({ classification: next, backofficePct: nextPct });
   };
 
@@ -1144,7 +1158,7 @@ function ResourceClassificationCard({
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <Field label={t("hr:collaborator.resourceClassification.field")}>
             <Select
-              value={classification}
+              value={split.resource_classification}
               onValueChange={(v) => handleClassChange(v as ResourceClass)}
               disabled={!canEdit}
             >
@@ -1166,33 +1180,56 @@ function ResourceClassificationCard({
               step={5}
               className={cn(
                 "tabular-nums",
-                classification === "hybrid" && canEdit ? "input-yellow" : undefined,
+                split.resource_classification === "hybrid" && canEdit ? "input-yellow" : undefined,
               )}
-              value={boPct}
-              disabled={!canEdit || classification !== "hybrid"}
+              value={split.backoffice_pct}
+              disabled={!canEdit || split.resource_classification !== "hybrid"}
               onChange={(e) => handleBoChange(Number(e.target.value))}
             />
           </Field>
           <Field label={t("hr:collaborator.resourceClassification.projectPct")}>
-            <Input type="number" className="tabular-nums" value={projectPct} disabled readOnly />
+            <Input type="number" className="tabular-nums" value={split.project_pct} disabled readOnly />
           </Field>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <ReadOnlyStat
             label={t("hr:collaborator.resourceClassification.fte")}
-            value={fmtFte(fte)}
+            value={fmtFte(split.fte)}
             hint={t("hr:collaborator.resourceClassification.fteHint")}
           />
           <ReadOnlyStat
             label={t("hr:collaborator.resourceClassification.boFte")}
-            value={`${fmtFte(boFte)} (${fmtPct(boPct)})`}
+            value={`${fmtFte(split.bo_fte_equivalent)} (${fmtPct(split.backoffice_pct)})`}
           />
           <ReadOnlyStat
             label={t("hr:collaborator.resourceClassification.projectFte")}
-            value={`${fmtFte(projectFte)} (${fmtPct(projectPct)})`}
+            value={`${fmtFte(split.project_fte_equivalent)} (${fmtPct(split.project_pct)})`}
           />
         </div>
+
+        {costSplit && (
+          <>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <ReadOnlyStat
+                label={t("hr:collaborator.resourceClassification.monthlyCostTotal")}
+                value={fmtEUR(costSplit.total_monthly_cost)}
+                hint={t("hr:collaborator.resourceClassification.monthlyCostTotalHint")}
+              />
+              <ReadOnlyStat
+                label={t("hr:collaborator.resourceClassification.monthlyCostBo")}
+                value={`${fmtEUR(costSplit.backoffice_cost)} (${fmtPct(costSplit.backoffice_pct)})`}
+              />
+              <ReadOnlyStat
+                label={t("hr:collaborator.resourceClassification.monthlyCostProject")}
+                value={`${fmtEUR(costSplit.project_capacity_cost)} (${fmtPct(costSplit.project_pct)})`}
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              {t("hr:collaborator.resourceClassification.costSplitDisclaimer")}
+            </p>
+          </>
+        )}
 
         {!canEdit && (
           <p className="text-[11px] text-muted-foreground">
@@ -1203,5 +1240,6 @@ function ResourceClassificationCard({
     </Card>
   );
 }
+
 
 
