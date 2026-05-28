@@ -867,6 +867,16 @@
       "totalBackofficeTeam": "Total Backoffice Team (TGV)",
       "totalAtelierAnnualCost": "Total annual studio cost"
     },
+    "hybridSplit": {
+      "title": "Hybrid resource attribution",
+      "description": "Splits each team member's monthly company cost between Back Office and Project capacity buckets, using their resource classification and Back Office %. Total cost is unchanged — this is a managerial attribution. Actual project P&L keeps using logged hours × cost rate.",
+      "totalFte": "Total FTE",
+      "boFteEquivalent": "Back Office FTE equivalent",
+      "projectFteEquivalent": "Project FTE equivalent",
+      "totalMonthlyCost": "Total monthly people cost",
+      "boMonthlyCost": "Back Office monthly cost",
+      "projectMonthlyCost": "Project-capacity monthly cost"
+    },
     "valorBo": {
       "title": "Studio cost per unit of time",
       "description": "Total cost ({{total}}) ÷ {{days}} working days × {{hours}} h/day",
