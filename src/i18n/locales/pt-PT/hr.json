@@ -658,6 +658,11 @@
       "fteHint": "vs. semana padrão do atelier",
       "boFte": "Equivalente FTE Back Office",
       "projectFte": "Equivalente FTE Projecto",
+      "monthlyCostTotal": "Custo mensal da empresa",
+      "monthlyCostTotalHint": "Realidade do payroll — não alterada pela divisão",
+      "monthlyCostBo": "Atribuído a Back Office",
+      "monthlyCostProject": "Atribuído a capacidade de Projecto",
+      "costSplitDisclaimer": "Atribuição de gestão apenas. O P&L real de projecto continua a usar horas registadas × custo/hora — a divisão de planeamento nunca reduz o custo/hora quando há tempo real de projecto registado.",
       "readOnlyHint": "Apenas administradores de RH podem editar este valor."
     },
 
