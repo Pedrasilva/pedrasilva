@@ -45,6 +45,7 @@ import { ResumoComparativoTab } from "@/components/ResumoComparativoTab";
 import { cn } from "@/lib/utils";
 import { computeAverageBenefits } from "@/lib/hr/compensation-liquidity";
 import type { BenefitExpense } from "@/lib/benefits";
+import { aggregateResourceSplit } from "@/lib/finance/hybrid-resource-cost";
 
 export const Route = createFileRoute("/_app/hr/resumo")({
   component: () => (
