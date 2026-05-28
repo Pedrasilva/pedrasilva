@@ -658,6 +658,11 @@
       "fteHint": "vs. studio-standard week",
       "boFte": "Back Office FTE equivalent",
       "projectFte": "Project FTE equivalent",
+      "monthlyCostTotal": "Monthly company cost",
+      "monthlyCostTotalHint": "Payroll reality — unchanged by the split",
+      "monthlyCostBo": "Attributed to Back Office",
+      "monthlyCostProject": "Attributed to Project capacity",
+      "costSplitDisclaimer": "Management attribution only. Actual project P&L still uses logged hours × cost rate — the planning split never discounts the cost rate when real project time is logged.",
       "readOnlyHint": "Only HR admins can edit this value."
     },
 
