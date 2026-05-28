@@ -658,6 +658,11 @@
       "fteHint": "vs. semana padrão do atelier",
       "boFte": "Equivalente FTE Back Office",
       "projectFte": "Equivalente FTE Projecto",
+      "monthlyCostTotal": "Custo mensal da empresa",
+      "monthlyCostTotalHint": "Realidade do payroll — não alterada pela divisão",
+      "monthlyCostBo": "Atribuído a Back Office",
+      "monthlyCostProject": "Atribuído a capacidade de Projecto",
+      "costSplitDisclaimer": "Atribuição de gestão apenas. O P&L real de projecto continua a usar horas registadas × custo/hora — a divisão de planeamento nunca reduz o custo/hora quando há tempo real de projecto registado.",
       "readOnlyHint": "Apenas administradores de RH podem editar este valor."
     },
 
@@ -861,6 +866,16 @@
       "totalProjectTeam": "Total Equipa Projecto (VBG)",
       "totalBackofficeTeam": "Total Equipa Backoffice (VBG)",
       "totalAtelierAnnualCost": "Custo total anual do atelier"
+    },
+    "hybridSplit": {
+      "title": "Atribuição de recursos híbridos",
+      "description": "Divide o custo mensal de cada colaborador entre os baldes Back Office e capacidade de Projecto, usando a classificação de recurso e o % Back Office. O custo total mantém-se — é apenas atribuição de gestão. O P&L real de projecto continua a usar horas registadas × custo/hora.",
+      "totalFte": "FTE total",
+      "boFteEquivalent": "Equivalente FTE Back Office",
+      "projectFteEquivalent": "Equivalente FTE Projecto",
+      "totalMonthlyCost": "Custo mensal total de pessoas",
+      "boMonthlyCost": "Custo mensal Back Office",
+      "projectMonthlyCost": "Custo mensal capacidade de Projecto"
     },
     "valorBo": {
       "title": "Custo do atelier por unidade de tempo",
