@@ -17,9 +17,19 @@ import { checkFinanceAccess } from "@/lib/finance/access";
 
 export const Route = createFileRoute("/_app/finance")({
   beforeLoad: async () => {
-    const allowed = await checkFinanceAccess();
-    if (!allowed) {
-      throw redirect({ to: "/" });
+    try {
+      const allowed = await checkFinanceAccess();
+      if (!allowed) {
+        // eslint-disable-next-line no-console
+        console.warn("[finance] access denied — redirecting to /");
+        throw redirect({ to: "/" });
+      }
+    } catch (err) {
+      // Re-throw router redirects; swallow anything else so a transient
+      // network/RLS blip doesn't bounce a logged-in user home.
+      if (err && typeof err === "object" && "isRedirect" in (err as object)) throw err;
+      // eslint-disable-next-line no-console
+      console.warn("[finance] access check threw; allowing render", err);
     }
   },
   component: FinanceLayout,
