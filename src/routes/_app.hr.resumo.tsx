@@ -279,6 +279,44 @@ function ResumoPage() {
             />
           </div>
 
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">
+                {t("hr:resumo.hybridSplit.title")}
+              </CardTitle>
+              <CardDescription>
+                {t("hr:resumo.hybridSplit.description")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <Kpi
+                title={t("hr:resumo.hybridSplit.totalFte")}
+                value={hybridAgg.totalFte.toFixed(2)}
+              />
+              <Kpi
+                title={t("hr:resumo.hybridSplit.boFteEquivalent")}
+                value={hybridAgg.boFteEquivalent.toFixed(2)}
+              />
+              <Kpi
+                title={t("hr:resumo.hybridSplit.projectFteEquivalent")}
+                value={hybridAgg.projectFteEquivalent.toFixed(2)}
+              />
+              <Kpi
+                title={t("hr:resumo.hybridSplit.totalMonthlyCost")}
+                value={fmtEUR(hybridAgg.totalMonthlyCost)}
+              />
+              <Kpi
+                title={t("hr:resumo.hybridSplit.boMonthlyCost")}
+                value={fmtEUR(hybridAgg.boMonthlyCost)}
+              />
+              <Kpi
+                title={t("hr:resumo.hybridSplit.projectMonthlyCost")}
+                value={fmtEUR(hybridAgg.projectCapacityMonthlyCost)}
+              />
+            </CardContent>
+          </Card>
+
+
           <ValorBoCard
             cotaBo={cotaBo}
             margemGlobal={margemGlobal}
