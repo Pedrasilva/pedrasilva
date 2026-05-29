@@ -46,6 +46,8 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   // Agregado familiar — trancado por ficha (snapshot histórico)
   "localizacao", "estado_civil", "numero_titulares", "numero_dependentes",
   "dependentes_com_deficiencia", "ano_fiscal",
+  // Project cost propagation — independent of payroll effective_from
+  "project_cost_effective_from",
 ];
 
 export function SnapshotForm({ snapshot, collaborator }: Props) {
