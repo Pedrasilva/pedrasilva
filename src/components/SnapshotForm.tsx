@@ -162,6 +162,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         numero_dependentes: Number(draft.numero_dependentes) || 0,
         dependentes_com_deficiencia: Number(draft.dependentes_com_deficiencia) || 0,
         ano_fiscal: Number(draft.ano_fiscal) || new Date().getFullYear(),
+        project_cost_effective_from: draft.project_cost_effective_from || null,
       };
 
       const { error } = await supabase
@@ -212,7 +213,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     <div className="space-y-5">
       <Card className="sticky top-2 z-20 border-[var(--clay)]/30 bg-[color-mix(in_oklab,var(--cream)_60%,var(--background))] shadow-sm backdrop-blur supports-[backdrop-filter]:bg-[color-mix(in_oklab,var(--cream)_45%,var(--background))]">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 flex-1">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 flex-1">
             <FieldStacked label="Etiqueta">
               <Input className="input-yellow" value={draft.label}
                 onChange={(e) => set("label", e.target.value)} />
@@ -220,6 +221,20 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
             <FieldStacked label="Data de referência">
               <Input type="date" className="input-yellow" value={draft.reference_date}
                 onChange={(e) => set("reference_date", e.target.value)} />
+            </FieldStacked>
+            <FieldStacked label={t("snapshot.form.projectCostEffectiveFromLabel")}>
+              <Input
+                type="date"
+                className="input-yellow"
+                value={draft.project_cost_effective_from ?? ""}
+                min={draft.reference_date || undefined}
+                onChange={(e) =>
+                  set("project_cost_effective_from", e.target.value || null)
+                }
+              />
+              <div className="text-[10px] leading-tight text-muted-foreground mt-1">
+                {t("snapshot.form.projectCostEffectiveFromHint")}
+              </div>
             </FieldStacked>
             <FieldStacked label="Efectiva (em vigor)">
               <div className="flex h-9 items-center gap-2">
