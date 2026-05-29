@@ -1,65 +1,107 @@
-## Goal
 
-Replace the finance left sidebar with a horizontal secondary nav under the finance header, so the full viewport width is available for tables and reports.
+# Salary update → Project cost propagation
 
-## Layout change
+Permite que uma actualização salarial seja reflectida nos projectos a partir de uma data escolhida (independente da `effective_from` do payroll), sem corromper meses já fechados.
 
-Before:
+## Estado actual
+
+- `salary_snapshots.effective_from` rege HR/payroll.
+- `pm_resources.cost_rate` é o número usado pelo P&L do projecto. Existe histórico em `pm_resource_rates(effective_from, cost_rate, sale_rate)`, **mas `use-stage-budget-control.ts` ignora-o** — usa sempre o `cost_rate` "vivo" do recurso.
+- Não há ligação automática snapshot → resource rate.
+
+## O que vamos construir
+
+### 1. Schema (migration)
+
+- `salary_snapshots`: + `project_cost_effective_from DATE NULL` (quando NULL = mesma data do `effective_from`).
+- `pm_resource_rates`: + `source TEXT` (`'manual' | 'salary_snapshot'`) + `source_snapshot_id UUID NULL` (idempotência e rastreio).
+
+### 2. Engine de derivação — `src/lib/finance/derive-project-cost-rate.ts`
+
+Função pura:
 ```
-┌──┬─────────┬───────────────────────┐
-│  │ Finance │  Header (VAT toggle)  │
-│Ra│ Sidebar ├───────────────────────┤
-│il│ (groups)│  Content              │
-└──┴─────────┴───────────────────────┘
+monthly_company_cost = computeMonthlyCompanyCost(snapshot).monthlyAverage
+                       × resource_split.project_fte_equivalent
+monthly_hours        = weekly_hours × 52 / 12
+project_cost_rate    = monthly_company_cost / monthly_hours
 ```
+Híbridos respeitam `project_pct` (Step 2). BO puro → `cost_rate = 0`.
 
-After:
-```
-┌──┬──────────────────────────────────┐
-│  │  Header: title • VAT toggle      │
-│Ra├──────────────────────────────────┤
-│il│  Tabs: Documentos · Faturação ·  │
-│  │        Pagamentos · Bancos ·     │
-│  │        Relatórios · Dados · Admin│
-│  ├──────────────────────────────────┤
-│  │  Sub-items (pills, contextual)   │
-│  ├──────────────────────────────────┤
-│  │  Content (full width)            │
-└──┴──────────────────────────────────┘
-```
+### 3. Propagação — `src/lib/finance/propagate-salary-to-projects.functions.ts`
 
-## Nav pattern
+Server fn chamada após gravar snapshot:
+1. Calcula `newRate`.
+2. Para cada `pm_resources` activo do colaborador com `hourly_rate_is_override = false`:
+   - Fecha a linha aberta de `pm_resource_rates`: `effective_to = projectCostEffectiveFrom - 1`.
+   - Insere nova linha (`effective_from`, `cost_rate = newRate`, `source = 'salary_snapshot'`, `source_snapshot_id`).
+3. Actualiza `pm_resources.cost_rate` (espelho do rate corrente, para leitores antigos).
 
-Two-row horizontal nav:
-- **Row 1 — Groups** as tabs (Documentos, Faturação, Pagamentos, Bancos, Relatórios, Dados, Admin). Active tab = current group derived from pathname.
-- **Row 2 — Items** of the active group as pills (e.g. under Faturação: Faturas, Recibos, Clientes, Entradas). The active item is highlighted.
+Recursos com override manual são ignorados e listados no toast.
 
-Both rows are sticky under the global top nav and horizontally scrollable on narrow viewports. Icons stay (small, left of label) so scanning matches today's sidebar.
+### 4. Leitura por data — `src/lib/projects/resource-rate-lookup.ts`
 
-## Files to change
+Helper `costRateAt(resourceId, date)` que escolhe da história em `pm_resource_rates`. Fallback para `pm_resources.cost_rate`.
 
-1. **New `src/components/finance/finance-top-nav.tsx`** — renders the two rows from the same group/item config currently in `finance-sidebar.tsx`. Reads active route via `useRouterState` and `Link` from `@tanstack/react-router`. Uses existing shadcn `Tabs` for row 1 and styled `Link` pills for row 2 (or a single component with two visual tiers).
-2. **`src/components/finance/finance-sidebar.tsx`** — extract the nav config (groups + items + icons + i18n keys) into a sibling `finance-nav-config.ts` so both sidebar and top-nav share it. Keep the sidebar file for now but unused (delete in a follow-up once the top-nav ships cleanly).
-3. **`src/routes/_app.finance.tsx`** — remove `SidebarProvider` / `FinanceSidebar` / `SidebarInset` / `SidebarTrigger`. Replace with a plain flex column: `<FinanceHeader />` + `<FinanceTopNav />` + `<main>`. Keep `FinanceShellProvider` and the VAT toggle in the header.
-4. **`src/styles.css`** — remove the `.finance-shell` sidebar offset rule added in the previous fix (no longer needed).
-5. **i18n** — reuse existing `finance:nav.*` keys; no new strings unless we shorten any group label that's too long for a tab (verify in PT-PT). Any new key added in EN + PT in the same edit.
+Refactor em `use-stage-budget-control.ts`:
+- Pré-carrega histórico dos recursos envolvidos.
+- Substitui `p.cost` (constante) por rate **por data da entry** no cálculo de `cost`.
+- Futuro continua a usar o rate corrente.
 
-## Behavior
+### 5. UI no SnapshotForm
 
-- Active group/item resolved from `location.pathname` against the shared config.
-- Keyboard: tabs navigable with arrow keys (shadcn `Tabs` default).
-- Mobile (<768px): both rows become horizontally scrollable strips with snap; no off-canvas drawer needed.
-- VAT toggle stays in the sticky header (row above the tabs), unchanged behavior.
+Novo campo (Datepicker shadcn) abaixo de `effective_from`:
+- **Reflectir nos projectos a partir de** *(opcional)*
+- Default visível = data de hoje (conservador), pode ser igual à `effective_from` para propagação total.
+- Hint: "Salário acima desta data não afecta margens de projecto já fechadas."
 
-## Out of scope
+Após gravar: toast "X taxas actualizadas, Y ignoradas (override)".
 
-- No changes to finance pages themselves.
-- No change to the global `AppRail`.
-- Sidebar component file kept on disk this turn; removal in a follow-up to keep the diff focused and reversible.
+### 6. Visibilidade na ficha do colaborador
 
-## Verification
+No card "Resource classification":
+- Mostrar "Project cost rate derivado: XX,XX €/h desde DD/MM/AAAA".
+- Link "Ver histórico" → drawer com últimas linhas de `pm_resource_rates`.
 
-- `/finance/invoicing/invoices` (current route) shows the invoices table at full width with "Faturação" tab active and "Faturas" pill active.
-- Clicking each tab updates row 2 and navigates to the group's index/first item.
-- VAT toggle still works.
-- No leftover sidebar artifacts or CSS offset.
+### 7. i18n
+
+Novas chaves em `hr.json` + `projects.json` (EN + PT), partilhadas via `glossary` quando aplicável (`projectCostEffectiveFrom`, `costRateHistory`, `derivedCostRate`).
+
+## Invariantes (NÃO mexer)
+
+- Timesheet entries não são reescritas — só o rate aplicado por data muda.
+- `effective_from` do payroll mantém-se separado da data de projecto.
+- Recursos com `hourly_rate_is_override = true` ficam intactos.
+- `sale_rate` não é tocado.
+
+## Ficheiros tocados
+
+**Migration**: `salary_snapshots`, `pm_resource_rates`.
+
+**Novos**:
+- `src/lib/finance/derive-project-cost-rate.ts`
+- `src/lib/finance/propagate-salary-to-projects.functions.ts`
+- `src/lib/projects/resource-rate-lookup.ts`
+
+**Editados**:
+- `src/components/SnapshotForm.tsx`
+- caller do save de snapshot (invoca propagação)
+- `src/lib/projects/use-stage-budget-control.ts`
+- `src/routes/_app.hr.colaborador.$id.tsx`
+- `src/i18n/locales/{en,pt-PT}/{hr,projects,glossary}.json`
+
+## Riscos & mitigação
+
+| Risco | Mitigação |
+|---|---|
+| Recalcular margens históricas surpreende | Default = hoje. Retroactivo é opt-in via Datepicker. |
+| Performance no rollup | Pré-carregar histórico 1× por recurso, lookup O(log n). |
+| Re-propagação dupla | `source_snapshot_id` garante idempotência. |
+| Híbridos sem `weekly_hours` | Engine devolve `null`, log + skip, warning na UI. |
+
+## Roll-out
+
+1. Migration + GRANTs.
+2. Engine + lookup (sem mudar comportamento).
+3. Refactor `use-stage-budget-control` para usar lookup.
+4. UI snapshot + propagação ligada.
+5. Backfill admin opcional (idempotente).
