@@ -311,7 +311,9 @@
       "savedAt": "Saved {{time}}",
       "idle": "No changes",
       "updatedToast": "Sheet updated",
-      "saveError": "Error saving: {{message}}"
+      "saveError": "Error saving: {{message}}",
+      "projectCostEffectiveFromLabel": "Reflect in projects from",
+      "projectCostEffectiveFromHint": "Optional. Salary above this date will not affect already-closed project margins. Defaults to the payroll effective date."
     },
     "bruto": {
       "title": "Gross View",

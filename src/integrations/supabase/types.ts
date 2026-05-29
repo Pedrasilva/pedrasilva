@@ -4474,6 +4474,8 @@ export type Database = {
           notes: string | null
           resource_id: string
           sale_rate: number
+          source: string
+          source_snapshot_id: string | null
           updated_at: string
         }
         Insert: {
@@ -4484,6 +4486,8 @@ export type Database = {
           notes?: string | null
           resource_id: string
           sale_rate?: number
+          source?: string
+          source_snapshot_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -4494,6 +4498,8 @@ export type Database = {
           notes?: string | null
           resource_id?: string
           sale_rate?: number
+          source?: string
+          source_snapshot_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -4509,6 +4515,13 @@ export type Database = {
             columns: ["resource_id"]
             isOneToOne: false
             referencedRelation: "pm_resources_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_resource_rates_source_snapshot_id_fkey"
+            columns: ["source_snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "salary_snapshots"
             referencedColumns: ["id"]
           },
         ]
@@ -6688,6 +6701,7 @@ export type Database = {
           passe_anual: number
           plano_reforma: number
           premio_associado: number
+          project_cost_effective_from: string | null
           reference_date: string
           source: string
           ss_atelier_pct: number
@@ -6727,6 +6741,7 @@ export type Database = {
           passe_anual?: number
           plano_reforma?: number
           premio_associado?: number
+          project_cost_effective_from?: string | null
           reference_date: string
           source?: string
           ss_atelier_pct?: number
@@ -6766,6 +6781,7 @@ export type Database = {
           passe_anual?: number
           plano_reforma?: number
           premio_associado?: number
+          project_cost_effective_from?: string | null
           reference_date?: string
           source?: string
           ss_atelier_pct?: number

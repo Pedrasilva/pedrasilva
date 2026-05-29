@@ -40,6 +40,12 @@ export type Snapshot = {
   // v3 — explicit effective-date range + provenance
   effective_from: string; // YYYY-MM-DD; required
   effective_to: string | null; // YYYY-MM-DD or null = open-ended
+  /**
+   * Date from which this snapshot affects project cost rates. When null,
+   * propagation defaults to `effective_from`. Allows a salary to be retroactive
+   * for HR/payroll while only impacting project margins from a chosen later date.
+   */
+  project_cost_effective_from: string | null;
   source: "manual" | "excel_import" | "api";
   import_log_id: string | null;
 };
@@ -319,6 +325,7 @@ export function defaultSnapshot(
     subsidio_alimentacao_diario_manual: 0,
     effective_from: new Date().toISOString().slice(0, 10),
     effective_to: null,
+    project_cost_effective_from: null,
     source: "manual",
     import_log_id: null,
   };

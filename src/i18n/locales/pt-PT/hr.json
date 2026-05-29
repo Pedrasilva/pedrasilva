@@ -311,7 +311,9 @@
       "savedAt": "Guardado {{time}}",
       "idle": "Sem alterações",
       "updatedToast": "Ficha actualizada",
-      "saveError": "Erro a guardar: {{message}}"
+      "saveError": "Erro a guardar: {{message}}",
+      "projectCostEffectiveFromLabel": "Reflectir nos projectos a partir de",
+      "projectCostEffectiveFromHint": "Opcional. O salário acima desta data não afecta margens de projecto já fechadas. Por omissão usa a data de efeito do payroll."
     },
     "bruto": {
       "title": "Visão Bruto",

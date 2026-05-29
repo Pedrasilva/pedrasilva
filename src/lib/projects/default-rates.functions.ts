@@ -53,11 +53,41 @@ export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
     const diasUteis = Number(settings?.dias_uteis ?? 220);
     const horasDia = Number(settings?.horas_dia ?? 8);
 
+    // Pick the snapshot that should drive project cost rates TODAY.
+    // Rules (in order):
+    //   1. Use `project_cost_effective_from` when set; otherwise `effective_from`
+    //      as the lower bound. This is what makes a salary be retroactive for
+    //      HR/payroll while only affecting project margins from a chosen later date.
+    //   2. The upper bound is `effective_to` (exclusive) or open-ended.
+    //   3. Among matches, pick the one with the most recent lower bound.
+    //   4. Fallback: if no snapshot matches the window (e.g. all are in the
+    //      future), use the most recent past one anyway so projects always
+    //      have a rate; failing that, the `is_effective` flag; failing that,
+    //      the newest by reference_date.
+    const today = new Date().toISOString().slice(0, 10);
+    const pickSnapshotForProjectCost = (sns: Snapshot[]): Snapshot | null => {
+      if (sns.length === 0) return null;
+      const withBounds = sns.map((s) => ({
+        s,
+        lower: s.project_cost_effective_from ?? s.effective_from ?? s.reference_date,
+        upper: s.effective_to,
+      }));
+      const active = withBounds
+        .filter((x) => x.lower <= today && (x.upper == null || today < x.upper))
+        .sort((a, b) => b.lower.localeCompare(a.lower));
+      if (active.length > 0) return active[0].s;
+      const past = withBounds
+        .filter((x) => x.lower <= today)
+        .sort((a, b) => b.lower.localeCompare(a.lower));
+      if (past.length > 0) return past[0].s;
+      return sns.find((s) => s.is_effective) ?? sns[0] ?? null;
+    };
+
     type Agg = { collab: Collaborator; vbg: number };
     const byCollab = new Map<string, Agg>();
     for (const c of collaborators) {
       const sns = snapshots.filter((s) => s.collaborator_id === c.id);
-      const ref = sns.find((s) => s.is_effective) ?? sns[0] ?? null;
+      const ref = pickSnapshotForProjectCost(sns);
       const vbg = ref ? computeSnapshot(ref).custoVBG : 0;
       byCollab.set(c.id, { collab: c, vbg });
     }
