@@ -211,8 +211,53 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     },
   });
 
+  const [inForceOpen, setInForceOpen] = useState(false);
+  const [inForceFrom, setInForceFrom] = useState<string>(() =>
+    snapshot.effective_from || snapshot.reference_date || new Date().toISOString().slice(0, 10),
+  );
+  useEffect(() => {
+    setInForceFrom(snapshot.effective_from || snapshot.reference_date || new Date().toISOString().slice(0, 10));
+  }, [snapshot.id, snapshot.effective_from, snapshot.reference_date]);
+
+  const setInForce = useMutation({
+    mutationFn: async (fromDate: string) => {
+      const { error } = await supabase.rpc("set_snapshot_in_force", {
+        p_snapshot_id: snapshot.id,
+        p_from: fromDate,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Ficha marcada como em vigor");
+      qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
+      qc.invalidateQueries({ queryKey: ["all-snapshots"] });
+      setInForceOpen(false);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const toggleArchive = useMutation({
+    mutationFn: async () => {
+      if (snapshot.is_effective && !snapshot.archived_at) {
+        throw new Error("Não é possível arquivar a ficha em vigor. Promove outra ficha primeiro.");
+      }
+      const { error } = await supabase
+        .from("salary_snapshots")
+        .update({ archived_at: snapshot.archived_at ? null : new Date().toISOString() })
+        .eq("id", snapshot.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(snapshot.archived_at ? "Ficha restaurada" : "Ficha arquivada");
+      qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
+      qc.invalidateQueries({ queryKey: ["all-snapshots"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const set = <K extends keyof Snapshot>(k: K, v: Snapshot[K]) =>
     setDraft((d) => ({ ...d, [k]: v }));
+
 
   return (
     <div className="space-y-5">
