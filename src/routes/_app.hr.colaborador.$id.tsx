@@ -145,7 +145,7 @@ function CollaboratorPage() {
     label: collab?.nome ?? "",
   });
 
-  const { data: snapshots = [] } = useQuery({
+  const { data: allSnapshots = [] } = useQuery({
     queryKey: ["snapshots", id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -157,6 +157,16 @@ function CollaboratorPage() {
       return data as Snapshot[];
     },
   });
+
+  const [showArchived, setShowArchived] = useState(false);
+  const snapshots = useMemo(
+    () => (showArchived ? allSnapshots : allSnapshots.filter((s) => !s.archived_at)),
+    [allSnapshots, showArchived],
+  );
+  const archivedCount = useMemo(
+    () => allSnapshots.filter((s) => s.archived_at).length,
+    [allSnapshots],
+  );
 
   const { data: benefitExpenses = [] } = useQuery({
     queryKey: ["collaborator-benefit-expenses-12m", id],
@@ -174,9 +184,10 @@ function CollaboratorPage() {
   });
 
   const effectiveSnapshot = useMemo(
-    () => snapshots.find((s) => s.is_effective) ?? snapshots[0] ?? null,
-    [snapshots],
+    () => allSnapshots.find((s) => s.is_effective && !s.archived_at) ?? allSnapshots.find((s) => !s.archived_at) ?? null,
+    [allSnapshots],
   );
+
 
   const [draft, setDraft] = useState<Collaborator | null>(null);
   useEffect(() => {
