@@ -282,9 +282,9 @@ function CollaboratorPage() {
         collaborator_id: id,
         label: newForm.label || t("hr:collaborator.defaults.snapshotFallback"),
         reference_date: newForm.reference_date,
-        is_effective: newForm.is_effective,
-        // New effective-dated record. Regular edits happen in-place from the
-        // sheet form; this action is the explicit way to create a separate sheet.
+        // Insert as non-effective; the RPC below handles promotion atomically
+        // so any previous in-force snapshot is properly demoted.
+        is_effective: false,
         effective_from: newForm.reference_date,
         effective_to: null,
         source: "manual" as const,
@@ -297,8 +297,16 @@ function CollaboratorPage() {
         .select()
         .single();
       if (error) throw error;
+      if (newForm.is_effective) {
+        const { error: rpcErr } = await supabase.rpc("set_snapshot_in_force", {
+          p_snapshot_id: data.id,
+          p_from: newForm.reference_date,
+        });
+        if (rpcErr) throw rpcErr;
+      }
       return data as Snapshot;
     },
+
     onSuccess: (s) => {
       toast.success(t("hr:collaborator.toasts.snapshotCreated"));
       qc.invalidateQueries({ queryKey: ["snapshots", id] });
