@@ -41,7 +41,7 @@ const TABELA_LABEL: Record<string, string> = {
 };
 
 const TRACKED_FIELDS: (keyof Snapshot)[] = [
-  "label", "reference_date", "is_effective", "notas",
+  "label", "reference_date", "notas",
   "irs_calculado_auto", "irs_pct", "valor_base",
   "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos", "subsidios_modo",
   "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual", "passe_anual",
@@ -53,6 +53,7 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   // Project cost propagation — independent of payroll effective_from
   "project_cost_effective_from",
 ];
+
 
 export function SnapshotForm({ snapshot, collaborator }: Props) {
   const { t } = useTranslation("hr");
