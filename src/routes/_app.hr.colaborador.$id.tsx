@@ -160,7 +160,23 @@ function CollaboratorPage() {
 
   const [showArchived, setShowArchived] = useState(false);
   const snapshots = useMemo(
-    () => (showArchived ? allSnapshots : allSnapshots.filter((s) => !s.archived_at)),
+    () => {
+      const list = showArchived ? allSnapshots : allSnapshots.filter((s) => !s.archived_at);
+      const rank = (s: Snapshot) => {
+        if (s.archived_at) return 3;
+        if (s.is_effective) return 0;
+        // Future-dated (proposals) before past-dated (outdated)
+        const today = new Date().toISOString().slice(0, 10);
+        return (s.reference_date ?? "") >= today ? 1 : 2;
+      };
+      return [...list].sort((a, b) => {
+        const ra = rank(a);
+        const rb = rank(b);
+        if (ra !== rb) return ra - rb;
+        // Within same group: most recent reference_date first
+        return (b.reference_date ?? "").localeCompare(a.reference_date ?? "");
+      });
+    },
     [allSnapshots, showArchived],
   );
   const archivedCount = useMemo(
