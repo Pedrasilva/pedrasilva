@@ -1,8 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { createClient } from "@supabase/supabase-js";
-import { getRequestHeader } from "@tanstack/react-start/server";
-import type { Database } from "@/integrations/supabase/types";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /**
  * Server-side duplicate-safe financial import.
@@ -13,9 +10,10 @@ import type { Database } from "@/integrations/supabase/types";
  *   3. Inserts all rows in a single transaction
  *   4. Records the import log; translates 23505 race into a duplicate response
  *
- * Browser-side `recordFinancialImportLog` is still useful for UX, but THIS
- * function is the source of truth: duplicate detection happens server-side
- * before any rows are inserted, and the DB unique index is the final guard.
+ * Auth: requireSupabaseAuth ensures the caller has a valid JWT (defense in
+ * depth at the function boundary), and the RPC is invoked through the
+ * user-scoped client so `auth.uid()` resolves correctly for the admin check
+ * inside the SECURITY DEFINER function.
  */
 
 export type FinancialImportPayload = {
@@ -67,35 +65,13 @@ function validatePayload(input: unknown): FinancialImportPayload {
   return p;
 }
 
-/**
- * Build a Supabase client that forwards the caller's JWT so the RPC runs
- * as the authenticated user (needed for the admin role check inside the
- * SECURITY DEFINER function via auth.uid()).
- */
-function getUserScopedClient() {
-  const url = process.env.SUPABASE_URL;
-  const anon = process.env.SUPABASE_ANON_KEY ?? process.env.SUPABASE_PUBLISHABLE_KEY;
-  const auth = getRequestHeader("authorization") ?? getRequestHeader("Authorization");
-
-  if (!url || !anon) {
-    return { client: supabaseAdmin, hasAuth: false };
-  }
-  if (!auth) {
-    return { client: supabaseAdmin, hasAuth: false };
-  }
-  return {
-    client: createClient<Database>(url, anon, {
-      global: { headers: { Authorization: auth } },
-      auth: { persistSession: false, autoRefreshToken: false },
-    }),
-    hasAuth: true,
-  };
-}
-
 export const importFinancialData = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator(validatePayload)
-  .handler(async ({ data }): Promise<ImportFinancialDataResult> => {
-    const { client } = getUserScopedClient();
+  .handler(async ({ data, context }): Promise<ImportFinancialDataResult> => {
+    // Always use the caller's JWT-scoped client; the RPC's SECURITY DEFINER
+    // admin check relies on auth.uid() and would see NULL with service-role.
+    const client = context.supabase;
 
     const { data: rpcData, error } = await client.rpc("import_financial_data", {
       p_import_type: data.import_type ?? "excel_seed",
@@ -113,8 +89,6 @@ export const importFinancialData = createServerFn({ method: "POST" })
     });
 
     if (error) {
-      // Translate the race-condition unique violation we re-raise inside the
-      // RPC into the structured duplicate response.
       const isDuplicateRace =
         error.code === "23505" ||
         (typeof error.message === "string" && error.message.includes("duplicate_import"));
