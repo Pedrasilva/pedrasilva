@@ -286,17 +286,29 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                 {t("snapshot.form.projectCostEffectiveFromHint")}
               </div>
             </FieldStacked>
-            <FieldStacked label="Efectiva (em vigor)">
-              <div className="flex h-9 items-center gap-2">
-                <Switch checked={draft.is_effective}
-                  onCheckedChange={(v) => set("is_effective", v)} />
-                <span className="text-xs text-muted-foreground">
-                  {draft.is_effective ? "Em vigor" : "Proposta / histórico"}
-                </span>
+            <FieldStacked label="Estado">
+              <div className="flex h-9 items-center">
+                {snapshot.archived_at ? (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                    Arquivada
+                  </span>
+                ) : snapshot.is_effective ? (
+                  <span className="rounded-full bg-positive/15 px-2 py-0.5 text-xs font-semibold text-positive">
+                    Em vigor desde {snapshot.effective_from}
+                  </span>
+                ) : snapshot.effective_to ? (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                    Desactualizada · até {snapshot.effective_to}
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                    Proposta / histórico
+                  </span>
+                )}
               </div>
             </FieldStacked>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
               <SaveStatus
                 isDirty={isDirty}
                 isSaving={save.isPending}
@@ -317,6 +329,58 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
             >
               <Save className="h-4 w-4" /> {t("snapshot.form.saveButton")}
             </Button>
+            <Dialog open={inForceOpen} onOpenChange={setInForceOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!!snapshot.archived_at}
+                  title={snapshot.archived_at ? "Restaura a ficha antes de a marcar em vigor" : undefined}
+                >
+                  <BadgeCheck className="h-4 w-4" />
+                  {snapshot.is_effective ? "Alterar data em vigor" : "Marcar em vigor"}
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Marcar ficha como em vigor</DialogTitle>
+                  <DialogDescription>
+                    A ficha actualmente em vigor (se existir) será marcada como desactualizada na véspera desta data.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-2 py-2">
+                  <Label className="text-xs text-muted-foreground">Em vigor a partir de</Label>
+                  <Input
+                    type="date"
+                    className="input-yellow"
+                    value={inForceFrom}
+                    onChange={(e) => setInForceFrom(e.target.value)}
+                  />
+                </div>
+                <DialogFooter>
+                  <Button variant="ghost" onClick={() => setInForceOpen(false)}>Cancelar</Button>
+                  <Button
+                    onClick={() => setInForce.mutate(inForceFrom)}
+                    disabled={!inForceFrom || setInForce.isPending}
+                  >
+                    Confirmar
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => toggleArchive.mutate()}
+              disabled={toggleArchive.isPending || (snapshot.is_effective && !snapshot.archived_at)}
+              title={
+                snapshot.is_effective && !snapshot.archived_at
+                  ? "Não é possível arquivar a ficha em vigor"
+                  : snapshot.archived_at ? "Restaurar ficha" : "Arquivar ficha"
+              }
+            >
+              {snapshot.archived_at ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+            </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="outline" size="icon"><Trash2 className="h-4 w-4" /></Button>
@@ -333,6 +397,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
               </AlertDialogContent>
             </AlertDialog>
           </div>
+
         </CardHeader>
       </Card>
 
