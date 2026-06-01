@@ -119,8 +119,9 @@ export const Route = createFileRoute("/api/notify-expense")({
               <p style="margin:0 0 16px;color:#555">A despesa abaixo foi aprovada e está pronta para processamento.</p>
               <table style="width:100%;border-collapse:collapse;font-size:14px">
                 <tbody>
-                  <tr><td style="padding:6px 0;color:#666">Colaborador</td><td><strong>${collab?.nome ?? "—"}</strong>${collab?.numero_colaborador ? ` (#${collab.numero_colaborador})` : ""}</td></tr>
-                  <tr><td style="padding:6px 0;color:#666">Categoria</td><td>${CATEGORY_LABELS[expense.categoria] ?? expense.categoria}</td></tr>
+                  <tr><td style="padding:6px 0;color:#666">Colaborador</td><td><strong>${escapeHtml(collab?.nome ?? "—")}</strong>${collab?.numero_colaborador ? ` (#${escapeHtml(String(collab.numero_colaborador))})` : ""}</td></tr>
+                  <tr><td style="padding:6px 0;color:#666">Categoria</td><td>${escapeHtml(CATEGORY_LABELS[expense.categoria] ?? expense.categoria)}</td></tr>
+
                   <tr><td style="padding:6px 0;color:#666">Descrição</td><td>${escapeHtml(expense.descricao)}</td></tr>
                   <tr><td style="padding:6px 0;color:#666">Data</td><td>${new Date(expense.data_despesa).toLocaleDateString("pt-PT")}</td></tr>
                   <tr><td style="padding:6px 0;color:#666">Valor</td><td><strong>${fmtEUR(Number(expense.valor))}</strong></td></tr>
