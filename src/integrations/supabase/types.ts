@@ -6676,6 +6676,7 @@ export type Database = {
         Row: {
           ajudas_custo_anual: number
           ano_fiscal: number
+          archived_at: string | null
           beneficio_carro: number
           beneficio_ticket: number
           beneficio_variavel: number
@@ -6716,6 +6717,7 @@ export type Database = {
         Insert: {
           ajudas_custo_anual?: number
           ano_fiscal?: number
+          archived_at?: string | null
           beneficio_carro?: number
           beneficio_ticket?: number
           beneficio_variavel?: number
@@ -6756,6 +6758,7 @@ export type Database = {
         Update: {
           ajudas_custo_anual?: number
           ano_fiscal?: number
+          archived_at?: string | null
           beneficio_carro?: number
           beneficio_ticket?: number
           beneficio_variavel?: number
@@ -7523,6 +7526,10 @@ export type Database = {
       reset_project_test_data: { Args: { _confirm: string }; Returns: Json }
       set_pending_permission: {
         Args: { _email: string; _granted: boolean; _key: string }
+        Returns: undefined
+      }
+      set_snapshot_in_force: {
+        Args: { p_from: string; p_snapshot_id: string }
         Returns: undefined
       }
       set_user_admin: {
