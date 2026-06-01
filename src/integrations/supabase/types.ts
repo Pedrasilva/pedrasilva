@@ -7428,6 +7428,15 @@ export type Database = {
         Returns: Json
       }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      list_collaborators_basic: {
+        Args: never
+        Returns: {
+          archived_at: string
+          foto_path: string
+          id: string
+          nome: string
+        }[]
+      }
       list_user_effective_permissions: {
         Args: { _user_id: string }
         Returns: {
