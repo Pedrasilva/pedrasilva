@@ -24,7 +24,20 @@ const PROJECT_DEFAULT_MARGIN = 0.75;
 
 export const getPmDefaultResourceRates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async (): Promise<DefaultRateEntry[]> => {
+  .handler(async ({ context }): Promise<DefaultRateEntry[]> => {
+    // Access gate: cost rates are salary-derived and must never be exposed
+    // to regular collaborators. Admins, finance, and PMs with the
+    // projects.financials permission may read them.
+    const { supabase, userId } = context;
+    const [{ data: isAdmin }, { data: hasFinance }, { data: hasProjFin }] = await Promise.all([
+      supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
+      supabase.rpc("has_permission", { _user_id: userId, _key: "finance.dashboard" }),
+      supabase.rpc("has_permission", { _user_id: userId, _key: "projects.financials" }),
+    ]);
+    if (!isAdmin && !hasFinance && !hasProjFin) {
+      throw new Response("Forbidden: project financials access required", { status: 403 });
+    }
+
     const [collabs, snaps, bo, resources] = await Promise.all([
       supabaseAdmin.from("collaborators").select("*").is("archived_at", null),
       supabaseAdmin
