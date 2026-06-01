@@ -922,15 +922,12 @@ function ApproverView() {
 function AdminView() {
   const qc = useQueryClient();
   const { data: collaborators = [] } = useQuery({
-    queryKey: ["collaborators", "active"],
+    queryKey: ["collaborators", "basic-active"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("collaborators")
-        .select("*")
-        .is("archived_at", null)
-        .order("nome");
+      const { data, error } = await supabase.rpc("list_collaborators_basic");
       if (error) throw error;
-      return (data ?? []) as Collaborator[];
+      return ((data ?? []) as Array<{ id: string; nome: string; foto_path: string | null; archived_at: string | null }>)
+        .filter((c) => c.archived_at === null) as unknown as Collaborator[];
     },
   });
 
