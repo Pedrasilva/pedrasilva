@@ -796,22 +796,47 @@ function CollaboratorPage() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <TabsList className="h-auto flex-wrap">
                 {snapshots.map((s) => (
-                  <TabsTrigger key={s.id} value={s.id} className="gap-2">
+                  <TabsTrigger
+                    key={s.id}
+                    value={s.id}
+                    className={cn("gap-2", s.archived_at && "opacity-60")}
+                  >
                     <span>{s.label}</span>
                     <span className="text-[10px] text-muted-foreground">
                       {fmtSnapshotDate(s.reference_date)}
                     </span>
-                    {s.is_effective && (
+                    {s.archived_at ? (
+                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                        Arquivada
+                      </span>
+                    ) : s.is_effective ? (
                       <span className="rounded-full bg-positive/15 px-1.5 py-0.5 text-[10px] font-semibold text-positive">
                         {t("hr:myProfile.inForce")}
                       </span>
-                    )}
+                    ) : s.effective_to ? (
+                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                        Desactualizada
+                      </span>
+                    ) : null}
                   </TabsTrigger>
                 ))}
                 <TabsTrigger value="resumo" className="gap-1">
                   <BarChart3 className="h-3 w-3" /> {t("hr:collaborator.snapshots.summaryTab")}
                 </TabsTrigger>
               </TabsList>
+
+              <div className="flex items-center gap-2">
+                {archivedCount > 0 && (
+                  <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Switch
+                      checked={showArchived}
+                      onCheckedChange={setShowArchived}
+                    />
+                    Mostrar arquivadas ({archivedCount})
+                  </label>
+                )}
+              </div>
+
 
               <Dialog open={newOpen} onOpenChange={(o) => !collab.archived_at && setNewOpen(o)}>
                 <DialogTrigger asChild>
