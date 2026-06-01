@@ -17,7 +17,11 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Save, Trash2, Sparkles, Check, Loader2, Lock, Copy, ChevronDown, Layers } from "lucide-react";
+import { Save, Trash2, Sparkles, Check, Loader2, Lock, Copy, ChevronDown, Layers, BadgeCheck, Archive, ArchiveRestore } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
+
 import { toast } from "sonner";
 import { ValueChainSummary } from "./snapshot/ValueChainSummary";
 import { SimulationTab } from "./snapshot/SimulationTab";
@@ -37,7 +41,7 @@ const TABELA_LABEL: Record<string, string> = {
 };
 
 const TRACKED_FIELDS: (keyof Snapshot)[] = [
-  "label", "reference_date", "is_effective", "notas",
+  "label", "reference_date", "notas",
   "irs_calculado_auto", "irs_pct", "valor_base",
   "ss_atelier_pct", "ss_colaborador_pct", "meses_pagos", "subsidios_modo",
   "subsidio_alimentacao_diario", "dias_uteis", "ajudas_custo_anual", "passe_anual",
@@ -49,6 +53,7 @@ const TRACKED_FIELDS: (keyof Snapshot)[] = [
   // Project cost propagation — independent of payroll effective_from
   "project_cost_effective_from",
 ];
+
 
 export function SnapshotForm({ snapshot, collaborator }: Props) {
   const { t } = useTranslation("hr");
@@ -136,8 +141,8 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         reference_date: draft.reference_date,
         effective_from: draft.reference_date,
         notas: draft.notas,
-        is_effective: draft.is_effective,
         irs_calculado_auto: draft.irs_calculado_auto,
+
         irs_pct: resolvedIrsPct,
         valor_base: Number(draft.valor_base) || 0,
         ss_atelier_pct: Number(draft.ss_atelier_pct) || 0,
@@ -206,8 +211,53 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
     },
   });
 
+  const [inForceOpen, setInForceOpen] = useState(false);
+  const [inForceFrom, setInForceFrom] = useState<string>(() =>
+    snapshot.effective_from || snapshot.reference_date || new Date().toISOString().slice(0, 10),
+  );
+  useEffect(() => {
+    setInForceFrom(snapshot.effective_from || snapshot.reference_date || new Date().toISOString().slice(0, 10));
+  }, [snapshot.id, snapshot.effective_from, snapshot.reference_date]);
+
+  const setInForce = useMutation({
+    mutationFn: async (fromDate: string) => {
+      const { error } = await supabase.rpc("set_snapshot_in_force", {
+        p_snapshot_id: snapshot.id,
+        p_from: fromDate,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Ficha marcada como em vigor");
+      qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
+      qc.invalidateQueries({ queryKey: ["all-snapshots"] });
+      setInForceOpen(false);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const toggleArchive = useMutation({
+    mutationFn: async () => {
+      if (snapshot.is_effective && !snapshot.archived_at) {
+        throw new Error("Não é possível arquivar a ficha em vigor. Promove outra ficha primeiro.");
+      }
+      const { error } = await supabase
+        .from("salary_snapshots")
+        .update({ archived_at: snapshot.archived_at ? null : new Date().toISOString() })
+        .eq("id", snapshot.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(snapshot.archived_at ? "Ficha restaurada" : "Ficha arquivada");
+      qc.invalidateQueries({ queryKey: ["snapshots", snapshot.collaborator_id] });
+      qc.invalidateQueries({ queryKey: ["all-snapshots"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const set = <K extends keyof Snapshot>(k: K, v: Snapshot[K]) =>
     setDraft((d) => ({ ...d, [k]: v }));
+
 
   return (
     <div className="space-y-5">
@@ -236,17 +286,29 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
                 {t("snapshot.form.projectCostEffectiveFromHint")}
               </div>
             </FieldStacked>
-            <FieldStacked label="Efectiva (em vigor)">
-              <div className="flex h-9 items-center gap-2">
-                <Switch checked={draft.is_effective}
-                  onCheckedChange={(v) => set("is_effective", v)} />
-                <span className="text-xs text-muted-foreground">
-                  {draft.is_effective ? "Em vigor" : "Proposta / histórico"}
-                </span>
+            <FieldStacked label="Estado">
+              <div className="flex h-9 items-center">
+                {snapshot.archived_at ? (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                    Arquivada
+                  </span>
+                ) : snapshot.is_effective ? (
+                  <span className="rounded-full bg-positive/15 px-2 py-0.5 text-xs font-semibold text-positive">
+                    Em vigor desde {snapshot.effective_from}
+                  </span>
+                ) : snapshot.effective_to ? (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                    Desactualizada · até {snapshot.effective_to}
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                    Proposta / histórico
+                  </span>
+                )}
               </div>
             </FieldStacked>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
               <SaveStatus
                 isDirty={isDirty}
                 isSaving={save.isPending}
@@ -267,6 +329,58 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
             >
               <Save className="h-4 w-4" /> {t("snapshot.form.saveButton")}
             </Button>
+            <Dialog open={inForceOpen} onOpenChange={setInForceOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!!snapshot.archived_at}
+                  title={snapshot.archived_at ? "Restaura a ficha antes de a marcar em vigor" : undefined}
+                >
+                  <BadgeCheck className="h-4 w-4" />
+                  {snapshot.is_effective ? "Alterar data em vigor" : "Marcar em vigor"}
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Marcar ficha como em vigor</DialogTitle>
+                  <DialogDescription>
+                    A ficha actualmente em vigor (se existir) será marcada como desactualizada na véspera desta data.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-2 py-2">
+                  <Label className="text-xs text-muted-foreground">Em vigor a partir de</Label>
+                  <Input
+                    type="date"
+                    className="input-yellow"
+                    value={inForceFrom}
+                    onChange={(e) => setInForceFrom(e.target.value)}
+                  />
+                </div>
+                <DialogFooter>
+                  <Button variant="ghost" onClick={() => setInForceOpen(false)}>Cancelar</Button>
+                  <Button
+                    onClick={() => setInForce.mutate(inForceFrom)}
+                    disabled={!inForceFrom || setInForce.isPending}
+                  >
+                    Confirmar
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => toggleArchive.mutate()}
+              disabled={toggleArchive.isPending || (snapshot.is_effective && !snapshot.archived_at)}
+              title={
+                snapshot.is_effective && !snapshot.archived_at
+                  ? "Não é possível arquivar a ficha em vigor"
+                  : snapshot.archived_at ? "Restaurar ficha" : "Arquivar ficha"
+              }
+            >
+              {snapshot.archived_at ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+            </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="outline" size="icon"><Trash2 className="h-4 w-4" /></Button>
@@ -283,6 +397,7 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
               </AlertDialogContent>
             </AlertDialog>
           </div>
+
         </CardHeader>
       </Card>
 

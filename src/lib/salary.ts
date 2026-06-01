@@ -48,7 +48,10 @@ export type Snapshot = {
   project_cost_effective_from: string | null;
   source: "manual" | "excel_import" | "api";
   import_log_id: string | null;
+  /** When set, the snapshot is archived (hidden from the default snapshot list). */
+  archived_at?: string | null;
 };
+
 
 export type SubsidiosModo = "tradicional" | "duodecimos_50" | "duodecimos_100";
 
