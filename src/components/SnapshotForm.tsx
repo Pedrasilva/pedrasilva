@@ -141,8 +141,8 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
         reference_date: draft.reference_date,
         effective_from: draft.reference_date,
         notas: draft.notas,
-        is_effective: draft.is_effective,
         irs_calculado_auto: draft.irs_calculado_auto,
+
         irs_pct: resolvedIrsPct,
         valor_base: Number(draft.valor_base) || 0,
         ss_atelier_pct: Number(draft.ss_atelier_pct) || 0,
