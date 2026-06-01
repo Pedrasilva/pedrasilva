@@ -17,7 +17,11 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Save, Trash2, Sparkles, Check, Loader2, Lock, Copy, ChevronDown, Layers } from "lucide-react";
+import { Save, Trash2, Sparkles, Check, Loader2, Lock, Copy, ChevronDown, Layers, BadgeCheck, Archive, ArchiveRestore } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
+
 import { toast } from "sonner";
 import { ValueChainSummary } from "./snapshot/ValueChainSummary";
 import { SimulationTab } from "./snapshot/SimulationTab";
