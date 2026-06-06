@@ -136,16 +136,8 @@ export function QuotePlanningTab({
     budget: "",
   });
 
-  // Optional override for the sale margin (% of revenue). When set, the
-  // displayed sale value per stage = cost / (1 − margin/100), and the
-  // implied margin % is taken from the override directly. When empty, we
-  // fall back to the Gantt allocations' actual sale rates.
-  const [marginOverride, setMarginOverride] = useState<string>("");
-  const marginOverrideNum = useMemo(() => {
-    const n = Number(marginOverride);
-    if (!Number.isFinite(n) || n <= 0 || n >= 100) return null;
-    return n;
-  }, [marginOverride]);
+  // Sale & margin are derived exclusively from the Gantt allocations
+  // (single source of truth). No table-level override.
 
 
   const handleAddStage = async () => {
