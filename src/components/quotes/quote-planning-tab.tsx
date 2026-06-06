@@ -415,11 +415,49 @@ export function QuotePlanningTab({
               })}
               {stages.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={11} className="text-center text-sm text-muted-foreground py-6">
+                  <TableCell colSpan={10} className="text-center text-sm text-muted-foreground py-6">
                     {t("workspace.planning.noStages")}
                   </TableCell>
                 </TableRow>
               )}
+              {stages.length > 0 && (() => {
+                let totalBudget = 0;
+                let totalCost = 0;
+                let totalSale = 0;
+                for (const s of stages) {
+                  totalBudget += Number(s.budget ?? 0);
+                  const r = stageRollups.get(s.id);
+                  if (!r) continue;
+                  const cost = r.cost ?? 0;
+                  const ganttSale = r.fee ?? 0;
+                  const sale =
+                    marginOverrideNum != null
+                      ? cost > 0 ? cost / (1 - marginOverrideNum / 100) : 0
+                      : ganttSale;
+                  totalCost += cost;
+                  totalSale += sale;
+                }
+                const totalMargin =
+                  marginOverrideNum != null
+                    ? marginOverrideNum
+                    : totalSale > 0
+                      ? ((totalSale - totalCost) / totalSale) * 100
+                      : null;
+                return (
+                  <TableRow className="bg-muted/40 font-medium">
+                    <TableCell colSpan={4} className="text-right text-xs uppercase tracking-wide text-muted-foreground">
+                      {t("common.total", { defaultValue: "Total" })}
+                    </TableCell>
+                    <TableCell className="text-right text-xs tabular-nums">{formatEUR(totalBudget)}</TableCell>
+                    <TableCell className="text-right text-xs tabular-nums">{formatEUR(totalCost)}</TableCell>
+                    <TableCell className="text-right text-xs tabular-nums">{formatEUR(totalSale)}</TableCell>
+                    <TableCell className="text-right text-xs tabular-nums">
+                      {totalMargin != null ? `${totalMargin.toFixed(1)}%` : <span className="text-muted-foreground">—</span>}
+                    </TableCell>
+                    <TableCell colSpan={2} />
+                  </TableRow>
+                );
+              })()}
 
             </TableBody>
           </Table>
