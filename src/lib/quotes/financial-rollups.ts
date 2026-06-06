@@ -4,9 +4,11 @@
  * Mirrors the project rollups in src/lib/projects/financial-rollups.ts but
  * works against quote_* tables (snapshot rates, no real timesheet hours yet).
  *
- * For internal allocations we approximate billable hours from the date range
- * × hours_per_day × allocation_percentage (default 100%). External services
- * use the exact same purchase/sale * quantity model as pm_materials.
+ * For internal allocations we use the same working-day × hours_per_day formula
+ * as the Gantt. allocation_percentage is UI metadata: hours_per_day already
+ * stores the derived effort, so applying it again would double-discount rows.
+ * External services use the exact same purchase/sale * quantity model as
+ * pm_materials.
  *
  * pricing_multiplier is applied to the SALE side only — it scales fees
  * (internal + external) without inflating costs.
@@ -16,6 +18,7 @@ import {
   toNum,
   type FinancialsRow,
 } from "@/lib/projects/financial-rollups";
+import { workingDays } from "@/lib/projects/gantt-utils";
 import type { QuoteAllocationWithResource } from "./use-quote-allocations";
 import type { QuoteExternalServiceWithSupplier } from "./use-quote-external-services";
 import {
@@ -24,29 +27,15 @@ import {
   type TimeBasedSettings,
 } from "./time-based-settings";
 
-/** Calendar-day count (inclusive). Weekends not excluded — quotes are forecast,
- *  not actuals; using calendar days keeps the maths predictable and consistent
- *  with how `pm_allocations.hours_per_day` is interpreted in planning. */
-function dayCount(start: string, end: string): number {
-  const s = new Date(start + "T00:00:00Z").getTime();
-  const e = new Date(end + "T00:00:00Z").getTime();
-  if (!Number.isFinite(s) || !Number.isFinite(e) || e < s) return 0;
-  return Math.floor((e - s) / 86_400_000) + 1;
-}
-
 export function quoteAllocationLine(a: QuoteAllocationWithResource): {
   hours: number;
   cost: number;
   revenue: number;
   profit: number;
 } {
-  const days = dayCount(a.start_date, a.end_date);
+  const days = workingDays(a.start_date, a.end_date);
   const hpd = toNum(a.hours_per_day, 8);
-  const pct =
-    a.allocation_percentage === null || a.allocation_percentage === undefined
-      ? 1
-      : toNum(a.allocation_percentage) / 100;
-  const hours = days * hpd * pct;
+  const hours = days * hpd;
   const cost = hours * toNum(a.cost_rate_snapshot);
   const revenue = hours * toNum(a.sale_rate_snapshot);
   return { hours, cost, revenue, profit: revenue - cost };
