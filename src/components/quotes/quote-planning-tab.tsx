@@ -17,6 +17,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Trash2, Plus, ChevronDown } from "lucide-react";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { toast } from "sonner";
 import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
