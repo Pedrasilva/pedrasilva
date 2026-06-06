@@ -17,13 +17,14 @@
 import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays } from "date-fns";
-import { GanttChart, type StageWithProject } from "@/components/projects/gantt-chart";
+import { GanttChart, type StageWithProject, type PaymentMilestone } from "@/components/projects/gantt-chart";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
+import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import type { Resource, AllocationWithResource } from "@/lib/projects/types";
 
 interface Props {
