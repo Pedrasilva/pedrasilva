@@ -241,7 +241,7 @@ export function QuotePlanningTab({
 
       {/* Vertical split: Gantt (timeline + team pool) stays pinned on top,
           tables scroll independently below. Drag the handle to resize. */}
-      <ResizablePanelGroup direction="vertical" className="flex-1 rounded-md border border-border">
+      <ResizablePanelGroup orientation="vertical" className="flex-1 rounded-md border border-border">
         <ResizablePanel defaultSize={55} minSize={25} className="overflow-auto p-2">
           <QuoteGantt quoteId={quoteId} />
         </ResizablePanel>
