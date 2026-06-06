@@ -238,10 +238,8 @@ export function QuotePlanningTab({
         })}
       </div>
 
-      {/* GANTT — primary planning surface, resizable via the splitter below */}
-      <ResizableGanttSplit>
-        <QuoteGantt quoteId={quoteId} />
-      </ResizableGanttSplit>
+      {/* GANTT — primary planning surface */}
+      <QuoteGantt quoteId={quoteId} />
 
       {/* Manual planning tables (always open) */}
       <div className="space-y-6 pt-4">
