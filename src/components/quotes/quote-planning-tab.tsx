@@ -2,7 +2,7 @@
  * Quote Planning tab — stages + dependencies + allocations.
  * No Gantt yet (Phase C). Plain tables only.
  */
-import { useMemo, useState, useCallback, useEffect, useRef } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -238,10 +238,8 @@ export function QuotePlanningTab({
         })}
       </div>
 
-      {/* GANTT — primary planning surface, resizable via the splitter below */}
-      <ResizableGanttSplit>
-        <QuoteGantt quoteId={quoteId} />
-      </ResizableGanttSplit>
+      {/* GANTT — primary planning surface */}
+      <QuoteGantt quoteId={quoteId} />
 
       {/* Manual planning tables (always open) */}
       <div className="space-y-6 pt-4">
@@ -786,72 +784,6 @@ export function QuotePlanningTab({
       </Card>
       </div>
 
-    </div>
-  );
-}
-
-/**
- * Vertical resizable container for the Gantt area. Renders children inside a
- * scrollable wrapper whose height the user can drag via the handle below.
- * Height is persisted in localStorage so the layout sticks across reloads.
- */
-function ResizableGanttSplit({ children }: { children: React.ReactNode }) {
-  const STORAGE_KEY = "quote-planning:gantt-height";
-  const MIN = 240;
-  const MAX = 1400;
-  const [height, setHeight] = useState<number>(() => {
-    if (typeof window === "undefined") return 560;
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    const n = raw ? Number(raw) : NaN;
-    return Number.isFinite(n) && n >= MIN ? n : 560;
-  });
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(STORAGE_KEY, String(height));
-    }
-  }, [height]);
-
-  const wrapRef = useRef<HTMLDivElement | null>(null);
-  const draggingRef = useRef(false);
-
-  const onPointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    draggingRef.current = true;
-    const startY = e.clientY;
-    const startH = height;
-    const onMove = (ev: PointerEvent) => {
-      if (!draggingRef.current) return;
-      const next = Math.min(MAX, Math.max(MIN, startH + (ev.clientY - startY)));
-      setHeight(next);
-    };
-    const onUp = () => {
-      draggingRef.current = false;
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [height]);
-
-  return (
-    <div>
-      <div
-        ref={wrapRef}
-        className="overflow-auto rounded-md border border-border"
-        style={{ height }}
-      >
-        {children}
-      </div>
-      <div
-        role="separator"
-        aria-orientation="horizontal"
-        onPointerDown={onPointerDown}
-        className="group relative h-2 cursor-row-resize select-none"
-        title="Drag to resize"
-      >
-        <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-border group-hover:bg-primary/60 transition-colors" />
-        <div className="absolute left-1/2 top-1/2 h-1 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground/40 group-hover:bg-primary/70 transition-colors" />
-      </div>
     </div>
   );
 }
