@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AllocationWithResource } from "@/lib/projects/types";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
