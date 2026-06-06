@@ -63,6 +63,9 @@ function AppLayout() {
   const can = (k?: PermissionKey) => !k || isAdmin || permissions.has(k);
   const userInitial = (user?.email ?? "?").charAt(0).toUpperCase();
   const isHrArea = loc.pathname.startsWith("/hr");
+  // Quote detail pages contain a large Gantt — give them the full viewport
+  // width instead of the default 7xl container.
+  const isWideArea = /^\/crm\/quotes\/[^/]+/.test(loc.pathname);
 
   // Items for mobile sheet — flatten rail config.
   const mobileItems = RAIL_ITEMS.filter(
@@ -214,7 +217,11 @@ function AppLayout() {
 
         <main
           className={cn(
-            isHrArea ? "" : "mx-auto w-full max-w-7xl px-4 py-6 sm:px-6",
+            isHrArea
+              ? ""
+              : isWideArea
+                ? "w-full px-4 py-6 sm:px-6"
+                : "mx-auto w-full max-w-7xl px-4 py-6 sm:px-6",
           )}
         >
           <Outlet />
