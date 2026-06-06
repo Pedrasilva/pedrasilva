@@ -228,7 +228,7 @@ export function QuotePlanningTab({
   };
 
   return (
-    <div className="flex h-[calc(100vh-9rem)] flex-col gap-3">
+    <div className="flex h-[calc(100vh-7rem)] flex-col gap-3">
       {/* Non-blocking warnings (no team, negative profit, missing supplier…) */}
       <QuoteWarningsBanner warnings={warnings} />
 
@@ -239,15 +239,17 @@ export function QuotePlanningTab({
         })}
       </div>
 
-      {/* Vertical split: Gantt (timeline + team pool) stays pinned on top,
-          tables scroll independently below. Drag the handle to resize. */}
-      <ResizablePanelGroup orientation="vertical" className="flex-1 rounded-md border border-border">
-        <ResizablePanel defaultSize={55} minSize={25} className="overflow-auto p-2">
+      {/* Vertical split: Gantt (timeline + team pool) keeps its natural
+          working size on top; the handle directly under the timeline lets
+          the tables area below grow/shrink while the Gantt stays visible. */}
+      <ResizablePanelGroup orientation="vertical" className="flex-1">
+        <ResizablePanel defaultSize={75} minSize={30} className="overflow-auto pr-1">
           <QuoteGantt quoteId={quoteId} />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={45} minSize={20} className="overflow-auto">
-          <div className="space-y-6 p-3">
+        <ResizablePanel defaultSize={25} minSize={10} className="overflow-auto">
+          <div className="space-y-6 pt-3 pr-1">
+
 
 
       {/* STAGES */}
