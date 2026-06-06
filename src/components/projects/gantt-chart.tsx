@@ -524,7 +524,65 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
         )}
       </div>
 
+      {milestones && milestones.length > 0 && (
+        <div className="relative h-8 border-b border-border/40 bg-background/40">
+          <div className="absolute left-1 top-1/2 -translate-y-1/2 rounded-sm bg-muted px-1.5 py-px font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
+            {t("gantt.milestones.laneLabel", { defaultValue: "Payments" })}
+          </div>
+          {milestones.map((m) => {
+            const x = differenceInCalendarDays(parseISO(m.date), origin) * dayWidth;
+            if (x < 0 || x > totalDays * dayWidth) return null;
+            const color =
+              m.status === "paid"
+                ? "bg-emerald-600"
+                : m.status === "invoiced"
+                  ? "bg-amber-500"
+                  : "bg-foreground/70";
+            return (
+              <TooltipProvider key={m.id} delayDuration={120}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      className="absolute top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+                      style={{ left: x }}
+                    >
+                      <div
+                        className={`h-3 w-3 rotate-45 ${color} shadow ring-2 ring-background`}
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    <div className="font-semibold">{m.label}</div>
+                    <div className="font-mono">
+                      {euros(m.amount)} ·{" "}
+                      {format(parseISO(m.date), "d MMM yyyy", { locale: dateLocale })}
+                    </div>
+                    {m.status && (
+                      <div className="capitalize text-muted-foreground">{m.status}</div>
+                    )}
+                    {m.note && (
+                      <div className="mt-1 max-w-xs text-muted-foreground">{m.note}</div>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
+        </div>
+      )}
+
       <div className="relative gantt-canvas-bg gantt-week-marker" style={{ minHeight: stages.length * 200 }}>
+        {milestones?.map((m) => {
+          const x = differenceInCalendarDays(parseISO(m.date), origin) * dayWidth;
+          if (x < 0 || x > totalDays * dayWidth) return null;
+          return (
+            <div
+              key={`ms-line-${m.id}`}
+              className="pointer-events-none absolute top-0 z-0 h-full border-l border-dashed border-foreground/15"
+              style={{ left: x }}
+            />
+          );
+        })}
         {Array.from({ length: totalDays }).map((_, i) => {
           const d = addDays(origin, i);
           if (!isWeekend(d)) return null;
