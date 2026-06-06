@@ -398,6 +398,21 @@ export function QuotePlanningTab({
                     )}
                   </TableCell>
                   <TableCell>
+                    <Select
+                      value={s.billing_model ?? "stage"}
+                      onValueChange={(v) => upsertStage.mutate({ id: s.id, billing_model: v as "stage" | "monthly" | "retainer" })}
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="stage">{t("workspace.planning.billingStage", { defaultValue: "Stage payment" })}</SelectItem>
+                        <SelectItem value="monthly">{t("workspace.planning.billingMonthly", { defaultValue: "Monthly payment" })}</SelectItem>
+                        <SelectItem value="retainer">{t("workspace.planning.billingRetainer", { defaultValue: "Retainer" })}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
                     <Button
                       variant="ghost"
                       size="sm"
