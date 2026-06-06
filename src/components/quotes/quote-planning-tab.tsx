@@ -241,13 +241,9 @@ export function QuotePlanningTab({
       {/* GANTT — primary planning surface */}
       <QuoteGantt quoteId={quoteId} />
 
-      {/* Manual planning tables (collapsible fallback editor) */}
-      <Collapsible defaultOpen={false}>
-        <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent">
-          <span>{t("workspace.planning.manualTablesTitle", { defaultValue: "Manual planning tables" })}</span>
-          <ChevronDown className="h-4 w-4 transition-transform [&[data-state=open]]:rotate-180" />
-        </CollapsibleTrigger>
-        <CollapsibleContent className="space-y-6 pt-4">
+      {/* Manual planning tables (always open) */}
+      <div className="space-y-6 pt-4">
+
       {/* STAGES */}
       <Card>
         <CardHeader>
@@ -741,8 +737,8 @@ export function QuotePlanningTab({
           )}
         </CardContent>
       </Card>
-        </CollapsibleContent>
-      </Collapsible>
+      </div>
+
     </div>
   );
 }
