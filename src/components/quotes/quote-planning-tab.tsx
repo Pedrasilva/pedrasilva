@@ -17,6 +17,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Trash2, Plus, ChevronDown } from "lucide-react";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { toast } from "sonner";
 import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
@@ -227,7 +228,7 @@ export function QuotePlanningTab({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex h-[calc(100vh-9rem)] flex-col gap-3">
       {/* Non-blocking warnings (no team, negative profit, missing supplier…) */}
       <QuoteWarningsBanner warnings={warnings} />
 
@@ -238,11 +239,16 @@ export function QuotePlanningTab({
         })}
       </div>
 
-      {/* GANTT — primary planning surface */}
-      <QuoteGantt quoteId={quoteId} />
+      {/* Vertical split: Gantt (timeline + team pool) stays pinned on top,
+          tables scroll independently below. Drag the handle to resize. */}
+      <ResizablePanelGroup orientation="vertical" className="flex-1 rounded-md border border-border">
+        <ResizablePanel defaultSize={55} minSize={25} className="overflow-auto p-2">
+          <QuoteGantt quoteId={quoteId} />
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={45} minSize={20} className="overflow-auto">
+          <div className="space-y-6 p-3">
 
-      {/* Manual planning tables (always open) */}
-      <div className="space-y-6 pt-4">
 
       {/* STAGES */}
       <Card>
@@ -782,7 +788,9 @@ export function QuotePlanningTab({
           )}
         </CardContent>
       </Card>
-      </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
 
     </div>
   );
