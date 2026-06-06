@@ -141,6 +141,7 @@ export const PROJECT_FEATURES: PlannerFeatures = {
   crossProjectMove: true,
   holidayShading: true,
   allocationPercentage: true,
+  planningMode: false,
 };
 
 export const QUOTE_FEATURES: PlannerFeatures = {
@@ -151,4 +152,5 @@ export const QUOTE_FEATURES: PlannerFeatures = {
   crossProjectMove: false,
   holidayShading: false,
   allocationPercentage: true,
+  planningMode: true,
 };
