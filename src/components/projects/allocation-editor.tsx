@@ -97,12 +97,25 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
     end_date: end,
     hours_per_day: effectiveHours,
   });
-  const cost = allocationCost({
+  const effectiveCost = effectiveCostRate(
+    (allocation.resource as typeof allocation.resource & { cost_rate?: number | null }).cost_rate,
+    allocation.resource.id,
+    defaultRates,
+    isOverride,
+  );
+  const revenue = allocationCost({
     start_date: start,
     end_date: end,
     hours_per_day: effectiveHours,
     hourly_rate: effectiveSale,
   });
+  const cost = allocationCost({
+    start_date: start,
+    end_date: end,
+    hours_per_day: effectiveHours,
+    hourly_rate: effectiveCost,
+  });
+  const margin = revenue - cost;
 
   function applyPct(nextPct: number) {
     const clamped = Math.max(0, Math.min(100, nextPct));
