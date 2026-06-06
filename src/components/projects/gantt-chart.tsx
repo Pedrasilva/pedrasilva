@@ -75,6 +75,8 @@ interface Props {
   budgetByStage?: Map<string, StageBudgetControl>;
   budgetByAllocation?: Map<string, AllocationActuals>;
   showFinancials?: boolean;
+  /** Payment milestones to render in the lane above the stage rows. */
+  milestones?: PaymentMilestone[];
 }
 
 const STAGE_ROW_H = 92;
