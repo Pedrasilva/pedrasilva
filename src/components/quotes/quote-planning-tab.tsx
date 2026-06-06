@@ -411,6 +411,7 @@ export function QuotePlanningTab({
                         <SelectItem value="retainer">{t("workspace.planning.billingRetainer", { defaultValue: "Retainer" })}</SelectItem>
                       </SelectContent>
                     </Select>
+                  </TableCell>
                   <TableCell>
                     <Button
                       variant="ghost"
