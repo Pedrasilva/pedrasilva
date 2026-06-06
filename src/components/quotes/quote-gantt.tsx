@@ -318,9 +318,37 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             >
               {t("workspace.planning.zoomFit", { defaultValue: "Fit" })}
             </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setPoolCollapsed((v) => !v)}
+              aria-label={poolCollapsed ? "Expand team pool" : "Collapse team pool"}
+              title={poolCollapsed ? "Expand team pool" : "Collapse team pool"}
+            >
+              {poolCollapsed ? <PanelRightOpen className="h-3.5 w-3.5" /> : <PanelRightClose className="h-3.5 w-3.5" />}
+            </Button>
           </div>
         )}
       </div>
+      <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
+        <div ref={chartRef} className="flex-1 overflow-auto">
+          <GanttChart
+            projectId={quoteId}
+            stages={mappedStages}
+            origin={origin}
+            totalDays={totalDays}
+            dayWidth={computedDayWidth}
+            resources={resources}
+            adapter={adapter}
+            milestones={milestones}
+            embedded
+          />
+        </div>
+        {!poolCollapsed && (
+          <ResourcePool resources={poolResources} collapsed={false} missingRateIds={rateMissing} />
+        )}
       <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
         <div className="flex-1 overflow-auto">
           <GanttChart
