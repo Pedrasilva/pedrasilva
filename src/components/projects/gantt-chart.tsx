@@ -680,9 +680,13 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
             const margin = totalSale - totalCost;
             const marginPct = totalSale > 0 ? (margin / totalSale) * 100 : 0;
             const budget = Number(stage.budget);
-            const pct = budget > 0 ? Math.min(1, totalCost / budget) : 0;
-            const overPct = budget > 0 ? Math.max(0, totalCost / budget - 1) : 0;
-            const over = totalCost > budget;
+            // Planning mode: compare cost against sale value (what the fee
+            // calculator is producing). Project mode: compare against the
+            // approved budget ceiling.
+            const compareValue = features.planningMode ? totalSale : budget;
+            const pct = compareValue > 0 ? Math.min(1, totalCost / compareValue) : 0;
+            const overPct = compareValue > 0 ? Math.max(0, totalCost / compareValue - 1) : 0;
+            const over = compareValue > 0 && totalCost > compareValue;
             const allocRows = Math.max(stage.allocations.length, 0);
             const rowsHeight = allocRows * (ALLOC_ROW_H + 4);
 
@@ -760,10 +764,15 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                         <div className="mt-0.5 flex items-center gap-2 text-[11px] opacity-80">
                           <span className="font-mono">{euros(totalCost)}</span>
                           <span>/</span>
-                          <span className="font-mono">{euros(budget)}</span>
+                          <span className="font-mono">{euros(compareValue)}</span>
+                          {features.planningMode && compareValue > 0 && (
+                            <span className="rounded bg-background/40 px-1.5 py-px font-mono text-[10px]">
+                              {Math.round((totalCost / compareValue) * 100)}%
+                            </span>
+                          )}
                           {over && (
                             <span className="rounded bg-destructive px-1.5 py-px font-medium text-destructive-foreground">
-                              {t("gantt.stage.overByAmount", { amount: euros(totalCost - budget) })}
+                              {t("gantt.stage.overByAmount", { amount: euros(totalCost - compareValue) })}
                             </span>
                           )}
                           {showFinancials && budgetByStage?.get(stage.id) && (() => {
@@ -815,7 +824,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                           <button
                             onPointerDown={(e) => e.stopPropagation()}
                             onClick={(e) => e.stopPropagation()}
-                            className="rounded p-1 opacity-0 transition hover:bg-background/30 group-hover:opacity-100"
+                            className={`rounded p-1 transition hover:bg-background/30 ${features.planningMode ? "opacity-90" : "opacity-0 group-hover:opacity-100"}`}
                             aria-label={t("gantt.stage.financialsAction", { defaultValue: "Show financials" })}
                           >
                             <Info className="h-3.5 w-3.5" />
