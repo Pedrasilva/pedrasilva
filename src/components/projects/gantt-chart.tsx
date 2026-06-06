@@ -579,10 +579,12 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
         {months.map((m, i) => (
           <div
             key={`mb-${i}`}
-            className={`pointer-events-none absolute top-0 h-full ${
-              i % 2 === 0 ? "bg-muted/25" : "bg-transparent"
-            }`}
-            style={{ left: m.startIdx * dayWidth, width: m.days * dayWidth }}
+            className="pointer-events-none absolute top-0 h-full"
+            style={{
+              left: m.startIdx * dayWidth,
+              width: m.days * dayWidth,
+              backgroundColor: i % 2 === 0 ? "oklch(0 0 0 / 0.05)" : "oklch(0 0 0 / 0.01)",
+            }}
           />
         ))}
         {milestones?.map((m) => {
