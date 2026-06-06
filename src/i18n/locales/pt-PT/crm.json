@@ -471,7 +471,15 @@
       "zoomMonth": "Mês",
       "zoomQuarter": "Trimestre",
       "zoomYear": "Ano",
-      "zoomFit": "Ajustar"
+      "zoomFit": "Ajustar",
+      "calcFee": "Honorário calc.",
+      "billing": "Grupo / Faturação",
+      "gantCost": "Custo (Gantt)",
+      "gantSale": "Venda",
+      "marginPct": "Margem %",
+      "marginOverrideLabel": "Forçar margem de venda (%)",
+      "marginOverridePh": "Do Gantt"
+
     },
     "warnings": {
       "noStages": "Ainda sem fases — adicione pelo menos uma fase para planear o trabalho.",
