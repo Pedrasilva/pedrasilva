@@ -4,17 +4,18 @@ import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, parseISO, startOfWeek } from "date-fns";
 import type { Resource, StageWithAllocations } from "@/lib/projects/types";
 import { allocationCost, dayCount, euros, workingDays } from "@/lib/projects/gantt-utils";
-import { effectiveCostRate } from "@/lib/projects/use-default-rates";
+import { effectiveCostRate, effectiveSaleRate } from "@/lib/projects/use-default-rates";
 import { AllocationEditor } from "@/components/projects/allocation-editor";
 import { StageDependencyEditor } from "@/components/projects/stage-dependency-editor";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { toast } from "sonner";
-import { Trash2, GripVertical, AlertTriangle, CalendarOff } from "lucide-react";
+import { Trash2, GripVertical, AlertTriangle, CalendarOff, Info } from "lucide-react";
 import { allocationOverload, buildLoadMap } from "@/lib/projects/overload";
 import { leaveHoursInRange, type LeaveInterval } from "@/lib/projects/leave-capacity";
 import { useResourceSchedules, buildDailyLimitMap, dailyHoursFor } from "@/lib/projects/use-resource-schedules";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,21 @@ import { useDateLocale } from "@/i18n/use-date-locale";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
 import type { DepType } from "@/lib/projects/dependencies";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
+
+/**
+ * A payment milestone to render in the timeline lane above the stages.
+ * Optional — when omitted the lane is hidden.
+ */
+export interface PaymentMilestone {
+  id: string;
+  label: string;
+  /** ISO yyyy-mm-dd resolved date (already evaluated from trigger). */
+  date: string;
+  /** Absolute € amount (already resolved from % if applicable). */
+  amount: number;
+  status?: "planned" | "invoiced" | "paid";
+  note?: string | null;
+}
 
 export type StageWithProject = StageWithAllocations & { projectId: string };
 
