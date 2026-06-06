@@ -4,17 +4,18 @@ import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays, eachDayOfInterval, format, isSameMonth, isWeekend, parseISO, startOfWeek } from "date-fns";
 import type { Resource, StageWithAllocations } from "@/lib/projects/types";
 import { allocationCost, dayCount, euros, workingDays } from "@/lib/projects/gantt-utils";
-import { effectiveCostRate } from "@/lib/projects/use-default-rates";
+import { effectiveCostRate, effectiveSaleRate } from "@/lib/projects/use-default-rates";
 import { AllocationEditor } from "@/components/projects/allocation-editor";
 import { StageDependencyEditor } from "@/components/projects/stage-dependency-editor";
 import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { toast } from "sonner";
-import { Trash2, GripVertical, AlertTriangle, CalendarOff } from "lucide-react";
+import { Trash2, GripVertical, AlertTriangle, CalendarOff, Info } from "lucide-react";
 import { allocationOverload, buildLoadMap } from "@/lib/projects/overload";
 import { leaveHoursInRange, type LeaveInterval } from "@/lib/projects/leave-capacity";
 import { useResourceSchedules, buildDailyLimitMap, dailyHoursFor } from "@/lib/projects/use-resource-schedules";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,21 @@ import { useDateLocale } from "@/i18n/use-date-locale";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
 import type { DepType } from "@/lib/projects/dependencies";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
+
+/**
+ * A payment milestone to render in the timeline lane above the stages.
+ * Optional — when omitted the lane is hidden.
+ */
+export interface PaymentMilestone {
+  id: string;
+  label: string;
+  /** ISO yyyy-mm-dd resolved date (already evaluated from trigger). */
+  date: string;
+  /** Absolute € amount (already resolved from % if applicable). */
+  amount: number;
+  status?: "planned" | "invoiced" | "paid";
+  note?: string | null;
+}
 
 export type StageWithProject = StageWithAllocations & { projectId: string };
 
@@ -59,6 +75,8 @@ interface Props {
   budgetByStage?: Map<string, StageBudgetControl>;
   budgetByAllocation?: Map<string, AllocationActuals>;
   showFinancials?: boolean;
+  /** Payment milestones to render in the lane above the stage rows. */
+  milestones?: PaymentMilestone[];
 }
 
 const STAGE_ROW_H = 92;
@@ -82,7 +100,7 @@ interface LinkDragState {
   toSide: "start" | "end" | null;
 }
 
-export function GanttChart({ stages, origin, totalDays, dayWidth, resources, adapter, budgetByStage, budgetByAllocation, showFinancials }: Props) {
+export function GanttChart({ stages, origin, totalDays, dayWidth, resources, adapter, budgetByStage, budgetByAllocation, showFinancials, milestones }: Props) {
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -506,7 +524,65 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
         )}
       </div>
 
+      {milestones && milestones.length > 0 && (
+        <div className="relative h-8 border-b border-border/40 bg-background/40">
+          <div className="absolute left-1 top-1/2 -translate-y-1/2 rounded-sm bg-muted px-1.5 py-px font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
+            {t("gantt.milestones.laneLabel", { defaultValue: "Payments" })}
+          </div>
+          {milestones.map((m) => {
+            const x = differenceInCalendarDays(parseISO(m.date), origin) * dayWidth;
+            if (x < 0 || x > totalDays * dayWidth) return null;
+            const color =
+              m.status === "paid"
+                ? "bg-emerald-600"
+                : m.status === "invoiced"
+                  ? "bg-amber-500"
+                  : "bg-foreground/70";
+            return (
+              <TooltipProvider key={m.id} delayDuration={120}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      className="absolute top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+                      style={{ left: x }}
+                    >
+                      <div
+                        className={`h-3 w-3 rotate-45 ${color} shadow ring-2 ring-background`}
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    <div className="font-semibold">{m.label}</div>
+                    <div className="font-mono">
+                      {euros(m.amount)} ·{" "}
+                      {format(parseISO(m.date), "d MMM yyyy", { locale: dateLocale })}
+                    </div>
+                    {m.status && (
+                      <div className="capitalize text-muted-foreground">{m.status}</div>
+                    )}
+                    {m.note && (
+                      <div className="mt-1 max-w-xs text-muted-foreground">{m.note}</div>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
+        </div>
+      )}
+
       <div className="relative gantt-canvas-bg gantt-week-marker" style={{ minHeight: stages.length * 200 }}>
+        {milestones?.map((m) => {
+          const x = differenceInCalendarDays(parseISO(m.date), origin) * dayWidth;
+          if (x < 0 || x > totalDays * dayWidth) return null;
+          return (
+            <div
+              key={`ms-line-${m.id}`}
+              className="pointer-events-none absolute top-0 z-0 h-full border-l border-dashed border-foreground/15"
+              style={{ left: x }}
+            />
+          );
+        })}
         {Array.from({ length: totalDays }).map((_, i) => {
           const d = addDays(origin, i);
           if (!isWeekend(d)) return null;
@@ -567,17 +643,27 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
               delta === 0 ? iso : format(addDays(new Date(iso), delta), "yyyy-MM-dd");
 
             let totalCost = 0;
+            let totalSale = 0;
             for (const a of stage.allocations) {
               const aDraft = draftDates.get(a.id);
               const aS = aDraft?.start ?? shiftIso(a.start_date, stageShiftDays);
               const aE = aDraft?.end ?? shiftIso(a.end_date, stageShiftDays);
+              const isOverride = !!a.resource.hourly_rate_is_override;
               totalCost += allocationCost({
                 start_date: aS,
                 end_date: aE,
                 hours_per_day: Number(a.hours_per_day),
-                hourly_rate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
+                hourly_rate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, isOverride),
+              });
+              totalSale += allocationCost({
+                start_date: aS,
+                end_date: aE,
+                hours_per_day: Number(a.hours_per_day),
+                hourly_rate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, isOverride),
               });
             }
+            const margin = totalSale - totalCost;
+            const marginPct = totalSale > 0 ? (margin / totalSale) * 100 : 0;
             const budget = Number(stage.budget);
             const pct = budget > 0 ? Math.min(1, totalCost / budget) : 0;
             const overPct = budget > 0 ? Math.max(0, totalCost / budget - 1) : 0;
@@ -709,6 +795,56 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
+                            className="rounded p-1 opacity-0 transition hover:bg-background/30 group-hover:opacity-100"
+                            aria-label={t("gantt.stage.financialsAction", { defaultValue: "Show financials" })}
+                          >
+                            <Info className="h-3.5 w-3.5" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          align="start"
+                          side="bottom"
+                          className="w-64 text-xs"
+                          onPointerDown={(e) => e.stopPropagation()}
+                        >
+                          <div className="mb-2 font-display text-sm font-semibold">{stage.name}</div>
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">{t("gantt.stage.fin.cost", { defaultValue: "Custo" })}</span>
+                              <span className="font-mono">{euros(totalCost)}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">{t("gantt.stage.fin.sale", { defaultValue: "Venda" })}</span>
+                              <span className="font-mono">{euros(totalSale)}</span>
+                            </div>
+                            <div className="flex items-center justify-between border-t pt-1.5">
+                              <span className="text-muted-foreground">{t("gantt.stage.fin.margin", { defaultValue: "Margem" })}</span>
+                              <span className={`font-mono ${margin < 0 ? "text-destructive" : "text-emerald-600"}`}>
+                                {euros(margin)}{" "}
+                                <span className="text-[10px] text-muted-foreground">
+                                  ({marginPct.toFixed(0)}%)
+                                </span>
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between border-t pt-1.5">
+                              <span className="text-muted-foreground">{t("gantt.stage.fin.budget", { defaultValue: "Orçamento" })}</span>
+                              <span className="font-mono">{euros(budget)}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">{t("gantt.stage.fin.vsBudget", { defaultValue: "vs Orçamento" })}</span>
+                              <span className={`font-mono ${totalSale - budget < 0 ? "text-destructive" : "text-emerald-600"}`}>
+                                {totalSale - budget >= 0 ? "+" : ""}
+                                {euros(totalSale - budget)}
+                              </span>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                       <StageDependencyEditor stage={stage} allStages={stages} adapter={adapter} />
                     </div>
 

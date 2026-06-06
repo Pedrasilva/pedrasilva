@@ -17,13 +17,14 @@
 import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays } from "date-fns";
-import { GanttChart, type StageWithProject } from "@/components/projects/gantt-chart";
+import { GanttChart, type StageWithProject, type PaymentMilestone } from "@/components/projects/gantt-chart";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
+import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import type { Resource, AllocationWithResource } from "@/lib/projects/types";
 
 interface Props {
@@ -156,6 +157,57 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
     return { origin: o, totalDays: days };
   }, [mappedStages]);
 
+  // Payment milestones — resolve each schedule item to a concrete date and €
+  // amount using current stage dates and the sum of stage budgets as the
+  // percent base. Recurring (monthly) items are skipped from the lane.
+  const paymentsQ = useQuotePaymentSchedule(quoteId);
+  const milestones = useMemo<PaymentMilestone[]>(() => {
+    const items = paymentsQ.data ?? [];
+    if (items.length === 0 || mappedStages.length === 0) return [];
+    const stageById = new Map(mappedStages.map((s) => [s.id, s]));
+    const earliestStart = mappedStages.reduce(
+      (min, s) => (s.start_date < min ? s.start_date : min),
+      mappedStages[0].start_date,
+    );
+    const totalValue = mappedStages.reduce((sum, s) => sum + Number(s.budget ?? 0), 0);
+    const out: PaymentMilestone[] = [];
+    for (const p of items) {
+      let date: string | null = null;
+      switch (p.trigger_type) {
+        case "project_start":
+          date = earliestStart;
+          break;
+        case "stage_start":
+          date = p.stage_id ? stageById.get(p.stage_id)?.start_date ?? null : null;
+          break;
+        case "stage_end":
+          date = p.stage_id ? stageById.get(p.stage_id)?.end_date ?? null : null;
+          break;
+        case "manual_date":
+          date = p.expected_invoice_date ?? null;
+          break;
+        case "monthly":
+        default:
+          continue;
+      }
+      if (!date) continue;
+      const amount =
+        p.amount_type === "fixed"
+          ? Number(p.amount_value)
+          : (Number(p.amount_value) / 100) * totalValue;
+      out.push({
+        id: p.id,
+        label: p.label,
+        date,
+        amount,
+        status: "planned",
+        note: p.notes ?? null,
+      });
+    }
+    return out;
+  }, [paymentsQ.data, mappedStages]);
+
+
   // Zoom — local UI state. Default to "week" (matches old detailed view).
   // If a parent forces dayWidth via prop, that wins (uncontrolled fallback only
   // when the prop is undefined).
@@ -265,6 +317,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             dayWidth={computedDayWidth}
             resources={resources}
             adapter={adapter}
+            milestones={milestones}
             embedded
           />
         </div>
