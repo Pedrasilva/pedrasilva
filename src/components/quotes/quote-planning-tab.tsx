@@ -2,7 +2,7 @@
  * Quote Planning tab — stages + dependencies + allocations.
  * No Gantt yet (Phase C). Plain tables only.
  */
-import { useMemo, useState, useCallback, useEffect, useRef } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
