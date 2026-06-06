@@ -14,7 +14,8 @@
  *   leave overlap, overload, status toggle, holiday shading, and
  *   cross-project moves are hidden.
  */
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef, useLayoutEffect } from "react";
+import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone } from "@/components/projects/gantt-chart";
