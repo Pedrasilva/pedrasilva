@@ -99,6 +99,8 @@ export function QuotePlanningTab({
   );
 
   // Per-stage rollup: hours / cost / fee derived from allocations.
+  // Uses raw snapshot rates (no pricingMultiplier) so the Sale (Gantt) column
+  // matches the resource box in the Gantt exactly — single source of truth.
   const stageRollups = useMemo(() => {
     const m = new Map<string, { hours: number; cost: number; fee: number }>();
     for (const a of allocations) {
@@ -106,11 +108,11 @@ export function QuotePlanningTab({
       const cur = m.get(a.stage_id) ?? { hours: 0, cost: 0, fee: 0 };
       cur.hours += line.hours;
       cur.cost += line.cost;
-      cur.fee += line.revenue * (pricingMultiplier > 0 ? pricingMultiplier : 1);
+      cur.fee += line.revenue;
       m.set(a.stage_id, cur);
     }
     return m;
-  }, [allocations, pricingMultiplier]);
+  }, [allocations]);
 
   // Lightweight, non-blocking warnings driven by the same rollup as the
   // financial summary so users get consistent signals across tabs.
