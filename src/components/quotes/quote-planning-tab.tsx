@@ -342,14 +342,9 @@ export function QuotePlanningTab({
                     {r ? formatEUR(cost) : <span className="text-muted-foreground">—</span>}
                   </TableCell>
                   <TableCell className="text-right text-xs tabular-nums">
-                    {r ? (
-                      <span className={marginOverrideNum != null ? "font-medium text-primary" : ""}>
-                        {formatEUR(sale)}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
+                    {r ? formatEUR(sale) : <span className="text-muted-foreground">—</span>}
                   </TableCell>
+
                   <TableCell className="text-right text-xs tabular-nums">
                     {marginPct != null && r ? (
                       `${marginPct.toFixed(1)}%`
