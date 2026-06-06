@@ -34,6 +34,12 @@ export interface PlannerFeatures {
   holidayShading: boolean;
   /** Allocation editor exposes an allocation % field that drives hours/day. */
   allocationPercentage: boolean;
+  /**
+   * Planning mode: stage bar compares cost vs sale value (not vs budget),
+   * and the financials info button is always visible. Used by quote planning
+   * where "budget" is what's being calculated, not a ceiling to enforce.
+   */
+  planningMode: boolean;
 }
 
 export interface PlannerStageUpdateArgs {
