@@ -317,6 +317,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             dayWidth={computedDayWidth}
             resources={resources}
             adapter={adapter}
+            milestones={milestones}
             embedded
           />
         </div>
