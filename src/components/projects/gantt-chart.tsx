@@ -764,10 +764,15 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                         <div className="mt-0.5 flex items-center gap-2 text-[11px] opacity-80">
                           <span className="font-mono">{euros(totalCost)}</span>
                           <span>/</span>
-                          <span className="font-mono">{euros(budget)}</span>
+                          <span className="font-mono">{euros(compareValue)}</span>
+                          {features.planningMode && compareValue > 0 && (
+                            <span className="rounded bg-background/40 px-1.5 py-px font-mono text-[10px]">
+                              {Math.round((totalCost / compareValue) * 100)}%
+                            </span>
+                          )}
                           {over && (
                             <span className="rounded bg-destructive px-1.5 py-px font-medium text-destructive-foreground">
-                              {t("gantt.stage.overByAmount", { amount: euros(totalCost - budget) })}
+                              {t("gantt.stage.overByAmount", { amount: euros(totalCost - compareValue) })}
                             </span>
                           )}
                           {showFinancials && budgetByStage?.get(stage.id) && (() => {
