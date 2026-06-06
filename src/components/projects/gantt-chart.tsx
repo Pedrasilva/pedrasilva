@@ -643,17 +643,27 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
               delta === 0 ? iso : format(addDays(new Date(iso), delta), "yyyy-MM-dd");
 
             let totalCost = 0;
+            let totalSale = 0;
             for (const a of stage.allocations) {
               const aDraft = draftDates.get(a.id);
               const aS = aDraft?.start ?? shiftIso(a.start_date, stageShiftDays);
               const aE = aDraft?.end ?? shiftIso(a.end_date, stageShiftDays);
+              const isOverride = !!a.resource.hourly_rate_is_override;
               totalCost += allocationCost({
                 start_date: aS,
                 end_date: aE,
                 hours_per_day: Number(a.hours_per_day),
-                hourly_rate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
+                hourly_rate: effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, isOverride),
+              });
+              totalSale += allocationCost({
+                start_date: aS,
+                end_date: aE,
+                hours_per_day: Number(a.hours_per_day),
+                hourly_rate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, isOverride),
               });
             }
+            const margin = totalSale - totalCost;
+            const marginPct = totalSale > 0 ? (margin / totalSale) * 100 : 0;
             const budget = Number(stage.budget);
             const pct = budget > 0 ? Math.min(1, totalCost / budget) : 0;
             const overPct = budget > 0 ? Math.max(0, totalCost / budget - 1) : 0;
