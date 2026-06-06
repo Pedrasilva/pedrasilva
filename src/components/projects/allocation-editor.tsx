@@ -83,6 +83,20 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
     (allocWithExtras.status ?? "committed") as AllocationStatus;
   const [status, setStatus] = useState<AllocationStatus>(initialStatus);
 
+  // Re-sync local edit state whenever the popover opens or the underlying
+  // allocation changes (e.g. user resized the bar in the Gantt before
+  // opening the editor). Without this, the inputs show stale dates/hours
+  // from the first mount.
+  useEffect(() => {
+    if (!open) return;
+    setStart(allocation.start_date);
+    setEnd(allocation.end_date);
+    setHours(Number(allocation.hours_per_day));
+    setPct(storedPct ?? Math.min(100, Math.max(0, backComputedPct)));
+    setStatus(initialStatus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, allocation.start_date, allocation.end_date, allocation.hours_per_day]);
+
   const showStatusToggle = adapter.features.statusToggle && !!adapter.setAllocationStatus;
   const showPercentage = adapter.features.allocationPercentage;
   const pending = adapter.pending.allocation;
