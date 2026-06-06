@@ -378,13 +378,6 @@ export function QuotePlanningTab({
                       }}
                     />
                   </TableCell>
-                  <TableCell className="text-right text-xs">
-                    {r ? (
-                      <span className="font-medium">{formatEUR(r.fee)}</span>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
                   <TableCell className="text-right text-xs tabular-nums">
                     {r ? formatEUR(cost) : <span className="text-muted-foreground">—</span>}
                   </TableCell>
