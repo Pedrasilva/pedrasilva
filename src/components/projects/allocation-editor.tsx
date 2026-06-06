@@ -351,7 +351,18 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
           <div className="rounded-md bg-muted/60 p-3 text-xs">
             <div className="flex justify-between"><span className="text-muted-foreground">Dias úteis</span><span className="font-mono">{wd}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">Total horas</span><span className="font-mono">{totalH.toFixed(1)} h</span></div>
-            <div className="mt-1 flex justify-between border-t border-border pt-1"><span className="text-muted-foreground">Custo</span><span className="font-mono font-semibold">{euros(cost)}</span></div>
+            <div className="mt-1 flex justify-between border-t border-border pt-1">
+              <span className="text-muted-foreground">Custo <span className="opacity-70">@ {euros(effectiveCost)}/h</span></span>
+              <span className="font-mono font-semibold">{euros(cost)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Venda <span className="opacity-70">@ {euros(effectiveSale)}/h</span></span>
+              <span className="font-mono font-semibold">{euros(revenue)}</span>
+            </div>
+            <div className="mt-1 flex justify-between border-t border-border pt-1">
+              <span className="text-muted-foreground">Margem</span>
+              <span className={`font-mono font-semibold ${margin < 0 ? "text-destructive" : ""}`}>{euros(margin)}</span>
+            </div>
           </div>
           <div className="flex items-center justify-between gap-2 pt-1">
             <Button variant="ghost" size="sm" onClick={remove} className="text-destructive hover:text-destructive">
