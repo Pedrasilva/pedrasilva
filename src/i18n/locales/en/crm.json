@@ -471,7 +471,15 @@
       "zoomMonth": "Month",
       "zoomQuarter": "Quarter",
       "zoomYear": "Year",
-      "zoomFit": "Fit"
+      "zoomFit": "Fit",
+      "calcFee": "Calc. fee",
+      "billing": "Group / Billing",
+      "gantCost": "Cost (Gantt)",
+      "gantSale": "Sale",
+      "marginPct": "Margin %",
+      "marginOverrideLabel": "Override sale margin (%)",
+      "marginOverridePh": "From Gantt"
+
     },
     "warnings": {
       "noStages": "No stages yet — add at least one stage to plan the work.",
