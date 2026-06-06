@@ -14,7 +14,8 @@
  *   leave overlap, overload, status toggle, holiday shading, and
  *   cross-project moves are hidden.
  */
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef, useLayoutEffect } from "react";
+import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone } from "@/components/projects/gantt-chart";
@@ -212,6 +213,20 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   // If a parent forces dayWidth via prop, that wins (uncontrolled fallback only
   // when the prop is undefined).
   const [zoom, setZoom] = useState<ZoomMode>("week");
+  const [poolCollapsed, setPoolCollapsed] = useState(false);
+
+  // Measure chart container width so "Fit" stretches to fill it.
+  const chartRef = useRef<HTMLDivElement | null>(null);
+  const [chartWidth, setChartWidth] = useState(1100);
+  useLayoutEffect(() => {
+    const el = chartRef.current;
+    if (!el) return;
+    const update = () => setChartWidth(el.clientWidth || 1100);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [poolCollapsed]);
 
   // Reset to "week" when switching quotes — avoids carrying over a fitted width
   // sized for a different quote's totalDays.
@@ -222,13 +237,12 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   const computedDayWidth = useMemo(() => {
     if (dayWidthProp !== undefined) return dayWidthProp;
     if (zoom === "fit") {
-      const target = 1100;
+      const target = Math.max(400, chartWidth - 24);
       const w = target / Math.max(1, totalDays);
-      // Clamp: min 1px/day so very long quotes still fit; max 32px/day.
       return Math.max(1, Math.min(32, w));
     }
     return ZOOM_DAY_WIDTHS[zoom];
-  }, [zoom, totalDays, dayWidthProp]);
+  }, [zoom, totalDays, dayWidthProp, chartWidth]);
 
   if (stagesQ.isLoading) {
     return (
@@ -304,11 +318,22 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             >
               {t("workspace.planning.zoomFit", { defaultValue: "Fit" })}
             </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setPoolCollapsed((v) => !v)}
+              aria-label={poolCollapsed ? "Expand team pool" : "Collapse team pool"}
+              title={poolCollapsed ? "Expand team pool" : "Collapse team pool"}
+            >
+              {poolCollapsed ? <PanelRightOpen className="h-3.5 w-3.5" /> : <PanelRightClose className="h-3.5 w-3.5" />}
+            </Button>
           </div>
         )}
       </div>
       <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
-        <div className="flex-1 overflow-auto">
+        <div ref={chartRef} className="flex-1 overflow-auto">
           <GanttChart
             projectId={quoteId}
             stages={mappedStages}
@@ -321,7 +346,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             embedded
           />
         </div>
-        <ResourcePool resources={poolResources} collapsed={false} missingRateIds={rateMissing} />
+        {!poolCollapsed && (
+          <ResourcePool resources={poolResources} collapsed={false} missingRateIds={rateMissing} />
+        )}
       </div>
     </div>
   );
