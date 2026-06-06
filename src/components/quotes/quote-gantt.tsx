@@ -348,10 +348,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
         </div>
         {!poolCollapsed && (
           <ResourcePool resources={poolResources} collapsed={false} missingRateIds={rateMissing} />
+        )}
       </div>
-    </div>
-  );
-}
     </div>
   );
 }
