@@ -788,7 +788,9 @@ export function QuotePlanningTab({
           )}
         </CardContent>
       </Card>
-      </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
 
     </div>
   );
