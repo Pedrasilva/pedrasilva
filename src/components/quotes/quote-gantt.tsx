@@ -335,7 +335,11 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
         )}
       </div>
       <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
-        <div ref={chartRef} className="flex-1 overflow-auto">
+        <div
+          ref={chartRef}
+          className="flex-1 overflow-auto resize-y"
+          style={{ height: "70vh", minHeight: 320, maxHeight: "85vh" }}
+        >
           <GanttChart
             projectId={quoteId}
             stages={mappedStages}
