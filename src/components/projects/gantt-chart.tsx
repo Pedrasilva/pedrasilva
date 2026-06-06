@@ -680,9 +680,13 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
             const margin = totalSale - totalCost;
             const marginPct = totalSale > 0 ? (margin / totalSale) * 100 : 0;
             const budget = Number(stage.budget);
-            const pct = budget > 0 ? Math.min(1, totalCost / budget) : 0;
-            const overPct = budget > 0 ? Math.max(0, totalCost / budget - 1) : 0;
-            const over = totalCost > budget;
+            // Planning mode: compare cost against sale value (what the fee
+            // calculator is producing). Project mode: compare against the
+            // approved budget ceiling.
+            const compareValue = features.planningMode ? totalSale : budget;
+            const pct = compareValue > 0 ? Math.min(1, totalCost / compareValue) : 0;
+            const overPct = compareValue > 0 ? Math.max(0, totalCost / compareValue - 1) : 0;
+            const over = compareValue > 0 && totalCost > compareValue;
             const allocRows = Math.max(stage.allocations.length, 0);
             const rowsHeight = allocRows * (ALLOC_ROW_H + 4);
 
