@@ -236,12 +236,14 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
 
   const computedDayWidth = useMemo(() => {
     if (dayWidthProp !== undefined) return dayWidthProp;
+    const target = Math.max(400, chartWidth - 24);
+    const fitWidth = target / Math.max(1, totalDays);
     if (zoom === "fit") {
-      const target = Math.max(400, chartWidth - 24);
-      const w = target / Math.max(1, totalDays);
-      return Math.max(1, Math.min(32, w));
+      return Math.max(1, Math.min(32, fitWidth));
     }
-    return ZOOM_DAY_WIDTHS[zoom];
+    // Ensure the chart always fills the available container width: never
+    // shrink below what "fit" would use, even at compressed zoom levels.
+    return Math.max(ZOOM_DAY_WIDTHS[zoom], fitWidth);
   }, [zoom, totalDays, dayWidthProp, chartWidth]);
 
   if (stagesQ.isLoading) {
