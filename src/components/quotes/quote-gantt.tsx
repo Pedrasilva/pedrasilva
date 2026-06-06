@@ -348,23 +348,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
         </div>
         {!poolCollapsed && (
           <ResourcePool resources={poolResources} collapsed={false} missingRateIds={rateMissing} />
-        )}
-      <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
-        <div className="flex-1 overflow-auto">
-          <GanttChart
-            projectId={quoteId}
-            stages={mappedStages}
-            origin={origin}
-            totalDays={totalDays}
-            dayWidth={computedDayWidth}
-            resources={resources}
-            adapter={adapter}
-            milestones={milestones}
-            embedded
-          />
-        </div>
-        <ResourcePool resources={poolResources} collapsed={false} missingRateIds={rateMissing} />
       </div>
+    </div>
+  );
+}
     </div>
   );
 }
