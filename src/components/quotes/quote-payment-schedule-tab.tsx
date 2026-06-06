@@ -225,6 +225,25 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     draft.trigger_type === "stage_start" || draft.trigger_type === "stage_end";
   const dateRequired = draft.trigger_type === "manual_date";
 
+  // Auto-seed the payment schedule from the Gantt stages the first time the
+  // tab is opened on an empty quote. Uses each stage's billing_model so the
+  // schedule mirrors the planning tab without requiring a manual click.
+  const autoSeededRef = useRef(false);
+  useEffect(() => {
+    if (autoSeededRef.current) return;
+    if (itemsQ.isLoading || stagesQ.isLoading) return;
+    if (items.length > 0) {
+      autoSeededRef.current = true;
+      return;
+    }
+    if (stages.length === 0) return;
+    if (applyGen.isPending) return;
+    autoSeededRef.current = true;
+    const generated = generateByStageBilling(stages, stageFees);
+    if (generated.length === 0) return;
+    applyGen.mutate({ generator: "by_stage_billing", items: generated });
+  }, [itemsQ.isLoading, stagesQ.isLoading, items.length, stages, stageFees, applyGen]);
+
   const handleAdd = async () => {
     if (!draft.label.trim()) return toast.error(t("workspace.payment.errorLabel"));
     if (stageRequired && !draft.stage_id)
