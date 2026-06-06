@@ -430,7 +430,9 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
           {months.map((m, i) => (
             <div
               key={i}
-              className="flex items-center border-l border-border/40 px-2 text-[11px] font-semibold uppercase tracking-wider text-foreground/80 first:border-l-0"
+              className={`flex items-center border-l border-border/40 px-2 text-[11px] font-semibold uppercase tracking-wider text-foreground/80 first:border-l-0 ${
+                i % 2 === 0 ? "bg-muted/40" : "bg-transparent"
+              }`}
               style={{ width: m.days * dayWidth, minWidth: m.days * dayWidth }}
             >
               {m.label}
@@ -572,6 +574,15 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
       )}
 
       <div className="relative gantt-canvas-bg gantt-week-marker" style={{ minHeight: stages.length * 200 }}>
+        {months.map((m, i) => (
+          <div
+            key={`mb-${i}`}
+            className={`pointer-events-none absolute top-0 h-full ${
+              i % 2 === 0 ? "bg-muted/25" : "bg-transparent"
+            }`}
+            style={{ left: m.startIdx * dayWidth, width: m.days * dayWidth }}
+          />
+        ))}
         {milestones?.map((m) => {
           const x = differenceInCalendarDays(parseISO(m.date), origin) * dayWidth;
           if (x < 0 || x > totalDays * dayWidth) return null;
