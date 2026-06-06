@@ -10,7 +10,7 @@ import { Trash2, Lock, FileQuestion } from "lucide-react";
 import { toast } from "sonner";
 import { allocationCost, allocationHours, euros, workingDays } from "@/lib/projects/gantt-utils";
 import { useResourceSchedules } from "@/lib/projects/use-resource-schedules";
-import { useDefaultResourceRates, effectiveSaleRate } from "@/lib/projects/use-default-rates";
+import { useDefaultResourceRates, effectiveSaleRate, effectiveCostRate } from "@/lib/projects/use-default-rates";
 
 type AllocationStatus = "tentative" | "committed";
 
