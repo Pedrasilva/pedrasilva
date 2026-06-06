@@ -4,9 +4,11 @@
  * Mirrors the project rollups in src/lib/projects/financial-rollups.ts but
  * works against quote_* tables (snapshot rates, no real timesheet hours yet).
  *
- * For internal allocations we approximate billable hours from the date range
- * × hours_per_day × allocation_percentage (default 100%). External services
- * use the exact same purchase/sale * quantity model as pm_materials.
+ * For internal allocations we use the same working-day × hours_per_day formula
+ * as the Gantt. allocation_percentage is UI metadata: hours_per_day already
+ * stores the derived effort, so applying it again would double-discount rows.
+ * External services use the exact same purchase/sale * quantity model as
+ * pm_materials.
  *
  * pricing_multiplier is applied to the SALE side only — it scales fees
  * (internal + external) without inflating costs.
@@ -24,16 +26,6 @@ import {
   retainerMonthlyEstimate,
   type TimeBasedSettings,
 } from "./time-based-settings";
-
-/** Calendar-day count (inclusive). Weekends not excluded — quotes are forecast,
- *  not actuals; using calendar days keeps the maths predictable and consistent
- *  with how `pm_allocations.hours_per_day` is interpreted in planning. */
-function dayCount(start: string, end: string): number {
-  const s = new Date(start + "T00:00:00Z").getTime();
-  const e = new Date(end + "T00:00:00Z").getTime();
-  if (!Number.isFinite(s) || !Number.isFinite(e) || e < s) return 0;
-  return Math.floor((e - s) / 86_400_000) + 1;
-}
 
 export function quoteAllocationLine(a: QuoteAllocationWithResource): {
   hours: number;
