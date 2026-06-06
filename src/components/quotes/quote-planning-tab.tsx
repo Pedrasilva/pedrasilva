@@ -136,6 +136,18 @@ export function QuotePlanningTab({
     budget: "",
   });
 
+  // Optional override for the sale margin (% of revenue). When set, the
+  // displayed sale value per stage = cost / (1 − margin/100), and the
+  // implied margin % is taken from the override directly. When empty, we
+  // fall back to the Gantt allocations' actual sale rates.
+  const [marginOverride, setMarginOverride] = useState<string>("");
+  const marginOverrideNum = useMemo(() => {
+    const n = Number(marginOverride);
+    if (!Number.isFinite(n) || n <= 0 || n >= 100) return null;
+    return n;
+  }, [marginOverride]);
+
+
   const handleAddStage = async () => {
     if (!newStage.name.trim()) return toast.error(t("workspace.planning.errorStageName"));
     if (newStage.end_date < newStage.start_date)
@@ -242,6 +254,29 @@ export function QuotePlanningTab({
           <CardTitle className="text-base">{t("workspace.planning.stagesTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Sale-margin override — applies to the displayed sale & margin
+              columns only; does not mutate any allocation rate. */}
+          <div className="flex flex-wrap items-end justify-end gap-2 text-xs">
+            <div className="flex flex-col">
+              <Label className="text-xs text-muted-foreground">
+                {t("workspace.planning.marginOverrideLabel", {
+                  defaultValue: "Override sale margin (%)",
+                })}
+              </Label>
+              <Input
+                type="number"
+                step="0.1"
+                min={0}
+                max={99}
+                className="h-8 w-32 text-right"
+                placeholder={t("workspace.planning.marginOverridePh", {
+                  defaultValue: "From Gantt",
+                })}
+                value={marginOverride}
+                onChange={(e) => setMarginOverride(e.target.value)}
+              />
+            </div>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -250,7 +285,10 @@ export function QuotePlanningTab({
                 <TableHead className="w-36">{t("workspace.planning.startDate")}</TableHead>
                 <TableHead className="w-36">{t("workspace.planning.endDate")}</TableHead>
                 <TableHead className="w-32 text-right">{t("workspace.planning.budget")}</TableHead>
-                <TableHead className="w-32 text-right">{t("workspace.planning.calcFee")}</TableHead>
+                <TableHead className="w-32 text-right">{t("workspace.planning.calcFee", { defaultValue: "Calc. fee" })}</TableHead>
+                <TableHead className="w-28 text-right">{t("workspace.planning.gantCost", { defaultValue: "Cost (Gantt)" })}</TableHead>
+                <TableHead className="w-28 text-right">{t("workspace.planning.gantSale", { defaultValue: "Sale" })}</TableHead>
+                <TableHead className="w-20 text-right">{t("workspace.planning.marginPct", { defaultValue: "Margin %" })}</TableHead>
                 <TableHead className="w-44">{t("workspace.planning.billing", { defaultValue: "Group / Billing" })}</TableHead>
                 <TableHead className="w-16" />
               </TableRow>
@@ -258,6 +296,20 @@ export function QuotePlanningTab({
             <TableBody>
               {stages.map((s, i) => {
                 const r = stageRollups.get(s.id);
+                const cost = r?.cost ?? 0;
+                const ganttSale = r?.fee ?? 0;
+                const sale =
+                  marginOverrideNum != null
+                    ? cost > 0
+                      ? cost / (1 - marginOverrideNum / 100)
+                      : 0
+                    : ganttSale;
+                const marginPct =
+                  marginOverrideNum != null
+                    ? marginOverrideNum
+                    : sale > 0
+                      ? ((sale - cost) / sale) * 100
+                      : null;
                 return (
                 <TableRow key={s.id}>
                   <TableCell className="text-muted-foreground">{i + 1}</TableCell>
@@ -338,6 +390,25 @@ export function QuotePlanningTab({
                       <span className="text-muted-foreground">—</span>
                     )}
                   </TableCell>
+                  <TableCell className="text-right text-xs tabular-nums">
+                    {r ? formatEUR(cost) : <span className="text-muted-foreground">—</span>}
+                  </TableCell>
+                  <TableCell className="text-right text-xs tabular-nums">
+                    {r ? (
+                      <span className={marginOverrideNum != null ? "font-medium text-primary" : ""}>
+                        {formatEUR(sale)}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right text-xs tabular-nums">
+                    {marginPct != null && r ? (
+                      `${marginPct.toFixed(1)}%`
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Button
                       variant="ghost"
@@ -356,11 +427,12 @@ export function QuotePlanningTab({
               })}
               {stages.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">
+                  <TableCell colSpan={11} className="text-center text-sm text-muted-foreground py-6">
                     {t("workspace.planning.noStages")}
                   </TableCell>
                 </TableRow>
               )}
+
             </TableBody>
           </Table>
 
