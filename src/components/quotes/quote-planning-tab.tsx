@@ -281,7 +281,6 @@ export function QuotePlanningTab({
                 <TableHead className="w-36">{t("workspace.planning.startDate")}</TableHead>
                 <TableHead className="w-36">{t("workspace.planning.endDate")}</TableHead>
                 <TableHead className="w-32 text-right">{t("workspace.planning.budget")}</TableHead>
-                <TableHead className="w-32 text-right">{t("workspace.planning.calcFee", { defaultValue: "Calc. fee" })}</TableHead>
                 <TableHead className="w-28 text-right">{t("workspace.planning.gantCost", { defaultValue: "Cost (Gantt)" })}</TableHead>
                 <TableHead className="w-28 text-right">{t("workspace.planning.gantSale", { defaultValue: "Sale" })}</TableHead>
                 <TableHead className="w-20 text-right">{t("workspace.planning.marginPct", { defaultValue: "Margin %" })}</TableHead>
