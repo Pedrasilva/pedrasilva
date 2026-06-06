@@ -242,29 +242,6 @@ export function QuotePlanningTab({
           <CardTitle className="text-base">{t("workspace.planning.stagesTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Sale-margin override — applies to the displayed sale & margin
-              columns only; does not mutate any allocation rate. */}
-          <div className="flex flex-wrap items-end justify-end gap-2 text-xs">
-            <div className="flex flex-col">
-              <Label className="text-xs text-muted-foreground">
-                {t("workspace.planning.marginOverrideLabel", {
-                  defaultValue: "Override sale margin (%)",
-                })}
-              </Label>
-              <Input
-                type="number"
-                step="0.1"
-                min={0}
-                max={99}
-                className="h-8 w-32 text-right"
-                placeholder={t("workspace.planning.marginOverridePh", {
-                  defaultValue: "From Gantt",
-                })}
-                value={marginOverride}
-                onChange={(e) => setMarginOverride(e.target.value)}
-              />
-            </div>
-          </div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -274,7 +251,7 @@ export function QuotePlanningTab({
                 <TableHead className="w-36">{t("workspace.planning.endDate")}</TableHead>
                 <TableHead className="w-32 text-right">{t("workspace.planning.budget")}</TableHead>
                 <TableHead className="w-28 text-right">{t("workspace.planning.gantCost", { defaultValue: "Cost (Gantt)" })}</TableHead>
-                <TableHead className="w-28 text-right">{t("workspace.planning.gantSale", { defaultValue: "Sale" })}</TableHead>
+                <TableHead className="w-28 text-right">{t("workspace.planning.gantSale", { defaultValue: "Sale (Gantt)" })}</TableHead>
                 <TableHead className="w-20 text-right">{t("workspace.planning.marginPct", { defaultValue: "Margin %" })}</TableHead>
                 <TableHead className="w-44">{t("workspace.planning.billing", { defaultValue: "Group / Billing" })}</TableHead>
                 <TableHead className="w-16" />
@@ -284,20 +261,11 @@ export function QuotePlanningTab({
               {stages.map((s, i) => {
                 const r = stageRollups.get(s.id);
                 const cost = r?.cost ?? 0;
-                const ganttSale = r?.fee ?? 0;
-                const sale =
-                  marginOverrideNum != null
-                    ? cost > 0
-                      ? cost / (1 - marginOverrideNum / 100)
-                      : 0
-                    : ganttSale;
+                const sale = r?.fee ?? 0;
                 const marginPct =
-                  marginOverrideNum != null
-                    ? marginOverrideNum
-                    : sale > 0
-                      ? ((sale - cost) / sale) * 100
-                      : null;
+                  sale > 0 ? ((sale - cost) / sale) * 100 : null;
                 return (
+
                 <TableRow key={s.id}>
                   <TableCell className="text-muted-foreground">{i + 1}</TableCell>
                   <TableCell>
