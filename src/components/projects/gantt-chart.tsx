@@ -824,7 +824,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                           <button
                             onPointerDown={(e) => e.stopPropagation()}
                             onClick={(e) => e.stopPropagation()}
-                            className="rounded p-1 opacity-0 transition hover:bg-background/30 group-hover:opacity-100"
+                            className={`rounded p-1 transition hover:bg-background/30 ${features.planningMode ? "opacity-90" : "opacity-0 group-hover:opacity-100"}`}
                             aria-label={t("gantt.stage.financialsAction", { defaultValue: "Show financials" })}
                           >
                             <Info className="h-3.5 w-3.5" />
