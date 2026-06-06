@@ -737,8 +737,8 @@ export function QuotePlanningTab({
           )}
         </CardContent>
       </Card>
-        </CollapsibleContent>
-      </Collapsible>
+      </div>
+
     </div>
   );
 }
