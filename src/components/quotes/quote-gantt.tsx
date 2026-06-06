@@ -213,6 +213,20 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   // If a parent forces dayWidth via prop, that wins (uncontrolled fallback only
   // when the prop is undefined).
   const [zoom, setZoom] = useState<ZoomMode>("week");
+  const [poolCollapsed, setPoolCollapsed] = useState(false);
+
+  // Measure chart container width so "Fit" stretches to fill it.
+  const chartRef = useRef<HTMLDivElement | null>(null);
+  const [chartWidth, setChartWidth] = useState(1100);
+  useLayoutEffect(() => {
+    const el = chartRef.current;
+    if (!el) return;
+    const update = () => setChartWidth(el.clientWidth || 1100);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [poolCollapsed]);
 
   // Reset to "week" when switching quotes — avoids carrying over a fitted width
   // sized for a different quote's totalDays.
@@ -223,13 +237,12 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   const computedDayWidth = useMemo(() => {
     if (dayWidthProp !== undefined) return dayWidthProp;
     if (zoom === "fit") {
-      const target = 1100;
+      const target = Math.max(400, chartWidth - 24);
       const w = target / Math.max(1, totalDays);
-      // Clamp: min 1px/day so very long quotes still fit; max 32px/day.
       return Math.max(1, Math.min(32, w));
     }
     return ZOOM_DAY_WIDTHS[zoom];
-  }, [zoom, totalDays, dayWidthProp]);
+  }, [zoom, totalDays, dayWidthProp, chartWidth]);
 
   if (stagesQ.isLoading) {
     return (
