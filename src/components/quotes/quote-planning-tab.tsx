@@ -398,21 +398,14 @@ export function QuotePlanningTab({
                   totalBudget += Number(s.budget ?? 0);
                   const r = stageRollups.get(s.id);
                   if (!r) continue;
-                  const cost = r.cost ?? 0;
-                  const ganttSale = r.fee ?? 0;
-                  const sale =
-                    marginOverrideNum != null
-                      ? cost > 0 ? cost / (1 - marginOverrideNum / 100) : 0
-                      : ganttSale;
-                  totalCost += cost;
-                  totalSale += sale;
+                  totalCost += r.cost ?? 0;
+                  totalSale += r.fee ?? 0;
                 }
                 const totalMargin =
-                  marginOverrideNum != null
-                    ? marginOverrideNum
-                    : totalSale > 0
-                      ? ((totalSale - totalCost) / totalSale) * 100
-                      : null;
+                  totalSale > 0
+                    ? ((totalSale - totalCost) / totalSale) * 100
+                    : null;
+
                 return (
                   <TableRow className="bg-muted/40 font-medium">
                     <TableCell colSpan={4} className="text-right text-xs uppercase tracking-wide text-muted-foreground">
