@@ -574,6 +574,15 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
       )}
 
       <div className="relative gantt-canvas-bg gantt-week-marker" style={{ minHeight: stages.length * 200 }}>
+        {months.map((m, i) => (
+          <div
+            key={`mb-${i}`}
+            className={`pointer-events-none absolute top-0 h-full ${
+              i % 2 === 0 ? "bg-muted/25" : "bg-transparent"
+            }`}
+            style={{ left: m.startIdx * dayWidth, width: m.days * dayWidth }}
+          />
+        ))}
         {milestones?.map((m) => {
           const x = differenceInCalendarDays(parseISO(m.date), origin) * dayWidth;
           if (x < 0 || x > totalDays * dayWidth) return null;
