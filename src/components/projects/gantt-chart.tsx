@@ -795,6 +795,56 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
+                            className="rounded p-1 opacity-0 transition hover:bg-background/30 group-hover:opacity-100"
+                            aria-label={t("gantt.stage.financialsAction", { defaultValue: "Show financials" })}
+                          >
+                            <Info className="h-3.5 w-3.5" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          align="start"
+                          side="bottom"
+                          className="w-64 text-xs"
+                          onPointerDown={(e) => e.stopPropagation()}
+                        >
+                          <div className="mb-2 font-display text-sm font-semibold">{stage.name}</div>
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">{t("gantt.stage.fin.cost", { defaultValue: "Custo" })}</span>
+                              <span className="font-mono">{euros(totalCost)}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">{t("gantt.stage.fin.sale", { defaultValue: "Venda" })}</span>
+                              <span className="font-mono">{euros(totalSale)}</span>
+                            </div>
+                            <div className="flex items-center justify-between border-t pt-1.5">
+                              <span className="text-muted-foreground">{t("gantt.stage.fin.margin", { defaultValue: "Margem" })}</span>
+                              <span className={`font-mono ${margin < 0 ? "text-destructive" : "text-emerald-600"}`}>
+                                {euros(margin)}{" "}
+                                <span className="text-[10px] text-muted-foreground">
+                                  ({marginPct.toFixed(0)}%)
+                                </span>
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between border-t pt-1.5">
+                              <span className="text-muted-foreground">{t("gantt.stage.fin.budget", { defaultValue: "Orçamento" })}</span>
+                              <span className="font-mono">{euros(budget)}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">{t("gantt.stage.fin.vsBudget", { defaultValue: "vs Orçamento" })}</span>
+                              <span className={`font-mono ${totalSale - budget < 0 ? "text-destructive" : "text-emerald-600"}`}>
+                                {totalSale - budget >= 0 ? "+" : ""}
+                                {euros(totalSale - budget)}
+                              </span>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                       <StageDependencyEditor stage={stage} allStages={stages} adapter={adapter} />
                     </div>
 
