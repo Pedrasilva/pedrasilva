@@ -430,10 +430,12 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
           {months.map((m, i) => (
             <div
               key={i}
-              className={`flex items-center border-l border-border/40 px-2 text-[11px] font-semibold uppercase tracking-wider text-foreground/80 first:border-l-0 ${
-                i % 2 === 0 ? "bg-muted/40" : "bg-transparent"
-              }`}
-              style={{ width: m.days * dayWidth, minWidth: m.days * dayWidth }}
+              className="flex items-center border-l border-border/40 px-2 text-[11px] font-semibold uppercase tracking-wider text-foreground/80 first:border-l-0"
+              style={{
+                width: m.days * dayWidth,
+                minWidth: m.days * dayWidth,
+                backgroundColor: i % 2 === 0 ? "oklch(0 0 0 / 0.06)" : "oklch(0 0 0 / 0.015)",
+              }}
             >
               {m.label}
             </div>
