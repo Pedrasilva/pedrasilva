@@ -34,6 +34,7 @@ import { QuoteExternalServicesTab } from "@/components/quotes/quote-external-ser
 import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
 import { QuoteFinancialSummaryTab } from "@/components/quotes/quote-financial-summary-tab";
 import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
+import { ApplyTemplateDialog } from "@/components/quotes/apply-template-dialog";
 import { QuoteTimeBasedSettingsTab } from "@/components/quotes/quote-time-based-settings-tab";
 import { QuoteFeeCalculatorCard } from "@/components/quotes/quote-fee-calculator-card";
 import { QuoteOntologyBootstrapCard } from "@/components/quotes/quote-ontology-bootstrap-card";
@@ -802,7 +803,13 @@ function QuoteDetail() {
         <TabsContent value="financial" className="mt-4">
           <QuoteFinancialSummaryTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
         </TabsContent>
-        <TabsContent value="proposal" className="mt-4">
+        <TabsContent value="proposal" className="mt-4 space-y-3">
+          <div className="flex justify-end">
+            <ApplyTemplateDialog
+              quoteId={quoteId}
+              category={quote.quote_category ?? "project"}
+            />
+          </div>
           <QuoteProposalTab
             quoteId={quoteId}
             pricingMultiplier={pricingMultiplier}

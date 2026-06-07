@@ -842,6 +842,13 @@
     "actions": {
       "saveAs": "Guardar como modelo"
     },
+    "apply": {
+      "button": "Aplicar modelo",
+      "title": "Aplicar um modelo a este orçamento",
+      "description": "Adiciona as fases, regras de pagamento e blocos do modelo selecionado a este orçamento. As fases e conteúdo existentes são mantidos.",
+      "confirm": "Aplicar modelo",
+      "toast": "Modelo aplicado: {{stages}} fases, {{rules}} regras de pagamento, {{blocks}} blocos."
+    },
     "list": {
       "title": "Modelos de orçamento",
       "description": "Modelos reutilizáveis para novos orçamentos. Guardados a partir da área de trabalho do orçamento.",

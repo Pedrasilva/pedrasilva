@@ -842,6 +842,13 @@
     "actions": {
       "saveAs": "Save as template"
     },
+    "apply": {
+      "button": "Apply template",
+      "title": "Apply a template to this quote",
+      "description": "Append the selected template's phases, payment rules and proposal blocks to this quote. Existing stages and content are kept.",
+      "confirm": "Apply template",
+      "toast": "Template applied: {{stages}} stages, {{rules}} payment rules, {{blocks}} blocks."
+    },
     "list": {
       "title": "Quote templates",
       "description": "Reusable templates for new quotes. Saved from the quote workspace.",
