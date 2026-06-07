@@ -803,7 +803,13 @@ function QuoteDetail() {
         <TabsContent value="financial" className="mt-4">
           <QuoteFinancialSummaryTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
         </TabsContent>
-        <TabsContent value="proposal" className="mt-4">
+        <TabsContent value="proposal" className="mt-4 space-y-3">
+          <div className="flex justify-end">
+            <ApplyTemplateDialog
+              quoteId={quoteId}
+              category={quote.quote_category ?? "project"}
+            />
+          </div>
           <QuoteProposalTab
             quoteId={quoteId}
             pricingMultiplier={pricingMultiplier}
