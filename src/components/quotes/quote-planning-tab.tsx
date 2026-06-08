@@ -22,7 +22,14 @@ import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { QuoteGantt } from "@/components/quotes/quote-gantt";
+import { RetainerStageEditor } from "@/components/quotes/retainer-stage-editor";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
+import {
+  DEFAULT_RETAINER_CAPACITY_HPM,
+  defaultAnchorMonth,
+  anchorMonthStart,
+  anchorMonthEnd,
+} from "@/lib/quotes/retainer-monthly";
 import {
   useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage,
 } from "@/lib/quotes/use-quote-stages";
@@ -70,10 +77,21 @@ export function QuotePlanningTab({
   const upsertAlloc = useUpsertQuoteAllocation(quoteId);
   const delAlloc = useDeleteQuoteAllocation(quoteId);
 
-  const stages = stagesQ.data ?? [];
+  const allStages = stagesQ.data ?? [];
   const deps = depsQ.data ?? [];
   const allocations = allocQ.data ?? [];
   const externalServices = externalQ.data ?? [];
+
+  // Split stages by kind. Retainer-monthly stages are rendered above with a
+  // dedicated editor; the regular Gantt + tables only deal with `regular`.
+  const retainerStages = useMemo(
+    () => allStages.filter((s) => (s as { stage_kind?: string }).stage_kind === "retainer_monthly"),
+    [allStages],
+  );
+  const stages = useMemo(
+    () => allStages.filter((s) => (s as { stage_kind?: string }).stage_kind !== "retainer_monthly"),
+    [allStages],
+  );
 
   // Selectable team pool for the manual allocation dropdown — same filter
   // as the Gantt resource pool (active + collaborator.include_in_planning +
@@ -220,6 +238,35 @@ export function QuotePlanningTab({
     }
   };
 
+  const handleAddRetainerStage = async () => {
+    const anchor = defaultAnchorMonth();
+    try {
+      await upsertStage.mutateAsync({
+        quote_id: quoteId,
+        name: t("workspace.planning.retainerMonthly.defaultName", {
+          defaultValue: "Construction retainer",
+        }),
+        start_date: anchorMonthStart(anchor),
+        end_date: anchorMonthEnd(anchor),
+        budget: 0,
+        sort_order: allStages.length,
+        // New retainer-as-monthly-template model.
+        stage_kind: "retainer_monthly",
+        billing_model: "retainer",
+        retainer_anchor_month: anchor,
+        retainer_months: 12,
+        retainer_capacity_hours_per_month: DEFAULT_RETAINER_CAPACITY_HPM,
+      } as Parameters<typeof upsertStage.mutateAsync>[0]);
+      toast.success(
+        t("workspace.planning.retainerMonthly.created", {
+          defaultValue: "Retainer phase added",
+        }),
+      );
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Non-blocking warnings (no team, negative profit, missing supplier…) */}
@@ -232,7 +279,32 @@ export function QuotePlanningTab({
         })}
       </div>
 
-      {/* GANTT — primary planning surface */}
+      {/* RETAINER-MONTHLY STAGES — 1-month allocation templates that repeat.
+          Rendered above the regular Gantt; intentionally NOT on the Gantt
+          (would render as a misleading one-month bar). */}
+      {retainerStages.length > 0 && (
+        <div className="space-y-3">
+          {retainerStages.map((s) => (
+            <RetainerStageEditor
+              key={s.id}
+              quoteId={quoteId}
+              stage={s}
+              allocations={allocations}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" onClick={handleAddRetainerStage}>
+          <Plus className="h-4 w-4 mr-1" />
+          {t("workspace.planning.retainerMonthly.addStage", {
+            defaultValue: "Add retainer phase",
+          })}
+        </Button>
+      </div>
+
+      {/* GANTT — primary planning surface (regular stages only) */}
       <QuoteGantt quoteId={quoteId} />
 
       {/* Manual planning tables (always open) */}
