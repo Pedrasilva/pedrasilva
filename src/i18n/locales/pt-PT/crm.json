@@ -497,7 +497,33 @@
         "cost": "custo",
         "workdays": "dias úteis",
         "empty": "Sem recursos atribuídos. Adicione um abaixo.",
-        "addResource": "Adicionar recurso"
+        "addResource": "Adicionar recurso",
+        "feeOnly": "Só honorário",
+        "feeOnlyHint": "Modo só honorário: dispensa planeamento de recursos. Qualquer pessoa regista horas abaixo; calculamos custo e valor face ao honorário mensal.",
+        "monthlyAmount": "Montante mensal (€)",
+        "readings": {
+          "title": "Leituras mensais",
+          "sub": "Margem compara custo vs honorário. Entrega compara valor gerado vs honorário cobrado.",
+          "month": "Mês",
+          "fee": "Honorário",
+          "hours": "Horas",
+          "cost": "Custo",
+          "value": "Valor",
+          "margin": "Margem",
+          "delivery": "Entrega",
+          "totalsLabel": "Total",
+          "overflow": "fora do período",
+          "empty": "Sem meses ainda.",
+          "date": "Data",
+          "notes": "Notas",
+          "notesPh": "Em que trabalhou?",
+          "billable": "Faturável",
+          "log": "Registar horas",
+          "logged": "Horas registadas",
+          "recent": "Entradas recentes",
+          "signInError": "Inicie sessão para registar horas.",
+          "hoursError": "Indique um valor de horas positivo."
+        }
       }
 
     },
