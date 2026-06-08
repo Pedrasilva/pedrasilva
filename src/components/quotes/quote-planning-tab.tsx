@@ -238,6 +238,35 @@ export function QuotePlanningTab({
     }
   };
 
+  const handleAddRetainerStage = async () => {
+    const anchor = defaultAnchorMonth();
+    try {
+      await upsertStage.mutateAsync({
+        quote_id: quoteId,
+        name: t("workspace.planning.retainerMonthly.defaultName", {
+          defaultValue: "Construction retainer",
+        }),
+        start_date: anchorMonthStart(anchor),
+        end_date: anchorMonthEnd(anchor),
+        budget: 0,
+        sort_order: allStages.length,
+        // New retainer-as-monthly-template model.
+        stage_kind: "retainer_monthly",
+        billing_model: "retainer",
+        retainer_anchor_month: anchor,
+        retainer_months: 12,
+        retainer_capacity_hours_per_month: DEFAULT_RETAINER_CAPACITY_HPM,
+      } as Parameters<typeof upsertStage.mutateAsync>[0]);
+      toast.success(
+        t("workspace.planning.retainerMonthly.created", {
+          defaultValue: "Retainer phase added",
+        }),
+      );
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Non-blocking warnings (no team, negative profit, missing supplier…) */}
