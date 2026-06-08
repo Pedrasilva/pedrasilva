@@ -346,9 +346,38 @@ export function generateByStageBilling(
   let order = 0;
   for (const s of sorted) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const model = ((s as any).billing_model ?? "stage") as "stage" | "monthly" | "retainer";
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const retainer = Number((s as any).retainer_monthly_amount ?? 0);
+    const sa = s as any;
+    const stageKind = (sa.stage_kind ?? "regular") as "regular" | "retainer_monthly";
+
+    // New monthly-retainer model: N copies of monthly_fee starting at anchor.
+    if (stageKind === "retainer_monthly") {
+      const months = Math.max(1, Math.min(120, Number(sa.retainer_months ?? 0) || 0));
+      const anchor = (sa.retainer_anchor_month as string | null) ?? s.start_date;
+      const total = Number(stageFees[s.id] ?? sa.budget ?? 0);
+      if (!months || !anchor) continue;
+      const monthly = round2(total / months);
+      const series = monthsFrom(anchor, months);
+      series.forEach((m, i) => {
+        const amt = i === series.length - 1
+          ? round2(total - monthly * (series.length - 1))
+          : monthly;
+        items.push({
+          label: `${s.name} — ${formatYearMonth(m)} (retainer)`,
+          trigger_type: "monthly",
+          amount_type: "fixed",
+          amount_value: amt,
+          stage_id: s.id,
+          expected_invoice_date: m,
+          expected_payment_date: null,
+          sort_order: order++,
+          generator_source: "by_stage_billing",
+        });
+      });
+      continue;
+    }
+
+    const model = (sa.billing_model ?? "stage") as "stage" | "monthly" | "retainer";
+    const retainer = Number(sa.retainer_monthly_amount ?? 0);
     if (model === "retainer") {
       const months = monthsBetween(s.start_date, s.end_date);
       months.forEach((m, i) => {
@@ -401,6 +430,7 @@ export function generateByStageBilling(
       });
     }
   }
+
   return items;
 }
 
@@ -431,3 +461,15 @@ function formatYearMonth(iso: string): string {
   const d = new Date(iso + "T00:00:00Z");
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
+
+function monthsFrom(anchorISO: string, count: number): string[] {
+  const start = new Date(anchorISO + "T00:00:00Z");
+  const out: string[] = [];
+  const cursor = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
+  for (let i = 0; i < count; i++) {
+    out.push(cursor.toISOString().slice(0, 10));
+    cursor.setUTCMonth(cursor.getUTCMonth() + 1);
+  }
+  return out;
+}
+
