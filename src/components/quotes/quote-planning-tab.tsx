@@ -279,7 +279,32 @@ export function QuotePlanningTab({
         })}
       </div>
 
-      {/* GANTT — primary planning surface */}
+      {/* RETAINER-MONTHLY STAGES — 1-month allocation templates that repeat.
+          Rendered above the regular Gantt; intentionally NOT on the Gantt
+          (would render as a misleading one-month bar). */}
+      {retainerStages.length > 0 && (
+        <div className="space-y-3">
+          {retainerStages.map((s) => (
+            <RetainerStageEditor
+              key={s.id}
+              quoteId={quoteId}
+              stage={s}
+              allocations={allocations}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" onClick={handleAddRetainerStage}>
+          <Plus className="h-4 w-4 mr-1" />
+          {t("workspace.planning.retainerMonthly.addStage", {
+            defaultValue: "Add retainer phase",
+          })}
+        </Button>
+      </div>
+
+      {/* GANTT — primary planning surface (regular stages only) */}
       <QuoteGantt quoteId={quoteId} />
 
       {/* Manual planning tables (always open) */}
