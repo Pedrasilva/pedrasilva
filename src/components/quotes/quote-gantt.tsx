@@ -112,7 +112,13 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   // columns; leave them undefined — features.baseline is off so Gantt won't
   // try to render the ghost.
   const mappedStages = useMemo<StageWithProject[]>(() => {
-    return stages.map((s) => ({
+    // Retainer-monthly stages (stage_kind='retainer_monthly') are edited via
+    // RetainerStageEditor and intentionally NOT rendered on the main Gantt —
+    // they represent a 1-month template that repeats, so a single bar on the
+    // calendar would be misleading.
+    return stages
+      .filter((s) => (s as { stage_kind?: string }).stage_kind !== "retainer_monthly")
+      .map((s) => ({
       id: s.id,
       name: s.name,
       project_id: quoteId,

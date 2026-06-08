@@ -22,7 +22,14 @@ import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { QuoteGantt } from "@/components/quotes/quote-gantt";
+import { RetainerStageEditor } from "@/components/quotes/retainer-stage-editor";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
+import {
+  DEFAULT_RETAINER_CAPACITY_HPM,
+  defaultAnchorMonth,
+  anchorMonthStart,
+  anchorMonthEnd,
+} from "@/lib/quotes/retainer-monthly";
 import {
   useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage,
 } from "@/lib/quotes/use-quote-stages";
