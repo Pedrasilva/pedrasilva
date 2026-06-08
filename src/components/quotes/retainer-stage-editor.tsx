@@ -110,6 +110,13 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
   const capacity =
     stage.retainer_capacity_hours_per_month ?? DEFAULT_RETAINER_CAPACITY_HPM;
   const workdays = monthWorkingDays(anchor);
+  // Fee-only retainers skip allocations: monthly amount × months IS the budget.
+  // `is_fee_only` defaults to true at the DB level (new retainers).
+  const isFeeOnly =
+    (stage as { is_fee_only?: boolean | null }).is_fee_only ?? true;
+  const manualMonthly = Number(
+    (stage as { retainer_monthly_amount?: number | string | null }).retainer_monthly_amount ?? 0,
+  );
 
   // Filter allocations to those on this retainer stage.
   const stageAllocs = useMemo(
