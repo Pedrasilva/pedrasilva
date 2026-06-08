@@ -478,7 +478,27 @@
       "gantSale": "Venda",
       "marginPct": "Margem %",
       "marginOverrideLabel": "Forçar margem de venda (%)",
-      "marginOverridePh": "Do Gantt"
+      "marginOverridePh": "Do Gantt",
+      "retainerMonthly": {
+        "badge": "Avença mensal",
+        "defaultName": "Avença de obra",
+        "addStage": "Adicionar fase de avença",
+        "created": "Fase de avença adicionada",
+        "anchor": "Mês de referência",
+        "duration": "Repete-se durante",
+        "monthsUnit": "meses",
+        "capacity": "Capacidade mensal (h)",
+        "capacityHint": "Define a conversão % ↔ horas/mês. Predefinição 160h.",
+        "summary": "{{anchor}} · {{months}} meses",
+        "monthly": "Mensal",
+        "hoursPerMonth": "h/mês",
+        "hoursPerMonthCol": "h / mês",
+        "monthlyFee": "Honorário mensal",
+        "cost": "custo",
+        "workdays": "dias úteis",
+        "empty": "Sem recursos atribuídos. Adicione um abaixo.",
+        "addResource": "Adicionar recurso"
+      }
 
     },
     "warnings": {
