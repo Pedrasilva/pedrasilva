@@ -478,7 +478,27 @@
       "gantSale": "Sale",
       "marginPct": "Margin %",
       "marginOverrideLabel": "Override sale margin (%)",
-      "marginOverridePh": "From Gantt"
+      "marginOverridePh": "From Gantt",
+      "retainerMonthly": {
+        "badge": "Monthly retainer",
+        "defaultName": "Construction retainer",
+        "addStage": "Add retainer phase",
+        "created": "Retainer phase added",
+        "anchor": "Anchor month",
+        "duration": "Repeats over",
+        "monthsUnit": "months",
+        "capacity": "Monthly capacity (h)",
+        "capacityHint": "Drives % ↔ hours/month conversion. Default 160h.",
+        "summary": "{{anchor}} · {{months}} months",
+        "monthly": "Monthly",
+        "hoursPerMonth": "h/month",
+        "hoursPerMonthCol": "h / month",
+        "monthlyFee": "Monthly fee",
+        "cost": "cost",
+        "workdays": "workdays",
+        "empty": "No resources allocated yet. Add one below.",
+        "addResource": "Add resource"
+      }
 
     },
     "warnings": {
