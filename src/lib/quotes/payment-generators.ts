@@ -461,3 +461,15 @@ function formatYearMonth(iso: string): string {
   const d = new Date(iso + "T00:00:00Z");
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
+
+function monthsFrom(anchorISO: string, count: number): string[] {
+  const start = new Date(anchorISO + "T00:00:00Z");
+  const out: string[] = [];
+  const cursor = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
+  for (let i = 0; i < count; i++) {
+    out.push(cursor.toISOString().slice(0, 10));
+    cursor.setUTCMonth(cursor.getUTCMonth() + 1);
+  }
+  return out;
+}
+
