@@ -5056,6 +5056,7 @@ export type Database = {
       pm_time_entries: {
         Row: {
           billable: boolean
+          cost_rate_snapshot: number | null
           created_at: string
           ended_at: string | null
           entry_date: string
@@ -5066,6 +5067,8 @@ export type Database = {
           internal_category: string | null
           leave_type: string | null
           notes: string | null
+          quote_stage_id: string | null
+          sale_rate_snapshot: number | null
           source: string
           started_at: string | null
           task_id: string | null
@@ -5074,6 +5077,7 @@ export type Database = {
         }
         Insert: {
           billable?: boolean
+          cost_rate_snapshot?: number | null
           created_at?: string
           ended_at?: string | null
           entry_date: string
@@ -5084,6 +5088,8 @@ export type Database = {
           internal_category?: string | null
           leave_type?: string | null
           notes?: string | null
+          quote_stage_id?: string | null
+          sale_rate_snapshot?: number | null
           source?: string
           started_at?: string | null
           task_id?: string | null
@@ -5092,6 +5098,7 @@ export type Database = {
         }
         Update: {
           billable?: boolean
+          cost_rate_snapshot?: number | null
           created_at?: string
           ended_at?: string | null
           entry_date?: string
@@ -5102,6 +5109,8 @@ export type Database = {
           internal_category?: string | null
           leave_type?: string | null
           notes?: string | null
+          quote_stage_id?: string | null
+          sale_rate_snapshot?: number | null
           source?: string
           started_at?: string | null
           task_id?: string | null
@@ -5109,6 +5118,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "pm_time_entries_quote_stage_id_fkey"
+            columns: ["quote_stage_id"]
+            isOneToOne: false
+            referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pm_time_entries_task_id_fkey"
             columns: ["task_id"]
@@ -6271,6 +6287,7 @@ export type Database = {
           external_id: string | null
           generator_source: string | null
           id: string
+          is_fee_only: boolean
           is_generated: boolean
           manual_override: boolean
           name: string
@@ -6297,6 +6314,7 @@ export type Database = {
           external_id?: string | null
           generator_source?: string | null
           id?: string
+          is_fee_only?: boolean
           is_generated?: boolean
           manual_override?: boolean
           name: string
@@ -6323,6 +6341,7 @@ export type Database = {
           external_id?: string | null
           generator_source?: string | null
           id?: string
+          is_fee_only?: boolean
           is_generated?: boolean
           manual_override?: boolean
           name?: string
@@ -7728,7 +7747,7 @@ export type Database = {
         | "hr"
         | "finance"
       pm_task_status: "pending" | "active" | "paused" | "done"
-      pm_time_entry_type: "project" | "internal" | "non_working"
+      pm_time_entry_type: "project" | "internal" | "non_working" | "retainer"
       project_bootstrap_status: "preview" | "applied" | "failed" | "void"
       project_status:
         | "proposta"
@@ -8069,7 +8088,7 @@ export const Constants = {
         "finance",
       ],
       pm_task_status: ["pending", "active", "paused", "done"],
-      pm_time_entry_type: ["project", "internal", "non_working"],
+      pm_time_entry_type: ["project", "internal", "non_working", "retainer"],
       project_bootstrap_status: ["preview", "applied", "failed", "void"],
       project_status: [
         "proposta",

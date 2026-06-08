@@ -497,7 +497,33 @@
         "cost": "cost",
         "workdays": "workdays",
         "empty": "No resources allocated yet. Add one below.",
-        "addResource": "Add resource"
+        "addResource": "Add resource",
+        "feeOnly": "Fee-only",
+        "feeOnlyHint": "Fee-only mode: skip resource planning. Anyone logs hours below; we compute cost & value vs the monthly fee.",
+        "monthlyAmount": "Monthly amount (€)",
+        "readings": {
+          "title": "Monthly readings",
+          "sub": "Margin compares cost vs fee. Delivery compares value generated vs fee charged.",
+          "month": "Month",
+          "fee": "Fee",
+          "hours": "Hours",
+          "cost": "Cost",
+          "value": "Value",
+          "margin": "Margin",
+          "delivery": "Delivery",
+          "totalsLabel": "Total",
+          "overflow": "out of span",
+          "empty": "No months yet.",
+          "date": "Date",
+          "notes": "Notes",
+          "notesPh": "What did you work on?",
+          "billable": "Billable",
+          "log": "Log hours",
+          "logged": "Hours logged",
+          "recent": "Recent entries",
+          "signInError": "Sign in to log hours.",
+          "hoursError": "Enter a positive hours value."
+        }
       }
 
     },

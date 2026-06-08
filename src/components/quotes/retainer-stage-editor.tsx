@@ -14,6 +14,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, Trash2, Repeat2, Settings2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { RetainerMonthlyReadings } from "@/components/quotes/retainer-monthly-readings";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -108,6 +110,13 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
   const capacity =
     stage.retainer_capacity_hours_per_month ?? DEFAULT_RETAINER_CAPACITY_HPM;
   const workdays = monthWorkingDays(anchor);
+  // Fee-only retainers skip allocations: monthly amount × months IS the budget.
+  // `is_fee_only` defaults to true at the DB level (new retainers).
+  const isFeeOnly =
+    (stage as { is_fee_only?: boolean | null }).is_fee_only ?? true;
+  const manualMonthly = Number(
+    (stage as { retainer_monthly_amount?: number | string | null }).retainer_monthly_amount ?? 0,
+  );
 
   // Filter allocations to those on this retainer stage.
   const stageAllocs = useMemo(
@@ -115,15 +124,20 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
     [allocations, stage.id],
   );
 
-  const monthlyHours = retainerMonthlyHours(stageAllocs);
-  const monthlyFee = retainerMonthlyFee(stageAllocs);
-  const monthlyCost = retainerMonthlyCost(stageAllocs);
+  const allocMonthlyHours = retainerMonthlyHours(stageAllocs);
+  const allocMonthlyFee = retainerMonthlyFee(stageAllocs);
+  const allocMonthlyCost = retainerMonthlyCost(stageAllocs);
+
+  // Fee-only mode: monthly fee comes from a user-entered amount, not from
+  // allocations. Planned mode: derive from allocations as before.
+  const monthlyHours = isFeeOnly ? 0 : allocMonthlyHours;
+  const monthlyFee = isFeeOnly ? manualMonthly : allocMonthlyFee;
+  const monthlyCost = isFeeOnly ? 0 : allocMonthlyCost;
   const totalBudget = retainerTotalBudget(monthlyFee, months);
 
   // Keep quote_stages.budget in sync with monthly × months so downstream
   // summaries reflect the retainer's contractual value. Only write when it
-  // actually differs (avoid infinite loops, avoid stamping manual_override
-  // when nothing changed).
+  // actually differs.
   useEffect(() => {
     const target = Math.round(totalBudget * 100) / 100;
     const current = Math.round(Number(stage.budget || 0) * 100) / 100;
@@ -235,6 +249,24 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
             {t("workspace.planning.retainerMonthly.badge", { defaultValue: "Monthly retainer" })}
           </span>
           <div className="flex-1" />
+          <div className="flex items-center gap-2 mr-1">
+            <Switch
+              id={`feeonly-${stage.id}`}
+              checked={isFeeOnly}
+              onCheckedChange={(v) =>
+                upsertStage.mutate({
+                  id: stage.id,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  ...({ is_fee_only: v } as any),
+                })
+              }
+            />
+            <Label htmlFor={`feeonly-${stage.id}`} className="text-xs cursor-pointer">
+              {t("workspace.planning.retainerMonthly.feeOnly", {
+                defaultValue: "Fee-only",
+              })}
+            </Label>
+          </div>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8">
@@ -368,155 +400,204 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
       </CardHeader>
 
       <CardContent className="space-y-3 pt-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t("workspace.planning.resource")}</TableHead>
-              <TableHead className="w-24 text-right">%</TableHead>
-              <TableHead className="w-32 text-right">
-                {t("workspace.planning.retainerMonthly.hoursPerMonthCol", {
-                  defaultValue: "h / month",
-                })}
-              </TableHead>
-              <TableHead className="w-28 text-right">{t("workspace.planning.costRate")}</TableHead>
-              <TableHead className="w-28 text-right">{t("workspace.planning.saleRate")}</TableHead>
-              <TableHead className="w-32 text-right">
-                {t("workspace.planning.retainerMonthly.monthlyFee", {
-                  defaultValue: "Monthly fee",
-                })}
-              </TableHead>
-              <TableHead className="w-12" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {stageAllocs.map((a) => {
-              const hpm = allocationMonthlyHours(a);
-              const pct = a.allocation_percentage ?? hoursPerMonthToPct(hpm, capacity);
-              const sale = Number(a.sale_rate_snapshot || 0);
-              const cost = Number(a.cost_rate_snapshot || 0);
-              const fee = hpm * sale;
-              return (
-                <TableRow key={a.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="inline-block h-2 w-2 rounded-full"
-                        style={{ background: a.resource?.color ?? "#a78bfa" }}
-                      />
-                      <span className="font-medium">
-                        {roleLabel(a.resource?.proposal_role)}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {a.resource?.name}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Input
-                      type="number"
-                      min={0}
-                      max={100}
-                      step={5}
-                      className="h-8 text-right tabular-nums"
-                      key={`pct-${a.id}-${pct}`}
-                      defaultValue={Math.round(pct)}
-                      onBlur={(e) => {
-                        const v = Number(e.target.value) || 0;
-                        if (Math.abs(v - pct) > 0.01) updateAllocPct(a, v);
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Input
-                      type="number"
-                      min={0}
-                      step={1}
-                      className="h-8 text-right tabular-nums"
-                      key={`hpm-${a.id}-${hpm}`}
-                      defaultValue={hpm.toFixed(1)}
-                      onBlur={(e) => {
-                        const v = Number(e.target.value) || 0;
-                        if (Math.abs(v - hpm) > 0.01) updateAllocHpm(a, v);
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell className="text-right text-xs text-muted-foreground tabular-nums">
-                    {formatEUR(cost)}/h
-                  </TableCell>
-                  <TableCell className="text-right text-xs tabular-nums">
-                    {formatEUR(sale)}/h
-                  </TableCell>
-                  <TableCell className="text-right text-sm font-medium tabular-nums">
-                    {formatEUR(fee)}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => delAlloc.mutate(a.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {stageAllocs.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-4">
-                  {t("workspace.planning.retainerMonthly.empty", {
-                    defaultValue: "No resources allocated yet. Add one below.",
+        {isFeeOnly ? (
+          <>
+            {/* Monthly fee input (fee-only mode) */}
+            <div className="flex flex-wrap items-end gap-3 border-t pt-3">
+              <div>
+                <Label className="text-xs">
+                  {t("workspace.planning.retainerMonthly.monthlyAmount", {
+                    defaultValue: "Monthly amount (€)",
                   })}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                </Label>
+                <Input
+                  type="number"
+                  min={0}
+                  step={50}
+                  className="h-9 w-40 text-right tabular-nums"
+                  key={`amt-${stage.id}-${manualMonthly}`}
+                  defaultValue={manualMonthly}
+                  onBlur={(e) => {
+                    const v = Number(e.target.value) || 0;
+                    if (Math.abs(v - manualMonthly) > 0.005) {
+                      upsertStage.mutate({
+                        id: stage.id,
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        ...({ retainer_monthly_amount: v } as any),
+                      });
+                    }
+                  }}
+                />
+              </div>
+              <p className="text-[11px] text-muted-foreground max-w-md">
+                {t("workspace.planning.retainerMonthly.feeOnlyHint", {
+                  defaultValue:
+                    "Fee-only mode: skip resource planning. Anyone logs hours below; we compute cost & value vs the monthly fee.",
+                })}
+              </p>
+            </div>
 
-        {/* Add resource */}
-        {resources.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-2 items-end border-t pt-3">
-            <div className="md:col-span-3">
-              <Label className="text-xs">{t("workspace.planning.resource")}</Label>
-              <Select
-                value={picker.resource_id}
-                onValueChange={(v) => setPicker((p) => ({ ...p, resource_id: v }))}
-              >
-                <SelectTrigger className="h-9">
-                  <SelectValue placeholder="—" />
-                </SelectTrigger>
-                <SelectContent>
-                  {resources.map((r) => (
-                    <SelectItem key={r.id} value={r.id}>
-                      {roleLabel(r.proposal_role)}
-                      <span className="ml-2 text-xs text-muted-foreground">{r.name}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-xs">%</Label>
-              <Input
-                type="number"
-                min={0}
-                max={100}
-                value={picker.pct}
-                onChange={(e) => setPicker((p) => ({ ...p, pct: e.target.value }))}
-                className="h-9 text-right"
-              />
-            </div>
-            <div className="text-xs text-muted-foreground md:col-span-1 self-center">
-              ≈ {pctToHoursPerMonth(Number(picker.pct) || 0, capacity).toFixed(1)}{" "}
-              {t("workspace.planning.retainerMonthly.hoursPerMonth", { defaultValue: "h/month" })}
-            </div>
-            <Button onClick={handleAddResource} className="h-9">
-              <Plus className="h-4 w-4 mr-1" />
-              {t("workspace.planning.retainerMonthly.addResource", {
-                defaultValue: "Add resource",
-              })}
-            </Button>
-          </div>
+            <RetainerMonthlyReadings
+              quoteId={quoteId}
+              stageId={stage.id}
+              anchorMonth={anchor}
+              months={months}
+              monthlyFee={monthlyFee}
+            />
+          </>
+        ) : (
+          <>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("workspace.planning.resource")}</TableHead>
+                  <TableHead className="w-24 text-right">%</TableHead>
+                  <TableHead className="w-32 text-right">
+                    {t("workspace.planning.retainerMonthly.hoursPerMonthCol", {
+                      defaultValue: "h / month",
+                    })}
+                  </TableHead>
+                  <TableHead className="w-28 text-right">{t("workspace.planning.costRate")}</TableHead>
+                  <TableHead className="w-28 text-right">{t("workspace.planning.saleRate")}</TableHead>
+                  <TableHead className="w-32 text-right">
+                    {t("workspace.planning.retainerMonthly.monthlyFee", {
+                      defaultValue: "Monthly fee",
+                    })}
+                  </TableHead>
+                  <TableHead className="w-12" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {stageAllocs.map((a) => {
+                  const hpm = allocationMonthlyHours(a);
+                  const pct = a.allocation_percentage ?? hoursPerMonthToPct(hpm, capacity);
+                  const sale = Number(a.sale_rate_snapshot || 0);
+                  const cost = Number(a.cost_rate_snapshot || 0);
+                  const fee = hpm * sale;
+                  return (
+                    <TableRow key={a.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="inline-block h-2 w-2 rounded-full"
+                            style={{ background: a.resource?.color ?? "#a78bfa" }}
+                          />
+                          <span className="font-medium">
+                            {roleLabel(a.resource?.proposal_role)}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {a.resource?.name}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          step={5}
+                          className="h-8 text-right tabular-nums"
+                          key={`pct-${a.id}-${pct}`}
+                          defaultValue={Math.round(pct)}
+                          onBlur={(e) => {
+                            const v = Number(e.target.value) || 0;
+                            if (Math.abs(v - pct) > 0.01) updateAllocPct(a, v);
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Input
+                          type="number"
+                          min={0}
+                          step={1}
+                          className="h-8 text-right tabular-nums"
+                          key={`hpm-${a.id}-${hpm}`}
+                          defaultValue={hpm.toFixed(1)}
+                          onBlur={(e) => {
+                            const v = Number(e.target.value) || 0;
+                            if (Math.abs(v - hpm) > 0.01) updateAllocHpm(a, v);
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell className="text-right text-xs text-muted-foreground tabular-nums">
+                        {formatEUR(cost)}/h
+                      </TableCell>
+                      <TableCell className="text-right text-xs tabular-nums">
+                        {formatEUR(sale)}/h
+                      </TableCell>
+                      <TableCell className="text-right text-sm font-medium tabular-nums">
+                        {formatEUR(fee)}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => delAlloc.mutate(a.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {stageAllocs.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-4">
+                      {t("workspace.planning.retainerMonthly.empty", {
+                        defaultValue: "No resources allocated yet. Add one below.",
+                      })}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+
+            {/* Add resource */}
+            {resources.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-6 gap-2 items-end border-t pt-3">
+                <div className="md:col-span-3">
+                  <Label className="text-xs">{t("workspace.planning.resource")}</Label>
+                  <Select
+                    value={picker.resource_id}
+                    onValueChange={(v) => setPicker((p) => ({ ...p, resource_id: v }))}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="—" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {resources.map((r) => (
+                        <SelectItem key={r.id} value={r.id}>
+                          {roleLabel(r.proposal_role)}
+                          <span className="ml-2 text-xs text-muted-foreground">{r.name}</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">%</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={picker.pct}
+                    onChange={(e) => setPicker((p) => ({ ...p, pct: e.target.value }))}
+                    className="h-9 text-right"
+                  />
+                </div>
+                <div className="text-xs text-muted-foreground md:col-span-1 self-center">
+                  ≈ {pctToHoursPerMonth(Number(picker.pct) || 0, capacity).toFixed(1)}{" "}
+                  {t("workspace.planning.retainerMonthly.hoursPerMonth", { defaultValue: "h/month" })}
+                </div>
+                <Button onClick={handleAddResource} className="h-9">
+                  <Plus className="h-4 w-4 mr-1" />
+                  {t("workspace.planning.retainerMonthly.addResource", {
+                    defaultValue: "Add resource",
+                  })}
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>
