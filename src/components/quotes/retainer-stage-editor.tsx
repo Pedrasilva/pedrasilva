@@ -249,6 +249,24 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
             {t("workspace.planning.retainerMonthly.badge", { defaultValue: "Monthly retainer" })}
           </span>
           <div className="flex-1" />
+          <div className="flex items-center gap-2 mr-1">
+            <Switch
+              id={`feeonly-${stage.id}`}
+              checked={isFeeOnly}
+              onCheckedChange={(v) =>
+                upsertStage.mutate({
+                  id: stage.id,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  ...({ is_fee_only: v } as any),
+                })
+              }
+            />
+            <Label htmlFor={`feeonly-${stage.id}`} className="text-xs cursor-pointer">
+              {t("workspace.planning.retainerMonthly.feeOnly", {
+                defaultValue: "Fee-only",
+              })}
+            </Label>
+          </div>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8">
