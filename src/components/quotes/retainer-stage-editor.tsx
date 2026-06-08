@@ -124,15 +124,20 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
     [allocations, stage.id],
   );
 
-  const monthlyHours = retainerMonthlyHours(stageAllocs);
-  const monthlyFee = retainerMonthlyFee(stageAllocs);
-  const monthlyCost = retainerMonthlyCost(stageAllocs);
+  const allocMonthlyHours = retainerMonthlyHours(stageAllocs);
+  const allocMonthlyFee = retainerMonthlyFee(stageAllocs);
+  const allocMonthlyCost = retainerMonthlyCost(stageAllocs);
+
+  // Fee-only mode: monthly fee comes from a user-entered amount, not from
+  // allocations. Planned mode: derive from allocations as before.
+  const monthlyHours = isFeeOnly ? 0 : allocMonthlyHours;
+  const monthlyFee = isFeeOnly ? manualMonthly : allocMonthlyFee;
+  const monthlyCost = isFeeOnly ? 0 : allocMonthlyCost;
   const totalBudget = retainerTotalBudget(monthlyFee, months);
 
   // Keep quote_stages.budget in sync with monthly × months so downstream
   // summaries reflect the retainer's contractual value. Only write when it
-  // actually differs (avoid infinite loops, avoid stamping manual_override
-  // when nothing changed).
+  // actually differs.
   useEffect(() => {
     const target = Math.round(totalBudget * 100) / 100;
     const current = Math.round(Number(stage.budget || 0) * 100) / 100;
