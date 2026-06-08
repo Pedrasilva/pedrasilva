@@ -77,10 +77,21 @@ export function QuotePlanningTab({
   const upsertAlloc = useUpsertQuoteAllocation(quoteId);
   const delAlloc = useDeleteQuoteAllocation(quoteId);
 
-  const stages = stagesQ.data ?? [];
+  const allStages = stagesQ.data ?? [];
   const deps = depsQ.data ?? [];
   const allocations = allocQ.data ?? [];
   const externalServices = externalQ.data ?? [];
+
+  // Split stages by kind. Retainer-monthly stages are rendered above with a
+  // dedicated editor; the regular Gantt + tables only deal with `regular`.
+  const retainerStages = useMemo(
+    () => allStages.filter((s) => (s as { stage_kind?: string }).stage_kind === "retainer_monthly"),
+    [allStages],
+  );
+  const stages = useMemo(
+    () => allStages.filter((s) => (s as { stage_kind?: string }).stage_kind !== "retainer_monthly"),
+    [allStages],
+  );
 
   // Selectable team pool for the manual allocation dropdown — same filter
   // as the Gantt resource pool (active + collaborator.include_in_planning +
