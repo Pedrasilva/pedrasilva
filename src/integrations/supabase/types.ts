@@ -5056,6 +5056,7 @@ export type Database = {
       pm_time_entries: {
         Row: {
           billable: boolean
+          cost_rate_snapshot: number | null
           created_at: string
           ended_at: string | null
           entry_date: string
@@ -5067,6 +5068,7 @@ export type Database = {
           leave_type: string | null
           notes: string | null
           quote_stage_id: string | null
+          sale_rate_snapshot: number | null
           source: string
           started_at: string | null
           task_id: string | null
@@ -5075,6 +5077,7 @@ export type Database = {
         }
         Insert: {
           billable?: boolean
+          cost_rate_snapshot?: number | null
           created_at?: string
           ended_at?: string | null
           entry_date: string
@@ -5086,6 +5089,7 @@ export type Database = {
           leave_type?: string | null
           notes?: string | null
           quote_stage_id?: string | null
+          sale_rate_snapshot?: number | null
           source?: string
           started_at?: string | null
           task_id?: string | null
@@ -5094,6 +5098,7 @@ export type Database = {
         }
         Update: {
           billable?: boolean
+          cost_rate_snapshot?: number | null
           created_at?: string
           ended_at?: string | null
           entry_date?: string
@@ -5105,6 +5110,7 @@ export type Database = {
           leave_type?: string | null
           notes?: string | null
           quote_stage_id?: string | null
+          sale_rate_snapshot?: number | null
           source?: string
           started_at?: string | null
           task_id?: string | null
