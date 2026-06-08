@@ -6277,8 +6277,12 @@ export type Database = {
           phase_code: string | null
           phase_group: string
           quote_id: string
+          retainer_anchor_month: string | null
+          retainer_capacity_hours_per_month: number
           retainer_monthly_amount: number
+          retainer_months: number | null
           sort_order: number
+          stage_kind: string
           start_date: string
           updated_at: string
         }
@@ -6299,8 +6303,12 @@ export type Database = {
           phase_code?: string | null
           phase_group?: string
           quote_id: string
+          retainer_anchor_month?: string | null
+          retainer_capacity_hours_per_month?: number
           retainer_monthly_amount?: number
+          retainer_months?: number | null
           sort_order?: number
+          stage_kind?: string
           start_date: string
           updated_at?: string
         }
@@ -6321,8 +6329,12 @@ export type Database = {
           phase_code?: string | null
           phase_group?: string
           quote_id?: string
+          retainer_anchor_month?: string | null
+          retainer_capacity_hours_per_month?: number
           retainer_monthly_amount?: number
+          retainer_months?: number | null
           sort_order?: number
+          stage_kind?: string
           start_date?: string
           updated_at?: string
         }
