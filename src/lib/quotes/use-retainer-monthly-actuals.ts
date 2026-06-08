@@ -2,25 +2,23 @@
  * Monthly rollup of actuals logged against a fee-only retainer stage.
  *
  * Reads `pm_time_entries` where entry_type='retainer' and quote_stage_id
- * matches, then joins each logger's user_id → collaborator → pm_resource to
- * pull current cost_rate / hourly_rate (sale). Buckets by YYYY-MM.
- *
- * Note: rates are taken from the resource AT READ TIME, not snapshotted at
- * log time. Good enough for v1 retainer readings; we can add a snapshot
- * later if rates churn mid-retainer.
+ * matches. Cost/sale rates come from snapshots persisted at log time
+ * (cost_rate_snapshot / sale_rate_snapshot) so retainer readings are stable
+ * even when resource rates change later.
  */
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface RetainerMonthBucket {
   month: string; // YYYY-MM
-  fee: number; // monthly fee for this row
+  fee: number;
   hours: number;
   billableHours: number;
   cost: number;
   value: number;
-  marginDelta: number; // fee - cost
-  deliveryDelta: number; // value - fee
+  marginDelta: number; // fee - cost  (positive = under budget)
+  deliveryDelta: number; // value - fee (positive = delivering more value than charged)
+  isOverflow: boolean; // month outside the retainer span
 }
 
 export interface RetainerMonthlyEntry {
@@ -28,8 +26,8 @@ export interface RetainerMonthlyEntry {
   entry_date: string;
   hours: number;
   billable: boolean;
+  notes: string | null;
   user_id: string;
-  user_name: string | null;
   cost_rate: number;
   sale_rate: number;
 }
@@ -59,7 +57,7 @@ function addMonths(anchorYm: string, n: number): string {
 
 export function useRetainerMonthlyActuals(args: {
   stageId: string;
-  anchorMonth: string; // 'YYYY-MM-DD' or 'YYYY-MM'
+  anchorMonth: string;
   months: number;
   monthlyFee: number;
 }) {
@@ -71,78 +69,49 @@ export function useRetainerMonthlyActuals(args: {
     queryFn: async (): Promise<RetainerMonthlyActuals> => {
       const { data: rawEntries, error } = await supabase
         .from("pm_time_entries")
-        .select("id, entry_date, hours, billable, user_id")
+        .select(
+          "id, entry_date, hours, billable, notes, user_id, cost_rate_snapshot, sale_rate_snapshot",
+        )
         .eq("entry_type", "retainer" as never)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .eq("quote_stage_id" as any, stageId)
         .order("entry_date", { ascending: true });
       if (error) throw error;
 
-      const entryRows = (rawEntries ?? []) as Array<{
-        id: string;
-        entry_date: string;
-        hours: number | string;
-        billable: boolean;
-        user_id: string;
-      }>;
-
-      // Build user_id → { resource, name } map by joining collaborators + resources.
-      const userIds = Array.from(new Set(entryRows.map((e) => e.user_id)));
-      const userInfo = new Map<
-        string,
-        { cost: number; sale: number; name: string | null }
-      >();
-
-      if (userIds.length > 0) {
-        const { data: collabs } = await supabase
-          .from("collaborators")
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .select("user_id, nome_completo, resource:pm_resources(hourly_rate, cost_rate)" as any)
-          .in("user_id", userIds);
-
-        type CollabRow = {
+      const entries: RetainerMonthlyEntry[] = (
+        (rawEntries ?? []) as Array<{
+          id: string;
+          entry_date: string;
+          hours: number | string;
+          billable: boolean;
+          notes: string | null;
           user_id: string;
-          nome_completo: string | null;
-          resource:
-            | { hourly_rate: number | string | null; cost_rate: number | string | null }
-            | Array<{ hourly_rate: number | string | null; cost_rate: number | string | null }>
-            | null;
-        };
-        for (const c of (collabs ?? []) as unknown as CollabRow[]) {
-          const r = Array.isArray(c.resource) ? c.resource[0] : c.resource;
-          userInfo.set(c.user_id, {
-            cost: Number(r?.cost_rate ?? 0),
-            sale: Number(r?.hourly_rate ?? 0),
-            name: c.nome_completo,
-          });
-        }
-      }
+          cost_rate_snapshot: number | string | null;
+          sale_rate_snapshot: number | string | null;
+        }>
+      ).map((e) => ({
+        id: e.id,
+        entry_date: e.entry_date,
+        hours: Number(e.hours),
+        billable: !!e.billable,
+        notes: e.notes,
+        user_id: e.user_id,
+        cost_rate: Number(e.cost_rate_snapshot ?? 0),
+        sale_rate: Number(e.sale_rate_snapshot ?? 0),
+      }));
 
-      const entries: RetainerMonthlyEntry[] = entryRows.map((e) => {
-        const info = userInfo.get(e.user_id);
-        return {
-          id: e.id,
-          entry_date: e.entry_date,
-          hours: Number(e.hours),
-          billable: !!e.billable,
-          user_id: e.user_id,
-          user_name: info?.name ?? null,
-          cost_rate: info?.cost ?? 0,
-          sale_rate: info?.sale ?? 0,
-        };
-      });
-
-      // Seed month buckets — anchor → +months-1.
+      // Seed month buckets. Even split with remainder on the last month
+      // (mirrors the payment generator).
       const baseYm = anchorMonth.slice(0, 7);
-      const buckets = new Map<string, RetainerMonthBucket>();
-      // Even split with remainder on the last month (mirrors payment generator).
-      const cents = Math.round(Number(monthlyFee || 0) * months * 100);
-      const baseCents = Math.floor(cents / Math.max(1, months));
-      const remainder = cents - baseCents * Math.max(1, months);
+      const safeMonths = Math.max(1, months);
+      const cents = Math.round(Number(monthlyFee || 0) * safeMonths * 100);
+      const baseCents = Math.floor(cents / safeMonths);
+      const remainder = cents - baseCents * safeMonths;
 
-      for (let i = 0; i < Math.max(1, months); i++) {
+      const buckets = new Map<string, RetainerMonthBucket>();
+      for (let i = 0; i < safeMonths; i++) {
         const m = addMonths(baseYm, i);
-        const feeCents = baseCents + (i === months - 1 ? remainder : 0);
+        const feeCents = baseCents + (i === safeMonths - 1 ? remainder : 0);
         const fee = feeCents / 100;
         buckets.set(m, {
           month: m,
@@ -153,11 +122,10 @@ export function useRetainerMonthlyActuals(args: {
           value: 0,
           marginDelta: fee,
           deliveryDelta: -fee,
+          isOverflow: false,
         });
       }
 
-      // Fold entries into buckets (entries outside the retainer span still
-      // show up as overflow buckets so logged time isn't lost).
       for (const e of entries) {
         const key = ym(e.entry_date);
         let b = buckets.get(key);
@@ -171,6 +139,7 @@ export function useRetainerMonthlyActuals(args: {
             value: 0,
             marginDelta: 0,
             deliveryDelta: 0,
+            isOverflow: true,
           };
           buckets.set(key, b);
         }
