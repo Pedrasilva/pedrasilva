@@ -350,28 +350,28 @@ export function generateByStageBilling(
     const stageKind = (sa.stage_kind ?? "regular") as "regular" | "retainer_monthly";
 
     // New monthly-retainer model: N copies of monthly_fee starting at anchor.
+    // The monthly amount is the source of truth (user-entered) — never
+    // derived from allocations or stageFees, which are 0 for fee-only
+    // retainers.
     if (stageKind === "retainer_monthly") {
       const months = Math.max(1, Math.min(120, Number(sa.retainer_months ?? 0) || 0));
       const anchor = (sa.retainer_anchor_month as string | null) ?? s.start_date;
-      const total = Number(stageFees[s.id] ?? sa.budget ?? 0);
-      if (!months || !anchor) continue;
-      const monthly = round2(total / months);
+      const monthly = round2(Number(sa.retainer_monthly_amount ?? 0));
+      if (!months || !anchor || monthly <= 0) continue;
       const series = monthsFrom(anchor, months);
       series.forEach((m, i) => {
-        const amt = i === series.length - 1
-          ? round2(total - monthly * (series.length - 1))
-          : monthly;
         items.push({
           label: `${s.name} — ${formatYearMonth(m)} (retainer)`,
           trigger_type: "monthly",
           amount_type: "fixed",
-          amount_value: amt,
+          amount_value: monthly,
           stage_id: s.id,
           expected_invoice_date: m,
           expected_payment_date: null,
           sort_order: order++,
           generator_source: "by_stage_billing",
         });
+        void i;
       });
       continue;
     }
