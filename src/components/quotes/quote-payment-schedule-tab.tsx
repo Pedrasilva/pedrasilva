@@ -485,10 +485,10 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                 <Label htmlFor="dp-deduct" className="text-xs cursor-pointer">
                   {t("workspace.payment.deductDownPayment")}
                 </Label>
+              </div>
             </div>
           </div>
           )}
-          </div>
           <Table>
             <TableHeader>
               <TableRow>
