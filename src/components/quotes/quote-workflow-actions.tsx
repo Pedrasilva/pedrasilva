@@ -59,6 +59,7 @@ export function QuoteWorkflowActions({
   hasAccount,
   hasProject,
   onConvert,
+  onApproved,
   isConverting,
 }: Props) {
   const { t } = useTranslation("crm");
@@ -80,6 +81,7 @@ export function QuoteWorkflowActions({
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] });
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       qc.invalidateQueries({ queryKey: ["crm_opportunity"] });
+      if (next === "approved") onApproved?.();
     },
     onError: (e: Error) => toast.error(e.message),
   });
