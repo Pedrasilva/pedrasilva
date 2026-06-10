@@ -540,6 +540,9 @@ function QuoteDetail() {
             hasAccount={!!quote.account_id}
             hasProject={!!quote.pm_project_id}
             onConvert={handleConvert}
+            onApproved={() => {
+              if (!quote.pm_project_id && !convert.isPending) convert.mutate();
+            }}
             isConverting={convert.isPending}
           />
           {quote.pm_project_id && (
