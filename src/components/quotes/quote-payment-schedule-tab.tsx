@@ -365,30 +365,34 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
               <Wand2 className="h-3 w-3 inline mr-1" />
               {t("workspace.payment.generators")}
             </span>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={applyGen.isPending}
-              onClick={() => runGenerator("milestones")}
-            >
-              {t("workspace.payment.genMilestones")}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={applyGen.isPending}
-              onClick={() => runGenerator("thirds")}
-            >
-              {t("workspace.payment.genThirds")}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={applyGen.isPending}
-              onClick={() => runGenerator("monthly")}
-            >
-              {t("workspace.payment.genMonthly")}
-            </Button>
+            {quoteQ.data?.quote_category !== "retainer" && (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={applyGen.isPending}
+                  onClick={() => runGenerator("milestones")}
+                >
+                  {t("workspace.payment.genMilestones")}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={applyGen.isPending}
+                  onClick={() => runGenerator("thirds")}
+                >
+                  {t("workspace.payment.genThirds")}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={applyGen.isPending}
+                  onClick={() => runGenerator("monthly")}
+                >
+                  {t("workspace.payment.genMonthly")}
+                </Button>
+              </>
+            )}
             <Button
               size="sm"
               variant="outline"
