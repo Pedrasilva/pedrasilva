@@ -1,77 +1,71 @@
-# Fee-only retainer mode
+## Goal
 
-Add a "fee-only" flavor to monthly retainers: just a monthly amount × duration. Anyone logs hours against the retainer through the existing timesheet; each month shows cost-vs-fee (margin) and value-vs-fee (delivery) over/under indicators.
+Make retainers their own first-class proposal type with a simplified workspace, while still allowing a single "mixed" project to combine stage-paid design stages with a retainer-paid construction stage. Surface billed-vs-clocked review in the project module.
 
-## Data model
+## 1. Proposal type chosen at creation
 
-**`quote_stages`** (retainer rows already exist as `stage_kind = 'retainer_monthly'`)
-- Add `is_fee_only boolean not null default true` — when true, allocations are not required and the planning Gantt hides allocation rows for this stage.
-- Keep existing `retainer_monthly_amount` and `retainer_months` as the source of truth for the monthly fee.
+When creating an opportunity / quote, prompt for three types:
 
-**`pm_time_entries`** (timesheet)
-- Add nullable `quote_stage_id uuid references quote_stages(id) on delete set null`.
-- Add CHECK: a row targets EITHER a `task_id` (project work) OR a `quote_stage_id` where the stage is a retainer — never both, never neither.
-- Index on `(quote_stage_id, date)` for monthly rollups.
+- **Standard Project** — stages, allocations, milestones (today's flow).
+- **Time-based** — consultancy/hourly (today's flow).
+- **Retainer** — new, simplified flow (below).
 
-Cost/sale rates resolve the same way they do for project entries: from the logging collaborator's `pm_resources` row at entry date (cost_rate, hourly_rate as sale).
+`quote_category` already supports `project | time_based | retainer | consultancy`. We wire the chooser into the quick-create dialogs so the type is locked in from the start and the workspace adapts.
 
-RLS: mirrors the existing `pm_time_entries` policies; readers of the parent quote can read the entries, the logger can write their own.
+## 2. Retainer-only workspace
 
-## Timesheet integration
+When `quote_category === "retainer"`, the workspace is trimmed to what actually matters:
 
-In the timesheet target picker (currently project → stage → task), add a second tab "Retainer". It lists active retainer stages from quotes the user can see (quote not archived, retainer month range covers today ± a small window). Selecting one writes a `pm_time_entries` row with `quote_stage_id` set and `task_id` null.
+- **Overview** — client, title, monthly fee, anchor month, number of months (12/18/24 preset + custom), review cadence (3 / 6 months), pricing multiplier.
+- **Monthly template** — replaces the Planning Gantt. One month of role allocations (role → hours/month or %, sale/cost rate). This is the "what we deliver every month" definition. Total monthly fee derives from these rows.
+- **Financial** — monthly fee × months, cost, margin (already implemented in rollups).
+- **Proposal / Publish** — unchanged.
 
-No other timesheet logic changes — billable flag, hours, date, notes all behave the same.
+Hidden for retainer-only quotes:
+- External Services tab
+- Payment Schedule generators (no thirds, no milestones, no down-payment toggle). The schedule is auto-generated monthly from `monthly fee × N months` starting at the anchor and is read-only except for per-row date overrides.
 
-## Monthly readings (new component on the retainer editor)
+## 3. Mixed project: design + construction retainer (one quote)
 
-Below the existing retainer stage editor, render a table: one row per retainer month (anchor → anchor + N).
+For a Standard Project quote, each stage already has a `billing_model` (`stage | monthly | retainer`) and `stage_kind` (`regular | retainer_monthly`). We expose this clearly:
 
-Per month columns:
-- **Fee** — `retainer_monthly_amount` (last month carries any rounding remainder, same as payment generator).
-- **Hours logged** — Σ hours of `pm_time_entries` where `quote_stage_id = stage.id` and entry month = row month.
-- **Cost** — Σ hours × resource cost_rate at entry date.
-- **Value** — Σ billable hours × resource sale_rate at entry date.
-- **Margin Δ** = Fee − Cost. Pill: green if ≥ 0, red if < 0.
-- **Delivery Δ** = Value − Fee. Pill: green if ≥ 0 (delivering ≥ what we charge), amber if under.
+- In the stage editor, a "How is this stage billed?" picker:
+  - **Per stage** — single payment at stage end (typical design phases).
+  - **Monthly split** — stage fee split evenly across its months.
+  - **Retainer** — stage becomes `retainer_monthly`: user sets monthly fee, anchor, duration; allocations are the monthly template; no end-date driven fee — fee = monthly × months.
+- The construction stage uses **Retainer**; design stages stay **Per stage** (or Monthly split). The payment schedule generator already handles this mix (`generateByStageBilling` in `src/lib/quotes/payment-generators.ts`) — we just make it the default for mixed quotes and surface the per-stage choice in the UI.
 
-Footer row totals all months. Current month is highlighted.
+## 4. Review cadence (3 / 6 months) + reconciliation in Projects
 
-Implemented as a `useQuery` hook `useRetainerMonthlyActuals(quoteId, stageId)` that:
-1. Reads the stage (`retainer_monthly_amount`, `retainer_months`, anchor month).
-2. Reads `pm_time_entries` joined to `pm_resources` for cost/sale rates.
-3. Buckets by `to_char(date, 'YYYY-MM')`.
+Store `retainer_review_months` (3 or 6, default 6) on the retainer stage (or the quote when retainer-only). On the **project page**, add a read-only **Retainer health** panel per retainer stage:
 
-No server function needed — RLS-scoped client query is sufficient.
+- For each rolling review window (e.g. last 3 or 6 months from today):
+  - Hours clocked vs implied hours from monthly template × months elapsed
+  - Amount invoiced vs amount that should have been invoiced
+  - Variance % with under/on-track/over flags
+- No write actions here — it's a signal for the PM to renegotiate or re-scope.
 
-## UI surfaces
+Time logging stays in the project module (already moved per earlier feedback).
 
-1. **Retainer stage editor** — new "Fee-only" toggle at the top (default on for new retainers). When on: allocation rows + Gantt block are hidden; only fee + months + anchor remain. Existing planned retainers stay as they were.
-2. **Quote planning tab** — fee-only retainers render as a compact card (fee, months, anchor) instead of a Gantt strip.
-3. **Monthly readings panel** — shows under the editor whenever the retainer has at least one logged hour OR the anchor month is ≤ today.
-4. **Timesheet** — retainer target tab as described above.
+## 5. UI cleanup of current bugs
 
-## Out of scope (this phase)
+- For `quote_category === "retainer"`, force `payment_plan_type = monthly` and hide the thirds/milestones generators.
+- Hide the External Services tab when category is retainer.
+- The retainer monthly amount is the source of truth (already true in `payment-generators.ts`); the Overview "Estimated fee" field becomes read-only and displays `monthly × months`.
 
-- Retainer invoicing/payment items already auto-generate from `retainer_monthly` via the payment generator; no change there.
-- Roll-over of unused hours between months — not part of this request.
-- Forecasting future cost on fee-only retainers (no allocations means nothing to forecast).
+## Technical notes
 
-## Files
+- DB: add `retainer_review_months smallint` to `quote_stages` (nullable; only meaningful when `stage_kind = 'retainer_monthly'`). Mirror to `pm_stages` so the project carries it forward at conversion.
+- `src/routes/_app.crm.quotes.$quoteId.tsx`: extend the `estimateTabs` branching — a third branch for `category === "retainer"` returning `["overview", "retainer-template", "financial"]`.
+- New component `quote-retainer-overview.tsx` (monthly fee + months + anchor + review cadence) and reuse `retainer-stage-editor.tsx` / `retainer-monthly-readings.tsx` for the template.
+- Payment schedule: when category is retainer, always run `generateByStageBilling` against the single retainer stage and disable the generator picker.
+- Stage editor: expose the existing `billing_model` and `stage_kind` switch with clear copy ("Per stage" / "Monthly split" / "Retainer"). When Retainer is chosen, swap the stage form for the retainer fields (monthly amount, anchor, months, review cadence).
+- New "Retainer health" card on `src/routes/_app.projects.$projectId.tsx`, fed by a server fn that joins `pm_time_entries` and `pm_invoices` against the retainer stage window.
+- Conversion (`convert` mutation in the quote route) copies `stage_kind`, `retainer_monthly_amount`, `retainer_anchor_month`, `retainer_months`, and the new `retainer_review_months` into `pm_stages`.
+- i18n: add `quoteType.retainer.*`, `workspace.tabs.retainerTemplate`, `stage.billingModel.*`, `retainer.review.*` keys in EN + PT-PT in the same edit.
 
-**Migrations (one):**
-- Add `is_fee_only` to `quote_stages`, `quote_stage_id` + CHECK to `pm_time_entries`, index, RLS update.
+## Out of scope (flag if you want them)
 
-**New:**
-- `src/lib/quotes/use-retainer-monthly-actuals.ts` — monthly rollup hook.
-- `src/components/quotes/retainer-monthly-readings.tsx` — readings table.
-- `src/components/timesheet/retainer-target-picker.tsx` — timesheet tab (location depends on current timesheet structure; I'll wire it into the existing target picker).
-
-**Edits:**
-- `src/components/quotes/retainer-stage-editor.tsx` — add fee-only toggle, conditionally hide allocation UI, mount readings panel.
-- `src/components/quotes/quote-planning-tab.tsx` — render fee-only retainers as a card.
-- `src/lib/quotes/types.ts` — surface `is_fee_only`.
-- Existing timesheet entry component — add retainer tab + wire `quote_stage_id` through the write path.
-- `src/i18n/locales/en/crm.json` + `pt-PT/crm.json` — new keys (`feeOnly`, `monthlyReadings`, `margin`, `delivery`, `feeBilled`, etc.) and timesheet retainer tab labels under the timesheet namespace.
-
-I'll find the current timesheet entry file before editing (likely under `src/components/projects/` or `src/routes/_app.projects.timesheet.tsx`); the rest is straightforward from the codebase context already loaded.
+- Auto-suggested fee renegotiation based on variance.
+- Cross-project retainer dashboard.
+- Automated monthly invoice issuance from the retainer schedule (today it generates the schedule rows; actual invoicing is still manual).
