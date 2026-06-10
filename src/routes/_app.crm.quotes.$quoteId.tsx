@@ -493,8 +493,13 @@ function QuoteDetail() {
   // Project workspace. The two time-based proposal types keep the tab as
   // their primary fee configuration surface. Phase-level retainer billing
   // is intentionally deferred and is NOT a proposal-type switch.
+  // Retainer quotes never bill external services and never use stage milestones.
+  // The Planning tab still shows the monthly template (retainer-stage editor).
+  const isRetainer = category === "retainer";
   const estimateTabs = isProject
-    ? ["overview", "planning", "external", "payment", "financial"]
+    ? isRetainer
+      ? ["overview", "planning", "payment", "financial"]
+      : ["overview", "planning", "external", "payment", "financial"]
     : ["overview", "time-based", "financial"];
   const contentTabs = ["proposal"];
   const visibleTabs =
