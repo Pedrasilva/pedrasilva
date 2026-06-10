@@ -142,6 +142,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
       source_contract_id: null,
       bootstrap_run_id: null,
       source_contract_phase_key: null,
+      retainer_review_months: null,
       allocations: allocByStage.get(s.id) ?? [],
     }));
   }, [stages, allocByStage, quoteId]);

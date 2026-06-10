@@ -493,9 +493,15 @@ function QuoteDetail() {
   // Project workspace. The two time-based proposal types keep the tab as
   // their primary fee configuration surface. Phase-level retainer billing
   // is intentionally deferred and is NOT a proposal-type switch.
-  const estimateTabs = isProject
-    ? ["overview", "planning", "external", "payment", "financial"]
-    : ["overview", "time-based", "financial"];
+  // Retainer quotes never bill external services and never use stage milestones.
+  // They keep Planning (monthly template editor) and Payment (auto-generated
+  // monthly schedule) but drop the External Services and generator clutter.
+  const isRetainer = category === "retainer";
+  const estimateTabs = isRetainer
+    ? ["overview", "planning", "payment", "financial"]
+    : isProject
+      ? ["overview", "planning", "external", "payment", "financial"]
+      : ["overview", "time-based", "financial"];
   const contentTabs = ["proposal"];
   const visibleTabs =
     step === "estimate"
@@ -614,13 +620,13 @@ function QuoteDetail() {
           {/* Planning (Gantt + stages), External services and Payment schedule
               are project-only — consultancy proposals do not have stages,
               dependencies or stage-driven payment milestones. */}
-          {isProject && visibleTabs.includes("planning") && (
+          {(isProject || isRetainer) && visibleTabs.includes("planning") && (
             <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
           )}
-          {isProject && visibleTabs.includes("external") && (
+          {isProject && !isRetainer && visibleTabs.includes("external") && (
             <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
           )}
-          {isProject && visibleTabs.includes("payment") && (
+          {(isProject || isRetainer) && visibleTabs.includes("payment") && (
             <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
           )}
           {visibleTabs.includes("financial") && (

@@ -4904,6 +4904,7 @@ export type Database = {
           is_locked: boolean
           name: string
           project_id: string
+          retainer_review_months: number | null
           sort_order: number
           source: string | null
           source_contract_id: string | null
@@ -4928,6 +4929,7 @@ export type Database = {
           is_locked?: boolean
           name: string
           project_id: string
+          retainer_review_months?: number | null
           sort_order?: number
           source?: string | null
           source_contract_id?: string | null
@@ -4952,6 +4954,7 @@ export type Database = {
           is_locked?: boolean
           name?: string
           project_id?: string
+          retainer_review_months?: number | null
           sort_order?: number
           source?: string | null
           source_contract_id?: string | null
@@ -6311,6 +6314,7 @@ export type Database = {
           retainer_capacity_hours_per_month: number
           retainer_monthly_amount: number
           retainer_months: number | null
+          retainer_review_months: number | null
           sort_order: number
           stage_kind: string
           start_date: string
@@ -6338,6 +6342,7 @@ export type Database = {
           retainer_capacity_hours_per_month?: number
           retainer_monthly_amount?: number
           retainer_months?: number | null
+          retainer_review_months?: number | null
           sort_order?: number
           stage_kind?: string
           start_date: string
@@ -6365,6 +6370,7 @@ export type Database = {
           retainer_capacity_hours_per_month?: number
           retainer_monthly_amount?: number
           retainer_months?: number | null
+          retainer_review_months?: number | null
           sort_order?: number
           stage_kind?: string
           start_date?: string
