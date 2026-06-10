@@ -620,13 +620,13 @@ function QuoteDetail() {
           {/* Planning (Gantt + stages), External services and Payment schedule
               are project-only — consultancy proposals do not have stages,
               dependencies or stage-driven payment milestones. */}
-          {isProject && visibleTabs.includes("planning") && (
+          {(isProject || isRetainer) && visibleTabs.includes("planning") && (
             <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
           )}
-          {isProject && visibleTabs.includes("external") && (
+          {isProject && !isRetainer && visibleTabs.includes("external") && (
             <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
           )}
-          {isProject && visibleTabs.includes("payment") && (
+          {(isProject || isRetainer) && visibleTabs.includes("payment") && (
             <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
           )}
           {visibleTabs.includes("financial") && (
