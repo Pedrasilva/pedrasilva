@@ -400,7 +400,14 @@ function QuoteDetail() {
       }
       qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
       qc.invalidateQueries({ queryKey: ["crm_opportunity"] });
-      navigate({ to: "/projects/$projectId", params: { projectId: res.id } });
+      // Land on the allocations page so the PM can assign resources to
+      // stages right after activation. They can skip and do it later by
+      // navigating to the project overview.
+      if (res.alreadyExisted) {
+        navigate({ to: "/projects/$projectId", params: { projectId: res.id } });
+      } else {
+        navigate({ to: "/projects/$projectId/allocations", params: { projectId: res.id } });
+      }
     },
     onError: (e: Error) => toast.error(e.message),
   });
