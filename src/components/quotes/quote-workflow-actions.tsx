@@ -68,6 +68,8 @@ export function QuoteWorkflowActions({
   status,
   hasAccount,
   hasProject,
+  companyId,
+  defaultContactId,
   onConvert,
   onApproved,
   isConverting,
@@ -75,15 +77,41 @@ export function QuoteWorkflowActions({
   const { t } = useTranslation("crm");
   const qc = useQueryClient();
   const [pending, setPending] = useState<PendingTransition>(null);
+  const [approverId, setApproverId] = useState<string>("");
+
+  const contactsQ = useQuery({
+    queryKey: ["contacts-for-approval", companyId],
+    enabled: !!companyId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contacts")
+        .select("id, primeiro_nome, apelido, titulo")
+        .eq("company_id", companyId!)
+        .order("primeiro_nome");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  useEffect(() => {
+    if (pending?.next === "approved" && !approverId) {
+      setApproverId(defaultContactId ?? "");
+    }
+  }, [pending, defaultContactId, approverId]);
 
   const setStatus = useMutation({
-    mutationFn: async (next: QuoteStatus) => {
+    mutationFn: async (payload: { next: QuoteStatus; approverId?: string | null }) => {
+      const updates: Record<string, unknown> = { quote_status: payload.next };
+      if (payload.next === "approved") {
+        updates.approved_by_contact_id = payload.approverId ?? null;
+        updates.approved_at = new Date().toISOString();
+      }
       const { error } = await supabase
         .from("fee_proposals")
-        .update({ quote_status: next })
+        .update(updates)
         .eq("id", quoteId);
       if (error) throw new Error(error.message);
-      return next;
+      return payload.next;
     },
     onSuccess: (next) => {
       toast.success(t(`quotes.workflow.toast.${next}`));
