@@ -405,6 +405,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {quoteQ.data?.quote_category !== "retainer" && (
           <div className="rounded-md border bg-muted/30 p-3">
             <div className="text-xs font-medium text-muted-foreground mb-2">
               {t("workspace.payment.milestoneOptionsTitle")}
