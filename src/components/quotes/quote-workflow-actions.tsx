@@ -252,9 +252,29 @@ export function QuoteWorkflowActions({
               {pending ? t(pending.descKey) : ""}
             </AlertDialogDescription>
           </AlertDialogHeader>
+          {pending?.next === "approved" && (
+            <div className="space-y-2">
+              <Label>{t("quotes.workflow.dialog.approverLabel")}</Label>
+              <Select value={approverId} onValueChange={setApproverId}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("quotes.workflow.dialog.approverPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {(contactsQ.data ?? []).map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {[c.titulo, c.primeiro_nome, c.apelido].filter(Boolean).join(" ")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <AlertDialogFooter>
             <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-            <AlertDialogAction onClick={onConfirm}>
+            <AlertDialogAction
+              onClick={onConfirm}
+              disabled={pending?.next === "approved" && !approverId}
+            >
               {pending ? t(pending.confirmKey) : ""}
             </AlertDialogAction>
           </AlertDialogFooter>
