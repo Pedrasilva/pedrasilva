@@ -539,6 +539,8 @@ function QuoteDetail() {
             status={quote.quote_status}
             hasAccount={!!quote.account_id}
             hasProject={!!quote.pm_project_id}
+            companyId={quote.company_id ?? null}
+            defaultContactId={quote.contact_id ?? null}
             onConvert={handleConvert}
             onApproved={() => {
               if (!quote.pm_project_id && !convert.isPending) convert.mutate();
