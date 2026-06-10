@@ -161,7 +161,7 @@ export function QuoteWorkflowActions({
     if (!pending) return;
     const next = pending.next;
     setPending(null);
-    setStatus.mutate(next);
+    setStatus.mutate({ next, approverId: next === "approved" ? (approverId || null) : null });
     // Move focus to a neutral element AFTER Radix returns focus to the
     // trigger. Without this, focus can bleed onto the next enabled button
     // in tab order (e.g. the Convert to Project button which becomes
