@@ -258,7 +258,9 @@
         "approveConfirmCta": "Aprovar",
         "lostTitle": "Marcar proposta como perdida",
         "lostDesc": "Marcar esta proposta como perdida? A oportunidade será movida para Perdido.",
-        "lostConfirmCta": "Marcar como perdida"
+        "lostConfirmCta": "Marcar como perdida",
+        "approverLabel": "Contacto que tomou a decisão",
+        "approverPlaceholder": "Seleccionar contacto"
       }
     },
     "convertDialog": {
