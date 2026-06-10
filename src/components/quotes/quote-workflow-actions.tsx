@@ -101,7 +101,11 @@ export function QuoteWorkflowActions({
 
   const setStatus = useMutation({
     mutationFn: async (payload: { next: QuoteStatus; approverId?: string | null }) => {
-      const updates: Record<string, unknown> = { quote_status: payload.next };
+      const updates: Partial<{
+        quote_status: QuoteStatus;
+        approved_by_contact_id: string | null;
+        approved_at: string | null;
+      }> = { quote_status: payload.next };
       if (payload.next === "approved") {
         updates.approved_by_contact_id = payload.approverId ?? null;
         updates.approved_at = new Date().toISOString();
