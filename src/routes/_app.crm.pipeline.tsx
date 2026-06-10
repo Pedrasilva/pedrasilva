@@ -35,7 +35,7 @@ function PipelineBoard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("fee_proposals")
-        .select("*, company:companies(id, nome), contact:contacts(id, primeiro_nome, apelido, titulo)")
+        .select("*, company:companies(id, nome), contact:contacts!fee_proposals_contact_id_fkey(id, primeiro_nome, apelido, titulo)")
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as Row[];

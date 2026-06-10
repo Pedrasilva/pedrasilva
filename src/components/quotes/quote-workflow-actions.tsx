@@ -17,10 +17,18 @@
  * `confirm()` dialog so the messages cannot accidentally chain across
  * status changes, and so the dialog state is fully owned by React.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,6 +49,8 @@ type Props = {
   status: QuoteStatus;
   hasAccount: boolean;
   hasProject: boolean;
+  companyId: string | null;
+  defaultContactId?: string | null;
   onConvert: () => void;
   onApproved?: () => void;
   isConverting?: boolean;
@@ -58,6 +68,8 @@ export function QuoteWorkflowActions({
   status,
   hasAccount,
   hasProject,
+  companyId,
+  defaultContactId,
   onConvert,
   onApproved,
   isConverting,
@@ -65,15 +77,45 @@ export function QuoteWorkflowActions({
   const { t } = useTranslation("crm");
   const qc = useQueryClient();
   const [pending, setPending] = useState<PendingTransition>(null);
+  const [approverId, setApproverId] = useState<string>("");
+
+  const contactsQ = useQuery({
+    queryKey: ["contacts-for-approval", companyId],
+    enabled: !!companyId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contacts")
+        .select("id, primeiro_nome, apelido, titulo")
+        .eq("company_id", companyId!)
+        .order("primeiro_nome");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  useEffect(() => {
+    if (pending?.next === "approved" && !approverId) {
+      setApproverId(defaultContactId ?? "");
+    }
+  }, [pending, defaultContactId, approverId]);
 
   const setStatus = useMutation({
-    mutationFn: async (next: QuoteStatus) => {
+    mutationFn: async (payload: { next: QuoteStatus; approverId?: string | null }) => {
+      const updates: Partial<{
+        quote_status: QuoteStatus;
+        approved_by_contact_id: string | null;
+        approved_at: string | null;
+      }> = { quote_status: payload.next };
+      if (payload.next === "approved") {
+        updates.approved_by_contact_id = payload.approverId ?? null;
+        updates.approved_at = new Date().toISOString();
+      }
       const { error } = await supabase
         .from("fee_proposals")
-        .update({ quote_status: next })
+        .update(updates)
         .eq("id", quoteId);
       if (error) throw new Error(error.message);
-      return next;
+      return payload.next;
     },
     onSuccess: (next) => {
       toast.success(t(`quotes.workflow.toast.${next}`));
@@ -119,7 +161,7 @@ export function QuoteWorkflowActions({
     if (!pending) return;
     const next = pending.next;
     setPending(null);
-    setStatus.mutate(next);
+    setStatus.mutate({ next, approverId: next === "approved" ? (approverId || null) : null });
     // Move focus to a neutral element AFTER Radix returns focus to the
     // trigger. Without this, focus can bleed onto the next enabled button
     // in tab order (e.g. the Convert to Project button which becomes
@@ -210,9 +252,29 @@ export function QuoteWorkflowActions({
               {pending ? t(pending.descKey) : ""}
             </AlertDialogDescription>
           </AlertDialogHeader>
+          {pending?.next === "approved" && (
+            <div className="space-y-2">
+              <Label>{t("quotes.workflow.dialog.approverLabel")}</Label>
+              <Select value={approverId} onValueChange={setApproverId}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("quotes.workflow.dialog.approverPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {(contactsQ.data ?? []).map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {[c.titulo, c.primeiro_nome, c.apelido].filter(Boolean).join(" ")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <AlertDialogFooter>
             <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-            <AlertDialogAction onClick={onConfirm}>
+            <AlertDialogAction
+              onClick={onConfirm}
+              disabled={pending?.next === "approved" && !approverId}
+            >
               {pending ? t(pending.confirmKey) : ""}
             </AlertDialogAction>
           </AlertDialogFooter>

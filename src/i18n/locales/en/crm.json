@@ -258,7 +258,9 @@
         "approveConfirmCta": "Approve",
         "lostTitle": "Mark quote as lost",
         "lostDesc": "Mark this quote as lost? This will move the opportunity to Lost.",
-        "lostConfirmCta": "Mark as lost"
+        "lostConfirmCta": "Mark as lost",
+        "approverLabel": "Contact who made the decision",
+        "approverPlaceholder": "Select a contact"
       }
     },
     "convertDialog": {
