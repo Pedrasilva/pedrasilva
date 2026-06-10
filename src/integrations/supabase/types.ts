@@ -1888,6 +1888,8 @@ export type Database = {
       fee_proposals: {
         Row: {
           account_id: string | null
+          approved_at: string | null
+          approved_by_contact_id: string | null
           company_id: string | null
           construction_cost: number | null
           contact_id: string | null
@@ -1926,6 +1928,8 @@ export type Database = {
         }
         Insert: {
           account_id?: string | null
+          approved_at?: string | null
+          approved_by_contact_id?: string | null
           company_id?: string | null
           construction_cost?: number | null
           contact_id?: string | null
@@ -1964,6 +1968,8 @@ export type Database = {
         }
         Update: {
           account_id?: string | null
+          approved_at?: string | null
+          approved_by_contact_id?: string | null
           company_id?: string | null
           construction_cost?: number | null
           contact_id?: string | null
@@ -2006,6 +2012,13 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "crm_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_proposals_approved_by_contact_id_fkey"
+            columns: ["approved_by_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
           {
