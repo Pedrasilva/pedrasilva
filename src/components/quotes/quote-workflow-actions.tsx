@@ -42,6 +42,7 @@ type Props = {
   hasAccount: boolean;
   hasProject: boolean;
   onConvert: () => void;
+  onApproved?: () => void;
   isConverting?: boolean;
 };
 
