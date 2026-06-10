@@ -17,10 +17,18 @@
  * `confirm()` dialog so the messages cannot accidentally chain across
  * status changes, and so the dialog state is fully owned by React.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,6 +49,8 @@ type Props = {
   status: QuoteStatus;
   hasAccount: boolean;
   hasProject: boolean;
+  companyId: string | null;
+  defaultContactId?: string | null;
   onConvert: () => void;
   onApproved?: () => void;
   isConverting?: boolean;
