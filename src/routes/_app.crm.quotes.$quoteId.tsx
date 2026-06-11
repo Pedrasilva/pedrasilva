@@ -569,9 +569,6 @@ function QuoteDetail() {
             <span className={`h-2 w-2 rounded-full ${status?.color}`} />
             {status ? t(`quoteStatus.${status.value}`) : ""}
           </span>
-          <span className="inline-flex items-center rounded-full border bg-muted/40 px-3 py-1 text-xs font-medium">
-            {t(`quoteType.${quote.quote_type ?? "standard_project"}.label`)}
-          </span>
           <QuoteWorkflowActions
             quoteId={quoteId}
             status={quote.quote_status}
@@ -580,17 +577,8 @@ function QuoteDetail() {
             companyId={quote.company_id ?? null}
             defaultContactId={quote.contact_id ?? null}
             onConvert={handleConvert}
-            onApproved={() => {
-              if (!quote.pm_project_id && !convert.isPending) convert.mutate();
-            }}
             isConverting={convert.isPending}
           />
-          {quote.pm_project_id && (
-            <Link to="/projects/$projectId" params={{ projectId: quote.pm_project_id }}
-              className="inline-flex items-center gap-1 rounded-md border px-3 py-1 text-xs hover:bg-muted/50">
-              <ExternalLink className="h-3 w-3" /> {t("quotes.openProject")}
-            </Link>
-          )}
           <Button variant="outline" size="sm" onClick={() => setSaveTemplateOpen(true)}>
             {t("templates.actions.saveAs")}
           </Button>
