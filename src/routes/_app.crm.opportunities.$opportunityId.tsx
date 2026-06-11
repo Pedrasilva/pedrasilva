@@ -119,6 +119,7 @@ function OpportunityDetail() {
 
   const updateField = useMutation({
     mutationFn: async (patch: Partial<{
+      name: string;
       next_action: string | null;
       next_action_date: string | null;
       source: string | null;
