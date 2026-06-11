@@ -80,14 +80,15 @@ export function QuoteWorkflowActions({
   const [approverId, setApproverId] = useState<string>("");
 
   const contactsQ = useQuery({
-    queryKey: ["contacts-for-approval", companyId],
-    enabled: !!companyId,
+    queryKey: ["contacts-for-approval", companyId ?? "all"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("contacts")
-        .select("id, primeiro_nome, apelido, titulo")
-        .eq("company_id", companyId!)
-        .order("primeiro_nome");
+        .select("id, primeiro_nome, apelido, titulo, company_id")
+        .order("primeiro_nome")
+        .limit(200);
+      if (companyId) q = q.eq("company_id", companyId);
+      const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
     },
