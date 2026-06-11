@@ -97,14 +97,19 @@ function MinhaFichaPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {t("hr:myProfile.title")}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("hr:myProfile.subtitle")}
-        </p>
+    <div className="space-y-6 print-area">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t("hr:myProfile.title")}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {t("hr:myProfile.subtitle")}
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => window.print()} className="no-print gap-2">
+          <Printer className="h-4 w-4" /> {t("hr:collaborator.printPdf")}
+        </Button>
       </div>
 
       {/* Cabeçalho do colaborador */}
