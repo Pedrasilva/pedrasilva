@@ -217,8 +217,8 @@
           "hint": "Bloco de horas de consultoria — defina valor/hora, horas por bloco e compromisso mínimo. Facturação mensal sobre horas reais."
         },
         "retainer": {
-          "title": "Avença de Construção",
-          "hint": "Avença mensal para a fase de construção — datas de início/fim, recursos mensais e despesas reembolsáveis. Facturação mensal antecipada."
+          "title": "Avença",
+          "hint": "Avença mensal — um valor mensal que se repete por N meses. Sem fases, sem terços; calendário gerado automaticamente como faturas mensais. Use uma cadência de revisão para comparar horas registadas vs valor mensal acordado."
         }
       },
       "accountOptional": "Conta (opcional)",

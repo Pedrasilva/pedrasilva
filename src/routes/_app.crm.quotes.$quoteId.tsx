@@ -253,7 +253,9 @@ function QuoteDetail() {
       // 2. Copy quote_stages → pm_stages, keeping a mapping for allocations.
       const { data: qStages, error: qsErr } = await db
         .from("quote_stages")
-        .select("id, name, start_date, end_date, color, sort_order, budget")
+        .select(
+          "id, name, start_date, end_date, color, sort_order, budget, stage_kind, billing_model, retainer_monthly_amount, retainer_anchor_month, retainer_months, retainer_capacity_hours_per_month, retainer_review_months, is_fee_only",
+        )
         .eq("quote_id", quote.id)
         .order("sort_order", { ascending: true });
       if (qsErr) throw qsErr;
@@ -270,6 +272,15 @@ function QuoteDetail() {
             color: s.color ?? "#22c55e",
             sort_order: s.sort_order ?? 0,
             budget: Number(s.budget ?? 0),
+            stage_kind: s.stage_kind ?? "regular",
+            billing_model: s.billing_model ?? "stage",
+            retainer_monthly_amount: Number(s.retainer_monthly_amount ?? 0),
+            retainer_anchor_month: s.retainer_anchor_month ?? null,
+            retainer_months: s.retainer_months ?? null,
+            retainer_capacity_hours_per_month:
+              s.retainer_capacity_hours_per_month ?? 160,
+            retainer_review_months: s.retainer_review_months ?? null,
+            is_fee_only: s.is_fee_only ?? true,
           })
           .select("id")
           .single();

@@ -4894,6 +4894,7 @@ export type Database = {
           baseline_notes: string | null
           baseline_start_date: string | null
           baseline_target_hours: number | null
+          billing_model: string
           bootstrap_run_id: string | null
           budget: number
           color: string
@@ -4901,14 +4902,20 @@ export type Database = {
           end_date: string
           external_id: string | null
           id: string
+          is_fee_only: boolean
           is_locked: boolean
           name: string
           project_id: string
+          retainer_anchor_month: string | null
+          retainer_capacity_hours_per_month: number
+          retainer_monthly_amount: number
+          retainer_months: number | null
           retainer_review_months: number | null
           sort_order: number
           source: string | null
           source_contract_id: string | null
           source_contract_phase_key: string | null
+          stage_kind: string
           start_date: string
           updated_at: string
         }
@@ -4919,6 +4926,7 @@ export type Database = {
           baseline_notes?: string | null
           baseline_start_date?: string | null
           baseline_target_hours?: number | null
+          billing_model?: string
           bootstrap_run_id?: string | null
           budget?: number
           color?: string
@@ -4926,14 +4934,20 @@ export type Database = {
           end_date: string
           external_id?: string | null
           id?: string
+          is_fee_only?: boolean
           is_locked?: boolean
           name: string
           project_id: string
+          retainer_anchor_month?: string | null
+          retainer_capacity_hours_per_month?: number
+          retainer_monthly_amount?: number
+          retainer_months?: number | null
           retainer_review_months?: number | null
           sort_order?: number
           source?: string | null
           source_contract_id?: string | null
           source_contract_phase_key?: string | null
+          stage_kind?: string
           start_date: string
           updated_at?: string
         }
@@ -4944,6 +4958,7 @@ export type Database = {
           baseline_notes?: string | null
           baseline_start_date?: string | null
           baseline_target_hours?: number | null
+          billing_model?: string
           bootstrap_run_id?: string | null
           budget?: number
           color?: string
@@ -4951,14 +4966,20 @@ export type Database = {
           end_date?: string
           external_id?: string | null
           id?: string
+          is_fee_only?: boolean
           is_locked?: boolean
           name?: string
           project_id?: string
+          retainer_anchor_month?: string | null
+          retainer_capacity_hours_per_month?: number
+          retainer_monthly_amount?: number
+          retainer_months?: number | null
           retainer_review_months?: number | null
           sort_order?: number
           source?: string | null
           source_contract_id?: string | null
           source_contract_phase_key?: string | null
+          stage_kind?: string
           start_date?: string
           updated_at?: string
         }

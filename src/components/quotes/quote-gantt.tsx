@@ -143,6 +143,13 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
       bootstrap_run_id: null,
       source_contract_phase_key: null,
       retainer_review_months: null,
+      stage_kind: "regular",
+      billing_model: "stage",
+      retainer_monthly_amount: 0,
+      retainer_anchor_month: null,
+      retainer_months: null,
+      retainer_capacity_hours_per_month: 160,
+      is_fee_only: true,
       allocations: allocByStage.get(s.id) ?? [],
     }));
   }, [stages, allocByStage, quoteId]);

@@ -273,7 +273,7 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
                 <Settings2 className="h-3.5 w-3.5" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-64 space-y-3">
+            <PopoverContent align="end" className="w-72 space-y-3">
               <div className="space-y-1">
                 <Label className="text-xs">
                   {t("workspace.planning.retainerMonthly.capacity", {
@@ -293,6 +293,48 @@ export function RetainerStageEditor({ quoteId, stage, allocations }: Props) {
                 <p className="text-[11px] text-muted-foreground">
                   {t("workspace.planning.retainerMonthly.capacityHint", {
                     defaultValue: "Drives % ↔ hours/month conversion. Default 160h.",
+                  })}
+                </p>
+              </div>
+              <div className="space-y-1 border-t pt-3">
+                <Label className="text-xs">
+                  {t("workspace.planning.retainerMonthly.reviewCadence", {
+                    defaultValue: "Review cadence",
+                  })}
+                </Label>
+                <Select
+                  value={String(
+                    (stage as { retainer_review_months?: number | null })
+                      .retainer_review_months ?? 6,
+                  )}
+                  onValueChange={(v) =>
+                    upsertStage.mutate({
+                      id: stage.id,
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      ...({ retainer_review_months: Number(v) } as any),
+                    })
+                  }
+                >
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3">
+                      {t("workspace.planning.retainerMonthly.review3", {
+                        defaultValue: "Every 3 months",
+                      })}
+                    </SelectItem>
+                    <SelectItem value="6">
+                      {t("workspace.planning.retainerMonthly.review6", {
+                        defaultValue: "Every 6 months",
+                      })}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground">
+                  {t("workspace.planning.retainerMonthly.reviewHint", {
+                    defaultValue:
+                      "Powers the Retainer health panel on the project — flags over/under delivery vs the monthly value.",
                   })}
                 </p>
               </div>
