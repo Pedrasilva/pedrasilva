@@ -2,7 +2,7 @@
  * Quote Planning tab — stages + dependencies + allocations.
  * No Gantt yet (Phase C). Plain tables only.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,9 +60,11 @@ const today = () => new Date().toISOString().slice(0, 10);
 export function QuotePlanningTab({
   quoteId,
   pricingMultiplier = 1,
+  isRetainer = false,
 }: {
   quoteId: string;
   pricingMultiplier?: number;
+  isRetainer?: boolean;
 }) {
   const { t, i18n } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
@@ -267,17 +269,34 @@ export function QuotePlanningTab({
     }
   };
 
+  // Auto-seed a retainer stage for retainer-type quotes so the monthly
+  // editor renders immediately (instead of an empty "no stages" state).
+  const seededRetainerRef = useRef(false);
+  useEffect(() => {
+    if (!isRetainer) return;
+    if (!stagesQ.isSuccess) return;
+    if (seededRetainerRef.current) return;
+    if (allStages.length > 0) return;
+    seededRetainerRef.current = true;
+    handleAddRetainerStage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRetainer, stagesQ.isSuccess, allStages.length]);
+
   return (
     <div className="space-y-6">
-      {/* Non-blocking warnings (no team, negative profit, missing supplier…) */}
-      <QuoteWarningsBanner warnings={warnings} />
+      {!isRetainer && (
+        <>
+          {/* Non-blocking warnings (no team, negative profit, missing supplier…) */}
+          <QuoteWarningsBanner warnings={warnings} />
 
-      {/* Fee-driver hint — clarifies what shapes the headline number */}
-      <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-        {t("workspace.planning.feeDriverHint", {
-          defaultValue: "Your fee is driven by team time and external services.",
-        })}
-      </div>
+          {/* Fee-driver hint — clarifies what shapes the headline number */}
+          <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+            {t("workspace.planning.feeDriverHint", {
+              defaultValue: "Your fee is driven by team time and external services.",
+            })}
+          </div>
+        </>
+      )}
 
       {/* RETAINER-MONTHLY STAGES — 1-month allocation templates that repeat.
           Rendered above the regular Gantt; intentionally NOT on the Gantt
@@ -295,20 +314,26 @@ export function QuotePlanningTab({
         </div>
       )}
 
-      <div className="flex justify-end">
-        <Button variant="outline" size="sm" onClick={handleAddRetainerStage}>
-          <Plus className="h-4 w-4 mr-1" />
-          {t("workspace.planning.retainerMonthly.addStage", {
-            defaultValue: "Add retainer phase",
-          })}
-        </Button>
-      </div>
+      {!isRetainer && (
+        <>
+          <div className="flex justify-end">
+            <Button variant="outline" size="sm" onClick={handleAddRetainerStage}>
+              <Plus className="h-4 w-4 mr-1" />
+              {t("workspace.planning.retainerMonthly.addStage", {
+                defaultValue: "Add retainer phase",
+              })}
+            </Button>
+          </div>
 
-      {/* GANTT — primary planning surface (regular stages only) */}
-      <QuoteGantt quoteId={quoteId} />
+          {/* GANTT — primary planning surface (regular stages only) */}
+          <QuoteGantt quoteId={quoteId} />
+        </>
+      )}
 
-      {/* Manual planning tables (always open) */}
+      {/* Manual planning tables (always open) — hidden in retainer mode */}
+      {!isRetainer && (
       <div className="space-y-6 pt-4">
+
 
       {/* STAGES */}
       <Card>
@@ -805,6 +830,7 @@ export function QuotePlanningTab({
         </CardContent>
       </Card>
       </div>
+      )}
 
     </div>
   );
