@@ -103,11 +103,11 @@ export function QuoteWorkflowActions({
     mutationFn: async (payload: { next: QuoteStatus; approverId?: string | null }) => {
       const updates: Partial<{
         quote_status: QuoteStatus;
-        approved_by_contact_id: string | null;
+        approved_by_collaborator_id: string | null;
         approved_at: string | null;
       }> = { quote_status: payload.next };
       if (payload.next === "approved") {
-        updates.approved_by_contact_id = payload.approverId ?? null;
+        updates.approved_by_collaborator_id = payload.approverId ?? null;
         updates.approved_at = new Date().toISOString();
       }
       const { error } = await supabase
