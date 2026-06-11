@@ -238,12 +238,27 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
 
   const toggleArchive = useMutation({
     mutationFn: async () => {
-      if (snapshot.is_effective && !snapshot.archived_at) {
-        throw new Error("Não é possível arquivar a ficha em vigor. Promove outra ficha primeiro.");
+      if (snapshot.archived_at) {
+        const { error } = await supabase
+          .from("salary_snapshots")
+          .update({ archived_at: null })
+          .eq("id", snapshot.id);
+        if (error) throw error;
+        return;
+      }
+      // Archive. If currently in force, also demote so the collaborator
+      // doesn't keep an "Em vigor" flag on an archived sheet.
+      const yesterdayDate = new Date();
+      yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+      const yesterday = yesterdayDate.toISOString().slice(0, 10);
+      const patch: Record<string, unknown> = { archived_at: new Date().toISOString() };
+      if (snapshot.is_effective) {
+        patch.is_effective = false;
+        patch.effective_to = snapshot.effective_to ?? yesterday;
       }
       const { error } = await supabase
         .from("salary_snapshots")
-        .update({ archived_at: snapshot.archived_at ? null : new Date().toISOString() })
+        .update(patch)
         .eq("id", snapshot.id);
       if (error) throw error;
     },
