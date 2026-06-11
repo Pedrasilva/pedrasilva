@@ -217,14 +217,14 @@ export function QuoteWorkflowActions({
       </div>
     );
   } else if (status === "approved") {
-    // Header shows a passive label only. Conversion lives in the Convert
-    // card (Overview tab) so the Approve click cannot bleed into a
-    // Convert prompt via focus / repeated Enter.
+    // Approved + no project yet → primary action is "Convert to project".
     primary = (
-      <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
-        <CheckCircle2 className="h-3 w-3" />
-        {t("quotes.workflow.approvedState")}
-      </span>
+      <Button size="sm" onClick={onConvert} disabled={isConverting}>
+        <ExternalLink className="h-4 w-4 mr-1" />
+        {isConverting
+          ? t("quotes.workflow.converting")
+          : t("quotes.workflow.convertCta")}
+      </Button>
     );
   } else {
     // status === "rejected" — terminal, passive label.
