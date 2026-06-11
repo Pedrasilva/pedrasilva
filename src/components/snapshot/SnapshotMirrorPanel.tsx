@@ -144,8 +144,6 @@ export function SnapshotMirrorPanel({
 
       <MonthlyLiquidityCard snapshot={snapshot} expenses={benefitExpenses} />
 
-      <CommercialRoleCard collaborator={collaborator} readOnly />
-
       <ValueChainSummary c={c} />
 
       <Tabs defaultValue="liquido">

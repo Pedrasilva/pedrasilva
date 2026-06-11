@@ -317,6 +317,23 @@
   .print-area button {
     display: none !important;
   }
+  /* Evita que cartões/secções sejam cortados entre páginas */
+  .print-area [data-slot="card"],
+  .print-area .rounded-lg,
+  .print-area .rounded-xl,
+  .print-area table,
+  .print-area thead,
+  .print-area tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .print-area h1,
+  .print-area h2,
+  .print-area h3,
+  .print-area [data-slot="card-header"] {
+    page-break-after: avoid;
+    break-after: avoid-page;
+  }
 
   /* ── Proposal print polish ────────────────────────────────────────────
      Larger page margins for proposals and friendlier page-break behaviour.
