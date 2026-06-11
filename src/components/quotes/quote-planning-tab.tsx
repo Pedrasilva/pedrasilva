@@ -284,15 +284,19 @@ export function QuotePlanningTab({
 
   return (
     <div className="space-y-6">
-      {/* Non-blocking warnings (no team, negative profit, missing supplier…) */}
-      <QuoteWarningsBanner warnings={warnings} />
+      {!isRetainer && (
+        <>
+          {/* Non-blocking warnings (no team, negative profit, missing supplier…) */}
+          <QuoteWarningsBanner warnings={warnings} />
 
-      {/* Fee-driver hint — clarifies what shapes the headline number */}
-      <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-        {t("workspace.planning.feeDriverHint", {
-          defaultValue: "Your fee is driven by team time and external services.",
-        })}
-      </div>
+          {/* Fee-driver hint — clarifies what shapes the headline number */}
+          <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+            {t("workspace.planning.feeDriverHint", {
+              defaultValue: "Your fee is driven by team time and external services.",
+            })}
+          </div>
+        </>
+      )}
 
       {/* RETAINER-MONTHLY STAGES — 1-month allocation templates that repeat.
           Rendered above the regular Gantt; intentionally NOT on the Gantt
@@ -310,17 +314,21 @@ export function QuotePlanningTab({
         </div>
       )}
 
-      <div className="flex justify-end">
-        <Button variant="outline" size="sm" onClick={handleAddRetainerStage}>
-          <Plus className="h-4 w-4 mr-1" />
-          {t("workspace.planning.retainerMonthly.addStage", {
-            defaultValue: "Add retainer phase",
-          })}
-        </Button>
-      </div>
+      {!isRetainer && (
+        <>
+          <div className="flex justify-end">
+            <Button variant="outline" size="sm" onClick={handleAddRetainerStage}>
+              <Plus className="h-4 w-4 mr-1" />
+              {t("workspace.planning.retainerMonthly.addStage", {
+                defaultValue: "Add retainer phase",
+              })}
+            </Button>
+          </div>
 
-      {/* GANTT — primary planning surface (regular stages only) */}
-      <QuoteGantt quoteId={quoteId} />
+          {/* GANTT — primary planning surface (regular stages only) */}
+          <QuoteGantt quoteId={quoteId} />
+        </>
+      )}
 
       {/* Manual planning tables (always open) */}
       <div className="space-y-6 pt-4">
