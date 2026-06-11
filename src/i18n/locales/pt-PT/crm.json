@@ -248,6 +248,8 @@
         "rejected": "Proposta marcada como perdida"
       },
       "approvedState": "Aprovada",
+      "convertCta": "Converter em projecto",
+      "converting": "A converter…",
       "dialog": {
         "sendTitle": "Enviar proposta",
         "sendDesc": "Marcar esta proposta como enviada ao cliente? Nenhum email será enviado — apenas o estado é actualizado.",
