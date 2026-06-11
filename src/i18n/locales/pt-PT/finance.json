@@ -343,7 +343,10 @@
       "opening": "Saldo inicial",
       "income": "Receitas",
       "retainerForecast": "Retainer (prev.)",
+      "scheduledBilling": "Faturação prevista",
+      "totalForecast": "Total previsto",
       "expenses": "Despesas",
+      "projectCosts": "Custos de projeto",
       "materials": "Materiais",
       "debts": "Dívidas",
       "net": "Líquido",
@@ -351,6 +354,9 @@
       "status": "Estado"
     },
     "retainerForecastNote": "Inclui honorários previstos de retainers ativos para meses ainda não fechados.",
+    "forecastNote": "As colunas de previsão somam receitas projetadas de retainers ativos e cronogramas de pagamento de projetos aprovados, para os meses ainda não fechados.",
+    "futureTitle": "Receita futura prevista (após {{year}})",
+    "futureSubtitle": "Honorários de retainer e cronogramas de pagamento de projetos esperados após o ano corrente do cash flow.",
     "status": {
       "projected": "Previsto",
       "actual": "Real",
@@ -361,6 +367,7 @@
       "totals": "Totais do ano"
     }
   },
+
   "bank": {
     "title": "Contas bancárias",
     "col": {
