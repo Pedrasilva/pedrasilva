@@ -47,12 +47,14 @@ const STATUS_TABS: { id: ProjectStatus; label: string; Icon: typeof CircleDot }[
   { id: "archived", label: "Arquivados", Icon: Archive },
 ];
 
-// Zoom presets in pixels-per-day. The fine +/- buttons remain available for
-// in-between widths.
-const ZOOM_PRESETS: { id: "day" | "week" | "month"; label: string; dayWidth: number }[] = [
+// Zoom presets in pixels-per-day. Match the CRM quote gantt so users can
+// switch from a fine daily view all the way out to a full-year overview.
+const ZOOM_PRESETS: { id: "day" | "week" | "month" | "quarter" | "year"; label: string; dayWidth: number }[] = [
   { id: "day", label: "Day", dayWidth: 40 },
   { id: "week", label: "Week", dayWidth: 16 },
   { id: "month", label: "Month", dayWidth: 6 },
+  { id: "quarter", label: "Quarter", dayWidth: 3 },
+  { id: "year", label: "Year", dayWidth: 1.5 },
 ];
 
 function GlobalGanttPage() {
