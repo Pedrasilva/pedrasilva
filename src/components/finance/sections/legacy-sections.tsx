@@ -266,6 +266,7 @@ export type CashFlowRow = {
   opening: number;
   income: number;
   retainerForecast: number;
+  scheduledBilling: number;
   expenses: number;
   materials: number; // kept internally; surfaced as "Project costs" in UI
   debts: number;
@@ -279,6 +280,12 @@ export type RetainerForecastRow = {
   amount: number;
 };
 
+export type ScheduledBillingRow = {
+  year: number;
+  month: number;
+  amount: number;
+};
+
 export function buildCashFlow(
   periods: Period[],
   income: IncomeRow[],
@@ -286,6 +293,7 @@ export function buildCashFlow(
   debtPayments: DebtPayment[],
   vatMode: VatMode,
   retainerForecast: RetainerForecastRow[] = [],
+  scheduledBilling: ScheduledBillingRow[] = [],
 ): CashFlowRow[] {
   const rows: CashFlowRow[] = [];
   let runningOpening: number | null = null;
@@ -294,6 +302,11 @@ export function buildCashFlow(
   for (const r of retainerForecast) {
     const k = `${r.year}-${r.month}`;
     forecastByKey.set(k, (forecastByKey.get(k) ?? 0) + Number(r.amount || 0));
+  }
+  const scheduledByKey = new Map<string, number>();
+  for (const r of scheduledBilling) {
+    const k = `${r.year}-${r.month}`;
+    scheduledByKey.set(k, (scheduledByKey.get(k) ?? 0) + Number(r.amount || 0));
   }
 
   for (const p of periods) {
@@ -334,15 +347,23 @@ export function buildCashFlow(
         0,
       );
 
-    // Layer in retainer forecast only for periods that aren't closed —
+    // Layer in forecasts only for periods that aren't closed —
     // closed months should reflect actual invoices, not projections.
     const isClosed = p.status === "closed" || p.status === "actual";
     const periodRetainerForecast = isClosed
       ? 0
       : (forecastByKey.get(`${p.year}-${p.month}`) ?? 0);
+    const periodScheduledBilling = isClosed
+      ? 0
+      : (scheduledByKey.get(`${p.year}-${p.month}`) ?? 0);
 
     const net =
-      periodIncome + periodRetainerForecast - periodExpenses - periodMaterials - periodDebts;
+      periodIncome +
+      periodRetainerForecast +
+      periodScheduledBilling -
+      periodExpenses -
+      periodMaterials -
+      periodDebts;
     const closing = opening + net;
     runningOpening = closing;
 
@@ -351,6 +372,7 @@ export function buildCashFlow(
       opening,
       income: periodIncome,
       retainerForecast: periodRetainerForecast,
+      scheduledBilling: periodScheduledBilling,
       expenses: periodExpenses,
       materials: periodMaterials,
       debts: periodDebts,
@@ -361,6 +383,7 @@ export function buildCashFlow(
 
   return rows;
 }
+
 
 export function latestSnapshotByAccount(
   snapshots: BankSnapshot[],
