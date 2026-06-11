@@ -816,14 +816,16 @@ function QuoteDetail() {
             />
           </TabsContent>
         )}
-        {isProject && (
+        {(isProject || isRetainer) && (
           <>
             <TabsContent value="planning" className="mt-4">
               <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} isRetainer={isRetainer} />
             </TabsContent>
-            <TabsContent value="external" className="mt-4">
-              <QuoteExternalServicesTab quoteId={quoteId} />
-            </TabsContent>
+            {isProject && !isRetainer && (
+              <TabsContent value="external" className="mt-4">
+                <QuoteExternalServicesTab quoteId={quoteId} />
+              </TabsContent>
+            )}
             <TabsContent value="payment" className="mt-4">
               <QuotePaymentScheduleTab quoteId={quoteId} />
             </TabsContent>
