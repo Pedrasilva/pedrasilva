@@ -819,7 +819,7 @@ function QuoteDetail() {
         {isProject && (
           <>
             <TabsContent value="planning" className="mt-4">
-              <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
+              <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} isRetainer={isRetainer} />
             </TabsContent>
             <TabsContent value="external" className="mt-4">
               <QuoteExternalServicesTab quoteId={quoteId} />
