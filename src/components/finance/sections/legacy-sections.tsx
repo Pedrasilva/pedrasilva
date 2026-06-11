@@ -265,11 +265,18 @@ export type CashFlowRow = {
   period: Period;
   opening: number;
   income: number;
+  retainerForecast: number;
   expenses: number;
   materials: number; // kept internally; surfaced as "Project costs" in UI
   debts: number;
   net: number;
   closing: number;
+};
+
+export type RetainerForecastRow = {
+  year: number;
+  month: number;
+  amount: number;
 };
 
 export function buildCashFlow(
@@ -278,9 +285,16 @@ export function buildCashFlow(
   expenses: ExpenseRow[],
   debtPayments: DebtPayment[],
   vatMode: VatMode,
+  retainerForecast: RetainerForecastRow[] = [],
 ): CashFlowRow[] {
   const rows: CashFlowRow[] = [];
   let runningOpening: number | null = null;
+
+  const forecastByKey = new Map<string, number>();
+  for (const r of retainerForecast) {
+    const k = `${r.year}-${r.month}`;
+    forecastByKey.set(k, (forecastByKey.get(k) ?? 0) + Number(r.amount || 0));
+  }
 
   for (const p of periods) {
     const seedOpening = Number(p.opening_balance) || 0;
@@ -320,7 +334,15 @@ export function buildCashFlow(
         0,
       );
 
-    const net = periodIncome - periodExpenses - periodMaterials - periodDebts;
+    // Layer in retainer forecast only for periods that aren't closed —
+    // closed months should reflect actual invoices, not projections.
+    const isClosed = p.status === "closed" || p.status === "actual";
+    const periodRetainerForecast = isClosed
+      ? 0
+      : (forecastByKey.get(`${p.year}-${p.month}`) ?? 0);
+
+    const net =
+      periodIncome + periodRetainerForecast - periodExpenses - periodMaterials - periodDebts;
     const closing = opening + net;
     runningOpening = closing;
 
@@ -328,6 +350,7 @@ export function buildCashFlow(
       period: p,
       opening,
       income: periodIncome,
+      retainerForecast: periodRetainerForecast,
       expenses: periodExpenses,
       materials: periodMaterials,
       debts: periodDebts,
@@ -573,10 +596,35 @@ export function OverviewKpiBlock({ vatMode }: { vatMode: VatMode }) {
 // Cash-flow table
 // ---------------------------------------------------------------------------
 
+function useRetainerForecast() {
+  return useQuery({
+    queryKey: ["finance", "retainer-forecast"],
+    queryFn: async (): Promise<RetainerForecastRow[]> => {
+      const { data, error } = await supabase
+        .from("pm_stages")
+        .select("start_date, budget, stage_kind")
+        .eq("stage_kind", "retainer_month");
+      if (error) throw error;
+      const rows: RetainerForecastRow[] = [];
+      for (const s of data ?? []) {
+        if (!s.start_date) continue;
+        const d = new Date(s.start_date as string);
+        rows.push({
+          year: d.getUTCFullYear(),
+          month: d.getUTCMonth() + 1,
+          amount: Number((s as { budget: number | null }).budget ?? 0),
+        });
+      }
+      return rows;
+    },
+  });
+}
+
 export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
   const { t } = useTranslation(["finance", "common"]);
   const { periodsQ, incomeQ, expensesQ, debtPaymentsQ, loading } =
     useFinanceData();
+  const retainerQ = useRetainerForecast();
 
   const rows = useMemo(
     () =>
@@ -586,8 +634,16 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
         expensesQ.data ?? [],
         debtPaymentsQ.data ?? [],
         vatMode,
+        retainerQ.data ?? [],
       ),
-    [periodsQ.data, incomeQ.data, expensesQ.data, debtPaymentsQ.data, vatMode],
+    [
+      periodsQ.data,
+      incomeQ.data,
+      expensesQ.data,
+      debtPaymentsQ.data,
+      retainerQ.data,
+      vatMode,
+    ],
   );
 
   if (loading) {
@@ -599,12 +655,13 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
   const totals = rows.reduce(
     (acc, r) => ({
       income: acc.income + r.income,
+      retainerForecast: acc.retainerForecast + r.retainerForecast,
       expenses: acc.expenses + r.expenses,
       materials: acc.materials + r.materials,
       debts: acc.debts + r.debts,
       net: acc.net + r.net,
     }),
-    { income: 0, expenses: 0, materials: 0, debts: 0, net: 0 },
+    { income: 0, retainerForecast: 0, expenses: 0, materials: 0, debts: 0, net: 0 },
   );
 
   const statusLabel = (s: string) =>
@@ -619,6 +676,11 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
         <p className="text-xs text-muted-foreground">
           {t("finance:cashFlow.subtitle", { year: FINANCE_YEAR })}
         </p>
+        {totals.retainerForecast > 0 ? (
+          <p className="text-xs text-muted-foreground">
+            {t("finance:cashFlow.retainerForecastNote")}
+          </p>
+        ) : null}
       </CardHeader>
       <CardContent>
         <Table>
@@ -627,6 +689,7 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
               <TableHead>{t("finance:cashFlow.col.month")}</TableHead>
               <TableHead className="text-right">{t("finance:cashFlow.col.opening")}</TableHead>
               <TableHead className="text-right">{t("finance:cashFlow.col.income")}</TableHead>
+              <TableHead className="text-right">{t("finance:cashFlow.col.retainerForecast")}</TableHead>
               <TableHead className="text-right">{t("finance:cashFlow.col.expenses")}</TableHead>
               <TableHead className="text-right">{t("finance:cashFlow.col.projectCosts")}</TableHead>
               <TableHead className="text-right">{t("finance:cashFlow.col.debts")}</TableHead>
@@ -641,6 +704,9 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
                 <TableCell className="font-medium">{r.period.month_name}</TableCell>
                 <TableCell className="text-right tabular-nums">{fmtEUR(r.opening)}</TableCell>
                 <TableCell className="text-right tabular-nums text-emerald-700">{fmtEUR(r.income)}</TableCell>
+                <TableCell className="text-right tabular-nums text-emerald-600/80 italic">
+                  {r.retainerForecast > 0 ? fmtEUR(r.retainerForecast) : DASH}
+                </TableCell>
                 <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.expenses)}</TableCell>
                 <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.materials)}</TableCell>
                 <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.debts)}</TableCell>
@@ -664,6 +730,9 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
               <TableCell>{t("finance:cashFlow.footer.totals")}</TableCell>
               <TableCell />
               <TableCell className="text-right tabular-nums text-emerald-700">{fmtEUR(totals.income)}</TableCell>
+              <TableCell className="text-right tabular-nums text-emerald-600/80 italic">
+                {totals.retainerForecast > 0 ? fmtEUR(totals.retainerForecast) : DASH}
+              </TableCell>
               <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(totals.expenses)}</TableCell>
               <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(totals.materials)}</TableCell>
               <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(totals.debts)}</TableCell>

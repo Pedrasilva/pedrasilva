@@ -342,6 +342,7 @@
       "month": "Mês",
       "opening": "Saldo inicial",
       "income": "Receitas",
+      "retainerForecast": "Retainer (prev.)",
       "expenses": "Despesas",
       "materials": "Materiais",
       "debts": "Dívidas",
@@ -349,6 +350,7 @@
       "closing": "Saldo final",
       "status": "Estado"
     },
+    "retainerForecastNote": "Inclui honorários previstos de retainers ativos para meses ainda não fechados.",
     "status": {
       "projected": "Previsto",
       "actual": "Real",
