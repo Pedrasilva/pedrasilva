@@ -51,6 +51,13 @@ import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import { rollupQuote } from "@/lib/quotes/financial-rollups";
+import {
+  anchorMonthStart,
+  anchorMonthEnd,
+  shiftAnchor,
+  formatAnchorMonth,
+} from "@/lib/quotes/retainer-monthly";
+import { addMonths, endOfMonth, parseISO, format as fmtDate, max as maxDate, min as minDate } from "date-fns";
 
 export const Route = createFileRoute("/_app/crm/quotes/$quoteId")({
   component: QuoteDetail,
