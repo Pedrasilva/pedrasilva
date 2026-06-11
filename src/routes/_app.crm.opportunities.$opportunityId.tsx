@@ -554,7 +554,7 @@ function NewQuoteDialog({
         {step === 1 ? (
           <div className="grid gap-4">
             {/* Frame 1 — Proposal type */}
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-2 sm:grid-cols-3">
               {categoryCards.map(({ value, icon: Icon }) => (
                 <button
                   key={value}
