@@ -115,11 +115,12 @@ export function QuickQuoteDialog({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  // Construction Retainer removed per spec — Project Proposal is the priority,
-  // Time-Based Proposal remains visible as a future option.
+  // Three first-class proposal types: standard project, hourly time-based,
+  // and pure retainer (simplified workspace, monthly schedule only).
   const categoryCards: { value: QuoteCategory; icon: typeof Briefcase }[] = [
     { value: "project", icon: Briefcase },
     { value: "time_based", icon: Clock },
+    { value: "retainer", icon: Repeat2 },
   ];
 
   return (
