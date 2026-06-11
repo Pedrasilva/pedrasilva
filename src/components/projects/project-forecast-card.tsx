@@ -10,11 +10,13 @@
  * keeps existing PM views fully unchanged.
  */
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { TrendingUp, Activity, AlertTriangle, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import {
   useProjectForecastEnvelope,
   useFreezeProjectForecastSnapshot,
@@ -41,6 +43,21 @@ export function ProjectForecastCard({ projectId }: { projectId: string }) {
   const { t } = useTranslation("crm");
   const { envelope, isLoading } = useProjectForecastEnvelope(projectId);
   const freeze = useFreezeProjectForecastSnapshot();
+
+  const stageNamesQ = useQuery({
+    queryKey: ["pm_stages", "names", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pm_stages")
+        .select("id, name")
+        .eq("project_id", projectId);
+      if (error) throw error;
+      const map = new Map<string, string>();
+      for (const s of data ?? []) map.set(s.id as string, s.name as string);
+      return map;
+    },
+  });
+  const stageNames = stageNamesQ.data;
 
   if (isLoading) return null;
   if (!envelope) return null;
@@ -128,8 +145,8 @@ export function ProjectForecastCard({ projectId }: { projectId: string }) {
                     key={s.project_stage_id}
                     className="grid grid-cols-[1fr_auto_auto] items-center gap-3 text-xs"
                   >
-                    <span className="font-mono text-[11px] truncate">
-                      {s.project_stage_id.slice(0, 8)}
+                    <span className="text-[11px] truncate" title={s.project_stage_id}>
+                      {stageNames?.get(s.project_stage_id) ?? s.project_stage_id.slice(0, 8)}
                     </span>
                     <span className="font-mono text-muted-foreground">
                       {fmtHrs(s.allocated_hours)} / {fmtHrs(s.planned_hours)}
