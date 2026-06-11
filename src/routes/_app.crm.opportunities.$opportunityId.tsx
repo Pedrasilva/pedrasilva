@@ -15,6 +15,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Plus, FileText, Trash2, AlertTriangle, Calendar as CalendarIcon, Mail, Phone, User } from "lucide-react";
 import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activity-timeline";
+import { InlineEditableTitle } from "@/components/inline-editable-title";
 import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -119,6 +120,7 @@ function OpportunityDetail() {
 
   const updateField = useMutation({
     mutationFn: async (patch: Partial<{
+      name: string;
       next_action: string | null;
       next_action_date: string | null;
       source: string | null;
@@ -169,7 +171,11 @@ function OpportunityDetail() {
 
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight">{opp.name}</h2>
+          <InlineEditableTitle
+            value={opp.name}
+            onSave={(name: string) => updateField.mutateAsync({ name })}
+            className="text-2xl font-semibold tracking-tight"
+          />
           <p className="text-sm text-muted-foreground">
             {opp.company?.nome ?? t("opportunities.card.noCompany")}
           </p>
