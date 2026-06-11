@@ -24,7 +24,7 @@ import {
   type CrmOpportunity, type OpportunityStage, type FeeProposal, type FeeStructureType,
   type QuoteType, type QuoteCategory, type Contact, contactFullName,
 } from "@/lib/crm/types";
-import { Briefcase, Clock } from "lucide-react";
+import { Briefcase, Clock, Repeat2 } from "lucide-react";
 import { QuoteTemplatePicker } from "@/components/quotes/quote-template-picker";
 import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";
 
