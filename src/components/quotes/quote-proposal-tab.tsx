@@ -2553,7 +2553,7 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
   const { data: document = null, isLoading: isLoadingDocument } =
     useLatestQuoteProposalDocument(quoteId);
   const { data: blocks = [] } = useQuoteProposalDocumentBlocks(document?.id);
-  const [legacyOpen, setLegacyOpen] = useState(false);
+  // legacy preview block removed — block editor is the single source.
   const [mode, setMode] = useState<"edit" | "preview">(props.initialMode ?? "edit");
   const placeholderMap = useQuoteBuilderPlaceholderMap({
     quoteId,
