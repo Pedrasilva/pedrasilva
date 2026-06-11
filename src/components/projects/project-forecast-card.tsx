@@ -145,8 +145,8 @@ export function ProjectForecastCard({ projectId }: { projectId: string }) {
                     key={s.project_stage_id}
                     className="grid grid-cols-[1fr_auto_auto] items-center gap-3 text-xs"
                   >
-                    <span className="font-mono text-[11px] truncate">
-                      {s.project_stage_id.slice(0, 8)}
+                    <span className="text-[11px] truncate" title={s.project_stage_id}>
+                      {stageNames?.get(s.project_stage_id) ?? s.project_stage_id.slice(0, 8)}
                     </span>
                     <span className="font-mono text-muted-foreground">
                       {fmtHrs(s.allocated_hours)} / {fmtHrs(s.planned_hours)}
