@@ -372,7 +372,7 @@ function QuoteCategoryChooserDialog({
         </DialogHeader>
 
         {step === 1 ? (
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid gap-2 sm:grid-cols-3">
             {cards.map(({ value, icon: Icon }) => (
               <button
                 key={value}
