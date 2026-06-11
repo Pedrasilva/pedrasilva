@@ -217,8 +217,8 @@
           "hint": "Hourly consultancy block — set hourly rate, hours per block and minimum commitment. Billed monthly against actual hours."
         },
         "retainer": {
-          "title": "Construction Retainer",
-          "hint": "Monthly retainer for the construction phase — start/end dates, monthly resources and reimbursable expenses. Billed monthly in advance."
+          "title": "Retainer",
+          "hint": "Monthly retainer — one monthly fee that repeats for N months. No stages, no thirds; schedule auto-generated as monthly invoices. Use a review cadence to compare clocked hours vs the agreed monthly value."
         }
       },
       "accountOptional": "Account (optional)",
