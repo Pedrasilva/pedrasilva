@@ -621,6 +621,12 @@ function ProjectDetail() {
                     showFinancials={canSeeFinancials}
                   />
                 )}
+                <RetainerMonitorPanel
+                  stages={stages}
+                  byStage={budgetControl?.byStage}
+                  showFinancials={canSeeFinancials}
+                />
+
                 <div className="rounded-lg border border-border bg-card">
                   <MilestonesTable
                     stages={stages}
