@@ -144,6 +144,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
       source_contract_phase_key: null,
       retainer_review_months: null,
       stage_kind: "regular",
+      parent_stage_id: null,
       billing_model: "stage",
       retainer_monthly_amount: 0,
       retainer_anchor_month: null,
