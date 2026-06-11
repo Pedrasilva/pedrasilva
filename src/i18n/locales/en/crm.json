@@ -248,6 +248,8 @@
         "rejected": "Quote marked as lost"
       },
       "approvedState": "Approved",
+      "convertCta": "Convert to project",
+      "converting": "Converting…",
       "dialog": {
         "sendTitle": "Send proposal",
         "sendDesc": "Mark this quote as sent to the client? No email will be sent — this only updates the status.",
