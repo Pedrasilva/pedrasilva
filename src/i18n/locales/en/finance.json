@@ -342,6 +342,7 @@
       "month": "Month",
       "opening": "Opening",
       "income": "Income",
+      "retainerForecast": "Retainer (forecast)",
       "expenses": "Expenses",
       "materials": "Materials",
       "debts": "Debts",
@@ -349,6 +350,7 @@
       "closing": "Closing",
       "status": "Status"
     },
+    "retainerForecastNote": "Includes forecast fees from active retainers for months not yet closed.",
     "status": {
       "projected": "Projected",
       "actual": "Actual",
