@@ -92,6 +92,22 @@
       "overUnderCol": "Desvio",
       "noStages": "Sem fases ainda."
     },
+    "retainerMonitor": {
+      "title": "Monitor do retainer — {{name}}",
+      "months": "meses",
+      "monthlyFee": "Mensalidade",
+      "budgetTotal": "Orçamento total",
+      "actualsTotal": "Real total",
+      "deltaTotal": "Δ",
+      "budget": "Orçamento",
+      "actual": "Real",
+      "monthCol": "Mês",
+      "budgetCol": "Orçamento",
+      "actualCol": "Real",
+      "hoursCol": "Horas",
+      "deltaCol": "Δ",
+      "totalsRow": "Total"
+    },
     "tabs": {
       "overview": "Resumo",
       "schedule": "Calendário",

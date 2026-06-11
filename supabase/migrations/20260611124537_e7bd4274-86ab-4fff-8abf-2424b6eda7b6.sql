@@ -1,0 +1,2 @@
+ALTER TABLE public.pm_stages ADD COLUMN IF NOT EXISTS parent_stage_id uuid REFERENCES public.pm_stages(id) ON DELETE CASCADE;
+CREATE INDEX IF NOT EXISTS pm_stages_parent_stage_id_idx ON public.pm_stages(parent_stage_id);

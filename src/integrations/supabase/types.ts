@@ -4922,6 +4922,7 @@ export type Database = {
           is_fee_only: boolean
           is_locked: boolean
           name: string
+          parent_stage_id: string | null
           project_id: string
           retainer_anchor_month: string | null
           retainer_capacity_hours_per_month: number
@@ -4954,6 +4955,7 @@ export type Database = {
           is_fee_only?: boolean
           is_locked?: boolean
           name: string
+          parent_stage_id?: string | null
           project_id: string
           retainer_anchor_month?: string | null
           retainer_capacity_hours_per_month?: number
@@ -4986,6 +4988,7 @@ export type Database = {
           is_fee_only?: boolean
           is_locked?: boolean
           name?: string
+          parent_stage_id?: string | null
           project_id?: string
           retainer_anchor_month?: string | null
           retainer_capacity_hours_per_month?: number
@@ -5006,6 +5009,13 @@ export type Database = {
             columns: ["bootstrap_run_id"]
             isOneToOne: false
             referencedRelation: "project_bootstrap_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_stages_parent_stage_id_fkey"
+            columns: ["parent_stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
             referencedColumns: ["id"]
           },
           {

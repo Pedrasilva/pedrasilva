@@ -44,6 +44,7 @@ import { HardDeleteProjectButton } from "@/components/projects/hard-delete-proje
 import { useHistoricalProjectTotals, EMPTY_HISTORICAL_TOTALS, type HistoricalProjectTotals } from "@/lib/projects/use-historical-time";
 import { useStageBudgetControl } from "@/lib/projects/use-stage-budget-control";
 import { BudgetControlPanel } from "@/components/projects/budget-control-panel";
+import { RetainerMonitorPanel } from "@/components/projects/retainer-monitor-panel";
 import { CommercialBaselineCard } from "@/components/projects/commercial-baseline-card";
 import { ProjectForecastCard } from "@/components/projects/project-forecast-card";
 import { Button } from "@/components/ui/button";
@@ -620,6 +621,12 @@ function ProjectDetail() {
                     showFinancials={canSeeFinancials}
                   />
                 )}
+                <RetainerMonitorPanel
+                  stages={stages}
+                  byStage={budgetControl?.byStage}
+                  showFinancials={canSeeFinancials}
+                />
+
                 <div className="rounded-lg border border-border bg-card">
                   <MilestonesTable
                     stages={stages}
@@ -697,9 +704,32 @@ function ProjectDetail() {
                       </>
                     )}
                   </button>
+                  <div className="flex items-center gap-1 rounded-md border border-border bg-card p-1">
+                    {(
+                      [
+                        { id: "day", label: "Day", dw: 40 },
+                        { id: "week", label: "Week", dw: 16 },
+                        { id: "month", label: "Month", dw: 6 },
+                        { id: "quarter", label: "Quarter", dw: 3 },
+                        { id: "year", label: "Year", dw: 1.5 },
+                      ] as const
+                    ).map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => setDayWidth(p.dw)}
+                        className={`rounded px-2 py-1 text-[11px] font-medium uppercase tracking-wide transition ${
+                          dayWidth === p.dw
+                            ? "bg-foreground text-background"
+                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
                   <div className="flex items-center gap-1 rounded-md border border-border p-1">
                     <button
-                      onClick={() => setDayWidth((w) => Math.max(16, w - 6))}
+                      onClick={() => setDayWidth((w) => Math.max(1.5, w - 6))}
                       className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
                       aria-label="Zoom out"
                     >

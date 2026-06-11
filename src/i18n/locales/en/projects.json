@@ -92,6 +92,22 @@
       "overUnderCol": "Over/under",
       "noStages": "No stages yet."
     },
+    "retainerMonitor": {
+      "title": "Retainer monitor — {{name}}",
+      "months": "months",
+      "monthlyFee": "Monthly fee",
+      "budgetTotal": "Budget total",
+      "actualsTotal": "Actuals total",
+      "deltaTotal": "Δ",
+      "budget": "Budget",
+      "actual": "Actual",
+      "monthCol": "Month",
+      "budgetCol": "Budget",
+      "actualCol": "Actual",
+      "hoursCol": "Hours",
+      "deltaCol": "Δ",
+      "totalsRow": "Total"
+    },
     "tabs": {
       "overview": "Overview",
       "schedule": "Schedule",

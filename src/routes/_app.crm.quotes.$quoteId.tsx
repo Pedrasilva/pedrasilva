@@ -51,6 +51,13 @@ import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import { rollupQuote } from "@/lib/quotes/financial-rollups";
+import {
+  anchorMonthStart,
+  anchorMonthEnd,
+  shiftAnchor,
+  formatAnchorMonth,
+} from "@/lib/quotes/retainer-monthly";
+import { parseISO, format as fmtDate, max as maxDate, min as minDate } from "date-fns";
 
 export const Route = createFileRoute("/_app/crm/quotes/$quoteId")({
   component: QuoteDetail,
@@ -262,31 +269,108 @@ function QuoteDetail() {
       if (qsErr) throw qsErr;
 
       const stageIdMap = new Map<string, string>();
+      // For retainer parents, remember the per-month child stage ids so the
+      // allocation copy step can clamp + clone each allocation into every month.
+      const retainerChildrenByParent = new Map<
+        string,
+        Array<{ childId: string; start: string; end: string }>
+      >();
+      const i18nLocale = (typeof navigator !== "undefined" && navigator.language) || "en";
+
       for (const s of qStages ?? []) {
-        const { data: created, error: insErr } = await db
-          .from("pm_stages")
-          .insert({
-            project_id: project.id,
-            name: s.name,
-            start_date: s.start_date,
-            end_date: s.end_date,
-            color: s.color ?? "#22c55e",
-            sort_order: s.sort_order ?? 0,
-            budget: Number(s.budget ?? 0),
-            stage_kind: s.stage_kind ?? "regular",
-            billing_model: s.billing_model ?? "stage",
-            retainer_monthly_amount: Number(s.retainer_monthly_amount ?? 0),
-            retainer_anchor_month: s.retainer_anchor_month ?? null,
-            retainer_months: s.retainer_months ?? null,
-            retainer_capacity_hours_per_month:
-              s.retainer_capacity_hours_per_month ?? 160,
-            retainer_review_months: s.retainer_review_months ?? null,
-            is_fee_only: s.is_fee_only ?? true,
-          })
-          .select("id")
-          .single();
-        if (insErr) throw insErr;
-        stageIdMap.set(s.id, created.id);
+        const isRetainer = s.stage_kind === "retainer_monthly";
+        const anchor = s.retainer_anchor_month;
+        const months = Number(s.retainer_months ?? 0);
+
+        if (isRetainer && anchor && months > 0) {
+          // Parent stage: full retainer span. No allocations live on the parent.
+          const parentStart = anchorMonthStart(anchor);
+          const parentEnd = anchorMonthEnd(shiftAnchor(anchor, months - 1));
+          const { data: parentRow, error: parentErr } = await db
+            .from("pm_stages")
+            .insert({
+              project_id: project.id,
+              name: s.name,
+              start_date: parentStart,
+              end_date: parentEnd,
+              color: s.color ?? "#22c55e",
+              sort_order: s.sort_order ?? 0,
+              budget: Number(s.budget ?? 0),
+              stage_kind: "retainer_monthly",
+              billing_model: s.billing_model ?? "stage",
+              retainer_monthly_amount: Number(s.retainer_monthly_amount ?? 0),
+              retainer_anchor_month: anchor,
+              retainer_months: months,
+              retainer_capacity_hours_per_month:
+                s.retainer_capacity_hours_per_month ?? 160,
+              retainer_review_months: s.retainer_review_months ?? null,
+              is_fee_only: s.is_fee_only ?? true,
+            })
+            .select("id")
+            .single();
+          if (parentErr) throw parentErr;
+          stageIdMap.set(s.id, parentRow.id);
+
+          const monthlyAmount = Number(s.retainer_monthly_amount ?? 0);
+          const children: Array<{ childId: string; start: string; end: string }> = [];
+          for (let i = 0; i < months; i++) {
+            const monthAnchor = shiftAnchor(anchor, i);
+            const childStart = anchorMonthStart(monthAnchor);
+            const childEnd = anchorMonthEnd(monthAnchor);
+            const monthLabel = formatAnchorMonth(monthAnchor, i18nLocale);
+            const { data: childRow, error: childErr } = await db
+              .from("pm_stages")
+              .insert({
+                project_id: project.id,
+                parent_stage_id: parentRow.id,
+                name: `${monthLabel} — ${s.name}`,
+                start_date: childStart,
+                end_date: childEnd,
+                color: s.color ?? "#22c55e",
+                sort_order: (s.sort_order ?? 0) * 1000 + i + 1,
+                budget: monthlyAmount,
+                stage_kind: "retainer_month",
+                billing_model: "stage",
+                retainer_monthly_amount: 0,
+                retainer_anchor_month: null,
+                retainer_months: null,
+                retainer_capacity_hours_per_month:
+                  s.retainer_capacity_hours_per_month ?? 160,
+                retainer_review_months: null,
+                is_fee_only: s.is_fee_only ?? true,
+              })
+              .select("id")
+              .single();
+            if (childErr) throw childErr;
+            children.push({ childId: childRow.id, start: childStart, end: childEnd });
+          }
+          retainerChildrenByParent.set(s.id, children);
+        } else {
+          const { data: created, error: insErr } = await db
+            .from("pm_stages")
+            .insert({
+              project_id: project.id,
+              name: s.name,
+              start_date: s.start_date,
+              end_date: s.end_date,
+              color: s.color ?? "#22c55e",
+              sort_order: s.sort_order ?? 0,
+              budget: Number(s.budget ?? 0),
+              stage_kind: s.stage_kind ?? "regular",
+              billing_model: s.billing_model ?? "stage",
+              retainer_monthly_amount: Number(s.retainer_monthly_amount ?? 0),
+              retainer_anchor_month: s.retainer_anchor_month ?? null,
+              retainer_months: s.retainer_months ?? null,
+              retainer_capacity_hours_per_month:
+                s.retainer_capacity_hours_per_month ?? 160,
+              retainer_review_months: s.retainer_review_months ?? null,
+              is_fee_only: s.is_fee_only ?? true,
+            })
+            .select("id")
+            .single();
+          if (insErr) throw insErr;
+          stageIdMap.set(s.id, created.id);
+        }
       }
       const stagesCopied = stageIdMap.size;
 
@@ -314,6 +398,9 @@ function QuoteDetail() {
       }
 
       // 3. Copy quote_allocations → pm_allocations (committed status).
+      //    Retainer parents have their allocations expanded into per-month
+      //    children — each child gets a clone with start/end clamped to that
+      //    month so timesheet entries roll up cleanly per month.
       const { data: qAllocs, error: qaErr } = await db
         .from("quote_allocations")
         .select("stage_id, resource_id, start_date, end_date, hours_per_day")
@@ -323,9 +410,32 @@ function QuoteDetail() {
       let allocationsCopied = 0;
       let allocationsSkipped = 0;
       for (const a of qAllocs ?? []) {
+        const children = retainerChildrenByParent.get(a.stage_id);
+        if (children && children.length > 0) {
+          // Expand the retainer-template allocation across every month.
+          for (const ch of children) {
+            const cs = parseISO(ch.start);
+            const ce = parseISO(ch.end);
+            const as = parseISO(a.start_date);
+            const ae = parseISO(a.end_date);
+            const clampedStart = maxDate([cs, as]);
+            const clampedEnd = minDate([ce, ae]);
+            if (clampedStart > clampedEnd) continue;
+            const { error: aErr } = await db.from("pm_allocations").insert({
+              stage_id: ch.childId,
+              resource_id: a.resource_id,
+              start_date: fmtDate(clampedStart, "yyyy-MM-dd"),
+              end_date: fmtDate(clampedEnd, "yyyy-MM-dd"),
+              hours_per_day: Number(a.hours_per_day ?? 8),
+              status: "committed",
+            });
+            if (aErr) throw aErr;
+            allocationsCopied += 1;
+          }
+          continue;
+        }
         const newStageId = stageIdMap.get(a.stage_id);
         if (!newStageId) {
-          // Stage was deleted mid-copy or never existed — surface in toast.
           allocationsSkipped += 1;
           // eslint-disable-next-line no-console
           console.warn("Quote→Project conversion: skipped allocation with missing stage", a);
