@@ -44,6 +44,21 @@ export function ProjectForecastCard({ projectId }: { projectId: string }) {
   const { envelope, isLoading } = useProjectForecastEnvelope(projectId);
   const freeze = useFreezeProjectForecastSnapshot();
 
+  const stageNamesQ = useQuery({
+    queryKey: ["pm_stages", "names", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pm_stages")
+        .select("id, name")
+        .eq("project_id", projectId);
+      if (error) throw error;
+      const map = new Map<string, string>();
+      for (const s of data ?? []) map.set(s.id as string, s.name as string);
+      return map;
+    },
+  });
+  const stageNames = stageNamesQ.data;
+
   if (isLoading) return null;
   if (!envelope) return null;
 
