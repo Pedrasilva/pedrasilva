@@ -265,11 +265,18 @@ export type CashFlowRow = {
   period: Period;
   opening: number;
   income: number;
+  retainerForecast: number;
   expenses: number;
   materials: number; // kept internally; surfaced as "Project costs" in UI
   debts: number;
   net: number;
   closing: number;
+};
+
+export type RetainerForecastRow = {
+  year: number;
+  month: number;
+  amount: number;
 };
 
 export function buildCashFlow(
@@ -278,9 +285,16 @@ export function buildCashFlow(
   expenses: ExpenseRow[],
   debtPayments: DebtPayment[],
   vatMode: VatMode,
+  retainerForecast: RetainerForecastRow[] = [],
 ): CashFlowRow[] {
   const rows: CashFlowRow[] = [];
   let runningOpening: number | null = null;
+
+  const forecastByKey = new Map<string, number>();
+  for (const r of retainerForecast) {
+    const k = `${r.year}-${r.month}`;
+    forecastByKey.set(k, (forecastByKey.get(k) ?? 0) + Number(r.amount || 0));
+  }
 
   for (const p of periods) {
     const seedOpening = Number(p.opening_balance) || 0;
@@ -320,7 +334,15 @@ export function buildCashFlow(
         0,
       );
 
-    const net = periodIncome - periodExpenses - periodMaterials - periodDebts;
+    // Layer in retainer forecast only for periods that aren't closed —
+    // closed months should reflect actual invoices, not projections.
+    const isClosed = p.status === "closed" || p.status === "actual";
+    const periodRetainerForecast = isClosed
+      ? 0
+      : (forecastByKey.get(`${p.year}-${p.month}`) ?? 0);
+
+    const net =
+      periodIncome + periodRetainerForecast - periodExpenses - periodMaterials - periodDebts;
     const closing = opening + net;
     runningOpening = closing;
 
@@ -328,6 +350,7 @@ export function buildCashFlow(
       period: p,
       opening,
       income: periodIncome,
+      retainerForecast: periodRetainerForecast,
       expenses: periodExpenses,
       materials: periodMaterials,
       debts: periodDebts,
