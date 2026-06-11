@@ -276,11 +276,11 @@ export function QuotePlanningTab({
     if (!isRetainer) return;
     if (!stagesQ.isSuccess) return;
     if (seededRetainerRef.current) return;
-    if (allStages.length > 0) return;
+    if (retainerStages.length > 0) return;
     seededRetainerRef.current = true;
     handleAddRetainerStage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRetainer, stagesQ.isSuccess, allStages.length]);
+  }, [isRetainer, stagesQ.isSuccess, retainerStages.length]);
 
   return (
     <div className="space-y-6">
@@ -312,6 +312,37 @@ export function QuotePlanningTab({
             />
           ))}
         </div>
+      )}
+
+      {isRetainer && retainerStages.length === 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {t("workspace.planning.retainerMonthly.emptyTitle", {
+                defaultValue: "Monthly retainer template",
+              })}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">
+              {t("workspace.planning.retainerMonthly.emptyHint", {
+                defaultValue:
+                  "Create the monthly fee template used for recurring retainer billing.",
+              })}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleAddRetainerStage}
+              disabled={upsertStage.isPending || stagesQ.isLoading}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              {t("workspace.planning.retainerMonthly.createTemplate", {
+                defaultValue: "Create monthly template",
+              })}
+            </Button>
+          </CardContent>
+        </Card>
       )}
 
       {!isRetainer && (
