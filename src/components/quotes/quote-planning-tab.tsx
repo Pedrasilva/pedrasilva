@@ -269,6 +269,19 @@ export function QuotePlanningTab({
     }
   };
 
+  // Auto-seed a retainer stage for retainer-type quotes so the monthly
+  // editor renders immediately (instead of an empty "no stages" state).
+  const seededRetainerRef = useRef(false);
+  useEffect(() => {
+    if (!isRetainer) return;
+    if (!stagesQ.isSuccess) return;
+    if (seededRetainerRef.current) return;
+    if (allStages.length > 0) return;
+    seededRetainerRef.current = true;
+    handleAddRetainerStage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRetainer, stagesQ.isSuccess, allStages.length]);
+
   return (
     <div className="space-y-6">
       {/* Non-blocking warnings (no team, negative profit, missing supplier…) */}
