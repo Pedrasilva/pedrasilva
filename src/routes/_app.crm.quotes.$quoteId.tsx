@@ -538,7 +538,20 @@ function QuoteDetail() {
 
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight">{quote.titulo}</h2>
+          <InlineEditableTitle
+            value={quote.titulo}
+            onSave={async (titulo: string) => {
+              const { error } = await supabase
+                .from("fee_proposals")
+                .update({ titulo })
+                .eq("id", quoteId);
+              if (error) throw error;
+              setForm((f) => ({ ...f, titulo }));
+              qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
+              qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp"] });
+            }}
+            className="text-2xl font-semibold tracking-tight"
+          />
           <p className="text-sm text-muted-foreground">
             {quote.company?.nome ?? "—"}
             {quote.opportunity && (
