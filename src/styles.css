@@ -258,7 +258,7 @@
     margin: 0 !important;
     padding: 0 !important;
   }
-  /* Esconde tudo excepto a área marcada para impressão */
+  /* Esconde tudo excepto a área marcada para impressão. */
   body * {
     visibility: hidden;
   }
@@ -266,15 +266,18 @@
   .print-area * {
     visibility: visible;
   }
-  /* The print-area must flow naturally inside the @page margin box.
-     Absolute positioning makes browser PDF output ignore the intended
-     document margins and causes unreliable page breaks. */
+  /* Promove a print-area para o topo do documento ocupando toda a largura,
+     ignorando sidebars/top-nav/grids que reservariam espaço com visibility:hidden
+     e empurrariam o conteúdo para uma coluna estreita à direita. */
   .print-area {
-    position: static !important;
-    inset: auto !important;
-    width: auto;
-    padding: 0;
-    margin: 0;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
     color: black !important;
     background: white !important;
   }
