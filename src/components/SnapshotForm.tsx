@@ -391,11 +391,13 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
               variant="outline"
               size="icon"
               onClick={() => toggleArchive.mutate()}
-              disabled={toggleArchive.isPending || (snapshot.is_effective && !snapshot.archived_at)}
+              disabled={toggleArchive.isPending}
               title={
-                snapshot.is_effective && !snapshot.archived_at
-                  ? "Não é possível arquivar a ficha em vigor"
-                  : snapshot.archived_at ? "Restaurar ficha" : "Arquivar ficha"
+                snapshot.archived_at
+                  ? "Restaurar ficha"
+                  : snapshot.is_effective
+                    ? "Arquivar ficha (será desmarcada como em vigor)"
+                    : "Arquivar ficha"
               }
             >
               {snapshot.archived_at ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
