@@ -15,7 +15,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CircleAlert, FileText, CalendarDays, Wallet, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CircleAlert, FileText, CalendarDays, Wallet, ArrowRight, Printer } from "lucide-react";
 import { balanceByCategory, type BenefitBalance, type BenefitExpense, type BenefitYearlyCredit } from "@/lib/benefits";
 import { SnapshotMirrorPanel } from "@/components/snapshot/SnapshotMirrorPanel";
 
