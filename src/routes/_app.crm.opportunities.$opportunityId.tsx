@@ -15,6 +15,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Plus, FileText, Trash2, AlertTriangle, Calendar as CalendarIcon, Mail, Phone, User } from "lucide-react";
 import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activity-timeline";
+import { InlineEditableTitle } from "@/components/inline-editable-title";
 import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
