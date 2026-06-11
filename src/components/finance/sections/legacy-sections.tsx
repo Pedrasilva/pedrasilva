@@ -643,11 +643,50 @@ function useRetainerForecast() {
   });
 }
 
+function useScheduledBillingForecast() {
+  return useQuery({
+    queryKey: ["finance", "scheduled-billing-forecast"],
+    queryFn: async (): Promise<ScheduledBillingRow[]> => {
+      // Source: payment schedule items from approved quotes that have been
+      // converted into a project. Exclude retainer-stage items (those are
+      // already covered by the retainer forecast column to avoid double-count).
+      const { data, error } = await supabase
+        .from("quote_payment_schedule_items")
+        .select(
+          "expected_invoice_date, amount_value, quote:fee_proposals!inner(quote_status, pm_project_id), stage:quote_stages(stage_kind)",
+        )
+        .not("expected_invoice_date", "is", null);
+      if (error) throw error;
+      const rows: ScheduledBillingRow[] = [];
+      for (const r of (data ?? []) as Array<{
+        expected_invoice_date: string | null;
+        amount_value: number | null;
+        quote: { quote_status: string | null; pm_project_id: string | null } | null;
+        stage: { stage_kind: string | null } | null;
+      }>) {
+        if (!r.expected_invoice_date) continue;
+        if (!r.quote || r.quote.quote_status !== "approved") continue;
+        if (!r.quote.pm_project_id) continue;
+        const kind = r.stage?.stage_kind ?? null;
+        if (kind === "retainer_month" || kind === "retainer_monthly") continue;
+        const d = new Date(r.expected_invoice_date);
+        rows.push({
+          year: d.getUTCFullYear(),
+          month: d.getUTCMonth() + 1,
+          amount: Number(r.amount_value ?? 0),
+        });
+      }
+      return rows;
+    },
+  });
+}
+
 export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
   const { t } = useTranslation(["finance", "common"]);
   const { periodsQ, incomeQ, expensesQ, debtPaymentsQ, loading } =
     useFinanceData();
   const retainerQ = useRetainerForecast();
+  const scheduledQ = useScheduledBillingForecast();
 
   const rows = useMemo(
     () =>
@@ -658,6 +697,7 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
         debtPaymentsQ.data ?? [],
         vatMode,
         retainerQ.data ?? [],
+        scheduledQ.data ?? [],
       ),
     [
       periodsQ.data,
@@ -665,9 +705,49 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
       expensesQ.data,
       debtPaymentsQ.data,
       retainerQ.data,
+      scheduledQ.data,
       vatMode,
     ],
   );
+
+  // Aggregate forecast rows that fall outside the periods displayed above
+  // (e.g. retainer months in 2027), so the user can still see future income.
+  const futureRows = useMemo(() => {
+    const periodKeys = new Set(
+      (periodsQ.data ?? []).map((p) => `${p.year}-${p.month}`),
+    );
+    const map = new Map<
+      string,
+      { year: number; month: number; retainer: number; scheduled: number }
+    >();
+    for (const r of retainerQ.data ?? []) {
+      const k = `${r.year}-${r.month}`;
+      if (periodKeys.has(k)) continue;
+      const cur = map.get(k) ?? {
+        year: r.year,
+        month: r.month,
+        retainer: 0,
+        scheduled: 0,
+      };
+      cur.retainer += Number(r.amount || 0);
+      map.set(k, cur);
+    }
+    for (const r of scheduledQ.data ?? []) {
+      const k = `${r.year}-${r.month}`;
+      if (periodKeys.has(k)) continue;
+      const cur = map.get(k) ?? {
+        year: r.year,
+        month: r.month,
+        retainer: 0,
+        scheduled: 0,
+      };
+      cur.scheduled += Number(r.amount || 0);
+      map.set(k, cur);
+    }
+    return Array.from(map.values()).sort(
+      (a, b) => a.year - b.year || a.month - b.month,
+    );
+  }, [periodsQ.data, retainerQ.data, scheduledQ.data]);
 
   if (loading) {
     return (
@@ -679,103 +759,188 @@ export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
     (acc, r) => ({
       income: acc.income + r.income,
       retainerForecast: acc.retainerForecast + r.retainerForecast,
+      scheduledBilling: acc.scheduledBilling + r.scheduledBilling,
       expenses: acc.expenses + r.expenses,
       materials: acc.materials + r.materials,
       debts: acc.debts + r.debts,
       net: acc.net + r.net,
     }),
-    { income: 0, retainerForecast: 0, expenses: 0, materials: 0, debts: 0, net: 0 },
+    {
+      income: 0,
+      retainerForecast: 0,
+      scheduledBilling: 0,
+      expenses: 0,
+      materials: 0,
+      debts: 0,
+      net: 0,
+    },
   );
 
   const statusLabel = (s: string) =>
     t(`finance:cashFlow.status.${s}`, { defaultValue: s });
 
+  const monthLabel = (year: number, month: number) => {
+    const d = new Date(Date.UTC(year, month - 1, 1));
+    return d.toLocaleDateString(undefined, {
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    });
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-display text-lg">
-          {t("finance:cashFlow.title")}
-        </CardTitle>
-        <p className="text-xs text-muted-foreground">
-          {t("finance:cashFlow.subtitle", { year: FINANCE_YEAR })}
-        </p>
-        {totals.retainerForecast > 0 ? (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-display text-lg">
+            {t("finance:cashFlow.title")}
+          </CardTitle>
           <p className="text-xs text-muted-foreground">
-            {t("finance:cashFlow.retainerForecastNote")}
+            {t("finance:cashFlow.subtitle", { year: FINANCE_YEAR })}
           </p>
-        ) : null}
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t("finance:cashFlow.col.month")}</TableHead>
-              <TableHead className="text-right">{t("finance:cashFlow.col.opening")}</TableHead>
-              <TableHead className="text-right">{t("finance:cashFlow.col.income")}</TableHead>
-              <TableHead className="text-right">{t("finance:cashFlow.col.retainerForecast")}</TableHead>
-              <TableHead className="text-right">{t("finance:cashFlow.col.expenses")}</TableHead>
-              <TableHead className="text-right">{t("finance:cashFlow.col.projectCosts")}</TableHead>
-              <TableHead className="text-right">{t("finance:cashFlow.col.debts")}</TableHead>
-              <TableHead className="text-right">{t("finance:cashFlow.col.net")}</TableHead>
-              <TableHead className="text-right">{t("finance:cashFlow.col.closing")}</TableHead>
-              <TableHead>{t("finance:cashFlow.col.status")}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((r) => (
-              <TableRow key={r.period.id}>
-                <TableCell className="font-medium">{r.period.month_name}</TableCell>
-                <TableCell className="text-right tabular-nums">{fmtEUR(r.opening)}</TableCell>
-                <TableCell className="text-right tabular-nums text-emerald-700">{fmtEUR(r.income)}</TableCell>
+          {totals.retainerForecast > 0 || totals.scheduledBilling > 0 ? (
+            <p className="text-xs text-muted-foreground">
+              {t("finance:cashFlow.forecastNote")}
+            </p>
+          ) : null}
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("finance:cashFlow.col.month")}</TableHead>
+                <TableHead className="text-right">{t("finance:cashFlow.col.opening")}</TableHead>
+                <TableHead className="text-right">{t("finance:cashFlow.col.income")}</TableHead>
+                <TableHead className="text-right">{t("finance:cashFlow.col.retainerForecast")}</TableHead>
+                <TableHead className="text-right">{t("finance:cashFlow.col.scheduledBilling")}</TableHead>
+                <TableHead className="text-right">{t("finance:cashFlow.col.expenses")}</TableHead>
+                <TableHead className="text-right">{t("finance:cashFlow.col.projectCosts")}</TableHead>
+                <TableHead className="text-right">{t("finance:cashFlow.col.debts")}</TableHead>
+                <TableHead className="text-right">{t("finance:cashFlow.col.net")}</TableHead>
+                <TableHead className="text-right">{t("finance:cashFlow.col.closing")}</TableHead>
+                <TableHead>{t("finance:cashFlow.col.status")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((r) => (
+                <TableRow key={r.period.id}>
+                  <TableCell className="font-medium">{r.period.month_name}</TableCell>
+                  <TableCell className="text-right tabular-nums">{fmtEUR(r.opening)}</TableCell>
+                  <TableCell className="text-right tabular-nums text-emerald-700">{fmtEUR(r.income)}</TableCell>
+                  <TableCell className="text-right tabular-nums text-emerald-600/80 italic">
+                    {r.retainerForecast > 0 ? fmtEUR(r.retainerForecast) : DASH}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums text-emerald-600/80 italic">
+                    {r.scheduledBilling > 0 ? fmtEUR(r.scheduledBilling) : DASH}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.expenses)}</TableCell>
+                  <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.materials)}</TableCell>
+                  <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.debts)}</TableCell>
+                  <TableCell
+                    className={cn(
+                      "text-right tabular-nums font-medium",
+                      r.net >= 0 ? "text-emerald-700" : "text-rose-700",
+                    )}
+                  >
+                    {fmtEUR(r.net)}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums font-medium">{fmtEUR(r.closing)}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary">{statusLabel(r.period.status)}</Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell>{t("finance:cashFlow.footer.totals")}</TableCell>
+                <TableCell />
+                <TableCell className="text-right tabular-nums text-emerald-700">{fmtEUR(totals.income)}</TableCell>
                 <TableCell className="text-right tabular-nums text-emerald-600/80 italic">
-                  {r.retainerForecast > 0 ? fmtEUR(r.retainerForecast) : DASH}
+                  {totals.retainerForecast > 0 ? fmtEUR(totals.retainerForecast) : DASH}
                 </TableCell>
-                <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.expenses)}</TableCell>
-                <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.materials)}</TableCell>
-                <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(r.debts)}</TableCell>
+                <TableCell className="text-right tabular-nums text-emerald-600/80 italic">
+                  {totals.scheduledBilling > 0 ? fmtEUR(totals.scheduledBilling) : DASH}
+                </TableCell>
+                <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(totals.expenses)}</TableCell>
+                <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(totals.materials)}</TableCell>
+                <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(totals.debts)}</TableCell>
                 <TableCell
                   className={cn(
-                    "text-right tabular-nums font-medium",
-                    r.net >= 0 ? "text-emerald-700" : "text-rose-700",
+                    "text-right tabular-nums font-semibold",
+                    totals.net >= 0 ? "text-emerald-700" : "text-rose-700",
                   )}
                 >
-                  {fmtEUR(r.net)}
+                  {fmtEUR(totals.net)}
                 </TableCell>
-                <TableCell className="text-right tabular-nums font-medium">{fmtEUR(r.closing)}</TableCell>
-                <TableCell>
-                  <Badge variant="secondary">{statusLabel(r.period.status)}</Badge>
-                </TableCell>
+                <TableCell />
+                <TableCell />
               </TableRow>
-            ))}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell>{t("finance:cashFlow.footer.totals")}</TableCell>
-              <TableCell />
-              <TableCell className="text-right tabular-nums text-emerald-700">{fmtEUR(totals.income)}</TableCell>
-              <TableCell className="text-right tabular-nums text-emerald-600/80 italic">
-                {totals.retainerForecast > 0 ? fmtEUR(totals.retainerForecast) : DASH}
-              </TableCell>
-              <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(totals.expenses)}</TableCell>
-              <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(totals.materials)}</TableCell>
-              <TableCell className="text-right tabular-nums text-rose-700">{fmtEUR(totals.debts)}</TableCell>
-              <TableCell
-                className={cn(
-                  "text-right tabular-nums font-semibold",
-                  totals.net >= 0 ? "text-emerald-700" : "text-rose-700",
-                )}
-              >
-                {fmtEUR(totals.net)}
-              </TableCell>
-              <TableCell />
-              <TableCell />
-            </TableRow>
-          </TableFooter>
-        </Table>
-      </CardContent>
-    </Card>
+            </TableFooter>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {futureRows.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-display text-lg">
+              {t("finance:cashFlow.futureTitle")}
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              {t("finance:cashFlow.futureSubtitle", { year: FINANCE_YEAR })}
+            </p>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("finance:cashFlow.col.month")}</TableHead>
+                  <TableHead className="text-right">{t("finance:cashFlow.col.retainerForecast")}</TableHead>
+                  <TableHead className="text-right">{t("finance:cashFlow.col.scheduledBilling")}</TableHead>
+                  <TableHead className="text-right">{t("finance:cashFlow.col.totalForecast")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {futureRows.map((r) => (
+                  <TableRow key={`${r.year}-${r.month}`}>
+                    <TableCell className="font-medium">{monthLabel(r.year, r.month)}</TableCell>
+                    <TableCell className="text-right tabular-nums text-emerald-600/80 italic">
+                      {r.retainer > 0 ? fmtEUR(r.retainer) : DASH}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums text-emerald-600/80 italic">
+                      {r.scheduled > 0 ? fmtEUR(r.scheduled) : DASH}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums font-medium text-emerald-700">
+                      {fmtEUR(r.retainer + r.scheduled)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TableCell>{t("finance:cashFlow.footer.totals")}</TableCell>
+                  <TableCell className="text-right tabular-nums text-emerald-600/80 italic">
+                    {fmtEUR(futureRows.reduce((s, r) => s + r.retainer, 0))}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums text-emerald-600/80 italic">
+                    {fmtEUR(futureRows.reduce((s, r) => s + r.scheduled, 0))}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums font-semibold text-emerald-700">
+                    {fmtEUR(
+                      futureRows.reduce((s, r) => s + r.retainer + r.scheduled, 0),
+                    )}
+                  </TableCell>
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </CardContent>
+        </Card>
+      ) : null}
+    </div>
   );
 }
+
 
 // ---------------------------------------------------------------------------
 // Bank Balances
