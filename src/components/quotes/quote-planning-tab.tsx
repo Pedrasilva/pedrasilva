@@ -330,8 +330,10 @@ export function QuotePlanningTab({
         </>
       )}
 
-      {/* Manual planning tables (always open) */}
+      {/* Manual planning tables (always open) — hidden in retainer mode */}
+      {!isRetainer && (
       <div className="space-y-6 pt-4">
+
 
       {/* STAGES */}
       <Card>
