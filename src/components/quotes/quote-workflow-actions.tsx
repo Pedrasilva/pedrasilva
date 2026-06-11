@@ -260,9 +260,9 @@ export function QuoteWorkflowActions({
                   <SelectValue placeholder={t("quotes.workflow.dialog.approverPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {(contactsQ.data ?? []).map((c) => (
+                  {(collaboratorsQ.data ?? []).map((c) => (
                     <SelectItem key={c.id} value={c.id}>
-                      {[c.titulo, c.primeiro_nome, c.apelido].filter(Boolean).join(" ")}
+                      {c.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
