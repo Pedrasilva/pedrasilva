@@ -208,7 +208,7 @@ function GlobalGanttPage() {
             {/* Fine zoom */}
             <div className="flex items-center gap-1 rounded-md border border-border p-1">
               <button
-                onClick={() => setDayWidth((w) => Math.max(4, w - 4))}
+                onClick={() => setDayWidth((w) => Math.max(1.5, w - 4))}
                 className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
                 aria-label="Reduzir zoom"
               >
