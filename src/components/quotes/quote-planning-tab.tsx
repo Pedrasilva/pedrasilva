@@ -830,6 +830,7 @@ export function QuotePlanningTab({
         </CardContent>
       </Card>
       </div>
+      )}
 
     </div>
   );
