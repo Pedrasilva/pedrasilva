@@ -44,6 +44,7 @@ import { HardDeleteProjectButton } from "@/components/projects/hard-delete-proje
 import { useHistoricalProjectTotals, EMPTY_HISTORICAL_TOTALS, type HistoricalProjectTotals } from "@/lib/projects/use-historical-time";
 import { useStageBudgetControl } from "@/lib/projects/use-stage-budget-control";
 import { BudgetControlPanel } from "@/components/projects/budget-control-panel";
+import { RetainerMonitorPanel } from "@/components/projects/retainer-monitor-panel";
 import { CommercialBaselineCard } from "@/components/projects/commercial-baseline-card";
 import { ProjectForecastCard } from "@/components/projects/project-forecast-card";
 import { Button } from "@/components/ui/button";
