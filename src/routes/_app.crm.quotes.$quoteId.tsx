@@ -57,7 +57,7 @@ import {
   shiftAnchor,
   formatAnchorMonth,
 } from "@/lib/quotes/retainer-monthly";
-import { addMonths, endOfMonth, parseISO, format as fmtDate, max as maxDate, min as minDate } from "date-fns";
+import { parseISO, format as fmtDate, max as maxDate, min as minDate } from "date-fns";
 
 export const Route = createFileRoute("/_app/crm/quotes/$quoteId")({
   component: QuoteDetail,
