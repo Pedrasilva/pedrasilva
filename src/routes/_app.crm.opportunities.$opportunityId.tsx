@@ -24,7 +24,7 @@ import {
   type CrmOpportunity, type OpportunityStage, type FeeProposal, type FeeStructureType,
   type QuoteType, type QuoteCategory, type Contact, contactFullName,
 } from "@/lib/crm/types";
-import { Briefcase, Clock } from "lucide-react";
+import { Briefcase, Clock, Repeat2 } from "lucide-react";
 import { QuoteTemplatePicker } from "@/components/quotes/quote-template-picker";
 import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";
 
@@ -528,14 +528,15 @@ function NewQuoteDialog({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  // Construction Retainer removed per spec — only Project Proposal and
-  // Time-Based Proposal remain as first-class quote categories.
+  // Three first-class proposal types: standard project, time-based, and
+  // pure retainer (simplified workspace, monthly schedule only).
   const categoryCards: {
     value: QuoteCategory;
     icon: typeof Briefcase;
   }[] = [
     { value: "project", icon: Briefcase },
     { value: "time_based", icon: Clock },
+    { value: "retainer", icon: Repeat2 },
   ];
 
   return (
@@ -553,7 +554,7 @@ function NewQuoteDialog({
         {step === 1 ? (
           <div className="grid gap-4">
             {/* Frame 1 — Proposal type */}
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-2 sm:grid-cols-3">
               {categoryCards.map(({ value, icon: Icon }) => (
                 <button
                   key={value}
