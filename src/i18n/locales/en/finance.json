@@ -343,7 +343,10 @@
       "opening": "Opening",
       "income": "Income",
       "retainerForecast": "Retainer (forecast)",
+      "scheduledBilling": "Scheduled billing (forecast)",
+      "totalForecast": "Total forecast",
       "expenses": "Expenses",
+      "projectCosts": "Project costs",
       "materials": "Materials",
       "debts": "Debts",
       "net": "Net",
@@ -351,6 +354,9 @@
       "status": "Status"
     },
     "retainerForecastNote": "Includes forecast fees from active retainers for months not yet closed.",
+    "forecastNote": "Forecast columns layer projected income from active retainers and approved project payment schedules onto months that aren't yet closed.",
+    "futureTitle": "Future projected income (beyond {{year}})",
+    "futureSubtitle": "Retainer fees and project payment schedules expected after the current cash-flow year.",
     "status": {
       "projected": "Projected",
       "actual": "Actual",
@@ -361,6 +367,7 @@
       "totals": "Year totals"
     }
   },
+
   "bank": {
     "title": "Bank accounts",
     "col": {
