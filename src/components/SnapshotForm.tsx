@@ -251,7 +251,11 @@ export function SnapshotForm({ snapshot, collaborator }: Props) {
       const yesterdayDate = new Date();
       yesterdayDate.setDate(yesterdayDate.getDate() - 1);
       const yesterday = yesterdayDate.toISOString().slice(0, 10);
-      const patch: Record<string, unknown> = { archived_at: new Date().toISOString() };
+      const patch: {
+        archived_at: string;
+        is_effective?: boolean;
+        effective_to?: string;
+      } = { archived_at: new Date().toISOString() };
       if (snapshot.is_effective) {
         patch.is_effective = false;
         patch.effective_to = snapshot.effective_to ?? yesterday;
