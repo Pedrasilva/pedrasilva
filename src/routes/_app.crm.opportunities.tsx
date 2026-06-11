@@ -349,6 +349,7 @@ function QuoteCategoryChooserDialog({
   const cards: { value: QuoteCategory; icon: typeof Briefcase }[] = [
     { value: "project", icon: Briefcase },
     { value: "time_based", icon: Clock },
+    { value: "retainer", icon: Repeat2 },
   ];
 
   const handleClose = () => {
