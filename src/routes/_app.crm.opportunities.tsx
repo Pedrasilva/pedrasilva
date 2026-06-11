@@ -12,7 +12,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Target, LayoutGrid, List, FileText, ArrowRight, Briefcase, Clock } from "lucide-react";
+import { Plus, Target, LayoutGrid, List, FileText, ArrowRight, Briefcase, Clock, Repeat2 } from "lucide-react";
 import { QuoteTemplatePicker } from "@/components/quotes/quote-template-picker";
 import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";
 import { CompanyPicker } from "@/components/crm/company-picker";
