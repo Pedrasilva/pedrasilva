@@ -79,16 +79,15 @@ export function QuoteWorkflowActions({
   const [pending, setPending] = useState<PendingTransition>(null);
   const [approverId, setApproverId] = useState<string>("");
 
-  const contactsQ = useQuery({
-    queryKey: ["contacts-for-approval", companyId ?? "all"],
+  const collaboratorsQ = useQuery({
+    queryKey: ["collaborators-for-approval"],
     queryFn: async () => {
-      let q = supabase
-        .from("contacts")
-        .select("id, primeiro_nome, apelido, titulo, company_id")
-        .order("primeiro_nome")
-        .limit(200);
-      if (companyId) q = q.eq("company_id", companyId);
-      const { data, error } = await q;
+      const { data, error } = await supabase
+        .from("collaborators")
+        .select("id, nome")
+        .is("archived_at", null)
+        .order("nome")
+        .limit(500);
       if (error) throw error;
       return data ?? [];
     },
@@ -104,11 +103,11 @@ export function QuoteWorkflowActions({
     mutationFn: async (payload: { next: QuoteStatus; approverId?: string | null }) => {
       const updates: Partial<{
         quote_status: QuoteStatus;
-        approved_by_contact_id: string | null;
+        approved_by_collaborator_id: string | null;
         approved_at: string | null;
       }> = { quote_status: payload.next };
       if (payload.next === "approved") {
-        updates.approved_by_contact_id = payload.approverId ?? null;
+        updates.approved_by_collaborator_id = payload.approverId ?? null;
         updates.approved_at = new Date().toISOString();
       }
       const { error } = await supabase
@@ -261,9 +260,9 @@ export function QuoteWorkflowActions({
                   <SelectValue placeholder={t("quotes.workflow.dialog.approverPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {(contactsQ.data ?? []).map((c) => (
+                  {(collaboratorsQ.data ?? []).map((c) => (
                     <SelectItem key={c.id} value={c.id}>
-                      {[c.titulo, c.primeiro_nome, c.apelido].filter(Boolean).join(" ")}
+                      {c.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
