@@ -274,7 +274,6 @@ export function QuoteWorkflowActions({
             <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={onConfirm}
-              disabled={pending?.next === "approved" && !approverId}
             >
               {pending ? t(pending.confirmKey) : ""}
             </AlertDialogAction>
