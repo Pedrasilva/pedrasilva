@@ -2709,30 +2709,6 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
         </div>
       )}
 
-      <Collapsible open={legacyOpen} onOpenChange={setLegacyOpen} className="no-print">
-        <CollapsibleTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-between text-xs text-muted-foreground"
-          >
-            <span>
-              {t("workspace.proposal.legacyPreview.title")} ·{" "}
-              <span className="text-muted-foreground/80">
-                {t("workspace.proposal.legacyPreview.hint")}
-              </span>
-            </span>
-            <ChevronDown
-              className={`h-4 w-4 transition-transform ${
-                legacyOpen ? "rotate-180" : ""
-              }`}
-            />
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="mt-3">
-          <LegacyProposalPreview {...props} />
-        </CollapsibleContent>
-      </Collapsible>
     </div>
   );
 }
