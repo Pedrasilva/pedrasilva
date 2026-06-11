@@ -528,14 +528,15 @@ function NewQuoteDialog({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  // Construction Retainer removed per spec — only Project Proposal and
-  // Time-Based Proposal remain as first-class quote categories.
+  // Three first-class proposal types: standard project, time-based, and
+  // pure retainer (simplified workspace, monthly schedule only).
   const categoryCards: {
     value: QuoteCategory;
     icon: typeof Briefcase;
   }[] = [
     { value: "project", icon: Briefcase },
     { value: "time_based", icon: Clock },
+    { value: "retainer", icon: Repeat2 },
   ];
 
   return (
