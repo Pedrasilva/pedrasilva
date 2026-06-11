@@ -1,0 +1,2 @@
+ALTER TABLE public.pm_stages DROP CONSTRAINT IF EXISTS pm_stages_stage_kind_check;
+ALTER TABLE public.pm_stages ADD CONSTRAINT pm_stages_stage_kind_check CHECK (stage_kind = ANY (ARRAY['regular'::text, 'retainer_monthly'::text, 'retainer_month'::text]));
