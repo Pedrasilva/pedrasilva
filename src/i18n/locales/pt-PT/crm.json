@@ -248,6 +248,8 @@
         "rejected": "Proposta marcada como perdida"
       },
       "approvedState": "Aprovada",
+      "convertCta": "Converter em projecto",
+      "converting": "A converter…",
       "dialog": {
         "sendTitle": "Enviar proposta",
         "sendDesc": "Marcar esta proposta como enviada ao cliente? Nenhum email será enviado — apenas o estado é actualizado.",
@@ -385,6 +387,16 @@
           "ok": "Existe uma descrição da proposta.",
           "todo": "Escreva a proposta no Passo 2."
         }
+      },
+      "convert": {
+        "title": "Converter em projecto",
+        "directHint": "A proposta está aprovada. Converta-a num projecto operacional para começar a planear e a alocar recursos.",
+        "directCta": "Converter em projecto",
+        "converting": "A converter…",
+        "alreadyConverted": "Esta proposta já foi convertida num projecto.",
+        "viaContractHint": "Existe um contrato assinado para esta proposta. A criação do projecto deve ser feita a partir do contrato para manter a rastreabilidade.",
+        "openContractCta": "Abrir contrato assinado",
+        "directFallbackHint": "Em alternativa, pode criar o projecto directamente a partir desta proposta."
       }
     },
     "tabs": {

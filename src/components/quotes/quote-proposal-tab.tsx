@@ -34,7 +34,6 @@ import { format, parseISO, type Locale } from "date-fns";
 import {
   ArrowDown,
   ArrowUp,
-  ChevronDown,
   Eye,
   FileText,
   Loader2,
@@ -57,11 +56,6 @@ import { Badge } from "@/components/ui/badge";
 import logoPSA from "@/assets/logo-psa.png";
 import proposalMarkRiba from "@/assets/proposal-mark-riba.png";
 import proposalMarkOa from "@/assets/proposal-mark-oa.png";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 
 import { formatEUR } from "@/lib/crm/types";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
@@ -2553,7 +2547,7 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
   const { data: document = null, isLoading: isLoadingDocument } =
     useLatestQuoteProposalDocument(quoteId);
   const { data: blocks = [] } = useQuoteProposalDocumentBlocks(document?.id);
-  const [legacyOpen, setLegacyOpen] = useState(false);
+  // legacy preview block removed — block editor is the single source.
   const [mode, setMode] = useState<"edit" | "preview">(props.initialMode ?? "edit");
   const placeholderMap = useQuoteBuilderPlaceholderMap({
     quoteId,
@@ -2709,30 +2703,6 @@ export function QuoteProposalTab(props: QuoteProposalTabProps) {
         </div>
       )}
 
-      <Collapsible open={legacyOpen} onOpenChange={setLegacyOpen} className="no-print">
-        <CollapsibleTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-between text-xs text-muted-foreground"
-          >
-            <span>
-              {t("workspace.proposal.legacyPreview.title")} ·{" "}
-              <span className="text-muted-foreground/80">
-                {t("workspace.proposal.legacyPreview.hint")}
-              </span>
-            </span>
-            <ChevronDown
-              className={`h-4 w-4 transition-transform ${
-                legacyOpen ? "rotate-180" : ""
-              }`}
-            />
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="mt-3">
-          <LegacyProposalPreview {...props} />
-        </CollapsibleContent>
-      </Collapsible>
     </div>
   );
 }

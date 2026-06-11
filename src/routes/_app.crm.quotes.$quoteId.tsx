@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Trash2, ExternalLink } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { QuoteWorkflowActions } from "@/components/quotes/quote-workflow-actions";
 import { InlineEditableTitle } from "@/components/inline-editable-title";
@@ -569,9 +569,6 @@ function QuoteDetail() {
             <span className={`h-2 w-2 rounded-full ${status?.color}`} />
             {status ? t(`quoteStatus.${status.value}`) : ""}
           </span>
-          <span className="inline-flex items-center rounded-full border bg-muted/40 px-3 py-1 text-xs font-medium">
-            {t(`quoteType.${quote.quote_type ?? "standard_project"}.label`)}
-          </span>
           <QuoteWorkflowActions
             quoteId={quoteId}
             status={quote.quote_status}
@@ -580,17 +577,8 @@ function QuoteDetail() {
             companyId={quote.company_id ?? null}
             defaultContactId={quote.contact_id ?? null}
             onConvert={handleConvert}
-            onApproved={() => {
-              if (!quote.pm_project_id && !convert.isPending) convert.mutate();
-            }}
             isConverting={convert.isPending}
           />
-          {quote.pm_project_id && (
-            <Link to="/projects/$projectId" params={{ projectId: quote.pm_project_id }}
-              className="inline-flex items-center gap-1 rounded-md border px-3 py-1 text-xs hover:bg-muted/50">
-              <ExternalLink className="h-3 w-3" /> {t("quotes.openProject")}
-            </Link>
-          )}
           <Button variant="outline" size="sm" onClick={() => setSaveTemplateOpen(true)}>
             {t("templates.actions.saveAs")}
           </Button>
@@ -622,6 +610,9 @@ function QuoteDetail() {
           quoteType={quote.quote_type ?? "standard_project"}
           quoteCategory={quote.quote_category}
           ontologyFamilyCode={(quote as unknown as { ontology_family_code?: string | null }).ontology_family_code ?? null}
+          quoteStatus={quote.quote_status}
+          onConvert={handleConvert}
+          isConverting={convert.isPending}
           onEditEstimate={() => setStep("estimate")}
           onEditContent={() => setStep("content")}
         />

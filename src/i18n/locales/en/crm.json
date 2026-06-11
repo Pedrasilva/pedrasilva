@@ -248,6 +248,8 @@
         "rejected": "Quote marked as lost"
       },
       "approvedState": "Approved",
+      "convertCta": "Convert to project",
+      "converting": "Converting…",
       "dialog": {
         "sendTitle": "Send proposal",
         "sendDesc": "Mark this quote as sent to the client? No email will be sent — this only updates the status.",
@@ -385,6 +387,16 @@
           "ok": "A proposal description is set.",
           "todo": "Write the proposal in Step 2."
         }
+      },
+      "convert": {
+        "title": "Convert to project",
+        "directHint": "This quote is approved. Convert it into an operational project to start planning and allocating resources.",
+        "directCta": "Convert to project",
+        "converting": "Converting…",
+        "alreadyConverted": "This quote has already been converted into a project.",
+        "viaContractHint": "A signed contract exists for this quote. Bootstrap the project from the contract to preserve traceability.",
+        "openContractCta": "Open signed contract",
+        "directFallbackHint": "Alternatively, you can create the project directly from this quote."
       }
     },
     "tabs": {
