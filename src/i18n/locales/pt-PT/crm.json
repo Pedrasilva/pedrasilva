@@ -839,6 +839,16 @@
           "notes": "Notas",
           "coordination": "Âmbito de coordenação"
         }
+      },
+      "convert": {
+        "title": "Converter em projecto",
+        "directHint": "A proposta está aprovada. Converta-a num projecto operacional para começar a planear e a alocar recursos.",
+        "directCta": "Converter em projecto",
+        "converting": "A converter…",
+        "alreadyConverted": "Esta proposta já foi convertida num projecto.",
+        "viaContractHint": "Existe um contrato assinado para esta proposta. A criação do projecto deve ser feita a partir do contrato para manter a rastreabilidade.",
+        "openContractCta": "Abrir contrato assinado",
+        "directFallbackHint": "Em alternativa, pode criar o projecto directamente a partir desta proposta."
       }
     }
   },
