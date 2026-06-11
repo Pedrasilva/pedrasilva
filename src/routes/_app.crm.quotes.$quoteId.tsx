@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { QuoteWorkflowActions } from "@/components/quotes/quote-workflow-actions";
+import { InlineEditableTitle } from "@/components/inline-editable-title";
 import {
   AlertDialog,
   AlertDialogAction,
