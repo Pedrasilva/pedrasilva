@@ -170,7 +170,11 @@ function OpportunityDetail() {
 
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight">{opp.name}</h2>
+          <InlineEditableTitle
+            value={opp.name}
+            onSave={(name) => updateField.mutateAsync({ name })}
+            className="text-2xl font-semibold tracking-tight"
+          />
           <p className="text-sm text-muted-foreground">
             {opp.company?.nome ?? t("opportunities.card.noCompany")}
           </p>
