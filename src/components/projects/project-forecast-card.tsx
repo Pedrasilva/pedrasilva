@@ -10,11 +10,13 @@
  * keeps existing PM views fully unchanged.
  */
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { TrendingUp, Activity, AlertTriangle, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import {
   useProjectForecastEnvelope,
   useFreezeProjectForecastSnapshot,
