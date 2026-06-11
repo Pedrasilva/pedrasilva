@@ -2,7 +2,7 @@
  * Quote Planning tab — stages + dependencies + allocations.
  * No Gantt yet (Phase C). Plain tables only.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,9 +60,11 @@ const today = () => new Date().toISOString().slice(0, 10);
 export function QuotePlanningTab({
   quoteId,
   pricingMultiplier = 1,
+  isRetainer = false,
 }: {
   quoteId: string;
   pricingMultiplier?: number;
+  isRetainer?: boolean;
 }) {
   const { t, i18n } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
