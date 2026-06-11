@@ -610,6 +610,9 @@ function QuoteDetail() {
           quoteType={quote.quote_type ?? "standard_project"}
           quoteCategory={quote.quote_category}
           ontologyFamilyCode={(quote as unknown as { ontology_family_code?: string | null }).ontology_family_code ?? null}
+          quoteStatus={quote.quote_status}
+          onConvert={handleConvert}
+          isConverting={convert.isPending}
           onEditEstimate={() => setStep("estimate")}
           onEditContent={() => setStep("content")}
         />
