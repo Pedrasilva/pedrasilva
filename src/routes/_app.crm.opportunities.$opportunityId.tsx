@@ -173,7 +173,7 @@ function OpportunityDetail() {
         <div>
           <InlineEditableTitle
             value={opp.name}
-            onSave={(name) => updateField.mutateAsync({ name })}
+            onSave={(name: string) => updateField.mutateAsync({ name })}
             className="text-2xl font-semibold tracking-tight"
           />
           <p className="text-sm text-muted-foreground">
