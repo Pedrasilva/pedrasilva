@@ -18,7 +18,7 @@ import { useMemo, useState, useEffect, useRef, useLayoutEffect } from "react";
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays } from "date-fns";
-import { GanttChart, type StageWithProject, type PaymentMilestone } from "@/components/projects/gantt-chart";
+import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
@@ -108,20 +108,18 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
     return m;
   }, [allocations, resourceById]);
 
-  // Map quote stages into StageWithProject. Quote stages have no baseline
-  // columns; leave them undefined — features.baseline is off so Gantt won't
-  // try to render the ghost.
-  const mappedStages = useMemo<StageWithProject[]>(() => {
+  // Map quote stages into StageWithProject + build the hierarchy descriptor
+  // consumed by GanttChart's outline column.
+  const { mappedStages, hierarchy } = useMemo<{
+    mappedStages: StageWithProject[];
+    hierarchy: Map<string, GanttHierarchyNode>;
+  }>(() => {
     // Retainer-monthly stages (stage_kind='retainer_monthly') are edited via
     // RetainerStageEditor and intentionally NOT rendered on the main Gantt.
     const regular = stages.filter(
       (s) => (s as { stage_kind?: string }).stage_kind !== "retainer_monthly",
     );
 
-    // Hierarchical order: each architecture stage (by sort_order) followed
-    // by any supplier_group children, each followed by its supplier_phase
-    // children. Visual indentation via a name prefix so the shared
-    // GanttChart (flat row list) still shows the hierarchy.
     type S = (typeof regular)[number] & {
       stage_role?: string | null;
       parent_stage_id?: string | null;
@@ -151,32 +149,57 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
     );
 
     const ordered: S[] = [];
-    const pushGroup = (g: S) => {
-      ordered.push(g);
+    const hier = new Map<string, GanttHierarchyNode>();
+    let archIdx = 0;
+
+    const pushGroup = (g: S, parentWbs: string, groupIdx: number) => {
+      const wbs = parentWbs ? `${parentWbs}.${groupIdx}` : String(groupIdx);
       const phases = (phasesByParent.get(g.id) ?? []).sort(
         (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
       );
-      for (const p of phases) ordered.push(p);
+      hier.set(g.id, {
+        depth: parentWbs ? 1 : 0,
+        wbs,
+        hasChildren: phases.length > 0,
+        isSummary: true,
+        role: "supplier_group",
+        parentId: g.parent_stage_id ?? null,
+      });
+      ordered.push(g);
+      phases.forEach((p, pi) => {
+        ordered.push(p);
+        hier.set(p.id, {
+          depth: parentWbs ? 2 : 1,
+          wbs: `${wbs}.${pi + 1}`,
+          hasChildren: false,
+          isSummary: false,
+          role: "supplier_phase",
+          parentId: g.id,
+        });
+      });
     };
+
     for (const arch of archStages) {
-      ordered.push(arch);
+      archIdx += 1;
       const groups = (groupsByParent.get(arch.id) ?? []).sort((a, b) =>
         (a.supplier_company_id ?? "").localeCompare(b.supplier_company_id ?? ""),
       );
-      for (const g of groups) pushGroup(g);
+      hier.set(arch.id, {
+        depth: 0,
+        wbs: String(archIdx),
+        hasChildren: groups.length > 0,
+        isSummary: false,
+        role: "architecture",
+        parentId: null,
+      });
+      ordered.push(arch);
+      groups.forEach((g, gi) => pushGroup(g, String(archIdx), gi + 1));
     }
-    for (const g of orphanGroups) pushGroup(g);
+    orphanGroups.forEach((g, gi) => pushGroup(g, "", archStages.length + gi + 1));
 
-    const displayName = (s: S): string => {
-      const role = s.stage_role ?? "architecture";
-      if (role === "supplier_group") return `▸ ${s.name}`;
-      if (role === "supplier_phase") return `    └─ ${s.name}`;
-      return s.name;
-    };
-
-    return ordered.map((s) => ({
+    const mapped = ordered.map((s) => ({
       id: s.id,
-      name: displayName(s),
+      name: s.name,
       project_id: quoteId,
       projectId: quoteId,
       start_date: s.start_date,
@@ -209,7 +232,34 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
       is_fee_only: true,
       allocations: allocByStage.get(s.id) ?? [],
     }));
+
+    return { mappedStages: mapped, hierarchy: hier };
   }, [stages, allocByStage, quoteId]);
+
+  // Local collapse state for the outline. Persisted in sessionStorage per quote.
+  const collapseKey = `quote-gantt-collapsed:${quoteId}`;
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const raw = window.sessionStorage.getItem(collapseKey);
+      return raw ? new Set(JSON.parse(raw) as string[]) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+  const toggleCollapse = (id: string) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      try {
+        window.sessionStorage.setItem(collapseKey, JSON.stringify([...next]));
+      } catch {
+        /* no-op */
+      }
+      return next;
+    });
+  };
 
   // Origin/totalDays — earliest start - 7d, span out to latest end + 21d.
   const { origin, totalDays } = useMemo(() => {
@@ -420,8 +470,13 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             resources={resources}
             adapter={adapter}
             milestones={milestones}
+            hierarchy={hierarchy}
+            collapsed={collapsed}
+            onToggleCollapse={toggleCollapse}
+            outlineWidth={320}
             embedded
           />
+
         </div>
         {!poolCollapsed && (
           <ResourcePool resources={poolResources} collapsed={false} missingRateIds={rateMissing} />

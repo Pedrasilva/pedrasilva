@@ -24,6 +24,9 @@ import { useDateLocale } from "@/i18n/use-date-locale";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
 import type { DepType } from "@/lib/projects/dependencies";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
+import { GanttOutlineColumn, type GanttHierarchyNode } from "@/components/projects/gantt-outline-column";
+
+export type { GanttHierarchyNode };
 
 /**
  * A payment milestone to render in the timeline lane above the stages.
@@ -77,11 +80,25 @@ interface Props {
   showFinancials?: boolean;
   /** Payment milestones to render in the lane above the stage rows. */
   milestones?: PaymentMilestone[];
+  /**
+   * Optional hierarchy map driving the left outline tree. When present,
+   * GanttChart renders a sticky left outline column with WBS numbering,
+   * indentation guides, collapsible parents, and renders parent rows as
+   * compact "summary" bars (no allocations, no drag).
+   */
+  hierarchy?: Map<string, GanttHierarchyNode>;
+  collapsed?: Set<string>;
+  onToggleCollapse?: (stageId: string) => void;
+  /** Width (px) of the left outline column. 0 / undefined hides it. */
+  outlineWidth?: number;
 }
 
 const STAGE_ROW_H = 92;
+const SUMMARY_ROW_H = 40;
 const ALLOC_ROW_H = 32;
 const STAGE_GAP = 16;
+const ROW_SPACING = 16; // matches `space-y-4` between sibling rows
+const TOP_PADDING = 16; // matches `py-4` top padding
 
 interface DragState {
   type: "move" | "resize-l" | "resize-r" | "stage-move" | "stage-resize-l" | "stage-resize-r";
@@ -100,7 +117,22 @@ interface LinkDragState {
   toSide: "start" | "end" | null;
 }
 
-export function GanttChart({ stages, origin, totalDays, dayWidth, resources, adapter, budgetByStage, budgetByAllocation, showFinancials, milestones }: Props) {
+export function GanttChart({
+  stages: stagesAll,
+  origin,
+  totalDays,
+  dayWidth,
+  resources,
+  adapter,
+  budgetByStage,
+  budgetByAllocation,
+  showFinancials,
+  milestones,
+  hierarchy,
+  collapsed,
+  onToggleCollapse,
+  outlineWidth = 0,
+}: Props) {
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -110,6 +142,29 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
   const [link, setLink] = useState<LinkDragState | null>(null);
   const [linkHoverStage, setLinkHoverStage] = useState<string | null>(null);
   const [editingDep, setEditingDep] = useState<{ id: string; x: number; y: number } | null>(null);
+
+  // Hide stages whose ancestor chain contains a collapsed parent.
+  const stages = useMemo(() => {
+    if (!hierarchy || !collapsed || collapsed.size === 0) return stagesAll;
+    return stagesAll.filter((s) => {
+      let cur = hierarchy.get(s.id)?.parentId ?? null;
+      while (cur) {
+        if (collapsed.has(cur)) return false;
+        cur = hierarchy.get(cur)?.parentId ?? null;
+      }
+      return true;
+    });
+  }, [stagesAll, hierarchy, collapsed]);
+
+  // Per-stage row height (matches the bar canvas and the outline column).
+  const rowHeightFor = (stageId: string): number => {
+    const stage = stages.find((s) => s.id === stageId);
+    if (!stage) return STAGE_ROW_H + STAGE_GAP;
+    const isSummary = hierarchy?.get(stageId)?.isSummary ?? false;
+    if (isSummary) return SUMMARY_ROW_H + STAGE_GAP;
+    const allocRows = Math.max(stage.allocations.length, 0);
+    return STAGE_ROW_H + allocRows * (ALLOC_ROW_H + 4) + STAGE_GAP;
+  };
 
   // All planner mutations + dependency reads come from the adapter — there is
   // no direct pm_* coupling left in this component.
@@ -211,15 +266,16 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
       const sEnd = draft?.end ?? stage.end_date;
       const x = differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
       const w = dayCount(sStart, sEnd) * dayWidth;
-      const allocRows = Math.max(stage.allocations.length, 0);
-      const rowsHeight = allocRows * (ALLOC_ROW_H + 4);
-      const height = STAGE_ROW_H + rowsHeight + STAGE_GAP;
+      const isSummary = hierarchy?.get(stage.id)?.isSummary ?? false;
+      const height = isSummary
+        ? SUMMARY_ROW_H + STAGE_GAP
+        : STAGE_ROW_H + Math.max(stage.allocations.length, 0) * (ALLOC_ROW_H + 4) + STAGE_GAP;
       if (i > 0) cursor += 16;
       out.set(stage.id, { top: cursor, height, x, w });
       cursor += height;
     });
     return out;
-  }, [stages, draftDates, origin, dayWidth]);
+  }, [stages, draftDates, origin, dayWidth, hierarchy]);
 
   const visibleDeps = useMemo(() => {
     if (!deps) return [];
@@ -410,7 +466,26 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
       .catch((err: unknown) => toast.error((err as Error).message));
   }
 
+  // Header band heights — months (h-7=28) + days/weeks/quarters band.
+  // Day band: h-9 (36) when dayWidth ≥ 14, otherwise h-5 (20).
+  const headerHeight = 28 + (dayWidth >= 14 ? 36 : 20);
+  const milestonesHeight = milestones && milestones.length > 0 ? 32 : 0;
+
   return (
+    <div className="flex" style={{ width: outlineWidth + totalDays * dayWidth }}>
+      {outlineWidth > 0 && hierarchy && onToggleCollapse && (
+        <GanttOutlineColumn
+          visibleStages={stages}
+          hierarchy={hierarchy}
+          collapsed={collapsed ?? new Set()}
+          onToggleCollapse={onToggleCollapse}
+          width={outlineWidth}
+          headerHeight={headerHeight}
+          rowHeightFor={rowHeightFor}
+          rowGap={ROW_SPACING}
+          topPadding={milestonesHeight + TOP_PADDING}
+        />
+      )}
     <div
       ref={canvasRef}
       className="relative select-none"
@@ -625,6 +700,37 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
             const sEnd = draft?.end ?? stage.end_date;
             const stageX = differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
             const stageW = dayCount(sStart, sEnd) * dayWidth;
+            const node = hierarchy?.get(stage.id);
+            const isSummary = node?.isSummary ?? false;
+
+            // Summary / rollup row — slim non-interactive bar spanning the
+            // group's range. No allocations rendered, no drag handles.
+            if (isSummary) {
+              return (
+                <div
+                  key={stage.id}
+                  className="relative"
+                  style={{ height: SUMMARY_ROW_H + STAGE_GAP }}
+                >
+                  <div
+                    className="absolute top-3 flex h-5 items-center rounded-sm border border-foreground/20 bg-foreground/70 px-2 text-[10px] font-semibold uppercase tracking-wider text-background shadow-sm"
+                    style={{ left: stageX, width: Math.max(40, stageW) }}
+                    title={`${stage.name} · ${fmt(sStart)} → ${fmt(sEnd)}`}
+                  >
+                    <span className="truncate">{stage.name}</span>
+                  </div>
+                  {/* span brackets on each end */}
+                  <div
+                    className="absolute top-2 h-7 w-px bg-foreground/40"
+                    style={{ left: stageX }}
+                  />
+                  <div
+                    className="absolute top-2 h-7 w-px bg-foreground/40"
+                    style={{ left: stageX + Math.max(40, stageW) - 1 }}
+                  />
+                </div>
+              );
+            }
 
             // Baseline ghost (rendered behind the working stage bar)
             const stageWithBaseline = stage as typeof stage & {
@@ -1373,6 +1479,7 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
           );
         })()}
       </div>
+    </div>
     </div>
   );
 }
