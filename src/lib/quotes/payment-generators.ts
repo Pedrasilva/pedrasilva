@@ -351,7 +351,9 @@ export function generateByStageBilling(
   stageFees: Record<string, number>,
 ): GeneratorItem[] {
   if (stages.length === 0) return [];
-  const sorted = [...stages].sort((a, b) => a.sort_order - b.sort_order);
+  // Exclude children of parent bars — only top-level stages bill the client.
+  const billable = topLevelBillableStages(stages);
+  const sorted = [...billable].sort((a, b) => a.sort_order - b.sort_order);
   const items: GeneratorItem[] = [];
   let order = 0;
   for (const s of sorted) {
@@ -426,18 +428,58 @@ export function generateByStageBilling(
         });
       });
     } else {
-      // 'stage' — single payment at stage end
-      items.push({
-        label: s.name,
-        trigger_type: "stage_end",
-        amount_type: "fixed",
-        amount_value: round2(stageFees[s.id] ?? 0),
-        stage_id: s.id,
-        expected_invoice_date: s.end_date,
-        expected_payment_date: null,
-        sort_order: order++,
-        generator_source: "by_stage_billing",
-      });
+      // 'stage' — honor stage_billing_timing: end (default) | start | split
+      const fee = round2(stageFees[s.id] ?? 0);
+      const timing = getStageBillingTiming(s);
+      if (timing === "split") {
+        const half = round2(fee / 2);
+        items.push({
+          label: `${s.name} — start`,
+          trigger_type: "stage_start",
+          amount_type: "fixed",
+          amount_value: half,
+          stage_id: s.id,
+          expected_invoice_date: s.start_date,
+          expected_payment_date: null,
+          sort_order: order++,
+          generator_source: "by_stage_billing",
+        });
+        items.push({
+          label: `${s.name} — end`,
+          trigger_type: "stage_end",
+          amount_type: "fixed",
+          amount_value: round2(fee - half),
+          stage_id: s.id,
+          expected_invoice_date: s.end_date,
+          expected_payment_date: null,
+          sort_order: order++,
+          generator_source: "by_stage_billing",
+        });
+      } else if (timing === "start") {
+        items.push({
+          label: s.name,
+          trigger_type: "stage_start",
+          amount_type: "fixed",
+          amount_value: fee,
+          stage_id: s.id,
+          expected_invoice_date: s.start_date,
+          expected_payment_date: null,
+          sort_order: order++,
+          generator_source: "by_stage_billing",
+        });
+      } else {
+        items.push({
+          label: s.name,
+          trigger_type: "stage_end",
+          amount_type: "fixed",
+          amount_value: fee,
+          stage_id: s.id,
+          expected_invoice_date: s.end_date,
+          expected_payment_date: null,
+          sort_order: order++,
+          generator_source: "by_stage_billing",
+        });
+      }
     }
   }
 
