@@ -40,6 +40,7 @@ import {
   generateThirds,
   generateMonthly,
   generateByStageBilling,
+  generateArchitectureWithConsultants,
   computeStageFees,
   resolveScheduleItemAmount,
   DEFAULT_STAGE_MILESTONE_OPTIONS,
@@ -312,6 +313,11 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       generated = generateMonthly(stages);
     } else if (kind === "by_stage_billing") {
       generated = generateByStageBilling(stages, stageFees);
+    } else if (kind === "architecture_with_consultants") {
+      generated = generateArchitectureWithConsultants(stages, externals, stageFees, {
+        downPaymentPercent: Number(milestoneOpts.downPaymentPercent) || 0,
+        paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
+      });
     }
 
     if (generated.length === 0) {
@@ -419,6 +425,14 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
               title={t("workspace.payment.genByStageBillingHint", { defaultValue: "Use each stage's billing model (stage / monthly / retainer)" })}
             >
               {t("workspace.payment.genByStageBilling", { defaultValue: "Per stage model" })}
+            </Button>
+            <Button
+              size="sm"
+              disabled={applyGen.isPending}
+              onClick={() => runGenerator("architecture_with_consultants")}
+              title={t("workspace.payment.genArchConsultantsHint", { defaultValue: "Architecture invoices + per-supplier payouts (pay when paid)" })}
+            >
+              {t("workspace.payment.genArchConsultants", { defaultValue: "Architecture + Consultants" })}
             </Button>
           </div>
         </CardHeader>
@@ -539,7 +553,16 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                         value={it.label}
                         onSave={(next) => upsert.mutate({ id: it.id, label: next })}
                       />
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {((it as unknown as { direction?: string }).direction === "outflow") ? (
+                          <Badge className="text-[10px] px-1 py-0 bg-rose-100 text-rose-800 hover:bg-rose-100">
+                            {t("workspace.payment.outflowBadge", { defaultValue: "Outflow" })}
+                          </Badge>
+                        ) : (
+                          <Badge className="text-[10px] px-1 py-0 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+                            {t("workspace.payment.inflowBadge", { defaultValue: "Inflow" })}
+                          </Badge>
+                        )}
                         {it.manual_override ? (
                           <Badge variant="secondary" className="text-[10px] px-1 py-0">
                             {t("workspace.payment.manualBadge")}

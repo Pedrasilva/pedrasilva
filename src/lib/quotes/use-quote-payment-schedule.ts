@@ -27,6 +27,10 @@ export type QuotePaymentItemInsert = {
   notes?: string | null;
   manual_override?: boolean;
   generator_source?: string | null;
+  direction?: "inflow" | "outflow";
+  supplier_company_id?: string | null;
+  linked_payment_item_id?: string | null;
+  payment_offset_days?: number;
 };
 
 export type QuotePaymentItemUpdate = Partial<QuotePaymentItemInsert> & {
@@ -146,6 +150,8 @@ export function useApplyPaymentGenerator(quoteId: string) {
         sort_order: base + i,
         generator_source: it.generator_source,
         manual_override: false,
+        direction: it.direction ?? "inflow",
+        supplier_company_id: it.supplier_company_id ?? null,
       }));
       const { data, error } = await db
         .from("quote_payment_schedule_items")

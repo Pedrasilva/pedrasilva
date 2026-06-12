@@ -653,9 +653,10 @@ function useScheduledBillingForecast() {
       const { data, error } = await supabase
         .from("quote_payment_schedule_items")
         .select(
-          "expected_invoice_date, amount_value, quote:fee_proposals!inner(quote_status, pm_project_id), stage:quote_stages(stage_kind)",
+          "expected_invoice_date, amount_value, direction, quote:fee_proposals!inner(quote_status, pm_project_id), stage:quote_stages(stage_kind)",
         )
-        .not("expected_invoice_date", "is", null);
+        .not("expected_invoice_date", "is", null)
+        .or("direction.is.null,direction.eq.inflow");
       if (error) throw error;
       const rows: ScheduledBillingRow[] = [];
       for (const r of (data ?? []) as Array<{
@@ -681,12 +682,55 @@ function useScheduledBillingForecast() {
   });
 }
 
+function useSupplierOutflowForecast() {
+  return useQuery({
+    queryKey: ["finance", "supplier-outflow-forecast"],
+    queryFn: async (): Promise<ScheduledBillingRow[]> => {
+      const { data, error } = await supabase
+        .from("quote_payment_schedule_items")
+        .select(
+          "expected_payment_date, expected_invoice_date, amount_value, quote:fee_proposals!inner(quote_status, pm_project_id)",
+        )
+        .eq("direction", "outflow");
+      if (error) throw error;
+      const rows: ScheduledBillingRow[] = [];
+      for (const r of (data ?? []) as Array<{
+        expected_payment_date: string | null;
+        expected_invoice_date: string | null;
+        amount_value: number | null;
+        quote: { quote_status: string | null; pm_project_id: string | null } | null;
+      }>) {
+        const when = r.expected_payment_date ?? r.expected_invoice_date;
+        if (!when) continue;
+        if (!r.quote || r.quote.quote_status !== "approved") continue;
+        if (!r.quote.pm_project_id) continue;
+        const d = new Date(when);
+        rows.push({
+          year: d.getUTCFullYear(),
+          month: d.getUTCMonth() + 1,
+          amount: Number(r.amount_value ?? 0),
+        });
+      }
+      return rows;
+    },
+  });
+}
+
 export function CashFlowSection({ vatMode }: { vatMode: VatMode }) {
   const { t } = useTranslation(["finance", "common"]);
   const { periodsQ, incomeQ, expensesQ, debtPaymentsQ, loading } =
     useFinanceData();
   const retainerQ = useRetainerForecast();
   const scheduledQ = useScheduledBillingForecast();
+  const supplierOutflowQ = useSupplierOutflowForecast();
+  const supplierOutflowByKey = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const r of supplierOutflowQ.data ?? []) {
+      const k = `${r.year}-${r.month}`;
+      m.set(k, (m.get(k) ?? 0) + Number(r.amount || 0));
+    }
+    return m;
+  }, [supplierOutflowQ.data]);
 
   const rows = useMemo(
     () =>

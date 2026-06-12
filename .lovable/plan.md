@@ -1,71 +1,78 @@
-## Goal
 
-Make retainers their own first-class proposal type with a simplified workspace, while still allowing a single "mixed" project to combine stage-paid design stages with a retainer-paid construction stage. Surface billed-vs-clocked review in the project module.
+# Elaborate Gantt + Consultants + Cashflow projections
 
-## 1. Proposal type chosen at creation
+Goal: model consultants as supplier "groups" of indented sub-stages on the quote Gantt that follow the architecture stages through dependencies, generate a payment schedule that mirrors the attached PDF (architecture + per-supplier blocks), and feed the cashflow with projected income (architecture invoices) and projected outflows (consultant invoices).
 
-When creating an opportunity / quote, prompt for three types:
+---
 
-- **Standard Project** — stages, allocations, milestones (today's flow).
-- **Time-based** — consultancy/hourly (today's flow).
-- **Retainer** — new, simplified flow (below).
+## 1. Data model changes
 
-`quote_category` already supports `project | time_based | retainer | consultancy`. We wire the chooser into the quick-create dialogs so the type is locked in from the start and the workspace adapts.
+**`quote_stages`** (already supports a tree-friendly structure; we extend it):
+- `parent_stage_id uuid NULL` → enables indentation (supplier group → sub-stage).
+- `stage_role text NOT NULL DEFAULT 'architecture'` → values: `architecture`, `supplier_group`, `supplier_phase`.
+- `supplier_company_id uuid NULL` → set on `supplier_group` (and inherited by children for queries).
+- `linked_stage_id uuid NULL` → on `supplier_phase`, points to the architecture stage it shadows (so cascade moves it).
 
-## 2. Retainer-only workspace
+**`quote_payment_schedule_items`**:
+- `supplier_company_id uuid NULL` → tags rows that represent supplier outflows.
+- `direction text NOT NULL DEFAULT 'inflow'` → `inflow` (architecture → us) or `outflow` (us → supplier).
+- `linked_payment_item_id uuid NULL` → outflow linked to the parent inflow (for "pay when paid + N days").
+- `payment_offset_days int NOT NULL DEFAULT 0` → applied on top of the linked inflow's payment date.
 
-When `quote_category === "retainer"`, the workspace is trimmed to what actually matters:
+**New table `quote_supplier_phase_splits`** (per-supplier % overrides):
+- `quote_id`, `supplier_company_id`, `phase_code` (or `linked_stage_id`), `percent`.
+- Default: inherit architecture stage % split. Row only created when overridden.
 
-- **Overview** — client, title, monthly fee, anchor month, number of months (12/18/24 preset + custom), review cadence (3 / 6 months), pricing multiplier.
-- **Monthly template** — replaces the Planning Gantt. One month of role allocations (role → hours/month or %, sale/cost rate). This is the "what we deliver every month" definition. Total monthly fee derives from these rows.
-- **Financial** — monthly fee × months, cost, margin (already implemented in rollups).
-- **Proposal / Publish** — unchanged.
+All new columns get sensible defaults so existing quotes keep working.
 
-Hidden for retainer-only quotes:
-- External Services tab
-- Payment Schedule generators (no thirds, no milestones, no down-payment toggle). The schedule is auto-generated monthly from `monthly fee × N months` starting at the anchor and is read-only except for per-row date overrides.
+---
 
-## 3. Mixed project: design + construction retainer (one quote)
+## 2. Gantt UI (`quote-gantt.tsx`)
 
-For a Standard Project quote, each stage already has a `billing_model` (`stage | monthly | retainer`) and `stage_kind` (`regular | retainer_monthly`). We expose this clearly:
+- Render rows hierarchically with indentation. Order: architecture stages first, then each supplier group with its phases nested below.
+- Expand/collapse per supplier group.
+- New row type "Supplier group": shows supplier name, total fee, span = min(start) → max(end) of its children.
+- New action on architecture stage row: **"Add consultant"** → opens picker (existing companies where `is_supplier=true`) and seeds a supplier group + supplier_phase rows mirroring the architecture phases the user selects.
+- Supplier phases inherit dates from their `linked_stage_id` via SS=0 dependency by default; user can change the dep type/lag inline.
+- Moving an architecture stage cascades to linked supplier phases through the existing dependency cascade engine (`computeCascade`).
 
-- In the stage editor, a "How is this stage billed?" picker:
-  - **Per stage** — single payment at stage end (typical design phases).
-  - **Monthly split** — stage fee split evenly across its months.
-  - **Retainer** — stage becomes `retainer_monthly`: user sets monthly fee, anchor, duration; allocations are the monthly template; no end-date driven fee — fee = monthly × months.
-- The construction stage uses **Retainer**; design stages stay **Per stage** (or Monthly split). The payment schedule generator already handles this mix (`generateByStageBilling` in `src/lib/quotes/payment-generators.ts`) — we just make it the default for mixed quotes and surface the per-stage choice in the UI.
+---
 
-## 4. Review cadence (3 / 6 months) + reconciliation in Projects
+## 3. Payment schedule (`quote-payment-schedule-tab.tsx` + `payment-generators.ts`)
 
-Store `retainer_review_months` (3 or 6, default 6) on the retainer stage (or the quote when retainer-only). On the **project page**, add a read-only **Retainer health** panel per retainer stage:
+- Replace the flat "Aplicar" generator with a structured generator that produces the PDF layout:
+  - Top block: **architecture totals** (aggregated across all architecture stages) — % split by phase, invoice numbering Fatura 01..N, condition "Pronto pagamento" / "30 dias".
+  - One block per supplier: total fee, then per-phase rows using the supplier's split (inherited or overridden).
+- Each generated row stores `direction` and `supplier_company_id`, with outflow rows linked to the matching architecture inflow row.
+- Inline override UI per supplier row: percent per phase (locks `manual_override=true` only on the cells the user edits).
+- Apply button regenerates non-manual rows only, preserving overrides (existing pattern).
 
-- For each rolling review window (e.g. last 3 or 6 months from today):
-  - Hours clocked vs implied hours from monthly template × months elapsed
-  - Amount invoiced vs amount that should have been invoiced
-  - Variance % with under/on-track/over flags
-- No write actions here — it's a signal for the PM to renegotiate or re-scope.
+---
 
-Time logging stays in the project module (already moved per earlier feedback).
+## 4. Cashflow integration
 
-## 5. UI cleanup of current bugs
+Reads from `quote_payment_schedule_items` joined with `fee_proposals` → projects/clients:
 
-- For `quote_category === "retainer"`, force `payment_plan_type = monthly` and hide the thirds/milestones generators.
-- Hide the External Services tab when category is retainer.
-- The retainer monthly amount is the source of truth (already true in `payment-generators.ts`); the Overview "Estimated fee" field becomes read-only and displays `monthly × months`.
+- **Projected income** (CashFlowSection): sum of `direction='inflow'` items by month using `expected_payment_date`. Source: signed/issued quotes + retainer projections (existing logic) + these new schedule items.
+- **Projected outflows**: sum of `direction='outflow'` items by month and supplier.
+- **Per-project insight** (financial summary tab + project insights): show "fees received − consultants payable = remaining for us" using the same schedule data, scoped to the project's source quote.
+
+No changes to historical actuals; only the forecast/cashflow surfaces consume these rows.
+
+---
+
+## 5. Migration & rollout
+
+- Migration 1: schema additions (columns, table, indexes, GRANTs, RLS mirroring existing quote_* policies).
+- Code changes ride on top; existing quotes default to `stage_role='architecture'` and `direction='inflow'` so nothing breaks.
+- i18n keys added to EN + PT in same edit (quotes namespace + glossary additions if needed).
+
+---
 
 ## Technical notes
 
-- DB: add `retainer_review_months smallint` to `quote_stages` (nullable; only meaningful when `stage_kind = 'retainer_monthly'`). Mirror to `pm_stages` so the project carries it forward at conversion.
-- `src/routes/_app.crm.quotes.$quoteId.tsx`: extend the `estimateTabs` branching — a third branch for `category === "retainer"` returning `["overview", "retainer-template", "financial"]`.
-- New component `quote-retainer-overview.tsx` (monthly fee + months + anchor + review cadence) and reuse `retainer-stage-editor.tsx` / `retainer-monthly-readings.tsx` for the template.
-- Payment schedule: when category is retainer, always run `generateByStageBilling` against the single retainer stage and disable the generator picker.
-- Stage editor: expose the existing `billing_model` and `stage_kind` switch with clear copy ("Per stage" / "Monthly split" / "Retainer"). When Retainer is chosen, swap the stage form for the retainer fields (monthly amount, anchor, months, review cadence).
-- New "Retainer health" card on `src/routes/_app.projects.$projectId.tsx`, fed by a server fn that joins `pm_time_entries` and `pm_invoices` against the retainer stage window.
-- Conversion (`convert` mutation in the quote route) copies `stage_kind`, `retainer_monthly_amount`, `retainer_anchor_month`, `retainer_months`, and the new `retainer_review_months` into `pm_stages`.
-- i18n: add `quoteType.retainer.*`, `workspace.tabs.retainerTemplate`, `stage.billingModel.*`, `retainer.review.*` keys in EN + PT-PT in the same edit.
+- Tree rendering: extend `quote-gantt.tsx` row builder to group by `parent_stage_id`. Keep `sort_order` per sibling group.
+- Cascade: extend `useQuoteDependencies` to auto-create SS=0 deps when a supplier_phase is created with `linked_stage_id`. Reuse `computeCascade`.
+- Payment generator: new kind `architecture_plus_consultants` in `payment-generators.ts`. Old `by_stage_billing` kept for back-compat.
+- Permissions: same admin-only write policies as existing quote_* tables.
 
-## Out of scope (flag if you want them)
-
-- Auto-suggested fee renegotiation based on variance.
-- Cross-project retainer dashboard.
-- Automated monthly invoice issuance from the retainer schedule (today it generates the schedule rows; actual invoicing is still manual).
