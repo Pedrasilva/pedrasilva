@@ -313,6 +313,11 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       generated = generateMonthly(stages);
     } else if (kind === "by_stage_billing") {
       generated = generateByStageBilling(stages, stageFees);
+    } else if (kind === "architecture_with_consultants") {
+      generated = generateArchitectureWithConsultants(stages, externals, stageFees, {
+        downPaymentPercent: Number(milestoneOpts.downPaymentPercent) || 0,
+        paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
+      });
     }
 
     if (generated.length === 0) {
