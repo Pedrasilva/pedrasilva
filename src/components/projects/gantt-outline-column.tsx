@@ -13,6 +13,16 @@
  */
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, ChevronRight, Briefcase, Box, Wrench } from "lucide-react";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { fmt } from "@/lib/projects/gantt-utils";
 import type { StageWithProject } from "@/components/projects/gantt-chart";
 
