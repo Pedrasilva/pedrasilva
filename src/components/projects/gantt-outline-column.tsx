@@ -93,6 +93,8 @@ export function GanttOutlineColumn({
   onReorderStage,
   onInsertStage,
   onDeleteStage,
+  resourcesCollapsed,
+  onToggleResourcesCollapse,
 }: Props) {
   return (
     <div
