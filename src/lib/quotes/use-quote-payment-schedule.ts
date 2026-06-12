@@ -155,6 +155,8 @@ export function useApplyPaymentGenerator(quoteId: string) {
         manual_override: false,
         direction: it.direction ?? "inflow",
         supplier_company_id: it.supplier_company_id ?? null,
+        vat_rate: it.vat_rate ?? 23,
+        payment_terms: it.payment_terms ?? null,
       }));
       const { data, error } = await db
         .from("quote_payment_schedule_items")
