@@ -33,6 +33,61 @@ export interface GeneratorItem {
   direction?: "inflow" | "outflow";
   /** Set on outflow rows so cashflow can attribute payouts to a supplier. */
   supplier_company_id?: string | null;
+  /** VAT % applied to amount (default 23). */
+  vat_rate?: number;
+  /** Free-text payment condition (e.g. "Pronto pagamento", "30 dias"). */
+  payment_terms?: string | null;
+}
+
+/** Quote-level billing defaults (VAT %, payment-term strings). */
+export interface PaymentDefaults {
+  vatRate: number;
+  defaultTerms: string;
+  firstPaymentTerms: string;
+}
+
+export const DEFAULT_PAYMENT_DEFAULTS: PaymentDefaults = {
+  vatRate: 23,
+  defaultTerms: "30 (trinta) dias de calendário",
+  firstPaymentTerms: "Pronto pagamento",
+};
+
+/** Build a descriptive label from trigger + stage name (PT-style). */
+function describeLabel(
+  trigger: GeneratorItem["trigger_type"],
+  stageName: string | null,
+  variant?: "split-start" | "split-end",
+): string {
+  if (trigger === "project_start") return "Adjudicação";
+  if (trigger === "monthly" && stageName) return stageName;
+  if (trigger === "manual_date") return stageName ?? "Pagamento intermédio";
+  if (!stageName) return "Pagamento";
+  if (trigger === "stage_start") {
+    return variant === "split-start"
+      ? `50% — Início da fase de ${stageName}`
+      : `Início da fase de ${stageName}`;
+  }
+  // stage_end
+  return variant === "split-end"
+    ? `50% — Conclusão da fase de ${stageName}`
+    : `Conclusão da fase de ${stageName}`;
+}
+
+/** Stamp a row with VAT + payment-terms defaults. The first emitted row uses
+ *  firstPaymentTerms (e.g. "Pronto pagamento"), subsequent rows use defaultTerms.  */
+function stampDefaults<T extends GeneratorItem>(
+  row: T,
+  defaults: PaymentDefaults | undefined,
+  index: number,
+): T {
+  if (!defaults) return row;
+  return {
+    ...row,
+    vat_rate: row.vat_rate ?? defaults.vatRate,
+    payment_terms:
+      row.payment_terms ??
+      (index === 0 ? defaults.firstPaymentTerms : defaults.defaultTerms),
+  };
 }
 
 export interface StageMilestonesOptions {
