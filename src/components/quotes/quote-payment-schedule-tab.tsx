@@ -426,6 +426,14 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
             >
               {t("workspace.payment.genByStageBilling", { defaultValue: "Per stage model" })}
             </Button>
+            <Button
+              size="sm"
+              disabled={applyGen.isPending}
+              onClick={() => runGenerator("architecture_with_consultants")}
+              title={t("workspace.payment.genArchConsultantsHint", { defaultValue: "Architecture invoices + per-supplier payouts (pay when paid)" })}
+            >
+              {t("workspace.payment.genArchConsultants", { defaultValue: "Architecture + Consultants" })}
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
