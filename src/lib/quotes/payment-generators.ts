@@ -10,6 +10,7 @@ import type { QuoteStage } from "./types";
 import type { QuoteAllocationWithResource } from "./use-quote-allocations";
 import type { QuoteExternalServiceWithSupplier } from "./use-quote-external-services";
 import { quoteAllocationLine } from "./financial-rollups";
+import { topLevelBillableStages, getStageBillingTiming } from "./stage-billing";
 
 export type GeneratorKind =
   | "milestones"
