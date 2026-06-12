@@ -6,9 +6,12 @@
  * to match exactly what gantt-chart.tsx renders for each stage so the
  * outline stays in sync vertically when the user scrolls.
  *
- * This component is intentionally read-only: edits happen in the
- * existing inline editors inside the chart.
+ * Inline editing
+ * - Double-click the stage name to rename (Enter to save, Esc to cancel).
+ * - Click the trailing WBS digit to renumber within the same parent;
+ *   the host re-sequences siblings via onReorderStage.
  */
+import { useState, useRef, useEffect } from "react";
 import { ChevronDown, ChevronRight, Briefcase, Box, Wrench } from "lucide-react";
 import { fmt } from "@/lib/projects/gantt-utils";
 import type { StageWithProject } from "@/components/projects/gantt-chart";
@@ -41,6 +44,10 @@ interface Props {
   /** Optional row selection — when set, clicking a row name selects it. */
   selectedStageId?: string | null;
   onSelectStage?: (id: string) => void;
+  /** Inline rename. Resolve to commit; reject to revert. */
+  onRenameStage?: (id: string, name: string) => Promise<unknown> | unknown;
+  /** Reorder within the current parent: 1-based position among siblings. */
+  onReorderStage?: (id: string, newPosition: number) => Promise<unknown> | unknown;
 }
 
 const ICON_BY_ROLE = {
@@ -61,13 +68,14 @@ export function GanttOutlineColumn({
   topPadding,
   selectedStageId,
   onSelectStage,
+  onRenameStage,
+  onReorderStage,
 }: Props) {
   return (
     <div
       className="sticky left-0 z-30 shrink-0 border-r border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
       style={{ width, minWidth: width }}
     >
-      {/* Header — matches the months+days/weeks/quarters band */}
       <div
         className="sticky top-0 z-10 flex items-end border-b border-border bg-background/95 px-3 pb-1.5"
         style={{ height: headerHeight }}
@@ -78,7 +86,6 @@ export function GanttOutlineColumn({
         </div>
       </div>
 
-      {/* Rows — first item has topPadding spacer to mirror the chart's py-4 */}
       <div style={{ paddingTop: topPadding }}>
         {visibleStages.map((stage, i) => {
           const node = hierarchy.get(stage.id);
@@ -100,7 +107,6 @@ export function GanttOutlineColumn({
               }`}
               onClick={onSelectStage ? () => onSelectStage(stage.id) : undefined}
             >
-              {/* indent guides */}
               {Array.from({ length: depth }).map((_, d) => (
                 <div
                   key={d}
@@ -113,11 +119,10 @@ export function GanttOutlineColumn({
                 className="flex w-full items-start gap-1.5 pt-2 pr-3"
                 style={{ paddingLeft: 8 + depth * 16 }}
               >
-                {/* Chevron / spacer */}
                 {hasChildren ? (
                   <button
                     type="button"
-                    onClick={() => onToggleCollapse(stage.id)}
+                    onClick={(e) => { e.stopPropagation(); onToggleCollapse(stage.id); }}
                     className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded hover:bg-muted"
                     aria-label={isCollapsed ? "Expand" : "Collapse"}
                   >
@@ -131,12 +136,14 @@ export function GanttOutlineColumn({
                   <div className="h-4 w-4 shrink-0" />
                 )}
 
-                {/* WBS code */}
-                <span className="mt-0.5 shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground">
-                  {wbs}
-                </span>
+                <WbsCode
+                  wbs={wbs}
+                  editable={!!onReorderStage}
+                  onCommit={(newLast) =>
+                    onReorderStage ? onReorderStage(stage.id, newLast) : undefined
+                  }
+                />
 
-                {/* Role icon */}
                 <Icon
                   className={`mt-0.5 h-3 w-3 shrink-0 ${
                     role === "architecture"
@@ -147,16 +154,12 @@ export function GanttOutlineColumn({
                   }`}
                 />
 
-                {/* Name + dates */}
                 <div className="min-w-0 flex-1">
-                  <div
-                    className={`truncate text-xs ${
-                      isSummary ? "font-semibold" : "font-medium"
-                    }`}
-                    title={stage.name}
-                  >
-                    {stage.name}
-                  </div>
+                  <EditableName
+                    value={stage.name}
+                    summary={isSummary}
+                    onSave={onRenameStage ? (next) => onRenameStage(stage.id, next) : undefined}
+                  />
                   <div className="mt-0.5 truncate font-mono text-[10px] text-muted-foreground">
                     {fmt(stage.start_date)} → {fmt(stage.end_date)}
                   </div>
@@ -167,5 +170,170 @@ export function GanttOutlineColumn({
         })}
       </div>
     </div>
+  );
+}
+
+function EditableName({
+  value,
+  summary,
+  onSave,
+}: {
+  value: string;
+  summary: boolean;
+  onSave?: (next: string) => Promise<unknown> | unknown;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!editing) setDraft(value);
+  }, [value, editing]);
+
+  const commit = async () => {
+    const next = draft.trim();
+    if (!onSave || !next || next === value) {
+      setDraft(value);
+      setEditing(false);
+      return;
+    }
+    try {
+      setBusy(true);
+      await onSave(next);
+      setEditing(false);
+    } catch {
+      setDraft(value);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        disabled={busy}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onClick={(e) => e.stopPropagation()}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          e.stopPropagation();
+          if (e.key === "Enter") {
+            e.preventDefault();
+            void commit();
+          } else if (e.key === "Escape") {
+            setDraft(value);
+            setEditing(false);
+          }
+        }}
+        className={`w-full rounded-sm border border-primary/60 bg-background px-1 text-xs outline-none ${
+          summary ? "font-semibold" : "font-medium"
+        }`}
+      />
+    );
+  }
+
+  return (
+    <div
+      className={`truncate text-xs ${summary ? "font-semibold" : "font-medium"} ${
+        onSave ? "cursor-text hover:bg-muted/60 rounded-sm px-0.5 -mx-0.5" : ""
+      }`}
+      title={onSave ? "Double-click to rename" : value}
+      onDoubleClick={(e) => {
+        if (!onSave) return;
+        e.stopPropagation();
+        setDraft(value);
+        setEditing(true);
+      }}
+    >
+      {value}
+    </div>
+  );
+}
+
+function WbsCode({
+  wbs,
+  editable,
+  onCommit,
+}: {
+  wbs: string;
+  editable: boolean;
+  onCommit: (newLast: number) => Promise<unknown> | unknown;
+}) {
+  const parts = wbs.split(".");
+  const lead = parts.slice(0, -1).join(".");
+  const last = parts[parts.length - 1] ?? "";
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(last);
+  const [busy, setBusy] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!editing) setDraft(last);
+  }, [last, editing]);
+
+  const commit = async () => {
+    const n = parseInt(draft, 10);
+    if (!Number.isFinite(n) || n < 1 || String(n) === last) {
+      setDraft(last);
+      setEditing(false);
+      return;
+    }
+    try {
+      setBusy(true);
+      await onCommit(n);
+      setEditing(false);
+    } catch {
+      setDraft(last);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (editing) {
+    return (
+      <span className="mt-0.5 inline-flex shrink-0 items-center font-mono text-[10px] tabular-nums text-muted-foreground">
+        {lead && <span>{lead}.</span>}
+        <input
+          ref={inputRef}
+          autoFocus
+          disabled={busy}
+          inputMode="numeric"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value.replace(/[^0-9]/g, ""))}
+          onClick={(e) => e.stopPropagation()}
+          onBlur={commit}
+          onKeyDown={(e) => {
+            e.stopPropagation();
+            if (e.key === "Enter") {
+              e.preventDefault();
+              void commit();
+            } else if (e.key === "Escape") {
+              setDraft(last);
+              setEditing(false);
+            }
+          }}
+          className="w-8 rounded-sm border border-primary/60 bg-background px-0.5 text-center text-[10px] outline-none"
+        />
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className={`mt-0.5 shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground ${
+        editable ? "cursor-pointer hover:text-foreground hover:underline underline-offset-2" : ""
+      }`}
+      title={editable ? "Click to renumber within siblings" : undefined}
+      onClick={(e) => {
+        if (!editable) return;
+        e.stopPropagation();
+        setDraft(last);
+        setEditing(true);
+      }}
+    >
+      {wbs}
+    </span>
   );
 }
