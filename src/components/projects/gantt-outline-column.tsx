@@ -65,6 +65,9 @@ interface Props {
   ) => Promise<unknown> | unknown;
   /** Delete a stage by id. */
   onDeleteStage?: (id: string) => Promise<unknown> | unknown;
+  /** Per-stage collapse of resource sub-rows. */
+  resourcesCollapsed?: Set<string>;
+  onToggleResourcesCollapse?: (id: string) => void;
 }
 
 
