@@ -141,6 +141,8 @@ export function GanttChart({
   outlineWidth = 0,
   selectedStageId,
   onSelectStage,
+  onRenameStage,
+  onReorderStage,
 }: Props) {
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
