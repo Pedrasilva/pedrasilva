@@ -223,6 +223,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                     upsertStage.mutate({ id: stage.id, end_date: e.target.value });
                 }}
               />
+            </div>
           </div>
           <DurationField
             stageId={stage.id}
@@ -230,18 +231,14 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             endDate={stage.end_date}
             onChange={(end_date: string) => upsertStage.mutate({ id: stage.id, end_date })}
           />
-          </div>
           <div className="space-y-1">
             <Label className="text-xs">
               {t("workspace.planning.budget", { defaultValue: "Budget" })}
             </Label>
-            <Input
-              type="number"
-              step="0.01"
+            <CurrencyInput
               key={`b-${stage.id}-${stage.budget}`}
-              defaultValue={stage.budget ?? 0}
-              onBlur={(e) => {
-                const v = Number(e.target.value) || 0;
+              value={Number(stage.budget ?? 0)}
+              onCommit={(v: number) => {
                 if (v !== Number(stage.budget)) upsertStage.mutate({ id: stage.id, budget: v });
               }}
             />
@@ -566,6 +563,47 @@ function DurationField({
           </SelectContent>
         </Select>
       </div>
+    </div>
+  );
+}
+
+function CurrencyInput({
+  value,
+  onCommit,
+}: {
+  value: number;
+  onCommit: (v: number) => void;
+}) {
+  const fmt = (n: number) =>
+    new Intl.NumberFormat("pt-PT", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number.isFinite(n) ? n : 0);
+  const [text, setText] = useState<string>(fmt(value));
+
+  return (
+    <div className="relative">
+      <Input
+        inputMode="decimal"
+        value={text}
+        onFocus={(e) => {
+          const raw = String(value ?? 0).replace(".", ",");
+          setText(raw);
+          requestAnimationFrame(() => e.target.select());
+        }}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={() => {
+          const normalized = text.replace(/\s|\u00a0/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", ".");
+          const n = Number(normalized);
+          const v = Number.isFinite(n) ? n : 0;
+          setText(fmt(v));
+          onCommit(v);
+        }}
+        className="pr-7 text-right"
+      />
+      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+        €
+      </span>
     </div>
   );
 }
