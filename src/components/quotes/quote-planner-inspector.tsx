@@ -195,6 +195,43 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               }}
             />
           </div>
+          <div className="space-y-1">
+            <Label className="text-xs">
+              {t("workspace.planning.category", { defaultValue: "Category" })}
+            </Label>
+            <Select
+              value={((stage as { stage_role?: string | null }).stage_role ?? "architecture")}
+              onValueChange={(v) =>
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                upsertStage.mutate({ id: stage.id, stage_role: v } as any)
+              }
+            >
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="architecture">
+                  {t("workspace.planning.roleArchitecture", { defaultValue: "Architecture (project & cashflow)" })}
+                </SelectItem>
+                <SelectItem value="client">
+                  {t("workspace.planning.roleClient", { defaultValue: "Client (approvals, no cost)" })}
+                </SelectItem>
+                <SelectItem value="supplier_group">
+                  {t("workspace.planning.roleSupplier", { defaultValue: "Supplier (billed to client)" })}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">
+              {t("workspace.planning.color", { defaultValue: "Color" })}
+            </Label>
+            <ColorPicker
+              value={stage.color ?? null}
+              onChange={(c) =>
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                upsertStage.mutate({ id: stage.id, color: c } as any)
+              }
+            />
+          </div>
           <label className="flex items-center gap-2 rounded-md border bg-muted/30 px-2.5 py-2 text-sm">
             <input
               type="checkbox"
