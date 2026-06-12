@@ -223,7 +223,13 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                     upsertStage.mutate({ id: stage.id, end_date: e.target.value });
                 }}
               />
-            </div>
+          </div>
+          <DurationField
+            stageId={stage.id}
+            startDate={stage.start_date}
+            endDate={stage.end_date}
+            onChange={(end_date) => upsertStage.mutate({ id: stage.id, end_date })}
+          />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">
