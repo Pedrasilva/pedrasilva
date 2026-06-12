@@ -27,6 +27,10 @@ export type QuotePaymentItemInsert = {
   notes?: string | null;
   manual_override?: boolean;
   generator_source?: string | null;
+  direction?: "inflow" | "outflow";
+  supplier_company_id?: string | null;
+  linked_payment_item_id?: string | null;
+  payment_offset_days?: number;
 };
 
 export type QuotePaymentItemUpdate = Partial<QuotePaymentItemInsert> & {
