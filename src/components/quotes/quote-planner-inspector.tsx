@@ -497,3 +497,75 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
     </aside>
   );
 }
+
+type DurationUnit = "days" | "weeks" | "months";
+
+function DurationField({
+  stageId,
+  startDate,
+  endDate,
+  onChange,
+}: {
+  stageId: string;
+  startDate: string;
+  endDate: string;
+  onChange: (endDate: string) => void;
+}) {
+  const { t } = useTranslation("crm");
+  const [unit, setUnit] = useState<DurationUnit>("weeks");
+
+  const totalDays = useMemo(() => {
+    try {
+      return Math.max(1, differenceInCalendarDays(parseISO(endDate), parseISO(startDate)) + 1);
+    } catch {
+      return 1;
+    }
+  }, [startDate, endDate]);
+
+  const value = useMemo(() => {
+    if (unit === "days") return totalDays;
+    if (unit === "weeks") return Math.round((totalDays / 7) * 10) / 10;
+    return Math.round((totalDays / 30) * 10) / 10;
+  }, [totalDays, unit]);
+
+  const commit = (raw: string) => {
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n <= 0) return;
+    let newEnd: Date;
+    const start = parseISO(startDate);
+    if (unit === "days") newEnd = addDays(start, Math.max(1, Math.round(n)) - 1);
+    else if (unit === "weeks") newEnd = addDays(addWeeks(start, Math.floor(n)), Math.round((n % 1) * 7) - 1);
+    else newEnd = addDays(addMonths(start, Math.floor(n)), Math.round((n % 1) * 30) - 1);
+    const iso = format(newEnd, "yyyy-MM-dd");
+    if (iso !== endDate) onChange(iso);
+  };
+
+  return (
+    <div className="space-y-1">
+      <Label className="text-xs">
+        {t("workspace.planning.duration", { defaultValue: "Duration" })}
+      </Label>
+      <div className="flex gap-2">
+        <Input
+          type="number"
+          step="0.5"
+          min="0.5"
+          key={`dur-${stageId}-${startDate}-${endDate}-${unit}`}
+          defaultValue={value}
+          onBlur={(e) => commit(e.target.value)}
+          className="flex-1"
+        />
+        <Select value={unit} onValueChange={(v) => setUnit(v as DurationUnit)}>
+          <SelectTrigger className="w-28">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="days">{t("workspace.planning.days", { defaultValue: "Days" })}</SelectItem>
+            <SelectItem value="weeks">{t("workspace.planning.weeks", { defaultValue: "Weeks" })}</SelectItem>
+            <SelectItem value="months">{t("workspace.planning.months", { defaultValue: "Months" })}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+}
