@@ -595,8 +595,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
         stage_role: newRole,
         sort_order: sort,
       } as Parameters<typeof upsertStage.mutateAsync>[0]);
+      toast.success(t("workspace.planning.outdented", { defaultValue: "Row outdented." }));
     },
-    [stages, upsertStage],
+    [stages, upsertStage, t],
   );
 
   // Measure chart container width so "Fit" stretches to fill it.
