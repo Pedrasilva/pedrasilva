@@ -139,22 +139,28 @@ export function GanttOutlineColumn({
             if (chevronMode === "stages") onToggleCollapse(stage.id);
             else if (chevronMode === "resources") onToggleResourcesCollapse?.(stage.id);
           };
+          const zebra = i % 2 === 1 ? "bg-muted/20" : "";
           const rowContent = (
             <div
               key={stage.id}
               style={{ height: rowH, marginTop: i === 0 ? 0 : rowGap }}
-              className={`relative flex flex-col items-stretch ${
-                isSelected ? "bg-primary/10" : onSelectStage ? "hover:bg-muted/40 cursor-pointer" : ""
+              className={`relative flex flex-col items-stretch border-b border-border/60 ${
+                isSelected
+                  ? "bg-primary/10"
+                  : `${zebra} ${onSelectStage ? "hover:bg-muted/40 cursor-pointer" : ""}`
               }`}
               onClick={onSelectStage ? () => onSelectStage(stage.id) : undefined}
             >
-              {Array.from({ length: depth }).map((_, d) => (
+              {Array.from({ length: depth + 1 }).map((_, d) => (
                 <div
                   key={d}
-                  className="absolute top-0 h-full border-l border-dashed border-border/50"
+                  className={`absolute top-0 h-full ${
+                    d < depth ? "border-l border-dashed border-border/60" : "border-l border-border/40"
+                  }`}
                   style={{ left: 12 + d * 16 }}
                 />
               ))}
+
 
               <div
                 className="flex w-full items-start gap-1.5 pt-2 pr-3"
