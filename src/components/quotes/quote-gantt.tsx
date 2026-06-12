@@ -569,7 +569,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
       const target = all.find((s) => s.id === id);
       if (!target) return;
       const role = target.stage_role ?? "architecture";
-      if (role === "architecture") return;
+      if (role === "architecture") {
+        toast.error(t("workspace.planning.outdentBlocked", { defaultValue: "Top-level rows can't be outdented further." }));
+        return;
+      }
       const parent = all.find((s) => s.id === (target.parent_stage_id ?? ""));
       if (!parent) return;
       const newParentId = (parent as S).parent_stage_id ?? null;
