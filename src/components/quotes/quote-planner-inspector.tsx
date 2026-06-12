@@ -734,3 +734,43 @@ function CurrencyInput({
     </div>
   );
 }
+
+const STAGE_COLOR_PALETTE = [
+  "#60a5fa", "#34d399", "#fbbf24", "#f472b6",
+  "#a78bfa", "#fb7185", "#22d3ee", "#fdba74",
+  "#94a3b8", "#4ade80", "#facc15", "#f87171",
+];
+
+function ColorPicker({
+  value,
+  onChange,
+}: {
+  value: string | null;
+  onChange: (c: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {STAGE_COLOR_PALETTE.map((c) => (
+        <button
+          key={c}
+          type="button"
+          aria-label={c}
+          onClick={() => onChange(c)}
+          className={`h-6 w-6 rounded-full border-2 transition ${
+            value === c ? "border-foreground scale-110" : "border-transparent"
+          }`}
+          style={{ backgroundColor: c }}
+        />
+      ))}
+      <label className="relative inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-dashed border-border text-[10px] text-muted-foreground">
+        +
+        <input
+          type="color"
+          value={value ?? "#60a5fa"}
+          onChange={(e) => onChange(e.target.value)}
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+        />
+      </label>
+    </div>
+  );
+}
