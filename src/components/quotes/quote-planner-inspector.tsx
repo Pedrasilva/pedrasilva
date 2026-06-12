@@ -269,21 +269,69 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             </>
           )}
           {(stage as { is_milestone?: boolean }).is_milestone && (
-            <div className="space-y-1">
-              <Label className="text-xs">
-                {t("workspace.planning.milestoneDate", { defaultValue: "Date" })}
-              </Label>
-              <Input
-                type="date"
-                key={`ms-${stage.id}-${stage.start_date}`}
-                defaultValue={stage.start_date}
-                onBlur={(e) => {
-                  const v = e.target.value;
-                  if (v && v !== stage.start_date)
-                    upsertStage.mutate({ id: stage.id, start_date: v, end_date: v });
+            <>
+              <div className="space-y-1">
+                <Label className="text-xs">
+                  {t("workspace.planning.milestoneDate", { defaultValue: "Date" })}
+                </Label>
+                <Input
+                  type="date"
+                  key={`ms-${stage.id}-${stage.start_date}`}
+                  defaultValue={stage.start_date}
+                  onBlur={(e) => {
+                    const v = e.target.value;
+                    if (v && v !== stage.start_date)
+                      upsertStage.mutate({ id: stage.id, start_date: v, end_date: v });
+                  }}
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => {
+                  type S = (typeof allStages)[number] & {
+                    stage_role?: string | null;
+                    parent_stage_id?: string | null;
+                    sort_order?: number | null;
+                  };
+                  const all = allStages as S[];
+                  const anchor = all.find((s) => s.id === stage.id) as S | undefined;
+                  if (!anchor) return;
+                  const anchorRole = anchor.stage_role ?? "architecture";
+                  const anchorParent = anchor.parent_stage_id ?? null;
+                  const siblings = all
+                    .filter(
+                      (s) =>
+                        (s.parent_stage_id ?? null) === anchorParent &&
+                        (s.stage_role ?? "architecture") === anchorRole,
+                    )
+                    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+                  const idx = siblings.findIndex((s) => s.id === anchor.id);
+                  const next = siblings[idx + 1];
+                  const a = anchor.sort_order ?? 0;
+                  const b = next?.sort_order ?? a + 20;
+                  let baseSort = Math.floor((a + b) / 2);
+                  if (baseSort === a || baseSort === b) baseSort = a + 5;
+                  const start = addDays(parseISO(anchor.end_date), 1);
+                  const end = addDays(start, 5);
+                  const fmtDate = (d: Date) => format(d, "yyyy-MM-dd");
+                  upsertStage.mutate({
+                    quote_id: quoteId,
+                    name: t("workspace.planning.newStage", { defaultValue: "New stage" }),
+                    start_date: fmtDate(start),
+                    end_date: fmtDate(end),
+                    sort_order: baseSort,
+                    parent_stage_id: anchorParent,
+                    stage_role: anchorRole,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  } as any);
                 }}
-              />
-            </div>
+              >
+                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                {t("workspace.planning.addStageBelow", { defaultValue: "Add stage below" })}
+              </Button>
+            </>
           )}
           <div className="pt-2">
             <Button
