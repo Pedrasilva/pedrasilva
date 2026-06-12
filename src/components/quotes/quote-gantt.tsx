@@ -311,7 +311,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
       retainer_capacity_hours_per_month: 160,
       is_fee_only: true,
       allocations: allocByStage.get(s.id) ?? [],
-    }));
+      };
+    });
+
 
     return { mappedStages: mapped, hierarchy: hier };
   }, [stages, allocByStage, quoteId]);
