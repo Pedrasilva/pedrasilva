@@ -343,6 +343,49 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
     });
   };
 
+  // Per-stage collapse of allocation/resource sub-rows. Default: collapsed
+  // (resources hidden) — user clicks the triangle next to a stage to reveal
+  // its resource list.
+  const resCollapseKey = `quote-gantt-res-collapsed:${quoteId}`;
+  const [resCollapsed, setResCollapsed] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const raw = window.sessionStorage.getItem(resCollapseKey);
+      if (raw) return new Set(JSON.parse(raw) as string[]);
+    } catch {
+      /* no-op */
+    }
+    return new Set();
+  });
+  // Seed: any stage with allocations that hasn't been toggled yet starts collapsed.
+  useEffect(() => {
+    setResCollapsed((prev) => {
+      const next = new Set(prev);
+      let changed = false;
+      for (const [sid, list] of allocByStage.entries()) {
+        if (list.length > 0 && !prev.has(sid) && !window.sessionStorage.getItem(`${resCollapseKey}:seen:${sid}`)) {
+          next.add(sid);
+          try { window.sessionStorage.setItem(`${resCollapseKey}:seen:${sid}`, "1"); } catch { /* no-op */ }
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [allocByStage, resCollapseKey]);
+  const toggleResCollapse = (id: string) => {
+    setResCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      try {
+        window.sessionStorage.setItem(resCollapseKey, JSON.stringify([...next]));
+      } catch {
+        /* no-op */
+      }
+      return next;
+    });
+  };
+
   // Origin/totalDays — earliest start - 7d, span out to latest end + 21d.
   const { origin, totalDays } = useMemo(() => {
     if (!mappedStages.length) {
@@ -827,6 +870,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             hierarchy={hierarchy}
             collapsed={collapsed}
             onToggleCollapse={toggleCollapse}
+            resourcesCollapsed={resCollapsed}
+            onToggleResourcesCollapse={toggleResCollapse}
             outlineWidth={320}
             embedded
             selectedStageId={selectedStageId}

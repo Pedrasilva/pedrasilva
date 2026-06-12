@@ -89,6 +89,9 @@ interface Props {
   hierarchy?: Map<string, GanttHierarchyNode>;
   collapsed?: Set<string>;
   onToggleCollapse?: (stageId: string) => void;
+  /** Per-stage collapse of the allocation/resource sub-rows. */
+  resourcesCollapsed?: Set<string>;
+  onToggleResourcesCollapse?: (stageId: string) => void;
   /** Width (px) of the left outline column. 0 / undefined hides it. */
   outlineWidth?: number;
   /** Optional row selection for outline column. */
@@ -145,6 +148,8 @@ export function GanttChart({
   hierarchy,
   collapsed,
   onToggleCollapse,
+  resourcesCollapsed,
+  onToggleResourcesCollapse,
   outlineWidth = 0,
   selectedStageId,
   onSelectStage,
@@ -182,7 +187,8 @@ export function GanttChart({
     if (!stage) return STAGE_ROW_H + STAGE_GAP;
     const isSummary = hierarchy?.get(stageId)?.isSummary ?? false;
     if (isSummary) return SUMMARY_ROW_H + STAGE_GAP;
-    const allocRows = Math.max(stage.allocations.length, 0);
+    const resHidden = resourcesCollapsed?.has(stageId) ?? false;
+    const allocRows = resHidden ? 0 : Math.max(stage.allocations.length, 0);
     return STAGE_ROW_H + allocRows * (ALLOC_ROW_H + 4) + STAGE_GAP;
   };
 
@@ -287,15 +293,17 @@ export function GanttChart({
       const x = differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
       const w = dayCount(sStart, sEnd) * dayWidth;
       const isSummary = hierarchy?.get(stage.id)?.isSummary ?? false;
+      const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
+      const allocCount = resHidden ? 0 : Math.max(stage.allocations.length, 0);
       const height = isSummary
         ? SUMMARY_ROW_H + STAGE_GAP
-        : STAGE_ROW_H + Math.max(stage.allocations.length, 0) * (ALLOC_ROW_H + 4) + STAGE_GAP;
+        : STAGE_ROW_H + allocCount * (ALLOC_ROW_H + 4) + STAGE_GAP;
       if (i > 0) cursor += 16;
       out.set(stage.id, { top: cursor, height, x, w });
       cursor += height;
     });
     return out;
-  }, [stages, draftDates, origin, dayWidth, hierarchy]);
+  }, [stages, draftDates, origin, dayWidth, hierarchy, resourcesCollapsed]);
 
   const visibleDeps = useMemo(() => {
     if (!deps) return [];
@@ -510,6 +518,8 @@ export function GanttChart({
           onReorderStage={onReorderStage}
           onInsertStage={onInsertStage}
           onDeleteStage={onDeleteStage}
+          resourcesCollapsed={resourcesCollapsed}
+          onToggleResourcesCollapse={onToggleResourcesCollapse}
         />
       )}
     <div
@@ -844,7 +854,8 @@ export function GanttChart({
             const pct = compareValue > 0 ? Math.min(1, totalCost / compareValue) : 0;
             const overPct = compareValue > 0 ? Math.max(0, totalCost / compareValue - 1) : 0;
             const over = compareValue > 0 && totalCost > compareValue;
-            const allocRows = Math.max(stage.allocations.length, 0);
+            const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
+            const allocRows = resHidden ? 0 : Math.max(stage.allocations.length, 0);
             const rowsHeight = allocRows * (ALLOC_ROW_H + 4);
 
             return (
@@ -1077,7 +1088,7 @@ export function GanttChart({
                   />
                 )}
 
-                {stage.allocations.map((a, idx) => {
+                {!resHidden && stage.allocations.map((a, idx) => {
                   const aDraft = draftDates.get(a.id);
                   const aS = aDraft?.start ?? shiftIso(a.start_date, stageShiftDays);
                   const aE = aDraft?.end ?? shiftIso(a.end_date, stageShiftDays);
