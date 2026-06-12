@@ -14,7 +14,7 @@
  *   leave overlap, overload, status toggle, holiday shading, and
  *   cross-project moves are hidden.
  */
-import { useMemo, useState, useEffect, useRef, useLayoutEffect } from "react";
+import { useMemo, useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays } from "date-fns";
@@ -22,7 +22,7 @@ import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHie
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
 import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspector";
-import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
+import { useQuoteStages, useUpsertQuoteStage } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
