@@ -80,11 +80,25 @@ interface Props {
   showFinancials?: boolean;
   /** Payment milestones to render in the lane above the stage rows. */
   milestones?: PaymentMilestone[];
+  /**
+   * Optional hierarchy map driving the left outline tree. When present,
+   * GanttChart renders a sticky left outline column with WBS numbering,
+   * indentation guides, collapsible parents, and renders parent rows as
+   * compact "summary" bars (no allocations, no drag).
+   */
+  hierarchy?: Map<string, GanttHierarchyNode>;
+  collapsed?: Set<string>;
+  onToggleCollapse?: (stageId: string) => void;
+  /** Width (px) of the left outline column. 0 / undefined hides it. */
+  outlineWidth?: number;
 }
 
 const STAGE_ROW_H = 92;
+const SUMMARY_ROW_H = 40;
 const ALLOC_ROW_H = 32;
 const STAGE_GAP = 16;
+const ROW_SPACING = 16; // matches `space-y-4` between sibling rows
+const TOP_PADDING = 16; // matches `py-4` top padding
 
 interface DragState {
   type: "move" | "resize-l" | "resize-r" | "stage-move" | "stage-resize-l" | "stage-resize-r";
