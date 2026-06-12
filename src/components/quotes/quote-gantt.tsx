@@ -573,8 +573,17 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
 
   if (mappedStages.length === 0) {
     return (
-      <div className="rounded-md border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-        {t("workspace.planning.noStages")}
+      <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        <span>{t("workspace.planning.noStages")}</span>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => handleInsert(null, "below")}
+          disabled={upsertStage.isPending}
+        >
+          <Plus className="mr-1.5 h-3.5 w-3.5" />
+          {t("workspace.planning.addStage", { defaultValue: "Add stage" })}
+        </Button>
       </div>
     );
   }
@@ -582,11 +591,24 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground">
-          {t("workspace.planning.dragHelper", {
-            defaultValue: "Drag resources into stages to build the fee.",
-          })}
-        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-7 px-2 text-xs"
+            onClick={() => handleInsert(null, "below")}
+            disabled={upsertStage.isPending}
+          >
+            <Plus className="mr-1 h-3.5 w-3.5" />
+            {t("workspace.planning.addStage", { defaultValue: "Add stage" })}
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            {t("workspace.planning.dragHelper", {
+              defaultValue: "Drag resources into stages to build the fee.",
+            })}
+          </p>
+        </div>
         {dayWidthProp === undefined && (
           <div className="flex items-center gap-1 rounded-md border border-border bg-card p-0.5">
             <span className="px-2 text-xs text-muted-foreground">
