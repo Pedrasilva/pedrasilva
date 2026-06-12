@@ -1898,8 +1898,11 @@ export type Database = {
           created_by: string | null
           data_decisao: string | null
           data_proposta: string | null
+          default_payment_terms: string
+          default_vat_rate: number
           fee_percentage: number | null
           fee_structure_type: Database["public"]["Enums"]["crm_fee_structure"]
+          first_payment_terms: string
           id: string
           notas: string | null
           ontology_bootstrapped_at: string | null
@@ -1939,8 +1942,11 @@ export type Database = {
           created_by?: string | null
           data_decisao?: string | null
           data_proposta?: string | null
+          default_payment_terms?: string
+          default_vat_rate?: number
           fee_percentage?: number | null
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
+          first_payment_terms?: string
           id?: string
           notas?: string | null
           ontology_bootstrapped_at?: string | null
@@ -1980,8 +1986,11 @@ export type Database = {
           created_by?: string | null
           data_decisao?: string | null
           data_proposta?: string | null
+          default_payment_terms?: string
+          default_vat_rate?: number
           fee_percentage?: number | null
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
+          first_payment_terms?: string
           id?: string
           notas?: string | null
           ontology_bootstrapped_at?: string | null
@@ -6102,12 +6111,15 @@ export type Database = {
           manual_override: boolean
           notes: string | null
           payment_offset_days: number
+          payment_terms: string | null
           quote_id: string
           sort_order: number
           stage_id: string | null
           supplier_company_id: string | null
           trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
           updated_at: string
+          vat_rate: number
+          vat_rate_override: boolean
         }
         Insert: {
           amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
@@ -6123,12 +6135,15 @@ export type Database = {
           manual_override?: boolean
           notes?: string | null
           payment_offset_days?: number
+          payment_terms?: string | null
           quote_id: string
           sort_order?: number
           stage_id?: string | null
           supplier_company_id?: string | null
           trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
           updated_at?: string
+          vat_rate?: number
+          vat_rate_override?: boolean
         }
         Update: {
           amount_type?: Database["public"]["Enums"]["quote_payment_amount_type"]
@@ -6144,12 +6159,15 @@ export type Database = {
           manual_override?: boolean
           notes?: string | null
           payment_offset_days?: number
+          payment_terms?: string | null
           quote_id?: string
           sort_order?: number
           stage_id?: string | null
           supplier_company_id?: string | null
           trigger_type?: Database["public"]["Enums"]["quote_payment_trigger"]
           updated_at?: string
+          vat_rate?: number
+          vat_rate_override?: boolean
         }
         Relationships: [
           {
