@@ -493,6 +493,16 @@
       "marginPct": "Margin %",
       "marginOverrideLabel": "Override sale margin (%)",
       "marginOverridePh": "From Gantt",
+      "inspector": {
+        "empty": "Select a row to edit it.",
+        "plan": "Plan",
+        "dependencies": "Dependencies",
+        "resources": "Resources",
+        "predecessors": "Predecessors",
+        "successors": "Successors",
+        "addResource": "Add resource",
+        "deleteStage": "Delete stage"
+      },
       "retainerMonthly": {
         "badge": "Monthly retainer",
         "defaultName": "Construction retainer",

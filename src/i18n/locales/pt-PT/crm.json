@@ -493,6 +493,16 @@
       "marginPct": "Margem %",
       "marginOverrideLabel": "Forçar margem de venda (%)",
       "marginOverridePh": "Do Gantt",
+      "inspector": {
+        "empty": "Selecione uma linha para editar.",
+        "plan": "Plano",
+        "dependencies": "Dependências",
+        "resources": "Recursos",
+        "predecessors": "Predecessores",
+        "successors": "Sucessores",
+        "addResource": "Adicionar recurso",
+        "deleteStage": "Eliminar fase"
+      },
       "retainerMonthly": {
         "badge": "Avença mensal",
         "defaultName": "Avença de obra",
