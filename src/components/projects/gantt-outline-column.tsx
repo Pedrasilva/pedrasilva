@@ -65,6 +65,8 @@ interface Props {
   ) => Promise<unknown> | unknown;
   /** Delete a stage by id. */
   onDeleteStage?: (id: string) => Promise<unknown> | unknown;
+}
+
 
 const ICON_BY_ROLE = {
   architecture: Briefcase,
