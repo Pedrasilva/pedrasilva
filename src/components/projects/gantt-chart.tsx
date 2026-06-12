@@ -890,6 +890,28 @@ export function GanttChart({
                   </div>
                 )}
 
+                {(stage as { is_milestone?: boolean }).is_milestone ? (
+                  <div
+                    className="group absolute flex items-center"
+                    style={{ left: stageX - STAGE_ROW_H / 2, width: STAGE_ROW_H, top: 0, height: STAGE_ROW_H }}
+                    title={`${stage.name} — ${stage.start_date}`}
+                  >
+                    <div
+                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rotate-45 border border-foreground/40 shadow-sm"
+                      style={{
+                        width: Math.max(14, STAGE_ROW_H * 0.55),
+                        height: Math.max(14, STAGE_ROW_H * 0.55),
+                        backgroundColor: stage.color || "var(--color-foreground)",
+                      }}
+                    />
+                    <div
+                      className="pointer-events-none absolute left-full ml-2 whitespace-nowrap font-display text-xs font-semibold"
+                      style={{ top: "50%", transform: "translateY(-50%)" }}
+                    >
+                      {stage.name}
+                    </div>
+                  </div>
+                ) : (
                 <div className="group absolute" style={{ left: stageX, width: stageW, top: 0, height: STAGE_ROW_H }}>
                   <div className="absolute left-0 right-0 top-0 h-1.5 overflow-hidden rounded-t-md bg-budget">
                     <div
