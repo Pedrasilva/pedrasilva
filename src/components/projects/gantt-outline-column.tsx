@@ -59,6 +59,8 @@ export function GanttOutlineColumn({
   rowHeightFor,
   rowGap,
   topPadding,
+  selectedStageId,
+  onSelectStage,
 }: Props) {
   return (
     <div
