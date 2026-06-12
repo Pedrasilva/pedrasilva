@@ -4921,6 +4921,7 @@ export type Database = {
           id: string
           is_fee_only: boolean
           is_locked: boolean
+          is_milestone: boolean
           name: string
           parent_stage_id: string | null
           project_id: string
@@ -4954,6 +4955,7 @@ export type Database = {
           id?: string
           is_fee_only?: boolean
           is_locked?: boolean
+          is_milestone?: boolean
           name: string
           parent_stage_id?: string | null
           project_id: string
@@ -4987,6 +4989,7 @@ export type Database = {
           id?: string
           is_fee_only?: boolean
           is_locked?: boolean
+          is_milestone?: boolean
           name?: string
           parent_stage_id?: string | null
           project_id?: string
@@ -6379,6 +6382,7 @@ export type Database = {
           id: string
           is_fee_only: boolean
           is_generated: boolean
+          is_milestone: boolean
           linked_stage_id: string | null
           manual_override: boolean
           name: string
@@ -6411,6 +6415,7 @@ export type Database = {
           id?: string
           is_fee_only?: boolean
           is_generated?: boolean
+          is_milestone?: boolean
           linked_stage_id?: string | null
           manual_override?: boolean
           name: string
@@ -6443,6 +6448,7 @@ export type Database = {
           id?: string
           is_fee_only?: boolean
           is_generated?: boolean
+          is_milestone?: boolean
           linked_stage_id?: string | null
           manual_override?: boolean
           name?: string
