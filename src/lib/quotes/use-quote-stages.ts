@@ -69,6 +69,40 @@ export function useDeleteQuoteStage(quoteId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
+      const { data: stageRows, error: stageRowsError } = await db
+        .from("quote_stages")
+        .select("id,parent_stage_id")
+        .eq("quote_id", quoteId);
+      if (stageRowsError) throw new Error(stageRowsError.message);
+
+      const childrenByParent = new Map<string | null, string[]>();
+      for (const row of (stageRows ?? []) as Array<{ id: string; parent_stage_id: string | null }>) {
+        const parentId = row.parent_stage_id ?? null;
+        const children = childrenByParent.get(parentId) ?? [];
+        children.push(row.id);
+        childrenByParent.set(parentId, children);
+      }
+
+      const stageIds = new Set<string>([id]);
+      const stack = [id];
+      while (stack.length > 0) {
+        const current = stack.pop()!;
+        for (const childId of childrenByParent.get(current) ?? []) {
+          if (stageIds.has(childId)) continue;
+          stageIds.add(childId);
+          stack.push(childId);
+        }
+      }
+
+      const ids = [...stageIds];
+      if (ids.length > 0) {
+        const { error: paymentError } = await db
+          .from("quote_payment_schedule_items")
+          .delete()
+          .in("stage_id", ids);
+        if (paymentError) throw new Error(paymentError.message);
+      }
+
       const { data, error } = await db
         .from("quote_stages")
         .delete()

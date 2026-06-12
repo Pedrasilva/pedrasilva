@@ -592,10 +592,15 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
 
   const handleDelete = useCallback(
     async (id: string) => {
-      if (selectedStageId === id) setSelectedStageId(null);
-      await deleteQuoteStage.mutateAsync(id);
+      try {
+        await deleteQuoteStage.mutateAsync(id);
+        if (selectedStageId === id) setSelectedStageId(null);
+        toast.success(t("workspace.planning.inspector.deleteStage", { defaultValue: "Stage deleted" }));
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Failed to delete stage");
+      }
     },
-    [deleteQuoteStage, selectedStageId],
+    [deleteQuoteStage, selectedStageId, t],
   );
 
   /**
