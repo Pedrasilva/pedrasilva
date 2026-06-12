@@ -117,7 +117,22 @@ interface LinkDragState {
   toSide: "start" | "end" | null;
 }
 
-export function GanttChart({ stages, origin, totalDays, dayWidth, resources, adapter, budgetByStage, budgetByAllocation, showFinancials, milestones }: Props) {
+export function GanttChart({
+  stages: stagesAll,
+  origin,
+  totalDays,
+  dayWidth,
+  resources,
+  adapter,
+  budgetByStage,
+  budgetByAllocation,
+  showFinancials,
+  milestones,
+  hierarchy,
+  collapsed,
+  onToggleCollapse,
+  outlineWidth = 0,
+}: Props) {
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -127,6 +142,29 @@ export function GanttChart({ stages, origin, totalDays, dayWidth, resources, ada
   const [link, setLink] = useState<LinkDragState | null>(null);
   const [linkHoverStage, setLinkHoverStage] = useState<string | null>(null);
   const [editingDep, setEditingDep] = useState<{ id: string; x: number; y: number } | null>(null);
+
+  // Hide stages whose ancestor chain contains a collapsed parent.
+  const stages = useMemo(() => {
+    if (!hierarchy || !collapsed || collapsed.size === 0) return stagesAll;
+    return stagesAll.filter((s) => {
+      let cur = hierarchy.get(s.id)?.parentId ?? null;
+      while (cur) {
+        if (collapsed.has(cur)) return false;
+        cur = hierarchy.get(cur)?.parentId ?? null;
+      }
+      return true;
+    });
+  }, [stagesAll, hierarchy, collapsed]);
+
+  // Per-stage row height (matches the bar canvas and the outline column).
+  const rowHeightFor = (stageId: string): number => {
+    const stage = stages.find((s) => s.id === stageId);
+    if (!stage) return STAGE_ROW_H + STAGE_GAP;
+    const isSummary = hierarchy?.get(stageId)?.isSummary ?? false;
+    if (isSummary) return SUMMARY_ROW_H + STAGE_GAP;
+    const allocRows = Math.max(stage.allocations.length, 0);
+    return STAGE_ROW_H + allocRows * (ALLOC_ROW_H + 4) + STAGE_GAP;
+  };
 
   // All planner mutations + dependency reads come from the adapter — there is
   // no direct pm_* coupling left in this component.
