@@ -123,11 +123,27 @@ export function GanttOutlineColumn({
           const Icon = ICON_BY_ROLE[role];
           const rowH = rowHeightFor(stage.id);
           const isSelected = selectedStageId === stage.id;
+          const allocs = stage.allocations ?? [];
+          const hasResources = allocs.length > 0;
+          const resCollapsed = resourcesCollapsed?.has(stage.id) ?? false;
+          // Single chevron handles either child stages or, when there are
+          // no child stages but the row has allocations, the resource list.
+          const chevronMode: "stages" | "resources" | "none" = hasChildren
+            ? "stages"
+            : hasResources && onToggleResourcesCollapse
+              ? "resources"
+              : "none";
+          const chevronOpen =
+            chevronMode === "stages" ? !isCollapsed : !resCollapsed;
+          const onChevron = () => {
+            if (chevronMode === "stages") onToggleCollapse(stage.id);
+            else if (chevronMode === "resources") onToggleResourcesCollapse?.(stage.id);
+          };
           const rowContent = (
             <div
               key={stage.id}
               style={{ height: rowH, marginTop: i === 0 ? 0 : rowGap }}
-              className={`relative flex items-start ${
+              className={`relative flex flex-col items-stretch ${
                 isSelected ? "bg-primary/10" : onSelectStage ? "hover:bg-muted/40 cursor-pointer" : ""
               }`}
               onClick={onSelectStage ? () => onSelectStage(stage.id) : undefined}
@@ -144,17 +160,17 @@ export function GanttOutlineColumn({
                 className="flex w-full items-start gap-1.5 pt-2 pr-3"
                 style={{ paddingLeft: 8 + depth * 16 }}
               >
-                {hasChildren ? (
+                {chevronMode !== "none" ? (
                   <button
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); onToggleCollapse(stage.id); }}
+                    onClick={(e) => { e.stopPropagation(); onChevron(); }}
                     className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded hover:bg-muted"
-                    aria-label={isCollapsed ? "Expand" : "Collapse"}
+                    aria-label={chevronOpen ? "Collapse" : "Expand"}
                   >
-                    {isCollapsed ? (
-                      <ChevronRight className="h-3 w-3" />
-                    ) : (
+                    {chevronOpen ? (
                       <ChevronDown className="h-3 w-3" />
+                    ) : (
+                      <ChevronRight className="h-3 w-3" />
                     )}
                   </button>
                 ) : (
@@ -190,6 +206,33 @@ export function GanttOutlineColumn({
                   </div>
                 </div>
               </div>
+
+              {chevronMode === "resources" && !resCollapsed && (
+                <ul
+                  className="mt-1 space-y-1 pr-3"
+                  style={{ paddingLeft: 8 + depth * 16 + 28 }}
+                >
+                  {allocs.map((a) => (
+                    <li
+                      key={a.id}
+                      className="flex items-center gap-1.5 text-[11px] text-muted-foreground"
+                    >
+                      <span
+                        className="inline-block h-2 w-2 shrink-0 rounded-full"
+                        style={{ background: a.resource?.color ?? "#a78bfa" }}
+                      />
+                      <span className="flex-1 truncate italic">
+                        {a.resource?.name ?? "—"}
+                      </span>
+                      {a.allocation_percentage != null && (
+                        <span className="tabular-nums">
+                          {a.allocation_percentage}%
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           );
 
