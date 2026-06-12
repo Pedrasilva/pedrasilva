@@ -91,6 +91,9 @@ interface Props {
   onToggleCollapse?: (stageId: string) => void;
   /** Width (px) of the left outline column. 0 / undefined hides it. */
   outlineWidth?: number;
+  /** Optional row selection for outline column. */
+  selectedStageId?: string | null;
+  onSelectStage?: (stageId: string) => void;
 }
 
 const STAGE_ROW_H = 92;
@@ -132,6 +135,8 @@ export function GanttChart({
   collapsed,
   onToggleCollapse,
   outlineWidth = 0,
+  selectedStageId,
+  onSelectStage,
 }: Props) {
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
@@ -484,6 +489,8 @@ export function GanttChart({
           rowHeightFor={rowHeightFor}
           rowGap={ROW_SPACING}
           topPadding={milestonesHeight + TOP_PADDING}
+          selectedStageId={selectedStageId}
+          onSelectStage={onSelectStage}
         />
       )}
     <div
