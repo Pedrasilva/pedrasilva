@@ -87,7 +87,8 @@ function stampDefaults<T extends GeneratorItem>(
     payment_terms:
       row.payment_terms ??
       (index === 0 ? defaults.firstPaymentTerms : defaults.defaultTerms),
-};
+  } as T;
+}
 
 /** Apply quote-level defaults (VAT %, payment terms) onto a generated list,
  *  in place-style (returns a new array). First row uses firstPaymentTerms
@@ -97,7 +98,6 @@ export function applyPaymentDefaults(
   defaults: PaymentDefaults = DEFAULT_PAYMENT_DEFAULTS,
 ): GeneratorItem[] {
   return items.map((row, i) => stampDefaults(row, defaults, i));
-}
 }
 
 export interface StageMilestonesOptions {
