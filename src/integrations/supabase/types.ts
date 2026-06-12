@@ -6373,6 +6373,7 @@ export type Database = {
           addon_module_code: string | null
           billing_model: string
           budget: number
+          budget_mode: string
           color: string
           created_at: string
           description: string | null
@@ -6396,6 +6397,7 @@ export type Database = {
           retainer_months: number | null
           retainer_review_months: number | null
           sort_order: number
+          stage_billing_timing: string
           stage_kind: string
           stage_role: string
           start_date: string
@@ -6406,6 +6408,7 @@ export type Database = {
           addon_module_code?: string | null
           billing_model?: string
           budget?: number
+          budget_mode?: string
           color?: string
           created_at?: string
           description?: string | null
@@ -6429,6 +6432,7 @@ export type Database = {
           retainer_months?: number | null
           retainer_review_months?: number | null
           sort_order?: number
+          stage_billing_timing?: string
           stage_kind?: string
           stage_role?: string
           start_date: string
@@ -6439,6 +6443,7 @@ export type Database = {
           addon_module_code?: string | null
           billing_model?: string
           budget?: number
+          budget_mode?: string
           color?: string
           created_at?: string
           description?: string | null
@@ -6462,6 +6467,7 @@ export type Database = {
           retainer_months?: number | null
           retainer_review_months?: number | null
           sort_order?: number
+          stage_billing_timing?: string
           stage_kind?: string
           stage_role?: string
           start_date?: string
