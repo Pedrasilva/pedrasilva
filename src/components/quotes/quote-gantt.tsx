@@ -15,14 +15,14 @@
  *   cross-project moves are hidden.
  */
 import { useMemo, useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
-import { PanelRightClose, PanelRightOpen } from "lucide-react";
+import { PanelRightClose, PanelRightOpen, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
 import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspector";
-import { useQuoteStages, useUpsertQuoteStage } from "@/lib/quotes/use-quote-stages";
+import { useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
@@ -419,6 +419,118 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   const [zoom, setZoom] = useState<ZoomMode>("week");
   const [poolCollapsed, setPoolCollapsed] = useState(false);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+  const deleteQuoteStage = useDeleteQuoteStage(quoteId);
+
+  /**
+   * Insert a new stage relative to an anchor row.
+   * - above/below: same parent and role as anchor
+   * - child: anchor becomes parent; role demotes one level
+   * - milestone: like "below" but 1-day duration named "Milestone"
+   * When anchorId is null, appends a new top-level architecture stage.
+   */
+  const handleInsert = useCallback(
+    async (
+      anchorId: string | null,
+      where: "above" | "below" | "child" | "milestone",
+    ) => {
+      type S = (typeof stages)[number] & {
+        stage_role?: string | null;
+        parent_stage_id?: string | null;
+      };
+      const all = stages as S[];
+      const fmtDate = (d: Date) => d.toISOString().slice(0, 10);
+      const demote = (r: string) =>
+        r === "architecture" ? "supplier_group" : r === "supplier_group" ? "supplier_phase" : "supplier_phase";
+
+      let parentId: string | null = null;
+      let role: string = "architecture";
+      let start = new Date();
+      let end = addDays(start, 5);
+      let baseSort = 10;
+
+      if (!anchorId) {
+        const tops = all
+          .filter((s) => (s.stage_role ?? "architecture") === "architecture")
+          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        const last = tops[tops.length - 1];
+        baseSort = ((last?.sort_order ?? 0) || tops.length * 10) + 10;
+      } else {
+        const anchor = all.find((s) => s.id === anchorId);
+        if (!anchor) return;
+        const anchorRole = anchor.stage_role ?? "architecture";
+        const anchorParent = anchor.parent_stage_id ?? null;
+
+        if (where === "child") {
+          parentId = anchor.id;
+          role = demote(anchorRole);
+          start = new Date(anchor.start_date);
+          end = new Date(anchor.end_date);
+          const kids = all
+            .filter(
+              (s) =>
+                (s.parent_stage_id ?? null) === anchor.id &&
+                (s.stage_role ?? "architecture") === role,
+            )
+            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+          baseSort = ((kids[kids.length - 1]?.sort_order ?? 0) || 0) + 10;
+        } else {
+          parentId = anchorParent;
+          role = anchorRole;
+          const siblings = all
+            .filter(
+              (s) =>
+                (s.parent_stage_id ?? null) === anchorParent &&
+                (s.stage_role ?? "architecture") === anchorRole,
+            )
+            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+          const idx = siblings.findIndex((s) => s.id === anchor.id);
+          if (where === "above") {
+            const prev = siblings[idx - 1];
+            const a = prev?.sort_order ?? 0;
+            const b = anchor.sort_order ?? a + 20;
+            baseSort = Math.floor((a + b) / 2);
+            if (baseSort === a || baseSort === b) baseSort = (anchor.sort_order ?? 10) - 5;
+            start = new Date(anchor.start_date);
+            end = addDays(start, 5);
+          } else {
+            // below or milestone
+            const next = siblings[idx + 1];
+            const a = anchor.sort_order ?? 0;
+            const b = next?.sort_order ?? a + 20;
+            baseSort = Math.floor((a + b) / 2);
+            if (baseSort === a || baseSort === b) baseSort = a + 5;
+            start = addDays(new Date(anchor.end_date), 1);
+            end = addDays(start, where === "milestone" ? 0 : 5);
+          }
+        }
+      }
+
+      const name =
+        where === "milestone"
+          ? t("workspace.planning.newMilestone", { defaultValue: "Milestone" })
+          : t("workspace.planning.newStage", { defaultValue: "New stage" });
+
+      const created = await upsertStage.mutateAsync({
+        quote_id: quoteId,
+        name,
+        start_date: fmtDate(start),
+        end_date: fmtDate(end),
+        sort_order: baseSort,
+        parent_stage_id: parentId,
+        stage_role: role,
+      } as Parameters<typeof upsertStage.mutateAsync>[0]);
+      if (created?.id) setSelectedStageId(created.id);
+    },
+    [stages, upsertStage, quoteId, t],
+  );
+
+  const handleDelete = useCallback(
+    async (id: string) => {
+      if (selectedStageId === id) setSelectedStageId(null);
+      await deleteQuoteStage.mutateAsync(id);
+    },
+    [deleteQuoteStage, selectedStageId],
+  );
 
   // Measure chart container width so "Fit" stretches to fill it.
   const chartRef = useRef<HTMLDivElement | null>(null);
@@ -461,8 +573,17 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
 
   if (mappedStages.length === 0) {
     return (
-      <div className="rounded-md border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-        {t("workspace.planning.noStages")}
+      <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        <span>{t("workspace.planning.noStages")}</span>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => handleInsert(null, "below")}
+          disabled={upsertStage.isPending}
+        >
+          <Plus className="mr-1.5 h-3.5 w-3.5" />
+          {t("workspace.planning.addStage", { defaultValue: "Add stage" })}
+        </Button>
       </div>
     );
   }
@@ -470,11 +591,24 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground">
-          {t("workspace.planning.dragHelper", {
-            defaultValue: "Drag resources into stages to build the fee.",
-          })}
-        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-7 px-2 text-xs"
+            onClick={() => handleInsert(null, "below")}
+            disabled={upsertStage.isPending}
+          >
+            <Plus className="mr-1 h-3.5 w-3.5" />
+            {t("workspace.planning.addStage", { defaultValue: "Add stage" })}
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            {t("workspace.planning.dragHelper", {
+              defaultValue: "Drag resources into stages to build the fee.",
+            })}
+          </p>
+        </div>
         {dayWidthProp === undefined && (
           <div className="flex items-center gap-1 rounded-md border border-border bg-card p-0.5">
             <span className="px-2 text-xs text-muted-foreground">
@@ -563,6 +697,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             onSelectStage={setSelectedStageId}
             onRenameStage={handleRename}
             onReorderStage={handleReorder}
+            onInsertStage={handleInsert}
+            onDeleteStage={handleDelete}
           />
 
         </div>

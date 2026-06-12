@@ -13,6 +13,16 @@
  */
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, ChevronRight, Briefcase, Box, Wrench } from "lucide-react";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { fmt } from "@/lib/projects/gantt-utils";
 import type { StageWithProject } from "@/components/projects/gantt-chart";
 
@@ -48,7 +58,15 @@ interface Props {
   onRenameStage?: (id: string, name: string) => Promise<unknown> | unknown;
   /** Reorder within the current parent: 1-based position among siblings. */
   onReorderStage?: (id: string, newPosition: number) => Promise<unknown> | unknown;
+  /** Insert a stage relative to an anchor row (above/below/child/milestone). */
+  onInsertStage?: (
+    anchorId: string,
+    where: "above" | "below" | "child" | "milestone",
+  ) => Promise<unknown> | unknown;
+  /** Delete a stage by id. */
+  onDeleteStage?: (id: string) => Promise<unknown> | unknown;
 }
+
 
 const ICON_BY_ROLE = {
   architecture: Briefcase,
@@ -70,6 +88,8 @@ export function GanttOutlineColumn({
   onSelectStage,
   onRenameStage,
   onReorderStage,
+  onInsertStage,
+  onDeleteStage,
 }: Props) {
   return (
     <div
@@ -98,7 +118,7 @@ export function GanttOutlineColumn({
           const Icon = ICON_BY_ROLE[role];
           const rowH = rowHeightFor(stage.id);
           const isSelected = selectedStageId === stage.id;
-          return (
+          const rowContent = (
             <div
               key={stage.id}
               style={{ height: rowH, marginTop: i === 0 ? 0 : rowGap }}
@@ -166,6 +186,49 @@ export function GanttOutlineColumn({
                 </div>
               </div>
             </div>
+          );
+
+          if (!onInsertStage && !onDeleteStage) return rowContent;
+          const canChild = role !== "supplier_phase";
+          return (
+            <ContextMenu key={stage.id}>
+              <ContextMenuTrigger asChild>{rowContent}</ContextMenuTrigger>
+              <ContextMenuContent className="w-52">
+                {onInsertStage && (
+                  <ContextMenuSub>
+                    <ContextMenuSubTrigger>Insert</ContextMenuSubTrigger>
+                    <ContextMenuSubContent className="w-44">
+                      <ContextMenuItem onSelect={() => onInsertStage(stage.id, "above")}>
+                        Stage above
+                      </ContextMenuItem>
+                      <ContextMenuItem onSelect={() => onInsertStage(stage.id, "below")}>
+                        Stage below
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        disabled={!canChild}
+                        onSelect={() => canChild && onInsertStage(stage.id, "child")}
+                      >
+                        Child stage
+                      </ContextMenuItem>
+                      <ContextMenuItem onSelect={() => onInsertStage(stage.id, "milestone")}>
+                        Milestone
+                      </ContextMenuItem>
+                    </ContextMenuSubContent>
+                  </ContextMenuSub>
+                )}
+                {onDeleteStage && (
+                  <>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onSelect={() => onDeleteStage(stage.id)}
+                    >
+                      Delete stage
+                    </ContextMenuItem>
+                  </>
+                )}
+              </ContextMenuContent>
+            </ContextMenu>
           );
         })}
       </div>

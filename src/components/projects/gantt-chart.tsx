@@ -98,6 +98,13 @@ interface Props {
   onRenameStage?: (stageId: string, name: string) => Promise<unknown> | unknown;
   /** Reorder a stage within its siblings (1-based position). */
   onReorderStage?: (stageId: string, newPosition: number) => Promise<unknown> | unknown;
+  /** Insert a stage relative to an anchor row. */
+  onInsertStage?: (
+    anchorId: string,
+    where: "above" | "below" | "child" | "milestone",
+  ) => Promise<unknown> | unknown;
+  /** Delete a stage by id. */
+  onDeleteStage?: (id: string) => Promise<unknown> | unknown;
 }
 
 const STAGE_ROW_H = 92;
@@ -143,6 +150,8 @@ export function GanttChart({
   onSelectStage,
   onRenameStage,
   onReorderStage,
+  onInsertStage,
+  onDeleteStage,
 }: Props) {
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
@@ -499,6 +508,8 @@ export function GanttChart({
           onSelectStage={onSelectStage}
           onRenameStage={onRenameStage}
           onReorderStage={onReorderStage}
+          onInsertStage={onInsertStage}
+          onDeleteStage={onDeleteStage}
         />
       )}
     <div
