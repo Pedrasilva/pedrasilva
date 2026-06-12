@@ -238,7 +238,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             <CurrencyInput
               key={`b-${stage.id}-${stage.budget}`}
               value={Number(stage.budget ?? 0)}
-              onCommit={(v) => {
+              onCommit={(v: number) => {
                 if (v !== Number(stage.budget)) upsertStage.mutate({ id: stage.id, budget: v });
               }}
             />
