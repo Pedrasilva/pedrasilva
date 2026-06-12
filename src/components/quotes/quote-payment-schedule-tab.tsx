@@ -553,7 +553,16 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                         value={it.label}
                         onSave={(next) => upsert.mutate({ id: it.id, label: next })}
                       />
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {((it as unknown as { direction?: string }).direction === "outflow") ? (
+                          <Badge className="text-[10px] px-1 py-0 bg-rose-100 text-rose-800 hover:bg-rose-100">
+                            {t("workspace.payment.outflowBadge", { defaultValue: "Outflow" })}
+                          </Badge>
+                        ) : (
+                          <Badge className="text-[10px] px-1 py-0 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+                            {t("workspace.payment.inflowBadge", { defaultValue: "Inflow" })}
+                          </Badge>
+                        )}
                         {it.manual_override ? (
                           <Badge variant="secondary" className="text-[10px] px-1 py-0">
                             {t("workspace.payment.manualBadge")}
