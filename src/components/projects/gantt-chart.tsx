@@ -880,7 +880,7 @@ export function GanttChart({
                 )}
 
                 <div className="group absolute" style={{ left: stageX, width: stageW, top: 0, height: STAGE_ROW_H }}>
-                  <div className="absolute left-0 right-0 top-0 h-3 overflow-hidden rounded-t-md bg-budget">
+                  <div className="absolute left-0 right-0 top-0 h-1.5 overflow-hidden rounded-t-md bg-budget">
                     <div
                       className="h-full transition-all"
                       style={{
@@ -897,7 +897,7 @@ export function GanttChart({
                   </div>
 
                   <div
-                    className="absolute left-0 right-0 top-3 bottom-0 cursor-grab rounded-b-md border border-foreground/10 active:cursor-grabbing"
+                    className="absolute left-0 right-0 top-1.5 bottom-0 cursor-grab rounded-b-md border border-foreground/10 active:cursor-grabbing"
                     style={{ backgroundColor: stage.color }}
                     onPointerDown={(e) =>
                       startDrag(e, {
@@ -910,14 +910,15 @@ export function GanttChart({
                       })
                     }
                   >
-                    <div className="flex h-full items-center justify-between px-3 text-foreground">
+                    <div className="flex h-full items-center justify-between gap-2 px-2.5 text-foreground">
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="truncate font-display text-base font-semibold">{stage.name}</span>
-                          <span className="rounded bg-background/40 px-1.5 py-0.5 font-mono text-[10px]">
+                        <div className="flex items-center gap-1.5">
+                          <span className="truncate font-display text-sm font-semibold leading-tight">{stage.name}</span>
+                          <span className="rounded bg-background/40 px-1 py-px font-mono text-[9px]">
                             {workingDays(sStart, sEnd)}d
                           </span>
                         </div>
+
                         <div className="mt-0.5 flex items-center gap-2 text-[11px] opacity-80">
                           <span className="font-mono">{euros(totalCost)}</span>
                           <span>/</span>
