@@ -333,6 +333,24 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between gap-3 rounded-md border border-primary/30 bg-primary/5 p-3">
+        <div className="text-sm">
+          <div className="font-medium">
+            {t("workspace.payment.applyCalculator", { defaultValue: "Aplicar valores da calculadora" })}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {t("workspace.payment.applyCalculatorHint", { defaultValue: "Empurra os honorários e datas actuais das fases para o plano de pagamentos (linhas manuais são preservadas)." })}
+          </div>
+        </div>
+        <Button
+          size="sm"
+          disabled={applyGen.isPending || stages.length === 0}
+          onClick={() => runGenerator("by_stage_billing")}
+        >
+          <Wand2 className="h-3.5 w-3.5 mr-1.5" />
+          {t("workspace.payment.applyCalculatorBtn", { defaultValue: "Aplicar" })}
+        </Button>
+      </div>
       {totalFee > 0 && (
         <div
           className={`rounded-md border p-3 text-sm flex items-center justify-between gap-3 ${
