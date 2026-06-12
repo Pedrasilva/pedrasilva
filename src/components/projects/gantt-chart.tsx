@@ -905,6 +905,17 @@ export function GanttChart({
                       }}
                     />
                     <div
+                      onPointerDown={(e) => startLinkDrag(e, stage.id, "start")}
+                      className="absolute -left-2 top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                      title={t("gantt.stage.linkFromStart")}
+                    />
+                    <div
+                      onPointerDown={(e) => startLinkDrag(e, stage.id, "end")}
+                      className="absolute top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                      style={{ left: STAGE_ROW_H - 8 }}
+                      title={t("gantt.stage.linkFromEnd")}
+                    />
+                    <div
                       className="pointer-events-none absolute left-full ml-2 whitespace-nowrap font-display text-xs font-semibold"
                       style={{ top: "50%", transform: "translateY(-50%)" }}
                     >
