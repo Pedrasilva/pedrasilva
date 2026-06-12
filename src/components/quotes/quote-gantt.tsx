@@ -28,6 +28,7 @@ import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import type { Resource, AllocationWithResource } from "@/lib/projects/types";
+import { toast } from "sonner";
 
 interface Props {
   quoteId: string;
