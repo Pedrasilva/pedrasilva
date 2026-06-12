@@ -38,6 +38,9 @@ interface Props {
   rowHeightFor: (stageId: string) => number;
   rowGap: number;
   topPadding: number;
+  /** Optional row selection — when set, clicking a row name selects it. */
+  selectedStageId?: string | null;
+  onSelectStage?: (id: string) => void;
 }
 
 const ICON_BY_ROLE = {
