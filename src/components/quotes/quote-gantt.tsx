@@ -113,14 +113,70 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   // try to render the ghost.
   const mappedStages = useMemo<StageWithProject[]>(() => {
     // Retainer-monthly stages (stage_kind='retainer_monthly') are edited via
-    // RetainerStageEditor and intentionally NOT rendered on the main Gantt —
-    // they represent a 1-month template that repeats, so a single bar on the
-    // calendar would be misleading.
-    return stages
-      .filter((s) => (s as { stage_kind?: string }).stage_kind !== "retainer_monthly")
-      .map((s) => ({
+    // RetainerStageEditor and intentionally NOT rendered on the main Gantt.
+    const regular = stages.filter(
+      (s) => (s as { stage_kind?: string }).stage_kind !== "retainer_monthly",
+    );
+
+    // Hierarchical order: each architecture stage (by sort_order) followed
+    // by any supplier_group children, each followed by its supplier_phase
+    // children. Visual indentation via a name prefix so the shared
+    // GanttChart (flat row list) still shows the hierarchy.
+    type S = (typeof regular)[number] & {
+      stage_role?: string | null;
+      parent_stage_id?: string | null;
+      supplier_company_id?: string | null;
+    };
+    const all = regular as S[];
+    const archStages = all
+      .filter((s) => (s.stage_role ?? "architecture") === "architecture")
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    const groupsByParent = new Map<string, S[]>();
+    const phasesByParent = new Map<string, S[]>();
+    for (const s of all) {
+      const role = s.stage_role ?? "architecture";
+      const parentId = s.parent_stage_id ?? null;
+      if (role === "supplier_group" && parentId) {
+        const arr = groupsByParent.get(parentId) ?? [];
+        arr.push(s);
+        groupsByParent.set(parentId, arr);
+      } else if (role === "supplier_phase" && parentId) {
+        const arr = phasesByParent.get(parentId) ?? [];
+        arr.push(s);
+        phasesByParent.set(parentId, arr);
+      }
+    }
+    const orphanGroups = all.filter(
+      (s) => (s.stage_role ?? "") === "supplier_group" && !s.parent_stage_id,
+    );
+
+    const ordered: S[] = [];
+    const pushGroup = (g: S) => {
+      ordered.push(g);
+      const phases = (phasesByParent.get(g.id) ?? []).sort(
+        (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
+      );
+      for (const p of phases) ordered.push(p);
+    };
+    for (const arch of archStages) {
+      ordered.push(arch);
+      const groups = (groupsByParent.get(arch.id) ?? []).sort((a, b) =>
+        (a.supplier_company_id ?? "").localeCompare(b.supplier_company_id ?? ""),
+      );
+      for (const g of groups) pushGroup(g);
+    }
+    for (const g of orphanGroups) pushGroup(g);
+
+    const displayName = (s: S): string => {
+      const role = s.stage_role ?? "architecture";
+      if (role === "supplier_group") return `▸ ${s.name}`;
+      if (role === "supplier_phase") return `    └─ ${s.name}`;
+      return s.name;
+    };
+
+    return ordered.map((s) => ({
       id: s.id,
-      name: s.name,
+      name: displayName(s),
       project_id: quoteId,
       projectId: quoteId,
       start_date: s.start_date,
@@ -144,7 +200,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
       source_contract_phase_key: null,
       retainer_review_months: null,
       stage_kind: "regular",
-      parent_stage_id: null,
+      parent_stage_id: s.parent_stage_id ?? null,
       billing_model: "stage",
       retainer_monthly_amount: 0,
       retainer_anchor_month: null,

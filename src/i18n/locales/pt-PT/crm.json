@@ -539,7 +539,6 @@
           "hoursError": "Indique um valor de horas positivo."
         }
       }
-
     },
     "warnings": {
       "noStages": "Ainda sem fases — adicione pelo menos uma fase para planear o trabalho.",
@@ -852,6 +851,23 @@
           "coordination": "Âmbito de coordenação"
         }
       }
+    },
+    "consultants": {
+      "title": "Consultores",
+      "empty": "Sem consultores. Adicione um abaixo.",
+      "addTitle": "Adicionar consultor",
+      "add": "Adicionar consultor",
+      "supplier": "Empresa fornecedora",
+      "supplierPlaceholder": "Escolher empresa",
+      "phases": "Fases de arquitetura a acompanhar",
+      "noArch": "Crie primeiro as fases de arquitetura.",
+      "phaseCount": "fase(s)",
+      "remove": "Remover",
+      "deleteConfirm": "Remover este consultor e todas as suas fases?",
+      "added": "Consultor adicionado",
+      "errorPickCompany": "Escolha um fornecedor",
+      "errorPickPhases": "Escolha pelo menos uma fase",
+      "hint": "Cada fase recebe uma dependência SS=0 da fase de arquitetura — mover a arquitetura move a fase do consultor automaticamente."
     }
   },
   "templates": {

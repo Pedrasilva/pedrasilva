@@ -22,6 +22,7 @@ import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { QuoteGantt } from "@/components/quotes/quote-gantt";
+import { QuoteConsultantsPanel } from "@/components/quotes/quote-consultants-panel";
 import { RetainerStageEditor } from "@/components/quotes/retainer-stage-editor";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
 import {
@@ -358,6 +359,9 @@ export function QuotePlanningTab({
 
           {/* GANTT — primary planning surface (regular stages only) */}
           <QuoteGantt quoteId={quoteId} />
+
+          {/* CONSULTANTS — supplier groups + phases (shadows architecture) */}
+          <QuoteConsultantsPanel quoteId={quoteId} />
         </>
       )}
 

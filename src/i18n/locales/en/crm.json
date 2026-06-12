@@ -539,7 +539,6 @@
           "hoursError": "Enter a positive hours value."
         }
       }
-
     },
     "warnings": {
       "noStages": "No stages yet — add at least one stage to plan the work.",
@@ -852,6 +851,23 @@
           "coordination": "Coordination scope"
         }
       }
+    },
+    "consultants": {
+      "title": "Consultants",
+      "empty": "No consultants yet. Add one below.",
+      "addTitle": "Add consultant",
+      "add": "Add consultant",
+      "supplier": "Supplier company",
+      "supplierPlaceholder": "Pick a company",
+      "phases": "Architecture phases to shadow",
+      "noArch": "Create architecture stages first.",
+      "phaseCount": "phase(s)",
+      "remove": "Remove",
+      "deleteConfirm": "Remove this consultant and all its phases?",
+      "added": "Consultant added",
+      "errorPickCompany": "Pick a supplier",
+      "errorPickPhases": "Pick at least one phase",
+      "hint": "Each phase gets an SS=0 dependency on its architecture stage — moving the architecture stage moves the consultant phase automatically."
     }
   },
   "templates": {
