@@ -266,15 +266,16 @@ export function GanttChart({
       const sEnd = draft?.end ?? stage.end_date;
       const x = differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
       const w = dayCount(sStart, sEnd) * dayWidth;
-      const allocRows = Math.max(stage.allocations.length, 0);
-      const rowsHeight = allocRows * (ALLOC_ROW_H + 4);
-      const height = STAGE_ROW_H + rowsHeight + STAGE_GAP;
+      const isSummary = hierarchy?.get(stage.id)?.isSummary ?? false;
+      const height = isSummary
+        ? SUMMARY_ROW_H + STAGE_GAP
+        : STAGE_ROW_H + Math.max(stage.allocations.length, 0) * (ALLOC_ROW_H + 4) + STAGE_GAP;
       if (i > 0) cursor += 16;
       out.set(stage.id, { top: cursor, height, x, w });
       cursor += height;
     });
     return out;
-  }, [stages, draftDates, origin, dayWidth]);
+  }, [stages, draftDates, origin, dayWidth, hierarchy]);
 
   const visibleDeps = useMemo(() => {
     if (!deps) return [];
