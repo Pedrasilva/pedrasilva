@@ -1086,7 +1086,7 @@ export function GanttChart({
                   />
                 )}
 
-                {stage.allocations.map((a, idx) => {
+                {!resHidden && stage.allocations.map((a, idx) => {
                   const aDraft = draftDates.get(a.id);
                   const aS = aDraft?.start ?? shiftIso(a.start_date, stageShiftDays);
                   const aE = aDraft?.end ?? shiftIso(a.end_date, stageShiftDays);
