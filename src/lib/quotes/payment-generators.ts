@@ -443,7 +443,172 @@ export function generateByStageBilling(
   return items;
 }
 
-// ----------------- helpers -----------------
+/**
+ * Architecture + Consultants generator.
+ *
+ * Produces a payment schedule that mirrors the PDF layout:
+ *   - One inflow row per architecture stage (stage_end), amount = stage fee.
+ *   - Optional down-payment inflow at project_start.
+ *   - For each supplier (grouped by supplier_company_id, falling back to
+ *     supplier_id), one outflow row per architecture stage the supplier
+ *     participates in. By default the supplier's total fee is split using
+ *     the architecture stage % weights (inherit). Outflows are dated to the
+ *     stage_end + paymentOffsetDays (pay-when-paid).
+ */
+export function generateArchitectureWithConsultants(
+  stages: QuoteStage[],
+  externalServices: QuoteExternalServiceWithSupplier[],
+  stageFees: Record<string, number>,
+  options: {
+    downPaymentPercent?: number;
+    paymentOffsetDays?: number;
+    /** Per-supplier per-stage % overrides. Key: `${supplierKey}:${stageId}` → %. */
+    supplierSplitOverrides?: Record<string, number>;
+  } = {},
+): GeneratorItem[] {
+  if (stages.length === 0) return [];
+  const sorted = [...stages]
+    .filter((s) => (s as unknown as { stage_kind?: string }).stage_kind !== "retainer_monthly")
+    .sort((a, b) => a.sort_order - b.sort_order);
+  if (sorted.length === 0) return [];
+
+  const items: GeneratorItem[] = [];
+  let order = 0;
+
+  // Architecture inflows
+  const totalArch = sorted.reduce((s, st) => s + (stageFees[st.id] ?? 0), 0);
+  const earliestStart = sorted.reduce(
+    (m, s) => (s.start_date < m ? s.start_date : m),
+    sorted[0].start_date,
+  );
+  const dp = Number(options.downPaymentPercent ?? 0);
+  if (dp > 0 && totalArch > 0) {
+    items.push({
+      label: "Adjudicação",
+      trigger_type: "project_start",
+      amount_type: "fixed",
+      amount_value: round2((totalArch * dp) / 100),
+      stage_id: null,
+      expected_invoice_date: earliestStart,
+      expected_payment_date: null,
+      sort_order: order++,
+      generator_source: "architecture_with_consultants",
+      direction: "inflow",
+    });
+  }
+  for (const s of sorted) {
+    const fee = round2(stageFees[s.id] ?? 0);
+    if (fee <= 0) continue;
+    items.push({
+      label: s.name,
+      trigger_type: "stage_end",
+      amount_type: "fixed",
+      amount_value: fee,
+      stage_id: s.id,
+      expected_invoice_date: s.end_date,
+      expected_payment_date: null,
+      sort_order: order++,
+      generator_source: "architecture_with_consultants",
+      direction: "inflow",
+    });
+  }
+
+  // Consultant outflows — group externals by supplier company (fallback supplier_id)
+  type SupplierBucket = {
+    key: string;
+    companyId: string | null;
+    name: string;
+    total: number;
+    stageIds: Set<string>;
+  };
+  const buckets = new Map<string, SupplierBucket>();
+  for (const es of externalServices) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const esAny = es as any;
+    const companyId: string | null = esAny.supplier_company_id ?? null;
+    const supplierId: string | null = esAny.supplier_id ?? null;
+    if (!companyId && !supplierId) continue;
+    const key = companyId ? `c:${companyId}` : `s:${supplierId}`;
+    const name = es.supplier?.name ?? esAny.description ?? "Supplier";
+    const cost = Number(esAny.purchase_price ?? 0) * Number(esAny.quantity ?? 1);
+    const cur = buckets.get(key) ?? {
+      key,
+      companyId,
+      name,
+      total: 0,
+      stageIds: new Set<string>(),
+    };
+    cur.total += cost;
+    if (esAny.stage_id) cur.stageIds.add(esAny.stage_id);
+    buckets.set(key, cur);
+  }
+
+  const offset = Math.max(0, Number(options.paymentOffsetDays ?? 0));
+
+  for (const bucket of buckets.values()) {
+    if (bucket.total <= 0) continue;
+    // Stages this supplier participates in. If none, spread across ALL stages.
+    const supplierStages = bucket.stageIds.size > 0
+      ? sorted.filter((s) => bucket.stageIds.has(s.id))
+      : sorted;
+    if (supplierStages.length === 0) continue;
+    const supplierStageWeightTotal = supplierStages.reduce(
+      (s, st) => s + (stageFees[st.id] ?? 0),
+      0,
+    );
+
+    // Optional down-payment outflow at project_start
+    if (dp > 0) {
+      const dpAmt = round2((bucket.total * dp) / 100);
+      items.push({
+        label: `${bucket.name} — Adjudicação`,
+        trigger_type: "project_start",
+        amount_type: "fixed",
+        amount_value: dpAmt,
+        stage_id: null,
+        expected_invoice_date: earliestStart,
+        expected_payment_date: addDaysISO(earliestStart, offset),
+        sort_order: order++,
+        generator_source: "architecture_with_consultants",
+        direction: "outflow",
+        supplier_company_id: bucket.companyId,
+      });
+    }
+    const remaining = round2(bucket.total * (1 - dp / 100));
+    let running = 0;
+    supplierStages.forEach((s, idx) => {
+      const weight = stageFees[s.id] ?? 0;
+      const ratio = supplierStageWeightTotal > 0
+        ? weight / supplierStageWeightTotal
+        : 1 / supplierStages.length;
+      const overrideKey = `${bucket.key}:${s.id}`;
+      const overridePct = options.supplierSplitOverrides?.[overrideKey];
+      let amount = overridePct != null
+        ? round2((remaining * overridePct) / 100)
+        : round2(remaining * ratio);
+      if (idx === supplierStages.length - 1 && overridePct == null) {
+        amount = round2(remaining - running);
+      }
+      running += amount;
+      if (amount <= 0) return;
+      items.push({
+        label: `${bucket.name} — ${s.name}`,
+        trigger_type: "stage_end",
+        amount_type: "fixed",
+        amount_value: amount,
+        stage_id: s.id,
+        expected_invoice_date: s.end_date,
+        expected_payment_date: addDaysISO(s.end_date, offset),
+        sort_order: order++,
+        generator_source: "architecture_with_consultants",
+        direction: "outflow",
+        supplier_company_id: bucket.companyId,
+      });
+    });
+  }
+
+  return items;
+}
 
 function midpointISO(startISO: string, endISO: string): string {
   const s = new Date(startISO + "T00:00:00Z").getTime();
