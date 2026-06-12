@@ -653,9 +653,10 @@ function useScheduledBillingForecast() {
       const { data, error } = await supabase
         .from("quote_payment_schedule_items")
         .select(
-          "expected_invoice_date, amount_value, quote:fee_proposals!inner(quote_status, pm_project_id), stage:quote_stages(stage_kind)",
+          "expected_invoice_date, amount_value, direction, quote:fee_proposals!inner(quote_status, pm_project_id), stage:quote_stages(stage_kind)",
         )
-        .not("expected_invoice_date", "is", null);
+        .not("expected_invoice_date", "is", null)
+        .or("direction.is.null,direction.eq.inflow");
       if (error) throw error;
       const rows: ScheduledBillingRow[] = [];
       for (const r of (data ?? []) as Array<{
