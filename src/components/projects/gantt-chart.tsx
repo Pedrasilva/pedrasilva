@@ -24,6 +24,9 @@ import { useDateLocale } from "@/i18n/use-date-locale";
 import type { PlannerAdapter } from "@/lib/projects/planner-adapter";
 import type { DepType } from "@/lib/projects/dependencies";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
+import { GanttOutlineColumn, type GanttHierarchyNode } from "@/components/projects/gantt-outline-column";
+
+export type { GanttHierarchyNode };
 
 /**
  * A payment milestone to render in the timeline lane above the stages.
