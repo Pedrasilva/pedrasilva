@@ -499,7 +499,7 @@ export function generateByStageBilling(
       if (timing === "split") {
         const half = round2(fee / 2);
         items.push({
-          label: `${s.name} — start`,
+          label: describeLabel("stage_start", s.name, "split-start"),
           trigger_type: "stage_start",
           amount_type: "fixed",
           amount_value: half,
@@ -510,7 +510,7 @@ export function generateByStageBilling(
           generator_source: "by_stage_billing",
         });
         items.push({
-          label: `${s.name} — end`,
+          label: describeLabel("stage_end", s.name, "split-end"),
           trigger_type: "stage_end",
           amount_type: "fixed",
           amount_value: round2(fee - half),
