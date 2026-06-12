@@ -118,7 +118,7 @@ export function GanttOutlineColumn({
           const Icon = ICON_BY_ROLE[role];
           const rowH = rowHeightFor(stage.id);
           const isSelected = selectedStageId === stage.id;
-          return (
+          const rowContent = (
             <div
               key={stage.id}
               style={{ height: rowH, marginTop: i === 0 ? 0 : rowGap }}
@@ -186,6 +186,49 @@ export function GanttOutlineColumn({
                 </div>
               </div>
             </div>
+          );
+
+          if (!onInsertStage && !onDeleteStage) return rowContent;
+          const canChild = role !== "supplier_phase";
+          return (
+            <ContextMenu key={stage.id}>
+              <ContextMenuTrigger asChild>{rowContent}</ContextMenuTrigger>
+              <ContextMenuContent className="w-52">
+                {onInsertStage && (
+                  <ContextMenuSub>
+                    <ContextMenuSubTrigger>Insert</ContextMenuSubTrigger>
+                    <ContextMenuSubContent className="w-44">
+                      <ContextMenuItem onSelect={() => onInsertStage(stage.id, "above")}>
+                        Stage above
+                      </ContextMenuItem>
+                      <ContextMenuItem onSelect={() => onInsertStage(stage.id, "below")}>
+                        Stage below
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        disabled={!canChild}
+                        onSelect={() => canChild && onInsertStage(stage.id, "child")}
+                      >
+                        Child stage
+                      </ContextMenuItem>
+                      <ContextMenuItem onSelect={() => onInsertStage(stage.id, "milestone")}>
+                        Milestone
+                      </ContextMenuItem>
+                    </ContextMenuSubContent>
+                  </ContextMenuSub>
+                )}
+                {onDeleteStage && (
+                  <>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onSelect={() => onDeleteStage(stage.id)}
+                    >
+                      Delete stage
+                    </ContextMenuItem>
+                  </>
+                )}
+              </ContextMenuContent>
+            </ContextMenu>
           );
         })}
       </div>
