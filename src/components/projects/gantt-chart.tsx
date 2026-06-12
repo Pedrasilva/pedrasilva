@@ -497,6 +497,8 @@ export function GanttChart({
           topPadding={milestonesHeight + TOP_PADDING}
           selectedStageId={selectedStageId}
           onSelectStage={onSelectStage}
+          onRenameStage={onRenameStage}
+          onReorderStage={onReorderStage}
         />
       )}
     <div
