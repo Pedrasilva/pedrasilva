@@ -235,13 +235,10 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             <Label className="text-xs">
               {t("workspace.planning.budget", { defaultValue: "Budget" })}
             </Label>
-            <Input
-              type="number"
-              step="0.01"
+            <CurrencyInput
               key={`b-${stage.id}-${stage.budget}`}
-              defaultValue={stage.budget ?? 0}
-              onBlur={(e) => {
-                const v = Number(e.target.value) || 0;
+              value={Number(stage.budget ?? 0)}
+              onCommit={(v) => {
                 if (v !== Number(stage.budget)) upsertStage.mutate({ id: stage.id, budget: v });
               }}
             />
