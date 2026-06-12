@@ -1102,6 +1102,7 @@ export function GanttChart({
                     title={t("gantt.stage.linkFromEnd")}
                   />
                 </div>
+                )}
 
                 {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && (
                   <div
