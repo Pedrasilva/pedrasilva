@@ -88,6 +88,8 @@ export function GanttOutlineColumn({
   onSelectStage,
   onRenameStage,
   onReorderStage,
+  onInsertStage,
+  onDeleteStage,
 }: Props) {
   return (
     <div
