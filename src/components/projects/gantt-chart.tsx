@@ -290,8 +290,11 @@ export function GanttChart({
       const draft = draftDates.get(stage.id);
       const sStart = draft?.start ?? stage.start_date;
       const sEnd = draft?.end ?? stage.end_date;
-      const x = differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
-      const w = dayCount(sStart, sEnd) * dayWidth;
+      const isMilestone = (stage as { is_milestone?: boolean }).is_milestone ?? false;
+      const x = isMilestone
+        ? differenceInCalendarDays(new Date(sStart), origin) * dayWidth - STAGE_ROW_H / 2
+        : differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
+      const w = isMilestone ? STAGE_ROW_H : dayCount(sStart, sEnd) * dayWidth;
       const isSummary = hierarchy?.get(stage.id)?.isSummary ?? false;
       const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
       const allocCount = resHidden ? 0 : Math.max(stage.allocations.length, 0);
@@ -903,6 +906,17 @@ export function GanttChart({
                         height: Math.max(14, STAGE_ROW_H * 0.55),
                         backgroundColor: stage.color || "var(--color-foreground)",
                       }}
+                    />
+                    <div
+                      onPointerDown={(e) => startLinkDrag(e, stage.id, "start")}
+                      className="absolute -left-2 top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                      title={t("gantt.stage.linkFromStart")}
+                    />
+                    <div
+                      onPointerDown={(e) => startLinkDrag(e, stage.id, "end")}
+                      className="absolute top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                      style={{ left: STAGE_ROW_H - 8 }}
+                      title={t("gantt.stage.linkFromEnd")}
                     />
                     <div
                       className="pointer-events-none absolute left-full ml-2 whitespace-nowrap font-display text-xs font-semibold"
