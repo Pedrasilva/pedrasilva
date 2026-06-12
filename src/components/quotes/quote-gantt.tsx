@@ -561,6 +561,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             embedded
             selectedStageId={selectedStageId}
             onSelectStage={setSelectedStageId}
+            onRenameStage={handleRename}
+            onReorderStage={handleReorder}
           />
 
         </div>
