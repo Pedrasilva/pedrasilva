@@ -518,6 +518,8 @@ export function GanttChart({
           onReorderStage={onReorderStage}
           onInsertStage={onInsertStage}
           onDeleteStage={onDeleteStage}
+          resourcesCollapsed={resourcesCollapsed}
+          onToggleResourcesCollapse={onToggleResourcesCollapse}
         />
       )}
     <div
