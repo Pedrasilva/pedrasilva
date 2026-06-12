@@ -852,7 +852,8 @@ export function GanttChart({
             const pct = compareValue > 0 ? Math.min(1, totalCost / compareValue) : 0;
             const overPct = compareValue > 0 ? Math.max(0, totalCost / compareValue - 1) : 0;
             const over = compareValue > 0 && totalCost > compareValue;
-            const allocRows = Math.max(stage.allocations.length, 0);
+            const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
+            const allocRows = resHidden ? 0 : Math.max(stage.allocations.length, 0);
             const rowsHeight = allocRows * (ALLOC_ROW_H + 4);
 
             return (
