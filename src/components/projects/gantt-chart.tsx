@@ -89,6 +89,9 @@ interface Props {
   hierarchy?: Map<string, GanttHierarchyNode>;
   collapsed?: Set<string>;
   onToggleCollapse?: (stageId: string) => void;
+  /** Per-stage collapse of the allocation/resource sub-rows. */
+  resourcesCollapsed?: Set<string>;
+  onToggleResourcesCollapse?: (stageId: string) => void;
   /** Width (px) of the left outline column. 0 / undefined hides it. */
   outlineWidth?: number;
   /** Optional row selection for outline column. */
