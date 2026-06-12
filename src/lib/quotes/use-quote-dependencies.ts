@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { QuoteStageDependency, QuoteDepType } from "./types";
+import { cascadeFromPredecessor } from "./cascade-from-predecessor";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -38,10 +39,14 @@ export function useCreateQuoteDependency(quoteId: string) {
         .select()
         .single();
       if (error) throw new Error(error.message);
+      await cascadeFromPredecessor(quoteId, input.predecessor_stage_id);
       return data as QuoteStageDependency;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quote-dependencies", quoteId] });
+      qc.invalidateQueries({ queryKey: ["quote-stages", quoteId] });
+      qc.invalidateQueries({ queryKey: ["quote-allocations", quoteId] });
+      qc.invalidateQueries({ queryKey: ["quote-financials", quoteId] });
     },
   });
 }

@@ -148,10 +148,20 @@ export function useUpdateQuoteDependency(quoteId: string) {
         .select()
         .single();
       if (error) throw new Error(error.message);
+
+      // Re-run cascade so lag/type changes push successors forward immediately.
+      const predId = (data as { predecessor_stage_id?: string } | null)?.predecessor_stage_id;
+      if (predId) {
+        const { cascadeFromPredecessor } = await import("./cascade-from-predecessor");
+        await cascadeFromPredecessor(quoteId, predId);
+      }
       return data;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quote-dependencies", quoteId] });
+      qc.invalidateQueries({ queryKey: ["quote-stages", quoteId] });
+      qc.invalidateQueries({ queryKey: ["quote-allocations", quoteId] });
+      qc.invalidateQueries({ queryKey: ["quote-financials", quoteId] });
     },
   });
 }
