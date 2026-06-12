@@ -530,7 +530,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       const idx = siblings.findIndex((s) => s.id === id);
       const prev = siblings[idx - 1];
-      if (!prev) return; // first child can't indent
+      if (!prev) {
+        toast.error(t("workspace.planning.indentBlocked", { defaultValue: "Select a row that has a sibling above it to indent." }));
+        return;
+      }
       const newRole = role === "architecture" ? "supplier_group" : "supplier_phase";
       const newKids = all
         .filter(
