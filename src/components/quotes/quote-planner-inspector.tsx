@@ -122,9 +122,15 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
   };
 
   const handleAddAlloc = async () => {
-    if (!newAlloc.resource_id) return;
+    if (!newAlloc.resource_id) {
+      toast.error(t("workspace.planning.pickResourceFirst", { defaultValue: "Pick a resource first." }));
+      return;
+    }
     const res = poolResources.find((r) => r.id === newAlloc.resource_id);
-    if (!res) return;
+    if (!res) {
+      toast.error(t("workspace.planning.resourceUnavailable", { defaultValue: "Selected resource is no longer available." }));
+      return;
+    }
     const rates = effectiveRates(res, defaultRates);
     try {
       await upsertAlloc.mutateAsync({
@@ -139,10 +145,12 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
         sale_rate_snapshot: rates.sale,
       });
       setNewAlloc({ resource_id: "", pct: "100", hpd: "8" });
+      toast.success(t("workspace.planning.resourceAdded", { defaultValue: "Resource added." }));
     } catch (e) {
       toast.error((e as Error).message);
     }
   };
+
 
   return (
     <aside className="flex w-[360px] shrink-0 flex-col border-l border-border bg-card">
