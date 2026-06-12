@@ -466,7 +466,26 @@ export function GanttChart({
       .catch((err: unknown) => toast.error((err as Error).message));
   }
 
+  // Header band heights — months (h-7=28) + days/weeks/quarters band.
+  // Day band: h-9 (36) when dayWidth ≥ 14, otherwise h-5 (20).
+  const headerHeight = 28 + (dayWidth >= 14 ? 36 : 20);
+  const milestonesHeight = milestones && milestones.length > 0 ? 32 : 0;
+
   return (
+    <div className="flex" style={{ width: outlineWidth + totalDays * dayWidth }}>
+      {outlineWidth > 0 && hierarchy && onToggleCollapse && (
+        <GanttOutlineColumn
+          visibleStages={stages}
+          hierarchy={hierarchy}
+          collapsed={collapsed ?? new Set()}
+          onToggleCollapse={onToggleCollapse}
+          width={outlineWidth}
+          headerHeight={headerHeight}
+          rowHeightFor={rowHeightFor}
+          rowGap={ROW_SPACING}
+          topPadding={milestonesHeight + TOP_PADDING}
+        />
+      )}
     <div
       ref={canvasRef}
       className="relative select-none"
