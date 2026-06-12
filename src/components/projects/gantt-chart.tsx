@@ -732,31 +732,56 @@ export function GanttChart({
             // Summary / rollup row — slim non-interactive bar spanning the
             // group's range. No allocations rendered, no drag handles.
             if (isSummary) {
+              const w = Math.max(40, stageW);
               return (
                 <div
                   key={stage.id}
                   className="relative"
                   style={{ height: SUMMARY_ROW_H + STAGE_GAP }}
+                  title={`${stage.name} · ${fmt(sStart)} → ${fmt(sEnd)}`}
                 >
+                  {/* Thin Merlin-style summary bar */}
                   <div
-                    className="absolute top-3 flex h-5 items-center rounded-sm border border-foreground/20 bg-foreground/70 px-2 text-[10px] font-semibold uppercase tracking-wider text-background shadow-sm"
-                    style={{ left: stageX, width: Math.max(40, stageW) }}
-                    title={`${stage.name} · ${fmt(sStart)} → ${fmt(sEnd)}`}
+                    className="absolute top-4 h-[3px] bg-foreground"
+                    style={{ left: stageX, width: w }}
+                  />
+                  {/* Left triangle end-cap (points down) */}
+                  <div
+                    className="absolute top-4"
+                    style={{
+                      left: stageX,
+                      width: 0,
+                      height: 0,
+                      borderLeft: "6px solid hsl(var(--foreground))",
+                      borderTop: "6px solid hsl(var(--foreground))",
+                      borderRight: "6px solid transparent",
+                      borderBottom: "6px solid transparent",
+                    }}
+                  />
+                  {/* Right triangle end-cap (points down) */}
+                  <div
+                    className="absolute top-4"
+                    style={{
+                      left: stageX + w - 12,
+                      width: 0,
+                      height: 0,
+                      borderLeft: "6px solid transparent",
+                      borderTop: "6px solid hsl(var(--foreground))",
+                      borderRight: "6px solid hsl(var(--foreground))",
+                      borderBottom: "6px solid transparent",
+                    }}
+                  />
+                  {/* Name label sitting just above the bar */}
+                  <div
+                    className="absolute top-0 truncate text-[10px] font-semibold uppercase tracking-wider text-foreground"
+                    style={{ left: stageX, maxWidth: Math.max(120, w) }}
                   >
-                    <span className="truncate">{stage.name}</span>
+                    {stage.name}
                   </div>
-                  {/* span brackets on each end */}
-                  <div
-                    className="absolute top-2 h-7 w-px bg-foreground/40"
-                    style={{ left: stageX }}
-                  />
-                  <div
-                    className="absolute top-2 h-7 w-px bg-foreground/40"
-                    style={{ left: stageX + Math.max(40, stageW) - 1 }}
-                  />
                 </div>
               );
             }
+
 
             // Baseline ghost (rendered behind the working stage bar)
             const stageWithBaseline = stage as typeof stage & {

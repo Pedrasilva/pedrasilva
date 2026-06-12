@@ -473,35 +473,58 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
           baseSort = ((kids[kids.length - 1]?.sort_order ?? 0) || 0) + 10;
         } else {
-          parentId = anchorParent;
-          role = anchorRole;
-          const siblings = all
-            .filter(
-              (s) =>
-                (s.parent_stage_id ?? null) === anchorParent &&
-                (s.stage_role ?? "architecture") === anchorRole,
-            )
-            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-          const idx = siblings.findIndex((s) => s.id === anchor.id);
-          if (where === "above") {
-            const prev = siblings[idx - 1];
-            const a = prev?.sort_order ?? 0;
-            const b = anchor.sort_order ?? a + 20;
-            baseSort = Math.floor((a + b) / 2);
-            if (baseSort === a || baseSort === b) baseSort = (anchor.sort_order ?? 10) - 5;
+          // If inserting "below" a row that has children, behave like
+          // "child" (insert as first child) so the new row appears
+          // immediately below in the outline — matching Merlin behavior.
+          const anchorHasChildren = all.some(
+            (s) => (s.parent_stage_id ?? null) === anchor.id,
+          );
+          if (where === "below" && anchorHasChildren) {
+            parentId = anchor.id;
+            role = demote(anchorRole);
+            const kids = all
+              .filter(
+                (s) =>
+                  (s.parent_stage_id ?? null) === anchor.id &&
+                  (s.stage_role ?? "architecture") === role,
+              )
+              .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+            const firstSort = kids[0]?.sort_order ?? 20;
+            baseSort = Math.max(1, Math.floor(firstSort / 2));
             start = new Date(anchor.start_date);
             end = addDays(start, 5);
           } else {
-            // below or milestone
-            const next = siblings[idx + 1];
-            const a = anchor.sort_order ?? 0;
-            const b = next?.sort_order ?? a + 20;
-            baseSort = Math.floor((a + b) / 2);
-            if (baseSort === a || baseSort === b) baseSort = a + 5;
-            start = addDays(new Date(anchor.end_date), 1);
-            end = addDays(start, where === "milestone" ? 0 : 5);
+            parentId = anchorParent;
+            role = anchorRole;
+            const siblings = all
+              .filter(
+                (s) =>
+                  (s.parent_stage_id ?? null) === anchorParent &&
+                  (s.stage_role ?? "architecture") === anchorRole,
+              )
+              .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+            const idx = siblings.findIndex((s) => s.id === anchor.id);
+            if (where === "above") {
+              const prev = siblings[idx - 1];
+              const a = prev?.sort_order ?? 0;
+              const b = anchor.sort_order ?? a + 20;
+              baseSort = Math.floor((a + b) / 2);
+              if (baseSort === a || baseSort === b) baseSort = (anchor.sort_order ?? 10) - 5;
+              start = new Date(anchor.start_date);
+              end = addDays(start, 5);
+            } else {
+              // below (no children) or milestone
+              const next = siblings[idx + 1];
+              const a = anchor.sort_order ?? 0;
+              const b = next?.sort_order ?? a + 20;
+              baseSort = Math.floor((a + b) / 2);
+              if (baseSort === a || baseSort === b) baseSort = a + 5;
+              start = addDays(new Date(anchor.end_date), 1);
+              end = addDays(start, where === "milestone" ? 0 : 5);
+            }
           }
         }
+
       }
 
       const name =
