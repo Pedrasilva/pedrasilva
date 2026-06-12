@@ -148,6 +148,8 @@ export function GanttChart({
   hierarchy,
   collapsed,
   onToggleCollapse,
+  resourcesCollapsed,
+  onToggleResourcesCollapse,
   outlineWidth = 0,
   selectedStageId,
   onSelectStage,
