@@ -508,6 +508,8 @@ export function GanttChart({
           onSelectStage={onSelectStage}
           onRenameStage={onRenameStage}
           onReorderStage={onReorderStage}
+          onInsertStage={onInsertStage}
+          onDeleteStage={onDeleteStage}
         />
       )}
     <div
