@@ -6089,16 +6089,20 @@ export type Database = {
           amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
           amount_value: number
           created_at: string
+          direction: string
           expected_invoice_date: string | null
           expected_payment_date: string | null
           generator_source: string | null
           id: string
           label: string
+          linked_payment_item_id: string | null
           manual_override: boolean
           notes: string | null
+          payment_offset_days: number
           quote_id: string
           sort_order: number
           stage_id: string | null
+          supplier_company_id: string | null
           trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
           updated_at: string
         }
@@ -6106,16 +6110,20 @@ export type Database = {
           amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
           amount_value?: number
           created_at?: string
+          direction?: string
           expected_invoice_date?: string | null
           expected_payment_date?: string | null
           generator_source?: string | null
           id?: string
           label: string
+          linked_payment_item_id?: string | null
           manual_override?: boolean
           notes?: string | null
+          payment_offset_days?: number
           quote_id: string
           sort_order?: number
           stage_id?: string | null
+          supplier_company_id?: string | null
           trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
           updated_at?: string
         }
@@ -6123,20 +6131,31 @@ export type Database = {
           amount_type?: Database["public"]["Enums"]["quote_payment_amount_type"]
           amount_value?: number
           created_at?: string
+          direction?: string
           expected_invoice_date?: string | null
           expected_payment_date?: string | null
           generator_source?: string | null
           id?: string
           label?: string
+          linked_payment_item_id?: string | null
           manual_override?: boolean
           notes?: string | null
+          payment_offset_days?: number
           quote_id?: string
           sort_order?: number
           stage_id?: string | null
+          supplier_company_id?: string | null
           trigger_type?: Database["public"]["Enums"]["quote_payment_trigger"]
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "quote_payment_schedule_items_linked_payment_item_id_fkey"
+            columns: ["linked_payment_item_id"]
+            isOneToOne: false
+            referencedRelation: "quote_payment_schedule_items"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "quote_payment_schedule_items_quote_id_fkey"
             columns: ["quote_id"]
@@ -6149,6 +6168,13 @@ export type Database = {
             columns: ["stage_id"]
             isOneToOne: false
             referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_payment_schedule_items_supplier_company_id_fkey"
+            columns: ["supplier_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -6353,8 +6379,10 @@ export type Database = {
           id: string
           is_fee_only: boolean
           is_generated: boolean
+          linked_stage_id: string | null
           manual_override: boolean
           name: string
+          parent_stage_id: string | null
           phase_code: string | null
           phase_group: string
           quote_id: string
@@ -6365,7 +6393,9 @@ export type Database = {
           retainer_review_months: number | null
           sort_order: number
           stage_kind: string
+          stage_role: string
           start_date: string
+          supplier_company_id: string | null
           updated_at: string
         }
         Insert: {
@@ -6381,8 +6411,10 @@ export type Database = {
           id?: string
           is_fee_only?: boolean
           is_generated?: boolean
+          linked_stage_id?: string | null
           manual_override?: boolean
           name: string
+          parent_stage_id?: string | null
           phase_code?: string | null
           phase_group?: string
           quote_id: string
@@ -6393,7 +6425,9 @@ export type Database = {
           retainer_review_months?: number | null
           sort_order?: number
           stage_kind?: string
+          stage_role?: string
           start_date: string
+          supplier_company_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -6409,8 +6443,10 @@ export type Database = {
           id?: string
           is_fee_only?: boolean
           is_generated?: boolean
+          linked_stage_id?: string | null
           manual_override?: boolean
           name?: string
+          parent_stage_id?: string | null
           phase_code?: string | null
           phase_group?: string
           quote_id?: string
@@ -6421,7 +6457,9 @@ export type Database = {
           retainer_review_months?: number | null
           sort_order?: number
           stage_kind?: string
+          stage_role?: string
           start_date?: string
+          supplier_company_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -6431,6 +6469,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "proposal_addon_modules"
             referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "quote_stages_linked_stage_id_fkey"
+            columns: ["linked_stage_id"]
+            isOneToOne: false
+            referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_stages_parent_stage_id_fkey"
+            columns: ["parent_stage_id"]
+            isOneToOne: false
+            referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "quote_stages_phase_code_fk"
@@ -6444,6 +6496,65 @@ export type Database = {
             columns: ["quote_id"]
             isOneToOne: false
             referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_stages_supplier_company_id_fkey"
+            columns: ["supplier_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_supplier_phase_splits: {
+        Row: {
+          created_at: string
+          id: string
+          linked_stage_id: string
+          percent: number
+          quote_id: string
+          supplier_company_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          linked_stage_id: string
+          percent?: number
+          quote_id: string
+          supplier_company_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          linked_stage_id?: string
+          percent?: number
+          quote_id?: string
+          supplier_company_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_supplier_phase_splits_linked_stage_id_fkey"
+            columns: ["linked_stage_id"]
+            isOneToOne: false
+            referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_supplier_phase_splits_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_supplier_phase_splits_supplier_company_id_fkey"
+            columns: ["supplier_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
