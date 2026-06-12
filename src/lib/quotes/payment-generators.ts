@@ -11,7 +11,12 @@ import type { QuoteAllocationWithResource } from "./use-quote-allocations";
 import type { QuoteExternalServiceWithSupplier } from "./use-quote-external-services";
 import { quoteAllocationLine } from "./financial-rollups";
 
-export type GeneratorKind = "milestones" | "thirds" | "monthly" | "by_stage_billing";
+export type GeneratorKind =
+  | "milestones"
+  | "thirds"
+  | "monthly"
+  | "by_stage_billing"
+  | "architecture_with_consultants";
 
 export interface GeneratorItem {
   label: string;
@@ -23,6 +28,10 @@ export interface GeneratorItem {
   expected_payment_date: string | null;
   sort_order: number;
   generator_source: GeneratorKind;
+  /** inflow = client → us (architecture); outflow = us → supplier (consultants). */
+  direction?: "inflow" | "outflow";
+  /** Set on outflow rows so cashflow can attribute payouts to a supplier. */
+  supplier_company_id?: string | null;
 }
 
 export interface StageMilestonesOptions {
