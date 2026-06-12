@@ -491,7 +491,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             baseSort = Math.floor((a + b) / 2);
             if (baseSort === a || baseSort === b) baseSort = (anchor.sort_order ?? 10) - 5;
             start = new Date(anchor.start_date);
-            end = addDays(start, where === "milestone" ? 0 : 5);
+            end = addDays(start, 5);
           } else {
             // below or milestone
             const next = siblings[idx + 1];
