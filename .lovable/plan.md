@@ -1,53 +1,60 @@
-## Hierarchical Gantt for quotes
 
-Goal: on the quote Gantt, render supplier groups as parent rows with their phases indented underneath, and have supplier phases follow the architecture stage they shadow (move architecture → supplier phase moves with it).
+# Merlin-style Gantt — Plan
 
-### 1. Data flow (no schema changes — columns already exist)
+## Goal
+Turn the current flat row list into a real project-planning Gantt while keeping today's allocation/resource logic intact. Used by both quote planner and project planner; in project mode the supplier hierarchy is hidden so resource planning stays focused on architecture stages.
 
-Already on `quote_stages`: `parent_stage_id`, `stage_role` (`architecture` | `supplier_group` | `supplier_phase`), `supplier_company_id`, plus an existing dependency table `quote_stage_dependencies` we can reuse for SS=0 links.
+## Capabilities in this iteration
+1. **Outline tree column** — collapsible parents, real indentation, WBS numbering (1, 1.1, 1.1.1), expand/collapse toggles, persisted per-session.
+2. **Summary/rollup bars** — parent rows show a slim summary bar that spans min(child.start) → max(child.end), auto-recomputed when children move. Non-draggable.
+3. **Dependency arrows** — render FS / SS / FF / SF links between bars with lag annotation; route around rows; arrowhead at successor. Read-only edits in this iteration (creation/edit stays in the existing dependency UI — out of scope to add edge-drag now to keep risk down).
+4. **Keep existing behaviour** — drag-to-move and edge-resize on leaf stages, allocation sub-rows, resource pool drag-in, cost overlays, holiday shading, milestones, today line, baselines, cascade on architecture moves.
 
-`useQuoteStages` already returns all rows. Extend the row type pass-through in `QuoteGantt` so `parent_stage_id`, `stage_role`, `supplier_company_id` reach the chart.
+## Architecture
 
-### 2. Shared GanttChart (`src/components/projects/gantt-chart.tsx`)
+### New shared building blocks (`src/components/projects/gantt/`)
+- `useGanttTree.ts` — pure function that turns `StageWithProject[]` + role/parent metadata into a tree `{ node, depth, wbs, children, collapsed }[]`. Mode flag `'quote' | 'project'`:
+  - `quote` → architecture > supplier_group > supplier_phase
+  - `project` → architecture only (supplier rows filtered out)
+- `OutlineColumn.tsx` — sticky left column: chevron toggle, WBS code, name, dates. Width resizable, min 280 / max 520.
+- `SummaryBar.tsx` — slim bracket-style bar for parent rows; derived from descendants.
+- `DependencyArrows.tsx` — SVG overlay sibling to the bars layer; consumes the same `origin`/`dayWidth`/row-y map; supports FS/SS/FF/SF with lag label.
 
-Minimum invasive additions — no drag/drop math changes:
+### Refactor of `gantt-chart.tsx`
+- Replace the current flat `stages.map` with a `flattenVisible(tree)` driven by collapse state.
+- Row renderer branches on `node.role`:
+  - leaf architecture/supplier_phase → existing bar + allocations
+  - parent (has visible children, or role=supplier_group, or architecture with children) → SummaryBar, no allocation sub-rows
+- Row Y positions tracked in a `Map<stageId, {top, height}>` so the arrow overlay can resolve endpoints.
+- Add `mode: 'quote' | 'project'` prop (default 'project'); plumbed from `QuoteGantt` (sets 'quote') and project Gantt callers (default 'project').
+- Cascade & resize logic unchanged.
 
-- Extend `StageWithProject` consumer to read optional `parent_stage_id`, `stage_role`, `supplier_company_id`.
-- Build an ordered list: architecture stages in `sort_order`, then for each architecture stage append its linked supplier phases (children whose `linked_stage_id`/dependency points to it), grouped by supplier with a supplier-group header row.
-- Render three row variants:
-  - `architecture` — current full row (unchanged).
-  - `supplier_group` — slim header row (28 px), shows supplier name + total fee badge + span bracket across its children. Non-draggable.
-  - `supplier_phase` — compact row (44 px) with 24 px left indent, smaller bar, no allocations sub-rows.
-- A small chevron on supplier groups to collapse/expand children (local UI state only).
+### Quote-side cleanup
+- `quote-gantt.tsx`: remove the `▸` / `└─` name-prefix hack and the manual ordering — the new `useGanttTree('quote')` does this from real fields (`stage_role`, `parent_stage_id`, `sort_order`).
+- Pass `mode="quote"` to `GanttChart`.
 
-### 3. Cascade (move architecture → move supplier phase)
+### Project-side
+- Pass `mode="project"` (default). Filter discards `supplier_group`/`supplier_phase` so planners only see architecture rows for weekly allocation — matching the user's requirement.
 
-Reuse `useUpdateStageWithCascade`. When an architecture stage is moved/resized, after persisting, fetch any `supplier_phase` stages whose `quote_stage_dependencies` row references it as predecessor with `dep_type='SS'` and `lag_days=0`, and apply the same start delta (preserve duration). Same path for resize when only end changes.
+## Data
+No schema changes. Reads existing:
+- `quote_stages` / `pm_stages`: `stage_role`, `parent_stage_id`, `sort_order`
+- `quote_stage_dependencies` / `pm_stage_dependencies`: `predecessor_stage_id`, `successor_stage_id`, `type`, `lag_days`
 
-### 4. Editing supplier groups
+## i18n (EN + PT-PT, same edit)
+- `gantt.outline.expandAll` / `collapseAll`
+- `gantt.outline.wbsHeader` ("#" / "Nº")
+- `gantt.summary.rollup`
+- `gantt.dep.fs/ss/ff/sf` + `gantt.dep.lagDays`
 
-New small panel in `quote-planning-tab.tsx` ("Consultants"):
-- Add consultant → pick supplier company → creates a `supplier_group` row.
-- Inside the group: pick architecture stages to shadow → creates `supplier_phase` rows with `parent_stage_id = group`, plus a SS=0 dependency to the architecture stage. Dates initialised from the architecture stage.
-- Remove / rename actions.
+## Out of scope (next iterations)
+- Creating dependencies by dragging from a bar edge (Merlin-style edge-link)
+- Critical path highlighting
+- Baseline variance ghost
+- Drag-reorder across hierarchy / indent-outdent toolbar
+- Resource leveling
 
-No fee math here — payment amounts continue to come from the existing `generateArchitectureWithConsultants` generator on the payment-schedule tab.
-
-### 5. Rollout
-
-- Existing flat quotes keep working: rows without `parent_stage_id` render as architecture (current behaviour).
-- Feature is additive — no migration needed in this step.
-- i18n keys added to EN + PT in the same edit.
-
-### Technical notes
-
-- Sort key for ordered rendering: `(architectureSortOrder, supplierGroupName, phaseSortOrder)`.
-- Indent purely visual — bar X / W still computed from real dates.
-- Collapse state: `Map<groupId, boolean>` in `QuoteGantt` local state.
-- Cascade trigger lives in the planner adapter's `updateStage`, behind a quote-only branch so project mode is unchanged.
-
-### Out of scope for this turn
-
-- Per-supplier % split override UI (separate next step).
-- Cashflow insight card on project page (separate next step).
-- Reorder by drag across the hierarchy.
+## Risk & rollout
+- Shared component touched — guard with `mode` prop so project Gantt's existing visuals are unaffected except for the new outline column and summary rollups (which are additive).
+- Allocations, milestones, cascade, holiday shading: untouched.
+- Verify in preview on both `/crm/quotes/:id` and a project planner route before closing.
