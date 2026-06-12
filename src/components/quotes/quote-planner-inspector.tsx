@@ -223,6 +223,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                     upsertStage.mutate({ id: stage.id, end_date: e.target.value });
                 }}
               />
+            </div>
           </div>
           <DurationField
             stageId={stage.id}
@@ -230,7 +231,6 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             endDate={stage.end_date}
             onChange={(end_date: string) => upsertStage.mutate({ id: stage.id, end_date })}
           />
-          </div>
           <div className="space-y-1">
             <Label className="text-xs">
               {t("workspace.planning.budget", { defaultValue: "Budget" })}
