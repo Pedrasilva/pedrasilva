@@ -14,7 +14,7 @@
  *   leave overlap, overload, status toggle, holiday shading, and
  *   cross-project moves are hidden.
  */
-import { useMemo, useState, useEffect, useRef, useLayoutEffect } from "react";
+import { useMemo, useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays } from "date-fns";
@@ -22,7 +22,7 @@ import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHie
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
 import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspector";
-import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
+import { useQuoteStages, useUpsertQuoteStage } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
@@ -58,9 +58,91 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   const resources = allResources;
 
   const adapter = useQuotePlannerAdapter(quoteId, resources);
+  const upsertStage = useUpsertQuoteStage(quoteId);
 
   const stages = stagesQ.data ?? [];
   const allocations = allocQ.data ?? [];
+
+  /**
+   * Inline rename from the outline column.
+   *
+   * Propagation rule: supplier_phase rows mirror the name of the architecture
+   * stage they were spawned from. So when an architecture stage is renamed,
+   * any supplier_phase row whose lineage points back to that architecture
+   * and whose current name still matches the old architecture name is
+   * renamed too — keeping the supplier-group summary subtree in sync.
+   */
+  const handleRename = useCallback(
+    async (id: string, name: string) => {
+      const target = stages.find((s) => s.id === id);
+      if (!target) return;
+      const oldName = target.name;
+      await upsertStage.mutateAsync({ id, name });
+      const role = (target as { stage_role?: string | null }).stage_role ?? "architecture";
+      if (role !== "architecture") return;
+      // Find supplier_groups whose parent is this arch, then phases under
+      // them whose name still matches the previous arch name.
+      const groupIds = stages
+        .filter(
+          (s) =>
+            (s as { stage_role?: string | null }).stage_role === "supplier_group" &&
+            (s as { parent_stage_id?: string | null }).parent_stage_id === id,
+        )
+        .map((s) => s.id);
+      if (groupIds.length === 0) return;
+      const mirrors = stages.filter(
+        (s) =>
+          (s as { stage_role?: string | null }).stage_role === "supplier_phase" &&
+          groupIds.includes(
+            (s as { parent_stage_id?: string | null }).parent_stage_id ?? "",
+          ) &&
+          s.name === oldName,
+      );
+      await Promise.all(
+        mirrors.map((m) => upsertStage.mutateAsync({ id: m.id, name })),
+      );
+    },
+    [stages, upsertStage],
+  );
+
+  /**
+   * Inline WBS renumber — only the trailing segment is editable, so the
+   * change is always a reorder within the same parent. We collect the
+   * siblings sharing role + parent_stage_id, splice the target to the new
+   * 1-based position, and rewrite sort_order sequentially.
+   */
+  const handleReorder = useCallback(
+    async (id: string, newPosition: number) => {
+      const target = stages.find((s) => s.id === id) as
+        | (typeof stages)[number] & {
+            stage_role?: string | null;
+            parent_stage_id?: string | null;
+          }
+        | undefined;
+      if (!target) return;
+      const role = target.stage_role ?? "architecture";
+      const parentId = target.parent_stage_id ?? null;
+      const siblings = (stages as typeof stages & Array<{ stage_role?: string | null; parent_stage_id?: string | null }>)
+        .filter(
+          (s) =>
+            ((s as { stage_role?: string | null }).stage_role ?? "architecture") === role &&
+            ((s as { parent_stage_id?: string | null }).parent_stage_id ?? null) === parentId,
+        )
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      const without = siblings.filter((s) => s.id !== id);
+      const clamped = Math.max(1, Math.min(newPosition, siblings.length));
+      without.splice(clamped - 1, 0, target);
+      // Write only rows whose sort_order changes.
+      await Promise.all(
+        without.map((s, i) => {
+          const next = (i + 1) * 10;
+          if ((s.sort_order ?? 0) === next) return Promise.resolve();
+          return upsertStage.mutateAsync({ id: s.id, sort_order: next });
+        }),
+      );
+    },
+    [stages, upsertStage],
+  );
 
   // Index resources for fast lookup when building per-allocation snapshots.
   const resourceById = useMemo(
@@ -479,6 +561,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             embedded
             selectedStageId={selectedStageId}
             onSelectStage={setSelectedStageId}
+            onRenameStage={handleRename}
+            onReorderStage={handleReorder}
           />
 
         </div>

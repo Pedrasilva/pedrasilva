@@ -94,6 +94,10 @@ interface Props {
   /** Optional row selection for outline column. */
   selectedStageId?: string | null;
   onSelectStage?: (stageId: string) => void;
+  /** Inline rename from the outline column. */
+  onRenameStage?: (stageId: string, name: string) => Promise<unknown> | unknown;
+  /** Reorder a stage within its siblings (1-based position). */
+  onReorderStage?: (stageId: string, newPosition: number) => Promise<unknown> | unknown;
 }
 
 const STAGE_ROW_H = 92;
@@ -137,6 +141,8 @@ export function GanttChart({
   outlineWidth = 0,
   selectedStageId,
   onSelectStage,
+  onRenameStage,
+  onReorderStage,
 }: Props) {
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
@@ -491,6 +497,8 @@ export function GanttChart({
           topPadding={milestonesHeight + TOP_PADDING}
           selectedStageId={selectedStageId}
           onSelectStage={onSelectStage}
+          onRenameStage={onRenameStage}
+          onReorderStage={onReorderStage}
         />
       )}
     <div
