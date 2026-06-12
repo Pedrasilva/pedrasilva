@@ -549,8 +549,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
         stage_role: newRole,
         sort_order: nextSort,
       } as Parameters<typeof upsertStage.mutateAsync>[0]);
+      toast.success(t("workspace.planning.indented", { defaultValue: "Row indented." }));
     },
-    [stages, upsertStage],
+    [stages, upsertStage, t],
   );
 
   /**
