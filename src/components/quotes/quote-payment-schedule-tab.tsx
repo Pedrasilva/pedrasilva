@@ -40,6 +40,7 @@ import {
   generateThirds,
   generateMonthly,
   generateByStageBilling,
+  generateArchitectureWithConsultants,
   computeStageFees,
   resolveScheduleItemAmount,
   DEFAULT_STAGE_MILESTONE_OPTIONS,
