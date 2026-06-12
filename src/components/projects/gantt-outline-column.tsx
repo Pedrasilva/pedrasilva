@@ -58,7 +58,13 @@ interface Props {
   onRenameStage?: (id: string, name: string) => Promise<unknown> | unknown;
   /** Reorder within the current parent: 1-based position among siblings. */
   onReorderStage?: (id: string, newPosition: number) => Promise<unknown> | unknown;
-}
+  /** Insert a stage relative to an anchor row (above/below/child/milestone). */
+  onInsertStage?: (
+    anchorId: string,
+    where: "above" | "below" | "child" | "milestone",
+  ) => Promise<unknown> | unknown;
+  /** Delete a stage by id. */
+  onDeleteStage?: (id: string) => Promise<unknown> | unknown;
 
 const ICON_BY_ROLE = {
   architecture: Briefcase,
