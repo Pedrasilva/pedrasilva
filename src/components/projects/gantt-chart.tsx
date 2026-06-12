@@ -107,7 +107,7 @@ interface Props {
   onDeleteStage?: (id: string) => Promise<unknown> | unknown;
 }
 
-const STAGE_ROW_H = 92;
+const STAGE_ROW_H = 56;
 const SUMMARY_ROW_H = 40;
 const ALLOC_ROW_H = 32;
 const STAGE_GAP = 16;
