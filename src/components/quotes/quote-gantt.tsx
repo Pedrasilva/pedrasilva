@@ -690,11 +690,30 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             <Plus className="mr-1 h-3.5 w-3.5" />
             {t("workspace.planning.addStage", { defaultValue: "Add stage" })}
           </Button>
-          <p className="text-xs text-muted-foreground">
-            {t("workspace.planning.dragHelper", {
-              defaultValue: "Drag resources into stages to build the fee.",
-            })}
-          </p>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-7 w-7 p-0"
+            onClick={() => selectedStageId && handleIndent(selectedStageId)}
+            disabled={!selectedStageId || upsertStage.isPending}
+            title={t("workspace.planning.indent", { defaultValue: "Indent (make child of previous)" })}
+            aria-label="Indent"
+          >
+            <IndentIncrease className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-7 w-7 p-0"
+            onClick={() => selectedStageId && handleOutdent(selectedStageId)}
+            disabled={!selectedStageId || upsertStage.isPending}
+            title={t("workspace.planning.outdent", { defaultValue: "Outdent (promote one level)" })}
+            aria-label="Outdent"
+          >
+            <IndentDecrease className="h-3.5 w-3.5" />
+          </Button>
         </div>
         {dayWidthProp === undefined && (
           <div className="flex items-center gap-1 rounded-md border border-border bg-card p-0.5">
