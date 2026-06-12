@@ -733,6 +733,23 @@ export function GanttChart({
             // group's range. No allocations rendered, no drag handles.
             if (isSummary) {
               const w = Math.max(40, stageW);
+              const BAR_H = 8;
+              const CAP_H = 6;
+              const CAP_W = 6;
+              const SVG_H = BAR_H + CAP_H;
+              // Merlin-style: thick rounded bar with downward triangular flags
+              // at each end. Single SVG path so the cap blends with the bar.
+              const path = [
+                `M 0 0`,
+                `H ${w}`,
+                `V ${BAR_H}`,
+                `L ${w - CAP_W} ${SVG_H}`,
+                `L ${w - CAP_W} ${BAR_H}`,
+                `H ${CAP_W}`,
+                `L ${CAP_W} ${SVG_H}`,
+                `L 0 ${BAR_H}`,
+                `Z`,
+              ].join(" ");
               return (
                 <div
                   key={stage.id}
@@ -740,47 +757,30 @@ export function GanttChart({
                   style={{ height: SUMMARY_ROW_H + STAGE_GAP }}
                   title={`${stage.name} · ${fmt(sStart)} → ${fmt(sEnd)}`}
                 >
-                  {/* Thin Merlin-style summary bar */}
                   <div
-                    className="absolute top-4 h-[3px] bg-foreground"
-                    style={{ left: stageX, width: w }}
-                  />
-                  {/* Left triangle end-cap (points down) */}
-                  <div
-                    className="absolute top-4"
-                    style={{
-                      left: stageX,
-                      width: 0,
-                      height: 0,
-                      borderLeft: "6px solid hsl(var(--foreground))",
-                      borderTop: "6px solid hsl(var(--foreground))",
-                      borderRight: "6px solid transparent",
-                      borderBottom: "6px solid transparent",
-                    }}
-                  />
-                  {/* Right triangle end-cap (points down) */}
-                  <div
-                    className="absolute top-4"
-                    style={{
-                      left: stageX + w - 12,
-                      width: 0,
-                      height: 0,
-                      borderLeft: "6px solid transparent",
-                      borderTop: "6px solid hsl(var(--foreground))",
-                      borderRight: "6px solid hsl(var(--foreground))",
-                      borderBottom: "6px solid transparent",
-                    }}
-                  />
-                  {/* Name label sitting just above the bar */}
-                  <div
-                    className="absolute top-0 truncate text-[10px] font-semibold uppercase tracking-wider text-foreground"
+                    className="absolute top-0 truncate text-[10px] font-semibold uppercase tracking-wider text-foreground/80"
                     style={{ left: stageX, maxWidth: Math.max(120, w) }}
                   >
                     {stage.name}
                   </div>
+                  <svg
+                    className="absolute"
+                    style={{ left: stageX, top: 14, width: w, height: SVG_H }}
+                    viewBox={`0 0 ${w} ${SVG_H}`}
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d={path}
+                      fill="hsl(var(--foreground))"
+                      stroke="hsl(var(--foreground))"
+                      strokeWidth={1}
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </div>
               );
             }
+
 
 
             // Baseline ghost (rendered behind the working stage bar)
