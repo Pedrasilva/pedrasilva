@@ -28,6 +28,7 @@ import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import type { Resource, AllocationWithResource } from "@/lib/projects/types";
+import { toast } from "sonner";
 
 interface Props {
   quoteId: string;
@@ -209,76 +210,48 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
       supplier_company_id?: string | null;
     };
     const all = regular as S[];
-    const archStages = all
-      .filter((s) => (s.stage_role ?? "architecture") === "architecture")
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-    const groupsByParent = new Map<string, S[]>();
-    const phasesByParent = new Map<string, S[]>();
+
+    // Group every stage by its parent_stage_id (null = root). Sort each
+    // sibling group by sort_order so the tree walk is deterministic.
+    const childrenByParent = new Map<string | null, S[]>();
     for (const s of all) {
-      const role = s.stage_role ?? "architecture";
-      const parentId = s.parent_stage_id ?? null;
-      if (role === "supplier_group" && parentId) {
-        const arr = groupsByParent.get(parentId) ?? [];
-        arr.push(s);
-        groupsByParent.set(parentId, arr);
-      } else if (role === "supplier_phase" && parentId) {
-        const arr = phasesByParent.get(parentId) ?? [];
-        arr.push(s);
-        phasesByParent.set(parentId, arr);
-      }
+      const pid = s.parent_stage_id ?? null;
+      const arr = childrenByParent.get(pid) ?? [];
+      arr.push(s);
+      childrenByParent.set(pid, arr);
     }
-    const orphanGroups = all.filter(
-      (s) => (s.stage_role ?? "") === "supplier_group" && !s.parent_stage_id,
-    );
+    for (const arr of childrenByParent.values()) {
+      arr.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    }
 
     const ordered: S[] = [];
     const hier = new Map<string, GanttHierarchyNode>();
-    let archIdx = 0;
 
-    const pushGroup = (g: S, parentWbs: string, groupIdx: number) => {
-      const wbs = parentWbs ? `${parentWbs}.${groupIdx}` : String(groupIdx);
-      const phases = (phasesByParent.get(g.id) ?? []).sort(
-        (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
-      );
-      hier.set(g.id, {
-        depth: parentWbs ? 1 : 0,
-        wbs,
-        hasChildren: phases.length > 0,
-        isSummary: true,
-        role: "supplier_group",
-        parentId: g.parent_stage_id ?? null,
-      });
-      ordered.push(g);
-      phases.forEach((p, pi) => {
-        ordered.push(p);
-        hier.set(p.id, {
-          depth: parentWbs ? 2 : 1,
-          wbs: `${wbs}.${pi + 1}`,
-          hasChildren: false,
-          isSummary: false,
-          role: "supplier_phase",
-          parentId: g.id,
-        });
-      });
+    const roleOf = (s: S): "architecture" | "supplier_group" | "supplier_phase" => {
+      const r = (s.stage_role ?? "architecture") as string;
+      if (r === "supplier_group" || r === "supplier_phase") return r;
+      return "architecture";
     };
 
-    for (const arch of archStages) {
-      archIdx += 1;
-      const groups = (groupsByParent.get(arch.id) ?? []).sort((a, b) =>
-        (a.supplier_company_id ?? "").localeCompare(b.supplier_company_id ?? ""),
-      );
-      hier.set(arch.id, {
-        depth: 0,
-        wbs: String(archIdx),
-        hasChildren: groups.length > 0,
-        isSummary: false,
-        role: "architecture",
-        parentId: null,
+    const walk = (node: S, depth: number, wbs: string, parentId: string | null) => {
+      const kids = childrenByParent.get(node.id) ?? [];
+      const role = roleOf(node);
+      hier.set(node.id, {
+        depth,
+        wbs,
+        hasChildren: kids.length > 0,
+        // A row is a "summary" if it actually has children — true for any
+        // architecture or supplier_group with descendants.
+        isSummary: kids.length > 0 && role !== "supplier_phase",
+        role,
+        parentId,
       });
-      ordered.push(arch);
-      groups.forEach((g, gi) => pushGroup(g, String(archIdx), gi + 1));
-    }
-    orphanGroups.forEach((g, gi) => pushGroup(g, "", archStages.length + gi + 1));
+      ordered.push(node);
+      kids.forEach((c, ci) => walk(c, depth + 1, `${wbs}.${ci + 1}`, node.id));
+    };
+
+    const roots = childrenByParent.get(null) ?? [];
+    roots.forEach((r, i) => walk(r, 0, String(i + 1), null));
 
     const mapped = ordered.map((s) => ({
       id: s.id,
@@ -557,7 +530,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       const idx = siblings.findIndex((s) => s.id === id);
       const prev = siblings[idx - 1];
-      if (!prev) return; // first child can't indent
+      if (!prev) {
+        toast.error(t("workspace.planning.indentBlocked", { defaultValue: "Select a row that has a sibling above it to indent." }));
+        return;
+      }
       const newRole = role === "architecture" ? "supplier_group" : "supplier_phase";
       const newKids = all
         .filter(
@@ -573,8 +549,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
         stage_role: newRole,
         sort_order: nextSort,
       } as Parameters<typeof upsertStage.mutateAsync>[0]);
+      toast.success(t("workspace.planning.indented", { defaultValue: "Row indented." }));
     },
-    [stages, upsertStage],
+    [stages, upsertStage, t],
   );
 
   /**
@@ -592,7 +569,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
       const target = all.find((s) => s.id === id);
       if (!target) return;
       const role = target.stage_role ?? "architecture";
-      if (role === "architecture") return;
+      if (role === "architecture") {
+        toast.error(t("workspace.planning.outdentBlocked", { defaultValue: "Top-level rows can't be outdented further." }));
+        return;
+      }
       const parent = all.find((s) => s.id === (target.parent_stage_id ?? ""));
       if (!parent) return;
       const newParentId = (parent as S).parent_stage_id ?? null;
@@ -615,8 +595,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
         stage_role: newRole,
         sort_order: sort,
       } as Parameters<typeof upsertStage.mutateAsync>[0]);
+      toast.success(t("workspace.planning.outdented", { defaultValue: "Row outdented." }));
     },
-    [stages, upsertStage],
+    [stages, upsertStage, t],
   );
 
   // Measure chart container width so "Fit" stretches to fill it.
