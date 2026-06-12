@@ -182,7 +182,10 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     category: (quoteQ.data?.quote_category as "project" | "time_based" | "retainer" | "consultancy" | undefined) ?? undefined,
   });
   const totalFee = rollup.totalFee || Number(quoteQ.data?.valor ?? 0) || 0;
-  const stageFees = computeStageFees(stages, allocations, externals, pricingMultiplier);
+  const leafStageFees = computeStageFees(stages, allocations, externals, pricingMultiplier);
+  // Roll children up into their parent bars (calculated/fixed budget mode),
+  // then merge so per-item amount resolution can look up either map.
+  const stageFees = { ...leafStageFees, ...rolledUpBillableFees(stages, leafStageFees) };
 
   const scheduleTotal = items.reduce(
     (sum, it) =>
