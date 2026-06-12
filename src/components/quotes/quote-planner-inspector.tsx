@@ -195,6 +195,43 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               }}
             />
           </div>
+          <div className="space-y-1">
+            <Label className="text-xs">
+              {t("workspace.planning.category", { defaultValue: "Category" })}
+            </Label>
+            <Select
+              value={((stage as { stage_role?: string | null }).stage_role ?? "architecture")}
+              onValueChange={(v) =>
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                upsertStage.mutate({ id: stage.id, stage_role: v } as any)
+              }
+            >
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="architecture">
+                  {t("workspace.planning.roleArchitecture", { defaultValue: "Architecture (project & cashflow)" })}
+                </SelectItem>
+                <SelectItem value="client">
+                  {t("workspace.planning.roleClient", { defaultValue: "Client (approvals, no cost)" })}
+                </SelectItem>
+                <SelectItem value="supplier_group">
+                  {t("workspace.planning.roleSupplier", { defaultValue: "Supplier (billed to client)" })}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">
+              {t("workspace.planning.color", { defaultValue: "Color" })}
+            </Label>
+            <ColorPicker
+              value={stage.color ?? null}
+              onChange={(c) =>
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                upsertStage.mutate({ id: stage.id, color: c } as any)
+              }
+            />
+          </div>
           <label className="flex items-center gap-2 rounded-md border bg-muted/30 px-2.5 py-2 text-sm">
             <input
               type="checkbox"
@@ -694,6 +731,46 @@ function CurrencyInput({
       <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
         €
       </span>
+    </div>
+  );
+}
+
+const STAGE_COLOR_PALETTE = [
+  "#60a5fa", "#34d399", "#fbbf24", "#f472b6",
+  "#a78bfa", "#fb7185", "#22d3ee", "#fdba74",
+  "#94a3b8", "#4ade80", "#facc15", "#f87171",
+];
+
+function ColorPicker({
+  value,
+  onChange,
+}: {
+  value: string | null;
+  onChange: (c: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {STAGE_COLOR_PALETTE.map((c) => (
+        <button
+          key={c}
+          type="button"
+          aria-label={c}
+          onClick={() => onChange(c)}
+          className={`h-6 w-6 rounded-full border-2 transition ${
+            value === c ? "border-foreground scale-110" : "border-transparent"
+          }`}
+          style={{ backgroundColor: c }}
+        />
+      ))}
+      <label className="relative inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-dashed border-border text-[10px] text-muted-foreground">
+        +
+        <input
+          type="color"
+          value={value ?? "#60a5fa"}
+          onChange={(e) => onChange(e.target.value)}
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+        />
+      </label>
     </div>
   );
 }
