@@ -21,6 +21,7 @@ import { addDays, differenceInCalendarDays } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
+import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspector";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
@@ -335,6 +336,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   // when the prop is undefined).
   const [zoom, setZoom] = useState<ZoomMode>("week");
   const [poolCollapsed, setPoolCollapsed] = useState(false);
+  const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
 
   // Measure chart container width so "Fit" stretches to fill it.
   const chartRef = useRef<HTMLDivElement | null>(null);
@@ -475,10 +477,19 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             onToggleCollapse={toggleCollapse}
             outlineWidth={320}
             embedded
+            selectedStageId={selectedStageId}
+            onSelectStage={setSelectedStageId}
           />
 
         </div>
-        {!poolCollapsed && (
+        {selectedStageId && (
+          <QuotePlannerInspector
+            quoteId={quoteId}
+            stageId={selectedStageId}
+            onClose={() => setSelectedStageId(null)}
+          />
+        )}
+        {!poolCollapsed && !selectedStageId && (
           <ResourcePool resources={poolResources} collapsed={false} missingRateIds={rateMissing} />
         )}
       </div>

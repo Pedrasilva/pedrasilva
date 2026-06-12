@@ -38,6 +38,9 @@ interface Props {
   rowHeightFor: (stageId: string) => number;
   rowGap: number;
   topPadding: number;
+  /** Optional row selection — when set, clicking a row name selects it. */
+  selectedStageId?: string | null;
+  onSelectStage?: (id: string) => void;
 }
 
 const ICON_BY_ROLE = {
@@ -56,6 +59,8 @@ export function GanttOutlineColumn({
   rowHeightFor,
   rowGap,
   topPadding,
+  selectedStageId,
+  onSelectStage,
 }: Props) {
   return (
     <div
@@ -85,11 +90,15 @@ export function GanttOutlineColumn({
           const role = node?.role ?? "architecture";
           const Icon = ICON_BY_ROLE[role];
           const rowH = rowHeightFor(stage.id);
+          const isSelected = selectedStageId === stage.id;
           return (
             <div
               key={stage.id}
               style={{ height: rowH, marginTop: i === 0 ? 0 : rowGap }}
-              className="relative flex items-start"
+              className={`relative flex items-start ${
+                isSelected ? "bg-primary/10" : onSelectStage ? "hover:bg-muted/40 cursor-pointer" : ""
+              }`}
+              onClick={onSelectStage ? () => onSelectStage(stage.id) : undefined}
             >
               {/* indent guides */}
               {Array.from({ length: depth }).map((_, d) => (
