@@ -310,6 +310,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
       retainer_months: null,
       retainer_capacity_hours_per_month: 160,
       is_fee_only: true,
+      is_milestone: (s as { is_milestone?: boolean }).is_milestone ?? false,
       allocations: allocByStage.get(s.id) ?? [],
       };
     });
