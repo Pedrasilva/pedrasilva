@@ -599,27 +599,21 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   );
 
   /**
-   * Indent: move stage under the previous visible sibling (same role+parent),
-   * demoting its role one level (architecture → supplier_group → supplier_phase).
+   * Indent (Merlin-style outline): make the row a child of its previous
+   * sibling (same current parent). Stage role/category is preserved — the
+   * parent simply becomes a group header. No role demotion.
    */
   const handleIndent = useCallback(
     async (id: string) => {
       type S = (typeof stages)[number] & {
-        stage_role?: string | null;
         parent_stage_id?: string | null;
       };
       const all = stages as S[];
       const target = all.find((s) => s.id === id);
       if (!target) return;
-      const role = target.stage_role ?? "architecture";
-      if (role === "supplier_phase") return;
       const parentId = target.parent_stage_id ?? null;
       const siblings = all
-        .filter(
-          (s) =>
-            (s.parent_stage_id ?? null) === parentId &&
-            (s.stage_role ?? "architecture") === role,
-        )
+        .filter((s) => (s.parent_stage_id ?? null) === parentId)
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       const idx = siblings.findIndex((s) => s.id === id);
       const prev = siblings[idx - 1];
@@ -627,19 +621,13 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
         toast.error(t("workspace.planning.indentBlocked", { defaultValue: "Select a row that has a sibling above it to indent." }));
         return;
       }
-      const newRole = role === "architecture" ? "supplier_group" : "supplier_phase";
       const newKids = all
-        .filter(
-          (s) =>
-            (s.parent_stage_id ?? null) === prev.id &&
-            (s.stage_role ?? "architecture") === newRole,
-        )
+        .filter((s) => (s.parent_stage_id ?? null) === prev.id)
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       const nextSort = ((newKids[newKids.length - 1]?.sort_order ?? 0) || 0) + 10;
       await upsertStage.mutateAsync({
         id,
         parent_stage_id: prev.id,
-        stage_role: newRole,
         sort_order: nextSort,
       } as Parameters<typeof upsertStage.mutateAsync>[0]);
       toast.success(t("workspace.planning.indented", { defaultValue: "Row indented." }));
@@ -648,34 +636,26 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
   );
 
   /**
-   * Outdent: promote one level — new parent = current parent's parent, role
-   * promotes (supplier_phase → supplier_group → architecture). Placed right
-   * after the current parent in the new sibling group.
+   * Outdent (Merlin-style): promote one level — new parent = current parent's
+   * parent. Placed right after the former parent in the new sibling group.
+   * Stage role/category is preserved.
    */
   const handleOutdent = useCallback(
     async (id: string) => {
       type S = (typeof stages)[number] & {
-        stage_role?: string | null;
         parent_stage_id?: string | null;
       };
       const all = stages as S[];
       const target = all.find((s) => s.id === id);
       if (!target) return;
-      const role = target.stage_role ?? "architecture";
-      if (role === "architecture") {
+      const parent = all.find((s) => s.id === (target.parent_stage_id ?? ""));
+      if (!parent) {
         toast.error(t("workspace.planning.outdentBlocked", { defaultValue: "Top-level rows can't be outdented further." }));
         return;
       }
-      const parent = all.find((s) => s.id === (target.parent_stage_id ?? ""));
-      if (!parent) return;
       const newParentId = (parent as S).parent_stage_id ?? null;
-      const newRole = role === "supplier_phase" ? "supplier_group" : "architecture";
       const siblings = all
-        .filter(
-          (s) =>
-            (s.parent_stage_id ?? null) === newParentId &&
-            (s.stage_role ?? "architecture") === newRole,
-        )
+        .filter((s) => (s.parent_stage_id ?? null) === newParentId)
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       const parentIdx = siblings.findIndex((s) => s.id === parent.id);
       const a = siblings[parentIdx]?.sort_order ?? 0;
@@ -685,13 +665,13 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
       await upsertStage.mutateAsync({
         id,
         parent_stage_id: newParentId,
-        stage_role: newRole,
         sort_order: sort,
       } as Parameters<typeof upsertStage.mutateAsync>[0]);
       toast.success(t("workspace.planning.outdented", { defaultValue: "Row outdented." }));
     },
     [stages, upsertStage, t],
   );
+
 
   // Measure chart container width so "Fit" stretches to fill it.
   const chartRef = useRef<HTMLDivElement | null>(null);
