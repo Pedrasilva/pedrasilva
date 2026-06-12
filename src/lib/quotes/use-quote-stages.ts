@@ -69,8 +69,17 @@ export function useDeleteQuoteStage(quoteId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await db.from("quote_stages").delete().eq("id", id);
+      const { data, error } = await db
+        .from("quote_stages")
+        .delete()
+        .eq("id", id)
+        .select("id");
       if (error) throw new Error(error.message);
+      if (!data || data.length === 0) {
+        throw new Error(
+          "Stage could not be deleted. You may not have permission, or the row is referenced elsewhere.",
+        );
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quote-stages", quoteId] });
@@ -80,3 +89,4 @@ export function useDeleteQuoteStage(quoteId: string) {
     },
   });
 }
+

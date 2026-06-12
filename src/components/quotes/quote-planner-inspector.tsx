@@ -377,10 +377,18 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               className="w-full"
               onClick={() => {
                 if (confirm(t("workspace.planning.deleteStageConfirm"))) {
-                  delStage.mutate(stage.id);
-                  onClose();
+                  delStage.mutate(stage.id, {
+                    onSuccess: () => {
+                      toast.success(t("workspace.planning.inspector.deleteStage", { defaultValue: "Stage deleted" }));
+                      onClose();
+                    },
+                    onError: (e: unknown) => {
+                      toast.error(e instanceof Error ? e.message : "Failed to delete stage");
+                    },
+                  });
                 }
               }}
+
             >
               <Trash2 className="mr-1.5 h-3.5 w-3.5" />
               {t("workspace.planning.inspector.deleteStage", { defaultValue: "Delete stage" })}
