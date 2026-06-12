@@ -522,7 +522,7 @@ export function generateByStageBilling(
         });
       } else if (timing === "start") {
         items.push({
-          label: s.name,
+          label: describeLabel("stage_start", s.name),
           trigger_type: "stage_start",
           amount_type: "fixed",
           amount_value: fee,
@@ -534,7 +534,7 @@ export function generateByStageBilling(
         });
       } else {
         items.push({
-          label: s.name,
+          label: describeLabel("stage_end", s.name),
           trigger_type: "stage_end",
           amount_type: "fixed",
           amount_value: fee,
