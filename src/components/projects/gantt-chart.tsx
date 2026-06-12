@@ -681,6 +681,37 @@ export function GanttChart({
             const sEnd = draft?.end ?? stage.end_date;
             const stageX = differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
             const stageW = dayCount(sStart, sEnd) * dayWidth;
+            const node = hierarchy?.get(stage.id);
+            const isSummary = node?.isSummary ?? false;
+
+            // Summary / rollup row — slim non-interactive bar spanning the
+            // group's range. No allocations rendered, no drag handles.
+            if (isSummary) {
+              return (
+                <div
+                  key={stage.id}
+                  className="relative"
+                  style={{ height: SUMMARY_ROW_H + STAGE_GAP }}
+                >
+                  <div
+                    className="absolute top-3 flex h-5 items-center rounded-sm border border-foreground/20 bg-foreground/70 px-2 text-[10px] font-semibold uppercase tracking-wider text-background shadow-sm"
+                    style={{ left: stageX, width: Math.max(40, stageW) }}
+                    title={`${stage.name} · ${fmt(sStart)} → ${fmt(sEnd)}`}
+                  >
+                    <span className="truncate">{stage.name}</span>
+                  </div>
+                  {/* span brackets on each end */}
+                  <div
+                    className="absolute top-2 h-7 w-px bg-foreground/40"
+                    style={{ left: stageX }}
+                  />
+                  <div
+                    className="absolute top-2 h-7 w-px bg-foreground/40"
+                    style={{ left: stageX + Math.max(40, stageW) - 1 }}
+                  />
+                </div>
+              );
+            }
 
             // Baseline ghost (rendered behind the working stage bar)
             const stageWithBaseline = stage as typeof stage & {
