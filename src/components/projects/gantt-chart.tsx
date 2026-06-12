@@ -290,8 +290,11 @@ export function GanttChart({
       const draft = draftDates.get(stage.id);
       const sStart = draft?.start ?? stage.start_date;
       const sEnd = draft?.end ?? stage.end_date;
-      const x = differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
-      const w = dayCount(sStart, sEnd) * dayWidth;
+      const isMilestone = (stage as { is_milestone?: boolean }).is_milestone ?? false;
+      const x = isMilestone
+        ? differenceInCalendarDays(new Date(sStart), origin) * dayWidth - STAGE_ROW_H / 2
+        : differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
+      const w = isMilestone ? STAGE_ROW_H : dayCount(sStart, sEnd) * dayWidth;
       const isSummary = hierarchy?.get(stage.id)?.isSummary ?? false;
       const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
       const allocCount = resHidden ? 0 : Math.max(stage.allocations.length, 0);
