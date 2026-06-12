@@ -10,6 +10,7 @@
  * the standalone Consultants panel.
  */
 import { useMemo, useState } from "react";
+import { addDays, addWeeks, addMonths, differenceInCalendarDays, parseISO, format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { X, Trash2, Plus } from "lucide-react";
