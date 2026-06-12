@@ -274,17 +274,20 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
     roots.forEach((r) => computeRollup(r));
 
 
-    const mapped = ordered.map((s) => ({
+    const mapped = ordered.map((s) => {
+      const ru = rollup.get(s.id);
+      return {
       id: s.id,
       name: s.name,
       project_id: quoteId,
       projectId: quoteId,
-      start_date: s.start_date,
-      end_date: s.end_date,
+      start_date: ru?.start ?? s.start_date,
+      end_date: ru?.end ?? s.end_date,
       color: s.color,
       budget: s.budget,
       sort_order: s.sort_order,
       external_id: s.external_id ?? null,
+
       created_at: s.created_at,
       updated_at: s.updated_at,
       baseline_budget: null,
