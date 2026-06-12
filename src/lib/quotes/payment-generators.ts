@@ -608,7 +608,7 @@ export function generateArchitectureWithConsultants(
     const fee = round2(stageFees[s.id] ?? 0);
     if (fee <= 0) continue;
     items.push({
-      label: s.name,
+      label: describeLabel("stage_end", s.name),
       trigger_type: "stage_end",
       amount_type: "fixed",
       amount_value: fee,
