@@ -187,7 +187,8 @@ export function GanttChart({
     if (!stage) return STAGE_ROW_H + STAGE_GAP;
     const isSummary = hierarchy?.get(stageId)?.isSummary ?? false;
     if (isSummary) return SUMMARY_ROW_H + STAGE_GAP;
-    const allocRows = Math.max(stage.allocations.length, 0);
+    const resHidden = resourcesCollapsed?.has(stageId) ?? false;
+    const allocRows = resHidden ? 0 : Math.max(stage.allocations.length, 0);
     return STAGE_ROW_H + allocRows * (ALLOC_ROW_H + 4) + STAGE_GAP;
   };
 
