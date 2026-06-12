@@ -470,8 +470,13 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             resources={resources}
             adapter={adapter}
             milestones={milestones}
+            hierarchy={hierarchy}
+            collapsed={collapsed}
+            onToggleCollapse={toggleCollapse}
+            outlineWidth={320}
             embedded
           />
+
         </div>
         {!poolCollapsed && (
           <ResourcePool resources={poolResources} collapsed={false} missingRateIds={rateMissing} />
