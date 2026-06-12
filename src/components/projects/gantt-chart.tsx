@@ -150,6 +150,8 @@ export function GanttChart({
   onSelectStage,
   onRenameStage,
   onReorderStage,
+  onInsertStage,
+  onDeleteStage,
 }: Props) {
   const { t } = useTranslation("projects");
   const dateLocale = useDateLocale();
