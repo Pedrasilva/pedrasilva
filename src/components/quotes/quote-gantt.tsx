@@ -22,7 +22,7 @@ import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHie
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
 import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspector";
-import { useQuoteStages, useUpsertQuoteStage } from "@/lib/quotes/use-quote-stages";
+import { useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
