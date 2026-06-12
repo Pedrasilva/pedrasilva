@@ -31,6 +31,9 @@ export type QuotePaymentItemInsert = {
   supplier_company_id?: string | null;
   linked_payment_item_id?: string | null;
   payment_offset_days?: number;
+  vat_rate?: number;
+  vat_rate_override?: boolean;
+  payment_terms?: string | null;
 };
 
 export type QuotePaymentItemUpdate = Partial<QuotePaymentItemInsert> & {
