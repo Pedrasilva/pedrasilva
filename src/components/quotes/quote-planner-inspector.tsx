@@ -195,54 +195,96 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               }}
             />
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <label className="flex items-center gap-2 rounded-md border bg-muted/30 px-2.5 py-2 text-sm">
+            <input
+              type="checkbox"
+              checked={!!(stage as { is_milestone?: boolean }).is_milestone}
+              onChange={(e) => {
+                const on = e.target.checked;
+                upsertStage.mutate({
+                  id: stage.id,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  ...(on ? { is_milestone: true, end_date: stage.start_date } : { is_milestone: false }),
+                } as any);
+              }}
+              className="h-4 w-4"
+            />
+            <span className="font-medium">
+              {t("workspace.planning.milestone", { defaultValue: "Milestone" })}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {t("workspace.planning.milestoneHint", { defaultValue: "Single-date marker" })}
+            </span>
+          </label>
+          {!(stage as { is_milestone?: boolean }).is_milestone && (
+            <>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">
+                    {t("workspace.planning.startDate", { defaultValue: "Start" })}
+                  </Label>
+                  <Input
+                    type="date"
+                    key={`sd2-${stage.id}-${stage.start_date}`}
+                    defaultValue={stage.start_date}
+                    onBlur={(e) => {
+                      if (e.target.value !== stage.start_date)
+                        upsertStage.mutate({ id: stage.id, start_date: e.target.value });
+                    }}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">
+                    {t("workspace.planning.endDate", { defaultValue: "End" })}
+                  </Label>
+                  <Input
+                    type="date"
+                    key={`ed2-${stage.id}-${stage.end_date}`}
+                    defaultValue={stage.end_date}
+                    onBlur={(e) => {
+                      if (e.target.value !== stage.end_date)
+                        upsertStage.mutate({ id: stage.id, end_date: e.target.value });
+                    }}
+                  />
+                </div>
+              </div>
+              <DurationField
+                stageId={stage.id}
+                startDate={stage.start_date}
+                endDate={stage.end_date}
+                onChange={(end_date: string) => upsertStage.mutate({ id: stage.id, end_date })}
+              />
+              <div className="space-y-1">
+                <Label className="text-xs">
+                  {t("workspace.planning.budget", { defaultValue: "Budget" })}
+                </Label>
+                <CurrencyInput
+                  key={`b-${stage.id}-${stage.budget}`}
+                  value={Number(stage.budget ?? 0)}
+                  onCommit={(v: number) => {
+                    if (v !== Number(stage.budget)) upsertStage.mutate({ id: stage.id, budget: v });
+                  }}
+                />
+              </div>
+            </>
+          )}
+          {(stage as { is_milestone?: boolean }).is_milestone && (
             <div className="space-y-1">
               <Label className="text-xs">
-                {t("workspace.planning.startDate", { defaultValue: "Start" })}
+                {t("workspace.planning.milestoneDate", { defaultValue: "Date" })}
               </Label>
               <Input
                 type="date"
-                key={`sd-${stage.id}-${stage.start_date}`}
+                key={`ms-${stage.id}-${stage.start_date}`}
                 defaultValue={stage.start_date}
                 onBlur={(e) => {
-                  if (e.target.value !== stage.start_date)
-                    upsertStage.mutate({ id: stage.id, start_date: e.target.value });
+                  const v = e.target.value;
+                  if (v && v !== stage.start_date)
+                    upsertStage.mutate({ id: stage.id, start_date: v, end_date: v });
                 }}
               />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">
-                {t("workspace.planning.endDate", { defaultValue: "End" })}
-              </Label>
-              <Input
-                type="date"
-                key={`ed-${stage.id}-${stage.end_date}`}
-                defaultValue={stage.end_date}
-                onBlur={(e) => {
-                  if (e.target.value !== stage.end_date)
-                    upsertStage.mutate({ id: stage.id, end_date: e.target.value });
-                }}
-              />
-            </div>
-          </div>
-          <DurationField
-            stageId={stage.id}
-            startDate={stage.start_date}
-            endDate={stage.end_date}
-            onChange={(end_date: string) => upsertStage.mutate({ id: stage.id, end_date })}
-          />
-          <div className="space-y-1">
-            <Label className="text-xs">
-              {t("workspace.planning.budget", { defaultValue: "Budget" })}
-            </Label>
-            <CurrencyInput
-              key={`b-${stage.id}-${stage.budget}`}
-              value={Number(stage.budget ?? 0)}
-              onCommit={(v: number) => {
-                if (v !== Number(stage.budget)) upsertStage.mutate({ id: stage.id, budget: v });
-              }}
-            />
-          </div>
+          )}
           <div className="pt-2">
             <Button
               variant="destructive"
