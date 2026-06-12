@@ -90,11 +90,15 @@ export function GanttOutlineColumn({
           const role = node?.role ?? "architecture";
           const Icon = ICON_BY_ROLE[role];
           const rowH = rowHeightFor(stage.id);
+          const isSelected = selectedStageId === stage.id;
           return (
             <div
               key={stage.id}
               style={{ height: rowH, marginTop: i === 0 ? 0 : rowGap }}
-              className="relative flex items-start"
+              className={`relative flex items-start ${
+                isSelected ? "bg-primary/10" : onSelectStage ? "hover:bg-muted/40 cursor-pointer" : ""
+              }`}
+              onClick={onSelectStage ? () => onSelectStage(stage.id) : undefined}
             >
               {/* indent guides */}
               {Array.from({ length: depth }).map((_, d) => (
