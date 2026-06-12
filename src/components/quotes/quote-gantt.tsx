@@ -15,7 +15,7 @@
  *   cross-project moves are hidden.
  */
 import { useMemo, useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
-import { PanelRightClose, PanelRightOpen, Plus } from "lucide-react";
+import { PanelRightClose, PanelRightOpen, Plus, IndentIncrease, IndentDecrease } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
@@ -530,6 +530,93 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
       await deleteQuoteStage.mutateAsync(id);
     },
     [deleteQuoteStage, selectedStageId],
+  );
+
+  /**
+   * Indent: move stage under the previous visible sibling (same role+parent),
+   * demoting its role one level (architecture → supplier_group → supplier_phase).
+   */
+  const handleIndent = useCallback(
+    async (id: string) => {
+      type S = (typeof stages)[number] & {
+        stage_role?: string | null;
+        parent_stage_id?: string | null;
+      };
+      const all = stages as S[];
+      const target = all.find((s) => s.id === id);
+      if (!target) return;
+      const role = target.stage_role ?? "architecture";
+      if (role === "supplier_phase") return;
+      const parentId = target.parent_stage_id ?? null;
+      const siblings = all
+        .filter(
+          (s) =>
+            (s.parent_stage_id ?? null) === parentId &&
+            (s.stage_role ?? "architecture") === role,
+        )
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      const idx = siblings.findIndex((s) => s.id === id);
+      const prev = siblings[idx - 1];
+      if (!prev) return; // first child can't indent
+      const newRole = role === "architecture" ? "supplier_group" : "supplier_phase";
+      const newKids = all
+        .filter(
+          (s) =>
+            (s.parent_stage_id ?? null) === prev.id &&
+            (s.stage_role ?? "architecture") === newRole,
+        )
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      const nextSort = ((newKids[newKids.length - 1]?.sort_order ?? 0) || 0) + 10;
+      await upsertStage.mutateAsync({
+        id,
+        parent_stage_id: prev.id,
+        stage_role: newRole,
+        sort_order: nextSort,
+      } as Parameters<typeof upsertStage.mutateAsync>[0]);
+    },
+    [stages, upsertStage],
+  );
+
+  /**
+   * Outdent: promote one level — new parent = current parent's parent, role
+   * promotes (supplier_phase → supplier_group → architecture). Placed right
+   * after the current parent in the new sibling group.
+   */
+  const handleOutdent = useCallback(
+    async (id: string) => {
+      type S = (typeof stages)[number] & {
+        stage_role?: string | null;
+        parent_stage_id?: string | null;
+      };
+      const all = stages as S[];
+      const target = all.find((s) => s.id === id);
+      if (!target) return;
+      const role = target.stage_role ?? "architecture";
+      if (role === "architecture") return;
+      const parent = all.find((s) => s.id === (target.parent_stage_id ?? ""));
+      if (!parent) return;
+      const newParentId = (parent as S).parent_stage_id ?? null;
+      const newRole = role === "supplier_phase" ? "supplier_group" : "architecture";
+      const siblings = all
+        .filter(
+          (s) =>
+            (s.parent_stage_id ?? null) === newParentId &&
+            (s.stage_role ?? "architecture") === newRole,
+        )
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      const parentIdx = siblings.findIndex((s) => s.id === parent.id);
+      const a = siblings[parentIdx]?.sort_order ?? 0;
+      const b = siblings[parentIdx + 1]?.sort_order ?? a + 20;
+      let sort = Math.floor((a + b) / 2);
+      if (sort === a || sort === b) sort = a + 5;
+      await upsertStage.mutateAsync({
+        id,
+        parent_stage_id: newParentId,
+        stage_role: newRole,
+        sort_order: sort,
+      } as Parameters<typeof upsertStage.mutateAsync>[0]);
+    },
+    [stages, upsertStage],
   );
 
   // Measure chart container width so "Fit" stretches to fill it.
