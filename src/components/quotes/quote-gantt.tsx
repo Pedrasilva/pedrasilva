@@ -870,6 +870,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             hierarchy={hierarchy}
             collapsed={collapsed}
             onToggleCollapse={toggleCollapse}
+            resourcesCollapsed={resCollapsed}
+            onToggleResourcesCollapse={toggleResCollapse}
             outlineWidth={320}
             embedded
             selectedStageId={selectedStageId}
