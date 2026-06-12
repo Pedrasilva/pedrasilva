@@ -253,6 +253,27 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
     const roots = childrenByParent.get(null) ?? [];
     roots.forEach((r, i) => walk(r, 0, String(i + 1), null));
 
+    // Roll up summary rows: a parent stage's rendered span is the union of
+    // its descendants' dates (Merlin-style summary bar). The underlying
+    // start_date/end_date persisted on the row is left untouched.
+    const rollup = new Map<string, { start: string; end: string }>();
+    const computeRollup = (node: S): { start: string; end: string } => {
+      const kids = childrenByParent.get(node.id) ?? [];
+      if (kids.length === 0) return { start: node.start_date, end: node.end_date };
+      let minStart = "";
+      let maxEnd = "";
+      for (const k of kids) {
+        const r = computeRollup(k);
+        if (!minStart || r.start < minStart) minStart = r.start;
+        if (!maxEnd || r.end > maxEnd) maxEnd = r.end;
+      }
+      const out = { start: minStart || node.start_date, end: maxEnd || node.end_date };
+      rollup.set(node.id, out);
+      return out;
+    };
+    roots.forEach((r) => computeRollup(r));
+
+
     const mapped = ordered.map((s) => ({
       id: s.id,
       name: s.name,
