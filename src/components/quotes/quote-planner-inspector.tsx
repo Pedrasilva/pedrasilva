@@ -291,18 +291,119 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                 endDate={stage.end_date}
                 onChange={(end_date: string) => upsertStage.mutate({ id: stage.id, end_date })}
               />
-              <div className="space-y-1">
-                <Label className="text-xs">
-                  {t("workspace.planning.budget", { defaultValue: "Budget" })}
-                </Label>
-                <CurrencyInput
-                  key={`b-${stage.id}-${stage.budget}`}
-                  value={Number(stage.budget ?? 0)}
-                  onCommit={(v: number) => {
-                    if (v !== Number(stage.budget)) upsertStage.mutate({ id: stage.id, budget: v });
-                  }}
-                />
-              </div>
+              {(() => {
+                const sx = stage as typeof stage & {
+                  budget_mode?: string | null;
+                  billing_model?: string | null;
+                  stage_billing_timing?: string | null;
+                  parent_stage_id?: string | null;
+                };
+                const children = allStages.filter(
+                  (c) => (c as { parent_stage_id?: string | null }).parent_stage_id === stage.id,
+                );
+                const isParent = children.length > 0;
+                const mode = (sx.budget_mode ?? "calculated") as "calculated" | "fixed";
+                const sumChildren = (id: string): number => {
+                  const kids = allStages.filter(
+                    (c) => (c as { parent_stage_id?: string | null }).parent_stage_id === id,
+                  );
+                  if (kids.length === 0) {
+                    const me = allStages.find((s) => s.id === id);
+                    return Number(me?.budget ?? 0) || 0;
+                  }
+                  const km = (allStages.find((s) => s.id === id) as { budget_mode?: string | null } | undefined)?.budget_mode ?? "calculated";
+                  if (km === "fixed") {
+                    const me = allStages.find((s) => s.id === id);
+                    return Number(me?.budget ?? 0) || 0;
+                  }
+                  return kids.reduce((sum, k) => sum + sumChildren(k.id), 0);
+                };
+                const calculated = isParent ? sumChildren(stage.id) : Number(stage.budget ?? 0);
+                const billingModel = (sx.billing_model ?? "stage") as "stage" | "monthly" | "retainer";
+                const timing = (sx.stage_billing_timing ?? "end") as "end" | "start" | "split";
+                return (
+                  <>
+                    {isParent && (
+                      <div className="space-y-1">
+                        <Label className="text-xs">
+                          {t("workspace.planning.budgetMode", { defaultValue: "Budget mode" })}
+                        </Label>
+                        <div className="flex gap-1 rounded-md border border-border p-0.5">
+                          {(["calculated", "fixed"] as const).map((m) => (
+                            <button
+                              key={m}
+                              type="button"
+                              onClick={() => {
+                                if (m === mode) return;
+                                upsertStage.mutate({ id: stage.id, budget_mode: m });
+                              }}
+                              className={`flex-1 rounded px-2 py-1 text-[11px] transition ${
+                                mode === m
+                                  ? "bg-foreground text-background"
+                                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                              }`}
+                            >
+                              {m === "calculated"
+                                ? t("workspace.planning.budgetCalculated", { defaultValue: "Calculated (sum of children)" })
+                                : t("workspace.planning.budgetFixed", { defaultValue: "Fixed" })}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className="space-y-1">
+                      <Label className="text-xs">
+                        {t("workspace.planning.budget", { defaultValue: "Budget" })}
+                      </Label>
+                      {isParent && mode === "calculated" ? (
+                        <Input
+                          readOnly
+                          value={new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(calculated)}
+                          className="bg-muted/40 font-mono"
+                        />
+                      ) : (
+                        <CurrencyInput
+                          key={`b-${stage.id}-${stage.budget}`}
+                          value={Number(stage.budget ?? 0)}
+                          onCommit={(v: number) => {
+                            if (v !== Number(stage.budget)) upsertStage.mutate({ id: stage.id, budget: v });
+                          }}
+                        />
+                      )}
+                    </div>
+                    {billingModel === "stage" && (
+                      <div className="space-y-1">
+                        <Label className="text-xs">
+                          {t("workspace.planning.billingTiming", { defaultValue: "Billing timing" })}
+                        </Label>
+                        <div className="flex gap-1 rounded-md border border-border p-0.5">
+                          {(["end", "start", "split"] as const).map((opt) => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => {
+                                if (opt === timing) return;
+                                upsertStage.mutate({ id: stage.id, stage_billing_timing: opt });
+                              }}
+                              className={`flex-1 rounded px-2 py-1 text-[11px] transition ${
+                                timing === opt
+                                  ? "bg-foreground text-background"
+                                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                              }`}
+                            >
+                              {opt === "end"
+                                ? t("workspace.planning.timingEnd", { defaultValue: "End" })
+                                : opt === "start"
+                                  ? t("workspace.planning.timingStart", { defaultValue: "Start" })
+                                  : t("workspace.planning.timingSplit", { defaultValue: "Start + End (50/50)" })}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </>
           )}
           {(stage as { is_milestone?: boolean }).is_milestone && (
