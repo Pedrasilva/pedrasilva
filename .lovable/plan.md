@@ -1,78 +1,53 @@
+## Hierarchical Gantt for quotes
 
-# Elaborate Gantt + Consultants + Cashflow projections
+Goal: on the quote Gantt, render supplier groups as parent rows with their phases indented underneath, and have supplier phases follow the architecture stage they shadow (move architecture → supplier phase moves with it).
 
-Goal: model consultants as supplier "groups" of indented sub-stages on the quote Gantt that follow the architecture stages through dependencies, generate a payment schedule that mirrors the attached PDF (architecture + per-supplier blocks), and feed the cashflow with projected income (architecture invoices) and projected outflows (consultant invoices).
+### 1. Data flow (no schema changes — columns already exist)
 
----
+Already on `quote_stages`: `parent_stage_id`, `stage_role` (`architecture` | `supplier_group` | `supplier_phase`), `supplier_company_id`, plus an existing dependency table `quote_stage_dependencies` we can reuse for SS=0 links.
 
-## 1. Data model changes
+`useQuoteStages` already returns all rows. Extend the row type pass-through in `QuoteGantt` so `parent_stage_id`, `stage_role`, `supplier_company_id` reach the chart.
 
-**`quote_stages`** (already supports a tree-friendly structure; we extend it):
-- `parent_stage_id uuid NULL` → enables indentation (supplier group → sub-stage).
-- `stage_role text NOT NULL DEFAULT 'architecture'` → values: `architecture`, `supplier_group`, `supplier_phase`.
-- `supplier_company_id uuid NULL` → set on `supplier_group` (and inherited by children for queries).
-- `linked_stage_id uuid NULL` → on `supplier_phase`, points to the architecture stage it shadows (so cascade moves it).
+### 2. Shared GanttChart (`src/components/projects/gantt-chart.tsx`)
 
-**`quote_payment_schedule_items`**:
-- `supplier_company_id uuid NULL` → tags rows that represent supplier outflows.
-- `direction text NOT NULL DEFAULT 'inflow'` → `inflow` (architecture → us) or `outflow` (us → supplier).
-- `linked_payment_item_id uuid NULL` → outflow linked to the parent inflow (for "pay when paid + N days").
-- `payment_offset_days int NOT NULL DEFAULT 0` → applied on top of the linked inflow's payment date.
+Minimum invasive additions — no drag/drop math changes:
 
-**New table `quote_supplier_phase_splits`** (per-supplier % overrides):
-- `quote_id`, `supplier_company_id`, `phase_code` (or `linked_stage_id`), `percent`.
-- Default: inherit architecture stage % split. Row only created when overridden.
+- Extend `StageWithProject` consumer to read optional `parent_stage_id`, `stage_role`, `supplier_company_id`.
+- Build an ordered list: architecture stages in `sort_order`, then for each architecture stage append its linked supplier phases (children whose `linked_stage_id`/dependency points to it), grouped by supplier with a supplier-group header row.
+- Render three row variants:
+  - `architecture` — current full row (unchanged).
+  - `supplier_group` — slim header row (28 px), shows supplier name + total fee badge + span bracket across its children. Non-draggable.
+  - `supplier_phase` — compact row (44 px) with 24 px left indent, smaller bar, no allocations sub-rows.
+- A small chevron on supplier groups to collapse/expand children (local UI state only).
 
-All new columns get sensible defaults so existing quotes keep working.
+### 3. Cascade (move architecture → move supplier phase)
 
----
+Reuse `useUpdateStageWithCascade`. When an architecture stage is moved/resized, after persisting, fetch any `supplier_phase` stages whose `quote_stage_dependencies` row references it as predecessor with `dep_type='SS'` and `lag_days=0`, and apply the same start delta (preserve duration). Same path for resize when only end changes.
 
-## 2. Gantt UI (`quote-gantt.tsx`)
+### 4. Editing supplier groups
 
-- Render rows hierarchically with indentation. Order: architecture stages first, then each supplier group with its phases nested below.
-- Expand/collapse per supplier group.
-- New row type "Supplier group": shows supplier name, total fee, span = min(start) → max(end) of its children.
-- New action on architecture stage row: **"Add consultant"** → opens picker (existing companies where `is_supplier=true`) and seeds a supplier group + supplier_phase rows mirroring the architecture phases the user selects.
-- Supplier phases inherit dates from their `linked_stage_id` via SS=0 dependency by default; user can change the dep type/lag inline.
-- Moving an architecture stage cascades to linked supplier phases through the existing dependency cascade engine (`computeCascade`).
+New small panel in `quote-planning-tab.tsx` ("Consultants"):
+- Add consultant → pick supplier company → creates a `supplier_group` row.
+- Inside the group: pick architecture stages to shadow → creates `supplier_phase` rows with `parent_stage_id = group`, plus a SS=0 dependency to the architecture stage. Dates initialised from the architecture stage.
+- Remove / rename actions.
 
----
+No fee math here — payment amounts continue to come from the existing `generateArchitectureWithConsultants` generator on the payment-schedule tab.
 
-## 3. Payment schedule (`quote-payment-schedule-tab.tsx` + `payment-generators.ts`)
+### 5. Rollout
 
-- Replace the flat "Aplicar" generator with a structured generator that produces the PDF layout:
-  - Top block: **architecture totals** (aggregated across all architecture stages) — % split by phase, invoice numbering Fatura 01..N, condition "Pronto pagamento" / "30 dias".
-  - One block per supplier: total fee, then per-phase rows using the supplier's split (inherited or overridden).
-- Each generated row stores `direction` and `supplier_company_id`, with outflow rows linked to the matching architecture inflow row.
-- Inline override UI per supplier row: percent per phase (locks `manual_override=true` only on the cells the user edits).
-- Apply button regenerates non-manual rows only, preserving overrides (existing pattern).
+- Existing flat quotes keep working: rows without `parent_stage_id` render as architecture (current behaviour).
+- Feature is additive — no migration needed in this step.
+- i18n keys added to EN + PT in the same edit.
 
----
+### Technical notes
 
-## 4. Cashflow integration
+- Sort key for ordered rendering: `(architectureSortOrder, supplierGroupName, phaseSortOrder)`.
+- Indent purely visual — bar X / W still computed from real dates.
+- Collapse state: `Map<groupId, boolean>` in `QuoteGantt` local state.
+- Cascade trigger lives in the planner adapter's `updateStage`, behind a quote-only branch so project mode is unchanged.
 
-Reads from `quote_payment_schedule_items` joined with `fee_proposals` → projects/clients:
+### Out of scope for this turn
 
-- **Projected income** (CashFlowSection): sum of `direction='inflow'` items by month using `expected_payment_date`. Source: signed/issued quotes + retainer projections (existing logic) + these new schedule items.
-- **Projected outflows**: sum of `direction='outflow'` items by month and supplier.
-- **Per-project insight** (financial summary tab + project insights): show "fees received − consultants payable = remaining for us" using the same schedule data, scoped to the project's source quote.
-
-No changes to historical actuals; only the forecast/cashflow surfaces consume these rows.
-
----
-
-## 5. Migration & rollout
-
-- Migration 1: schema additions (columns, table, indexes, GRANTs, RLS mirroring existing quote_* policies).
-- Code changes ride on top; existing quotes default to `stage_role='architecture'` and `direction='inflow'` so nothing breaks.
-- i18n keys added to EN + PT in same edit (quotes namespace + glossary additions if needed).
-
----
-
-## Technical notes
-
-- Tree rendering: extend `quote-gantt.tsx` row builder to group by `parent_stage_id`. Keep `sort_order` per sibling group.
-- Cascade: extend `useQuoteDependencies` to auto-create SS=0 deps when a supplier_phase is created with `linked_stage_id`. Reuse `computeCascade`.
-- Payment generator: new kind `architecture_plus_consultants` in `payment-generators.ts`. Old `by_stage_billing` kept for back-compat.
-- Permissions: same admin-only write policies as existing quote_* tables.
-
+- Per-supplier % split override UI (separate next step).
+- Cashflow insight card on project page (separate next step).
+- Reorder by drag across the hierarchy.
