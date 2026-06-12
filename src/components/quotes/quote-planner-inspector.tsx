@@ -566,3 +566,44 @@ function DurationField({
     </div>
   );
 }
+
+function CurrencyInput({
+  value,
+  onCommit,
+}: {
+  value: number;
+  onCommit: (v: number) => void;
+}) {
+  const fmt = (n: number) =>
+    new Intl.NumberFormat("pt-PT", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number.isFinite(n) ? n : 0);
+  const [text, setText] = useState<string>(fmt(value));
+
+  return (
+    <div className="relative">
+      <Input
+        inputMode="decimal"
+        value={text}
+        onFocus={(e) => {
+          const raw = String(value ?? 0).replace(".", ",");
+          setText(raw);
+          requestAnimationFrame(() => e.target.select());
+        }}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={() => {
+          const normalized = text.replace(/\s|\u00a0/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", ".");
+          const n = Number(normalized);
+          const v = Number.isFinite(n) ? n : 0;
+          setText(fmt(v));
+          onCommit(v);
+        }}
+        className="pr-7 text-right"
+      />
+      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+        €
+      </span>
+    </div>
+  );
+}
