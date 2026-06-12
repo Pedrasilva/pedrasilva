@@ -18,7 +18,7 @@ import { useMemo, useState, useEffect, useRef, useLayoutEffect } from "react";
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { addDays, differenceInCalendarDays } from "date-fns";
-import { GanttChart, type StageWithProject, type PaymentMilestone } from "@/components/projects/gantt-chart";
+import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
