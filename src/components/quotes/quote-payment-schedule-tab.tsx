@@ -448,8 +448,24 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     if (itemsQ.isLoading || stagesQ.isLoading || !supplierLookupReady) return;
     if (applyGen.isPending || stageOnlyOutflows.length === 0) return;
     const outflows = items.filter((it) => (it as unknown as { direction?: string }).direction === "outflow");
-    if (outflows.length > 0) return;
     if (items.some((it) => it.manual_override)) return;
+    // Determine expected supplier keys from the Gantt and compare with what
+    // is already in the schedule. Skip the sync only when every expected
+    // supplier is already represented as an outflow — otherwise a newly
+    // added supplier on the Gantt (e.g. Paisagismo) would be ignored just
+    // because outflows for OTHER suppliers already exist.
+    const outflowKey = (row: { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null }) =>
+      row.supplier_id ? `pm:${row.supplier_id}` :
+      row.supplier_company_id ? `co:${row.supplier_company_id}` :
+      row.supplier_label ? `ph:${row.supplier_label.toLowerCase()}` : "";
+    const existingKeys = new Set(
+      outflows.map((it) => outflowKey(it as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null })).filter(Boolean),
+    );
+    const expectedKeys = new Set(
+      stageOnlyOutflows.map((o) => outflowKey(o as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null })).filter(Boolean),
+    );
+    const missing = [...expectedKeys].some((k) => !existingKeys.has(k));
+    if (!missing) return;
     const source: "architecture_with_consultants" | "by_stage_billing" | null = items.find((it) => it.generator_source === "architecture_with_consultants")
       ? "architecture_with_consultants"
       : items.find((it) => it.generator_source === "by_stage_billing")
