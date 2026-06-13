@@ -751,12 +751,6 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                   <TableRow>
                     <TableHead>{t("common.stage")}</TableHead>
                     <TableHead className="text-right">
-                      {t("workspace.payment.archInflowCol", { defaultValue: "Money in" })}
-                    </TableHead>
-                    <TableHead className="text-right">
-                      {t("workspace.payment.archSuppliersCol", { defaultValue: "Suppliers" })}
-                    </TableHead>
-                    <TableHead className="text-right">
                       {t("workspace.payment.archNetCol", { defaultValue: "Architecture" })}
                     </TableHead>
                   </TableRow>
@@ -765,10 +759,6 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                   {rows.map((r, idx) => (
                     <TableRow key={idx}>
                       <TableCell className="font-medium">{r.name}</TableCell>
-                      <TableCell className="text-right tabular-nums">{formatEUR(r.inflow)}</TableCell>
-                      <TableCell className="text-right tabular-nums text-muted-foreground">
-                        {r.outflow > 0 ? `− ${formatEUR(r.outflow)}` : "—"}
-                      </TableCell>
                       <TableCell className="text-right tabular-nums font-semibold">
                         {formatEUR(r.inflow - r.outflow)}
                       </TableCell>
@@ -776,10 +766,6 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                   ))}
                   <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
                     <TableCell>Total</TableCell>
-                    <TableCell className="text-right tabular-nums">{formatEUR(totalIn)}</TableCell>
-                    <TableCell className="text-right tabular-nums text-muted-foreground">
-                      {totalOut > 0 ? `− ${formatEUR(totalOut)}` : "—"}
-                    </TableCell>
                     <TableCell className="text-right tabular-nums">{formatEUR(totalArch)}</TableCell>
                   </TableRow>
                 </TableBody>
