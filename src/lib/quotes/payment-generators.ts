@@ -411,14 +411,32 @@ export function generateMonthly(stages: QuoteStage[]): GeneratorItem[] {
  *   - 'monthly'  → stage fee split evenly across its calendar months
  *   - 'retainer' → retainer_monthly_amount × each month of the stage span
  */
+export interface ByStageBillingOptions {
+  /** When > 0, prepend an "Adjudicação" inflow row at project_start. */
+  downPaymentPercent?: number;
+  /** Deduct the down payment proportionally from subsequent stage rows. */
+  deductDownPaymentFromStages?: boolean;
+  /** When provided, also emit supplier outflow rows per stage. */
+  externalServices?: QuoteExternalServiceWithSupplier[];
+  /** Days after each stage_end to date the supplier outflow ("pay when paid"). */
+  paymentOffsetDays?: number;
+}
+
 export function generateByStageBilling(
   stages: QuoteStage[],
   stageFees: Record<string, number>,
+  options: ByStageBillingOptions = {},
 ): GeneratorItem[] {
   if (stages.length === 0) return [];
   // Exclude children of parent bars — only top-level stages bill the client.
   const billable = topLevelBillableStages(stages);
   const sorted = [...billable].sort((a, b) => a.sort_order - b.sort_order);
+  const totalArch = sorted.reduce((acc, s) => acc + (stageFees[s.id] ?? 0), 0);
+  const dpPct = Math.max(0, Number(options.downPaymentPercent ?? 0));
+  const dpAmount = dpPct > 0 ? round2((totalArch * dpPct) / 100) : 0;
+  const deduct = options.deductDownPaymentFromStages && dpAmount > 0;
+  const remainingFactor = deduct && totalArch > 0 ? 1 - dpAmount / totalArch : 1;
+  const scaleFee = (fee: number) => round2(fee * remainingFactor);
   const items: GeneratorItem[] = [];
   let order = 0;
   for (const s of sorted) {
