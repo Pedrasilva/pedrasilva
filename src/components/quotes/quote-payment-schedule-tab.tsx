@@ -408,7 +408,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     const outflows = items.filter((it) => (it as unknown as { direction?: string }).direction === "outflow");
     if (outflows.length > 0) return;
     if (items.some((it) => it.manual_override)) return;
-    const source = items.find((it) => it.generator_source === "architecture_with_consultants")
+    const source: "architecture_with_consultants" | "by_stage_billing" | null = items.find((it) => it.generator_source === "architecture_with_consultants")
       ? "architecture_with_consultants"
       : items.find((it) => it.generator_source === "by_stage_billing")
         ? "by_stage_billing"
