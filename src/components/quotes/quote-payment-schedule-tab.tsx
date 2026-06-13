@@ -336,10 +336,18 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
 
 
   // Supplier names for grouped outflow rows in the proposal view.
+  // Outflows can carry either a company FK (legacy) or a pm_suppliers FK (new).
   const supplierIds = Array.from(
     new Set(
       items
         .map((it) => (it as unknown as { supplier_company_id?: string | null }).supplier_company_id)
+        .filter((x): x is string => !!x),
+    ),
+  );
+  const pmSupplierItemIds = Array.from(
+    new Set(
+      items
+        .map((it) => (it as unknown as { supplier_id?: string | null }).supplier_id)
         .filter((x): x is string => !!x),
     ),
   );
@@ -355,7 +363,23 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       return data ?? [];
     },
   });
-  const suppliers = (suppliersQ.data ?? []).map((c) => ({ id: c.id, name: c.nome }));
+  const pmSuppliersItemsQ = useQuery({
+    queryKey: ["payment-schedule-pm-suppliers", quoteId, pmSupplierItemIds.sort().join(",")],
+    enabled: pmSupplierItemIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { in: (c: string, v: string[]) => Promise<{ data: { id: string; name: string }[] | null; error: { message: string } | null }> } } })
+        .from("pm_suppliers")
+        .select("id,name")
+        .in("id", pmSupplierItemIds);
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    },
+  });
+  const suppliers = [
+    ...(suppliersQ.data ?? []).map((c) => ({ id: c.id, name: c.nome })),
+    ...(pmSuppliersItemsQ.data ?? []).map((c) => ({ id: c.id, name: c.name })),
+  ];
+
 
 
   const scheduleTotal = items.reduce(
