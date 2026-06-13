@@ -512,7 +512,7 @@ export function generateByStageBilling(
     } else if (model === "monthly") {
       const months = monthsBetween(s.start_date, s.end_date);
       if (months.length === 0) continue;
-      const fee = stageFees[s.id] ?? 0;
+      const fee = scaleFee(stageFees[s.id] ?? 0);
       const per = round2(fee / months.length);
       months.forEach((m, i) => {
         const amt = i === months.length - 1
