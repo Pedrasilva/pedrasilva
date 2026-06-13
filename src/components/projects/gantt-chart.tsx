@@ -1565,8 +1565,14 @@ export function GanttChart({
             const toX = d.type === "FS" || d.type === "SF" ? s.x : s.x + s.w;
             const fromY = p.anchorY;
             const toY = s.anchorY;
-            const dx = toX > fromX ? 10 : -10;
-            const path = `M ${fromX} ${fromY} L ${fromX + dx} ${fromY} L ${fromX + dx} ${toY} L ${toX} ${toY}`;
+            // Exit predecessor on its anchor side; approach successor on its
+            // anchor side. This guarantees the final segment direction (and
+            // thus the arrowhead orientation) is always correct, even when
+            // the source and target overlap horizontally.
+            const exitX = d.type === "FS" || d.type === "FF" ? fromX + 12 : fromX - 12;
+            const approachX = d.type === "FS" || d.type === "SF" ? toX - 12 : toX + 12;
+            const midY = (fromY + toY) / 2;
+            const path = `M ${fromX} ${fromY} L ${exitX} ${fromY} L ${exitX} ${midY} L ${approachX} ${midY} L ${approachX} ${toY} L ${toX} ${toY}`;
             const strokeColor =
               d.type === "FS"
                 ? "var(--color-primary)"
@@ -1575,9 +1581,9 @@ export function GanttChart({
                 : d.type === "FF"
                 ? "var(--color-muted-foreground)"
                 : "var(--color-destructive)";
-            // Label at the elbow midpoint along the vertical segment.
-            const labelX = fromX + dx;
-            const labelY = (fromY + toY) / 2;
+            // Label at the horizontal mid-segment.
+            const labelX = (exitX + approachX) / 2;
+            const labelY = midY;
             const lagText =
               d.lag_days === 0
                 ? ""
