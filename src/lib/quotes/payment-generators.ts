@@ -33,10 +33,15 @@ export interface GeneratorItem {
   direction?: "inflow" | "outflow";
   /** Set on outflow rows so cashflow can attribute payouts to a supplier. */
   supplier_company_id?: string | null;
+  /** Master directory (pm_suppliers) FK for outflows. */
+  supplier_id?: string | null;
+  /** Free-text supplier label when supplier isn't yet known (Gantt placeholder). */
+  supplier_label?: string | null;
   /** VAT % applied to amount (default 23). */
   vat_rate?: number;
   /** Free-text payment condition (e.g. "Pronto pagamento", "30 dias"). */
   payment_terms?: string | null;
+
 }
 
 /** Quote-level billing defaults (VAT %, payment-term strings). */
