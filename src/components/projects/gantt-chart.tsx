@@ -1560,26 +1560,93 @@ export function GanttChart({
                 : ` ${d.lag_days > 0 ? "+" : "−"}${Math.abs(d.lag_days)}d`;
             const label = `${d.type}${lagText}`;
             const labelWidth = 14 + label.length * 6;
+            const beginEndpointDrag = (e: React.PointerEvent, which: "from" | "to") => {
+              e.stopPropagation();
+              e.preventDefault();
+              const rect = canvasRef.current?.getBoundingClientRect();
+              if (!rect) return;
+              // Anchor the drag at the *other* endpoint; the side under the
+              // pointer becomes the new target. Re-routing the "from" end
+              // anchors at the successor, and vice versa.
+              const anchorStageId = which === "from" ? d.successor_id : d.predecessor_id;
+              const anchorSide: "start" | "end" =
+                which === "from"
+                  ? d.type === "FS" || d.type === "SF" ? "start" : "end"
+                  : d.type === "FS" || d.type === "FF" ? "end" : "start";
+              setLink({
+                fromStageId: anchorStageId,
+                fromSide: anchorSide,
+                pointerX: e.clientX - rect.left,
+                pointerY: e.clientY - rect.top,
+                toSide: null,
+                replacesDepId: d.id,
+              });
+              const onUp = () => {
+                window.removeEventListener("pointerup", onUp);
+                window.removeEventListener("pointercancel", onUp);
+                commitLinkDrag();
+              };
+              window.addEventListener("pointerup", onUp);
+              window.addEventListener("pointercancel", onUp);
+            };
             return (
-              <g
-                key={d.id}
-                style={{ pointerEvents: "auto", cursor: "pointer" }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditingDep({ id: d.id, x: labelX, y: labelY });
-                }}
-              >
+              <g key={d.id} style={{ pointerEvents: "auto" }}>
                 <path
                   d={path}
                   fill="none"
                   stroke={strokeColor}
-                  strokeWidth={1.5}
-                  strokeOpacity={0.75}
+                  strokeWidth={2.5}
+                  strokeOpacity={0.9}
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
                   markerEnd={`url(#dep-arrow-${d.type})`}
+                  style={{ cursor: "pointer" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingDep({ id: d.id, x: labelX, y: labelY });
+                  }}
                 />
                 {/* invisible wider hit area */}
-                <path d={path} fill="none" stroke="transparent" strokeWidth={10} />
-                <g transform={`translate(${labelX - labelWidth / 2}, ${labelY - 8})`}>
+                <path
+                  d={path}
+                  fill="none"
+                  stroke="transparent"
+                  strokeWidth={14}
+                  style={{ cursor: "pointer" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingDep({ id: d.id, x: labelX, y: labelY });
+                  }}
+                />
+                {/* Endpoint handles — drag to re-anchor to a different stage / side. */}
+                <circle
+                  cx={fromX}
+                  cy={fromY}
+                  r={4}
+                  fill="var(--color-background)"
+                  stroke={strokeColor}
+                  strokeWidth={2}
+                  style={{ cursor: "grab" }}
+                  onPointerDown={(e) => beginEndpointDrag(e, "from")}
+                />
+                <circle
+                  cx={toX}
+                  cy={toY}
+                  r={4}
+                  fill={strokeColor}
+                  stroke="var(--color-background)"
+                  strokeWidth={2}
+                  style={{ cursor: "grab" }}
+                  onPointerDown={(e) => beginEndpointDrag(e, "to")}
+                />
+                <g
+                  transform={`translate(${labelX - labelWidth / 2}, ${labelY - 8})`}
+                  style={{ cursor: "pointer" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingDep({ id: d.id, x: labelX, y: labelY });
+                  }}
+                >
                   <rect
                     width={labelWidth}
                     height={16}
@@ -1587,7 +1654,7 @@ export function GanttChart({
                     ry={3}
                     fill="var(--color-background)"
                     stroke={strokeColor}
-                    strokeOpacity={0.5}
+                    strokeOpacity={0.6}
                     strokeWidth={1}
                   />
                   <text
