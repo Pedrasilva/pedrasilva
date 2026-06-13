@@ -15,8 +15,9 @@
  *   cross-project moves are hidden.
  */
 import { useMemo, useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
-import { PanelRightClose, PanelRightOpen, Plus, IndentIncrease, IndentDecrease } from "lucide-react";
+import { PanelRightClose, PanelRightOpen, Plus, IndentIncrease, IndentDecrease, AlignVerticalJustifyStart } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
 import { addDays, differenceInCalendarDays } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
 import { ResourcePool } from "@/components/projects/resource-pool";
@@ -27,6 +28,7 @@ import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
+import { reflowQuoteSchedule } from "@/lib/quotes/reflow-schedule";
 import type { Resource, AllocationWithResource } from "@/lib/projects/types";
 import { toast } from "sonner";
 
@@ -60,6 +62,39 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
 
   const adapter = useQuotePlannerAdapter(quoteId, resources);
   const upsertStage = useUpsertQuoteStage(quoteId);
+  const qc = useQueryClient();
+  const [reflowing, setReflowing] = useState(false);
+
+  const handleReflow = useCallback(async () => {
+    setReflowing(true);
+    try {
+      const res = await reflowQuoteSchedule(quoteId);
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["quote-stages", quoteId] }),
+        qc.invalidateQueries({ queryKey: ["quote-allocations", quoteId] }),
+        qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] }),
+        qc.invalidateQueries({ queryKey: ["quote-financials", quoteId] }),
+      ]);
+      if (res.updatedStageCount === 0) {
+        toast.success(
+          t("workspace.planning.reflow.alreadyAligned", {
+            defaultValue: "Schedule already satisfies all dependencies.",
+          }),
+        );
+      } else {
+        toast.success(
+          t("workspace.planning.reflow.done", {
+            count: res.updatedStageCount,
+            defaultValue: "Reflowed {{count}} stage(s) to honour dependencies.",
+          }),
+        );
+      }
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setReflowing(false);
+    }
+  }, [quoteId, qc, t]);
 
   const stages = stagesQ.data ?? [];
   const allocations = allocQ.data ?? [];
@@ -772,6 +807,23 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
             aria-label="Outdent"
           >
             <IndentDecrease className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-7 px-2 text-xs"
+            onClick={handleReflow}
+            disabled={reflowing}
+            title={t("workspace.planning.reflow.tooltip", {
+              defaultValue:
+                "Push every stage forward so all FS/SS/FF/SF dependencies are honoured.",
+            })}
+          >
+            <AlignVerticalJustifyStart className="mr-1 h-3.5 w-3.5" />
+            {reflowing
+              ? t("workspace.planning.reflow.running", { defaultValue: "Reflowing…" })
+              : t("workspace.planning.reflow.button", { defaultValue: "Reflow" })}
           </Button>
         </div>
         {dayWidthProp === undefined && (
