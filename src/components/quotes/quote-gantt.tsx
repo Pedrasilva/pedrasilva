@@ -35,6 +35,7 @@ import { toast } from "sonner";
 interface Props {
   quoteId: string;
   dayWidth?: number;
+  onAddRetainerPhase?: () => void;
 }
 
 type ZoomMode = "week" | "month" | "quarter" | "year" | "fit";
@@ -48,7 +49,7 @@ const ZOOM_DAY_WIDTHS: Record<Exclude<ZoomMode, "fit">, number> = {
   year: 1.5,
 };
 
-export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
+export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: Props) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
