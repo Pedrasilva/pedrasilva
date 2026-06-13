@@ -597,6 +597,8 @@
       "paymentDate": "Payment date",
       "amountType": "Amount type",
       "empty": "No scheduled payments yet.",
+      "suppliersTitle": "Suppliers — outflows",
+      "unassignedSupplier": "Unassigned",
       "addTitle": "Add payment",
       "labelPlaceholder": "e.g. Down payment",
       "errorLabel": "Label is required",
