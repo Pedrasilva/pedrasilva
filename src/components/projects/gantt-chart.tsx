@@ -132,6 +132,7 @@ interface LinkDragState {
   pointerX: number;
   pointerY: number;
   toSide: "start" | "end" | null;
+  direction?: "outgoing" | "incoming";
   /** If set, this drag is re-routing an existing dependency. The original
    *  dep is replaced (delete + create) on a successful commit. */
   replacesDepId?: string;
@@ -170,6 +171,18 @@ export function GanttChart({
   const [link, setLink] = useState<LinkDragState | null>(null);
   const [linkHoverStage, setLinkHoverStage] = useState<string | null>(null);
   const [editingDep, setEditingDep] = useState<{ id: string; x: number; y: number } | null>(null);
+  const linkRef = useRef<LinkDragState | null>(null);
+  const linkHoverStageRef = useRef<string | null>(null);
+
+  const updateLink = (next: LinkDragState | null) => {
+    linkRef.current = next;
+    setLink(next);
+  };
+
+  const updateLinkHoverStage = (next: string | null) => {
+    linkHoverStageRef.current = next;
+    setLinkHoverStage(next);
+  };
 
   // Hide stages whose ancestor chain contains a collapsed parent.
   const stages = useMemo(() => {
@@ -314,28 +327,29 @@ export function GanttChart({
   const todayInRange = todayX >= 0 && todayX <= totalDays * dayWidth;
 
   const stageLayouts = useMemo(() => {
-    const out = new Map<string, { top: number; height: number; x: number; w: number }>();
+    const out = new Map<string, { top: number; height: number; x: number; w: number; anchorY: number }>();
     let cursor = 16;
     stages.forEach((stage, i) => {
       const draft = draftDates.get(stage.id);
       const sStart = draft?.start ?? stage.start_date;
       const sEnd = draft?.end ?? stage.end_date;
       const isMilestone = (stage as { is_milestone?: boolean }).is_milestone ?? false;
+      const isSummary = hierarchy?.get(stage.id)?.isSummary ?? false;
       // For milestones, anchor x/w to the *visible* diamond tip (not the
       // wider bounding box) so dependency arrows land exactly on the picker.
       const milestoneHalf = Math.max(14, STAGE_ROW_H * 0.55) * (Math.SQRT2 / 2);
       const x = isMilestone
         ? differenceInCalendarDays(new Date(sStart), origin) * dayWidth - milestoneHalf
         : differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
-      const w = isMilestone ? milestoneHalf * 2 : dayCount(sStart, sEnd) * dayWidth;
-      const isSummary = hierarchy?.get(stage.id)?.isSummary ?? false;
+      const rawW = isMilestone ? milestoneHalf * 2 : dayCount(sStart, sEnd) * dayWidth;
+      const w = isSummary ? Math.max(40, rawW) : rawW;
       const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
       const allocCount = resHidden ? 0 : Math.max(stage.allocations.length, 0);
       const height = isSummary
         ? SUMMARY_ROW_H + STAGE_GAP
         : STAGE_ROW_H + allocCount * (ALLOC_ROW_H + 4) + STAGE_GAP;
       if (i > 0) cursor += 16;
-      out.set(stage.id, { top: cursor, height, x, w });
+      out.set(stage.id, { top: cursor, height, x, w, anchorY: cursor + (isSummary ? 18 : STAGE_ROW_H / 2) });
       cursor += height;
     });
     return out;
@@ -361,25 +375,20 @@ export function GanttChart({
         const py = e.clientY - rect.top;
         let hit: string | null = null;
         let toSide: "start" | "end" | null = null;
-        // Generous horizontal padding so narrow bars (milestones, single-day
-        // stages) and summary parent bars are easy targets when dragging an
-        // arrow onto them. Vertical hit uses the row's full height so
-        // summary rows (slim bar at top of a 40px row) also catch the drop.
-        const HIT_PAD_X = 18;
+        const TIP_HIT_X = 18;
+        const TIP_HIT_Y = 20;
         for (const [sid, geo] of stageLayouts.entries()) {
           if (sid === link.fromStageId) continue;
-          const left = geo.x - HIT_PAD_X;
-          const right = geo.x + geo.w + HIT_PAD_X;
-          const bottom = geo.top + Math.max(STAGE_ROW_H, geo.height);
-          if (px >= left && px <= right && py >= geo.top && py <= bottom) {
+          const startDx = Math.abs(px - geo.x);
+          const endDx = Math.abs(px - (geo.x + geo.w));
+          if (Math.abs(py - geo.anchorY) <= TIP_HIT_Y && (startDx <= TIP_HIT_X || endDx <= TIP_HIT_X)) {
             hit = sid;
-            const rel = (px - geo.x) / Math.max(1, geo.w);
-            toSide = rel < 0.5 ? "start" : "end";
+            toSide = startDx <= endDx ? "start" : "end";
             break;
           }
         }
-        setLink({ ...link, pointerX: px, pointerY: py, toSide });
-        setLinkHoverStage(hit);
+        updateLink({ ...link, pointerX: px, pointerY: py, toSide });
+        updateLinkHoverStage(hit);
       }
     }
     if (!drag) return;
