@@ -52,9 +52,18 @@ export function effectiveBillingAmount(
   stageFees: Record<string, number>,
 ): number {
   const children = getChildren(stage.id, stages);
-  if (children.length === 0) return Number(stageFees[stage.id] ?? 0);
+  const ownBudget = Number((stage as StageLike).budget ?? 0) || 0;
   const mode = ((stage as StageLike).budget_mode ?? "calculated") as "calculated" | "fixed";
-  if (mode === "fixed") return Number((stage as StageLike).budget ?? 0) || 0;
+  if (children.length === 0) {
+    // Leaf stage: prefer derived fee (allocations + external services). If
+    // there are no allocations/externals, fall back to the manually-set
+    // stage budget so user-entered phase totals (e.g. fee-only stages like
+    // "Developed design") still appear in the schedule.
+    const derived = Number(stageFees[stage.id] ?? 0);
+    if (mode === "fixed") return ownBudget || derived;
+    return derived > 0 ? derived : ownBudget;
+  }
+  if (mode === "fixed") return ownBudget;
   return children.reduce(
     (sum, c) => sum + effectiveBillingAmount(c, stages, stageFees),
     0,
