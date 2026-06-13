@@ -6116,6 +6116,8 @@ export type Database = {
           sort_order: number
           stage_id: string | null
           supplier_company_id: string | null
+          supplier_id: string | null
+          supplier_label: string | null
           trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
           updated_at: string
           vat_rate: number
@@ -6140,6 +6142,8 @@ export type Database = {
           sort_order?: number
           stage_id?: string | null
           supplier_company_id?: string | null
+          supplier_id?: string | null
+          supplier_label?: string | null
           trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
           updated_at?: string
           vat_rate?: number
@@ -6164,6 +6168,8 @@ export type Database = {
           sort_order?: number
           stage_id?: string | null
           supplier_company_id?: string | null
+          supplier_id?: string | null
+          supplier_label?: string | null
           trigger_type?: Database["public"]["Enums"]["quote_payment_trigger"]
           updated_at?: string
           vat_rate?: number
@@ -6196,6 +6202,20 @@ export type Database = {
             columns: ["supplier_company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_payment_schedule_items_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_payment_schedule_items_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers_directory"
             referencedColumns: ["id"]
           },
         ]
