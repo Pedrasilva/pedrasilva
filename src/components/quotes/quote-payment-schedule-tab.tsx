@@ -629,17 +629,28 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-12" />
-                <TableHead className="min-w-[260px]">{t("workspace.payment.label")}</TableHead>
+                <TableHead className="min-w-[240px]">{t("workspace.payment.label")}</TableHead>
                 <TableHead>{t("workspace.payment.trigger")}</TableHead>
                 <TableHead>{t("common.stage")}</TableHead>
                 <TableHead className="text-right">{t("workspace.payment.amount")}</TableHead>
+                <TableHead className="text-right w-20">IVA %</TableHead>
+                <TableHead className="text-right">Valor c/ IVA</TableHead>
                 <TableHead>{t("workspace.payment.invoiceDate")}</TableHead>
-                <TableHead>{t("workspace.payment.paymentDate")}</TableHead>
+                <TableHead className="min-w-[160px]">Condições</TableHead>
                 <TableHead className="w-20" />
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((it, i) => (
+              {items.map((it, i) => {
+                const itAny = it as unknown as { vat_rate?: number | null; payment_terms?: string | null };
+                const net = resolveScheduleItemAmount(
+                  { amount_type: it.amount_type, amount_value: Number(it.amount_value ?? 0), trigger_type: it.trigger_type, stage_id: it.stage_id },
+                  totalFee,
+                  stageFees,
+                );
+                const vat = Number(itAny.vat_rate ?? defaultVatRate);
+                const gross = net + (net * vat) / 100;
+                return (
                 <TableRow key={it.id} className="align-top">
                   <TableCell>
                     <div className="flex flex-col">
@@ -685,13 +696,43 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                   <TableCell>
                     {it.stage_id ? stages.find((s) => s.id === it.stage_id)?.name ?? "—" : "—"}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right tabular-nums">
                     {it.amount_type === "percent"
                       ? `${Number(it.amount_value)}%`
                       : formatEUR(Number(it.amount_value))}
                   </TableCell>
+                  <TableCell className="text-right">
+                    <Input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      className="h-7 w-16 text-right text-xs"
+                      defaultValue={vat}
+                      onBlur={(e) => {
+                        const v = Number(e.target.value);
+                        if (!Number.isFinite(v) || v < 0 || v > 100) return;
+                        if (v === vat) return;
+                        upsert.mutate({ id: it.id, vat_rate: v, vat_rate_override: true });
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums text-xs">
+                    {formatEUR(gross)}
+                  </TableCell>
                   <TableCell>{it.expected_invoice_date ?? "—"}</TableCell>
-                  <TableCell>{it.expected_payment_date ?? "—"}</TableCell>
+                  <TableCell>
+                    <Input
+                      className="h-7 text-xs"
+                      defaultValue={itAny.payment_terms ?? ""}
+                      placeholder={paymentDefaults.defaultTerms}
+                      onBlur={(e) => {
+                        const v = e.target.value.trim();
+                        if (v === (itAny.payment_terms ?? "")) return;
+                        upsert.mutate({ id: it.id, payment_terms: v || null });
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
                       {!it.manual_override && (
@@ -710,10 +751,11 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
               {items.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-6">
+                  <TableCell colSpan={10} className="text-center text-sm text-muted-foreground py-6">
                     {t("workspace.payment.empty")}
                   </TableCell>
                 </TableRow>
