@@ -452,9 +452,14 @@
       }
     },
     "planning": {
+      "supplierIsSelf": "This is us (architecture credit, no outflow)",
+      "supplierPlaceholderLabel": "Or, if supplier not yet known, describe the role",
+      "supplierPlaceholderHint": "e.g. MEP consultant, Structural engineer",
+      "supplierHintV2": "Pick a supplier from the master directory, or use a placeholder name until known. Either way, an outflow commitment is generated.",
       "stagesTitle": "Stages",
       "depsTitle": "Dependencies",
       "allocTitle": "Allocations",
+
       "startDate": "Start date",
       "endDate": "End date",
       "budget": "Budget",
