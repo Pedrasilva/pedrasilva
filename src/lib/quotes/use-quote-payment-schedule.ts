@@ -29,6 +29,8 @@ export type QuotePaymentItemInsert = {
   generator_source?: string | null;
   direction?: "inflow" | "outflow";
   supplier_company_id?: string | null;
+  supplier_id?: string | null;
+  supplier_label?: string | null;
   linked_payment_item_id?: string | null;
   payment_offset_days?: number;
   vat_rate?: number;
