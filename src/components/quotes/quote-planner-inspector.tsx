@@ -70,6 +70,73 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
     [allStages],
   );
 
+  const wbsMap = useMemo(() => {
+    const childrenByParent = new Map<string | null, typeof allStages>();
+    for (const s of allStages) {
+      const parentId = (s as { parent_stage_id?: string | null }).parent_stage_id ?? null;
+      const children = childrenByParent.get(parentId) ?? [];
+      children.push(s);
+      childrenByParent.set(parentId, children);
+    }
+    for (const children of childrenByParent.values()) {
+      children.sort((a, b) => {
+        const sortDelta = (a.sort_order ?? 0) - (b.sort_order ?? 0);
+        if (sortDelta !== 0) return sortDelta;
+        return a.name.localeCompare(b.name) || a.id.localeCompare(b.id);
+      });
+    }
+    const map = new Map<string, string>();
+    const walk = (parentId: string | null, prefix: string) => {
+      const children = childrenByParent.get(parentId) ?? [];
+      children.forEach((s, i) => {
+        const wbs = prefix ? `${prefix}.${i + 1}` : String(i + 1);
+        map.set(s.id, wbs);
+        walk(s.id, wbs);
+      });
+    };
+    walk(null, "");
+    return map;
+  }, [allStages]);
+
+  const labelForStage = (id: string) => {
+    const s = stageMap[id];
+    if (!s) return "—";
+    const wbs = wbsMap.get(id);
+    return wbs ? `${wbs}. ${s.name}` : s.name;
+  };
+
+  const predecessorOptions = useMemo(() => {
+    const existing = new Set(predecessors.map((d) => d.predecessor_stage_id));
+    const descendants = new Set<string>();
+    const queue = [stageId];
+    while (queue.length) {
+      const current = queue.shift()!;
+      for (const d of deps) {
+        if (d.predecessor_stage_id === current && !descendants.has(d.successor_stage_id)) {
+          descendants.add(d.successor_stage_id);
+          queue.push(d.successor_stage_id);
+        }
+      }
+    }
+    return allStages.filter((s) => s.id !== stageId && !existing.has(s.id) && !descendants.has(s.id));
+  }, [allStages, deps, predecessors, stageId]);
+
+  const successorOptions = useMemo(() => {
+    const existing = new Set(successors.map((d) => d.successor_stage_id));
+    const ancestors = new Set<string>();
+    const queue = [stageId];
+    while (queue.length) {
+      const current = queue.shift()!;
+      for (const d of deps) {
+        if (d.successor_stage_id === current && !ancestors.has(d.predecessor_stage_id)) {
+          ancestors.add(d.predecessor_stage_id);
+          queue.push(d.predecessor_stage_id);
+        }
+      }
+    }
+    return allStages.filter((s) => s.id !== stageId && !existing.has(s.id) && !ancestors.has(s.id));
+  }, [allStages, deps, successors, stageId]);
+
   const predecessors = deps.filter((d) => d.successor_stage_id === stageId);
   const successors = deps.filter((d) => d.predecessor_stage_id === stageId);
 
