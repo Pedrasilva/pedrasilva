@@ -170,6 +170,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
         lag_days: Number(newPred.lag) || 0,
       });
       setNewPred({ pred: "", type: "FS", lag: "0" });
+      toast.success(t("workspace.planning.dependencySaved", { defaultValue: "Dependency saved." }));
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -186,6 +187,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
         lag_days: Number(newSucc.lag) || 0,
       });
       setNewSucc({ succ: "", type: "FS", lag: "0" });
+      toast.success(t("workspace.planning.dependencySaved", { defaultValue: "Dependency saved." }));
     } catch (e) {
       toast.error((e as Error).message);
     }

@@ -35,14 +35,14 @@ export function useCreateQuoteDependency(quoteId: string) {
     mutationFn: async (input: QuoteDependencyInsert) => {
       const { data, error } = await db
         .from("quote_stage_dependencies")
-        .insert({ ...input, quote_id: quoteId })
+        .upsert({ ...input, quote_id: quoteId }, { onConflict: "predecessor_stage_id,successor_stage_id" })
         .select()
         .single();
       if (error) throw new Error(error.message);
       await cascadeFromPredecessor(quoteId, input.predecessor_stage_id);
       return data as QuoteStageDependency;
     },
-    onSuccess: () => {
+    onSettled: () => {
       qc.invalidateQueries({ queryKey: ["quote-dependencies", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-stages", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-allocations", quoteId] });
