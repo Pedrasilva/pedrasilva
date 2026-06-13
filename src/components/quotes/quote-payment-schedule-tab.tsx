@@ -443,55 +443,75 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     applyGen.mutate({ generator: "by_stage_billing", items: generated });
   }, [itemsQ.isLoading, stagesQ.isLoading, items.length, stages, stageFees, applyGen]);
 
+  // Additive supplier sync: when the Gantt references a supplier that has no
+  // outflow row yet, INSERT just that missing row. Never regenerate, never
+  // delete existing rows — A2P, A400, manual hand-added rows etc. must
+  // survive a new supplier appearing on the Gantt.
   const supplierSyncRef = useRef<string | null>(null);
   useEffect(() => {
     if (itemsQ.isLoading || stagesQ.isLoading || !supplierLookupReady) return;
-    if (applyGen.isPending || stageOnlyOutflows.length === 0) return;
-    const outflows = items.filter((it) => (it as unknown as { direction?: string }).direction === "outflow");
-    if (items.some((it) => it.manual_override)) return;
-    // Determine expected supplier keys from the Gantt and compare with what
-    // is already in the schedule. Skip the sync only when every expected
-    // supplier is already represented as an outflow — otherwise a newly
-    // added supplier on the Gantt (e.g. Paisagismo) would be ignored just
-    // because outflows for OTHER suppliers already exist.
+    if (upsert.isPending || applyGen.isPending) return;
+    if (stageOnlyOutflows.length === 0) return;
     const outflowKey = (row: { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null }) =>
       row.supplier_id ? `pm:${row.supplier_id}` :
       row.supplier_company_id ? `co:${row.supplier_company_id}` :
       row.supplier_label ? `ph:${row.supplier_label.toLowerCase()}` : "";
     const existingKeys = new Set(
-      outflows.map((it) => outflowKey(it as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null })).filter(Boolean),
+      items
+        .filter((it) => (it as unknown as { direction?: string }).direction === "outflow")
+        .map((it) => outflowKey(it as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null }))
+        .filter(Boolean),
     );
-    const expectedKeys = new Set(
-      stageOnlyOutflows.map((o) => outflowKey(o as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null })).filter(Boolean),
-    );
-    const missing = [...expectedKeys].some((k) => !existingKeys.has(k));
-    if (!missing) return;
-    const source: "architecture_with_consultants" | "by_stage_billing" | null = items.find((it) => it.generator_source === "architecture_with_consultants")
+    const missingRows = stageOnlyOutflows.filter((o) => {
+      const so = o as unknown as { supplier_id?: string | null; supplier_placeholder?: string | null };
+      const key = so.supplier_id ? `pm:${so.supplier_id}` : so.supplier_placeholder ? `ph:${so.supplier_placeholder.toLowerCase()}` : "";
+      return key && !existingKeys.has(key);
+    });
+    if (missingRows.length === 0) return;
+
+    const syncKey = missingRows.map((o) => {
+      const oa = o as unknown as { stage_id?: string | null; supplier_id?: string | null; supplier_placeholder?: string | null; purchase_price?: number | null };
+      return `${oa.stage_id}:${oa.supplier_id ?? ""}:${oa.supplier_placeholder ?? ""}:${oa.purchase_price}`;
+    }).join("|");
+    if (supplierSyncRef.current === syncKey) return;
+    supplierSyncRef.current = syncKey;
+
+    const generatorSource = items.find((it) => it.generator_source === "architecture_with_consultants")
       ? "architecture_with_consultants"
       : items.find((it) => it.generator_source === "by_stage_billing")
         ? "by_stage_billing"
-        : null;
-    if (!source) return;
-    const syncKey = `${source}:${stageOnlyOutflows.map((o) => { const oa = o as unknown as { stage_id?: string | null; supplier_id?: string | null; supplier_placeholder?: string | null; purchase_price?: number | null }; return `${oa.stage_id}:${oa.supplier_id ?? ""}:${oa.supplier_placeholder ?? ""}:${oa.purchase_price}`; }).join("|")}`;
-    if (supplierSyncRef.current === syncKey) return;
-    supplierSyncRef.current = syncKey;
-    const generated = source === "architecture_with_consultants"
-      ? generateArchitectureWithConsultants(stages, effectiveExternals, stageFees, {
-        downPaymentPercent: Number(milestoneOpts.downPaymentPercent) || 0,
-        paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
-      })
-      : generateByStageBilling(stages, stageFees, {
-        downPaymentPercent: milestoneOpts.downPaymentEnabled
-          ? Number(milestoneOpts.downPaymentPercent) || 0
-          : 0,
-        deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
-        externalServices: effectiveExternals,
-        paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
+        : "by_stage_billing";
+    const baseSort = items.reduce((m, it) => Math.max(m, Number(it.sort_order ?? 0)), -1) + 1;
+
+    void Promise.all(missingRows.map((o, i) => {
+      const oa = o as unknown as {
+        stage_id?: string | null;
+        supplier_id?: string | null;
+        supplier_placeholder?: string | null;
+        purchase_price?: number | null;
+        description?: string | null;
+        supplier?: { name?: string | null } | null;
+      };
+      const displayName = oa.supplier?.name ?? oa.supplier_placeholder ?? "Supplier";
+      const stageName = oa.description ?? "";
+      return upsert.mutateAsync({
+        quote_id: quoteId,
+        label: stageName ? `${displayName} — ${stageName}` : displayName,
+        trigger_type: "stage_end",
+        amount_type: "fixed",
+        amount_value: Number(oa.purchase_price ?? 0),
+        stage_id: oa.stage_id ?? null,
+        sort_order: baseSort + i,
+        direction: "outflow",
+        supplier_id: oa.supplier_id ?? null,
+        supplier_label: oa.supplier_id ? null : (oa.supplier_placeholder ?? null),
+        generator_source: generatorSource,
+        manual_override: false,
+        vat_rate: paymentDefaults.vatRate,
+        payment_terms: paymentDefaults.defaultTerms,
       });
-    if (generated.some((it) => it.direction === "outflow")) {
-      applyGen.mutate({ generator: source, items: applyPaymentDefaults(generated, paymentDefaults), replaceAll: true });
-    }
-  }, [itemsQ.isLoading, stagesQ.isLoading, supplierLookupReady, items, stages, stageFees, stageOnlyOutflows, effectiveExternals, applyGen]);
+    })).catch((e) => console.error("supplier sync failed", e));
+  }, [itemsQ.isLoading, stagesQ.isLoading, supplierLookupReady, items, stageOnlyOutflows, upsert, applyGen.isPending, paymentDefaults, quoteId]);
 
   const handleAdd = async () => {
     if (!draft.label.trim()) return toast.error(t("workspace.payment.errorLabel"));
