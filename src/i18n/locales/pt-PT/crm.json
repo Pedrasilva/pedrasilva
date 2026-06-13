@@ -452,9 +452,14 @@
       }
     },
     "planning": {
+      "supplierIsSelf": "Somos nós (honorário de arquitetura, sem saída)",
+      "supplierPlaceholderLabel": "Ou, se o fornecedor ainda não é conhecido, descreva o papel",
+      "supplierPlaceholderHint": "ex. Consultor MEP, Engenheiro de estruturas",
+      "supplierHintV2": "Escolha um fornecedor do directório principal, ou use um nome provisório enquanto não for conhecido. Em qualquer caso é gerado um compromisso de saída.",
       "stagesTitle": "Fases",
       "depsTitle": "Dependências",
       "allocTitle": "Alocações",
+
       "startDate": "Data de início",
       "endDate": "Data de fim",
       "budget": "Orçamento",
@@ -603,6 +608,7 @@
       "archSuppliersCol": "Fornecedores",
       "archNetCol": "Arquitetura",
       "unassignedSupplier": "Sem fornecedor",
+      "placeholderTag": "a definir",
       "addTitle": "Adicionar pagamento",
       "labelPlaceholder": "ex: Sinal",
       "errorLabel": "Etiqueta é obrigatória",

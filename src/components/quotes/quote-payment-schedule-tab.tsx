@@ -197,44 +197,54 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   // then merge so per-item amount resolution can look up either map.
   const stageFees = { ...leafStageFees, ...rolledUpBillableFees(stages, leafStageFees) };
 
-  // Companies referenced by stage.supplier_company_id (Gantt parent-level supplier).
+  // -- Supplier resolution from Gantt stages -------------------------------
+  // Stages now carry three supplier signals (inheritable from parents):
+  //   * is_self            → our own work (architecture credit, no outflow)
+  //   * supplier_id        → FK to pm_suppliers master directory
+  //   * supplier_placeholder → free-text label when supplier isn't yet known
+  // If none are set, the stage falls back to "self" (no outflow generated).
+  type SupplierStage = typeof stages[number] & {
+    parent_stage_id?: string | null;
+    supplier_id?: string | null;
+    supplier_placeholder?: string | null;
+    is_self?: boolean | null;
+    // legacy — kept readable while old data lingers
+    supplier_company_id?: string | null;
+    budget?: number | null;
+    budget_mode?: string | null;
+  };
+
+  // Fetch pm_suppliers names for any stage referencing one.
   const stageSupplierIds = Array.from(
     new Set(
       stages
-        .map((s) => (s as { supplier_company_id?: string | null }).supplier_company_id)
+        .map((s) => (s as SupplierStage).supplier_id)
         .filter((x): x is string => !!x),
     ),
   );
-  const stageSupplierCompaniesQ = useQuery({
-    queryKey: ["stage-supplier-companies", quoteId, stageSupplierIds.sort().join(",")],
+  const stageSuppliersQ = useQuery({
+    queryKey: ["stage-pm-suppliers", quoteId, stageSupplierIds.sort().join(",")],
     enabled: stageSupplierIds.length > 0,
     queryFn: async () => {
-      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { in: (c: string, v: string[]) => Promise<{ data: { id: string; nome: string }[] | null; error: { message: string } | null }> } } })
-        .from("companies")
-        .select("id,nome")
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { in: (c: string, v: string[]) => Promise<{ data: { id: string; name: string }[] | null; error: { message: string } | null }> } } })
+        .from("pm_suppliers")
+        .select("id,name")
         .in("id", stageSupplierIds);
       if (error) throw new Error(error.message);
       return data ?? [];
     },
   });
-  const stageSupplierCompanies = stageSupplierCompaniesQ.data ?? [];
-  const OWN_COMPANY_NAME = "Pedra Silva Arquitectos";
-  const ownCompanyId = stageSupplierCompanies.find((c) => c.nome === OWN_COMPANY_NAME)?.id ?? null;
-  const stageSupplierName = (cid: string) =>
-    stageSupplierCompanies.find((c) => c.id === cid)?.nome ?? "Supplier";
-  const supplierLookupReady = stageSupplierIds.length === 0 || stageSupplierCompaniesQ.isSuccess;
+  const stagePmSuppliers = stageSuppliersQ.data ?? [];
+  const stageSupplierName = (sid: string) =>
+    stagePmSuppliers.find((c) => c.id === sid)?.name ?? "Supplier";
+  const supplierLookupReady = stageSupplierIds.length === 0 || stageSuppliersQ.isSuccess;
 
-  // Synthesize external-service rows from Gantt stages that point at a third-party
-  // supplier company. Supplier selection is inherited from parent bars, while
-  // the payout value comes from the priced child/fixed supplier group. The row
-  // is anchored to the top-level billing stage so architecture can be shown as
-  // client inflow minus supplier commitments for that same visible phase.
-  type SupplierStage = typeof stages[number] & {
-    parent_stage_id?: string | null;
-    supplier_company_id?: string | null;
-    budget?: number | null;
-    budget_mode?: string | null;
-  };
+  // Walk up the parent chain to inherit supplier intent.
+  // Returns the closest non-empty signal, or null = default self.
+  type InheritedSupplier =
+    | { kind: "self" }
+    | { kind: "supplier"; supplierId: string }
+    | { kind: "placeholder"; label: string };
   const stageById = new Map(stages.map((s) => [s.id, s as SupplierStage]));
   const childCount = (id: string) =>
     stages.filter((c) => (c as SupplierStage).parent_stage_id === id).length;
@@ -245,25 +255,30 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     }
     return current.id;
   };
-  const inheritedSupplierCompanyId = (stage: SupplierStage): string | null => {
+  const inheritedSupplier = (stage: SupplierStage): InheritedSupplier | null => {
     let current: SupplierStage | undefined = stage;
     while (current) {
-      if (current.supplier_company_id) return current.supplier_company_id;
+      if (current.is_self) return { kind: "self" };
+      if (current.supplier_id) return { kind: "supplier", supplierId: current.supplier_id };
+      const ph = (current.supplier_placeholder ?? "").trim();
+      if (ph) return { kind: "placeholder", label: ph };
       current = current.parent_stage_id ? stageById.get(current.parent_stage_id) : undefined;
     }
-    return null;
+    return null; // = default self
   };
-  const hasFixedSupplierAncestor = (stage: SupplierStage, companyId: string) => {
+  // Synthetic key used to group outflows (real FKs vs free-text labels).
+  const supplierKey = (s: InheritedSupplier) =>
+    s.kind === "supplier" ? `pm:${s.supplierId}` : s.kind === "placeholder" ? `ph:${s.label.toLowerCase()}` : "self";
+  const hasFixedAncestorSameSupplier = (stage: SupplierStage, key: string) => {
     let current = stage.parent_stage_id ? stageById.get(stage.parent_stage_id) : undefined;
     while (current) {
+      const inh = inheritedSupplier(current);
       if (
-        inheritedSupplierCompanyId(current) === companyId &&
+        inh && inh.kind !== "self" && supplierKey(inh) === key &&
         childCount(current.id) > 0 &&
         current.budget_mode === "fixed" &&
         Number(current.budget ?? 0) > 0
-      ) {
-        return true;
-      }
+      ) return true;
       current = current.parent_stage_id ? stageById.get(current.parent_stage_id) : undefined;
     }
     return false;
@@ -271,9 +286,10 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const stageOnlyOutflows = stages
     .map((stage) => {
       const s = stage as SupplierStage;
-      const cid = inheritedSupplierCompanyId(s);
-      if (!cid || cid === ownCompanyId) return null;
-      if (hasFixedSupplierAncestor(s, cid)) return null;
+      const inh = inheritedSupplier(s);
+      if (!inh || inh.kind === "self") return null;
+      const key = supplierKey(inh);
+      if (hasFixedAncestorSameSupplier(s, key)) return null;
       const children = childCount(s.id);
       const ownBudget = Number(s.budget ?? 0) || 0;
       const mode = (s.budget_mode ?? "calculated") as "calculated" | "fixed";
@@ -283,34 +299,43 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         : Number(stageFees[s.id] ?? 0) || ownBudget;
       if (amount <= 0) return null;
       const billingStageId = topLevelStageId(s);
-      const already = externals.some(
-        (es) => es.stage_id === s.id
-          && (es as unknown as { supplier_company_id?: string | null }).supplier_company_id === cid,
-      );
-      if (already) return null;
+      const displayName = inh.kind === "supplier" ? stageSupplierName(inh.supplierId) : inh.label;
+
       return {
         id: `stage-supplier-${s.id}`,
         quote_id: quoteId,
         stage_id: billingStageId,
-        supplier_id: null,
-        supplier_company_id: cid,
+        // Clean fields the generator now understands directly
+        supplier_id: inh.kind === "supplier" ? inh.supplierId : null,
+        supplier_company_id: null,
+        supplier_placeholder: inh.kind === "placeholder" ? inh.label : null,
         description: s.name,
         quantity: 1,
         purchase_price: amount,
         sale_price: amount,
         markup_type: "amount",
         markup_value: 0,
-        supplier: { id: cid, name: stageSupplierName(cid) },
+        supplier: inh.kind === "supplier" ? { id: inh.supplierId, name: displayName } : null,
       } as unknown as typeof externals[number];
+
     })
     .filter((row): row is typeof externals[number] => !!row);
   const effectiveExternals = [...externals, ...stageOnlyOutflows];
 
+
   // Supplier names for grouped outflow rows in the proposal view.
+  // Outflows can carry either a company FK (legacy) or a pm_suppliers FK (new).
   const supplierIds = Array.from(
     new Set(
       items
         .map((it) => (it as unknown as { supplier_company_id?: string | null }).supplier_company_id)
+        .filter((x): x is string => !!x),
+    ),
+  );
+  const pmSupplierItemIds = Array.from(
+    new Set(
+      items
+        .map((it) => (it as unknown as { supplier_id?: string | null }).supplier_id)
         .filter((x): x is string => !!x),
     ),
   );
@@ -326,7 +351,23 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       return data ?? [];
     },
   });
-  const suppliers = (suppliersQ.data ?? []).map((c) => ({ id: c.id, name: c.nome }));
+  const pmSuppliersItemsQ = useQuery({
+    queryKey: ["payment-schedule-pm-suppliers", quoteId, pmSupplierItemIds.sort().join(",")],
+    enabled: pmSupplierItemIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { in: (c: string, v: string[]) => Promise<{ data: { id: string; name: string }[] | null; error: { message: string } | null }> } } })
+        .from("pm_suppliers")
+        .select("id,name")
+        .in("id", pmSupplierItemIds);
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    },
+  });
+  const suppliers = [
+    ...(suppliersQ.data ?? []).map((c) => ({ id: c.id, name: c.nome })),
+    ...(pmSuppliersItemsQ.data ?? []).map((c) => ({ id: c.id, name: c.name })),
+  ];
+
 
 
   const scheduleTotal = items.reduce(
@@ -415,7 +456,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         ? "by_stage_billing"
         : null;
     if (!source) return;
-    const syncKey = `${source}:${stageOnlyOutflows.map((o) => `${o.stage_id}:${(o as unknown as { supplier_company_id?: string | null }).supplier_company_id}:${(o as unknown as { purchase_price?: number | null }).purchase_price}`).join("|")}`;
+    const syncKey = `${source}:${stageOnlyOutflows.map((o) => { const oa = o as unknown as { stage_id?: string | null; supplier_id?: string | null; supplier_placeholder?: string | null; purchase_price?: number | null }; return `${oa.stage_id}:${oa.supplier_id ?? ""}:${oa.supplier_placeholder ?? ""}:${oa.purchase_price}`; }).join("|")}`;
     if (supplierSyncRef.current === syncKey) return;
     supplierSyncRef.current = syncKey;
     const generated = source === "architecture_with_consultants"
@@ -926,8 +967,23 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         const outflows = items.filter((it) => (it as unknown as { direction?: string }).direction === "outflow");
         if (outflows.length === 0) return null;
         const buckets = new Map<string, typeof outflows>();
+        const labelMap = new Map<string, string>();
         for (const o of outflows) {
-          const key = (o as unknown as { supplier_company_id?: string | null }).supplier_company_id ?? "__unassigned__";
+          const oa = o as unknown as { supplier_company_id?: string | null; supplier_id?: string | null; supplier_label?: string | null };
+          let key: string;
+          let label = "";
+          if (oa.supplier_company_id) {
+            key = `c:${oa.supplier_company_id}`;
+          } else if (oa.supplier_id) {
+            key = `s:${oa.supplier_id}`;
+          } else if (oa.supplier_label && oa.supplier_label.trim()) {
+            key = `p:${oa.supplier_label.trim().toLowerCase()}`;
+            label = oa.supplier_label.trim();
+          } else {
+            key = "__unassigned__";
+          }
+          if (!labelMap.has(key)) labelMap.set(key, label);
+
           const arr = buckets.get(key) ?? [];
           arr.push(o);
           buckets.set(key, arr);
@@ -943,9 +999,13 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
             </CardHeader>
             <CardContent className="space-y-4">
               {Array.from(buckets.entries()).map(([key, rows]) => {
+                const id = key.slice(2);
                 const name = key === "__unassigned__"
                   ? t("workspace.payment.unassignedSupplier", { defaultValue: "Unassigned" })
-                  : supplierNameMap.get(key) ?? "—";
+                  : key.startsWith("p:")
+                    ? `${labelMap.get(key) || "Supplier"} · ${t("workspace.payment.placeholderTag", { defaultValue: "to be defined" })}`
+                    : supplierNameMap.get(id) ?? "—";
+
                 const groupTotal = rows.reduce((s, r) => s + resolveScheduleItemAmount(
                   { amount_type: r.amount_type, amount_value: Number(r.amount_value ?? 0), trigger_type: r.trigger_type, stage_id: r.stage_id },
                   totalFee, stageFees,

@@ -29,6 +29,8 @@ export type QuotePaymentItemInsert = {
   generator_source?: string | null;
   direction?: "inflow" | "outflow";
   supplier_company_id?: string | null;
+  supplier_id?: string | null;
+  supplier_label?: string | null;
   linked_payment_item_id?: string | null;
   payment_offset_days?: number;
   vat_rate?: number;
@@ -155,6 +157,8 @@ export function useApplyPaymentGenerator(quoteId: string) {
         manual_override: false,
         direction: it.direction ?? "inflow",
         supplier_company_id: it.supplier_company_id ?? null,
+        supplier_id: it.supplier_id ?? null,
+        supplier_label: it.supplier_label ?? null,
         vat_rate: it.vat_rate ?? 23,
         payment_terms: it.payment_terms ?? null,
       }));

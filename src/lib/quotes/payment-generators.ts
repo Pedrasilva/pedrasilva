@@ -33,10 +33,15 @@ export interface GeneratorItem {
   direction?: "inflow" | "outflow";
   /** Set on outflow rows so cashflow can attribute payouts to a supplier. */
   supplier_company_id?: string | null;
+  /** Master directory (pm_suppliers) FK for outflows. */
+  supplier_id?: string | null;
+  /** Free-text supplier label when supplier isn't yet known (Gantt placeholder). */
+  supplier_label?: string | null;
   /** VAT % applied to amount (default 23). */
   vat_rate?: number;
   /** Free-text payment condition (e.g. "Pronto pagamento", "30 dias"). */
   payment_terms?: string | null;
+
 }
 
 /** Quote-level billing defaults (VAT %, payment-term strings). */
@@ -593,6 +598,8 @@ export function generateByStageBilling(
     type SupplierBucket = {
       key: string;
       companyId: string | null;
+      pmSupplierId: string | null;
+      placeholderLabel: string | null;
       name: string;
       total: number;
       stageIds: Set<string>;
@@ -603,12 +610,18 @@ export function generateByStageBilling(
       const esAny = es as any;
       const companyId: string | null = esAny.supplier_company_id ?? null;
       const supplierId: string | null = esAny.supplier_id ?? null;
-      if (!companyId && !supplierId) continue;
-      const key = companyId ? `c:${companyId}` : `s:${supplierId}`;
-      const name = es.supplier?.name ?? esAny.description ?? "Supplier";
+      const placeholder: string | null = (esAny.supplier_placeholder ?? null) || null;
+      if (!companyId && !supplierId && !placeholder) continue;
+      const key = companyId
+        ? `c:${companyId}`
+        : supplierId
+          ? `s:${supplierId}`
+          : `p:${placeholder!.toLowerCase()}`;
+      const name = es.supplier?.name ?? placeholder ?? esAny.description ?? "Supplier";
       const cost = Number(esAny.purchase_price ?? 0) * Number(esAny.quantity ?? 1);
       const cur = buckets.get(key) ?? {
-        key, companyId, name, total: 0, stageIds: new Set<string>(),
+        key, companyId, pmSupplierId: supplierId, placeholderLabel: placeholder,
+        name, total: 0, stageIds: new Set<string>(),
       };
       cur.total += cost;
       if (esAny.stage_id) cur.stageIds.add(esAny.stage_id);
@@ -641,10 +654,13 @@ export function generateByStageBilling(
           generator_source: "by_stage_billing",
           direction: "outflow",
           supplier_company_id: bucket.companyId,
+          supplier_id: bucket.pmSupplierId,
+          supplier_label: bucket.placeholderLabel,
         });
       });
     }
   }
+
 
   return items;
 }
@@ -723,6 +739,8 @@ export function generateArchitectureWithConsultants(
   type SupplierBucket = {
     key: string;
     companyId: string | null;
+    pmSupplierId: string | null;
+    placeholderLabel: string | null;
     name: string;
     total: number;
     stageIds: Set<string>;
@@ -733,13 +751,20 @@ export function generateArchitectureWithConsultants(
     const esAny = es as any;
     const companyId: string | null = esAny.supplier_company_id ?? null;
     const supplierId: string | null = esAny.supplier_id ?? null;
-    if (!companyId && !supplierId) continue;
-    const key = companyId ? `c:${companyId}` : `s:${supplierId}`;
-    const name = es.supplier?.name ?? esAny.description ?? "Supplier";
+    const placeholder: string | null = (esAny.supplier_placeholder ?? null) || null;
+    if (!companyId && !supplierId && !placeholder) continue;
+    const key = companyId
+      ? `c:${companyId}`
+      : supplierId
+        ? `s:${supplierId}`
+        : `p:${placeholder!.toLowerCase()}`;
+    const name = es.supplier?.name ?? placeholder ?? esAny.description ?? "Supplier";
     const cost = Number(esAny.purchase_price ?? 0) * Number(esAny.quantity ?? 1);
     const cur = buckets.get(key) ?? {
       key,
       companyId,
+      pmSupplierId: supplierId,
+      placeholderLabel: placeholder,
       name,
       total: 0,
       stageIds: new Set<string>(),
@@ -778,6 +803,8 @@ export function generateArchitectureWithConsultants(
         generator_source: "architecture_with_consultants",
         direction: "outflow",
         supplier_company_id: bucket.companyId,
+        supplier_id: bucket.pmSupplierId,
+        supplier_label: bucket.placeholderLabel,
       });
     }
     const remaining = round2(bucket.total * (1 - dp / 100));
@@ -809,9 +836,12 @@ export function generateArchitectureWithConsultants(
         generator_source: "architecture_with_consultants",
         direction: "outflow",
         supplier_company_id: bucket.companyId,
+        supplier_id: bucket.pmSupplierId,
+        supplier_label: bucket.placeholderLabel,
       });
     });
   }
+
 
   return items;
 }
