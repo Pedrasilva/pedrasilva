@@ -299,20 +299,8 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         : Number(stageFees[s.id] ?? 0) || ownBudget;
       if (amount <= 0) return null;
       const billingStageId = topLevelStageId(s);
-      // Grouping key passed to the generator (it groups by supplier_company_id
-      // first, then supplier_id). We pack our synthetic key into supplier_id
-      // so placeholders and pm_suppliers each bucket on their own.
-      const groupId = key;
       const displayName = inh.kind === "supplier" ? stageSupplierName(inh.supplierId) : inh.label;
-      const already = externals.some(
-        (es) => es.stage_id === s.id
-          && (es as unknown as { supplier_id?: string | null }).supplier_id === (inh.kind === "supplier" ? inh.supplierId : null)
-          && (inh.kind === "placeholder"
-            ? ((es as unknown as { description?: string }).description ?? "").toLowerCase() === inh.label.toLowerCase()
-            : true),
-      );
-      if (already) return null;
-      const displayName2 = displayName;
+
       return {
         id: `stage-supplier-${s.id}`,
         quote_id: quoteId,
