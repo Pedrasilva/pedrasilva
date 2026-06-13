@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -503,145 +504,119 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
 
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+        <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 py-3">
           <CardTitle className="text-base">{t("workspace.payment.title")}</CardTitle>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground hidden md:inline">
-              <Wand2 className="h-3 w-3 inline mr-1" />
-              {t("workspace.payment.generators")}
-            </span>
-            {quoteQ.data?.quote_category !== "retainer" && (
-              <>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button size="sm" variant="outline" className="gap-2">
+                <Wand2 className="h-3.5 w-3.5" />
+                {t("workspace.payment.generators")}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-[640px] p-4 space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                {quoteQ.data?.quote_category !== "retainer" && (
+                  <>
+                    <Button size="sm" variant="outline" disabled={applyGen.isPending} onClick={() => runGenerator("milestones")}>
+                      {t("workspace.payment.genMilestones")}
+                    </Button>
+                    <Button size="sm" variant="outline" disabled={applyGen.isPending} onClick={() => runGenerator("thirds")}>
+                      {t("workspace.payment.genThirds")}
+                    </Button>
+                    <Button size="sm" variant="outline" disabled={applyGen.isPending} onClick={() => runGenerator("monthly")}>
+                      {t("workspace.payment.genMonthly")}
+                    </Button>
+                  </>
+                )}
                 <Button
                   size="sm"
                   variant="outline"
                   disabled={applyGen.isPending}
-                  onClick={() => runGenerator("milestones")}
+                  onClick={() => runGenerator("by_stage_billing")}
+                  title={t("workspace.payment.genByStageBillingHint", { defaultValue: "Use each stage's billing model (stage / monthly / retainer)" })}
                 >
-                  {t("workspace.payment.genMilestones")}
+                  {t("workspace.payment.genByStageBilling", { defaultValue: "Per stage model" })}
                 </Button>
                 <Button
                   size="sm"
-                  variant="outline"
                   disabled={applyGen.isPending}
-                  onClick={() => runGenerator("thirds")}
+                  onClick={() => runGenerator("architecture_with_consultants")}
+                  title={t("workspace.payment.genArchConsultantsHint", { defaultValue: "Architecture invoices + per-supplier payouts (pay when paid)" })}
                 >
-                  {t("workspace.payment.genThirds")}
+                  {t("workspace.payment.genArchConsultants", { defaultValue: "Architecture + Consultants" })}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={applyGen.isPending}
-                  onClick={() => runGenerator("monthly")}
-                >
-                  {t("workspace.payment.genMonthly")}
-                </Button>
-              </>
-            )}
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={applyGen.isPending}
-              onClick={() => runGenerator("by_stage_billing")}
-              title={t("workspace.payment.genByStageBillingHint", { defaultValue: "Use each stage's billing model (stage / monthly / retainer)" })}
-            >
-              {t("workspace.payment.genByStageBilling", { defaultValue: "Per stage model" })}
-            </Button>
-            <Button
-              size="sm"
-              disabled={applyGen.isPending}
-              onClick={() => runGenerator("architecture_with_consultants")}
-              title={t("workspace.payment.genArchConsultantsHint", { defaultValue: "Architecture invoices + per-supplier payouts (pay when paid)" })}
-            >
-              {t("workspace.payment.genArchConsultants", { defaultValue: "Architecture + Consultants" })}
-            </Button>
-          </div>
+              </div>
+              {quoteQ.data?.quote_category !== "retainer" && (
+                <div className="rounded-md border bg-muted/30 p-3">
+                  <div className="text-xs font-medium text-muted-foreground mb-2">
+                    {t("workspace.payment.milestoneOptionsTitle")}
+                  </div>
+                  <div className="grid gap-2 grid-cols-2 md:grid-cols-4 items-end">
+                    <div>
+                      <Label className="text-xs">{t("workspace.payment.downPaymentPercent")}</Label>
+                      <Input
+                        type="number" step="0.01" min="0"
+                        disabled={!milestoneOpts.downPaymentEnabled}
+                        value={milestoneOpts.downPaymentPercent}
+                        onChange={(e) => setMilestoneOpts((p) => ({ ...p, downPaymentPercent: e.target.value }))}
+                        className="h-8"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">{t("workspace.payment.stageStartPercent")}</Label>
+                      <Input
+                        type="number" step="0.01" min="0"
+                        value={milestoneOpts.stageStartPercent}
+                        onChange={(e) => setMilestoneOpts((p) => ({ ...p, stageStartPercent: e.target.value }))}
+                        className="h-8"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">{t("workspace.payment.stageEndPercent")}</Label>
+                      <Input
+                        type="number" step="0.01" min="0"
+                        value={milestoneOpts.stageEndPercent}
+                        onChange={(e) => setMilestoneOpts((p) => ({ ...p, stageEndPercent: e.target.value }))}
+                        className="h-8"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">{t("workspace.payment.paymentTermsDays")}</Label>
+                      <Input
+                        type="number" step="1" min="0" placeholder="0"
+                        value={milestoneOpts.paymentTermsDays}
+                        onChange={(e) => setMilestoneOpts((p) => ({ ...p, paymentTermsDays: e.target.value }))}
+                        className="h-8"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 col-span-2 md:col-span-4">
+                      <Checkbox
+                        id="dp-enabled"
+                        checked={milestoneOpts.downPaymentEnabled}
+                        onCheckedChange={(v) => setMilestoneOpts((p) => ({ ...p, downPaymentEnabled: Boolean(v) }))}
+                      />
+                      <Label htmlFor="dp-enabled" className="text-xs cursor-pointer">
+                        {t("workspace.payment.downPaymentEnabled")}
+                      </Label>
+                      <Checkbox
+                        id="dp-deduct"
+                        checked={milestoneOpts.deductDownPaymentFromStages}
+                        disabled={!milestoneOpts.downPaymentEnabled}
+                        onCheckedChange={(v) => setMilestoneOpts((p) => ({ ...p, deductDownPaymentFromStages: Boolean(v) }))}
+                        className="ml-4"
+                      />
+                      <Label htmlFor="dp-deduct" className="text-xs cursor-pointer">
+                        {t("workspace.payment.deductDownPayment")}
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {quoteQ.data?.quote_category !== "retainer" && (
-          <div className="rounded-md border bg-muted/30 p-3">
-            <div className="text-xs font-medium text-muted-foreground mb-2">
-              {t("workspace.payment.milestoneOptionsTitle")}
-            </div>
-            <div className="grid gap-3 md:grid-cols-5 items-end">
-              <div className="flex items-center gap-2 md:col-span-1">
-                <Checkbox
-                  id="dp-enabled"
-                  checked={milestoneOpts.downPaymentEnabled}
-                  onCheckedChange={(v) =>
-                    setMilestoneOpts((p) => ({ ...p, downPaymentEnabled: Boolean(v) }))
-                  }
-                />
-                <Label htmlFor="dp-enabled" className="text-xs cursor-pointer">
-                  {t("workspace.payment.downPaymentEnabled")}
-                </Label>
-              </div>
-              <div>
-                <Label className="text-xs">{t("workspace.payment.downPaymentPercent")}</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  disabled={!milestoneOpts.downPaymentEnabled}
-                  value={milestoneOpts.downPaymentPercent}
-                  onChange={(e) =>
-                    setMilestoneOpts((p) => ({ ...p, downPaymentPercent: e.target.value }))
-                  }
-                />
-              </div>
-              <div>
-                <Label className="text-xs">{t("workspace.payment.stageStartPercent")}</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={milestoneOpts.stageStartPercent}
-                  onChange={(e) =>
-                    setMilestoneOpts((p) => ({ ...p, stageStartPercent: e.target.value }))
-                  }
-                />
-              </div>
-              <div>
-                <Label className="text-xs">{t("workspace.payment.stageEndPercent")}</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={milestoneOpts.stageEndPercent}
-                  onChange={(e) =>
-                    setMilestoneOpts((p) => ({ ...p, stageEndPercent: e.target.value }))
-                  }
-                />
-              </div>
-              <div>
-                <Label className="text-xs">{t("workspace.payment.paymentTermsDays")}</Label>
-                <Input
-                  type="number"
-                  step="1"
-                  min="0"
-                  placeholder="0"
-                  value={milestoneOpts.paymentTermsDays}
-                  onChange={(e) =>
-                    setMilestoneOpts((p) => ({ ...p, paymentTermsDays: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="flex items-center gap-2 md:col-span-5">
-                <Checkbox
-                  id="dp-deduct"
-                  checked={milestoneOpts.deductDownPaymentFromStages}
-                  disabled={!milestoneOpts.downPaymentEnabled}
-                  onCheckedChange={(v) =>
-                    setMilestoneOpts((p) => ({ ...p, deductDownPaymentFromStages: Boolean(v) }))
-                  }
-                />
-                <Label htmlFor="dp-deduct" className="text-xs cursor-pointer">
-                  {t("workspace.payment.deductDownPayment")}
-                </Label>
-              </div>
-            </div>
-          </div>
-          )}
+        <CardContent className="space-y-4 pt-0">
+
           <Table>
             <TableHeader>
               <TableRow>
