@@ -756,13 +756,25 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 py-3">
           <CardTitle className="text-base">{t("workspace.payment.title")}</CardTitle>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button size="sm" variant="outline" className="gap-2">
-                <Wand2 className="h-3.5 w-3.5" />
-                {t("workspace.payment.generators")}
-              </Button>
-            </PopoverTrigger>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              onClick={syncFromGantt}
+              disabled={upsert.isPending || applyGen.isPending}
+              title={t("workspace.payment.syncFromGanttHint", { defaultValue: "Pull any missing suppliers from the planning Gantt into the schedule" })}
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              {t("workspace.payment.syncFromGantt", { defaultValue: "Update from Gantt" })}
+            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button size="sm" variant="outline" className="gap-2">
+                  <Wand2 className="h-3.5 w-3.5" />
+                  {t("workspace.payment.generators")}
+                </Button>
+              </PopoverTrigger>
             <PopoverContent align="end" className="w-[640px] p-4 space-y-3">
               <div className="flex flex-wrap items-center gap-2">
                 {quoteQ.data?.quote_category !== "retainer" && (
