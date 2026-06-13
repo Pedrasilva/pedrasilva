@@ -197,6 +197,71 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   // then merge so per-item amount resolution can look up either map.
   const stageFees = { ...leafStageFees, ...rolledUpBillableFees(stages, leafStageFees) };
 
+  // Companies referenced by stage.supplier_company_id (Gantt parent-level supplier).
+  const stageSupplierIds = Array.from(
+    new Set(
+      stages
+        .map((s) => (s as { supplier_company_id?: string | null }).supplier_company_id)
+        .filter((x): x is string => !!x),
+    ),
+  );
+  const stageSupplierCompaniesQ = useQuery({
+    queryKey: ["stage-supplier-companies", quoteId, stageSupplierIds.sort().join(",")],
+    enabled: stageSupplierIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { in: (c: string, v: string[]) => Promise<{ data: { id: string; nome: string }[] | null; error: { message: string } | null }> } } })
+        .from("companies")
+        .select("id,nome")
+        .in("id", stageSupplierIds);
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    },
+  });
+  const stageSupplierCompanies = stageSupplierCompaniesQ.data ?? [];
+  const OWN_COMPANY_NAME = "Pedra Silva Arquitectos";
+  const ownCompanyId = stageSupplierCompanies.find((c) => c.nome === OWN_COMPANY_NAME)?.id ?? null;
+  const stageSupplierName = (cid: string) =>
+    stageSupplierCompanies.find((c) => c.id === cid)?.nome ?? "Supplier";
+
+  // Synthesize external-service rows from Gantt stages that point at a third-party
+  // supplier company. These feed the generator's outflow logic without polluting
+  // the rollup/cost totals (we add them only at generator-call sites below).
+  const childCount = (id: string) =>
+    stages.filter((c) => (c as { parent_stage_id?: string | null }).parent_stage_id === id).length;
+  const stageOnlyOutflows = stages
+    .filter((s) => {
+      const cid = (s as { supplier_company_id?: string | null }).supplier_company_id;
+      if (!cid || cid === ownCompanyId) return false;
+      if (childCount(s.id) > 0) return false; // skip parents to avoid double-counting
+      const stageBudget = Number((s as { budget?: number | null }).budget ?? stageFees[s.id] ?? 0);
+      if (stageBudget <= 0) return false;
+      // Skip if a real external service already targets this stage+company
+      const already = externals.some(
+        (es) => es.stage_id === s.id
+          && (es as unknown as { supplier_company_id?: string | null }).supplier_company_id === cid,
+      );
+      return !already;
+    })
+    .map((s) => {
+      const cid = (s as { supplier_company_id?: string | null }).supplier_company_id as string;
+      const stageBudget = Number((s as { budget?: number | null }).budget ?? stageFees[s.id] ?? 0);
+      return {
+        id: `stage-supplier-${s.id}`,
+        quote_id: quoteId,
+        stage_id: s.id,
+        supplier_id: null,
+        supplier_company_id: cid,
+        description: s.name,
+        quantity: 1,
+        purchase_price: stageBudget,
+        sale_price: stageBudget,
+        markup_type: "amount",
+        markup_value: 0,
+        supplier: { id: cid, name: stageSupplierName(cid) },
+      } as unknown as typeof externals[number];
+    });
+  const effectiveExternals = [...externals, ...stageOnlyOutflows];
+
   // Supplier names for grouped outflow rows in the proposal view.
   const supplierIds = Array.from(
     new Set(
@@ -218,6 +283,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     },
   });
   const suppliers = (suppliersQ.data ?? []).map((c) => ({ id: c.id, name: c.name }));
+
 
   const scheduleTotal = items.reduce(
     (sum, it) =>
@@ -282,7 +348,8 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
           ? Number(milestoneOpts.downPaymentPercent) || 0
           : 0,
         deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
-        externalServices: externals,
+        externalServices: effectiveExternals,
+
         paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
       }),
       paymentDefaults,
@@ -363,11 +430,12 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
           ? Number(milestoneOpts.downPaymentPercent) || 0
           : 0,
         deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
-        externalServices: externals,
+        externalServices: effectiveExternals,
         paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
       });
     } else if (kind === "architecture_with_consultants") {
-      generated = generateArchitectureWithConsultants(stages, externals, stageFees, {
+      generated = generateArchitectureWithConsultants(stages, effectiveExternals, stageFees, {
+
         downPaymentPercent: Number(milestoneOpts.downPaymentPercent) || 0,
         paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
       });
