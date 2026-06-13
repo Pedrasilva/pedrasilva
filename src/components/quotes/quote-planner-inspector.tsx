@@ -224,6 +224,22 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
           </div>
           <div className="space-y-1">
             <Label className="text-xs">
+              {t("workspace.planning.supplier", { defaultValue: "Supplier" })}
+            </Label>
+            <CompanyPicker
+              value={(stage as { supplier_company_id?: string | null }).supplier_company_id ?? null}
+              onChange={(companyId) =>
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                upsertStage.mutate({ id: stage.id, supplier_company_id: companyId } as any)
+              }
+              placeholder={t("workspace.planning.supplierPlaceholder", { defaultValue: "Pedra Silva Arquitectos (us)" })}
+            />
+            <p className="text-[11px] text-muted-foreground">
+              {t("workspace.planning.supplierHint", { defaultValue: "Defaults to ourselves; pick a third-party to derive an outflow." })}
+            </p>
+
+          <div className="space-y-1">
+            <Label className="text-xs">
               {t("workspace.planning.color", { defaultValue: "Color" })}
             </Label>
             <ColorPicker
