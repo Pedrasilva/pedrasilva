@@ -608,6 +608,7 @@
       "archSuppliersCol": "Suppliers",
       "archNetCol": "Architecture",
       "unassignedSupplier": "Unassigned",
+      "placeholderTag": "to be defined",
       "addTitle": "Add payment",
       "labelPlaceholder": "e.g. Down payment",
       "errorLabel": "Label is required",
