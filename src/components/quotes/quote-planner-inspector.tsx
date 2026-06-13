@@ -641,8 +641,8 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             <ul className="space-y-1.5">
               {predecessors.map((d) => (
                 <li key={d.id} className="flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1.5">
-                  <span className="flex-1 truncate text-xs" title={stageMap[d.predecessor_stage_id]?.name}>
-                    {stageMap[d.predecessor_stage_id]?.name ?? "—"}
+                  <span className="flex-1 truncate text-xs" title={labelForStage(d.predecessor_stage_id)}>
+                    {labelForStage(d.predecessor_stage_id)}
                   </span>
                   <Select
                     value={d.type}
@@ -687,8 +687,8 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               <Select value={newPred.pred} onValueChange={(v) => setNewPred((p) => ({ ...p, pred: v }))}>
                 <SelectTrigger className="h-8 flex-1 text-xs"><SelectValue placeholder="—" /></SelectTrigger>
                 <SelectContent>
-                  {allStages.filter((s) => s.id !== stageId).map((s) => (
-                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  {predecessorOptions.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>{labelForStage(s.id)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -718,8 +718,8 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             <ul className="space-y-1.5">
               {successors.map((d) => (
                 <li key={d.id} className="flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1.5">
-                  <span className="flex-1 truncate text-xs" title={stageMap[d.successor_stage_id]?.name}>
-                    {stageMap[d.successor_stage_id]?.name ?? "—"}
+                  <span className="flex-1 truncate text-xs" title={labelForStage(d.successor_stage_id)}>
+                    {labelForStage(d.successor_stage_id)}
                   </span>
                   <Select
                     value={d.type}
@@ -764,8 +764,8 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               <Select value={newSucc.succ} onValueChange={(v) => setNewSucc((p) => ({ ...p, succ: v }))}>
                 <SelectTrigger className="h-8 flex-1 text-xs"><SelectValue placeholder="—" /></SelectTrigger>
                 <SelectContent>
-                  {allStages.filter((s) => s.id !== stageId).map((s) => (
-                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  {successorOptions.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>{labelForStage(s.id)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
