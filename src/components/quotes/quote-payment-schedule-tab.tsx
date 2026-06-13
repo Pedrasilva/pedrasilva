@@ -224,42 +224,85 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     stageSupplierCompanies.find((c) => c.id === cid)?.nome ?? "Supplier";
 
   // Synthesize external-service rows from Gantt stages that point at a third-party
-  // supplier company. These feed the generator's outflow logic without polluting
-  // the rollup/cost totals (we add them only at generator-call sites below).
+  // supplier company. Supplier selection is inherited from parent bars, while
+  // the payout value comes from the priced child/fixed supplier group. The row
+  // is anchored to the top-level billing stage so architecture can be shown as
+  // client inflow minus supplier commitments for that same visible phase.
+  type SupplierStage = typeof stages[number] & {
+    parent_stage_id?: string | null;
+    supplier_company_id?: string | null;
+    budget?: number | null;
+    budget_mode?: string | null;
+  };
+  const stageById = new Map(stages.map((s) => [s.id, s as SupplierStage]));
   const childCount = (id: string) =>
-    stages.filter((c) => (c as { parent_stage_id?: string | null }).parent_stage_id === id).length;
+    stages.filter((c) => (c as SupplierStage).parent_stage_id === id).length;
+  const topLevelStageId = (stage: SupplierStage) => {
+    let current = stage;
+    while (current.parent_stage_id && stageById.has(current.parent_stage_id)) {
+      current = stageById.get(current.parent_stage_id)!;
+    }
+    return current.id;
+  };
+  const inheritedSupplierCompanyId = (stage: SupplierStage): string | null => {
+    let current: SupplierStage | undefined = stage;
+    while (current) {
+      if (current.supplier_company_id) return current.supplier_company_id;
+      current = current.parent_stage_id ? stageById.get(current.parent_stage_id) : undefined;
+    }
+    return null;
+  };
+  const hasFixedSupplierAncestor = (stage: SupplierStage, companyId: string) => {
+    let current = stage.parent_stage_id ? stageById.get(stage.parent_stage_id) : undefined;
+    while (current) {
+      if (
+        inheritedSupplierCompanyId(current) === companyId &&
+        childCount(current.id) > 0 &&
+        current.budget_mode === "fixed" &&
+        Number(current.budget ?? 0) > 0
+      ) {
+        return true;
+      }
+      current = current.parent_stage_id ? stageById.get(current.parent_stage_id) : undefined;
+    }
+    return false;
+  };
   const stageOnlyOutflows = stages
-    .filter((s) => {
-      const cid = (s as { supplier_company_id?: string | null }).supplier_company_id;
-      if (!cid || cid === ownCompanyId) return false;
-      if (childCount(s.id) > 0) return false; // skip parents to avoid double-counting
-      const stageBudget = Number((s as { budget?: number | null }).budget ?? stageFees[s.id] ?? 0);
-      if (stageBudget <= 0) return false;
-      // Skip if a real external service already targets this stage+company
+    .map((stage) => {
+      const s = stage as SupplierStage;
+      const cid = inheritedSupplierCompanyId(s);
+      if (!cid || cid === ownCompanyId) return null;
+      if (hasFixedSupplierAncestor(s, cid)) return null;
+      const children = childCount(s.id);
+      const ownBudget = Number(s.budget ?? 0) || 0;
+      const mode = (s.budget_mode ?? "calculated") as "calculated" | "fixed";
+      if (children > 0 && !(mode === "fixed" && ownBudget > 0)) return null;
+      const amount = mode === "fixed" && ownBudget > 0
+        ? ownBudget
+        : Number(stageFees[s.id] ?? 0) || ownBudget;
+      if (amount <= 0) return null;
+      const billingStageId = topLevelStageId(s);
       const already = externals.some(
         (es) => es.stage_id === s.id
           && (es as unknown as { supplier_company_id?: string | null }).supplier_company_id === cid,
       );
-      return !already;
-    })
-    .map((s) => {
-      const cid = (s as { supplier_company_id?: string | null }).supplier_company_id as string;
-      const stageBudget = Number((s as { budget?: number | null }).budget ?? stageFees[s.id] ?? 0);
+      if (already) return null;
       return {
         id: `stage-supplier-${s.id}`,
         quote_id: quoteId,
-        stage_id: s.id,
+        stage_id: billingStageId,
         supplier_id: null,
         supplier_company_id: cid,
         description: s.name,
         quantity: 1,
-        purchase_price: stageBudget,
-        sale_price: stageBudget,
+        purchase_price: amount,
+        sale_price: amount,
         markup_type: "amount",
         markup_value: 0,
         supplier: { id: cid, name: stageSupplierName(cid) },
       } as unknown as typeof externals[number];
-    });
+    })
+    .filter((row): row is typeof externals[number] => !!row);
   const effectiveExternals = [...externals, ...stageOnlyOutflows];
 
   // Supplier names for grouped outflow rows in the proposal view.
@@ -274,15 +317,15 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     queryKey: ["payment-schedule-suppliers", quoteId, supplierIds.sort().join(",")],
     enabled: supplierIds.length > 0,
     queryFn: async () => {
-      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { in: (c: string, v: string[]) => Promise<{ data: { id: string; name: string }[] | null; error: { message: string } | null }> } } })
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { in: (c: string, v: string[]) => Promise<{ data: { id: string; nome: string }[] | null; error: { message: string } | null }> } } })
         .from("companies")
-        .select("id,name")
+        .select("id,nome")
         .in("id", supplierIds);
       if (error) throw new Error(error.message);
       return data ?? [];
     },
   });
-  const suppliers = (suppliersQ.data ?? []).map((c) => ({ id: c.id, name: c.name }));
+  const suppliers = (suppliersQ.data ?? []).map((c) => ({ id: c.id, name: c.nome }));
 
 
   const scheduleTotal = items.reduce(
