@@ -6402,6 +6402,7 @@ export type Database = {
           is_fee_only: boolean
           is_generated: boolean
           is_milestone: boolean
+          is_self: boolean
           linked_stage_id: string | null
           manual_override: boolean
           name: string
@@ -6420,6 +6421,8 @@ export type Database = {
           stage_role: string
           start_date: string
           supplier_company_id: string | null
+          supplier_id: string | null
+          supplier_placeholder: string | null
           updated_at: string
         }
         Insert: {
@@ -6437,6 +6440,7 @@ export type Database = {
           is_fee_only?: boolean
           is_generated?: boolean
           is_milestone?: boolean
+          is_self?: boolean
           linked_stage_id?: string | null
           manual_override?: boolean
           name: string
@@ -6455,6 +6459,8 @@ export type Database = {
           stage_role?: string
           start_date: string
           supplier_company_id?: string | null
+          supplier_id?: string | null
+          supplier_placeholder?: string | null
           updated_at?: string
         }
         Update: {
@@ -6472,6 +6478,7 @@ export type Database = {
           is_fee_only?: boolean
           is_generated?: boolean
           is_milestone?: boolean
+          is_self?: boolean
           linked_stage_id?: string | null
           manual_override?: boolean
           name?: string
@@ -6490,6 +6497,8 @@ export type Database = {
           stage_role?: string
           start_date?: string
           supplier_company_id?: string | null
+          supplier_id?: string | null
+          supplier_placeholder?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -6533,6 +6542,20 @@ export type Database = {
             columns: ["supplier_company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_stages_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_stages_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers_directory"
             referencedColumns: ["id"]
           },
         ]
