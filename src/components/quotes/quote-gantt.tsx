@@ -240,9 +240,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
         depth,
         wbs,
         hasChildren: kids.length > 0,
-        // A row is a "summary" if it actually has children — true for any
-        // architecture or supplier_group with descendants.
-        isSummary: kids.length > 0 && role !== "supplier_phase",
+        // A row is a "summary" if it actually has children — applies to
+        // any role, including supplier_phase parents nested under groups.
+        isSummary: kids.length > 0,
         role,
         parentId,
       });
