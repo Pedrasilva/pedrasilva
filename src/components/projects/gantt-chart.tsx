@@ -831,9 +831,11 @@ export function GanttChart({
               return (
                 <div
                   key={stage.id}
-                  className="relative"
+                  className="relative group"
                   style={{ height: SUMMARY_ROW_H + STAGE_GAP }}
                   title={`${stage.name} · ${fmt(sStart)} → ${fmt(sEnd)}`}
+                  onMouseEnter={() => setHoveredStage(stage.id)}
+                  onMouseLeave={() => setHoveredStage((s) => (s === stage.id ? null : s))}
                 >
                   <div
                     className="absolute top-0 truncate text-[10px] font-semibold uppercase tracking-wider text-foreground/80"
@@ -842,7 +844,7 @@ export function GanttChart({
                     {stage.name}
                   </div>
                   <svg
-                    className="absolute"
+                    className="pointer-events-none absolute"
                     style={{ left: stageX, top: 14, width: w, height: SVG_H }}
                     viewBox={`0 0 ${w} ${SVG_H}`}
                     preserveAspectRatio="none"
@@ -855,6 +857,35 @@ export function GanttChart({
                       strokeLinejoin="round"
                     />
                   </svg>
+                  {/* Drag-to-move overlay: shifts every descendant by the same delta. */}
+                  <div
+                    className="absolute z-20 cursor-grab active:cursor-grabbing"
+                    style={{ left: stageX, top: 12, width: w, height: SVG_H + 4 }}
+                    onPointerDown={(e) => {
+                      onSelectStage?.(stage.id);
+                      startDrag(e, {
+                        type: "stage-move",
+                        id: stage.id,
+                        projectId: stage.projectId,
+                        startX: e.clientX,
+                        origStart: sStart,
+                        origEnd: sEnd,
+                      });
+                    }}
+                  />
+                  {/* Dependency anchors — parent bars can be linked just like leaves. */}
+                  <div
+                    onPointerDown={(e) => startLinkDrag(e, stage.id, "start")}
+                    className="absolute z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    style={{ left: stageX, top: 14 + BAR_H / 2 }}
+                    title={t("gantt.stage.linkFromStart")}
+                  />
+                  <div
+                    onPointerDown={(e) => startLinkDrag(e, stage.id, "end")}
+                    className="absolute z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    style={{ left: stageX + w, top: 14 + BAR_H / 2 }}
+                    title={t("gantt.stage.linkFromEnd")}
+                  />
                 </div>
               );
             }
