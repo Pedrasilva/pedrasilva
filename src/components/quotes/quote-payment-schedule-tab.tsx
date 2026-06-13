@@ -43,9 +43,11 @@ import {
   generateArchitectureWithConsultants,
   computeStageFees,
   resolveScheduleItemAmount,
+  applyPaymentDefaults,
   DEFAULT_STAGE_MILESTONE_OPTIONS,
   type GeneratorKind,
   type GeneratorItem,
+  type PaymentDefaults,
 } from "@/lib/quotes/payment-generators";
 import { rolledUpBillableFees } from "@/lib/quotes/stage-billing";
 import {
@@ -53,6 +55,7 @@ import {
   type QuotePaymentTrigger, type QuotePaymentAmountType,
 } from "@/lib/quotes/types";
 import { formatEUR } from "@/lib/crm/types";
+import { PaymentScheduleProposalView } from "./payment-schedule-proposal-view";
 
 function AutoTextarea({
   value,
