@@ -188,6 +188,63 @@ export function PaymentScheduleProposalView({
         </Card>
       )}
 
+      {/* Middle: architecture-only breakdown (inflow − supplier outflows per stage) */}
+      {outflows.length > 0 && (() => {
+        // Group outflows by stage_id
+        const outBy = new Map<string, number>();
+        for (const o of outflows) {
+          const k = o.stage_id ?? "__none__";
+          outBy.set(k, (outBy.get(k) ?? 0) + netAmount(o, totalFee, stageFees));
+        }
+        // Per top-level inflow row, subtract any outflow attributed to its stage
+        const rows = inflows.map((it) => {
+          const inflowAmt = netAmount(it, totalFee, stageFees);
+          const out = it.stage_id ? outBy.get(it.stage_id) ?? 0 : 0;
+          return { it, inflowAmt, out, archAmt: inflowAmt - out };
+        });
+        const archTotal = rows.reduce((s, r) => s + r.archAmt, 0);
+        return (
+          <Card>
+            <CardHeader className="pb-3 bg-muted/30">
+              <div className="flex items-baseline justify-between gap-4">
+                <CardTitle className="text-sm uppercase tracking-wide">
+                  Arquitetura — receita líquida (após fornecedores)
+                </CardTitle>
+                <div className="text-base font-semibold tabular-nums">
+                  {formatEUR(archTotal)}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-3">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/40">
+                    <TableHead>Fase</TableHead>
+                    <TableHead className="text-right">Honorários</TableHead>
+                    <TableHead className="text-right">Fornecedores</TableHead>
+                    <TableHead className="text-right">Arquitetura</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map(({ it, inflowAmt, out, archAmt }) => (
+                    <TableRow key={it.id}>
+                      <TableCell className="font-medium">{it.label}</TableCell>
+                      <TableCell className="text-right tabular-nums">{formatEUR(inflowAmt)}</TableCell>
+                      <TableCell className="text-right tabular-nums text-muted-foreground">
+                        {out > 0 ? `− ${formatEUR(out)}` : "—"}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums font-semibold">
+                        {formatEUR(archAmt)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        );
+      })()}
+
       {/* Per-supplier outflow groups */}
       {supplierBuckets.length > 0 && (
         <div className="space-y-4">

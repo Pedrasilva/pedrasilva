@@ -411,16 +411,54 @@ export function generateMonthly(stages: QuoteStage[]): GeneratorItem[] {
  *   - 'monthly'  → stage fee split evenly across its calendar months
  *   - 'retainer' → retainer_monthly_amount × each month of the stage span
  */
+export interface ByStageBillingOptions {
+  /** When > 0, prepend an "Adjudicação" inflow row at project_start. */
+  downPaymentPercent?: number;
+  /** Deduct the down payment proportionally from subsequent stage rows. */
+  deductDownPaymentFromStages?: boolean;
+  /** When provided, also emit supplier outflow rows per stage. */
+  externalServices?: QuoteExternalServiceWithSupplier[];
+  /** Days after each stage_end to date the supplier outflow ("pay when paid"). */
+  paymentOffsetDays?: number;
+}
+
 export function generateByStageBilling(
   stages: QuoteStage[],
   stageFees: Record<string, number>,
+  options: ByStageBillingOptions = {},
 ): GeneratorItem[] {
   if (stages.length === 0) return [];
   // Exclude children of parent bars — only top-level stages bill the client.
   const billable = topLevelBillableStages(stages);
   const sorted = [...billable].sort((a, b) => a.sort_order - b.sort_order);
+  const totalArch = sorted.reduce((acc, s) => acc + (stageFees[s.id] ?? 0), 0);
+  const dpPct = Math.max(0, Number(options.downPaymentPercent ?? 0));
+  const dpAmount = dpPct > 0 ? round2((totalArch * dpPct) / 100) : 0;
+  const deduct = options.deductDownPaymentFromStages && dpAmount > 0;
+  const remainingFactor = deduct && totalArch > 0 ? 1 - dpAmount / totalArch : 1;
+  const scaleFee = (fee: number) => round2(fee * remainingFactor);
   const items: GeneratorItem[] = [];
   let order = 0;
+
+  // ── Down payment (Adjudicação) at project_start ────────────────
+  const earliestStart = sorted.length > 0
+    ? sorted.reduce((m, s) => (s.start_date < m ? s.start_date : m), sorted[0].start_date)
+    : null;
+  if (dpAmount > 0 && earliestStart) {
+    items.push({
+      label: "Adjudicação",
+      trigger_type: "project_start",
+      amount_type: "fixed",
+      amount_value: dpAmount,
+      stage_id: null,
+      expected_invoice_date: earliestStart,
+      expected_payment_date: null,
+      sort_order: order++,
+      generator_source: "by_stage_billing",
+      direction: "inflow",
+    });
+  }
+
   for (const s of sorted) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sa = s as any;
@@ -474,7 +512,7 @@ export function generateByStageBilling(
     } else if (model === "monthly") {
       const months = monthsBetween(s.start_date, s.end_date);
       if (months.length === 0) continue;
-      const fee = stageFees[s.id] ?? 0;
+      const fee = scaleFee(stageFees[s.id] ?? 0);
       const per = round2(fee / months.length);
       months.forEach((m, i) => {
         const amt = i === months.length - 1
@@ -494,7 +532,7 @@ export function generateByStageBilling(
       });
     } else {
       // 'stage' — honor stage_billing_timing: end (default) | start | split
-      const fee = round2(stageFees[s.id] ?? 0);
+      const fee = scaleFee(stageFees[s.id] ?? 0);
       const timing = getStageBillingTiming(s);
       if (timing === "split") {
         const half = round2(fee / 2);
@@ -545,6 +583,66 @@ export function generateByStageBilling(
           generator_source: "by_stage_billing",
         });
       }
+    }
+  }
+
+  // ── Optional supplier outflows (mirrors arch+consultants split) ─
+  const externals = options.externalServices ?? [];
+  const offset = Math.max(0, Number(options.paymentOffsetDays ?? 0));
+  if (externals.length > 0 && sorted.length > 0) {
+    type SupplierBucket = {
+      key: string;
+      companyId: string | null;
+      name: string;
+      total: number;
+      stageIds: Set<string>;
+    };
+    const buckets = new Map<string, SupplierBucket>();
+    for (const es of externals) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const esAny = es as any;
+      const companyId: string | null = esAny.supplier_company_id ?? null;
+      const supplierId: string | null = esAny.supplier_id ?? null;
+      if (!companyId && !supplierId) continue;
+      const key = companyId ? `c:${companyId}` : `s:${supplierId}`;
+      const name = es.supplier?.name ?? esAny.description ?? "Supplier";
+      const cost = Number(esAny.purchase_price ?? 0) * Number(esAny.quantity ?? 1);
+      const cur = buckets.get(key) ?? {
+        key, companyId, name, total: 0, stageIds: new Set<string>(),
+      };
+      cur.total += cost;
+      if (esAny.stage_id) cur.stageIds.add(esAny.stage_id);
+      buckets.set(key, cur);
+    }
+    for (const bucket of buckets.values()) {
+      if (bucket.total <= 0) continue;
+      const supplierStages = bucket.stageIds.size > 0
+        ? sorted.filter((s) => bucket.stageIds.has(s.id))
+        : sorted;
+      if (supplierStages.length === 0) continue;
+      const weightTotal = supplierStages.reduce((acc, st) => acc + (stageFees[st.id] ?? 0), 0);
+      let running = 0;
+      supplierStages.forEach((s, idx) => {
+        const weight = stageFees[s.id] ?? 0;
+        const ratio = weightTotal > 0 ? weight / weightTotal : 1 / supplierStages.length;
+        let amount = round2(bucket.total * ratio);
+        if (idx === supplierStages.length - 1) amount = round2(bucket.total - running);
+        running += amount;
+        if (amount <= 0) return;
+        items.push({
+          label: `${bucket.name} — ${s.name}`,
+          trigger_type: "stage_end",
+          amount_type: "fixed",
+          amount_value: amount,
+          stage_id: s.id,
+          expected_invoice_date: s.end_date,
+          expected_payment_date: addDaysISO(s.end_date, offset),
+          sort_order: order++,
+          generator_source: "by_stage_billing",
+          direction: "outflow",
+          supplier_company_id: bucket.companyId,
+        });
+      });
     }
   }
 
