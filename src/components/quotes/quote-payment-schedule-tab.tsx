@@ -275,7 +275,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     if (stages.length === 0) return;
     if (applyGen.isPending) return;
     autoSeededRef.current = true;
-    const generated = generateByStageBilling(stages, stageFees);
+    const generated = applyPaymentDefaults(generateByStageBilling(stages, stageFees), paymentDefaults);
     if (generated.length === 0) return;
     applyGen.mutate({ generator: "by_stage_billing", items: generated });
   }, [itemsQ.isLoading, stagesQ.isLoading, items.length, stages, stageFees, applyGen]);
