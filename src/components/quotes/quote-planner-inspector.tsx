@@ -237,6 +237,8 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             <p className="text-[11px] text-muted-foreground">
               {t("workspace.planning.supplierHint", { defaultValue: "Defaults to ourselves; pick a third-party to derive an outflow." })}
             </p>
+          </div>
+
 
           <div className="space-y-1">
             <Label className="text-xs">
