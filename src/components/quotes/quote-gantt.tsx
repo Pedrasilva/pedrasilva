@@ -826,6 +826,20 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
               ? t("workspace.planning.reflow.running", { defaultValue: "Reflowing…" })
               : t("workspace.planning.reflow.button", { defaultValue: "Reflow" })}
           </Button>
+          {onAddRetainerPhase && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="h-7 px-2 text-xs"
+              onClick={onAddRetainerPhase}
+            >
+              <Plus className="mr-1 h-3.5 w-3.5" />
+              {t("workspace.planning.retainerMonthly.addStage", {
+                defaultValue: "Add retainer phase",
+              })}
+            </Button>
+          )}
         </div>
         {dayWidthProp === undefined && (
           <div className="flex items-center gap-1 rounded-md border border-border bg-card p-0.5">
