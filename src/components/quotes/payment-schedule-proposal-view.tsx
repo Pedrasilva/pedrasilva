@@ -132,8 +132,13 @@ export function PaymentScheduleProposalView({
     return map;
   }, [suppliers]);
 
-  // Inflows (client billing)
-  const inflows = items.filter((it) => (it.direction ?? "inflow") === "inflow");
+  // Inflows (client billing) — exclude down payment (project_start) from the
+  // top "Total de Honorários" block; that section shows only stage rows.
+  const inflows = items.filter(
+    (it) =>
+      (it.direction ?? "inflow") === "inflow" &&
+      it.trigger_type !== "project_start",
+  );
   const inflowTotal = inflows.reduce(
     (s, it) => s + netAmount(it, totalFee, stageFees),
     0,
