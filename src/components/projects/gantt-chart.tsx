@@ -181,6 +181,33 @@ export function GanttChart({
     });
   }, [stagesAll, hierarchy, collapsed]);
 
+  // Build children index from the full (unfiltered) stages list so summary
+  // moves shift hidden/collapsed descendants too.
+  const childrenIndex = useMemo(() => {
+    const m = new Map<string, StageWithProject[]>();
+    for (const s of stagesAll) {
+      const pid = (s as { parent_stage_id?: string | null }).parent_stage_id ?? null;
+      if (!pid) continue;
+      const arr = m.get(pid) ?? [];
+      arr.push(s);
+      m.set(pid, arr);
+    }
+    return m;
+  }, [stagesAll]);
+
+  const collectDescendants = (id: string): StageWithProject[] => {
+    const out: StageWithProject[] = [];
+    const walk = (pid: string) => {
+      const kids = childrenIndex.get(pid) ?? [];
+      for (const k of kids) {
+        out.push(k);
+        walk(k.id);
+      }
+    };
+    walk(id);
+    return out;
+  };
+
   // Per-stage row height (matches the bar canvas and the outline column).
   const rowHeightFor = (stageId: string): number => {
     const stage = stages.find((s) => s.id === stageId);
@@ -350,6 +377,9 @@ export function GanttChart({
       setDraftDates((m) => {
         const next = new Map(m);
         next.delete(drag.id);
+        if (drag.type === "stage-move" && hierarchy?.get(drag.id)?.isSummary) {
+          for (const d of collectDescendants(drag.id)) next.delete(d.id);
+        }
         return next;
       });
       return;
@@ -369,7 +399,21 @@ export function GanttChart({
       const en = addDays(origEnd, days);
       if (en >= origStart) newEnd = format(en, "yyyy-MM-dd");
     }
-    setDraftDates((m) => new Map(m).set(drag.id, { start: newStart, end: newEnd }));
+    setDraftDates((m) => {
+      const next = new Map(m).set(drag.id, { start: newStart, end: newEnd });
+      // When moving a summary (parent) bar, shift all descendants by the
+      // same delta so the preview shows the entire group sliding together.
+      if (drag.type === "stage-move" && hierarchy?.get(drag.id)?.isSummary) {
+        for (const d of collectDescendants(drag.id)) {
+          if (hierarchy?.get(d.id)?.isSummary) continue;
+          next.set(d.id, {
+            start: format(addDays(new Date(d.start_date), days), "yyyy-MM-dd"),
+            end: format(addDays(new Date(d.end_date), days), "yyyy-MM-dd"),
+          });
+        }
+      }
+      return next;
+    });
   }
 
   function startLinkDrag(e: React.PointerEvent, fromStageId: string, fromSide: "start" | "end") {
@@ -416,26 +460,47 @@ export function GanttChart({
 
   async function commitDrag() {
     if (!drag) return;
-    const draft = draftDates.get(drag.id);
+    const dragState = drag;
+    const draft = draftDates.get(dragState.id);
     setDrag(null);
     if (!draft) return;
+    const isSummary = hierarchy?.get(dragState.id)?.isSummary ?? false;
+    const summaryMove = isSummary && dragState.type === "stage-move";
+    const descendants = summaryMove ? collectDescendants(dragState.id) : [];
     setDraftDates((m) => {
       const next = new Map(m);
-      next.delete(drag.id);
+      next.delete(dragState.id);
+      for (const d of descendants) next.delete(d.id);
       return next;
     });
     try {
-      if (drag.type.startsWith("stage")) {
-        await adapter.updateStage({
-          id: drag.id,
-          projectId: drag.projectId,
-          start_date: draft.start,
-          end_date: draft.end,
-        });
+      if (dragState.type.startsWith("stage")) {
+        if (summaryMove) {
+          // Parent-bar move: shift every non-summary descendant by the same
+          // delta. Persisted parent dates will roll up from descendants on
+          // the next read.
+          const days = differenceInCalendarDays(new Date(draft.start), new Date(dragState.origStart));
+          for (const d of descendants) {
+            if (hierarchy?.get(d.id)?.isSummary) continue;
+            await adapter.updateStage({
+              id: d.id,
+              projectId: d.projectId,
+              start_date: format(addDays(new Date(d.start_date), days), "yyyy-MM-dd"),
+              end_date: format(addDays(new Date(d.end_date), days), "yyyy-MM-dd"),
+            });
+          }
+        } else {
+          await adapter.updateStage({
+            id: dragState.id,
+            projectId: dragState.projectId,
+            start_date: draft.start,
+            end_date: draft.end,
+          });
+        }
       } else {
         await adapter.updateAllocation({
-          id: drag.id,
-          projectId: drag.projectId,
+          id: dragState.id,
+          projectId: dragState.projectId,
           patch: { start_date: draft.start, end_date: draft.end },
         });
       }
@@ -766,9 +831,11 @@ export function GanttChart({
               return (
                 <div
                   key={stage.id}
-                  className="relative"
+                  className="relative group"
                   style={{ height: SUMMARY_ROW_H + STAGE_GAP }}
                   title={`${stage.name} · ${fmt(sStart)} → ${fmt(sEnd)}`}
+                  onMouseEnter={() => setHoveredStage(stage.id)}
+                  onMouseLeave={() => setHoveredStage((s) => (s === stage.id ? null : s))}
                 >
                   <div
                     className="absolute top-0 truncate text-[10px] font-semibold uppercase tracking-wider text-foreground/80"
@@ -777,7 +844,7 @@ export function GanttChart({
                     {stage.name}
                   </div>
                   <svg
-                    className="absolute"
+                    className="pointer-events-none absolute"
                     style={{ left: stageX, top: 14, width: w, height: SVG_H }}
                     viewBox={`0 0 ${w} ${SVG_H}`}
                     preserveAspectRatio="none"
@@ -790,6 +857,35 @@ export function GanttChart({
                       strokeLinejoin="round"
                     />
                   </svg>
+                  {/* Drag-to-move overlay: shifts every descendant by the same delta. */}
+                  <div
+                    className="absolute z-20 cursor-grab active:cursor-grabbing"
+                    style={{ left: stageX, top: 12, width: w, height: SVG_H + 4 }}
+                    onPointerDown={(e) => {
+                      onSelectStage?.(stage.id);
+                      startDrag(e, {
+                        type: "stage-move",
+                        id: stage.id,
+                        projectId: stage.projectId,
+                        startX: e.clientX,
+                        origStart: sStart,
+                        origEnd: sEnd,
+                      });
+                    }}
+                  />
+                  {/* Dependency anchors — parent bars can be linked just like leaves. */}
+                  <div
+                    onPointerDown={(e) => startLinkDrag(e, stage.id, "start")}
+                    className="absolute z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    style={{ left: stageX, top: 14 + BAR_H / 2 }}
+                    title={t("gantt.stage.linkFromStart")}
+                  />
+                  <div
+                    onPointerDown={(e) => startLinkDrag(e, stage.id, "end")}
+                    className="absolute z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    style={{ left: stageX + w, top: 14 + BAR_H / 2 }}
+                    title={t("gantt.stage.linkFromEnd")}
+                  />
                 </div>
               );
             }
