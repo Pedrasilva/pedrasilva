@@ -430,11 +430,12 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
           ? Number(milestoneOpts.downPaymentPercent) || 0
           : 0,
         deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
-        externalServices: externals,
+        externalServices: effectiveExternals,
         paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
       });
     } else if (kind === "architecture_with_consultants") {
-      generated = generateArchitectureWithConsultants(stages, externals, stageFees, {
+      generated = generateArchitectureWithConsultants(stages, effectiveExternals, stageFees, {
+
         downPaymentPercent: Number(milestoneOpts.downPaymentPercent) || 0,
         paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
       });
