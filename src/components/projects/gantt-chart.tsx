@@ -181,6 +181,33 @@ export function GanttChart({
     });
   }, [stagesAll, hierarchy, collapsed]);
 
+  // Build children index from the full (unfiltered) stages list so summary
+  // moves shift hidden/collapsed descendants too.
+  const childrenIndex = useMemo(() => {
+    const m = new Map<string, StageWithProject[]>();
+    for (const s of stagesAll) {
+      const pid = (s as { parent_stage_id?: string | null }).parent_stage_id ?? null;
+      if (!pid) continue;
+      const arr = m.get(pid) ?? [];
+      arr.push(s);
+      m.set(pid, arr);
+    }
+    return m;
+  }, [stagesAll]);
+
+  const collectDescendants = (id: string): StageWithProject[] => {
+    const out: StageWithProject[] = [];
+    const walk = (pid: string) => {
+      const kids = childrenIndex.get(pid) ?? [];
+      for (const k of kids) {
+        out.push(k);
+        walk(k.id);
+      }
+    };
+    walk(id);
+    return out;
+  };
+
   // Per-stage row height (matches the bar canvas and the outline column).
   const rowHeightFor = (stageId: string): number => {
     const stage = stages.find((s) => s.id === stageId);
