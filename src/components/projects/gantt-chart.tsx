@@ -132,6 +132,7 @@ interface LinkDragState {
   pointerX: number;
   pointerY: number;
   toSide: "start" | "end" | null;
+  direction?: "outgoing" | "incoming";
   /** If set, this drag is re-routing an existing dependency. The original
    *  dep is replaced (delete + create) on a successful commit. */
   replacesDepId?: string;
@@ -170,6 +171,18 @@ export function GanttChart({
   const [link, setLink] = useState<LinkDragState | null>(null);
   const [linkHoverStage, setLinkHoverStage] = useState<string | null>(null);
   const [editingDep, setEditingDep] = useState<{ id: string; x: number; y: number } | null>(null);
+  const linkRef = useRef<LinkDragState | null>(null);
+  const linkHoverStageRef = useRef<string | null>(null);
+
+  const updateLink = (next: LinkDragState | null) => {
+    linkRef.current = next;
+    setLink(next);
+  };
+
+  const updateLinkHoverStage = (next: string | null) => {
+    linkHoverStageRef.current = next;
+    setLinkHoverStage(next);
+  };
 
   // Hide stages whose ancestor chain contains a collapsed parent.
   const stages = useMemo(() => {
@@ -314,28 +327,29 @@ export function GanttChart({
   const todayInRange = todayX >= 0 && todayX <= totalDays * dayWidth;
 
   const stageLayouts = useMemo(() => {
-    const out = new Map<string, { top: number; height: number; x: number; w: number }>();
+    const out = new Map<string, { top: number; height: number; x: number; w: number; anchorY: number }>();
     let cursor = 16;
     stages.forEach((stage, i) => {
       const draft = draftDates.get(stage.id);
       const sStart = draft?.start ?? stage.start_date;
       const sEnd = draft?.end ?? stage.end_date;
       const isMilestone = (stage as { is_milestone?: boolean }).is_milestone ?? false;
+      const isSummary = hierarchy?.get(stage.id)?.isSummary ?? false;
       // For milestones, anchor x/w to the *visible* diamond tip (not the
       // wider bounding box) so dependency arrows land exactly on the picker.
       const milestoneHalf = Math.max(14, STAGE_ROW_H * 0.55) * (Math.SQRT2 / 2);
       const x = isMilestone
         ? differenceInCalendarDays(new Date(sStart), origin) * dayWidth - milestoneHalf
         : differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
-      const w = isMilestone ? milestoneHalf * 2 : dayCount(sStart, sEnd) * dayWidth;
-      const isSummary = hierarchy?.get(stage.id)?.isSummary ?? false;
+      const rawW = isMilestone ? milestoneHalf * 2 : dayCount(sStart, sEnd) * dayWidth;
+      const w = isSummary ? Math.max(40, rawW) : rawW;
       const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
       const allocCount = resHidden ? 0 : Math.max(stage.allocations.length, 0);
       const height = isSummary
         ? SUMMARY_ROW_H + STAGE_GAP
         : STAGE_ROW_H + allocCount * (ALLOC_ROW_H + 4) + STAGE_GAP;
       if (i > 0) cursor += 16;
-      out.set(stage.id, { top: cursor, height, x, w });
+      out.set(stage.id, { top: cursor, height, x, w, anchorY: cursor + (isSummary ? 18 : STAGE_ROW_H / 2) });
       cursor += height;
     });
     return out;
@@ -361,25 +375,20 @@ export function GanttChart({
         const py = e.clientY - rect.top;
         let hit: string | null = null;
         let toSide: "start" | "end" | null = null;
-        // Generous horizontal padding so narrow bars (milestones, single-day
-        // stages) and summary parent bars are easy targets when dragging an
-        // arrow onto them. Vertical hit uses the row's full height so
-        // summary rows (slim bar at top of a 40px row) also catch the drop.
-        const HIT_PAD_X = 18;
+        const TIP_HIT_X = 18;
+        const TIP_HIT_Y = 20;
         for (const [sid, geo] of stageLayouts.entries()) {
           if (sid === link.fromStageId) continue;
-          const left = geo.x - HIT_PAD_X;
-          const right = geo.x + geo.w + HIT_PAD_X;
-          const bottom = geo.top + Math.max(STAGE_ROW_H, geo.height);
-          if (px >= left && px <= right && py >= geo.top && py <= bottom) {
+          const startDx = Math.abs(px - geo.x);
+          const endDx = Math.abs(px - (geo.x + geo.w));
+          if (Math.abs(py - geo.anchorY) <= TIP_HIT_Y && (startDx <= TIP_HIT_X || endDx <= TIP_HIT_X)) {
             hit = sid;
-            const rel = (px - geo.x) / Math.max(1, geo.w);
-            toSide = rel < 0.5 ? "start" : "end";
+            toSide = startDx <= endDx ? "start" : "end";
             break;
           }
         }
-        setLink({ ...link, pointerX: px, pointerY: py, toSide });
-        setLinkHoverStage(hit);
+        updateLink({ ...link, pointerX: px, pointerY: py, toSide });
+        updateLinkHoverStage(hit);
       }
     }
     if (!drag) return;
@@ -433,12 +442,13 @@ export function GanttChart({
     e.preventDefault();
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
-    setLink({
+    updateLink({
       fromStageId,
       fromSide,
       pointerX: e.clientX - rect.left,
       pointerY: e.clientY - rect.top,
       toSide: null,
+      direction: "outgoing",
     });
     // Because pointer capture would otherwise route pointerup to the source
     // handle (bypassing the canvas onPointerUp), bind window-level listeners
@@ -466,19 +476,23 @@ export function GanttChart({
   }
 
   function commitLinkDrag() {
-    if (!link) return;
-    const target = linkHoverStage;
-    const toSide = link.toSide;
-    const replaces = link.replacesDepId;
-    const fromStageId = link.fromStageId;
-    const fromSide = link.fromSide;
-    setLink(null);
-    setLinkHoverStage(null);
+    const activeLink = linkRef.current;
+    if (!activeLink) return;
+    const target = linkHoverStageRef.current;
+    const toSide = activeLink.toSide;
+    const replaces = activeLink.replacesDepId;
+    const fromStageId = activeLink.fromStageId;
+    const fromSide = activeLink.fromSide;
+    const direction = activeLink.direction ?? "outgoing";
+    updateLink(null);
+    updateLinkHoverStage(null);
     if (!target || target === fromStageId || !toSide) return;
-    const type = inferDepType(fromSide, toSide);
+    const predecessor_id = direction === "incoming" ? target : fromStageId;
+    const successor_id = direction === "incoming" ? fromStageId : target;
+    const type = direction === "incoming" ? inferDepType(toSide, fromSide) : inferDepType(fromSide, toSide);
     const create = () =>
       adapter
-        .createDependency({ predecessor_id: fromStageId, successor_id: target, type, lag_days: 0 })
+        .createDependency({ predecessor_id, successor_id, type, lag_days: 0 })
         .then(() => toast.success(t("gantt.toasts.linkCreated")))
         .catch((err: unknown) => toast.error((err as Error).message));
     if (replaces && adapter.deleteDependency) {
@@ -907,10 +921,10 @@ export function GanttChart({
                     }}
                   />
                   {/* Drop indicator when an arrow is being dragged onto this parent. */}
-                  {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && (
+                  {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && link.toSide && (
                     <div
-                      className="pointer-events-none absolute z-10 rounded-md ring-2 ring-primary/70 bg-primary/10"
-                      style={{ left: stageX - 6, top: 8, width: w + 12, height: SVG_H + 12 }}
+                      className="pointer-events-none absolute z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-primary/80 bg-primary/15"
+                      style={{ left: link.toSide === "start" ? stageX : stageX + w, top: 14 + BAR_H / 2 }}
                     />
                   )}
                   {/* Dependency anchors — parent bars can be linked just like leaves. */}
@@ -1030,34 +1044,40 @@ export function GanttChart({
                 )}
 
                 {(stage as { is_milestone?: boolean }).is_milestone ? (
+                  (() => {
+                    const diamondSide = Math.max(14, STAGE_ROW_H * 0.55);
+                    const milestoneHalf = diamondSide * (Math.SQRT2 / 2);
+                    const milestoneCenter = STAGE_ROW_H / 2 + 16;
+                    return (
                   <div
                     className="group absolute flex items-center"
                     style={{ left: stageX - STAGE_ROW_H / 2 - 16, width: STAGE_ROW_H + 32, top: 0, height: STAGE_ROW_H }}
                     title={`${stage.name} — ${stage.start_date}`}
                   >
-                    {/* Invisible expanded drop target so dragged arrows snap to milestones easily. */}
-                    <div className="absolute inset-0" />
-                    {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && (
-                      <div className="pointer-events-none absolute inset-y-1 inset-x-2 z-10 rounded-md ring-2 ring-primary/70 bg-primary/10" />
+                    {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && link.toSide && (
+                      <div
+                        className="pointer-events-none absolute top-1/2 z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-primary/80 bg-primary/15"
+                        style={{ left: link.toSide === "start" ? milestoneCenter - milestoneHalf : milestoneCenter + milestoneHalf }}
+                      />
                     )}
                     <div
                       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rotate-45 border border-foreground/40 shadow-sm"
                       style={{
-                        width: Math.max(14, STAGE_ROW_H * 0.55),
-                        height: Math.max(14, STAGE_ROW_H * 0.55),
+                        width: diamondSide,
+                        height: diamondSide,
                         backgroundColor: stage.color || "var(--color-foreground)",
                       }}
                     />
                     <div
                       onPointerDown={(e) => startLinkDrag(e, stage.id, "start")}
-                      className="absolute top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-40 shadow transition hover:opacity-100 group-hover:opacity-100"
-                      style={{ left: 16 - 8 }}
+                      className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-40 shadow transition hover:opacity-100 group-hover:opacity-100"
+                      style={{ left: milestoneCenter - milestoneHalf }}
                       title={t("gantt.stage.linkFromStart")}
                     />
                     <div
                       onPointerDown={(e) => startLinkDrag(e, stage.id, "end")}
-                      className="absolute top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-40 shadow transition hover:opacity-100 group-hover:opacity-100"
-                      style={{ left: 16 + STAGE_ROW_H - 8 }}
+                      className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-40 shadow transition hover:opacity-100 group-hover:opacity-100"
+                      style={{ left: milestoneCenter + milestoneHalf }}
                       title={t("gantt.stage.linkFromEnd")}
                     />
                     <div
@@ -1067,6 +1087,8 @@ export function GanttChart({
                       {stage.name}
                     </div>
                   </div>
+                    );
+                  })()
                 ) : (
                 <div className="group absolute" style={{ left: stageX, width: stageW, top: 0, height: STAGE_ROW_H }}>
                   <div className="absolute left-0 right-0 top-0 h-1.5 overflow-hidden rounded-t-md bg-budget">
@@ -1249,21 +1271,23 @@ export function GanttChart({
 
                   <div
                     onPointerDown={(e) => startLinkDrag(e, stage.id, "start")}
-                    className="absolute -left-3 top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    style={{ left: 0 }}
                     title={t("gantt.stage.linkFromStart")}
                   />
                   <div
                     onPointerDown={(e) => startLinkDrag(e, stage.id, "end")}
-                    className="absolute -right-3 top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    style={{ left: stageW }}
                     title={t("gantt.stage.linkFromEnd")}
                   />
                 </div>
                 )}
 
-                {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && (
+                {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && link.toSide && (
                   <div
-                    className="pointer-events-none absolute inset-x-0 top-0 z-20 rounded-md ring-2 ring-primary/70 bg-primary/10"
-                    style={{ height: STAGE_ROW_H, left: stageX, width: stageW }}
+                    className="pointer-events-none absolute top-1/2 z-20 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-primary/80 bg-primary/15"
+                    style={{ left: link.toSide === "start" ? stageX : stageX + stageW, top: STAGE_ROW_H / 2 }}
                   />
                 )}
 
@@ -1539,8 +1563,8 @@ export function GanttChart({
             const s = stageLayouts.get(d.successor_id)!;
             const fromX = d.type === "FS" || d.type === "FF" ? p.x + p.w : p.x;
             const toX = d.type === "FS" || d.type === "SF" ? s.x : s.x + s.w;
-            const fromY = p.top + STAGE_ROW_H / 2;
-            const toY = s.top + STAGE_ROW_H / 2;
+            const fromY = p.anchorY;
+            const toY = s.anchorY;
             const dx = toX > fromX ? 10 : -10;
             const path = `M ${fromX} ${fromY} L ${fromX + dx} ${fromY} L ${fromX + dx} ${toY} L ${toX} ${toY}`;
             const strokeColor =
@@ -1573,12 +1597,13 @@ export function GanttChart({
                 which === "from"
                   ? d.type === "FS" || d.type === "SF" ? "start" : "end"
                   : d.type === "FS" || d.type === "FF" ? "end" : "start";
-              setLink({
+              updateLink({
                 fromStageId: anchorStageId,
                 fromSide: anchorSide,
                 pointerX: e.clientX - rect.left,
                 pointerY: e.clientY - rect.top,
                 toSide: null,
+                direction: which === "from" ? "incoming" : "outgoing",
                 replacesDepId: d.id,
               });
               const onUp = () => {
@@ -1676,7 +1701,7 @@ export function GanttChart({
             const p = stageLayouts.get(link.fromStageId);
             if (!p) return null;
             const fromX = link.fromSide === "end" ? p.x + p.w : p.x;
-            const fromY = p.top + STAGE_ROW_H / 2;
+            const fromY = p.anchorY;
             const previewType =
               linkHoverStage && link.toSide
                 ? inferDepType(link.fromSide, link.toSide)
@@ -1701,7 +1726,7 @@ export function GanttChart({
                   <g>
                     <circle
                       cx={target.x}
-                      cy={target.top + STAGE_ROW_H / 2}
+                      cy={target.anchorY}
                       r={6}
                       fill={link.toSide === "start" ? "var(--color-primary)" : "var(--color-background)"}
                       stroke="var(--color-primary)"
@@ -1709,7 +1734,7 @@ export function GanttChart({
                     />
                     <circle
                       cx={target.x + target.w}
-                      cy={target.top + STAGE_ROW_H / 2}
+                      cy={target.anchorY}
                       r={6}
                       fill={link.toSide === "end" ? "var(--color-primary)" : "var(--color-background)"}
                       stroke="var(--color-primary)"

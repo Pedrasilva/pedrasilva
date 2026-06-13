@@ -381,6 +381,73 @@ export function useDeleteStage() {
 
 // ---------- STAGE DEPENDENCIES ----------
 
+async function cascadeProjectFromPredecessor(predecessorId: string) {
+  const [{ data: stages, error: sErr }, { data: deps, error: dErr }] = await Promise.all([
+    supabase.from("pm_stages").select("id, start_date, end_date"),
+    supabase.from("pm_stage_dependencies").select("*"),
+  ]);
+  if (sErr) throw sErr;
+  if (dErr) throw dErr;
+
+  const pred = (stages ?? []).find((s) => s.id === predecessorId);
+  if (!pred) return;
+
+  const beforeById = new Map<string, { start: string; end: string }>();
+  for (const s of (stages ?? []) as { id: string; start_date: string; end_date: string }[]) {
+    beforeById.set(s.id, { start: s.start_date, end: s.end_date });
+  }
+
+  const updates = computeCascade(
+    pred.id,
+    pred.start_date,
+    pred.end_date,
+    stages ?? [],
+    (deps ?? []) as unknown as StageDependency[],
+  );
+
+  for (const [stageId, bounds] of updates) {
+    if (stageId === pred.id) continue;
+    const before = beforeById.get(stageId);
+    if (before?.start === bounds.start_date && before?.end === bounds.end_date) continue;
+    const { error } = await supabase
+      .from("pm_stages")
+      .update({ start_date: bounds.start_date, end_date: bounds.end_date })
+      .eq("id", stageId);
+    if (error) throw error;
+  }
+
+  const stageDeltas = new Map<string, number>();
+  for (const [stageId, bounds] of updates) {
+    if (stageId === pred.id) continue;
+    const before = beforeById.get(stageId);
+    if (!before) continue;
+    const startDelta = Math.round((new Date(bounds.start_date).getTime() - new Date(before.start).getTime()) / 86_400_000);
+    const endDelta = Math.round((new Date(bounds.end_date).getTime() - new Date(before.end).getTime()) / 86_400_000);
+    if (startDelta !== 0 && startDelta === endDelta) stageDeltas.set(stageId, startDelta);
+  }
+
+  if (stageDeltas.size === 0) return;
+  const { data: allocs, error: aErr } = await supabase
+    .from("pm_allocations")
+    .select("id, stage_id, start_date, end_date")
+    .in("stage_id", Array.from(stageDeltas.keys()));
+  if (aErr) throw aErr;
+  const shiftDay = (iso: string, delta: number): string => {
+    const d = new Date(iso);
+    d.setDate(d.getDate() + delta);
+    return d.toISOString().slice(0, 10);
+  };
+  for (const a of (allocs ?? []) as { id: string; stage_id: string; start_date: string; end_date: string }[]) {
+    const delta = stageDeltas.get(a.stage_id);
+    if (!delta) continue;
+    const { error } = await supabase
+      .from("pm_allocations")
+      .update({ start_date: shiftDay(a.start_date, delta), end_date: shiftDay(a.end_date, delta) })
+      .eq("id", a.id);
+    if (error) throw error;
+  }
+}
+
 export function useStageDependencies() {
   return useQuery({
     queryKey: ["pm-stage-dependencies"],
@@ -412,9 +479,14 @@ export function useCreateDependency() {
         .select()
         .single();
       if (error) throw error;
+      await cascadeProjectFromPredecessor(input.predecessor_id);
       return data as unknown as StageDependency;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-allocations-all"] });
+    },
   });
 }
 
@@ -435,9 +507,14 @@ export function useUpdateDependency() {
         .select()
         .single();
       if (error) throw error;
+      await cascadeProjectFromPredecessor((data as unknown as StageDependency).predecessor_id);
       return data as unknown as StageDependency;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-allocations-all"] });
+    },
   });
 }
 
