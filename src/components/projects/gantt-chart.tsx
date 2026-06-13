@@ -1282,10 +1282,10 @@ export function GanttChart({
                 </div>
                 )}
 
-                {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && (
+                {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && link.toSide && (
                   <div
-                    className="pointer-events-none absolute inset-x-0 top-0 z-20 rounded-md ring-2 ring-primary/70 bg-primary/10"
-                    style={{ height: STAGE_ROW_H, left: stageX, width: stageW }}
+                    className="pointer-events-none absolute top-1/2 z-20 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-primary/80 bg-primary/15"
+                    style={{ left: link.toSide === "start" ? stageX : stageX + stageW, top: STAGE_ROW_H / 2 }}
                   />
                 )}
 
@@ -1561,8 +1561,8 @@ export function GanttChart({
             const s = stageLayouts.get(d.successor_id)!;
             const fromX = d.type === "FS" || d.type === "FF" ? p.x + p.w : p.x;
             const toX = d.type === "FS" || d.type === "SF" ? s.x : s.x + s.w;
-            const fromY = p.top + STAGE_ROW_H / 2;
-            const toY = s.top + STAGE_ROW_H / 2;
+            const fromY = p.anchorY;
+            const toY = s.anchorY;
             const dx = toX > fromX ? 10 : -10;
             const path = `M ${fromX} ${fromY} L ${fromX + dx} ${fromY} L ${fromX + dx} ${toY} L ${toX} ${toY}`;
             const strokeColor =
@@ -1595,12 +1595,13 @@ export function GanttChart({
                 which === "from"
                   ? d.type === "FS" || d.type === "SF" ? "start" : "end"
                   : d.type === "FS" || d.type === "FF" ? "end" : "start";
-              setLink({
+              updateLink({
                 fromStageId: anchorStageId,
                 fromSide: anchorSide,
                 pointerX: e.clientX - rect.left,
                 pointerY: e.clientY - rect.top,
                 toSide: null,
+                direction: which === "from" ? "incoming" : "outgoing",
                 replacesDepId: d.id,
               });
               const onUp = () => {
