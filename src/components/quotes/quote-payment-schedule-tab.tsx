@@ -275,7 +275,17 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     if (stages.length === 0) return;
     if (applyGen.isPending) return;
     autoSeededRef.current = true;
-    const generated = applyPaymentDefaults(generateByStageBilling(stages, stageFees), paymentDefaults);
+    const generated = applyPaymentDefaults(
+      generateByStageBilling(stages, stageFees, {
+        downPaymentPercent: milestoneOpts.downPaymentEnabled
+          ? Number(milestoneOpts.downPaymentPercent) || 0
+          : 0,
+        deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
+        externalServices: externals,
+        paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
+      }),
+      paymentDefaults,
+    );
     if (generated.length === 0) return;
     applyGen.mutate({ generator: "by_stage_billing", items: generated });
   }, [itemsQ.isLoading, stagesQ.isLoading, items.length, stages, stageFees, applyGen]);
