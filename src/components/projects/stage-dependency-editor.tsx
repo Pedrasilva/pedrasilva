@@ -149,7 +149,7 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                     className="flex items-center gap-2 rounded-md border border-border bg-muted/40 p-2 text-xs"
                   >
                     <span className="min-w-0 flex-1 truncate font-medium">
-                      {pred?.name ?? "—"}
+                      {pred ? labelFor(d.predecessor_id) : "—"}
                     </span>
                     <Select
                       value={d.type}
