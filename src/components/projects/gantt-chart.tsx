@@ -921,10 +921,10 @@ export function GanttChart({
                     }}
                   />
                   {/* Drop indicator when an arrow is being dragged onto this parent. */}
-                  {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && (
+                  {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && link.toSide && (
                     <div
-                      className="pointer-events-none absolute z-10 rounded-md ring-2 ring-primary/70 bg-primary/10"
-                      style={{ left: stageX - 6, top: 8, width: w + 12, height: SVG_H + 12 }}
+                      className="pointer-events-none absolute z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-primary/80 bg-primary/15"
+                      style={{ left: link.toSide === "start" ? stageX : stageX + w, top: 14 + BAR_H / 2 }}
                     />
                   )}
                   {/* Dependency anchors — parent bars can be linked just like leaves. */}
@@ -1044,34 +1044,40 @@ export function GanttChart({
                 )}
 
                 {(stage as { is_milestone?: boolean }).is_milestone ? (
+                  (() => {
+                    const diamondSide = Math.max(14, STAGE_ROW_H * 0.55);
+                    const milestoneHalf = diamondSide * (Math.SQRT2 / 2);
+                    const milestoneCenter = STAGE_ROW_H / 2 + 16;
+                    return (
                   <div
                     className="group absolute flex items-center"
                     style={{ left: stageX - STAGE_ROW_H / 2 - 16, width: STAGE_ROW_H + 32, top: 0, height: STAGE_ROW_H }}
                     title={`${stage.name} — ${stage.start_date}`}
                   >
-                    {/* Invisible expanded drop target so dragged arrows snap to milestones easily. */}
-                    <div className="absolute inset-0" />
-                    {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && (
-                      <div className="pointer-events-none absolute inset-y-1 inset-x-2 z-10 rounded-md ring-2 ring-primary/70 bg-primary/10" />
+                    {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && link.toSide && (
+                      <div
+                        className="pointer-events-none absolute top-1/2 z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-primary/80 bg-primary/15"
+                        style={{ left: link.toSide === "start" ? milestoneCenter - milestoneHalf : milestoneCenter + milestoneHalf }}
+                      />
                     )}
                     <div
                       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rotate-45 border border-foreground/40 shadow-sm"
                       style={{
-                        width: Math.max(14, STAGE_ROW_H * 0.55),
-                        height: Math.max(14, STAGE_ROW_H * 0.55),
+                        width: diamondSide,
+                        height: diamondSide,
                         backgroundColor: stage.color || "var(--color-foreground)",
                       }}
                     />
                     <div
                       onPointerDown={(e) => startLinkDrag(e, stage.id, "start")}
-                      className="absolute top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-40 shadow transition hover:opacity-100 group-hover:opacity-100"
-                      style={{ left: 16 - 8 }}
+                      className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-40 shadow transition hover:opacity-100 group-hover:opacity-100"
+                      style={{ left: milestoneCenter - milestoneHalf }}
                       title={t("gantt.stage.linkFromStart")}
                     />
                     <div
                       onPointerDown={(e) => startLinkDrag(e, stage.id, "end")}
-                      className="absolute top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-40 shadow transition hover:opacity-100 group-hover:opacity-100"
-                      style={{ left: 16 + STAGE_ROW_H - 8 }}
+                      className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-40 shadow transition hover:opacity-100 group-hover:opacity-100"
+                      style={{ left: milestoneCenter + milestoneHalf }}
                       title={t("gantt.stage.linkFromEnd")}
                     />
                     <div
@@ -1081,6 +1087,8 @@ export function GanttChart({
                       {stage.name}
                     </div>
                   </div>
+                    );
+                  })()
                 ) : (
                 <div className="group absolute" style={{ left: stageX, width: stageW, top: 0, height: STAGE_ROW_H }}>
                   <div className="absolute left-0 right-0 top-0 h-1.5 overflow-hidden rounded-t-md bg-budget">
