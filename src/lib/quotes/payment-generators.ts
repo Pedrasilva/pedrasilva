@@ -739,6 +739,8 @@ export function generateArchitectureWithConsultants(
   type SupplierBucket = {
     key: string;
     companyId: string | null;
+    pmSupplierId: string | null;
+    placeholderLabel: string | null;
     name: string;
     total: number;
     stageIds: Set<string>;
@@ -749,13 +751,20 @@ export function generateArchitectureWithConsultants(
     const esAny = es as any;
     const companyId: string | null = esAny.supplier_company_id ?? null;
     const supplierId: string | null = esAny.supplier_id ?? null;
-    if (!companyId && !supplierId) continue;
-    const key = companyId ? `c:${companyId}` : `s:${supplierId}`;
-    const name = es.supplier?.name ?? esAny.description ?? "Supplier";
+    const placeholder: string | null = (esAny.supplier_placeholder ?? null) || null;
+    if (!companyId && !supplierId && !placeholder) continue;
+    const key = companyId
+      ? `c:${companyId}`
+      : supplierId
+        ? `s:${supplierId}`
+        : `p:${placeholder!.toLowerCase()}`;
+    const name = es.supplier?.name ?? placeholder ?? esAny.description ?? "Supplier";
     const cost = Number(esAny.purchase_price ?? 0) * Number(esAny.quantity ?? 1);
     const cur = buckets.get(key) ?? {
       key,
       companyId,
+      pmSupplierId: supplierId,
+      placeholderLabel: placeholder,
       name,
       total: 0,
       stageIds: new Set<string>(),
@@ -794,6 +803,8 @@ export function generateArchitectureWithConsultants(
         generator_source: "architecture_with_consultants",
         direction: "outflow",
         supplier_company_id: bucket.companyId,
+        supplier_id: bucket.pmSupplierId,
+        supplier_label: bucket.placeholderLabel,
       });
     }
     const remaining = round2(bucket.total * (1 - dp / 100));
@@ -825,9 +836,12 @@ export function generateArchitectureWithConsultants(
         generator_source: "architecture_with_consultants",
         direction: "outflow",
         supplier_company_id: bucket.companyId,
+        supplier_id: bucket.pmSupplierId,
+        supplier_label: bucket.placeholderLabel,
       });
     });
   }
+
 
   return items;
 }
