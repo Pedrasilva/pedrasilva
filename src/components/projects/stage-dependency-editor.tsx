@@ -31,6 +31,41 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
 
   const stageMap = useMemo(() => new Map(allStages.map((s) => [s.id, s])), [allStages]);
 
+  // Compute WBS numbers (e.g. "1", "1.2", "1.2.3") per stage, grouped by
+  // project + parent and ordered by sort_order, so dependency entries can
+  // reference stages by the same index shown in the Gantt outline.
+  const wbsMap = useMemo(() => {
+    const byParent = new Map<string, typeof allStages>();
+    for (const s of allStages) {
+      const key = `${s.projectId}::${s.parent_stage_id ?? "root"}`;
+      const arr = byParent.get(key) ?? [];
+      arr.push(s);
+      byParent.set(key, arr);
+    }
+    for (const arr of byParent.values()) {
+      arr.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    }
+    const map = new Map<string, string>();
+    const walk = (projectId: string, parentId: string | null, prefix: string) => {
+      const arr = byParent.get(`${projectId}::${parentId ?? "root"}`) ?? [];
+      arr.forEach((s, i) => {
+        const wbs = prefix ? `${prefix}.${i + 1}` : String(i + 1);
+        map.set(s.id, wbs);
+        walk(projectId, s.id, wbs);
+      });
+    };
+    const projects = new Set(allStages.map((s) => s.projectId));
+    for (const pid of projects) walk(pid, null, "");
+    return map;
+  }, [allStages]);
+
+  const labelFor = (id: string) => {
+    const s = stageMap.get(id);
+    if (!s) return "—";
+    const wbs = wbsMap.get(id);
+    return wbs ? `${wbs}. ${s.name}` : s.name;
+  };
+
   const incoming = useMemo(
     () => deps.filter((d) => d.successor_id === stage.id),
     [deps, stage.id],
@@ -114,7 +149,7 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                     className="flex items-center gap-2 rounded-md border border-border bg-muted/40 p-2 text-xs"
                   >
                     <span className="min-w-0 flex-1 truncate font-medium">
-                      {pred?.name ?? "—"}
+                      {pred ? labelFor(d.predecessor_id) : "—"}
                     </span>
                     <Select
                       value={d.type}
@@ -181,7 +216,7 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                 <SelectContent>
                   {eligible.map((s) => (
                     <SelectItem key={s.id} value={s.id} className="text-xs">
-                      {s.name}
+                      {labelFor(s.id)}
                     </SelectItem>
                   ))}
                 </SelectContent>
