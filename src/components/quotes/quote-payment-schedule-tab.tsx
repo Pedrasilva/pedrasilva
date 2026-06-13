@@ -444,7 +444,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         ? "by_stage_billing"
         : null;
     if (!source) return;
-    const syncKey = `${source}:${stageOnlyOutflows.map((o) => `${o.stage_id}:${(o as unknown as { supplier_company_id?: string | null }).supplier_company_id}:${(o as unknown as { purchase_price?: number | null }).purchase_price}`).join("|")}`;
+    const syncKey = `${source}:${stageOnlyOutflows.map((o) => { const oa = o as unknown as { stage_id?: string | null; supplier_id?: string | null; supplier_placeholder?: string | null; purchase_price?: number | null }; return `${oa.stage_id}:${oa.supplier_id ?? ""}:${oa.supplier_placeholder ?? ""}:${oa.purchase_price}`; }).join("|")}`;
     if (supplierSyncRef.current === syncKey) return;
     supplierSyncRef.current = syncKey;
     const generated = source === "architecture_with_consultants"
