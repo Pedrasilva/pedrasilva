@@ -452,6 +452,13 @@
       }
     },
     "planning": {
+      "reflow": {
+        "button": "Realinhar",
+        "running": "A realinhar…",
+        "tooltip": "Avança cada etapa para respeitar todas as dependências FS/SS/FF/SF.",
+        "done": "Realinhadas {{count}} etapa(s) para respeitar as dependências.",
+        "alreadyAligned": "O cronograma já respeita todas as dependências."
+      },
       "supplierIsSelf": "Somos nós (honorário de arquitetura, sem saída)",
       "supplierPlaceholderLabel": "Ou, se o fornecedor ainda não é conhecido, descreva o papel",
       "supplierPlaceholderHint": "ex. Consultor MEP, Engenheiro de estruturas",
