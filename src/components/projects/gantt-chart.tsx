@@ -1271,12 +1271,14 @@ export function GanttChart({
 
                   <div
                     onPointerDown={(e) => startLinkDrag(e, stage.id, "start")}
-                    className="absolute -left-3 top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    style={{ left: 0 }}
                     title={t("gantt.stage.linkFromStart")}
                   />
                   <div
                     onPointerDown={(e) => startLinkDrag(e, stage.id, "end")}
-                    className="absolute -right-3 top-1/2 z-30 h-4 w-4 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    className="absolute top-1/2 z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    style={{ left: stageW }}
                     title={t("gantt.stage.linkFromEnd")}
                   />
                 </div>
