@@ -312,20 +312,24 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
             : true),
       );
       if (already) return null;
+      const displayName2 = displayName;
       return {
         id: `stage-supplier-${s.id}`,
         quote_id: quoteId,
         stage_id: billingStageId,
-        supplier_id: groupId,
+        // Clean fields the generator now understands directly
+        supplier_id: inh.kind === "supplier" ? inh.supplierId : null,
         supplier_company_id: null,
+        supplier_placeholder: inh.kind === "placeholder" ? inh.label : null,
         description: s.name,
         quantity: 1,
         purchase_price: amount,
         sale_price: amount,
         markup_type: "amount",
         markup_value: 0,
-        supplier: { id: groupId, name: displayName },
+        supplier: inh.kind === "supplier" ? { id: inh.supplierId, name: displayName2 } : null,
       } as unknown as typeof externals[number];
+
     })
     .filter((row): row is typeof externals[number] => !!row);
   const effectiveExternals = [...externals, ...stageOnlyOutflows];
