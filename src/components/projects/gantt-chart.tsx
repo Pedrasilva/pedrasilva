@@ -132,6 +132,9 @@ interface LinkDragState {
   pointerX: number;
   pointerY: number;
   toSide: "start" | "end" | null;
+  /** If set, this drag is re-routing an existing dependency. The original
+   *  dep is replaced (delete + create) on a successful commit. */
+  replacesDepId?: string;
 }
 
 export function GanttChart({
