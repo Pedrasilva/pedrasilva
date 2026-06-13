@@ -608,6 +608,7 @@
       "archSuppliersCol": "Fornecedores",
       "archNetCol": "Arquitetura",
       "unassignedSupplier": "Sem fornecedor",
+      "placeholderTag": "a definir",
       "addTitle": "Adicionar pagamento",
       "labelPlaceholder": "ex: Sinal",
       "errorLabel": "Etiqueta é obrigatória",
