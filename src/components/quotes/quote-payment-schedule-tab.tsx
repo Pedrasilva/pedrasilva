@@ -222,6 +222,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const ownCompanyId = stageSupplierCompanies.find((c) => c.nome === OWN_COMPANY_NAME)?.id ?? null;
   const stageSupplierName = (cid: string) =>
     stageSupplierCompanies.find((c) => c.id === cid)?.nome ?? "Supplier";
+  const supplierLookupReady = stageSupplierIds.length === 0 || stageSupplierCompaniesQ.isSuccess;
 
   // Synthesize external-service rows from Gantt stages that point at a third-party
   // supplier company. Supplier selection is inherited from parent bars, while
@@ -403,7 +404,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
 
   const supplierSyncRef = useRef<string | null>(null);
   useEffect(() => {
-    if (itemsQ.isLoading || stagesQ.isLoading || stageSupplierCompaniesQ.isLoading) return;
+    if (itemsQ.isLoading || stagesQ.isLoading || !supplierLookupReady) return;
     if (applyGen.isPending || stageOnlyOutflows.length === 0) return;
     const outflows = items.filter((it) => (it as unknown as { direction?: string }).direction === "outflow");
     if (outflows.length > 0) return;
@@ -433,7 +434,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     if (generated.some((it) => it.direction === "outflow")) {
       applyGen.mutate({ generator: source, items: applyPaymentDefaults(generated, paymentDefaults), replaceAll: true });
     }
-  }, [itemsQ.isLoading, stagesQ.isLoading, stageSupplierCompaniesQ.isLoading, items, stages, stageFees, stageOnlyOutflows, effectiveExternals, applyGen]);
+  }, [itemsQ.isLoading, stagesQ.isLoading, supplierLookupReady, items, stages, stageFees, stageOnlyOutflows, effectiveExternals, applyGen]);
 
   const handleAdd = async () => {
     if (!draft.label.trim()) return toast.error(t("workspace.payment.errorLabel"));
