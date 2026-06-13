@@ -633,7 +633,8 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((it, i) => {
+              {items.filter((it) => ((it as unknown as { direction?: string }).direction ?? "inflow") === "inflow").map((it) => {
+                const i = items.indexOf(it);
                 const itAny = it as unknown as { vat_rate?: number | null; payment_terms?: string | null };
                 const net = resolveScheduleItemAmount(
                   { amount_type: it.amount_type, amount_value: Number(it.amount_value ?? 0), trigger_type: it.trigger_type, stage_id: it.stage_id },
@@ -661,15 +662,6 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                         onSave={(next) => upsert.mutate({ id: it.id, label: next })}
                       />
                       <div className="flex items-center gap-2 flex-wrap">
-                        {((it as unknown as { direction?: string }).direction === "outflow") ? (
-                          <Badge className="text-[10px] px-1 py-0 bg-rose-100 text-rose-800 hover:bg-rose-100">
-                            {t("workspace.payment.outflowBadge", { defaultValue: "Outflow" })}
-                          </Badge>
-                        ) : (
-                          <Badge className="text-[10px] px-1 py-0 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
-                            {t("workspace.payment.inflowBadge", { defaultValue: "Inflow" })}
-                          </Badge>
-                        )}
                         {it.manual_override ? (
                           <Badge variant="secondary" className="text-[10px] px-1 py-0">
                             {t("workspace.payment.manualBadge")}
@@ -745,7 +737,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                 </TableRow>
                 );
               })}
-              {items.length === 0 && (
+              {items.filter((it) => ((it as unknown as { direction?: string }).direction ?? "inflow") === "inflow").length === 0 && (
                 <TableRow>
                   <TableCell colSpan={10} className="text-center text-sm text-muted-foreground py-6">
                     {t("workspace.payment.empty")}
@@ -757,94 +749,118 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("workspace.payment.addTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-3">
-          <div className="md:col-span-3">
-            <Label>{t("workspace.payment.label")}</Label>
-            <AutoTextarea
-              value={draft.label}
-              onChange={(v) => setDraft((p) => ({ ...p, label: v }))}
-              placeholder={t("workspace.payment.labelPlaceholder")}
-              minHeight={80}
-            />
-          </div>
-          <div>
-            <Label>{t("workspace.payment.trigger")}</Label>
-            <Select
-              value={draft.trigger_type}
-              onValueChange={(v) => setDraft((p) => ({ ...p, trigger_type: v as QuotePaymentTrigger }))}
-            >
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {QUOTE_PAYMENT_TRIGGERS.map((x) => (
-                  <SelectItem key={x.value} value={x.value}>{x.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {stageRequired && (
-            <div>
-              <Label>{t("common.stage")} *</Label>
-              <Select
-                value={draft.stage_id}
-                onValueChange={(v) => setDraft((p) => ({ ...p, stage_id: v }))}
-              >
-                <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
-                <SelectContent>
-                  {stages.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-          <div>
-            <Label>{t("workspace.payment.amountType")}</Label>
-            <Select
-              value={draft.amount_type}
-              onValueChange={(v) => setDraft((p) => ({ ...p, amount_type: v as QuotePaymentAmountType }))}
-            >
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {QUOTE_PAYMENT_AMOUNT_TYPES.map((x) => (
-                  <SelectItem key={x.value} value={x.value}>{x.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>{t("workspace.payment.amount")}</Label>
-            <Input
-              type="number"
-              step="0.01"
-              value={draft.amount_value}
-              onChange={(e) => setDraft((p) => ({ ...p, amount_value: e.target.value }))}
-            />
-          </div>
-          <div>
-            <Label>
-              {t("workspace.payment.invoiceDate")}{dateRequired && " *"}
-            </Label>
-            <Input
-              type="date"
-              value={draft.expected_invoice_date}
-              onChange={(e) => setDraft((p) => ({ ...p, expected_invoice_date: e.target.value }))}
-            />
-          </div>
-          <div>
-            <Label>{t("workspace.payment.paymentDate")}</Label>
-            <Input
-              type="date"
-              value={draft.expected_payment_date}
-              onChange={(e) => setDraft((p) => ({ ...p, expected_payment_date: e.target.value }))}
-            />
-          </div>
-          <div className="md:col-span-3 flex justify-end border-t pt-4">
-            <Button onClick={handleAdd}><Plus className="h-4 w-4 mr-1" /> {t("common.create")}</Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Suppliers — outflows grouped by supplier (broken-down payouts) */}
+      {(() => {
+        const outflows = items.filter((it) => (it as unknown as { direction?: string }).direction === "outflow");
+        if (outflows.length === 0) return null;
+        const buckets = new Map<string, typeof outflows>();
+        for (const o of outflows) {
+          const key = (o as unknown as { supplier_company_id?: string | null }).supplier_company_id ?? "__unassigned__";
+          const arr = buckets.get(key) ?? [];
+          arr.push(o);
+          buckets.set(key, arr);
+        }
+        const supplierNameMap = new Map<string, string>();
+        for (const s of suppliers) if (s.id) supplierNameMap.set(s.id, s.name);
+        return (
+          <Card>
+            <CardHeader className="py-3">
+              <CardTitle className="text-base">
+                {t("workspace.payment.suppliersTitle", { defaultValue: "Suppliers — outflows" })}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {Array.from(buckets.entries()).map(([key, rows]) => {
+                const name = key === "__unassigned__"
+                  ? t("workspace.payment.unassignedSupplier", { defaultValue: "Unassigned" })
+                  : supplierNameMap.get(key) ?? "—";
+                const groupTotal = rows.reduce((s, r) => s + resolveScheduleItemAmount(
+                  { amount_type: r.amount_type, amount_value: Number(r.amount_value ?? 0), trigger_type: r.trigger_type, stage_id: r.stage_id },
+                  totalFee, stageFees,
+                ), 0);
+                return (
+                  <div key={key} className="rounded-md border">
+                    <div className="flex items-center justify-between px-3 py-2 bg-muted/30 border-b">
+                      <div className="text-sm font-semibold uppercase tracking-wide">{name}</div>
+                      <div className="text-sm font-semibold tabular-nums">{formatEUR(groupTotal)}</div>
+                    </div>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="min-w-[240px]">{t("workspace.payment.label")}</TableHead>
+                          <TableHead>{t("workspace.payment.trigger")}</TableHead>
+                          <TableHead>{t("common.stage")}</TableHead>
+                          <TableHead className="text-right">{t("workspace.payment.amount")}</TableHead>
+                          <TableHead className="text-right w-20">IVA %</TableHead>
+                          <TableHead className="text-right">Valor c/ IVA</TableHead>
+                          <TableHead>{t("workspace.payment.paymentDate")}</TableHead>
+                          <TableHead className="min-w-[160px]">Condições</TableHead>
+                          <TableHead className="w-12" />
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {rows.map((it) => {
+                          const itAny = it as unknown as { vat_rate?: number | null; payment_terms?: string | null };
+                          const net = resolveScheduleItemAmount(
+                            { amount_type: it.amount_type, amount_value: Number(it.amount_value ?? 0), trigger_type: it.trigger_type, stage_id: it.stage_id },
+                            totalFee, stageFees,
+                          );
+                          const vat = Number(itAny.vat_rate ?? defaultVatRate);
+                          const gross = net + (net * vat) / 100;
+                          return (
+                            <TableRow key={it.id} className="align-top">
+                              <TableCell className="font-medium">{it.label}</TableCell>
+                              <TableCell className="text-xs">
+                                {QUOTE_PAYMENT_TRIGGERS.find((x) => x.value === it.trigger_type)?.label}
+                              </TableCell>
+                              <TableCell className="text-xs">
+                                {it.stage_id ? stages.find((s) => s.id === it.stage_id)?.name ?? "—" : "—"}
+                              </TableCell>
+                              <TableCell className="text-right tabular-nums">{formatEUR(net)}</TableCell>
+                              <TableCell className="text-right">
+                                <Input
+                                  type="number" step="0.1" min="0" max="100"
+                                  className="h-7 w-16 text-right text-xs"
+                                  defaultValue={vat}
+                                  onBlur={(e) => {
+                                    const v = Number(e.target.value);
+                                    if (!Number.isFinite(v) || v < 0 || v > 100 || v === vat) return;
+                                    upsert.mutate({ id: it.id, vat_rate: v, vat_rate_override: true });
+                                  }}
+                                />
+                              </TableCell>
+                              <TableCell className="text-right tabular-nums text-xs">{formatEUR(gross)}</TableCell>
+                              <TableCell className="text-xs">{it.expected_payment_date ?? it.expected_invoice_date ?? "—"}</TableCell>
+                              <TableCell>
+                                <Input
+                                  className="h-7 text-xs"
+                                  defaultValue={itAny.payment_terms ?? ""}
+                                  placeholder={paymentDefaults.defaultTerms}
+                                  onBlur={(e) => {
+                                    const v = e.target.value.trim();
+                                    if (v === (itAny.payment_terms ?? "")) return;
+                                    upsert.mutate({ id: it.id, payment_terms: v || null });
+                                  }}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Button variant="ghost" size="sm" onClick={() => remove.mutate(it.id)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        );
+      })()}
+
     </div>
   );
 }

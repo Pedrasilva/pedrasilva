@@ -597,6 +597,8 @@
       "paymentDate": "Data de pagamento",
       "amountType": "Tipo de montante",
       "empty": "Ainda sem pagamentos planeados.",
+      "suppliersTitle": "Fornecedores — pagamentos",
+      "unassignedSupplier": "Sem fornecedor",
       "addTitle": "Adicionar pagamento",
       "labelPlaceholder": "ex: Sinal",
       "errorLabel": "Etiqueta é obrigatória",
