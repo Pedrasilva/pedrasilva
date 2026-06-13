@@ -419,6 +419,72 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
           )}
         </div>
       )}
+
+      {/* Quote-level billing defaults */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">Predefinições de faturação</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 md:grid-cols-3">
+          <div>
+            <Label className="text-xs">IVA padrão (%)</Label>
+            <Input
+              type="number"
+              step="0.1"
+              min="0"
+              max="100"
+              defaultValue={defaultVatRate}
+              onBlur={async (e) => {
+                const v = Number(e.target.value);
+                if (!Number.isFinite(v) || v < 0 || v > 100) return;
+                await (supabase as unknown as { from: (t: string) => { update: (p: Record<string, unknown>) => { eq: (c: string, val: string) => Promise<{ error: { message: string } | null }> } } })
+                  .from("fee_proposals")
+                  .update({ default_vat_rate: v })
+                  .eq("id", quoteId);
+                quoteQ.refetch();
+              }}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Condições padrão</Label>
+            <Input
+              defaultValue={paymentDefaults.defaultTerms}
+              onBlur={async (e) => {
+                await (supabase as unknown as { from: (t: string) => { update: (p: Record<string, unknown>) => { eq: (c: string, val: string) => Promise<{ error: { message: string } | null }> } } })
+                  .from("fee_proposals")
+                  .update({ default_payment_terms: e.target.value })
+                  .eq("id", quoteId);
+                quoteQ.refetch();
+              }}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Condições do primeiro pagamento</Label>
+            <Input
+              defaultValue={paymentDefaults.firstPaymentTerms}
+              onBlur={async (e) => {
+                await (supabase as unknown as { from: (t: string) => { update: (p: Record<string, unknown>) => { eq: (c: string, val: string) => Promise<{ error: { message: string } | null }> } } })
+                  .from("fee_proposals")
+                  .update({ first_payment_terms: e.target.value })
+                  .eq("id", quoteId);
+                quoteQ.refetch();
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Proposal-style read-only layout (mirrors printed proposal) */}
+      <PaymentScheduleProposalView
+        items={items}
+        stages={stages}
+        totalFee={totalFee}
+        stageFees={stageFees}
+        suppliers={suppliers}
+        defaultVatRate={defaultVatRate}
+      />
+
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
           <CardTitle className="text-base">{t("workspace.payment.title")}</CardTitle>
