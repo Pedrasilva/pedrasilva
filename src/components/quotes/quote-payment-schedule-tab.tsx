@@ -971,7 +971,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         for (const o of outflows) {
           const oa = o as unknown as { supplier_company_id?: string | null; supplier_id?: string | null; supplier_label?: string | null };
           let key: string;
-          let label: string;
+          let label = "";
           if (oa.supplier_company_id) {
             key = `c:${oa.supplier_company_id}`;
           } else if (oa.supplier_id) {
@@ -982,10 +982,8 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
           } else {
             key = "__unassigned__";
           }
-          if (!labelMap.has(key)) {
-            label ??= "";
-            labelMap.set(key, label);
-          }
+          if (!labelMap.has(key)) labelMap.set(key, label);
+
           const arr = buckets.get(key) ?? [];
           arr.push(o);
           buckets.set(key, arr);
