@@ -460,26 +460,47 @@ export function GanttChart({
 
   async function commitDrag() {
     if (!drag) return;
-    const draft = draftDates.get(drag.id);
+    const dragState = drag;
+    const draft = draftDates.get(dragState.id);
     setDrag(null);
     if (!draft) return;
+    const isSummary = hierarchy?.get(dragState.id)?.isSummary ?? false;
+    const summaryMove = isSummary && dragState.type === "stage-move";
+    const descendants = summaryMove ? collectDescendants(dragState.id) : [];
     setDraftDates((m) => {
       const next = new Map(m);
-      next.delete(drag.id);
+      next.delete(dragState.id);
+      for (const d of descendants) next.delete(d.id);
       return next;
     });
     try {
-      if (drag.type.startsWith("stage")) {
-        await adapter.updateStage({
-          id: drag.id,
-          projectId: drag.projectId,
-          start_date: draft.start,
-          end_date: draft.end,
-        });
+      if (dragState.type.startsWith("stage")) {
+        if (summaryMove) {
+          // Parent-bar move: shift every non-summary descendant by the same
+          // delta. Persisted parent dates will roll up from descendants on
+          // the next read.
+          const days = differenceInCalendarDays(new Date(draft.start), new Date(dragState.origStart));
+          for (const d of descendants) {
+            if (hierarchy?.get(d.id)?.isSummary) continue;
+            await adapter.updateStage({
+              id: d.id,
+              projectId: d.projectId,
+              start_date: format(addDays(new Date(d.start_date), days), "yyyy-MM-dd"),
+              end_date: format(addDays(new Date(d.end_date), days), "yyyy-MM-dd"),
+            });
+          }
+        } else {
+          await adapter.updateStage({
+            id: dragState.id,
+            projectId: dragState.projectId,
+            start_date: draft.start,
+            end_date: draft.end,
+          });
+        }
       } else {
         await adapter.updateAllocation({
-          id: drag.id,
-          projectId: drag.projectId,
+          id: dragState.id,
+          projectId: dragState.projectId,
           patch: { start_date: draft.start, end_date: draft.end },
         });
       }
