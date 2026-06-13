@@ -318,10 +318,13 @@ export function GanttChart({
       const sStart = draft?.start ?? stage.start_date;
       const sEnd = draft?.end ?? stage.end_date;
       const isMilestone = (stage as { is_milestone?: boolean }).is_milestone ?? false;
+      // For milestones, anchor x/w to the *visible* diamond tip (not the
+      // wider bounding box) so dependency arrows land exactly on the picker.
+      const milestoneHalf = Math.max(14, STAGE_ROW_H * 0.55) * (Math.SQRT2 / 2);
       const x = isMilestone
-        ? differenceInCalendarDays(new Date(sStart), origin) * dayWidth - STAGE_ROW_H / 2
+        ? differenceInCalendarDays(new Date(sStart), origin) * dayWidth - milestoneHalf
         : differenceInCalendarDays(new Date(sStart), origin) * dayWidth;
-      const w = isMilestone ? STAGE_ROW_H : dayCount(sStart, sEnd) * dayWidth;
+      const w = isMilestone ? milestoneHalf * 2 : dayCount(sStart, sEnd) * dayWidth;
       const isSummary = hierarchy?.get(stage.id)?.isSummary ?? false;
       const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
       const allocCount = resHidden ? 0 : Math.max(stage.allocations.length, 0);
