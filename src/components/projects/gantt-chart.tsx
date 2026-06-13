@@ -355,13 +355,19 @@ export function GanttChart({
         const py = e.clientY - rect.top;
         let hit: string | null = null;
         let toSide: "start" | "end" | null = null;
+        // Generous horizontal padding so narrow bars (milestones, single-day
+        // stages) and summary parent bars are easy targets when dragging an
+        // arrow onto them. Vertical hit uses the row's full height so
+        // summary rows (slim bar at top of a 40px row) also catch the drop.
+        const HIT_PAD_X = 18;
         for (const [sid, geo] of stageLayouts.entries()) {
           if (sid === link.fromStageId) continue;
-          if (px >= geo.x && px <= geo.x + geo.w && py >= geo.top && py <= geo.top + STAGE_ROW_H) {
+          const left = geo.x - HIT_PAD_X;
+          const right = geo.x + geo.w + HIT_PAD_X;
+          const bottom = geo.top + Math.max(STAGE_ROW_H, geo.height);
+          if (px >= left && px <= right && py >= geo.top && py <= bottom) {
             hit = sid;
-            // Classify which half of the bar the pointer is over.
-            // Left third = start, right third = end, middle = nearest side.
-            const rel = (px - geo.x) / geo.w;
+            const rel = (px - geo.x) / Math.max(1, geo.w);
             toSide = rel < 0.5 ? "start" : "end";
             break;
           }
