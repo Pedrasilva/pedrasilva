@@ -442,12 +442,13 @@ export function GanttChart({
     e.preventDefault();
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
-    setLink({
+    updateLink({
       fromStageId,
       fromSide,
       pointerX: e.clientX - rect.left,
       pointerY: e.clientY - rect.top,
       toSide: null,
+      direction: "outgoing",
     });
     // Because pointer capture would otherwise route pointerup to the source
     // handle (bypassing the canvas onPointerUp), bind window-level listeners
@@ -475,19 +476,23 @@ export function GanttChart({
   }
 
   function commitLinkDrag() {
-    if (!link) return;
-    const target = linkHoverStage;
-    const toSide = link.toSide;
-    const replaces = link.replacesDepId;
-    const fromStageId = link.fromStageId;
-    const fromSide = link.fromSide;
-    setLink(null);
-    setLinkHoverStage(null);
+    const activeLink = linkRef.current;
+    if (!activeLink) return;
+    const target = linkHoverStageRef.current;
+    const toSide = activeLink.toSide;
+    const replaces = activeLink.replacesDepId;
+    const fromStageId = activeLink.fromStageId;
+    const fromSide = activeLink.fromSide;
+    const direction = activeLink.direction ?? "outgoing";
+    updateLink(null);
+    updateLinkHoverStage(null);
     if (!target || target === fromStageId || !toSide) return;
-    const type = inferDepType(fromSide, toSide);
+    const predecessor_id = direction === "incoming" ? target : fromStageId;
+    const successor_id = direction === "incoming" ? fromStageId : target;
+    const type = direction === "incoming" ? inferDepType(toSide, fromSide) : inferDepType(fromSide, toSide);
     const create = () =>
       adapter
-        .createDependency({ predecessor_id: fromStageId, successor_id: target, type, lag_days: 0 })
+        .createDependency({ predecessor_id, successor_id, type, lag_days: 0 })
         .then(() => toast.success(t("gantt.toasts.linkCreated")))
         .catch((err: unknown) => toast.error((err as Error).message));
     if (replaces && adapter.deleteDependency) {
