@@ -161,9 +161,9 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     queryKey: ["fee-proposal-summary", quoteId],
     enabled: !!quoteId,
     queryFn: async () => {
-      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { eq: (c: string, v: string) => { single: () => Promise<{ data: { pricing_multiplier: number | null; valor: number | null; quote_category: string | null } | null; error: { message: string } | null }> } } } })
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { eq: (c: string, v: string) => { single: () => Promise<{ data: { pricing_multiplier: number | null; valor: number | null; quote_category: string | null; default_vat_rate: number | null; default_payment_terms: string | null; first_payment_terms: string | null } | null; error: { message: string } | null }> } } } })
         .from("fee_proposals")
-        .select("pricing_multiplier,valor,quote_category")
+        .select("pricing_multiplier,valor,quote_category,default_vat_rate,default_payment_terms,first_payment_terms")
         .eq("id", quoteId)
         .single();
       if (error) throw new Error(error.message);
@@ -178,6 +178,12 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const allocations = allocationsQ.data ?? [];
   const externals = externalsQ.data ?? [];
   const pricingMultiplier = Number(quoteQ.data?.pricing_multiplier ?? 1) || 1;
+  const defaultVatRate = Number(quoteQ.data?.default_vat_rate ?? 23) || 23;
+  const paymentDefaults: PaymentDefaults = {
+    vatRate: defaultVatRate,
+    defaultTerms: quoteQ.data?.default_payment_terms ?? "30 (trinta) dias de calendário",
+    firstPaymentTerms: quoteQ.data?.first_payment_terms ?? "Pronto pagamento",
+  };
   const rollup = rollupQuote({
     allocations,
     externalServices: externals,
@@ -189,6 +195,28 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   // Roll children up into their parent bars (calculated/fixed budget mode),
   // then merge so per-item amount resolution can look up either map.
   const stageFees = { ...leafStageFees, ...rolledUpBillableFees(stages, leafStageFees) };
+
+  // Supplier names for grouped outflow rows in the proposal view.
+  const supplierIds = Array.from(
+    new Set(
+      items
+        .map((it) => (it as unknown as { supplier_company_id?: string | null }).supplier_company_id)
+        .filter((x): x is string => !!x),
+    ),
+  );
+  const suppliersQ = useQuery({
+    queryKey: ["payment-schedule-suppliers", quoteId, supplierIds.sort().join(",")],
+    enabled: supplierIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { in: (c: string, v: string[]) => Promise<{ data: { id: string; name: string }[] | null; error: { message: string } | null }> } } })
+        .from("companies")
+        .select("id,name")
+        .in("id", supplierIds);
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    },
+  });
+  const suppliers = (suppliersQ.data ?? []).map((c) => ({ id: c.id, name: c.name }));
 
   const scheduleTotal = items.reduce(
     (sum, it) =>
