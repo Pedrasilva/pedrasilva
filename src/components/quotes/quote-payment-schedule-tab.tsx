@@ -707,6 +707,88 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         </CardContent>
       </Card>
 
+      {/* Architecture — net revenue per stage (inflows minus supplier outflows) */}
+      {(() => {
+        const inflows = items.filter((it) => ((it as unknown as { direction?: string }).direction ?? "inflow") === "inflow");
+        const outflows = items.filter((it) => (it as unknown as { direction?: string }).direction === "outflow");
+        if (inflows.length === 0) return null;
+        const amt = (it: typeof items[number]) => resolveScheduleItemAmount(
+          { amount_type: it.amount_type, amount_value: Number(it.amount_value ?? 0), trigger_type: it.trigger_type, stage_id: it.stage_id },
+          totalFee, stageFees,
+        );
+        // Aggregate per stage
+        const byStage = new Map<string, { name: string; inflow: number; outflow: number }>();
+        const keyOf = (sid: string | null | undefined) => sid ?? "__none__";
+        const nameOf = (sid: string | null | undefined) =>
+          sid ? stages.find((s) => s.id === sid)?.name ?? "—" : "—";
+        for (const it of inflows) {
+          const k = keyOf(it.stage_id);
+          const cur = byStage.get(k) ?? { name: nameOf(it.stage_id), inflow: 0, outflow: 0 };
+          cur.inflow += amt(it);
+          byStage.set(k, cur);
+        }
+        for (const it of outflows) {
+          const k = keyOf(it.stage_id);
+          const cur = byStage.get(k) ?? { name: nameOf(it.stage_id), inflow: 0, outflow: 0 };
+          cur.outflow += amt(it);
+          byStage.set(k, cur);
+        }
+        const rows = Array.from(byStage.values());
+        const totalIn = rows.reduce((s, r) => s + r.inflow, 0);
+        const totalOut = rows.reduce((s, r) => s + r.outflow, 0);
+        const totalArch = totalIn - totalOut;
+        return (
+          <Card>
+            <CardHeader className="py-3 flex flex-row items-center justify-between space-y-0">
+              <CardTitle className="text-base">
+                {t("workspace.payment.architectureTitle", { defaultValue: "Architecture — revenue per stage" })}
+              </CardTitle>
+              <div className="text-sm font-semibold tabular-nums">{formatEUR(totalArch)}</div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("common.stage")}</TableHead>
+                    <TableHead className="text-right">
+                      {t("workspace.payment.archInflowCol", { defaultValue: "Money in" })}
+                    </TableHead>
+                    <TableHead className="text-right">
+                      {t("workspace.payment.archSuppliersCol", { defaultValue: "Suppliers" })}
+                    </TableHead>
+                    <TableHead className="text-right">
+                      {t("workspace.payment.archNetCol", { defaultValue: "Architecture" })}
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((r, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className="font-medium">{r.name}</TableCell>
+                      <TableCell className="text-right tabular-nums">{formatEUR(r.inflow)}</TableCell>
+                      <TableCell className="text-right tabular-nums text-muted-foreground">
+                        {r.outflow > 0 ? `− ${formatEUR(r.outflow)}` : "—"}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums font-semibold">
+                        {formatEUR(r.inflow - r.outflow)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
+                    <TableCell>Total</TableCell>
+                    <TableCell className="text-right tabular-nums">{formatEUR(totalIn)}</TableCell>
+                    <TableCell className="text-right tabular-nums text-muted-foreground">
+                      {totalOut > 0 ? `− ${formatEUR(totalOut)}` : "—"}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">{formatEUR(totalArch)}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        );
+      })()}
+
       {/* Suppliers — outflows grouped by supplier (broken-down payouts) */}
       {(() => {
         const outflows = items.filter((it) => (it as unknown as { direction?: string }).direction === "outflow");
