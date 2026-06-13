@@ -377,6 +377,9 @@ export function GanttChart({
       setDraftDates((m) => {
         const next = new Map(m);
         next.delete(drag.id);
+        if (drag.type === "stage-move" && hierarchy?.get(drag.id)?.isSummary) {
+          for (const d of collectDescendants(drag.id)) next.delete(d.id);
+        }
         return next;
       });
       return;
