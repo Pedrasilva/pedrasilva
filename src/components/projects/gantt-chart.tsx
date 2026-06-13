@@ -396,7 +396,21 @@ export function GanttChart({
       const en = addDays(origEnd, days);
       if (en >= origStart) newEnd = format(en, "yyyy-MM-dd");
     }
-    setDraftDates((m) => new Map(m).set(drag.id, { start: newStart, end: newEnd }));
+    setDraftDates((m) => {
+      const next = new Map(m).set(drag.id, { start: newStart, end: newEnd });
+      // When moving a summary (parent) bar, shift all descendants by the
+      // same delta so the preview shows the entire group sliding together.
+      if (drag.type === "stage-move" && hierarchy?.get(drag.id)?.isSummary) {
+        for (const d of collectDescendants(drag.id)) {
+          if (hierarchy?.get(d.id)?.isSummary) continue;
+          next.set(d.id, {
+            start: format(addDays(new Date(d.start_date), days), "yyyy-MM-dd"),
+            end: format(addDays(new Date(d.end_date), days), "yyyy-MM-dd"),
+          });
+        }
+      }
+      return next;
+    });
   }
 
   function startLinkDrag(e: React.PointerEvent, fromStageId: string, fromSide: "start" | "end") {
