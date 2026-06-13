@@ -22,7 +22,7 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, ArrowUp, ArrowDown, Wand2, Pencil } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Wand2, Pencil, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import {
   useQuotePaymentSchedule,
@@ -237,13 +237,41 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const stagePmSuppliers = stageSuppliersQ.data ?? [];
   const stageSupplierName = (sid: string) =>
     stagePmSuppliers.find((c) => c.id === sid)?.name ?? "Supplier";
-  const supplierLookupReady = stageSupplierIds.length === 0 || stageSuppliersQ.isSuccess;
+
+  // Fetch companies for legacy `supplier_company_id` on stages (A2P, A400, etc.)
+  const stageCompanyIds = Array.from(
+    new Set(
+      stages
+        .map((s) => (s as SupplierStage).supplier_company_id)
+        .filter((x): x is string => !!x),
+    ),
+  );
+  const stageCompaniesQ = useQuery({
+    queryKey: ["stage-companies", quoteId, stageCompanyIds.sort().join(",")],
+    enabled: stageCompanyIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { in: (c: string, v: string[]) => Promise<{ data: { id: string; nome: string }[] | null; error: { message: string } | null }> } } })
+        .from("companies")
+        .select("id,nome")
+        .in("id", stageCompanyIds);
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    },
+  });
+  const stageCompaniesList = stageCompaniesQ.data ?? [];
+  const stageCompanyName = (cid: string) =>
+    stageCompaniesList.find((c) => c.id === cid)?.nome ?? "Supplier";
+
+  const supplierLookupReady =
+    (stageSupplierIds.length === 0 || stageSuppliersQ.isSuccess) &&
+    (stageCompanyIds.length === 0 || stageCompaniesQ.isSuccess);
 
   // Walk up the parent chain to inherit supplier intent.
   // Returns the closest non-empty signal, or null = default self.
   type InheritedSupplier =
     | { kind: "self" }
     | { kind: "supplier"; supplierId: string }
+    | { kind: "company"; companyId: string }
     | { kind: "placeholder"; label: string };
   const stageById = new Map(stages.map((s) => [s.id, s as SupplierStage]));
   const childCount = (id: string) =>
@@ -260,6 +288,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     while (current) {
       if (current.is_self) return { kind: "self" };
       if (current.supplier_id) return { kind: "supplier", supplierId: current.supplier_id };
+      if (current.supplier_company_id) return { kind: "company", companyId: current.supplier_company_id };
       const ph = (current.supplier_placeholder ?? "").trim();
       if (ph) return { kind: "placeholder", label: ph };
       current = current.parent_stage_id ? stageById.get(current.parent_stage_id) : undefined;
@@ -268,7 +297,10 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   };
   // Synthetic key used to group outflows (real FKs vs free-text labels).
   const supplierKey = (s: InheritedSupplier) =>
-    s.kind === "supplier" ? `pm:${s.supplierId}` : s.kind === "placeholder" ? `ph:${s.label.toLowerCase()}` : "self";
+    s.kind === "supplier" ? `pm:${s.supplierId}`
+      : s.kind === "company" ? `co:${s.companyId}`
+      : s.kind === "placeholder" ? `ph:${s.label.toLowerCase()}`
+      : "self";
   const hasFixedAncestorSameSupplier = (stage: SupplierStage, key: string) => {
     let current = stage.parent_stage_id ? stageById.get(stage.parent_stage_id) : undefined;
     while (current) {
@@ -299,15 +331,17 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         : Number(stageFees[s.id] ?? 0) || ownBudget;
       if (amount <= 0) return null;
       const billingStageId = topLevelStageId(s);
-      const displayName = inh.kind === "supplier" ? stageSupplierName(inh.supplierId) : inh.label;
+      const displayName =
+        inh.kind === "supplier" ? stageSupplierName(inh.supplierId)
+        : inh.kind === "company" ? stageCompanyName(inh.companyId)
+        : inh.label;
 
       return {
         id: `stage-supplier-${s.id}`,
         quote_id: quoteId,
         stage_id: billingStageId,
-        // Clean fields the generator now understands directly
         supplier_id: inh.kind === "supplier" ? inh.supplierId : null,
-        supplier_company_id: null,
+        supplier_company_id: inh.kind === "company" ? inh.companyId : null,
         supplier_placeholder: inh.kind === "placeholder" ? inh.label : null,
         description: s.name,
         quantity: 1,
@@ -315,7 +349,10 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         sale_price: amount,
         markup_type: "amount",
         markup_value: 0,
-        supplier: inh.kind === "supplier" ? { id: inh.supplierId, name: displayName } : null,
+        supplier:
+          inh.kind === "supplier" ? { id: inh.supplierId, name: displayName }
+          : inh.kind === "company" ? { id: inh.companyId, name: displayName }
+          : null,
       } as unknown as typeof externals[number];
 
     })
@@ -462,16 +499,20 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         .map((it) => outflowKey(it as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null }))
         .filter(Boolean),
     );
+    const stageOutflowKey = (so: { supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null }) =>
+      so.supplier_id ? `pm:${so.supplier_id}`
+      : so.supplier_company_id ? `co:${so.supplier_company_id}`
+      : so.supplier_placeholder ? `ph:${so.supplier_placeholder.toLowerCase()}` : "";
     const missingRows = stageOnlyOutflows.filter((o) => {
-      const so = o as unknown as { supplier_id?: string | null; supplier_placeholder?: string | null };
-      const key = so.supplier_id ? `pm:${so.supplier_id}` : so.supplier_placeholder ? `ph:${so.supplier_placeholder.toLowerCase()}` : "";
+      const so = o as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null };
+      const key = stageOutflowKey(so);
       return key && !existingKeys.has(key);
     });
     if (missingRows.length === 0) return;
 
     const syncKey = missingRows.map((o) => {
-      const oa = o as unknown as { stage_id?: string | null; supplier_id?: string | null; supplier_placeholder?: string | null; purchase_price?: number | null };
-      return `${oa.stage_id}:${oa.supplier_id ?? ""}:${oa.supplier_placeholder ?? ""}:${oa.purchase_price}`;
+      const oa = o as unknown as { stage_id?: string | null; supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null; purchase_price?: number | null };
+      return `${oa.stage_id}:${oa.supplier_id ?? ""}:${oa.supplier_company_id ?? ""}:${oa.supplier_placeholder ?? ""}:${oa.purchase_price}`;
     }).join("|");
     if (supplierSyncRef.current === syncKey) return;
     supplierSyncRef.current = syncKey;
@@ -487,6 +528,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       const oa = o as unknown as {
         stage_id?: string | null;
         supplier_id?: string | null;
+        supplier_company_id?: string | null;
         supplier_placeholder?: string | null;
         purchase_price?: number | null;
         description?: string | null;
@@ -504,7 +546,8 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         sort_order: baseSort + i,
         direction: "outflow",
         supplier_id: oa.supplier_id ?? null,
-        supplier_label: oa.supplier_id ? null : (oa.supplier_placeholder ?? null),
+        supplier_company_id: oa.supplier_company_id ?? null,
+        supplier_label: (oa.supplier_id || oa.supplier_company_id) ? null : (oa.supplier_placeholder ?? null),
         generator_source: generatorSource,
         manual_override: false,
         vat_rate: paymentDefaults.vatRate,
@@ -512,6 +555,32 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       });
     })).catch((e) => console.error("supplier sync failed", e));
   }, [itemsQ.isLoading, stagesQ.isLoading, supplierLookupReady, items, stageOnlyOutflows, upsert, applyGen.isPending, paymentDefaults, quoteId]);
+
+  // Manual "Update from Gantt" button: force the additive sync to re-run
+  // (clears the dedupe ref) and toast the result.
+  const syncFromGantt = async () => {
+    supplierSyncRef.current = null;
+    const outflowKey = (row: { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null }) =>
+      row.supplier_id ? `pm:${row.supplier_id}`
+      : row.supplier_company_id ? `co:${row.supplier_company_id}`
+      : row.supplier_label ? `ph:${row.supplier_label.toLowerCase()}` : "";
+    const existing = new Set(
+      items
+        .filter((it) => (it as unknown as { direction?: string }).direction === "outflow")
+        .map((it) => outflowKey(it as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null }))
+        .filter(Boolean),
+    );
+    const missing = stageOnlyOutflows.filter((o) => {
+      const so = o as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null };
+      const k = so.supplier_id ? `pm:${so.supplier_id}` : so.supplier_company_id ? `co:${so.supplier_company_id}` : so.supplier_placeholder ? `ph:${so.supplier_placeholder.toLowerCase()}` : "";
+      return k && !existing.has(k);
+    });
+    if (missing.length === 0) {
+      toast.success(t("workspace.payment.syncedNoChange", { defaultValue: "Schedule already up to date with the Gantt" }));
+      return;
+    }
+    toast.success(t("workspace.payment.synced", { defaultValue: `Added ${missing.length} supplier row(s) from the Gantt`, count: missing.length }));
+  };
 
   const handleAdd = async () => {
     if (!draft.label.trim()) return toast.error(t("workspace.payment.errorLabel"));
@@ -687,13 +756,25 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 py-3">
           <CardTitle className="text-base">{t("workspace.payment.title")}</CardTitle>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button size="sm" variant="outline" className="gap-2">
-                <Wand2 className="h-3.5 w-3.5" />
-                {t("workspace.payment.generators")}
-              </Button>
-            </PopoverTrigger>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              onClick={syncFromGantt}
+              disabled={upsert.isPending || applyGen.isPending}
+              title={t("workspace.payment.syncFromGanttHint", { defaultValue: "Pull any missing suppliers from the planning Gantt into the schedule" })}
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              {t("workspace.payment.syncFromGantt", { defaultValue: "Update from Gantt" })}
+            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button size="sm" variant="outline" className="gap-2">
+                  <Wand2 className="h-3.5 w-3.5" />
+                  {t("workspace.payment.generators")}
+                </Button>
+              </PopoverTrigger>
             <PopoverContent align="end" className="w-[640px] p-4 space-y-3">
               <div className="flex flex-wrap items-center gap-2">
                 {quoteQ.data?.quote_category !== "retainer" && (
@@ -795,6 +876,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
               )}
             </PopoverContent>
           </Popover>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4 pt-0">
 
