@@ -315,7 +315,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         sale_price: amount,
         markup_type: "amount",
         markup_value: 0,
-        supplier: inh.kind === "supplier" ? { id: inh.supplierId, name: displayName2 } : null,
+        supplier: inh.kind === "supplier" ? { id: inh.supplierId, name: displayName } : null,
       } as unknown as typeof externals[number];
 
     })
