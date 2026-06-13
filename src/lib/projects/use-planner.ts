@@ -479,9 +479,14 @@ export function useCreateDependency() {
         .select()
         .single();
       if (error) throw error;
+      await cascadeProjectFromPredecessor(input.predecessor_id);
       return data as unknown as StageDependency;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-allocations-all"] });
+    },
   });
 }
 
@@ -502,9 +507,14 @@ export function useUpdateDependency() {
         .select()
         .single();
       if (error) throw error;
+      await cascadeProjectFromPredecessor((data as unknown as StageDependency).predecessor_id);
       return data as unknown as StageDependency;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["pm-stage-dependencies"] });
+      qc.invalidateQueries({ queryKey: ["pm-stages-all"] });
+      qc.invalidateQueries({ queryKey: ["pm-allocations-all"] });
+    },
   });
 }
 
