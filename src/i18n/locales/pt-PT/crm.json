@@ -589,7 +589,7 @@
       "noSupplier": "Sem fornecedor"
     },
     "payment": {
-      "title": "Plano de pagamentos",
+      "title": "Plano de facturação ao cliente",
       "label": "Etiqueta",
       "trigger": "Gatilho",
       "amount": "Montante",
