@@ -469,14 +469,26 @@ export function GanttChart({
     if (!link) return;
     const target = linkHoverStage;
     const toSide = link.toSide;
+    const replaces = link.replacesDepId;
+    const fromStageId = link.fromStageId;
+    const fromSide = link.fromSide;
     setLink(null);
     setLinkHoverStage(null);
-    if (!target || target === link.fromStageId || !toSide) return;
-    const type = inferDepType(link.fromSide, toSide);
-    adapter
-      .createDependency({ predecessor_id: link.fromStageId, successor_id: target, type, lag_days: 0 })
-      .then(() => toast.success(t("gantt.toasts.linkCreated")))
-      .catch((err: unknown) => toast.error((err as Error).message));
+    if (!target || target === fromStageId || !toSide) return;
+    const type = inferDepType(fromSide, toSide);
+    const create = () =>
+      adapter
+        .createDependency({ predecessor_id: fromStageId, successor_id: target, type, lag_days: 0 })
+        .then(() => toast.success(t("gantt.toasts.linkCreated")))
+        .catch((err: unknown) => toast.error((err as Error).message));
+    if (replaces && adapter.deleteDependency) {
+      adapter
+        .deleteDependency(replaces)
+        .then(create)
+        .catch((err: unknown) => toast.error((err as Error).message));
+    } else {
+      create();
+    }
   }
 
   async function commitDrag() {
