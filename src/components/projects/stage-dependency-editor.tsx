@@ -216,7 +216,7 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
                 <SelectContent>
                   {eligible.map((s) => (
                     <SelectItem key={s.id} value={s.id} className="text-xs">
-                      {s.name}
+                      {labelFor(s.id)}
                     </SelectItem>
                   ))}
                 </SelectContent>
