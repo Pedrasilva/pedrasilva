@@ -348,7 +348,8 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
           ? Number(milestoneOpts.downPaymentPercent) || 0
           : 0,
         deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
-        externalServices: externals,
+        externalServices: effectiveExternals,
+
         paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
       }),
       paymentDefaults,
