@@ -355,6 +355,9 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       });
     }
 
+    generated = applyPaymentDefaults(generated, paymentDefaults);
+
+
     if (generated.length === 0) {
       toast.error(t("workspace.payment.generatorEmpty"));
       return;
