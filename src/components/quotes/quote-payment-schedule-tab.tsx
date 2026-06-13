@@ -357,7 +357,14 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     } else if (kind === "monthly") {
       generated = generateMonthly(stages);
     } else if (kind === "by_stage_billing") {
-      generated = generateByStageBilling(stages, stageFees);
+      generated = generateByStageBilling(stages, stageFees, {
+        downPaymentPercent: milestoneOpts.downPaymentEnabled
+          ? Number(milestoneOpts.downPaymentPercent) || 0
+          : 0,
+        deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
+        externalServices: externals,
+        paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
+      });
     } else if (kind === "architecture_with_consultants") {
       generated = generateArchitectureWithConsultants(stages, externals, stageFees, {
         downPaymentPercent: Number(milestoneOpts.downPaymentPercent) || 0,
