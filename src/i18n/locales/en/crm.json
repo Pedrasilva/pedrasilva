@@ -589,7 +589,7 @@
       "noSupplier": "No supplier"
     },
     "payment": {
-      "title": "Payment schedule",
+      "title": "Client billing schedule",
       "label": "Label",
       "trigger": "Trigger",
       "amount": "Amount",
