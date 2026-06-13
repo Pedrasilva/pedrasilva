@@ -222,22 +222,56 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs">
+          <div className="space-y-2 rounded-md border bg-muted/20 p-2.5">
+            <Label className="text-xs font-medium">
               {t("workspace.planning.supplier", { defaultValue: "Supplier" })}
             </Label>
-            <CompanyPicker
-              value={(stage as { supplier_company_id?: string | null }).supplier_company_id ?? null}
-              onChange={(companyId) =>
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                upsertStage.mutate({ id: stage.id, supplier_company_id: companyId } as any)
-              }
-              placeholder={t("workspace.planning.supplierPlaceholder", { defaultValue: "Pedra Silva Arquitectos (us)" })}
-            />
-            <p className="text-[11px] text-muted-foreground">
-              {t("workspace.planning.supplierHint", { defaultValue: "Defaults to ourselves; pick a third-party to derive an outflow." })}
-            </p>
+            <label className="flex items-center gap-2 text-xs">
+              <input
+                type="checkbox"
+                checked={!!(stage as { is_self?: boolean }).is_self}
+                onChange={(e) => {
+                  const on = e.target.checked;
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  upsertStage.mutate({
+                    id: stage.id,
+                    is_self: on,
+                    ...(on ? { supplier_id: null, supplier_placeholder: null } : {}),
+                  } as any);
+                }}
+              />
+              {t("workspace.planning.supplierIsSelf", { defaultValue: "This is us (architecture credit, no outflow)" })}
+            </label>
+            {!(stage as { is_self?: boolean }).is_self && (
+              <>
+                <SupplierPicker
+                  value={(stage as { supplier_id?: string | null }).supplier_id ?? null}
+                  onChange={(supplierId) =>
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    upsertStage.mutate({ id: stage.id, supplier_id: supplierId } as any)
+                  }
+                />
+                <div className="space-y-1">
+                  <Label className="text-[11px] text-muted-foreground">
+                    {t("workspace.planning.supplierPlaceholderLabel", { defaultValue: "Or, if supplier not yet known, describe the role" })}
+                  </Label>
+                  <Input
+                    className="h-8 text-xs"
+                    placeholder={t("workspace.planning.supplierPlaceholderHint", { defaultValue: "e.g. MEP consultant, Structural engineer" })}
+                    value={(stage as { supplier_placeholder?: string | null }).supplier_placeholder ?? ""}
+                    onChange={(e) =>
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      upsertStage.mutate({ id: stage.id, supplier_placeholder: e.target.value || null } as any)
+                    }
+                  />
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  {t("workspace.planning.supplierHintV2", { defaultValue: "Pick a supplier from the master directory, or use a placeholder name until known. Either way, an outflow commitment is generated." })}
+                </p>
+              </>
+            )}
           </div>
+
 
 
           <div className="space-y-1">
