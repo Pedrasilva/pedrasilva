@@ -401,6 +401,40 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     applyGen.mutate({ generator: "by_stage_billing", items: generated });
   }, [itemsQ.isLoading, stagesQ.isLoading, items.length, stages, stageFees, applyGen]);
 
+  const supplierSyncRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (itemsQ.isLoading || stagesQ.isLoading || stageSupplierCompaniesQ.isLoading) return;
+    if (applyGen.isPending || stageOnlyOutflows.length === 0) return;
+    const outflows = items.filter((it) => (it as unknown as { direction?: string }).direction === "outflow");
+    if (outflows.length > 0) return;
+    if (items.some((it) => it.manual_override)) return;
+    const source = items.find((it) => it.generator_source === "architecture_with_consultants")
+      ? "architecture_with_consultants"
+      : items.find((it) => it.generator_source === "by_stage_billing")
+        ? "by_stage_billing"
+        : null;
+    if (!source) return;
+    const syncKey = `${source}:${stageOnlyOutflows.map((o) => `${o.stage_id}:${(o as unknown as { supplier_company_id?: string | null }).supplier_company_id}:${(o as unknown as { purchase_price?: number | null }).purchase_price}`).join("|")}`;
+    if (supplierSyncRef.current === syncKey) return;
+    supplierSyncRef.current = syncKey;
+    const generated = source === "architecture_with_consultants"
+      ? generateArchitectureWithConsultants(stages, effectiveExternals, stageFees, {
+        downPaymentPercent: Number(milestoneOpts.downPaymentPercent) || 0,
+        paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
+      })
+      : generateByStageBilling(stages, stageFees, {
+        downPaymentPercent: milestoneOpts.downPaymentEnabled
+          ? Number(milestoneOpts.downPaymentPercent) || 0
+          : 0,
+        deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
+        externalServices: effectiveExternals,
+        paymentOffsetDays: Number(milestoneOpts.paymentTermsDays) || 30,
+      });
+    if (generated.some((it) => it.direction === "outflow")) {
+      applyGen.mutate({ generator: source, items: applyPaymentDefaults(generated, paymentDefaults), replaceAll: true });
+    }
+  }, [itemsQ.isLoading, stagesQ.isLoading, stageSupplierCompaniesQ.isLoading, items, stages, stageFees, stageOnlyOutflows, effectiveExternals, applyGen]);
+
   const handleAdd = async () => {
     if (!draft.label.trim()) return toast.error(t("workspace.payment.errorLabel"));
     if (stageRequired && !draft.stage_id)
