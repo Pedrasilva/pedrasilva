@@ -62,6 +62,39 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
 
   const adapter = useQuotePlannerAdapter(quoteId, resources);
   const upsertStage = useUpsertQuoteStage(quoteId);
+  const qc = useQueryClient();
+  const [reflowing, setReflowing] = useState(false);
+
+  const handleReflow = useCallback(async () => {
+    setReflowing(true);
+    try {
+      const res = await reflowQuoteSchedule(quoteId);
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["quote-stages", quoteId] }),
+        qc.invalidateQueries({ queryKey: ["quote-allocations", quoteId] }),
+        qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] }),
+        qc.invalidateQueries({ queryKey: ["quote-financials", quoteId] }),
+      ]);
+      if (res.updatedStageCount === 0) {
+        toast.success(
+          t("workspace.planning.reflow.alreadyAligned", {
+            defaultValue: "Schedule already satisfies all dependencies.",
+          }),
+        );
+      } else {
+        toast.success(
+          t("workspace.planning.reflow.done", {
+            count: res.updatedStageCount,
+            defaultValue: "Reflowed {{count}} stage(s) to honour dependencies.",
+          }),
+        );
+      }
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setReflowing(false);
+    }
+  }, [quoteId, qc, t]);
 
   const stages = stagesQ.data ?? [];
   const allocations = allocQ.data ?? [];
