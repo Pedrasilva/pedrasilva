@@ -111,20 +111,11 @@ export function QuotePlanningTab({
   }, [isRetainer, stagesQ.isSuccess, retainerStages.length]);
 
   return (
-    <div className="space-y-6">
-      {!isRetainer && (
-        <>
-          <QuoteWarningsBanner warnings={warnings} />
-          <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-            {t("workspace.planning.feeDriverHint", {
-              defaultValue: "Your fee is driven by team time and external services.",
-            })}
-          </div>
-        </>
-      )}
+    <div className="space-y-2">
+      {!isRetainer && <QuoteWarningsBanner warnings={warnings} />}
 
       {retainerStages.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {retainerStages.map((s) => (
             <RetainerStageEditor
               key={s.id}
@@ -168,20 +159,11 @@ export function QuotePlanningTab({
       )}
 
       {!isRetainer && (
-        <>
-          <div className="flex justify-end">
-            <Button variant="outline" size="sm" onClick={handleAddRetainerStage}>
-              <Plus className="h-4 w-4 mr-1" />
-              {t("workspace.planning.retainerMonthly.addStage", {
-                defaultValue: "Add retainer phase",
-              })}
-            </Button>
-          </div>
-
-          {/* Single planning surface: Gantt outline + inspector drawer.
-              Replaces consultants panel and stages/deps/allocations tables. */}
-          <QuoteGantt quoteId={quoteId} />
-        </>
+        /* Single planning surface: Gantt outline + inspector drawer. */
+        <QuoteGantt
+          quoteId={quoteId}
+          onAddRetainerPhase={handleAddRetainerStage}
+        />
       )}
     </div>
   );
