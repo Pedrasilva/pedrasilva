@@ -31,6 +31,9 @@ export type QuotePaymentItemInsert = {
   supplier_company_id?: string | null;
   linked_payment_item_id?: string | null;
   payment_offset_days?: number;
+  vat_rate?: number;
+  vat_rate_override?: boolean;
+  payment_terms?: string | null;
 };
 
 export type QuotePaymentItemUpdate = Partial<QuotePaymentItemInsert> & {
@@ -152,6 +155,8 @@ export function useApplyPaymentGenerator(quoteId: string) {
         manual_override: false,
         direction: it.direction ?? "inflow",
         supplier_company_id: it.supplier_company_id ?? null,
+        vat_rate: it.vat_rate ?? 23,
+        payment_terms: it.payment_terms ?? null,
       }));
       const { data, error } = await db
         .from("quote_payment_schedule_items")

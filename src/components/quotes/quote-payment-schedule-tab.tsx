@@ -43,9 +43,11 @@ import {
   generateArchitectureWithConsultants,
   computeStageFees,
   resolveScheduleItemAmount,
+  applyPaymentDefaults,
   DEFAULT_STAGE_MILESTONE_OPTIONS,
   type GeneratorKind,
   type GeneratorItem,
+  type PaymentDefaults,
 } from "@/lib/quotes/payment-generators";
 import { rolledUpBillableFees } from "@/lib/quotes/stage-billing";
 import {
@@ -53,6 +55,7 @@ import {
   type QuotePaymentTrigger, type QuotePaymentAmountType,
 } from "@/lib/quotes/types";
 import { formatEUR } from "@/lib/crm/types";
+import { PaymentScheduleProposalView } from "./payment-schedule-proposal-view";
 
 function AutoTextarea({
   value,
@@ -158,9 +161,9 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     queryKey: ["fee-proposal-summary", quoteId],
     enabled: !!quoteId,
     queryFn: async () => {
-      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { eq: (c: string, v: string) => { single: () => Promise<{ data: { pricing_multiplier: number | null; valor: number | null; quote_category: string | null } | null; error: { message: string } | null }> } } } })
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { eq: (c: string, v: string) => { single: () => Promise<{ data: { pricing_multiplier: number | null; valor: number | null; quote_category: string | null; default_vat_rate: number | null; default_payment_terms: string | null; first_payment_terms: string | null } | null; error: { message: string } | null }> } } } })
         .from("fee_proposals")
-        .select("pricing_multiplier,valor,quote_category")
+        .select("pricing_multiplier,valor,quote_category,default_vat_rate,default_payment_terms,first_payment_terms")
         .eq("id", quoteId)
         .single();
       if (error) throw new Error(error.message);
@@ -175,6 +178,12 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const allocations = allocationsQ.data ?? [];
   const externals = externalsQ.data ?? [];
   const pricingMultiplier = Number(quoteQ.data?.pricing_multiplier ?? 1) || 1;
+  const defaultVatRate = Number(quoteQ.data?.default_vat_rate ?? 23) || 23;
+  const paymentDefaults: PaymentDefaults = {
+    vatRate: defaultVatRate,
+    defaultTerms: quoteQ.data?.default_payment_terms ?? "30 (trinta) dias de calendário",
+    firstPaymentTerms: quoteQ.data?.first_payment_terms ?? "Pronto pagamento",
+  };
   const rollup = rollupQuote({
     allocations,
     externalServices: externals,
@@ -186,6 +195,28 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   // Roll children up into their parent bars (calculated/fixed budget mode),
   // then merge so per-item amount resolution can look up either map.
   const stageFees = { ...leafStageFees, ...rolledUpBillableFees(stages, leafStageFees) };
+
+  // Supplier names for grouped outflow rows in the proposal view.
+  const supplierIds = Array.from(
+    new Set(
+      items
+        .map((it) => (it as unknown as { supplier_company_id?: string | null }).supplier_company_id)
+        .filter((x): x is string => !!x),
+    ),
+  );
+  const suppliersQ = useQuery({
+    queryKey: ["payment-schedule-suppliers", quoteId, supplierIds.sort().join(",")],
+    enabled: supplierIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { in: (c: string, v: string[]) => Promise<{ data: { id: string; name: string }[] | null; error: { message: string } | null }> } } })
+        .from("companies")
+        .select("id,name")
+        .in("id", supplierIds);
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    },
+  });
+  const suppliers = (suppliersQ.data ?? []).map((c) => ({ id: c.id, name: c.name }));
 
   const scheduleTotal = items.reduce(
     (sum, it) =>
@@ -244,7 +275,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     if (stages.length === 0) return;
     if (applyGen.isPending) return;
     autoSeededRef.current = true;
-    const generated = generateByStageBilling(stages, stageFees);
+    const generated = applyPaymentDefaults(generateByStageBilling(stages, stageFees), paymentDefaults);
     if (generated.length === 0) return;
     applyGen.mutate({ generator: "by_stage_billing", items: generated });
   }, [itemsQ.isLoading, stagesQ.isLoading, items.length, stages, stageFees, applyGen]);
@@ -324,6 +355,9 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       });
     }
 
+    generated = applyPaymentDefaults(generated, paymentDefaults);
+
+
     if (generated.length === 0) {
       toast.error(t("workspace.payment.generatorEmpty"));
       return;
@@ -385,6 +419,72 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
           )}
         </div>
       )}
+
+      {/* Quote-level billing defaults */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">Predefinições de faturação</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 md:grid-cols-3">
+          <div>
+            <Label className="text-xs">IVA padrão (%)</Label>
+            <Input
+              type="number"
+              step="0.1"
+              min="0"
+              max="100"
+              defaultValue={defaultVatRate}
+              onBlur={async (e) => {
+                const v = Number(e.target.value);
+                if (!Number.isFinite(v) || v < 0 || v > 100) return;
+                await (supabase as unknown as { from: (t: string) => { update: (p: Record<string, unknown>) => { eq: (c: string, val: string) => Promise<{ error: { message: string } | null }> } } })
+                  .from("fee_proposals")
+                  .update({ default_vat_rate: v })
+                  .eq("id", quoteId);
+                quoteQ.refetch();
+              }}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Condições padrão</Label>
+            <Input
+              defaultValue={paymentDefaults.defaultTerms}
+              onBlur={async (e) => {
+                await (supabase as unknown as { from: (t: string) => { update: (p: Record<string, unknown>) => { eq: (c: string, val: string) => Promise<{ error: { message: string } | null }> } } })
+                  .from("fee_proposals")
+                  .update({ default_payment_terms: e.target.value })
+                  .eq("id", quoteId);
+                quoteQ.refetch();
+              }}
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Condições do primeiro pagamento</Label>
+            <Input
+              defaultValue={paymentDefaults.firstPaymentTerms}
+              onBlur={async (e) => {
+                await (supabase as unknown as { from: (t: string) => { update: (p: Record<string, unknown>) => { eq: (c: string, val: string) => Promise<{ error: { message: string } | null }> } } })
+                  .from("fee_proposals")
+                  .update({ first_payment_terms: e.target.value })
+                  .eq("id", quoteId);
+                quoteQ.refetch();
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Proposal-style read-only layout (mirrors printed proposal) */}
+      <PaymentScheduleProposalView
+        items={items}
+        stages={stages}
+        totalFee={totalFee}
+        stageFees={stageFees}
+        suppliers={suppliers}
+        defaultVatRate={defaultVatRate}
+      />
+
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
           <CardTitle className="text-base">{t("workspace.payment.title")}</CardTitle>
@@ -529,17 +629,28 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-12" />
-                <TableHead className="min-w-[260px]">{t("workspace.payment.label")}</TableHead>
+                <TableHead className="min-w-[240px]">{t("workspace.payment.label")}</TableHead>
                 <TableHead>{t("workspace.payment.trigger")}</TableHead>
                 <TableHead>{t("common.stage")}</TableHead>
                 <TableHead className="text-right">{t("workspace.payment.amount")}</TableHead>
+                <TableHead className="text-right w-20">IVA %</TableHead>
+                <TableHead className="text-right">Valor c/ IVA</TableHead>
                 <TableHead>{t("workspace.payment.invoiceDate")}</TableHead>
-                <TableHead>{t("workspace.payment.paymentDate")}</TableHead>
+                <TableHead className="min-w-[160px]">Condições</TableHead>
                 <TableHead className="w-20" />
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((it, i) => (
+              {items.map((it, i) => {
+                const itAny = it as unknown as { vat_rate?: number | null; payment_terms?: string | null };
+                const net = resolveScheduleItemAmount(
+                  { amount_type: it.amount_type, amount_value: Number(it.amount_value ?? 0), trigger_type: it.trigger_type, stage_id: it.stage_id },
+                  totalFee,
+                  stageFees,
+                );
+                const vat = Number(itAny.vat_rate ?? defaultVatRate);
+                const gross = net + (net * vat) / 100;
+                return (
                 <TableRow key={it.id} className="align-top">
                   <TableCell>
                     <div className="flex flex-col">
@@ -585,13 +696,43 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                   <TableCell>
                     {it.stage_id ? stages.find((s) => s.id === it.stage_id)?.name ?? "—" : "—"}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right tabular-nums">
                     {it.amount_type === "percent"
                       ? `${Number(it.amount_value)}%`
                       : formatEUR(Number(it.amount_value))}
                   </TableCell>
+                  <TableCell className="text-right">
+                    <Input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      className="h-7 w-16 text-right text-xs"
+                      defaultValue={vat}
+                      onBlur={(e) => {
+                        const v = Number(e.target.value);
+                        if (!Number.isFinite(v) || v < 0 || v > 100) return;
+                        if (v === vat) return;
+                        upsert.mutate({ id: it.id, vat_rate: v, vat_rate_override: true });
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums text-xs">
+                    {formatEUR(gross)}
+                  </TableCell>
                   <TableCell>{it.expected_invoice_date ?? "—"}</TableCell>
-                  <TableCell>{it.expected_payment_date ?? "—"}</TableCell>
+                  <TableCell>
+                    <Input
+                      className="h-7 text-xs"
+                      defaultValue={itAny.payment_terms ?? ""}
+                      placeholder={paymentDefaults.defaultTerms}
+                      onBlur={(e) => {
+                        const v = e.target.value.trim();
+                        if (v === (itAny.payment_terms ?? "")) return;
+                        upsert.mutate({ id: it.id, payment_terms: v || null });
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
                       {!it.manual_override && (
@@ -610,10 +751,11 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
               {items.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-6">
+                  <TableCell colSpan={10} className="text-center text-sm text-muted-foreground py-6">
                     {t("workspace.payment.empty")}
                   </TableCell>
                 </TableRow>

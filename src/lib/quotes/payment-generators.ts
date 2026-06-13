@@ -33,6 +33,71 @@ export interface GeneratorItem {
   direction?: "inflow" | "outflow";
   /** Set on outflow rows so cashflow can attribute payouts to a supplier. */
   supplier_company_id?: string | null;
+  /** VAT % applied to amount (default 23). */
+  vat_rate?: number;
+  /** Free-text payment condition (e.g. "Pronto pagamento", "30 dias"). */
+  payment_terms?: string | null;
+}
+
+/** Quote-level billing defaults (VAT %, payment-term strings). */
+export interface PaymentDefaults {
+  vatRate: number;
+  defaultTerms: string;
+  firstPaymentTerms: string;
+}
+
+export const DEFAULT_PAYMENT_DEFAULTS: PaymentDefaults = {
+  vatRate: 23,
+  defaultTerms: "30 (trinta) dias de calendário",
+  firstPaymentTerms: "Pronto pagamento",
+};
+
+/** Build a descriptive label from trigger + stage name (PT-style). */
+function describeLabel(
+  trigger: GeneratorItem["trigger_type"],
+  stageName: string | null,
+  variant?: "split-start" | "split-end",
+): string {
+  if (trigger === "project_start") return "Adjudicação";
+  if (trigger === "monthly" && stageName) return stageName;
+  if (trigger === "manual_date") return stageName ?? "Pagamento intermédio";
+  if (!stageName) return "Pagamento";
+  if (trigger === "stage_start") {
+    return variant === "split-start"
+      ? `50% — Início da fase de ${stageName}`
+      : `Início da fase de ${stageName}`;
+  }
+  // stage_end
+  return variant === "split-end"
+    ? `50% — Conclusão da fase de ${stageName}`
+    : `Conclusão da fase de ${stageName}`;
+}
+
+/** Stamp a row with VAT + payment-terms defaults. The first emitted row uses
+ *  firstPaymentTerms (e.g. "Pronto pagamento"), subsequent rows use defaultTerms.  */
+function stampDefaults<T extends GeneratorItem>(
+  row: T,
+  defaults: PaymentDefaults | undefined,
+  index: number,
+): T {
+  if (!defaults) return row;
+  return {
+    ...row,
+    vat_rate: row.vat_rate ?? defaults.vatRate,
+    payment_terms:
+      row.payment_terms ??
+      (index === 0 ? defaults.firstPaymentTerms : defaults.defaultTerms),
+  } as T;
+}
+
+/** Apply quote-level defaults (VAT %, payment terms) onto a generated list,
+ *  in place-style (returns a new array). First row uses firstPaymentTerms
+ *  (e.g. "Pronto pagamento"); the rest use defaultTerms. */
+export function applyPaymentDefaults(
+  items: GeneratorItem[],
+  defaults: PaymentDefaults = DEFAULT_PAYMENT_DEFAULTS,
+): GeneratorItem[] {
+  return items.map((row, i) => stampDefaults(row, defaults, i));
 }
 
 export interface StageMilestonesOptions {
@@ -434,7 +499,7 @@ export function generateByStageBilling(
       if (timing === "split") {
         const half = round2(fee / 2);
         items.push({
-          label: `${s.name} — start`,
+          label: describeLabel("stage_start", s.name, "split-start"),
           trigger_type: "stage_start",
           amount_type: "fixed",
           amount_value: half,
@@ -445,7 +510,7 @@ export function generateByStageBilling(
           generator_source: "by_stage_billing",
         });
         items.push({
-          label: `${s.name} — end`,
+          label: describeLabel("stage_end", s.name, "split-end"),
           trigger_type: "stage_end",
           amount_type: "fixed",
           amount_value: round2(fee - half),
@@ -457,7 +522,7 @@ export function generateByStageBilling(
         });
       } else if (timing === "start") {
         items.push({
-          label: s.name,
+          label: describeLabel("stage_start", s.name),
           trigger_type: "stage_start",
           amount_type: "fixed",
           amount_value: fee,
@@ -469,7 +534,7 @@ export function generateByStageBilling(
         });
       } else {
         items.push({
-          label: s.name,
+          label: describeLabel("stage_end", s.name),
           trigger_type: "stage_end",
           amount_type: "fixed",
           amount_value: fee,
@@ -543,7 +608,7 @@ export function generateArchitectureWithConsultants(
     const fee = round2(stageFees[s.id] ?? 0);
     if (fee <= 0) continue;
     items.push({
-      label: s.name,
+      label: describeLabel("stage_end", s.name),
       trigger_type: "stage_end",
       amount_type: "fixed",
       amount_value: fee,
