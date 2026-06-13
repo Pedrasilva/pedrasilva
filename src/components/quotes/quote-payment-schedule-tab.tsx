@@ -237,13 +237,41 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const stagePmSuppliers = stageSuppliersQ.data ?? [];
   const stageSupplierName = (sid: string) =>
     stagePmSuppliers.find((c) => c.id === sid)?.name ?? "Supplier";
-  const supplierLookupReady = stageSupplierIds.length === 0 || stageSuppliersQ.isSuccess;
+
+  // Fetch companies for legacy `supplier_company_id` on stages (A2P, A400, etc.)
+  const stageCompanyIds = Array.from(
+    new Set(
+      stages
+        .map((s) => (s as SupplierStage).supplier_company_id)
+        .filter((x): x is string => !!x),
+    ),
+  );
+  const stageCompaniesQ = useQuery({
+    queryKey: ["stage-companies", quoteId, stageCompanyIds.sort().join(",")],
+    enabled: stageCompanyIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { in: (c: string, v: string[]) => Promise<{ data: { id: string; nome: string }[] | null; error: { message: string } | null }> } } })
+        .from("companies")
+        .select("id,nome")
+        .in("id", stageCompanyIds);
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    },
+  });
+  const stageCompaniesList = stageCompaniesQ.data ?? [];
+  const stageCompanyName = (cid: string) =>
+    stageCompaniesList.find((c) => c.id === cid)?.nome ?? "Supplier";
+
+  const supplierLookupReady =
+    (stageSupplierIds.length === 0 || stageSuppliersQ.isSuccess) &&
+    (stageCompanyIds.length === 0 || stageCompaniesQ.isSuccess);
 
   // Walk up the parent chain to inherit supplier intent.
   // Returns the closest non-empty signal, or null = default self.
   type InheritedSupplier =
     | { kind: "self" }
     | { kind: "supplier"; supplierId: string }
+    | { kind: "company"; companyId: string }
     | { kind: "placeholder"; label: string };
   const stageById = new Map(stages.map((s) => [s.id, s as SupplierStage]));
   const childCount = (id: string) =>
@@ -260,6 +288,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     while (current) {
       if (current.is_self) return { kind: "self" };
       if (current.supplier_id) return { kind: "supplier", supplierId: current.supplier_id };
+      if (current.supplier_company_id) return { kind: "company", companyId: current.supplier_company_id };
       const ph = (current.supplier_placeholder ?? "").trim();
       if (ph) return { kind: "placeholder", label: ph };
       current = current.parent_stage_id ? stageById.get(current.parent_stage_id) : undefined;
@@ -268,7 +297,10 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   };
   // Synthetic key used to group outflows (real FKs vs free-text labels).
   const supplierKey = (s: InheritedSupplier) =>
-    s.kind === "supplier" ? `pm:${s.supplierId}` : s.kind === "placeholder" ? `ph:${s.label.toLowerCase()}` : "self";
+    s.kind === "supplier" ? `pm:${s.supplierId}`
+      : s.kind === "company" ? `co:${s.companyId}`
+      : s.kind === "placeholder" ? `ph:${s.label.toLowerCase()}`
+      : "self";
   const hasFixedAncestorSameSupplier = (stage: SupplierStage, key: string) => {
     let current = stage.parent_stage_id ? stageById.get(stage.parent_stage_id) : undefined;
     while (current) {
@@ -299,15 +331,17 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         : Number(stageFees[s.id] ?? 0) || ownBudget;
       if (amount <= 0) return null;
       const billingStageId = topLevelStageId(s);
-      const displayName = inh.kind === "supplier" ? stageSupplierName(inh.supplierId) : inh.label;
+      const displayName =
+        inh.kind === "supplier" ? stageSupplierName(inh.supplierId)
+        : inh.kind === "company" ? stageCompanyName(inh.companyId)
+        : inh.label;
 
       return {
         id: `stage-supplier-${s.id}`,
         quote_id: quoteId,
         stage_id: billingStageId,
-        // Clean fields the generator now understands directly
         supplier_id: inh.kind === "supplier" ? inh.supplierId : null,
-        supplier_company_id: null,
+        supplier_company_id: inh.kind === "company" ? inh.companyId : null,
         supplier_placeholder: inh.kind === "placeholder" ? inh.label : null,
         description: s.name,
         quantity: 1,
@@ -315,7 +349,10 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         sale_price: amount,
         markup_type: "amount",
         markup_value: 0,
-        supplier: inh.kind === "supplier" ? { id: inh.supplierId, name: displayName } : null,
+        supplier:
+          inh.kind === "supplier" ? { id: inh.supplierId, name: displayName }
+          : inh.kind === "company" ? { id: inh.companyId, name: displayName }
+          : null,
       } as unknown as typeof externals[number];
 
     })
