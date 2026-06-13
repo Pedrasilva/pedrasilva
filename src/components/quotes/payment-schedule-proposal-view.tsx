@@ -203,6 +203,11 @@ export function PaymentScheduleProposalView({
               totalFee={totalFee}
               stageFees={stageFees}
               defaultVatRate={defaultVatRate}
+              showTotalRow
+              labelFor={(it) => {
+                const s = it.stage_id ? stages.find((x) => x.id === it.stage_id) : null;
+                return s?.name ?? it.label;
+              }}
             />
             <p className="text-xs italic text-muted-foreground mt-3">
               NOTA: Entende-se por "Conclusão da fase" a entrega de elementos da
