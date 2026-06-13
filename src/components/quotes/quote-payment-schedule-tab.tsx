@@ -979,8 +979,25 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         const outflows = items.filter((it) => (it as unknown as { direction?: string }).direction === "outflow");
         if (outflows.length === 0) return null;
         const buckets = new Map<string, typeof outflows>();
+        const labelMap = new Map<string, string>();
         for (const o of outflows) {
-          const key = (o as unknown as { supplier_company_id?: string | null }).supplier_company_id ?? "__unassigned__";
+          const oa = o as unknown as { supplier_company_id?: string | null; supplier_id?: string | null; supplier_label?: string | null };
+          let key: string;
+          let label: string;
+          if (oa.supplier_company_id) {
+            key = `c:${oa.supplier_company_id}`;
+          } else if (oa.supplier_id) {
+            key = `s:${oa.supplier_id}`;
+          } else if (oa.supplier_label && oa.supplier_label.trim()) {
+            key = `p:${oa.supplier_label.trim().toLowerCase()}`;
+            label = oa.supplier_label.trim();
+          } else {
+            key = "__unassigned__";
+          }
+          if (!labelMap.has(key)) {
+            label ??= "";
+            labelMap.set(key, label);
+          }
           const arr = buckets.get(key) ?? [];
           arr.push(o);
           buckets.set(key, arr);
@@ -996,9 +1013,13 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
             </CardHeader>
             <CardContent className="space-y-4">
               {Array.from(buckets.entries()).map(([key, rows]) => {
+                const id = key.slice(2);
                 const name = key === "__unassigned__"
                   ? t("workspace.payment.unassignedSupplier", { defaultValue: "Unassigned" })
-                  : supplierNameMap.get(key) ?? "—";
+                  : key.startsWith("p:")
+                    ? `${labelMap.get(key) || "Supplier"} · ${t("workspace.payment.placeholderTag", { defaultValue: "to be defined" })}`
+                    : supplierNameMap.get(id) ?? "—";
+
                 const groupTotal = rows.reduce((s, r) => s + resolveScheduleItemAmount(
                   { amount_type: r.amount_type, amount_value: Number(r.amount_value ?? 0), trigger_type: r.trigger_type, stage_id: r.stage_id },
                   totalFee, stageFees,
