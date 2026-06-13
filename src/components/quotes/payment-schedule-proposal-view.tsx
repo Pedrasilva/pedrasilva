@@ -57,13 +57,22 @@ function PaymentSubTable({
   totalFee,
   stageFees,
   defaultVatRate,
+  labelFor,
+  showTotalRow = false,
 }: {
   rows: QuotePaymentScheduleItem[];
   totalFee: number;
   stageFees: Record<string, number>;
   defaultVatRate: number;
+  labelFor?: (it: QuotePaymentScheduleItem) => string;
+  showTotalRow?: boolean;
 }) {
   const groupTotal = rows.reduce((s, r) => s + netAmount(r, totalFee, stageFees), 0);
+  const groupVat = rows.reduce((s, r) => {
+    const n = netAmount(r, totalFee, stageFees);
+    const v = Number(r.vat_rate ?? defaultVatRate);
+    return s + (n * v) / 100;
+  }, 0);
 
   return (
     <Table>
@@ -88,7 +97,7 @@ function PaymentSubTable({
           const invoiceLabel = `Fatura ${String(i + 1).padStart(2, "0")}`;
           return (
             <TableRow key={it.id}>
-              <TableCell className="font-medium">{it.label}</TableCell>
+              <TableCell className="font-medium">{labelFor ? labelFor(it) : it.label}</TableCell>
               <TableCell className="text-right tabular-nums">
                 {pct.toFixed(0)}%
               </TableCell>
@@ -111,6 +120,17 @@ function PaymentSubTable({
             <TableCell colSpan={7} className="text-center text-xs text-muted-foreground py-4">
               Sem linhas
             </TableCell>
+          </TableRow>
+        )}
+        {showTotalRow && rows.length > 0 && (
+          <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
+            <TableCell>Total</TableCell>
+            <TableCell className="text-right tabular-nums">100%</TableCell>
+            <TableCell className="text-right tabular-nums">{formatEUR(groupTotal)}</TableCell>
+            <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(groupVat)}</TableCell>
+            <TableCell className="text-right tabular-nums">{formatEUR(groupTotal + groupVat)}</TableCell>
+            <TableCell />
+            <TableCell />
           </TableRow>
         )}
       </TableBody>
@@ -183,6 +203,11 @@ export function PaymentScheduleProposalView({
               totalFee={totalFee}
               stageFees={stageFees}
               defaultVatRate={defaultVatRate}
+              showTotalRow
+              labelFor={(it) => {
+                const s = it.stage_id ? stages.find((x) => x.id === it.stage_id) : null;
+                return s?.name ?? it.label;
+              }}
             />
             <p className="text-xs italic text-muted-foreground mt-3">
               NOTA: Entende-se por "Conclusão da fase" a entrega de elementos da
