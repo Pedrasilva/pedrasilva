@@ -395,48 +395,6 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3 rounded-md border border-primary/30 bg-primary/5 p-3">
-        <div className="text-sm">
-          <div className="font-medium">
-            {t("workspace.payment.applyCalculator", { defaultValue: "Aplicar valores da calculadora" })}
-          </div>
-          <div className="text-xs text-muted-foreground">
-            {t("workspace.payment.applyCalculatorHint", { defaultValue: "Empurra os honorários e datas actuais das fases para o plano de pagamentos (linhas manuais são preservadas)." })}
-          </div>
-        </div>
-        <Button
-          size="sm"
-          disabled={applyGen.isPending || stages.length === 0}
-          onClick={() => runGenerator("by_stage_billing")}
-        >
-          <Wand2 className="h-3.5 w-3.5 mr-1.5" />
-          {t("workspace.payment.applyCalculatorBtn", { defaultValue: "Aplicar" })}
-        </Button>
-      </div>
-      {totalFee > 0 && (
-        <div
-          className={`rounded-md border p-3 text-sm flex items-center justify-between gap-3 ${
-            totalMismatch
-              ? "border-destructive/50 bg-destructive/10 text-destructive"
-              : "border-border bg-muted/30 text-muted-foreground"
-          }`}
-        >
-          <div>
-            <span className="font-medium">{formatEUR(scheduleTotal)}</span>
-            <span className="opacity-70"> / {formatEUR(totalFee)} </span>
-            <span className="opacity-70">
-              ({t("workspace.payment.scheduleTotalLabel", { defaultValue: "Schedule total vs proposal fee (excl. VAT)" })})
-            </span>
-          </div>
-          {totalMismatch && (
-            <span className="text-xs font-medium">
-              {t("workspace.payment.totalMismatchWarning", {
-                defaultValue: "Schedule total does not match the proposal fee.",
-              })}
-            </span>
-          )}
-        </div>
-      )}
 
       {/* Quote-level billing defaults */}
       <Card>
