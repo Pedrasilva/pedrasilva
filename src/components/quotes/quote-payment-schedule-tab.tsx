@@ -876,6 +876,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
               )}
             </PopoverContent>
           </Popover>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4 pt-0">
 
