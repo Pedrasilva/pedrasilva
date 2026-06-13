@@ -437,7 +437,16 @@ export function GanttChart({
       pointerY: e.clientY - rect.top,
       toSide: null,
     });
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    // Because pointer capture would otherwise route pointerup to the source
+    // handle (bypassing the canvas onPointerUp), bind window-level listeners
+    // so the drag always terminates cleanly even when released off-canvas.
+    const onUp = () => {
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      commitLinkDrag();
+    };
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
   }
 
   // FS/SS/FF/SF inference from the drag handles:
