@@ -439,6 +439,26 @@ export function generateByStageBilling(
   const scaleFee = (fee: number) => round2(fee * remainingFactor);
   const items: GeneratorItem[] = [];
   let order = 0;
+
+  // ── Down payment (Adjudicação) at project_start ────────────────
+  const earliestStart = sorted.length > 0
+    ? sorted.reduce((m, s) => (s.start_date < m ? s.start_date : m), sorted[0].start_date)
+    : null;
+  if (dpAmount > 0 && earliestStart) {
+    items.push({
+      label: "Adjudicação",
+      trigger_type: "project_start",
+      amount_type: "fixed",
+      amount_value: dpAmount,
+      stage_id: null,
+      expected_invoice_date: earliestStart,
+      expected_payment_date: null,
+      sort_order: order++,
+      generator_source: "by_stage_billing",
+      direction: "inflow",
+    });
+  }
+
   for (const s of sorted) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sa = s as any;
