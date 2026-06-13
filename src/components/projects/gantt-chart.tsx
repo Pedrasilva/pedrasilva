@@ -1681,6 +1681,7 @@ export function GanttChart({
               linkHoverStage && link.toSide
                 ? inferDepType(link.fromSide, link.toSide)
                 : null;
+            const target = linkHoverStage ? stageLayouts.get(linkHoverStage) : null;
             return (
               <g>
                 <line
@@ -1689,9 +1690,33 @@ export function GanttChart({
                   x2={link.pointerX}
                   y2={link.pointerY}
                   stroke="var(--color-primary)"
-                  strokeWidth={1.5}
-                  strokeDasharray="4 3"
+                  strokeWidth={2.5}
+                  strokeOpacity={0.9}
+                  strokeDasharray="6 4"
+                  strokeLinecap="round"
                 />
+                {/* Snap dots on the hovered target showing both start/end
+                    anchor points; the currently-selected side is filled. */}
+                {target && link.toSide && (
+                  <g>
+                    <circle
+                      cx={target.x}
+                      cy={target.top + STAGE_ROW_H / 2}
+                      r={6}
+                      fill={link.toSide === "start" ? "var(--color-primary)" : "var(--color-background)"}
+                      stroke="var(--color-primary)"
+                      strokeWidth={2}
+                    />
+                    <circle
+                      cx={target.x + target.w}
+                      cy={target.top + STAGE_ROW_H / 2}
+                      r={6}
+                      fill={link.toSide === "end" ? "var(--color-primary)" : "var(--color-background)"}
+                      stroke="var(--color-primary)"
+                      strokeWidth={2}
+                    />
+                  </g>
+                )}
                 {previewType && (
                   <g transform={`translate(${link.pointerX + 12}, ${link.pointerY + 12})`}>
                     <rect
