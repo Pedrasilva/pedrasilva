@@ -105,6 +105,9 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
     return wbs ? `${wbs}. ${s.name}` : s.name;
   };
 
+  const predecessors = deps.filter((d) => d.successor_stage_id === stageId);
+  const successors = deps.filter((d) => d.predecessor_stage_id === stageId);
+
   const predecessorOptions = useMemo(() => {
     const existing = new Set(predecessors.map((d) => d.predecessor_stage_id));
     const descendants = new Set<string>();
@@ -136,9 +139,6 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
     }
     return allStages.filter((s) => s.id !== stageId && !existing.has(s.id) && !ancestors.has(s.id));
   }, [allStages, deps, successors, stageId]);
-
-  const predecessors = deps.filter((d) => d.successor_stage_id === stageId);
-  const successors = deps.filter((d) => d.predecessor_stage_id === stageId);
 
   // New-dependency form (used in both panels)
   const [newPred, setNewPred] = useState<{ pred: string; type: QuoteDepType; lag: string }>(
