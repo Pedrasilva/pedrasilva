@@ -1699,7 +1699,7 @@ export function GanttChart({
             const p = stageLayouts.get(link.fromStageId);
             if (!p) return null;
             const fromX = link.fromSide === "end" ? p.x + p.w : p.x;
-            const fromY = p.top + STAGE_ROW_H / 2;
+            const fromY = p.anchorY;
             const previewType =
               linkHoverStage && link.toSide
                 ? inferDepType(link.fromSide, link.toSide)
@@ -1724,7 +1724,7 @@ export function GanttChart({
                   <g>
                     <circle
                       cx={target.x}
-                      cy={target.top + STAGE_ROW_H / 2}
+                      cy={target.anchorY}
                       r={6}
                       fill={link.toSide === "start" ? "var(--color-primary)" : "var(--color-background)"}
                       stroke="var(--color-primary)"
@@ -1732,7 +1732,7 @@ export function GanttChart({
                     />
                     <circle
                       cx={target.x + target.w}
-                      cy={target.top + STAGE_ROW_H / 2}
+                      cy={target.anchorY}
                       r={6}
                       fill={link.toSide === "end" ? "var(--color-primary)" : "var(--color-background)"}
                       stroke="var(--color-primary)"
