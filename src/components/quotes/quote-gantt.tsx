@@ -808,6 +808,23 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp }: Props) {
           >
             <IndentDecrease className="h-3.5 w-3.5" />
           </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-7 px-2 text-xs"
+            onClick={handleReflow}
+            disabled={reflowing}
+            title={t("workspace.planning.reflow.tooltip", {
+              defaultValue:
+                "Push every stage forward so all FS/SS/FF/SF dependencies are honoured.",
+            })}
+          >
+            <AlignVerticalJustifyStart className="mr-1 h-3.5 w-3.5" />
+            {reflowing
+              ? t("workspace.planning.reflow.running", { defaultValue: "Reflowing…" })
+              : t("workspace.planning.reflow.button", { defaultValue: "Reflow" })}
+          </Button>
         </div>
         {dayWidthProp === undefined && (
           <div className="flex items-center gap-1 rounded-md border border-border bg-card p-0.5">
