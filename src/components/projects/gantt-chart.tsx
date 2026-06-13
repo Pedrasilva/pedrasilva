@@ -879,16 +879,23 @@ export function GanttChart({
                       });
                     }}
                   />
+                  {/* Drop indicator when an arrow is being dragged onto this parent. */}
+                  {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && (
+                    <div
+                      className="pointer-events-none absolute z-10 rounded-md ring-2 ring-primary/70 bg-primary/10"
+                      style={{ left: stageX - 6, top: 8, width: w + 12, height: SVG_H + 12 }}
+                    />
+                  )}
                   {/* Dependency anchors — parent bars can be linked just like leaves. */}
                   <div
                     onPointerDown={(e) => startLinkDrag(e, stage.id, "start")}
-                    className="absolute z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    className="absolute z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-40 shadow transition hover:opacity-100 group-hover:opacity-100"
                     style={{ left: stageX, top: 14 + BAR_H / 2 }}
                     title={t("gantt.stage.linkFromStart")}
                   />
                   <div
                     onPointerDown={(e) => startLinkDrag(e, stage.id, "end")}
-                    className="absolute z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-0 shadow transition group-hover:opacity-100"
+                    className="absolute z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 cursor-crosshair rounded-full border-2 border-background bg-primary opacity-40 shadow transition hover:opacity-100 group-hover:opacity-100"
                     style={{ left: stageX + w, top: 14 + BAR_H / 2 }}
                     title={t("gantt.stage.linkFromEnd")}
                   />
