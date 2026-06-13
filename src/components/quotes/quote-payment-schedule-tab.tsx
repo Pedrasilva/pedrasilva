@@ -734,7 +734,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
           byStage.set(k, cur);
         }
         const rows = Array.from(byStage.values());
-        const totalArch = rows.reduce((s, r) => s + r.inflow, 0);
+        const totalArch = rows.reduce((s, r) => s + (r.inflow - r.outflow), 0);
         return (
           <Card>
             <CardHeader className="py-3 flex flex-row items-center justify-between space-y-0">
@@ -758,7 +758,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                     <TableRow key={idx}>
                       <TableCell className="font-medium">{r.name}</TableCell>
                       <TableCell className="text-right tabular-nums font-semibold">
-                        {formatEUR(r.inflow)}
+                        {formatEUR(r.inflow - r.outflow)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -768,6 +768,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                   </TableRow>
                 </TableBody>
               </Table>
+
 
             </CardContent>
           </Card>
