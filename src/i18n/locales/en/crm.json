@@ -452,6 +452,13 @@
       }
     },
     "planning": {
+      "reflow": {
+        "button": "Reflow",
+        "running": "Reflowing…",
+        "tooltip": "Push every stage forward so all FS/SS/FF/SF dependencies are honoured.",
+        "done": "Reflowed {{count}} stage(s) to honour dependencies.",
+        "alreadyAligned": "Schedule already satisfies all dependencies."
+      },
       "supplierIsSelf": "This is us (architecture credit, no outflow)",
       "supplierPlaceholderLabel": "Or, if supplier not yet known, describe the role",
       "supplierPlaceholderHint": "e.g. MEP consultant, Structural engineer",
