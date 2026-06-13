@@ -499,16 +499,20 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         .map((it) => outflowKey(it as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null }))
         .filter(Boolean),
     );
+    const stageOutflowKey = (so: { supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null }) =>
+      so.supplier_id ? `pm:${so.supplier_id}`
+      : so.supplier_company_id ? `co:${so.supplier_company_id}`
+      : so.supplier_placeholder ? `ph:${so.supplier_placeholder.toLowerCase()}` : "";
     const missingRows = stageOnlyOutflows.filter((o) => {
-      const so = o as unknown as { supplier_id?: string | null; supplier_placeholder?: string | null };
-      const key = so.supplier_id ? `pm:${so.supplier_id}` : so.supplier_placeholder ? `ph:${so.supplier_placeholder.toLowerCase()}` : "";
+      const so = o as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null };
+      const key = stageOutflowKey(so);
       return key && !existingKeys.has(key);
     });
     if (missingRows.length === 0) return;
 
     const syncKey = missingRows.map((o) => {
-      const oa = o as unknown as { stage_id?: string | null; supplier_id?: string | null; supplier_placeholder?: string | null; purchase_price?: number | null };
-      return `${oa.stage_id}:${oa.supplier_id ?? ""}:${oa.supplier_placeholder ?? ""}:${oa.purchase_price}`;
+      const oa = o as unknown as { stage_id?: string | null; supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null; purchase_price?: number | null };
+      return `${oa.stage_id}:${oa.supplier_id ?? ""}:${oa.supplier_company_id ?? ""}:${oa.supplier_placeholder ?? ""}:${oa.purchase_price}`;
     }).join("|");
     if (supplierSyncRef.current === syncKey) return;
     supplierSyncRef.current = syncKey;
@@ -524,6 +528,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       const oa = o as unknown as {
         stage_id?: string | null;
         supplier_id?: string | null;
+        supplier_company_id?: string | null;
         supplier_placeholder?: string | null;
         purchase_price?: number | null;
         description?: string | null;
@@ -541,7 +546,8 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         sort_order: baseSort + i,
         direction: "outflow",
         supplier_id: oa.supplier_id ?? null,
-        supplier_label: oa.supplier_id ? null : (oa.supplier_placeholder ?? null),
+        supplier_company_id: oa.supplier_company_id ?? null,
+        supplier_label: (oa.supplier_id || oa.supplier_company_id) ? null : (oa.supplier_placeholder ?? null),
         generator_source: generatorSource,
         manual_override: false,
         vat_rate: paymentDefaults.vatRate,
@@ -549,6 +555,32 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       });
     })).catch((e) => console.error("supplier sync failed", e));
   }, [itemsQ.isLoading, stagesQ.isLoading, supplierLookupReady, items, stageOnlyOutflows, upsert, applyGen.isPending, paymentDefaults, quoteId]);
+
+  // Manual "Update from Gantt" button: force the additive sync to re-run
+  // (clears the dedupe ref) and toast the result.
+  const syncFromGantt = async () => {
+    supplierSyncRef.current = null;
+    const outflowKey = (row: { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null }) =>
+      row.supplier_id ? `pm:${row.supplier_id}`
+      : row.supplier_company_id ? `co:${row.supplier_company_id}`
+      : row.supplier_label ? `ph:${row.supplier_label.toLowerCase()}` : "";
+    const existing = new Set(
+      items
+        .filter((it) => (it as unknown as { direction?: string }).direction === "outflow")
+        .map((it) => outflowKey(it as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null }))
+        .filter(Boolean),
+    );
+    const missing = stageOnlyOutflows.filter((o) => {
+      const so = o as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null };
+      const k = so.supplier_id ? `pm:${so.supplier_id}` : so.supplier_company_id ? `co:${so.supplier_company_id}` : so.supplier_placeholder ? `ph:${so.supplier_placeholder.toLowerCase()}` : "";
+      return k && !existing.has(k);
+    });
+    if (missing.length === 0) {
+      toast.success(t("workspace.payment.syncedNoChange", { defaultValue: "Schedule already up to date with the Gantt" }));
+      return;
+    }
+    toast.success(t("workspace.payment.synced", { defaultValue: `Added ${missing.length} supplier row(s) from the Gantt`, count: missing.length }));
+  };
 
   const handleAdd = async () => {
     if (!draft.label.trim()) return toast.error(t("workspace.payment.errorLabel"));
