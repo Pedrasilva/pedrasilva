@@ -410,11 +410,22 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                         {t("workspace.planning.budget", { defaultValue: "Budget" })}
                       </Label>
                       {isParent && mode === "calculated" ? (
-                        <Input
-                          readOnly
-                          value={new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(calculated)}
-                          className="bg-muted/40 font-mono"
-                        />
+                        <>
+                          <CurrencyInput
+                            key={`b-${stage.id}-calc-${calculated}`}
+                            value={calculated}
+                            onCommit={(v: number) => {
+                              if (v !== calculated) {
+                                upsertStage.mutate({ id: stage.id, budget: v, budget_mode: "fixed" });
+                              }
+                            }}
+                          />
+                          <p className="text-[10px] text-muted-foreground">
+                            {t("workspace.planning.budgetCalculatedHint", {
+                              defaultValue: "Sum of children. Type a value to switch to Fixed.",
+                            })}
+                          </p>
+                        </>
                       ) : (
                         <CurrencyInput
                           key={`b-${stage.id}-${stage.budget}`}
