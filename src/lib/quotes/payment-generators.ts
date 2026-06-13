@@ -586,6 +586,66 @@ export function generateByStageBilling(
     }
   }
 
+  // ── Optional supplier outflows (mirrors arch+consultants split) ─
+  const externals = options.externalServices ?? [];
+  const offset = Math.max(0, Number(options.paymentOffsetDays ?? 0));
+  if (externals.length > 0 && sorted.length > 0) {
+    type SupplierBucket = {
+      key: string;
+      companyId: string | null;
+      name: string;
+      total: number;
+      stageIds: Set<string>;
+    };
+    const buckets = new Map<string, SupplierBucket>();
+    for (const es of externals) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const esAny = es as any;
+      const companyId: string | null = esAny.supplier_company_id ?? null;
+      const supplierId: string | null = esAny.supplier_id ?? null;
+      if (!companyId && !supplierId) continue;
+      const key = companyId ? `c:${companyId}` : `s:${supplierId}`;
+      const name = es.supplier?.name ?? esAny.description ?? "Supplier";
+      const cost = Number(esAny.purchase_price ?? 0) * Number(esAny.quantity ?? 1);
+      const cur = buckets.get(key) ?? {
+        key, companyId, name, total: 0, stageIds: new Set<string>(),
+      };
+      cur.total += cost;
+      if (esAny.stage_id) cur.stageIds.add(esAny.stage_id);
+      buckets.set(key, cur);
+    }
+    for (const bucket of buckets.values()) {
+      if (bucket.total <= 0) continue;
+      const supplierStages = bucket.stageIds.size > 0
+        ? sorted.filter((s) => bucket.stageIds.has(s.id))
+        : sorted;
+      if (supplierStages.length === 0) continue;
+      const weightTotal = supplierStages.reduce((acc, st) => acc + (stageFees[st.id] ?? 0), 0);
+      let running = 0;
+      supplierStages.forEach((s, idx) => {
+        const weight = stageFees[s.id] ?? 0;
+        const ratio = weightTotal > 0 ? weight / weightTotal : 1 / supplierStages.length;
+        let amount = round2(bucket.total * ratio);
+        if (idx === supplierStages.length - 1) amount = round2(bucket.total - running);
+        running += amount;
+        if (amount <= 0) return;
+        items.push({
+          label: `${bucket.name} — ${s.name}`,
+          trigger_type: "stage_end",
+          amount_type: "fixed",
+          amount_value: amount,
+          stage_id: s.id,
+          expected_invoice_date: s.end_date,
+          expected_payment_date: addDaysISO(s.end_date, offset),
+          sort_order: order++,
+          generator_source: "by_stage_billing",
+          direction: "outflow",
+          supplier_company_id: bucket.companyId,
+        });
+      });
+    }
+  }
+
   return items;
 }
 
