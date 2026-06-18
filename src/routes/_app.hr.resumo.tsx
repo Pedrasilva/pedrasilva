@@ -36,8 +36,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { ChevronRight, ArrowUp, ArrowDown, ArrowUpDown, Printer } from "lucide-react";
+import { ChevronRight, ArrowUp, ArrowDown, ArrowUpDown, Printer, Columns3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { PermissionGate } from "@/components/PermissionGate";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
