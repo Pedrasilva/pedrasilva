@@ -36,8 +36,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { ChevronRight, ArrowUp, ArrowDown, ArrowUpDown, Printer } from "lucide-react";
+import { ChevronRight, ArrowUp, ArrowDown, ArrowUpDown, Printer, Columns3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { PermissionGate } from "@/components/PermissionGate";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -742,6 +751,47 @@ function RhTable({
   const [sortKey, setSortKey] = useState<RhSortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
+  // Column visibility (persisted per-table by title)
+  const storageKey = `hr.resumo.rhTable.visibleCols:${title}`;
+  type ColKey =
+    | "code" | "contractStatus" | "dailyHours" | "daysPerWeek" | "fte"
+    | "targetChargeability" | "grossAnnual" | "contractualBase" | "grossMonthly"
+    | "subsidiosMode" | "monthsPaid" | "ssEmployer" | "ssEmployee" | "irsPct"
+    | "mealAllowance" | "perDiem" | "transportPass" | "netMonthly"
+    | "monthlyLiquidity" | "avgBenefitsMonthly" | "carBenefit" | "ticketBenefit"
+    | "associatePrize" | "otherBenefits" | "variableBenefit" | "retirementPlan"
+    | "location" | "maritalStatus" | "titulares" | "dependents"
+    | "dependentsDisability" | "fiscalYear" | "tgv";
+  const ALL_COLS: ColKey[] = [
+    "code","contractStatus","dailyHours","daysPerWeek","fte","targetChargeability",
+    "grossAnnual","contractualBase","grossMonthly","subsidiosMode","monthsPaid",
+    "ssEmployer","ssEmployee","irsPct","mealAllowance","perDiem","transportPass",
+    "netMonthly","monthlyLiquidity","avgBenefitsMonthly","carBenefit","ticketBenefit",
+    "associatePrize","otherBenefits","variableBenefit","retirementPlan","location",
+    "maritalStatus","titulares","dependents","dependentsDisability","fiscalYear","tgv",
+  ];
+  const defaultVisible = () => Object.fromEntries(ALL_COLS.map((k) => [k, true])) as Record<ColKey, boolean>;
+  const [visible, setVisible] = useState<Record<ColKey, boolean>>(() => {
+    if (typeof window === "undefined") return defaultVisible();
+    try {
+      const raw = window.localStorage.getItem(storageKey);
+      if (!raw) return defaultVisible();
+      const parsed = JSON.parse(raw) as Partial<Record<ColKey, boolean>>;
+      return { ...defaultVisible(), ...parsed };
+    } catch {
+      return defaultVisible();
+    }
+  });
+  useEffect(() => {
+    try { window.localStorage.setItem(storageKey, JSON.stringify(visible)); } catch {}
+  }, [storageKey, visible]);
+  const isV = (k: ColKey) => visible[k];
+  const toggleCol = (k: ColKey) => setVisible((v) => ({ ...v, [k]: !v[k] }));
+  const showAll = () => setVisible(defaultVisible());
+  const hideAll = () => setVisible(Object.fromEntries(ALL_COLS.map((k) => [k, false])) as Record<ColKey, boolean>);
+  const visibleCount = ALL_COLS.filter(isV).length;
+  const totalColSpan = 1 /* name */ + visibleCount + 1 /* chevron */;
+
   const toggleSort = (k: RhSortKey) => {
     if (sortKey === k) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else {
@@ -769,59 +819,95 @@ function RhTable({
     totalVbg += c.custoVBG;
   });
 
+  const colLabel = (k: ColKey) => t(`hr:resumo.rhTable.headers.${k === "grossAnnual" ? "grossAnnual" : k}`);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
-        <CardDescription>
-          {t("hr:resumo.rhTable.subtitle", { count: rows.length })}
-        </CardDescription>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <CardTitle className="text-base">{title}</CardTitle>
+            <CardDescription>
+              {t("hr:resumo.rhTable.subtitle", { count: rows.length })}
+            </CardDescription>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Columns3 className="h-4 w-4" />
+                {t("hr:resumo.rhTable.columns", { defaultValue: "Colunas" })}
+                <span className="text-xs text-muted-foreground">({visibleCount}/{ALL_COLS.length})</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="max-h-[60vh] overflow-y-auto w-64">
+              <DropdownMenuLabel>{t("hr:resumo.rhTable.toggleColumns", { defaultValue: "Mostrar colunas" })}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); showAll(); }}>
+                {t("hr:resumo.rhTable.showAll", { defaultValue: "Mostrar todas" })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); hideAll(); }}>
+                {t("hr:resumo.rhTable.hideAll", { defaultValue: "Esconder todas" })}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {ALL_COLS.map((k) => (
+                <DropdownMenuCheckboxItem
+                  key={k}
+                  checked={isV(k)}
+                  onCheckedChange={() => toggleCol(k)}
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  {colLabel(k)}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </CardHeader>
       <CardContent className="p-0 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
               <SortHead label={t("hr:resumo.rhTable.headers.name")} k="nome" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <TableHead>{t("hr:resumo.rhTable.headers.code")}</TableHead>
-              <TableHead>{t("hr:resumo.rhTable.headers.contractStatus")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.dailyHours")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.daysPerWeek")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.fte")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.targetChargeability")}</TableHead>
-              <SortHead align="right" label={t("hr:resumo.rhTable.headers.grossAnnual")} k="brutoAnual" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.contractualBase")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.grossMonthly")}</TableHead>
-              <TableHead>{t("hr:resumo.rhTable.headers.subsidiosMode")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.monthsPaid")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.ssEmployer")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.ssEmployee")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.irsPct")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.mealAllowance")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.perDiem")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.transportPass")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.netMonthly")}</TableHead>
-              <SortHead align="right" label={t("hr:resumo.rhTable.headers.monthlyLiquidity")} k="monthlyLiquidity" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.avgBenefitsMonthly")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.carBenefit")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.ticketBenefit")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.associatePrize")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.otherBenefits")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.variableBenefit")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.retirementPlan")}</TableHead>
-              <TableHead>{t("hr:resumo.rhTable.headers.location")}</TableHead>
-              <TableHead>{t("hr:resumo.rhTable.headers.maritalStatus")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.titulares")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.dependents")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.dependentsDisability")}</TableHead>
-              <TableHead className="text-right">{t("hr:resumo.rhTable.headers.fiscalYear")}</TableHead>
-              <SortHead align="right" label={t("hr:resumo.rhTable.headers.tgv")} k="vbg" sortKey={sortKey} dir={sortDir} onClick={toggleSort} bold />
+              {isV("code") && <TableHead>{t("hr:resumo.rhTable.headers.code")}</TableHead>}
+              {isV("contractStatus") && <TableHead>{t("hr:resumo.rhTable.headers.contractStatus")}</TableHead>}
+              {isV("dailyHours") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.dailyHours")}</TableHead>}
+              {isV("daysPerWeek") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.daysPerWeek")}</TableHead>}
+              {isV("fte") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.fte")}</TableHead>}
+              {isV("targetChargeability") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.targetChargeability")}</TableHead>}
+              {isV("grossAnnual") && <SortHead align="right" label={t("hr:resumo.rhTable.headers.grossAnnual")} k="brutoAnual" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />}
+              {isV("contractualBase") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.contractualBase")}</TableHead>}
+              {isV("grossMonthly") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.grossMonthly")}</TableHead>}
+              {isV("subsidiosMode") && <TableHead>{t("hr:resumo.rhTable.headers.subsidiosMode")}</TableHead>}
+              {isV("monthsPaid") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.monthsPaid")}</TableHead>}
+              {isV("ssEmployer") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.ssEmployer")}</TableHead>}
+              {isV("ssEmployee") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.ssEmployee")}</TableHead>}
+              {isV("irsPct") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.irsPct")}</TableHead>}
+              {isV("mealAllowance") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.mealAllowance")}</TableHead>}
+              {isV("perDiem") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.perDiem")}</TableHead>}
+              {isV("transportPass") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.transportPass")}</TableHead>}
+              {isV("netMonthly") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.netMonthly")}</TableHead>}
+              {isV("monthlyLiquidity") && <SortHead align="right" label={t("hr:resumo.rhTable.headers.monthlyLiquidity")} k="monthlyLiquidity" sortKey={sortKey} dir={sortDir} onClick={toggleSort} />}
+              {isV("avgBenefitsMonthly") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.avgBenefitsMonthly")}</TableHead>}
+              {isV("carBenefit") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.carBenefit")}</TableHead>}
+              {isV("ticketBenefit") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.ticketBenefit")}</TableHead>}
+              {isV("associatePrize") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.associatePrize")}</TableHead>}
+              {isV("otherBenefits") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.otherBenefits")}</TableHead>}
+              {isV("variableBenefit") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.variableBenefit")}</TableHead>}
+              {isV("retirementPlan") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.retirementPlan")}</TableHead>}
+              {isV("location") && <TableHead>{t("hr:resumo.rhTable.headers.location")}</TableHead>}
+              {isV("maritalStatus") && <TableHead>{t("hr:resumo.rhTable.headers.maritalStatus")}</TableHead>}
+              {isV("titulares") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.titulares")}</TableHead>}
+              {isV("dependents") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.dependents")}</TableHead>}
+              {isV("dependentsDisability") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.dependentsDisability")}</TableHead>}
+              {isV("fiscalYear") && <TableHead className="text-right">{t("hr:resumo.rhTable.headers.fiscalYear")}</TableHead>}
+              {isV("tgv") && <SortHead align="right" label={t("hr:resumo.rhTable.headers.tgv")} k="vbg" sortKey={sortKey} dir={sortDir} onClick={toggleSort} bold />}
               <TableHead className="w-8"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedRows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={36} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={totalColSpan} className="text-center text-muted-foreground py-8">
                   {t("hr:resumo.rhTable.emptyDepartment")}
                 </TableCell>
               </TableRow>
@@ -843,41 +929,41 @@ function RhTable({
                   <TableCell className="font-medium whitespace-nowrap">
                     <Link to="/hr/colaborador/$id" params={{ id: r.collab.id }}>{r.collab.nome}</Link>
                   </TableCell>
-                  <TableCell className="text-muted-foreground tabular-nums">{idx + 1}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{r.collab.situacao_contractual ?? "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.collab.daily_hours ?? "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.collab.days_per_week ?? "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{fteFmt}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.collab.target_chargeability_pct != null ? `${r.collab.target_chargeability_pct}%` : "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.brutoAnual) : "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.base) : "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.brutoMensal) : "—"}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{ref?.subsidios_modo ?? "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{ref?.meses_pagos ?? "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{pct(ref?.ss_atelier_pct)}</TableCell>
-                  <TableCell className="text-right tabular-nums">{pct(ref?.ss_colaborador_pct)}</TableCell>
-                  <TableCell className="text-right tabular-nums">{pct(ref?.irs_pct)}</TableCell>
-                  <TableCell className="text-right tabular-nums" title={ref ? fmtEUR(mealDaily) + "/dia" : ""}>{c ? fmtEUR(c.alimentacaoMensal) : "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.ajudasMensal) : "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.passe_anual) : "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.liquidoTotalMensal) : "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums font-medium">
+                  {isV("code") && <TableCell className="text-muted-foreground tabular-nums">{idx + 1}</TableCell>}
+                  {isV("contractStatus") && <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{r.collab.situacao_contractual ?? "—"}</TableCell>}
+                  {isV("dailyHours") && <TableCell className="text-right tabular-nums">{r.collab.daily_hours ?? "—"}</TableCell>}
+                  {isV("daysPerWeek") && <TableCell className="text-right tabular-nums">{r.collab.days_per_week ?? "—"}</TableCell>}
+                  {isV("fte") && <TableCell className="text-right tabular-nums">{fteFmt}</TableCell>}
+                  {isV("targetChargeability") && <TableCell className="text-right tabular-nums">{r.collab.target_chargeability_pct != null ? `${r.collab.target_chargeability_pct}%` : "—"}</TableCell>}
+                  {isV("grossAnnual") && <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.brutoAnual) : "—"}</TableCell>}
+                  {isV("contractualBase") && <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.base) : "—"}</TableCell>}
+                  {isV("grossMonthly") && <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.brutoMensal) : "—"}</TableCell>}
+                  {isV("subsidiosMode") && <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{ref?.subsidios_modo ?? "—"}</TableCell>}
+                  {isV("monthsPaid") && <TableCell className="text-right tabular-nums">{ref?.meses_pagos ?? "—"}</TableCell>}
+                  {isV("ssEmployer") && <TableCell className="text-right tabular-nums">{pct(ref?.ss_atelier_pct)}</TableCell>}
+                  {isV("ssEmployee") && <TableCell className="text-right tabular-nums">{pct(ref?.ss_colaborador_pct)}</TableCell>}
+                  {isV("irsPct") && <TableCell className="text-right tabular-nums">{pct(ref?.irs_pct)}</TableCell>}
+                  {isV("mealAllowance") && <TableCell className="text-right tabular-nums" title={ref ? fmtEUR(mealDaily) + "/dia" : ""}>{c ? fmtEUR(c.alimentacaoMensal) : "—"}</TableCell>}
+                  {isV("perDiem") && <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.ajudasMensal) : "—"}</TableCell>}
+                  {isV("transportPass") && <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.passe_anual) : "—"}</TableCell>}
+                  {isV("netMonthly") && <TableCell className="text-right tabular-nums">{c ? fmtEUR(c.liquidoTotalMensal) : "—"}</TableCell>}
+                  {isV("monthlyLiquidity") && <TableCell className="text-right tabular-nums font-medium">
                     {c ? fmtEUR(c.liquidoTotalMensal + c.passeMensal + (avgBenefitsByCollab?.get(r.collab.id) ?? 0)) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">{fmtEUR(avgBenefitsByCollab?.get(r.collab.id) ?? 0)}</TableCell>
-                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.beneficio_carro) : "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.beneficio_ticket) : "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.premio_associado) : "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.outros_beneficios) : "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.beneficio_variavel) : "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.plano_reforma ?? 0) : "—"}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{r.collab.localizacao || "—"}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{r.collab.estado_civil || "—"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.collab.numero_titulares}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.collab.numero_dependentes}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.collab.dependentes_com_deficiencia}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.collab.ano_fiscal}</TableCell>
-                  <TableCell className="text-right tabular-nums font-semibold">{c ? fmtEUR(c.custoVBG) : "—"}</TableCell>
+                  </TableCell>}
+                  {isV("avgBenefitsMonthly") && <TableCell className="text-right tabular-nums">{fmtEUR(avgBenefitsByCollab?.get(r.collab.id) ?? 0)}</TableCell>}
+                  {isV("carBenefit") && <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.beneficio_carro) : "—"}</TableCell>}
+                  {isV("ticketBenefit") && <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.beneficio_ticket) : "—"}</TableCell>}
+                  {isV("associatePrize") && <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.premio_associado) : "—"}</TableCell>}
+                  {isV("otherBenefits") && <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.outros_beneficios) : "—"}</TableCell>}
+                  {isV("variableBenefit") && <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.beneficio_variavel) : "—"}</TableCell>}
+                  {isV("retirementPlan") && <TableCell className="text-right tabular-nums">{ref ? fmtEUR(ref.plano_reforma ?? 0) : "—"}</TableCell>}
+                  {isV("location") && <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{r.collab.localizacao || "—"}</TableCell>}
+                  {isV("maritalStatus") && <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{r.collab.estado_civil || "—"}</TableCell>}
+                  {isV("titulares") && <TableCell className="text-right tabular-nums">{r.collab.numero_titulares}</TableCell>}
+                  {isV("dependents") && <TableCell className="text-right tabular-nums">{r.collab.numero_dependentes}</TableCell>}
+                  {isV("dependentsDisability") && <TableCell className="text-right tabular-nums">{r.collab.dependentes_com_deficiencia}</TableCell>}
+                  {isV("fiscalYear") && <TableCell className="text-right tabular-nums">{r.collab.ano_fiscal}</TableCell>}
+                  {isV("tgv") && <TableCell className="text-right tabular-nums font-semibold">{c ? fmtEUR(c.custoVBG) : "—"}</TableCell>}
                   <TableCell>
                     <Link to="/hr/colaborador/$id" params={{ id: r.collab.id }}>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -889,10 +975,12 @@ function RhTable({
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={7} className="font-semibold">{totalLabel}</TableCell>
-              <TableCell className="text-right tabular-nums font-semibold">{fmtEUR(totalBrutoAnual)}</TableCell>
-              <TableCell colSpan={26} />
-              <TableCell className="text-right tabular-nums font-semibold">{fmtEUR(totalVbg)}</TableCell>
+              <TableCell className="font-semibold">{totalLabel}</TableCell>
+              {ALL_COLS.filter(isV).map((k) => {
+                if (k === "grossAnnual") return <TableCell key={k} className="text-right tabular-nums font-semibold">{fmtEUR(totalBrutoAnual)}</TableCell>;
+                if (k === "tgv") return <TableCell key={k} className="text-right tabular-nums font-semibold">{fmtEUR(totalVbg)}</TableCell>;
+                return <TableCell key={k} />;
+              })}
               <TableCell />
             </TableRow>
           </TableFooter>
@@ -901,6 +989,7 @@ function RhTable({
     </Card>
   );
 }
+
 
 function PricingTable({
   rows,
