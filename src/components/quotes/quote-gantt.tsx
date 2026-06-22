@@ -1054,7 +1054,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             outlineWidth={320}
             embedded
             selectedStageId={selectedStageId}
-            onSelectStage={setSelectedStageId}
+            onSelectStage={(id) => setSelectedStageId(id === PROJECT_SUMMARY_ID ? null : id)}
             onRenameStage={handleRename}
             onReorderStage={handleReorder}
             onInsertStage={handleInsert}
