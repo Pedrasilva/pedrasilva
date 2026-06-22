@@ -18,10 +18,11 @@ import { useMemo, useState, useEffect, useRef, useLayoutEffect, useCallback } fr
 import { PanelRightClose, PanelRightOpen, Plus, IndentIncrease, IndentDecrease, AlignVerticalJustifyStart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { addDays, differenceInCalendarDays } from "date-fns";
+import { addDays, differenceInCalendarDays, parseISO } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspector";
 import { useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
@@ -29,8 +30,17 @@ import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import { reflowQuoteSchedule } from "@/lib/quotes/reflow-schedule";
+import { supabase } from "@/integrations/supabase/client";
 import type { Resource, AllocationWithResource } from "@/lib/projects/types";
 import { toast } from "sonner";
+
+const PROJECT_SUMMARY_ID = "__quote_project__";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
+
+function shiftIso(iso: string, days: number): string {
+  return addDays(parseISO(iso), days).toISOString().slice(0, 10);
+}
 
 interface Props {
   quoteId: string;
