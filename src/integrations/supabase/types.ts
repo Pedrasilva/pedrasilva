@@ -4167,6 +4167,166 @@ export type Database = {
           },
         ]
       }
+      pm_project_contract_baseline: {
+        Row: {
+          created_at: string
+          currency: string | null
+          id: string
+          notes: string | null
+          pricing_multiplier: number | null
+          project_id: string
+          quote_id: string | null
+          quote_number: string | null
+          quote_title: string | null
+          snapshot_at: string
+          total_external_fee: number | null
+          total_fee: number | null
+          total_internal_fee: number | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          id?: string
+          notes?: string | null
+          pricing_multiplier?: number | null
+          project_id: string
+          quote_id?: string | null
+          quote_number?: string | null
+          quote_title?: string | null
+          snapshot_at?: string
+          total_external_fee?: number | null
+          total_fee?: number | null
+          total_internal_fee?: number | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          id?: string
+          notes?: string | null
+          pricing_multiplier?: number | null
+          project_id?: string
+          quote_id?: string | null
+          quote_number?: string | null
+          quote_title?: string | null
+          snapshot_at?: string
+          total_external_fee?: number | null
+          total_fee?: number | null
+          total_internal_fee?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_project_contract_baseline_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_project_contract_baseline_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_project_contract_baseline_payments: {
+        Row: {
+          amount: number | null
+          baseline_id: string
+          created_at: string
+          expected_invoice_date: string | null
+          expected_payment_date: string | null
+          id: string
+          label: string
+          sort_order: number
+          stage_name: string | null
+          trigger_type: string | null
+        }
+        Insert: {
+          amount?: number | null
+          baseline_id: string
+          created_at?: string
+          expected_invoice_date?: string | null
+          expected_payment_date?: string | null
+          id?: string
+          label: string
+          sort_order?: number
+          stage_name?: string | null
+          trigger_type?: string | null
+        }
+        Update: {
+          amount?: number | null
+          baseline_id?: string
+          created_at?: string
+          expected_invoice_date?: string | null
+          expected_payment_date?: string | null
+          id?: string
+          label?: string
+          sort_order?: number
+          stage_name?: string | null
+          trigger_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_project_contract_baseline_payments_baseline_id_fkey"
+            columns: ["baseline_id"]
+            isOneToOne: false
+            referencedRelation: "pm_project_contract_baseline"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pm_project_contract_baseline_stages: {
+        Row: {
+          baseline_id: string
+          billing_model: string | null
+          budget: number | null
+          created_at: string
+          end_date: string | null
+          id: string
+          name: string
+          parent_name: string | null
+          sort_order: number
+          stage_kind: string | null
+          start_date: string | null
+        }
+        Insert: {
+          baseline_id: string
+          billing_model?: string | null
+          budget?: number | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          name: string
+          parent_name?: string | null
+          sort_order?: number
+          stage_kind?: string | null
+          start_date?: string | null
+        }
+        Update: {
+          baseline_id?: string
+          billing_model?: string | null
+          budget?: number | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          name?: string
+          parent_name?: string | null
+          sort_order?: number
+          stage_kind?: string | null
+          start_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_project_contract_baseline_stages_baseline_id_fkey"
+            columns: ["baseline_id"]
+            isOneToOne: false
+            referencedRelation: "pm_project_contract_baseline"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_project_forecast_metrics: {
         Row: {
           allocated_hours: number | null
@@ -4945,6 +5105,7 @@ export type Database = {
           source_contract_phase_key: string | null
           stage_kind: string
           start_date: string
+          status: string
           updated_at: string
         }
         Insert: {
@@ -4979,6 +5140,7 @@ export type Database = {
           source_contract_phase_key?: string | null
           stage_kind?: string
           start_date: string
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -5013,6 +5175,7 @@ export type Database = {
           source_contract_phase_key?: string | null
           stage_kind?: string
           start_date?: string
+          status?: string
           updated_at?: string
         }
         Relationships: [
