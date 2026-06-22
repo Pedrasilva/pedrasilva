@@ -505,6 +505,39 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                         />
                       )}
                     </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">
+                        {t("workspace.planning.billingModel", { defaultValue: "Billing model" })}
+                      </Label>
+                      <div className="flex gap-1 rounded-md border border-border p-0.5">
+                        {(["stage", "monthly"] as const).map((opt) => (
+                          <button
+                            key={opt}
+                            type="button"
+                            onClick={() => {
+                              if (opt === billingModel) return;
+                              upsertStage.mutate({ id: stage.id, billing_model: opt });
+                            }}
+                            className={`flex-1 rounded px-2 py-1 text-[11px] transition ${
+                              billingModel === opt
+                                ? "bg-foreground text-background"
+                                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                            }`}
+                          >
+                            {opt === "stage"
+                              ? t("workspace.planning.billingModelStage", { defaultValue: "Per stage" })
+                              : t("workspace.planning.billingModelMonthly", { defaultValue: "Monthly" })}
+                          </button>
+                        ))}
+                      </div>
+                      {billingModel === "monthly" && (
+                        <p className="text-[10px] text-muted-foreground">
+                          {t("workspace.planning.billingModelMonthlyHint", {
+                            defaultValue: "Budget is split evenly across each calendar month of the stage.",
+                          })}
+                        </p>
+                      )}
+                    </div>
                     {billingModel === "stage" && (
                       <div className="space-y-1">
                         <Label className="text-xs">
@@ -535,6 +568,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                         </div>
                       </div>
                     )}
+
                   </>
                 );
               })()}
