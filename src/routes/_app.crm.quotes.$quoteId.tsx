@@ -482,6 +482,71 @@ function QuoteDetail() {
         externalCopied += 1;
       }
 
+      // 4b. Write the immutable contract baseline snapshot (for internal
+      //     reference). This captures what was agreed at conversion time;
+      //     subsequent edits happen on pm_* tables.
+      const { data: baselineRow, error: baselineErr } = await db
+        .from("pm_project_contract_baseline")
+        .insert({
+          project_id: project.id,
+          quote_id: quote.id,
+          total_fee: soldSummary.totalFee,
+          total_internal_fee: soldSummary.internal.value * soldSummary.pricingMultiplier,
+          total_external_fee: soldSummary.external.value * soldSummary.pricingMultiplier,
+          pricing_multiplier: soldSummary.pricingMultiplier,
+          quote_title: quote.titulo,
+          quote_number: (quote as { proposal_number?: string | null }).proposal_number ?? null,
+        })
+        .select("id")
+        .single();
+      if (baselineErr) throw baselineErr;
+
+      if (qStages && qStages.length > 0) {
+        const stageNameById = new Map<string, string>(
+          qStages.map((s: { id: string; name: string }) => [s.id, s.name]),
+        );
+        const baselineStageRows = qStages.map((s, i) => ({
+          baseline_id: baselineRow.id,
+          name: s.name,
+          start_date: s.start_date,
+          end_date: s.end_date,
+          budget: Number(s.budget ?? 0),
+          billing_model: s.billing_model ?? null,
+          stage_kind: s.stage_kind ?? null,
+          sort_order: s.sort_order ?? i,
+        }));
+        const { error: bsErr } = await db
+          .from("pm_project_contract_baseline_stages")
+          .insert(baselineStageRows);
+        if (bsErr) throw bsErr;
+
+        const { data: qPayments } = await db
+          .from("quote_payment_schedule_items")
+          .select("label, trigger_type, amount_value, expected_invoice_date, expected_payment_date, stage_id, sort_order")
+          .eq("quote_id", quote.id)
+          .order("sort_order", { ascending: true });
+        if (qPayments && qPayments.length > 0) {
+          const baselinePaymentRows = qPayments.map((p: {
+            label: string; trigger_type: string | null; amount_value: number | null;
+            expected_invoice_date: string | null; expected_payment_date: string | null;
+            stage_id: string | null; sort_order: number | null;
+          }, i: number) => ({
+            baseline_id: baselineRow.id,
+            label: p.label,
+            trigger_type: p.trigger_type,
+            amount: Number(p.amount_value ?? 0),
+            expected_invoice_date: p.expected_invoice_date,
+            expected_payment_date: p.expected_payment_date,
+            stage_name: p.stage_id ? (stageNameById.get(p.stage_id) ?? null) : null,
+            sort_order: p.sort_order ?? i,
+          }));
+          const { error: bpErr } = await db
+            .from("pm_project_contract_baseline_payments")
+            .insert(baselinePaymentRows);
+          if (bpErr) throw bpErr;
+        }
+      }
+
       // 5. Link the project back to the quote and mark opportunity as won.
       const { error: linkErr } = await supabase
         .from("fee_proposals")
