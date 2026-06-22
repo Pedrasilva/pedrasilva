@@ -110,6 +110,71 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   const stages = stagesQ.data ?? [];
   const allocations = allocQ.data ?? [];
 
+  // Derived project start = earliest start across non-retainer stages.
+  const projectStartIso = useMemo(() => {
+    const regular = stages.filter(
+      (s) => (s as { stage_kind?: string }).stage_kind !== "retainer_monthly",
+    );
+    if (regular.length === 0) return "";
+    return regular.reduce(
+      (min, s) => (s.start_date < min ? s.start_date : min),
+      regular[0].start_date,
+    );
+  }, [stages]);
+
+  const [shifting, setShifting] = useState(false);
+  const handleShiftProjectStart = useCallback(
+    async (newStartIso: string) => {
+      if (!newStartIso || !projectStartIso || newStartIso === projectStartIso) return;
+      const delta = differenceInCalendarDays(parseISO(newStartIso), parseISO(projectStartIso));
+      if (delta === 0) return;
+      setShifting(true);
+      try {
+        const regular = stages.filter(
+          (s) => (s as { stage_kind?: string }).stage_kind !== "retainer_monthly",
+        );
+        // Batch via raw upsert to avoid N mutation hook calls.
+        const stageRows = regular.map((s) => ({
+          id: s.id,
+          start_date: shiftIso(s.start_date, delta),
+          end_date: shiftIso(s.end_date, delta),
+        }));
+        const allocRows = allocations.map((a) => ({
+          id: a.id,
+          start_date: shiftIso(a.start_date, delta),
+          end_date: shiftIso(a.end_date, delta),
+        }));
+        await Promise.all([
+          ...stageRows.map((r) =>
+            db.from("quote_stages").update({ start_date: r.start_date, end_date: r.end_date }).eq("id", r.id),
+          ),
+          ...allocRows.map((r) =>
+            db.from("quote_allocations").update({ start_date: r.start_date, end_date: r.end_date }).eq("id", r.id),
+          ),
+        ]);
+        await Promise.all([
+          qc.invalidateQueries({ queryKey: ["quote-stages", quoteId] }),
+          qc.invalidateQueries({ queryKey: ["quote-allocations", quoteId] }),
+          qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] }),
+          qc.invalidateQueries({ queryKey: ["quote-financials", quoteId] }),
+        ]);
+        toast.success(
+          t("workspace.planning.projectStartShifted", {
+            defaultValue: "Schedule shifted by {{days}} day(s).",
+            days: delta,
+          }),
+        );
+      } catch (err) {
+        toast.error((err as Error).message);
+      } finally {
+        setShifting(false);
+      }
+    },
+    [projectStartIso, stages, allocations, qc, quoteId, t],
+  );
+
+
+
   /**
    * Inline rename from the outline column.
    *
