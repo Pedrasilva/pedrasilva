@@ -84,9 +84,10 @@ export function useUpdateProject() {
 
 // ---------- PROJECT DETAIL (stages + allocations) ----------
 
-export function useProjectDetail(projectId: string) {
+export function useProjectDetail(projectId: string, opts?: { includeCancelled?: boolean }) {
+  const includeCancelled = opts?.includeCancelled ?? false;
   return useQuery({
-    queryKey: ["pm-project", projectId],
+    queryKey: ["pm-project", projectId, includeCancelled],
     queryFn: async (): Promise<{ project: Project; stages: StageWithAllocations[] }> => {
       const [{ data: project, error: pErr }, { data: stages, error: sErr }] = await Promise.all([
         supabase.from("pm_projects").select("*").eq("id", projectId).single(),
@@ -98,22 +99,30 @@ export function useProjectDetail(projectId: string) {
       ]);
       if (pErr) throw pErr;
       if (sErr) throw sErr;
-      return { project: project!, stages: (stages ?? []) as unknown as StageWithAllocations[] };
+      const rows = (stages ?? []) as unknown as StageWithAllocations[];
+      const filtered = includeCancelled
+        ? rows
+        : rows.filter((s) => (s as { status?: string }).status !== "cancelled");
+      return { project: project!, stages: filtered };
     },
     enabled: !!projectId,
   });
 }
 
-export function useAllStages() {
+export function useAllStages(opts?: { includeCancelled?: boolean }) {
+  const includeCancelled = opts?.includeCancelled ?? false;
   return useQuery({
-    queryKey: ["pm-stages-all"],
+    queryKey: ["pm-stages-all", includeCancelled],
     queryFn: async (): Promise<StageWithAllocations[]> => {
       const { data, error } = await supabase
         .from("pm_stages")
         .select("*, allocations:pm_allocations(*, resource:pm_resources(*))")
         .order("sort_order", { ascending: true });
       if (error) throw error;
-      return (data ?? []) as unknown as StageWithAllocations[];
+      const rows = (data ?? []) as unknown as StageWithAllocations[];
+      return includeCancelled
+        ? rows
+        : rows.filter((s) => (s as { status?: string }).status !== "cancelled");
     },
   });
 }
@@ -151,7 +160,7 @@ export function useUpdateStage() {
       patch,
     }: {
       id: string;
-      patch: Partial<Pick<Stage, "name" | "budget" | "start_date" | "end_date" | "color" | "sort_order">>;
+      patch: Partial<Pick<Stage, "name" | "budget" | "start_date" | "end_date" | "color" | "sort_order">> & { status?: "active" | "cancelled" };
       projectId: string;
     }): Promise<Stage> => {
       const { data, error } = await supabase
