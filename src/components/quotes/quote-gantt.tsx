@@ -362,8 +362,41 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
     });
 
 
+    // Synthetic top-row "Project" summary spanning min(start) → max(end).
+    if (mapped.length > 0) {
+      let minStart = mapped[0].start_date;
+      let maxEnd = mapped[0].end_date;
+      for (const s of mapped) {
+        if (s.start_date < minStart) minStart = s.start_date;
+        if (s.end_date > maxEnd) maxEnd = s.end_date;
+      }
+      const projectRow: StageWithProject = {
+        ...mapped[0],
+        id: PROJECT_SUMMARY_ID,
+        name: t("workspace.planning.projectSummary", { defaultValue: "Project" }),
+        start_date: minStart,
+        end_date: maxEnd,
+        color: "#0f172a",
+        budget: mapped.reduce((sum, s) => sum + Number(s.budget ?? 0), 0),
+        sort_order: -1,
+        parent_stage_id: null,
+        allocations: [],
+        is_milestone: false,
+      };
+      mapped.unshift(projectRow);
+      hier.set(PROJECT_SUMMARY_ID, {
+        depth: 0,
+        wbs: "0",
+        hasChildren: false,
+        isSummary: true,
+        role: "architecture",
+        parentId: null,
+      });
+    }
+
     return { mappedStages: mapped, hierarchy: hier };
-  }, [stages, allocByStage, quoteId]);
+  }, [stages, allocByStage, quoteId, t]);
+
 
   // Local collapse state for the outline. Persisted in sessionStorage per quote.
   const collapseKey = `quote-gantt-collapsed:${quoteId}`;
