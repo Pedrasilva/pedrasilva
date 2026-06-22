@@ -383,7 +383,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         allocations: [],
         is_milestone: false,
       };
-      mapped.unshift(projectRow);
+      mapped.unshift(projectRow as (typeof mapped)[number]);
       hier.set(PROJECT_SUMMARY_ID, {
         depth: 0,
         wbs: "0",
