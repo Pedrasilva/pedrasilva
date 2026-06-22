@@ -459,6 +459,10 @@
         "done": "Realinhadas {{count}} etapa(s) para respeitar as dependências.",
         "alreadyAligned": "O cronograma já respeita todas as dependências."
       },
+      "projectSummary": "Projeto",
+      "projectStart": "Início do projeto",
+      "projectStartHint": "Alterar esta data desloca todas as fases e alocações pelo mesmo número de dias.",
+      "projectStartShifted": "Cronograma deslocado em {{days}} dia(s).",
       "supplierIsSelf": "Somos nós (honorário de arquitetura, sem saída)",
       "supplierPlaceholderLabel": "Ou, se o fornecedor ainda não é conhecido, descreva o papel",
       "supplierPlaceholderHint": "ex. Consultor MEP, Engenheiro de estruturas",
