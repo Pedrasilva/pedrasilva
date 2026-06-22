@@ -948,7 +948,25 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
               })}
             </Button>
           )}
+          {projectStartIso && (
+            <div className="ml-2 flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-0.5">
+              <span className="text-xs text-muted-foreground">
+                {t("workspace.planning.projectStart", { defaultValue: "Project start" })}
+              </span>
+              <Input
+                type="date"
+                value={projectStartIso}
+                onChange={(e) => handleShiftProjectStart(e.target.value)}
+                disabled={shifting}
+                className="h-6 w-[140px] border-0 bg-transparent p-0 text-xs focus-visible:ring-0"
+                title={t("workspace.planning.projectStartHint", {
+                  defaultValue: "Changing this shifts every stage and allocation by the same number of days.",
+                })}
+              />
+            </div>
+          )}
         </div>
+
         {dayWidthProp === undefined && (
           <div className="flex items-center gap-1 rounded-md border border-border bg-card p-0.5">
             <span className="px-2 text-xs text-muted-foreground">
