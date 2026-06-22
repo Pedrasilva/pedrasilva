@@ -46,6 +46,7 @@ import { useStageBudgetControl } from "@/lib/projects/use-stage-budget-control";
 import { BudgetControlPanel } from "@/components/projects/budget-control-panel";
 import { RetainerMonitorPanel } from "@/components/projects/retainer-monitor-panel";
 import { CommercialBaselineCard } from "@/components/projects/commercial-baseline-card";
+import { ContractBaselineCard } from "@/components/projects/contract-baseline-card";
 import { ProjectForecastCard } from "@/components/projects/project-forecast-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -604,6 +605,7 @@ function ProjectDetail() {
             {tab === "overview" && (
               <div className="mt-4 space-y-4">
                 <CommercialBaselineCard projectId={projectId} />
+                <ContractBaselineCard projectId={projectId} />
                 <div className="flex justify-end">
                   <Button asChild variant="outline" size="sm">
                     <Link to="/projects/$projectId/allocations" params={{ projectId }}>
