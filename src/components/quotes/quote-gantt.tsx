@@ -18,10 +18,11 @@ import { useMemo, useState, useEffect, useRef, useLayoutEffect, useCallback } fr
 import { PanelRightClose, PanelRightOpen, Plus, IndentIncrease, IndentDecrease, AlignVerticalJustifyStart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { addDays, differenceInCalendarDays } from "date-fns";
+import { addDays, differenceInCalendarDays, parseISO } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspector";
 import { useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
@@ -29,8 +30,17 @@ import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import { reflowQuoteSchedule } from "@/lib/quotes/reflow-schedule";
+import { supabase } from "@/integrations/supabase/client";
 import type { Resource, AllocationWithResource } from "@/lib/projects/types";
 import { toast } from "sonner";
+
+const PROJECT_SUMMARY_ID = "__quote_project__";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
+
+function shiftIso(iso: string, days: number): string {
+  return addDays(parseISO(iso), days).toISOString().slice(0, 10);
+}
 
 interface Props {
   quoteId: string;
@@ -99,6 +109,71 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
 
   const stages = stagesQ.data ?? [];
   const allocations = allocQ.data ?? [];
+
+  // Derived project start = earliest start across non-retainer stages.
+  const projectStartIso = useMemo(() => {
+    const regular = stages.filter(
+      (s) => (s as { stage_kind?: string }).stage_kind !== "retainer_monthly",
+    );
+    if (regular.length === 0) return "";
+    return regular.reduce(
+      (min, s) => (s.start_date < min ? s.start_date : min),
+      regular[0].start_date,
+    );
+  }, [stages]);
+
+  const [shifting, setShifting] = useState(false);
+  const handleShiftProjectStart = useCallback(
+    async (newStartIso: string) => {
+      if (!newStartIso || !projectStartIso || newStartIso === projectStartIso) return;
+      const delta = differenceInCalendarDays(parseISO(newStartIso), parseISO(projectStartIso));
+      if (delta === 0) return;
+      setShifting(true);
+      try {
+        const regular = stages.filter(
+          (s) => (s as { stage_kind?: string }).stage_kind !== "retainer_monthly",
+        );
+        // Batch via raw upsert to avoid N mutation hook calls.
+        const stageRows = regular.map((s) => ({
+          id: s.id,
+          start_date: shiftIso(s.start_date, delta),
+          end_date: shiftIso(s.end_date, delta),
+        }));
+        const allocRows = allocations.map((a) => ({
+          id: a.id,
+          start_date: shiftIso(a.start_date, delta),
+          end_date: shiftIso(a.end_date, delta),
+        }));
+        await Promise.all([
+          ...stageRows.map((r) =>
+            db.from("quote_stages").update({ start_date: r.start_date, end_date: r.end_date }).eq("id", r.id),
+          ),
+          ...allocRows.map((r) =>
+            db.from("quote_allocations").update({ start_date: r.start_date, end_date: r.end_date }).eq("id", r.id),
+          ),
+        ]);
+        await Promise.all([
+          qc.invalidateQueries({ queryKey: ["quote-stages", quoteId] }),
+          qc.invalidateQueries({ queryKey: ["quote-allocations", quoteId] }),
+          qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] }),
+          qc.invalidateQueries({ queryKey: ["quote-financials", quoteId] }),
+        ]);
+        toast.success(
+          t("workspace.planning.projectStartShifted", {
+            defaultValue: "Schedule shifted by {{days}} day(s).",
+            days: delta,
+          }),
+        );
+      } catch (err) {
+        toast.error((err as Error).message);
+      } finally {
+        setShifting(false);
+      }
+    },
+    [projectStartIso, stages, allocations, qc, quoteId, t],
+  );
+
+
 
   /**
    * Inline rename from the outline column.
@@ -352,8 +427,41 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
     });
 
 
+    // Synthetic top-row "Project" summary spanning min(start) → max(end).
+    if (mapped.length > 0) {
+      let minStart = mapped[0].start_date;
+      let maxEnd = mapped[0].end_date;
+      for (const s of mapped) {
+        if (s.start_date < minStart) minStart = s.start_date;
+        if (s.end_date > maxEnd) maxEnd = s.end_date;
+      }
+      const projectRow: StageWithProject = {
+        ...mapped[0],
+        id: PROJECT_SUMMARY_ID,
+        name: t("workspace.planning.projectSummary", { defaultValue: "Project" }),
+        start_date: minStart,
+        end_date: maxEnd,
+        color: "#0f172a",
+        budget: mapped.reduce((sum, s) => sum + Number(s.budget ?? 0), 0),
+        sort_order: -1,
+        parent_stage_id: null,
+        allocations: [],
+        is_milestone: false,
+      };
+      mapped.unshift(projectRow as (typeof mapped)[number]);
+      hier.set(PROJECT_SUMMARY_ID, {
+        depth: 0,
+        wbs: "0",
+        hasChildren: false,
+        isSummary: true,
+        role: "architecture",
+        parentId: null,
+      });
+    }
+
     return { mappedStages: mapped, hierarchy: hier };
-  }, [stages, allocByStage, quoteId]);
+  }, [stages, allocByStage, quoteId, t]);
+
 
   // Local collapse state for the outline. Persisted in sessionStorage per quote.
   const collapseKey = `quote-gantt-collapsed:${quoteId}`;
@@ -840,7 +948,25 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
               })}
             </Button>
           )}
+          {projectStartIso && (
+            <div className="ml-2 flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-0.5">
+              <span className="text-xs text-muted-foreground">
+                {t("workspace.planning.projectStart", { defaultValue: "Project start" })}
+              </span>
+              <Input
+                type="date"
+                value={projectStartIso}
+                onChange={(e) => handleShiftProjectStart(e.target.value)}
+                disabled={shifting}
+                className="h-6 w-[140px] border-0 bg-transparent p-0 text-xs focus-visible:ring-0"
+                title={t("workspace.planning.projectStartHint", {
+                  defaultValue: "Changing this shifts every stage and allocation by the same number of days.",
+                })}
+              />
+            </div>
+          )}
         </div>
+
         {dayWidthProp === undefined && (
           <div className="flex items-center gap-1 rounded-md border border-border bg-card p-0.5">
             <span className="px-2 text-xs text-muted-foreground">
@@ -928,7 +1054,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             outlineWidth={320}
             embedded
             selectedStageId={selectedStageId}
-            onSelectStage={setSelectedStageId}
+            onSelectStage={(id) => setSelectedStageId(id === PROJECT_SUMMARY_ID ? null : id)}
             onRenameStage={handleRename}
             onReorderStage={handleReorder}
             onInsertStage={handleInsert}

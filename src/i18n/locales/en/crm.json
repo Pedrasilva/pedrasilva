@@ -459,6 +459,10 @@
         "done": "Reflowed {{count}} stage(s) to honour dependencies.",
         "alreadyAligned": "Schedule already satisfies all dependencies."
       },
+      "projectSummary": "Project",
+      "projectStart": "Project start",
+      "projectStartHint": "Changing this shifts every stage and allocation by the same number of days.",
+      "projectStartShifted": "Schedule shifted by {{days}} day(s).",
       "supplierIsSelf": "This is us (architecture credit, no outflow)",
       "supplierPlaceholderLabel": "Or, if supplier not yet known, describe the role",
       "supplierPlaceholderHint": "e.g. MEP consultant, Structural engineer",
