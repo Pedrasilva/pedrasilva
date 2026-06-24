@@ -146,11 +146,14 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
   // set hook-typed fields (name/dates/color/status) as well as schema fields
   // not whitelisted in the hook's narrow Pick (is_milestone). The hook
   // forwards the patch object to Supabase, which type-checks per column.
-  const patch = (p: Record<string, unknown>) =>
+  const patch = (p: Record<string, unknown>) => {
+    if (readOnly) return Promise.resolve();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    updateStage.mutateAsync({ id: stage.id, patch: p as any, projectId });
+    return updateStage.mutateAsync({ id: stage.id, patch: p as any, projectId });
+  };
 
   const handleAddPred = async () => {
+    if (readOnly) return;
     if (!newPred.pred || newPred.pred === stageId) return;
     try {
       await createDep.mutateAsync({
@@ -167,6 +170,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
   };
 
   const handleAddSucc = async () => {
+    if (readOnly) return;
     if (!newSucc.succ || newSucc.succ === stageId) return;
     try {
       await createDep.mutateAsync({
@@ -183,6 +187,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
   };
 
   const handleAddAlloc = async () => {
+    if (readOnly) return;
     if (!newAlloc.resource_id) {
       toast.error(t("projects:gantt.inspector.pickResource", { defaultValue: "Pick a resource first." }));
       return;
