@@ -395,25 +395,42 @@ function DashboardPage() {
     return filteredProjects.map((p) => {
       const ps = stagesByProject.get(p.id) ?? [];
       const budget = ps.reduce((acc, s) => acc + Number(s.budget), 0);
-      const actual = projectActuals.get(p.id) ?? { revenue: 0, cost: 0 };
-      const profit = actual.revenue - actual.cost;
-      const marginPct = actual.revenue > 0 ? (profit / actual.revenue) * 100 : 0;
+      const actual = projectActuals.get(p.id) ?? {
+        invoicedRevenue: 0,
+        laborCost: 0,
+        materialsCost: 0,
+        materialsSale: 0,
+        expensesCost: 0,
+        loggedHours: 0,
+      };
+      // Actual Revenue column = invoiced-to-date (sent/paid/overdue invoices).
+      const actualRevenue = actual.invoicedRevenue;
+      // Actual Cost column = true burn: labour + materials + expenses (purchase).
+      const actualCost = actual.laborCost + actual.materialsCost + actual.expensesCost;
+      // Profit = (Budget + materials.sale_price) − (labour cost + expenses cost).
+      // Materials sit on the revenue side (charged on top of budget); expenses
+      // and hours are pure cost. Per user-defined formula.
+      const totalRevenueBase = budget + actual.materialsSale;
+      const profit = totalRevenueBase - actual.laborCost - actual.expensesCost;
+      const marginPct = totalRevenueBase > 0 ? (profit / totalRevenueBase) * 100 : 0;
 
       let status: HealthRow["status"] = "ok";
       let statusReason = "Healthy";
-      if (ps.length === 0 && actual.revenue === 0 && actual.cost === 0) {
+      const noActivity =
+        ps.length === 0 && actualRevenue === 0 && actualCost === 0 && actual.materialsSale === 0;
+      if (noActivity) {
         status = "none";
         statusReason = "No activity";
-      } else if (budget > 0 && actual.cost > budget) {
+      } else if (budget > 0 && actualCost > budget) {
         status = "bad";
-        statusReason = `Over budget (${Math.round((actual.cost / budget) * 100)}%)`;
-      } else if (actual.revenue > 0 && marginPct < 0) {
+        statusReason = `Over budget (${Math.round((actualCost / budget) * 100)}%)`;
+      } else if (totalRevenueBase > 0 && marginPct < 0) {
         status = "bad";
         statusReason = `Negative margin`;
-      } else if (budget > 0 && actual.cost / budget > 0.85) {
+      } else if (budget > 0 && actualCost / budget > 0.85) {
         status = "warn";
-        statusReason = `Approaching budget (${Math.round((actual.cost / budget) * 100)}%)`;
-      } else if (actual.revenue > 0 && marginPct < 15) {
+        statusReason = `Approaching budget (${Math.round((actualCost / budget) * 100)}%)`;
+      } else if (totalRevenueBase > 0 && marginPct < 15) {
         status = "warn";
         statusReason = `Low margin`;
       }
@@ -421,9 +438,9 @@ function DashboardPage() {
       return {
         project: p,
         budget,
-        actualRevenue: actual.revenue,
-        actualCost: actual.cost,
-        budgetRemaining: budget - actual.cost,
+        actualRevenue,
+        actualCost,
+        budgetRemaining: budget - actualCost,
         profit,
         marginPct,
         status,
