@@ -1585,6 +1585,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             stages={stages}
             stageId={selectedStageId}
             onClose={() => setSelectedStageId(null)}
+            readOnly={!isAdmin}
           />
         )}
         {!poolCollapsed && !selectedStageId && (
