@@ -12,6 +12,8 @@ export interface HealthRow {
   budget: number;
   actualRevenue: number;
   actualCost: number;
+  /** Budget − actualCost. Negative = project has spent past its budget. */
+  budgetRemaining: number;
   profit: number;
   marginPct: number;
   status: HealthStatus;
