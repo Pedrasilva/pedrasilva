@@ -1,69 +1,57 @@
-# One Planner Gantt — unify CRM + Project module
+## Problem
 
-## Current state
+The CRM (quotes) Gantt and the project Gantt are not actually the same component yet — they only share the leaf `GanttChart`. The CRM uses the richer `PlannerGantt` wrapper (`src/components/planner/planner-gantt.tsx`, exported as `QuoteGantt`) which adds:
 
-The low-level chart (`src/components/projects/gantt-chart.tsx`, ~1.8k lines) is **already shared** — both the project page and `QuoteGantt` render it via the `PlannerAdapter` contract. What differs is the **wrapper around it**:
+- Toolbar: Add stage, Indent, Outdent, Reflow, Project-start date shifter
+- Zoom modes: Week / Month / Quarter / Year / Fit (auto-fit container width)
+- Outline collapse state (sessionStorage) + per-stage resources collapse
+- `onReorderStage` (inline WBS edit)
+- Inspector drawer + team pool toggle in one layout
+- Synthetic "Project" summary row
 
-- **CRM quotes** use `QuoteGantt` — rich wrapper with inspector drawer (edit stage details, deps, allocations), outline column with rename/insert/delete, payment-milestone overlay, team-pool sidebar, zoom presets (Week/Month/Quarter/Year/Fit), reflow button.
-- **Project page** calls `GanttChart` directly with a thin toolbar (zoom in/out only) and a separate "show cancelled" toggle. No inspector — stage edits happen through other tabs/components.
-- **Projects > Gantt overview** (multi-project page) calls `GanttChart` directly in compact mode.
-
-So we already have one **engine**; we have two **wrappers**. Promoting the richer wrapper to be the single one is what delivers "edit once, updates everywhere" for the planner surface that users actually interact with.
+The project route renders `GanttChart` directly with its own inline insert/delete handlers and a smaller `dayWidth` toolbar — so new features added to the CRM Gantt don't propagate.
 
 ## Plan
 
-### 1. Extract a `PlannerGantt` component
-Move `src/components/quotes/quote-gantt.tsx` → `src/components/planner/planner-gantt.tsx` and make it mode-agnostic by accepting the data hooks as props instead of hard-wiring quote_* hooks.
+Make `PlannerGantt` mode-agnostic and reuse it in both routes.
 
-New prop shape:
-```ts
-interface PlannerGanttProps {
-  scopeId: string;            // quoteId or projectId
-  adapter: PlannerAdapter;    // already mode-aware
-  stages: Stage[];            // fetched by the parent
-  allocations: Allocation[];
-  resources: Resource[];
-  poolResources: Resource[];  // selectable drag pool
-  rateMissing?: Set<string>;
-  milestones?: PaymentMilestone[]; // optional payment overlay
-  onAddRetainerPhase?: () => void;
-  onReflow?: () => Promise<void>;  // optional — hidden when absent
-  InspectorComponent: React.ComponentType<{ scopeId: string; stageId: string; onClose: () => void }>;
-  // ... stage CRUD callbacks (rename/insert/delete/reorder) routed through adapter
-}
-```
+### 1. `src/components/planner/planner-gantt.tsx` → make it dual-mode
 
-### 2. Build a project-mode inspector
-Create `src/components/projects/project-planner-inspector.tsx` mirroring `QuotePlannerInspector` but reading/writing `pm_stages` + `pm_allocations` + `pm_stage_dependencies`. Reuses existing project hooks (`useUpdateStageWithCascade`, `useStageDependencies`, allocation editor, etc.). Includes a **Cancel stage** action (the deferred item from the previous turn — natural home for it).
+- Add `mode: "quote" | "project"` and require either `quoteId` or `projectId`.
+- Branch data sources by mode:
+  - quote → existing hooks (`useQuoteStages`, `useQuoteAllocations`, `useQuotePlannerAdapter`, `useQuotePlanningPool`, `useQuotePaymentSchedule`)
+  - project → `useProjectDetail`, `useResources`, `useProjectPlannerAdapter`, `useProjectInvoices`, `useStageBudgetControl`
+- Replace the local quote-only `mappedStages/hierarchy` builder with a thin selector that calls `buildProjectGanttTree` in project mode and keeps the existing supplier-aware builder in quote mode.
+- Branch mutations (insert/delete/rename/indent/outdent/reorder) onto `useCreateStage`/`useUpdateStage`/`useDeleteStage` in project mode. The handlers are otherwise identical.
+- Honour the admin gate in project mode: hide Indent/Outdent/Reflow/Add/Insert/Delete affordances when `!isAdmin` (read-only adapter already blocks the writes).
+- Hide quote-only chrome in project mode: project-start shifter (project has its own date), retainer phase button, payment-schedule-derived milestones (use `useProjectInvoices` instead).
+- Inspector: render `ProjectPlannerInspector` in project mode, `QuotePlannerInspector` in quote mode.
+- Pool: project mode uses `useResources()`; quote mode keeps `useQuotePlanningPool()`.
 
-### 3. Wire both routes through PlannerGantt
-- `src/components/quotes/quote-planning-tab.tsx` — switch to `PlannerGantt` with `QuotePlannerInspector` + quote hooks. Behaviour unchanged.
-- `src/routes/_app.projects.$projectId.tsx` — replace the inline `<GanttChart …>` block in the Gantt tab with `<PlannerGantt …>` using `ProjectPlannerInspector` + project hooks. Drops the bespoke zoom toolbar in favour of the unified Week/Month/Quarter/Year/Fit presets and gains the inspector drawer + payment milestones overlay (driven by `pm_invoices`).
-- `src/routes/_app.projects.gantt.tsx` (multi-project) — keep using `GanttChart` directly (compact, read-only-ish overview). No change.
+### 2. `src/routes/_app.projects.$projectId.tsx`
 
-### 4. Delete the duplicated wrapper
-- Delete `src/components/quotes/quote-gantt.tsx` (its body becomes `planner-gantt.tsx`).
-- Keep `GanttChart` as the rendering engine — it stays the shared core.
+- Replace the inline `<GanttChart .../>` block in the Schedule tab with `<PlannerGantt mode="project" projectId={project.id} showCancelled={showCancelled} />`.
+- Drop now-unused state: `dayWidth`, `collapsedOutline`, inline insert/delete handlers, the local `mappedStages/hierarchy` memo, ganttMilestones memo, and the `dayWidth` toolbar.
+- Keep: tab switcher, header, status workflow, financial cards, ProjectPlannerInspector (now owned by PlannerGantt — remove from route).
+- `selectedStageId` moves into PlannerGantt (already lives there for quote mode).
 
-## Visible UI changes on the project page
+### 3. `src/routes/_app.projects.gantt.tsx` (all-projects Gantt)
 
-- Same Gantt visuals, **plus**:
-  - Click any stage bar → right-side inspector drawer (matches CRM behaviour).
-  - Outline column shows WBS numbering + rename/insert/delete inline.
-  - Toolbar gets Week/Month/Quarter/Year/Fit zoom presets (instead of bare +/−).
-  - Payment milestones from `pm_invoices` render as diamonds on the timeline (read-only).
-- The current "show cancelled stages" toggle and existing tabs are preserved.
+- Out of scope for this pass: it's a cross-project view, not a single-project planner. Leave as-is.
 
-## Project-only feature flags stay intact
+### 4. Verification
 
-`PROJECT_FEATURES` (baseline ghost, leave-overlap badges, overload ring, tentative/committed toggle, cross-project drag, holiday shading) continue to drive `GanttChart` rendering through the adapter — none of that is lost.
+- `bun run build` + visit a project → schedule tab → expect identical toolbar + inspector behaviour as `/crm/quotes/:id` planning tab.
+- Confirm admin-only gating still hides edit affordances for non-admins.
+- Spot-check WBS hierarchy, payment milestone diamonds (invoices), and zoom modes.
 
-## Risks
+### Technical notes
 
-- Project Gantt page gets a visibly different toolbar + an inspector drawer. If you prefer to keep the current toolbar layout and only adopt the inspector, say so and I will scope step 3 narrower.
-- The project-mode inspector is net-new code (~300–400 lines). It reuses existing project hooks, so logic is thin, but it needs the same per-field edit affordances the quote inspector has.
+- `buildProjectGanttTree` already produces the same `{ mappedStages, hierarchy }` shape PlannerGantt's `GanttChart` consumes, so the project branch is mostly wiring.
+- `PlannerAdapter` already abstracts the mutation contract, so `GanttChart` itself needs no changes.
+- Quote-mode behaviour is preserved by gating every quote-only block (`if (mode === "quote") {...}`).
 
-## Out of scope (next turns)
+## Out of scope
 
-- Auto-regenerating `pm_invoices` when PM stages move (still pending from earlier).
-- Promoting `_app.projects.gantt.tsx` (multi-project read-only view) to the full PlannerGantt — only worthwhile if you want inspectors there too.
+- All-projects `/projects/gantt` cross-project view.
+- New features inside `GanttChart` itself — this is a wiring/unification change only.
