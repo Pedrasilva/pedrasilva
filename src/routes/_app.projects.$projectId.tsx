@@ -834,9 +834,11 @@ function ProjectDetail() {
 function EditableProjectName({
   name,
   onRename,
+  readOnly = false,
 }: {
   name: string;
   onRename: (next: string) => Promise<unknown>;
+  readOnly?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(name);
@@ -860,7 +862,7 @@ function EditableProjectName({
     }
   };
 
-  if (editing) {
+  if (editing && !readOnly) {
     return (
       <input
         autoFocus
@@ -885,11 +887,15 @@ function EditableProjectName({
   return (
     <h1
       onDoubleClick={() => {
+        if (readOnly) return;
         setValue(name);
         setEditing(true);
       }}
-      title="Duplo clique para renomear"
-      className="font-display cursor-text truncate text-3xl font-semibold tracking-tight"
+      title={readOnly ? undefined : "Duplo clique para renomear"}
+      className={cn(
+        "font-display truncate text-3xl font-semibold tracking-tight",
+        readOnly ? "cursor-default" : "cursor-text",
+      )}
     >
       {name}
     </h1>
