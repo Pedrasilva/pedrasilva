@@ -508,6 +508,10 @@
       "adminOnly": "Only admins can edit the project plan."
     },
     "showCancelled": "Show cancelled",
+    "projectSummary": "Project",
+    "newStage": "New stage",
+    "newMilestone": "Milestone",
+    "stageDeleted": "Stage deleted",
     "inspector": {
       "empty": "Select a row to edit it.",
       "plan": "Plan",

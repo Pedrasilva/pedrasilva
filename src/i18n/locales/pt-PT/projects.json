@@ -508,6 +508,10 @@
       "adminOnly": "Apenas administradores podem editar o plano do projecto."
     },
     "showCancelled": "Mostrar canceladas",
+    "projectSummary": "Projecto",
+    "newStage": "Nova fase",
+    "newMilestone": "Milestone",
+    "stageDeleted": "Fase eliminada",
     "inspector": {
       "empty": "Selecciona uma linha para editar.",
       "plan": "Plano",
