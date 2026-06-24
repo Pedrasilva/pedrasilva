@@ -92,7 +92,9 @@ type TabKey = "overview" | "schedule" | "materials" | "expenses" | "rates" | "bi
 function ProjectDetail() {
   const { t } = useTranslation();
   const { projectId } = Route.useParams();
-  const { data, isLoading, error } = useProjectDetail(projectId);
+  const [showCancelled, setShowCancelled] = useState(false);
+  const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+  const { data, isLoading, error } = useProjectDetail(projectId, { includeCancelled: showCancelled });
   const { data: resources } = useResources();
   const { isAdmin } = useAuth();
   const ganttAdapter = useProjectPlannerAdapter(resources ?? [], { readOnly: !isAdmin });
