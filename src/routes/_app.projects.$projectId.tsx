@@ -1701,10 +1701,15 @@ function InsightsPanel({
     budget: services.budget + externalRow.budget + expensesRow.budget,
     value: services.value + externalRow.value + expensesRow.value,
     cost: services.cost + externalRow.cost + expensesRow.cost,
-    profit: 0, // set below: Budget − Costs
+    profit: 0, // set below: Value (revenue) − Costs
     invoiced: services.invoiced,
   };
-  totalRow.profit = totalRow.budget - totalRow.cost;
+  // Profit is revenue (value) − cost, consistent with each column's row math:
+  //   services.profit  = services.value  − services.cost
+  //   external.profit  = external.value  − external.cost
+  //   expenses.profit  = 0               − expenses.cost
+  // Using budget here produced a number that didn't match the sum of columns.
+  totalRow.profit = totalRow.value - totalRow.cost;
 
 
   return (
