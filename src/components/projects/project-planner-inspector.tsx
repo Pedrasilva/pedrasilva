@@ -140,9 +140,13 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose }:
   const isCancelled = (stage as { status?: string }).status === "cancelled";
   const isMilestone = (stage as { is_milestone?: boolean }).is_milestone === true;
 
-  // Patch helper that satisfies the project hook's required projectId param.
-  const patch = (p: Parameters<typeof updateStage.mutate>[0]["patch"]) =>
-    updateStage.mutateAsync({ id: stage.id, patch: p, projectId });
+  // Patch helper — widened to Record<string, unknown> so the same call can
+  // set hook-typed fields (name/dates/color/status) as well as schema fields
+  // not whitelisted in the hook's narrow Pick (is_milestone). The hook
+  // forwards the patch object to Supabase, which type-checks per column.
+  const patch = (p: Record<string, unknown>) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    updateStage.mutateAsync({ id: stage.id, patch: p as any, projectId });
 
   const handleAddPred = async () => {
     if (!newPred.pred || newPred.pred === stageId) return;
