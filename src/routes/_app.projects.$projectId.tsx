@@ -125,6 +125,17 @@ function ProjectDetail() {
   const [dayWidth, setDayWidth] = useState(36);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [poolOpen, setPoolOpen] = useState(false);
+  const [collapsedOutline, setCollapsedOutline] = useState<Set<string>>(new Set());
+  const toggleOutlineCollapse = (id: string) =>
+    setCollapsedOutline((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const createStage = useCreateStage();
+  const updateStage = useUpdateStage();
+  const deleteStageMut = useDeleteStage();
 
   const { data: historical } = useHistoricalProjectTotals(projectId);
   const hist = historical ?? EMPTY_HISTORICAL_TOTALS;
