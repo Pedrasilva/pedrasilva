@@ -155,7 +155,7 @@ export function ProjectHealthTable({
                   {euros(r.profit)}
                 </td>
                 <td className="px-3 py-2.5 text-right">
-                  <MarginBadge marginPct={r.marginPct} hasRevenue={r.actualRevenue > 0} />
+                  <MarginBadge marginPct={r.marginPct} hasRevenue={r.budget > 0 || r.actualRevenue > 0} />
                 </td>
                 <td className="px-5 py-2.5">
                   <span className="text-[11px] text-muted-foreground">{r.statusReason}</span>
