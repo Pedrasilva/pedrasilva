@@ -34,7 +34,7 @@ import {
   useCreateAllocation,
   useDeleteAllocation,
 } from "@/lib/projects/use-planner";
-import type { Stage, StageWithAllocations } from "@/lib/projects/types";
+import type { StageWithAllocations } from "@/lib/projects/types";
 import type { DepType } from "@/lib/projects/dependencies";
 
 const DEP_TYPES: DepType[] = ["FS", "SS", "FF", "SF"];
