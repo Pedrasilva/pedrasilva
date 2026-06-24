@@ -1150,5 +1150,79 @@
       "restored": "Supplier restored.",
       "deleted": "Supplier deleted."
     }
+  },
+  "expenses": {
+    "title": "Expenses",
+    "subtitle": "Reimbursable project costs (travel, accommodation, meals). No markup.",
+    "addButton": "Add expense",
+    "empty": "No expenses yet.",
+    "totals": "Totals",
+    "rebillableTag": "Rebillable",
+    "rebillableTotal": "rebillable: {{amount}}",
+    "cols": {
+      "description": "Description",
+      "category": "Category",
+      "vendor": "Vendor",
+      "date": "Date",
+      "status": "Status",
+      "amount": "Amount"
+    },
+    "status": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "approved": "Approved",
+      "paid": "Paid"
+    },
+    "category": {
+      "travel": "Travel",
+      "accommodation": "Accommodation",
+      "food": "Food",
+      "transport": "Transport",
+      "printing": "Printing",
+      "misc": "Miscellaneous"
+    },
+    "fields": {
+      "description": "Description",
+      "descriptionPlaceholder": "e.g. Train to Porto",
+      "category": "Category",
+      "supplier": "Supplier",
+      "supplierLegacyHint": "Legacy vendor on this record: {{name}}. Pick a supplier from the directory to upgrade it.",
+      "vendor": "Vendor",
+      "amount": "Amount",
+      "incurredAt": "Date incurred",
+      "status": "Status",
+      "paidAt": "Paid on",
+      "rebillable": "Rebillable expense",
+      "rebillableHint": "Mark to flag for future client reimbursement. Does not affect margin.",
+      "notes": "Notes"
+    },
+    "dialog": {
+      "createTitle": "Add expense",
+      "editTitle": "Edit expense",
+      "create": "Create",
+      "save": "Save",
+      "cancel": "Cancel",
+      "errors": {
+        "descriptionRequired": "Description is required.",
+        "descriptionTooLong": "Description is too long.",
+        "mustBeNumber": "Must be a number.",
+        "mustBeNonNegative": "Must be zero or greater.",
+        "invalidDate": "Invalid date.",
+        "formInvalid": "Please fix the highlighted fields."
+      },
+      "toast": {
+        "created": "Expense added.",
+        "updated": "Expense updated."
+      }
+    },
+    "confirmDelete": {
+      "title": "Delete expense?",
+      "description": "This will permanently remove \"{{name}}\".",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "toast": {
+      "deleted": "Expense deleted."
+    }
   }
 }
