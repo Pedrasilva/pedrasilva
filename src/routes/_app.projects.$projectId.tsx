@@ -703,6 +703,15 @@ function ProjectDetail() {
                       {t("projects:gantt.readOnly.badge", { defaultValue: "Read-only — admin edits only" })}
                     </span>
                   )}
+                  <label className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1 text-[11px] text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={showCancelled}
+                      onChange={(e) => setShowCancelled(e.target.checked)}
+                      className="h-3.5 w-3.5"
+                    />
+                    {t("projects:gantt.showCancelled", { defaultValue: "Show cancelled" })}
+                  </label>
                   <button
                     onClick={() => setPoolOpen((v) => !v)}
                     className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -786,10 +795,20 @@ function ProjectDetail() {
                         budgetByStage={budgetControl?.byStage}
                         budgetByAllocation={budgetControl?.byAllocation}
                         showFinancials={canSeeFinancials}
+                        selectedStageId={selectedStageId}
+                        onSelectStage={(id) => setSelectedStageId(id === selectedStageId ? null : id)}
                       />
                     )}
                   </div>
-                  {poolOpen && (
+                  {selectedStageId && (
+                    <ProjectPlannerInspector
+                      projectId={project.id}
+                      stages={stages}
+                      stageId={selectedStageId}
+                      onClose={() => setSelectedStageId(null)}
+                    />
+                  )}
+                  {poolOpen && !selectedStageId && (
                     <ResourcePool resources={resources ?? []} collapsed={false} />
                   )}
                 </div>
