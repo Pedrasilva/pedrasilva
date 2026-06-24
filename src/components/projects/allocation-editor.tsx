@@ -339,15 +339,33 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
                 </div>
               </div>
               <div className="rounded-md bg-muted/60 px-2.5 py-2 text-[11px]">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Horas derivadas</span>
-                  <span className="font-mono">{derivedHours}h/dia</span>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-muted-foreground">Horas/dia</span>
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={24}
+                      step={0.1}
+                      value={derivedHours}
+                      onChange={(e) => {
+                        const h = Number(e.target.value);
+                        setHours(round1(h));
+                        if (recoverableHoursPerDay > 0) {
+                          setPct(Math.max(0, Math.min(100, Math.round((h / recoverableHoursPerDay) * 100))));
+                        }
+                      }}
+                      className="h-7 w-20 text-right font-mono text-[11px]"
+                    />
+                    <span className="text-muted-foreground">h/dia</span>
+                  </div>
                 </div>
                 <p className="mt-0.5 text-[10px] text-muted-foreground">
-                  {pct}% × {round1(recoverableHoursPerDay)}h recuperável
+                  {pct}% × {round1(recoverableHoursPerDay)}h recuperável · editável
                 </p>
               </div>
             </>
+
           ) : (
             <div>
               <Label htmlFor="a-h" className="text-xs">Horas por dia útil</Label>
