@@ -1,18 +1,18 @@
 /**
- * QuoteGantt — quote-mode wrapper around the shared GanttChart.
+ * PlannerGantt — unified planner wrapper around the shared GanttChart.
  *
- * Responsibilities
- * - Fetch quote_stages, quote_allocations, quote_stage_dependencies and
- *   active pm_resources.
- * - Map quote rows into the StageWithProject / AllocationWithResource shape
- *   GanttChart expects.
- *   - resource.hourly_rate is set to the allocation's sale_rate_snapshot,
- *     and resource.cost_rate to cost_rate_snapshot, so the Gantt's cost
- *     overlays read historical quote rates rather than the resource's
- *     current effective rates.
- * - Build a quote-mode PlannerAdapter (QUOTE_FEATURES) so baseline,
- *   leave overlap, overload, status toggle, holiday shading, and
- *   cross-project moves are hidden.
+ * Currently wired in quote mode (fetches quote_stages / quote_allocations /
+ * quote_stage_dependencies + active pm_resources, maps rows to the
+ * StageWithProject / AllocationWithResource shape GanttChart expects, and
+ * builds a quote-mode PlannerAdapter via QUOTE_FEATURES).
+ *
+ * The quote-side export name `QuoteGantt` is preserved so existing call
+ * sites keep working. Project mode will plug into this same component once
+ * the project-mode inspector is in place; see .lovable/plan.md.
+ *
+ * Note: resource.hourly_rate is set to the allocation's sale_rate_snapshot,
+ * and resource.cost_rate to cost_rate_snapshot, so the Gantt cost overlays
+ * read the historical quote rates rather than today's effective rates.
  */
 import { useMemo, useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
 import { PanelRightClose, PanelRightOpen, Plus, IndentIncrease, IndentDecrease, AlignVerticalJustifyStart } from "lucide-react";
