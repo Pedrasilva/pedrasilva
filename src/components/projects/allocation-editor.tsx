@@ -347,7 +347,7 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
                       min={0}
                       max={24}
                       step={0.1}
-                      value={derivedHours}
+                      value={hours}
                       onChange={(e) => {
                         const h = Number(e.target.value);
                         setHours(round1(h));
@@ -357,6 +357,7 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
                       }}
                       className="h-7 w-20 text-right font-mono text-[11px]"
                     />
+
                     <span className="text-muted-foreground">h/dia</span>
                   </div>
                 </div>
