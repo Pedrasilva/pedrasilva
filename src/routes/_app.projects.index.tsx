@@ -256,70 +256,115 @@ function DashboardPage() {
     },
   });
 
-  // Non-labour project costs: materials (pm_materials) + expenses (pm_expenses).
-  // These must be added to actual cost so the health view reflects true burn,
-  // including opening-balance entries migrated from prior systems.
-  const { data: extraCostsByProject } = useQuery({
-    queryKey: ["pm-project-extra-costs"],
-    queryFn: async (): Promise<Map<string, number>> => {
-      const m = new Map<string, number>();
+  // Per-project material/expense aggregates, split between revenue-side
+  // (materials sale price — what the client will be billed) and cost-side
+  // (materials & expenses purchase price — what the firm actually spent).
+  // Opening-balance migration entries (e.g. BCG) live here as expenses.
+  const { data: extraByProject } = useQuery({
+    queryKey: ["pm-project-extras-split"],
+    queryFn: async (): Promise<Map<string, { materialsSale: number; materialsCost: number; expensesCost: number }>> => {
+      const m = new Map<string, { materialsSale: number; materialsCost: number; expensesCost: number }>();
+      const ensure = (pid: string) => {
+        let cur = m.get(pid);
+        if (!cur) {
+          cur = { materialsSale: 0, materialsCost: 0, expensesCost: 0 };
+          m.set(pid, cur);
+        }
+        return cur;
+      };
       const [mat, exp] = await Promise.all([
-        supabase.from("pm_materials").select("project_id, purchase_price, quantity"),
+        supabase.from("pm_materials").select("project_id, purchase_price, sale_price, quantity"),
         supabase.from("pm_expenses").select("project_id, purchase_price"),
       ]);
       if (mat.error) throw mat.error;
       if (exp.error) throw exp.error;
-      for (const r of (mat.data ?? []) as Array<{ project_id: string | null; purchase_price: number | string | null; quantity: number | string | null }>) {
+      for (const r of (mat.data ?? []) as Array<{ project_id: string | null; purchase_price: number | string | null; sale_price: number | string | null; quantity: number | string | null }>) {
         if (!r.project_id) continue;
         const qty = r.quantity == null || r.quantity === "" ? 1 : Number(r.quantity);
-        const cost = Number(r.purchase_price ?? 0) * qty;
-        m.set(r.project_id, (m.get(r.project_id) ?? 0) + cost);
+        const cur = ensure(r.project_id);
+        cur.materialsCost += Number(r.purchase_price ?? 0) * qty;
+        cur.materialsSale += Number(r.sale_price ?? 0) * qty;
       }
       for (const r of (exp.data ?? []) as Array<{ project_id: string | null; purchase_price: number | string | null }>) {
         if (!r.project_id) continue;
-        m.set(r.project_id, (m.get(r.project_id) ?? 0) + Number(r.purchase_price ?? 0));
+        ensure(r.project_id).expensesCost += Number(r.purchase_price ?? 0);
+      }
+      return m;
+    },
+  });
+
+  // Invoiced-to-date per project: sum of pm_invoices.total for non-draft,
+  // non-cancelled invoices. Drives the "Actual Revenue" column.
+  const { data: invoicedByProject } = useQuery({
+    queryKey: ["pm-project-invoiced"],
+    queryFn: async (): Promise<Map<string, number>> => {
+      const { data, error } = await supabase
+        .from("pm_invoices")
+        .select("project_id, total, status")
+        .in("status", ["sent", "paid", "overdue"]);
+      if (error) throw error;
+      const m = new Map<string, number>();
+      for (const r of (data ?? []) as Array<{ project_id: string | null; total: number | string | null }>) {
+        if (!r.project_id) continue;
+        m.set(r.project_id, (m.get(r.project_id) ?? 0) + Number(r.total ?? 0));
       }
       return m;
     },
   });
 
   const projectActuals = useMemo(() => {
-    type Row = { revenue: number; cost: number; loggedHours: number };
+    type Row = {
+      invoicedRevenue: number;
+      laborCost: number;
+      materialsCost: number;
+      materialsSale: number;
+      expensesCost: number;
+      loggedHours: number;
+    };
     const m = new Map<string, Row>();
-    if (!allEntries || !taskToStage) return m;
-    for (const e of allEntries) {
-      if (!e.task_id) continue;
-      const stageId = taskToStage.get(e.task_id);
-      if (!stageId) continue;
-      const stage = stageById.get(stageId);
-      if (!stage) continue;
-      const projectId = stage.project_id;
-      const allocation = stage.allocations.find((a) => taskToResource.get(a.id) === a.resource_id);
-      // Use the first allocation in the stage to obtain a representative resource for rate.
-      const repAlloc = allocation ?? stage.allocations[0];
-      const resourceId = repAlloc?.resource_id;
-      const cur = m.get(projectId) ?? { revenue: 0, cost: 0, loggedHours: 0 };
-      cur.loggedHours += e.hours;
-      if (resourceId) {
-        const res = resources?.find((r) => r.id === resourceId);
-        const sale = effectiveSaleRate(res?.hourly_rate, resourceId, defaultRates, !!res?.hourly_rate_is_override);
-        const cost = effectiveCostRate(res?.cost_rate, resourceId, defaultRates, !!res?.hourly_rate_is_override);
-        cur.cost += e.hours * cost;
-        if (e.billable) cur.revenue += e.hours * sale;
-      }
-      m.set(projectId, cur);
-    }
-    // Fold in non-labour costs (materials + expenses), even for projects with
-    // no logged hours yet (e.g. opening-balance migration entries).
-    if (extraCostsByProject) {
-      for (const [pid, extra] of extraCostsByProject) {
-        const cur = m.get(pid) ?? { revenue: 0, cost: 0, loggedHours: 0 };
-        cur.cost += extra;
+    const ensure = (pid: string): Row => {
+      let cur = m.get(pid);
+      if (!cur) {
+        cur = { invoicedRevenue: 0, laborCost: 0, materialsCost: 0, materialsSale: 0, expensesCost: 0, loggedHours: 0 };
         m.set(pid, cur);
+      }
+      return cur;
+    };
+    if (allEntries && taskToStage) {
+      for (const e of allEntries) {
+        if (!e.task_id) continue;
+        const stageId = taskToStage.get(e.task_id);
+        if (!stageId) continue;
+        const stage = stageById.get(stageId);
+        if (!stage) continue;
+        const repAlloc =
+          stage.allocations.find((a) => taskToResource.get(a.id) === a.resource_id) ??
+          stage.allocations[0];
+        const resourceId = repAlloc?.resource_id;
+        const cur = ensure(stage.project_id);
+        cur.loggedHours += e.hours;
+        if (resourceId) {
+          const res = resources?.find((r) => r.id === resourceId);
+          const costRate = effectiveCostRate(res?.cost_rate, resourceId, defaultRates, !!res?.hourly_rate_is_override);
+          cur.laborCost += e.hours * costRate;
+        }
+      }
+    }
+    if (extraByProject) {
+      for (const [pid, x] of extraByProject) {
+        const cur = ensure(pid);
+        cur.materialsCost += x.materialsCost;
+        cur.materialsSale += x.materialsSale;
+        cur.expensesCost += x.expensesCost;
+      }
+    }
+    if (invoicedByProject) {
+      for (const [pid, total] of invoicedByProject) {
+        ensure(pid).invoicedRevenue += total;
       }
     }
     return m;
-  }, [allEntries, taskToStage, stageById, taskToResource, resources, defaultRates, extraCostsByProject]);
+  }, [allEntries, taskToStage, stageById, taskToResource, resources, defaultRates, extraByProject, invoicedByProject]);
 
   // Planned hours per project = Σ allocationHours across stages.
   const projectPlannedHours = useMemo(() => {
