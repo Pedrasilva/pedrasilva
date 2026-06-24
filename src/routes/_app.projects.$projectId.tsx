@@ -210,6 +210,36 @@ function ProjectDetail() {
     return { origin: o, totalDays: days };
   }, [data]);
 
+  const summaryLabel = t("projects:gantt.projectSummary", { defaultValue: "Project" });
+  const { mappedStages, hierarchy } = useMemo(
+    () =>
+      data
+        ? buildProjectGanttTree(data.stages, projectId, summaryLabel)
+        : { mappedStages: [], hierarchy: new Map() },
+    [data, projectId, summaryLabel],
+  );
+
+  // Payment milestones from issued invoices: read-only diamonds on the timeline.
+  const ganttMilestones = useMemo<PaymentMilestone[]>(() => {
+    const list = invoices ?? [];
+    if (list.length === 0) return [];
+    return list
+      .filter((inv) => inv.raised_date)
+      .map((inv) => ({
+        id: inv.id,
+        label: inv.invoice_number || inv.title || "Invoice",
+        date: inv.raised_date,
+        amount: Number(inv.total ?? 0),
+        status:
+          inv.status === "paid"
+            ? ("paid" as const)
+            : inv.status === "sent" || inv.status === "overdue"
+              ? ("invoiced" as const)
+              : ("planned" as const),
+        note: inv.title ?? null,
+      }));
+  }, [invoices]);
+
   if (isLoading) {
     return (
       <AppShell active="projects">
