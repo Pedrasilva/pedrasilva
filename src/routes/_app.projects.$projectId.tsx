@@ -1701,9 +1701,11 @@ function InsightsPanel({
     budget: services.budget + externalRow.budget + expensesRow.budget,
     value: services.value + externalRow.value + expensesRow.value,
     cost: services.cost + externalRow.cost + expensesRow.cost,
-    profit: services.profit + externalRow.profit + expensesRow.profit,
+    profit: 0, // set below: Budget − Costs
     invoiced: services.invoiced,
   };
+  totalRow.profit = totalRow.budget - totalRow.cost;
+
 
   return (
     <div className="mt-4 space-y-4">
