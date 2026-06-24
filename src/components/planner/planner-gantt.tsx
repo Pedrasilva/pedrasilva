@@ -18,20 +18,32 @@ import { useMemo, useState, useEffect, useRef, useLayoutEffect, useCallback } fr
 import { PanelRightClose, PanelRightOpen, Plus, IndentIncrease, IndentDecrease, AlignVerticalJustifyStart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { addDays, differenceInCalendarDays, parseISO } from "date-fns";
+import { addDays, differenceInCalendarDays, parseISO, format } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { QuotePlannerInspector } from "@/components/quotes/quote-planner-inspector";
+import { ProjectPlannerInspector } from "@/components/projects/project-planner-inspector";
 import { useQuoteStages, useUpsertQuoteStage, useDeleteQuoteStage } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import { reflowQuoteSchedule } from "@/lib/quotes/reflow-schedule";
+import {
+  useProjectDetail,
+  useResources as useProjectResources,
+  useCreateStage as useCreateProjectStage,
+  useUpdateStage as useUpdateProjectStage,
+  useDeleteStage as useDeleteProjectStage,
+} from "@/lib/projects/use-planner";
+import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
+import { useProjectInvoices } from "@/lib/projects/use-invoices";
+import { buildProjectGanttTree, PROJECT_SUMMARY_ID as PROJECT_MODE_SUMMARY_ID } from "@/lib/projects/build-project-gantt-tree";
+import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
-import type { Resource, AllocationWithResource } from "@/lib/projects/types";
+import type { Resource, AllocationWithResource, StageWithAllocations } from "@/lib/projects/types";
 import { toast } from "sonner";
 
 const PROJECT_SUMMARY_ID = "__quote_project__";
@@ -1072,6 +1084,511 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         )}
         {!poolCollapsed && !selectedStageId && (
           <ResourcePool resources={poolResources} collapsed={false} missingRateIds={rateMissing} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// ProjectGantt — same shell as QuoteGantt, wired to pm_* tables.
+//
+// This intentionally mirrors QuoteGantt's toolbar + chart + inspector layout
+// so the project module and the CRM module share one Gantt experience. The
+// shared leaf is still <GanttChart>; this wrapper provides the surrounding
+// chrome (zoom modes, indent/outdent, inspector drawer, resource pool, WBS
+// outline collapse).
+//
+// Key differences from QuoteGantt:
+//  - Reads pm_stages via useProjectDetail (stages already include allocations).
+//  - Milestones come from issued invoices, not the quote payment schedule.
+//  - No reflow / project-start shifter / retainer phase button.
+//  - Edits are admin-only; non-admins see no insert/delete/indent/outdent buttons
+//    and the underlying PlannerAdapter blocks mutations with a toast.
+// ============================================================================
+
+interface ProjectGanttProps {
+  projectId: string;
+  showCancelled?: boolean;
+  dayWidth?: number;
+}
+
+export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWidthProp }: ProjectGanttProps) {
+  const { t } = useTranslation(["projects", "crm"]);
+  const { isAdmin } = useAuth();
+  const detailQ = useProjectDetail(projectId, { includeCancelled: showCancelled });
+  const { data: allResourcesData } = useProjectResources();
+  const allResources = useMemo(
+    () => (allResourcesData ?? []).filter((r) => r.active !== false),
+    [allResourcesData],
+  );
+  const adapter = useProjectPlannerAdapter(allResources, { readOnly: !isAdmin });
+  const { data: invoices } = useProjectInvoices(projectId);
+  const createStage = useCreateProjectStage();
+  const updateStage = useUpdateProjectStage();
+  const deleteStageMut = useDeleteProjectStage();
+
+  const project = detailQ.data?.project;
+  const stages = useMemo(() => detailQ.data?.stages ?? [], [detailQ.data]);
+
+  const summaryLabel = t("projects:gantt.projectSummary", { defaultValue: "Project" });
+  const { mappedStages, hierarchy } = useMemo(
+    () =>
+      stages.length
+        ? buildProjectGanttTree(stages, projectId, summaryLabel)
+        : { mappedStages: [] as StageWithProject[], hierarchy: new Map<string, GanttHierarchyNode>() },
+    [stages, projectId, summaryLabel],
+  );
+
+  // Payment milestones from issued invoices.
+  const milestones = useMemo<PaymentMilestone[]>(() => {
+    const list = invoices ?? [];
+    if (list.length === 0) return [];
+    return list
+      .filter((inv) => inv.raised_date)
+      .map((inv) => ({
+        id: inv.id,
+        label: inv.invoice_number || inv.title || "Invoice",
+        date: inv.raised_date as string,
+        amount: Number(inv.total ?? 0),
+        status:
+          inv.status === "paid"
+            ? ("paid" as const)
+            : inv.status === "sent" || inv.status === "overdue"
+              ? ("invoiced" as const)
+              : ("planned" as const),
+        note: inv.title ?? null,
+      }));
+  }, [invoices]);
+
+  // Origin/totalDays
+  const { origin, totalDays } = useMemo(() => {
+    if (!mappedStages.length) {
+      return { origin: addDays(new Date(), -7), totalDays: 90 };
+    }
+    let minD = new Date(mappedStages[0].start_date);
+    let maxD = new Date(mappedStages[0].end_date);
+    for (const s of mappedStages) {
+      const sd = new Date(s.start_date);
+      const ed = new Date(s.end_date);
+      if (sd < minD) minD = sd;
+      if (ed > maxD) maxD = ed;
+    }
+    const o = addDays(minD, -7);
+    const days = Math.max(60, differenceInCalendarDays(maxD, o) + 21);
+    return { origin: o, totalDays: days };
+  }, [mappedStages]);
+
+  const collapseKey = `project-gantt-collapsed:${projectId}`;
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const raw = window.sessionStorage.getItem(collapseKey);
+      return raw ? new Set(JSON.parse(raw) as string[]) : new Set();
+    } catch { return new Set(); }
+  });
+  const toggleCollapse = (id: string) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      try { window.sessionStorage.setItem(collapseKey, JSON.stringify([...next])); } catch { /* no-op */ }
+      return next;
+    });
+  };
+
+  const resCollapseKey = `project-gantt-res-collapsed:${projectId}`;
+  const [resCollapsed, setResCollapsed] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const raw = window.sessionStorage.getItem(resCollapseKey);
+      if (raw) return new Set(JSON.parse(raw) as string[]);
+    } catch { /* no-op */ }
+    return new Set();
+  });
+  useEffect(() => {
+    setResCollapsed((prev) => {
+      const next = new Set(prev);
+      let changed = false;
+      for (const s of stages as StageWithAllocations[]) {
+        if ((s.allocations?.length ?? 0) > 0 && !prev.has(s.id) && !window.sessionStorage.getItem(`${resCollapseKey}:seen:${s.id}`)) {
+          next.add(s.id);
+          try { window.sessionStorage.setItem(`${resCollapseKey}:seen:${s.id}`, "1"); } catch { /* no-op */ }
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [stages, resCollapseKey]);
+  const toggleResCollapse = (id: string) => {
+    setResCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      try { window.sessionStorage.setItem(resCollapseKey, JSON.stringify([...next])); } catch { /* no-op */ }
+      return next;
+    });
+  };
+
+  const [zoom, setZoom] = useState<ZoomMode>("week");
+  const [poolCollapsed, setPoolCollapsed] = useState(false);
+  const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+  useEffect(() => { setZoom("week"); }, [projectId]);
+
+  const chartRef = useRef<HTMLDivElement | null>(null);
+  const [chartWidth, setChartWidth] = useState(1100);
+  useLayoutEffect(() => {
+    const el = chartRef.current;
+    if (!el) return;
+    const update = () => setChartWidth(el.clientWidth || 1100);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [poolCollapsed]);
+
+  const computedDayWidth = useMemo(() => {
+    if (dayWidthProp !== undefined) return dayWidthProp;
+    const target = Math.max(400, chartWidth - 24);
+    const fitWidth = target / Math.max(1, totalDays);
+    if (zoom === "fit") return Math.max(1, Math.min(32, fitWidth));
+    return Math.max(ZOOM_DAY_WIDTHS[zoom], fitWidth);
+  }, [zoom, totalDays, dayWidthProp, chartWidth]);
+
+  // ---- Handlers (admin-gated) -----------------------------------------
+  const handleRename = useCallback(
+    async (id: string, name: string) => {
+      if (!isAdmin || id === PROJECT_MODE_SUMMARY_ID) return;
+      await updateStage.mutateAsync({ id, patch: { name }, projectId });
+    },
+    [isAdmin, updateStage, projectId],
+  );
+
+  const handleReorder = useCallback(
+    async (id: string, newPosition: number) => {
+      if (!isAdmin || id === PROJECT_MODE_SUMMARY_ID) return;
+      const target = stages.find((s) => s.id === id) as
+        | (StageWithAllocations & { parent_stage_id?: string | null })
+        | undefined;
+      if (!target) return;
+      const parentId = target.parent_stage_id ?? null;
+      const siblings = (stages as Array<StageWithAllocations & { parent_stage_id?: string | null }>)
+        .filter((s) => (s.parent_stage_id ?? null) === parentId)
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      const without = siblings.filter((s) => s.id !== id);
+      const clamped = Math.max(1, Math.min(newPosition, siblings.length));
+      without.splice(clamped - 1, 0, target);
+      await Promise.all(
+        without.map((s, i) => {
+          const next = (i + 1) * 10;
+          if ((s.sort_order ?? 0) === next) return Promise.resolve();
+          return updateStage.mutateAsync({ id: s.id, patch: { sort_order: next }, projectId });
+        }),
+      );
+    },
+    [isAdmin, stages, updateStage, projectId],
+  );
+
+  const handleInsert = useCallback(
+    async (anchorId: string | null, where: "above" | "below" | "child" | "milestone") => {
+      if (!isAdmin) return;
+      const fmtDate = (d: Date) => format(d, "yyyy-MM-dd");
+      const all = stages as Array<StageWithAllocations & { parent_stage_id?: string | null }>;
+      let parent_stage_id: string | null = null;
+      let start = new Date();
+      let end = addDays(start, 5);
+      let sort_order = 10;
+      const isMilestone = where === "milestone";
+
+      if (anchorId && anchorId !== PROJECT_MODE_SUMMARY_ID) {
+        const anchor = all.find((s) => s.id === anchorId);
+        if (!anchor) return;
+        const anchorParent = anchor.parent_stage_id ?? null;
+        const anchorHasChildren = all.some((s) => (s.parent_stage_id ?? null) === anchor.id);
+
+        if (where === "child" || (where === "below" && anchorHasChildren)) {
+          parent_stage_id = anchor.id;
+          const kids = all
+            .filter((s) => (s.parent_stage_id ?? null) === anchor.id)
+            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+          sort_order = ((kids[kids.length - 1]?.sort_order ?? 0) || 0) + 10;
+          start = parseISO(anchor.start_date);
+          end = where === "child" ? parseISO(anchor.end_date) : addDays(start, 5);
+        } else {
+          parent_stage_id = anchorParent;
+          const siblings = all
+            .filter((s) => (s.parent_stage_id ?? null) === anchorParent)
+            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+          const idx = siblings.findIndex((s) => s.id === anchor.id);
+          if (where === "above") {
+            const prev = siblings[idx - 1];
+            const a = prev?.sort_order ?? 0;
+            const b = anchor.sort_order ?? a + 20;
+            sort_order = Math.floor((a + b) / 2);
+            if (sort_order === a || sort_order === b) sort_order = (anchor.sort_order ?? 10) - 5;
+            start = parseISO(anchor.start_date);
+            end = addDays(start, 5);
+          } else {
+            const next = siblings[idx + 1];
+            const a = anchor.sort_order ?? 0;
+            const b = next?.sort_order ?? a + 20;
+            sort_order = Math.floor((a + b) / 2);
+            if (sort_order === a || sort_order === b) sort_order = a + 5;
+            start = addDays(parseISO(anchor.end_date), 1);
+            end = addDays(start, isMilestone ? 0 : 5);
+          }
+        }
+      } else {
+        const tops = all
+          .filter((s) => (s.parent_stage_id ?? null) === null)
+          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        sort_order = ((tops[tops.length - 1]?.sort_order ?? 0) || tops.length * 10) + 10;
+      }
+
+      try {
+        const created = await createStage.mutateAsync({
+          project_id: projectId,
+          name: isMilestone
+            ? t("projects:gantt.newMilestone", { defaultValue: "Milestone" })
+            : t("projects:gantt.newStage", { defaultValue: "New stage" }),
+          budget: 0,
+          start_date: fmtDate(start),
+          end_date: fmtDate(end),
+          sort_order,
+          parent_stage_id,
+          is_milestone: isMilestone,
+        });
+        if (created?.id) setSelectedStageId(created.id);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Failed to insert stage");
+      }
+    },
+    [isAdmin, stages, createStage, projectId, t],
+  );
+
+  const handleDelete = useCallback(
+    async (id: string) => {
+      if (!isAdmin || id === PROJECT_MODE_SUMMARY_ID) return;
+      try {
+        await deleteStageMut.mutateAsync({ id, projectId });
+        if (selectedStageId === id) setSelectedStageId(null);
+        toast.success(t("projects:gantt.stageDeleted", { defaultValue: "Stage deleted" }));
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Failed to delete stage");
+      }
+    },
+    [isAdmin, deleteStageMut, projectId, selectedStageId, t],
+  );
+
+  const handleIndent = useCallback(
+    async (id: string) => {
+      if (!isAdmin) return;
+      const all = stages as Array<StageWithAllocations & { parent_stage_id?: string | null }>;
+      const target = all.find((s) => s.id === id);
+      if (!target) return;
+      const parentId = target.parent_stage_id ?? null;
+      const siblings = all
+        .filter((s) => (s.parent_stage_id ?? null) === parentId)
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      const idx = siblings.findIndex((s) => s.id === id);
+      const prev = siblings[idx - 1];
+      if (!prev) {
+        toast.error(t("crm:workspace.planning.indentBlocked", { defaultValue: "Select a row that has a sibling above it to indent." }));
+        return;
+      }
+      const newKids = all
+        .filter((s) => (s.parent_stage_id ?? null) === prev.id)
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      const nextSort = ((newKids[newKids.length - 1]?.sort_order ?? 0) || 0) + 10;
+      await updateStage.mutateAsync({
+        id,
+        patch: { parent_stage_id: prev.id, sort_order: nextSort },
+        projectId,
+      });
+      toast.success(t("crm:workspace.planning.indented", { defaultValue: "Row indented." }));
+    },
+    [isAdmin, stages, updateStage, projectId, t],
+  );
+
+  const handleOutdent = useCallback(
+    async (id: string) => {
+      if (!isAdmin) return;
+      const all = stages as Array<StageWithAllocations & { parent_stage_id?: string | null }>;
+      const target = all.find((s) => s.id === id);
+      if (!target) return;
+      const parent = all.find((s) => s.id === (target.parent_stage_id ?? ""));
+      if (!parent) {
+        toast.error(t("crm:workspace.planning.outdentBlocked", { defaultValue: "Top-level rows can't be outdented further." }));
+        return;
+      }
+      const newParentId = (parent as { parent_stage_id?: string | null }).parent_stage_id ?? null;
+      const siblings = all
+        .filter((s) => (s.parent_stage_id ?? null) === newParentId)
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      const parentIdx = siblings.findIndex((s) => s.id === parent.id);
+      const a = siblings[parentIdx]?.sort_order ?? 0;
+      const b = siblings[parentIdx + 1]?.sort_order ?? a + 20;
+      let sort = Math.floor((a + b) / 2);
+      if (sort === a || sort === b) sort = a + 5;
+      await updateStage.mutateAsync({
+        id,
+        patch: { parent_stage_id: newParentId, sort_order: sort },
+        projectId,
+      });
+      toast.success(t("crm:workspace.planning.outdented", { defaultValue: "Row outdented." }));
+    },
+    [isAdmin, stages, updateStage, projectId, t],
+  );
+
+  if (detailQ.isLoading) {
+    return (
+      <div className="rounded-md border border-border p-8 text-center text-sm text-muted-foreground">
+        {t("crm:workspace.planning.loading", { defaultValue: "Loading…" })}
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="rounded-md border border-border p-8 text-center text-sm text-muted-foreground">
+        {t("projects:detail.notFound", { defaultValue: "Project not found." })}
+      </div>
+    );
+  }
+
+  if (mappedStages.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        <span>{t("crm:workspace.planning.noStages", { defaultValue: "No stages yet." })}</span>
+        {isAdmin && (
+          <Button type="button" size="sm" onClick={() => handleInsert(null, "below")} disabled={createStage.isPending}>
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
+            {t("crm:workspace.planning.addStage", { defaultValue: "Add stage" })}
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-7 px-2 text-xs"
+                onClick={() => handleInsert(null, "below")}
+                disabled={createStage.isPending}
+              >
+                <Plus className="mr-1 h-3.5 w-3.5" />
+                {t("crm:workspace.planning.addStage", { defaultValue: "Add stage" })}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-7 w-7 p-0"
+                onClick={() => selectedStageId && handleIndent(selectedStageId)}
+                disabled={!selectedStageId || updateStage.isPending}
+                title={t("crm:workspace.planning.indent", { defaultValue: "Indent (make child of previous)" })}
+                aria-label="Indent"
+              >
+                <IndentIncrease className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-7 w-7 p-0"
+                onClick={() => selectedStageId && handleOutdent(selectedStageId)}
+                disabled={!selectedStageId || updateStage.isPending}
+                title={t("crm:workspace.planning.outdent", { defaultValue: "Outdent (promote one level)" })}
+                aria-label="Outdent"
+              >
+                <IndentDecrease className="h-3.5 w-3.5" />
+              </Button>
+            </>
+          )}
+          {!isAdmin && (
+            <span className="rounded-md border border-border bg-card px-2 py-1 text-[11px] text-muted-foreground">
+              {t("projects:gantt.readOnly.badge", { defaultValue: "Read-only" })}
+            </span>
+          )}
+        </div>
+
+        {dayWidthProp === undefined && (
+          <div className="flex items-center gap-1 rounded-md border border-border bg-card p-0.5">
+            <span className="px-2 text-xs text-muted-foreground">
+              {t("crm:workspace.planning.zoomLabel", { defaultValue: "Zoom" })}
+            </span>
+            {(["week", "month", "quarter", "year", "fit"] as ZoomMode[]).map((z) => (
+              <Button
+                key={z}
+                type="button"
+                variant={zoom === z ? "default" : "ghost"}
+                size="sm"
+                className="h-7 px-2 text-xs capitalize"
+                onClick={() => setZoom(z)}
+              >
+                {t(`crm:workspace.planning.zoom${z[0].toUpperCase()}${z.slice(1)}`, { defaultValue: z })}
+              </Button>
+            ))}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => setPoolCollapsed((v) => !v)}
+              aria-label={poolCollapsed ? "Expand team pool" : "Collapse team pool"}
+              title={poolCollapsed ? "Expand team pool" : "Collapse team pool"}
+            >
+              {poolCollapsed ? <PanelRightOpen className="h-3.5 w-3.5" /> : <PanelRightClose className="h-3.5 w-3.5" />}
+            </Button>
+          </div>
+        )}
+      </div>
+      <div className="flex overflow-hidden rounded-md border border-border bg-canvas">
+        <div
+          ref={chartRef}
+          className="flex-1 overflow-auto resize-y"
+          style={{ height: "70vh", minHeight: 320, maxHeight: "85vh" }}
+        >
+          <GanttChart
+            projectId={projectId}
+            stages={mappedStages}
+            origin={origin}
+            totalDays={totalDays}
+            dayWidth={computedDayWidth}
+            resources={allResources}
+            adapter={adapter}
+            milestones={milestones}
+            hierarchy={hierarchy}
+            collapsed={collapsed}
+            onToggleCollapse={toggleCollapse}
+            resourcesCollapsed={resCollapsed}
+            onToggleResourcesCollapse={toggleResCollapse}
+            outlineWidth={320}
+            embedded
+            selectedStageId={selectedStageId}
+            onSelectStage={(id) => setSelectedStageId(id === PROJECT_MODE_SUMMARY_ID ? null : (id === selectedStageId ? null : id))}
+            onRenameStage={isAdmin ? handleRename : undefined}
+            onReorderStage={isAdmin ? handleReorder : undefined}
+            onInsertStage={isAdmin ? handleInsert : undefined}
+            onDeleteStage={isAdmin ? handleDelete : undefined}
+          />
+        </div>
+        {selectedStageId && (
+          <ProjectPlannerInspector
+            projectId={projectId}
+            stages={stages}
+            stageId={selectedStageId}
+            onClose={() => setSelectedStageId(null)}
+          />
+        )}
+        {!poolCollapsed && !selectedStageId && (
+          <ResourcePool resources={allResources} collapsed={false} />
         )}
       </div>
     </div>
