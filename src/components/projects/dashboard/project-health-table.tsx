@@ -12,6 +12,8 @@ export interface HealthRow {
   budget: number;
   actualRevenue: number;
   actualCost: number;
+  /** Budget − actualCost. Negative = project has spent past its budget. */
+  budgetRemaining: number;
   profit: number;
   marginPct: number;
   status: HealthStatus;
@@ -81,6 +83,7 @@ export function ProjectHealthTable({
               <th className="px-3 py-2 text-right font-medium">{t("health.columns.budget")}</th>
               <th className="px-3 py-2 text-right font-medium">{t("health.columns.actualRevenue")}</th>
               <th className="px-3 py-2 text-right font-medium">{t("health.columns.actualCost")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("health.columns.budgetRemaining")}</th>
               <th className="px-3 py-2 text-right font-medium">{t("health.columns.profit")}</th>
               <th className="px-3 py-2 text-right font-medium">{t("health.columns.margin")}</th>
               <th className="px-5 py-2 text-left font-medium">{t("health.columns.status")}</th>
@@ -89,14 +92,14 @@ export function ProjectHealthTable({
           <tbody className="divide-y divide-border">
             {loading && (
               <tr>
-                <td colSpan={8} className="px-5 py-8 text-center text-xs text-muted-foreground">
+                <td colSpan={9} className="px-5 py-8 text-center text-xs text-muted-foreground">
                   {t("health.loadingProjects")}
                 </td>
               </tr>
             )}
             {!loading && paged.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-5 py-8 text-center text-xs text-muted-foreground">
+                <td colSpan={9} className="px-5 py-8 text-center text-xs text-muted-foreground">
                   {t("health.emptyFilter")}
                 </td>
               </tr>
@@ -130,6 +133,18 @@ export function ProjectHealthTable({
                 </td>
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-foreground">
                   {euros(r.actualCost)}
+                </td>
+                <td
+                  className={cn(
+                    "px-3 py-2.5 text-right font-mono text-xs font-semibold",
+                    r.budget <= 0
+                      ? "text-muted-foreground"
+                      : r.budgetRemaining < 0
+                        ? "text-destructive"
+                        : "text-foreground",
+                  )}
+                >
+                  {r.budget > 0 ? euros(r.budgetRemaining) : "—"}
                 </td>
                 <td
                   className={cn(

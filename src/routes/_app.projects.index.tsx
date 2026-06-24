@@ -256,6 +256,33 @@ function DashboardPage() {
     },
   });
 
+  // Non-labour project costs: materials (pm_materials) + expenses (pm_expenses).
+  // These must be added to actual cost so the health view reflects true burn,
+  // including opening-balance entries migrated from prior systems.
+  const { data: extraCostsByProject } = useQuery({
+    queryKey: ["pm-project-extra-costs"],
+    queryFn: async (): Promise<Map<string, number>> => {
+      const m = new Map<string, number>();
+      const [mat, exp] = await Promise.all([
+        supabase.from("pm_materials").select("project_id, purchase_price, quantity"),
+        supabase.from("pm_expenses").select("project_id, purchase_price"),
+      ]);
+      if (mat.error) throw mat.error;
+      if (exp.error) throw exp.error;
+      for (const r of (mat.data ?? []) as Array<{ project_id: string | null; purchase_price: number | string | null; quantity: number | string | null }>) {
+        if (!r.project_id) continue;
+        const qty = r.quantity == null || r.quantity === "" ? 1 : Number(r.quantity);
+        const cost = Number(r.purchase_price ?? 0) * qty;
+        m.set(r.project_id, (m.get(r.project_id) ?? 0) + cost);
+      }
+      for (const r of (exp.data ?? []) as Array<{ project_id: string | null; purchase_price: number | string | null }>) {
+        if (!r.project_id) continue;
+        m.set(r.project_id, (m.get(r.project_id) ?? 0) + Number(r.purchase_price ?? 0));
+      }
+      return m;
+    },
+  });
+
   const projectActuals = useMemo(() => {
     type Row = { revenue: number; cost: number; loggedHours: number };
     const m = new Map<string, Row>();
@@ -282,8 +309,17 @@ function DashboardPage() {
       }
       m.set(projectId, cur);
     }
+    // Fold in non-labour costs (materials + expenses), even for projects with
+    // no logged hours yet (e.g. opening-balance migration entries).
+    if (extraCostsByProject) {
+      for (const [pid, extra] of extraCostsByProject) {
+        const cur = m.get(pid) ?? { revenue: 0, cost: 0, loggedHours: 0 };
+        cur.cost += extra;
+        m.set(pid, cur);
+      }
+    }
     return m;
-  }, [allEntries, taskToStage, stageById, taskToResource, resources, defaultRates]);
+  }, [allEntries, taskToStage, stageById, taskToResource, resources, defaultRates, extraCostsByProject]);
 
   // Planned hours per project = Σ allocationHours across stages.
   const projectPlannedHours = useMemo(() => {
@@ -342,6 +378,7 @@ function DashboardPage() {
         budget,
         actualRevenue: actual.revenue,
         actualCost: actual.cost,
+        budgetRemaining: budget - actual.cost,
         profit,
         marginPct,
         status,

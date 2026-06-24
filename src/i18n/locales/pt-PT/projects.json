@@ -588,6 +588,7 @@
       "budget": "Orçamento",
       "actualRevenue": "Receita real",
       "actualCost": "Custo real",
+      "budgetRemaining": "Orçamento restante",
       "profit": "Lucro",
       "margin": "Margem",
       "status": "Estado"

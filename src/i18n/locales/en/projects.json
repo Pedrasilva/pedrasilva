@@ -588,6 +588,7 @@
       "budget": "Budget",
       "actualRevenue": "Actual revenue",
       "actualCost": "Actual cost",
+      "budgetRemaining": "Budget remaining",
       "profit": "Profit",
       "margin": "Margin",
       "status": "Status"
