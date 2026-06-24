@@ -833,10 +833,7 @@ function ProjectDetail() {
                     ) : (
                       <GanttChart
                         projectId={project.id}
-                        stages={stages.map((s) => ({
-                          ...s,
-                          projectId: project.id,
-                        }))}
+                        stages={mappedStages}
                         origin={origin}
                         totalDays={totalDays}
                         dayWidth={dayWidth}
@@ -845,8 +842,100 @@ function ProjectDetail() {
                         budgetByStage={budgetControl?.byStage}
                         budgetByAllocation={budgetControl?.byAllocation}
                         showFinancials={canSeeFinancials}
+                        milestones={ganttMilestones}
+                        hierarchy={hierarchy}
+                        collapsed={collapsedOutline}
+                        onToggleCollapse={toggleOutlineCollapse}
+                        outlineWidth={320}
                         selectedStageId={selectedStageId}
-                        onSelectStage={(id) => setSelectedStageId(id === selectedStageId ? null : id)}
+                        onSelectStage={(id) =>
+                          setSelectedStageId(
+                            id === PROJECT_SUMMARY_ID
+                              ? null
+                              : id === selectedStageId
+                                ? null
+                                : id,
+                          )
+                        }
+                        onRenameStage={
+                          isAdmin
+                            ? async (stageId, name) => {
+                                if (stageId === PROJECT_SUMMARY_ID) return;
+                                await updateStage.mutateAsync({
+                                  id: stageId,
+                                  patch: { name },
+                                  projectId: project.id,
+                                });
+                              }
+                            : undefined
+                        }
+                        onInsertStage={
+                          isAdmin
+                            ? async (anchorId, where) => {
+                                const anchor = stages.find((s) => s.id === anchorId);
+                                if (!anchor && anchorId !== PROJECT_SUMMARY_ID) return;
+                                const isMilestone = where === "milestone";
+                                let parent_stage_id: string | null = null;
+                                let start = new Date();
+                                let end = addDays(start, 5);
+                                let sort_order = 10;
+                                if (anchor) {
+                                  if (where === "child") {
+                                    parent_stage_id = anchor.id;
+                                    start = parseISO(anchor.start_date);
+                                    end = parseISO(anchor.end_date);
+                                    const kids = stages.filter(
+                                      (s) => (s.parent_stage_id ?? null) === anchor.id,
+                                    );
+                                    sort_order = (kids[kids.length - 1]?.sort_order ?? 0) + 10;
+                                  } else if (where === "above") {
+                                    parent_stage_id = anchor.parent_stage_id ?? null;
+                                    start = parseISO(anchor.start_date);
+                                    end = addDays(start, 5);
+                                    sort_order = (anchor.sort_order ?? 10) - 5;
+                                  } else {
+                                    parent_stage_id = anchor.parent_stage_id ?? null;
+                                    start = addDays(parseISO(anchor.end_date), 1);
+                                    end = addDays(start, isMilestone ? 0 : 5);
+                                    sort_order = (anchor.sort_order ?? 0) + 5;
+                                  }
+                                }
+                                try {
+                                  const created = await createStage.mutateAsync({
+                                    project_id: project.id,
+                                    name: isMilestone
+                                      ? t("projects:gantt.newMilestone", { defaultValue: "Milestone" })
+                                      : t("projects:gantt.newStage", { defaultValue: "New stage" }),
+                                    budget: 0,
+                                    start_date: format(start, "yyyy-MM-dd"),
+                                    end_date: format(end, "yyyy-MM-dd"),
+                                    sort_order,
+                                    parent_stage_id,
+                                    is_milestone: isMilestone,
+                                  });
+                                  if (created?.id) setSelectedStageId(created.id);
+                                } catch (e) {
+                                  toast.error(e instanceof Error ? e.message : "Failed to insert stage");
+                                }
+                              }
+                            : undefined
+                        }
+                        onDeleteStage={
+                          isAdmin
+                            ? async (id) => {
+                                if (id === PROJECT_SUMMARY_ID) return;
+                                try {
+                                  await deleteStageMut.mutateAsync({ id, projectId: project.id });
+                                  if (selectedStageId === id) setSelectedStageId(null);
+                                  toast.success(
+                                    t("projects:gantt.stageDeleted", { defaultValue: "Stage deleted" }),
+                                  );
+                                } catch (e) {
+                                  toast.error(e instanceof Error ? e.message : "Failed to delete stage");
+                                }
+                              }
+                            : undefined
+                        }
                       />
                     )}
                   </div>
