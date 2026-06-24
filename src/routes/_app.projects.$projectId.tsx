@@ -22,7 +22,16 @@ import {
   useProjectDetail,
   useResources,
   useUpdateProject,
+  useCreateStage,
+  useUpdateStage,
+  useDeleteStage,
 } from "@/lib/projects/use-planner";
+import {
+  buildProjectGanttTree,
+  PROJECT_SUMMARY_ID,
+} from "@/lib/projects/build-project-gantt-tree";
+import type { PaymentMilestone } from "@/components/projects/gantt-chart";
+import { toast } from "sonner";
 import {
   allocationCost,
   allocationHours,
