@@ -706,13 +706,13 @@ function ProjectDetail() {
 
             {tab === "materials" && (
               <div className="mt-4">
-                <ExternalServicesSection projectId={projectId} canEdit={canSeeFinancials} />
+                <ExternalServicesSection projectId={projectId} canEdit={isAdmin && canSeeFinancials} />
               </div>
             )}
 
             {tab === "expenses" && (
               <div className="mt-4">
-                <ProjectExpensesSection projectId={projectId} canEdit={canSeeFinancials} />
+                <ProjectExpensesSection projectId={projectId} canEdit={isAdmin && canSeeFinancials} />
               </div>
             )}
 
