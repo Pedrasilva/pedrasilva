@@ -5,6 +5,7 @@ import { AppShell } from "@/components/projects/app-shell";
 import { NewProjectDialog } from "@/components/projects/new-project-dialog";
 import { GanttChart, type StageWithProject } from "@/components/projects/gantt-chart";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
+import { useAuth } from "@/hooks/use-auth";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import {
   ResizableHandle,
@@ -61,7 +62,8 @@ function GlobalGanttPage() {
   const { data: projects, isLoading } = useProjects();
   const { data: allStages } = useAllStages();
   const { data: resources } = useResources();
-  const ganttAdapter = useProjectPlannerAdapter(resources ?? []);
+  const { isAdmin } = useAuth();
+  const ganttAdapter = useProjectPlannerAdapter(resources ?? [], { readOnly: !isAdmin });
   const { data: defaultRates } = useDefaultResourceRates();
   const del = useDeleteProject();
   const updateProject = useUpdateProject();
