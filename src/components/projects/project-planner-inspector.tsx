@@ -226,6 +226,12 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
         </Button>
       </header>
 
+      {readOnly && (
+        <div className="border-b border-border bg-muted/40 px-3 py-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+          {t("projects:gantt.readOnly.badge", { defaultValue: "Read-only" })}
+        </div>
+      )}
+
       <Tabs defaultValue="plan" className="flex flex-1 flex-col overflow-hidden">
         <TabsList className="mx-3 mt-2 grid grid-cols-3">
           <TabsTrigger value="plan">
