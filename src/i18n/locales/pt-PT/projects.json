@@ -525,6 +525,9 @@
       "weeks": "Semanas",
       "months": "Meses",
       "color": "Cor",
+      "budget": "Orçamento",
+      "budgetHint": "Honorário alocado a esta fase. Alimenta o profit e o controlo de desvio.",
+
       "milestone": "Marco",
       "milestoneHint": "Marcador de data única",
       "status": "Estado",

@@ -525,6 +525,9 @@
       "weeks": "Weeks",
       "months": "Months",
       "color": "Color",
+      "budget": "Budget",
+      "budgetHint": "Fee allocated to this stage. Drives profit and over/under tracking.",
+
       "milestone": "Milestone",
       "milestoneHint": "Single-date marker",
       "status": "Status",

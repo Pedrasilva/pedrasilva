@@ -313,6 +313,38 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose }:
           )}
 
           <div className="space-y-1">
+            <Label className="text-xs">
+              {t("projects:gantt.inspector.budget", { defaultValue: "Budget" })}
+            </Label>
+            <div className="relative">
+              <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                €
+              </span>
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                inputMode="decimal"
+                className="pl-6"
+                key={`bg-${stage.id}-${stage.budget}`}
+                defaultValue={Number(stage.budget ?? 0)}
+                onBlur={(e) => {
+                  const v = Number(e.target.value);
+                  if (!Number.isFinite(v) || v < 0) return;
+                  if (v !== Number(stage.budget ?? 0)) patch({ budget: v });
+                }}
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              {t("projects:gantt.inspector.budgetHint", {
+                defaultValue: "Fee allocated to this stage. Drives profit and over/under tracking.",
+              })}
+            </p>
+          </div>
+
+
+
+          <div className="space-y-1">
             <Label className="text-xs">{t("projects:gantt.inspector.color", { defaultValue: "Color" })}</Label>
             <div className="flex flex-wrap gap-1.5">
               {STAGE_COLORS.map((c) => (
