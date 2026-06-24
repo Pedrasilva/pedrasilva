@@ -10,6 +10,7 @@ export type InvoiceLineItemInsert = Database["public"]["Tables"]["pm_invoice_ite
 export function useProjectInvoices(projectId: string) {
   return useQuery({
     queryKey: ["pm-invoices", projectId],
+    enabled: !!projectId,
     queryFn: async (): Promise<Invoice[]> => {
       const { data, error } = await supabase
         .from("pm_invoices")
