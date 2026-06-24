@@ -670,6 +670,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
           )}
         </TabsContent>
       </Tabs>
+      </fieldset>
     </aside>
   );
 }
