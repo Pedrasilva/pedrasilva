@@ -378,6 +378,7 @@ function DashboardPage() {
         budget,
         actualRevenue: actual.revenue,
         actualCost: actual.cost,
+        budgetRemaining: budget - actual.cost,
         profit,
         marginPct,
         status,
