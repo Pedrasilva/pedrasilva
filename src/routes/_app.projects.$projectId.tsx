@@ -1659,15 +1659,15 @@ function InsightsPanel({
   const maxAct = Math.max(1, ...months.map((m) => m.activities));
   const maxHours = Math.max(1, ...months.map((m) => m.hours));
 
-  // Financials box reflects actuals (current state) using new revenue model:
-  //   Value (Revenue) = Σ billable hours × sale rate    (revenue only from billable)
-  //   Cost            = Σ all logged hours × cost rate  (non-billable still costs)
-  //   Profit          = Revenue − Cost
+  // Financials box — Profit rule (locked):
+  //   Profit = Budget (incoming / contracted fee) − Costs
+  // The "Value" row is the hypothetical sale value of resources at sale rate
+  // and is intentionally NOT used in the profit calculation.
   const services = {
     budget: totalBudget,
     value: earnedValue,
     cost: loggedCost,
-    profit: earnedValue - loggedCost,
+    profit: totalBudget - loggedCost,
     invoiced: invoicedTotal,
   };
   // Pull live external services + project expenses to enrich Financials
@@ -1687,7 +1687,7 @@ function InsightsPanel({
     },
     { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 },
   );
-  externalRow.profit = externalRow.value - externalRow.cost;
+  externalRow.profit = externalRow.budget - externalRow.cost;
   const expensesRow = expItems.reduce(
     (acc, e) => {
       const cost = Number(e.purchase_price || 0);
@@ -1696,20 +1696,15 @@ function InsightsPanel({
     },
     { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 },
   );
-  expensesRow.profit = -expensesRow.cost;
+  expensesRow.profit = expensesRow.budget - expensesRow.cost;
   const totalRow = {
     budget: services.budget + externalRow.budget + expensesRow.budget,
     value: services.value + externalRow.value + expensesRow.value,
     cost: services.cost + externalRow.cost + expensesRow.cost,
-    profit: 0, // set below: Value (revenue) − Costs
+    profit: 0, // set below: Budget − Costs
     invoiced: services.invoiced,
   };
-  // Profit is revenue (value) − cost, consistent with each column's row math:
-  //   services.profit  = services.value  − services.cost
-  //   external.profit  = external.value  − external.cost
-  //   expenses.profit  = 0               − expenses.cost
-  // Using budget here produced a number that didn't match the sum of columns.
-  totalRow.profit = totalRow.value - totalRow.cost;
+  totalRow.profit = totalRow.budget - totalRow.cost;
 
 
   return (
