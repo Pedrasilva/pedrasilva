@@ -502,6 +502,10 @@
       "addPredecessor": "Add predecessor",
       "noDependencies": "No incoming dependencies",
       "labelDays": "{{sign}}{{abs}}d"
+    },
+    "readOnly": {
+      "badge": "Read-only — admin edits only",
+      "adminOnly": "Only admins can edit the project plan."
     }
   },
   "kpi": {

@@ -14,6 +14,7 @@ import { useRecordRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { AppShell } from "@/components/projects/app-shell";
 import { GanttChart } from "@/components/projects/gantt-chart";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
+import { useAuth } from "@/hooks/use-auth";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { NewStageDialog } from "@/components/projects/new-stage-dialog";
 import {
@@ -93,7 +94,8 @@ function ProjectDetail() {
   const { projectId } = Route.useParams();
   const { data, isLoading, error } = useProjectDetail(projectId);
   const { data: resources } = useResources();
-  const ganttAdapter = useProjectPlannerAdapter(resources ?? []);
+  const { isAdmin } = useAuth();
+  const ganttAdapter = useProjectPlannerAdapter(resources ?? [], { readOnly: !isAdmin });
   const { data: defaultRates } = useDefaultResourceRates();
   const { data: invoices } = useProjectInvoices(projectId);
   const { data: activities } = useProjectActivities(projectId);
@@ -679,18 +681,25 @@ function ProjectDetail() {
             {tab === "schedule" && (
               <div className="mt-4">
                 <div className="mb-3 flex flex-wrap items-center justify-end gap-2">
-                  <NewStageDialog
-                    projectId={project.id}
-                    defaultStart={
-                      stages.length
-                        ? format(
-                            parseISO(stages[stages.length - 1].end_date),
-                            "yyyy-MM-dd",
-                          )
-                        : project.start_date
-                    }
-                    nextOrder={(stages[stages.length - 1]?.sort_order ?? 0) + 1}
-                  />
+                  {isAdmin && (
+                    <NewStageDialog
+                      projectId={project.id}
+                      defaultStart={
+                        stages.length
+                          ? format(
+                              parseISO(stages[stages.length - 1].end_date),
+                              "yyyy-MM-dd",
+                            )
+                          : project.start_date
+                      }
+                      nextOrder={(stages[stages.length - 1]?.sort_order ?? 0) + 1}
+                    />
+                  )}
+                  {!isAdmin && (
+                    <span className="rounded-md border border-border bg-muted/30 px-2 py-1 text-[11px] text-muted-foreground">
+                      {t("projects:gantt.readOnly.badge", { defaultValue: "Read-only — admin edits only" })}
+                    </span>
+                  )}
                   <button
                     onClick={() => setPoolOpen((v) => !v)}
                     className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
