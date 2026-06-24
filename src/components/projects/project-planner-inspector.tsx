@@ -51,9 +51,11 @@ interface Props {
   stages: StageWithAllocations[];
   stageId: string;
   onClose: () => void;
+  /** When true, all editing controls are disabled / hidden. */
+  readOnly?: boolean;
 }
 
-export function ProjectPlannerInspector({ projectId, stages, stageId, onClose }: Props) {
+export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, readOnly = false }: Props) {
   const { t } = useTranslation(["projects"]);
 
   const depsQ = useStageDependencies();
@@ -144,11 +146,14 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose }:
   // set hook-typed fields (name/dates/color/status) as well as schema fields
   // not whitelisted in the hook's narrow Pick (is_milestone). The hook
   // forwards the patch object to Supabase, which type-checks per column.
-  const patch = (p: Record<string, unknown>) =>
+  const patch = (p: Record<string, unknown>) => {
+    if (readOnly) return Promise.resolve();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    updateStage.mutateAsync({ id: stage.id, patch: p as any, projectId });
+    return updateStage.mutateAsync({ id: stage.id, patch: p as any, projectId });
+  };
 
   const handleAddPred = async () => {
+    if (readOnly) return;
     if (!newPred.pred || newPred.pred === stageId) return;
     try {
       await createDep.mutateAsync({
@@ -165,6 +170,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose }:
   };
 
   const handleAddSucc = async () => {
+    if (readOnly) return;
     if (!newSucc.succ || newSucc.succ === stageId) return;
     try {
       await createDep.mutateAsync({
@@ -181,6 +187,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose }:
   };
 
   const handleAddAlloc = async () => {
+    if (readOnly) return;
     if (!newAlloc.resource_id) {
       toast.error(t("projects:gantt.inspector.pickResource", { defaultValue: "Pick a resource first." }));
       return;
@@ -224,6 +231,13 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose }:
         </Button>
       </header>
 
+      {readOnly && (
+        <div className="border-b border-border bg-muted/40 px-3 py-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+          {t("projects:gantt.readOnly.badge", { defaultValue: "Read-only" })}
+        </div>
+      )}
+
+      <fieldset disabled={readOnly} className="contents">
       <Tabs defaultValue="plan" className="flex flex-1 flex-col overflow-hidden">
         <TabsList className="mx-3 mt-2 grid grid-cols-3">
           <TabsTrigger value="plan">
@@ -656,6 +670,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose }:
           )}
         </TabsContent>
       </Tabs>
+      </fieldset>
     </aside>
   );
 }

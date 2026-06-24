@@ -440,6 +440,7 @@ function ProjectDetail() {
             />
             <EditableProjectName
               name={project.name}
+              readOnly={!isAdmin}
               onRename={(name) =>
                 updateProject.mutateAsync({ id: project.id, patch: { name } })
               }
@@ -494,7 +495,7 @@ function ProjectDetail() {
 
           {/* RIGHT: primary status actions */}
           <div className="flex flex-shrink-0 items-center gap-2">
-            <StatusToggle current={project.status} onChange={setStatus} />
+            {isAdmin && <StatusToggle current={project.status} onChange={setStatus} />}
             <HardDeleteProjectButton projectId={project.id} />
           </div>
         </div>
@@ -705,13 +706,13 @@ function ProjectDetail() {
 
             {tab === "materials" && (
               <div className="mt-4">
-                <ExternalServicesSection projectId={projectId} canEdit={canSeeFinancials} />
+                <ExternalServicesSection projectId={projectId} canEdit={isAdmin && canSeeFinancials} />
               </div>
             )}
 
             {tab === "expenses" && (
               <div className="mt-4">
-                <ProjectExpensesSection projectId={projectId} canEdit={canSeeFinancials} />
+                <ProjectExpensesSection projectId={projectId} canEdit={isAdmin && canSeeFinancials} />
               </div>
             )}
 
@@ -753,7 +754,7 @@ function ProjectDetail() {
             {tab === "insights" && (
               <InsightsPanel
                 projectId={projectId}
-                canEdit={canSeeFinancials}
+                canEdit={isAdmin && canSeeFinancials}
                 stages={stages}
                 invoices={invoices ?? []}
                 invoicedTotal={invoicedTotal}
@@ -833,9 +834,11 @@ function ProjectDetail() {
 function EditableProjectName({
   name,
   onRename,
+  readOnly = false,
 }: {
   name: string;
   onRename: (next: string) => Promise<unknown>;
+  readOnly?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(name);
@@ -859,7 +862,7 @@ function EditableProjectName({
     }
   };
 
-  if (editing) {
+  if (editing && !readOnly) {
     return (
       <input
         autoFocus
@@ -884,11 +887,15 @@ function EditableProjectName({
   return (
     <h1
       onDoubleClick={() => {
+        if (readOnly) return;
         setValue(name);
         setEditing(true);
       }}
-      title="Duplo clique para renomear"
-      className="font-display cursor-text truncate text-3xl font-semibold tracking-tight"
+      title={readOnly ? undefined : "Duplo clique para renomear"}
+      className={cn(
+        "font-display truncate text-3xl font-semibold tracking-tight",
+        readOnly ? "cursor-default" : "cursor-text",
+      )}
     >
       {name}
     </h1>
