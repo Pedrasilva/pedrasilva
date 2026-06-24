@@ -1150,5 +1150,79 @@
       "restored": "Fornecedor restaurado.",
       "deleted": "Fornecedor eliminado."
     }
+  },
+  "expenses": {
+    "title": "Despesas",
+    "subtitle": "Despesas reembolsáveis do projecto (deslocações, alojamento, refeições). Sem markup.",
+    "addButton": "Adicionar despesa",
+    "empty": "Sem despesas.",
+    "totals": "Totais",
+    "rebillableTag": "Refacturável",
+    "rebillableTotal": "refacturável: {{amount}}",
+    "cols": {
+      "description": "Descrição",
+      "category": "Categoria",
+      "vendor": "Fornecedor",
+      "date": "Data",
+      "status": "Estado",
+      "amount": "Valor"
+    },
+    "status": {
+      "draft": "Rascunho",
+      "submitted": "Submetida",
+      "approved": "Aprovada",
+      "paid": "Paga"
+    },
+    "category": {
+      "travel": "Deslocações",
+      "accommodation": "Alojamento",
+      "food": "Refeições",
+      "transport": "Transportes",
+      "printing": "Impressões",
+      "misc": "Diversos"
+    },
+    "fields": {
+      "description": "Descrição",
+      "descriptionPlaceholder": "ex. Comboio para o Porto",
+      "category": "Categoria",
+      "supplier": "Fornecedor",
+      "supplierLegacyHint": "Fornecedor antigo neste registo: {{name}}. Escolha um fornecedor do directório para actualizar.",
+      "vendor": "Fornecedor",
+      "amount": "Valor",
+      "incurredAt": "Data da despesa",
+      "status": "Estado",
+      "paidAt": "Pago em",
+      "rebillable": "Despesa refacturável",
+      "rebillableHint": "Marque para sinalizar reembolso futuro pelo cliente. Não afecta a margem.",
+      "notes": "Notas"
+    },
+    "dialog": {
+      "createTitle": "Adicionar despesa",
+      "editTitle": "Editar despesa",
+      "create": "Criar",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "errors": {
+        "descriptionRequired": "A descrição é obrigatória.",
+        "descriptionTooLong": "A descrição é demasiado longa.",
+        "mustBeNumber": "Tem de ser um número.",
+        "mustBeNonNegative": "Tem de ser zero ou superior.",
+        "invalidDate": "Data inválida.",
+        "formInvalid": "Corrija os campos assinalados."
+      },
+      "toast": {
+        "created": "Despesa adicionada.",
+        "updated": "Despesa actualizada."
+      }
+    },
+    "confirmDelete": {
+      "title": "Eliminar despesa?",
+      "description": "Vai remover permanentemente \"{{name}}\".",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar"
+    },
+    "toast": {
+      "deleted": "Despesa eliminada."
+    }
   }
 }
