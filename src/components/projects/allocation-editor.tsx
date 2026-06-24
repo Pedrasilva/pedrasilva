@@ -143,7 +143,7 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
     try {
       // In allocation-% mode HR-recoverable × pct/100 drives hours/day; otherwise
       // the manual hours field is the source of truth.
-      const hoursToSave = showPercentage ? derivedHours : hours;
+      const hoursToSave = hours;
       const patch: Parameters<typeof adapter.updateAllocation>[0]["patch"] = showStatusToggle
         ? { start_date: start, end_date: end, hours_per_day: hoursToSave, status }
         : { start_date: start, end_date: end, hours_per_day: hoursToSave };
