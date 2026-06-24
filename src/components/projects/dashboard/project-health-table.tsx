@@ -92,14 +92,14 @@ export function ProjectHealthTable({
           <tbody className="divide-y divide-border">
             {loading && (
               <tr>
-                <td colSpan={8} className="px-5 py-8 text-center text-xs text-muted-foreground">
+                <td colSpan={9} className="px-5 py-8 text-center text-xs text-muted-foreground">
                   {t("health.loadingProjects")}
                 </td>
               </tr>
             )}
             {!loading && paged.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-5 py-8 text-center text-xs text-muted-foreground">
+                <td colSpan={9} className="px-5 py-8 text-center text-xs text-muted-foreground">
                   {t("health.emptyFilter")}
                 </td>
               </tr>
