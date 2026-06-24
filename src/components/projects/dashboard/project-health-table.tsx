@@ -137,6 +137,18 @@ export function ProjectHealthTable({
                 <td
                   className={cn(
                     "px-3 py-2.5 text-right font-mono text-xs font-semibold",
+                    r.budget <= 0
+                      ? "text-muted-foreground"
+                      : r.budgetRemaining < 0
+                        ? "text-destructive"
+                        : "text-foreground",
+                  )}
+                >
+                  {r.budget > 0 ? euros(r.budgetRemaining) : "—"}
+                </td>
+                <td
+                  className={cn(
+                    "px-3 py-2.5 text-right font-mono text-xs font-semibold",
                     r.profit < 0 ? "text-destructive" : "text-foreground",
                   )}
                 >
