@@ -15,6 +15,7 @@ import { AppShell } from "@/components/projects/app-shell";
 import { GanttChart } from "@/components/projects/gantt-chart";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 import { useAuth } from "@/hooks/use-auth";
+import { ProjectPlannerInspector } from "@/components/projects/project-planner-inspector";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { NewStageDialog } from "@/components/projects/new-stage-dialog";
 import {
@@ -92,7 +93,9 @@ type TabKey = "overview" | "schedule" | "materials" | "expenses" | "rates" | "bi
 function ProjectDetail() {
   const { t } = useTranslation();
   const { projectId } = Route.useParams();
-  const { data, isLoading, error } = useProjectDetail(projectId);
+  const [showCancelled, setShowCancelled] = useState(false);
+  const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+  const { data, isLoading, error } = useProjectDetail(projectId, { includeCancelled: showCancelled });
   const { data: resources } = useResources();
   const { isAdmin } = useAuth();
   const ganttAdapter = useProjectPlannerAdapter(resources ?? [], { readOnly: !isAdmin });
@@ -700,6 +703,15 @@ function ProjectDetail() {
                       {t("projects:gantt.readOnly.badge", { defaultValue: "Read-only — admin edits only" })}
                     </span>
                   )}
+                  <label className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1 text-[11px] text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={showCancelled}
+                      onChange={(e) => setShowCancelled(e.target.checked)}
+                      className="h-3.5 w-3.5"
+                    />
+                    {t("projects:gantt.showCancelled", { defaultValue: "Show cancelled" })}
+                  </label>
                   <button
                     onClick={() => setPoolOpen((v) => !v)}
                     className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -783,10 +795,20 @@ function ProjectDetail() {
                         budgetByStage={budgetControl?.byStage}
                         budgetByAllocation={budgetControl?.byAllocation}
                         showFinancials={canSeeFinancials}
+                        selectedStageId={selectedStageId}
+                        onSelectStage={(id) => setSelectedStageId(id === selectedStageId ? null : id)}
                       />
                     )}
                   </div>
-                  {poolOpen && (
+                  {selectedStageId && (
+                    <ProjectPlannerInspector
+                      projectId={project.id}
+                      stages={stages}
+                      stageId={selectedStageId}
+                      onClose={() => setSelectedStageId(null)}
+                    />
+                  )}
+                  {poolOpen && !selectedStageId && (
                     <ResourcePool resources={resources ?? []} collapsed={false} />
                   )}
                 </div>
