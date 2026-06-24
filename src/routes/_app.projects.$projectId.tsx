@@ -440,6 +440,7 @@ function ProjectDetail() {
             />
             <EditableProjectName
               name={project.name}
+              readOnly={!isAdmin}
               onRename={(name) =>
                 updateProject.mutateAsync({ id: project.id, patch: { name } })
               }
