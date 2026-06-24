@@ -51,9 +51,11 @@ interface Props {
   stages: StageWithAllocations[];
   stageId: string;
   onClose: () => void;
+  /** When true, all editing controls are disabled / hidden. */
+  readOnly?: boolean;
 }
 
-export function ProjectPlannerInspector({ projectId, stages, stageId, onClose }: Props) {
+export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, readOnly = false }: Props) {
   const { t } = useTranslation(["projects"]);
 
   const depsQ = useStageDependencies();
