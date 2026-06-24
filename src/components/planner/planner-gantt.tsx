@@ -46,7 +46,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Resource, AllocationWithResource, StageWithAllocations } from "@/lib/projects/types";
 import { toast } from "sonner";
 
-const QUOTE_SUMMARY_ID = "__quote_project__";
+const PROJECT_SUMMARY_ID = "__quote_project__";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
 
@@ -54,19 +54,11 @@ function shiftIso(iso: string, days: number): string {
   return addDays(parseISO(iso), days).toISOString().slice(0, 10);
 }
 
-type QuoteProps = {
-  mode?: "quote";
+interface Props {
   quoteId: string;
   dayWidth?: number;
   onAddRetainerPhase?: () => void;
-};
-type ProjectProps = {
-  mode: "project";
-  projectId: string;
-  showCancelled?: boolean;
-  dayWidth?: number;
-};
-type Props = QuoteProps | ProjectProps;
+}
 
 type ZoomMode = "week" | "month" | "quarter" | "year" | "fit";
 
