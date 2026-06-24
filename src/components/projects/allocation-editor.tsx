@@ -103,7 +103,7 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
 
   // Derived hours/day when % drives the allocation.
   const derivedHours = round1((pct / 100) * recoverableHoursPerDay);
-  const effectiveHours = showPercentage ? derivedHours : hours;
+  const effectiveHours = hours;
 
   const wd = workingDays(start, end);
   const totalH = allocationHours({
