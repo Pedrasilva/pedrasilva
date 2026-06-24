@@ -237,6 +237,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
         </div>
       )}
 
+      <fieldset disabled={readOnly} className="contents">
       <Tabs defaultValue="plan" className="flex flex-1 flex-col overflow-hidden">
         <TabsList className="mx-3 mt-2 grid grid-cols-3">
           <TabsTrigger value="plan">
