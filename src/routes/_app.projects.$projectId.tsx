@@ -754,7 +754,7 @@ function ProjectDetail() {
             {tab === "insights" && (
               <InsightsPanel
                 projectId={projectId}
-                canEdit={canSeeFinancials}
+                canEdit={isAdmin && canSeeFinancials}
                 stages={stages}
                 invoices={invoices ?? []}
                 invoicedTotal={invoicedTotal}
