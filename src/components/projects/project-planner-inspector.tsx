@@ -258,8 +258,8 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose }:
               onChange={(e) => {
                 const on = e.target.checked;
                 patch(on
-                  ? ({ end_date: stage.start_date, is_milestone: true } as Partial<Stage>)
-                  : ({ is_milestone: false } as Partial<Stage>));
+                  ? ({ end_date: stage.start_date, is_milestone: true })
+                  : ({ is_milestone: false }));
               }}
               className="h-4 w-4"
             />
@@ -348,7 +348,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose }:
                 size="sm"
                 className="w-full"
                 onClick={() => {
-                  patch({ status: "active" } as Partial<Stage>).then(() =>
+                  patch({ status: "active" }).then(() =>
                     toast.success(t("projects:gantt.inspector.restored", { defaultValue: "Stage restored" })),
                   );
                 }}
@@ -370,7 +370,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose }:
                       }),
                     )
                   ) {
-                    patch({ status: "cancelled" } as Partial<Stage>).then(() => {
+                    patch({ status: "cancelled" }).then(() => {
                       toast.success(t("projects:gantt.inspector.cancelled", { defaultValue: "Cancelled" }));
                       onClose();
                     });
