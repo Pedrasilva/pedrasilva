@@ -83,6 +83,7 @@ export function ProjectHealthTable({
               <th className="px-3 py-2 text-right font-medium">{t("health.columns.budget")}</th>
               <th className="px-3 py-2 text-right font-medium">{t("health.columns.actualRevenue")}</th>
               <th className="px-3 py-2 text-right font-medium">{t("health.columns.actualCost")}</th>
+              <th className="px-3 py-2 text-right font-medium">{t("health.columns.budgetRemaining")}</th>
               <th className="px-3 py-2 text-right font-medium">{t("health.columns.profit")}</th>
               <th className="px-3 py-2 text-right font-medium">{t("health.columns.margin")}</th>
               <th className="px-5 py-2 text-left font-medium">{t("health.columns.status")}</th>
