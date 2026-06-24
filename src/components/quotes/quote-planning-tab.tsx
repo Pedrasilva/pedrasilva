@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { QuoteGantt } from "@/components/quotes/quote-gantt";
+import { QuoteGantt } from "@/components/planner/planner-gantt";
 import { RetainerStageEditor } from "@/components/quotes/retainer-stage-editor";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
 import {
