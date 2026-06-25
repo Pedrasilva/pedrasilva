@@ -127,9 +127,13 @@ export function useAllStages(opts?: { includeCancelled?: boolean }) {
         .order("sort_order", { ascending: true });
       if (error) throw error;
       const rows = (data ?? []) as unknown as StageWithAllocations[];
+      const sanitized = rows.map((s) => ({
+        ...s,
+        allocations: (s.allocations ?? []).filter((a) => !!a?.resource),
+      }));
       return includeCancelled
-        ? rows
-        : rows.filter((s) => (s as { status?: string }).status !== "cancelled");
+        ? sanitized
+        : sanitized.filter((s) => (s as { status?: string }).status !== "cancelled");
     },
   });
 }
