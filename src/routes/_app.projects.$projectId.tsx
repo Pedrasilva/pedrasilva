@@ -512,148 +512,192 @@ function ProjectDetail() {
             <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
             <TabBtn icon={ActivityIcon} label={t("projects:detail.tabs.stream")} active={tab === "stream"} onClick={() => setTab("stream")} />
           </div>
-          {tab === "overview" && (
-            <button
-              onClick={() => setSidebarOpen((v) => !v)}
-              className="mb-1 hidden flex-shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground lg:inline-flex"
-              aria-label={sidebarOpen ? t("projects:detail.togglePanel.hide") : t("projects:detail.togglePanel.show")}
-              title={sidebarOpen ? t("projects:detail.togglePanel.hide") : t("projects:detail.togglePanel.show")}
-            >
-              {sidebarOpen ? <PanelLeftClose className="h-3.5 w-3.5" /> : <PanelLeftOpen className="h-3.5 w-3.5" />}
-            </button>
-          )}
+          <button
+            onClick={() => setSidebarOpen((v) => !v)}
+            className="mb-1 hidden flex-shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground lg:inline-flex"
+            aria-label={sidebarOpen ? t("projects:detail.togglePanel.hide") : t("projects:detail.togglePanel.show")}
+            title={sidebarOpen ? t("projects:detail.togglePanel.hide") : t("projects:detail.togglePanel.show")}
+          >
+            {sidebarOpen ? <PanelLeftClose className="h-3.5 w-3.5" /> : <PanelLeftOpen className="h-3.5 w-3.5" />}
+          </button>
         </div>
 
-        {/* Body layout — sidebar only on Overview; narrow (168px) or slim rail (36px) */}
+        {/* Body layout — collapsible left rail (240px) across all tabs, slim rail (44px) when collapsed. */}
         <div
           className={cn(
             "mt-3 grid gap-4",
-            tab === "overview"
-              ? sidebarOpen
-                ? "lg:grid-cols-[168px_minmax(0,1fr)]"
-                : "lg:grid-cols-[36px_minmax(0,1fr)]"
-              : "lg:grid-cols-1",
+            sidebarOpen
+              ? "lg:grid-cols-[240px_minmax(0,1fr)]"
+              : "lg:grid-cols-[44px_minmax(0,1fr)]",
           )}
         >
-          {/* Sidebar — Overview only: compact snapshot (Team · Budget · Profit). Collapses to slim rail. */}
-          {tab === "overview" && (
-            <aside className={cn(sidebarOpen ? "space-y-3" : "hidden lg:flex lg:flex-col lg:items-center lg:gap-3 lg:pt-2")}>
-              {sidebarOpen ? (
-                <>
-                  <SidebarSection title={t("projects:detail.sidebar.team")}>
-                    {team.length === 0 ? (
-                      <div className="text-xs text-muted-foreground">{t("projects:detail.sidebar.noTeam")}</div>
-                    ) : (
-                      <div className="flex flex-wrap gap-1">
-                        {team.map((r) => (
-                          <Link
-                            key={r.id}
-                            to="/projects/resources/$resourceId"
-                            params={{ resourceId: r.id }}
-                            title={r.name}
-                            className="rounded-full hover:opacity-80"
-                          >
-                            <CollaboratorAvatar
-                              collaboratorId={(r as { collaborator_id?: string | null }).collaborator_id ?? null}
-                              name={r.name}
-                              color={r.color}
-                              size={22}
-                            />
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </SidebarSection>
+          <aside
+            className={cn(
+              "lg:sticky lg:top-4 lg:self-start",
+              sidebarOpen
+                ? "rounded-xl border border-border bg-card shadow-sm"
+                : "hidden lg:flex lg:flex-col lg:items-center lg:gap-2 lg:rounded-xl lg:border lg:border-border lg:bg-card lg:p-1.5 lg:shadow-sm",
+            )}
+          >
+            {sidebarOpen ? (
+              <div className="space-y-5 p-4">
+                <SidebarSection title={t("projects:detail.sidebar.client", { defaultValue: "Client" })}>
+                  <div className="text-sm font-medium text-foreground">
+                    {project.client ?? t("projects:detail.header.noClient")}
+                  </div>
+                </SidebarSection>
 
-                  {canSeeFinancials && (
-                    <>
-                      <SidebarSection title={t("projects:detail.sidebar.budgetUsage")}>
-                        <div className="flex items-baseline justify-between">
-                          <span className="font-mono text-[11px]">
-                            <span className={budgetOver ? "text-destructive font-semibold" : ""}>
-                              {euros(actualCost)}
-                            </span>
-                            <span className="text-muted-foreground"> / {euros(totalBudget)}</span>
-                          </span>
-                          <span
-                            className={cn(
-                              "text-[10px]",
-                              budgetOver ? "text-destructive font-medium" : "text-muted-foreground",
-                            )}
-                          >
-                            {Math.round(budgetUsedPct * 100)}%
-                          </span>
-                        </div>
-                        <Meter
-                          value={Math.min(1, budgetUsedPct)}
-                          tone={budgetOver ? "danger" : "ok"}
-                          className="mt-2"
-                        />
-                      </SidebarSection>
+                <SidebarSection title={t("projects:detail.sidebar.details", { defaultValue: "Project details" })}>
+                  <div className="space-y-1">
+                    <DetailRow
+                      label={t("projects:detail.sidebar.status", { defaultValue: "Status" })}
+                      value={t(`projects:status.${project.status}`, { defaultValue: project.status })}
+                    />
+                    <DetailRow
+                      label={t("projects:detail.sidebar.start", { defaultValue: "Start" })}
+                      value={format(scheduleStart, "d MMM yyyy", { locale: pt })}
+                    />
+                    <DetailRow
+                      label={t("projects:detail.sidebar.end", { defaultValue: "End" })}
+                      value={format(scheduleEnd, "d MMM yyyy", { locale: pt })}
+                    />
+                    <DetailRow
+                      label={overdueDays > 0
+                        ? t("projects:detail.sidebar.overdue", { defaultValue: "Overdue" })
+                        : t("projects:detail.sidebar.remaining", { defaultValue: "Remaining" })}
+                      value={`${overdueDays > 0 ? overdueDays : remainingDays}d`}
+                    />
+                  </div>
+                </SidebarSection>
 
-                      <SidebarSection title={t("projects:detail.sidebar.profit")}>
-                        <div className="flex items-baseline justify-between">
-                          <span
-                            className={cn(
-                              "font-mono text-sm font-semibold",
-                              actualProfit < 0 && "text-destructive",
-                            )}
-                          >
-                            {euros(actualProfit)}
+                <SidebarSection title={t("projects:detail.sidebar.team")}>
+                  {team.length === 0 ? (
+                    <div className="text-xs text-muted-foreground">{t("projects:detail.sidebar.noTeam")}</div>
+                  ) : (
+                    <div className="flex flex-wrap gap-1">
+                      {team.map((r) => (
+                        <Link
+                          key={r.id}
+                          to="/projects/resources/$resourceId"
+                          params={{ resourceId: r.id }}
+                          title={r.name}
+                          className="rounded-full hover:opacity-80"
+                        >
+                          <CollaboratorAvatar
+                            collaboratorId={(r as { collaborator_id?: string | null }).collaborator_id ?? null}
+                            name={r.name}
+                            color={r.color}
+                            size={22}
+                          />
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </SidebarSection>
+
+                {canSeeFinancials && (
+                  <>
+                    <SidebarSection title={t("projects:detail.sidebar.budgetUsage")}>
+                      <div className="flex items-baseline justify-between">
+                        <span className="font-mono text-[11px]">
+                          <span className={budgetOver ? "text-destructive font-semibold" : ""}>
+                            {euros(actualCost)}
                           </span>
-                          {totalBudget > 0 && (
-                            <span
-                              className={cn(
-                                "text-[10px] font-medium",
-                                actualProfit < 0 ? "text-destructive" : "text-muted-foreground",
-                              )}
-                            >
-                              {Math.round((actualProfit / totalBudget) * 100)}%
-                            </span>
+                          <span className="text-muted-foreground"> / {euros(totalBudget)}</span>
+                        </span>
+                        <span
+                          className={cn(
+                            "text-[10px]",
+                            budgetOver ? "text-destructive font-medium" : "text-muted-foreground",
                           )}
-                        </div>
-                      </SidebarSection>
-                    </>
-                  )}
-                </>
-              ) : (
-                /* Slim rail — icon-only summaries, click expands */
-                <>
-                  <button
-                    onClick={() => setSidebarOpen(true)}
-                    title={t("projects:detail.sidebar.team")}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground hover:bg-accent"
-                  >
-                    {team.length}
-                  </button>
-                  {canSeeFinancials && (
-                    <>
-                      <button
-                        onClick={() => setSidebarOpen(true)}
-                        title={`${t("projects:detail.sidebar.budgetUsage")} · ${Math.round(budgetUsedPct * 100)}%`}
-                        className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-full text-[9px] font-mono font-medium hover:opacity-80",
-                          budgetOver ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground",
+                        >
+                          {Math.round(budgetUsedPct * 100)}%
+                        </span>
+                      </div>
+                      <Meter
+                        value={Math.min(1, budgetUsedPct)}
+                        tone={budgetOver ? "danger" : "ok"}
+                        className="mt-2"
+                      />
+                    </SidebarSection>
+
+                    <SidebarSection title={t("projects:detail.sidebar.profit")}>
+                      <div className="flex items-baseline justify-between">
+                        <span
+                          className={cn(
+                            "font-mono text-sm font-semibold",
+                            actualProfit < 0 && "text-destructive",
+                          )}
+                        >
+                          {euros(actualProfit)}
+                        </span>
+                        {totalBudget > 0 && (
+                          <span
+                            className={cn(
+                              "text-[10px] font-medium",
+                              actualProfit < 0 ? "text-destructive" : "text-muted-foreground",
+                            )}
+                          >
+                            {Math.round((actualProfit / totalBudget) * 100)}%
+                          </span>
                         )}
-                      >
-                        {Math.round(budgetUsedPct * 100)}%
-                      </button>
-                      <button
-                        onClick={() => setSidebarOpen(true)}
-                        title={`${t("projects:detail.sidebar.profit")} · ${euros(actualProfit)}`}
-                        className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-full text-[9px] font-mono font-medium hover:opacity-80",
-                          actualProfit < 0 ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground",
-                        )}
-                      >
-                        {totalBudget > 0 ? `${Math.round((actualProfit / totalBudget) * 100)}%` : "—"}
-                      </button>
-                    </>
-                  )}
-                </>
-              )}
-            </aside>
-          )}
+                      </div>
+                    </SidebarSection>
+                  </>
+                )}
+
+                {project.notes && (
+                  <SidebarSection title={t("projects:detail.sidebar.notes", { defaultValue: "Notes" })}>
+                    <p className="whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
+                      {project.notes}
+                    </p>
+                  </SidebarSection>
+                )}
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  title={t("projects:detail.togglePanel.show")}
+                  className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+                  aria-label={t("projects:detail.togglePanel.show")}
+                >
+                  <PanelLeftOpen className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  title={t("projects:detail.sidebar.team")}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground hover:bg-accent"
+                >
+                  {team.length}
+                </button>
+                {canSeeFinancials && (
+                  <>
+                    <button
+                      onClick={() => setSidebarOpen(true)}
+                      title={`${t("projects:detail.sidebar.budgetUsage")} · ${Math.round(budgetUsedPct * 100)}%`}
+                      className={cn(
+                        "flex h-8 w-8 items-center justify-center rounded-full text-[9px] font-mono font-medium hover:opacity-80",
+                        budgetOver ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground",
+                      )}
+                    >
+                      {Math.round(budgetUsedPct * 100)}%
+                    </button>
+                    <button
+                      onClick={() => setSidebarOpen(true)}
+                      title={`${t("projects:detail.sidebar.profit")} · ${euros(actualProfit)}`}
+                      className={cn(
+                        "flex h-8 w-8 items-center justify-center rounded-full text-[9px] font-mono font-medium hover:opacity-80",
+                        actualProfit < 0 ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground",
+                      )}
+                    >
+                      {totalBudget > 0 ? `${Math.round((actualProfit / totalBudget) * 100)}%` : "—"}
+                    </button>
+                  </>
+                )}
+              </>
+            )}
+          </aside>
 
 
           {/* Main ------------------------------------------------------ */}
