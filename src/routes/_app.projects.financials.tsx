@@ -628,7 +628,7 @@ function FinancialsPage() {
 
   return (
     <AppShell active="projects">
-      <div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6">
+      <div className="w-full px-4 py-6 sm:px-6">
         {/* Header + filters */}
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>

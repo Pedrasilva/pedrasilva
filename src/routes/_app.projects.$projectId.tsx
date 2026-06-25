@@ -422,7 +422,7 @@ function ProjectDetail() {
 
   return (
     <AppShell active="projects">
-      <div className="mx-auto w-full max-w-[1800px] px-3 pt-3 sm:px-5 2xl:px-8">
+      <div className="w-full px-3 pt-3 sm:px-5 2xl:px-10">
         <Link
           to="/projects"
           className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"

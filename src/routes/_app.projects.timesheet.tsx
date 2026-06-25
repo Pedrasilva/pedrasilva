@@ -226,7 +226,7 @@ function TimesheetPage() {
 
   return (
     <AppShell active="timesheet">
-      <div className="mx-auto w-full max-w-[1500px] px-6 py-8">
+      <div className="w-full px-6 py-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-3xl font-semibold tracking-tight">
