@@ -58,7 +58,7 @@ function MyTasksPage() {
       <div className="w-full px-6 py-8">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h1 className="font-display text-3xl font-semibold tracking-tight">My Tasks</h1>
+            <h1 className="text-3xl font-semibold tracking-tight">My Tasks</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Allocations placed on you. Accept a task to start clocking time against it.
             </p>
@@ -199,7 +199,7 @@ function TaskCard({ task, canClock }: { task: MyTask; canClock: boolean }) {
             </span>
             <StatusBadge status={task.status} />
           </div>
-          <h3 className="mt-1 font-display text-lg font-medium leading-tight">
+          <h3 className="mt-1 text-lg font-medium leading-tight">
             {stage?.name ?? task.name}
           </h3>
           <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">

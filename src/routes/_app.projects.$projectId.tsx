@@ -934,7 +934,7 @@ function EditableProjectName({
             setEditing(false);
           }
         }}
-        className="font-display min-w-0 flex-1 rounded-md border border-border bg-background px-2 py-0.5 text-3xl font-semibold tracking-tight text-foreground focus:border-primary focus:outline-none"
+        className="min-w-0 flex-1 rounded-md border border-border bg-background px-2 py-0.5 text-3xl font-semibold tracking-tight text-foreground focus:border-primary focus:outline-none"
       />
     );
   }
@@ -948,7 +948,7 @@ function EditableProjectName({
       }}
       title={readOnly ? undefined : "Duplo clique para renomear"}
       className={cn(
-        "font-display truncate text-3xl font-semibold tracking-tight",
+        "truncate text-3xl font-semibold tracking-tight",
         readOnly ? "cursor-default" : "cursor-text",
       )}
     >
@@ -1173,7 +1173,7 @@ function KpiCard({
       </div>
       <div
         className={cn(
-          "mt-2 font-display text-2xl font-semibold",
+          "mt-2 text-2xl font-semibold",
           tone === "danger" && "text-destructive",
         )}
       >

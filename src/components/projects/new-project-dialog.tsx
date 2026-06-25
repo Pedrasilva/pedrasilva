@@ -44,7 +44,7 @@ export function NewProjectDialog() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="font-display text-xl">New project</DialogTitle>
+          <DialogTitle className="text-xl">New project</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

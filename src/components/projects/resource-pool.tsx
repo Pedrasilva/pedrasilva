@@ -124,7 +124,7 @@ export function ResourcePool({ resources, collapsed = false, missingRateIds }: P
         ) : (
           <>
             <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Drag onto stage</p>
-            <h2 className="font-display text-lg font-semibold">Team pool</h2>
+            <h2 className="text-lg font-semibold">Team pool</h2>
             <p className="mt-1 text-[11px] text-muted-foreground">
               This week · {format(thisWeek.start, "MMM d")} – {format(thisWeek.end, "MMM d")}
             </p>

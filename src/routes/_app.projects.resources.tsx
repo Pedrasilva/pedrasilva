@@ -105,7 +105,7 @@ function ResourcesPage() {
         <div className="flex items-end justify-between border-b border-border pb-6">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">People</p>
-            <h1 className="font-display text-4xl font-semibold tracking-tight">Team</h1>
+            <h1 className="text-4xl font-semibold tracking-tight">Team</h1>
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">
               Team members are managed in HR. New collaborators added there appear here
               automatically. Click any name to edit project-specific details (rate, capacity, color).

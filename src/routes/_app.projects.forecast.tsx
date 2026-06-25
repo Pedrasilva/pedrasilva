@@ -672,7 +672,7 @@ function ForecastPage() {
         <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Studio</p>
-            <h1 className="font-display text-4xl font-semibold tracking-tight">Forecast</h1>
+            <h1 className="text-4xl font-semibold tracking-tight">Forecast</h1>
             <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
               Revenue, custo e lucro projectados a partir das alocações do Gantt. Compara com o real,
               detecta sobreposições com férias aprovadas e estima margens futuras.
@@ -1106,7 +1106,7 @@ function KpiCard({
           <span className={toneClass}>{icon}</span>
           {label}
         </div>
-        <div className={cn("mt-2 font-display text-2xl font-semibold tabular-nums", toneClass)}>{value}</div>
+        <div className={cn("mt-2 text-2xl font-semibold tabular-nums", toneClass)}>{value}</div>
         {sub && <div className="mt-1 text-xs text-muted-foreground">{sub}</div>}
       </CardContent>
     </Card>
