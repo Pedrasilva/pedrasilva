@@ -635,7 +635,7 @@ function FinancialsPage() {
             <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
               {t("projects:financials.eyebrow")}
             </p>
-            <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight">
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight">
               {t("projects:financials.title")}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -1041,7 +1041,7 @@ function FinancialsPage() {
                 <span className="text-xs uppercase tracking-wide text-muted-foreground">
                   {t("projects:financials.internalCenters.totalInternal")}
                 </span>
-                <span className="font-display text-xl font-semibold tabular-nums">
+                <span className="text-xl font-semibold tabular-nums">
                   {hours(internalCategoryRows.internalTotalHours)}
                 </span>
                 <span className="text-xs text-muted-foreground tabular-nums">
@@ -2126,7 +2126,7 @@ function BusinessDevCard({
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
               {monthLabel}
             </p>
-            <p className="font-display text-xl font-semibold tabular-nums">
+            <p className="text-xl font-semibold tabular-nums">
               {hours(monthHours)}
             </p>
             <p className="text-xs text-muted-foreground tabular-nums">

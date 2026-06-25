@@ -47,7 +47,7 @@ function MetricTile({
       </div>
       <div
         className={cn(
-          "mt-1 font-display text-lg font-semibold tabular-nums",
+          "mt-1 text-lg font-semibold tabular-nums",
           tone === "danger" && "text-destructive",
           tone === "warn" && "text-amber-600 dark:text-amber-400",
           tone === "muted" && "text-muted-foreground",
@@ -72,7 +72,7 @@ export function BudgetControlPanel({ project, byStage, stages, showFinancials }:
   return (
     <section className="rounded-lg border border-border bg-card p-4">
       <header className="mb-3">
-        <h3 className="font-display text-base font-semibold">
+        <h3 className="text-base font-semibold">
           {t("detail.budgetControl.title")}
         </h3>
         <p className="text-[12px] text-muted-foreground">

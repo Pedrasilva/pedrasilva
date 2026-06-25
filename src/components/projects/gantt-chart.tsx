@@ -1081,7 +1081,7 @@ export function GanttChart({
                       title={t("gantt.stage.linkFromEnd")}
                     />
                     <div
-                      className="pointer-events-none absolute whitespace-nowrap font-display text-xs font-semibold"
+                      className="pointer-events-none absolute whitespace-nowrap text-xs font-semibold"
                       style={{ left: 16 + STAGE_ROW_H + 8, top: "50%", transform: "translateY(-50%)" }}
                     >
                       {stage.name}
@@ -1124,7 +1124,7 @@ export function GanttChart({
                     <div className="flex h-full items-center justify-between gap-2 px-2.5 text-foreground">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <span className="truncate font-display text-sm font-semibold leading-tight">{stage.name}</span>
+                          <span className="truncate text-sm font-semibold leading-tight">{stage.name}</span>
                           <span className="rounded bg-background/40 px-1 py-px font-mono text-[9px]">
                             {workingDays(sStart, sEnd)}d
                           </span>
@@ -1205,7 +1205,7 @@ export function GanttChart({
                           className="w-64 text-xs"
                           onPointerDown={(e) => e.stopPropagation()}
                         >
-                          <div className="mb-2 font-display text-sm font-semibold">{stage.name}</div>
+                          <div className="mb-2 text-sm font-semibold">{stage.name}</div>
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
                               <span className="text-muted-foreground">{t("gantt.stage.fin.cost", { defaultValue: "Custo" })}</span>
@@ -1479,7 +1479,7 @@ export function GanttChart({
                                   color={color}
                                   size={24}
                                 />
-                                <span className="font-display text-sm font-semibold">{a.resource.name}</span>
+                                <span className="text-sm font-semibold">{a.resource.name}</span>
                                 {a.resource.role && (
                                   <span className="text-[10px] text-muted-foreground">{a.resource.role}</span>
                                 )}

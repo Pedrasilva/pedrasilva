@@ -129,7 +129,7 @@ export function StageDependencyEditor({ stage, allStages, adapter }: Props) {
       <PopoverContent className="w-96" align="start">
         <div className="space-y-3">
           <div className="border-b border-border pb-2">
-            <p className="font-display text-base font-semibold">{stage.name}</p>
+            <p className="text-base font-semibold">{stage.name}</p>
             <p className="text-[11px] text-muted-foreground">
               {t("projects:gantt.dependency.lagHint")}
             </p>

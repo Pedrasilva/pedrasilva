@@ -68,7 +68,7 @@ function InsightsPage() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("studio")}</p>
-            <h1 className="font-display text-3xl font-semibold tracking-tight">
+            <h1 className="text-3xl font-semibold tracking-tight">
               {t("insights.title")}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">

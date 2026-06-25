@@ -783,7 +783,7 @@ function DashboardPage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary/80">
                 {t("studio")}
               </p>
-              <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+              <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
                 {t("dashboard.title")}
               </h1>
               <p className="mt-1 text-xs text-muted-foreground">{periodLabel}</p>

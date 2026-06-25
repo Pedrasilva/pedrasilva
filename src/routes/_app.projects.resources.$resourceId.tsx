@@ -173,7 +173,7 @@ function ResourceDetailPage() {
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{TEAM_LABEL[form.team]}</p>
-              <h1 className="font-display text-3xl font-semibold tracking-tight">
+              <h1 className="text-3xl font-semibold tracking-tight">
                 {form.name || member.name}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">

@@ -146,7 +146,7 @@ function GlobalGanttPage() {
           <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Studio</p>
-              <h1 className="font-display text-4xl font-semibold tracking-tight">Global Gantt</h1>
+              <h1 className="text-4xl font-semibold tracking-tight">Global Gantt</h1>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
                 Todos os projectos {filter === "active" ? "activos" : filter === "paused" ? "em pausa" : "arquivados"} num
                 só Gantt. Arraste recursos do painel lateral para qualquer fase, ou agarre uma alocação
@@ -279,7 +279,7 @@ function GlobalGanttPage() {
               ) : !filteredProjects.length ? (
                 <div className="flex h-full items-center justify-center">
                   <div className="text-center">
-                    <p className="font-display text-2xl text-muted-foreground">
+                    <p className="text-2xl text-muted-foreground">
                       {filter === "active"
                         ? "Nenhum projecto activo"
                         : filter === "paused"
@@ -308,7 +308,7 @@ function GlobalGanttPage() {
                             <div className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: p.color }} />
                             <button
                               onClick={() => navigate({ to: "/projects/$projectId", params: { projectId: p.id } })}
-                              className="group flex items-center gap-1 truncate font-display text-lg font-semibold hover:text-primary"
+                              className="group flex items-center gap-1 truncate text-lg font-semibold hover:text-primary"
                             >
                               <span className="truncate">{p.name}</span>
                               <ArrowUpRight className="h-3.5 w-3.5 opacity-0 transition group-hover:opacity-100" />

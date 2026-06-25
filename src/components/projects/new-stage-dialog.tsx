@@ -63,7 +63,7 @@ export function NewStageDialog({ projectId, defaultStart, nextOrder }: Props) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="font-display text-xl">New stage</DialogTitle>
+          <DialogTitle className="text-xl">New stage</DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div>

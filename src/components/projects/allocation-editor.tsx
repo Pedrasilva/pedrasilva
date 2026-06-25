@@ -199,7 +199,7 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
         <div className="space-y-3">
           <div className="flex items-center gap-2 border-b border-border pb-2">
             <div className="h-3 w-3 rounded-full" style={{ backgroundColor: allocation.resource.color }} />
-            <p className="font-display text-base font-semibold">{allocation.resource.name}</p>
+            <p className="text-base font-semibold">{allocation.resource.name}</p>
             <TooltipProvider delayDuration={150}>
               <Tooltip>
                 <TooltipTrigger asChild>
