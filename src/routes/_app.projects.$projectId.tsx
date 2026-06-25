@@ -503,14 +503,14 @@ function ProjectDetail() {
         {/* Tab row — calmer, integrated with header (single bottom border) */}
         <div className="mt-2 flex items-center justify-between gap-2 border-b border-border">
           <div className="flex items-center gap-0 overflow-x-auto">
+            {/* Tab IA per redesign: keep only Overview, Insights, Materials, Expenses, Billing.
+                Schedule and Stream are deferred (code retained, hidden from nav).
+                Rates / Assets / Attachments / Details are dropped. */}
             <TabBtn icon={ListChecks} label={t("projects:detail.tabs.overview")} active={tab === "overview"} onClick={() => setTab("overview")} />
-            <TabBtn icon={Calendar} label={t("projects:detail.tabs.schedule")} active={tab === "schedule"} onClick={() => setTab("schedule")} />
+            <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
             <TabBtn icon={Package} label={t("projects:detail.tabs.materials")} active={tab === "materials"} onClick={() => setTab("materials")} />
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
-            <TabBtn icon={DollarSign} label={t("projects:detail.tabs.rates")} active={tab === "rates"} onClick={() => setTab("rates")} />
             <TabBtn icon={FileText} label={t("projects:detail.tabs.billing")} active={tab === "billing"} onClick={() => setTab("billing")} />
-            <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
-            <TabBtn icon={ActivityIcon} label={t("projects:detail.tabs.stream")} active={tab === "stream"} onClick={() => setTab("stream")} />
           </div>
           <button
             onClick={() => setSidebarOpen((v) => !v)}
