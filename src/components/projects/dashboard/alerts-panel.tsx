@@ -23,8 +23,8 @@ export interface AlertItem {
 export function AlertsPanel({ alerts, loading }: { alerts: AlertItem[]; loading?: boolean }) {
   const { t } = useTranslation("projects");
   return (
-    <section className="flex h-full flex-col rounded-lg border border-border bg-card">
-      <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
+    <section className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <header className="flex items-center justify-between gap-3 border-b border-border bg-gradient-to-r from-muted/40 to-transparent px-5 py-3">
         <div>
           <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {t("alerts.title")}

@@ -776,96 +776,106 @@ function DashboardPage() {
 
   return (
     <AppShell>
-      <div className="w-full space-y-4 px-6 pt-6 pb-12 2xl:px-10">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("studio")}</p>
-            <h1 className="font-display text-3xl font-semibold tracking-tight">
-              {t("dashboard.title")}
-            </h1>
+      <div className="w-full space-y-5 px-4 pt-5 pb-12 sm:px-6 2xl:px-10">
+        <div className="rounded-2xl border border-border bg-gradient-to-br from-primary/5 via-card to-card px-5 py-5 shadow-sm sm:px-7">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary/80">
+                {t("studio")}
+              </p>
+              <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+                {t("dashboard.title")}
+              </h1>
+              <p className="mt-1 text-xs text-muted-foreground">{periodLabel}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1 shadow-sm">
+                {(["week", "month"] as Period[]).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPeriod(p)}
+                    className={
+                      period === p
+                        ? "rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+                        : "rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+                    }
+                  >
+                    {p === "week" ? t("dashboard.thisWeek") : t("dashboard.thisMonth")}
+                  </button>
+                ))}
+              </div>
+              <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1 shadow-sm">
+                {STATUS_FILTER_KEYS.map((f) => (
+                  <button
+                    key={f.value}
+                    onClick={() => setStatusFilter(f.value)}
+                    className={
+                      statusFilter === f.value
+                        ? "rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+                        : "rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+                    }
+                  >
+                    {t(`dashboard.filters.${f.key}`)}
+                  </button>
+                ))}
+              </div>
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={t("dashboard.searchPlaceholder")}
+                  className="w-64 rounded-md border border-border bg-card py-1.5 pl-8 pr-3 text-xs text-foreground shadow-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none xl:w-72"
+                />
+              </div>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1">
-              {(["week", "month"] as Period[]).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPeriod(p)}
-                  className={
-                    period === p
-                      ? "rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
-                      : "rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
-                  }
-                >
-                  {p === "week" ? t("dashboard.thisWeek") : t("dashboard.thisMonth")}
-                </button>
-              ))}
-            </div>
-            <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1">
-              {STATUS_FILTER_KEYS.map((f) => (
-                <button
-                  key={f.value}
-                  onClick={() => setStatusFilter(f.value)}
-                  className={
-                    statusFilter === f.value
-                      ? "rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
-                      : "rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
-                  }
-                >
-                  {t(`dashboard.filters.${f.key}`)}
-                </button>
-              ))}
-            </div>
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t("dashboard.searchPlaceholder")}
-                className="w-72 rounded-md border border-border bg-card py-1.5 pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+
+          <div className="mt-5">
+            {canSeeFinancials ? (
+              <FinancialKpiStrip data={kpi} loading={isLoading} periodLabel={periodLabel} />
+            ) : (
+              <HoursKpiStrip data={hoursKpi} loading={isLoading} periodLabel={periodLabel} />
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,1fr)]">
+          <div className="min-w-0 space-y-5">
+            {canSeeFinancials ? (
+              <ProjectHealthTable
+                rows={healthRows}
+                loading={isLoading}
+                onOpenProject={(id) =>
+                  navigate({ to: "/projects/$projectId", params: { projectId: id } })
+                }
               />
-            </div>
+            ) : (
+              <ProjectEffortTable
+                rows={effortRows}
+                loading={isLoading}
+                onOpenProject={(id) =>
+                  navigate({ to: "/projects/$projectId", params: { projectId: id } })
+                }
+              />
+            )}
+            <TeamPerformance
+              rows={visibleTeamRows}
+              loading={isLoading}
+              periodLabel={periodLabel}
+              title={canSeeTeam ? t("dashboard.teamPerformance") : t("dashboard.yourUtilization")}
+              subtitle={
+                canSeeTeam
+                  ? t("dashboard.subtitleTeam", { period: periodLabel })
+                  : t("dashboard.subtitleSelf", { period: periodLabel })
+              }
+              showSort={canSeeTeam}
+            />
+          </div>
+          <div className="xl:sticky xl:top-4 xl:self-start">
+            <AlertsPanel alerts={alerts} loading={isLoading} />
           </div>
         </div>
-
-        {canSeeFinancials ? (
-          <FinancialKpiStrip data={kpi} loading={isLoading} periodLabel={periodLabel} />
-        ) : (
-          <HoursKpiStrip data={hoursKpi} loading={isLoading} periodLabel={periodLabel} />
-        )}
-
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.6fr_1fr]">
-          {canSeeFinancials ? (
-            <ProjectHealthTable
-              rows={healthRows}
-              loading={isLoading}
-              onOpenProject={(id) =>
-                navigate({ to: "/projects/$projectId", params: { projectId: id } })
-              }
-            />
-          ) : (
-            <ProjectEffortTable
-              rows={effortRows}
-              loading={isLoading}
-              onOpenProject={(id) =>
-                navigate({ to: "/projects/$projectId", params: { projectId: id } })
-              }
-            />
-          )}
-          <AlertsPanel alerts={alerts} loading={isLoading} />
-        </div>
-
-        <TeamPerformance
-          rows={visibleTeamRows}
-          loading={isLoading}
-          periodLabel={periodLabel}
-          title={canSeeTeam ? t("dashboard.teamPerformance") : t("dashboard.yourUtilization")}
-          subtitle={
-            canSeeTeam
-              ? t("dashboard.subtitleTeam", { period: periodLabel })
-              : t("dashboard.subtitleSelf", { period: periodLabel })
-          }
-          showSort={canSeeTeam}
-        />
       </div>
     </AppShell>
   );

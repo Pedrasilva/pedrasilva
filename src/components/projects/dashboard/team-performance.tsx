@@ -56,8 +56,8 @@ export function TeamPerformance({
   const resolvedSubtitle = subtitle ?? t("team.subtitle", { period: periodLabel });
 
   return (
-    <section className="rounded-lg border border-border bg-card">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
+    <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-gradient-to-r from-muted/40 to-transparent px-5 py-3">
         <div>
           <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             {resolvedTitle}

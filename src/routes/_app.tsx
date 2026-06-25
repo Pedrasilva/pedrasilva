@@ -65,7 +65,9 @@ function AppLayout() {
   const isHrArea = loc.pathname.startsWith("/hr");
   // Quote detail pages contain a large Gantt — give them the full viewport
   // width instead of the default 7xl container.
-  const isWideArea = /^\/crm\/quotes\/[^/]+/.test(loc.pathname);
+  const isWideArea =
+    /^\/crm\/quotes\/[^/]+/.test(loc.pathname) ||
+    loc.pathname.startsWith("/projects");
 
   // Items for mobile sheet — flatten rail config.
   const mobileItems = RAIL_ITEMS.filter(
