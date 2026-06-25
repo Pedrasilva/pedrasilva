@@ -75,8 +75,8 @@ export function ProjectExpensesSection({ projectId, canEdit }: Props) {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
+    <div className="rounded-xl border border-border bg-card shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-t-xl border-b border-border bg-gradient-to-r from-muted/40 to-transparent px-4 py-3">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold text-foreground">
             {t("expenses.title")}
