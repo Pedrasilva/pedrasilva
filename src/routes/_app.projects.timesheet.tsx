@@ -191,21 +191,34 @@ function TimesheetPage() {
   // time a week is opened (idempotent — only fills cells that have no entry
   // yet for that leave_type+date).
   const userId = user?.id ?? null;
+  const dispatchedPrefillRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (!userId || nonWorkingPrefill.length === 0) return;
     for (const row of nonWorkingPrefill) {
       const existing = entryMap.get(nonWorkingKey(row.leave_type));
       for (const [date, hours] of row.autoHoursByDate) {
         if (existing?.has(date)) continue;
-        // Avoid double-firing while the mutation is in flight
-        upsert.mutate({
-          entry_type: "non_working",
-          leave_type: row.leave_type,
-          user_id: userId,
-          entry_date: date,
-          hours,
-          existing_entry_id: null,
-        });
+        // Guard against re-firing while the insert is in flight and the
+        // entries query has not yet refetched — otherwise the effect re-runs
+        // and creates duplicate non_working rows (e.g. holiday counted 2×).
+        const flightKey = `${userId}|${row.leave_type}|${date}`;
+        if (dispatchedPrefillRef.current.has(flightKey)) continue;
+        dispatchedPrefillRef.current.add(flightKey);
+        upsert.mutate(
+          {
+            entry_type: "non_working",
+            leave_type: row.leave_type,
+            user_id: userId,
+            entry_date: date,
+            hours,
+            existing_entry_id: null,
+          },
+          {
+            onError: () => {
+              dispatchedPrefillRef.current.delete(flightKey);
+            },
+          },
+        );
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
