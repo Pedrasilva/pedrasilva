@@ -37,7 +37,7 @@ export function FinancialKpiStrip({
       : 0;
 
   return (
-    <section className="rounded-lg border border-border bg-card px-5 py-4">
+    <section className="rounded-xl border border-border bg-card px-5 py-4 shadow-sm">
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           {t("kpi.businessPerformance")}
