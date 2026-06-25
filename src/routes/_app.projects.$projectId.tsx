@@ -541,11 +541,22 @@ function ProjectDetail() {
           >
             {sidebarOpen ? (
               <div className="space-y-5 p-4">
-                <SidebarSection title={t("projects:detail.sidebar.client", { defaultValue: "Client" })}>
-                  <div className="text-sm font-medium text-foreground">
-                    {project.client ?? t("projects:detail.header.noClient")}
-                  </div>
-                </SidebarSection>
+                <div className="-mt-1 mb-1 flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {t("projects:detail.sidebar.client", { defaultValue: "Client" })}
+                  </span>
+                  <button
+                    onClick={() => setSidebarOpen(false)}
+                    title={t("projects:detail.togglePanel.hide")}
+                    aria-label={t("projects:detail.togglePanel.hide")}
+                    className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+                  >
+                    <PanelLeftClose className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <div className="text-sm font-medium text-foreground">
+                  {project.client ?? t("projects:detail.header.noClient")}
+                </div>
 
                 <SidebarSection title={t("projects:detail.sidebar.details", { defaultValue: "Project details" })}>
                   <div className="space-y-1">
