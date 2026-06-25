@@ -100,9 +100,16 @@ export function useProjectDetail(projectId: string, opts?: { includeCancelled?: 
       if (pErr) throw pErr;
       if (sErr) throw sErr;
       const rows = (stages ?? []) as unknown as StageWithAllocations[];
+      // RLS on pm_resources may hide rows from non-finance users; the embed
+      // comes back as `null` in that case. Drop those allocations so the
+      // detail page (which assumes resource is present) can still render.
+      const sanitized = rows.map((s) => ({
+        ...s,
+        allocations: (s.allocations ?? []).filter((a) => !!a?.resource),
+      }));
       const filtered = includeCancelled
-        ? rows
-        : rows.filter((s) => (s as { status?: string }).status !== "cancelled");
+        ? sanitized
+        : sanitized.filter((s) => (s as { status?: string }).status !== "cancelled");
       return { project: project!, stages: filtered };
     },
     enabled: !!projectId,
