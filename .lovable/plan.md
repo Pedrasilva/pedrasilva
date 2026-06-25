@@ -1,57 +1,81 @@
-## Problem
+# Project Module Redesign — Consolidated Plan
 
-The CRM (quotes) Gantt and the project Gantt are not actually the same component yet — they only share the leaf `GanttChart`. The CRM uses the richer `PlannerGantt` wrapper (`src/components/planner/planner-gantt.tsx`, exported as `QuoteGantt`) which adds:
+Six tabs, one design system, one width rule. Shipped in four phases so each phase is reviewable on its own.
 
-- Toolbar: Add stage, Indent, Outdent, Reflow, Project-start date shifter
-- Zoom modes: Week / Month / Quarter / Year / Fit (auto-fit container width)
-- Outline collapse state (sessionStorage) + per-stage resources collapse
-- `onReorderStage` (inline WBS edit)
-- Inspector drawer + team pool toggle in one layout
-- Synthetic "Project" summary row
+## Phase 1 — Global foundations (skin + width)
 
-The project route renders `GanttChart` directly with its own inline insert/delete handlers and a smaller `dayWidth` toolbar — so new features added to the CRM Gantt don't propagate.
+**1.1 Visual tokens from CRM → shared**
+- Audit CRM (`/crm/*`) for color, font, radius, shadow, border, pill, button, table, badge, and chart-color tokens
+- Promote those values into `src/styles.css` as canonical tokens (`--color-*`, `--font-*`, `--radius-*`, `--shadow-*`)
+- Update shadcn variants so CRM and Project consume the same tokens
+- No layout/IA changes here — pure skin
 
-## Plan
+**1.2 Fluid full-width layout**
+- Drop fixed `max-width` containers on Projects Dashboard, Project Home, and Gantt pages
+- Replace with fluid wrapper (sensible side gutters, grows on wide monitors)
+- Same rule applied app-wide where dense tables/Gantt live
 
-Make `PlannerGantt` mode-agnostic and reuse it in both routes.
+## Phase 2 — Projects Dashboard (`/projects`)
 
-### 1. `src/components/planner/planner-gantt.tsx` → make it dual-mode
+- Keep: top KPI strip, Project Scorecard table (clickable names), Performance by PM, Project Value chart, financial calcs from yesterday's fix
+- Restructure: 2-column — Scorecard (wide left) + Project Value (right rail), Performance below
+- Inherits Phase 1 fluid width
 
-- Add `mode: "quote" | "project"` and require either `quoteId` or `projectId`.
-- Branch data sources by mode:
-  - quote → existing hooks (`useQuoteStages`, `useQuoteAllocations`, `useQuotePlannerAdapter`, `useQuotePlanningPool`, `useQuotePaymentSchedule`)
-  - project → `useProjectDetail`, `useResources`, `useProjectPlannerAdapter`, `useProjectInvoices`, `useStageBudgetControl`
-- Replace the local quote-only `mappedStages/hierarchy` builder with a thin selector that calls `buildProjectGanttTree` in project mode and keeps the existing supplier-aware builder in quote mode.
-- Branch mutations (insert/delete/rename/indent/outdent/reorder) onto `useCreateStage`/`useUpdateStage`/`useDeleteStage` in project mode. The handlers are otherwise identical.
-- Honour the admin gate in project mode: hide Indent/Outdent/Reflow/Add/Insert/Delete affordances when `!isAdmin` (read-only adapter already blocks the writes).
-- Hide quote-only chrome in project mode: project-start shifter (project has its own date), retainer phase button, payment-schedule-derived milestones (use `useProjectInvoices` instead).
-- Inspector: render `ProjectPlannerInspector` in project mode, `QuotePlannerInspector` in quote mode.
-- Pool: project mode uses `useResources()`; quote mode keeps `useQuotePlanningPool()`.
+## Phase 3 — Project Home (`/projects/$projectId`)
 
-### 2. `src/routes/_app.projects.$projectId.tsx`
+**3.1 Shell**
+- Breadcrumb (Company › Project) + project title
+- Action bar: Add Activity / Log Time / Edit / Create / Tools / Export / More / Portal
+- Status pill row: Planned · Active · Complete · Pause · Cancel
+- **Collapsible left rail**: Client, PM, Project Details, Team, Earned Value, Progress, Schedule, Bookings, Important Dates
+- 2-column body that maximizes width when rail collapsed
 
-- Replace the inline `<GanttChart .../>` block in the Schedule tab with `<PlannerGantt mode="project" projectId={project.id} showCancelled={showCancelled} />`.
-- Drop now-unused state: `dayWidth`, `collapsedOutline`, inline insert/delete handlers, the local `mappedStages/hierarchy` memo, ganttMilestones memo, and the `dayWidth` toolbar.
-- Keep: tab switcher, header, status workflow, financial cards, ProjectPlannerInspector (now owned by PlannerGantt — remove from route).
-- `selectedStageId` moves into PlannerGantt (already lives there for quote mode).
+**3.2 Tabs cleanup**
+- Keep: Overview, Insights, Materials, Expenses, Billing
+- Defer (hidden): Schedule, Stream
+- Remove: Attachments, Rates, Assets, Details
 
-### 3. `src/routes/_app.projects.gantt.tsx` (all-projects Gantt)
+## Phase 4 — Tab content
 
-- Out of scope for this pass: it's a cross-project view, not a single-project planner. Leave as-is.
+**4.1 Overview**
+- Stage/milestone table: Status · Earned Value (planned vs logged € + %) · Usage/Budget (hours) · Scheduled start/due · row actions
+- Each stage row clickable → drills to that stage's insights
+- Filters: Status, Manager/Assignee; actions: Edit Plan, Add Task, Search
+- Cancelled stages hidden by default (existing baseline rule)
 
-### 4. Verification
+**4.2 Insights**
+- Keep current financials table (correct after yesterday's fix)
+- Add: Activities vs Hours monthly chart (bars=hours, line=activity count, dual Y-axis)
+- Right rail: Value (Earned + Forecast progress bars), Profitability (Current vs Forecast donuts), Work (WIP + Done/Forecast donuts + "Show non-billable" + View Tasks)
+- Below: Work Done by person + Budget by person (horizontal bars)
 
-- `bun run build` + visit a project → schedule tab → expect identical toolbar + inspector behaviour as `/crm/quotes/:id` planning tab.
-- Confirm admin-only gating still hides edit affordances for non-admins.
-- Spot-check WBS hierarchy, payment milestone diamonds (invoices), and zoom modes.
+**4.3 Materials** *(canonical layout = "Compromissos com Fornecedores")*
+- One card per supplier from CRM/Project Gantt; header = `SUPPLIER — TOTAL DOS HONORÁRIOS` + total
+- Payment schedule table inside each card: Data de pagamento · % honorários · Valor sem IVA · IVA · Valor com IVA · Fatura · Condições de pagamento
+- Aggregated "Fornecedores Diversos" card for ad-hoc one-off items
+- Inline-add row for ad-hoc materials (replaces popup)
+- Supplier rows from Gantt are read-only except margin/billing; ad-hoc rows fully editable
 
-### Technical notes
+**4.4 Expenses**
+- Inline table replacing current popup
+- Columns: 📎 · Title & Type · Submitter · 🧾 · Date · Status pill · Purchase · Sale · Billing · Reimbursed Date · Reimburser · ⋮
+- Row actions: Edit · Approve · Decline · Delete (ties to Approvals Dashboard reference)
+- Toolbar: + Add Expense, Export, View Detailed List, Search
 
-- `buildProjectGanttTree` already produces the same `{ mappedStages, hierarchy }` shape PlannerGantt's `GanttChart` consumes, so the project branch is mostly wiring.
-- `PlannerAdapter` already abstracts the mutation contract, so `GanttChart` itself needs no changes.
-- Quote-mode behaviour is preserved by gating every quote-only block (`if (mode === "quote") {...}`).
+**4.5 Billing**
+- Section 1 — Payment Schedule mirrored from CRM (`quote_payment_schedule_items`, kept in sync with project plan): Milestone · Trigger date · % · Amount · IVA · Total · Invoice status · Linked invoice · "Generate invoice" action, grouped by stage with subtotals
+- Section 2 — Previous Billing / Invoice History: Title · Contact · Date · Status pill · Total · Outstanding (€ + age or "Paid after N days") · 📄 PDF · ⋮
+- Summary strip: Total Invoiced · Paid · Outstanding · Overdue
+- "Generate invoice" creates draft prefilled from milestone; status changes propagate back to schedule
 
-## Out of scope
+## Out of scope (per your instructions)
 
-- All-projects `/projects/gantt` cross-project view.
-- New features inside `GanttChart` itself — this is a wiring/unification change only.
+- Schedule tab redesign (deferred)
+- Stream tab (deferred)
+- IA/navigation changes outside the Project module
+- Change orders (future)
+- New business logic beyond syncing CRM payment schedule ↔ project Billing
+
+## Sequencing
+
+I'll ship Phase 1 first (the skin + width change touches everything), then 2 → 3 → 4 one tab at a time so each is independently reviewable. No DB schema changes required — all data sources already exist (`pm_*`, `quote_*`, `pm_project_contract_baseline*`).
