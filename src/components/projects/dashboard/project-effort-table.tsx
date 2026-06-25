@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "@tanstack/react-router";
 import type { Project } from "@/lib/projects/types";
 import { cn } from "@/lib/utils";
+
 
 export type EffortStatus = "ok" | "warn" | "bad" | "none";
 
@@ -108,14 +110,19 @@ export function ProjectEffortTable({
               </tr>
             )}
             {paged.map((r) => (
-              <tr key={r.project.id} className="hover:bg-accent/30">
+              <tr
+                key={r.project.id}
+                className="cursor-pointer hover:bg-accent/30"
+                onClick={() => onOpenProject?.(r.project.id)}
+              >
                 <td className="px-3 py-2.5 text-center">
                   <StatusDot status={r.status} />
                 </td>
                 <td className="px-3 py-2.5">
-                  <button
-                    type="button"
-                    onClick={() => onOpenProject?.(r.project.id)}
+                  <Link
+                    to="/projects/$projectId"
+                    params={{ projectId: r.project.id }}
+                    onClick={(e) => e.stopPropagation()}
                     className="block min-w-0 text-left"
                   >
                     <p className="truncate text-sm font-medium text-primary hover:underline">
@@ -126,8 +133,9 @@ export function ProjectEffortTable({
                         {r.project.client}
                       </p>
                     )}
-                  </button>
+                  </Link>
                 </td>
+
                 <td className="px-3 py-2.5 text-right font-mono text-xs text-muted-foreground">
                   {r.plannedHours > 0 ? `${Math.round(r.plannedHours)}h` : "—"}
                 </td>
