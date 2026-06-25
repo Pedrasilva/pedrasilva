@@ -668,7 +668,7 @@ function ForecastPage() {
 
   return (
     <AppShell active="projects">
-      <div className="mx-auto w-full max-w-[1600px] px-6 py-6">
+      <div className="w-full px-6 py-6">
         <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Studio</p>

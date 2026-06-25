@@ -64,7 +64,7 @@ function InsightsPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto w-full max-w-[1800px] space-y-4 px-6 pt-6 pb-12">
+      <div className="w-full space-y-4 px-6 pt-6 pb-12">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("studio")}</p>

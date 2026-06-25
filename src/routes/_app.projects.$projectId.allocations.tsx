@@ -147,7 +147,7 @@ function AllocationsWorkspace() {
 
   return (
     <AppShell active="projects">
-      <div className="mx-auto max-w-7xl space-y-6 px-6 py-6">
+      <div className="w-full space-y-6 px-6 py-6">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>

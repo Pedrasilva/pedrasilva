@@ -101,7 +101,7 @@ function ResourcesPage() {
 
   return (
     <AppShell active="resources">
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-10">
+      <div className="w-full px-6 py-10">
         <div className="flex items-end justify-between border-b border-border pb-6">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">People</p>
