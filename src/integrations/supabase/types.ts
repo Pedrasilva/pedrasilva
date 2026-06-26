@@ -7018,7 +7018,9 @@ export type Database = {
           billing_trigger_default: Database["public"]["Enums"]["quote_payment_trigger"]
           color: string
           created_at: string
+          default_hours: number
           duration_days: number
+          fee_amount: number
           fee_percentage: number
           id: string
           sort_order: number
@@ -7031,7 +7033,9 @@ export type Database = {
           billing_trigger_default?: Database["public"]["Enums"]["quote_payment_trigger"]
           color?: string
           created_at?: string
+          default_hours?: number
           duration_days?: number
+          fee_amount?: number
           fee_percentage?: number
           id?: string
           sort_order?: number
@@ -7044,7 +7048,9 @@ export type Database = {
           billing_trigger_default?: Database["public"]["Enums"]["quote_payment_trigger"]
           color?: string
           created_at?: string
+          default_hours?: number
           duration_days?: number
+          fee_amount?: number
           fee_percentage?: number
           id?: string
           sort_order?: number
