@@ -355,6 +355,10 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       if (r === "supplier_group" || r === "supplier_phase") return r;
       return "architecture";
     };
+    const isSupplierRole = (s: S) => {
+      const role = roleOf(s);
+      return role === "supplier_group" || role === "supplier_phase";
+    };
 
     const walk = (node: S, depth: number, wbs: string, parentId: string | null) => {
       const kids = childrenByParent.get(node.id) ?? [];
@@ -389,14 +393,19 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       let minStart = "";
       let maxEnd = "";
       let sumBudget = 0;
+      let supplierChildrenBudget = 0;
       for (const k of kids) {
         const r = computeRollup(k);
         if (!minStart || r.start < minStart) minStart = r.start;
         if (!maxEnd || r.end > maxEnd) maxEnd = r.end;
         sumBudget += r.budget;
+        if (isSupplierRole(k)) supplierChildrenBudget += r.budget;
       }
       const mode = ((node as { budget_mode?: string | null }).budget_mode ?? "calculated") as string;
-      const effectiveBudget = mode === "fixed" ? (Number(node.budget ?? 0) || 0) : sumBudget;
+      const ownBudget = Number(node.budget ?? 0) || 0;
+      const effectiveBudget = mode === "fixed"
+        ? (isSupplierRole(node) ? ownBudget : ownBudget + supplierChildrenBudget)
+        : (!isSupplierRole(node) && kids.some(isSupplierRole) ? ownBudget + sumBudget : sumBudget);
       const out = { start: minStart || node.start_date, end: maxEnd || node.end_date, budget: effectiveBudget };
       rollup.set(node.id, out);
       return out;
