@@ -108,7 +108,7 @@ export function buildProjectGanttTree(
       start_date: minStart,
       end_date: maxEnd,
       color: "#0f172a",
-      budget: roots.reduce((sum, r) => sum + (rollup.get(r.id)?.budget ?? Number(r.budget ?? 0) || 0), 0),
+      budget: roots.reduce((sum, r) => sum + (rollup.get(r.id)?.budget ?? (Number(r.budget ?? 0) || 0)), 0),
       sort_order: -1,
       parent_stage_id: null,
       allocations: [],
