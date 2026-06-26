@@ -214,6 +214,7 @@ export function PaymentScheduleProposalView({
               defaultVatRate={defaultVatRate}
               showTotalRow
               labelFor={(it) => {
+                if (it.trigger_type === "monthly") return it.label;
                 const s = it.stage_id ? stages.find((x) => x.id === it.stage_id) : null;
                 return s?.name ?? it.label;
               }}
