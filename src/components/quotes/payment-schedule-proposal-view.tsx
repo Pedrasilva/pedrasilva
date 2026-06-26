@@ -190,7 +190,7 @@ export function PaymentScheduleProposalView({
                 Total de Honorários — Faseamento de Pagamentos
               </CardTitle>
               <div className="text-lg font-bold tabular-nums">
-                {formatEUR(inflowTotal)}
+                {formatEUR(totalFee)}
               </div>
             </div>
             <div className="text-xs text-muted-foreground">
