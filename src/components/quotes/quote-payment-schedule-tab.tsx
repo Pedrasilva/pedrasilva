@@ -427,7 +427,9 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
 
 
 
-  const scheduleTotal = items.reduce(
+  const scheduleTotal = items
+    .filter((it) => (it.direction ?? "inflow") === "inflow")
+    .reduce(
     (sum, it) =>
       sum +
       resolveScheduleItemAmount(
