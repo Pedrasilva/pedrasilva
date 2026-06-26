@@ -489,23 +489,38 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     if (itemsQ.isLoading || stagesQ.isLoading || !supplierLookupReady) return;
     if (upsert.isPending || applyGen.isPending) return;
     if (stageOnlyOutflows.length === 0) return;
-    const outflowKey = (row: { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null }) =>
+    // Dedupe per (supplier, stage) so one supplier can host multiple Gantt
+    // stages without later ones being swallowed as duplicates.
+    const supplierPart = (row: { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null; supplier_placeholder?: string | null }) =>
       row.supplier_id ? `pm:${row.supplier_id}` :
       row.supplier_company_id ? `co:${row.supplier_company_id}` :
-      row.supplier_label ? `ph:${row.supplier_label.toLowerCase()}` : "";
+      (row.supplier_label ?? row.supplier_placeholder)
+        ? `ph:${((row.supplier_label ?? row.supplier_placeholder) as string).toLowerCase()}`
+        : "";
+    const outflowKey = (row: { stage_id?: string | null; supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null; supplier_placeholder?: string | null; label?: string | null; description?: string | null }) => {
+      const sp = supplierPart(row);
+      if (!sp) return "";
+      // Per-stage rows from the Gantt synth use stage_id = top-level billing stage,
+      // so also include the description/label (the child stage name) to keep
+      // siblings under the same supplier distinct.
+      return `${sp}|${row.stage_id ?? ""}|${(row.label ?? row.description ?? "").trim().toLowerCase()}`;
+    };
     const existingKeys = new Set(
       items
         .filter((it) => (it as unknown as { direction?: string }).direction === "outflow")
-        .map((it) => outflowKey(it as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null }))
+        .map((it) => {
+          const r = it as unknown as { stage_id?: string | null; supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null; label?: string | null };
+          // Existing rows store "<Supplier> — <Stage name>"; extract the stage part.
+          const lbl = r.label ?? "";
+          const dash = lbl.indexOf("—");
+          const stagePart = dash >= 0 ? lbl.slice(dash + 1).trim() : lbl.trim();
+          return outflowKey({ ...r, description: stagePart });
+        })
         .filter(Boolean),
     );
-    const stageOutflowKey = (so: { supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null }) =>
-      so.supplier_id ? `pm:${so.supplier_id}`
-      : so.supplier_company_id ? `co:${so.supplier_company_id}`
-      : so.supplier_placeholder ? `ph:${so.supplier_placeholder.toLowerCase()}` : "";
     const missingRows = stageOnlyOutflows.filter((o) => {
-      const so = o as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null };
-      const key = stageOutflowKey(so);
+      const so = o as unknown as { stage_id?: string | null; supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null; description?: string | null };
+      const key = outflowKey(so);
       return key && !existingKeys.has(key);
     });
     if (missingRows.length === 0) return;
