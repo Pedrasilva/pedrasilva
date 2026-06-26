@@ -571,31 +571,33 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     })).catch((e) => console.error("supplier sync failed", e));
   }, [itemsQ.isLoading, stagesQ.isLoading, supplierLookupReady, items, stageOnlyOutflows, upsert, applyGen.isPending, paymentDefaults, quoteId]);
 
-  // Manual "Update from Gantt" button: force the additive sync to re-run
-  // (clears the dedupe ref) and toast the result.
+  // Manual "Update from Gantt" button: regenerate the schedule from current
+  // stage budgets/dates while preserving any rows marked manual_override.
+  // Detects the last-used inflow generator and re-runs it; also re-runs the
+  // additive supplier sync so newly-added suppliers appear.
   const syncFromGantt = async () => {
     supplierSyncRef.current = null;
-    const outflowKey = (row: { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null }) =>
-      row.supplier_id ? `pm:${row.supplier_id}`
-      : row.supplier_company_id ? `co:${row.supplier_company_id}`
-      : row.supplier_label ? `ph:${row.supplier_label.toLowerCase()}` : "";
-    const existing = new Set(
-      items
-        .filter((it) => (it as unknown as { direction?: string }).direction === "outflow")
-        .map((it) => outflowKey(it as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null }))
-        .filter(Boolean),
-    );
-    const missing = stageOnlyOutflows.filter((o) => {
-      const so = o as unknown as { supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null };
-      const k = so.supplier_id ? `pm:${so.supplier_id}` : so.supplier_company_id ? `co:${so.supplier_company_id}` : so.supplier_placeholder ? `ph:${so.supplier_placeholder.toLowerCase()}` : "";
-      return k && !existing.has(k);
-    });
-    if (missing.length === 0) {
-      toast.success(t("workspace.payment.syncedNoChange", { defaultValue: "Schedule already up to date with the Gantt" }));
-      return;
+
+    // Pick the generator to re-run for inflows.
+    const detectedKind: GeneratorKind =
+      items.find((it) => it.generator_source === "architecture_with_consultants")
+        ? "architecture_with_consultants"
+        : items.find((it) => it.generator_source === "milestones")
+          ? "milestones"
+          : items.find((it) => it.generator_source === "thirds")
+            ? "thirds"
+            : items.find((it) => it.generator_source === "monthly")
+              ? "monthly"
+              : "by_stage_billing";
+
+    try {
+      await runGenerator(detectedKind);
+      toast.success(t("workspace.payment.synced", { defaultValue: "Billing schedule updated from the Gantt" }));
+    } catch (e) {
+      toast.error((e as Error).message);
     }
-    toast.success(t("workspace.payment.synced", { defaultValue: `Added ${missing.length} supplier row(s) from the Gantt`, count: missing.length }));
   };
+
 
   const handleAdd = async () => {
     if (!draft.label.trim()) return toast.error(t("workspace.payment.errorLabel"));
