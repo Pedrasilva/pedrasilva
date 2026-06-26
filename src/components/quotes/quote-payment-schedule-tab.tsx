@@ -478,7 +478,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const autoSeededRef = useRef(false);
   useEffect(() => {
     if (autoSeededRef.current) return;
-    if (itemsQ.isLoading || stagesQ.isLoading) return;
+    if (itemsQ.isLoading || stagesQ.isLoading || !supplierLookupReady) return;
     if (items.length > 0) {
       autoSeededRef.current = true;
       return;
@@ -500,7 +500,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     );
     if (generated.length === 0) return;
     applyGen.mutate({ generator: "by_stage_billing", items: generated });
-  }, [itemsQ.isLoading, stagesQ.isLoading, items.length, stages, stageFees, applyGen]);
+  }, [itemsQ.isLoading, stagesQ.isLoading, supplierLookupReady, items.length, stages, stageFees, applyGen]);
 
   // Manual "Update from Gantt" button: regenerate the schedule from current
   // stage budgets/dates while preserving any rows marked manual_override.
