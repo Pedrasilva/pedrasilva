@@ -60,19 +60,23 @@ export function buildProjectGanttTree(
   const roots = childrenByParent.get(null) ?? [];
   roots.forEach((r, i) => walk(r, 0, String(i + 1), null));
 
-  // Rollup parent dates from descendants.
-  const rollup = new Map<string, { start: string; end: string }>();
-  const computeRollup = (node: StageWithAllocations): { start: string; end: string } => {
+  // Rollup parent dates AND budgets from descendants.
+  const rollup = new Map<string, { start: string; end: string; budget: number }>();
+  const computeRollup = (node: StageWithAllocations): { start: string; end: string; budget: number } => {
     const kids = childrenByParent.get(node.id) ?? [];
-    if (kids.length === 0) return { start: node.start_date, end: node.end_date };
+    if (kids.length === 0) {
+      return { start: node.start_date, end: node.end_date, budget: Number(node.budget ?? 0) || 0 };
+    }
     let minStart = "";
     let maxEnd = "";
+    let sumBudget = 0;
     for (const k of kids) {
       const r = computeRollup(k);
       if (!minStart || r.start < minStart) minStart = r.start;
       if (!maxEnd || r.end > maxEnd) maxEnd = r.end;
+      sumBudget += r.budget;
     }
-    const out = { start: minStart || node.start_date, end: maxEnd || node.end_date };
+    const out = { start: minStart || node.start_date, end: maxEnd || node.end_date, budget: sumBudget };
     rollup.set(node.id, out);
     return out;
   };
@@ -85,6 +89,7 @@ export function buildProjectGanttTree(
       projectId,
       start_date: ru?.start ?? s.start_date,
       end_date: ru?.end ?? s.end_date,
+      budget: ru?.budget ?? s.budget,
     } as StageWithProject;
   });
 
