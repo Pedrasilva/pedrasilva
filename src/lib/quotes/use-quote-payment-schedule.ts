@@ -121,7 +121,7 @@ export function useApplyPaymentGenerator(quoteId: string) {
         .from("quote_payment_schedule_items")
         .delete()
         .eq("quote_id", quoteId)
-        .eq("manual_override", false);
+        .or("manual_override.is.null,manual_override.eq.false");
 
       if (!input.replaceAll) {
         filter.eq("generator_source", input.generator);

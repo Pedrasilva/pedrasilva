@@ -164,12 +164,21 @@ export function PaymentScheduleProposalView({
     0,
   );
 
-  // Outflows grouped by supplier
+  // Outflows grouped by supplier. Support both legacy companies and the new
+  // pm_suppliers directory; otherwise different suppliers are collapsed into
+  // "Fornecedores diversos".
   const outflows = items.filter((it) => it.direction === "outflow");
   const supplierBuckets = useMemo(() => {
     const buckets = new Map<string, QuotePaymentScheduleItem[]>();
     for (const it of outflows) {
-      const key = it.supplier_company_id ?? "__unassigned__";
+      const label = (it.supplier_label ?? "").trim().toLowerCase();
+      const key = it.supplier_company_id
+        ? `c:${it.supplier_company_id}`
+        : it.supplier_id
+          ? `s:${it.supplier_id}`
+          : label
+            ? `p:${label}`
+            : "__unassigned__";
       const arr = buckets.get(key) ?? [];
       arr.push(it);
       buckets.set(key, arr);
@@ -205,6 +214,7 @@ export function PaymentScheduleProposalView({
               defaultVatRate={defaultVatRate}
               showTotalRow
               labelFor={(it) => {
+                if (it.trigger_type === "monthly") return it.label;
                 const s = it.stage_id ? stages.find((x) => x.id === it.stage_id) : null;
                 return s?.name ?? it.label;
               }}
@@ -218,63 +228,6 @@ export function PaymentScheduleProposalView({
         </Card>
       )}
 
-      {/* Middle: architecture-only breakdown (inflow − supplier outflows per stage) */}
-      {outflows.length > 0 && (() => {
-        // Group outflows by stage_id
-        const outBy = new Map<string, number>();
-        for (const o of outflows) {
-          const k = o.stage_id ?? "__none__";
-          outBy.set(k, (outBy.get(k) ?? 0) + netAmount(o, totalFee, stageFees));
-        }
-        // Per top-level inflow row, subtract any outflow attributed to its stage
-        const rows = inflows.map((it) => {
-          const inflowAmt = netAmount(it, totalFee, stageFees);
-          const out = it.stage_id ? outBy.get(it.stage_id) ?? 0 : 0;
-          return { it, inflowAmt, out, archAmt: inflowAmt - out };
-        });
-        const archTotal = rows.reduce((s, r) => s + r.archAmt, 0);
-        return (
-          <Card>
-            <CardHeader className="pb-3 bg-muted/30">
-              <div className="flex items-baseline justify-between gap-4">
-                <CardTitle className="text-sm uppercase tracking-wide">
-                  Arquitetura — receita líquida (após fornecedores)
-                </CardTitle>
-                <div className="text-base font-semibold tabular-nums">
-                  {formatEUR(archTotal)}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-3">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/40">
-                    <TableHead>Fase</TableHead>
-                    <TableHead className="text-right">Honorários</TableHead>
-                    <TableHead className="text-right">Fornecedores</TableHead>
-                    <TableHead className="text-right">Arquitetura</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.map(({ it, inflowAmt, out, archAmt }) => (
-                    <TableRow key={it.id}>
-                      <TableCell className="font-medium">{it.label}</TableCell>
-                      <TableCell className="text-right tabular-nums">{formatEUR(inflowAmt)}</TableCell>
-                      <TableCell className="text-right tabular-nums text-muted-foreground">
-                        {out > 0 ? `− ${formatEUR(out)}` : "—"}
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums font-semibold">
-                        {formatEUR(archAmt)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        );
-      })()}
-
       {/* Per-supplier outflow groups */}
       {supplierBuckets.length > 0 && (
         <div className="space-y-4">
@@ -285,7 +238,9 @@ export function PaymentScheduleProposalView({
             const name =
               key === "__unassigned__"
                 ? "Fornecedores diversos"
-                : supplierName.get(key) ?? "Fornecedor";
+                : key.startsWith("p:")
+                  ? (rows[0]?.supplier_label ?? "Fornecedor")
+                  : supplierName.get(key.slice(2)) ?? "Fornecedor";
             const groupTotal = rows.reduce(
               (s, r) => s + netAmount(r, totalFee, stageFees),
               0,

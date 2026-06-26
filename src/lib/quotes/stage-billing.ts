@@ -21,7 +21,17 @@ type StageLike = QuoteStage & {
   parent_stage_id?: string | null;
   budget_mode?: string | null;
   stage_billing_timing?: string | null;
+  stage_role?: string | null;
 };
+
+function roleOf(stage: QuoteStage): string {
+  return ((stage as StageLike).stage_role ?? "architecture") as string;
+}
+
+function isSupplierRole(stage: QuoteStage): boolean {
+  const role = roleOf(stage);
+  return role === "supplier_group" || role === "supplier_phase";
+}
 
 export function getChildren(stageId: string, stages: QuoteStage[]): QuoteStage[] {
   return stages.filter((s) => (s as StageLike).parent_stage_id === stageId);
@@ -63,11 +73,31 @@ export function effectiveBillingAmount(
     if (mode === "fixed") return ownBudget || derived;
     return derived > 0 ? derived : ownBudget;
   }
-  if (mode === "fixed") return ownBudget;
-  return children.reduce(
+  const childSum = children.reduce(
     (sum, c) => sum + effectiveBillingAmount(c, stages, stageFees),
     0,
   );
+
+  if (mode === "fixed") {
+    // A fixed architecture row often represents our own fee while its child
+    // supplier rows represent extra contract value. Keep the fixed own fee,
+    // but still add supplier subtrees so the contract total is architecture +
+    // engineering/suppliers. Supplier parents remain fixed totals to avoid
+    // parent+child double counting inside a supplier subtree.
+    if (isSupplierRole(stage)) return ownBudget;
+    const supplierChildren = children.reduce(
+      (sum, c) => sum + (isSupplierRole(c) ? effectiveBillingAmount(c, stages, stageFees) : 0),
+      0,
+    );
+    return ownBudget + supplierChildren;
+  }
+
+  // Calculated parent bars normally equal the sum of descendants. If the
+  // architecture parent also carries its own budget and has supplier children,
+  // treat that own budget as the architecture fee and add the suppliers.
+  const hasSupplierChildren = children.some(isSupplierRole);
+  const ownArchitectureFee = !isSupplierRole(stage) && hasSupplierChildren ? ownBudget : 0;
+  return childSum + ownArchitectureFee;
 }
 
 /** Build a fees map keyed only on top-level billable stages, with rolled-up amounts. */
