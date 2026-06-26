@@ -462,7 +462,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         start_date: minStart,
         end_date: maxEnd,
         color: "#0f172a",
-        budget: mapped.reduce((sum, s) => sum + Number(s.budget ?? 0), 0),
+        budget: mapped
+          .filter((s) => !(s as { parent_stage_id?: string | null }).parent_stage_id)
+          .reduce((sum, s) => sum + Number(s.budget ?? 0), 0),
         sort_order: -1,
         parent_stage_id: null,
         allocations: [],
