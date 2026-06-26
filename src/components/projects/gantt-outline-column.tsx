@@ -211,6 +211,14 @@ export function GanttOutlineColumn({
                     {fmt(stage.start_date)} → {fmt(stage.end_date)}
                   </div>
                 </div>
+                <div
+                  className={`shrink-0 text-right tabular-nums text-[11px] ${isSummary ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+                  title="Budget (sale value)"
+                >
+                  {Number(stage.budget ?? 0) > 0
+                    ? new Intl.NumberFormat("en-EU", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(Number(stage.budget))
+                    : "—"}
+                </div>
               </div>
 
               {chevronMode === "resources" && !resCollapsed && (
