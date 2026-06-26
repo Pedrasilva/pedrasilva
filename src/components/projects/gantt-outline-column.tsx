@@ -105,9 +105,9 @@ export function GanttOutlineColumn({
         className="sticky top-0 z-10 flex items-end border-b border-border bg-background/95 px-3 pb-1.5"
         style={{ height: headerHeight }}
       >
-        <div className="flex w-full items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="grid w-full grid-cols-[1fr_auto] items-center gap-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           <span>WBS · Stage</span>
-          <span>Dates</span>
+          <span className="tabular-nums">Budget</span>
         </div>
       </div>
 
