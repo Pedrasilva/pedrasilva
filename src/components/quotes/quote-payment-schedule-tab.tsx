@@ -276,8 +276,15 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     | { kind: "company"; companyId: string }
     | { kind: "placeholder"; label: string };
   const stageById = new Map(stages.map((s) => [s.id, s as SupplierStage]));
+  const childrenByParent = new Map<string, SupplierStage[]>();
+  for (const st of stages as SupplierStage[]) {
+    if (!st.parent_stage_id) continue;
+    const arr = childrenByParent.get(st.parent_stage_id) ?? [];
+    arr.push(st);
+    childrenByParent.set(st.parent_stage_id, arr);
+  }
   const childCount = (id: string) =>
-    stages.filter((c) => (c as SupplierStage).parent_stage_id === id).length;
+    (childrenByParent.get(id) ?? []).length;
   const inheritedSupplier = (stage: SupplierStage): InheritedSupplier | null => {
     let current: SupplierStage | undefined = stage;
     while (current) {
@@ -310,11 +317,30 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     }
     return false;
   };
+  const stageHasSupplierExternal = (stageId: string): boolean => {
+    const direct = externals.some((es) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const esAny = es as any;
+      if (esAny.stage_id !== stageId) return false;
+      return !!(
+        esAny.supplier_company_id ||
+        esAny.supplier_id ||
+        esAny.supplier_placeholder ||
+        es.supplier?.id
+      );
+    });
+    if (direct) return true;
+    return (childrenByParent.get(stageId) ?? []).some((child) => stageHasSupplierExternal(child.id));
+  };
   const stageOnlyOutflows = stages
     .map((stage) => {
       const s = stage as SupplierStage;
       const inh = inheritedSupplier(s);
       if (!inh || inh.kind === "self") return null;
+      // If the stage/subtree already has explicit supplier external-service
+      // rows, those rows are the source of truth. Do not add a second synthetic
+      // supplier commitment from the parent/child stage budget.
+      if (stageHasSupplierExternal(s.id)) return null;
       const key = supplierKey(inh);
       if (hasFixedAncestorSameSupplier(s, key)) return null;
       const children = childCount(s.id);
