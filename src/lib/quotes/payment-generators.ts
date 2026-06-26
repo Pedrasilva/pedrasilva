@@ -433,14 +433,47 @@ export function generateByStageBilling(
   options: ByStageBillingOptions = {},
 ): GeneratorItem[] {
   if (stages.length === 0) return [];
+  type StageNode = QuoteStage & {
+    parent_stage_id?: string | null;
+    billing_model?: string | null;
+    stage_kind?: string | null;
+  };
+  const allStages = stages as StageNode[];
+  const stageById = new Map(allStages.map((s) => [s.id, s]));
+  const childrenByParent = new Map<string, StageNode[]>();
+  for (const s of allStages) {
+    const parentId = s.parent_stage_id ?? null;
+    if (!parentId) continue;
+    const arr = childrenByParent.get(parentId) ?? [];
+    arr.push(s);
+    childrenByParent.set(parentId, arr);
+  }
+  const hasDescendant = (ancestorId: string, maybeChildId: string): boolean => {
+    const children = childrenByParent.get(ancestorId) ?? [];
+    return children.some((child) => child.id === maybeChildId || hasDescendant(child.id, maybeChildId));
+  };
+  const effectiveSpan = (stage: StageNode): { start: string; end: string } => {
+    const children = childrenByParent.get(stage.id) ?? [];
+    if (children.length === 0) return { start: stage.start_date, end: stage.end_date };
+    return children.reduce(
+      (span, child) => {
+        const childSpan = effectiveSpan(child);
+        return {
+          start: childSpan.start < span.start ? childSpan.start : span.start,
+          end: childSpan.end > span.end ? childSpan.end : span.end,
+        };
+      },
+      { start: stage.start_date, end: stage.end_date },
+    );
+  };
   // Exclude children of parent bars — only top-level stages bill the client.
   const billable = topLevelBillableStages(stages);
   const sorted = [...billable].sort((a, b) => a.sort_order - b.sort_order);
-  const totalArch = sorted.reduce((acc, s) => acc + (stageFees[s.id] ?? 0), 0);
+  const totalContract = sorted.reduce((acc, s) => acc + (stageFees[s.id] ?? 0), 0);
   const dpPct = Math.max(0, Number(options.downPaymentPercent ?? 0));
-  const dpAmount = dpPct > 0 ? round2((totalArch * dpPct) / 100) : 0;
+  const dpAmount = dpPct > 0 ? round2((totalContract * dpPct) / 100) : 0;
   const deduct = options.deductDownPaymentFromStages && dpAmount > 0;
-  const remainingFactor = deduct && totalArch > 0 ? 1 - dpAmount / totalArch : 1;
+  const remainingFactor = deduct && totalContract > 0 ? 1 - dpAmount / totalContract : 1;
   const scaleFee = (fee: number) => round2(fee * remainingFactor);
   const items: GeneratorItem[] = [];
   let order = 0;
@@ -467,6 +500,7 @@ export function generateByStageBilling(
   for (const s of sorted) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sa = s as any;
+    const span = effectiveSpan(s as StageNode);
     const stageKind = (sa.stage_kind ?? "regular") as "regular" | "retainer_monthly";
 
     // New monthly-retainer model: N copies of monthly_fee starting at anchor.
@@ -475,7 +509,7 @@ export function generateByStageBilling(
     // retainers.
     if (stageKind === "retainer_monthly") {
       const months = Math.max(1, Math.min(120, Number(sa.retainer_months ?? 0) || 0));
-      const anchor = (sa.retainer_anchor_month as string | null) ?? s.start_date;
+      const anchor = (sa.retainer_anchor_month as string | null) ?? span.start;
       const monthly = round2(Number(sa.retainer_monthly_amount ?? 0));
       if (!months || !anchor || monthly <= 0) continue;
       const series = monthsFrom(anchor, months);
@@ -499,7 +533,7 @@ export function generateByStageBilling(
     const model = (sa.billing_model ?? "stage") as "stage" | "monthly" | "retainer";
     const retainer = Number(sa.retainer_monthly_amount ?? 0);
     if (model === "retainer") {
-      const months = monthsBetween(s.start_date, s.end_date);
+      const months = monthsBetween(span.start, span.end);
       months.forEach((m, i) => {
         items.push({
           label: `${s.name} — ${formatYearMonth(m)} (retainer)`,
@@ -515,7 +549,7 @@ export function generateByStageBilling(
         void i;
       });
     } else if (model === "monthly") {
-      const months = monthsBetween(s.start_date, s.end_date);
+      const months = monthsBetween(span.start, span.end);
       if (months.length === 0) continue;
       const fee = scaleFee(stageFees[s.id] ?? 0);
       const per = round2(fee / months.length);
@@ -547,7 +581,7 @@ export function generateByStageBilling(
           amount_type: "fixed",
           amount_value: half,
           stage_id: s.id,
-          expected_invoice_date: s.start_date,
+          expected_invoice_date: span.start,
           expected_payment_date: null,
           sort_order: order++,
           generator_source: "by_stage_billing",
@@ -558,7 +592,7 @@ export function generateByStageBilling(
           amount_type: "fixed",
           amount_value: round2(fee - half),
           stage_id: s.id,
-          expected_invoice_date: s.end_date,
+          expected_invoice_date: span.end,
           expected_payment_date: null,
           sort_order: order++,
           generator_source: "by_stage_billing",
@@ -570,7 +604,7 @@ export function generateByStageBilling(
           amount_type: "fixed",
           amount_value: fee,
           stage_id: s.id,
-          expected_invoice_date: s.start_date,
+          expected_invoice_date: span.start,
           expected_payment_date: null,
           sort_order: order++,
           generator_source: "by_stage_billing",
@@ -582,7 +616,7 @@ export function generateByStageBilling(
           amount_type: "fixed",
           amount_value: fee,
           stage_id: s.id,
-          expected_invoice_date: s.end_date,
+          expected_invoice_date: span.end,
           expected_payment_date: null,
           sort_order: order++,
           generator_source: "by_stage_billing",
@@ -591,20 +625,24 @@ export function generateByStageBilling(
     }
   }
 
-  // ── Optional supplier outflows (mirrors arch+consultants split) ─
+  // ── Optional supplier outflows ──────────────────────────────────
+  // Generate one supplier commitment from each supplier Gantt/external row.
+  // Do not redistribute a supplier's total across parent bars: that was
+  // causing parent+child double counting and repeated commitments.
   const externals = options.externalServices ?? [];
   const offset = Math.max(0, Number(options.paymentOffsetDays ?? 0));
-  if (externals.length > 0 && sorted.length > 0) {
-    type SupplierBucket = {
+  if (externals.length > 0) {
+    type SupplierRow = {
       key: string;
       companyId: string | null;
       pmSupplierId: string | null;
       placeholderLabel: string | null;
       name: string;
-      total: number;
-      stageIds: Set<string>;
+      amount: number;
+      stageId: string | null;
+      description: string;
     };
-    const buckets = new Map<string, SupplierBucket>();
+    const rows: SupplierRow[] = [];
     for (const es of externals) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const esAny = es as any;
@@ -612,51 +650,63 @@ export function generateByStageBilling(
       const supplierId: string | null = esAny.supplier_id ?? null;
       const placeholder: string | null = (esAny.supplier_placeholder ?? null) || null;
       if (!companyId && !supplierId && !placeholder) continue;
-      const key = companyId
+      const supplierKey = companyId
         ? `c:${companyId}`
         : supplierId
           ? `s:${supplierId}`
           : `p:${placeholder!.toLowerCase()}`;
       const name = es.supplier?.name ?? placeholder ?? esAny.description ?? "Supplier";
       const cost = Number(esAny.purchase_price ?? 0) * Number(esAny.quantity ?? 1);
-      const cur = buckets.get(key) ?? {
-        key, companyId, pmSupplierId: supplierId, placeholderLabel: placeholder,
-        name, total: 0, stageIds: new Set<string>(),
-      };
-      cur.total += cost;
-      if (esAny.stage_id) cur.stageIds.add(esAny.stage_id);
-      buckets.set(key, cur);
+      if (cost <= 0) continue;
+      rows.push({
+        key: supplierKey,
+        companyId,
+        pmSupplierId: supplierId,
+        placeholderLabel: placeholder,
+        name,
+        amount: cost,
+        stageId: esAny.stage_id ?? null,
+        description: String(esAny.description ?? "Supplier"),
+      });
     }
-    for (const bucket of buckets.values()) {
-      if (bucket.total <= 0) continue;
-      const supplierStages = bucket.stageIds.size > 0
-        ? sorted.filter((s) => bucket.stageIds.has(s.id))
-        : sorted;
-      if (supplierStages.length === 0) continue;
-      const weightTotal = supplierStages.reduce((acc, st) => acc + (stageFees[st.id] ?? 0), 0);
-      let running = 0;
-      supplierStages.forEach((s, idx) => {
-        const weight = stageFees[s.id] ?? 0;
-        const ratio = weightTotal > 0 ? weight / weightTotal : 1 / supplierStages.length;
-        let amount = round2(bucket.total * ratio);
-        if (idx === supplierStages.length - 1) amount = round2(bucket.total - running);
-        running += amount;
-        if (amount <= 0) return;
-        items.push({
-          label: `${bucket.name} — ${s.name}`,
-          trigger_type: "stage_end",
-          amount_type: "fixed",
-          amount_value: amount,
-          stage_id: s.id,
-          expected_invoice_date: s.end_date,
-          expected_payment_date: addDaysISO(s.end_date, offset),
-          sort_order: order++,
-          generator_source: "by_stage_billing",
-          direction: "outflow",
-          supplier_company_id: bucket.companyId,
-          supplier_id: bucket.pmSupplierId,
-          supplier_label: bucket.placeholderLabel,
-        });
+    const filtered = rows.filter((row) => {
+      if (!row.stageId) return true;
+      const stage = stageById.get(row.stageId);
+      if (!stage) return true;
+      const hasChildForSameSupplier = rows.some(
+        (other) =>
+          other !== row &&
+          other.key === row.key &&
+          !!other.stageId &&
+          hasDescendant(stage.id, other.stageId),
+      );
+      return !hasChildForSameSupplier;
+    });
+    const merged = new Map<string, SupplierRow>();
+    for (const row of filtered) {
+      const mergeKey = `${row.key}|${row.stageId ?? ""}|${row.description.trim().toLowerCase()}`;
+      const current = merged.get(mergeKey);
+      if (current) current.amount = round2(current.amount + row.amount);
+      else merged.set(mergeKey, { ...row, amount: round2(row.amount) });
+    }
+    for (const row of merged.values()) {
+      const stage = row.stageId ? stageById.get(row.stageId) : null;
+      const span = stage ? effectiveSpan(stage) : null;
+      const invoiceDate = span?.end ?? null;
+      items.push({
+        label: `${row.name} — ${row.description}`,
+        trigger_type: "stage_end",
+        amount_type: "fixed",
+        amount_value: round2(row.amount),
+        stage_id: row.stageId,
+        expected_invoice_date: invoiceDate,
+        expected_payment_date: addDaysISO(invoiceDate, offset),
+        sort_order: order++,
+        generator_source: "by_stage_billing",
+        direction: "outflow",
+        supplier_company_id: row.companyId,
+        supplier_id: row.pmSupplierId,
+        supplier_label: row.placeholderLabel,
       });
     }
   }

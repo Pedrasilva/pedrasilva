@@ -195,7 +195,9 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const leafStageFees = computeStageFees(stages, allocations, externals, pricingMultiplier);
   // Roll children up into their parent bars (calculated/fixed budget mode),
   // then merge so per-item amount resolution can look up either map.
-  const stageFees = { ...leafStageFees, ...rolledUpBillableFees(stages, leafStageFees) };
+  const topLevelStageFees = rolledUpBillableFees(stages, leafStageFees);
+  const stageFees = { ...leafStageFees, ...topLevelStageFees };
+  const contractTotal = Object.values(topLevelStageFees).reduce((sum, value) => sum + value, 0) || totalFee;
 
   // -- Supplier resolution from Gantt stages -------------------------------
   // Stages now carry three supplier signals (inheritable from parents):
@@ -276,13 +278,6 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
   const stageById = new Map(stages.map((s) => [s.id, s as SupplierStage]));
   const childCount = (id: string) =>
     stages.filter((c) => (c as SupplierStage).parent_stage_id === id).length;
-  const topLevelStageId = (stage: SupplierStage) => {
-    let current = stage;
-    while (current.parent_stage_id && stageById.has(current.parent_stage_id)) {
-      current = stageById.get(current.parent_stage_id)!;
-    }
-    return current.id;
-  };
   const inheritedSupplier = (stage: SupplierStage): InheritedSupplier | null => {
     let current: SupplierStage | undefined = stage;
     while (current) {
@@ -330,7 +325,6 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         ? ownBudget
         : Number(stageFees[s.id] ?? 0) || ownBudget;
       if (amount <= 0) return null;
-      const billingStageId = topLevelStageId(s);
       const displayName =
         inh.kind === "supplier" ? stageSupplierName(inh.supplierId)
         : inh.kind === "company" ? stageCompanyName(inh.companyId)
@@ -339,7 +333,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       return {
         id: `stage-supplier-${s.id}`,
         quote_id: quoteId,
-        stage_id: billingStageId,
+        stage_id: s.id,
         supplier_id: inh.kind === "supplier" ? inh.supplierId : null,
         supplier_company_id: inh.kind === "company" ? inh.companyId : null,
         supplier_placeholder: inh.kind === "placeholder" ? inh.label : null,
@@ -417,13 +411,13 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
           trigger_type: it.trigger_type,
           stage_id: it.stage_id,
         },
-        totalFee,
+        contractTotal,
         stageFees,
       ),
     0,
   );
   const totalMismatch =
-    totalFee > 0 && Math.abs(scheduleTotal - totalFee) > 0.5;
+    contractTotal > 0 && Math.abs(scheduleTotal - contractTotal) > 0.5;
 
   const [draft, setDraft] = useState({
     label: "",
@@ -480,118 +474,13 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     applyGen.mutate({ generator: "by_stage_billing", items: generated });
   }, [itemsQ.isLoading, stagesQ.isLoading, items.length, stages, stageFees, applyGen]);
 
-  // Additive supplier sync: when the Gantt references a supplier that has no
-  // outflow row yet, INSERT just that missing row. Never regenerate, never
-  // delete existing rows — A2P, A400, manual hand-added rows etc. must
-  // survive a new supplier appearing on the Gantt.
-  const supplierSyncRef = useRef<string | null>(null);
-  useEffect(() => {
-    if (itemsQ.isLoading || stagesQ.isLoading || !supplierLookupReady) return;
-    if (upsert.isPending || applyGen.isPending) return;
-    if (stageOnlyOutflows.length === 0) return;
-    // Dedupe per (supplier, stage) so one supplier can host multiple Gantt
-    // stages without later ones being swallowed as duplicates.
-    const supplierPart = (row: { supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null; supplier_placeholder?: string | null }) =>
-      row.supplier_id ? `pm:${row.supplier_id}` :
-      row.supplier_company_id ? `co:${row.supplier_company_id}` :
-      (row.supplier_label ?? row.supplier_placeholder)
-        ? `ph:${((row.supplier_label ?? row.supplier_placeholder) as string).toLowerCase()}`
-        : "";
-    const outflowKey = (row: { stage_id?: string | null; supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null; supplier_placeholder?: string | null; label?: string | null; description?: string | null }) => {
-      const sp = supplierPart(row);
-      if (!sp) return "";
-      // Per-stage rows from the Gantt synth use stage_id = top-level billing stage,
-      // so also include the description/label (the child stage name) to keep
-      // siblings under the same supplier distinct.
-      return `${sp}|${row.stage_id ?? ""}|${(row.label ?? row.description ?? "").trim().toLowerCase()}`;
-    };
-    const existingKeys = new Set(
-      items
-        .filter((it) => (it as unknown as { direction?: string }).direction === "outflow")
-        .map((it) => {
-          const r = it as unknown as { stage_id?: string | null; supplier_id?: string | null; supplier_company_id?: string | null; supplier_label?: string | null; label?: string | null };
-          // Existing rows store "<Supplier> — <Stage name>"; extract the stage part.
-          const lbl = r.label ?? "";
-          const dash = lbl.indexOf("—");
-          const stagePart = dash >= 0 ? lbl.slice(dash + 1).trim() : lbl.trim();
-          return outflowKey({ ...r, description: stagePart });
-        })
-        .filter(Boolean),
-    );
-    const missingRows = stageOnlyOutflows.filter((o) => {
-      const so = o as unknown as { stage_id?: string | null; supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null; description?: string | null };
-      const key = outflowKey(so);
-      return key && !existingKeys.has(key);
-    });
-    if (missingRows.length === 0) return;
-
-    const syncKey = missingRows.map((o) => {
-      const oa = o as unknown as { stage_id?: string | null; supplier_id?: string | null; supplier_company_id?: string | null; supplier_placeholder?: string | null; purchase_price?: number | null };
-      return `${oa.stage_id}:${oa.supplier_id ?? ""}:${oa.supplier_company_id ?? ""}:${oa.supplier_placeholder ?? ""}:${oa.purchase_price}`;
-    }).join("|");
-    if (supplierSyncRef.current === syncKey) return;
-    supplierSyncRef.current = syncKey;
-
-    const generatorSource = items.find((it) => it.generator_source === "architecture_with_consultants")
-      ? "architecture_with_consultants"
-      : items.find((it) => it.generator_source === "by_stage_billing")
-        ? "by_stage_billing"
-        : "by_stage_billing";
-    const baseSort = items.reduce((m, it) => Math.max(m, Number(it.sort_order ?? 0)), -1) + 1;
-
-    void Promise.all(missingRows.map((o, i) => {
-      const oa = o as unknown as {
-        stage_id?: string | null;
-        supplier_id?: string | null;
-        supplier_company_id?: string | null;
-        supplier_placeholder?: string | null;
-        purchase_price?: number | null;
-        description?: string | null;
-        supplier?: { name?: string | null } | null;
-      };
-      const displayName = oa.supplier?.name ?? oa.supplier_placeholder ?? "Supplier";
-      const stageName = oa.description ?? "";
-      return upsert.mutateAsync({
-        quote_id: quoteId,
-        label: stageName ? `${displayName} — ${stageName}` : displayName,
-        trigger_type: "stage_end",
-        amount_type: "fixed",
-        amount_value: Number(oa.purchase_price ?? 0),
-        stage_id: oa.stage_id ?? null,
-        sort_order: baseSort + i,
-        direction: "outflow",
-        supplier_id: oa.supplier_id ?? null,
-        supplier_company_id: oa.supplier_company_id ?? null,
-        supplier_label: (oa.supplier_id || oa.supplier_company_id) ? null : (oa.supplier_placeholder ?? null),
-        generator_source: generatorSource,
-        manual_override: false,
-        vat_rate: paymentDefaults.vatRate,
-        payment_terms: paymentDefaults.defaultTerms,
-      });
-    })).catch((e) => console.error("supplier sync failed", e));
-  }, [itemsQ.isLoading, stagesQ.isLoading, supplierLookupReady, items, stageOnlyOutflows, upsert, applyGen.isPending, paymentDefaults, quoteId]);
-
   // Manual "Update from Gantt" button: regenerate the schedule from current
   // stage budgets/dates while preserving any rows marked manual_override.
-  // Detects the last-used inflow generator and re-runs it; also re-runs the
-  // additive supplier sync so newly-added suppliers appear.
+  // This is an explicit full refresh: it replaces all non-manual generated
+  // rows so stale supplier duplicates are removed instead of accumulated.
   const syncFromGantt = async () => {
-    supplierSyncRef.current = null;
-
-    // Pick the generator to re-run for inflows.
-    const detectedKind: GeneratorKind =
-      items.find((it) => it.generator_source === "architecture_with_consultants")
-        ? "architecture_with_consultants"
-        : items.find((it) => it.generator_source === "milestones")
-          ? "milestones"
-          : items.find((it) => it.generator_source === "thirds")
-            ? "thirds"
-            : items.find((it) => it.generator_source === "monthly")
-              ? "monthly"
-              : "by_stage_billing";
-
     try {
-      await runGenerator(detectedKind);
+      await runGenerator("by_stage_billing", { replaceAll: true });
       toast.success(t("workspace.payment.synced", { defaultValue: "Billing schedule updated from the Gantt" }));
     } catch (e) {
       toast.error((e as Error).message);
@@ -636,7 +525,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     upsert.mutate({ id: b.id, sort_order: a.sort_order });
   };
 
-  const runGenerator = async (kind: GeneratorKind) => {
+  const runGenerator = async (kind: GeneratorKind, opts: { replaceAll?: boolean } = {}) => {
     let generated: GeneratorItem[] = [];
     if (kind === "milestones") {
       const dp = Number(milestoneOpts.downPaymentPercent) || 0;
@@ -659,7 +548,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         deductDownPaymentFromStages: milestoneOpts.deductDownPaymentFromStages,
         paymentTermsDays: Number.isFinite(terms) && terms > 0 ? terms : null,
         stageFees,
-        totalFee,
+        totalFee: contractTotal,
       });
     } else if (kind === "thirds") {
       generated = generateThirds(stages);
@@ -691,7 +580,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
     }
     const protectedCount = items.filter((it) => it.manual_override).length;
     try {
-      await applyGen.mutateAsync({ generator: kind, items: generated });
+      await applyGen.mutateAsync({ generator: kind, items: generated, replaceAll: opts.replaceAll });
       toast.success(
         protectedCount > 0
           ? t("workspace.payment.generatorAppliedKeep", { count: protectedCount })
@@ -763,7 +652,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       <PaymentScheduleProposalView
         items={items}
         stages={stages}
-        totalFee={totalFee}
+        totalFee={contractTotal}
         stageFees={stageFees}
         suppliers={suppliers}
         defaultVatRate={defaultVatRate}
@@ -918,7 +807,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                 const itAny = it as unknown as { vat_rate?: number | null; payment_terms?: string | null };
                 const net = resolveScheduleItemAmount(
                   { amount_type: it.amount_type, amount_value: Number(it.amount_value ?? 0), trigger_type: it.trigger_type, stage_id: it.stage_id },
-                  totalFee,
+                  contractTotal,
                   stageFees,
                 );
                 const vat = Number(itAny.vat_rate ?? defaultVatRate);
@@ -1029,74 +918,6 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         </CardContent>
       </Card>
 
-      {/* Architecture — net revenue per stage (inflows minus supplier outflows) */}
-      {(() => {
-        const inflows = items.filter((it) => ((it as unknown as { direction?: string }).direction ?? "inflow") === "inflow");
-        const outflows = items.filter((it) => (it as unknown as { direction?: string }).direction === "outflow");
-        if (inflows.length === 0) return null;
-        const amt = (it: typeof items[number]) => resolveScheduleItemAmount(
-          { amount_type: it.amount_type, amount_value: Number(it.amount_value ?? 0), trigger_type: it.trigger_type, stage_id: it.stage_id },
-          totalFee, stageFees,
-        );
-        // Aggregate per stage
-        const byStage = new Map<string, { name: string; inflow: number; outflow: number }>();
-        const keyOf = (sid: string | null | undefined) => sid ?? "__none__";
-        const nameOf = (sid: string | null | undefined) =>
-          sid ? stages.find((s) => s.id === sid)?.name ?? "—" : "—";
-        for (const it of inflows) {
-          const k = keyOf(it.stage_id);
-          const cur = byStage.get(k) ?? { name: nameOf(it.stage_id), inflow: 0, outflow: 0 };
-          cur.inflow += amt(it);
-          byStage.set(k, cur);
-        }
-        for (const it of outflows) {
-          const k = keyOf(it.stage_id);
-          const cur = byStage.get(k) ?? { name: nameOf(it.stage_id), inflow: 0, outflow: 0 };
-          cur.outflow += amt(it);
-          byStage.set(k, cur);
-        }
-        const rows = Array.from(byStage.values());
-        const totalArch = rows.reduce((s, r) => s + (r.inflow - r.outflow), 0);
-        return (
-          <Card>
-            <CardHeader className="py-3 flex flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-base">
-                {t("workspace.payment.architectureTitle", { defaultValue: "Architecture — revenue per stage" })}
-              </CardTitle>
-              <div className="text-sm font-semibold tabular-nums">{formatEUR(totalArch)}</div>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("common.stage")}</TableHead>
-                    <TableHead className="text-right">
-                      {t("workspace.payment.archNetCol", { defaultValue: "Architecture" })}
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.map((r, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="font-medium">{r.name}</TableCell>
-                      <TableCell className="text-right tabular-nums font-semibold">
-                        {formatEUR(r.inflow - r.outflow)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
-                    <TableCell>Total</TableCell>
-                    <TableCell className="text-right tabular-nums">{formatEUR(totalArch)}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-
-
-            </CardContent>
-          </Card>
-        );
-      })()}
-
       {/* Suppliers — outflows grouped by supplier (broken-down payouts) */}
       {(() => {
         const outflows = items.filter((it) => (it as unknown as { direction?: string }).direction === "outflow");
@@ -1143,7 +964,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
 
                 const groupTotal = rows.reduce((s, r) => s + resolveScheduleItemAmount(
                   { amount_type: r.amount_type, amount_value: Number(r.amount_value ?? 0), trigger_type: r.trigger_type, stage_id: r.stage_id },
-                  totalFee, stageFees,
+                  contractTotal, stageFees,
                 ), 0);
                 return (
                   <div key={key} className="rounded-md border">
@@ -1170,7 +991,7 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                           const itAny = it as unknown as { vat_rate?: number | null; payment_terms?: string | null };
                           const net = resolveScheduleItemAmount(
                             { amount_type: it.amount_type, amount_value: Number(it.amount_value ?? 0), trigger_type: it.trigger_type, stage_id: it.stage_id },
-                            totalFee, stageFees,
+                            contractTotal, stageFees,
                           );
                           const vat = Number(itAny.vat_rate ?? defaultVatRate);
                           const gross = net + (net * vat) / 100;
