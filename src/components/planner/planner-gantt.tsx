@@ -377,20 +377,27 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
     roots.forEach((r, i) => walk(r, 0, String(i + 1), null));
 
     // Roll up summary rows: a parent stage's rendered span is the union of
-    // its descendants' dates (Merlin-style summary bar). The underlying
-    // start_date/end_date persisted on the row is left untouched.
-    const rollup = new Map<string, { start: string; end: string }>();
-    const computeRollup = (node: S): { start: string; end: string } => {
+    // its descendants' dates AND its budget is the sum of children's effective
+    // sale value (when budget_mode='calculated'; 'fixed' keeps the stored
+    // value). Persisted start/end/budget on the row stay untouched.
+    const rollup = new Map<string, { start: string; end: string; budget: number }>();
+    const computeRollup = (node: S): { start: string; end: string; budget: number } => {
       const kids = childrenByParent.get(node.id) ?? [];
-      if (kids.length === 0) return { start: node.start_date, end: node.end_date };
+      if (kids.length === 0) {
+        return { start: node.start_date, end: node.end_date, budget: Number(node.budget ?? 0) || 0 };
+      }
       let minStart = "";
       let maxEnd = "";
+      let sumBudget = 0;
       for (const k of kids) {
         const r = computeRollup(k);
         if (!minStart || r.start < minStart) minStart = r.start;
         if (!maxEnd || r.end > maxEnd) maxEnd = r.end;
+        sumBudget += r.budget;
       }
-      const out = { start: minStart || node.start_date, end: maxEnd || node.end_date };
+      const mode = ((node as { budget_mode?: string | null }).budget_mode ?? "calculated") as string;
+      const effectiveBudget = mode === "fixed" ? (Number(node.budget ?? 0) || 0) : sumBudget;
+      const out = { start: minStart || node.start_date, end: maxEnd || node.end_date, budget: effectiveBudget };
       rollup.set(node.id, out);
       return out;
     };
@@ -407,7 +414,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       start_date: ru?.start ?? s.start_date,
       end_date: ru?.end ?? s.end_date,
       color: s.color,
-      budget: s.budget,
+      budget: ru?.budget ?? s.budget,
       sort_order: s.sort_order,
       external_id: s.external_id ?? null,
 
@@ -455,7 +462,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         start_date: minStart,
         end_date: maxEnd,
         color: "#0f172a",
-        budget: mapped.reduce((sum, s) => sum + Number(s.budget ?? 0), 0),
+        budget: mapped
+          .filter((s) => !(s as { parent_stage_id?: string | null }).parent_stage_id)
+          .reduce((sum, s) => sum + Number(s.budget ?? 0), 0),
         sort_order: -1,
         parent_stage_id: null,
         allocations: [],

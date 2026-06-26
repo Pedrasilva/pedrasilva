@@ -1,55 +1,54 @@
-## Goal
+## Scope
 
-Turn the uploaded Word proposal into our first official, reusable template. Picking it on a new quote pre-populates the Gantt with the 5 stages, hours, fees, resources and payment rules. From then on the Gantt is the source of truth — the in-app proposal table and the .docx export both read live values from it. All paragraphs remain editable per project; structure and wording are preserved.
+Five connected changes to the planner Gantt (CRM quotes + project module — shared component).
 
-## What I'll build
+### 1. Parent stage rolls up sale value
 
-### 1. Quote Template: "Habitação — Construção Nova" (PT)
-Seeded via a migration into the existing `quote_templates` system so it appears in the template picker for new quotes (category: `project`, project_type: `residential`).
+- Today: parent/summary rows show their own `budget` field, which is usually `0` or stale; only dates roll up.
+- Change: parent budget shown in the Gantt and in totals = **sum of children's effective sale value** (recursive). Leaf rows keep their stored budget. The synthetic top "Project" row sums all root stages.
+- Affects: `buildProjectGanttTree.ts`, the equivalent quote tree builder in `planner-gantt.tsx`, and any "Total budget" KPI that currently re-sums leaves.
 
-**Stages (seed the Gantt):**
+### 2. Parent WBS row is clickable
 
-| # | Stage | Duration | Senior hrs | Architect hrs | Fee (€) |
-|---|---|---|---|---|---|
-| 1 | Programa Base / Conceito | 1 week | 10 | — | 400 |
-| 2 | Estudo Prévio | 4 weeks | 80 | 120 | 7,400 |
-| 3 | Licenciamento | 2 weeks | 60 | 60 | 4,500 |
-| 4 | Projeto de Execução | 5 weeks | 100 | 150 | 9,250 |
-| 5 | Assistência Técnica | 12 months | 8/mo | 12/mo | 776/month |
+- Today: clicking a summary row is a no-op (the inspector is disabled because parents are read-only).
+- Change: clicking opens the same inspector drawer in a **read-only "Summary" mode** showing:
+  - Name, rolled-up dates, rolled-up sale value, rolled-up cost, rolled-up margin
+  - Children list (name + budget + dates)
+  - No editable fields, no Resources / Dependencies tabs
 
-**Dependencies:** sequential (1→2→3→4→5).
-**Payment rules:** 10% adjudication on signature; per project stage 45% at start + 45% at completion; AT billed monthly during construction.
-**Proposal blocks:** one editable block per section of the Word doc (Descrição, Fases [1]–[5], Honorários, Condições de Pagamento, Prazos, Exclusões, Validade, Termo de Aceitação) — wording preserved exactly, with placeholders for `{{client_name}}`, `{{project_title}}`, `{{address}}`, `{{typology}}`, `{{area_m2}}`, `{{floors}}`, `{{proposal_code}}`, `{{proposal_date}}`.
+### 3. Budget mode selector on stage inspector
 
-### 2. Dynamic fields on the quote
-Add a small "Project brief" section on the quote (residential category only) for:
-- Project title (e.g. "Construção nova de moradia")
-- Address
-- Client name
-- Typology (T4), area (m²), floors
+Replace the flat "Budget" input with an Accelo-style mode dropdown:
 
-These flow into both the in-app proposal and the .docx.
+| Mode | Behaviour |
+|---|---|
+| **Fixed** | Manual € amount (current behaviour) |
+| **Calculated** | Sale value = Σ(allocation hours × resource sale rate); input is locked + shows computed total |
+| **Non-billable** | Sale value forced to €0; excluded from project total and payment schedule |
 
-### 3. Live fee/hours table
-The Honorários table renders from current Gantt stages — durations, hours, resources, fees — so edits in the Gantt are immediately reflected in the proposal preview.
+DB: add `budget_mode` enum (`fixed` \| `calculated` \| `non_billable`, default `fixed`) to `quote_stages` and `pm_stages`. Default existing rows to `fixed`. All sale-value reads route through one helper `getStageSaleValue(stage, allocations, rates)` so every surface (Gantt, payment schedule, financial summary, rollups) stays consistent.
 
-### 4. .docx export
-New "Export Word" button on the quote proposal tab. Generates a .docx that mirrors the original layout (PSA logo, Lisbon footer, RIBA/Ordem mark, page breaks, fee table). Uses docx-js server-side. Cover page pulls proposal code + date + project brief; body pulls editable section blocks; fee table pulls live Gantt values.
+### 4. "Update" button on payment schedule
 
-### Out of scope (for this first cut)
-- Reverse sync (editing the .docx back into the Gantt).
-- Change orders / amendments.
-- Other proposal families (office, hotel, etc.) — the same pattern can be cloned later.
+Add a manual **Recompute from plan** button on `quote-payment-schedule-tab.tsx`. Today the schedule re-derives on stage edits via hooks; the button gives users an explicit re-sync action (also covers cases where mode changes don't auto-trigger). Shows a toast on success with a count of items updated.
 
-## Technical notes (for reference)
+### 5. Bug fixes
 
-- Migration inserts rows into `quote_templates`, `quote_template_stages`, `quote_template_dependencies`, `quote_template_payment_rules`, `quote_template_blocks`. RPC `quote_instantiate_template` already handles seeding into a quote.
-- Proposal blocks store HTML; placeholders resolved at render time against the quote + brief fields. Reuses the existing `quote_proposal_documents` / `quote_proposal_document_blocks` editor.
-- .docx generation runs in a `createServerFn` using `docx` (already a known pattern). Logo + footer assets stored in `src/assets/proposal-habitacao/`.
-- New small table `quote_project_brief` (one row per quote: title, address, typology, area_m2, floors) — or, simpler, reuse free columns on `fee_proposals`. I'll prefer reusing existing columns where possible to avoid schema sprawl; otherwise add the table with RLS scoped like other quote-child tables.
+- **Category=Supplier not saving in inspector**: the category select onChange writes to local state but `mutate` only includes whitelisted fields — verify `category` (and supplier-mode flag) is in the update payload and persisted; add to mutation if missing.
+- **Master Card Gantt missing values**: investigate — likely the budget column isn't displaying for parent rows because they have no `budget` themselves (fixed by #1) and/or stages outside the date window are clipped. Will inspect that project's data and confirm.
 
-## Confirmations needed before I start
+## Technical details
 
-1. PT-PT only for v1, or also EN? (Word doc is PT.)
-2. Use the existing PSA logo asset in the repo, or do you want to upload a higher-res one for the .docx?
-3. Should AT (Assistência Técnica) appear in the Gantt as a single 12-month bar, or as 12 monthly bars for billing tracking? (My default: single bar, monthly billing rule.)
+- Migration: add `budget_mode` to `quote_stages` + `pm_stages`; helper SQL function `get_stage_sale_value(stage_id)` is **not** needed — we compute client-side from already-loaded allocations.
+- New util: `src/lib/quotes/stage-sale-value.ts` (shared by both modes via planner adapter).
+- Inspector: budget input becomes a `<Tabs>` segmented control (Fixed/Calculated/Non-Billable) with the input field shown only in Fixed mode, a read-only "Calculated: €X" display in Calculated mode, and a "Non-billable" badge otherwise.
+- Summary-mode inspector: reuse current `quote-planner-inspector.tsx` component, branch on `isSummary` to render a compact `<SummaryView>` instead of the editable form.
+- Payment schedule button: calls existing regenerate hook (`useGeneratePaymentSchedule` / equivalent) then invalidates queries.
+
+## Out of scope
+
+- New financial reports
+- Changing how payment rules are configured
+- Mobile layout polish
+
+Will run in one pass: migration first, then code in parallel edits. Verification: open Master Card quote, confirm rollup totals, toggle mode, click parent, save Supplier category.
