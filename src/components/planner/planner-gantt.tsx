@@ -1281,7 +1281,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
   };
 
   const [zoom, setZoom] = useState<ZoomMode>("week");
-  const [poolCollapsed, setPoolCollapsed] = useState(false);
+  const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   useEffect(() => { setZoom("week"); }, [projectId]);
 
