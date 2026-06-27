@@ -469,7 +469,13 @@ export function generateByStageBilling(
   // Exclude children of parent bars — only top-level stages bill the client.
   const billable = topLevelBillableStages(stages);
   const sorted = [...billable].sort((a, b) => a.sort_order - b.sort_order);
-  const totalContract = sorted.reduce((acc, s) => acc + (stageFees[s.id] ?? 0), 0);
+  // Roll up parent stages: a parent's billable fee is the sum of its
+  // descendant leaves (or its own fixed budget). Without this, an
+  // architecture parent with supplier children resolves to 0 and disappears
+  // from the client schedule.
+  const billableFee = (s: QuoteStage): number =>
+    Math.round(effectiveBillingAmount(s, stages, stageFees) * 100) / 100;
+  const totalContract = sorted.reduce((acc, s) => acc + billableFee(s), 0);
   const dpPct = Math.max(0, Number(options.downPaymentPercent ?? 0));
   const dpAmount = dpPct > 0 ? round2((totalContract * dpPct) / 100) : 0;
   const deduct = options.deductDownPaymentFromStages && dpAmount > 0;
