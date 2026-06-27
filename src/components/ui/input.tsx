@@ -11,10 +11,9 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
       onKeyDown?.(e);
       if (e.defaultPrevented) return;
       if (e.key !== "Enter") return;
-      // Allow form submission for submit-style inputs to keep default behavior.
       if (type === "submit" || type === "button") return;
-      // Date inputs already handle Enter natively; blurring is still safe.
-      e.preventDefault();
+      // Blur so onBlur-based save handlers commit the value. Default behavior
+      // (e.g. form submit) is preserved.
       (e.currentTarget as HTMLInputElement).blur();
     };
     return (
