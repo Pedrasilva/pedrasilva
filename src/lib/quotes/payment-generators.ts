@@ -698,6 +698,43 @@ export function generateByStageBilling(
     for (const row of merged.values()) {
       const stage = row.stageId ? stageById.get(row.stageId) : null;
       const span = stage ? effectiveSpan(stage) : null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const stageAny = stage as any;
+      const stageKind = (stageAny?.stage_kind ?? "regular") as string;
+      const billingModel = (stageAny?.billing_model ?? "stage") as string;
+      const isMonthly =
+        stageKind === "retainer_monthly" ||
+        billingModel === "monthly" ||
+        billingModel === "retainer";
+
+      if (isMonthly && span?.start && span?.end) {
+        const months = monthsBetween(span.start, span.end);
+        if (months.length > 0) {
+          const per = round2(row.amount / months.length);
+          months.forEach((m, i) => {
+            const amt = i === months.length - 1
+              ? round2(row.amount - per * (months.length - 1))
+              : per;
+            items.push({
+              label: `${row.name} — ${row.description} — ${formatYearMonth(m)}`,
+              trigger_type: "monthly",
+              amount_type: "fixed",
+              amount_value: amt,
+              stage_id: row.stageId,
+              expected_invoice_date: m,
+              expected_payment_date: addDaysISO(m, offset),
+              sort_order: order++,
+              generator_source: "by_stage_billing",
+              direction: "outflow",
+              supplier_company_id: row.companyId,
+              supplier_id: row.pmSupplierId,
+              supplier_label: row.placeholderLabel,
+            });
+          });
+          continue;
+        }
+      }
+
       const invoiceDate = span?.end ?? null;
       items.push({
         label: `${row.name} — ${row.description}`,
