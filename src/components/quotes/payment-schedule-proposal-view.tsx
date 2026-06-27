@@ -158,9 +158,34 @@ export function PaymentScheduleProposalView({
   // schedule item's own sort_order. This guarantees Architecture always
   // appears before its supplier siblings (Mais Engenharia, Nulty, …) and
   // monthly slices stay in calendar order within their stage.
-  const stageOrder = useMemo(() => {
-    const m = new Map<string, number>();
-    stages.forEach((s) => m.set(s.id, s.sort_order));
+  const stageSortMeta = useMemo(() => {
+    type StageNode = QuoteStage & { parent_stage_id?: string | null };
+    const nodes = stages as StageNode[];
+    const stageById = new Map(nodes.map((s) => [s.id, s]));
+    const childrenByParent = new Map<string, StageNode[]>();
+    for (const stage of nodes) {
+      const parentId = stage.parent_stage_id ?? null;
+      if (!parentId || !stageById.has(parentId)) continue;
+      const children = childrenByParent.get(parentId) ?? [];
+      children.push(stage);
+      childrenByParent.set(parentId, children);
+    }
+    const effectiveSpan = (stage: StageNode): { start: string; end: string } => {
+      const children = childrenByParent.get(stage.id) ?? [];
+      if (children.length === 0) return { start: stage.start_date, end: stage.end_date };
+      return children.reduce(
+        (span, child) => {
+          const childSpan = effectiveSpan(child);
+          return {
+            start: childSpan.start && (!span.start || childSpan.start < span.start) ? childSpan.start : span.start,
+            end: childSpan.end && (!span.end || childSpan.end > span.end) ? childSpan.end : span.end,
+          };
+        },
+        { start: stage.start_date, end: stage.end_date },
+      );
+    };
+    const m = new Map<string, { start: string; end: string; sortOrder: number }>();
+    nodes.forEach((stage) => m.set(stage.id, { ...effectiveSpan(stage), sortOrder: stage.sort_order ?? 0 }));
     return m;
   }, [stages]);
   const inflows = items
@@ -171,9 +196,20 @@ export function PaymentScheduleProposalView({
     )
     .slice()
     .sort((a, b) => {
-      const sa = a.stage_id ? stageOrder.get(a.stage_id) ?? 1e9 : 1e9;
-      const sb = b.stage_id ? stageOrder.get(b.stage_id) ?? 1e9 : 1e9;
-      if (sa !== sb) return sa - sb;
+      const sa = a.stage_id ? stageSortMeta.get(a.stage_id) : undefined;
+      const sb = b.stage_id ? stageSortMeta.get(b.stage_id) : undefined;
+      if ((sa?.start ?? "9999-12-31") !== (sb?.start ?? "9999-12-31")) {
+        return (sa?.start ?? "9999-12-31") < (sb?.start ?? "9999-12-31") ? -1 : 1;
+      }
+      if ((sa?.end ?? "9999-12-31") !== (sb?.end ?? "9999-12-31")) {
+        return (sa?.end ?? "9999-12-31") < (sb?.end ?? "9999-12-31") ? -1 : 1;
+      }
+      if ((sa?.sortOrder ?? 1e9) !== (sb?.sortOrder ?? 1e9)) {
+        return (sa?.sortOrder ?? 1e9) - (sb?.sortOrder ?? 1e9);
+      }
+      if ((a.expected_invoice_date ?? "9999-12-31") !== (b.expected_invoice_date ?? "9999-12-31")) {
+        return (a.expected_invoice_date ?? "9999-12-31") < (b.expected_invoice_date ?? "9999-12-31") ? -1 : 1;
+      }
       return (a.sort_order ?? 0) - (b.sort_order ?? 0);
     });
   const inflowTotal = inflows.reduce(
@@ -276,56 +312,169 @@ export function PaymentScheduleProposalView({
         );
       })()}
 
-      {/* Two-parent breakdown: Architecture vs Suppliers, with their
-          descendant stages listed chronologically (Gantt sort_order). */}
+      {/* Two-parent breakdown: Architecture vs Suppliers, with hierarchy
+          preserved and listed chronologically by the Gantt dates. */}
       {inflows.length > 0 && (() => {
-        const stageIdsAll = new Set(stages.map((s) => s.id));
-        const stageById = new Map(stages.map((s) => [s.id, s]));
-        const rootFor = (stageId: string): QuoteStage | null => {
-          let current = stageById.get(stageId) ?? null;
+        type StageNode = QuoteStage & {
+          parent_stage_id?: string | null;
+          stage_role?: string | null;
+          supplier_id?: string | null;
+          supplier_placeholder?: string | null;
+          is_self?: boolean | null;
+          budget?: number | null;
+        };
+        type SectionKey = "architecture" | "supplier";
+        type Row = {
+          stageId: string;
+          name: string;
+          rootName: string;
+          level: number;
+          amount: number;
+          start: string;
+          end: string;
+          sortOrder: number;
+        };
+
+        const nodes = stages as StageNode[];
+        const stageById = new Map(nodes.map((s) => [s.id, s]));
+        const childrenByParent = new Map<string, StageNode[]>();
+        for (const stage of nodes) {
+          const parentId = stage.parent_stage_id ?? null;
+          if (!parentId || !stageById.has(parentId)) continue;
+          const list = childrenByParent.get(parentId) ?? [];
+          list.push(stage);
+          childrenByParent.set(parentId, list);
+        }
+
+        const childList = (stage: StageNode): StageNode[] => childrenByParent.get(stage.id) ?? [];
+        const hasArchitectureChildren = (stage: StageNode): boolean =>
+          childList(stage).some((child) => {
+            const role = child.stage_role ?? "architecture";
+            return child.is_self === true || role === "architecture";
+          });
+        const isExplicitSupplier = (stage: StageNode): boolean => {
+          const role = stage.stage_role ?? "architecture";
+          if (stage.is_self === true) return false;
+          if (stage.supplier_id || stage.supplier_placeholder) return true;
+          if (role === "supplier_phase") return true;
+          if (role === "supplier_group" && !hasArchitectureChildren(stage)) return true;
+          return false;
+        };
+        const isSupplierStage = (stage: StageNode): boolean => {
+          let current: StageNode | undefined = stage;
           const seen = new Set<string>();
-          while (current) {
-            const sx = current as typeof current & { parent_stage_id?: string | null };
-            const parentId = sx.parent_stage_id;
-            if (!parentId || !stageIdsAll.has(parentId) || seen.has(parentId)) return current;
+          while (current && !seen.has(current.id)) {
+            if (isExplicitSupplier(current)) return true;
             seen.add(current.id);
-            current = stageById.get(parentId) ?? null;
+            current = current.parent_stage_id ? stageById.get(current.parent_stage_id) : undefined;
           }
-          return null;
+          return false;
         };
-        const isSupplierRoot = (s: QuoteStage): boolean => {
-          const role = (s as typeof s & { stage_role?: string | null }).stage_role ?? "architecture";
-          return role === "supplier_group" || role === "supplier_phase";
+        const effectiveSpan = (stage: StageNode): { start: string; end: string } => {
+          const children = childList(stage);
+          if (children.length === 0) return { start: stage.start_date, end: stage.end_date };
+          return children.reduce(
+            (span, child) => {
+              const childSpan = effectiveSpan(child);
+              return {
+                start: childSpan.start && (!span.start || childSpan.start < span.start) ? childSpan.start : span.start,
+                end: childSpan.end && (!span.end || childSpan.end > span.end) ? childSpan.end : span.end,
+              };
+            },
+            { start: stage.start_date, end: stage.end_date },
+          );
         };
-        type Row = { stageId: string; name: string; rootName: string; sortOrder: number; amount: number };
-        const buckets: Record<"architecture" | "supplier", Map<string, Row>> = {
-          architecture: new Map(),
-          supplier: new Map(),
+        const compareStages = (a: StageNode, b: StageNode): number => {
+          const as = effectiveSpan(a);
+          const bs = effectiveSpan(b);
+          if (as.start !== bs.start) return as.start < bs.start ? -1 : 1;
+          if (as.end !== bs.end) return as.end < bs.end ? -1 : 1;
+          return (a.sort_order ?? 0) - (b.sort_order ?? 0);
         };
-        for (const it of inflows) {
-          if (!it.stage_id) continue;
-          const root = rootFor(it.stage_id);
-          if (!root) continue;
-          const amount = netAmount(it, totalFee, stageFees);
-          if (amount <= 0) continue;
-          const stage = stageById.get(it.stage_id);
-          if (!stage) continue;
-          const bucketKey = isSupplierRoot(root) ? "supplier" : "architecture";
-          const bucket = buckets[bucketKey];
-          const existing = bucket.get(stage.id) ?? {
+        const relevantChildren = (stage: StageNode, section: SectionKey): StageNode[] =>
+          childList(stage)
+            .filter((child) => (section === "supplier" ? isSupplierStage(child) : !isSupplierStage(child)))
+            .sort(compareStages);
+        const ownAmount = (stage: StageNode): number => {
+          const fee = Number(stageFees[stage.id] ?? 0);
+          const budget = Number(stage.budget ?? 0);
+          return Math.round((fee > 0 ? fee : budget) * 100) / 100;
+        };
+        const amountFor = (stage: StageNode, section: SectionKey): number => {
+          const children = relevantChildren(stage, section);
+          const childTotal = children.reduce((sum, child) => sum + amountFor(child, section), 0);
+          const fallback = ownAmount(stage);
+          return Math.round((childTotal > 0 ? childTotal : fallback) * 100) / 100;
+        };
+        const pushRows = (
+          stage: StageNode,
+          section: SectionKey,
+          rootName: string,
+          level: number,
+          rows: Row[],
+        ) => {
+          const amount = amountFor(stage, section);
+          if (amount <= 0) return;
+          const span = effectiveSpan(stage);
+          rows.push({
             stageId: stage.id,
             name: stage.name,
-            rootName: root.name,
-            sortOrder: stage.sort_order,
-            amount: 0,
-          };
-          existing.amount += amount;
-          bucket.set(stage.id, existing);
+            rootName,
+            level,
+            amount,
+            start: span.start,
+            end: span.end,
+            sortOrder: stage.sort_order ?? 0,
+          });
+          for (const child of relevantChildren(stage, section)) {
+            pushRows(child, section, rootName, level + 1, rows);
+          }
+        };
+
+        const roots = nodes
+          .filter((stage) => !stage.parent_stage_id || !stageById.has(stage.parent_stage_id))
+          .sort(compareStages);
+        let architectureTop = roots.filter((stage) => !isSupplierStage(stage));
+        if (architectureTop.length === 1) {
+          const [root] = architectureTop;
+          const rootLooksLikeContainer = /arquitectura|arquitetura|architecture/i.test(root.name);
+          const children = relevantChildren(root, "architecture");
+          if (rootLooksLikeContainer && children.length > 0) architectureTop = children;
         }
-        const sections: Array<{ key: string; title: string; rows: Row[] }> = [
-          { key: "architecture", title: "Arquitectura — total do contrato", rows: Array.from(buckets.architecture.values()) },
-          { key: "supplier", title: "Fornecedores — total do contrato", rows: Array.from(buckets.supplier.values()) },
-        ].filter((s) => s.rows.length > 0);
+        const flattenDisplayContainer = (stage: StageNode): StageNode[] => {
+          const children = relevantChildren(stage, "architecture");
+          const isConstructionContainer = /construction|constru[cç][aã]o|obra/i.test(stage.name);
+          return isConstructionContainer && children.length > 0 ? children : [stage];
+        };
+        architectureTop = architectureTop.flatMap(flattenDisplayContainer).sort(compareStages);
+        const supplierTop = nodes
+          .filter((stage) => {
+            if (!isSupplierStage(stage)) return false;
+            const parent = stage.parent_stage_id ? stageById.get(stage.parent_stage_id) : undefined;
+            return !parent || !isSupplierStage(parent);
+          })
+          .sort(compareStages);
+
+        const architectureRows: Row[] = [];
+        for (const stage of architectureTop) pushRows(stage, "architecture", stage.name, 0, architectureRows);
+        const supplierRows: Row[] = [];
+        for (const stage of supplierTop) pushRows(stage, "supplier", stage.name, 0, supplierRows);
+
+        const allSections: Array<{ key: SectionKey; title: string; rows: Row[]; total: number }> = [
+          {
+            key: "architecture",
+            title: "Arquitectura — total do contrato",
+            rows: architectureRows,
+            total: architectureTop.reduce((sum, stage) => sum + amountFor(stage, "architecture"), 0),
+          },
+          {
+            key: "supplier",
+            title: "Fornecedores — total do contrato",
+            rows: supplierRows,
+            total: supplierTop.reduce((sum, stage) => sum + amountFor(stage, "supplier"), 0),
+          },
+        ];
+        const sections = allSections.filter((section) => section.rows.length > 0 && section.total > 0);
         if (sections.length === 0) return null;
         return (
           <div className="space-y-4">
@@ -333,8 +482,8 @@ export function PaymentScheduleProposalView({
               Detalhe por contrato
             </div>
             {sections.map((section) => {
-              const list = section.rows.slice().sort((a, b) => a.sortOrder - b.sortOrder);
-              const total = list.reduce((s, r) => s + r.amount, 0);
+              const list = section.rows;
+              const total = section.total;
               const showRoot = section.key === "supplier";
               return (
                 <Card key={section.key}>
@@ -357,8 +506,10 @@ export function PaymentScheduleProposalView({
                       <TableBody>
                         {list.map((r) => (
                           <TableRow key={r.stageId}>
-                            {showRoot && <TableCell className="text-muted-foreground">{r.rootName}</TableCell>}
-                            <TableCell>{r.name}</TableCell>
+                            {showRoot && <TableCell className="text-muted-foreground">{r.level === 0 ? r.rootName : ""}</TableCell>}
+                            <TableCell className={r.level === 0 ? "font-medium" : "pl-6 text-muted-foreground"}>
+                              {r.level > 0 ? `↳ ${r.name}` : r.name}
+                            </TableCell>
                             <TableCell className="text-right tabular-nums text-muted-foreground">
                               {total > 0 ? `${Math.round((r.amount / total) * 100)}%` : "—"}
                             </TableCell>
