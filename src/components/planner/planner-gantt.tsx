@@ -73,6 +73,15 @@ const ZOOM_DAY_WIDTHS: Record<Exclude<ZoomMode, "fit">, number> = {
   year: 1.5,
 };
 
+// Ordered from most compressed (fit) to most zoomed in (week). Used by the
+// +/- buttons to step through zoom levels.
+const ZOOM_ORDER: ZoomMode[] = ["fit", "year", "quarter", "month", "week"];
+function stepZoom(current: ZoomMode, delta: 1 | -1): ZoomMode {
+  const i = ZOOM_ORDER.indexOf(current);
+  const next = Math.max(0, Math.min(ZOOM_ORDER.length - 1, (i < 0 ? 0 : i) + delta));
+  return ZOOM_ORDER[next];
+}
+
 export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: Props) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
