@@ -569,8 +569,98 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                       </div>
                     )}
 
+                    {(() => {
+                      const sxFlag = sx as typeof sx & { children_bill_independently?: boolean };
+                      const parent = sx.parent_stage_id
+                        ? allStages.find((p) => p.id === sx.parent_stage_id)
+                        : null;
+                      const parentDelegates = Boolean(
+                        (parent as { children_bill_independently?: boolean } | null)?.children_bill_independently,
+                      );
+                      const childTrigger = isParent && Boolean(sxFlag.children_bill_independently);
+                      return (
+                        <div className="space-y-1 rounded-md border border-border bg-muted/30 p-2">
+                          <Label className="text-xs">
+                            {t("workspace.planning.paymentTrigger", { defaultValue: "Payment trigger" })}
+                          </Label>
+                          {isParent && (
+                            <div className="flex gap-1 rounded-md border border-border bg-background p-0.5">
+                              {(["parent", "children"] as const).map((opt) => {
+                                const active = childTrigger ? opt === "children" : opt === "parent";
+                                return (
+                                  <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={() => {
+                                      const want = opt === "children";
+                                      if (want === childTrigger) return;
+                                      const msg = want
+                                        ? t("workspace.planning.confirmChildrenTrigger", {
+                                            defaultValue:
+                                              "Disable this parent's payment trigger? Each child will become its own billing entry.",
+                                          })
+                                        : t("workspace.planning.confirmParentTrigger", {
+                                            defaultValue:
+                                              "Disable child payment triggers? Billing will roll up to this parent.",
+                                          });
+                                      if (!window.confirm(msg)) return;
+                                      upsertStage.mutate({ id: stage.id, children_bill_independently: want } as Parameters<typeof upsertStage.mutate>[0]);
+                                    }}
+                                    className={`flex-1 rounded px-2 py-1 text-[11px] transition ${
+                                      active
+                                        ? "bg-foreground text-background"
+                                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                    }`}
+                                  >
+                                    {opt === "parent"
+                                      ? t("workspace.planning.triggerParent", { defaultValue: "This stage" })
+                                      : t("workspace.planning.triggerChildren", { defaultValue: "Children" })}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                          {!isParent && parent && (
+                            <>
+                              <p className="text-[11px] text-muted-foreground">
+                                {parentDelegates
+                                  ? t("workspace.planning.triggerChildActive", {
+                                      defaultValue: "Billed independently (parent delegates to children).",
+                                    })
+                                  : t("workspace.planning.triggerChildRolledUp", {
+                                      defaultValue: "Rolled up into parent's billing.",
+                                    })}
+                              </p>
+                              <button
+                                type="button"
+                                className="w-full rounded border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
+                                onClick={() => {
+                                  const want = !parentDelegates;
+                                  const msg = want
+                                    ? t("workspace.planning.confirmChildrenTrigger", {
+                                        defaultValue:
+                                          "Disable this parent's payment trigger? Each child will become its own billing entry.",
+                                      })
+                                    : t("workspace.planning.confirmParentTrigger", {
+                                        defaultValue:
+                                          "Disable child payment triggers? Billing will roll up to this parent.",
+                                      });
+                                  if (!window.confirm(msg)) return;
+                                  upsertStage.mutate({ id: parent.id, children_bill_independently: want } as Parameters<typeof upsertStage.mutate>[0]);
+                                }}
+                              >
+                                {parentDelegates
+                                  ? t("workspace.planning.switchToParentTrigger", { defaultValue: "Bill at parent instead" })
+                                  : t("workspace.planning.switchToChildTrigger", { defaultValue: "Bill at children instead" })}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </>
                 );
+
               })()}
             </>
           )}

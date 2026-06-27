@@ -453,9 +453,11 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       is_fee_only: true,
       status: "active",
       is_milestone: (s as { is_milestone?: boolean }).is_milestone ?? false,
+      children_bill_independently: (s as { children_bill_independently?: boolean }).children_bill_independently ?? false,
       allocations: allocByStage.get(s.id) ?? [],
       };
     });
+
 
 
     // Synthetic top-row "Project" summary spanning min(start) → max(end).
