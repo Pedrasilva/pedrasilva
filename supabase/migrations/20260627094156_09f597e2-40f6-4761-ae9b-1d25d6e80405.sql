@@ -1,0 +1,2 @@
+ALTER TABLE public.quote_stages ADD COLUMN IF NOT EXISTS children_bill_independently boolean NOT NULL DEFAULT false;
+ALTER TABLE public.pm_stages ADD COLUMN IF NOT EXISTS children_bill_independently boolean NOT NULL DEFAULT false;

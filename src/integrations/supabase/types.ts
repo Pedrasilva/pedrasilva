@@ -5083,6 +5083,7 @@ export type Database = {
           billing_model: string
           bootstrap_run_id: string | null
           budget: number
+          children_bill_independently: boolean
           color: string
           created_at: string
           end_date: string
@@ -5118,6 +5119,7 @@ export type Database = {
           billing_model?: string
           bootstrap_run_id?: string | null
           budget?: number
+          children_bill_independently?: boolean
           color?: string
           created_at?: string
           end_date: string
@@ -5153,6 +5155,7 @@ export type Database = {
           billing_model?: string
           bootstrap_run_id?: string | null
           budget?: number
+          children_bill_independently?: boolean
           color?: string
           created_at?: string
           end_date?: string
@@ -6575,6 +6578,7 @@ export type Database = {
           billing_model: string
           budget: number
           budget_mode: string
+          children_bill_independently: boolean
           color: string
           created_at: string
           description: string | null
@@ -6613,6 +6617,7 @@ export type Database = {
           billing_model?: string
           budget?: number
           budget_mode?: string
+          children_bill_independently?: boolean
           color?: string
           created_at?: string
           description?: string | null
@@ -6651,6 +6656,7 @@ export type Database = {
           billing_model?: string
           budget?: number
           budget_mode?: string
+          children_bill_independently?: boolean
           color?: string
           created_at?: string
           description?: string | null
