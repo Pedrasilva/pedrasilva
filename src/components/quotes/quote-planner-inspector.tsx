@@ -159,6 +159,9 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
     );
   }
 
+  const stageRoleNow = ((stage as { stage_role?: string | null }).stage_role ?? "architecture") as string;
+  const isSupplier = stageRoleNow === "supplier_group" || stageRoleNow === "supplier_phase";
+
   const handleAddPred = async () => {
     if (!newPred.pred || newPred.pred === stageId) return;
     try {
