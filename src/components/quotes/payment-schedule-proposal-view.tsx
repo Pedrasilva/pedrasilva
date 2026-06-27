@@ -206,7 +206,53 @@ export function PaymentScheduleProposalView({
               Pagamentos a receber do cliente
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {/* Per-top-level-stage breakdown so the header reflects every
+                parent (Architecture, Engineering, Suppliers...). */}
+            {(() => {
+              const topIds = new Set<string>();
+              const tops: { id: string; name: string; amount: number }[] = [];
+              const stageIdsAll = new Set(stages.map((s) => s.id));
+              for (const s of stages) {
+                const sx = s as typeof s & { parent_stage_id?: string | null };
+                const p = sx.parent_stage_id;
+                if (p && stageIdsAll.has(p)) continue;
+                const amount = Number(stageFees[s.id] ?? 0);
+                if (amount <= 0) continue;
+                if (topIds.has(s.id)) continue;
+                topIds.add(s.id);
+                tops.push({ id: s.id, name: s.name, amount });
+              }
+              if (tops.length <= 1) return null;
+              const sum = tops.reduce((a, t) => a + t.amount, 0);
+              return (
+                <div className="rounded-md border bg-muted/20 p-3">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                    Composição do valor do contrato
+                  </div>
+                  <Table>
+                    <TableBody>
+                      {tops.map((t) => (
+                        <TableRow key={t.id}>
+                          <TableCell className="py-1">{t.name}</TableCell>
+                          <TableCell className="py-1 text-right tabular-nums">
+                            {formatEUR(t.amount)}
+                          </TableCell>
+                          <TableCell className="py-1 text-right tabular-nums text-muted-foreground w-16">
+                            {sum > 0 ? `${Math.round((t.amount / sum) * 100)}%` : "—"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow className="border-t-2 border-foreground/40 font-semibold">
+                        <TableCell className="py-1">Total</TableCell>
+                        <TableCell className="py-1 text-right tabular-nums">{formatEUR(sum)}</TableCell>
+                        <TableCell className="py-1 text-right tabular-nums">100%</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              );
+            })()}
             <PaymentSubTable
               rows={inflows}
               totalFee={totalFee}
