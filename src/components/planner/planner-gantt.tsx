@@ -1403,12 +1403,32 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
           parent_stage_id,
           is_milestone: isMilestone,
         });
-        if (created?.id) setSelectedStageId(created.id);
+        if (created?.id) {
+          setSelectedStageId(created.id);
+          // Default: new stage depends on the immediately preceding sibling (FS).
+          const siblings = all
+            .filter((s) => (s.parent_stage_id ?? null) === parent_stage_id)
+            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+          const predecessors = siblings.filter((s) => (s.sort_order ?? 0) < sort_order);
+          const predecessor = predecessors[predecessors.length - 1];
+          if (predecessor) {
+            try {
+              await createProjectDep.mutateAsync({
+                predecessor_id: predecessor.id,
+                successor_id: created.id,
+                type: "FS",
+                lag_days: 0,
+              });
+            } catch {
+              /* non-fatal */
+            }
+          }
+        }
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Failed to insert stage");
       }
     },
-    [isAdmin, stages, createStage, projectId, t],
+    [isAdmin, stages, createStage, projectId, t, createProjectDep],
   );
 
   const handleDelete = useCallback(
