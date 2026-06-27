@@ -954,6 +954,12 @@ function DurationField({
           key={`dur-${stageId}-${startDate}-${endDate}-${unit}`}
           defaultValue={value}
           onBlur={(e) => commit(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
           className="flex-1"
         />
         <Select value={unit} onValueChange={(v) => setUnit(v as DurationUnit)}>
