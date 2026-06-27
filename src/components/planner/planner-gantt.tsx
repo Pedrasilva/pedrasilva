@@ -640,6 +640,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   const [poolCollapsed, setPoolCollapsed] = useState(false);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const deleteQuoteStage = useDeleteQuoteStage(quoteId);
+  const createQuoteDep = useCreateQuoteDependency(quoteId);
 
   /**
    * Insert a new stage relative to an anchor row.
