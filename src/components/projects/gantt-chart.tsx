@@ -1117,8 +1117,14 @@ export function GanttChart({
                   )}
 
                   <div
-                    className={`absolute left-0 right-0 ${isSupplierBar ? "top-0 rounded-md border-2 border-dashed border-foreground/40" : "top-1.5 rounded-b-md border border-foreground/10"} bottom-0 cursor-grab active:cursor-grabbing`}
-                    style={{ backgroundColor: isSupplierBar ? undefined : stage.color, backgroundImage: supplierBg }}
+                    className={`absolute left-0 right-0 ${isSupplierBar ? "rounded-md border-2 border-dashed border-foreground/40" : "top-1.5 bottom-0 rounded-b-md border border-foreground/10"} cursor-grab active:cursor-grabbing`}
+                    style={{
+                      backgroundColor: isSupplierBar ? undefined : stage.color,
+                      backgroundImage: supplierBg,
+                      ...(isSupplierBar
+                        ? { top: STAGE_ROW_H / 4, height: STAGE_ROW_H / 2 }
+                        : {}),
+                    }}
                     onPointerDown={(e) =>
                       startDrag(e, {
                         type: "stage-move",
