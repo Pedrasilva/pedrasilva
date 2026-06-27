@@ -917,7 +917,8 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
           </section>
         </TabsContent>
 
-        {/* RESOURCES */}
+        {/* RESOURCES — hidden for supplier stages */}
+        {!isSupplier && (
         <TabsContent value="resources" className="flex-1 space-y-3 overflow-auto px-3 pb-4 pt-3">
           <ul className="space-y-1.5">
             {allocs.map((a) => (
