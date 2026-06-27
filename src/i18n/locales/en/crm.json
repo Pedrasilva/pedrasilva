@@ -474,6 +474,7 @@
       "startDate": "Start date",
       "endDate": "End date",
       "budget": "Budget",
+      "supplierCost": "Supplier cost",
       "resource": "Resource",
       "costRate": "Cost rate",
       "saleRate": "Sale rate",
