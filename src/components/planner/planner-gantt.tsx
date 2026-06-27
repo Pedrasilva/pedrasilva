@@ -1047,6 +1047,31 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             </span>
             <Button
               type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={() => setZoom((z) => stepZoom(z, -1))}
+              disabled={zoom === ZOOM_ORDER[0]}
+              aria-label="Zoom out"
+              title="Zoom out"
+            >
+              <Minus className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={() => setZoom((z) => stepZoom(z, 1))}
+              disabled={zoom === ZOOM_ORDER[ZOOM_ORDER.length - 1]}
+              aria-label="Zoom in"
+              title="Zoom in"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </Button>
+            <span className="hidden">x</span>
+            <Button
+              type="button"
               variant={zoom === "week" ? "default" : "ghost"}
               size="sm"
               className="h-7 px-2 text-xs"
