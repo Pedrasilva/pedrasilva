@@ -481,7 +481,9 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                     )}
                     <div className="space-y-1">
                       <Label className="text-xs">
-                        {t("workspace.planning.budget", { defaultValue: "Budget" })}
+                        {isSupplier
+                          ? t("workspace.planning.supplierCost", { defaultValue: "Supplier cost" })
+                          : t("workspace.planning.budget", { defaultValue: "Budget" })}
                       </Label>
                       {isParent && mode === "calculated" ? (
                         <>
