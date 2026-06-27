@@ -763,9 +763,34 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         parent_stage_id: parentId,
         stage_role: role,
       } as Parameters<typeof upsertStage.mutateAsync>[0]);
-      if (created?.id) setSelectedStageId(created.id);
+      if (created?.id) {
+        setSelectedStageId(created.id);
+        // Default: new stage depends on the immediately preceding sibling (FS).
+        const siblings = all
+          .filter(
+            (s) =>
+              (s.parent_stage_id ?? null) === parentId &&
+              (s.stage_role ?? "architecture") === role,
+          )
+          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        const predecessors = siblings.filter((s) => (s.sort_order ?? 0) < baseSort);
+        const predecessor = predecessors[predecessors.length - 1];
+        if (predecessor) {
+          try {
+            await createQuoteDep.mutateAsync({
+              quote_id: quoteId,
+              predecessor_stage_id: predecessor.id,
+              successor_stage_id: created.id,
+              type: "FS",
+              lag_days: 0,
+            });
+          } catch {
+            /* non-fatal: user can wire dependency manually */
+          }
+        }
+      }
     },
-    [stages, upsertStage, quoteId, t],
+    [stages, upsertStage, quoteId, t, createQuoteDep],
   );
 
   const handleDelete = useCallback(
