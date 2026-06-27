@@ -1289,10 +1289,10 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
     });
   };
 
-  const [zoom, setZoom] = useState<ZoomMode>("week");
+  const [zoom, setZoom] = useState<ZoomMode>("fit");
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
-  useEffect(() => { setZoom("week"); }, [projectId]);
+  useEffect(() => { setZoom("fit"); }, [projectId]);
 
   const chartRef = useRef<HTMLDivElement | null>(null);
   const [chartWidth, setChartWidth] = useState(1100);
