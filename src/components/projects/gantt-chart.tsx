@@ -1145,6 +1145,7 @@ export function GanttChart({
                         </div>
 
 
+                        {!isSupplierBar && (
                         <div className="mt-0 flex items-center gap-1.5 text-[10px] leading-tight opacity-80">
                           <span className="font-mono">{euros(totalCost)}</span>
                           <span>/</span>
