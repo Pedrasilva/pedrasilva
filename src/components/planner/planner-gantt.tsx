@@ -431,7 +431,6 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
 
       created_at: s.created_at,
       updated_at: s.updated_at,
-      archived_at: null,
       baseline_budget: null,
       baseline_end_date: null,
       baseline_locked_at: null,

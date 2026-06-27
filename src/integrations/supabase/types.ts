@@ -5072,92 +5072,8 @@ export type Database = {
           },
         ]
       }
-      pm_stage_supplier_costs: {
-        Row: {
-          amount: number
-          billing_trigger: string
-          created_at: string
-          custom_date: string | null
-          description: string | null
-          id: string
-          payment_offset_days: number | null
-          payment_terms: string | null
-          project_id: string
-          sort_order: number
-          stage_id: string | null
-          supplier_id: string | null
-          supplier_label: string | null
-          updated_at: string
-          vat_rate: number | null
-        }
-        Insert: {
-          amount?: number
-          billing_trigger?: string
-          created_at?: string
-          custom_date?: string | null
-          description?: string | null
-          id?: string
-          payment_offset_days?: number | null
-          payment_terms?: string | null
-          project_id: string
-          sort_order?: number
-          stage_id?: string | null
-          supplier_id?: string | null
-          supplier_label?: string | null
-          updated_at?: string
-          vat_rate?: number | null
-        }
-        Update: {
-          amount?: number
-          billing_trigger?: string
-          created_at?: string
-          custom_date?: string | null
-          description?: string | null
-          id?: string
-          payment_offset_days?: number | null
-          payment_terms?: string | null
-          project_id?: string
-          sort_order?: number
-          stage_id?: string | null
-          supplier_id?: string | null
-          supplier_label?: string | null
-          updated_at?: string
-          vat_rate?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "pm_stage_supplier_costs_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "pm_projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pm_stage_supplier_costs_stage_id_fkey"
-            columns: ["stage_id"]
-            isOneToOne: false
-            referencedRelation: "pm_stages"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pm_stage_supplier_costs_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "pm_suppliers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pm_stage_supplier_costs_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "pm_suppliers_directory"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       pm_stages: {
         Row: {
-          archived_at: string | null
           baseline_budget: number | null
           baseline_end_date: string | null
           baseline_locked_at: string | null
@@ -5194,7 +5110,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          archived_at?: string | null
           baseline_budget?: number | null
           baseline_end_date?: string | null
           baseline_locked_at?: string | null
@@ -5231,7 +5146,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          archived_at?: string | null
           baseline_budget?: number | null
           baseline_end_date?: string | null
           baseline_locked_at?: string | null
@@ -6358,7 +6272,6 @@ export type Database = {
           expected_payment_date: string | null
           generator_source: string | null
           id: string
-          invoice_group_id: string | null
           label: string
           linked_payment_item_id: string | null
           manual_override: boolean
@@ -6385,7 +6298,6 @@ export type Database = {
           expected_payment_date?: string | null
           generator_source?: string | null
           id?: string
-          invoice_group_id?: string | null
           label: string
           linked_payment_item_id?: string | null
           manual_override?: boolean
@@ -6412,7 +6324,6 @@ export type Database = {
           expected_payment_date?: string | null
           generator_source?: string | null
           id?: string
-          invoice_group_id?: string | null
           label?: string
           linked_payment_item_id?: string | null
           manual_override?: boolean
@@ -6661,93 +6572,9 @@ export type Database = {
           },
         ]
       }
-      quote_stage_supplier_costs: {
-        Row: {
-          amount: number
-          billing_trigger: string
-          created_at: string
-          custom_date: string | null
-          description: string | null
-          id: string
-          payment_offset_days: number | null
-          payment_terms: string | null
-          quote_id: string
-          sort_order: number
-          stage_id: string | null
-          supplier_id: string | null
-          supplier_label: string | null
-          updated_at: string
-          vat_rate: number | null
-        }
-        Insert: {
-          amount?: number
-          billing_trigger?: string
-          created_at?: string
-          custom_date?: string | null
-          description?: string | null
-          id?: string
-          payment_offset_days?: number | null
-          payment_terms?: string | null
-          quote_id: string
-          sort_order?: number
-          stage_id?: string | null
-          supplier_id?: string | null
-          supplier_label?: string | null
-          updated_at?: string
-          vat_rate?: number | null
-        }
-        Update: {
-          amount?: number
-          billing_trigger?: string
-          created_at?: string
-          custom_date?: string | null
-          description?: string | null
-          id?: string
-          payment_offset_days?: number | null
-          payment_terms?: string | null
-          quote_id?: string
-          sort_order?: number
-          stage_id?: string | null
-          supplier_id?: string | null
-          supplier_label?: string | null
-          updated_at?: string
-          vat_rate?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "quote_stage_supplier_costs_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "fee_proposals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quote_stage_supplier_costs_stage_id_fkey"
-            columns: ["stage_id"]
-            isOneToOne: false
-            referencedRelation: "quote_stages"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quote_stage_supplier_costs_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "pm_suppliers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quote_stage_supplier_costs_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "pm_suppliers_directory"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       quote_stages: {
         Row: {
           addon_module_code: string | null
-          archived_at: string | null
           billing_model: string
           budget: number
           budget_mode: string
@@ -6787,7 +6614,6 @@ export type Database = {
         }
         Insert: {
           addon_module_code?: string | null
-          archived_at?: string | null
           billing_model?: string
           budget?: number
           budget_mode?: string
@@ -6827,7 +6653,6 @@ export type Database = {
         }
         Update: {
           addon_module_code?: string | null
-          archived_at?: string | null
           billing_model?: string
           budget?: number
           budget_mode?: string

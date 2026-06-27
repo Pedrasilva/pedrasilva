@@ -26,7 +26,6 @@ export function useQuoteStages(quoteId: string | undefined) {
         .from("quote_stages")
         .select("*")
         .eq("quote_id", quoteId!)
-        .is("archived_at", null)
         .order("sort_order", { ascending: true });
       if (error) throw new Error(error.message);
       return (data ?? []) as QuoteStage[];
