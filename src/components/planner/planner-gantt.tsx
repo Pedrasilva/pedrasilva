@@ -911,7 +911,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   // Reset to "week" when switching quotes — avoids carrying over a fitted width
   // sized for a different quote's totalDays.
   useEffect(() => {
-    setZoom("week");
+    setZoom("fit");
   }, [quoteId]);
 
   const computedDayWidth = useMemo(() => {
