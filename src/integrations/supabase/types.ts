@@ -5164,6 +5164,7 @@ export type Database = {
           baseline_notes: string | null
           baseline_start_date: string | null
           baseline_target_hours: number | null
+          bill_to_client: boolean
           billing_model: string
           bootstrap_run_id: string | null
           budget: number
@@ -5176,6 +5177,7 @@ export type Database = {
           is_fee_only: boolean
           is_locked: boolean
           is_milestone: boolean
+          markup_pct: number
           name: string
           parent_stage_id: string | null
           project_id: string
@@ -5201,6 +5203,7 @@ export type Database = {
           baseline_notes?: string | null
           baseline_start_date?: string | null
           baseline_target_hours?: number | null
+          bill_to_client?: boolean
           billing_model?: string
           bootstrap_run_id?: string | null
           budget?: number
@@ -5213,6 +5216,7 @@ export type Database = {
           is_fee_only?: boolean
           is_locked?: boolean
           is_milestone?: boolean
+          markup_pct?: number
           name: string
           parent_stage_id?: string | null
           project_id: string
@@ -5238,6 +5242,7 @@ export type Database = {
           baseline_notes?: string | null
           baseline_start_date?: string | null
           baseline_target_hours?: number | null
+          bill_to_client?: boolean
           billing_model?: string
           bootstrap_run_id?: string | null
           budget?: number
@@ -5250,6 +5255,7 @@ export type Database = {
           is_fee_only?: boolean
           is_locked?: boolean
           is_milestone?: boolean
+          markup_pct?: number
           name?: string
           parent_stage_id?: string | null
           project_id?: string
@@ -6748,6 +6754,7 @@ export type Database = {
         Row: {
           addon_module_code: string | null
           archived_at: string | null
+          bill_to_client: boolean
           billing_model: string
           budget: number
           budget_mode: string
@@ -6765,6 +6772,7 @@ export type Database = {
           is_self: boolean
           linked_stage_id: string | null
           manual_override: boolean
+          markup_pct: number
           name: string
           parent_stage_id: string | null
           phase_code: string | null
@@ -6788,6 +6796,7 @@ export type Database = {
         Insert: {
           addon_module_code?: string | null
           archived_at?: string | null
+          bill_to_client?: boolean
           billing_model?: string
           budget?: number
           budget_mode?: string
@@ -6805,6 +6814,7 @@ export type Database = {
           is_self?: boolean
           linked_stage_id?: string | null
           manual_override?: boolean
+          markup_pct?: number
           name: string
           parent_stage_id?: string | null
           phase_code?: string | null
@@ -6828,6 +6838,7 @@ export type Database = {
         Update: {
           addon_module_code?: string | null
           archived_at?: string | null
+          bill_to_client?: boolean
           billing_model?: string
           budget?: number
           budget_mode?: string
@@ -6845,6 +6856,7 @@ export type Database = {
           is_self?: boolean
           linked_stage_id?: string | null
           manual_override?: boolean
+          markup_pct?: number
           name?: string
           parent_stage_id?: string | null
           phase_code?: string | null
