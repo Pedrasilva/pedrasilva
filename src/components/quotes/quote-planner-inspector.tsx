@@ -996,6 +996,12 @@ function CurrencyInput({
           requestAnimationFrame(() => e.target.select());
         }}
         onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            (e.target as HTMLInputElement).blur();
+          }
+        }}
         onBlur={() => {
           const normalized = text.replace(/\s|\u00a0/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", ".");
           const n = Number(normalized);
