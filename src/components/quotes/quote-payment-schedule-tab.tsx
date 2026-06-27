@@ -676,6 +676,25 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         </CardContent>
       </Card>
 
+      {/* Global update action — visible at the top of the payment schedule */}
+      <div className="flex items-center justify-between rounded-md border bg-muted/30 px-3 py-2">
+        <div className="text-xs text-muted-foreground">
+          {t("workspace.payment.globalUpdateHint", {
+            defaultValue:
+              "Regenerate the full billing schedule from the current Gantt (budgets, dates, suppliers). Manual rows are preserved.",
+          })}
+        </div>
+        <Button
+          size="sm"
+          className="gap-2"
+          onClick={syncFromGantt}
+          disabled={upsert.isPending || applyGen.isPending}
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          {t("workspace.payment.globalUpdate", { defaultValue: "Update schedule from Gantt" })}
+        </Button>
+      </div>
+
       {/* Proposal-style read-only layout (mirrors printed proposal) */}
       <PaymentScheduleProposalView
         items={items}
