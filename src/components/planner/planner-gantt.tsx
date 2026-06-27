@@ -15,7 +15,7 @@
  * read the historical quote rates rather than today's effective rates.
  */
 import { useMemo, useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
-import { PanelRightClose, PanelRightOpen, Plus, IndentIncrease, IndentDecrease, AlignVerticalJustifyStart } from "lucide-react";
+import { PanelRightClose, PanelRightOpen, Plus, Minus, IndentIncrease, IndentDecrease, AlignVerticalJustifyStart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { addDays, differenceInCalendarDays, parseISO, format } from "date-fns";
@@ -72,6 +72,15 @@ const ZOOM_DAY_WIDTHS: Record<Exclude<ZoomMode, "fit">, number> = {
   quarter: 4,
   year: 1.5,
 };
+
+// Ordered from most compressed (fit) to most zoomed in (week). Used by the
+// +/- buttons to step through zoom levels.
+const ZOOM_ORDER: ZoomMode[] = ["fit", "year", "quarter", "month", "week"];
+function stepZoom(current: ZoomMode, delta: 1 | -1): ZoomMode {
+  const i = ZOOM_ORDER.indexOf(current);
+  const next = Math.max(0, Math.min(ZOOM_ORDER.length - 1, (i < 0 ? 0 : i) + delta));
+  return ZOOM_ORDER[next];
+}
 
 export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: Props) {
   const { t } = useTranslation("crm");
@@ -641,7 +650,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   // Zoom — local UI state. Default to "week" (matches old detailed view).
   // If a parent forces dayWidth via prop, that wins (uncontrolled fallback only
   // when the prop is undefined).
-  const [zoom, setZoom] = useState<ZoomMode>("week");
+  const [zoom, setZoom] = useState<ZoomMode>("fit");
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const deleteQuoteStage = useDeleteQuoteStage(quoteId);
@@ -902,7 +911,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   // Reset to "week" when switching quotes — avoids carrying over a fitted width
   // sized for a different quote's totalDays.
   useEffect(() => {
-    setZoom("week");
+    setZoom("fit");
   }, [quoteId]);
 
   const computedDayWidth = useMemo(() => {
@@ -1036,6 +1045,31 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             <span className="px-2 text-xs text-muted-foreground">
               {t("workspace.planning.zoomLabel", { defaultValue: "Zoom" })}
             </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={() => setZoom((z) => stepZoom(z, -1))}
+              disabled={zoom === ZOOM_ORDER[0]}
+              aria-label="Zoom out"
+              title="Zoom out"
+            >
+              <Minus className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={() => setZoom((z) => stepZoom(z, 1))}
+              disabled={zoom === ZOOM_ORDER[ZOOM_ORDER.length - 1]}
+              aria-label="Zoom in"
+              title="Zoom in"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </Button>
+            <div className="mx-1 h-4 w-px bg-border" />
             <Button
               type="button"
               variant={zoom === "week" ? "default" : "ghost"}
@@ -1280,10 +1314,10 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
     });
   };
 
-  const [zoom, setZoom] = useState<ZoomMode>("week");
+  const [zoom, setZoom] = useState<ZoomMode>("fit");
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
-  useEffect(() => { setZoom("week"); }, [projectId]);
+  useEffect(() => { setZoom("fit"); }, [projectId]);
 
   const chartRef = useRef<HTMLDivElement | null>(null);
   const [chartWidth, setChartWidth] = useState(1100);
@@ -1595,6 +1629,31 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             <span className="px-2 text-xs text-muted-foreground">
               {t("crm:workspace.planning.zoomLabel", { defaultValue: "Zoom" })}
             </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={() => setZoom((z) => stepZoom(z, -1))}
+              disabled={zoom === ZOOM_ORDER[0]}
+              aria-label="Zoom out"
+              title="Zoom out"
+            >
+              <Minus className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={() => setZoom((z) => stepZoom(z, 1))}
+              disabled={zoom === ZOOM_ORDER[ZOOM_ORDER.length - 1]}
+              aria-label="Zoom in"
+              title="Zoom in"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </Button>
+            <div className="mx-1 h-4 w-px bg-border" />
             {(["week", "month", "quarter", "year", "fit"] as ZoomMode[]).map((z) => (
               <Button
                 key={z}
