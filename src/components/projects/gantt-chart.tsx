@@ -1192,6 +1192,7 @@ export function GanttChart({
                             );
                           })()}
                         </div>
+                        )}
                       </div>
                       <button
                         onClick={async (e) => {
