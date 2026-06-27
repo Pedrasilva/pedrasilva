@@ -13,13 +13,75 @@
  *   └──────────────────────────────────────────────────────┘
  */
 import React, { useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Check, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { formatEUR } from "@/lib/crm/types";
 import type { QuotePaymentScheduleItem, QuoteStage } from "@/lib/quotes/types";
 import { resolveScheduleItemAmount } from "@/lib/quotes/payment-generators";
+
+type BillingStatus = "planned" | "issued" | "paid" | "cancelled";
+
+const STATUS_META: Record<BillingStatus, { label: string; cls: string }> = {
+  planned:   { label: "Planeada",  cls: "bg-muted text-muted-foreground border-border" },
+  issued:    { label: "Emitida",   cls: "bg-blue-100 text-blue-900 border-blue-300 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800" },
+  paid:      { label: "Paga",      cls: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200 dark:border-emerald-800" },
+  cancelled: { label: "Anulada",   cls: "bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-200 dark:border-rose-800" },
+};
+
+function InvoiceStatusButton({
+  itemIds, currentStatus, quoteId,
+}: { itemIds: string[]; currentStatus: BillingStatus; quoteId: string | null }) {
+  const qc = useQueryClient();
+  const [pending, setPending] = React.useState<BillingStatus | null>(null);
+  const status = pending ?? currentStatus;
+  const meta = STATUS_META[status];
+  const setStatus = async (next: BillingStatus) => {
+    if (next === status || itemIds.length === 0) return;
+    setPending(next);
+    const { error } = await (supabase as unknown as {
+      from: (t: string) => { update: (v: Record<string, unknown>) => { in: (c: string, ids: string[]) => Promise<{ error: { message: string } | null }> } };
+    }).from("quote_payment_schedule_items").update({ billing_status: next }).in("id", itemIds);
+    if (error) {
+      setPending(null);
+      toast.error(`Não foi possível actualizar: ${error.message}`);
+      return;
+    }
+    toast.success(`Estado actualizado para "${STATUS_META[next].label}"`);
+    if (quoteId) qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] });
+  };
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className={cn(
+          "inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium transition-colors hover:opacity-80",
+          meta.cls,
+        )}
+      >
+        {meta.label}
+        <ChevronDown className="h-3 w-3" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="min-w-[140px]">
+        {(Object.keys(STATUS_META) as BillingStatus[]).map((s) => (
+          <DropdownMenuItem key={s} onClick={() => setStatus(s)} className="text-xs">
+            <span className={cn("mr-2 inline-block h-2 w-2 rounded-full", STATUS_META[s].cls)} />
+            {STATUS_META[s].label}
+            {s === status && <Check className="ml-auto h-3 w-3" />}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 interface SupplierInfo {
   id: string | null;
@@ -788,6 +850,7 @@ export function PaymentScheduleProposalView({
                   <TableRow className="bg-muted/40">
                     <TableHead className="w-24">Fatura</TableHead>
                     <TableHead className="w-32">Data planeada</TableHead>
+                    <TableHead className="w-28">Estado</TableHead>
                     <TableHead>Descrição</TableHead>
                     <TableHead className="text-right">Valor sem IVA</TableHead>
                     <TableHead className="text-right">IVA</TableHead>
@@ -800,6 +863,12 @@ export function PaymentScheduleProposalView({
                     const invoiceLabel = `Fatura ${String(gi + 1).padStart(2, "0")}`;
                     const dateLabel = fmtDate(inv.plannedDate);
                     const multiLine = inv.lines.length > 1;
+                    const itemIds = inv.items.map((i) => i.id);
+                    const statuses = new Set(
+                      inv.items.map((i) => ((i as { billing_status?: BillingStatus }).billing_status ?? "planned") as BillingStatus),
+                    );
+                    const invStatus: BillingStatus = statuses.size === 1 ? Array.from(statuses)[0] : "planned";
+                    const quoteId = (inv.items[0] as { quote_id?: string | null })?.quote_id ?? null;
                     return (
                       <React.Fragment key={inv.key}>
                         {inv.lines.map((ln, li) => (
@@ -812,6 +881,15 @@ export function PaymentScheduleProposalView({
                             </TableCell>
                             <TableCell className="text-xs align-top tabular-nums">
                               {li === 0 ? dateLabel : ""}
+                            </TableCell>
+                            <TableCell className="align-top">
+                              {li === 0 ? (
+                                <InvoiceStatusButton
+                                  itemIds={itemIds}
+                                  currentStatus={invStatus}
+                                  quoteId={quoteId}
+                                />
+                              ) : null}
                             </TableCell>
                             <TableCell className="text-sm">{ln.description}</TableCell>
                             <TableCell className="text-right tabular-nums">{formatEUR(ln.net)}</TableCell>
@@ -830,6 +908,7 @@ export function PaymentScheduleProposalView({
                           <TableRow className="bg-muted/20 text-xs">
                             <TableCell />
                             <TableCell />
+                            <TableCell />
                             <TableCell className="font-semibold">Subtotal {invoiceLabel}</TableCell>
                             <TableCell className="text-right tabular-nums font-semibold">{formatEUR(inv.net)}</TableCell>
                             <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(inv.vat)}</TableCell>
@@ -841,7 +920,7 @@ export function PaymentScheduleProposalView({
                     );
                   })}
                   <TableRow className="border-t-2 border-foreground/60 font-semibold bg-muted/40">
-                    <TableCell colSpan={3}>Total a faturar ao cliente</TableCell>
+                    <TableCell colSpan={4}>Total a faturar ao cliente</TableCell>
                     <TableCell className="text-right tabular-nums">{formatEUR(grandNet)}</TableCell>
                     <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(grandVat)}</TableCell>
                     <TableCell className="text-right tabular-nums">{formatEUR(grandNet + grandVat)}</TableCell>
