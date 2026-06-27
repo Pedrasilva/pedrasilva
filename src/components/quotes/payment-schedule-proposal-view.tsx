@@ -544,11 +544,14 @@ export function PaymentScheduleProposalView({
                           }
                           return (
                             <>
-                              {groups.map((g, gi) => (
+                              {groups.map((g, gi) => {
+                                const childRows = g.rows.filter((r) => r.level > 0);
+                                const displayRows = childRows.length > 0 ? childRows : g.rows;
+                                return (
                                 <React.Fragment key={`g-${gi}-${g.rootName}`}>
-                                  {g.rows.map((r) => (
+                                  {displayRows.map((r, ri) => (
                                     <TableRow key={r.stageId}>
-                                      <TableCell className="text-muted-foreground">{r.level === 0 ? r.rootName : ""}</TableCell>
+                                      <TableCell className="text-muted-foreground">{ri === 0 ? g.rootName : ""}</TableCell>
                                       <TableCell className={r.level === 0 ? "font-medium" : "pl-6 text-muted-foreground"}>
                                         {r.level > 0 ? `↳ ${r.name}` : r.name}
                                       </TableCell>
@@ -568,11 +571,13 @@ export function PaymentScheduleProposalView({
                                   </TableRow>
                                   {gi < groups.length - 1 && (
                                     <TableRow className="hover:bg-transparent">
-                                      <TableCell colSpan={4} className="h-4 p-0" />
+                                      <TableCell colSpan={4} className="h-10 p-0" />
                                     </TableRow>
                                   )}
                                 </React.Fragment>
-                              ))}
+                                );
+                              })}
+
                               <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
                                 <TableCell />
                                 <TableCell>Total</TableCell>
