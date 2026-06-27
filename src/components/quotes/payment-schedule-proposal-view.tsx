@@ -13,13 +13,75 @@
  *   └──────────────────────────────────────────────────────┘
  */
 import React, { useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Check, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { formatEUR } from "@/lib/crm/types";
 import type { QuotePaymentScheduleItem, QuoteStage } from "@/lib/quotes/types";
 import { resolveScheduleItemAmount } from "@/lib/quotes/payment-generators";
+
+type BillingStatus = "planned" | "issued" | "paid" | "cancelled";
+
+const STATUS_META: Record<BillingStatus, { label: string; cls: string }> = {
+  planned:   { label: "Planeada",  cls: "bg-muted text-muted-foreground border-border" },
+  issued:    { label: "Emitida",   cls: "bg-blue-100 text-blue-900 border-blue-300 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800" },
+  paid:      { label: "Paga",      cls: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200 dark:border-emerald-800" },
+  cancelled: { label: "Anulada",   cls: "bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-200 dark:border-rose-800" },
+};
+
+function InvoiceStatusButton({
+  itemIds, currentStatus, quoteId,
+}: { itemIds: string[]; currentStatus: BillingStatus; quoteId: string | null }) {
+  const qc = useQueryClient();
+  const [pending, setPending] = React.useState<BillingStatus | null>(null);
+  const status = pending ?? currentStatus;
+  const meta = STATUS_META[status];
+  const setStatus = async (next: BillingStatus) => {
+    if (next === status || itemIds.length === 0) return;
+    setPending(next);
+    const { error } = await (supabase as unknown as {
+      from: (t: string) => { update: (v: Record<string, unknown>) => { in: (c: string, ids: string[]) => Promise<{ error: { message: string } | null }> } };
+    }).from("quote_payment_schedule_items").update({ billing_status: next }).in("id", itemIds);
+    if (error) {
+      setPending(null);
+      toast.error(`Não foi possível actualizar: ${error.message}`);
+      return;
+    }
+    toast.success(`Estado actualizado para "${STATUS_META[next].label}"`);
+    if (quoteId) qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] });
+  };
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className={cn(
+          "inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium transition-colors hover:opacity-80",
+          meta.cls,
+        )}
+      >
+        {meta.label}
+        <ChevronDown className="h-3 w-3" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="min-w-[140px]">
+        {(Object.keys(STATUS_META) as BillingStatus[]).map((s) => (
+          <DropdownMenuItem key={s} onClick={() => setStatus(s)} className="text-xs">
+            <span className={cn("mr-2 inline-block h-2 w-2 rounded-full", STATUS_META[s].cls)} />
+            {STATUS_META[s].label}
+            {s === status && <Check className="ml-auto h-3 w-3" />}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 interface SupplierInfo {
   id: string | null;
