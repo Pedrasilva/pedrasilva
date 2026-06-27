@@ -642,7 +642,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   // If a parent forces dayWidth via prop, that wins (uncontrolled fallback only
   // when the prop is undefined).
   const [zoom, setZoom] = useState<ZoomMode>("week");
-  const [poolCollapsed, setPoolCollapsed] = useState(false);
+  const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const deleteQuoteStage = useDeleteQuoteStage(quoteId);
   const createQuoteDep = useCreateQuoteDependency(quoteId);
@@ -1281,7 +1281,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
   };
 
   const [zoom, setZoom] = useState<ZoomMode>("week");
-  const [poolCollapsed, setPoolCollapsed] = useState(false);
+  const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   useEffect(() => { setZoom("week"); }, [projectId]);
 
