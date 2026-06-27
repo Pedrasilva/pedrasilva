@@ -706,6 +706,11 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       />
 
 
+      <details className="rounded-md border bg-muted/10">
+        <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground select-none">
+          Editor avançado — linhas de faturação (rever / ajustar IVA, condições, datas)
+        </summary>
+        <div className="p-3 pt-0">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 py-3">
           <CardTitle className="text-base">{t("workspace.payment.title")}</CardTitle>
