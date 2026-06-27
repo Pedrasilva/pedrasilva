@@ -1,54 +1,92 @@
-## Scope
+## Goal
 
-Five connected changes to the planner Gantt (CRM quotes + project module — shared component).
+Replace supplier "parent stages" in the Gantt with **supplier cost lines attached directly to architecture stages**. The client billing schedule then groups, per architecture milestone, the architecture fee + all supplier costs that fire on the same trigger — producing one merged invoice per milestone (matching the Mastercard PSA PDF).
 
-### 1. Parent stage rolls up sale value
+## New data model
 
-- Today: parent/summary rows show their own `budget` field, which is usually `0` or stale; only dates roll up.
-- Change: parent budget shown in the Gantt and in totals = **sum of children's effective sale value** (recursive). Leaf rows keep their stored budget. The synthetic top "Project" row sums all root stages.
-- Affects: `buildProjectGanttTree.ts`, the equivalent quote tree builder in `planner-gantt.tsx`, and any "Total budget" KPI that currently re-sums leaves.
+New table `quote_stage_supplier_costs` (one row per supplier × stage):
 
-### 2. Parent WBS row is clickable
+```text
+id                uuid
+quote_id          uuid
+stage_id          uuid                 -- the ARCHITECTURE stage this cost lives under
+supplier_id       uuid     nullable    -- pm_suppliers FK
+supplier_label    text     nullable    -- free text when no supplier record yet
+description       text     nullable    -- "Engenharia de estruturas — Concept"
+amount            numeric              -- supplier cost (what the client pays us for this)
+billing_trigger   text                 -- 'stage_start' | 'stage_end' | 'monthly' | 'custom_date'
+custom_date       date     nullable
+payment_terms     text     nullable    -- when we pay the supplier (outflow leg)
+payment_offset_d  int      nullable    -- days after inflow before we pay supplier
+sort_order        int
+```
 
-- Today: clicking a summary row is a no-op (the inspector is disabled because parents are read-only).
-- Change: clicking opens the same inspector drawer in a **read-only "Summary" mode** showing:
-  - Name, rolled-up dates, rolled-up sale value, rolled-up cost, rolled-up margin
-  - Children list (name + budget + dates)
-  - No editable fields, no Resources / Dependencies tabs
+Mirror table on the PM side: `pm_stage_supplier_costs`. Both get RLS scoped to the parent project/quote (mirroring `quote_external_services` / `pm_materials` patterns).
 
-### 3. Budget mode selector on stage inspector
+`quote_external_services` stays for non-supplier external buys (printing, models, etc.); the new table is specifically for outsourced consultants billed under an architecture milestone.
 
-Replace the flat "Budget" input with an Accelo-style mode dropdown:
+## Gantt changes
 
-| Mode | Behaviour |
-|---|---|
-| **Fixed** | Manual € amount (current behaviour) |
-| **Calculated** | Sale value = Σ(allocation hours × resource sale rate); input is locked + shows computed total |
-| **Non-billable** | Sale value forced to €0; excluded from project total and payment schedule |
+- Drop supplier-role parent stages from the editable Gantt. New stage creation no longer offers "Supplier group / Supplier phase".
+- Each architecture stage row gains a small affordance: badge `▦ 3 suppliers · €X` opening an inline editor (list of supplier cost lines for that stage).
+- WBS / outline no longer shows supplier subtrees.
+- Stage budget rollup simplifies: parent = sum of children architecture fees + sum of supplier cost lines on the stage and its descendants.
 
-DB: add `budget_mode` enum (`fixed` \| `calculated` \| `non_billable`, default `fixed`) to `quote_stages` and `pm_stages`. Default existing rows to `fixed`. All sale-value reads route through one helper `getStageSaleValue(stage, allocations, rates)` so every surface (Gantt, payment schedule, financial summary, rollups) stays consistent.
+## Client billing schedule (the merged-invoice fix)
 
-### 4. "Update" button on payment schedule
+`generateByStageBilling` is rewritten to emit, per architecture stage trigger, **one invoice with multiple lines**:
 
-Add a manual **Recompute from plan** button on `quote-payment-schedule-tab.tsx`. Today the schedule re-derives on stage edits via hooks; the button gives users an explicit re-sync action (also covers cases where mode changes don't auto-trigger). Shows a toast on success with a count of items updated.
+```text
+Invoice — Concept end (2026-06-30)
+  Architecture · Concept .......... €10,000
+  Mais Engenharia · Concept ....... €7,650
+  Nulty · Concept .................   €X
+  Total ........................... €X
+```
 
-### 5. Bug fixes
+Implementation: the inflow generator iterates stages, collects `{ trigger, date }` for the architecture fee, then appends all supplier-cost rows on that stage that share the same trigger. Multiple-line invoices are represented as schedule items sharing a new `invoice_group_id` (uuid generated per trigger). `PaymentScheduleProposalView` groups by `invoice_group_id` and renders one card per invoice with N lines.
 
-- **Category=Supplier not saving in inspector**: the category select onChange writes to local state but `mutate` only includes whitelisted fields — verify `category` (and supplier-mode flag) is in the update payload and persisted; add to mutation if missing.
-- **Master Card Gantt missing values**: investigate — likely the budget column isn't displaying for parent rows because they have no `budget` themselves (fixed by #1) and/or stages outside the date window are clipped. Will inspect that project's data and confirm.
+Monthly-billed stages still split per calendar month; supplier cost lines with `billing_trigger='monthly'` ride along proportionally.
 
-## Technical details
+## Supplier outflows (unchanged grouping)
 
-- Migration: add `budget_mode` to `quote_stages` + `pm_stages`; helper SQL function `get_stage_sale_value(stage_id)` is **not** needed — we compute client-side from already-loaded allocations.
-- New util: `src/lib/quotes/stage-sale-value.ts` (shared by both modes via planner adapter).
-- Inspector: budget input becomes a `<Tabs>` segmented control (Fixed/Calculated/Non-Billable) with the input field shown only in Fixed mode, a read-only "Calculated: €X" display in Calculated mode, and a "Non-billable" badge otherwise.
-- Summary-mode inspector: reuse current `quote-planner-inspector.tsx` component, branch on `isSummary` to render a compact `<SummaryView>` instead of the editable form.
-- Payment schedule button: calls existing regenerate hook (`useGeneratePaymentSchedule` / equivalent) then invalidates queries.
+Outflow generator emits one row per supplier cost line, dated `inflow_date + payment_offset_days`. The proposal view keeps the per-supplier tables already in place.
 
-## Out of scope
+## Migration of existing supplier parent stages
 
-- New financial reports
-- Changing how payment rules are configured
-- Mobile layout polish
+One-time SQL migration:
 
-Will run in one pass: migration first, then code in parallel edits. Verification: open Master Card quote, confirm rollup totals, toggle mode, click parent, save Supplier category.
+1. For each quote, find supplier-role parent stages (`stage_role in ('supplier_group','supplier_phase')`).
+2. For each child of a supplier parent, try to match an architecture stage by **name** (case-insensitive, trimmed) within the same quote. If matched, insert a `quote_stage_supplier_costs` row: `stage_id = architecture stage`, `supplier_label = supplier parent name`, `amount = effectiveBillingAmount(child)`, `billing_trigger = stage_end` (default).
+3. Unmatched children: insert with `stage_id = null` and flag for manual reassignment (UI surfaces "Unassigned supplier costs" list at the top of the quote).
+4. After migration, soft-delete supplier parent stages (set `archived_at`) — keep rows for audit but exclude from queries.
+
+Same migration runs for `pm_stages` mirrors.
+
+## UI work
+
+1. **New component** `StageSupplierCostsEditor` (inline list under each architecture stage in the planner inspector + Gantt row popover).
+2. **PaymentScheduleProposalView** — group items by `invoice_group_id`; each invoice card shows lines + total + due date + payment terms.
+3. **Quote planner inspector** — remove "stage role = supplier" UI; remove "Payment trigger / children bill independently" toggle (now obsolete).
+4. **Unassigned supplier costs panel** — surfaces post-migration items needing a target stage.
+
+## Out of scope (queued separately)
+
+- Inline expense table redesign (already queued).
+- Change-order workflow.
+- Retroactive cleanup of historical payment schedule rows for archived supplier stages (handled by re-running "Update from Gantt").
+
+## Risk / call-outs
+
+- Schedule items currently keyed by `stage_id`. Adding `invoice_group_id` is additive; legacy rows without it render as standalone invoices.
+- Name-matching during migration is fuzzy. The Mastercard quote uses consistent stage names across Architecture / Mais Eng / Nulty so it should match cleanly; I'll dry-run the match and show you the mapping before committing.
+- Anything currently allocated to a supplier-role stage (timesheets, etc.) would be orphaned. A quick query before migrating will confirm there are none (suppliers have no allocations by design, so this should be zero — but worth verifying).
+
+## Execution order
+
+1. Migration: new tables + grants + RLS + soft-archive column on stages.
+2. Dry-run match report for Mastercard quote (shown to you).
+3. Data migration of supplier parent stages → cost lines.
+4. Generator + schedule view updates.
+5. Gantt + inspector UI updates.
+6. Verify against Mastercard PSA PDF.
