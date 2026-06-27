@@ -413,7 +413,7 @@ export function PaymentScheduleProposalView({
         const supplierRows: Row[] = [];
         for (const stage of supplierTop) pushRows(stage, "supplier", stage.name, 0, supplierRows);
 
-        const sections: Array<{ key: SectionKey; title: string; rows: Row[]; total: number }> = [
+        const allSections: Array<{ key: SectionKey; title: string; rows: Row[]; total: number }> = [
           {
             key: "architecture",
             title: "Arquitectura — total do contrato",
@@ -426,7 +426,8 @@ export function PaymentScheduleProposalView({
             rows: supplierRows,
             total: supplierTop.reduce((sum, stage) => sum + amountFor(stage, "supplier"), 0),
           },
-        ].filter((section) => section.rows.length > 0 && section.total > 0);
+        ];
+        const sections = allSections.filter((section) => section.rows.length > 0 && section.total > 0);
         if (sections.length === 0) return null;
         return (
           <div className="space-y-4">
