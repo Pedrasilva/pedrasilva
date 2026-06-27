@@ -271,15 +271,18 @@ export function PaymentScheduleProposalView({
               );
             })()}
             {(() => {
-              // Group inflows into joint invoices keyed by invoice date so
-              // architecture + supplier services billed to the client on the
-              // same trigger render as one invoice with multiple service lines.
+              // Group inflows by their stage (or by trigger label when no
+              // stage is set). Each stage becomes its own "Fatura" line —
+              // billing always follows the Gantt sequence, even when two
+              // stages share an end date.
               const groups = new Map<string, QuotePaymentScheduleItem[]>();
               const order: string[] = [];
               for (const it of inflows) {
                 const key =
-                  it.expected_invoice_date ??
-                  (it.stage_id ? `stage:${it.stage_id}` : `t:${it.trigger_type}:${it.label}`);
+                  it.stage_id ??
+                  (it.expected_invoice_date
+                    ? `d:${it.expected_invoice_date}:${it.label}`
+                    : `t:${it.trigger_type}:${it.label}`);
                 if (!groups.has(key)) {
                   groups.set(key, []);
                   order.push(key);
