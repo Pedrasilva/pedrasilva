@@ -271,31 +271,76 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               }}
             />
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs">
-              {t("workspace.planning.category", { defaultValue: "Category" })}
-            </Label>
-            <Select
-              value={((stage as { stage_role?: string | null }).stage_role ?? "architecture")}
-              onValueChange={(v) =>
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                upsertStage.mutate({ id: stage.id, stage_role: v } as any)
-              }
-            >
-              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="architecture">
-                  {t("workspace.planning.roleArchitecture", { defaultValue: "Architecture (project & cashflow)" })}
-                </SelectItem>
-                <SelectItem value="client">
-                  {t("workspace.planning.roleClient", { defaultValue: "Client (approvals, no cost)" })}
-                </SelectItem>
-                <SelectItem value="supplier_group">
-                  {t("workspace.planning.roleSupplier", { defaultValue: "Supplier (billed to client)" })}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {!isSupplier && (
+            <div className="space-y-1">
+              <Label className="text-xs">
+                {t("workspace.planning.category", { defaultValue: "Category" })}
+              </Label>
+              <Select
+                value={((stage as { stage_role?: string | null }).stage_role ?? "architecture")}
+                onValueChange={(v) =>
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  upsertStage.mutate({ id: stage.id, stage_role: v } as any)
+                }
+              >
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="architecture">
+                    {t("workspace.planning.roleArchitecture", { defaultValue: "Architecture (project & cashflow)" })}
+                  </SelectItem>
+                  <SelectItem value="client">
+                    {t("workspace.planning.roleClient", { defaultValue: "Client (approvals, no cost)" })}
+                  </SelectItem>
+                  <SelectItem value="supplier_group">
+                    {t("workspace.planning.roleSupplier", { defaultValue: "Supplier (billed to client)" })}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          {isSupplier && (
+            <div className="space-y-2 rounded-md border bg-muted/20 p-2.5">
+              <Label className="text-xs font-medium">
+                {t("workspace.planning.supplierBilling", { defaultValue: "Supplier billing" })}
+              </Label>
+              <label className="flex items-center gap-2 text-xs">
+                <input
+                  type="checkbox"
+                  checked={!!(stage as { bill_to_client?: boolean }).bill_to_client}
+                  onChange={(e) =>
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    upsertStage.mutate({ id: stage.id, bill_to_client: e.target.checked } as any)
+                  }
+                />
+                {t("workspace.planning.billToClient", { defaultValue: "Bill to client (re-invoice cost)" })}
+              </label>
+              {!!(stage as { bill_to_client?: boolean }).bill_to_client && (
+                <div className="space-y-1">
+                  <Label className="text-xs">
+                    {t("workspace.planning.markupPct", { defaultValue: "Markup %" })}
+                  </Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.1"
+                    className="h-8 text-xs"
+                    defaultValue={Number((stage as { markup_pct?: number }).markup_pct ?? 0)}
+                    onBlur={(e) => {
+                      const v = Number(e.target.value);
+                      if (!Number.isFinite(v)) return;
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      upsertStage.mutate({ id: stage.id, markup_pct: v } as any);
+                    }}
+                  />
+                  <p className="text-[10px] text-muted-foreground">
+                    {t("workspace.planning.markupHint", {
+                      defaultValue: "Client invoice = supplier cost × (1 + markup).",
+                    })}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
           <div className="space-y-2 rounded-md border bg-muted/20 p-2.5">
             <Label className="text-xs font-medium">
               {t("workspace.planning.supplier", { defaultValue: "Supplier" })}
