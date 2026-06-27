@@ -41,14 +41,39 @@ export function isParentStage(stageId: string, stages: QuoteStage[]): boolean {
   return getChildren(stageId, stages).length > 0;
 }
 
-/** Stages that should appear in the payment schedule (no parent in list). */
+function childrenBillIndependently(stage: QuoteStage): boolean {
+  return Boolean((stage as StageLike & { children_bill_independently?: boolean }).children_bill_independently);
+}
+
+/**
+ * Stages that should appear in the payment schedule.
+ *
+ * Default: each top-level stage (no parent in list) generates one billing
+ * entry; its children are absorbed into the parent's rollup.
+ *
+ * If a parent has `children_bill_independently = true`, that parent is
+ * replaced in the schedule by its direct children (recursively), so each
+ * child becomes its own billing entry.
+ */
 export function topLevelBillableStages(stages: QuoteStage[]): QuoteStage[] {
   const ids = new Set(stages.map((s) => s.id));
-  return stages.filter((s) => {
+  const roots = stages.filter((s) => {
     const p = (s as StageLike).parent_stage_id;
     return !p || !ids.has(p);
   });
+  const out: QuoteStage[] = [];
+  const visit = (s: QuoteStage) => {
+    const kids = getChildren(s.id, stages);
+    if (kids.length > 0 && childrenBillIndependently(s)) {
+      for (const k of kids) visit(k);
+    } else {
+      out.push(s);
+    }
+  };
+  for (const r of roots) visit(r);
+  return out;
 }
+
 
 /**
  * Effective billing amount for a single stage.
