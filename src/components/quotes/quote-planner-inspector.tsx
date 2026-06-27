@@ -990,6 +990,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             </div>
           )}
         </TabsContent>
+        )}
       </Tabs>
     </aside>
   );
