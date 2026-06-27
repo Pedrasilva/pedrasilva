@@ -1629,6 +1629,31 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             <span className="px-2 text-xs text-muted-foreground">
               {t("crm:workspace.planning.zoomLabel", { defaultValue: "Zoom" })}
             </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={() => setZoom((z) => stepZoom(z, -1))}
+              disabled={zoom === ZOOM_ORDER[0]}
+              aria-label="Zoom out"
+              title="Zoom out"
+            >
+              <Minus className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={() => setZoom((z) => stepZoom(z, 1))}
+              disabled={zoom === ZOOM_ORDER[ZOOM_ORDER.length - 1]}
+              aria-label="Zoom in"
+              title="Zoom in"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </Button>
+            <div className="mx-1 h-4 w-px bg-border" />
             {(["week", "month", "quarter", "year", "fit"] as ZoomMode[]).map((z) => (
               <Button
                 key={z}
