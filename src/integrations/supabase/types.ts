@@ -6358,6 +6358,7 @@ export type Database = {
         Row: {
           amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
           amount_value: number
+          billing_status: Database["public"]["Enums"]["quote_invoice_billing_status"]
           created_at: string
           direction: string
           expected_invoice_date: string | null
@@ -6385,6 +6386,7 @@ export type Database = {
         Insert: {
           amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
           amount_value?: number
+          billing_status?: Database["public"]["Enums"]["quote_invoice_billing_status"]
           created_at?: string
           direction?: string
           expected_invoice_date?: string | null
@@ -6412,6 +6414,7 @@ export type Database = {
         Update: {
           amount_type?: Database["public"]["Enums"]["quote_payment_amount_type"]
           amount_value?: number
+          billing_status?: Database["public"]["Enums"]["quote_invoice_billing_status"]
           created_at?: string
           direction?: string
           expected_invoice_date?: string | null
@@ -8386,6 +8389,7 @@ export type Database = {
         | "invoiced"
         | "paid"
         | "cancelled"
+      quote_invoice_billing_status: "planned" | "issued" | "paid" | "cancelled"
       quote_markup_type: "percent" | "fixed"
       quote_payment_amount_type: "fixed" | "percent"
       quote_payment_trigger:
@@ -8731,6 +8735,7 @@ export const Constants = {
         "paid",
         "cancelled",
       ],
+      quote_invoice_billing_status: ["planned", "issued", "paid", "cancelled"],
       quote_markup_type: ["percent", "fixed"],
       quote_payment_amount_type: ["fixed", "percent"],
       quote_payment_trigger: [
