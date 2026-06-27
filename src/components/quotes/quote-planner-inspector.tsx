@@ -244,16 +244,18 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
       </header>
 
       <Tabs defaultValue="plan" className="flex flex-1 flex-col overflow-hidden">
-        <TabsList className="mx-3 mt-2 grid grid-cols-3">
+        <TabsList className={`mx-3 mt-2 grid ${isSupplier ? "grid-cols-2" : "grid-cols-3"}`}>
           <TabsTrigger value="plan">
             {t("workspace.planning.inspector.plan", { defaultValue: "Plan" })}
           </TabsTrigger>
           <TabsTrigger value="deps">
             {t("workspace.planning.inspector.dependencies", { defaultValue: "Dependencies" })}
           </TabsTrigger>
-          <TabsTrigger value="resources">
-            {t("workspace.planning.inspector.resources", { defaultValue: "Resources" })}
-          </TabsTrigger>
+          {!isSupplier && (
+            <TabsTrigger value="resources">
+              {t("workspace.planning.inspector.resources", { defaultValue: "Resources" })}
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* PLAN */}
