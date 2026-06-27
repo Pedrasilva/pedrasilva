@@ -310,10 +310,18 @@ export function PaymentScheduleProposalView({
           childrenByParent.set(parentId, list);
         }
 
+        const childList = (stage: StageNode): StageNode[] => childrenByParent.get(stage.id) ?? [];
+        const hasArchitectureChildren = (stage: StageNode): boolean =>
+          childList(stage).some((child) => {
+            const role = child.stage_role ?? "architecture";
+            return child.is_self === true || role === "architecture";
+          });
         const isExplicitSupplier = (stage: StageNode): boolean => {
           const role = stage.stage_role ?? "architecture";
-          if (role === "supplier_group" || role === "supplier_phase") return true;
-          if (stage.is_self === false && (stage.supplier_id || stage.supplier_placeholder)) return true;
+          if (stage.is_self === true) return false;
+          if (stage.supplier_id || stage.supplier_placeholder) return true;
+          if (role === "supplier_phase") return true;
+          if (role === "supplier_group" && !hasArchitectureChildren(stage)) return true;
           return false;
         };
         const isSupplierStage = (stage: StageNode): boolean => {
@@ -326,8 +334,6 @@ export function PaymentScheduleProposalView({
           }
           return false;
         };
-
-        const childList = (stage: StageNode): StageNode[] => childrenByParent.get(stage.id) ?? [];
         const effectiveSpan = (stage: StageNode): { start: string; end: string } => {
           const children = childList(stage);
           if (children.length === 0) return { start: stage.start_date, end: stage.end_date };
@@ -399,7 +405,12 @@ export function PaymentScheduleProposalView({
           const children = relevantChildren(root, "architecture");
           if (rootLooksLikeContainer && children.length > 0) architectureTop = children;
         }
-        architectureTop = architectureTop.sort(compareStages);
+        const flattenDisplayContainer = (stage: StageNode): StageNode[] => {
+          const children = relevantChildren(stage, "architecture");
+          const isConstructionContainer = /construction|constru[cç][aã]o|obra/i.test(stage.name);
+          return isConstructionContainer && children.length > 0 ? children : [stage];
+        };
+        architectureTop = architectureTop.flatMap(flattenDisplayContainer).sort(compareStages);
         const supplierTop = nodes
           .filter((stage) => {
             if (!isSupplierStage(stage)) return false;
