@@ -159,6 +159,9 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
     );
   }
 
+  const stageRoleNow = ((stage as { stage_role?: string | null }).stage_role ?? "architecture") as string;
+  const isSupplier = stageRoleNow === "supplier_group" || stageRoleNow === "supplier_phase";
+
   const handleAddPred = async () => {
     if (!newPred.pred || newPred.pred === stageId) return;
     try {
@@ -241,16 +244,18 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
       </header>
 
       <Tabs defaultValue="plan" className="flex flex-1 flex-col overflow-hidden">
-        <TabsList className="mx-3 mt-2 grid grid-cols-3">
+        <TabsList className={`mx-3 mt-2 grid ${isSupplier ? "grid-cols-2" : "grid-cols-3"}`}>
           <TabsTrigger value="plan">
             {t("workspace.planning.inspector.plan", { defaultValue: "Plan" })}
           </TabsTrigger>
           <TabsTrigger value="deps">
             {t("workspace.planning.inspector.dependencies", { defaultValue: "Dependencies" })}
           </TabsTrigger>
-          <TabsTrigger value="resources">
-            {t("workspace.planning.inspector.resources", { defaultValue: "Resources" })}
-          </TabsTrigger>
+          {!isSupplier && (
+            <TabsTrigger value="resources">
+              {t("workspace.planning.inspector.resources", { defaultValue: "Resources" })}
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* PLAN */}
@@ -476,7 +481,9 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                     )}
                     <div className="space-y-1">
                       <Label className="text-xs">
-                        {t("workspace.planning.budget", { defaultValue: "Budget" })}
+                        {isSupplier
+                          ? t("workspace.planning.supplierCost", { defaultValue: "Supplier cost" })
+                          : t("workspace.planning.budget", { defaultValue: "Budget" })}
                       </Label>
                       {isParent && mode === "calculated" ? (
                         <>
@@ -912,7 +919,8 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
           </section>
         </TabsContent>
 
-        {/* RESOURCES */}
+        {/* RESOURCES — hidden for supplier stages */}
+        {!isSupplier && (
         <TabsContent value="resources" className="flex-1 space-y-3 overflow-auto px-3 pb-4 pt-3">
           <ul className="space-y-1.5">
             {allocs.map((a) => (
@@ -984,6 +992,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             </div>
           )}
         </TabsContent>
+        )}
       </Tabs>
     </aside>
   );

@@ -1089,27 +1089,36 @@ export function GanttChart({
                   </div>
                     );
                   })()
-                ) : (
+                ) : (() => {
+                  const stageRole = hierarchy?.get(stage.id)?.role ?? "architecture";
+                  const isSupplierBar = stageRole === "supplier_group" || stageRole === "supplier_phase";
+                  const supplierFill = stage.color || "#94a3b8";
+                  const supplierBg = isSupplierBar
+                    ? `repeating-linear-gradient(135deg, ${supplierFill} 0 8px, ${supplierFill}cc 8px 16px)`
+                    : undefined;
+                  return (
                 <div className="group absolute" style={{ left: stageX, width: stageW, top: 0, height: STAGE_ROW_H }}>
-                  <div className="absolute left-0 right-0 top-0 h-1.5 overflow-hidden rounded-t-md bg-budget">
-                    <div
-                      className="h-full transition-all"
-                      style={{
-                        width: `${pct * 100}%`,
-                        backgroundColor: over ? "var(--color-budget-over)" : "var(--color-budget-spent)",
-                      }}
-                    />
-                    {over && (
+                  {!isSupplierBar && (
+                    <div className="absolute left-0 right-0 top-0 h-1.5 overflow-hidden rounded-t-md bg-budget">
                       <div
-                        className="absolute right-0 top-0 h-full bg-budget-over/80"
-                        style={{ width: `${Math.min(overPct * 100, 100)}%` }}
+                        className="h-full transition-all"
+                        style={{
+                          width: `${pct * 100}%`,
+                          backgroundColor: over ? "var(--color-budget-over)" : "var(--color-budget-spent)",
+                        }}
                       />
-                    )}
-                  </div>
+                      {over && (
+                        <div
+                          className="absolute right-0 top-0 h-full bg-budget-over/80"
+                          style={{ width: `${Math.min(overPct * 100, 100)}%` }}
+                        />
+                      )}
+                    </div>
+                  )}
 
                   <div
-                    className="absolute left-0 right-0 top-1.5 bottom-0 cursor-grab rounded-b-md border border-foreground/10 active:cursor-grabbing"
-                    style={{ backgroundColor: stage.color }}
+                    className={`absolute left-0 right-0 ${isSupplierBar ? "top-0 rounded-md border-2 border-dashed border-foreground/40" : "top-1.5 rounded-b-md border border-foreground/10"} bottom-0 cursor-grab active:cursor-grabbing`}
+                    style={{ backgroundColor: isSupplierBar ? undefined : stage.color, backgroundImage: supplierBg }}
                     onPointerDown={(e) =>
                       startDrag(e, {
                         type: "stage-move",
@@ -1128,8 +1137,15 @@ export function GanttChart({
                           <span className="rounded bg-background/40 px-1 py-px font-mono text-[9px]">
                             {workingDays(sStart, sEnd)}d
                           </span>
+                          {isSupplierBar && Number(stage.budget ?? 0) > 0 && (
+                            <span className="ml-auto rounded bg-background/70 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-foreground shadow-sm">
+                              {euros(Number(stage.budget))}
+                            </span>
+                          )}
                         </div>
 
+
+                        {!isSupplierBar && (
                         <div className="mt-0 flex items-center gap-1.5 text-[10px] leading-tight opacity-80">
                           <span className="font-mono">{euros(totalCost)}</span>
                           <span>/</span>
@@ -1176,6 +1192,7 @@ export function GanttChart({
                             );
                           })()}
                         </div>
+                        )}
                       </div>
                       <button
                         onClick={async (e) => {
@@ -1282,7 +1299,8 @@ export function GanttChart({
                     title={t("gantt.stage.linkFromEnd")}
                   />
                 </div>
-                )}
+                  );
+                })()}
 
                 {link && link.fromStageId !== stage.id && linkHoverStage === stage.id && link.toSide && (
                   <div

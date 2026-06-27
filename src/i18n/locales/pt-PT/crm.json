@@ -474,6 +474,7 @@
       "startDate": "Data de início",
       "endDate": "Data de fim",
       "budget": "Orçamento",
+      "supplierCost": "Custo do fornecedor",
       "resource": "Recurso",
       "costRate": "Custo/h",
       "saleRate": "Venda/h",
