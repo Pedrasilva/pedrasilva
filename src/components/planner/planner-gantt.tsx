@@ -1173,6 +1173,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
   const createStage = useCreateProjectStage();
   const updateStage = useUpdateProjectStage();
   const deleteStageMut = useDeleteProjectStage();
+  const createProjectDep = useCreateProjectDependency();
 
   const project = detailQ.data?.project;
   const stages = useMemo(() => detailQ.data?.stages ?? [], [detailQ.data]);
