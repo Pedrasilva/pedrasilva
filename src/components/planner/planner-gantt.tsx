@@ -650,7 +650,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   // Zoom — local UI state. Default to "week" (matches old detailed view).
   // If a parent forces dayWidth via prop, that wins (uncontrolled fallback only
   // when the prop is undefined).
-  const [zoom, setZoom] = useState<ZoomMode>("week");
+  const [zoom, setZoom] = useState<ZoomMode>("fit");
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const deleteQuoteStage = useDeleteQuoteStage(quoteId);
