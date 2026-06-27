@@ -10,7 +10,7 @@ import type { QuoteStage } from "./types";
 import type { QuoteAllocationWithResource } from "./use-quote-allocations";
 import type { QuoteExternalServiceWithSupplier } from "./use-quote-external-services";
 import { quoteAllocationLine } from "./financial-rollups";
-import { topLevelBillableStages, getStageBillingTiming } from "./stage-billing";
+import { topLevelBillableStages, getStageBillingTiming, effectiveBillingAmount } from "./stage-billing";
 
 export type GeneratorKind =
   | "milestones"
@@ -469,7 +469,13 @@ export function generateByStageBilling(
   // Exclude children of parent bars — only top-level stages bill the client.
   const billable = topLevelBillableStages(stages);
   const sorted = [...billable].sort((a, b) => a.sort_order - b.sort_order);
-  const totalContract = sorted.reduce((acc, s) => acc + (stageFees[s.id] ?? 0), 0);
+  // Roll up parent stages: a parent's billable fee is the sum of its
+  // descendant leaves (or its own fixed budget). Without this, an
+  // architecture parent with supplier children resolves to 0 and disappears
+  // from the client schedule.
+  const billableFee = (s: QuoteStage): number =>
+    Math.round(effectiveBillingAmount(s, stages, stageFees) * 100) / 100;
+  const totalContract = sorted.reduce((acc, s) => acc + billableFee(s), 0);
   const dpPct = Math.max(0, Number(options.downPaymentPercent ?? 0));
   const dpAmount = dpPct > 0 ? round2((totalContract * dpPct) / 100) : 0;
   const deduct = options.deductDownPaymentFromStages && dpAmount > 0;
@@ -551,7 +557,7 @@ export function generateByStageBilling(
     } else if (model === "monthly") {
       const months = monthsBetween(span.start, span.end);
       if (months.length === 0) continue;
-      const fee = scaleFee(stageFees[s.id] ?? 0);
+      const fee = scaleFee(billableFee(s));
       const per = round2(fee / months.length);
       months.forEach((m, i) => {
         const amt = i === months.length - 1
@@ -571,7 +577,7 @@ export function generateByStageBilling(
       });
     } else {
       // 'stage' — honor stage_billing_timing: end (default) | start | split
-      const fee = scaleFee(stageFees[s.id] ?? 0);
+      const fee = scaleFee(billableFee(s));
       const timing = getStageBillingTiming(s);
       if (timing === "split") {
         const half = round2(fee / 2);
