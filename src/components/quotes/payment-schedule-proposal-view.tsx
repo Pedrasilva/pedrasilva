@@ -615,24 +615,37 @@ export function PaymentScheduleProposalView({
           </CardHeader>
           <CardContent className="space-y-4">
             {(() => {
-              // Group inflows by their stage (or by trigger label when no
-              // stage is set). Each stage becomes its own "Fatura" line —
-              // billing always follows the Gantt sequence, even when two
-              // stages share an end date.
+              // Group inflows by their expected invoice date so architecture
+              // and supplier lines that fall due together become a single
+              // invoice with multiple lines (avoids multiple invoices on the
+              // same date). Order is strictly chronological.
+              const dateFor = (it: QuotePaymentScheduleItem) => {
+                if (it.expected_invoice_date) return it.expected_invoice_date;
+                const s = it.stage_id ? stages.find((x) => x.id === it.stage_id) : null;
+                return s?.end_date ?? "9999-12-31";
+              };
               const groups = new Map<string, QuotePaymentScheduleItem[]>();
               const order: string[] = [];
               for (const it of inflows) {
                 const key =
-                  it.stage_id ??
-                  (it.expected_invoice_date
-                    ? `d:${it.expected_invoice_date}:${it.label}`
-                    : `t:${it.trigger_type}:${it.label}`);
+                  it.trigger_type === "monthly"
+                    ? `m:${it.label}`
+                    : `d:${dateFor(it)}`;
                 if (!groups.has(key)) {
                   groups.set(key, []);
                   order.push(key);
                 }
                 groups.get(key)!.push(it);
               }
+              // Sort groups chronologically by their representative date.
+              order.sort((a, b) => {
+                const da = groups.get(a)![0];
+                const db = groups.get(b)![0];
+                const ka = da.trigger_type === "monthly" ? "9999-12-30" : dateFor(da);
+                const kb = db.trigger_type === "monthly" ? "9999-12-30" : dateFor(db);
+                if (ka !== kb) return ka < kb ? -1 : 1;
+                return 0;
+              });
               const labelForRow = (it: QuotePaymentScheduleItem) => {
                 const s = it.stage_id ? stages.find((x) => x.id === it.stage_id) : null;
                 return s?.name ?? it.label;
@@ -674,9 +687,19 @@ export function PaymentScheduleProposalView({
                       const head = rows[0];
                       const dateLabel = (() => {
                         if (head.trigger_type === "monthly") return head.label;
-                        const s = head.stage_id ? stages.find((x) => x.id === head.stage_id) : null;
-                        return s ? `Conclusão — ${s.name}` : head.label;
+                        // When a single stage drives this invoice, keep the
+                        // "Conclusão — <stage>" wording; otherwise show the
+                        // shared due date.
+                        const uniqueStageIds = new Set(
+                          rows.map((r) => r.stage_id).filter(Boolean) as string[],
+                        );
+                        if (uniqueStageIds.size === 1) {
+                          const s = stages.find((x) => x.id === head.stage_id);
+                          if (s) return `Conclusão — ${s.name}`;
+                        }
+                        return `Conclusão — ${dateFor(head)}`;
                       })();
+
                       return (
                         <React.Fragment key={key}>
                           {rows.map((it, ri) => {
