@@ -3,7 +3,19 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
-  ({ className, type, ...props }, ref) => {
+  ({ className, type, onKeyDown, ...props }, ref) => {
+    // Enter commits the current value by blurring (which fires onBlur/onChange
+    // listeners) for non-multiline numeric/text inputs. Textareas are unaffected.
+    // Skips when the consumer provides its own onKeyDown that calls preventDefault.
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      onKeyDown?.(e);
+      if (e.defaultPrevented) return;
+      if (e.key !== "Enter") return;
+      if (type === "submit" || type === "button") return;
+      // Blur so onBlur-based save handlers commit the value. Default behavior
+      // (e.g. form submit) is preserved.
+      (e.currentTarget as HTMLInputElement).blur();
+    };
     return (
       <input
         type={type}
@@ -12,6 +24,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           className,
         )}
         ref={ref}
+        onKeyDown={handleKeyDown}
         {...props}
       />
     );

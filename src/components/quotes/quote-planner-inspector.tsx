@@ -954,6 +954,12 @@ function DurationField({
           key={`dur-${stageId}-${startDate}-${endDate}-${unit}`}
           defaultValue={value}
           onBlur={(e) => commit(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
           className="flex-1"
         />
         <Select value={unit} onValueChange={(v) => setUnit(v as DurationUnit)}>
@@ -996,6 +1002,12 @@ function CurrencyInput({
           requestAnimationFrame(() => e.target.select());
         }}
         onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            (e.target as HTMLInputElement).blur();
+          }
+        }}
         onBlur={() => {
           const normalized = text.replace(/\s|\u00a0/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", ".");
           const n = Number(normalized);
