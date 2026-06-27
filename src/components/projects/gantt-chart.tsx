@@ -653,19 +653,37 @@ export function GanttChart({
     >
       <div className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="flex h-7 items-stretch border-b border-border/60">
-          {months.map((m, i) => (
-            <div
-              key={i}
-              className="flex items-center border-l border-border/40 px-2 text-[11px] font-semibold uppercase tracking-wider text-foreground/80 first:border-l-0"
-              style={{
-                width: m.days * dayWidth,
-                minWidth: m.days * dayWidth,
-                backgroundColor: i % 2 === 0 ? "oklch(0 0 0 / 0.06)" : "oklch(0 0 0 / 0.015)",
-              }}
-            >
-              {m.label}
-            </div>
-          ))}
+          {months.map((m, i) => {
+            const cellW = m.days * dayWidth;
+            // Adaptive label: full → abbreviated → numeric, based on cell width.
+            const d = addDays(origin, m.startIdx);
+            const label =
+              cellW >= 110
+                ? format(d, "MMMM yyyy", { locale: dateLocale })
+                : cellW >= 70
+                ? format(d, "MMM yyyy", { locale: dateLocale })
+                : cellW >= 44
+                ? format(d, "MMM ''yy", { locale: dateLocale })
+                : cellW >= 26
+                ? format(d, "MM/yy", { locale: dateLocale })
+                : cellW >= 14
+                ? format(d, "MM", { locale: dateLocale })
+                : "";
+            return (
+              <div
+                key={i}
+                className="flex items-center justify-center border-l border-border/40 px-1 text-[11px] font-semibold uppercase tracking-wider text-foreground/80 first:border-l-0 overflow-hidden whitespace-nowrap"
+                style={{
+                  width: cellW,
+                  minWidth: cellW,
+                  backgroundColor: i % 2 === 0 ? "oklch(0 0 0 / 0.06)" : "oklch(0 0 0 / 0.015)",
+                }}
+                title={format(d, "MMMM yyyy", { locale: dateLocale })}
+              >
+                {label}
+              </div>
+            );
+          })}
         </div>
         {dayWidth >= 14 && (
           <div className="flex h-9">
