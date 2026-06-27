@@ -31,12 +31,14 @@ import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import { reflowQuoteSchedule } from "@/lib/quotes/reflow-schedule";
+import { useCreateQuoteDependency } from "@/lib/quotes/use-quote-dependencies";
 import {
   useProjectDetail,
   useResources as useProjectResources,
   useCreateStage as useCreateProjectStage,
   useUpdateStage as useUpdateProjectStage,
   useDeleteStage as useDeleteProjectStage,
+  useCreateDependency as useCreateProjectDependency,
 } from "@/lib/projects/use-planner";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 import { useProjectInvoices } from "@/lib/projects/use-invoices";
@@ -638,6 +640,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   const [poolCollapsed, setPoolCollapsed] = useState(false);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const deleteQuoteStage = useDeleteQuoteStage(quoteId);
+  const createQuoteDep = useCreateQuoteDependency(quoteId);
 
   /**
    * Insert a new stage relative to an anchor row.
@@ -760,9 +763,34 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         parent_stage_id: parentId,
         stage_role: role,
       } as Parameters<typeof upsertStage.mutateAsync>[0]);
-      if (created?.id) setSelectedStageId(created.id);
+      if (created?.id) {
+        setSelectedStageId(created.id);
+        // Default: new stage depends on the immediately preceding sibling (FS).
+        const siblings = all
+          .filter(
+            (s) =>
+              (s.parent_stage_id ?? null) === parentId &&
+              (s.stage_role ?? "architecture") === role,
+          )
+          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        const predecessors = siblings.filter((s) => (s.sort_order ?? 0) < baseSort);
+        const predecessor = predecessors[predecessors.length - 1];
+        if (predecessor) {
+          try {
+            await createQuoteDep.mutateAsync({
+              quote_id: quoteId,
+              predecessor_stage_id: predecessor.id,
+              successor_stage_id: created.id,
+              type: "FS",
+              lag_days: 0,
+            });
+          } catch {
+            /* non-fatal: user can wire dependency manually */
+          }
+        }
+      }
     },
-    [stages, upsertStage, quoteId, t],
+    [stages, upsertStage, quoteId, t, createQuoteDep],
   );
 
   const handleDelete = useCallback(
@@ -1145,6 +1173,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
   const createStage = useCreateProjectStage();
   const updateStage = useUpdateProjectStage();
   const deleteStageMut = useDeleteProjectStage();
+  const createProjectDep = useCreateProjectDependency();
 
   const project = detailQ.data?.project;
   const stages = useMemo(() => detailQ.data?.stages ?? [], [detailQ.data]);
@@ -1374,12 +1403,32 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
           parent_stage_id,
           is_milestone: isMilestone,
         });
-        if (created?.id) setSelectedStageId(created.id);
+        if (created?.id) {
+          setSelectedStageId(created.id);
+          // Default: new stage depends on the immediately preceding sibling (FS).
+          const siblings = all
+            .filter((s) => (s.parent_stage_id ?? null) === parent_stage_id)
+            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+          const predecessors = siblings.filter((s) => (s.sort_order ?? 0) < sort_order);
+          const predecessor = predecessors[predecessors.length - 1];
+          if (predecessor) {
+            try {
+              await createProjectDep.mutateAsync({
+                predecessor_id: predecessor.id,
+                successor_id: created.id,
+                type: "FS",
+                lag_days: 0,
+              });
+            } catch {
+              /* non-fatal */
+            }
+          }
+        }
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Failed to insert stage");
       }
     },
-    [isAdmin, stages, createStage, projectId, t],
+    [isAdmin, stages, createStage, projectId, t, createProjectDep],
   );
 
   const handleDelete = useCallback(
