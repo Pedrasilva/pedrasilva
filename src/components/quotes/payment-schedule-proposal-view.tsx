@@ -207,7 +207,76 @@ export function PaymentScheduleProposalView({
 
   return (
     <div className="space-y-6">
-      {/* Top: client billing block */}
+      {/* Top: contract composition (separated card) */}
+      {inflows.length > 0 && (() => {
+        const stageIdsAll = new Set(stages.map((s) => s.id));
+        const stageById = new Map(stages.map((s) => [s.id, s]));
+        const rootFor = (stageId: string): QuoteStage | null => {
+          let current = stageById.get(stageId) ?? null;
+          const seen = new Set<string>();
+          while (current) {
+            const sx = current as typeof current & { parent_stage_id?: string | null };
+            const parentId = sx.parent_stage_id;
+            if (!parentId || !stageIdsAll.has(parentId) || seen.has(parentId)) return current;
+            seen.add(current.id);
+            current = stageById.get(parentId) ?? null;
+          }
+          return null;
+        };
+        const byRoot = new Map<string, { id: string; name: string; sortOrder: number; amount: number }>();
+        for (const it of inflows) {
+          if (!it.stage_id) continue;
+          const root = rootFor(it.stage_id);
+          if (!root) continue;
+          const amount = netAmount(it, totalFee, stageFees);
+          if (amount <= 0) continue;
+          const current = byRoot.get(root.id) ?? {
+            id: root.id, name: root.name, sortOrder: root.sort_order, amount: 0,
+          };
+          current.amount += amount;
+          byRoot.set(root.id, current);
+        }
+        const tops = Array.from(byRoot.values()).sort((a, b) => a.sortOrder - b.sortOrder);
+        if (tops.length <= 1) return null;
+        const sum = tops.reduce((a, t) => a + t.amount, 0);
+        return (
+          <Card className="border-2 border-foreground/80">
+            <CardHeader className="pb-3">
+              <div className="flex items-baseline justify-between gap-4">
+                <CardTitle className="text-base uppercase tracking-wide">
+                  Composição do valor do contrato
+                </CardTitle>
+                <div className="text-lg font-bold tabular-nums">{formatEUR(sum)}</div>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Visão global do contrato por disciplina / fornecedor
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableBody>
+                  {tops.map((t) => (
+                    <TableRow key={t.id}>
+                      <TableCell className="py-1">{t.name}</TableCell>
+                      <TableCell className="py-1 text-right tabular-nums">{formatEUR(t.amount)}</TableCell>
+                      <TableCell className="py-1 text-right tabular-nums text-muted-foreground w-16">
+                        {sum > 0 ? `${Math.round((t.amount / sum) * 100)}%` : "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow className="border-t-2 border-foreground/40 font-semibold">
+                    <TableCell className="py-1">Total</TableCell>
+                    <TableCell className="py-1 text-right tabular-nums">{formatEUR(sum)}</TableCell>
+                    <TableCell className="py-1 text-right tabular-nums">100%</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        );
+      })()}
+
+      {/* Client billing schedule (separated card) */}
       {inflows.length > 0 && (
         <Card className="border-2 border-foreground/80">
           <CardHeader className="pb-3">
@@ -224,72 +293,6 @@ export function PaymentScheduleProposalView({
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Per-top-level-stage breakdown so the header reflects every
-                parent (Architecture, Engineering, Suppliers...). The amounts
-                are derived from the actual inflow rows so child-triggered
-                Architecture payments still roll up under Architecture. */}
-            {(() => {
-              const stageIdsAll = new Set(stages.map((s) => s.id));
-              const stageById = new Map(stages.map((s) => [s.id, s]));
-              const rootFor = (stageId: string): QuoteStage | null => {
-                let current = stageById.get(stageId) ?? null;
-                const seen = new Set<string>();
-                while (current) {
-                  const sx = current as typeof current & { parent_stage_id?: string | null };
-                  const parentId = sx.parent_stage_id;
-                  if (!parentId || !stageIdsAll.has(parentId) || seen.has(parentId)) return current;
-                  seen.add(current.id);
-                  current = stageById.get(parentId) ?? null;
-                }
-                return null;
-              };
-              const byRoot = new Map<string, { id: string; name: string; sortOrder: number; amount: number }>();
-              for (const it of inflows) {
-                if (!it.stage_id) continue;
-                const root = rootFor(it.stage_id);
-                if (!root) continue;
-                const amount = netAmount(it, totalFee, stageFees);
-                if (amount <= 0) continue;
-                const current = byRoot.get(root.id) ?? {
-                  id: root.id,
-                  name: root.name,
-                  sortOrder: root.sort_order,
-                  amount: 0,
-                };
-                current.amount += amount;
-                byRoot.set(root.id, current);
-              }
-              const tops = Array.from(byRoot.values()).sort((a, b) => a.sortOrder - b.sortOrder);
-              if (tops.length <= 1) return null;
-              const sum = tops.reduce((a, t) => a + t.amount, 0);
-              return (
-                <div className="rounded-md border bg-muted/20 p-3">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-                    Composição do valor do contrato
-                  </div>
-                  <Table>
-                    <TableBody>
-                      {tops.map((t) => (
-                        <TableRow key={t.id}>
-                          <TableCell className="py-1">{t.name}</TableCell>
-                          <TableCell className="py-1 text-right tabular-nums">
-                            {formatEUR(t.amount)}
-                          </TableCell>
-                          <TableCell className="py-1 text-right tabular-nums text-muted-foreground w-16">
-                            {sum > 0 ? `${Math.round((t.amount / sum) * 100)}%` : "—"}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      <TableRow className="border-t-2 border-foreground/40 font-semibold">
-                        <TableCell className="py-1">Total</TableCell>
-                        <TableCell className="py-1 text-right tabular-nums">{formatEUR(sum)}</TableCell>
-                        <TableCell className="py-1 text-right tabular-nums">100%</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-              );
-            })()}
             {(() => {
               // Group inflows by their stage (or by trigger label when no
               // stage is set). Each stage becomes its own "Fatura" line —
