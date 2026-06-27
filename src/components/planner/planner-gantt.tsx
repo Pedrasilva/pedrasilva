@@ -455,6 +455,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       status: "active",
       is_milestone: (s as { is_milestone?: boolean }).is_milestone ?? false,
       children_bill_independently: (s as { children_bill_independently?: boolean }).children_bill_independently ?? false,
+      bill_to_client: (s as { bill_to_client?: boolean }).bill_to_client ?? false,
+      markup_pct: (s as { markup_pct?: number }).markup_pct ?? 0,
       allocations: allocByStage.get(s.id) ?? [],
       };
     });
