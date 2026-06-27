@@ -597,166 +597,240 @@ export function PaymentScheduleProposalView({
       })()}
 
 
-      {/* Client billing schedule (separated card) */}
-      {inflows.length > 0 && (
-        <Card className="border-2 border-foreground/80">
-          <CardHeader className="pb-3">
-            <div className="flex items-baseline justify-between gap-4">
-              <CardTitle className="text-base uppercase tracking-wide">
-                Total de Honorários — Faseamento de Pagamentos
-              </CardTitle>
-              <div className="text-lg font-bold tabular-nums">
-                {formatEUR(totalFee)}
+      {/* Plano de Faturação ao Cliente — single canonical invoice plan */}
+      {inflows.length > 0 && (() => {
+        const fmtDate = (iso?: string | null) => {
+          if (!iso) return "";
+          const [y, m, d] = iso.split("-");
+          return y && m && d ? `${d}/${m}/${y}` : iso;
+        };
+        const stageById = new Map(stages.map((s) => [s.id, s]));
+        const dateFor = (it: QuotePaymentScheduleItem) => {
+          if (it.expected_invoice_date) return it.expected_invoice_date;
+          const s = it.stage_id ? stageById.get(it.stage_id) : null;
+          if (it.trigger_type === "stage_start") return s?.start_date ?? "9999-12-31";
+          return s?.end_date ?? "9999-12-31";
+        };
+        const triggerSentence = (it: QuotePaymentScheduleItem): string => {
+          const s = it.stage_id ? stageById.get(it.stage_id) : null;
+          const stageName = s?.name ?? "";
+          const d = dateFor(it);
+          const ds = fmtDate(d);
+          switch (it.trigger_type) {
+            case "project_start":
+              return `No início do projecto${ds ? ` (${ds})` : ""}`;
+            case "stage_start":
+              return stageName
+                ? `No início de ${stageName}${ds ? ` (${ds})` : ""}`
+                : `No início da fase${ds ? ` (${ds})` : ""}`;
+            case "stage_end":
+              return stageName
+                ? `Na conclusão de ${stageName}${ds ? ` (${ds})` : ""}`
+                : `Na conclusão da fase${ds ? ` (${ds})` : ""}`;
+            case "manual_date":
+              return `Em ${ds || "data a definir"}`;
+            case "monthly":
+              return it.label || `Mensalidade${ds ? ` (${ds})` : ""}`;
+            default:
+              return it.label;
+          }
+        };
+        const isSupplier = (it: QuotePaymentScheduleItem) =>
+          Boolean(it.supplier_company_id || it.supplier_id || (it.supplier_label && it.supplier_label.trim()));
+        const supplierKey = (it: QuotePaymentScheduleItem) => {
+          if (it.supplier_company_id) return `c:${it.supplier_company_id}`;
+          if (it.supplier_id) return `s:${it.supplier_id}`;
+          const lbl = (it.supplier_label ?? "").trim().toLowerCase();
+          return `p:${lbl}`;
+        };
+        const supplierDisplay = (it: QuotePaymentScheduleItem) => {
+          if (it.supplier_company_id) return supplierName.get(it.supplier_company_id) ?? it.supplier_label ?? "Fornecedor";
+          if (it.supplier_id) return supplierName.get(it.supplier_id) ?? it.supplier_label ?? "Fornecedor";
+          return it.supplier_label?.trim() || "Fornecedor";
+        };
+
+        // Group inflows into invoices by their planned date (monthly buckets
+        // keyed by their label to preserve calendar order within each month).
+        type Invoice = {
+          key: string;
+          plannedDate: string;
+          items: QuotePaymentScheduleItem[];
+          paymentTerms: string | null;
+        };
+        const invoiceMap = new Map<string, Invoice>();
+        const orderKeys: string[] = [];
+        for (const it of inflows) {
+          const d = dateFor(it);
+          const key = it.trigger_type === "monthly" ? `m:${it.label}` : `d:${d}`;
+          let inv = invoiceMap.get(key);
+          if (!inv) {
+            inv = { key, plannedDate: d, items: [], paymentTerms: it.payment_terms ?? null };
+            invoiceMap.set(key, inv);
+            orderKeys.push(key);
+          }
+          inv.items.push(it);
+          if (!inv.paymentTerms && it.payment_terms) inv.paymentTerms = it.payment_terms;
+        }
+        orderKeys.sort((a, b) => {
+          const da = invoiceMap.get(a)!.plannedDate;
+          const db = invoiceMap.get(b)!.plannedDate;
+          return da < db ? -1 : da > db ? 1 : 0;
+        });
+
+        type Line = { description: string; net: number; vat: number };
+        const buildLines = (inv: Invoice): Line[] => {
+          const archRows = inv.items.filter((it) => !isSupplier(it));
+          const supplierRows = inv.items.filter(isSupplier);
+          const lines: Line[] = [];
+
+          if (archRows.length > 0) {
+            const net = archRows.reduce((s, r) => s + netAmount(r, totalFee, stageFees), 0);
+            const vatAmt = archRows.reduce((s, r) => {
+              const n = netAmount(r, totalFee, stageFees);
+              const v = Number(r.vat_rate ?? defaultVatRate);
+              return s + (n * v) / 100;
+            }, 0);
+            const head = archRows[0];
+            // Use the first arch row's trigger sentence as the description;
+            // if multiple stages share this invoice, fall back to a list.
+            const stageNames = Array.from(
+              new Set(archRows.map((r) => (r.stage_id ? stageById.get(r.stage_id)?.name : null)).filter(Boolean)),
+            ) as string[];
+            const desc = stageNames.length > 1
+              ? `Arquitectura — ${stageNames.join(" + ")} (${fmtDate(inv.plannedDate)})`
+              : `Arquitectura — ${triggerSentence(head)}`;
+            lines.push({ description: desc, net, vat: vatAmt });
+          }
+
+          // Group suppliers within the invoice
+          const sup = new Map<string, QuotePaymentScheduleItem[]>();
+          const supOrder: string[] = [];
+          for (const r of supplierRows) {
+            const k = supplierKey(r);
+            if (!sup.has(k)) { sup.set(k, []); supOrder.push(k); }
+            sup.get(k)!.push(r);
+          }
+          for (const k of supOrder) {
+            const rows = sup.get(k)!;
+            const net = rows.reduce((s, r) => s + netAmount(r, totalFee, stageFees), 0);
+            const vatAmt = rows.reduce((s, r) => {
+              const n = netAmount(r, totalFee, stageFees);
+              const v = Number(r.vat_rate ?? defaultVatRate);
+              return s + (n * v) / 100;
+            }, 0);
+            const head = rows[0];
+            const stageNames = Array.from(
+              new Set(rows.map((r) => (r.stage_id ? stageById.get(r.stage_id)?.name : null)).filter(Boolean)),
+            ) as string[];
+            const supName = supplierDisplay(head);
+            const desc = stageNames.length > 1
+              ? `${supName} — ${stageNames.join(" + ")} (${fmtDate(inv.plannedDate)})`
+              : `${supName} — ${triggerSentence(head)}`;
+            lines.push({ description: desc, net, vat: vatAmt });
+          }
+          return lines;
+        };
+
+        const invoices = orderKeys.map((k) => {
+          const inv = invoiceMap.get(k)!;
+          const lines = buildLines(inv);
+          const net = lines.reduce((s, l) => s + l.net, 0);
+          const vat = lines.reduce((s, l) => s + l.vat, 0);
+          return { ...inv, lines, net, vat };
+        });
+        const grandNet = invoices.reduce((s, i) => s + i.net, 0);
+        const grandVat = invoices.reduce((s, i) => s + i.vat, 0);
+
+        return (
+          <Card className="border-2 border-foreground/80">
+            <CardHeader className="pb-3">
+              <div className="flex items-baseline justify-between gap-4">
+                <CardTitle className="text-base uppercase tracking-wide">
+                  Plano de Faturação ao Cliente
+                </CardTitle>
+                <div className="text-lg font-bold tabular-nums">{formatEUR(grandNet)}</div>
               </div>
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Pagamentos a receber do cliente
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {(() => {
-              // Group inflows by their expected invoice date so architecture
-              // and supplier lines that fall due together become a single
-              // invoice with multiple lines (avoids multiple invoices on the
-              // same date). Order is strictly chronological.
-              const dateFor = (it: QuotePaymentScheduleItem) => {
-                if (it.expected_invoice_date) return it.expected_invoice_date;
-                const s = it.stage_id ? stages.find((x) => x.id === it.stage_id) : null;
-                return s?.end_date ?? "9999-12-31";
-              };
-              const groups = new Map<string, QuotePaymentScheduleItem[]>();
-              const order: string[] = [];
-              for (const it of inflows) {
-                const key =
-                  it.trigger_type === "monthly"
-                    ? `m:${it.label}`
-                    : `d:${dateFor(it)}`;
-                if (!groups.has(key)) {
-                  groups.set(key, []);
-                  order.push(key);
-                }
-                groups.get(key)!.push(it);
-              }
-              // Sort groups chronologically by their representative date.
-              order.sort((a, b) => {
-                const da = groups.get(a)![0];
-                const db = groups.get(b)![0];
-                const ka = da.trigger_type === "monthly" ? "9999-12-30" : dateFor(da);
-                const kb = db.trigger_type === "monthly" ? "9999-12-30" : dateFor(db);
-                if (ka !== kb) return ka < kb ? -1 : 1;
-                return 0;
-              });
-              const labelForRow = (it: QuotePaymentScheduleItem) => {
-                const s = it.stage_id ? stages.find((x) => x.id === it.stage_id) : null;
-                return s?.name ?? it.label;
-              };
-              const totalNetAll = inflows.reduce(
-                (s, r) => s + netAmount(r, totalFee, stageFees),
-                0,
-              );
-              const totalVatAll = inflows.reduce((s, r) => {
-                const n = netAmount(r, totalFee, stageFees);
-                const v = Number(r.vat_rate ?? defaultVatRate);
-                return s + (n * v) / 100;
-              }, 0);
-
-              return (
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/40">
-                      <TableHead className="w-24">Fatura</TableHead>
-                      <TableHead className="min-w-[200px]">Data de pagamento</TableHead>
-                      <TableHead>Descrição do serviço</TableHead>
-                      <TableHead className="text-right">% honorários</TableHead>
-                      <TableHead className="text-right">Valor sem IVA</TableHead>
-                      <TableHead className="text-right">IVA</TableHead>
-                      <TableHead className="text-right">Valor com IVA</TableHead>
-                      <TableHead>Condições</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {order.map((key, gi) => {
-                      const rows = groups.get(key)!;
-                      const invoiceLabel = `Fatura ${String(gi + 1).padStart(2, "0")}`;
-                      const subNet = rows.reduce((s, r) => s + netAmount(r, totalFee, stageFees), 0);
-                      const subVat = rows.reduce((s, r) => {
-                        const n = netAmount(r, totalFee, stageFees);
-                        const v = Number(r.vat_rate ?? defaultVatRate);
-                        return s + (n * v) / 100;
-                      }, 0);
-                      const head = rows[0];
-                      const dateLabel = (() => {
-                        if (head.trigger_type === "monthly") return head.label;
-                        // When a single stage drives this invoice, keep the
-                        // "Conclusão — <stage>" wording; otherwise show the
-                        // shared due date.
-                        const uniqueStageIds = new Set(
-                          rows.map((r) => r.stage_id).filter(Boolean) as string[],
-                        );
-                        if (uniqueStageIds.size === 1) {
-                          const s = stages.find((x) => x.id === head.stage_id);
-                          if (s) return `Conclusão — ${s.name}`;
-                        }
-                        return `Conclusão — ${dateFor(head)}`;
-                      })();
-
-                      return (
-                        <React.Fragment key={key}>
-                          {rows.map((it, ri) => {
-                            const net = netAmount(it, totalFee, stageFees);
-                            const vat = Number(it.vat_rate ?? defaultVatRate);
-                            const vatAmt = (net * vat) / 100;
-                            const pct = totalNetAll > 0 ? (net / totalNetAll) * 100 : 0;
-                            return (
-                              <TableRow key={it.id} className={ri === 0 ? "border-t-2 border-foreground/20" : ""}>
-                                <TableCell className="text-xs align-top">{ri === 0 ? invoiceLabel : ""}</TableCell>
-                                <TableCell className="font-medium align-top">{ri === 0 ? dateLabel : ""}</TableCell>
-                                <TableCell className="text-sm">{labelForRow(it)}</TableCell>
-                                <TableCell className="text-right tabular-nums">{pct.toFixed(0)}%</TableCell>
-                                <TableCell className="text-right tabular-nums">{formatEUR(net)}</TableCell>
-                                <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(vatAmt)}</TableCell>
-                                <TableCell className="text-right tabular-nums font-medium">{formatEUR(net + vatAmt)}</TableCell>
-                                <TableCell className="text-xs">{ri === 0 ? (it.payment_terms ?? "—") : ""}</TableCell>
-                              </TableRow>
-                            );
-                          })}
-                          {rows.length > 1 && (
-                            <TableRow className="bg-muted/20 text-xs">
-                              <TableCell />
-                              <TableCell />
-                              <TableCell className="font-semibold">Subtotal {invoiceLabel}</TableCell>
-                              <TableCell />
-                              <TableCell className="text-right tabular-nums font-semibold">{formatEUR(subNet)}</TableCell>
-                              <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(subVat)}</TableCell>
-                              <TableCell className="text-right tabular-nums font-semibold">{formatEUR(subNet + subVat)}</TableCell>
-                              <TableCell />
-                            </TableRow>
-                          )}
-                        </React.Fragment>
-                      );
-                    })}
-                    <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/30">
-                      <TableCell />
-                      <TableCell>Total</TableCell>
-                      <TableCell />
-                      <TableCell className="text-right tabular-nums">100%</TableCell>
-                      <TableCell className="text-right tabular-nums">{formatEUR(totalNetAll)}</TableCell>
-                      <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(totalVatAll)}</TableCell>
-                      <TableCell className="text-right tabular-nums">{formatEUR(totalNetAll + totalVatAll)}</TableCell>
-                      <TableCell />
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              );
-            })()}
-            <p className="text-xs italic text-muted-foreground mt-3">
-              NOTA: Entende-se por "Conclusão da fase" a entrega de elementos da
-              fase e a sua aceitação por parte do cliente, ou aceitação tácita
-              definida no contrato.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+              <div className="text-xs text-muted-foreground">
+                Cada fatura tem uma linha para Arquitectura e uma linha por cada fornecedor.
+                Datas planeadas a partir do Gantt — referência para cash flow futuro.
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/40">
+                    <TableHead className="w-24">Fatura</TableHead>
+                    <TableHead className="w-32">Data planeada</TableHead>
+                    <TableHead>Descrição</TableHead>
+                    <TableHead className="text-right">Valor sem IVA</TableHead>
+                    <TableHead className="text-right">IVA</TableHead>
+                    <TableHead className="text-right">Valor com IVA</TableHead>
+                    <TableHead className="min-w-[140px]">Condições</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {invoices.map((inv, gi) => {
+                    const invoiceLabel = `Fatura ${String(gi + 1).padStart(2, "0")}`;
+                    const dateLabel = inv.key.startsWith("m:") ? inv.items[0].label : fmtDate(inv.plannedDate);
+                    const multiLine = inv.lines.length > 1;
+                    return (
+                      <React.Fragment key={inv.key}>
+                        {inv.lines.map((ln, li) => (
+                          <TableRow
+                            key={`${inv.key}:${li}`}
+                            className={li === 0 ? "border-t-2 border-foreground/30" : ""}
+                          >
+                            <TableCell className="text-xs font-semibold align-top">
+                              {li === 0 ? invoiceLabel : ""}
+                            </TableCell>
+                            <TableCell className="text-xs align-top tabular-nums">
+                              {li === 0 ? dateLabel : ""}
+                            </TableCell>
+                            <TableCell className="text-sm">{ln.description}</TableCell>
+                            <TableCell className="text-right tabular-nums">{formatEUR(ln.net)}</TableCell>
+                            <TableCell className="text-right tabular-nums text-muted-foreground">
+                              {formatEUR(ln.vat)}
+                            </TableCell>
+                            <TableCell className="text-right tabular-nums font-medium">
+                              {formatEUR(ln.net + ln.vat)}
+                            </TableCell>
+                            <TableCell className="text-xs align-top">
+                              {li === 0 ? (inv.paymentTerms ?? "—") : ""}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {multiLine && (
+                          <TableRow className="bg-muted/20 text-xs">
+                            <TableCell />
+                            <TableCell />
+                            <TableCell className="font-semibold">Subtotal {invoiceLabel}</TableCell>
+                            <TableCell className="text-right tabular-nums font-semibold">{formatEUR(inv.net)}</TableCell>
+                            <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(inv.vat)}</TableCell>
+                            <TableCell className="text-right tabular-nums font-semibold">{formatEUR(inv.net + inv.vat)}</TableCell>
+                            <TableCell />
+                          </TableRow>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                  <TableRow className="border-t-2 border-foreground/60 font-semibold bg-muted/40">
+                    <TableCell colSpan={3}>Total a faturar ao cliente</TableCell>
+                    <TableCell className="text-right tabular-nums">{formatEUR(grandNet)}</TableCell>
+                    <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(grandVat)}</TableCell>
+                    <TableCell className="text-right tabular-nums">{formatEUR(grandNet + grandVat)}</TableCell>
+                    <TableCell />
+                  </TableRow>
+                </TableBody>
+              </Table>
+              <p className="text-xs italic text-muted-foreground mt-3">
+                NOTA: Entende-se por "Conclusão da fase" a entrega de elementos da
+                fase e a sua aceitação por parte do cliente, ou aceitação tácita
+                definida no contrato.
+              </p>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Per-supplier outflow groups */}
       {supplierBuckets.length > 0 && (
