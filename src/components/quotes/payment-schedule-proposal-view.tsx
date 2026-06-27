@@ -276,8 +276,8 @@ export function PaymentScheduleProposalView({
         );
       })()}
 
-      {/* Per-root breakdown: each top-level stage (Architecture, Engineering,
-          suppliers...) with its descendant stages and billable amounts. */}
+      {/* Two-parent breakdown: Architecture vs Suppliers, with their
+          descendant stages listed chronologically (Gantt sort_order). */}
       {inflows.length > 0 && (() => {
         const stageIdsAll = new Set(stages.map((s) => s.id));
         const stageById = new Map(stages.map((s) => [s.id, s]));
@@ -293,8 +293,15 @@ export function PaymentScheduleProposalView({
           }
           return null;
         };
-        type Row = { stageId: string; name: string; sortOrder: number; amount: number };
-        const groups = new Map<string, { root: QuoteStage; rows: Map<string, Row> }>();
+        const isSupplierRoot = (s: QuoteStage): boolean => {
+          const role = (s as typeof s & { stage_role?: string | null }).stage_role ?? "architecture";
+          return role === "supplier_group" || role === "supplier_phase";
+        };
+        type Row = { stageId: string; name: string; rootName: string; sortOrder: number; amount: number };
+        const buckets: Record<"architecture" | "supplier", Map<string, Row>> = {
+          architecture: new Map(),
+          supplier: new Map(),
+        };
         for (const it of inflows) {
           if (!it.stage_id) continue;
           const root = rootFor(it.stage_id);
@@ -303,45 +310,45 @@ export function PaymentScheduleProposalView({
           if (amount <= 0) continue;
           const stage = stageById.get(it.stage_id);
           if (!stage) continue;
-          const g = groups.get(root.id) ?? { root, rows: new Map<string, Row>() };
-          const existing = g.rows.get(stage.id) ?? {
+          const bucketKey = isSupplierRoot(root) ? "supplier" : "architecture";
+          const bucket = buckets[bucketKey];
+          const existing = bucket.get(stage.id) ?? {
             stageId: stage.id,
             name: stage.name,
+            rootName: root.name,
             sortOrder: stage.sort_order,
             amount: 0,
           };
           existing.amount += amount;
-          g.rows.set(stage.id, existing);
-          groups.set(root.id, g);
+          bucket.set(stage.id, existing);
         }
-        const ordered = Array.from(groups.values()).sort(
-          (a, b) => a.root.sort_order - b.root.sort_order,
-        );
-        if (ordered.length === 0) return null;
+        const sections: Array<{ key: string; title: string; rows: Row[] }> = [
+          { key: "architecture", title: "Arquitectura — total do contrato", rows: Array.from(buckets.architecture.values()) },
+          { key: "supplier", title: "Fornecedores — total do contrato", rows: Array.from(buckets.supplier.values()) },
+        ].filter((s) => s.rows.length > 0);
+        if (sections.length === 0) return null;
         return (
           <div className="space-y-4">
             <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Detalhe por contrato
             </div>
-            {ordered.map(({ root, rows }) => {
-              const list = Array.from(rows.values()).sort((a, b) => a.sortOrder - b.sortOrder);
+            {sections.map((section) => {
+              const list = section.rows.slice().sort((a, b) => a.sortOrder - b.sortOrder);
               const total = list.reduce((s, r) => s + r.amount, 0);
+              const showRoot = section.key === "supplier";
               return (
-                <Card key={root.id}>
+                <Card key={section.key}>
                   <CardHeader className="pb-3 bg-muted/30">
                     <div className="flex items-baseline justify-between gap-4">
-                      <CardTitle className="text-sm uppercase tracking-wide">
-                        {root.name} — total do contrato
-                      </CardTitle>
-                      <div className="text-base font-semibold tabular-nums">
-                        {formatEUR(total)}
-                      </div>
+                      <CardTitle className="text-sm uppercase tracking-wide">{section.title}</CardTitle>
+                      <div className="text-base font-semibold tabular-nums">{formatEUR(total)}</div>
                     </div>
                   </CardHeader>
                   <CardContent className="pt-3">
                     <Table>
                       <TableHeader>
                         <TableRow className="bg-muted/40">
+                          {showRoot && <TableHead>Fornecedor</TableHead>}
                           <TableHead>Fase</TableHead>
                           <TableHead className="text-right">% do contrato</TableHead>
                           <TableHead className="text-right">Valor sem IVA</TableHead>
@@ -350,6 +357,7 @@ export function PaymentScheduleProposalView({
                       <TableBody>
                         {list.map((r) => (
                           <TableRow key={r.stageId}>
+                            {showRoot && <TableCell className="text-muted-foreground">{r.rootName}</TableCell>}
                             <TableCell>{r.name}</TableCell>
                             <TableCell className="text-right tabular-nums text-muted-foreground">
                               {total > 0 ? `${Math.round((r.amount / total) * 100)}%` : "—"}
@@ -358,6 +366,7 @@ export function PaymentScheduleProposalView({
                           </TableRow>
                         ))}
                         <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
+                          {showRoot && <TableCell />}
                           <TableCell>Total</TableCell>
                           <TableCell className="text-right tabular-nums">100%</TableCell>
                           <TableCell className="text-right tabular-nums">{formatEUR(total)}</TableCell>
@@ -370,6 +379,7 @@ export function PaymentScheduleProposalView({
             })}
           </div>
         );
+
       })()}
 
 
