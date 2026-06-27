@@ -395,7 +395,7 @@ export function PaymentScheduleProposalView({
         let architectureTop = roots.filter((stage) => !isSupplierStage(stage));
         if (architectureTop.length === 1) {
           const [root] = architectureTop;
-          const rootLooksLikeContainer = /arquitectura|architecture/i.test(root.name);
+          const rootLooksLikeContainer = /arquitectura|arquitetura|architecture/i.test(root.name);
           const children = relevantChildren(root, "architecture");
           if (rootLooksLikeContainer && children.length > 0) architectureTop = children;
         }
