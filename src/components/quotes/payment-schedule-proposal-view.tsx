@@ -225,21 +225,41 @@ export function PaymentScheduleProposalView({
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Per-top-level-stage breakdown so the header reflects every
-                parent (Architecture, Engineering, Suppliers...). */}
+                parent (Architecture, Engineering, Suppliers...). The amounts
+                are derived from the actual inflow rows so child-triggered
+                Architecture payments still roll up under Architecture. */}
             {(() => {
-              const topIds = new Set<string>();
-              const tops: { id: string; name: string; amount: number }[] = [];
               const stageIdsAll = new Set(stages.map((s) => s.id));
-              for (const s of stages) {
-                const sx = s as typeof s & { parent_stage_id?: string | null };
-                const p = sx.parent_stage_id;
-                if (p && stageIdsAll.has(p)) continue;
-                const amount = Number(stageFees[s.id] ?? 0);
+              const stageById = new Map(stages.map((s) => [s.id, s]));
+              const rootFor = (stageId: string): QuoteStage | null => {
+                let current = stageById.get(stageId) ?? null;
+                const seen = new Set<string>();
+                while (current) {
+                  const sx = current as typeof current & { parent_stage_id?: string | null };
+                  const parentId = sx.parent_stage_id;
+                  if (!parentId || !stageIdsAll.has(parentId) || seen.has(parentId)) return current;
+                  seen.add(current.id);
+                  current = stageById.get(parentId) ?? null;
+                }
+                return null;
+              };
+              const byRoot = new Map<string, { id: string; name: string; sortOrder: number; amount: number }>();
+              for (const it of inflows) {
+                if (!it.stage_id) continue;
+                const root = rootFor(it.stage_id);
+                if (!root) continue;
+                const amount = netAmount(it, totalFee, stageFees);
                 if (amount <= 0) continue;
-                if (topIds.has(s.id)) continue;
-                topIds.add(s.id);
-                tops.push({ id: s.id, name: s.name, amount });
+                const current = byRoot.get(root.id) ?? {
+                  id: root.id,
+                  name: root.name,
+                  sortOrder: root.sort_order,
+                  amount: 0,
+                };
+                current.amount += amount;
+                byRoot.set(root.id, current);
               }
+              const tops = Array.from(byRoot.values()).sort((a, b) => a.sortOrder - b.sortOrder);
               if (tops.length <= 1) return null;
               const sum = tops.reduce((a, t) => a + t.amount, 0);
               return (
