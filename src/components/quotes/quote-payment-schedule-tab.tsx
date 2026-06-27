@@ -825,6 +825,15 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
                       </Label>
                     </div>
                   </div>
+                  <div className="mt-3 flex justify-end">
+                    <Button
+                      size="sm"
+                      disabled={applyGen.isPending}
+                      onClick={() => runGenerator("by_stage_billing", { replaceAll: true })}
+                    >
+                      {t("workspace.payment.saveAndApply", { defaultValue: "Save & apply" })}
+                    </Button>
+                  </div>
                 </div>
               )}
             </PopoverContent>
