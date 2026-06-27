@@ -978,6 +978,8 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
           </Table>
         </CardContent>
       </Card>
+        </div>
+      </details>
 
       {/* Suppliers — outflows grouped by supplier (broken-down payouts) */}
       {(() => {
