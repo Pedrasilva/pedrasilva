@@ -158,9 +158,34 @@ export function PaymentScheduleProposalView({
   // schedule item's own sort_order. This guarantees Architecture always
   // appears before its supplier siblings (Mais Engenharia, Nulty, …) and
   // monthly slices stay in calendar order within their stage.
-  const stageOrder = useMemo(() => {
-    const m = new Map<string, number>();
-    stages.forEach((s) => m.set(s.id, s.sort_order));
+  const stageSortMeta = useMemo(() => {
+    type StageNode = QuoteStage & { parent_stage_id?: string | null };
+    const nodes = stages as StageNode[];
+    const stageById = new Map(nodes.map((s) => [s.id, s]));
+    const childrenByParent = new Map<string, StageNode[]>();
+    for (const stage of nodes) {
+      const parentId = stage.parent_stage_id ?? null;
+      if (!parentId || !stageById.has(parentId)) continue;
+      const children = childrenByParent.get(parentId) ?? [];
+      children.push(stage);
+      childrenByParent.set(parentId, children);
+    }
+    const effectiveSpan = (stage: StageNode): { start: string; end: string } => {
+      const children = childrenByParent.get(stage.id) ?? [];
+      if (children.length === 0) return { start: stage.start_date, end: stage.end_date };
+      return children.reduce(
+        (span, child) => {
+          const childSpan = effectiveSpan(child);
+          return {
+            start: childSpan.start && (!span.start || childSpan.start < span.start) ? childSpan.start : span.start,
+            end: childSpan.end && (!span.end || childSpan.end > span.end) ? childSpan.end : span.end,
+          };
+        },
+        { start: stage.start_date, end: stage.end_date },
+      );
+    };
+    const m = new Map<string, { start: string; end: string; sortOrder: number }>();
+    nodes.forEach((stage) => m.set(stage.id, { ...effectiveSpan(stage), sortOrder: stage.sort_order ?? 0 }));
     return m;
   }, [stages]);
   const inflows = items
@@ -171,9 +196,20 @@ export function PaymentScheduleProposalView({
     )
     .slice()
     .sort((a, b) => {
-      const sa = a.stage_id ? stageOrder.get(a.stage_id) ?? 1e9 : 1e9;
-      const sb = b.stage_id ? stageOrder.get(b.stage_id) ?? 1e9 : 1e9;
-      if (sa !== sb) return sa - sb;
+      const sa = a.stage_id ? stageSortMeta.get(a.stage_id) : undefined;
+      const sb = b.stage_id ? stageSortMeta.get(b.stage_id) : undefined;
+      if ((sa?.start ?? "9999-12-31") !== (sb?.start ?? "9999-12-31")) {
+        return (sa?.start ?? "9999-12-31") < (sb?.start ?? "9999-12-31") ? -1 : 1;
+      }
+      if ((sa?.end ?? "9999-12-31") !== (sb?.end ?? "9999-12-31")) {
+        return (sa?.end ?? "9999-12-31") < (sb?.end ?? "9999-12-31") ? -1 : 1;
+      }
+      if ((sa?.sortOrder ?? 1e9) !== (sb?.sortOrder ?? 1e9)) {
+        return (sa?.sortOrder ?? 1e9) - (sb?.sortOrder ?? 1e9);
+      }
+      if ((a.expected_invoice_date ?? "9999-12-31") !== (b.expected_invoice_date ?? "9999-12-31")) {
+        return (a.expected_invoice_date ?? "9999-12-31") < (b.expected_invoice_date ?? "9999-12-31") ? -1 : 1;
+      }
       return (a.sort_order ?? 0) - (b.sort_order ?? 0);
     });
   const inflowTotal = inflows.reduce(
