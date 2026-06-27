@@ -504,24 +504,84 @@ export function PaymentScheduleProposalView({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {list.map((r) => (
-                          <TableRow key={r.stageId}>
-                            {showRoot && <TableCell className="text-muted-foreground">{r.level === 0 ? r.rootName : ""}</TableCell>}
-                            <TableCell className={r.level === 0 ? "font-medium" : "pl-6 text-muted-foreground"}>
-                              {r.level > 0 ? `↳ ${r.name}` : r.name}
-                            </TableCell>
-                            <TableCell className="text-right tabular-nums text-muted-foreground">
-                              {total > 0 ? `${Math.round((r.amount / total) * 100)}%` : "—"}
-                            </TableCell>
-                            <TableCell className="text-right tabular-nums">{formatEUR(r.amount)}</TableCell>
-                          </TableRow>
-                        ))}
-                        <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
-                          {showRoot && <TableCell />}
-                          <TableCell>Total</TableCell>
-                          <TableCell className="text-right tabular-nums">100%</TableCell>
-                          <TableCell className="text-right tabular-nums">{formatEUR(total)}</TableCell>
-                        </TableRow>
+                        {(() => {
+                          if (!showRoot) {
+                            return (
+                              <>
+                                {list.map((r) => (
+                                  <TableRow key={r.stageId}>
+                                    <TableCell className={r.level === 0 ? "font-medium" : "pl-6 text-muted-foreground"}>
+                                      {r.level > 0 ? `↳ ${r.name}` : r.name}
+                                    </TableCell>
+                                    <TableCell className="text-right tabular-nums text-muted-foreground">
+                                      {total > 0 ? `${Math.round((r.amount / total) * 100)}%` : "—"}
+                                    </TableCell>
+                                    <TableCell className="text-right tabular-nums">{formatEUR(r.amount)}</TableCell>
+                                  </TableRow>
+                                ))}
+                                <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
+                                  <TableCell>Total</TableCell>
+                                  <TableCell className="text-right tabular-nums">100%</TableCell>
+                                  <TableCell className="text-right tabular-nums">{formatEUR(total)}</TableCell>
+                                </TableRow>
+                              </>
+                            );
+                          }
+                          // Supplier section: group rows by rootName, subtotal each group, then grand total.
+                          const groups: Array<{ rootName: string; rows: typeof list; subtotal: number }> = [];
+                          for (const r of list) {
+                            let g = groups[groups.length - 1];
+                            if (!g || g.rootName !== r.rootName) {
+                              g = { rootName: r.rootName, rows: [], subtotal: 0 };
+                              groups.push(g);
+                            }
+                            g.rows.push(r);
+                            if (r.level === 0) g.subtotal += r.amount;
+                          }
+                          // Fallback if no level-0 row exists in a group
+                          for (const g of groups) {
+                            if (g.subtotal === 0) g.subtotal = g.rows.reduce((s, r) => s + r.amount, 0);
+                          }
+                          return (
+                            <>
+                              {groups.map((g, gi) => (
+                                <React.Fragment key={`g-${gi}-${g.rootName}`}>
+                                  {g.rows.map((r) => (
+                                    <TableRow key={r.stageId}>
+                                      <TableCell className="text-muted-foreground">{r.level === 0 ? r.rootName : ""}</TableCell>
+                                      <TableCell className={r.level === 0 ? "font-medium" : "pl-6 text-muted-foreground"}>
+                                        {r.level > 0 ? `↳ ${r.name}` : r.name}
+                                      </TableCell>
+                                      <TableCell className="text-right tabular-nums text-muted-foreground">
+                                        {total > 0 ? `${Math.round((r.amount / total) * 100)}%` : "—"}
+                                      </TableCell>
+                                      <TableCell className="text-right tabular-nums">{formatEUR(r.amount)}</TableCell>
+                                    </TableRow>
+                                  ))}
+                                  <TableRow className="border-t border-foreground/30 font-medium bg-muted/10">
+                                    <TableCell />
+                                    <TableCell>Subtotal — {g.rootName}</TableCell>
+                                    <TableCell className="text-right tabular-nums text-muted-foreground">
+                                      {total > 0 ? `${Math.round((g.subtotal / total) * 100)}%` : "—"}
+                                    </TableCell>
+                                    <TableCell className="text-right tabular-nums">{formatEUR(g.subtotal)}</TableCell>
+                                  </TableRow>
+                                  {gi < groups.length - 1 && (
+                                    <TableRow className="hover:bg-transparent">
+                                      <TableCell colSpan={4} className="h-4 p-0" />
+                                    </TableRow>
+                                  )}
+                                </React.Fragment>
+                              ))}
+                              <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
+                                <TableCell />
+                                <TableCell>Total</TableCell>
+                                <TableCell className="text-right tabular-nums">100%</TableCell>
+                                <TableCell className="text-right tabular-nums">{formatEUR(total)}</TableCell>
+                              </TableRow>
+                            </>
+                          );
+                        })()}
                       </TableBody>
                     </Table>
                   </CardContent>
