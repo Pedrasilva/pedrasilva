@@ -577,7 +577,7 @@ export function generateByStageBilling(
       });
     } else {
       // 'stage' — honor stage_billing_timing: end (default) | start | split
-      const fee = scaleFee(stageFees[s.id] ?? 0);
+      const fee = scaleFee(billableFee(s));
       const timing = getStageBillingTiming(s);
       if (timing === "split") {
         const half = round2(fee / 2);
