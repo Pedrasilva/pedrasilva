@@ -276,6 +276,103 @@ export function PaymentScheduleProposalView({
         );
       })()}
 
+      {/* Per-root breakdown: each top-level stage (Architecture, Engineering,
+          suppliers...) with its descendant stages and billable amounts. */}
+      {inflows.length > 0 && (() => {
+        const stageIdsAll = new Set(stages.map((s) => s.id));
+        const stageById = new Map(stages.map((s) => [s.id, s]));
+        const rootFor = (stageId: string): QuoteStage | null => {
+          let current = stageById.get(stageId) ?? null;
+          const seen = new Set<string>();
+          while (current) {
+            const sx = current as typeof current & { parent_stage_id?: string | null };
+            const parentId = sx.parent_stage_id;
+            if (!parentId || !stageIdsAll.has(parentId) || seen.has(parentId)) return current;
+            seen.add(current.id);
+            current = stageById.get(parentId) ?? null;
+          }
+          return null;
+        };
+        type Row = { stageId: string; name: string; sortOrder: number; amount: number };
+        const groups = new Map<string, { root: QuoteStage; rows: Map<string, Row> }>();
+        for (const it of inflows) {
+          if (!it.stage_id) continue;
+          const root = rootFor(it.stage_id);
+          if (!root) continue;
+          const amount = netAmount(it, totalFee, stageFees);
+          if (amount <= 0) continue;
+          const stage = stageById.get(it.stage_id);
+          if (!stage) continue;
+          const g = groups.get(root.id) ?? { root, rows: new Map<string, Row>() };
+          const existing = g.rows.get(stage.id) ?? {
+            stageId: stage.id,
+            name: stage.name,
+            sortOrder: stage.sort_order,
+            amount: 0,
+          };
+          existing.amount += amount;
+          g.rows.set(stage.id, existing);
+          groups.set(root.id, g);
+        }
+        const ordered = Array.from(groups.values()).sort(
+          (a, b) => a.root.sort_order - b.root.sort_order,
+        );
+        if (ordered.length === 0) return null;
+        return (
+          <div className="space-y-4">
+            <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Detalhe por contrato
+            </div>
+            {ordered.map(({ root, rows }) => {
+              const list = Array.from(rows.values()).sort((a, b) => a.sortOrder - b.sortOrder);
+              const total = list.reduce((s, r) => s + r.amount, 0);
+              return (
+                <Card key={root.id}>
+                  <CardHeader className="pb-3 bg-muted/30">
+                    <div className="flex items-baseline justify-between gap-4">
+                      <CardTitle className="text-sm uppercase tracking-wide">
+                        {root.name} — total do contrato
+                      </CardTitle>
+                      <div className="text-base font-semibold tabular-nums">
+                        {formatEUR(total)}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-3">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/40">
+                          <TableHead>Fase</TableHead>
+                          <TableHead className="text-right">% do contrato</TableHead>
+                          <TableHead className="text-right">Valor sem IVA</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {list.map((r) => (
+                          <TableRow key={r.stageId}>
+                            <TableCell>{r.name}</TableCell>
+                            <TableCell className="text-right tabular-nums text-muted-foreground">
+                              {total > 0 ? `${Math.round((r.amount / total) * 100)}%` : "—"}
+                            </TableCell>
+                            <TableCell className="text-right tabular-nums">{formatEUR(r.amount)}</TableCell>
+                          </TableRow>
+                        ))}
+                        <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
+                          <TableCell>Total</TableCell>
+                          <TableCell className="text-right tabular-nums">100%</TableCell>
+                          <TableCell className="text-right tabular-nums">{formatEUR(total)}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        );
+      })()}
+
+
       {/* Client billing schedule (separated card) */}
       {inflows.length > 0 && (
         <Card className="border-2 border-foreground/80">
