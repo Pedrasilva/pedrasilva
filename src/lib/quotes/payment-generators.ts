@@ -557,7 +557,7 @@ export function generateByStageBilling(
     } else if (model === "monthly") {
       const months = monthsBetween(span.start, span.end);
       if (months.length === 0) continue;
-      const fee = scaleFee(stageFees[s.id] ?? 0);
+      const fee = scaleFee(billableFee(s));
       const per = round2(fee / months.length);
       months.forEach((m, i) => {
         const amt = i === months.length - 1
