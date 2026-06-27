@@ -635,43 +635,56 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                           <Label className="text-xs">
                             {t("workspace.planning.paymentTrigger", { defaultValue: "Payment trigger" })}
                           </Label>
-                          {isParent && (
-                            <div className="flex gap-1 rounded-md border border-border bg-background p-0.5">
-                              {(["parent", "children"] as const).map((opt) => {
-                                const active = childTrigger ? opt === "children" : opt === "parent";
-                                return (
-                                  <button
-                                    key={opt}
-                                    type="button"
-                                    onClick={() => {
-                                      const want = opt === "children";
-                                      if (want === childTrigger) return;
-                                      const msg = want
-                                        ? t("workspace.planning.confirmChildrenTrigger", {
-                                            defaultValue:
-                                              "Disable this parent's payment trigger? Each child will become its own billing entry.",
-                                          })
-                                        : t("workspace.planning.confirmParentTrigger", {
-                                            defaultValue:
-                                              "Disable child payment triggers? Billing will roll up to this parent.",
-                                          });
-                                      if (!window.confirm(msg)) return;
-                                      upsertStage.mutate({ id: stage.id, children_bill_independently: want } as Parameters<typeof upsertStage.mutate>[0]);
-                                    }}
-                                    className={`flex-1 rounded px-2 py-1 text-[11px] transition ${
-                                      active
-                                        ? "bg-foreground text-background"
-                                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                                    }`}
-                                  >
-                                    {opt === "parent"
-                                      ? t("workspace.planning.triggerParent", { defaultValue: "This stage" })
-                                      : t("workspace.planning.triggerChildren", { defaultValue: "Children" })}
-                                  </button>
+                          {isParent && (() => {
+                            const saveChildTrigger = async (want: boolean) => {
+                              if (want === childTrigger) return;
+                              if (upsertStage.isPending) return;
+                              try {
+                                await upsertStage.mutateAsync({
+                                  id: stage.id,
+                                  children_bill_independently: want,
+                                } as Parameters<typeof upsertStage.mutateAsync>[0]);
+                                toast.success(
+                                  want
+                                    ? t("workspace.planning.savedBillAtChildren", {
+                                        defaultValue: "Saved: each child is billed independently.",
+                                      })
+                                    : t("workspace.planning.savedBillAtParent", {
+                                        defaultValue: "Saved: billing rolls up to this stage.",
+                                      }),
                                 );
-                              })}
-                            </div>
-                          )}
+                              } catch (e) {
+                                toast.error(
+                                  (e as Error)?.message ||
+                                    t("workspace.planning.saveFailed", { defaultValue: "Could not save change." }),
+                                );
+                              }
+                            };
+                            return (
+                              <div className="flex gap-1 rounded-md border border-border bg-background p-0.5">
+                                {(["parent", "children"] as const).map((opt) => {
+                                  const active = childTrigger ? opt === "children" : opt === "parent";
+                                  return (
+                                    <button
+                                      key={opt}
+                                      type="button"
+                                      disabled={upsertStage.isPending}
+                                      onClick={() => saveChildTrigger(opt === "children")}
+                                      className={`flex-1 rounded px-2 py-1 text-[11px] transition disabled:opacity-50 ${
+                                        active
+                                          ? "bg-foreground text-background"
+                                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                      }`}
+                                    >
+                                      {opt === "parent"
+                                        ? t("workspace.planning.triggerParent", { defaultValue: "This stage" })
+                                        : t("workspace.planning.triggerChildren", { defaultValue: "Children" })}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })()}
                           {!isParent && parent && (
                             <>
                               <p className="text-[11px] text-muted-foreground">
@@ -685,20 +698,30 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                               </p>
                               <button
                                 type="button"
-                                className="w-full rounded border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground"
-                                onClick={() => {
+                                disabled={upsertStage.isPending}
+                                className="w-full rounded border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-50"
+                                onClick={async () => {
                                   const want = !parentDelegates;
-                                  const msg = want
-                                    ? t("workspace.planning.confirmChildrenTrigger", {
-                                        defaultValue:
-                                          "Disable this parent's payment trigger? Each child will become its own billing entry.",
-                                      })
-                                    : t("workspace.planning.confirmParentTrigger", {
-                                        defaultValue:
-                                          "Disable child payment triggers? Billing will roll up to this parent.",
-                                      });
-                                  if (!window.confirm(msg)) return;
-                                  upsertStage.mutate({ id: parent.id, children_bill_independently: want } as Parameters<typeof upsertStage.mutate>[0]);
+                                  try {
+                                    await upsertStage.mutateAsync({
+                                      id: parent.id,
+                                      children_bill_independently: want,
+                                    } as Parameters<typeof upsertStage.mutateAsync>[0]);
+                                    toast.success(
+                                      want
+                                        ? t("workspace.planning.savedBillAtChildrenParent", {
+                                            defaultValue: `Saved on "${parent.name}": children are billed independently.`,
+                                          })
+                                        : t("workspace.planning.savedBillAtParentParent", {
+                                            defaultValue: `Saved on "${parent.name}": billing rolls up to the parent.`,
+                                          }),
+                                    );
+                                  } catch (e) {
+                                    toast.error(
+                                      (e as Error)?.message ||
+                                        t("workspace.planning.saveFailed", { defaultValue: "Could not save change." }),
+                                    );
+                                  }
                                 }}
                               >
                                 {parentDelegates
