@@ -798,7 +798,7 @@ export function PaymentScheduleProposalView({
                 <TableBody>
                   {invoices.map((inv, gi) => {
                     const invoiceLabel = `Fatura ${String(gi + 1).padStart(2, "0")}`;
-                    const dateLabel = inv.key.startsWith("m:") ? inv.items[0].label : fmtDate(inv.plannedDate);
+                    const dateLabel = fmtDate(inv.plannedDate);
                     const multiLine = inv.lines.length > 1;
                     return (
                       <React.Fragment key={inv.key}>
