@@ -15,7 +15,7 @@
  * read the historical quote rates rather than today's effective rates.
  */
 import { useMemo, useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
-import { PanelRightClose, PanelRightOpen, Plus, IndentIncrease, IndentDecrease, AlignVerticalJustifyStart } from "lucide-react";
+import { PanelRightClose, PanelRightOpen, Plus, Minus, IndentIncrease, IndentDecrease, AlignVerticalJustifyStart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { addDays, differenceInCalendarDays, parseISO, format } from "date-fns";
