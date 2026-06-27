@@ -850,6 +850,7 @@ export function PaymentScheduleProposalView({
                   <TableRow className="bg-muted/40">
                     <TableHead className="w-24">Fatura</TableHead>
                     <TableHead className="w-32">Data planeada</TableHead>
+                    <TableHead className="w-28">Estado</TableHead>
                     <TableHead>Descrição</TableHead>
                     <TableHead className="text-right">Valor sem IVA</TableHead>
                     <TableHead className="text-right">IVA</TableHead>
@@ -862,6 +863,12 @@ export function PaymentScheduleProposalView({
                     const invoiceLabel = `Fatura ${String(gi + 1).padStart(2, "0")}`;
                     const dateLabel = fmtDate(inv.plannedDate);
                     const multiLine = inv.lines.length > 1;
+                    const itemIds = inv.items.map((i) => i.id);
+                    const statuses = new Set(
+                      inv.items.map((i) => ((i as { billing_status?: BillingStatus }).billing_status ?? "planned") as BillingStatus),
+                    );
+                    const invStatus: BillingStatus = statuses.size === 1 ? Array.from(statuses)[0] : "planned";
+                    const quoteId = (inv.items[0] as { quote_id?: string | null })?.quote_id ?? null;
                     return (
                       <React.Fragment key={inv.key}>
                         {inv.lines.map((ln, li) => (
@@ -874,6 +881,15 @@ export function PaymentScheduleProposalView({
                             </TableCell>
                             <TableCell className="text-xs align-top tabular-nums">
                               {li === 0 ? dateLabel : ""}
+                            </TableCell>
+                            <TableCell className="align-top">
+                              {li === 0 ? (
+                                <InvoiceStatusButton
+                                  itemIds={itemIds}
+                                  currentStatus={invStatus}
+                                  quoteId={quoteId}
+                                />
+                              ) : null}
                             </TableCell>
                             <TableCell className="text-sm">{ln.description}</TableCell>
                             <TableCell className="text-right tabular-nums">{formatEUR(ln.net)}</TableCell>
@@ -892,6 +908,7 @@ export function PaymentScheduleProposalView({
                           <TableRow className="bg-muted/20 text-xs">
                             <TableCell />
                             <TableCell />
+                            <TableCell />
                             <TableCell className="font-semibold">Subtotal {invoiceLabel}</TableCell>
                             <TableCell className="text-right tabular-nums font-semibold">{formatEUR(inv.net)}</TableCell>
                             <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(inv.vat)}</TableCell>
@@ -903,7 +920,7 @@ export function PaymentScheduleProposalView({
                     );
                   })}
                   <TableRow className="border-t-2 border-foreground/60 font-semibold bg-muted/40">
-                    <TableCell colSpan={3}>Total a faturar ao cliente</TableCell>
+                    <TableCell colSpan={4}>Total a faturar ao cliente</TableCell>
                     <TableCell className="text-right tabular-nums">{formatEUR(grandNet)}</TableCell>
                     <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(grandVat)}</TableCell>
                     <TableCell className="text-right tabular-nums">{formatEUR(grandNet + grandVat)}</TableCell>
