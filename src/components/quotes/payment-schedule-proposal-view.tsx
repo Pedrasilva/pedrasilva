@@ -12,7 +12,7 @@
  *   │   rows...                                            │
  *   └──────────────────────────────────────────────────────┘
  */
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -253,18 +253,115 @@ export function PaymentScheduleProposalView({
                 </div>
               );
             })()}
-            <PaymentSubTable
-              rows={inflows}
-              totalFee={totalFee}
-              stageFees={stageFees}
-              defaultVatRate={defaultVatRate}
-              showTotalRow
-              labelFor={(it) => {
-                if (it.trigger_type === "monthly") return it.label;
+            {(() => {
+              // Group inflows into joint invoices keyed by invoice date so
+              // architecture + supplier services billed to the client on the
+              // same trigger render as one invoice with multiple service lines.
+              const groups = new Map<string, QuotePaymentScheduleItem[]>();
+              const order: string[] = [];
+              for (const it of inflows) {
+                const key =
+                  it.expected_invoice_date ??
+                  (it.stage_id ? `stage:${it.stage_id}` : `t:${it.trigger_type}:${it.label}`);
+                if (!groups.has(key)) {
+                  groups.set(key, []);
+                  order.push(key);
+                }
+                groups.get(key)!.push(it);
+              }
+              const labelForRow = (it: QuotePaymentScheduleItem) => {
                 const s = it.stage_id ? stages.find((x) => x.id === it.stage_id) : null;
                 return s?.name ?? it.label;
-              }}
-            />
+              };
+              const totalNetAll = inflows.reduce(
+                (s, r) => s + netAmount(r, totalFee, stageFees),
+                0,
+              );
+              const totalVatAll = inflows.reduce((s, r) => {
+                const n = netAmount(r, totalFee, stageFees);
+                const v = Number(r.vat_rate ?? defaultVatRate);
+                return s + (n * v) / 100;
+              }, 0);
+
+              return (
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/40">
+                      <TableHead className="w-24">Fatura</TableHead>
+                      <TableHead className="min-w-[200px]">Data de pagamento</TableHead>
+                      <TableHead>Descrição do serviço</TableHead>
+                      <TableHead className="text-right">% honorários</TableHead>
+                      <TableHead className="text-right">Valor sem IVA</TableHead>
+                      <TableHead className="text-right">IVA</TableHead>
+                      <TableHead className="text-right">Valor com IVA</TableHead>
+                      <TableHead>Condições</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {order.map((key, gi) => {
+                      const rows = groups.get(key)!;
+                      const invoiceLabel = `Fatura ${String(gi + 1).padStart(2, "0")}`;
+                      const subNet = rows.reduce((s, r) => s + netAmount(r, totalFee, stageFees), 0);
+                      const subVat = rows.reduce((s, r) => {
+                        const n = netAmount(r, totalFee, stageFees);
+                        const v = Number(r.vat_rate ?? defaultVatRate);
+                        return s + (n * v) / 100;
+                      }, 0);
+                      const head = rows[0];
+                      const dateLabel = (() => {
+                        if (head.trigger_type === "monthly") return head.label;
+                        const s = head.stage_id ? stages.find((x) => x.id === head.stage_id) : null;
+                        return s ? `Conclusão — ${s.name}` : head.label;
+                      })();
+                      return (
+                        <React.Fragment key={key}>
+                          {rows.map((it, ri) => {
+                            const net = netAmount(it, totalFee, stageFees);
+                            const vat = Number(it.vat_rate ?? defaultVatRate);
+                            const vatAmt = (net * vat) / 100;
+                            const pct = totalNetAll > 0 ? (net / totalNetAll) * 100 : 0;
+                            return (
+                              <TableRow key={it.id} className={ri === 0 ? "border-t-2 border-foreground/20" : ""}>
+                                <TableCell className="text-xs align-top">{ri === 0 ? invoiceLabel : ""}</TableCell>
+                                <TableCell className="font-medium align-top">{ri === 0 ? dateLabel : ""}</TableCell>
+                                <TableCell className="text-sm">{labelForRow(it)}</TableCell>
+                                <TableCell className="text-right tabular-nums">{pct.toFixed(0)}%</TableCell>
+                                <TableCell className="text-right tabular-nums">{formatEUR(net)}</TableCell>
+                                <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(vatAmt)}</TableCell>
+                                <TableCell className="text-right tabular-nums font-medium">{formatEUR(net + vatAmt)}</TableCell>
+                                <TableCell className="text-xs">{ri === 0 ? (it.payment_terms ?? "—") : ""}</TableCell>
+                              </TableRow>
+                            );
+                          })}
+                          {rows.length > 1 && (
+                            <TableRow className="bg-muted/20 text-xs">
+                              <TableCell />
+                              <TableCell />
+                              <TableCell className="font-semibold">Subtotal {invoiceLabel}</TableCell>
+                              <TableCell />
+                              <TableCell className="text-right tabular-nums font-semibold">{formatEUR(subNet)}</TableCell>
+                              <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(subVat)}</TableCell>
+                              <TableCell className="text-right tabular-nums font-semibold">{formatEUR(subNet + subVat)}</TableCell>
+                              <TableCell />
+                            </TableRow>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                    <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/30">
+                      <TableCell />
+                      <TableCell>Total</TableCell>
+                      <TableCell />
+                      <TableCell className="text-right tabular-nums">100%</TableCell>
+                      <TableCell className="text-right tabular-nums">{formatEUR(totalNetAll)}</TableCell>
+                      <TableCell className="text-right tabular-nums text-muted-foreground">{formatEUR(totalVatAll)}</TableCell>
+                      <TableCell className="text-right tabular-nums">{formatEUR(totalNetAll + totalVatAll)}</TableCell>
+                      <TableCell />
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              );
+            })()}
             <p className="text-xs italic text-muted-foreground mt-3">
               NOTA: Entende-se por "Conclusão da fase" a entrega de elementos da
               fase e a sua aceitação por parte do cliente, ou aceitação tácita
