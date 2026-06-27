@@ -605,6 +605,22 @@ export function PaymentScheduleProposalView({
           return y && m && d ? `${d}/${m}/${y}` : iso;
         };
         const stageById = new Map(stages.map((s) => [s.id, s]));
+        const rootOf = (stageId: string | null | undefined) => {
+          if (!stageId) return null;
+          let cur = stageById.get(stageId) ?? null;
+          const seen = new Set<string>();
+          while (cur && (cur as { parent_stage_id?: string | null }).parent_stage_id) {
+            const pid = (cur as { parent_stage_id?: string | null }).parent_stage_id!;
+            if (seen.has(pid)) break;
+            seen.add(pid);
+            const p = stageById.get(pid);
+            if (!p) break;
+            cur = p;
+          }
+          return cur;
+        };
+        const isSupplierRole = (role?: string | null) =>
+          role === "supplier_group" || role === "supplier_phase";
         const dateFor = (it: QuotePaymentScheduleItem) => {
           if (it.expected_invoice_date) return it.expected_invoice_date;
           const s = it.stage_id ? stageById.get(it.stage_id) : null;
@@ -630,27 +646,53 @@ export function PaymentScheduleProposalView({
             case "manual_date":
               return `Em ${ds || "data a definir"}`;
             case "monthly":
-              return it.label || `Mensalidade${ds ? ` (${ds})` : ""}`;
+              return stageName
+                ? `Mensalidade de ${stageName}${ds ? ` (${ds})` : ""}`
+                : (it.label || `Mensalidade${ds ? ` (${ds})` : ""}`);
             default:
               return it.label;
           }
         };
-        const isSupplier = (it: QuotePaymentScheduleItem) =>
-          Boolean(it.supplier_company_id || it.supplier_id || (it.supplier_label && it.supplier_label.trim()));
-        const supplierKey = (it: QuotePaymentScheduleItem) => {
-          if (it.supplier_company_id) return `c:${it.supplier_company_id}`;
-          if (it.supplier_id) return `s:${it.supplier_id}`;
-          const lbl = (it.supplier_label ?? "").trim().toLowerCase();
-          return `p:${lbl}`;
-        };
-        const supplierDisplay = (it: QuotePaymentScheduleItem) => {
-          if (it.supplier_company_id) return supplierName.get(it.supplier_company_id) ?? it.supplier_label ?? "Fornecedor";
-          if (it.supplier_id) return supplierName.get(it.supplier_id) ?? it.supplier_label ?? "Fornecedor";
-          return it.supplier_label?.trim() || "Fornecedor";
+
+        // Service classification — walks stage ancestry. If the root stage
+        // is a supplier_group / supplier_phase, this line belongs to that
+        // supplier even when supplier_company_id is null on the item.
+        type Service = { key: string; name: string; isSupplier: boolean };
+        const serviceOf = (it: QuotePaymentScheduleItem): Service => {
+          if (it.supplier_company_id) {
+            return {
+              key: `c:${it.supplier_company_id}`,
+              name: supplierName.get(it.supplier_company_id) ?? it.supplier_label ?? "Fornecedor",
+              isSupplier: true,
+            };
+          }
+          if (it.supplier_id) {
+            return {
+              key: `s:${it.supplier_id}`,
+              name: supplierName.get(it.supplier_id) ?? it.supplier_label ?? "Fornecedor",
+              isSupplier: true,
+            };
+          }
+          const root = rootOf(it.stage_id);
+          if (root && isSupplierRole((root as { stage_role?: string | null }).stage_role)) {
+            return { key: `r:${root.id}`, name: root.name, isSupplier: true };
+          }
+          if (it.supplier_label && it.supplier_label.trim()) {
+            return {
+              key: `p:${it.supplier_label.trim().toLowerCase()}`,
+              name: it.supplier_label.trim(),
+              isSupplier: true,
+            };
+          }
+          const archName = root && !isSupplierRole((root as { stage_role?: string | null }).stage_role)
+            ? root.name
+            : "Arquitectura";
+          return { key: `arch:${root?.id ?? "_"}`, name: archName, isSupplier: false };
         };
 
-        // Group inflows into invoices by their planned date (monthly buckets
-        // keyed by their label to preserve calendar order within each month).
+        // Group inflows into invoices by planned date (calendar day) so that
+        // architecture and supplier items on the same date land in ONE invoice
+        // with one line per service.
         type Invoice = {
           key: string;
           plannedDate: string;
@@ -661,7 +703,7 @@ export function PaymentScheduleProposalView({
         const orderKeys: string[] = [];
         for (const it of inflows) {
           const d = dateFor(it);
-          const key = it.trigger_type === "monthly" ? `m:${it.label}` : `d:${d}`;
+          const key = `d:${d}`;
           let inv = invoiceMap.get(key);
           if (!inv) {
             inv = { key, plannedDate: d, items: [], paymentTerms: it.payment_terms ?? null };
@@ -679,39 +721,25 @@ export function PaymentScheduleProposalView({
 
         type Line = { description: string; net: number; vat: number };
         const buildLines = (inv: Invoice): Line[] => {
-          const archRows = inv.items.filter((it) => !isSupplier(it));
-          const supplierRows = inv.items.filter(isSupplier);
+          const groups = new Map<string, { svc: Service; rows: QuotePaymentScheduleItem[] }>();
+          const order: string[] = [];
+          for (const it of inv.items) {
+            const svc = serviceOf(it);
+            if (!groups.has(svc.key)) {
+              groups.set(svc.key, { svc, rows: [] });
+              order.push(svc.key);
+            }
+            groups.get(svc.key)!.rows.push(it);
+          }
+          // Architecture first, then suppliers in encounter order.
+          order.sort((a, b) => {
+            const ga = groups.get(a)!.svc.isSupplier ? 1 : 0;
+            const gb = groups.get(b)!.svc.isSupplier ? 1 : 0;
+            return ga - gb;
+          });
           const lines: Line[] = [];
-
-          if (archRows.length > 0) {
-            const net = archRows.reduce((s, r) => s + netAmount(r, totalFee, stageFees), 0);
-            const vatAmt = archRows.reduce((s, r) => {
-              const n = netAmount(r, totalFee, stageFees);
-              const v = Number(r.vat_rate ?? defaultVatRate);
-              return s + (n * v) / 100;
-            }, 0);
-            const head = archRows[0];
-            // Use the first arch row's trigger sentence as the description;
-            // if multiple stages share this invoice, fall back to a list.
-            const stageNames = Array.from(
-              new Set(archRows.map((r) => (r.stage_id ? stageById.get(r.stage_id)?.name : null)).filter(Boolean)),
-            ) as string[];
-            const desc = stageNames.length > 1
-              ? `Arquitectura — ${stageNames.join(" + ")} (${fmtDate(inv.plannedDate)})`
-              : `Arquitectura — ${triggerSentence(head)}`;
-            lines.push({ description: desc, net, vat: vatAmt });
-          }
-
-          // Group suppliers within the invoice
-          const sup = new Map<string, QuotePaymentScheduleItem[]>();
-          const supOrder: string[] = [];
-          for (const r of supplierRows) {
-            const k = supplierKey(r);
-            if (!sup.has(k)) { sup.set(k, []); supOrder.push(k); }
-            sup.get(k)!.push(r);
-          }
-          for (const k of supOrder) {
-            const rows = sup.get(k)!;
+          for (const k of order) {
+            const { svc, rows } = groups.get(k)!;
             const net = rows.reduce((s, r) => s + netAmount(r, totalFee, stageFees), 0);
             const vatAmt = rows.reduce((s, r) => {
               const n = netAmount(r, totalFee, stageFees);
@@ -722,10 +750,9 @@ export function PaymentScheduleProposalView({
             const stageNames = Array.from(
               new Set(rows.map((r) => (r.stage_id ? stageById.get(r.stage_id)?.name : null)).filter(Boolean)),
             ) as string[];
-            const supName = supplierDisplay(head);
             const desc = stageNames.length > 1
-              ? `${supName} — ${stageNames.join(" + ")} (${fmtDate(inv.plannedDate)})`
-              : `${supName} — ${triggerSentence(head)}`;
+              ? `${svc.name} — ${stageNames.join(" + ")} (${fmtDate(inv.plannedDate)})`
+              : `${svc.name} — ${triggerSentence(head)}`;
             lines.push({ description: desc, net, vat: vatAmt });
           }
           return lines;
@@ -771,7 +798,7 @@ export function PaymentScheduleProposalView({
                 <TableBody>
                   {invoices.map((inv, gi) => {
                     const invoiceLabel = `Fatura ${String(gi + 1).padStart(2, "0")}`;
-                    const dateLabel = inv.key.startsWith("m:") ? inv.items[0].label : fmtDate(inv.plannedDate);
+                    const dateLabel = fmtDate(inv.plannedDate);
                     const multiLine = inv.lines.length > 1;
                     return (
                       <React.Fragment key={inv.key}>
