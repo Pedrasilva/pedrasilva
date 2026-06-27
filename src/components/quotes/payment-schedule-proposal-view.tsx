@@ -154,11 +154,28 @@ export function PaymentScheduleProposalView({
 
   // Inflows (client billing) — exclude down payment (project_start) from the
   // top "Total de Honorários" block; that section shows only stage rows.
-  const inflows = items.filter(
-    (it) =>
-      (it.direction ?? "inflow") === "inflow" &&
-      it.trigger_type !== "project_start",
-  );
+  // Sort strictly by the Gantt sequence: stage.sort_order first, then the
+  // schedule item's own sort_order. This guarantees Architecture always
+  // appears before its supplier siblings (Mais Engenharia, Nulty, …) and
+  // monthly slices stay in calendar order within their stage.
+  const stageOrder = useMemo(() => {
+    const m = new Map<string, number>();
+    stages.forEach((s) => m.set(s.id, s.sort_order));
+    return m;
+  }, [stages]);
+  const inflows = items
+    .filter(
+      (it) =>
+        (it.direction ?? "inflow") === "inflow" &&
+        it.trigger_type !== "project_start",
+    )
+    .slice()
+    .sort((a, b) => {
+      const sa = a.stage_id ? stageOrder.get(a.stage_id) ?? 1e9 : 1e9;
+      const sb = b.stage_id ? stageOrder.get(b.stage_id) ?? 1e9 : 1e9;
+      if (sa !== sb) return sa - sb;
+      return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+    });
   const inflowTotal = inflows.reduce(
     (s, it) => s + netAmount(it, totalFee, stageFees),
     0,
