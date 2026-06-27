@@ -31,12 +31,14 @@ import { useQuotePlannerAdapter } from "@/lib/quotes/use-quote-planner-adapter";
 import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import { reflowQuoteSchedule } from "@/lib/quotes/reflow-schedule";
+import { useCreateQuoteDependency } from "@/lib/quotes/use-quote-dependencies";
 import {
   useProjectDetail,
   useResources as useProjectResources,
   useCreateStage as useCreateProjectStage,
   useUpdateStage as useUpdateProjectStage,
   useDeleteStage as useDeleteProjectStage,
+  useCreateDependency as useCreateProjectDependency,
 } from "@/lib/projects/use-planner";
 import { useProjectPlannerAdapter } from "@/lib/projects/use-project-planner-adapter";
 import { useProjectInvoices } from "@/lib/projects/use-invoices";
