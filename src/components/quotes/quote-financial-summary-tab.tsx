@@ -118,6 +118,27 @@ export function QuoteFinancialSummaryTab({
     },
   });
 
+  // Average sale rate from active HR resources — used to translate fixed-fee
+  // architecture stages into an "implied man-hours" figure so the financial
+  // summary tells both the money and the effort story.
+  const { data: avgSaleRate = 0 } = useQuery({
+    queryKey: ["pm-resources-avg-sale-rate"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pm_resources")
+        .select("hourly_rate, sale_rate")
+        .eq("active", true);
+      if (error) throw error;
+      const rates = (data ?? [])
+        .map((r: { hourly_rate: number | null; sale_rate: number | null }) =>
+          Number(r.sale_rate ?? r.hourly_rate ?? 0),
+        )
+        .filter((n) => n > 0);
+      if (rates.length === 0) return 0;
+      return rates.reduce((s, n) => s + n, 0) / rates.length;
+    },
+  });
+
   const allocations = allocsQ.data ?? [];
   const externalServices = extQ.data ?? [];
   const stages = stagesQ.data ?? [];
