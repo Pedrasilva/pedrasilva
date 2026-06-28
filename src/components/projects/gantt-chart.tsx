@@ -626,8 +626,24 @@ export function GanttChart({
   const headerHeight = 28 + (dayWidth >= 14 ? 36 : 20);
   const milestonesHeight = milestones && milestones.length > 0 ? 32 : 0;
 
+  // Dependency labels for the WBS "Dep." column: "<predWbs>FS+2d".
+  const depLabels = useMemo(() => {
+    const wbsOf = (id: string) => hierarchy?.get(id)?.wbs ?? "";
+    const m = new Map<string, string>();
+    for (const d of (adapter.dependencies ?? [])) {
+      const succ = d.successor_id;
+      const w = wbsOf(d.predecessor_id);
+      if (!w) continue;
+      const lag = d.lag_days ?? 0;
+      const tag = `${w}${d.type ?? "FS"}${lag ? (lag > 0 ? `+${lag}d` : `${lag}d`) : ""}`;
+      const prev = m.get(succ);
+      m.set(succ, prev ? `${prev}, ${tag}` : tag);
+    }
+    return m;
+  }, [adapter.dependencies, hierarchy]);
+
   return (
-    <div className="flex" style={{ width: outlineWidth + totalDays * dayWidth }}>
+    <div className="flex" style={{ width: outlineWidth + (onResizeOutline ? 6 : 0) + totalDays * dayWidth }}>
       {outlineWidth > 0 && hierarchy && onToggleCollapse && (
         <GanttOutlineColumn
           visibleStages={stages}
@@ -647,6 +663,34 @@ export function GanttChart({
           onDeleteStage={onDeleteStage}
           resourcesCollapsed={resourcesCollapsed}
           onToggleResourcesCollapse={onToggleResourcesCollapse}
+          onUpdateStageBounds={onUpdateStageBounds}
+          onUpdateStageBudget={onUpdateStageBudget}
+          dependencyLabels={depLabels}
+          onAppendRoot={onAppendRoot}
+        />
+      )}
+      {outlineWidth > 0 && onResizeOutline && (
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          title="Drag to resize WBS column"
+          onPointerDown={(e) => {
+            const startX = e.clientX;
+            const startW = outlineWidth;
+            (e.target as HTMLElement).setPointerCapture(e.pointerId);
+            const onMove = (ev: PointerEvent) => {
+              const next = Math.min(900, Math.max(280, startW + (ev.clientX - startX)));
+              onResizeOutline(next);
+            };
+            const onUp = () => {
+              window.removeEventListener("pointermove", onMove);
+              window.removeEventListener("pointerup", onUp);
+            };
+            window.addEventListener("pointermove", onMove);
+            window.addEventListener("pointerup", onUp);
+          }}
+          className="sticky z-30 shrink-0 cursor-col-resize select-none bg-transparent hover:bg-primary/30"
+          style={{ left: outlineWidth, width: 6, alignSelf: "stretch" }}
         />
       )}
     <div
