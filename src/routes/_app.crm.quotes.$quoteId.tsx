@@ -81,6 +81,7 @@ function QuoteDetail() {
   const { quoteId } = Route.useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { isAdmin } = useAuth();
 
   const { data: quote, isLoading } = useQuery({
     queryKey: ["fee_proposal", quoteId],
