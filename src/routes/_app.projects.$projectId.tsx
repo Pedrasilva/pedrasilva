@@ -59,6 +59,7 @@ import { BudgetControlPanel } from "@/components/projects/budget-control-panel";
 import { RetainerMonitorPanel } from "@/components/projects/retainer-monitor-panel";
 import { CommercialBaselineCard } from "@/components/projects/commercial-baseline-card";
 import { ContractBaselineCard } from "@/components/projects/contract-baseline-card";
+import { ContractVarianceCard } from "@/components/projects/contract-variance-card";
 import { ProjectForecastCard } from "@/components/projects/project-forecast-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -718,6 +719,7 @@ function ProjectDetail() {
               <div className="space-y-4">
                 <CommercialBaselineCard projectId={projectId} />
                 <ContractBaselineCard projectId={projectId} />
+                <ContractVarianceCard projectId={projectId} />
                 <ProjectForecastCard projectId={projectId} />
                 {budgetControl && canSeeFinancials && (
                   <BudgetControlPanel
