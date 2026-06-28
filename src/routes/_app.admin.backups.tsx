@@ -172,14 +172,6 @@ function BackupsPage() {
                   {!runsQ.isLoading && (runsQ.data?.length ?? 0) === 0 && (
                     <tr><td colSpan={8} className="py-4 text-center text-muted-foreground">Sem backups ainda.</td></tr>
                   )}
-                </thead>
-                <tbody>
-                  {runsQ.isLoading && (
-                    <tr><td colSpan={7} className="py-4 text-center text-muted-foreground">A carregar…</td></tr>
-                  )}
-                  {!runsQ.isLoading && (runsQ.data?.length ?? 0) === 0 && (
-                    <tr><td colSpan={7} className="py-4 text-center text-muted-foreground">Sem backups ainda.</td></tr>
-                  )}
                   {runsQ.data?.map((r) => (
                     <tr key={r.id} className="border-b last:border-0">
                       <td className="py-2 pr-4 font-mono text-xs">
@@ -204,6 +196,21 @@ function BackupsPage() {
                           <span className="text-xs text-red-600" title={r.error}>
                             {r.error.slice(0, 40)}…
                           </span>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td className="py-2 pr-4">
+                        {r.drive_file_id && r.status === "success" ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              setInspect({ id: r.id, name: r.drive_file_name ?? null })
+                            }
+                          >
+                            <Eye className="mr-1 h-3 w-3" /> Ver dados
+                          </Button>
                         ) : (
                           "—"
                         )}
