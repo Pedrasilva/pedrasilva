@@ -1235,6 +1235,8 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
     [allResourcesData],
   );
   const adapter = useProjectPlannerAdapter(allResources, { readOnly: !isAdmin });
+  const { data: teamAvg } = useTeamPricingAverages();
+  const projectImpliedHourRate = teamAvg?.avgSalePerHour ?? 0;
   const { data: invoices } = useProjectInvoices(projectId);
   const createStage = useCreateProjectStage();
   const updateStage = useUpdateProjectStage();
