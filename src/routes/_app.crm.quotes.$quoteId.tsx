@@ -661,6 +661,10 @@ function QuoteDetail() {
   const pricingMultiplier = Number(form.pricing_multiplier) || 1;
   const category = normalizeQuoteCategory(quote.quote_category);
   const isProject = category === "project";
+  // Phase 1 lock — set by DB trigger when status=approved + project linked.
+  const lockMeta = quote as unknown as { is_locked?: boolean; locked_project_id?: string | null };
+  const isLocked = !!lockMeta.is_locked;
+  const lockedProjectId = lockMeta.locked_project_id ?? null;
 
   // Soft completion signals for the stepper. Non-blocking — these only
   // drive the visual tick on each step.
