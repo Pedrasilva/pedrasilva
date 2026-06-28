@@ -41,7 +41,7 @@ import {
   defaultQuoteTypeForCategory, type QuoteCategory,
 } from "@/lib/crm/types";
 
-export const Route = createFileRoute("/_app/crm/opportunities")({
+export const Route = createFileRoute("/_app/crm/opportunities/")({
   component: OpportunitiesPage,
 });
 
