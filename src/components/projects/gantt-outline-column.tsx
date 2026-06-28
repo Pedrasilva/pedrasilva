@@ -302,70 +302,81 @@ export function GanttOutlineColumn({
                 </div>
 
                 {/* Dur. */}
-                <div style={{ width: COL.dur }} className="shrink-0 text-right">
-                  <NumberCell
-                    value={dur}
-                    align="right"
-                    editable={editable && !isSummary}
-                    suffix=""
-                    onCommit={async (n) => {
-                      if (!stage.start_date) return;
-                      const start = parseISO(stage.start_date);
-                      const end = addDays(start, Math.max(0, n - 1));
-                      await commitBounds({
-                        start_date: stage.start_date,
-                        end_date: format(end, "yyyy-MM-dd"),
-                      });
-                    }}
-                  />
-                </div>
+                {showDur && (
+                  <div style={{ width: COL.dur }} className="shrink-0 text-right">
+                    <NumberCell
+                      value={dur}
+                      align="right"
+                      editable={editable && !isSummary}
+                      suffix=""
+                      onCommit={async (n) => {
+                        if (!stage.start_date) return;
+                        const start = parseISO(stage.start_date);
+                        const end = addDays(start, Math.max(0, n - 1));
+                        await commitBounds({
+                          start_date: stage.start_date,
+                          end_date: format(end, "yyyy-MM-dd"),
+                        });
+                      }}
+                    />
+                  </div>
+                )}
 
                 {/* Start */}
-                <div style={{ width: COL.start }} className="shrink-0 text-right">
-                  <DateCell
-                    value={stage.start_date}
-                    editable={editable && !isSummary}
-                    onCommit={async (next) => {
-                      const a = parseISO(next);
-                      const end = addDays(a, Math.max(0, dur - 1));
-                      await commitBounds({
-                        start_date: next,
-                        end_date: format(end, "yyyy-MM-dd"),
-                      });
-                    }}
-                  />
-                </div>
+                {showStart && (
+                  <div style={{ width: COL.start }} className="shrink-0 text-right">
+                    <DateCell
+                      value={stage.start_date}
+                      editable={editable && !isSummary}
+                      onCommit={async (next) => {
+                        const a = parseISO(next);
+                        const end = addDays(a, Math.max(0, dur - 1));
+                        await commitBounds({
+                          start_date: next,
+                          end_date: format(end, "yyyy-MM-dd"),
+                        });
+                      }}
+                    />
+                  </div>
+                )}
 
                 {/* Due */}
-                <div style={{ width: COL.due }} className="shrink-0 text-right">
-                  <DateCell
-                    value={stage.end_date}
-                    editable={editable && !isSummary}
-                    onCommit={async (next) => {
-                      await commitBounds({
-                        start_date: stage.start_date,
-                        end_date: next,
-                      });
-                    }}
-                  />
-                </div>
+                {showDue && (
+                  <div style={{ width: COL.due }} className="shrink-0 text-right">
+                    <DateCell
+                      value={stage.end_date}
+                      editable={editable && !isSummary}
+                      onCommit={async (next) => {
+                        await commitBounds({
+                          start_date: stage.start_date,
+                          end_date: next,
+                        });
+                      }}
+                    />
+                  </div>
+                )}
 
                 {/* Budget */}
-                <div style={{ width: COL.budget }} className="shrink-0 text-right">
-                  <BudgetCell
-                    value={Number(stage.budget ?? 0)}
-                    summary={isSummary || hasChildren}
-                    editable={!!onUpdateStageBudget && !isSummary && !hasChildren}
-                    onCommit={async (n) => {
-                      await onUpdateStageBudget?.(stage.id, projectId, n);
-                    }}
-                  />
-                </div>
+                {showBudget && (
+                  <div style={{ width: COL.budget }} className="shrink-0 text-right">
+                    <BudgetCell
+                      value={Number(stage.budget ?? 0)}
+                      summary={isSummary || hasChildren}
+                      editable={!!onUpdateStageBudget && !isSummary && !hasChildren}
+                      onCommit={async (n) => {
+                        await onUpdateStageBudget?.(stage.id, projectId, n);
+                      }}
+                    />
+                  </div>
+                )}
 
                 {/* Dep */}
-                <div style={{ width: COL.dep }} className="shrink-0 pr-1 text-right text-[10px] tabular-nums text-muted-foreground">
-                  {dep ?? "—"}
-                </div>
+                {showDep && (
+                  <div style={{ width: COL.dep }} className="shrink-0 pr-1 text-right text-[10px] tabular-nums text-muted-foreground">
+                    {dep ?? "—"}
+                  </div>
+                )}
+
               </div>
 
               {/* Resource sub-list (unchanged behaviour) */}
