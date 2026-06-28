@@ -18,14 +18,15 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
+import { useQuoteAllocations, type QuoteAllocationWithResource } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
-import { rollupQuote } from "@/lib/quotes/financial-rollups";
+import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings, marginBand } from "@/lib/quotes/quote-warnings";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
 import { formatEUR, normalizeQuoteCategory } from "@/lib/crm/types";
 import { parseTimeBasedSettings } from "@/lib/quotes/time-based-settings";
+import type { QuoteStage } from "@/lib/quotes/types";
 
 type Accent = "good" | "bad" | "warn" | "muted" | "primary";
 
