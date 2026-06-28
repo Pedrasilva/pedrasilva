@@ -160,6 +160,7 @@ export function GanttChart({
   budgetByStage,
   budgetByAllocation,
   showFinancials,
+  impliedHourRate,
   milestones,
   hierarchy,
   collapsed,
