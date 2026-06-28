@@ -45,7 +45,7 @@ export const Route = createFileRoute("/_app/crm/opportunities")({
   component: OpportunitiesPage,
 });
 
-type QuoteRef = { id: string; updated_at: string; titulo: string | null; pipeline_status: string | null; quote_status: string | null; is_locked: boolean | null; archived_at: string | null };
+type QuoteRef = { id: string; updated_at: string; titulo: string | null; pipeline_status: string | null; quote_status: string | null; is_locked: boolean | null; archived_at: string | null; deleted_at: string | null };
 type Row = CrmOpportunity & {
   company: { id: string; nome: string } | null;
   contact: Pick<Contact, "id" | "primeiro_nome" | "apelido" | "titulo"> | null;
