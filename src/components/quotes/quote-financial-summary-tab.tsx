@@ -311,6 +311,18 @@ export function QuoteFinancialSummaryTab({
         </Card>
       </div>
 
+      {/* ARCHITECTURE STAGES — fee + estimated man-hours per stage.
+          For resource-based stages we show actual planned hours from
+          allocations; for fixed-fee stages we show implied hours derived
+          from the average HR sale rate. Suppliers are excluded. */}
+      <ArchitectureStagesCard
+        stages={stages}
+        allocations={allocations}
+        avgSaleRate={avgSaleRate}
+      />
+
+
+
       {/* PRICING CONTROL — editable multiplier, persists to fee_proposals */}
       <Card>
         <CardHeader>
