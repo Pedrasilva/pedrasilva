@@ -230,7 +230,42 @@ function OpportunitiesPage() {
                         }}
                         className="relative rounded-md border bg-background p-2 text-sm hover:border-primary/40 hover:shadow-sm transition cursor-pointer select-none"
                       >
-                        <div className="font-medium line-clamp-2 hover:underline">{o.name}</div>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="font-medium line-clamp-2 hover:underline flex-1">{o.name}</div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 -mr-1 -mt-1 shrink-0"
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                              >
+                                <MoreVertical className="h-3.5 w-3.5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenuItem onSelect={() => handleCardDoubleClick(o.id)}>
+                                <ExternalLink className="h-3.5 w-3.5 mr-2" /> {t("common.open", { defaultValue: "Open" })}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              {o.stage !== "lost" && (
+                                <DropdownMenuItem onSelect={() => archiveOpp.mutate(o.id)}>
+                                  <Archive className="h-3.5 w-3.5 mr-2" /> {t("common.archive", { defaultValue: "Archive" })}
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onSelect={() => {
+                                  if (window.confirm(t("opportunities.confirmDelete", { defaultValue: `Delete "${o.name}"? This cannot be undone.` }))) {
+                                    deleteOpp.mutate(o.id);
+                                  }
+                                }}
+                              >
+                                <Trash2 className="h-3.5 w-3.5 mr-2" /> {t("common.delete", { defaultValue: "Delete" })}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                         <div className="mt-1 text-xs text-muted-foreground line-clamp-1">
                           {o.company?.nome ?? t("opportunities.card.noCompany")}
                         </div>
