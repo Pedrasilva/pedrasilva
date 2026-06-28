@@ -117,6 +117,13 @@ const GROUPS: AdminGroup[] = [
         icon: Upload,
       },
       {
+        to: "/admin/backups",
+        label: "Backups (Google Drive)",
+        description:
+          "Cópias de segurança automáticas (diárias e semanais) e manuais de toda a base de dados, com auditoria e ligação ao ficheiro no Google Drive.",
+        icon: Database,
+      },
+      {
         to: "/admin/projects",
         label: "Projetos (admin)",
         description: "Ferramentas administrativas e de integridade para projetos.",
