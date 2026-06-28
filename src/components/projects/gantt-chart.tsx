@@ -82,6 +82,9 @@ interface Props {
    *  that have a budget but no resource allocations. Lets non-admin users
    *  see roughly how much effort a fixed-fee stage represents. */
   impliedHourRate?: number;
+  /** Optional avg cost-per-hour used to derive *implied* cost for stages
+   *  without resource allocations (paired with impliedHourRate). */
+  impliedCostRate?: number;
   /** Payment milestones to render in the lane above the stage rows. */
   milestones?: PaymentMilestone[];
   /**
@@ -161,6 +164,7 @@ export function GanttChart({
   budgetByAllocation,
   showFinancials,
   impliedHourRate,
+  impliedCostRate,
   milestones,
   hierarchy,
   collapsed,
@@ -1078,16 +1082,7 @@ export function GanttChart({
               });
               plannedHours += workingDays(aS, aE) * Number(a.hours_per_day);
             }
-            const margin = totalSale - totalCost;
-            const marginPct = totalSale > 0 ? (margin / totalSale) * 100 : 0;
             const budget = Number(stage.budget);
-            // Planning mode: compare cost against sale value (what the fee
-            // calculator is producing). Project mode: compare against the
-            // approved budget ceiling.
-            const compareValue = features.planningMode ? totalSale : budget;
-            const pct = compareValue > 0 ? Math.min(1, totalCost / compareValue) : 0;
-            const overPct = compareValue > 0 ? Math.max(0, totalCost / compareValue - 1) : 0;
-            const over = compareValue > 0 && totalCost > compareValue;
             // Implied hours: when a stage has no resource allocations but a
             // budget exists, derive effort from budget / avg sale rate so
             // users without financial access still see "≈Xh".
@@ -1097,6 +1092,22 @@ export function GanttChart({
                 : 0;
             const displayHours = plannedHours > 0 ? plannedHours : impliedHours;
             const hoursAreImplied = plannedHours === 0 && impliedHours > 0;
+            // When no resource allocations exist, derive cost/sale from
+            // implied hours × HR pricing averages so admins see expected
+            // figures rather than zeros.
+            if (hoursAreImplied) {
+              if (impliedCostRate && impliedCostRate > 0) totalCost = impliedHours * impliedCostRate;
+              if (impliedHourRate && impliedHourRate > 0) totalSale = impliedHours * impliedHourRate;
+            }
+            const margin = totalSale - totalCost;
+            const marginPct = totalSale > 0 ? (margin / totalSale) * 100 : 0;
+            // Planning mode: compare cost against sale value (what the fee
+            // calculator is producing). Project mode: compare against the
+            // approved budget ceiling.
+            const compareValue = features.planningMode ? totalSale : budget;
+            const pct = compareValue > 0 ? Math.min(1, totalCost / compareValue) : 0;
+            const overPct = compareValue > 0 ? Math.max(0, totalCost / compareValue - 1) : 0;
+            const over = compareValue > 0 && totalCost > compareValue;
             const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
             const allocRows = resHidden ? 0 : Math.max(stage.allocations.length, 0);
             const rowsHeight = allocRows * (ALLOC_ROW_H + 4);

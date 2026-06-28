@@ -98,6 +98,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   const adapter = useQuotePlannerAdapter(quoteId, resources);
   const { data: teamAvg } = useTeamPricingAverages();
   const impliedHourRate = teamAvg?.avgSalePerHour ?? 0;
+  const impliedCostRate = teamAvg?.avgCostPerHour ?? 0;
   const upsertStage = useUpsertQuoteStage(quoteId);
   const qc = useQueryClient();
   const [reflowing, setReflowing] = useState(false);
@@ -1183,6 +1184,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             onUpdateStageBudget={handleUpdateBudget}
             onAppendRoot={() => handleInsert(null, "below")}
             impliedHourRate={impliedHourRate}
+            impliedCostRate={impliedCostRate}
           />
           )}
         </div>
@@ -1237,6 +1239,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
   const adapter = useProjectPlannerAdapter(allResources, { readOnly: !isAdmin });
   const { data: teamAvg } = useTeamPricingAverages();
   const projectImpliedHourRate = teamAvg?.avgSalePerHour ?? 0;
+  const projectImpliedCostRate = teamAvg?.avgCostPerHour ?? 0;
   const { data: invoices } = useProjectInvoices(projectId);
   const createStage = useCreateProjectStage();
   const updateStage = useUpdateProjectStage();
@@ -1758,6 +1761,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             onUpdateStageBudget={isAdmin ? handleUpdateBudget : undefined}
             onAppendRoot={isAdmin ? () => handleInsert(null, "below") : undefined}
             impliedHourRate={projectImpliedHourRate}
+            impliedCostRate={projectImpliedCostRate}
           />
         </div>
         {selectedStageId && (
