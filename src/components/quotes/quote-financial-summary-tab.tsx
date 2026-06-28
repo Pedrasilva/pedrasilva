@@ -26,7 +26,9 @@ import { buildQuoteWarnings, marginBand } from "@/lib/quotes/quote-warnings";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
 import { formatEUR, normalizeQuoteCategory } from "@/lib/crm/types";
 import { parseTimeBasedSettings } from "@/lib/quotes/time-based-settings";
+import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
 import type { QuoteStage } from "@/lib/quotes/types";
+
 
 type Accent = "good" | "bad" | "warn" | "muted" | "primary";
 
@@ -118,26 +120,14 @@ export function QuoteFinancialSummaryTab({
     },
   });
 
-  // Average sale rate from active HR resources — used to translate fixed-fee
-  // architecture stages into an "implied man-hours" figure so the financial
-  // summary tells both the money and the effort story.
-  const { data: avgSaleRate = 0 } = useQuery({
-    queryKey: ["pm-resources-avg-sale-rate"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("pm_resources")
-        .select("hourly_rate, sale_rate")
-        .eq("active", true);
-      if (error) throw error;
-      const rates = (data ?? [])
-        .map((r: { hourly_rate: number | null; sale_rate: number | null }) =>
-          Number(r.sale_rate ?? r.hourly_rate ?? 0),
-        )
-        .filter((n) => n > 0);
-      if (rates.length === 0) return 0;
-      return rates.reduce((s, n) => s + n, 0) / rates.length;
-    },
-  });
+  // Team-wide average cost/h and sale/h from the HR pricing model — same
+  // formula as HR › Resumo › "Pricing — Project Team" (BO share +
+  // chargeability + global margin). Source of truth for translating
+  // fixed-fee architecture stages into implied hours, cost and profit.
+  const { data: teamAvg } = useTeamPricingAverages();
+  const avgSaleRate = teamAvg?.avgSalePerHour ?? 0;
+  const avgCostRate = teamAvg?.avgCostPerHour ?? 0;
+
 
   const allocations = allocsQ.data ?? [];
   const externalServices = extQ.data ?? [];
@@ -286,15 +276,18 @@ export function QuoteFinancialSummaryTab({
       </Card>
 
 
-      {/* ARCHITECTURE STAGES — fee + estimated man-hours per stage.
-          For resource-based stages we show actual planned hours from
-          allocations; for fixed-fee stages we show implied hours derived
-          from the average HR sale rate. Suppliers are excluded. */}
+      {/* ARCHITECTURE STAGES — fee + estimated man-hours + implied cost/profit.
+          Hours, cost and sale per hour come from the HR pricing model
+          (avg over Projecto collaborators, BO share + chargeability +
+          global margin). Resource-based stages use their actual planned
+          hours; fixed-fee stages derive implied hours from the avg sale/h. */}
       <ArchitectureStagesCard
         stages={stages}
         allocations={allocations}
         avgSaleRate={avgSaleRate}
+        avgCostRate={avgCostRate}
       />
+
 
 
 
@@ -468,41 +461,50 @@ function ArchitectureStagesCard({
   stages,
   allocations,
   avgSaleRate,
+  avgCostRate,
 }: {
   stages: QuoteStage[];
   allocations: QuoteAllocationWithResource[];
   avgSaleRate: number;
+  avgCostRate: number;
 }) {
   const { t } = useTranslation("crm");
   const roots = buildArchTree(stages, allocations);
   if (roots.length === 0) return null;
 
+  // Implied hours / cost: prefer real allocations; fall back to avg sale rate.
+  const impliedHoursFor = (fee: number, ownHours: number) =>
+    ownHours > 0 ? ownHours : avgSaleRate > 0 ? fee / avgSaleRate : 0;
+  const impliedCostFor = (hours: number) =>
+    avgCostRate > 0 ? hours * avgCostRate : 0;
+
   const grand = roots.reduce(
     (acc, n) => {
       const r = rollupNode(n);
-      const hours =
-        r.hours > 0
-          ? r.hours
-          : avgSaleRate > 0
-            ? r.fee / avgSaleRate
-            : 0;
+      const hours = impliedHoursFor(r.fee, r.hours);
+      const cost = impliedCostFor(hours);
       acc.fee += r.fee;
       acc.hours += hours;
+      acc.cost += cost;
       return acc;
     },
-    { fee: 0, hours: 0 },
+    { fee: 0, hours: 0, cost: 0 },
   );
+  const grandProfit = grand.fee - grand.cost;
+
 
   const renderRow = (node: ArchNode, depth: number): React.ReactNode => {
     const roll = rollupNode(node);
     const implied = roll.hours === 0 && roll.fee > 0 && avgSaleRate > 0;
-    const hoursValue = implied ? roll.fee / avgSaleRate : roll.hours;
+    const hoursValue = impliedHoursFor(roll.fee, roll.hours);
+    const cost = impliedCostFor(hoursValue);
+    const profit = roll.fee - cost;
     const isLeaf = node.children.length === 0;
 
     return (
       <div key={node.stage.id}>
         <div
-          className="grid grid-cols-[1fr_auto_auto] items-center gap-4 py-1.5 text-sm border-b border-border/40"
+          className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-4 py-1.5 text-sm border-b border-border/40"
           style={{ paddingLeft: depth * 16 }}
         >
           <span
@@ -519,6 +521,20 @@ function ArchitectureStagesCard({
           </span>
           <span className="tabular-nums text-right font-medium min-w-[8ch]">
             {formatEUR(roll.fee)}
+          </span>
+          <span className="tabular-nums text-right text-muted-foreground min-w-[8ch]">
+            {cost > 0 ? formatEUR(cost) : "—"}
+          </span>
+          <span
+            className={`tabular-nums text-right font-medium min-w-[8ch] ${
+              profit > 0
+                ? "text-emerald-600 dark:text-emerald-400"
+                : profit < 0
+                  ? "text-rose-600 dark:text-rose-400"
+                  : ""
+            }`}
+          >
+            {cost > 0 ? formatEUR(profit) : "—"}
           </span>
         </div>
         {isLeaf && node.ownByResource.size > 0 && (
@@ -546,7 +562,7 @@ function ArchitectureStagesCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
-        <div className="grid grid-cols-[1fr_auto_auto] gap-4 text-xs uppercase tracking-wide text-muted-foreground pb-1 border-b">
+        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 text-xs uppercase tracking-wide text-muted-foreground pb-1 border-b">
           <span>
             {t("workspace.financial.stageColumn", { defaultValue: "Fase" })}
           </span>
@@ -558,9 +574,15 @@ function ArchitectureStagesCard({
           <span className="text-right min-w-[8ch]">
             {t("workspace.financial.fee", { defaultValue: "Honorário" })}
           </span>
+          <span className="text-right min-w-[8ch]">
+            {t("workspace.financial.impliedCost", { defaultValue: "Custo" })}
+          </span>
+          <span className="text-right min-w-[8ch]">
+            {t("workspace.financial.impliedProfit", { defaultValue: "Lucro" })}
+          </span>
         </div>
         {roots.map((n) => renderRow(n, 0))}
-        <div className="grid grid-cols-[1fr_auto_auto] gap-4 pt-3 text-sm font-semibold">
+        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 pt-3 text-sm font-semibold">
           <span>
             {t("workspace.financial.total", { defaultValue: "Total" })}
           </span>
@@ -570,20 +592,35 @@ function ArchitectureStagesCard({
           <span className="tabular-nums text-right min-w-[8ch]">
             {formatEUR(grand.fee)}
           </span>
+          <span className="tabular-nums text-right text-muted-foreground min-w-[8ch]">
+            {grand.cost > 0 ? formatEUR(grand.cost) : "—"}
+          </span>
+          <span
+            className={`tabular-nums text-right min-w-[8ch] ${
+              grandProfit > 0
+                ? "text-emerald-600 dark:text-emerald-400"
+                : grandProfit < 0
+                  ? "text-rose-600 dark:text-rose-400"
+                  : ""
+            }`}
+          >
+            {grand.cost > 0 ? formatEUR(grandProfit) : "—"}
+          </span>
         </div>
-        {avgSaleRate > 0 ? (
+        {avgSaleRate > 0 || avgCostRate > 0 ? (
           <p className="text-xs text-muted-foreground pt-2">
-            {t("workspace.financial.impliedHoursHint", {
+            {t("workspace.financial.hrRateBasisHint", {
               defaultValue:
-                "≈ indica horas implícitas calculadas a partir da tarifa média de venda ({{rate}}/h) quando a fase não tem recursos alocados.",
-              rate: formatEUR(avgSaleRate),
+                "Custo e venda médios calculados a partir do HR › Pricing — Project Team (venda média {{sale}}/h, custo médio {{cost}}/h). ≈ indica horas implícitas em fases de valor fixo.",
+              sale: formatEUR(avgSaleRate),
+              cost: formatEUR(avgCostRate),
             })}
           </p>
         ) : (
           <p className="text-xs text-muted-foreground pt-2">
             {t("workspace.financial.noAvgRateHint", {
               defaultValue:
-                "Defina tarifas de venda nos recursos de RH para mostrar horas implícitas em fases de valor fixo.",
+                "Defina salários, custos operacionais e margem em RH para mostrar horas, custo e lucro implícitos.",
             })}
           </p>
         )}
@@ -591,3 +628,4 @@ function ArchitectureStagesCard({
     </Card>
   );
 }
+
