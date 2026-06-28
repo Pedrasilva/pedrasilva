@@ -154,12 +154,28 @@ function OpportunitiesPage() {
       });
 
       if (error) throw error;
+      return quoteId;
     },
-    onSuccess: () => {
-      toast.success("Orçamento eliminado (recuperável por um administrador)");
+    onSuccess: (quoteId) => {
       setConfirmDelete(null);
       setConfirmText("");
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+      toast.success("Orçamento eliminado", {
+        description: "Recuperável em Admin → Papelera de orçamentos",
+        duration: 10000,
+        action: {
+          label: "Anular",
+          onClick: async () => {
+            const { error } = await supabase.rpc("restore_fee_proposal", { _proposal_id: quoteId });
+            if (error) {
+              toast.error(error.message);
+              return;
+            }
+            qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+            toast.success("Orçamento restaurado");
+          },
+        },
+      });
     },
     onError: (e: Error) => toast.error(e.message),
   });
