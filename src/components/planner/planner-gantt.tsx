@@ -1182,6 +1182,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             onUpdateStageBounds={adapter.updateStage}
             onUpdateStageBudget={handleUpdateBudget}
             onAppendRoot={() => handleInsert(null, "below")}
+            impliedHourRate={impliedHourRate}
           />
           )}
         </div>
