@@ -508,9 +508,10 @@ function QuoteDetail() {
         const stageNameById = new Map<string, string>(
           qStages.map((s: { id: string; name: string }) => [s.id, s.name]),
         );
-        const baselineStageRows = (qStages as Array<{ name: string; start_date: string; end_date: string; budget: number | null; billing_model: string | null; stage_kind: string | null; sort_order: number | null }>).map((s, i) => ({
+        const baselineStageRows = (qStages as Array<{ name: string; parent_id: string | null; start_date: string; end_date: string; budget: number | null; billing_model: string | null; stage_kind: string | null; sort_order: number | null }>).map((s, i) => ({
           baseline_id: baselineRow.id,
           name: s.name,
+          parent_name: s.parent_id ? (stageNameById.get(s.parent_id) ?? null) : null,
           start_date: s.start_date,
           end_date: s.end_date,
           budget: Number(s.budget ?? 0),
