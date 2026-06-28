@@ -304,14 +304,56 @@ function OpportunityDetail() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs text-muted-foreground">{t("common.estimatedFee").replace(" (€)", "")}</Label>
-                  <div className="font-semibold">{formatEUR(Number(opp.estimated_fee))}</div>
+                  <Label className="text-xs text-muted-foreground">Estimated fee</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    className="h-8 mt-1 text-right tabular-nums"
+                    defaultValue={Number(opp.estimated_fee) || ""}
+                    onBlur={(e) => {
+                      const next = parseFloat(e.target.value) || 0;
+                      if (next !== Number(opp.estimated_fee)) {
+                        updateField.mutate({ estimated_fee: next });
+                      }
+                    }}
+                  />
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">{t("common.probability").replace(" (%)", "")}</Label>
-                  <div className="font-semibold">{opp.probability}%</div>
+                  <div className="font-semibold mt-1">{opp.probability}%</div>
                 </div>
               </div>
+              {(() => {
+                const actual = Object.values(quoteTotals).reduce((s, n) => s + n, 0);
+                const est = Number(opp.estimated_fee) || 0;
+                if (actual === 0 && est === 0) return null;
+                const delta = actual - est;
+                const pct = est > 0 ? (delta / est) * 100 : null;
+                const tone =
+                  delta === 0
+                    ? "text-muted-foreground"
+                    : delta > 0
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-destructive";
+                return (
+                  <div className="rounded-md border bg-muted/30 p-2 text-xs space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Quoted total</span>
+                      <span className="font-semibold tabular-nums">{formatEUR(actual)}</span>
+                    </div>
+                    {est > 0 && (
+                      <div className={cn("flex justify-between", tone)}>
+                        <span>vs estimate</span>
+                        <span className="tabular-nums">
+                          {delta >= 0 ? "+" : ""}{formatEUR(delta)}
+                          {pct !== null && ` (${pct >= 0 ? "+" : ""}${pct.toFixed(0)}%)`}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
               <div>
                 <Label className="text-xs text-muted-foreground">{t("opportunities.detail.source")}</Label>
                 <Select
