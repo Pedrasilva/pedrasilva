@@ -155,6 +155,20 @@ function OpportunityDetail() {
 
   const [quoteOpen, setQuoteOpen] = useState(false);
 
+  const reviseQuote = useMutation({
+    mutationFn: async (sourceId: string) => {
+      const { data, error } = await supabase.rpc("clone_fee_proposal_as_revision", { p_source: sourceId });
+      if (error) throw error;
+      return data as string;
+    },
+    onSuccess: (newId) => {
+      toast.success("Revisão criada");
+      qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp", opportunityId] });
+      navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: newId } });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   if (!opp) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
 
