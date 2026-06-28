@@ -1169,7 +1169,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             onToggleCollapse={toggleCollapse}
             resourcesCollapsed={resCollapsed}
             onToggleResourcesCollapse={toggleResCollapse}
-            outlineWidth={320}
+            outlineWidth={outlineWidth}
+            onResizeOutline={handleResizeOutline}
             embedded
             selectedStageId={selectedStageId}
             onSelectStage={(id) => setSelectedStageId(id === PROJECT_SUMMARY_ID ? null : id)}
@@ -1177,6 +1178,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             onReorderStage={handleReorder}
             onInsertStage={handleInsert}
             onDeleteStage={handleDelete}
+            onUpdateStageBounds={adapter.updateStage}
+            onUpdateStageBudget={handleUpdateBudget}
+            onAppendRoot={() => handleInsert(null, "below")}
           />
           )}
         </div>
