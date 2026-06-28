@@ -391,3 +391,228 @@ export function QuoteFinancialSummaryTab({
     </div>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Architecture stages breakdown
+// ---------------------------------------------------------------------------
+
+type ArchNode = {
+  stage: QuoteStage;
+  children: ArchNode[];
+  /** Planned hours from allocations attached to this stage (leaf only). */
+  ownHours: number;
+  /** Resource breakdown for leaf allocations (label → hours). */
+  ownByResource: Map<string, number>;
+};
+
+function buildArchTree(
+  stages: QuoteStage[],
+  allocations: QuoteAllocationWithResource[],
+): ArchNode[] {
+  const archStages = stages.filter(
+    (s) => s.is_self === true || s.stage_role === "architecture",
+  );
+  const archIds = new Set(archStages.map((s) => s.id));
+
+  const allocByStage = new Map<string, QuoteAllocationWithResource[]>();
+  for (const a of allocations) {
+    if (!a.stage_id || !archIds.has(a.stage_id)) continue;
+    const list = allocByStage.get(a.stage_id) ?? [];
+    list.push(a);
+    allocByStage.set(a.stage_id, list);
+  }
+
+  const nodeById = new Map<string, ArchNode>();
+  for (const s of archStages) {
+    const allocs = allocByStage.get(s.id) ?? [];
+    const byRes = new Map<string, number>();
+    let total = 0;
+    for (const a of allocs) {
+      const { hours } = quoteAllocationLine(a);
+      total += hours;
+      const label = a.resource?.name ?? "—";
+      byRes.set(label, (byRes.get(label) ?? 0) + hours);
+    }
+    nodeById.set(s.id, {
+      stage: s,
+      children: [],
+      ownHours: total,
+      ownByResource: byRes,
+    });
+  }
+
+  const roots: ArchNode[] = [];
+  for (const node of nodeById.values()) {
+    const parentId = node.stage.parent_stage_id;
+    if (parentId && nodeById.has(parentId)) {
+      nodeById.get(parentId)!.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+
+  const sortRec = (nodes: ArchNode[]) => {
+    nodes.sort(
+      (a, b) =>
+        (a.stage.sort_order ?? 0) - (b.stage.sort_order ?? 0) ||
+        (a.stage.start_date ?? "").localeCompare(b.stage.start_date ?? ""),
+    );
+    nodes.forEach((n) => sortRec(n.children));
+  };
+  sortRec(roots);
+
+  return roots;
+}
+
+function rollupNode(node: ArchNode): {
+  fee: number;
+  hours: number;
+  hasChildren: boolean;
+} {
+  if (node.children.length === 0) {
+    return {
+      fee: Number(node.stage.budget ?? 0) || 0,
+      hours: node.ownHours,
+      hasChildren: false,
+    };
+  }
+  let fee = 0;
+  let hours = 0;
+  for (const c of node.children) {
+    const r = rollupNode(c);
+    fee += r.fee;
+    hours += r.hours;
+  }
+  // If the parent has its own budget AND no children with budgets, fall back
+  // to its own value (covers groups where budget lives on the parent row).
+  if (fee === 0) fee = Number(node.stage.budget ?? 0) || 0;
+  return { fee, hours, hasChildren: true };
+}
+
+function ArchitectureStagesCard({
+  stages,
+  allocations,
+  avgSaleRate,
+}: {
+  stages: QuoteStage[];
+  allocations: QuoteAllocationWithResource[];
+  avgSaleRate: number;
+}) {
+  const { t } = useTranslation("crm");
+  const roots = buildArchTree(stages, allocations);
+  if (roots.length === 0) return null;
+
+  const grand = roots.reduce(
+    (acc, n) => {
+      const r = rollupNode(n);
+      const hours =
+        r.hours > 0
+          ? r.hours
+          : avgSaleRate > 0
+            ? r.fee / avgSaleRate
+            : 0;
+      acc.fee += r.fee;
+      acc.hours += hours;
+      return acc;
+    },
+    { fee: 0, hours: 0 },
+  );
+
+  const renderRow = (node: ArchNode, depth: number): React.ReactNode => {
+    const roll = rollupNode(node);
+    const implied = roll.hours === 0 && roll.fee > 0 && avgSaleRate > 0;
+    const hoursValue = implied ? roll.fee / avgSaleRate : roll.hours;
+    const isLeaf = node.children.length === 0;
+
+    return (
+      <div key={node.stage.id}>
+        <div
+          className="grid grid-cols-[1fr_auto_auto] items-center gap-4 py-1.5 text-sm border-b border-border/40"
+          style={{ paddingLeft: depth * 16 }}
+        >
+          <span
+            className={
+              roll.hasChildren ? "font-medium" : "text-foreground/90"
+            }
+          >
+            {node.stage.name}
+          </span>
+          <span className="tabular-nums text-right text-muted-foreground">
+            {hoursValue > 0
+              ? `${implied ? "≈ " : ""}${hoursValue.toFixed(0)} h`
+              : "—"}
+          </span>
+          <span className="tabular-nums text-right font-medium min-w-[8ch]">
+            {formatEUR(roll.fee)}
+          </span>
+        </div>
+        {isLeaf && node.ownByResource.size > 0 && (
+          <div
+            className="text-xs text-muted-foreground pb-1"
+            style={{ paddingLeft: depth * 16 + 16 }}
+          >
+            {[...node.ownByResource.entries()]
+              .map(([label, h]) => `${label}: ${h.toFixed(0)} h`)
+              .join(" · ")}
+          </div>
+        )}
+        {node.children.map((c) => renderRow(c, depth + 1))}
+      </div>
+    );
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">
+          {t("workspace.financial.architectureStagesTitle", {
+            defaultValue: "Arquitetura — honorários e horas estimadas",
+          })}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <div className="grid grid-cols-[1fr_auto_auto] gap-4 text-xs uppercase tracking-wide text-muted-foreground pb-1 border-b">
+          <span>
+            {t("workspace.financial.stageColumn", { defaultValue: "Fase" })}
+          </span>
+          <span className="text-right">
+            {t("workspace.financial.estimatedHours", {
+              defaultValue: "Horas estimadas",
+            })}
+          </span>
+          <span className="text-right min-w-[8ch]">
+            {t("workspace.financial.fee", { defaultValue: "Honorário" })}
+          </span>
+        </div>
+        {roots.map((n) => renderRow(n, 0))}
+        <div className="grid grid-cols-[1fr_auto_auto] gap-4 pt-3 text-sm font-semibold">
+          <span>
+            {t("workspace.financial.total", { defaultValue: "Total" })}
+          </span>
+          <span className="tabular-nums text-right">
+            {grand.hours > 0 ? `${grand.hours.toFixed(0)} h` : "—"}
+          </span>
+          <span className="tabular-nums text-right min-w-[8ch]">
+            {formatEUR(grand.fee)}
+          </span>
+        </div>
+        {avgSaleRate > 0 ? (
+          <p className="text-xs text-muted-foreground pt-2">
+            {t("workspace.financial.impliedHoursHint", {
+              defaultValue:
+                "≈ indica horas implícitas calculadas a partir da tarifa média de venda ({{rate}}/h) quando a fase não tem recursos alocados.",
+              rate: formatEUR(avgSaleRate),
+            })}
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground pt-2">
+            {t("workspace.financial.noAvgRateHint", {
+              defaultValue:
+                "Defina tarifas de venda nos recursos de RH para mostrar horas implícitas em fases de valor fixo.",
+            })}
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
