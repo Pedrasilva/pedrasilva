@@ -832,9 +832,8 @@ function QuoteDetail() {
           {(isProject || isRetainer) && visibleTabs.includes("planning") && (
             <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
           )}
-          {isProject && !isRetainer && visibleTabs.includes("external") && (
-            <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
-          )}
+
+
           {(isProject || isRetainer) && visibleTabs.includes("payment") && (
             <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
           )}
@@ -1019,11 +1018,8 @@ function QuoteDetail() {
             <TabsContent value="planning" className="mt-4">
               <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} isRetainer={isRetainer} />
             </TabsContent>
-            {isProject && !isRetainer && (
-              <TabsContent value="external" className="mt-4">
-                <QuoteExternalServicesTab quoteId={quoteId} />
-              </TabsContent>
-            )}
+
+
             <TabsContent value="payment" className="mt-4">
               <QuotePaymentScheduleTab quoteId={quoteId} />
             </TabsContent>
