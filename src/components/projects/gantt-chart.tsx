@@ -1082,16 +1082,7 @@ export function GanttChart({
               });
               plannedHours += workingDays(aS, aE) * Number(a.hours_per_day);
             }
-            const margin = totalSale - totalCost;
-            const marginPct = totalSale > 0 ? (margin / totalSale) * 100 : 0;
             const budget = Number(stage.budget);
-            // Planning mode: compare cost against sale value (what the fee
-            // calculator is producing). Project mode: compare against the
-            // approved budget ceiling.
-            const compareValue = features.planningMode ? totalSale : budget;
-            const pct = compareValue > 0 ? Math.min(1, totalCost / compareValue) : 0;
-            const overPct = compareValue > 0 ? Math.max(0, totalCost / compareValue - 1) : 0;
-            const over = compareValue > 0 && totalCost > compareValue;
             // Implied hours: when a stage has no resource allocations but a
             // budget exists, derive effort from budget / avg sale rate so
             // users without financial access still see "≈Xh".
@@ -1108,6 +1099,15 @@ export function GanttChart({
               if (impliedCostRate && impliedCostRate > 0) totalCost = impliedHours * impliedCostRate;
               if (impliedHourRate && impliedHourRate > 0) totalSale = impliedHours * impliedHourRate;
             }
+            const margin = totalSale - totalCost;
+            const marginPct = totalSale > 0 ? (margin / totalSale) * 100 : 0;
+            // Planning mode: compare cost against sale value (what the fee
+            // calculator is producing). Project mode: compare against the
+            // approved budget ceiling.
+            const compareValue = features.planningMode ? totalSale : budget;
+            const pct = compareValue > 0 ? Math.min(1, totalCost / compareValue) : 0;
+            const overPct = compareValue > 0 ? Math.max(0, totalCost / compareValue - 1) : 0;
+            const over = compareValue > 0 && totalCost > compareValue;
             const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
             const allocRows = resHidden ? 0 : Math.max(stage.allocations.length, 0);
             const rowsHeight = allocRows * (ALLOC_ROW_H + 4);
