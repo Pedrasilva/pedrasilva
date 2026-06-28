@@ -1741,7 +1741,8 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             onToggleCollapse={toggleCollapse}
             resourcesCollapsed={resCollapsed}
             onToggleResourcesCollapse={toggleResCollapse}
-            outlineWidth={320}
+            outlineWidth={outlineWidth}
+            onResizeOutline={handleResizeOutline}
             embedded
             selectedStageId={selectedStageId}
             onSelectStage={(id) => setSelectedStageId(id === PROJECT_MODE_SUMMARY_ID ? null : (id === selectedStageId ? null : id))}
@@ -1749,6 +1750,9 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             onReorderStage={isAdmin ? handleReorder : undefined}
             onInsertStage={isAdmin ? handleInsert : undefined}
             onDeleteStage={isAdmin ? handleDelete : undefined}
+            onUpdateStageBounds={isAdmin ? adapter.updateStage : undefined}
+            onUpdateStageBudget={isAdmin ? handleUpdateBudget : undefined}
+            onAppendRoot={isAdmin ? () => handleInsert(null, "below") : undefined}
           />
         </div>
         {selectedStageId && (
