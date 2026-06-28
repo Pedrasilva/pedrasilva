@@ -1757,6 +1757,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             onUpdateStageBounds={isAdmin ? adapter.updateStage : undefined}
             onUpdateStageBudget={isAdmin ? handleUpdateBudget : undefined}
             onAppendRoot={isAdmin ? () => handleInsert(null, "below") : undefined}
+            impliedHourRate={projectImpliedHourRate}
           />
         </div>
         {selectedStageId && (
