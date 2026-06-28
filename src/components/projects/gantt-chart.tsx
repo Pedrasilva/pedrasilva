@@ -1328,6 +1328,16 @@ export function GanttChart({
                         >
                           <div className="mb-2 text-sm font-semibold">{stage.name}</div>
                           <div className="space-y-1.5">
+                            {displayHours > 0 && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">
+                                  {hoursAreImplied ? "Horas (estimadas)" : "Horas"}
+                                </span>
+                                <span className="font-mono">
+                                  {hoursAreImplied ? "≈" : ""}{displayHours.toFixed(1)}h
+                                </span>
+                              </div>
+                            )}
                             <div className="flex items-center justify-between">
                               <span className="text-muted-foreground">{t("gantt.stage.fin.cost", { defaultValue: "Custo" })}</span>
                               <span className="font-mono">{euros(totalCost)}</span>
