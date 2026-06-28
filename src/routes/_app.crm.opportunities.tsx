@@ -452,19 +452,50 @@ function OpportunitiesPage() {
         }}
         isPending={createQuote.isPending}
       />
-      <AlertDialog open={!!confirmDelete} onOpenChange={(v) => !v && setConfirmDelete(null)}>
+      <AlertDialog
+        open={!!confirmDelete}
+        onOpenChange={(v) => {
+          if (!v) {
+            setConfirmDelete(null);
+            setConfirmText("");
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Eliminar orçamento?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acção é permanente e remove o orçamento &quot;{confirmDelete?.titulo ?? ""}&quot;.
-              Se preferir manter o histórico, arquive-o em vez de eliminar.
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p>
+                  Esta acção marca o orçamento como eliminado. Um snapshot
+                  completo (etapas, alocações, fornecedores, faturação e documento)
+                  é guardado no registo de auditoria e pode ser recuperado por um
+                  administrador.
+                </p>
+                <p>
+                  Para confirmar, escreva o título do orçamento abaixo:
+                  <br />
+                  <span className="font-mono text-foreground">
+                    {confirmDelete?.titulo ?? confirmDelete?.id.slice(0, 8) ?? ""}
+                  </span>
+                </p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <Input
+            autoFocus
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder="Escreva o título exato"
+          />
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleteQuote.isPending}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              disabled={deleteQuote.isPending}
+              disabled={
+                deleteQuote.isPending ||
+                confirmText.trim() !==
+                  (confirmDelete?.titulo ?? confirmDelete?.id.slice(0, 8) ?? "").trim()
+              }
               onClick={() => confirmDelete && deleteQuote.mutate(confirmDelete.id)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
@@ -473,6 +504,7 @@ function OpportunitiesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
     </div>
   );
 }
