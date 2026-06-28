@@ -474,7 +474,7 @@ function NewQuoteDialog({
   open, onClose, opportunityId, companyId, defaultTitle, defaultFee,
 }: {
   open: boolean; onClose: () => void;
-  opportunityId: string; companyId: string;
+  opportunityId: string; companyId: string | null;
   defaultTitle: string; defaultFee: number;
 }) {
   const { t } = useTranslation("crm");
@@ -484,6 +484,7 @@ function NewQuoteDialog({
   const { data: accounts = [] } = useQuery({
     queryKey: ["crm_accounts_by_company", companyId],
     queryFn: async () => {
+      if (!companyId) return [];
       const { data, error } = await supabase
         .from("crm_accounts")
         .select("id, name")
@@ -492,7 +493,7 @@ function NewQuoteDialog({
       if (error) throw error;
       return data as { id: string; name: string }[];
     },
-    enabled: open,
+    enabled: open && !!companyId,
   });
 
   const [step, setStep] = useState<1 | 2>(1);
