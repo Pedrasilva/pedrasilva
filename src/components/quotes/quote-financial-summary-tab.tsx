@@ -207,73 +207,8 @@ export function QuoteFinancialSummaryTab({
     <div className="space-y-6">
       <QuoteWarningsBanner warnings={warnings} />
 
-      {/* HEADLINE — Total Fee, Total Cost, Profit, Margin, Markup */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">
-            {t("workspace.financial.totalsTitle")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-          <HeadlineStat
-            label={t("workspace.financial.totalFee")}
-            value={formatEUR(summary.totalFee)}
-            accent="primary"
-            emphasis="hero"
-          />
-          <HeadlineStat
-            label={t("workspace.financial.totalCost")}
-            value={formatEUR(summary.total.cost)}
-            accent="muted"
-          />
-          <HeadlineStat
-            label={t("workspace.financial.totalProfit")}
-            value={formatEUR(summary.total.profit)}
-            accent={profitAccent}
-          />
-          <HeadlineStat
-            label={t("workspace.financial.effectiveMargin")}
-            value={`${(summary.effectiveMargin * 100).toFixed(1)}%`}
-            accent={marginAccent}
-            emphasis="hero"
-          />
-          <HeadlineStat
-            label={t("workspace.financial.markupOnCost")}
-            value={`${(markupOnCost * 100).toFixed(1)}%`}
-            accent={markupAccent}
-          />
-        </CardContent>
-      </Card>
 
-      {/* INTERNAL (architecture) breakdown — external services intentionally hidden */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">
-            {t("workspace.financial.internalTitle")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
-          <Cell
-            label={t("workspace.financial.internalHours")}
-            value={summary.internal.hours.toFixed(1)}
-            accent="muted"
-          />
-          <Cell
-            label={t("workspace.financial.internalCost")}
-            value={formatEUR(summary.internal.cost)}
-            accent="muted"
-          />
-          <Cell
-            label={t("workspace.financial.internalFee")}
-            value={formatEUR(summary.internal.value * summary.pricingMultiplier)}
-          />
-          <Cell
-            label={t("workspace.financial.internalProfit")}
-            value={formatEUR(internalProfit)}
-            accent={internalProfit >= 0 ? "good" : "bad"}
-          />
-        </CardContent>
-      </Card>
+
 
 
       {/* ARCHITECTURE STAGES — fee + estimated man-hours + implied cost/profit.
