@@ -1251,6 +1251,13 @@ export function GanttChart({
                               {Math.round((totalCost / compareValue) * 100)}%
                             </span>
                           )}
+                          {displayHours > 0 && (
+                            <span
+                              className="rounded bg-background/40 px-1.5 py-px font-mono text-[10px]"
+                              title={hoursAreImplied ? "Horas estimadas (orçamento / venda média/h)" : "Horas planeadas"}
+                            >
+                              {hoursAreImplied ? "≈" : ""}{Math.round(displayHours)}h
+                            </span>
                           {over && (
                             <span className="rounded bg-destructive px-1.5 py-px font-medium text-destructive-foreground">
                               {t("gantt.stage.overByAmount", { amount: euros(totalCost - compareValue) })}
