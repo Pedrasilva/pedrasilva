@@ -78,6 +78,10 @@ interface Props {
   budgetByStage?: Map<string, StageBudgetControl>;
   budgetByAllocation?: Map<string, AllocationActuals>;
   showFinancials?: boolean;
+  /** Optional avg sale-per-hour used to derive *implied* hours for stages
+   *  that have a budget but no resource allocations. Lets non-admin users
+   *  see roughly how much effort a fixed-fee stage represents. */
+  impliedHourRate?: number;
   /** Payment milestones to render in the lane above the stage rows. */
   milestones?: PaymentMilestone[];
   /**
@@ -156,6 +160,7 @@ export function GanttChart({
   budgetByStage,
   budgetByAllocation,
   showFinancials,
+  impliedHourRate,
   milestones,
   hierarchy,
   collapsed,
@@ -1053,6 +1058,7 @@ export function GanttChart({
 
             let totalCost = 0;
             let totalSale = 0;
+            let plannedHours = 0;
             for (const a of stage.allocations) {
               const aDraft = draftDates.get(a.id);
               const aS = aDraft?.start ?? shiftIso(a.start_date, stageShiftDays);
@@ -1070,6 +1076,7 @@ export function GanttChart({
                 hours_per_day: Number(a.hours_per_day),
                 hourly_rate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, isOverride),
               });
+              plannedHours += workingDays(aS, aE) * Number(a.hours_per_day);
             }
             const margin = totalSale - totalCost;
             const marginPct = totalSale > 0 ? (margin / totalSale) * 100 : 0;
@@ -1081,6 +1088,15 @@ export function GanttChart({
             const pct = compareValue > 0 ? Math.min(1, totalCost / compareValue) : 0;
             const overPct = compareValue > 0 ? Math.max(0, totalCost / compareValue - 1) : 0;
             const over = compareValue > 0 && totalCost > compareValue;
+            // Implied hours: when a stage has no resource allocations but a
+            // budget exists, derive effort from budget / avg sale rate so
+            // users without financial access still see "≈Xh".
+            const impliedHours =
+              plannedHours === 0 && budget > 0 && impliedHourRate && impliedHourRate > 0
+                ? budget / impliedHourRate
+                : 0;
+            const displayHours = plannedHours > 0 ? plannedHours : impliedHours;
+            const hoursAreImplied = plannedHours === 0 && impliedHours > 0;
             const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
             const allocRows = resHidden ? 0 : Math.max(stage.allocations.length, 0);
             const rowsHeight = allocRows * (ALLOC_ROW_H + 4);
@@ -1235,6 +1251,14 @@ export function GanttChart({
                               {Math.round((totalCost / compareValue) * 100)}%
                             </span>
                           )}
+                          {displayHours > 0 && (
+                            <span
+                              className="rounded bg-background/40 px-1.5 py-px font-mono text-[10px]"
+                              title={hoursAreImplied ? "Horas estimadas (orçamento / venda média/h)" : "Horas planeadas"}
+                            >
+                              {hoursAreImplied ? "≈" : ""}{Math.round(displayHours)}h
+                            </span>
+                          )}
                           {over && (
                             <span className="rounded bg-destructive px-1.5 py-px font-medium text-destructive-foreground">
                               {t("gantt.stage.overByAmount", { amount: euros(totalCost - compareValue) })}
@@ -1304,6 +1328,16 @@ export function GanttChart({
                         >
                           <div className="mb-2 text-sm font-semibold">{stage.name}</div>
                           <div className="space-y-1.5">
+                            {displayHours > 0 && (
+                              <div className="flex items-center justify-between">
+                                <span className="text-muted-foreground">
+                                  {hoursAreImplied ? "Horas (estimadas)" : "Horas"}
+                                </span>
+                                <span className="font-mono">
+                                  {hoursAreImplied ? "≈" : ""}{displayHours.toFixed(1)}h
+                                </span>
+                              </div>
+                            )}
                             <div className="flex items-center justify-between">
                               <span className="text-muted-foreground">{t("gantt.stage.fin.cost", { defaultValue: "Custo" })}</span>
                               <span className="font-mono">{euros(totalCost)}</span>

@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { addDays, differenceInCalendarDays, parseISO, format } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
+import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,6 +96,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   const resources = allResources;
 
   const adapter = useQuotePlannerAdapter(quoteId, resources);
+  const { data: teamAvg } = useTeamPricingAverages();
+  const impliedHourRate = teamAvg?.avgSalePerHour ?? 0;
   const upsertStage = useUpsertQuoteStage(quoteId);
   const qc = useQueryClient();
   const [reflowing, setReflowing] = useState(false);
@@ -1179,6 +1182,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             onUpdateStageBounds={adapter.updateStage}
             onUpdateStageBudget={handleUpdateBudget}
             onAppendRoot={() => handleInsert(null, "below")}
+            impliedHourRate={impliedHourRate}
           />
           )}
         </div>
@@ -1231,6 +1235,8 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
     [allResourcesData],
   );
   const adapter = useProjectPlannerAdapter(allResources, { readOnly: !isAdmin });
+  const { data: teamAvg } = useTeamPricingAverages();
+  const projectImpliedHourRate = teamAvg?.avgSalePerHour ?? 0;
   const { data: invoices } = useProjectInvoices(projectId);
   const createStage = useCreateProjectStage();
   const updateStage = useUpdateProjectStage();
@@ -1751,6 +1757,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             onUpdateStageBounds={isAdmin ? adapter.updateStage : undefined}
             onUpdateStageBudget={isAdmin ? handleUpdateBudget : undefined}
             onAppendRoot={isAdmin ? () => handleInsert(null, "below") : undefined}
+            impliedHourRate={projectImpliedHourRate}
           />
         </div>
         {selectedStageId && (
