@@ -94,8 +94,8 @@ export function ProjectFinancialTab({ projectId }: { projectId: string }) {
       if (itemsQ.error) throw itemsQ.error;
       if (stagesQ.error) throw stagesQ.error;
       return {
-        items: (itemsQ.data ?? []) as Row[],
-        stages: (stagesQ.data ?? []) as Stage[],
+        items: ((itemsQ.data ?? []) as unknown) as Row[],
+        stages: ((stagesQ.data ?? []) as unknown) as Stage[],
       };
     },
   });
