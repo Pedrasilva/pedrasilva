@@ -114,6 +114,12 @@ function netAmount(
   );
 }
 
+function formatShortDate(iso?: string | null): string {
+  if (!iso) return "—";
+  const [year, month, day] = iso.split("-");
+  return year && month && day ? `${day}/${month}/${year}` : iso;
+}
+
 function PaymentSubTable({
   rows,
   totalFee,
@@ -159,7 +165,14 @@ function PaymentSubTable({
           const invoiceLabel = `Fatura ${String(i + 1).padStart(2, "0")}`;
           return (
             <TableRow key={it.id}>
-              <TableCell className="font-medium">{labelFor ? labelFor(it) : it.label}</TableCell>
+              <TableCell>
+                <div className="font-medium tabular-nums">
+                  {formatShortDate(it.expected_invoice_date)}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {labelFor ? labelFor(it) : it.label}
+                </div>
+              </TableCell>
               <TableCell className="text-right tabular-nums">
                 {pct.toFixed(0)}%
               </TableCell>
