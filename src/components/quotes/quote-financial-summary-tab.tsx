@@ -276,15 +276,18 @@ export function QuoteFinancialSummaryTab({
       </Card>
 
 
-      {/* ARCHITECTURE STAGES — fee + estimated man-hours per stage.
-          For resource-based stages we show actual planned hours from
-          allocations; for fixed-fee stages we show implied hours derived
-          from the average HR sale rate. Suppliers are excluded. */}
+      {/* ARCHITECTURE STAGES — fee + estimated man-hours + implied cost/profit.
+          Hours, cost and sale per hour come from the HR pricing model
+          (avg over Projecto collaborators, BO share + chargeability +
+          global margin). Resource-based stages use their actual planned
+          hours; fixed-fee stages derive implied hours from the avg sale/h. */}
       <ArchitectureStagesCard
         stages={stages}
         allocations={allocations}
         avgSaleRate={avgSaleRate}
+        avgCostRate={avgCostRate}
       />
+
 
 
 
