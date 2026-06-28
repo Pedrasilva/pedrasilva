@@ -17,7 +17,7 @@
  * onAppendRoot (if provided).
  */
 import { useState, useRef, useEffect, useMemo } from "react";
-import { ChevronDown, ChevronRight, Briefcase, Box, Wrench, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, Briefcase, Box, Wrench, Plus, ChevronUp } from "lucide-react";
 import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
 import {
   ContextMenu,
