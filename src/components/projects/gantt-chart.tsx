@@ -108,6 +108,14 @@ interface Props {
   ) => Promise<unknown> | unknown;
   /** Delete a stage by id. */
   onDeleteStage?: (id: string) => Promise<unknown> | unknown;
+  /** Cascading bounds editor — wire to adapter.updateStage to inherit FS cascade. */
+  onUpdateStageBounds?: (args: { id: string; projectId: string; start_date: string; end_date: string }) => Promise<unknown> | unknown;
+  /** Budget edit for leaf rows (parents stay rollup). */
+  onUpdateStageBudget?: (id: string, projectId: string, budget: number) => Promise<unknown> | unknown;
+  /** Append a brand-new root stage from the trailing "+" row (used when empty). */
+  onAppendRoot?: () => Promise<unknown> | unknown;
+  /** Called while the user drags the WBS / Gantt splitter handle. */
+  onResizeOutline?: (width: number) => void;
 }
 
 const STAGE_ROW_H = 56;
