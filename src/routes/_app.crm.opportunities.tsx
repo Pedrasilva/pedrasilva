@@ -68,11 +68,13 @@ function OpportunitiesPage() {
       const { data, error } = await supabase
         .from("crm_opportunities")
         .select(
-          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id, updated_at)",
+          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id, updated_at, titulo, pipeline_status, quote_status, is_locked, archived_at)",
         )
         .order("updated_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as Row[];
+      const rows = (data ?? []) as unknown as Row[];
+      // hide archived quotes from card listings
+      return rows.map((r) => ({ ...r, quotes: (r.quotes ?? []).filter((q) => !q.archived_at) }));
     },
   });
 
