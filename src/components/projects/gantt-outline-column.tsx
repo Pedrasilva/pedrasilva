@@ -143,13 +143,30 @@ export function GanttOutlineColumn({
   const last = visibleStages[visibleStages.length - 1];
   const showInsertRow = !!(onInsertStage || onAppendRoot);
 
-  // Total inner width = name flex + fixed columns. Outer width = `width`.
-  const fixedTotal = COL.num + COL.dur + COL.start + COL.due + COL.budget + COL.dep;
-  const nameWidth = Math.max(140, width - fixedTotal - 16); // 16 = horiz padding
+  // Progressive column visibility — when the splitter shrinks the panel, drop
+  // the rightmost columns first so the Name column is the LAST to be covered.
+  // Hide order (first → last): Dep, Budget, Due, Start, Dur.
+  const NAME_MIN = 140;
+  const PAD = 16;
+  const base = COL.num + NAME_MIN + PAD;
+  const showDur = width >= base + COL.dur;
+  const showStart = showDur && width >= base + COL.dur + COL.start;
+  const showDue = showStart && width >= base + COL.dur + COL.start + COL.due;
+  const showBudget = showDue && width >= base + COL.dur + COL.start + COL.due + COL.budget;
+  const showDep = showBudget && width >= base + COL.dur + COL.start + COL.due + COL.budget + COL.dep;
+
+  const fixedTotal =
+    COL.num +
+    (showDur ? COL.dur : 0) +
+    (showStart ? COL.start : 0) +
+    (showDue ? COL.due : 0) +
+    (showBudget ? COL.budget : 0) +
+    (showDep ? COL.dep : 0);
+  const nameWidth = Math.max(NAME_MIN, width - fixedTotal - PAD);
 
   return (
     <div
-      className="sticky left-0 z-30 shrink-0 border-r border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+      className="sticky left-0 z-30 shrink-0 border-r border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 overflow-hidden"
       style={{ width, minWidth: width }}
     >
       {/* Header */}
@@ -162,13 +179,14 @@ export function GanttOutlineColumn({
         >
           <span style={{ width: COL.num }} className="text-center">#</span>
           <span style={{ width: nameWidth }} className="truncate">Milestones &amp; Tasks</span>
-          <span style={{ width: COL.dur }} className="text-right tabular-nums">Dur.</span>
-          <span style={{ width: COL.start }} className="text-right">Start</span>
-          <span style={{ width: COL.due }} className="text-right">Due</span>
-          <span style={{ width: COL.budget }} className="text-right">Budget</span>
-          <span style={{ width: COL.dep }} className="text-right">Dep.</span>
+          {showDur && <span style={{ width: COL.dur }} className="text-right tabular-nums">Dur.</span>}
+          {showStart && <span style={{ width: COL.start }} className="text-right">Start</span>}
+          {showDue && <span style={{ width: COL.due }} className="text-right">Due</span>}
+          {showBudget && <span style={{ width: COL.budget }} className="text-right">Budget</span>}
+          {showDep && <span style={{ width: COL.dep }} className="text-right">Dep.</span>}
         </div>
       </div>
+
 
       <div style={{ paddingTop: topPadding }}>
         {visibleStages.map((stage, i) => {
