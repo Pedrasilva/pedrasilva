@@ -26,7 +26,9 @@ import { buildQuoteWarnings, marginBand } from "@/lib/quotes/quote-warnings";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
 import { formatEUR, normalizeQuoteCategory } from "@/lib/crm/types";
 import { parseTimeBasedSettings } from "@/lib/quotes/time-based-settings";
+import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
 import type { QuoteStage } from "@/lib/quotes/types";
+
 
 type Accent = "good" | "bad" | "warn" | "muted" | "primary";
 
