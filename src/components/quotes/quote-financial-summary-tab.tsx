@@ -255,61 +255,36 @@ export function QuoteFinancialSummaryTab({
         </CardContent>
       </Card>
 
-      {/* SPLIT — Internal vs External, side-by-side on md+ */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {t("workspace.financial.internalTitle")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-6 sm:grid-cols-2">
-            <Cell
-              label={t("workspace.financial.internalHours")}
-              value={summary.internal.hours.toFixed(1)}
-              accent="muted"
-            />
-            <Cell
-              label={t("workspace.financial.internalCost")}
-              value={formatEUR(summary.internal.cost)}
-              accent="muted"
-            />
-            <Cell
-              label={t("workspace.financial.internalFee")}
-              value={formatEUR(summary.internal.value * summary.pricingMultiplier)}
-            />
-            <Cell
-              label={t("workspace.financial.internalProfit")}
-              value={formatEUR(internalProfit)}
-              accent={internalProfit >= 0 ? "good" : "bad"}
-            />
-          </CardContent>
-        </Card>
+      {/* INTERNAL (architecture) breakdown — external services intentionally hidden */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            {t("workspace.financial.internalTitle")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
+          <Cell
+            label={t("workspace.financial.internalHours")}
+            value={summary.internal.hours.toFixed(1)}
+            accent="muted"
+          />
+          <Cell
+            label={t("workspace.financial.internalCost")}
+            value={formatEUR(summary.internal.cost)}
+            accent="muted"
+          />
+          <Cell
+            label={t("workspace.financial.internalFee")}
+            value={formatEUR(summary.internal.value * summary.pricingMultiplier)}
+          />
+          <Cell
+            label={t("workspace.financial.internalProfit")}
+            value={formatEUR(internalProfit)}
+            accent={internalProfit >= 0 ? "good" : "bad"}
+          />
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {t("workspace.financial.externalTitle")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-6 sm:grid-cols-2">
-            <Cell
-              label={t("workspace.financial.externalCost")}
-              value={formatEUR(summary.external.cost)}
-              accent="muted"
-            />
-            <Cell
-              label={t("workspace.financial.externalFee")}
-              value={formatEUR(summary.external.value * summary.pricingMultiplier)}
-            />
-            <Cell
-              label={t("workspace.financial.externalProfit")}
-              value={formatEUR(externalProfit)}
-              accent={externalProfit >= 0 ? "good" : "bad"}
-            />
-          </CardContent>
-        </Card>
-      </div>
 
       {/* ARCHITECTURE STAGES — fee + estimated man-hours per stage.
           For resource-based stages we show actual planned hours from
