@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { runScheduledBackup, cronTriggerSchema } from "@/lib/backups/backup.functions";
+import { cronTriggerSchema } from "@/lib/backups/backup.functions";
 
 export const Route = createFileRoute("/api/public/hooks/run-backup")({
   server: {
@@ -21,7 +21,8 @@ export const Route = createFileRoute("/api/public/hooks/run-backup")({
           return Response.json({ error: "Invalid trigger" }, { status: 400 });
         }
         try {
-          const result = await runScheduledBackup(parsed.data.trigger);
+          const { performBackup } = await import("@/lib/backups/backup-core.server");
+          const result = await performBackup(parsed.data.trigger, null);
           return Response.json({ ok: true, ...result });
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err);
