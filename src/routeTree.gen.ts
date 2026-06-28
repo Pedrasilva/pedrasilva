@@ -47,8 +47,10 @@ import { Route as AppAdminProposalRolesRouteImport } from './routes/_app.admin.p
 import { Route as AppAdminProjectsRouteImport } from './routes/_app.admin.projects'
 import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports'
 import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin.company-settings'
+import { Route as AppAdminBackupsRouteImport } from './routes/_app.admin.backups'
 import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.finance.documents.index'
 import { Route as AppCrmOpportunitiesIndexRouteImport } from './routes/_app.crm.opportunities.index'
+import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_app.projects.$projectId.allocations'
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
@@ -275,6 +277,11 @@ const AppAdminCompanySettingsRoute = AppAdminCompanySettingsRouteImport.update({
   path: '/admin/company-settings',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminBackupsRoute = AppAdminBackupsRouteImport.update({
+  id: '/admin/backups',
+  path: '/admin/backups',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppFinanceDocumentsIndexRoute =
   AppFinanceDocumentsIndexRouteImport.update({
     id: '/documents/',
@@ -287,6 +294,11 @@ const AppCrmOpportunitiesIndexRoute =
     path: '/opportunities/',
     getParentRoute: () => AppCrmRoute,
   } as any)
+const ApiPublicHooksRunBackupRoute = ApiPublicHooksRunBackupRouteImport.update({
+  id: '/api/public/hooks/run-backup',
+  path: '/api/public/hooks/run-backup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppProjectsResourcesResourceIdRoute =
   AppProjectsResourcesResourceIdRouteImport.update({
     id: '/$resourceId',
@@ -494,6 +506,7 @@ export interface FileRoutesByFullPath {
   '/finance': typeof AppFinanceRouteWithChildren
   '/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
+  '/admin/backups': typeof AppAdminBackupsRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
@@ -560,6 +573,7 @@ export interface FileRoutesByFullPath {
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
+  '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents/': typeof AppFinanceDocumentsIndexRoute
 }
@@ -567,6 +581,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
+  '/admin/backups': typeof AppAdminBackupsRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
@@ -633,6 +648,7 @@ export interface FileRoutesByTo {
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
+  '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/crm/opportunities': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents': typeof AppFinanceDocumentsIndexRoute
 }
@@ -645,6 +661,7 @@ export interface FileRoutesById {
   '/_app/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/admin/backups': typeof AppAdminBackupsRoute
   '/_app/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/_app/admin/imports': typeof AppAdminImportsRoute
   '/_app/admin/projects': typeof AppAdminProjectsRoute
@@ -711,6 +728,7 @@ export interface FileRoutesById {
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/_app/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
+  '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/_app/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/_app/finance/documents/': typeof AppFinanceDocumentsIndexRoute
 }
@@ -723,6 +741,7 @@ export interface FileRouteTypes {
     | '/finance'
     | '/hr'
     | '/api/notify-expense'
+    | '/admin/backups'
     | '/admin/company-settings'
     | '/admin/imports'
     | '/admin/projects'
@@ -789,6 +808,7 @@ export interface FileRouteTypes {
     | '/hr/colaborador/$id'
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
+    | '/api/public/hooks/run-backup'
     | '/crm/opportunities/'
     | '/finance/documents/'
   fileRoutesByTo: FileRoutesByTo
@@ -796,6 +816,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/api/notify-expense'
     | '/'
+    | '/admin/backups'
     | '/admin/company-settings'
     | '/admin/imports'
     | '/admin/projects'
@@ -862,6 +883,7 @@ export interface FileRouteTypes {
     | '/hr/colaborador/$id'
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
+    | '/api/public/hooks/run-backup'
     | '/crm/opportunities'
     | '/finance/documents'
   id:
@@ -873,6 +895,7 @@ export interface FileRouteTypes {
     | '/_app/hr'
     | '/api/notify-expense'
     | '/_app/'
+    | '/_app/admin/backups'
     | '/_app/admin/company-settings'
     | '/_app/admin/imports'
     | '/_app/admin/projects'
@@ -939,6 +962,7 @@ export interface FileRouteTypes {
     | '/_app/hr/colaborador/$id'
     | '/_app/projects/$projectId/allocations'
     | '/_app/projects/resources/$resourceId'
+    | '/api/public/hooks/run-backup'
     | '/_app/crm/opportunities/'
     | '/_app/finance/documents/'
   fileRoutesById: FileRoutesById
@@ -947,6 +971,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
   ApiNotifyExpenseRoute: typeof ApiNotifyExpenseRoute
+  ApiPublicHooksRunBackupRoute: typeof ApiPublicHooksRunBackupRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1217,6 +1242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminCompanySettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/admin/backups': {
+      id: '/_app/admin/backups'
+      path: '/admin/backups'
+      fullPath: '/admin/backups'
+      preLoaderRoute: typeof AppAdminBackupsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/finance/documents/': {
       id: '/_app/finance/documents/'
       path: '/documents'
@@ -1230,6 +1262,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/crm/opportunities/'
       preLoaderRoute: typeof AppCrmOpportunitiesIndexRouteImport
       parentRoute: typeof AppCrmRoute
+    }
+    '/api/public/hooks/run-backup': {
+      id: '/api/public/hooks/run-backup'
+      path: '/api/public/hooks/run-backup'
+      fullPath: '/api/public/hooks/run-backup'
+      preLoaderRoute: typeof ApiPublicHooksRunBackupRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_app/projects/resources/$resourceId': {
       id: '/_app/projects/resources/$resourceId'
@@ -1667,6 +1706,7 @@ interface AppRouteChildren {
   AppFinanceRoute: typeof AppFinanceRouteWithChildren
   AppHrRoute: typeof AppHrRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
+  AppAdminBackupsRoute: typeof AppAdminBackupsRoute
   AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
   AppAdminImportsRoute: typeof AppAdminImportsRoute
   AppAdminProjectsRoute: typeof AppAdminProjectsRoute
@@ -1688,6 +1728,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppFinanceRoute: AppFinanceRouteWithChildren,
   AppHrRoute: AppHrRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
+  AppAdminBackupsRoute: AppAdminBackupsRoute,
   AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
   AppAdminImportsRoute: AppAdminImportsRoute,
   AppAdminProjectsRoute: AppAdminProjectsRoute,
@@ -1710,6 +1751,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
   ApiNotifyExpenseRoute: ApiNotifyExpenseRoute,
+  ApiPublicHooksRunBackupRoute: ApiPublicHooksRunBackupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

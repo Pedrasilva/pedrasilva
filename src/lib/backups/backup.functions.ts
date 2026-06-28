@@ -222,11 +222,17 @@ async function dumpAllTables(): Promise<{
       const all: unknown[] = [];
       // eslint-disable-next-line no-constant-condition
       while (true) {
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await (supabaseAdmin as unknown as {
+          from: (t: string) => {
+            select: (s: string) => {
+              range: (a: number, b: number) => Promise<{ data: unknown[] | null; error: { message: string } | null }>;
+            };
+          };
+        })
           .from(t)
           .select("*")
           .range(from, from + pageSize - 1);
-        if (error) throw error;
+        if (error) throw new Error(error.message);
         const rows = data ?? [];
         all.push(...rows);
         if (rows.length < pageSize) break;
