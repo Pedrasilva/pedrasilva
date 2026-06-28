@@ -293,7 +293,7 @@ function OpportunitiesPage() {
                             ? t("opportunities.card.quotesCount", { count: quoteCount })
                             : t("opportunities.card.noQuotes")}
                         </div>
-                        <div className="mt-2 flex items-center justify-end">
+                        <div className="mt-2 flex items-center justify-end gap-1">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -308,6 +308,66 @@ function OpportunitiesPage() {
                                 : t("opportunities.card.createQuote")}
                             <ArrowRight className="h-3 w-3 ml-1" />
                           </Button>
+                          {quoteCount > 0 && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                  aria-label="Ações do orçamento"
+                                >
+                                  <MoreVertical className="h-3.5 w-3.5" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent
+                                align="end"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <DropdownMenuLabel className="text-xs">Orçamentos</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {[...(o.quotes ?? [])]
+                                  .sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""))
+                                  .map((q) => (
+                                    <div key={q.id} className="px-1 py-1">
+                                      <div className="px-2 pb-1 text-[11px] text-muted-foreground line-clamp-1">
+                                        {q.titulo || q.id.slice(0, 8)}
+                                        {q.pipeline_status ? ` · ${q.pipeline_status}` : ""}
+                                        {q.is_locked ? " · 🔒" : ""}
+                                      </div>
+                                      <DropdownMenuItem
+                                        onSelect={(e) => {
+                                          e.preventDefault();
+                                          navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: q.id } });
+                                        }}
+                                      >
+                                        <ExternalLink className="h-3.5 w-3.5" /> Abrir
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        disabled={archiveQuote.isPending || !!q.is_locked}
+                                        onSelect={(e) => {
+                                          e.preventDefault();
+                                          archiveQuote.mutate(q.id);
+                                        }}
+                                      >
+                                        <Archive className="h-3.5 w-3.5" /> Arquivar
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        disabled={!!q.is_locked}
+                                        className="text-destructive focus:text-destructive"
+                                        onSelect={(e) => {
+                                          e.preventDefault();
+                                          setConfirmDelete(q);
+                                        }}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5" /> Eliminar
+                                      </DropdownMenuItem>
+                                    </div>
+                                  ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
                         </div>
                       </div>
                     );
