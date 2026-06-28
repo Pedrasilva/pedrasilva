@@ -13,6 +13,7 @@ import {
   Users,
   Settings,
   Database,
+  Trash2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/admin/")({
