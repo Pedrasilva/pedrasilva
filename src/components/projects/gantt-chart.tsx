@@ -1058,6 +1058,7 @@ export function GanttChart({
 
             let totalCost = 0;
             let totalSale = 0;
+            let plannedHours = 0;
             for (const a of stage.allocations) {
               const aDraft = draftDates.get(a.id);
               const aS = aDraft?.start ?? shiftIso(a.start_date, stageShiftDays);
@@ -1075,6 +1076,7 @@ export function GanttChart({
                 hours_per_day: Number(a.hours_per_day),
                 hourly_rate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, isOverride),
               });
+              plannedHours += workingDays(aS, aE) * Number(a.hours_per_day);
             }
             const margin = totalSale - totalCost;
             const marginPct = totalSale > 0 ? (margin / totalSale) * 100 : 0;
@@ -1086,6 +1088,15 @@ export function GanttChart({
             const pct = compareValue > 0 ? Math.min(1, totalCost / compareValue) : 0;
             const overPct = compareValue > 0 ? Math.max(0, totalCost / compareValue - 1) : 0;
             const over = compareValue > 0 && totalCost > compareValue;
+            // Implied hours: when a stage has no resource allocations but a
+            // budget exists, derive effort from budget / avg sale rate so
+            // users without financial access still see "≈Xh".
+            const impliedHours =
+              plannedHours === 0 && budget > 0 && impliedHourRate && impliedHourRate > 0
+                ? budget / impliedHourRate
+                : 0;
+            const displayHours = plannedHours > 0 ? plannedHours : impliedHours;
+            const hoursAreImplied = plannedHours === 0 && impliedHours > 0;
             const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
             const allocRows = resHidden ? 0 : Math.max(stage.allocations.length, 0);
             const rowsHeight = allocRows * (ALLOC_ROW_H + 4);
