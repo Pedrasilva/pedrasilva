@@ -342,6 +342,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       stage_role?: string | null;
       parent_stage_id?: string | null;
       supplier_company_id?: string | null;
+      is_self?: boolean | null;
     };
     const all = regular as S[];
 
