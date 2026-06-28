@@ -832,9 +832,8 @@ function QuoteDetail() {
           {(isProject || isRetainer) && visibleTabs.includes("planning") && (
             <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
           )}
-          {isProject && !isRetainer && visibleTabs.includes("external") && (
-            <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
-          )}
+
+
           {(isProject || isRetainer) && visibleTabs.includes("payment") && (
             <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
           )}
