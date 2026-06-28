@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AdminOnly } from "@/components/AdminOnly";
+import { BackupInspectorDialog } from "@/components/admin/backup-inspector-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ExternalLink, RefreshCw, Database, FolderOpen, Loader2 } from "lucide-react";
+import { ExternalLink, RefreshCw, Database, FolderOpen, Loader2, Eye } from "lucide-react";
 import {
   getBackupConfig,
   listBackupRuns,
