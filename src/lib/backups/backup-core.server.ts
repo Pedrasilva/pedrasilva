@@ -226,13 +226,20 @@ async function dumpAllTables() {
   return { payload, rowCount, tableCount, errors };
 }
 
+function extractFolderId(raw: string): string {
+  const trimmed = raw.trim();
+  const m = trimmed.match(/folders\/([a-zA-Z0-9_-]+)/) ?? trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  return (m ? m[1] : trimmed).replace(/[?#].*$/, "");
+}
+
 export async function performBackup(trigger: Trigger, triggeredBy: string | null) {
-  const rootFolderId = process.env.BACKUP_DRIVE_FOLDER_ID?.trim();
-  if (!rootFolderId) {
+  const raw = process.env.BACKUP_DRIVE_FOLDER_ID?.trim();
+  if (!raw) {
     throw new Error(
       "BACKUP_DRIVE_FOLDER_ID is not configured. Set it to the Google Drive folder ID where backups should be uploaded.",
     );
   }
+  const rootFolderId = extractFolderId(raw);
 
   const { data: runIns, error: runErr } = await supabaseAdmin
     .from("backup_runs")

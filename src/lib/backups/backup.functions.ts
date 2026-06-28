@@ -33,7 +33,12 @@ export const getBackupConfig = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context.userId);
     const { BACKUP_TABLES } = await import("./backup-core.server");
-    const folder = process.env.BACKUP_DRIVE_FOLDER_ID?.trim() ?? null;
+    const raw = process.env.BACKUP_DRIVE_FOLDER_ID?.trim() ?? null;
+    const folder = raw
+      ? (raw.match(/folders\/([a-zA-Z0-9_-]+)/)?.[1] ??
+          raw.match(/[?&]id=([a-zA-Z0-9_-]+)/)?.[1] ??
+          raw.replace(/[?#].*$/, ""))
+      : null;
     return {
       driveFolderId: folder,
       configured: !!folder,
