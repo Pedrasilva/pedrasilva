@@ -54,7 +54,7 @@ export function useContractVariance(projectId: string | undefined) {
     queryFn: async (): Promise<LiveStage[]> => {
       const { data, error } = await supabase
         .from("pm_stages")
-        .select("id,name,parent_id,start_date,end_date,budget,status")
+        .select("id,name,parent_stage_id,start_date,end_date,budget,status")
         .eq("project_id", projectId!);
       if (error) throw new Error(error.message);
       return (data ?? []) as LiveStage[];
@@ -68,7 +68,7 @@ export function useContractVariance(projectId: string | undefined) {
     const liveById = new Map(live.data.map((s) => [s.id, s]));
     const liveIndex = new Map<string, LiveStage>();
     for (const s of live.data) {
-      const parent = s.parent_id ? liveById.get(s.parent_id) ?? null : null;
+      const parent = s.parent_stage_id ? liveById.get(s.parent_stage_id) ?? null : null;
       const key = `${norm(parent?.name ?? null)}|${norm(s.name)}`;
       liveIndex.set(key, s);
     }
@@ -132,7 +132,7 @@ export function useContractVariance(projectId: string | undefined) {
 
     // Added (live stages with no baseline twin).
     for (const s of live.data) {
-      const parent = s.parent_id ? liveById.get(s.parent_id) ?? null : null;
+      const parent = s.parent_stage_id ? liveById.get(s.parent_stage_id) ?? null : null;
       const key = `${norm(parent?.name ?? null)}|${norm(s.name)}`;
       if (seen.has(key)) continue;
       rows.push({
