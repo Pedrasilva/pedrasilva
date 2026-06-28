@@ -120,26 +120,14 @@ export function QuoteFinancialSummaryTab({
     },
   });
 
-  // Average sale rate from active HR resources — used to translate fixed-fee
-  // architecture stages into an "implied man-hours" figure so the financial
-  // summary tells both the money and the effort story.
-  const { data: avgSaleRate = 0 } = useQuery({
-    queryKey: ["pm-resources-avg-sale-rate"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("pm_resources")
-        .select("hourly_rate, sale_rate")
-        .eq("active", true);
-      if (error) throw error;
-      const rates = (data ?? [])
-        .map((r: { hourly_rate: number | null; sale_rate: number | null }) =>
-          Number(r.sale_rate ?? r.hourly_rate ?? 0),
-        )
-        .filter((n) => n > 0);
-      if (rates.length === 0) return 0;
-      return rates.reduce((s, n) => s + n, 0) / rates.length;
-    },
-  });
+  // Team-wide average cost/h and sale/h from the HR pricing model — same
+  // formula as HR › Resumo › "Pricing — Project Team" (BO share +
+  // chargeability + global margin). Source of truth for translating
+  // fixed-fee architecture stages into implied hours, cost and profit.
+  const { data: teamAvg } = useTeamPricingAverages();
+  const avgSaleRate = teamAvg?.avgSalePerHour ?? 0;
+  const avgCostRate = teamAvg?.avgCostPerHour ?? 0;
+
 
   const allocations = allocsQ.data ?? [];
   const externalServices = extQ.data ?? [];
