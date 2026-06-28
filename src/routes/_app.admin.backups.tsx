@@ -162,7 +162,16 @@ function BackupsPage() {
                     <th className="py-2 pr-4">Linhas</th>
                     <th className="py-2 pr-4">Tamanho</th>
                     <th className="py-2 pr-4">Drive</th>
+                    <th className="py-2 pr-4">Inspecionar</th>
                   </tr>
+                </thead>
+                <tbody>
+                  {runsQ.isLoading && (
+                    <tr><td colSpan={8} className="py-4 text-center text-muted-foreground">A carregar…</td></tr>
+                  )}
+                  {!runsQ.isLoading && (runsQ.data?.length ?? 0) === 0 && (
+                    <tr><td colSpan={8} className="py-4 text-center text-muted-foreground">Sem backups ainda.</td></tr>
+                  )}
                 </thead>
                 <tbody>
                   {runsQ.isLoading && (
