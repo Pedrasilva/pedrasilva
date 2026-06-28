@@ -9,7 +9,7 @@ import { useContractBaseline } from "@/lib/projects/use-contract-baseline";
 type LiveStage = {
   id: string;
   name: string;
-  parent_id: string | null;
+  parent_stage_id: string | null;
   start_date: string;
   end_date: string;
   budget: number | string | null;
