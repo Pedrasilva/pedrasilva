@@ -12,6 +12,7 @@ import {
   Wallet,
   Users,
   Settings,
+  Database,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/admin/")({
