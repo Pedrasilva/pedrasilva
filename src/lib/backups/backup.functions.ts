@@ -28,6 +28,33 @@ export const listBackupRuns = createServerFn({ method: "GET" })
     return listAllBackupRuns();
   });
 
+export const inspectBackup = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { runId: string }) => d)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { inspectBackupSummary } = await import("./backup-inspect.server");
+    return inspectBackupSummary(data.runId);
+  });
+
+export const previewBackupTable = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { runId: string; table: string; search?: string }) => d)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { previewBackupTable: fn } = await import("./backup-inspect.server");
+    return fn(data.runId, data.table, data.search ?? "");
+  });
+
+export const searchBackup = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { runId: string; search: string }) => d)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { searchAcrossBackup } = await import("./backup-inspect.server");
+    return searchAcrossBackup(data.runId, data.search);
+  });
+
 export const getBackupConfig = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
