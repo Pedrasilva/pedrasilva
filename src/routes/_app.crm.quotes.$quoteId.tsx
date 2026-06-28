@@ -766,6 +766,16 @@ function QuoteDetail() {
         </div>
       </div>
 
+      {isLocked && (
+        <QuoteLockBanner
+          projectId={quote.pm_project_id ?? lockedProjectId}
+          projectName={null}
+          isAdmin={isAdmin}
+        />
+      )}
+
+      <fieldset disabled={isLocked && !isAdmin} className="contents">
+
       <QuoteWorkflowStepper
         step={step}
         onChange={setStep}
