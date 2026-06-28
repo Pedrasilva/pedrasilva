@@ -31,7 +31,9 @@ import {
   type FeeProposal, type QuoteStatus, type FeeStructureType,
 } from "@/lib/crm/types";
 import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
+import { QuoteExternalServicesTab } from "@/components/quotes/quote-external-services-tab";
 import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
+import { QuoteFinancialSummaryTab } from "@/components/quotes/quote-financial-summary-tab";
 import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
 import { ApplyTemplateDialog } from "@/components/quotes/apply-template-dialog";
 import { QuoteTimeBasedSettingsTab } from "@/components/quotes/quote-time-based-settings-tab";
@@ -830,8 +832,14 @@ function QuoteDetail() {
           {(isProject || isRetainer) && visibleTabs.includes("planning") && (
             <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
           )}
+          {isProject && !isRetainer && visibleTabs.includes("external") && (
+            <TabsTrigger value="external">{t("workspace.tabs.external")}</TabsTrigger>
+          )}
           {(isProject || isRetainer) && visibleTabs.includes("payment") && (
             <TabsTrigger value="payment">{t("workspace.tabs.payment")}</TabsTrigger>
+          )}
+          {visibleTabs.includes("financial") && (
+            <TabsTrigger value="financial">{t("workspace.tabs.financial")}</TabsTrigger>
           )}
           {visibleTabs.includes("proposal") && (
             <TabsTrigger value="proposal">{t("workspace.tabs.proposal")}</TabsTrigger>
@@ -1011,11 +1019,19 @@ function QuoteDetail() {
             <TabsContent value="planning" className="mt-4">
               <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} isRetainer={isRetainer} />
             </TabsContent>
+            {isProject && !isRetainer && (
+              <TabsContent value="external" className="mt-4">
+                <QuoteExternalServicesTab quoteId={quoteId} />
+              </TabsContent>
+            )}
             <TabsContent value="payment" className="mt-4">
               <QuotePaymentScheduleTab quoteId={quoteId} />
             </TabsContent>
           </>
         )}
+        <TabsContent value="financial" className="mt-4">
+          <QuoteFinancialSummaryTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
+        </TabsContent>
         <TabsContent value="proposal" className="mt-4 space-y-3">
           <div className="flex justify-end">
             <ApplyTemplateDialog
