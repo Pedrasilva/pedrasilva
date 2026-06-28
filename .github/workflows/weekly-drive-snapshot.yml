@@ -1,0 +1,140 @@
+name: Weekly Drive Snapshot
+
+# Zips the repo at HEAD and uploads it to a Google Drive folder for off-site
+# backup. Runs every Sunday 03:00 UTC, and can also be triggered manually.
+#
+# Required GitHub repository secrets (Settings → Secrets and variables → Actions):
+#   GDRIVE_SERVICE_ACCOUNT_JSON  Full JSON key of a Google service account that
+#                                has Editor access to the destination Drive folder.
+#   GDRIVE_FOLDER_ID             ID of the destination Drive folder.
+#                                Default below points to the project's backup folder.
+
+on:
+  schedule:
+    - cron: "0 3 * * 0" # Sundays 03:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    env:
+      DEFAULT_FOLDER_ID: "1WmumPvDqVzZx7vOIZc6rz340O9eTk1FP"
+      WEEKLY_RETENTION: "12"
+      MONTHLY_RETENTION: "12"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Compute snapshot metadata
+        id: meta
+        run: |
+          set -euo pipefail
+          YEAR=$(date -u +%G)
+          WEEK=$(date -u +%V)
+          MONTH=$(date -u +%Y-%m)
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          BASENAME="${YEAR}-W${WEEK}_${SHORT_SHA}_app.zip"
+          MONTHLY_NAME="${MONTH}_${SHORT_SHA}_app.zip"
+          echo "weekly_name=$BASENAME"   >> "$GITHUB_OUTPUT"
+          echo "monthly_name=$MONTHLY_NAME" >> "$GITHUB_OUTPUT"
+          echo "month_tag=$MONTH"        >> "$GITHUB_OUTPUT"
+          echo "is_first_sunday=$([ $(date -u +%d) -le 07 ] && echo yes || echo no)" >> "$GITHUB_OUTPUT"
+
+      - name: Build zip
+        id: zip
+        run: |
+          set -euo pipefail
+          OUT="/tmp/${{ steps.meta.outputs.weekly_name }}"
+          # Archive HEAD via git so .gitignore'd files (node_modules, .env, etc.) are excluded.
+          git archive --format=zip -o "$OUT" HEAD
+          ls -lh "$OUT"
+          echo "path=$OUT" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Google API client
+        run: pip install --quiet google-api-python-client google-auth
+
+      - name: Upload to Drive and prune old snapshots
+        env:
+          GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+          ZIP_PATH: ${{ steps.zip.outputs.path }}
+          WEEKLY_NAME: ${{ steps.meta.outputs.weekly_name }}
+          MONTHLY_NAME: ${{ steps.meta.outputs.monthly_name }}
+          IS_FIRST_SUNDAY: ${{ steps.meta.outputs.is_first_sunday }}
+        run: |
+          python - <<'PY'
+          import io, json, os, sys, re
+          from datetime import datetime
+          from google.oauth2 import service_account
+          from googleapiclient.discovery import build
+          from googleapiclient.http import MediaFileUpload
+
+          sa_json = os.environ.get("GDRIVE_SERVICE_ACCOUNT_JSON")
+          if not sa_json:
+              sys.exit("Missing secret GDRIVE_SERVICE_ACCOUNT_JSON")
+          root_folder = os.environ.get("GDRIVE_FOLDER_ID") or os.environ.get("DEFAULT_FOLDER_ID") or "1WmumPvDqVzZx7vOIZc6rz340O9eTk1FP"
+
+          creds = service_account.Credentials.from_service_account_info(
+              json.loads(sa_json),
+              scopes=["https://www.googleapis.com/auth/drive"],
+          )
+          drive = build("drive", "v3", credentials=creds, cache_discovery=False)
+
+          def ensure_subfolder(parent_id, name):
+              q = (
+                  f"'{parent_id}' in parents and name = '{name}' "
+                  f"and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
+              )
+              r = drive.files().list(q=q, fields="files(id,name)", supportsAllDrives=True,
+                                     includeItemsFromAllDrives=True).execute()
+              if r["files"]:
+                  return r["files"][0]["id"]
+              meta = {"name": name, "mimeType": "application/vnd.google-apps.folder",
+                      "parents": [parent_id]}
+              f = drive.files().create(body=meta, fields="id", supportsAllDrives=True).execute()
+              return f["id"]
+
+          app_root  = ensure_subfolder(root_folder, "app-snapshots")
+          weekly    = ensure_subfolder(app_root, "weekly")
+          monthly   = ensure_subfolder(app_root, "monthly")
+
+          def upload(folder_id, name, path):
+              media = MediaFileUpload(path, mimetype="application/zip", resumable=False)
+              meta  = {"name": name, "parents": [folder_id]}
+              f = drive.files().create(body=meta, media_body=media,
+                                       fields="id,name,webViewLink,size",
+                                       supportsAllDrives=True).execute()
+              print(f"Uploaded {name} -> {f.get('webViewLink')} ({f.get('size')} bytes)")
+
+          def prune(folder_id, keep):
+              r = drive.files().list(
+                  q=f"'{folder_id}' in parents and trashed = false",
+                  fields="files(id,name,createdTime)",
+                  orderBy="createdTime desc",
+                  pageSize=200,
+                  supportsAllDrives=True,
+                  includeItemsFromAllDrives=True,
+              ).execute()
+              files = r.get("files", [])
+              for old in files[keep:]:
+                  print(f"Pruning {old['name']} ({old['createdTime']})")
+                  drive.files().delete(fileId=old["id"], supportsAllDrives=True).execute()
+
+          upload(weekly, os.environ["WEEKLY_NAME"], os.environ["ZIP_PATH"])
+          prune(weekly, int(os.environ.get("WEEKLY_RETENTION", "12")))
+
+          # First Sunday of the month → also write a monthly snapshot.
+          if os.environ.get("IS_FIRST_SUNDAY") == "yes":
+              upload(monthly, os.environ["MONTHLY_NAME"], os.environ["ZIP_PATH"])
+              prune(monthly, int(os.environ.get("MONTHLY_RETENTION", "12")))
+          PY
