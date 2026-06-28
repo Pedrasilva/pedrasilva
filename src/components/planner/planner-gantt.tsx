@@ -1163,8 +1163,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             onInsertStage={handleInsert}
             onDeleteStage={handleDelete}
           />
-
+          )}
         </div>
+
         {selectedStageId && (
           <QuotePlannerInspector
             quoteId={quoteId}
