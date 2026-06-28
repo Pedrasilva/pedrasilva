@@ -123,6 +123,31 @@ function OpportunitiesPage() {
     navigate({ to: "/crm/opportunities/$opportunityId", params: { opportunityId: oppId } });
   };
 
+  const archiveOpp = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("crm_opportunities").update({ stage: "lost" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("opportunities.archivedToast", { defaultValue: "Opportunity archived" }));
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const deleteOpp = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("crm_opportunities").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("opportunities.deletedToast", { defaultValue: "Opportunity deleted" }));
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
   const byStage = OPPORTUNITY_STAGES.map((s) => ({
     ...s,
     label: t(`stage.${s.value}`),
