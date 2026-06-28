@@ -1342,6 +1342,22 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
   const [zoom, setZoom] = useState<ZoomMode>("fit");
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+  const [outlineWidth, setOutlineWidth] = useState<number>(() => {
+    if (typeof window === "undefined") return 420;
+    const v = Number(window.localStorage.getItem("planner.outlineWidth.project"));
+    return Number.isFinite(v) && v >= 280 && v <= 900 ? v : 420;
+  });
+  const handleResizeOutline = useCallback((w: number) => {
+    setOutlineWidth(w);
+    try { window.localStorage.setItem("planner.outlineWidth.project", String(w)); } catch { /* ignore */ }
+  }, []);
+  const handleUpdateBudget = useCallback(
+    async (id: string, _projectId: string, budget: number) => {
+      if (!isAdmin) return;
+      await updateStage.mutateAsync({ id, patch: { budget }, projectId });
+    },
+    [isAdmin, updateStage, projectId],
+  );
   useEffect(() => { setZoom("fit"); }, [projectId]);
 
   const chartRef = useRef<HTMLDivElement | null>(null);
