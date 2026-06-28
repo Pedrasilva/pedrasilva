@@ -938,22 +938,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
     );
   }
 
-  if (mappedStages.length === 0) {
-    return (
-      <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-        <span>{t("workspace.planning.noStages")}</span>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => handleInsert(null, "below")}
-          disabled={upsertStage.isPending}
-        >
-          <Plus className="mr-1.5 h-3.5 w-3.5" />
-          {t("workspace.planning.addStage", { defaultValue: "Add stage" })}
-        </Button>
-      </div>
-    );
-  }
+  const isEmpty = mappedStages.length === 0;
+
 
   return (
     <div className="space-y-2">
