@@ -92,6 +92,27 @@ function OpportunityDetail() {
     },
   });
 
+  const quoteIds = quotes.map((q) => q.id);
+  const { data: quoteTotals = {} } = useQuery({
+    queryKey: ["fee_proposal_totals", quoteIds.join(",")],
+    queryFn: async () => {
+      if (quoteIds.length === 0) return {} as Record<string, number>;
+      const { data, error } = await supabase
+        .from("quote_payment_schedule_items")
+        .select("quote_id, amount_value, direction")
+        .in("quote_id", quoteIds)
+        .eq("direction", "inflow");
+      if (error) throw error;
+      const totals: Record<string, number> = {};
+      for (const r of (data ?? []) as { quote_id: string; amount_value: number }[]) {
+        totals[r.quote_id] = (totals[r.quote_id] ?? 0) + Number(r.amount_value ?? 0);
+      }
+      return totals;
+    },
+    enabled: quoteIds.length > 0,
+  });
+
+
   const updateStage = useMutation({
     mutationFn: async (stage: OpportunityStage) => {
       const { error } = await supabase
