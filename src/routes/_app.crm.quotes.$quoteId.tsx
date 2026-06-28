@@ -1018,10 +1018,7 @@ function QuoteDetail() {
             <TabsContent value="planning" className="mt-4">
               <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} isRetainer={isRetainer} />
             </TabsContent>
-            {isProject && !isRetainer && (
-              <TabsContent value="external" className="mt-4">
-                <QuoteExternalServicesTab quoteId={quoteId} />
-              </TabsContent>
+
             )}
             <TabsContent value="payment" className="mt-4">
               <QuotePaymentScheduleTab quoteId={quoteId} />
