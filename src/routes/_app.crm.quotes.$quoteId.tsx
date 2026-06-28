@@ -551,6 +551,75 @@ function QuoteDetail() {
         }
       }
 
+      // 4c. Copy live editable payment schedule → pm_payment_schedule_items.
+      //     Stage IDs are remapped through stageIdMap. For retainer parents
+      //     that exploded into per-month children, we point the copy to the
+      //     parent's pm_stages row (the parent ID is also in stageIdMap).
+      //     invoice_group_id is regenerated per old-group so grouping stays
+      //     intact on the project side without colliding with quote ids.
+      const { data: qPaymentsLive } = await db
+        .from("quote_payment_schedule_items")
+        .select("*")
+        .eq("quote_id", quote.id)
+        .order("sort_order", { ascending: true });
+      const groupIdMap = new Map<string, string>();
+      const itemIdMap = new Map<string, string>();
+      // Two-pass: insert first (linked_payment_item_id NULL), then patch links.
+      if (qPaymentsLive && qPaymentsLive.length > 0) {
+        for (const p of qPaymentsLive as Array<Record<string, unknown>>) {
+          let newGroup: string | null = null;
+          if (p.invoice_group_id) {
+            const key = String(p.invoice_group_id);
+            newGroup = groupIdMap.get(key) ?? crypto.randomUUID();
+            groupIdMap.set(key, newGroup);
+          }
+          const mappedStage = p.stage_id ? (stageIdMap.get(String(p.stage_id)) ?? null) : null;
+          const { data: inserted, error: insErr } = await db
+            .from("pm_payment_schedule_items")
+            .insert({
+              project_id: project.id,
+              stage_id: mappedStage,
+              label: p.label,
+              trigger_type: p.trigger_type,
+              amount_type: p.amount_type,
+              amount_value: Number(p.amount_value ?? 0),
+              expected_invoice_date: p.expected_invoice_date ?? null,
+              expected_payment_date: p.expected_payment_date ?? null,
+              sort_order: p.sort_order ?? 0,
+              notes: p.notes ?? null,
+              manual_override: !!p.manual_override,
+              generator_source: p.generator_source ?? null,
+              direction: p.direction ?? "inflow",
+              supplier_company_id: p.supplier_company_id ?? null,
+              payment_offset_days: p.payment_offset_days ?? 0,
+              vat_rate: Number(p.vat_rate ?? 23),
+              vat_rate_override: !!p.vat_rate_override,
+              payment_terms: p.payment_terms ?? null,
+              supplier_id: p.supplier_id ?? null,
+              supplier_label: p.supplier_label ?? null,
+              invoice_group_id: newGroup,
+              billing_status: p.billing_status ?? "planned",
+              source_quote_payment_item_id: p.id,
+            })
+            .select("id")
+            .single();
+          if (insErr) throw insErr;
+          itemIdMap.set(String(p.id), String(inserted.id));
+        }
+        // Patch linked_payment_item_id second pass
+        for (const p of qPaymentsLive as Array<Record<string, unknown>>) {
+          if (!p.linked_payment_item_id) continue;
+          const newId = itemIdMap.get(String(p.id));
+          const newLink = itemIdMap.get(String(p.linked_payment_item_id));
+          if (!newId || !newLink) continue;
+          await db
+            .from("pm_payment_schedule_items")
+            .update({ linked_payment_item_id: newLink })
+            .eq("id", newId);
+        }
+      }
+
+
       // 5. Link the project back to the quote and mark opportunity as won.
       const { error: linkErr } = await supabase
         .from("fee_proposals")
