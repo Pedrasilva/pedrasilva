@@ -52,6 +52,7 @@ import { useProjectExpenses } from "@/lib/projects/use-project-expenses";
 import { ExternalServicesSection } from "@/components/projects/external-services-section";
 import { ProjectExpensesSection } from "@/components/projects/project-expenses-section";
 import { ProjectBillingTab } from "@/components/finance/project-billing-tab";
+import { ProjectFinancialTab } from "@/components/projects/project-financial-tab";
 import { HardDeleteProjectButton } from "@/components/projects/hard-delete-project-button";
 import { useHistoricalProjectTotals, EMPTY_HISTORICAL_TOTALS, type HistoricalProjectTotals } from "@/lib/projects/use-historical-time";
 import { useStageBudgetControl } from "@/lib/projects/use-stage-budget-control";
@@ -98,7 +99,7 @@ export const Route = createFileRoute("/_app/projects/$projectId")({
   component: ProjectDetail,
 });
 
-type TabKey = "overview" | "schedule" | "materials" | "expenses" | "rates" | "billing" | "insights" | "stream";
+type TabKey = "overview" | "schedule" | "materials" | "expenses" | "rates" | "billing" | "financial" | "insights" | "stream";
 
 function ProjectDetail() {
   const { t } = useTranslation();
@@ -511,6 +512,7 @@ function ProjectDetail() {
             <TabBtn icon={Package} label={t("projects:detail.tabs.materials")} active={tab === "materials"} onClick={() => setTab("materials")} />
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
             <TabBtn icon={FileText} label={t("projects:detail.tabs.billing")} active={tab === "billing"} onClick={() => setTab("billing")} />
+            <TabBtn icon={Receipt} label="Financial" active={tab === "financial"} onClick={() => setTab("financial")} />
           </div>
           <button
             onClick={() => setSidebarOpen((v) => !v)}
@@ -777,6 +779,12 @@ function ProjectDetail() {
             {tab === "billing" && (
               <div className="mt-4">
                 <ProjectBillingTab projectId={projectId} />
+              </div>
+            )}
+
+            {tab === "financial" && (
+              <div className="mt-4">
+                <ProjectFinancialTab projectId={projectId} />
               </div>
             )}
 
