@@ -464,7 +464,7 @@ function OpportunityDetail() {
                               </span>
                             )}
                           </span>
-                          <span className="font-medium shrink-0">{formatEUR(Number(q.valor))}</span>
+                          <span className="font-medium shrink-0 tabular-nums">{formatEUR(quoteTotals[q.id] ?? Number(q.valor))}</span>
                         </Link>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
