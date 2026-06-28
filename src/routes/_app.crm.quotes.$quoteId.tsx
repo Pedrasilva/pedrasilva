@@ -46,6 +46,8 @@ import {
 } from "@/components/quotes/quote-workflow-stepper";
 import { QuotePublishStep } from "@/components/quotes/quote-publish-step";
 import { SaveAsTemplateDialog } from "@/components/quotes/save-as-template-dialog";
+import { QuoteLockBanner } from "@/components/quotes/quote-lock-banner";
+import { useAuth } from "@/hooks/use-auth";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
@@ -79,6 +81,7 @@ function QuoteDetail() {
   const { quoteId } = Route.useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { isAdmin } = useAuth();
 
   const { data: quote, isLoading } = useQuery({
     queryKey: ["fee_proposal", quoteId],
@@ -658,6 +661,10 @@ function QuoteDetail() {
   const pricingMultiplier = Number(form.pricing_multiplier) || 1;
   const category = normalizeQuoteCategory(quote.quote_category);
   const isProject = category === "project";
+  // Phase 1 lock — set by DB trigger when status=approved + project linked.
+  const lockMeta = quote as unknown as { is_locked?: boolean; locked_project_id?: string | null };
+  const isLocked = !!lockMeta.is_locked;
+  const lockedProjectId = lockMeta.locked_project_id ?? null;
 
   // Soft completion signals for the stepper. Non-blocking — these only
   // drive the visual tick on each step.
@@ -762,6 +769,16 @@ function QuoteDetail() {
           </Button>
         </div>
       </div>
+
+      {isLocked && (
+        <QuoteLockBanner
+          projectId={quote.pm_project_id ?? lockedProjectId}
+          projectName={null}
+          isAdmin={isAdmin}
+        />
+      )}
+
+      <fieldset disabled={isLocked && !isAdmin} className="contents">
 
       <QuoteWorkflowStepper
         step={step}
@@ -1034,6 +1051,8 @@ function QuoteDetail() {
           />
         </TabsContent>
       </Tabs>
+
+      </fieldset>
 
       {/* Convert dialog — owned exclusively by the dedicated Convert
           button. Cannot be triggered as a side-effect of approval. */}

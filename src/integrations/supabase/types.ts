@@ -1904,6 +1904,9 @@ export type Database = {
           fee_structure_type: Database["public"]["Enums"]["crm_fee_structure"]
           first_payment_terms: string
           id: string
+          is_locked: boolean
+          locked_at: string | null
+          locked_project_id: string | null
           notas: string | null
           ontology_bootstrapped_at: string | null
           ontology_delivery_mode: string | null
@@ -1948,6 +1951,9 @@ export type Database = {
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           first_payment_terms?: string
           id?: string
+          is_locked?: boolean
+          locked_at?: string | null
+          locked_project_id?: string | null
           notas?: string | null
           ontology_bootstrapped_at?: string | null
           ontology_delivery_mode?: string | null
@@ -1992,6 +1998,9 @@ export type Database = {
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           first_payment_terms?: string
           id?: string
+          is_locked?: boolean
+          locked_at?: string | null
+          locked_project_id?: string | null
           notas?: string | null
           ontology_bootstrapped_at?: string | null
           ontology_delivery_mode?: string | null
@@ -2059,6 +2068,13 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_proposals_locked_project_id_fkey"
+            columns: ["locked_project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
             referencedColumns: ["id"]
           },
           {
