@@ -17,7 +17,7 @@
  * onAppendRoot (if provided).
  */
 import { useState, useRef, useEffect, useMemo } from "react";
-import { ChevronDown, ChevronRight, Briefcase, Box, Wrench, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, Briefcase, Box, Wrench, Plus, ChevronUp } from "lucide-react";
 import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
 import {
   ContextMenu,
@@ -265,8 +265,33 @@ export function GanttOutlineColumn({
                 {/* Name column */}
                 <div
                   style={{ width: nameWidth, paddingLeft: depth * 12 }}
-                  className="flex min-w-0 items-start gap-1"
+                  className="flex min-w-0 items-start gap-1 group/row"
                 >
+                  {onReorderStage && (() => {
+                    const lastSeg = parseInt((wbs.split(".").pop() ?? "1"), 10) || 1;
+                    return (
+                      <div className="mt-0.5 flex shrink-0 flex-col opacity-0 group-hover/row:opacity-100 transition-opacity">
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); onReorderStage(stage.id, lastSeg - 1); }}
+                          className="flex h-2.5 w-3.5 items-center justify-center rounded hover:bg-muted"
+                          aria-label="Move up"
+                          title="Move up"
+                        >
+                          <ChevronUp className="h-2.5 w-2.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); onReorderStage(stage.id, lastSeg + 1); }}
+                          className="flex h-2.5 w-3.5 items-center justify-center rounded hover:bg-muted"
+                          aria-label="Move down"
+                          title="Move down"
+                        >
+                          <ChevronDown className="h-2.5 w-2.5" />
+                        </button>
+                      </div>
+                    );
+                  })()}
                   {chevronMode !== "none" ? (
                     <button
                       type="button"
