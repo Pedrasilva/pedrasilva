@@ -12,10 +12,28 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Target, LayoutGrid, List, FileText, ArrowRight, Briefcase, Clock, Repeat2 } from "lucide-react";
+import { Plus, Target, LayoutGrid, List, FileText, ArrowRight, Briefcase, Clock, Repeat2, MoreVertical, Archive, Trash2, ExternalLink } from "lucide-react";
 import { QuoteTemplatePicker } from "@/components/quotes/quote-template-picker";
 import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";
 import { CompanyPicker } from "@/components/crm/company-picker";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import {
   formatEUR, OPPORTUNITY_STAGES, type CrmOpportunity, type OpportunityStage,
@@ -27,10 +45,11 @@ export const Route = createFileRoute("/_app/crm/opportunities")({
   component: OpportunitiesPage,
 });
 
+type QuoteRef = { id: string; updated_at: string; titulo: string | null; pipeline_status: string | null; quote_status: string | null; is_locked: boolean | null; archived_at: string | null };
 type Row = CrmOpportunity & {
   company: { id: string; nome: string } | null;
   contact: Pick<Contact, "id" | "primeiro_nome" | "apelido" | "titulo"> | null;
-  quotes: { id: string; updated_at: string }[];
+  quotes: QuoteRef[];
 };
 
 function OpportunitiesPage() {
@@ -49,11 +68,13 @@ function OpportunitiesPage() {
       const { data, error } = await supabase
         .from("crm_opportunities")
         .select(
-          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id, updated_at)",
+          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id, updated_at, titulo, pipeline_status, quote_status, is_locked, archived_at)",
         )
         .order("updated_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as Row[];
+      const rows = (data ?? []) as unknown as Row[];
+      // hide archived quotes from card listings
+      return rows.map((r) => ({ ...r, quotes: (r.quotes ?? []).filter((q) => !q.archived_at) }));
     },
   });
 
@@ -100,6 +121,36 @@ function OpportunitiesPage() {
       setCreatingFor(null);
       setChooserOpp(null);
     },
+  });
+
+  const [confirmDelete, setConfirmDelete] = useState<QuoteRef | null>(null);
+
+  const archiveQuote = useMutation({
+    mutationFn: async (quoteId: string) => {
+      const { error } = await supabase
+        .from("fee_proposals")
+        .update({ archived_at: new Date().toISOString() })
+        .eq("id", quoteId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Orçamento arquivado");
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const deleteQuote = useMutation({
+    mutationFn: async (quoteId: string) => {
+      const { error } = await supabase.from("fee_proposals").delete().eq("id", quoteId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Orçamento eliminado");
+      setConfirmDelete(null);
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const handleQuoteAction = (e: React.MouseEvent, opp: Row) => {
@@ -242,7 +293,7 @@ function OpportunitiesPage() {
                             ? t("opportunities.card.quotesCount", { count: quoteCount })
                             : t("opportunities.card.noQuotes")}
                         </div>
-                        <div className="mt-2 flex items-center justify-end">
+                        <div className="mt-2 flex items-center justify-end gap-1">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -257,6 +308,66 @@ function OpportunitiesPage() {
                                 : t("opportunities.card.createQuote")}
                             <ArrowRight className="h-3 w-3 ml-1" />
                           </Button>
+                          {quoteCount > 0 && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                  aria-label="Ações do orçamento"
+                                >
+                                  <MoreVertical className="h-3.5 w-3.5" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent
+                                align="end"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <DropdownMenuLabel className="text-xs">Orçamentos</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {[...(o.quotes ?? [])]
+                                  .sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""))
+                                  .map((q) => (
+                                    <div key={q.id} className="px-1 py-1">
+                                      <div className="px-2 pb-1 text-[11px] text-muted-foreground line-clamp-1">
+                                        {q.titulo || q.id.slice(0, 8)}
+                                        {q.pipeline_status ? ` · ${q.pipeline_status}` : ""}
+                                        {q.is_locked ? " · 🔒" : ""}
+                                      </div>
+                                      <DropdownMenuItem
+                                        onSelect={(e) => {
+                                          e.preventDefault();
+                                          navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: q.id } });
+                                        }}
+                                      >
+                                        <ExternalLink className="h-3.5 w-3.5" /> Abrir
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        disabled={archiveQuote.isPending || !!q.is_locked}
+                                        onSelect={(e) => {
+                                          e.preventDefault();
+                                          archiveQuote.mutate(q.id);
+                                        }}
+                                      >
+                                        <Archive className="h-3.5 w-3.5" /> Arquivar
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        disabled={!!q.is_locked}
+                                        className="text-destructive focus:text-destructive"
+                                        onSelect={(e) => {
+                                          e.preventDefault();
+                                          setConfirmDelete(q);
+                                        }}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5" /> Eliminar
+                                      </DropdownMenuItem>
+                                    </div>
+                                  ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
                         </div>
                       </div>
                     );
@@ -329,6 +440,27 @@ function OpportunitiesPage() {
         }}
         isPending={createQuote.isPending}
       />
+      <AlertDialog open={!!confirmDelete} onOpenChange={(v) => !v && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar orçamento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acção é permanente e remove o orçamento &quot;{confirmDelete?.titulo ?? ""}&quot;.
+              Se preferir manter o histórico, arquive-o em vez de eliminar.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteQuote.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteQuote.isPending}
+              onClick={() => confirmDelete && deleteQuote.mutate(confirmDelete.id)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
