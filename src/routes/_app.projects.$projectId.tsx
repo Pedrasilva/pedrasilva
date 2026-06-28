@@ -511,6 +511,7 @@ function ProjectDetail() {
             <TabBtn icon={Package} label={t("projects:detail.tabs.materials")} active={tab === "materials"} onClick={() => setTab("materials")} />
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
             <TabBtn icon={FileText} label={t("projects:detail.tabs.billing")} active={tab === "billing"} onClick={() => setTab("billing")} />
+            <TabBtn icon={Receipt} label="Financial" active={tab === "financial"} onClick={() => setTab("financial")} />
           </div>
           <button
             onClick={() => setSidebarOpen((v) => !v)}
