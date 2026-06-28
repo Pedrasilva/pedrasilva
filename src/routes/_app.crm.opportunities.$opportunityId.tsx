@@ -13,7 +13,8 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, FileText, Trash2, AlertTriangle, Calendar as CalendarIcon, Mail, Phone, User } from "lucide-react";
+import { ArrowLeft, Plus, FileText, Trash2, AlertTriangle, Calendar as CalendarIcon, Mail, Phone, User, Copy, MoreHorizontal } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activity-timeline";
 import { InlineEditableTitle } from "@/components/inline-editable-title";
 import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
