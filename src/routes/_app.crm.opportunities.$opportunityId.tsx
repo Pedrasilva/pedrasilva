@@ -13,7 +13,8 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, FileText, Trash2, AlertTriangle, Calendar as CalendarIcon, Mail, Phone, User } from "lucide-react";
+import { ArrowLeft, Plus, FileText, Trash2, AlertTriangle, Calendar as CalendarIcon, Mail, Phone, User, Copy, MoreHorizontal } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { OpportunityActivityTimeline } from "@/components/crm/opportunity-activity-timeline";
 import { InlineEditableTitle } from "@/components/inline-editable-title";
 import { OPPORTUNITY_SOURCES, type OpportunitySource } from "@/lib/crm/types";
@@ -153,6 +154,20 @@ function OpportunityDetail() {
   });
 
   const [quoteOpen, setQuoteOpen] = useState(false);
+
+  const reviseQuote = useMutation({
+    mutationFn: async (sourceId: string) => {
+      const { data, error } = await supabase.rpc("clone_fee_proposal_as_revision", { p_source: sourceId });
+      if (error) throw error;
+      return data as string;
+    },
+    onSuccess: (newId) => {
+      toast.success("Revisão criada");
+      qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp", opportunityId] });
+      navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: newId } });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("common.loading")}</p>;
   if (!opp) return <p className="text-sm text-muted-foreground">{t("common.notFound")}</p>;
@@ -357,13 +372,8 @@ function OpportunityDetail() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm">{t("opportunities.detail.quotesSection")}</CardTitle>
-              {opp.company_id && (
-                <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => setQuoteOpen(true)}>
-                  <Plus className="h-3.5 w-3.5" />
-                </Button>
-              )}
             </CardHeader>
-            <CardContent className="text-sm">
+            <CardContent className="text-sm space-y-2">
               {quotes.length === 0 ? (
                 <div className="flex flex-col items-center gap-1 py-3 text-xs text-muted-foreground">
                   <FileText className="h-5 w-5 opacity-50" />
@@ -373,24 +383,53 @@ function OpportunityDetail() {
                 <ul className="space-y-1">
                   {quotes.map((q) => {
                     const status = QUOTE_STATUSES.find((s) => s.value === q.quote_status);
+                    const rev = (q as { revision_number?: number }).revision_number ?? 1;
                     return (
-                      <li key={q.id}>
+                      <li key={q.id} className="flex items-center gap-1 rounded hover:bg-muted px-1">
                         <Link
                           to="/crm/quotes/$quoteId"
                           params={{ quoteId: q.id }}
-                          className="flex items-center justify-between gap-2 rounded px-2 py-1.5 hover:bg-muted text-xs"
+                          className="flex flex-1 items-center justify-between gap-2 py-1.5 text-xs min-w-0"
                         >
                           <span className="flex items-center gap-2 min-w-0">
                             <span className={`h-2 w-2 rounded-full shrink-0 ${status?.color}`} />
                             <span className="truncate">{q.titulo}</span>
+                            {rev > 1 && (
+                              <span className="shrink-0 rounded bg-muted px-1 text-[10px] text-muted-foreground">
+                                rev {rev}
+                              </span>
+                            )}
                           </span>
                           <span className="font-medium shrink-0">{formatEUR(Number(q.valor))}</span>
                         </Link>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
+                              <MoreHorizontal className="h-3.5 w-3.5" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => reviseQuote.mutate(q.id)}
+                              disabled={reviseQuote.isPending}
+                            >
+                              <Copy className="h-3.5 w-3.5 mr-2" /> Criar revisão
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </li>
                     );
                   })}
                 </ul>
               )}
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full"
+                onClick={() => setQuoteOpen(true)}
+              >
+                <Plus className="h-3.5 w-3.5 mr-1" /> Criar orçamento
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -406,16 +445,14 @@ function OpportunityDetail() {
         </Card>
       </div>
 
-      {opp.company_id && (
-        <NewQuoteDialog
-          open={quoteOpen}
-          onClose={() => setQuoteOpen(false)}
-          opportunityId={opp.id}
-          companyId={opp.company_id}
-          defaultTitle={opp.name}
-          defaultFee={Number(opp.estimated_fee)}
-        />
-      )}
+      <NewQuoteDialog
+        open={quoteOpen}
+        onClose={() => setQuoteOpen(false)}
+        opportunityId={opp.id}
+        companyId={opp.company_id}
+        defaultTitle={opp.name}
+        defaultFee={Number(opp.estimated_fee)}
+      />
 
     </div>
   );
@@ -437,7 +474,7 @@ function NewQuoteDialog({
   open, onClose, opportunityId, companyId, defaultTitle, defaultFee,
 }: {
   open: boolean; onClose: () => void;
-  opportunityId: string; companyId: string;
+  opportunityId: string; companyId: string | null;
   defaultTitle: string; defaultFee: number;
 }) {
   const { t } = useTranslation("crm");
@@ -447,6 +484,7 @@ function NewQuoteDialog({
   const { data: accounts = [] } = useQuery({
     queryKey: ["crm_accounts_by_company", companyId],
     queryFn: async () => {
+      if (!companyId) return [];
       const { data, error } = await supabase
         .from("crm_accounts")
         .select("id, name")
@@ -455,7 +493,7 @@ function NewQuoteDialog({
       if (error) throw error;
       return data as { id: string; name: string }[];
     },
-    enabled: open,
+    enabled: open && !!companyId,
   });
 
   const [step, setStep] = useState<1 | 2>(1);

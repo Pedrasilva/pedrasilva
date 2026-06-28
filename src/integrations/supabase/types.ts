@@ -8080,6 +8080,10 @@ export type Database = {
         Returns: Json
       }
       can_approve_benefits: { Args: { _user_id: string }; Returns: boolean }
+      clone_fee_proposal_as_revision: {
+        Args: { p_source: string }
+        Returns: string
+      }
       delete_project_hard:
         | { Args: { _confirm: string; _project_id: string }; Returns: Json }
         | {
