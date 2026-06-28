@@ -657,6 +657,21 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   const [zoom, setZoom] = useState<ZoomMode>("fit");
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+  const [outlineWidth, setOutlineWidth] = useState<number>(() => {
+    if (typeof window === "undefined") return 420;
+    const v = Number(window.localStorage.getItem("planner.outlineWidth.quote"));
+    return Number.isFinite(v) && v >= 280 && v <= 900 ? v : 420;
+  });
+  const handleResizeOutline = useCallback((w: number) => {
+    setOutlineWidth(w);
+    try { window.localStorage.setItem("planner.outlineWidth.quote", String(w)); } catch { /* ignore */ }
+  }, []);
+  const handleUpdateBudget = useCallback(
+    async (id: string, _projectId: string, budget: number) => {
+      await upsertStage.mutateAsync({ id, budget } as Parameters<typeof upsertStage.mutateAsync>[0]);
+    },
+    [upsertStage],
+  );
   const deleteQuoteStage = useDeleteQuoteStage(quoteId);
   const createQuoteDep = useCreateQuoteDependency(quoteId);
 
