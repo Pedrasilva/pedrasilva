@@ -1013,19 +1013,11 @@ function QuoteDetail() {
             <TabsContent value="planning" className="mt-4">
               <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} isRetainer={isRetainer} />
             </TabsContent>
-            {isProject && !isRetainer && (
-              <TabsContent value="external" className="mt-4">
-                <QuoteExternalServicesTab quoteId={quoteId} />
-              </TabsContent>
-            )}
             <TabsContent value="payment" className="mt-4">
               <QuotePaymentScheduleTab quoteId={quoteId} />
             </TabsContent>
           </>
         )}
-        <TabsContent value="financial" className="mt-4">
-          <QuoteFinancialSummaryTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
-        </TabsContent>
         <TabsContent value="proposal" className="mt-4 space-y-3">
           <div className="flex justify-end">
             <ApplyTemplateDialog
