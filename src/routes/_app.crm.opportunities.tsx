@@ -123,6 +123,36 @@ function OpportunitiesPage() {
     },
   });
 
+  const [confirmDelete, setConfirmDelete] = useState<QuoteRef | null>(null);
+
+  const archiveQuote = useMutation({
+    mutationFn: async (quoteId: string) => {
+      const { error } = await supabase
+        .from("fee_proposals")
+        .update({ archived_at: new Date().toISOString() })
+        .eq("id", quoteId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Orçamento arquivado");
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const deleteQuote = useMutation({
+    mutationFn: async (quoteId: string) => {
+      const { error } = await supabase.from("fee_proposals").delete().eq("id", quoteId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Orçamento eliminado");
+      setConfirmDelete(null);
+      qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const handleQuoteAction = (e: React.MouseEvent, opp: Row) => {
     e.preventDefault();
     e.stopPropagation();
