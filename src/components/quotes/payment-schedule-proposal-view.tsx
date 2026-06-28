@@ -854,7 +854,7 @@ export function PaymentScheduleProposalView({
             <CardHeader className="pb-3">
               <div className="flex items-baseline justify-between gap-4">
                 <CardTitle className="text-base uppercase tracking-wide">
-                  Plano de Faturação ao Cliente
+                  Financial
                 </CardTitle>
                 <div className="text-lg font-bold tabular-nums">{formatEUR(grandNet)}</div>
               </div>
