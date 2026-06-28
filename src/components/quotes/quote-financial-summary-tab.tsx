@@ -562,6 +562,40 @@ function ArchitectureStagesCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
+        {(avgSaleRate > 0 || avgCostRate > 0) && (
+          <div className="flex flex-wrap items-center gap-4 rounded-md border bg-muted/30 px-3 py-2 text-xs">
+            <div className="flex items-baseline gap-1.5">
+              <span className="uppercase tracking-wide text-muted-foreground">Venda média</span>
+              <span className="text-sm font-semibold tabular-nums">{formatEUR(avgSaleRate)}/h</span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="uppercase tracking-wide text-muted-foreground">Custo médio</span>
+              <span className="text-sm font-semibold tabular-nums">{formatEUR(avgCostRate)}/h</span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="uppercase tracking-wide text-muted-foreground">Margem</span>
+              <span
+                className={`text-sm font-semibold tabular-nums ${
+                  avgSaleRate > avgCostRate
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : avgSaleRate < avgCostRate
+                      ? "text-rose-600 dark:text-rose-400"
+                      : "text-amber-600 dark:text-amber-400"
+                }`}
+              >
+                {avgCostRate > 0
+                  ? `${(((avgSaleRate - avgCostRate) / avgCostRate) * 100).toFixed(1)}%`
+                  : "—"}
+              </span>
+            </div>
+            {avgSaleRate === avgCostRate && avgCostRate > 0 && (
+              <span className="text-amber-600 dark:text-amber-400">
+                Margem de lucro definida a 0% em RH › Backoffice.
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 text-xs uppercase tracking-wide text-muted-foreground pb-1 border-b">
           <span>
             {t("workspace.financial.stageColumn", { defaultValue: "Fase" })}
