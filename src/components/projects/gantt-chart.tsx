@@ -78,6 +78,10 @@ interface Props {
   budgetByStage?: Map<string, StageBudgetControl>;
   budgetByAllocation?: Map<string, AllocationActuals>;
   showFinancials?: boolean;
+  /** Optional avg sale-per-hour used to derive *implied* hours for stages
+   *  that have a budget but no resource allocations. Lets non-admin users
+   *  see roughly how much effort a fixed-fee stage represents. */
+  impliedHourRate?: number;
   /** Payment milestones to render in the lane above the stage rows. */
   milestones?: PaymentMilestone[];
   /**
