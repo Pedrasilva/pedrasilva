@@ -440,6 +440,27 @@ function OpportunitiesPage() {
         }}
         isPending={createQuote.isPending}
       />
+      <AlertDialog open={!!confirmDelete} onOpenChange={(v) => !v && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar orçamento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acção é permanente e remove o orçamento &quot;{confirmDelete?.titulo ?? ""}&quot;.
+              Se preferir manter o histórico, arquive-o em vez de eliminar.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteQuote.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteQuote.isPending}
+              onClick={() => confirmDelete && deleteQuote.mutate(confirmDelete.id)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
