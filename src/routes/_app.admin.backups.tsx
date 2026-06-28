@@ -42,6 +42,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function BackupsPage() {
   const qc = useQueryClient();
+  const [inspect, setInspect] = useState<{ id: string; name: string | null } | null>(null);
   const configFn = useServerFn(getBackupConfig);
   const listFn = useServerFn(listBackupRuns);
   const runFn = useServerFn(runManualBackup);
