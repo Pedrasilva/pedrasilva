@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AdminOnly } from "@/components/AdminOnly";
+import { BackupInspectorDialog } from "@/components/admin/backup-inspector-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ExternalLink, RefreshCw, Database, FolderOpen, Loader2 } from "lucide-react";
+import { ExternalLink, RefreshCw, Database, FolderOpen, Loader2, Eye } from "lucide-react";
 import {
   getBackupConfig,
   listBackupRuns,
@@ -40,6 +42,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function BackupsPage() {
   const qc = useQueryClient();
+  const [inspect, setInspect] = useState<{ id: string; name: string | null } | null>(null);
   const configFn = useServerFn(getBackupConfig);
   const listFn = useServerFn(listBackupRuns);
   const runFn = useServerFn(runManualBackup);
@@ -159,14 +162,15 @@ function BackupsPage() {
                     <th className="py-2 pr-4">Linhas</th>
                     <th className="py-2 pr-4">Tamanho</th>
                     <th className="py-2 pr-4">Drive</th>
+                    <th className="py-2 pr-4">Inspecionar</th>
                   </tr>
                 </thead>
                 <tbody>
                   {runsQ.isLoading && (
-                    <tr><td colSpan={7} className="py-4 text-center text-muted-foreground">A carregar…</td></tr>
+                    <tr><td colSpan={8} className="py-4 text-center text-muted-foreground">A carregar…</td></tr>
                   )}
                   {!runsQ.isLoading && (runsQ.data?.length ?? 0) === 0 && (
-                    <tr><td colSpan={7} className="py-4 text-center text-muted-foreground">Sem backups ainda.</td></tr>
+                    <tr><td colSpan={8} className="py-4 text-center text-muted-foreground">Sem backups ainda.</td></tr>
                   )}
                   {runsQ.data?.map((r) => (
                     <tr key={r.id} className="border-b last:border-0">
@@ -196,6 +200,21 @@ function BackupsPage() {
                           "—"
                         )}
                       </td>
+                      <td className="py-2 pr-4">
+                        {r.drive_file_id && r.status === "success" ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              setInspect({ id: r.id, name: r.drive_file_name ?? null })
+                            }
+                          >
+                            <Eye className="mr-1 h-3 w-3" /> Ver dados
+                          </Button>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -203,6 +222,11 @@ function BackupsPage() {
             </div>
           </CardContent>
         </Card>
+        <BackupInspectorDialog
+          runId={inspect?.id ?? null}
+          fileName={inspect?.name ?? null}
+          onClose={() => setInspect(null)}
+        />
       </div>
     </AdminOnly>
   );
