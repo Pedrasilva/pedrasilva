@@ -969,7 +969,14 @@ export function PaymentScheduleProposalView({
                 </CardHeader>
                 <CardContent className="pt-3">
                   <PaymentSubTable
-                    rows={rows}
+                    rows={rows.slice().sort((a, b) => {
+                      const sa = a.stage_id ? stageSortMeta.get(a.stage_id) : undefined;
+                      const sb = b.stage_id ? stageSortMeta.get(b.stage_id) : undefined;
+                      const da = a.expected_invoice_date ?? sa?.end ?? "9999-12-31";
+                      const db = b.expected_invoice_date ?? sb?.end ?? "9999-12-31";
+                      if (da !== db) return da < db ? -1 : 1;
+                      return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+                    })}
                     totalFee={totalFee}
                     stageFees={stageFees}
                     defaultVatRate={defaultVatRate}
