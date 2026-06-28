@@ -4200,6 +4200,139 @@ export type Database = {
           },
         ]
       }
+      pm_payment_schedule_items: {
+        Row: {
+          amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
+          amount_value: number
+          billing_status: Database["public"]["Enums"]["quote_invoice_billing_status"]
+          created_at: string
+          direction: string
+          expected_invoice_date: string | null
+          expected_payment_date: string | null
+          generator_source: string | null
+          id: string
+          invoice_group_id: string | null
+          label: string
+          linked_payment_item_id: string | null
+          manual_override: boolean
+          notes: string | null
+          payment_offset_days: number
+          payment_terms: string | null
+          project_id: string
+          sort_order: number
+          source_quote_payment_item_id: string | null
+          stage_id: string | null
+          supplier_company_id: string | null
+          supplier_id: string | null
+          supplier_label: string | null
+          trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
+          updated_at: string
+          vat_rate: number
+          vat_rate_override: boolean
+        }
+        Insert: {
+          amount_type: Database["public"]["Enums"]["quote_payment_amount_type"]
+          amount_value?: number
+          billing_status?: Database["public"]["Enums"]["quote_invoice_billing_status"]
+          created_at?: string
+          direction?: string
+          expected_invoice_date?: string | null
+          expected_payment_date?: string | null
+          generator_source?: string | null
+          id?: string
+          invoice_group_id?: string | null
+          label: string
+          linked_payment_item_id?: string | null
+          manual_override?: boolean
+          notes?: string | null
+          payment_offset_days?: number
+          payment_terms?: string | null
+          project_id: string
+          sort_order?: number
+          source_quote_payment_item_id?: string | null
+          stage_id?: string | null
+          supplier_company_id?: string | null
+          supplier_id?: string | null
+          supplier_label?: string | null
+          trigger_type: Database["public"]["Enums"]["quote_payment_trigger"]
+          updated_at?: string
+          vat_rate?: number
+          vat_rate_override?: boolean
+        }
+        Update: {
+          amount_type?: Database["public"]["Enums"]["quote_payment_amount_type"]
+          amount_value?: number
+          billing_status?: Database["public"]["Enums"]["quote_invoice_billing_status"]
+          created_at?: string
+          direction?: string
+          expected_invoice_date?: string | null
+          expected_payment_date?: string | null
+          generator_source?: string | null
+          id?: string
+          invoice_group_id?: string | null
+          label?: string
+          linked_payment_item_id?: string | null
+          manual_override?: boolean
+          notes?: string | null
+          payment_offset_days?: number
+          payment_terms?: string | null
+          project_id?: string
+          sort_order?: number
+          source_quote_payment_item_id?: string | null
+          stage_id?: string | null
+          supplier_company_id?: string | null
+          supplier_id?: string | null
+          supplier_label?: string | null
+          trigger_type?: Database["public"]["Enums"]["quote_payment_trigger"]
+          updated_at?: string
+          vat_rate?: number
+          vat_rate_override?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_payment_schedule_items_linked_payment_item_id_fkey"
+            columns: ["linked_payment_item_id"]
+            isOneToOne: false
+            referencedRelation: "pm_payment_schedule_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_payment_schedule_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_payment_schedule_items_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_payment_schedule_items_supplier_company_id_fkey"
+            columns: ["supplier_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_payment_schedule_items_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_payment_schedule_items_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_project_commercial_baselines: {
         Row: {
           baseline_json: Json
