@@ -781,6 +781,12 @@ function ProjectDetail() {
               </div>
             )}
 
+            {tab === "financial" && (
+              <div className="mt-4">
+                <ProjectFinancialTab projectId={projectId} />
+              </div>
+            )}
+
             {tab === "schedule" && (
               <div className="mt-4 space-y-3">
                 <div className="flex flex-wrap items-center justify-end gap-2">
