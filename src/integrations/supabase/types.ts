@@ -1891,6 +1891,8 @@ export type Database = {
           approved_at: string | null
           approved_by_collaborator_id: string | null
           approved_by_contact_id: string | null
+          archived_at: string | null
+          archived_by: string | null
           company_id: string | null
           construction_cost: number | null
           contact_id: string | null
@@ -1938,6 +1940,8 @@ export type Database = {
           approved_at?: string | null
           approved_by_collaborator_id?: string | null
           approved_by_contact_id?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           company_id?: string | null
           construction_cost?: number | null
           contact_id?: string | null
@@ -1985,6 +1989,8 @@ export type Database = {
           approved_at?: string | null
           approved_by_collaborator_id?: string | null
           approved_by_contact_id?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           company_id?: string | null
           construction_cost?: number | null
           contact_id?: string | null
