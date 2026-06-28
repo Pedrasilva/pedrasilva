@@ -93,7 +93,7 @@ export async function previewBackupTable(runId: string, table: string, search: s
     matchCount: filtered.length,
     returned: sample.length,
     columns,
-    rows: sample,
+    rowsJson: JSON.stringify(sample),
   };
 }
 
