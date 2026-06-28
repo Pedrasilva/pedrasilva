@@ -265,7 +265,7 @@ function QuoteDetail() {
       const { data: qStages, error: qsErr } = await db
         .from("quote_stages")
         .select(
-          "id, name, parent_id, start_date, end_date, color, sort_order, budget, stage_kind, billing_model, retainer_monthly_amount, retainer_anchor_month, retainer_months, retainer_capacity_hours_per_month, retainer_review_months, is_fee_only",
+          "id, name, parent_stage_id, start_date, end_date, color, sort_order, budget, stage_kind, billing_model, retainer_monthly_amount, retainer_anchor_month, retainer_months, retainer_capacity_hours_per_month, retainer_review_months, is_fee_only",
         )
         .eq("quote_id", quote.id)
         .order("sort_order", { ascending: true });
