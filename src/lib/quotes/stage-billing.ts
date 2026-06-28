@@ -61,10 +61,18 @@ export function topLevelBillableStages(stages: QuoteStage[]): QuoteStage[] {
     const p = (s as StageLike).parent_stage_id;
     return !p || !ids.has(p);
   });
+  // A subtree must be "expanded" (parent absorbed; descendants billed
+  // independently) if the parent itself is flagged OR any descendant is
+  // flagged. Without this, a root that isn't flagged collapses the whole
+  // project even when sub-parents (e.g. Design, Construction) are flagged.
+  const subtreeHasFlag = (s: QuoteStage): boolean => {
+    if (childrenBillIndependently(s)) return true;
+    return getChildren(s.id, stages).some(subtreeHasFlag);
+  };
   const out: QuoteStage[] = [];
   const visit = (s: QuoteStage) => {
     const kids = getChildren(s.id, stages);
-    if (kids.length > 0 && childrenBillIndependently(s)) {
+    if (kids.length > 0 && (childrenBillIndependently(s) || kids.some(subtreeHasFlag))) {
       for (const k of kids) visit(k);
     } else {
       out.push(s);
