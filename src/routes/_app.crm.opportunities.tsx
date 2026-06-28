@@ -45,7 +45,7 @@ export const Route = createFileRoute("/_app/crm/opportunities")({
   component: OpportunitiesPage,
 });
 
-type QuoteRef = { id: string; updated_at: string; titulo: string | null; pipeline_status: string | null; quote_status: string | null; is_locked: boolean | null; archived_at: string | null };
+type QuoteRef = { id: string; updated_at: string; titulo: string | null; pipeline_status: string | null; quote_status: string | null; is_locked: boolean | null; archived_at: string | null; deleted_at: string | null };
 type Row = CrmOpportunity & {
   company: { id: string; nome: string } | null;
   contact: Pick<Contact, "id" | "primeiro_nome" | "apelido" | "titulo"> | null;
@@ -68,14 +68,18 @@ function OpportunitiesPage() {
       const { data, error } = await supabase
         .from("crm_opportunities")
         .select(
-          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id, updated_at, titulo, pipeline_status, quote_status, is_locked, archived_at)",
+          "*, company:companies(id, nome), contact:contacts!crm_opportunities_primary_contact_id_fkey(id, primeiro_nome, apelido, titulo), quotes:fee_proposals(id, updated_at, titulo, pipeline_status, quote_status, is_locked, archived_at, deleted_at)",
         )
         .order("updated_at", { ascending: false });
       if (error) throw error;
       const rows = (data ?? []) as unknown as Row[];
-      // hide archived quotes from card listings
-      return rows.map((r) => ({ ...r, quotes: (r.quotes ?? []).filter((q) => !q.archived_at) }));
+      // hide archived AND soft-deleted quotes from card listings
+      return rows.map((r) => ({
+        ...r,
+        quotes: (r.quotes ?? []).filter((q) => !q.archived_at && !q.deleted_at),
+      }));
     },
+
   });
 
   const instantiate = useInstantiateQuoteTemplate();
@@ -124,6 +128,8 @@ function OpportunitiesPage() {
   });
 
   const [confirmDelete, setConfirmDelete] = useState<QuoteRef | null>(null);
+  const [confirmText, setConfirmText] = useState("");
+
 
   const archiveQuote = useMutation({
     mutationFn: async (quoteId: string) => {
@@ -142,16 +148,22 @@ function OpportunitiesPage() {
 
   const deleteQuote = useMutation({
     mutationFn: async (quoteId: string) => {
-      const { error } = await supabase.from("fee_proposals").delete().eq("id", quoteId);
+      const { error } = await supabase.rpc("soft_delete_fee_proposal", {
+        _proposal_id: quoteId,
+        _note: undefined,
+      });
+
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Orçamento eliminado");
+      toast.success("Orçamento eliminado (recuperável por um administrador)");
       setConfirmDelete(null);
+      setConfirmText("");
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const handleQuoteAction = (e: React.MouseEvent, opp: Row) => {
     e.preventDefault();
@@ -440,19 +452,50 @@ function OpportunitiesPage() {
         }}
         isPending={createQuote.isPending}
       />
-      <AlertDialog open={!!confirmDelete} onOpenChange={(v) => !v && setConfirmDelete(null)}>
+      <AlertDialog
+        open={!!confirmDelete}
+        onOpenChange={(v) => {
+          if (!v) {
+            setConfirmDelete(null);
+            setConfirmText("");
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Eliminar orçamento?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acção é permanente e remove o orçamento &quot;{confirmDelete?.titulo ?? ""}&quot;.
-              Se preferir manter o histórico, arquive-o em vez de eliminar.
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p>
+                  Esta acção marca o orçamento como eliminado. Um snapshot
+                  completo (etapas, alocações, fornecedores, faturação e documento)
+                  é guardado no registo de auditoria e pode ser recuperado por um
+                  administrador.
+                </p>
+                <p>
+                  Para confirmar, escreva o título do orçamento abaixo:
+                  <br />
+                  <span className="font-mono text-foreground">
+                    {confirmDelete?.titulo ?? confirmDelete?.id.slice(0, 8) ?? ""}
+                  </span>
+                </p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <Input
+            autoFocus
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder="Escreva o título exato"
+          />
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleteQuote.isPending}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              disabled={deleteQuote.isPending}
+              disabled={
+                deleteQuote.isPending ||
+                confirmText.trim() !==
+                  (confirmDelete?.titulo ?? confirmDelete?.id.slice(0, 8) ?? "").trim()
+              }
               onClick={() => confirmDelete && deleteQuote.mutate(confirmDelete.id)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
@@ -461,6 +504,7 @@ function OpportunitiesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
     </div>
   );
 }

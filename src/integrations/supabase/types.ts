@@ -1867,6 +1867,39 @@ export type Database = {
           },
         ]
       }
+      fee_proposal_audit_log: {
+        Row: {
+          action: string
+          actor: string | null
+          created_at: string
+          id: string
+          note: string | null
+          opportunity_id: string | null
+          proposal_id: string
+          snapshot: Json
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          opportunity_id?: string | null
+          proposal_id: string
+          snapshot: Json
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          opportunity_id?: string | null
+          proposal_id?: string
+          snapshot?: Json
+        }
+        Relationships: []
+      }
       fee_proposal_number_counters: {
         Row: {
           last_seq: number
@@ -1902,6 +1935,8 @@ export type Database = {
           data_proposta: string | null
           default_payment_terms: string
           default_vat_rate: number
+          deleted_at: string | null
+          deleted_by: string | null
           fee_percentage: number | null
           fee_structure_type: Database["public"]["Enums"]["crm_fee_structure"]
           first_payment_terms: string
@@ -1951,6 +1986,8 @@ export type Database = {
           data_proposta?: string | null
           default_payment_terms?: string
           default_vat_rate?: number
+          deleted_at?: string | null
+          deleted_by?: string | null
           fee_percentage?: number | null
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           first_payment_terms?: string
@@ -2000,6 +2037,8 @@ export type Database = {
           data_proposta?: string | null
           default_payment_terms?: string
           default_vat_rate?: number
+          deleted_at?: string | null
+          deleted_by?: string | null
           fee_percentage?: number | null
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           first_payment_terms?: string
@@ -8036,6 +8075,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      build_fee_proposal_snapshot: {
+        Args: { _proposal_id: string }
+        Returns: Json
+      }
       can_approve_benefits: { Args: { _user_id: string }; Returns: boolean }
       delete_project_hard:
         | { Args: { _confirm: string; _project_id: string }; Returns: Json }
@@ -8066,6 +8109,10 @@ export type Database = {
       financial_expense_payment_backfill_run: { Args: never; Returns: Json }
       get_my_collaborator_id: { Args: never; Returns: string }
       get_reimbursement_supplier_id: { Args: never; Returns: string }
+      hard_purge_fee_proposal: {
+        Args: { _note?: string; _proposal_id: string }
+        Returns: undefined
+      }
       has_module_permission: {
         Args: { _key: string; _required_scope: string; _user_id: string }
         Returns: boolean
@@ -8193,6 +8240,10 @@ export type Database = {
         Returns: string
       }
       reset_project_test_data: { Args: { _confirm: string }; Returns: Json }
+      restore_fee_proposal: {
+        Args: { _proposal_id: string }
+        Returns: undefined
+      }
       set_pending_permission: {
         Args: { _email: string; _granted: boolean; _key: string }
         Returns: undefined
@@ -8219,6 +8270,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["pm_role"]
           _user_id: string
         }
+        Returns: undefined
+      }
+      soft_delete_fee_proposal: {
+        Args: { _note?: string; _proposal_id: string }
         Returns: undefined
       }
       suggest_role_for_user: {
