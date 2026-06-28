@@ -222,6 +222,11 @@ function BackupsPage() {
             </div>
           </CardContent>
         </Card>
+        <BackupInspectorDialog
+          runId={inspect?.id ?? null}
+          fileName={inspect?.name ?? null}
+          onClose={() => setInspect(null)}
+        />
       </div>
     </AdminOnly>
   );
