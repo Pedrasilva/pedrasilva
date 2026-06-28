@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      backup_runs: {
+        Row: {
+          created_at: string
+          drive_file_id: string | null
+          drive_file_name: string | null
+          drive_folder_id: string | null
+          drive_url: string | null
+          error: string | null
+          finished_at: string | null
+          id: string
+          rows_count: number | null
+          size_bytes: number | null
+          started_at: string
+          status: Database["public"]["Enums"]["backup_status"]
+          tables_count: number | null
+          trigger: Database["public"]["Enums"]["backup_trigger"]
+          triggered_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          drive_file_id?: string | null
+          drive_file_name?: string | null
+          drive_folder_id?: string | null
+          drive_url?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          rows_count?: number | null
+          size_bytes?: number | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["backup_status"]
+          tables_count?: number | null
+          trigger: Database["public"]["Enums"]["backup_trigger"]
+          triggered_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          drive_file_id?: string | null
+          drive_file_name?: string | null
+          drive_folder_id?: string | null
+          drive_url?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          rows_count?: number | null
+          size_bytes?: number | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["backup_status"]
+          tables_count?: number | null
+          trigger?: Database["public"]["Enums"]["backup_trigger"]
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
       bank_accounts: {
         Row: {
           account_name: string
@@ -8297,6 +8351,8 @@ export type Database = {
         | "autorizada_paga"
         | "autorizada_nao_paga"
       app_role: "admin" | "user"
+      backup_status: "running" | "success" | "failed"
+      backup_trigger: "daily" | "weekly" | "manual"
       bank_import_status: "pending" | "imported" | "rolled_back" | "archived"
       bank_rule_match_type:
         | "contains"
@@ -8626,6 +8682,8 @@ export const Constants = {
         "autorizada_nao_paga",
       ],
       app_role: ["admin", "user"],
+      backup_status: ["running", "success", "failed"],
+      backup_trigger: ["daily", "weekly", "manual"],
       bank_import_status: ["pending", "imported", "rolled_back", "archived"],
       bank_rule_match_type: [
         "contains",
