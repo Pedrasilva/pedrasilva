@@ -56,7 +56,10 @@ export function useTeamPricingAverages() {
       const custosOp = Number(bo?.custos_operacionais_anual ?? 0);
       const diasUteis = Number(bo?.dias_uteis ?? 220);
       const horasDia = Number(bo?.horas_dia ?? 8);
-      const margem = Number(bo?.margem_lucro_pct ?? 0.25);
+      // Default to the recommended 50% margin (matches HR › Pricing scenario)
+      // when bo_settings.margem_lucro_pct is unset or 0.
+      const margem = Number(bo?.margem_lucro_pct) || 0.5;
+
 
       const vbgFor = (c: Collaborator): number => {
         const s = snapshots.find((sn) => sn.collaborator_id === c.id);
