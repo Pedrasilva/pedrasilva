@@ -150,8 +150,9 @@ function OpportunitiesPage() {
     mutationFn: async (quoteId: string) => {
       const { error } = await supabase.rpc("soft_delete_fee_proposal", {
         _proposal_id: quoteId,
-        _note: null,
+        _note: undefined,
       });
+
       if (error) throw error;
     },
     onSuccess: () => {
