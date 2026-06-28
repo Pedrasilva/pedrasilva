@@ -146,16 +146,21 @@ function OpportunitiesPage() {
 
   const deleteQuote = useMutation({
     mutationFn: async (quoteId: string) => {
-      const { error } = await supabase.from("fee_proposals").delete().eq("id", quoteId);
+      const { error } = await supabase.rpc("soft_delete_fee_proposal", {
+        _proposal_id: quoteId,
+        _note: null,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Orçamento eliminado");
+      toast.success("Orçamento eliminado (recuperável por um administrador)");
       setConfirmDelete(null);
+      setConfirmText("");
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const handleQuoteAction = (e: React.MouseEvent, opp: Row) => {
     e.preventDefault();
