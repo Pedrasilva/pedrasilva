@@ -1101,6 +1101,13 @@ export function GanttChart({
                 : 0;
             const displayHours = plannedHours > 0 ? plannedHours : impliedHours;
             const hoursAreImplied = plannedHours === 0 && impliedHours > 0;
+            // When no resource allocations exist, derive cost/sale from
+            // implied hours × HR pricing averages so admins see expected
+            // figures rather than zeros.
+            if (hoursAreImplied) {
+              if (impliedCostRate && impliedCostRate > 0) totalCost = impliedHours * impliedCostRate;
+              if (impliedHourRate && impliedHourRate > 0) totalSale = impliedHours * impliedHourRate;
+            }
             const resHidden = resourcesCollapsed?.has(stage.id) ?? false;
             const allocRows = resHidden ? 0 : Math.max(stage.allocations.length, 0);
             const rowsHeight = allocRows * (ALLOC_ROW_H + 4);
