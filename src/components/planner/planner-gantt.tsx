@@ -1375,7 +1375,7 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
     const target = Math.max(400, chartWidth - 24);
     const fitWidth = target / Math.max(1, totalDays);
     if (zoom === "fit") return Math.max(1, Math.min(32, fitWidth));
-    return Math.max(ZOOM_DAY_WIDTHS[zoom], fitWidth);
+    return ZOOM_DAY_WIDTHS[zoom];
   }, [zoom, totalDays, dayWidthProp, chartWidth]);
 
   // ---- Handlers (admin-gated) -----------------------------------------
