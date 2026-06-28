@@ -1,18 +1,24 @@
 /**
- * Outline column for the Gantt chart — Merlin-style left tree.
+ * Outline column for the Gantt chart — spreadsheet-style WBS table.
  *
- * Renders a sticky-left column with WBS numbering, collapsible parents,
- * indentation guides, and per-row name/dates. Row heights are computed
- * to match exactly what gantt-chart.tsx renders for each stage so the
- * outline stays in sync vertically when the user scrolls.
+ * Columns: # · Milestones & Tasks · Dur · Start · Due · Budget · Dep
  *
  * Inline editing
- * - Double-click the stage name to rename (Enter to save, Esc to cancel).
- * - Click the trailing WBS digit to renumber within the same parent;
- *   the host re-sequences siblings via onReorderStage.
+ * - Double-click the name to rename (Enter to save, Esc to cancel).
+ * - Click the WBS digit to renumber within siblings.
+ * - Click the Dur cell to edit duration; commit shifts the end date
+ *   keeping start fixed and the host's update handler triggers the
+ *   adapter's FS cascade so successors slide automatically.
+ * - Click Start / Due to edit dates directly (also cascades).
+ * - Click Budget on a leaf to edit (parents show rollup, read-only).
+ *
+ * A trailing "+ Insert stage" row at the bottom calls onInsertStage with
+ * the last visible row as the anchor; when the tree is empty it calls
+ * onAppendRoot (if provided).
  */
-import { useState, useRef, useEffect } from "react";
-import { ChevronDown, ChevronRight, Briefcase, Box, Wrench } from "lucide-react";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { ChevronDown, ChevronRight, Briefcase, Box, Wrench, Plus } from "lucide-react";
+import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -23,22 +29,22 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { fmt } from "@/lib/projects/gantt-utils";
 import type { StageWithProject } from "@/components/projects/gantt-chart";
 
 export interface GanttHierarchyNode {
-  /** depth from root (0 = top-level architecture stage) */
   depth: number;
-  /** WBS code, e.g. "1", "1.1", "1.1.2" */
   wbs: string;
-  /** node has at least one child in the tree */
   hasChildren: boolean;
-  /** render as summary/rollup row (no allocations, slim bar) */
   isSummary: boolean;
-  /** semantic role for the icon */
   role: "architecture" | "supplier_group" | "supplier_phase";
-  /** parent stage id (null at root) */
   parentId: string | null;
+}
+
+export interface StageBoundsUpdate {
+  id: string;
+  projectId: string;
+  start_date: string;
+  end_date: string;
 }
 
 interface Props {
@@ -51,31 +57,65 @@ interface Props {
   rowHeightFor: (stageId: string) => number;
   rowGap: number;
   topPadding: number;
-  /** Optional row selection — when set, clicking a row name selects it. */
   selectedStageId?: string | null;
   onSelectStage?: (id: string) => void;
-  /** Inline rename. Resolve to commit; reject to revert. */
   onRenameStage?: (id: string, name: string) => Promise<unknown> | unknown;
-  /** Reorder within the current parent: 1-based position among siblings. */
   onReorderStage?: (id: string, newPosition: number) => Promise<unknown> | unknown;
-  /** Insert a stage relative to an anchor row (above/below/child/milestone). */
   onInsertStage?: (
     anchorId: string,
     where: "above" | "below" | "child" | "milestone",
   ) => Promise<unknown> | unknown;
-  /** Delete a stage by id. */
   onDeleteStage?: (id: string) => Promise<unknown> | unknown;
-  /** Per-stage collapse of resource sub-rows. */
   resourcesCollapsed?: Set<string>;
   onToggleResourcesCollapse?: (id: string) => void;
+  /** Cascading bounds editor: when provided, Dur/Start/Due cells are editable. */
+  onUpdateStageBounds?: (args: StageBoundsUpdate) => Promise<unknown> | unknown;
+  /** Budget editor for leaves. Parents always render rollup, non-editable. */
+  onUpdateStageBudget?: (id: string, projectId: string, budget: number) => Promise<unknown> | unknown;
+  /** Optional dependency label map per stage id (e.g. "2FS", "3FS+2d"). */
+  dependencyLabels?: Map<string, string>;
+  /** Append a brand-new root stage when the trailing "+" row is clicked
+   *  and the tree is empty — otherwise we use onInsertStage(lastId,"below"). */
+  onAppendRoot?: () => Promise<unknown> | unknown;
 }
-
 
 const ICON_BY_ROLE = {
   architecture: Briefcase,
   supplier_group: Box,
   supplier_phase: Wrench,
 } as const;
+
+// Column widths — tuned to match the reference screenshot.
+const COL = {
+  num: 32,
+  dur: 44,
+  start: 78,
+  due: 78,
+  budget: 84,
+  dep: 56,
+} as const;
+
+const EUR0 = new Intl.NumberFormat("en-EU", {
+  style: "currency",
+  currency: "EUR",
+  maximumFractionDigits: 0,
+});
+
+function safeParse(d?: string | null): Date | null {
+  if (!d) return null;
+  try {
+    return parseISO(d);
+  } catch {
+    return null;
+  }
+}
+
+function durDays(start?: string | null, end?: string | null): number {
+  const a = safeParse(start);
+  const b = safeParse(end);
+  if (!a || !b) return 0;
+  return differenceInCalendarDays(b, a) + 1;
+}
 
 export function GanttOutlineColumn({
   visibleStages,
@@ -95,19 +135,38 @@ export function GanttOutlineColumn({
   onDeleteStage,
   resourcesCollapsed,
   onToggleResourcesCollapse,
+  onUpdateStageBounds,
+  onUpdateStageBudget,
+  dependencyLabels,
+  onAppendRoot,
 }: Props) {
+  const last = visibleStages[visibleStages.length - 1];
+  const showInsertRow = !!(onInsertStage || onAppendRoot);
+
+  // Total inner width = name flex + fixed columns. Outer width = `width`.
+  const fixedTotal = COL.num + COL.dur + COL.start + COL.due + COL.budget + COL.dep;
+  const nameWidth = Math.max(140, width - fixedTotal - 16); // 16 = horiz padding
+
   return (
     <div
       className="sticky left-0 z-30 shrink-0 border-r border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
       style={{ width, minWidth: width }}
     >
+      {/* Header */}
       <div
-        className="sticky top-0 z-10 flex items-end border-b border-border bg-background/95 px-3 pb-1.5"
+        className="sticky top-0 z-10 flex items-end border-b border-border bg-background/95"
         style={{ height: headerHeight }}
       >
-        <div className="grid w-full grid-cols-[1fr_auto] items-center gap-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          <span>WBS · Stage</span>
-          <span className="tabular-nums">Budget</span>
+        <div
+          className="flex w-full items-center gap-1 px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+        >
+          <span style={{ width: COL.num }} className="text-center">#</span>
+          <span style={{ width: nameWidth }} className="truncate">Milestones &amp; Tasks</span>
+          <span style={{ width: COL.dur }} className="text-right tabular-nums">Dur.</span>
+          <span style={{ width: COL.start }} className="text-right">Start</span>
+          <span style={{ width: COL.due }} className="text-right">Due</span>
+          <span style={{ width: COL.budget }} className="text-right">Budget</span>
+          <span style={{ width: COL.dep }} className="text-right">Dep.</span>
         </div>
       </div>
 
@@ -126,8 +185,6 @@ export function GanttOutlineColumn({
           const allocs = stage.allocations ?? [];
           const hasResources = allocs.length > 0;
           const resCollapsed = resourcesCollapsed?.has(stage.id) ?? false;
-          // Single chevron handles either child stages or, when there are
-          // no child stages but the row has allocations, the resource list.
           const chevronMode: "stages" | "resources" | "none" = hasChildren
             ? "stages"
             : hasResources && onToggleResourcesCollapse
@@ -140,91 +197,164 @@ export function GanttOutlineColumn({
             else if (chevronMode === "resources") onToggleResourcesCollapse?.(stage.id);
           };
           const zebra = i % 2 === 1 ? "bg-muted/20" : "";
+          const dur = durDays(stage.start_date, stage.end_date);
+          const dep = dependencyLabels?.get(stage.id);
+          const editable = !!onUpdateStageBounds;
+          const projectId = (stage as { projectId: string }).projectId;
+
+          const commitBounds = async (next: { start_date: string; end_date: string }) => {
+            if (!onUpdateStageBounds) return;
+            await onUpdateStageBounds({
+              id: stage.id,
+              projectId,
+              start_date: next.start_date,
+              end_date: next.end_date,
+            });
+          };
+
           const rowContent = (
             <div
               key={stage.id}
               style={{ height: rowH, marginTop: i === 0 ? 0 : rowGap }}
-              className={`relative flex flex-col items-stretch border-b border-border/60 ${
+              className={`relative flex items-stretch border-b border-border/60 ${
                 isSelected
                   ? "bg-primary/10"
                   : `${zebra} ${onSelectStage ? "hover:bg-muted/40 cursor-pointer" : ""}`
               }`}
               onClick={onSelectStage ? () => onSelectStage(stage.id) : undefined}
             >
+              {/* indentation guides */}
               {Array.from({ length: depth + 1 }).map((_, d) => (
                 <div
                   key={d}
                   className={`absolute top-0 h-full ${
                     d < depth ? "border-l border-dashed border-border/60" : "border-l border-border/40"
                   }`}
-                  style={{ left: 12 + d * 16 }}
+                  style={{ left: 12 + d * 12 }}
                 />
               ))}
 
-
-              <div
-                className="flex w-full items-start gap-1.5 pt-2 pr-3"
-                style={{ paddingLeft: 8 + depth * 16 }}
-              >
-                {chevronMode !== "none" ? (
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); onChevron(); }}
-                    className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded hover:bg-muted"
-                    aria-label={chevronOpen ? "Collapse" : "Expand"}
-                  >
-                    {chevronOpen ? (
-                      <ChevronDown className="h-3 w-3" />
-                    ) : (
-                      <ChevronRight className="h-3 w-3" />
-                    )}
-                  </button>
-                ) : (
-                  <div className="h-4 w-4 shrink-0" />
-                )}
-
-                <WbsCode
-                  wbs={wbs}
-                  editable={!!onReorderStage}
-                  onCommit={(newLast) =>
-                    onReorderStage ? onReorderStage(stage.id, newLast) : undefined
-                  }
-                />
-
-                <Icon
-                  className={`mt-0.5 h-3 w-3 shrink-0 ${
-                    role === "architecture"
-                      ? "text-primary"
-                      : role === "supplier_group"
-                        ? "text-accent-foreground"
-                        : "text-muted-foreground"
-                  }`}
-                />
-
-                <div className="min-w-0 flex-1">
-                  <EditableName
-                    value={stage.name}
-                    summary={isSummary}
-                    onSave={onRenameStage ? (next) => onRenameStage(stage.id, next) : undefined}
+              <div className="flex w-full items-start gap-1 px-2 pt-2">
+                {/* # column = editable WBS */}
+                <div style={{ width: COL.num }} className="shrink-0 text-center">
+                  <WbsCode
+                    wbs={wbs}
+                    editable={!!onReorderStage}
+                    onCommit={(n) => (onReorderStage ? onReorderStage(stage.id, n) : undefined)}
                   />
-                  <div className="mt-0.5 truncate font-mono text-[10px] text-muted-foreground">
-                    {fmt(stage.start_date)} → {fmt(stage.end_date)}
+                </div>
+
+                {/* Name column */}
+                <div
+                  style={{ width: nameWidth, paddingLeft: depth * 12 }}
+                  className="flex min-w-0 items-start gap-1"
+                >
+                  {chevronMode !== "none" ? (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); onChevron(); }}
+                      className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded hover:bg-muted"
+                      aria-label={chevronOpen ? "Collapse" : "Expand"}
+                    >
+                      {chevronOpen ? (
+                        <ChevronDown className="h-3 w-3" />
+                      ) : (
+                        <ChevronRight className="h-3 w-3" />
+                      )}
+                    </button>
+                  ) : (
+                    <div className="h-4 w-4 shrink-0" />
+                  )}
+                  <Icon
+                    className={`mt-0.5 h-3 w-3 shrink-0 ${
+                      role === "architecture"
+                        ? "text-primary"
+                        : role === "supplier_group"
+                          ? "text-accent-foreground"
+                          : "text-muted-foreground"
+                    }`}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <EditableName
+                      value={stage.name}
+                      summary={isSummary}
+                      onSave={onRenameStage ? (next) => onRenameStage(stage.id, next) : undefined}
+                    />
                   </div>
                 </div>
-                <div
-                  className={`shrink-0 text-right tabular-nums text-[11px] ${isSummary ? "font-semibold text-foreground" : "text-muted-foreground"}`}
-                  title="Budget (sale value)"
-                >
-                  {Number(stage.budget ?? 0) > 0
-                    ? new Intl.NumberFormat("en-EU", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(Number(stage.budget))
-                    : "—"}
+
+                {/* Dur. */}
+                <div style={{ width: COL.dur }} className="shrink-0 text-right">
+                  <NumberCell
+                    value={dur}
+                    align="right"
+                    editable={editable && !isSummary}
+                    suffix=""
+                    onCommit={async (n) => {
+                      if (!stage.start_date) return;
+                      const start = parseISO(stage.start_date);
+                      const end = addDays(start, Math.max(0, n - 1));
+                      await commitBounds({
+                        start_date: stage.start_date,
+                        end_date: format(end, "yyyy-MM-dd"),
+                      });
+                    }}
+                  />
+                </div>
+
+                {/* Start */}
+                <div style={{ width: COL.start }} className="shrink-0 text-right">
+                  <DateCell
+                    value={stage.start_date}
+                    editable={editable && !isSummary}
+                    onCommit={async (next) => {
+                      const a = parseISO(next);
+                      const end = addDays(a, Math.max(0, dur - 1));
+                      await commitBounds({
+                        start_date: next,
+                        end_date: format(end, "yyyy-MM-dd"),
+                      });
+                    }}
+                  />
+                </div>
+
+                {/* Due */}
+                <div style={{ width: COL.due }} className="shrink-0 text-right">
+                  <DateCell
+                    value={stage.end_date}
+                    editable={editable && !isSummary}
+                    onCommit={async (next) => {
+                      await commitBounds({
+                        start_date: stage.start_date,
+                        end_date: next,
+                      });
+                    }}
+                  />
+                </div>
+
+                {/* Budget */}
+                <div style={{ width: COL.budget }} className="shrink-0 text-right">
+                  <BudgetCell
+                    value={Number(stage.budget ?? 0)}
+                    summary={isSummary || hasChildren}
+                    editable={!!onUpdateStageBudget && !isSummary && !hasChildren}
+                    onCommit={async (n) => {
+                      await onUpdateStageBudget?.(stage.id, projectId, n);
+                    }}
+                  />
+                </div>
+
+                {/* Dep */}
+                <div style={{ width: COL.dep }} className="shrink-0 pr-1 text-right text-[10px] tabular-nums text-muted-foreground">
+                  {dep ?? "—"}
                 </div>
               </div>
 
+              {/* Resource sub-list (unchanged behaviour) */}
               {chevronMode === "resources" && !resCollapsed && (
                 <ul
-                  className="mt-1 space-y-1 pr-3"
-                  style={{ paddingLeft: 8 + depth * 16 + 28 }}
+                  className="absolute left-0 right-0 mt-7 space-y-1 pr-3"
+                  style={{ paddingLeft: COL.num + 16 + depth * 12 + 24, top: 0 }}
                 >
                   {allocs.map((a) => (
                     <li
@@ -235,13 +365,9 @@ export function GanttOutlineColumn({
                         className="inline-block h-2 w-2 shrink-0 rounded-full"
                         style={{ background: a.resource?.color ?? "#a78bfa" }}
                       />
-                      <span className="flex-1 truncate italic">
-                        {a.resource?.name ?? "—"}
-                      </span>
+                      <span className="flex-1 truncate italic">{a.resource?.name ?? "—"}</span>
                       {a.allocation_percentage != null && (
-                        <span className="tabular-nums">
-                          {a.allocation_percentage}%
-                        </span>
+                        <span className="tabular-nums">{a.allocation_percentage}%</span>
                       )}
                     </li>
                   ))}
@@ -293,6 +419,21 @@ export function GanttOutlineColumn({
             </ContextMenu>
           );
         })}
+
+        {/* Trailing "+ Insert stage" row */}
+        {showInsertRow && (
+          <button
+            type="button"
+            onClick={() => {
+              if (last && onInsertStage) onInsertStage(last.id, "below");
+              else if (onAppendRoot) void onAppendRoot();
+            }}
+            className="mt-2 flex w-full items-center gap-1.5 border-b border-dashed border-border/60 px-2 py-1.5 text-left text-[11px] text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+          >
+            <Plus className="h-3 w-3" />
+            <span>Insert stage</span>
+          </button>
+        )}
       </div>
     </div>
   );
@@ -344,13 +485,8 @@ function EditableName({
         onBlur={commit}
         onKeyDown={(e) => {
           e.stopPropagation();
-          if (e.key === "Enter") {
-            e.preventDefault();
-            void commit();
-          } else if (e.key === "Escape") {
-            setDraft(value);
-            setEditing(false);
-          }
+          if (e.key === "Enter") { e.preventDefault(); void commit(); }
+          else if (e.key === "Escape") { setDraft(value); setEditing(false); }
         }}
         className={`w-full rounded-sm border border-primary/60 bg-background px-1 text-xs outline-none ${
           summary ? "font-semibold" : "font-medium"
@@ -392,36 +528,24 @@ function WbsCode({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(last);
   const [busy, setBusy] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!editing) setDraft(last);
-  }, [last, editing]);
+  useEffect(() => { if (!editing) setDraft(last); }, [last, editing]);
 
   const commit = async () => {
     const n = parseInt(draft, 10);
     if (!Number.isFinite(n) || n < 1 || String(n) === last) {
-      setDraft(last);
-      setEditing(false);
-      return;
+      setDraft(last); setEditing(false); return;
     }
-    try {
-      setBusy(true);
-      await onCommit(n);
-      setEditing(false);
-    } catch {
-      setDraft(last);
-    } finally {
-      setBusy(false);
-    }
+    try { setBusy(true); await onCommit(n); setEditing(false); }
+    catch { setDraft(last); }
+    finally { setBusy(false); }
   };
 
   if (editing) {
     return (
-      <span className="mt-0.5 inline-flex shrink-0 items-center font-mono text-[10px] tabular-nums text-muted-foreground">
+      <span className="inline-flex items-center font-mono text-[10px] tabular-nums text-muted-foreground">
         {lead && <span>{lead}.</span>}
         <input
-          ref={inputRef}
           autoFocus
           disabled={busy}
           inputMode="numeric"
@@ -431,13 +555,8 @@ function WbsCode({
           onBlur={commit}
           onKeyDown={(e) => {
             e.stopPropagation();
-            if (e.key === "Enter") {
-              e.preventDefault();
-              void commit();
-            } else if (e.key === "Escape") {
-              setDraft(last);
-              setEditing(false);
-            }
+            if (e.key === "Enter") { e.preventDefault(); void commit(); }
+            else if (e.key === "Escape") { setDraft(last); setEditing(false); }
           }}
           className="w-8 rounded-sm border border-primary/60 bg-background px-0.5 text-center text-[10px] outline-none"
         />
@@ -447,7 +566,7 @@ function WbsCode({
 
   return (
     <span
-      className={`mt-0.5 shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground ${
+      className={`font-mono text-[10px] tabular-nums text-muted-foreground ${
         editable ? "cursor-pointer hover:text-foreground hover:underline underline-offset-2" : ""
       }`}
       title={editable ? "Click to renumber within siblings" : undefined}
@@ -459,6 +578,174 @@ function WbsCode({
       }}
     >
       {wbs}
+    </span>
+  );
+}
+
+function NumberCell({
+  value,
+  editable,
+  align,
+  suffix,
+  onCommit,
+}: {
+  value: number;
+  editable: boolean;
+  align: "left" | "right";
+  suffix?: string;
+  onCommit: (n: number) => Promise<unknown> | unknown;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(String(value));
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { if (!editing) setDraft(String(value)); }, [value, editing]);
+
+  const commit = async () => {
+    const n = Number(draft);
+    if (!Number.isFinite(n) || n === value) { setDraft(String(value)); setEditing(false); return; }
+    try { setBusy(true); await onCommit(n); setEditing(false); }
+    catch { setDraft(String(value)); }
+    finally { setBusy(false); }
+  };
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        disabled={busy}
+        inputMode="numeric"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value.replace(/[^0-9.\-]/g, ""))}
+        onClick={(e) => e.stopPropagation()}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          e.stopPropagation();
+          if (e.key === "Enter") { e.preventDefault(); void commit(); }
+          else if (e.key === "Escape") { setDraft(String(value)); setEditing(false); }
+        }}
+        className={`w-full rounded-sm border border-primary/60 bg-background px-1 text-[11px] tabular-nums outline-none text-${align}`}
+      />
+    );
+  }
+  return (
+    <span
+      className={`block tabular-nums text-[11px] text-${align} ${editable ? "cursor-pointer hover:bg-muted/60 rounded-sm px-0.5" : "text-muted-foreground"}`}
+      onClick={(e) => { if (!editable) return; e.stopPropagation(); setEditing(true); }}
+      title={editable ? "Click to edit" : undefined}
+    >
+      {value}{suffix}
+    </span>
+  );
+}
+
+function DateCell({
+  value,
+  editable,
+  onCommit,
+}: {
+  value: string;
+  editable: boolean;
+  onCommit: (iso: string) => Promise<unknown> | unknown;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value ?? "");
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { if (!editing) setDraft(value ?? ""); }, [value, editing]);
+
+  const commit = async () => {
+    if (!draft || draft === value) { setDraft(value ?? ""); setEditing(false); return; }
+    try { setBusy(true); await onCommit(draft); setEditing(false); }
+    catch { setDraft(value ?? ""); }
+    finally { setBusy(false); }
+  };
+
+  const display = useMemo(() => {
+    const d = safeParse(value);
+    return d ? format(d, "dd/MM/yyyy") : "—";
+  }, [value]);
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        disabled={busy}
+        type="date"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onClick={(e) => e.stopPropagation()}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          e.stopPropagation();
+          if (e.key === "Enter") { e.preventDefault(); void commit(); }
+          else if (e.key === "Escape") { setDraft(value ?? ""); setEditing(false); }
+        }}
+        className="w-full rounded-sm border border-primary/60 bg-background px-1 text-[10px] tabular-nums outline-none"
+      />
+    );
+  }
+  return (
+    <span
+      className={`block text-[10px] tabular-nums ${editable ? "cursor-pointer text-foreground hover:bg-muted/60 rounded-sm px-0.5" : "text-muted-foreground"}`}
+      onClick={(e) => { if (!editable) return; e.stopPropagation(); setEditing(true); }}
+      title={editable ? "Click to edit" : undefined}
+    >
+      {display}
+    </span>
+  );
+}
+
+function BudgetCell({
+  value,
+  summary,
+  editable,
+  onCommit,
+}: {
+  value: number;
+  summary: boolean;
+  editable: boolean;
+  onCommit: (n: number) => Promise<unknown> | unknown;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(String(value || 0));
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { if (!editing) setDraft(String(value || 0)); }, [value, editing]);
+
+  const commit = async () => {
+    const n = Number(draft);
+    if (!Number.isFinite(n) || n === value) { setDraft(String(value)); setEditing(false); return; }
+    try { setBusy(true); await onCommit(n); setEditing(false); }
+    catch { setDraft(String(value)); }
+    finally { setBusy(false); }
+  };
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        disabled={busy}
+        inputMode="decimal"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value.replace(/[^0-9.]/g, ""))}
+        onClick={(e) => e.stopPropagation()}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          e.stopPropagation();
+          if (e.key === "Enter") { e.preventDefault(); void commit(); }
+          else if (e.key === "Escape") { setDraft(String(value)); setEditing(false); }
+        }}
+        className="w-full rounded-sm border border-primary/60 bg-background px-1 text-right text-[11px] tabular-nums outline-none"
+      />
+    );
+  }
+  return (
+    <span
+      className={`block text-right tabular-nums text-[11px] ${
+        summary ? "font-semibold text-foreground" : editable ? "text-foreground" : "text-muted-foreground"
+      } ${editable ? "cursor-pointer hover:bg-muted/60 rounded-sm px-0.5" : ""}`}
+      onClick={(e) => { if (!editable) return; e.stopPropagation(); setEditing(true); }}
+      title={editable ? "Click to edit" : "Rollup of children"}
+    >
+      {value > 0 ? EUR0.format(value) : "—"}
     </span>
   );
 }

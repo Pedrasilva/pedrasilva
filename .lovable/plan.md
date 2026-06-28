@@ -1,81 +1,45 @@
-# Critical Backup Plan
+## Goal
 
-Goal: never lose data again. Two independent tracks — **data backups** (database content) and **app snapshots** (source code). Both off-site on Google Drive, both logged, both restorable.
-
----
-
-## Track 1 — Database backups to Google Drive
-
-### What gets backed up
-A full JSON export of every business table — quotes (`fee_proposals`, `quote_stages`, `quote_allocations`, `quote_stage_dependencies`, `quote_external_services`, `quote_stage_supplier_costs`, `quote_payment_schedule_items`, `quote_proposal_documents/_blocks`), projects (`pm_*`), HR (`collaborators`, `salary_snapshots`, `benefit_*`, `vacation_requests`, `pm_time_entries`), CRM (`crm_*`, `companies`, `contacts`, `contracts`), finance (`financial_*`, `bank_*`, `company_expenses`), and the audit log itself.
-
-Each backup is one timestamped `.json.gz` file, plus a per-table `.csv` bundle inside the same archive for easy human inspection.
-
-### Where it goes
-A Google Drive folder you provide (link → folder ID). Structure:
+Make the left "WBS · Stage" panel behave like the reference screenshot in **both** the CRM quote planner and the Project plan view (single shared component — Gantt is one source of truth).
 
 ```text
-<your folder>/
-  daily/
-    2026-06-28T03-00Z_full.json.gz
-    2026-06-29T03-00Z_full.json.gz
-    ...
-  manual/
-    2026-06-28T14-12Z_manual_<user>.json.gz
-  weekly/
-    2026-W26_full.json.gz
+| # | Milestones & Tasks      | Dur. | Start      | Due        | Budget    | Time | Dep. |◀━━┃━━▶  Gantt
+| 1 | ▼ 2521 BCG Offices      | 323  | 17/11/2025 | 10/02/2027 | €110,000  |      |      |
+| 2 |   0 - Gestão e contracto| 1    | 17/11/2025 | 17/11/2025 |           |      |      |
+| 3 |   1 - Programme...      | 28   | 17/11/2025 | 24/12/2025 | €22,550   |      | 2FS  |
+| + | Insert new stage…       |      |            |            |           |      |      |
 ```
 
-Retention: keep all daily for 30 days, all weekly for 1 year, all manual forever.
+## Scope
 
-### How it runs
-- **Nightly**: `pg_cron` (03:00 UTC) calls a public TanStack server route `/api/public/hooks/run-backup` → server function exports tables via `supabaseAdmin`, gzips, uploads to Drive using the existing Google Drive connector (same pattern as `src/lib/hr/drive-sync.functions.ts`).
-- **Weekly**: same job, every Sunday, written to `weekly/`.
-- **On-demand**: an admin button "Criar backup agora" calls the same server function with `trigger='manual'`.
+1. **Spreadsheet WBS** — replace the current single-cell row with a proper grid of columns: `#`, `Milestones & Tasks`, `Dur.`, `Start`, `Due`, `Budget`, `Time`, `Dep.`. All cells inline-editable (already wired for name/WBS; add date, duration, budget, dep).
+2. **Draggable splitter** — vertical handle between WBS panel and Gantt canvas; drag to resize the WBS width (clamped 280–900 px). Persist per-user in `localStorage` so it survives reloads.
+3. **Trailing insert row** — a permanent "+ Insert new stage…" row at the bottom of the table (and an inline `+` on hover at the end of each parent's children block) that calls the existing `onInsertStage` plumbing.
+4. **FS auto-cascade on inline edits** — when the user edits `Dur.` or `Due` in the WBS, run the same `computeCascade` that drag-on-Gantt already uses, so any FS successor shifts forward/back automatically. Already implemented for Gantt drag; just route inline edits through the same mutation (`useUpdateStageWithCascade` / `useUpdateQuoteStageWithCascade`).
 
-### Audit log
-New table `backup_runs`: `id, started_at, finished_at, trigger (daily|weekly|manual), status (running|success|failed), drive_file_id, drive_file_name, drive_url, size_bytes, tables_count, rows_count, error, triggered_by`.
+## Files to change
 
-### Recovery
-Admin page "Backups" with:
-- List of all runs (status, size, link to Drive file, restore button).
-- **Download**: opens the Drive file.
-- **Inspect**: previews the JSON for a single table.
-- **Restore one table**: type-to-confirm, replaces rows in that table from the snapshot (transactional). Full-DB restore intentionally NOT one-click — too dangerous; if needed I'll guide you through it.
+- `src/components/projects/gantt-outline-column.tsx` — main rewrite into a table grid; add new editable cells (`DurationCell`, `DateCell`, `BudgetCell`, `DepCell`); add insert row; add new optional props (`onUpdateStageBounds`, `onUpdateStageBudget`, dependency list + handlers).
+- `src/components/projects/gantt-chart.tsx` — replace the static `outlineWidth` with a controlled prop driven by the splitter; render the drag handle between outline column and canvas; pass the new mutation handlers through.
+- `src/components/planner/planner-gantt.tsx` — store outline width in state (seeded from `localStorage`), wire `onUpdateStageBounds` to the existing cascade hook for both quote-mode and project-mode adapters.
+- `src/lib/projects/planner-adapter.ts` (and the two adapter hooks) — already expose `updateStage`; just confirm both wrappers route through `computeCascade`. No new fields needed.
 
-### Where you'll find it
-**Admin → Sistema → Backups** (new card on `/admin`, route `/admin/backups`).
+## Behavior details
 
----
+- **Dur.** is computed `differenceInCalendarDays(end, start) + 1`. Editing Dur. keeps `start_date` and shifts `end_date`. Editing `Due` keeps start; editing `Start` keeps duration. All three commits go through the cascade mutation.
+- **Dep.** cell shows e.g. `2FS`, `3FS+2d`. Click to open a small popover listing siblings + type (FS/SS/FF/SF) + lag. Uses existing `createDependency` / `updateDependency` / `deleteDependency` from the adapter.
+- **Budget** is read-only on parents (rollup), editable on leaves; updates `quote_stages.budget` / `pm_stages.budget`.
+- **Time / Dep.** columns are narrow and right-aligned, tabular-nums, matching the screenshot.
+- **Splitter** is a 4 px hit area, 1 px visible line, `cursor-col-resize`, with pointer capture; drag updates width on `pointermove`, writes `localStorage` on `pointerup`.
+- **Insert row** dispatches `onInsertStage(lastVisibleId, "below")`; when the tree is empty, it dispatches a new "create root" path (already supported by both adapters).
 
-## Track 2 — Weekly app source snapshot
+## Non-goals
 
-The codebase itself is already version-controlled in Lovable, but a major incident could leave it inaccessible. Mitigation:
+- No backend / schema changes.
+- No change to the Gantt timeline rendering itself.
+- No new column types beyond the 8 in the screenshot.
 
-- A weekly GitHub Action (or cron-driven server route, whichever you prefer) packages the repo at HEAD into a zip and uploads it to `<your folder>/app-snapshots/2026-W26_app.zip`.
-- Retention: 12 weekly + 12 monthly snapshots.
-- Restoring is manual (download zip, push to a fresh repo) — documented in a `RESTORE.md` placed in the same Drive folder.
+## Validation
 
-Recommended path: connect your GitHub (Lovable supports it) and add a `.github/workflows/weekly-snapshot.yml` that uses your Drive token. I can write it once you confirm.
-
----
-
-## What I need from you before building
-
-1. **Google Drive folder link** — paste it; I'll extract the folder ID and reuse the existing Google Drive connector (`GOOGLE_DRIVE_API_KEY` + `LOVABLE_API_KEY` are already configured in this project for the HR receipts sync).
-2. **Confirm scope** — back up everything listed under "What gets backed up", or a narrower set?
-3. **Confirm app snapshot mechanism** — GitHub Action (preferred, runs even if app is down) or in-app cron?
-
----
-
-## Build order once you approve
-
-1. Migration: `backup_runs` table + grants + RLS (admin-only).
-2. `src/lib/backups/backup.functions.ts` — `runBackup`, `listBackups`, `restoreTable`, all admin-gated.
-3. `src/routes/api/public/hooks/run-backup.ts` — cron entry point.
-4. `pg_cron` schedule (daily 03:00, weekly Sun 03:00).
-5. `src/routes/_app.admin.backups.tsx` — list, manual trigger, restore dialog.
-6. Card on `/admin` under "Ferramentas de sistema".
-7. (Track 2) GitHub Action or equivalent — after you choose.
-
-Reply with the Drive folder link + answers to 2 and 3 and I'll start with the migration.
+- `tsgo` clean.
+- Manual: in the quote planner, drag the splitter, edit a Dur. on stage 3, confirm stage 4 (FS) slides; verify the same on `/projects/$projectId`.

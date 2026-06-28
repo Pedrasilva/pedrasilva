@@ -657,6 +657,21 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   const [zoom, setZoom] = useState<ZoomMode>("fit");
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+  const [outlineWidth, setOutlineWidth] = useState<number>(() => {
+    if (typeof window === "undefined") return 420;
+    const v = Number(window.localStorage.getItem("planner.outlineWidth.quote"));
+    return Number.isFinite(v) && v >= 280 && v <= 900 ? v : 420;
+  });
+  const handleResizeOutline = useCallback((w: number) => {
+    setOutlineWidth(w);
+    try { window.localStorage.setItem("planner.outlineWidth.quote", String(w)); } catch { /* ignore */ }
+  }, []);
+  const handleUpdateBudget = useCallback(
+    async (id: string, _projectId: string, budget: number) => {
+      await upsertStage.mutateAsync({ id, budget } as Parameters<typeof upsertStage.mutateAsync>[0]);
+    },
+    [upsertStage],
+  );
   const deleteQuoteStage = useDeleteQuoteStage(quoteId);
   const createQuoteDep = useCreateQuoteDependency(quoteId);
 
@@ -1154,7 +1169,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             onToggleCollapse={toggleCollapse}
             resourcesCollapsed={resCollapsed}
             onToggleResourcesCollapse={toggleResCollapse}
-            outlineWidth={320}
+            outlineWidth={outlineWidth}
+            onResizeOutline={handleResizeOutline}
             embedded
             selectedStageId={selectedStageId}
             onSelectStage={(id) => setSelectedStageId(id === PROJECT_SUMMARY_ID ? null : id)}
@@ -1162,6 +1178,9 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             onReorderStage={handleReorder}
             onInsertStage={handleInsert}
             onDeleteStage={handleDelete}
+            onUpdateStageBounds={adapter.updateStage}
+            onUpdateStageBudget={handleUpdateBudget}
+            onAppendRoot={() => handleInsert(null, "below")}
           />
           )}
         </div>
@@ -1323,6 +1342,22 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
   const [zoom, setZoom] = useState<ZoomMode>("fit");
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
+  const [outlineWidth, setOutlineWidth] = useState<number>(() => {
+    if (typeof window === "undefined") return 420;
+    const v = Number(window.localStorage.getItem("planner.outlineWidth.project"));
+    return Number.isFinite(v) && v >= 280 && v <= 900 ? v : 420;
+  });
+  const handleResizeOutline = useCallback((w: number) => {
+    setOutlineWidth(w);
+    try { window.localStorage.setItem("planner.outlineWidth.project", String(w)); } catch { /* ignore */ }
+  }, []);
+  const handleUpdateBudget = useCallback(
+    async (id: string, _projectId: string, budget: number) => {
+      if (!isAdmin) return;
+      await updateStage.mutateAsync({ id, patch: { budget }, projectId });
+    },
+    [isAdmin, updateStage, projectId],
+  );
   useEffect(() => { setZoom("fit"); }, [projectId]);
 
   const chartRef = useRef<HTMLDivElement | null>(null);
@@ -1706,7 +1741,8 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             onToggleCollapse={toggleCollapse}
             resourcesCollapsed={resCollapsed}
             onToggleResourcesCollapse={toggleResCollapse}
-            outlineWidth={320}
+            outlineWidth={outlineWidth}
+            onResizeOutline={handleResizeOutline}
             embedded
             selectedStageId={selectedStageId}
             onSelectStage={(id) => setSelectedStageId(id === PROJECT_MODE_SUMMARY_ID ? null : (id === selectedStageId ? null : id))}
@@ -1714,6 +1750,9 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             onReorderStage={isAdmin ? handleReorder : undefined}
             onInsertStage={isAdmin ? handleInsert : undefined}
             onDeleteStage={isAdmin ? handleDelete : undefined}
+            onUpdateStageBounds={isAdmin ? adapter.updateStage : undefined}
+            onUpdateStageBudget={isAdmin ? handleUpdateBudget : undefined}
+            onAppendRoot={isAdmin ? () => handleInsert(null, "below") : undefined}
           />
         </div>
         {selectedStageId && (
