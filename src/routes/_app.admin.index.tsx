@@ -13,6 +13,7 @@ import {
   Users,
   Settings,
   Database,
+  Trash2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/admin/")({
@@ -123,6 +124,13 @@ const GROUPS: AdminGroup[] = [
         description:
           "Cópias de segurança automáticas (diárias e semanais) e manuais de toda a base de dados, com auditoria e ligação ao ficheiro no Google Drive.",
         icon: Database,
+      },
+      {
+        to: "/admin/quotes-trash",
+        label: "Papelera de orçamentos",
+        description:
+          "Restaurar orçamentos eliminados ou arquivados. Os eliminados ficam com snapshot completo no audit log e são recuperáveis num clique.",
+        icon: Trash2,
       },
       {
         to: "/admin/projects",

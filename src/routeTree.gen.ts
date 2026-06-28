@@ -43,6 +43,7 @@ import { Route as AppCrmPipelineRouteImport } from './routes/_app.crm.pipeline'
 import { Route as AppCrmContactsRouteImport } from './routes/_app.crm.contacts'
 import { Route as AppCrmCompaniesRouteImport } from './routes/_app.crm.companies'
 import { Route as AppCrmAccountsRouteImport } from './routes/_app.crm.accounts'
+import { Route as AppAdminQuotesTrashRouteImport } from './routes/_app.admin.quotes-trash'
 import { Route as AppAdminProposalRolesRouteImport } from './routes/_app.admin.proposal-roles'
 import { Route as AppAdminProjectsRouteImport } from './routes/_app.admin.projects'
 import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports'
@@ -256,6 +257,11 @@ const AppCrmAccountsRoute = AppCrmAccountsRouteImport.update({
   id: '/accounts',
   path: '/accounts',
   getParentRoute: () => AppCrmRoute,
+} as any)
+const AppAdminQuotesTrashRoute = AppAdminQuotesTrashRouteImport.update({
+  id: '/admin/quotes-trash',
+  path: '/admin/quotes-trash',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppAdminProposalRolesRoute = AppAdminProposalRolesRouteImport.update({
   id: '/admin/proposal-roles',
@@ -511,6 +517,7 @@ export interface FileRoutesByFullPath {
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
   '/admin/proposal-roles': typeof AppAdminProposalRolesRoute
+  '/admin/quotes-trash': typeof AppAdminQuotesTrashRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
   '/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/crm/contacts': typeof AppCrmContactsRoute
@@ -586,6 +593,7 @@ export interface FileRoutesByTo {
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
   '/admin/proposal-roles': typeof AppAdminProposalRolesRoute
+  '/admin/quotes-trash': typeof AppAdminQuotesTrashRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
   '/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/crm/contacts': typeof AppCrmContactsRoute
@@ -666,6 +674,7 @@ export interface FileRoutesById {
   '/_app/admin/imports': typeof AppAdminImportsRoute
   '/_app/admin/projects': typeof AppAdminProjectsRoute
   '/_app/admin/proposal-roles': typeof AppAdminProposalRolesRoute
+  '/_app/admin/quotes-trash': typeof AppAdminQuotesTrashRoute
   '/_app/crm/accounts': typeof AppCrmAccountsRouteWithChildren
   '/_app/crm/companies': typeof AppCrmCompaniesRouteWithChildren
   '/_app/crm/contacts': typeof AppCrmContactsRoute
@@ -746,6 +755,7 @@ export interface FileRouteTypes {
     | '/admin/imports'
     | '/admin/projects'
     | '/admin/proposal-roles'
+    | '/admin/quotes-trash'
     | '/crm/accounts'
     | '/crm/companies'
     | '/crm/contacts'
@@ -821,6 +831,7 @@ export interface FileRouteTypes {
     | '/admin/imports'
     | '/admin/projects'
     | '/admin/proposal-roles'
+    | '/admin/quotes-trash'
     | '/crm/accounts'
     | '/crm/companies'
     | '/crm/contacts'
@@ -900,6 +911,7 @@ export interface FileRouteTypes {
     | '/_app/admin/imports'
     | '/_app/admin/projects'
     | '/_app/admin/proposal-roles'
+    | '/_app/admin/quotes-trash'
     | '/_app/crm/accounts'
     | '/_app/crm/companies'
     | '/_app/crm/contacts'
@@ -1213,6 +1225,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/crm/accounts'
       preLoaderRoute: typeof AppCrmAccountsRouteImport
       parentRoute: typeof AppCrmRoute
+    }
+    '/_app/admin/quotes-trash': {
+      id: '/_app/admin/quotes-trash'
+      path: '/admin/quotes-trash'
+      fullPath: '/admin/quotes-trash'
+      preLoaderRoute: typeof AppAdminQuotesTrashRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/admin/proposal-roles': {
       id: '/_app/admin/proposal-roles'
@@ -1711,6 +1730,7 @@ interface AppRouteChildren {
   AppAdminImportsRoute: typeof AppAdminImportsRoute
   AppAdminProjectsRoute: typeof AppAdminProjectsRoute
   AppAdminProposalRolesRoute: typeof AppAdminProposalRolesRoute
+  AppAdminQuotesTrashRoute: typeof AppAdminQuotesTrashRoute
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRouteWithChildren
   AppProjectsFinancialsRoute: typeof AppProjectsFinancialsRoute
   AppProjectsForecastRoute: typeof AppProjectsForecastRoute
@@ -1733,6 +1753,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminImportsRoute: AppAdminImportsRoute,
   AppAdminProjectsRoute: AppAdminProjectsRoute,
   AppAdminProposalRolesRoute: AppAdminProposalRolesRoute,
+  AppAdminQuotesTrashRoute: AppAdminQuotesTrashRoute,
   AppProjectsProjectIdRoute: AppProjectsProjectIdRouteWithChildren,
   AppProjectsFinancialsRoute: AppProjectsFinancialsRoute,
   AppProjectsForecastRoute: AppProjectsForecastRoute,

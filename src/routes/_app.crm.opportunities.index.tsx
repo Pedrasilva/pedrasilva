@@ -138,10 +138,28 @@ function OpportunitiesPage() {
         .update({ archived_at: new Date().toISOString() })
         .eq("id", quoteId);
       if (error) throw error;
+      return quoteId;
     },
-    onSuccess: () => {
-      toast.success("Orçamento arquivado");
+    onSuccess: (quoteId) => {
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+      toast.success("Orçamento arquivado", {
+        duration: 8000,
+        action: {
+          label: "Anular",
+          onClick: async () => {
+            const { error } = await supabase
+              .from("fee_proposals")
+              .update({ archived_at: null, archived_by: null })
+              .eq("id", quoteId);
+            if (error) {
+              toast.error(error.message);
+              return;
+            }
+            qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+            toast.success("Arquivo anulado");
+          },
+        },
+      });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -154,12 +172,28 @@ function OpportunitiesPage() {
       });
 
       if (error) throw error;
+      return quoteId;
     },
-    onSuccess: () => {
-      toast.success("Orçamento eliminado (recuperável por um administrador)");
+    onSuccess: (quoteId) => {
       setConfirmDelete(null);
       setConfirmText("");
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+      toast.success("Orçamento eliminado", {
+        description: "Recuperável em Admin → Papelera de orçamentos",
+        duration: 10000,
+        action: {
+          label: "Anular",
+          onClick: async () => {
+            const { error } = await supabase.rpc("restore_fee_proposal", { _proposal_id: quoteId });
+            if (error) {
+              toast.error(error.message);
+              return;
+            }
+            qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
+            toast.success("Orçamento restaurado");
+          },
+        },
+      });
     },
     onError: (e: Error) => toast.error(e.message),
   });
