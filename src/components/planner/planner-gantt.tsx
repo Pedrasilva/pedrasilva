@@ -98,6 +98,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   const adapter = useQuotePlannerAdapter(quoteId, resources);
   const { data: teamAvg } = useTeamPricingAverages();
   const impliedHourRate = teamAvg?.avgSalePerHour ?? 0;
+  const impliedCostRate = teamAvg?.avgCostPerHour ?? 0;
   const upsertStage = useUpsertQuoteStage(quoteId);
   const qc = useQueryClient();
   const [reflowing, setReflowing] = useState(false);
