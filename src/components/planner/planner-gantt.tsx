@@ -940,9 +940,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
     if (zoom === "fit") {
       return Math.max(1, Math.min(32, fitWidth));
     }
-    // Ensure the chart always fills the available container width: never
-    // shrink below what "fit" would use, even at compressed zoom levels.
-    return Math.max(ZOOM_DAY_WIDTHS[zoom], fitWidth);
+    return ZOOM_DAY_WIDTHS[zoom];
   }, [zoom, totalDays, dayWidthProp, chartWidth]);
 
   if (stagesQ.isLoading) {
