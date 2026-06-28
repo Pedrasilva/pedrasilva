@@ -132,6 +132,7 @@ const GROUPS: AdminGroup[] = [
           "Restaurar orçamentos eliminados ou arquivados. Os eliminados ficam com snapshot completo no audit log e são recuperáveis num clique.",
         icon: Trash2,
       },
+      {
         to: "/admin/projects",
         label: "Projetos (admin)",
         description: "Ferramentas administrativas e de integridade para projetos.",
