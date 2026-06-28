@@ -496,13 +496,15 @@ function ArchitectureStagesCard({
   const renderRow = (node: ArchNode, depth: number): React.ReactNode => {
     const roll = rollupNode(node);
     const implied = roll.hours === 0 && roll.fee > 0 && avgSaleRate > 0;
-    const hoursValue = implied ? roll.fee / avgSaleRate : roll.hours;
+    const hoursValue = impliedHoursFor(roll.fee, roll.hours);
+    const cost = impliedCostFor(hoursValue);
+    const profit = roll.fee - cost;
     const isLeaf = node.children.length === 0;
 
     return (
       <div key={node.stage.id}>
         <div
-          className="grid grid-cols-[1fr_auto_auto] items-center gap-4 py-1.5 text-sm border-b border-border/40"
+          className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-4 py-1.5 text-sm border-b border-border/40"
           style={{ paddingLeft: depth * 16 }}
         >
           <span
@@ -519,6 +521,20 @@ function ArchitectureStagesCard({
           </span>
           <span className="tabular-nums text-right font-medium min-w-[8ch]">
             {formatEUR(roll.fee)}
+          </span>
+          <span className="tabular-nums text-right text-muted-foreground min-w-[8ch]">
+            {cost > 0 ? formatEUR(cost) : "—"}
+          </span>
+          <span
+            className={`tabular-nums text-right font-medium min-w-[8ch] ${
+              profit > 0
+                ? "text-emerald-600 dark:text-emerald-400"
+                : profit < 0
+                  ? "text-rose-600 dark:text-rose-400"
+                  : ""
+            }`}
+          >
+            {cost > 0 ? formatEUR(profit) : "—"}
           </span>
         </div>
         {isLeaf && node.ownByResource.size > 0 && (
@@ -546,7 +562,7 @@ function ArchitectureStagesCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
-        <div className="grid grid-cols-[1fr_auto_auto] gap-4 text-xs uppercase tracking-wide text-muted-foreground pb-1 border-b">
+        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 text-xs uppercase tracking-wide text-muted-foreground pb-1 border-b">
           <span>
             {t("workspace.financial.stageColumn", { defaultValue: "Fase" })}
           </span>
@@ -558,9 +574,15 @@ function ArchitectureStagesCard({
           <span className="text-right min-w-[8ch]">
             {t("workspace.financial.fee", { defaultValue: "Honorário" })}
           </span>
+          <span className="text-right min-w-[8ch]">
+            {t("workspace.financial.impliedCost", { defaultValue: "Custo" })}
+          </span>
+          <span className="text-right min-w-[8ch]">
+            {t("workspace.financial.impliedProfit", { defaultValue: "Lucro" })}
+          </span>
         </div>
         {roots.map((n) => renderRow(n, 0))}
-        <div className="grid grid-cols-[1fr_auto_auto] gap-4 pt-3 text-sm font-semibold">
+        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 pt-3 text-sm font-semibold">
           <span>
             {t("workspace.financial.total", { defaultValue: "Total" })}
           </span>
@@ -570,20 +592,35 @@ function ArchitectureStagesCard({
           <span className="tabular-nums text-right min-w-[8ch]">
             {formatEUR(grand.fee)}
           </span>
+          <span className="tabular-nums text-right text-muted-foreground min-w-[8ch]">
+            {grand.cost > 0 ? formatEUR(grand.cost) : "—"}
+          </span>
+          <span
+            className={`tabular-nums text-right min-w-[8ch] ${
+              grandProfit > 0
+                ? "text-emerald-600 dark:text-emerald-400"
+                : grandProfit < 0
+                  ? "text-rose-600 dark:text-rose-400"
+                  : ""
+            }`}
+          >
+            {grand.cost > 0 ? formatEUR(grandProfit) : "—"}
+          </span>
         </div>
-        {avgSaleRate > 0 ? (
+        {avgSaleRate > 0 || avgCostRate > 0 ? (
           <p className="text-xs text-muted-foreground pt-2">
-            {t("workspace.financial.impliedHoursHint", {
+            {t("workspace.financial.hrRateBasisHint", {
               defaultValue:
-                "≈ indica horas implícitas calculadas a partir da tarifa média de venda ({{rate}}/h) quando a fase não tem recursos alocados.",
-              rate: formatEUR(avgSaleRate),
+                "Custo e venda médios calculados a partir do HR › Pricing — Project Team (venda média {{sale}}/h, custo médio {{cost}}/h). ≈ indica horas implícitas em fases de valor fixo.",
+              sale: formatEUR(avgSaleRate),
+              cost: formatEUR(avgCostRate),
             })}
           </p>
         ) : (
           <p className="text-xs text-muted-foreground pt-2">
             {t("workspace.financial.noAvgRateHint", {
               defaultValue:
-                "Defina tarifas de venda nos recursos de RH para mostrar horas implícitas em fases de valor fixo.",
+                "Defina salários, custos operacionais e margem em RH para mostrar horas, custo e lucro implícitos.",
             })}
           </p>
         )}
@@ -591,3 +628,4 @@ function ArchitectureStagesCard({
     </Card>
   );
 }
+
