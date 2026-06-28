@@ -128,6 +128,8 @@ function OpportunitiesPage() {
   });
 
   const [confirmDelete, setConfirmDelete] = useState<QuoteRef | null>(null);
+  const [confirmText, setConfirmText] = useState("");
+
 
   const archiveQuote = useMutation({
     mutationFn: async (quoteId: string) => {
