@@ -1052,6 +1052,8 @@ function QuoteDetail() {
         </TabsContent>
       </Tabs>
 
+      </fieldset>
+
       {/* Convert dialog — owned exclusively by the dedicated Convert
           button. Cannot be triggered as a side-effect of approval. */}
       <AlertDialog open={convertOpen} onOpenChange={setConvertOpen}>
