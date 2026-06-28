@@ -461,30 +461,37 @@ function ArchitectureStagesCard({
   stages,
   allocations,
   avgSaleRate,
+  avgCostRate,
 }: {
   stages: QuoteStage[];
   allocations: QuoteAllocationWithResource[];
   avgSaleRate: number;
+  avgCostRate: number;
 }) {
   const { t } = useTranslation("crm");
   const roots = buildArchTree(stages, allocations);
   if (roots.length === 0) return null;
 
+  // Implied hours / cost: prefer real allocations; fall back to avg sale rate.
+  const impliedHoursFor = (fee: number, ownHours: number) =>
+    ownHours > 0 ? ownHours : avgSaleRate > 0 ? fee / avgSaleRate : 0;
+  const impliedCostFor = (hours: number) =>
+    avgCostRate > 0 ? hours * avgCostRate : 0;
+
   const grand = roots.reduce(
     (acc, n) => {
       const r = rollupNode(n);
-      const hours =
-        r.hours > 0
-          ? r.hours
-          : avgSaleRate > 0
-            ? r.fee / avgSaleRate
-            : 0;
+      const hours = impliedHoursFor(r.fee, r.hours);
+      const cost = impliedCostFor(hours);
       acc.fee += r.fee;
       acc.hours += hours;
+      acc.cost += cost;
       return acc;
     },
-    { fee: 0, hours: 0 },
+    { fee: 0, hours: 0, cost: 0 },
   );
+  const grandProfit = grand.fee - grand.cost;
+
 
   const renderRow = (node: ArchNode, depth: number): React.ReactNode => {
     const roll = rollupNode(node);
