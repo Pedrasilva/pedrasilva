@@ -102,6 +102,9 @@ interface Props {
   /** When true, render only the "Fornecedores — total do contrato"
    *  detail block. Used by the Consultants tab. */
   consultantsOnly?: boolean;
+  /** When true, render only the "Plano de Faturação ao Cliente" block.
+   *  Used by the Incoming tab. */
+  incomingOnly?: boolean;
 }
 
 function netAmount(
