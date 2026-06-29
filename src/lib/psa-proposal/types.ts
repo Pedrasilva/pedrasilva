@@ -48,6 +48,14 @@ export type PsaContractRelevance =
   | "both"
   | "internal_only";
 
+export interface PsaProposalStyleSettings {
+  headingFont?: string;
+  bodyFont?: string;
+  headingWeight?: number;
+  bodyAlign?: "left" | "justify" | "center" | "right";
+  bodySize?: number; // in pt
+}
+
 export interface PsaProposal {
   id: string;
   quote_id: string | null;
@@ -55,6 +63,7 @@ export interface PsaProposal {
   status: PsaProposalStatus;
   client_snapshot: Record<string, unknown>;
   project_snapshot: Record<string, unknown>;
+  style_settings: PsaProposalStyleSettings;
   vat_mode: string | null;
   language: string;
   created_by: string | null;
