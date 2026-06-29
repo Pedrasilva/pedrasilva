@@ -8,6 +8,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface LiveStage {
+  id: string;
+  name: string;
+  code: string | null;
+  description: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  durationDays: number | null;
+  fee: number | null;
+  hours: number | null;
+}
+
 export interface LiveQuoteSnapshot {
   quoteId: string;
   projectNumber: string | null;
@@ -18,16 +30,7 @@ export interface LiveQuoteSnapshot {
   projectDescription: string | null;
   vatStatus: string | null;
   totalArchitectureFee: number | null;
-  stages: Array<{
-    id: string;
-    name: string;
-    code: string | null;
-    startDate: string | null;
-    endDate: string | null;
-    durationDays: number | null;
-    fee: number | null;
-    hours: number | null;
-  }>;
+  stages: LiveStage[];
   consultants: Array<{
     id: string;
     name: string;
