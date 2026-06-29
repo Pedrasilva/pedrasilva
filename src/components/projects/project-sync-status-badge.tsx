@@ -11,7 +11,7 @@ import { Link2, Link2Off, RefreshCcw } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -70,43 +70,45 @@ export function ProjectSyncStatusBadge({ projectId, sourceQuoteId, canEdit = fal
   const Icon = status === "live" ? Link2 : status === "paused" ? Link2Off : RefreshCcw;
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span
-          className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium ${colorClasses}`}
-        >
-          <Icon className="h-3 w-3" />
-          {label}
-          {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="-mr-1 ml-1 h-4 px-1 text-[10px]"
-              disabled={update.isPending}
-              onClick={() =>
-                update.mutate({ sync_status: status === "live" ? "paused" : "live" })
-              }
-            >
-              {status === "live" ? "Pause" : "Resume"}
-            </Button>
-          )}
-        </span>
-      </TooltipTrigger>
-      <TooltipContent>
-        <div className="text-xs">
-          <div>{label}</div>
-          {lastSync && (
-            <div className="text-muted-foreground">
-              Last sync: {format(new Date(lastSync), "d MMM yyyy HH:mm")}
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span
+            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium ${colorClasses}`}
+          >
+            <Icon className="h-3 w-3" />
+            {label}
+            {canEdit && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-mr-1 ml-1 h-4 px-1 text-[10px]"
+                disabled={update.isPending}
+                onClick={() =>
+                  update.mutate({ sync_status: status === "live" ? "paused" : "live" })
+                }
+              >
+                {status === "live" ? "Pause" : "Resume"}
+              </Button>
+            )}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <div className="text-xs">
+            <div>{label}</div>
+            {lastSync && (
+              <div className="text-muted-foreground">
+                Last sync: {format(new Date(lastSync), "d MMM yyyy HH:mm")}
+              </div>
+            )}
+            <div className="mt-1 text-muted-foreground">
+              {status === "live"
+                ? "Edits to the source quote auto-update this project."
+                : "Edits to the source quote no longer affect this project."}
             </div>
-          )}
-          <div className="mt-1 text-muted-foreground">
-            {status === "live"
-              ? "Edits to the source quote auto-update this project."
-              : "Edits to the source quote no longer affect this project."}
           </div>
-        </div>
-      </TooltipContent>
-    </Tooltip>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
