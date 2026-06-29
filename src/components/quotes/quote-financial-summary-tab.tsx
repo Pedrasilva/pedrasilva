@@ -393,26 +393,51 @@ function rollupNode(node: ArchNode): {
   return { fee, hours, hasChildren: true };
 }
 
-function ArchitectureStagesCard({
+export function ArchitectureStagesCard({
   stages,
   allocations,
   avgSaleRate,
   avgCostRate,
+  showMarginSlider = false,
 }: {
   stages: QuoteStage[];
   allocations: QuoteAllocationWithResource[];
   avgSaleRate: number;
   avgCostRate: number;
+  showMarginSlider?: boolean;
 }) {
   const { t } = useTranslation("crm");
   const roots = buildArchTree(stages, allocations);
+
+  // Mean markup-on-cost from HR pricing (matches the "Margem" pill).
+  const meanMarginPct = useMemo(() => {
+    if (avgCostRate > 0) {
+      return ((avgSaleRate - avgCostRate) / avgCostRate) * 100;
+    }
+    return 50;
+  }, [avgSaleRate, avgCostRate]);
+
+  const [marginPct, setMarginPct] = useState<number>(meanMarginPct);
+  useEffect(() => {
+    setMarginPct(meanMarginPct);
+  }, [meanMarginPct]);
+
+  // When the slider is shown, derive the effective cost rate from the
+  // sale rate + chosen markup so cost/profit recompute live.
+  const effectiveCostRate = showMarginSlider
+    ? avgSaleRate > 0 && marginPct > -100
+      ? avgSaleRate / (1 + marginPct / 100)
+      : avgCostRate
+    : avgCostRate;
+
   if (roots.length === 0) return null;
 
   // Implied hours / cost: prefer real allocations; fall back to avg sale rate.
   const impliedHoursFor = (fee: number, ownHours: number) =>
     ownHours > 0 ? ownHours : avgSaleRate > 0 ? fee / avgSaleRate : 0;
   const impliedCostFor = (hours: number) =>
-    avgCostRate > 0 ? hours * avgCostRate : 0;
+    effectiveCostRate > 0 ? hours * effectiveCostRate : 0;
+
 
   const grand = roots.reduce(
     (acc, n) => {
