@@ -92,6 +92,7 @@ function computeLayout(opts: {
 export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement | null }) {
   const [open, setOpen] = useState(false);
   const [paper, setPaper] = useState<PaperSize>("A4");
+  const [orientation, setOrientation] = useState<Orientation>("landscape");
   const [pages, setPages] = useState(1);
   const [fit, setFit] = useState(true);
   const [manualScale, setManualScale] = useState(100);
