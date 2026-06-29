@@ -558,7 +558,9 @@ export function PaymentScheduleProposalView({
         ];
         const filteredSections = compositionOnly
           ? allSections.filter((s) => s.key === "architecture")
-          : allSections;
+          : consultantsOnly
+            ? allSections.filter((s) => s.key === "supplier")
+            : allSections;
         const sections = filteredSections.filter((section) => section.rows.length > 0 && section.total > 0);
         if (sections.length === 0) return null;
         return (
