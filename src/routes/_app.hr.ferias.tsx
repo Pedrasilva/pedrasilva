@@ -163,7 +163,8 @@ function FeriasPage() {
   // Saldos do colaborador actual (ou colaborador seleccionado pelo admin)
   const [selectedCollabId, setSelectedCollabId] = useState<string>("");
   // Admins têm 3 modos: ver só os seus, ver por colaborador individual, ou calendário anual de toda a equipa.
-  const [adminScope, setAdminScope] = useState<"meus" | "colaborador" | "calendario">("meus");
+  const initialScope = Route.useSearch().scope ?? "meus";
+  const [adminScope, setAdminScope] = useState<"meus" | "colaborador" | "calendario">(initialScope);
   const [calendarYear, setCalendarYear] = useState<number>(currentYear);
   const focusCollab =
     isAdmin && adminScope === "colaborador"
