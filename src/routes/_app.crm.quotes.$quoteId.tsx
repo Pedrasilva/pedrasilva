@@ -905,7 +905,7 @@ function QuoteDetail() {
           {(isProject || isRetainer) && (
             <>
               <TabsTrigger value="architecture">Architecture</TabsTrigger>
-              <TabsTrigger value="consultants">Consultants</TabsTrigger>
+              <TabsTrigger value="consultants">Suppliers</TabsTrigger>
               <TabsTrigger value="incoming">Incoming</TabsTrigger>
               <TabsTrigger value="outgoing">Outgoing</TabsTrigger>
             </>
