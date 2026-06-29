@@ -447,8 +447,8 @@
 }
 
 .proposal-print-document .proposal-print-heading {
-  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-  font-weight: 700;
+  font-family: var(--psa-heading-font);
+  font-weight: var(--psa-heading-weight);
   letter-spacing: -0.005em;
   color: #111;
 }
