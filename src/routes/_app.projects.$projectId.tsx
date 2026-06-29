@@ -2078,8 +2078,6 @@ function InsightsPanel({
         </div>
       )}
 
-      <ExternalServicesSection projectId={projectId} canEdit={canEdit} />
-      <ProjectExpensesSection projectId={projectId} canEdit={canEdit} />
     </div>
   );
 }
