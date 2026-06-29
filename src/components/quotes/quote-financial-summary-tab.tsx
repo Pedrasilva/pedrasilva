@@ -531,7 +531,7 @@ export function ArchitectureStagesCard({
             </div>
             <div className="flex items-baseline gap-1.5">
               <span className="uppercase tracking-wide text-muted-foreground">Custo médio</span>
-              <span className="text-sm font-semibold tabular-nums">{formatEUR(avgCostRate)}/h</span>
+              <span className="text-sm font-semibold tabular-nums">{formatEUR(effectiveCostRate)}/h</span>
             </div>
             <div className="flex items-baseline gap-1.5">
               <span className="uppercase tracking-wide text-muted-foreground">Margem</span>
