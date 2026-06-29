@@ -378,6 +378,23 @@ function QuoteDetail() {
       }
       const stagesCopied = stageIdMap.size;
 
+      // 2a. Second pass: write parent_stage_id on the pm_stages we just
+      //     inserted, remapping each quote_stage parent reference through
+      //     stageIdMap. Done in a separate pass because parents/children can
+      //     be inserted in any order above (retainer expansion alters flow).
+      for (const s of qStages ?? []) {
+        const parentQuoteId = (s as { parent_stage_id?: string | null }).parent_stage_id;
+        if (!parentQuoteId) continue;
+        const pmParent = stageIdMap.get(parentQuoteId);
+        const pmSelf = stageIdMap.get(s.id);
+        if (!pmParent || !pmSelf || pmParent === pmSelf) continue;
+        const { error: parentErr } = await db
+          .from("pm_stages")
+          .update({ parent_stage_id: pmParent })
+          .eq("id", pmSelf);
+        if (parentErr) throw parentErr;
+      }
+
       // 2b. Copy quote_stage_dependencies → pm_stage_dependencies, remapping
       //     predecessor/successor IDs through stageIdMap. Skip silently if
       //     either endpoint is missing (defensive — schema FKs prevent it).
