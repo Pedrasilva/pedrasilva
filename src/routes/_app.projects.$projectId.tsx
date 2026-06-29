@@ -928,18 +928,26 @@ function ProjectDetail() {
 
             {tab === "schedule" && (
               <div className="mt-4 space-y-3">
-                <div className="flex flex-wrap items-center justify-end gap-2">
-                  <label className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1 text-[11px] text-muted-foreground">
-                    <input
-                      type="checkbox"
-                      checked={showCancelled}
-                      onChange={(e) => setShowCancelled(e.target.checked)}
-                      className="h-3.5 w-3.5"
-                    />
-                    {t("projects:gantt.showCancelled", { defaultValue: "Show cancelled" })}
-                  </label>
-                </div>
-                <ProjectGantt projectId={project.id} showCancelled={showCancelled} />
+                {sourceQuoteId ? (
+                  <QuotePlanningTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
+                ) : (
+                  <>
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <label className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1 text-[11px] text-muted-foreground">
+                        <input
+                          type="checkbox"
+                          checked={showCancelled}
+                          onChange={(e) => setShowCancelled(e.target.checked)}
+                          className="h-3.5 w-3.5"
+                        />
+                        {t("projects:gantt.showCancelled", { defaultValue: "Show cancelled" })}
+                      </label>
+                    </div>
+                    <ProjectGantt projectId={project.id} showCancelled={showCancelled} />
+                  </>
+                )}
+              </div>
+            )}
               </div>
             )}
 
