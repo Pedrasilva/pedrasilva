@@ -88,6 +88,13 @@ interface SupplierInfo {
   name: string;
 }
 
+export type ProposalSection =
+  | "all"
+  | "project"
+  | "consultants"
+  | "receiving"
+  | "paying";
+
 interface Props {
   items: QuotePaymentScheduleItem[];
   stages: QuoteStage[];
@@ -95,6 +102,10 @@ interface Props {
   stageFees: Record<string, number>;
   suppliers: SupplierInfo[];
   defaultVatRate: number;
+  /** Render only a subset of the view. Defaults to "all". */
+  section?: ProposalSection;
+  /** Hide the top "Composição do valor do contrato" card. */
+  hideComposition?: boolean;
 }
 
 function netAmount(
