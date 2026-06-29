@@ -61,7 +61,7 @@ export function BlockSettingsPanel({
 
   if (!block) {
     return (
-      <aside className="flex h-full w-80 shrink-0 flex-col border-l bg-muted/30 p-4 text-sm text-zinc-500">
+      <aside className="flex h-full w-72 shrink-0 flex-col border-l bg-muted/30 p-4 text-sm text-zinc-500 xl:w-80">
         Selecione um bloco para editar.
       </aside>
     );
@@ -79,7 +79,7 @@ export function BlockSettingsPanel({
     block.source_type === "mixed";
 
   return (
-    <aside className="flex h-full w-96 shrink-0 flex-col gap-3 overflow-y-auto border-l bg-muted/30 p-3 text-sm">
+    <aside className="flex h-full w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l bg-muted/30 p-3 text-sm xl:w-80">
       <div className="flex items-center justify-between">
         <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
           Definições do Bloco
