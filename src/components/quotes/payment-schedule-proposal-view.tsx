@@ -980,7 +980,7 @@ export function PaymentScheduleProposalView({
       })()}
 
       {/* Per-supplier outflow groups */}
-      {!compositionOnly && !consultantsOnly && !incomingOnly && supplierBuckets.length > 0 && (
+      {(!compositionOnly && !consultantsOnly && !incomingOnly || outgoingOnly) && supplierBuckets.length > 0 && (
         <div className="space-y-4">
           <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Compromissos com fornecedores
