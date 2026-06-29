@@ -3667,6 +3667,7 @@ export type Database = {
           is_locked: boolean
           resource_id: string
           source: string | null
+          source_quote_allocation_id: string | null
           stage_id: string
           start_date: string
           status: Database["public"]["Enums"]["pm_allocation_status"]
@@ -3684,6 +3685,7 @@ export type Database = {
           is_locked?: boolean
           resource_id: string
           source?: string | null
+          source_quote_allocation_id?: string | null
           stage_id: string
           start_date: string
           status?: Database["public"]["Enums"]["pm_allocation_status"]
@@ -3701,6 +3703,7 @@ export type Database = {
           is_locked?: boolean
           resource_id?: string
           source?: string | null
+          source_quote_allocation_id?: string | null
           stage_id?: string
           start_date?: string
           status?: Database["public"]["Enums"]["pm_allocation_status"]
@@ -4113,6 +4116,7 @@ export type Database = {
           quantity: number
           sale_price: number
           sale_price_manual: boolean
+          source_quote_external_service_id: string | null
           status: Database["public"]["Enums"]["pm_external_service_status"]
           supplier_company_id: string | null
           supplier_contact: string | null
@@ -4137,6 +4141,7 @@ export type Database = {
           quantity?: number
           sale_price?: number
           sale_price_manual?: boolean
+          source_quote_external_service_id?: string | null
           status?: Database["public"]["Enums"]["pm_external_service_status"]
           supplier_company_id?: string | null
           supplier_contact?: string | null
@@ -4161,6 +4166,7 @@ export type Database = {
           quantity?: number
           sale_price?: number
           sale_price_manual?: boolean
+          source_quote_external_service_id?: string | null
           status?: Database["public"]["Enums"]["pm_external_service_status"]
           supplier_company_id?: string | null
           supplier_contact?: string | null
@@ -4702,6 +4708,7 @@ export type Database = {
           created_at: string
           external_id: string | null
           id: string
+          last_synced_at: string | null
           name: string
           notes: string | null
           opportunity_id: string | null
@@ -4714,6 +4721,7 @@ export type Database = {
           source_contract_id: string | null
           start_date: string
           status: Database["public"]["Enums"]["pm_project_status"]
+          sync_status: Database["public"]["Enums"]["pm_sync_status"]
           updated_at: string
         }
         Insert: {
@@ -4725,6 +4733,7 @@ export type Database = {
           created_at?: string
           external_id?: string | null
           id?: string
+          last_synced_at?: string | null
           name: string
           notes?: string | null
           opportunity_id?: string | null
@@ -4737,6 +4746,7 @@ export type Database = {
           source_contract_id?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["pm_project_status"]
+          sync_status?: Database["public"]["Enums"]["pm_sync_status"]
           updated_at?: string
         }
         Update: {
@@ -4748,6 +4758,7 @@ export type Database = {
           created_at?: string
           external_id?: string | null
           id?: string
+          last_synced_at?: string | null
           name?: string
           notes?: string | null
           opportunity_id?: string | null
@@ -4760,6 +4771,7 @@ export type Database = {
           source_contract_id?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["pm_project_status"]
+          sync_status?: Database["public"]["Enums"]["pm_sync_status"]
           updated_at?: string
         }
         Relationships: [
@@ -5263,6 +5275,7 @@ export type Database = {
           lag_days: number
           predecessor_id: string
           source_contract_id: string | null
+          source_quote_dependency_id: string | null
           successor_id: string
           type: Database["public"]["Enums"]["pm_dep_type"]
           updated_at: string
@@ -5274,6 +5287,7 @@ export type Database = {
           lag_days?: number
           predecessor_id: string
           source_contract_id?: string | null
+          source_quote_dependency_id?: string | null
           successor_id: string
           type?: Database["public"]["Enums"]["pm_dep_type"]
           updated_at?: string
@@ -5285,6 +5299,7 @@ export type Database = {
           lag_days?: number
           predecessor_id?: string
           source_contract_id?: string | null
+          source_quote_dependency_id?: string | null
           successor_id?: string
           type?: Database["public"]["Enums"]["pm_dep_type"]
           updated_at?: string
@@ -5439,6 +5454,7 @@ export type Database = {
           source: string | null
           source_contract_id: string | null
           source_contract_phase_key: string | null
+          source_quote_stage_id: string | null
           stage_kind: string
           start_date: string
           status: string
@@ -5479,6 +5495,7 @@ export type Database = {
           source?: string | null
           source_contract_id?: string | null
           source_contract_phase_key?: string | null
+          source_quote_stage_id?: string | null
           stage_kind?: string
           start_date: string
           status?: string
@@ -5519,6 +5536,7 @@ export type Database = {
           source?: string | null
           source_contract_id?: string | null
           source_contract_phase_key?: string | null
+          source_quote_stage_id?: string | null
           stage_kind?: string
           start_date?: string
           status?: string
@@ -8635,6 +8653,7 @@ export type Database = {
         | "architect"
         | "hr"
         | "finance"
+      pm_sync_status: "live" | "paused" | "diverged"
       pm_task_status: "pending" | "active" | "paused" | "done"
       pm_time_entry_type: "project" | "internal" | "non_working" | "retainer"
       project_bootstrap_status: "preview" | "applied" | "failed" | "void"
@@ -8979,6 +8998,7 @@ export const Constants = {
         "hr",
         "finance",
       ],
+      pm_sync_status: ["live", "paused", "diverged"],
       pm_task_status: ["pending", "active", "paused", "done"],
       pm_time_entry_type: ["project", "internal", "non_working", "retainer"],
       project_bootstrap_status: ["preview", "applied", "failed", "void"],
