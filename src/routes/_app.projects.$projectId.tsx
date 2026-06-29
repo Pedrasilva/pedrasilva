@@ -99,7 +99,7 @@ export const Route = createFileRoute("/_app/projects/$projectId")({
   component: ProjectDetail,
 });
 
-type TabKey = "overview" | "schedule" | "materials" | "expenses" | "rates" | "billing" | "financial" | "insights" | "stream";
+type TabKey = "overview" | "schedule" | "materials" | "expenses" | "rates" | "billing" | "financial" | "insights" | "ap" | "stream";
 
 function ProjectDetail() {
   const { t } = useTranslation();
@@ -509,6 +509,7 @@ function ProjectDetail() {
                 Rates / Assets / Attachments / Details are dropped. */}
             <TabBtn icon={ListChecks} label={t("projects:detail.tabs.overview")} active={tab === "overview"} onClick={() => setTab("overview")} />
             <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
+            <TabBtn icon={ActivityIcon} label="A&P" active={tab === "ap"} onClick={() => setTab("ap")} />
             <TabBtn icon={Package} label={t("projects:detail.tabs.materials")} active={tab === "materials"} onClick={() => setTab("materials")} />
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
             <TabBtn icon={FileText} label={t("projects:detail.tabs.billing")} active={tab === "billing"} onClick={() => setTab("billing")} />
@@ -720,7 +721,6 @@ function ProjectDetail() {
               <div className="space-y-4">
                 <CommercialBaselineCard projectId={projectId} />
                 <ContractBaselineCard projectId={projectId} />
-                <ProjectForecastCard projectId={projectId} />
                 {budgetControl && canSeeFinancials && (
                   <BudgetControlPanel
                     project={budgetControl.project}
@@ -750,6 +750,12 @@ function ProjectDetail() {
                     onEditPlan={() => setTab("schedule")}
                   />
                 </div>
+              </div>
+            )}
+
+            {tab === "ap" && (
+              <div className="mt-4">
+                <ProjectForecastCard projectId={projectId} />
               </div>
             )}
 
