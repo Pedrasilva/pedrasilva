@@ -555,7 +555,7 @@ function ProjectDetail() {
             {/* Billing and Financial tabs hidden per request — kept in code for quick re-enable. */}
             {sourceQuoteId && (
               <>
-                <TabBtn icon={CalendarIcon2} label="Planning" active={tab === "planning"} onClick={() => setTab("planning")} />
+                
                 <TabBtn icon={Building2} label="Architecture" active={tab === "architecture"} onClick={() => setTab("architecture")} />
                 <TabBtn icon={UsersIcon} label="Suppliers" active={tab === "consultants"} onClick={() => setTab("consultants")} />
                 <TabBtn icon={ArrowDownToLine} label="Incoming" active={tab === "incoming"} onClick={() => setTab("incoming")} />
@@ -893,11 +893,7 @@ function ProjectDetail() {
               </div>
             )}
 
-            {sourceQuoteId && tab === "planning" && (
-              <div className="mt-4">
-                <QuotePlanningTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
-              </div>
-            )}
+
             {sourceQuoteId && tab === "architecture" && (
               <div className="mt-4 space-y-4">
                 <QuotePaymentScheduleTab quoteId={sourceQuoteId} compositionOnly />
@@ -932,20 +928,27 @@ function ProjectDetail() {
 
             {tab === "schedule" && (
               <div className="mt-4 space-y-3">
-                <div className="flex flex-wrap items-center justify-end gap-2">
-                  <label className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1 text-[11px] text-muted-foreground">
-                    <input
-                      type="checkbox"
-                      checked={showCancelled}
-                      onChange={(e) => setShowCancelled(e.target.checked)}
-                      className="h-3.5 w-3.5"
-                    />
-                    {t("projects:gantt.showCancelled", { defaultValue: "Show cancelled" })}
-                  </label>
-                </div>
-                <ProjectGantt projectId={project.id} showCancelled={showCancelled} />
+                {sourceQuoteId ? (
+                  <QuotePlanningTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
+                ) : (
+                  <>
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <label className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1 text-[11px] text-muted-foreground">
+                        <input
+                          type="checkbox"
+                          checked={showCancelled}
+                          onChange={(e) => setShowCancelled(e.target.checked)}
+                          className="h-3.5 w-3.5"
+                        />
+                        {t("projects:gantt.showCancelled", { defaultValue: "Show cancelled" })}
+                      </label>
+                    </div>
+                    <ProjectGantt projectId={project.id} showCancelled={showCancelled} />
+                  </>
+                )}
               </div>
             )}
+
 
 
             {tab === "insights" && (
