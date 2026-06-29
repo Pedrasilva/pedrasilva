@@ -1097,9 +1097,11 @@ function QuoteDetail() {
               <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} isRetainer={isRetainer} />
             </TabsContent>
 
-            <TabsContent value="architecture" className="mt-4">
+            <TabsContent value="architecture" className="mt-4 space-y-4">
               <QuotePaymentScheduleTab quoteId={quoteId} compositionOnly />
+              <ArchitectureFinancialBreakdown quoteId={quoteId} />
             </TabsContent>
+
             <TabsContent value="consultants" className="mt-4">
               <QuotePaymentScheduleTab quoteId={quoteId} consultantsOnly />
             </TabsContent>
