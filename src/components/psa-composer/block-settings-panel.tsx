@@ -34,13 +34,17 @@ import {
 import { RelevanceBadge } from "./relevance-badge";
 import { RichTextEditor } from "./rich-text-editor";
 import { useLiveQuoteSnapshot } from "@/lib/psa-proposal/live-data";
+import { ProposalStylePanel } from "./proposal-style-panel";
+import type { PsaProposal } from "@/lib/psa-proposal/types";
 
 export function BlockSettingsPanel({
   proposalId,
+  proposal,
   quoteIdHint,
   block,
 }: {
   proposalId: string;
+  proposal: PsaProposal;
   quoteIdHint: string | null;
   block: PsaProposalBlock | null;
 }) {
@@ -61,8 +65,11 @@ export function BlockSettingsPanel({
 
   if (!block) {
     return (
-      <aside className="flex h-full w-72 shrink-0 flex-col border-l bg-muted/30 p-4 text-sm text-zinc-500 xl:w-80">
-        Selecione um bloco para editar.
+      <aside className="flex h-full w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l bg-muted/30 p-3 text-sm xl:w-80">
+        <ProposalStylePanel proposal={proposal} />
+        <div className="mt-2 rounded-md border border-dashed bg-background/60 p-2 text-[11px] text-zinc-500">
+          Selecione um bloco para editar o seu conteúdo.
+        </div>
       </aside>
     );
   }
