@@ -843,6 +843,43 @@ function ProjectDetail() {
               </div>
             )}
 
+            {sourceQuoteId && tab === "planning" && (
+              <div className="mt-4">
+                <QuotePlanningTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
+              </div>
+            )}
+            {sourceQuoteId && tab === "architecture" && (
+              <div className="mt-4 space-y-4">
+                <QuotePaymentScheduleTab quoteId={sourceQuoteId} compositionOnly />
+                <ArchitectureFinancialBreakdown quoteId={sourceQuoteId} />
+              </div>
+            )}
+            {sourceQuoteId && tab === "consultants" && (
+              <div className="mt-4">
+                <QuotePaymentScheduleTab quoteId={sourceQuoteId} consultantsOnly />
+              </div>
+            )}
+            {sourceQuoteId && tab === "incoming" && (
+              <div className="mt-4">
+                <QuotePaymentScheduleTab quoteId={sourceQuoteId} incomingOnly />
+              </div>
+            )}
+            {sourceQuoteId && tab === "outgoing" && (
+              <div className="mt-4">
+                <QuotePaymentScheduleTab quoteId={sourceQuoteId} outgoingOnly />
+              </div>
+            )}
+            {sourceQuoteId && tab === "paymentSchedule" && (
+              <div className="mt-4">
+                <QuotePaymentScheduleTab quoteId={sourceQuoteId} />
+              </div>
+            )}
+            {sourceQuoteId && tab === "financialSummary" && (
+              <div className="mt-4">
+                <QuoteFinancialSummaryTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
+              </div>
+            )}
+
             {tab === "schedule" && (
               <div className="mt-4 space-y-3">
                 <div className="flex flex-wrap items-center justify-end gap-2">
