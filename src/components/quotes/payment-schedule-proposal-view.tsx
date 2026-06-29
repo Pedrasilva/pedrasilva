@@ -334,7 +334,7 @@ export function PaymentScheduleProposalView({
   return (
     <div className="space-y-6">
       {/* Top: contract composition (separated card) */}
-      {inflows.length > 0 && (() => {
+      {showComposition && inflows.length > 0 && (() => {
         const stageIdsAll = new Set(stages.map((s) => s.id));
         const stageById = new Map(stages.map((s) => [s.id, s]));
         const rootFor = (stageId: string): QuoteStage | null => {
