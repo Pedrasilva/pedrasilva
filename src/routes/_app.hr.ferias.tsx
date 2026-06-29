@@ -52,13 +52,14 @@ import type { Holiday } from "@/lib/workdays";
 
 import { PermissionGate } from "@/components/PermissionGate";
 
+type FeriasSearch = { scope?: "meus" | "colaborador" | "calendario" };
+
 export const Route = createFileRoute("/_app/hr/ferias")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    scope:
-      search.scope === "colaborador" || search.scope === "calendario" || search.scope === "meus"
-        ? (search.scope as "meus" | "colaborador" | "calendario")
-        : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): FeriasSearch => {
+    const s = search.scope;
+    if (s === "colaborador" || s === "calendario" || s === "meus") return { scope: s };
+    return {};
+  },
   component: () => (
     <PermissionGate permission="hr.ferias.own">
       <FeriasPage />
