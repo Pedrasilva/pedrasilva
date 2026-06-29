@@ -42,22 +42,23 @@ function SortableRow({
   block,
   chapter,
   selected,
+  quoteIdHint,
   onSelect,
 }: {
   block: PsaProposalBlock;
   chapter: number | null;
   selected: boolean;
+  quoteIdHint: string | null;
   onSelect: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: block.id });
-  const live = useLiveQuoteSnapshot(
-    (block.source_type === "live_quote" || block.source_type === "mixed") &&
-      block.source_ref &&
-      (block.source_ref as { quote_id?: string }).quote_id
-      ? ((block.source_ref as { quote_id?: string }).quote_id as string)
-      : null,
-  ).data;
+  const refQuoteId = (block.source_ref as { quote_id?: string } | undefined)?.quote_id;
+  const useLive =
+    block.source_type === "live_quote" ||
+    block.source_type === "mixed" ||
+    block.block_type === "stage_item";
+  const live = useLiveQuoteSnapshot(useLive ? refQuoteId ?? quoteIdHint : null).data;
 
   const style = {
     transform: CSS.Transform.toString(transform),
