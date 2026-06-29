@@ -1564,7 +1564,7 @@ function MilestonesTable({
                 stagePlannedHours(s.id) +
                 descendantsOf(s.id).reduce((acc, d) => acc + stagePlannedHours(d.id), 0);
 
-              const rows: JSX.Element[] = [];
+              const rows: React.ReactElement[] = [];
 
               const renderStage = (s: Row, depth: number, label: string) => {
                 const hasChildren = (childrenOf.get(s.id) ?? []).length > 0;
