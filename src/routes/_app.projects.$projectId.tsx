@@ -893,11 +893,7 @@ function ProjectDetail() {
               </div>
             )}
 
-            {sourceQuoteId && tab === "planning" && (
-              <div className="mt-4">
-                <QuotePlanningTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
-              </div>
-            )}
+
             {sourceQuoteId && tab === "architecture" && (
               <div className="mt-4 space-y-4">
                 <QuotePaymentScheduleTab quoteId={sourceQuoteId} compositionOnly />
