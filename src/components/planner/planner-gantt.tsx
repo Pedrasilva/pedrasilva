@@ -321,6 +321,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         external_id: null,
         total_hours_imported: null,
         allocation_percentage: null,
+        source_quote_allocation_id: null,
         resource: resourceForAlloc,
       };
       const arr = m.get(a.stage_id) ?? [];
@@ -475,6 +476,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       bill_to_client: (s as { bill_to_client?: boolean }).bill_to_client ?? false,
       markup_pct: (s as { markup_pct?: number }).markup_pct ?? 0,
       is_self: (s as { is_self?: boolean }).is_self ?? true,
+      source_quote_stage_id: null,
       allocations: allocByStage.get(s.id) ?? [],
       };
     });
