@@ -1506,161 +1506,255 @@ function MilestonesTable({
             </tr>
           </thead>
           <tbody>
-            {filtered.map((s, i) => {
-              const plannedCost = stageCost(s.id);
-              const cost = stageActualCost(s.id);
-              const revenue = stageActualRevenue(s.id);
-              const budget = Number(s.budget);
-              const over = cost > budget && budget > 0;
-              const logged = stageLoggedHours(s.id);
-              const planned = stagePlannedHours(s.id);
-              void stageCost;
-              const isOpen = expanded.has(s.id);
-              const isActive = s.allocations.length > 0;
-              void plannedCost;
-              return (
-                <Fragment key={s.id}>
-                  <tr className="border-b border-border bg-muted/20 hover:bg-muted/30">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => toggle(s.id)}
-                          className="text-muted-foreground hover:text-foreground"
-                          aria-label={isOpen ? "Colapsar" : "Expandir"}
+            {(() => {
+              // Build a tree from the filtered (is_self) stages so parent
+              // stages render as section headers with children indented.
+              // A stage is a "root" when its parent_stage_id is null or its
+              // parent isn't in the filtered set (e.g. the parent is the
+              // supplier-level "Architecture" row that we hide).
+              type Row = (typeof filtered)[number];
+              const inSet = new Set(filtered.map((s) => s.id));
+              const childrenOf = new Map<string | null, Row[]>();
+              for (const s of filtered) {
+                const pid = (s as { parent_stage_id?: string | null }).parent_stage_id ?? null;
+                const key = pid && inSet.has(pid) ? pid : null;
+                const arr = childrenOf.get(key) ?? [];
+                arr.push(s);
+                childrenOf.set(key, arr);
+              }
+              // Stable sort children by sort_order then name.
+              for (const arr of childrenOf.values()) {
+                arr.sort((a, b) => {
+                  const ao = Number((a as { sort_order?: number }).sort_order ?? 0);
+                  const bo = Number((b as { sort_order?: number }).sort_order ?? 0);
+                  if (ao !== bo) return ao - bo;
+                  return a.name.localeCompare(b.name);
+                });
+              }
+
+              const descendantsOf = (id: string): Row[] => {
+                const out: Row[] = [];
+                const stack = [...(childrenOf.get(id) ?? [])];
+                while (stack.length) {
+                  const r = stack.pop()!;
+                  out.push(r);
+                  for (const c of childrenOf.get(r.id) ?? []) stack.push(c);
+                }
+                return out;
+              };
+
+              const aggBudget = (s: Row): number => {
+                const own = Number(s.budget) || 0;
+                const desc = descendantsOf(s.id).reduce(
+                  (acc, d) => acc + (Number(d.budget) || 0),
+                  0,
+                );
+                return own + desc;
+              };
+              const aggCost = (s: Row): number =>
+                stageActualCost(s.id) +
+                descendantsOf(s.id).reduce((acc, d) => acc + stageActualCost(d.id), 0);
+              const aggRevenue = (s: Row): number =>
+                stageActualRevenue(s.id) +
+                descendantsOf(s.id).reduce((acc, d) => acc + stageActualRevenue(d.id), 0);
+              const aggLogged = (s: Row): number =>
+                stageLoggedHours(s.id) +
+                descendantsOf(s.id).reduce((acc, d) => acc + stageLoggedHours(d.id), 0);
+              const aggPlanned = (s: Row): number =>
+                stagePlannedHours(s.id) +
+                descendantsOf(s.id).reduce((acc, d) => acc + stagePlannedHours(d.id), 0);
+
+              const rows: JSX.Element[] = [];
+
+              const renderStage = (s: Row, depth: number, label: string) => {
+                const hasChildren = (childrenOf.get(s.id) ?? []).length > 0;
+                const isOpen = expanded.has(s.id);
+                const isActive = s.allocations.length > 0;
+                const budget = hasChildren ? aggBudget(s) : Number(s.budget) || 0;
+                const cost = hasChildren ? aggCost(s) : stageActualCost(s.id);
+                const revenue = hasChildren ? aggRevenue(s) : stageActualRevenue(s.id);
+                const logged = hasChildren ? aggLogged(s) : stageLoggedHours(s.id);
+                const planned = hasChildren ? aggPlanned(s) : stagePlannedHours(s.id);
+                const over = cost > budget && budget > 0;
+
+                rows.push(
+                  <Fragment key={s.id}>
+                    <tr
+                      className={
+                        depth === 0
+                          ? "border-b border-border bg-muted/30 hover:bg-muted/40"
+                          : "border-b border-border hover:bg-muted/20"
+                      }
+                    >
+                      <td className="px-4 py-3">
+                        <div
+                          className="flex items-center gap-2"
+                          style={{ paddingLeft: depth * 20 }}
                         >
-                          {isOpen ? (
-                            <ChevronDown className="h-3.5 w-3.5" />
+                          {hasChildren || s.allocations.length > 0 ? (
+                            <button
+                              onClick={() => toggle(s.id)}
+                              className="text-muted-foreground hover:text-foreground"
+                              aria-label={isOpen ? "Colapsar" : "Expandir"}
+                            >
+                              {isOpen ? (
+                                <ChevronDown className="h-3.5 w-3.5" />
+                              ) : (
+                                <ChevronRight className="h-3.5 w-3.5" />
+                              )}
+                            </button>
                           ) : (
-                            <ChevronRight className="h-3.5 w-3.5" />
+                            <span className="inline-block h-3.5 w-3.5" />
                           )}
-                        </button>
-                        <span
-                          className="inline-block h-2 w-2 shrink-0 rounded-full"
-                          style={{ backgroundColor: s.color }}
-                        />
-                        <div className="min-w-0">
-                          <div className="truncate font-semibold text-foreground">
-                            {i + 1}. {s.name}
-                          </div>
-                          <div className="text-[11px] text-muted-foreground">
-                            {s.allocations.length === 0
-                              ? "Sem responsável"
-                              : `${s.allocations.length} alocaç${s.allocations.length === 1 ? "ão" : "ões"}`}
+                          <span
+                            className="inline-block h-2 w-2 shrink-0 rounded-full"
+                            style={{ backgroundColor: s.color }}
+                          />
+                          <div className="min-w-0">
+                            <div
+                              className={
+                                depth === 0
+                                  ? "truncate font-semibold text-foreground"
+                                  : "truncate text-foreground"
+                              }
+                            >
+                              {label}. {s.name}
+                            </div>
+                            <div className="text-[11px] text-muted-foreground">
+                              {hasChildren
+                                ? `${(childrenOf.get(s.id) ?? []).length} sub-fase${(childrenOf.get(s.id) ?? []).length === 1 ? "" : "s"}`
+                                : s.allocations.length === 0
+                                  ? "Sem responsável"
+                                  : `${s.allocations.length} alocaç${s.allocations.length === 1 ? "ão" : "ões"}`}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusDot active={isActive} label={isActive ? "Active" : "Planned"} />
-                    </td>
-                    {canSeeFinancials && (
-                      <>
-                        <td className="px-4 py-3 min-w-[200px] w-[18%]">
-                          <CostVsBudgetCell cost={cost} budget={budget} over={over} />
-                        </td>
-                        <td className="px-4 py-3 min-w-[160px] w-[15%]">
-                          <RevenueEarnedCell revenue={revenue} />
-                        </td>
-                        <td className="px-4 py-3 min-w-[160px] w-[15%]">
-                          <ProfitMarginCell revenue={revenue} cost={cost} />
-                        </td>
-                      </>
-                    )}
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <UsageBudgetCell logged={logged} planned={planned} over={over} />
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <DateLink date={parseISO(s.start_date)} />
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <DateLink date={parseISO(s.end_date)} />
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="inline-flex items-center gap-1 text-muted-foreground">
-                        <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Editar">
-                          <Pencil className="h-3.5 w-3.5" />
-                        </button>
-                        <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Atribuir">
-                          <UserPlus className="h-3.5 w-3.5" />
-                        </button>
-                        <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Mais">
-                          <MoreVertical className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="px-4 py-3">
+                        <StatusDot active={isActive} label={isActive ? "Active" : "Planned"} />
+                      </td>
+                      {canSeeFinancials && (
+                        <>
+                          <td className="px-4 py-3 min-w-[200px] w-[18%]">
+                            <CostVsBudgetCell cost={cost} budget={budget} over={over} />
+                          </td>
+                          <td className="px-4 py-3 min-w-[160px] w-[15%]">
+                            <RevenueEarnedCell revenue={revenue} />
+                          </td>
+                          <td className="px-4 py-3 min-w-[160px] w-[15%]">
+                            <ProfitMarginCell revenue={revenue} cost={cost} />
+                          </td>
+                        </>
+                      )}
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <UsageBudgetCell logged={logged} planned={planned} over={over} />
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <DateLink date={parseISO(s.start_date)} />
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <DateLink date={parseISO(s.end_date)} />
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="inline-flex items-center gap-1 text-muted-foreground">
+                          <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Editar">
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Atribuir">
+                            <UserPlus className="h-3.5 w-3.5" />
+                          </button>
+                          <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Mais">
+                            <MoreVertical className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
 
-                  {isOpen &&
-                    s.allocations.map((a) => {
-                      const aHours =
-                        Math.max(0, dayDiffInclusive(a.start_date, a.end_date)) *
-                        Number(a.hours_per_day);
-                      const aPlannedCost =
-                        aHours *
-                        effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override);
-                      const aPlannedRevenue =
-                        aHours *
-                        effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override);
-                      return (
-                        <tr key={a.id} className="border-b border-border last:border-b-0">
-                          <td className="px-4 py-2.5">
-                            <div className="flex items-center gap-2 pl-7">
-                              <CollaboratorAvatar
-                                collaboratorId={(a.resource as { collaborator_id?: string | null }).collaborator_id ?? null}
-                                name={a.resource.name}
-                                color={a.resource.color}
-                                size={20}
-                              />
-                              <span className="truncate text-foreground">{a.resource.name}</span>
-                              <span className="text-[10px] text-muted-foreground">
-                                {Number(a.hours_per_day)}h/d
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-2.5">
-                            <StatusDot active label="Planned" />
-                          </td>
-                          {canSeeFinancials && (
-                            <>
-                              <td className="px-4 py-2.5 min-w-[200px]" title="Planned cost (allocation × cost rate)">
-                                <PlannedAmountCell amount={aPlannedCost} label="planned" />
-                              </td>
-                              <td className="px-4 py-2.5 min-w-[160px]" title="Planned revenue (allocation × sale rate)">
-                                <PlannedAmountCell amount={aPlannedRevenue} label="planned" />
-                              </td>
-                              <td className="px-4 py-2.5 min-w-[160px]" title="Planned profit = planned revenue − planned cost">
-                                <PlannedAmountCell amount={aPlannedRevenue - aPlannedCost} label="planned" />
-                              </td>
-                            </>
-                          )}
-                          <td className="px-4 py-2.5 whitespace-nowrap">
-                            <UsageBudgetCell logged={0} planned={aHours} over={false} />
-                          </td>
-                          <td className="px-4 py-2.5 whitespace-nowrap">
-                            <DateLink date={parseISO(a.start_date)} />
-                          </td>
-                          <td className="px-4 py-2.5 whitespace-nowrap">
-                            <DateLink date={parseISO(a.end_date)} />
-                          </td>
-                          <td className="px-4 py-2.5 text-right">
-                            <div className="inline-flex items-center gap-1 text-muted-foreground">
-                              <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Editar">
-                                <Pencil className="h-3.5 w-3.5" />
-                              </button>
-                              <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Atribuir">
-                                <UserPlus className="h-3.5 w-3.5" />
-                              </button>
-                              <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Mais">
-                                <MoreVertical className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                </Fragment>
-              );
-            })}
+                    {isOpen && !hasChildren &&
+                      s.allocations.map((a) => {
+                        const aHours =
+                          Math.max(0, dayDiffInclusive(a.start_date, a.end_date)) *
+                          Number(a.hours_per_day);
+                        const aPlannedCost =
+                          aHours *
+                          effectiveCostRate(a.resource.cost_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override);
+                        const aPlannedRevenue =
+                          aHours *
+                          effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override);
+                        return (
+                          <tr key={a.id} className="border-b border-border last:border-b-0">
+                            <td className="px-4 py-2.5">
+                              <div
+                                className="flex items-center gap-2"
+                                style={{ paddingLeft: (depth + 1) * 20 + 8 }}
+                              >
+                                <CollaboratorAvatar
+                                  collaboratorId={(a.resource as { collaborator_id?: string | null }).collaborator_id ?? null}
+                                  name={a.resource.name}
+                                  color={a.resource.color}
+                                  size={20}
+                                />
+                                <span className="truncate text-foreground">{a.resource.name}</span>
+                                <span className="text-[10px] text-muted-foreground">
+                                  {Number(a.hours_per_day)}h/d
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-2.5">
+                              <StatusDot active label="Planned" />
+                            </td>
+                            {canSeeFinancials && (
+                              <>
+                                <td className="px-4 py-2.5 min-w-[200px]" title="Planned cost (allocation × cost rate)">
+                                  <PlannedAmountCell amount={aPlannedCost} label="planned" />
+                                </td>
+                                <td className="px-4 py-2.5 min-w-[160px]" title="Planned revenue (allocation × sale rate)">
+                                  <PlannedAmountCell amount={aPlannedRevenue} label="planned" />
+                                </td>
+                                <td className="px-4 py-2.5 min-w-[160px]" title="Planned profit = planned revenue − planned cost">
+                                  <PlannedAmountCell amount={aPlannedRevenue - aPlannedCost} label="planned" />
+                                </td>
+                              </>
+                            )}
+                            <td className="px-4 py-2.5 whitespace-nowrap">
+                              <UsageBudgetCell logged={0} planned={aHours} over={false} />
+                            </td>
+                            <td className="px-4 py-2.5 whitespace-nowrap">
+                              <DateLink date={parseISO(a.start_date)} />
+                            </td>
+                            <td className="px-4 py-2.5 whitespace-nowrap">
+                              <DateLink date={parseISO(a.end_date)} />
+                            </td>
+                            <td className="px-4 py-2.5 text-right">
+                              <div className="inline-flex items-center gap-1 text-muted-foreground">
+                                <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Editar">
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </button>
+                                <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Atribuir">
+                                  <UserPlus className="h-3.5 w-3.5" />
+                                </button>
+                                <button className="rounded p-1 hover:bg-accent hover:text-foreground" aria-label="Mais">
+                                  <MoreVertical className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </Fragment>,
+                );
+
+                if (isOpen && hasChildren) {
+                  const kids = childrenOf.get(s.id) ?? [];
+                  kids.forEach((c, idx) => renderStage(c, depth + 1, `${label}.${idx + 1}`));
+                }
+              };
+
+              const roots = childrenOf.get(null) ?? [];
+              roots.forEach((r, idx) => renderStage(r, 0, String(idx + 1)));
+
+              return rows;
+            })()}
           </tbody>
         </table>
       </div>
