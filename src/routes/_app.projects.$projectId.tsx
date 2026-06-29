@@ -65,6 +65,7 @@ import { ContractBaselineCard } from "@/components/projects/contract-baseline-ca
 import { ProjectForecastCard } from "@/components/projects/project-forecast-card";
 import { useContractBaseline } from "@/lib/projects/use-contract-baseline";
 import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
+import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
 import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
 import {
   QuoteFinancialSummaryTab,
