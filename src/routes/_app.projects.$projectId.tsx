@@ -49,6 +49,7 @@ import { useProjectActivities } from "@/lib/projects/use-activities";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { useExternalServices } from "@/lib/projects/use-external-services";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
+import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useProjectExpenses } from "@/lib/projects/use-project-expenses";
 import { ExternalServicesSection } from "@/components/projects/external-services-section";
 import { ProjectExpensesSection } from "@/components/projects/project-expenses-section";
@@ -1840,10 +1841,32 @@ function InsightsPanel({
     },
     { budget: 0, cost: 0 },
   );
-  const suppliersBudget = Number(baselineHeader?.total_external_fee ?? fallbackExt.budget) || 0;
-  const architectureBudget = Number(
-    baselineHeader?.total_internal_fee ?? Math.max(0, totalBudget - suppliersBudget),
-  ) || 0;
+  // Fallback when baseline header totals were not populated (legacy projects):
+  // recompute internal/external splits from the source quote's stages directly.
+  const quoteStagesQ = useQuoteStages(insightsSourceQuoteId ?? undefined);
+  const stageTotals = (quoteStagesQ.data ?? []).reduce(
+    (acc, s) => {
+      const b = Number(s.budget || 0);
+      if (s.is_self) acc.internal += b;
+      else acc.external += b;
+      return acc;
+    },
+    { internal: 0, external: 0 },
+  );
+  const baseExternal = Number(baselineHeader?.total_external_fee ?? 0) || 0;
+  const baseInternal = Number(baselineHeader?.total_internal_fee ?? 0) || 0;
+  const suppliersBudget =
+    baseExternal > 0
+      ? baseExternal
+      : stageTotals.external > 0
+        ? stageTotals.external
+        : fallbackExt.budget;
+  const architectureBudget =
+    baseInternal > 0
+      ? baseInternal
+      : stageTotals.internal > 0
+        ? stageTotals.internal
+        : Math.max(0, totalBudget - suppliersBudget);
   const externalRow = {
     budget: suppliersBudget,
     value: suppliersBudget,
