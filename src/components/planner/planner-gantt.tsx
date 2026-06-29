@@ -1731,6 +1731,8 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             >
               {poolCollapsed ? <PanelRightOpen className="h-3.5 w-3.5" /> : <PanelRightClose className="h-3.5 w-3.5" />}
             </Button>
+            <div className="mx-1 h-4 w-px bg-border" />
+            <GanttPrintButton getTarget={() => chartRef.current} />
           </div>
         )}
       </div>
