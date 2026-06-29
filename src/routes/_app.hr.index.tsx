@@ -31,8 +31,20 @@ const fmtEUR = (n: number | null | undefined) =>
 function HrDashboard() {
   const { t } = useTranslation("hr");
   const { isAdmin } = useAuth();
-  const { permissions } = useMyPermissions();
+  const { permissions, isLoading: permsLoading } = useMyPermissions();
   const canFinance = isAdmin || permissions.has("finance.dashboard");
+  const canSeeCockpit =
+    isAdmin ||
+    permissions.has("hr.colaboradores") ||
+    permissions.has("hr.admin") ||
+    permissions.has("hr.resumo");
+
+  if (permsLoading) {
+    return <div className="text-sm text-muted-foreground">…</div>;
+  }
+  if (!canSeeCockpit) {
+    return <Navigate to="/hr/minha-ficha" replace />;
+  }
 
   const metricsQ = useHrDashboardMetrics();
   const alertsQ = useHrOperationalAlerts();
