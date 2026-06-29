@@ -158,6 +158,10 @@ function ProjectDetail() {
   });
 
   const [tab, setTab] = useState<TabKey>("overview");
+  const baselineQ = useContractBaseline(projectId);
+  const sourceQuoteId = baselineQ.data?.header.quote_id ?? null;
+  const baselineMultiplier = Number(baselineQ.data?.header.pricing_multiplier ?? 1) || 1;
+
   const [dayWidth, setDayWidth] = useState(36);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [poolOpen, setPoolOpen] = useState(false);
