@@ -1,88 +1,129 @@
-# Quote ↔ Project Unification
 
-Four workstreams, sequenced. Each is independently shippable.
+# PSA Proposal Composer — Build Plan
 
-## 1. Universalize the Mastercard dashboard
+A CanvaDoc/Notion-style composer that reproduces the PSA Word proposal structure (cover → acceptance) with a 3-pane layout, draggable reusable blocks, live Quote Builder data references, and PDF export. Contract-aware data model now; Contract Composer later.
 
-All project dashboards (existing and future) inherit the layout we built for Mastercard.
+There is significant existing proposal infrastructure in this repo (`proposal_blocks`, `quote_proposal_documents`, `quote_proposal_document_blocks`, `proposal-assembly`, `proposal-rendering`, `proposal-ontology`). Per your "start from scratch" instruction, I will build the Composer as a NEW, parallel surface that does NOT touch the existing builder. New tables, new routes, new components. Old proposals keep working untouched.
 
-Already in `src/routes/_app.projects.$projectId.tsx`, scoped project-wide:
-- Tabs: Overview, Insights, **A&P**, Schedule, Allocations, Tasks (no Planning, Billing, Financial, Materials)
-- Insights: Services = `total_internal_fee` (Architecture only), Suppliers = `total_external_fee`; no External services card, no Expenses card
-- A&P tab hosts `ProjectForecastCard` + `BudgetControlPanel` (architecture-only filter via `is_self !== false`)
-- Milestones table: hierarchical (parent stages as section headers, children indented, rollup totals, hierarchical numbering)
-- Planned hours fallback: budget ÷ avg sale rate when no allocations
-- Schedule tab renders `QuotePlanningTab` when `sourceQuoteId` exists (single Gantt source of truth)
+---
 
-Action: nothing to migrate — these changes already apply to every project rendered through this route. Verify no other route (`_app.projects.gantt.tsx`, `_app.projects.financials.tsx`, etc.) re-exposes the hidden tabs; remove stale entry points from nav configs if found.
+## 1. Data model (new tables, additive)
 
-## 2. Quote ↔ Project conversion audit
+```
+psa_proposals
+  id, quote_id (nullable FK), title, status (draft/review/sent/accepted),
+  client_snapshot (jsonb, frozen on send), project_snapshot (jsonb),
+  vat_mode, language, created_by, created_at, updated_at, sent_at
 
-Deliverable: `/mnt/documents/quote-project-parity-audit.md` covering every quote table and where each field lands (or doesn't) in the project.
+psa_proposal_blocks
+  id, proposal_id, sort_order,
+  block_type (cover|index|about|scope|stage_list|stage_item|timeline|
+              consultants|fee_table|construction_fee|payment_terms|
+              payment_schedule|additional_services|general|suspension|
+              exclusions|acceptance|custom_text|page_break),
+  title,
+  source_type (manual|library|live_quote|mixed|contract_clause),
+  source_ref (jsonb — e.g. {kind:"stage", stage_id:"…"}),
+  content_rich (jsonb — TipTap doc for manual/mixed body),
+  contract_relevance (proposal_only|contract_relevant|both|internal_only),
+  is_visible bool, is_locked bool,
+  created_at, updated_at
 
-Audit pairs:
+psa_block_library
+  id, kind (matches block_type), label, default_title,
+  default_content_rich, default_source_type, default_source_ref,
+  default_contract_relevance, sort_hint, is_system bool
 
-```text
-quote_stages              → pm_stages
-quote_stage_dependencies  → pm_stage_dependencies
-quote_allocations         → pm_allocations
-quote_external_services   → pm_stage_supplier_costs / pm_suppliers
-quote_payment_schedule_items → pm_payment_schedule_items
-quote_stage_supplier_costs → pm_stage_supplier_costs
-fee_proposals (header)    → pm_projects + pm_project_commercial_baselines
+psa_proposal_audit
+  id, proposal_id, actor, action, payload jsonb, created_at
 ```
 
-For each: column-by-column mapping, conversion code location, gaps, drift risk. Output as markdown artifact for review.
+Grants: `authenticated` full CRUD on proposals + blocks scoped by RLS (creator/admin); library is read-only for `authenticated`, write for admin.
 
-## 3. Fix known conversion gaps
+Seed `psa_block_library` with the 17 default blocks in the PSA order.
 
-Driven by audit findings, but baseline known issues:
-- `parent_stage_id` for retainer + monthly + standard stages (partially fixed; verify all branches in `src/routes/_app.crm.quotes.$quoteId.tsx` conversion mutation)
-- `is_self` flag propagation (internal vs supplier)
-- `stage_kind`, `billing_model`, retainer fields (`retainer_anchor_month`, `retainer_months`, `retainer_capacity_hours_per_month`)
-- `sort_order` consistency
-- `children_bill_independently` flag
-- Supplier external services → `pm_suppliers` + `pm_stage_supplier_costs` rows linked back to the right parent stage
-- Payment schedule items including invoice status, trigger metadata, billing dates
+## 2. Live-data resolver
 
-## 4. Live sync (quote → project mirror)
+Pure module `src/lib/psa-proposal/live-data.ts` that, given a `quote_id` and a `source_ref`, returns the resolved value. Reads from existing tables: `fee_proposals`, `quote_stages`, `quote_external_services`, `quote_payment_schedule_items`, `quote_supplier_phase_splits`, `crm_opportunities`. No writes. Returns a `{value, label, missing[]}` shape so the UI can show "missing data" badges.
 
-Auto-sync direction: **quote is source of truth**, project mirrors. Edits to quote propagate; project remains read-mostly for synced fields.
+Resolvable refs:
+project_number, project_name, client, date, location, project_description, scope,
+stages[], stage(id).{duration,fee,hours}, total_architecture_fee, consultants[],
+supplier_fees, timeline_gantt, payment_schedule[], vat_status, monthly_fees,
+construction_stage_fees, exclusions.
 
-Implementation:
-- DB triggers on `quote_stages`, `quote_stage_dependencies`, `quote_allocations`, `quote_external_services`, `quote_payment_schedule_items`: when row changes AND a `pm_projects` row references the parent quote via `source_quote_id`, upsert/delete the mirrored `pm_*` row.
-- Mirror by stable key: store `source_quote_stage_id` (already partly present) on `pm_stages`; same for allocations, dependencies, externals, payment items. Add columns where missing.
-- Sync metadata: `pm_projects.last_synced_at`, `pm_projects.sync_status` (`live` | `paused` | `diverged`).
-- UI sync indicator: badge in project header — "Live-synced from quote · last sync HH:mm" with a "Pause sync" button (sets status to `paused`, disables trigger via row flag).
-- Variance shown only when user has manually edited a mirrored row while sync is paused.
+## 3. UI surfaces (all new — old builder untouched)
 
-## 5. Unify planner UI components
+New route: `/crm/quotes/$quoteId/composer` and standalone `/proposals/$proposalId/composer`.
 
-`QuoteGantt` and `ProjectGantt` already share `GanttChart` via the planner adapter pattern (`useQuotePlannerAdapter` / project equivalent). Extend the same pattern to:
-- Financial summary (one component, two adapters)
-- Hierarchical milestones table (extract from `_app.projects.$projectId.tsx` into shared `<HierarchicalStagesTable>`, used in both quote financial summary and project A&P)
-- Insights tiles (shared `<ContractTotalsStrip>`)
+```
+┌─────────────────────────────────────────────────────────────┐
+│ TopBar: title • status • Preview PDF • Export PDF • Save    │
+├──────────────┬──────────────────────────┬───────────────────┤
+│ Block Library│  Canvas (A4 pages)       │ Block Settings    │
+│ (search +    │  - PSA header/logo       │ - title           │
+│  17 defaults │  - numbered chapters     │ - source_type     │
+│  + custom)   │  - blocks vertically     │ - source_ref      │
+│  drag to add │  - footer + page #s      │ - content editor  │
+│              │  - drag to reorder       │ - relevance flag  │
+│              │  - dnd-kit               │ - visible / lock  │
+│              │                          │ - duplicate /del  │
+└──────────────┴──────────────────────────┴───────────────────┘
+```
 
-Goal: any UI improvement made in one module automatically benefits the other.
+Components (`src/components/psa-composer/`):
+- `composer-shell.tsx` — 3-pane layout
+- `block-library-panel.tsx`
+- `canvas.tsx` — paginated A4 view, dnd-kit reordering
+- `block-settings-panel.tsx`
+- `top-bar.tsx`
+- `blocks/` — one renderer per block_type (cover, index, about, scope, stage-list, stage-item, timeline, consultants, fee-table, construction-fee, payment-terms, payment-schedule, additional-services, general, suspension, exclusions, acceptance, custom-text, page-break)
+- `relevance-badge.tsx` — colour-coded proposal-only/contract-relevant/both/internal
 
-## Sequencing
+Each block renders its `live_quote` refs through the resolver. Mixed blocks combine TipTap rich text with inline `<DataRef refId="…"/>` placeholders.
 
-1. Write audit (`/mnt/documents/quote-project-parity-audit.md`) — read-only investigation, produces the gap list.
-2. Apply migration to add missing `source_quote_*_id` mirror columns + sync metadata columns.
-3. Add DB triggers for live sync.
-4. Wire conversion code to populate mirror keys for new conversions; backfill existing projects.
-5. Add sync-status badge component in project header.
-6. Refactor hierarchical milestones table + financial summary into shared components.
+## 4. PSA visual chrome
 
-## Technical notes (for reference)
+- A4 page (`210mm × 297mm`), print CSS, white background, black serif body for marketing chapters, sans for tables.
+- Fixed header band: PSA logo (existing asset) + contact line on the right.
+- Footer: studio address + auto page numbers.
+- Numbered chapters (1. Cover excluded, 2. Index, …) computed from block order, skipping `cover`, `acceptance`, `page_break`.
+- Table-based fee/payment sections matching the current Word layout.
 
-- Existing column `pm_stages.source_quote_stage_id` may already exist — audit confirms.
-- Triggers must be SECURITY DEFINER + careful with recursion (mirror writes must not re-trigger).
-- Conversion code lives in `src/routes/_app.crm.quotes.$quoteId.tsx` (mutation) and `src/lib/project-bootstrap/` (newer bootstrap path).
-- Backfill done via one-off migration script matching by `(name, sort_order, parent path)` similar to the parent_stage_id backfill we ran last turn.
+## 5. Default proposal preload
 
-## Out of scope (deferred)
+When a proposal is created from a quote, server fn `psa_proposal_bootstrap` clones the 17 system library blocks in canonical order, attaches default `source_ref`s (live_quote where applicable), and copies the quote's client/project snapshot into `psa_proposals`.
 
-- Freezing the quote at conversion (per user: revisit once stable)
-- Project-side edits propagating back to quote
-- Multi-project from one quote (one-to-many sync)
+## 6. PDF export
+
+Use existing print pipeline pattern (like `gantt-print-button`): open a `/composer/$id/print` route that renders the canvas in print-mode-only CSS, then `window.print()` with a small dialog offering "Preview" and "Export" (browser save-as-PDF). No server-side PDF dep added.
+
+## 7. Out of scope (explicit)
+
+- Contract Composer — not built. `contract_relevance` flag and `psa_proposal_blocks` shape are designed so a later `contracts_from_proposal` job can read `contract_relevant`/`both` blocks.
+- Migration of existing `quote_proposal_documents` data into the new composer. The two coexist.
+- E-signature.
+
+---
+
+## Technical details
+
+Stack: TanStack Start routes, server functions in `src/lib/psa-proposal/*.functions.ts` with `requireSupabaseAuth`. TipTap for rich text (already common shadcn pattern; will install `@tiptap/react`, `@tiptap/starter-kit`). dnd-kit for drag/drop (already in repo for Gantt WBS).
+
+Phasing (so I can land it incrementally rather than one mega-commit):
+1. Migration + seed library (DB only).
+2. Composer shell + canvas + block list, no editing, with bootstrap from quote.
+3. Block settings panel + per-block live-data resolver + visibility/lock/duplicate/delete.
+4. PSA chrome (header/footer/numbering/A4) + print route + PDF export.
+5. Polish: missing-data badges, status workflow, audit log entries.
+
+I'll start at step 1 (migration) once you approve.
+
+---
+
+## Questions before I start
+
+1. **Quote linkage**: should every proposal require a `quote_id`, or do you also want standalone proposals (no quote attached, all manual)?
+2. **Rich text engine**: TipTap OK? It's the standard match for the Canva/Notion feel. Alternative is a plain `<textarea>` per block.
+3. **PDF route**: browser-print (free, instant, matches Gantt PDF button you liked) vs. server-side renderer (heavier, pixel-perfect). I recommend browser-print for v1.
+4. **Existing proposals**: leave the old `/crm/quotes/$id` proposal builder fully intact and add the composer as a separate "Composer" tab/button — confirm?

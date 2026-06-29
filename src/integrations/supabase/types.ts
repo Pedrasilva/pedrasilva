@@ -6450,6 +6450,195 @@ export type Database = {
         }
         Relationships: []
       }
+      psa_block_library: {
+        Row: {
+          created_at: string
+          default_content_rich: Json
+          default_contract_relevance: Database["public"]["Enums"]["psa_contract_relevance"]
+          default_source_ref: Json
+          default_source_type: Database["public"]["Enums"]["psa_block_source_type"]
+          default_title: string
+          id: string
+          is_system: boolean
+          kind: Database["public"]["Enums"]["psa_block_type"]
+          label: string
+          sort_hint: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_content_rich?: Json
+          default_contract_relevance?: Database["public"]["Enums"]["psa_contract_relevance"]
+          default_source_ref?: Json
+          default_source_type?: Database["public"]["Enums"]["psa_block_source_type"]
+          default_title?: string
+          id?: string
+          is_system?: boolean
+          kind: Database["public"]["Enums"]["psa_block_type"]
+          label: string
+          sort_hint?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_content_rich?: Json
+          default_contract_relevance?: Database["public"]["Enums"]["psa_contract_relevance"]
+          default_source_ref?: Json
+          default_source_type?: Database["public"]["Enums"]["psa_block_source_type"]
+          default_title?: string
+          id?: string
+          is_system?: boolean
+          kind?: Database["public"]["Enums"]["psa_block_type"]
+          label?: string
+          sort_hint?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      psa_proposal_audit: {
+        Row: {
+          action: string
+          actor: string | null
+          created_at: string
+          id: string
+          payload: Json
+          proposal_id: string
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json
+          proposal_id: string
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json
+          proposal_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "psa_proposal_audit_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "psa_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      psa_proposal_blocks: {
+        Row: {
+          block_type: Database["public"]["Enums"]["psa_block_type"]
+          content_rich: Json
+          contract_relevance: Database["public"]["Enums"]["psa_contract_relevance"]
+          created_at: string
+          id: string
+          is_locked: boolean
+          is_visible: boolean
+          proposal_id: string
+          sort_order: number
+          source_ref: Json
+          source_type: Database["public"]["Enums"]["psa_block_source_type"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          block_type: Database["public"]["Enums"]["psa_block_type"]
+          content_rich?: Json
+          contract_relevance?: Database["public"]["Enums"]["psa_contract_relevance"]
+          created_at?: string
+          id?: string
+          is_locked?: boolean
+          is_visible?: boolean
+          proposal_id: string
+          sort_order?: number
+          source_ref?: Json
+          source_type?: Database["public"]["Enums"]["psa_block_source_type"]
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          block_type?: Database["public"]["Enums"]["psa_block_type"]
+          content_rich?: Json
+          contract_relevance?: Database["public"]["Enums"]["psa_contract_relevance"]
+          created_at?: string
+          id?: string
+          is_locked?: boolean
+          is_visible?: boolean
+          proposal_id?: string
+          sort_order?: number
+          source_ref?: Json
+          source_type?: Database["public"]["Enums"]["psa_block_source_type"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "psa_proposal_blocks_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "psa_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      psa_proposals: {
+        Row: {
+          client_snapshot: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          language: string
+          project_snapshot: Json
+          quote_id: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["psa_proposal_status"]
+          title: string
+          updated_at: string
+          vat_mode: string | null
+        }
+        Insert: {
+          client_snapshot?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          language?: string
+          project_snapshot?: Json
+          quote_id?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["psa_proposal_status"]
+          title?: string
+          updated_at?: string
+          vat_mode?: string | null
+        }
+        Update: {
+          client_snapshot?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          language?: string
+          project_snapshot?: Json
+          quote_id?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["psa_proposal_status"]
+          title?: string
+          updated_at?: string
+          vat_mode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "psa_proposals_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_allocations: {
         Row: {
           allocation_percentage: number | null
@@ -8682,6 +8871,44 @@ export type Database = {
         | "negociacao"
         | "ganho"
         | "perdido"
+      psa_block_source_type:
+        | "manual"
+        | "library"
+        | "live_quote"
+        | "mixed"
+        | "contract_clause"
+      psa_block_type:
+        | "cover"
+        | "index"
+        | "about"
+        | "scope"
+        | "stage_list"
+        | "stage_item"
+        | "timeline"
+        | "consultants"
+        | "fee_table"
+        | "construction_fee"
+        | "payment_terms"
+        | "payment_schedule"
+        | "additional_services"
+        | "general"
+        | "suspension"
+        | "exclusions"
+        | "acceptance"
+        | "custom_text"
+        | "page_break"
+      psa_contract_relevance:
+        | "proposal_only"
+        | "contract_relevant"
+        | "both"
+        | "internal_only"
+      psa_proposal_status:
+        | "draft"
+        | "review"
+        | "sent"
+        | "accepted"
+        | "declined"
+        | "archived"
       quote_dep_type: "FS" | "SS" | "FF" | "SF"
       quote_external_service_status:
         | "draft"
@@ -9029,6 +9256,48 @@ export const Constants = {
         "negociacao",
         "ganho",
         "perdido",
+      ],
+      psa_block_source_type: [
+        "manual",
+        "library",
+        "live_quote",
+        "mixed",
+        "contract_clause",
+      ],
+      psa_block_type: [
+        "cover",
+        "index",
+        "about",
+        "scope",
+        "stage_list",
+        "stage_item",
+        "timeline",
+        "consultants",
+        "fee_table",
+        "construction_fee",
+        "payment_terms",
+        "payment_schedule",
+        "additional_services",
+        "general",
+        "suspension",
+        "exclusions",
+        "acceptance",
+        "custom_text",
+        "page_break",
+      ],
+      psa_contract_relevance: [
+        "proposal_only",
+        "contract_relevant",
+        "both",
+        "internal_only",
+      ],
+      psa_proposal_status: [
+        "draft",
+        "review",
+        "sent",
+        "accepted",
+        "declined",
+        "archived",
       ],
       quote_dep_type: ["FS", "SS", "FF", "SF"],
       quote_external_service_status: [
