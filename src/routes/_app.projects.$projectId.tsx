@@ -852,8 +852,8 @@ function ProjectDetail() {
             )}
 
             {tab === "ap" && (
-              <div className="mt-4">
-                <ProjectForecastCard projectId={projectId} />
+              <div className="mt-4 text-sm text-muted-foreground">
+                {/* Forecast & coverage card hidden per request. Re-enable: <ProjectForecastCard projectId={projectId} /> */}
               </div>
             )}
 
