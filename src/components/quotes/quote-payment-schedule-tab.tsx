@@ -152,7 +152,7 @@ function InlineLabelEditor({
   );
 }
 
-export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, consultantsOnly = false }: { quoteId: string; compositionOnly?: boolean; consultantsOnly?: boolean }) {
+export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, consultantsOnly = false, incomingOnly = false }: { quoteId: string; compositionOnly?: boolean; consultantsOnly?: boolean; incomingOnly?: boolean }) {
   const { t } = useTranslation("crm");
   const itemsQ = useQuotePaymentSchedule(quoteId);
   const stagesQ = useQuoteStages(quoteId);
