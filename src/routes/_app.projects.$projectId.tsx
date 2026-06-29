@@ -48,6 +48,7 @@ import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { useProjectActivities } from "@/lib/projects/use-activities";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { useExternalServices } from "@/lib/projects/use-external-services";
+import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import { useProjectExpenses } from "@/lib/projects/use-project-expenses";
 import { ExternalServicesSection } from "@/components/projects/external-services-section";
 import { ProjectExpensesSection } from "@/components/projects/project-expenses-section";
@@ -1820,20 +1821,15 @@ function InsightsPanel({
   //   Profit = Budget (incoming / contracted fee) − Costs
   // The "Value" row is the hypothetical sale value of resources at sale rate
   // and is intentionally NOT used in the profit calculation.
-  const services = {
-    budget: totalBudget,
-    value: earnedValue,
-    cost: loggedCost,
-    profit: totalBudget - loggedCost,
-    invoiced: invoicedTotal,
-  };
-  // Pull live external services + project expenses to enrich Financials
-  const externalServicesQuery = useExternalServices(projectId);
-  const projectExpensesQuery = useProjectExpenses(projectId);
-  const extItems = externalServicesQuery.data ?? [];
-  const expItems = projectExpensesQuery.data ?? [];
-  const externalRow = extItems.reduce(
-    (acc, m) => {
+  // Pull suppliers from the source quote's consultants tab (quote_external_services).
+  // Materials column = total of all suppliers from consultants.
+  // Services column = architecture only (contract total minus suppliers).
+  const insightsBaselineQ = useContractBaseline(projectId);
+  const insightsSourceQuoteId = insightsBaselineQ.data?.header.quote_id ?? null;
+  const quoteExternalQ = useQuoteExternalServices(insightsSourceQuoteId ?? undefined);
+  const quoteExtItems = quoteExternalQ.data ?? [];
+  const externalRow = quoteExtItems.reduce(
+    (acc: { budget: number; value: number; cost: number; profit: number; invoiced: number }, m) => {
       const qty = Number(m.quantity || 1);
       const cost = Number(m.purchase_price || 0) * qty;
       const revenue = Number(m.sale_price || 0) * qty;
@@ -1845,6 +1841,17 @@ function InsightsPanel({
     { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 },
   );
   externalRow.profit = externalRow.budget - externalRow.cost;
+
+  const services = {
+    budget: Math.max(0, totalBudget - externalRow.budget),
+    value: earnedValue,
+    cost: loggedCost,
+    profit: Math.max(0, totalBudget - externalRow.budget) - loggedCost,
+    invoiced: invoicedTotal,
+  };
+
+  const projectExpensesQuery = useProjectExpenses(projectId);
+  const expItems = projectExpensesQuery.data ?? [];
   const expensesRow = expItems.reduce(
     (acc, e) => {
       const cost = Number(e.purchase_price || 0);
