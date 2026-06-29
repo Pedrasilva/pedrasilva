@@ -772,14 +772,62 @@ function ProjectDetail() {
               <div className="space-y-4">
                 <CommercialBaselineCard projectId={projectId} />
                 <ContractBaselineCard projectId={projectId} />
-                {budgetControl && canSeeFinancials && (
-                  <BudgetControlPanel
-                    project={budgetControl.project}
-                    byStage={budgetControl.byStage}
-                    stages={stages.map((s) => ({ id: s.id, name: s.name, color: s.color }))}
-                    showFinancials={canSeeFinancials}
-                  />
-                )}
+                {budgetControl && canSeeFinancials && (() => {
+                  // Budget control is architecture-only. Filter out supplier stages
+                  // (is_self === false) and rebuild project-level aggregates.
+                  const archStages = stages.filter(
+                    (s) => (s as { is_self?: boolean }).is_self !== false,
+                  );
+                  const archIds = new Set(archStages.map((s) => s.id));
+                  const archByStage = new Map(
+                    Array.from(budgetControl.byStage.entries()).filter(([id]) =>
+                      archIds.has(id),
+                    ),
+                  );
+                  const entries = Array.from(archByStage.values());
+                  const sum = (k: keyof typeof entries[number]) =>
+                    entries.reduce((a, e) => a + (Number(e[k] as number) || 0), 0);
+                  const actualHours = sum("actual_hours_logged");
+                  const actualCost = sum("actual_cost_consumed");
+                  const teamRated = entries.filter((e) => e.has_team_rate);
+                  const avgRate = teamRated.length
+                    ? teamRated.reduce(
+                        (a, e) => a + e.average_team_hourly_rate * e.actual_hours_logged,
+                        0,
+                      ) / Math.max(1, teamRated.reduce((a, e) => a + e.actual_hours_logged, 0)) ||
+                      teamRated.reduce((a, e) => a + e.average_team_hourly_rate, 0) /
+                        teamRated.length
+                    : 0;
+                  const remaining = sum("remaining_budget");
+                  const plannedCost = sum("planned_future_cost");
+                  const plannedHours = sum("planned_future_hours");
+                  const archProject = {
+                    ...budgetControl.project,
+                    actual_hours_logged: actualHours,
+                    actual_billable_hours: sum("actual_billable_hours"),
+                    actual_non_billable_hours: sum("actual_non_billable_hours"),
+                    actual_cost_consumed: actualCost,
+                    actual_value_generated: sum("actual_value_generated"),
+                    original_budget: sum("original_budget"),
+                    remaining_budget: remaining,
+                    planned_future_hours: plannedHours,
+                    planned_future_cost: plannedCost,
+                    projected_over_under: remaining - plannedCost,
+                    average_team_hourly_rate: avgRate,
+                    has_team_rate: teamRated.length > 0,
+                    estimated_available_hours:
+                      teamRated.length > 0 && avgRate > 0 ? remaining / avgRate : null,
+                  };
+                  return (
+                    <BudgetControlPanel
+                      project={archProject}
+                      byStage={archByStage}
+                      stages={archStages.map((s) => ({ id: s.id, name: s.name, color: s.color }))}
+                      showFinancials={canSeeFinancials}
+                    />
+                  );
+                })()}
+
                 <RetainerMonitorPanel
                   stages={stages}
                   byStage={budgetControl?.byStage}
