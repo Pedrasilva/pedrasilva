@@ -422,19 +422,22 @@ export function ArchitectureStagesCard({
     setMarginPct(meanMarginPct);
   }, [meanMarginPct]);
 
-  // When the slider is shown, derive the effective cost rate from the
-  // sale rate + chosen markup so cost/profit recompute live.
-  const effectiveCostRate = showMarginSlider
-    ? avgSaleRate > 0 && marginPct > -100
-      ? avgSaleRate / (1 + marginPct / 100)
-      : avgCostRate
-    : avgCostRate;
+  // When the slider is shown, hold the cost rate constant and let the
+  // implied sale rate flex with the chosen markup. Lower margin → lower
+  // effective sale rate → more implied hours for the same fixed fee, and
+  // proportionally higher implied cost.
+  const effectiveSaleRate = showMarginSlider
+    ? avgCostRate > 0
+      ? avgCostRate * (1 + marginPct / 100)
+      : avgSaleRate
+    : avgSaleRate;
+  const effectiveCostRate = avgCostRate;
 
   if (roots.length === 0) return null;
 
-  // Implied hours / cost: prefer real allocations; fall back to avg sale rate.
+  // Implied hours / cost: prefer real allocations; fall back to effective sale rate.
   const impliedHoursFor = (fee: number, ownHours: number) =>
-    ownHours > 0 ? ownHours : avgSaleRate > 0 ? fee / avgSaleRate : 0;
+    ownHours > 0 ? ownHours : effectiveSaleRate > 0 ? fee / effectiveSaleRate : 0;
   const impliedCostFor = (hours: number) =>
     effectiveCostRate > 0 ? hours * effectiveCostRate : 0;
 
