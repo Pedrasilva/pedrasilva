@@ -154,7 +154,12 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
         projectDescription: q.proposal_description ?? null,
         vatStatus:
           q.default_vat_rate != null ? `IVA ${q.default_vat_rate}%` : null,
-        totalArchitectureFee: q.valor ?? null,
+        totalArchitectureFee:
+          q.valor && Number(q.valor) > 0
+            ? Number(q.valor)
+            : ((stages ?? []) as Array<{ is_self?: boolean; budget?: number | null }>)
+                .filter((s) => s.is_self !== false)
+                .reduce((sum, s) => sum + (Number(s.budget) || 0), 0) || null,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         stages: (stages ?? []).map((s: any) => {
           const start = s.start_date ? new Date(s.start_date) : null;
@@ -178,6 +183,7 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
             durationDays: days,
             fee: s.budget ?? null,
             hours: null,
+            isSelf: s.is_self !== false,
           };
         }),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
