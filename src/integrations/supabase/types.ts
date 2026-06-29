@@ -8217,6 +8217,10 @@ export type Database = {
     }
     Functions: {
       allocate_proposal_number: { Args: { p_date?: string }; Returns: string }
+      backfill_quote_from_project: {
+        Args: { _project_id: string }
+        Returns: string
+      }
       bank_import_move_account: {
         Args: { _import_id: string; _new_account_id: string }
         Returns: Json
@@ -8298,6 +8302,10 @@ export type Database = {
             Args: { _cascade?: boolean; _confirm: string; _project_id: string }
             Returns: Json
           }
+      ensure_project_has_quote: {
+        Args: { _project_id: string }
+        Returns: string
+      }
       finance_delete_unused_supplier_companies: {
         Args: { _confirm: string }
         Returns: Json
