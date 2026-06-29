@@ -16,6 +16,7 @@ import { Route as ApiNotifyExpenseRouteImport } from './routes/api.notify-expens
 import { Route as AppHrRouteImport } from './routes/_app.hr'
 import { Route as AppFinanceRouteImport } from './routes/_app.finance'
 import { Route as AppCrmRouteImport } from './routes/_app.crm'
+import { Route as AppProposalsIndexRouteImport } from './routes/_app.proposals.index'
 import { Route as AppProjectsIndexRouteImport } from './routes/_app.projects.index'
 import { Route as AppHrIndexRouteImport } from './routes/_app.hr.index'
 import { Route as AppFinanceIndexRouteImport } from './routes/_app.finance.index'
@@ -52,6 +53,7 @@ import { Route as AppAdminBackupsRouteImport } from './routes/_app.admin.backups
 import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.finance.documents.index'
 import { Route as AppCrmOpportunitiesIndexRouteImport } from './routes/_app.crm.opportunities.index'
 import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
+import { Route as AppProposalsProposalIdComposerRouteImport } from './routes/_app.proposals.$proposalId.composer'
 import { Route as AppProjectsResourcesResourceIdRouteImport } from './routes/_app.projects.resources.$resourceId'
 import { Route as AppProjectsProjectIdAllocationsRouteImport } from './routes/_app.projects.$projectId.allocations'
 import { Route as AppHrColaboradorIdRouteImport } from './routes/_app.hr.colaborador.$id'
@@ -120,6 +122,11 @@ const AppFinanceRoute = AppFinanceRouteImport.update({
 const AppCrmRoute = AppCrmRouteImport.update({
   id: '/crm',
   path: '/crm',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProposalsIndexRoute = AppProposalsIndexRouteImport.update({
+  id: '/proposals/',
+  path: '/proposals/',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
@@ -305,6 +312,12 @@ const ApiPublicHooksRunBackupRoute = ApiPublicHooksRunBackupRouteImport.update({
   path: '/api/public/hooks/run-backup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppProposalsProposalIdComposerRoute =
+  AppProposalsProposalIdComposerRouteImport.update({
+    id: '/proposals/$proposalId/composer',
+    path: '/proposals/$proposalId/composer',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppProjectsResourcesResourceIdRoute =
   AppProjectsResourcesResourceIdRouteImport.update({
     id: '/$resourceId',
@@ -545,6 +558,7 @@ export interface FileRoutesByFullPath {
   '/finance/': typeof AppFinanceIndexRoute
   '/hr/': typeof AppHrIndexRoute
   '/projects/': typeof AppProjectsIndexRoute
+  '/proposals/': typeof AppProposalsIndexRoute
   '/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
   '/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
   '/crm/contracts/$contractId': typeof AppCrmContractsContractIdRoute
@@ -580,6 +594,7 @@ export interface FileRoutesByFullPath {
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
+  '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents/': typeof AppFinanceDocumentsIndexRoute
@@ -621,6 +636,7 @@ export interface FileRoutesByTo {
   '/finance': typeof AppFinanceIndexRoute
   '/hr': typeof AppHrIndexRoute
   '/projects': typeof AppProjectsIndexRoute
+  '/proposals': typeof AppProposalsIndexRoute
   '/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
   '/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
   '/crm/contracts/$contractId': typeof AppCrmContractsContractIdRoute
@@ -656,6 +672,7 @@ export interface FileRoutesByTo {
   '/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
+  '/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/crm/opportunities': typeof AppCrmOpportunitiesIndexRoute
   '/finance/documents': typeof AppFinanceDocumentsIndexRoute
@@ -702,6 +719,7 @@ export interface FileRoutesById {
   '/_app/finance/': typeof AppFinanceIndexRoute
   '/_app/hr/': typeof AppHrIndexRoute
   '/_app/projects/': typeof AppProjectsIndexRoute
+  '/_app/proposals/': typeof AppProposalsIndexRoute
   '/_app/crm/accounts/$accountId': typeof AppCrmAccountsAccountIdRoute
   '/_app/crm/companies/$companyId': typeof AppCrmCompaniesCompanyIdRoute
   '/_app/crm/contracts/$contractId': typeof AppCrmContractsContractIdRoute
@@ -737,6 +755,7 @@ export interface FileRoutesById {
   '/_app/hr/colaborador/$id': typeof AppHrColaboradorIdRoute
   '/_app/projects/$projectId/allocations': typeof AppProjectsProjectIdAllocationsRoute
   '/_app/projects/resources/$resourceId': typeof AppProjectsResourcesResourceIdRoute
+  '/_app/proposals/$proposalId/composer': typeof AppProposalsProposalIdComposerRoute
   '/api/public/hooks/run-backup': typeof ApiPublicHooksRunBackupRoute
   '/_app/crm/opportunities/': typeof AppCrmOpportunitiesIndexRoute
   '/_app/finance/documents/': typeof AppFinanceDocumentsIndexRoute
@@ -783,6 +802,7 @@ export interface FileRouteTypes {
     | '/finance/'
     | '/hr/'
     | '/projects/'
+    | '/proposals/'
     | '/crm/accounts/$accountId'
     | '/crm/companies/$companyId'
     | '/crm/contracts/$contractId'
@@ -818,6 +838,7 @@ export interface FileRouteTypes {
     | '/hr/colaborador/$id'
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
+    | '/proposals/$proposalId/composer'
     | '/api/public/hooks/run-backup'
     | '/crm/opportunities/'
     | '/finance/documents/'
@@ -859,6 +880,7 @@ export interface FileRouteTypes {
     | '/finance'
     | '/hr'
     | '/projects'
+    | '/proposals'
     | '/crm/accounts/$accountId'
     | '/crm/companies/$companyId'
     | '/crm/contracts/$contractId'
@@ -894,6 +916,7 @@ export interface FileRouteTypes {
     | '/hr/colaborador/$id'
     | '/projects/$projectId/allocations'
     | '/projects/resources/$resourceId'
+    | '/proposals/$proposalId/composer'
     | '/api/public/hooks/run-backup'
     | '/crm/opportunities'
     | '/finance/documents'
@@ -939,6 +962,7 @@ export interface FileRouteTypes {
     | '/_app/finance/'
     | '/_app/hr/'
     | '/_app/projects/'
+    | '/_app/proposals/'
     | '/_app/crm/accounts/$accountId'
     | '/_app/crm/companies/$companyId'
     | '/_app/crm/contracts/$contractId'
@@ -974,6 +998,7 @@ export interface FileRouteTypes {
     | '/_app/hr/colaborador/$id'
     | '/_app/projects/$projectId/allocations'
     | '/_app/projects/resources/$resourceId'
+    | '/_app/proposals/$proposalId/composer'
     | '/api/public/hooks/run-backup'
     | '/_app/crm/opportunities/'
     | '/_app/finance/documents/'
@@ -1035,6 +1060,13 @@ declare module '@tanstack/react-router' {
       path: '/crm'
       fullPath: '/crm'
       preLoaderRoute: typeof AppCrmRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/proposals/': {
+      id: '/_app/proposals/'
+      path: '/proposals'
+      fullPath: '/proposals/'
+      preLoaderRoute: typeof AppProposalsIndexRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/projects/': {
@@ -1288,6 +1320,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/hooks/run-backup'
       preLoaderRoute: typeof ApiPublicHooksRunBackupRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/proposals/$proposalId/composer': {
+      id: '/_app/proposals/$proposalId/composer'
+      path: '/proposals/$proposalId/composer'
+      fullPath: '/proposals/$proposalId/composer'
+      preLoaderRoute: typeof AppProposalsProposalIdComposerRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/projects/resources/$resourceId': {
       id: '/_app/projects/resources/$resourceId'
@@ -1741,6 +1780,8 @@ interface AppRouteChildren {
   AppProjectsTimesheetRoute: typeof AppProjectsTimesheetRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
   AppProjectsIndexRoute: typeof AppProjectsIndexRoute
+  AppProposalsIndexRoute: typeof AppProposalsIndexRoute
+  AppProposalsProposalIdComposerRoute: typeof AppProposalsProposalIdComposerRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -1764,6 +1805,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppProjectsTimesheetRoute: AppProjectsTimesheetRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
   AppProjectsIndexRoute: AppProjectsIndexRoute,
+  AppProposalsIndexRoute: AppProposalsIndexRoute,
+  AppProposalsProposalIdComposerRoute: AppProposalsProposalIdComposerRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -1777,13 +1820,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
