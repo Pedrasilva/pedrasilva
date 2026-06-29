@@ -324,11 +324,21 @@ function PrintPreview({
   // We render each tile as a fixed-size box with overflow hidden, then
   // wrap its inner clone container with a transform that mirrors the
   // print transform. The whole row is shrunk to fit the preview pane.
-  const PREVIEW_MAX_W = 700;
-  const previewScale = useMemo(() => {
-    if (!layout) return 1;
-    const totalW = layout.pagePxW * layout.pages + (layout.pages - 1) * 12;
-    return Math.min(PREVIEW_MAX_W / totalW, 1);
+  const PREVIEW_MAX_W = 720;
+  const PREVIEW_MAX_H = 460;
+  const GAP = 12;
+  const { previewScale, scaledW, scaledH, unscaledW } = useMemo(() => {
+    if (!layout) {
+      return { previewScale: 1, scaledW: 0, scaledH: 0, unscaledW: 0 };
+    }
+    const totalW = layout.pagePxW * layout.pages + (layout.pages - 1) * GAP;
+    const s = Math.min(PREVIEW_MAX_W / totalW, PREVIEW_MAX_H / layout.pagePxH, 1);
+    return {
+      previewScale: s,
+      scaledW: totalW * s,
+      scaledH: layout.pagePxH * s,
+      unscaledW: totalW,
+    };
   }, [layout]);
 
   if (!layout) {
@@ -340,25 +350,32 @@ function PrintPreview({
   }
 
   return (
-    <div className="border rounded-md bg-muted/20 p-3 overflow-auto">
+    <div className="border rounded-md bg-muted/20 p-3">
+      {/* Outer box claims the *scaled* size so the surrounding layout
+          doesn't reserve full unscaled height (root cause of the tall
+          preview). Inner div is the unscaled row, shrunk via transform. */}
       <div
-        style={{
-          transform: `scale(${previewScale})`,
-          transformOrigin: "top left",
-          width: layout.pagePxW * layout.pages + (layout.pages - 1) * 12,
-        }}
-        className="flex gap-3"
+        style={{ width: scaledW, height: scaledH, overflow: "hidden" }}
+        className="relative mx-auto"
       >
-        {Array.from({ length: layout.pages }).map((_, i) => (
-          <PreviewTile key={i} index={i} layout={layout} getTarget={getTarget} />
-        ))}
+        <div
+          style={{
+            transform: `scale(${previewScale})`,
+            transformOrigin: "top left",
+            width: unscaledW,
+            height: layout.pagePxH,
+            gap: GAP,
+          }}
+          className="flex"
+        >
+          {Array.from({ length: layout.pages }).map((_, i) => (
+            <PreviewTile key={i} index={i} layout={layout} getTarget={getTarget} />
+          ))}
+        </div>
       </div>
-      <div
-        style={{ height: layout.pagePxH * previewScale + 8 }}
-        aria-hidden
-      />
-      <div className="text-xs text-muted-foreground mt-1">
-        Preview at {(previewScale * 100).toFixed(0)}% — each page above prints on one sheet.
+      <div className="text-xs text-muted-foreground mt-2 text-center">
+        Preview at {(previewScale * 100).toFixed(0)}% — each tile prints on one {/* */}
+        landscape sheet.
       </div>
     </div>
   );
