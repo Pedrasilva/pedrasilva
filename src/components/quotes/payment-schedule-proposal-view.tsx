@@ -95,6 +95,10 @@ interface Props {
   stageFees: Record<string, number>;
   suppliers: SupplierInfo[];
   defaultVatRate: number;
+  /** When true, render only the contract composition card + the
+   *  "Arquitectura — total do contrato" detail block. Used by the
+   *  Architecture tab. */
+  compositionOnly?: boolean;
 }
 
 function netAmount(
