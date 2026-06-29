@@ -33,7 +33,7 @@ export function BlockLibraryPanel({
     : 0;
 
   return (
-    <aside className="flex h-full w-72 shrink-0 flex-col border-r bg-muted/30">
+    <aside className="flex h-full w-60 shrink-0 flex-col border-r bg-muted/30 xl:w-64">
       <div className="border-b px-3 py-2">
         <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
           Biblioteca de Blocos
