@@ -33,7 +33,7 @@ import {
 import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
 import { QuoteExternalServicesTab } from "@/components/quotes/quote-external-services-tab";
 import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
-import { QuoteFinancialSummaryTab } from "@/components/quotes/quote-financial-summary-tab";
+import { QuoteFinancialSummaryTab, ArchitectureFinancialBreakdown } from "@/components/quotes/quote-financial-summary-tab";
 import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
 import { ApplyTemplateDialog } from "@/components/quotes/apply-template-dialog";
 import { QuoteTimeBasedSettingsTab } from "@/components/quotes/quote-time-based-settings-tab";
@@ -1097,9 +1097,11 @@ function QuoteDetail() {
               <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} isRetainer={isRetainer} />
             </TabsContent>
 
-            <TabsContent value="architecture" className="mt-4">
+            <TabsContent value="architecture" className="mt-4 space-y-4">
               <QuotePaymentScheduleTab quoteId={quoteId} compositionOnly />
+              <ArchitectureFinancialBreakdown quoteId={quoteId} />
             </TabsContent>
+
             <TabsContent value="consultants" className="mt-4">
               <QuotePaymentScheduleTab quoteId={quoteId} consultantsOnly />
             </TabsContent>

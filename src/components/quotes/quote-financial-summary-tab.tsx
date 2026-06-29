@@ -9,13 +9,14 @@
  *   - Lightweight warnings (negative margin, missing team, etc.) shown at
  *     the top via QuoteWarningsBanner.
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuoteAllocations, type QuoteAllocationWithResource } from "@/lib/quotes/use-quote-allocations";
@@ -392,26 +393,51 @@ function rollupNode(node: ArchNode): {
   return { fee, hours, hasChildren: true };
 }
 
-function ArchitectureStagesCard({
+export function ArchitectureStagesCard({
   stages,
   allocations,
   avgSaleRate,
   avgCostRate,
+  showMarginSlider = false,
 }: {
   stages: QuoteStage[];
   allocations: QuoteAllocationWithResource[];
   avgSaleRate: number;
   avgCostRate: number;
+  showMarginSlider?: boolean;
 }) {
   const { t } = useTranslation("crm");
   const roots = buildArchTree(stages, allocations);
+
+  // Mean markup-on-cost from HR pricing (matches the "Margem" pill).
+  const meanMarginPct = useMemo(() => {
+    if (avgCostRate > 0) {
+      return ((avgSaleRate - avgCostRate) / avgCostRate) * 100;
+    }
+    return 50;
+  }, [avgSaleRate, avgCostRate]);
+
+  const [marginPct, setMarginPct] = useState<number>(meanMarginPct);
+  useEffect(() => {
+    setMarginPct(meanMarginPct);
+  }, [meanMarginPct]);
+
+  // When the slider is shown, derive the effective cost rate from the
+  // sale rate + chosen markup so cost/profit recompute live.
+  const effectiveCostRate = showMarginSlider
+    ? avgSaleRate > 0 && marginPct > -100
+      ? avgSaleRate / (1 + marginPct / 100)
+      : avgCostRate
+    : avgCostRate;
+
   if (roots.length === 0) return null;
 
   // Implied hours / cost: prefer real allocations; fall back to avg sale rate.
   const impliedHoursFor = (fee: number, ownHours: number) =>
     ownHours > 0 ? ownHours : avgSaleRate > 0 ? fee / avgSaleRate : 0;
   const impliedCostFor = (hours: number) =>
-    avgCostRate > 0 ? hours * avgCostRate : 0;
+    effectiveCostRate > 0 ? hours * effectiveCostRate : 0;
+
 
   const grand = roots.reduce(
     (acc, n) => {
@@ -505,7 +531,7 @@ function ArchitectureStagesCard({
             </div>
             <div className="flex items-baseline gap-1.5">
               <span className="uppercase tracking-wide text-muted-foreground">Custo médio</span>
-              <span className="text-sm font-semibold tabular-nums">{formatEUR(avgCostRate)}/h</span>
+              <span className="text-sm font-semibold tabular-nums">{formatEUR(effectiveCostRate)}/h</span>
             </div>
             <div className="flex items-baseline gap-1.5">
               <span className="uppercase tracking-wide text-muted-foreground">Margem</span>
@@ -518,9 +544,12 @@ function ArchitectureStagesCard({
                       : "text-amber-600 dark:text-amber-400"
                 }`}
               >
-                {avgCostRate > 0
-                  ? `${(((avgSaleRate - avgCostRate) / avgCostRate) * 100).toFixed(1)}%`
-                  : "—"}
+                {showMarginSlider
+                  ? `${marginPct.toFixed(1)}%`
+                  : avgCostRate > 0
+                    ? `${(((avgSaleRate - avgCostRate) / avgCostRate) * 100).toFixed(1)}%`
+                    : "—"}
+
               </span>
             </div>
             {avgSaleRate === avgCostRate && avgCostRate > 0 && (
@@ -530,6 +559,45 @@ function ArchitectureStagesCard({
             )}
           </div>
         )}
+
+        {showMarginSlider && avgSaleRate > 0 && (
+          <div className="rounded-md border bg-background px-3 py-3 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="uppercase tracking-wide text-muted-foreground">
+                Margem alvo (markup sobre custo)
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold tabular-nums">
+                  {marginPct.toFixed(0)}%
+                </span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 px-2 text-xs"
+                  onClick={() => setMarginPct(meanMarginPct)}
+                  disabled={Math.abs(marginPct - meanMarginPct) < 0.01}
+                >
+                  Repor média ({meanMarginPct.toFixed(0)}%)
+                </Button>
+              </div>
+            </div>
+            <Slider
+              min={0}
+              max={150}
+              step={1}
+              value={[marginPct]}
+              onValueChange={(v) => setMarginPct(v[0] ?? 0)}
+            />
+            <div className="flex justify-between text-[10px] text-muted-foreground tabular-nums">
+              <span>0%</span>
+              <span>50% (média)</span>
+              <span>150%</span>
+            </div>
+          </div>
+        )}
+
+
 
         <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 text-xs uppercase tracking-wide text-muted-foreground pb-1 border-b">
           <span>
@@ -597,4 +665,23 @@ function ArchitectureStagesCard({
     </Card>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Self-fetching wrapper for the Architecture tab — same card + margin slider.
+// ---------------------------------------------------------------------------
+export function ArchitectureFinancialBreakdown({ quoteId }: { quoteId: string }) {
+  const stagesQ = useQuoteStages(quoteId);
+  const allocsQ = useQuoteAllocations(quoteId);
+  const { data: teamAvg } = useTeamPricingAverages();
+  return (
+    <ArchitectureStagesCard
+      stages={stagesQ.data ?? []}
+      allocations={allocsQ.data ?? []}
+      avgSaleRate={teamAvg?.avgSalePerHour ?? 0}
+      avgCostRate={teamAvg?.avgCostPerHour ?? 0}
+      showMarginSlider
+    />
+  );
+}
+
 
