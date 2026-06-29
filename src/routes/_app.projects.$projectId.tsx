@@ -1829,7 +1829,7 @@ function InsightsPanel({
   const quoteExternalQ = useQuoteExternalServices(insightsSourceQuoteId ?? undefined);
   const quoteExtItems = quoteExternalQ.data ?? [];
   const externalRow = quoteExtItems.reduce(
-    (acc, m) => {
+    (acc: { budget: number; value: number; cost: number; profit: number; invoiced: number }, m) => {
       const qty = Number(m.quantity || 1);
       const cost = Number(m.purchase_price || 0) * qty;
       const revenue = Number(m.sale_price || 0) * qty;
