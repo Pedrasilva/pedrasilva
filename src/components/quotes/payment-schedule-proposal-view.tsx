@@ -105,6 +105,9 @@ interface Props {
   /** When true, render only the "Plano de Faturação ao Cliente" block.
    *  Used by the Incoming tab. */
   incomingOnly?: boolean;
+  /** When true, render only the "Compromissos com fornecedores" block.
+   *  Used by the Outgoing tab. */
+  outgoingOnly?: boolean;
 }
 
 function netAmount(
