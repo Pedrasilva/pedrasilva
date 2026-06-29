@@ -660,7 +660,8 @@
 @media screen {
   .proposal-print-document {
     position: relative;
-    width: var(--psa-page-w);
+    width: 100%;
+    max-width: 1200px;
     min-height: var(--psa-page-h);
     margin: 24px auto;
     padding: var(--psa-margin-top) var(--psa-margin-x) var(--psa-margin-bottom);
