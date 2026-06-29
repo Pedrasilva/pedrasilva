@@ -231,7 +231,13 @@ export function PaymentScheduleProposalView({
   stageFees,
   suppliers,
   defaultVatRate,
+  section = "all",
+  hideComposition = false,
 }: Props) {
+  const showComposition = !hideComposition;
+  const showDetail = section === "all" || section === "project" || section === "consultants";
+  const showReceiving = section === "all" || section === "receiving";
+  const showPaying = section === "all" || section === "paying";
   const supplierName = useMemo(() => {
     const map = new Map<string, string>();
     for (const s of suppliers) if (s.id) map.set(s.id, s.name);
