@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import {
   Users, UserCheck, Plane, Wallet, ClipboardCheck, Coins, CalendarRange, CalendarCheck,
@@ -31,8 +31,20 @@ const fmtEUR = (n: number | null | undefined) =>
 function HrDashboard() {
   const { t } = useTranslation("hr");
   const { isAdmin } = useAuth();
-  const { permissions } = useMyPermissions();
+  const { permissions, loading: permsLoading } = useMyPermissions();
   const canFinance = isAdmin || permissions.has("finance.dashboard");
+  const canSeeCockpit =
+    isAdmin ||
+    permissions.has("hr.colaboradores") ||
+    permissions.has("hr.admin") ||
+    permissions.has("hr.resumo");
+
+  if (permsLoading) {
+    return <div className="text-sm text-muted-foreground">…</div>;
+  }
+  if (!canSeeCockpit) {
+    return <Navigate to="/hr/minha-ficha" replace />;
+  }
 
   const metricsQ = useHrDashboardMetrics();
   const alertsQ = useHrOperationalAlerts();
