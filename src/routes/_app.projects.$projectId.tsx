@@ -555,7 +555,7 @@ function ProjectDetail() {
             {/* Billing and Financial tabs hidden per request — kept in code for quick re-enable. */}
             {sourceQuoteId && (
               <>
-                <TabBtn icon={CalendarIcon2} label="Planning" active={tab === "planning"} onClick={() => setTab("planning")} />
+                
                 <TabBtn icon={Building2} label="Architecture" active={tab === "architecture"} onClick={() => setTab("architecture")} />
                 <TabBtn icon={UsersIcon} label="Suppliers" active={tab === "consultants"} onClick={() => setTab("consultants")} />
                 <TabBtn icon={ArrowDownToLine} label="Incoming" active={tab === "incoming"} onClick={() => setTab("incoming")} />
