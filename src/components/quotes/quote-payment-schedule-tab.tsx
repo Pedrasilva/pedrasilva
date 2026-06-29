@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -695,15 +696,63 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
         </Button>
       </div>
 
-      {/* Proposal-style read-only layout (mirrors printed proposal) */}
-      <PaymentScheduleProposalView
-        items={items}
-        stages={stages}
-        totalFee={contractTotal}
-        stageFees={stageFees}
-        suppliers={suppliers}
-        defaultVatRate={defaultVatRate}
-      />
+      {/* Proposal-style read-only layout (mirrors printed proposal), split
+          into four tabs so each financial dimension is easier to read. */}
+      <Tabs defaultValue="project" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="project">{t("workspace.payment.tabProject", { defaultValue: "Project" })}</TabsTrigger>
+          <TabsTrigger value="consultants">{t("workspace.payment.tabConsultants", { defaultValue: "Consultants" })}</TabsTrigger>
+          <TabsTrigger value="receiving">{t("workspace.payment.tabReceiving", { defaultValue: "Receiving" })}</TabsTrigger>
+          <TabsTrigger value="paying">{t("workspace.payment.tabPaying", { defaultValue: "Paying" })}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="project" className="mt-0">
+          <PaymentScheduleProposalView
+            items={items}
+            stages={stages}
+            totalFee={contractTotal}
+            stageFees={stageFees}
+            suppliers={suppliers}
+            defaultVatRate={defaultVatRate}
+            section="project"
+          />
+        </TabsContent>
+        <TabsContent value="consultants" className="mt-0">
+          <PaymentScheduleProposalView
+            items={items}
+            stages={stages}
+            totalFee={contractTotal}
+            stageFees={stageFees}
+            suppliers={suppliers}
+            defaultVatRate={defaultVatRate}
+            section="consultants"
+          />
+        </TabsContent>
+        <TabsContent value="receiving" className="mt-0">
+          <PaymentScheduleProposalView
+            items={items}
+            stages={stages}
+            totalFee={contractTotal}
+            stageFees={stageFees}
+            suppliers={suppliers}
+            defaultVatRate={defaultVatRate}
+            section="receiving"
+            hideComposition
+          />
+        </TabsContent>
+        <TabsContent value="paying" className="mt-0">
+          <PaymentScheduleProposalView
+            items={items}
+            stages={stages}
+            totalFee={contractTotal}
+            stageFees={stageFees}
+            suppliers={suppliers}
+            defaultVatRate={defaultVatRate}
+            section="paying"
+            hideComposition
+          />
+        </TabsContent>
+      </Tabs>
+
 
 
       <details className="rounded-md border bg-muted/10">

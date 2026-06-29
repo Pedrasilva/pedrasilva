@@ -88,6 +88,13 @@ interface SupplierInfo {
   name: string;
 }
 
+export type ProposalSection =
+  | "all"
+  | "project"
+  | "consultants"
+  | "receiving"
+  | "paying";
+
 interface Props {
   items: QuotePaymentScheduleItem[];
   stages: QuoteStage[];
@@ -95,6 +102,10 @@ interface Props {
   stageFees: Record<string, number>;
   suppliers: SupplierInfo[];
   defaultVatRate: number;
+  /** Render only a subset of the view. Defaults to "all". */
+  section?: ProposalSection;
+  /** Hide the top "Composição do valor do contrato" card. */
+  hideComposition?: boolean;
 }
 
 function netAmount(
@@ -220,7 +231,13 @@ export function PaymentScheduleProposalView({
   stageFees,
   suppliers,
   defaultVatRate,
+  section = "all",
+  hideComposition = false,
 }: Props) {
+  const showComposition = !hideComposition;
+  const showDetail = section === "all" || section === "project" || section === "consultants";
+  const showReceiving = section === "all" || section === "receiving";
+  const showPaying = section === "all" || section === "paying";
   const supplierName = useMemo(() => {
     const map = new Map<string, string>();
     for (const s of suppliers) if (s.id) map.set(s.id, s.name);
@@ -317,7 +334,7 @@ export function PaymentScheduleProposalView({
   return (
     <div className="space-y-6">
       {/* Top: contract composition (separated card) */}
-      {inflows.length > 0 && (() => {
+      {showComposition && inflows.length > 0 && (() => {
         const stageIdsAll = new Set(stages.map((s) => s.id));
         const stageById = new Map(stages.map((s) => [s.id, s]));
         const rootFor = (stageId: string): QuoteStage | null => {
@@ -387,7 +404,7 @@ export function PaymentScheduleProposalView({
 
       {/* Two-parent breakdown: Architecture vs Suppliers, with hierarchy
           preserved and listed chronologically by the Gantt dates. */}
-      {inflows.length > 0 && (() => {
+      {showDetail && inflows.length > 0 && (() => {
         type StageNode = QuoteStage & {
           parent_stage_id?: string | null;
           stage_role?: string | null;
@@ -547,7 +564,13 @@ export function PaymentScheduleProposalView({
             total: supplierTop.reduce((sum, stage) => sum + amountFor(stage, "supplier"), 0),
           },
         ];
-        const sections = allSections.filter((section) => section.rows.length > 0 && section.total > 0);
+        const sectionFilter =
+          section === "project" ? "architecture"
+          : section === "consultants" ? "supplier"
+          : null;
+        const sections = allSections
+          .filter((s) => (sectionFilter ? s.key === sectionFilter : true))
+          .filter((s) => s.rows.length > 0 && s.total > 0);
         if (sections.length === 0) return null;
         return (
           <div className="space-y-4">
@@ -673,7 +696,7 @@ export function PaymentScheduleProposalView({
 
 
       {/* Plano de Faturação ao Cliente — single canonical invoice plan */}
-      {inflows.length > 0 && (() => {
+      {showReceiving && inflows.length > 0 && (() => {
         const fmtDate = (iso?: string | null) => {
           if (!iso) return "";
           const [y, m, d] = iso.split("-");
@@ -958,7 +981,7 @@ export function PaymentScheduleProposalView({
       })()}
 
       {/* Per-supplier outflow groups */}
-      {supplierBuckets.length > 0 && (
+      {showPaying && supplierBuckets.length > 0 && (
         <div className="space-y-4">
           <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Compromissos com fornecedores
