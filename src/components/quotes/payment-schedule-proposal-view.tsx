@@ -564,7 +564,13 @@ export function PaymentScheduleProposalView({
             total: supplierTop.reduce((sum, stage) => sum + amountFor(stage, "supplier"), 0),
           },
         ];
-        const sections = allSections.filter((section) => section.rows.length > 0 && section.total > 0);
+        const sectionFilter =
+          section === "project" ? "architecture"
+          : section === "consultants" ? "supplier"
+          : null;
+        const sections = allSections
+          .filter((s) => (sectionFilter ? s.key === sectionFilter : true))
+          .filter((s) => s.rows.length > 0 && s.total > 0);
         if (sections.length === 0) return null;
         return (
           <div className="space-y-4">
