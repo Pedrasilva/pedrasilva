@@ -224,6 +224,7 @@ export function PaymentScheduleProposalView({
   stageFees,
   suppliers,
   defaultVatRate,
+  compositionOnly = false,
 }: Props) {
   const supplierName = useMemo(() => {
     const map = new Map<string, string>();
