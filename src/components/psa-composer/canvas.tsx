@@ -113,11 +113,13 @@ export function ComposerCanvas({
   selectedId,
   onSelect,
   onReorder,
+  quoteIdHint,
 }: {
   blocks: PsaProposalBlock[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   onReorder: (next: PsaProposalBlock[]) => void;
+  quoteIdHint: string | null;
 }) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
