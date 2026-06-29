@@ -115,7 +115,25 @@ export const Route = createFileRoute("/_app/projects/$projectId")({
   component: ProjectDetail,
 });
 
-type TabKey = "overview" | "schedule" | "materials" | "expenses" | "rates" | "billing" | "financial" | "insights" | "ap" | "stream";
+type TabKey =
+  | "overview"
+  | "schedule"
+  | "materials"
+  | "expenses"
+  | "rates"
+  | "billing"
+  | "financial"
+  | "insights"
+  | "ap"
+  | "stream"
+  | "planning"
+  | "architecture"
+  | "consultants"
+  | "incoming"
+  | "outgoing"
+  | "paymentSchedule"
+  | "financialSummary";
+
 
 function ProjectDetail() {
   const { t } = useTranslation();
