@@ -170,7 +170,7 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
     const styleEl = document.createElement("style");
     styleEl.setAttribute("data-gantt-print", "true");
     styleEl.textContent = `
-      @page { size: ${paper} landscape; margin: 10mm; }
+      @page { size: ${paper} ${orientation}; margin: 10mm; }
       @media print {
         html, body { background: white !important; }
         body > *:not([data-gantt-print-root]) { display: none !important; }
