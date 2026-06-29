@@ -948,8 +948,7 @@ function ProjectDetail() {
                 )}
               </div>
             )}
-              </div>
-            )}
+
 
 
             {tab === "insights" && (
