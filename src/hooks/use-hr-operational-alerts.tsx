@@ -88,7 +88,7 @@ export function useHrOperationalAlerts() {
             severity: "warning",
             i18nKey: "vacationPending",
             count: vacPending ?? 0,
-            href: "/hr/ferias",
+            href: "/hr/ferias?scope=colaborador",
           });
         }
       }
