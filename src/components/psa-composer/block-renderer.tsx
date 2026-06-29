@@ -9,6 +9,7 @@
 import type { PsaProposalBlock } from "@/lib/psa-proposal/types";
 import {
   type LiveQuoteSnapshot,
+  type LiveStage,
   formatCurrencyEUR,
   formatDatePT,
 } from "@/lib/psa-proposal/live-data";
@@ -29,8 +30,15 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="text-sm italic text-zinc-400">{children}</p>;
 }
 
+function hasRichContent(html?: string, text?: string) {
+  const h = (html ?? "").trim();
+  if (h && h !== "<p></p>" && h !== "<p><br></p>") return true;
+  if ((text ?? "").trim()) return true;
+  return false;
+}
+
 function RichContent({ html, text }: { html?: string; text?: string }) {
-  if (html && html.trim() && html !== "<p></p>") {
+  if (html && html.trim() && html !== "<p></p>" && html !== "<p><br></p>") {
     return (
       <div
         className="psa-rich text-sm leading-relaxed text-zinc-800 [&_h2]:proposal-print-heading [&_h3]:proposal-print-heading [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_p]:mb-2 [&_ul]:mb-2 [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:mb-2 [&_ol]:ml-5 [&_ol]:list-decimal [&_li]:mb-0.5 [&_a]:text-blue-700 [&_a]:underline [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-zinc-300 [&_th]:bg-zinc-50 [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_td]:border [&_td]:border-zinc-300 [&_td]:px-2 [&_td]:py-1"
@@ -50,6 +58,41 @@ function RichContent({ html, text }: { html?: string; text?: string }) {
   return null;
 }
 
+// Default contractual boilerplate used when a block has no manual content yet.
+// Pre-send-safe: clearly neutral PSA language so empty sections do not look
+// abandoned in the PDF.
+const DEFAULT_TEXT: Partial<Record<string, string>> = {
+  about:
+    "A Pedra Silva Arquitectos é um atelier de arquitetura com sede em Lisboa, com prática consolidada em projeto, coordenação e acompanhamento de obra. A nossa equipa multidisciplinar acompanha o cliente desde o estudo prévio até à conclusão da obra.",
+  scope:
+    "A presente proposta abrange os serviços de arquitetura necessários ao desenvolvimento do projeto, incluindo o estudo prévio, anteprojeto, projeto de execução e acompanhamento de obra, conforme detalhado nas fases descritas neste documento.",
+  construction_fee:
+    "Os honorários da fase de obra são facturados em regime mensal durante a execução, proporcionalmente ao prazo previsto, conforme o plano de pagamentos.",
+  payment_terms:
+    "Os honorários são facturados de acordo com o plano de pagamentos anexo. Aos valores indicados acresce IVA à taxa legal em vigor. O pagamento deverá ser efectuado no prazo de 30 dias após emissão da factura.",
+  additional_services:
+    "Quaisquer serviços não incluídos no âmbito desta proposta serão objecto de orçamento adicional, a acordar previamente com o Cliente.",
+  general:
+    "As condições aqui apresentadas regem-se pela legislação portuguesa aplicável. Qualquer alteração ao âmbito ou ao calendário será formalizada por escrito entre as partes.",
+  suspension:
+    "Em caso de suspensão do projeto por iniciativa do Cliente, os honorários relativos às fases concluídas e em curso serão integralmente devidos. A rescisão deverá ser comunicada por escrito com 30 dias de antecedência.",
+  exclusions:
+    "Excluem-se desta proposta: projectos de especialidades não expressamente referidos, levantamentos topográficos, estudos geotécnicos, taxas camarárias, licenças e quaisquer encargos administrativos.",
+};
+
+function StageRows({ stages }: { stages: LiveStage[] }) {
+  return (
+    <>
+      {stages.map((s) => (
+        <tr key={s.id} className="border-b border-zinc-100">
+          <td className="py-1">{s.name}</td>
+          <td className="py-1 text-right">{formatCurrencyEUR(s.fee)}</td>
+        </tr>
+      ))}
+    </>
+  );
+}
+
 export function BlockBody({
   block,
   live,
@@ -62,19 +105,31 @@ export function BlockBody({
   const text = (block.content_rich?.text as string | undefined) ?? "";
   const html = (block.content_rich?.html as string | undefined) ?? "";
   const num = chapterNumber ? `${chapterNumber}. ` : "";
+  const richHas = hasRichContent(html, text);
   const rich = <RichContent html={html} text={text} />;
+
+  // Self stages only — PSA-facing tables must exclude supplier rows. The
+  // consultants block is the place where suppliers appear.
+  const selfStages = (live?.stages ?? []).filter((s) => s.isSelf);
+
+  function fallback(blockType: string) {
+    const t = DEFAULT_TEXT[blockType];
+    return t ? <P>{t}</P> : <Empty>Sem conteúdo. Edite no painel direito.</Empty>;
+  }
 
   switch (block.block_type) {
     case "cover":
       return (
-        <div className="proposal-cover proposal-avoid-break flex flex-col items-center justify-center py-24 text-center">
+        <div className="proposal-cover proposal-avoid-break proposal-page-break-after flex flex-col items-center justify-center py-24 text-center">
           <div className="text-xs uppercase tracking-[0.3em] text-zinc-500">
             Proposta de Honorários
           </div>
           <div className="mt-6 text-3xl font-light tracking-tight text-zinc-900">
             {live?.projectName ?? "Projeto"}
           </div>
-          <div className="mt-2 text-base text-zinc-700">{live?.client ?? "Cliente"}</div>
+          {live?.client && (
+            <div className="mt-2 text-base text-zinc-700">{live.client}</div>
+          )}
           {live?.location && (
             <div className="mt-1 text-sm text-zinc-500">{live.location}</div>
           )}
@@ -97,12 +152,7 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
-          {rich ?? (
-            <P>
-              A Pedra Silva Arquitectos é um atelier de arquitetura com sede em Lisboa,
-              com prática consolidada em projeto, coordenação e acompanhamento de obra.
-            </P>
-          )}
+          {richHas ? rich : fallback("about")}
         </div>
       );
 
@@ -111,7 +161,7 @@ export function BlockBody({
         <div>
           <H>{num}{block.title}</H>
           {live?.projectDescription && <P>{live.projectDescription}</P>}
-          {rich}
+          {richHas ? rich : !live?.projectDescription && fallback("scope")}
         </div>
       );
 
@@ -119,9 +169,9 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
-          {live?.stages?.length ? (
+          {selfStages.length ? (
             <ol className="ml-5 list-decimal space-y-1 text-sm text-zinc-800">
-              {live.stages.map((s) => (
+              {selfStages.map((s) => (
                 <li key={s.id}>
                   <span className="font-medium">{s.code ? `${s.code} — ` : ""}{s.name}</span>
                   {s.durationDays != null && (
@@ -153,8 +203,8 @@ export function BlockBody({
         <div className="proposal-avoid-break">
           <H>{num}{stage.code ? `${stage.code} — ` : ""}{stage.name}</H>
           {stage.description && <P>{stage.description}</P>}
-          {rich}
-          <dl className="mt-3 grid grid-cols-3 gap-3 text-sm">
+          {richHas && rich}
+          <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
             <div>
               <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Duração</dt>
               <dd className="font-medium text-zinc-900">
@@ -164,10 +214,6 @@ export function BlockBody({
             <div>
               <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Honorários</dt>
               <dd className="font-medium text-zinc-900">{formatCurrencyEUR(stage.fee)}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Horas estimadas</dt>
-              <dd className="font-medium text-zinc-900">{stage.hours ?? "—"}</dd>
             </div>
           </dl>
           {(() => {
@@ -196,7 +242,7 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
-          {live?.stages?.length ? (
+          {selfStages.length ? (
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
@@ -207,7 +253,7 @@ export function BlockBody({
                 </tr>
               </thead>
               <tbody>
-                {live.stages.map((s) => (
+                {selfStages.map((s) => (
                   <tr key={s.id} className="border-b border-zinc-100">
                     <td className="py-1">{s.name}</td>
                     <td className="py-1">{formatDatePT(s.startDate)}</td>
@@ -252,33 +298,24 @@ export function BlockBody({
         </div>
       );
 
-    case "fee_table":
+    case "fee_table": {
+      const total = selfStages.reduce((s, st) => s + (Number(st.fee) || 0), 0);
       return (
         <div>
           <H>{num}{block.title}</H>
-          {live?.stages?.length ? (
+          {selfStages.length ? (
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
                   <th className="py-1">Fase</th>
-                  <th className="py-1 text-right">Horas</th>
                   <th className="py-1 text-right">Honorários</th>
                 </tr>
               </thead>
               <tbody>
-                {live.stages.map((s) => (
-                  <tr key={s.id} className="border-b border-zinc-100">
-                    <td className="py-1">{s.name}</td>
-                    <td className="py-1 text-right">{s.hours ?? "—"}</td>
-                    <td className="py-1 text-right">{formatCurrencyEUR(s.fee)}</td>
-                  </tr>
-                ))}
+                <StageRows stages={selfStages} />
                 <tr className="font-semibold">
                   <td className="py-1">Total Arquitetura</td>
-                  <td />
-                  <td className="py-1 text-right">
-                    {formatCurrencyEUR(live.totalArchitectureFee)}
-                  </td>
+                  <td className="py-1 text-right">{formatCurrencyEUR(total)}</td>
                 </tr>
               </tbody>
             </table>
@@ -287,20 +324,17 @@ export function BlockBody({
           )}
         </div>
       );
+    }
 
     case "construction_fee":
-      return (
-        <div>
-          <H>{num}{block.title}</H>
-          {rich ?? <P>Os honorários da fase de obra são calculados em regime mensal durante a execução.</P>}
-        </div>
-      );
-
     case "payment_terms":
+    case "additional_services":
+    case "general":
+    case "suspension":
       return (
         <div>
           <H>{num}{block.title}</H>
-          {rich ?? <P>Os honorários são facturados de acordo com o plano de pagamentos. IVA à taxa legal em vigor.</P>}
+          {richHas ? rich : fallback(block.block_type)}
         </div>
       );
 
@@ -334,7 +368,7 @@ export function BlockBody({
       );
 
     case "exclusions":
-      if (html && html.trim() && html !== "<p></p>") {
+      if (richHas) {
         return (
           <div>
             <H>{num}{block.title}</H>
@@ -350,7 +384,7 @@ export function BlockBody({
               {text.split("\n").filter(Boolean).map((line, i) => <li key={i}>{line}</li>)}
             </ul>
           ) : (
-            <Empty>Liste as exclusões no painel direito (uma por linha).</Empty>
+            fallback("exclusions")
           )}
         </div>
       );
@@ -383,15 +417,12 @@ export function BlockBody({
         </div>
       );
 
-    case "additional_services":
-    case "general":
-    case "suspension":
     case "custom_text":
     default:
       return (
         <div>
           <H>{num}{block.title}</H>
-          {rich ?? <Empty>Sem conteúdo. Edite no painel direito.</Empty>}
+          {richHas ? rich : <Empty>Sem conteúdo. Edite no painel direito.</Empty>}
         </div>
       );
   }

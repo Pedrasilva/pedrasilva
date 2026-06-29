@@ -713,6 +713,10 @@
     break-before: page;
     page-break-before: always;
   }
+  .proposal-print-document .proposal-page-break-after {
+    break-after: page;
+    page-break-after: always;
+  }
 }
 
 /* ─── PRINT (PDF) ───────────────────────────────────────────────── */
@@ -766,6 +770,10 @@
   .print-area .proposal-page-break-before {
     page-break-before: always;
     break-before: page;
+  }
+  .print-area .proposal-page-break-after {
+    page-break-after: always;
+    break-after: page;
   }
   .print-area .proposal-print-heading {
     page-break-after: avoid;
