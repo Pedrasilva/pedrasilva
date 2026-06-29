@@ -48,6 +48,7 @@ import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
 import { useProjectActivities } from "@/lib/projects/use-activities";
 import { useHasPermission } from "@/hooks/use-permissions";
 import { useExternalServices } from "@/lib/projects/use-external-services";
+import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import { useProjectExpenses } from "@/lib/projects/use-project-expenses";
 import { ExternalServicesSection } from "@/components/projects/external-services-section";
 import { ProjectExpensesSection } from "@/components/projects/project-expenses-section";
