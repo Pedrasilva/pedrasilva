@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { addDays, differenceInCalendarDays, parseISO, format } from "date-fns";
 import { GanttChart, type StageWithProject, type PaymentMilestone, type GanttHierarchyNode } from "@/components/projects/gantt-chart";
+import { GanttPrintButton } from "@/components/planner/gantt-print-button";
 import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { Button } from "@/components/ui/button";
@@ -1136,6 +1137,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             >
               {poolCollapsed ? <PanelRightOpen className="h-3.5 w-3.5" /> : <PanelRightClose className="h-3.5 w-3.5" />}
             </Button>
+            <div className="mx-1 h-4 w-px bg-border" />
+            <GanttPrintButton getTarget={() => chartRef.current} />
           </div>
         )}
       </div>
@@ -1728,6 +1731,8 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
             >
               {poolCollapsed ? <PanelRightOpen className="h-3.5 w-3.5" /> : <PanelRightClose className="h-3.5 w-3.5" />}
             </Button>
+            <div className="mx-1 h-4 w-px bg-border" />
+            <GanttPrintButton getTarget={() => chartRef.current} />
           </div>
         )}
       </div>
