@@ -99,6 +99,9 @@ interface Props {
    *  "Arquitectura — total do contrato" detail block. Used by the
    *  Architecture tab. */
   compositionOnly?: boolean;
+  /** When true, render only the "Fornecedores — total do contrato"
+   *  detail block. Used by the Consultants tab. */
+  consultantsOnly?: boolean;
 }
 
 function netAmount(
