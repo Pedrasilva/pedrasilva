@@ -119,13 +119,14 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
     if (!size) return null;
     return computeLayout({
       paper,
+      orientation,
       pages,
       fit,
       manualScale,
       contentW: size.w,
       contentH: size.h,
     });
-  }, [paper, pages, fit, manualScale, size]);
+  }, [paper, orientation, pages, fit, manualScale, size]);
 
   // Build a tiled clone of the Gantt and inject into the document, then
   // call window.print(). Each tile is one printable page.
