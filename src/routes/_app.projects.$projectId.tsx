@@ -552,6 +552,17 @@ function ProjectDetail() {
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
             <TabBtn icon={FileText} label={t("projects:detail.tabs.billing")} active={tab === "billing"} onClick={() => setTab("billing")} />
             <TabBtn icon={Receipt} label="Financial" active={tab === "financial"} onClick={() => setTab("financial")} />
+            {sourceQuoteId && (
+              <>
+                <TabBtn icon={CalendarIcon2} label="Planning" active={tab === "planning"} onClick={() => setTab("planning")} />
+                <TabBtn icon={Building2} label="Architecture" active={tab === "architecture"} onClick={() => setTab("architecture")} />
+                <TabBtn icon={UsersIcon} label="Consultants" active={tab === "consultants"} onClick={() => setTab("consultants")} />
+                <TabBtn icon={ArrowDownToLine} label="Incoming" active={tab === "incoming"} onClick={() => setTab("incoming")} />
+                <TabBtn icon={ArrowUpFromLine} label="Outgoing" active={tab === "outgoing"} onClick={() => setTab("outgoing")} />
+                <TabBtn icon={CalendarClock} label="Payment schedule" active={tab === "paymentSchedule"} onClick={() => setTab("paymentSchedule")} />
+                <TabBtn icon={PieChartIcon} label="Financial summary" active={tab === "financialSummary"} onClick={() => setTab("financialSummary")} />
+              </>
+            )}
           </div>
           <button
             onClick={() => setSidebarOpen((v) => !v)}
