@@ -114,12 +114,14 @@ export function ComposerCanvas({
   onSelect,
   onReorder,
   quoteIdHint,
+  styleSettings,
 }: {
   blocks: PsaProposalBlock[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   onReorder: (next: PsaProposalBlock[]) => void;
   quoteIdHint: string | null;
+  styleSettings?: import("@/lib/psa-proposal/types").PsaProposalStyleSettings;
 }) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -144,9 +146,16 @@ export function ComposerCanvas({
     onReorder(arrayMove(blocks, oldIdx, newIdx));
   }
 
+  const styleVars: React.CSSProperties = {};
+  if (styleSettings?.headingFont) (styleVars as Record<string, string>)["--psa-heading-font"] = styleSettings.headingFont;
+  if (styleSettings?.bodyFont) (styleVars as Record<string, string>)["--psa-body-font"] = styleSettings.bodyFont;
+  if (styleSettings?.headingWeight) (styleVars as Record<string, string>)["--psa-heading-weight"] = String(styleSettings.headingWeight);
+  if (styleSettings?.bodyAlign) (styleVars as Record<string, string>)["--psa-body-align"] = styleSettings.bodyAlign;
+  if (styleSettings?.bodySize) (styleVars as Record<string, string>)["--psa-body-size"] = `${styleSettings.bodySize}pt`;
+
   return (
     <div className="print-area">
-      <div className="proposal-print-document">
+      <div className="proposal-print-document" style={styleVars}>
         {/* PSA running header — `position: fixed` in print so it repeats per page */}
         <div className="proposal-page-header flex items-end justify-between border-b border-zinc-300 pb-2 text-[10px] uppercase tracking-widest text-zinc-500">
           <div className="font-semibold text-zinc-900">Pedra Silva Arquitectos</div>
