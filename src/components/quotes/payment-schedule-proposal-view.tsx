@@ -687,7 +687,7 @@ export function PaymentScheduleProposalView({
 
 
       {/* Plano de Faturação ao Cliente — single canonical invoice plan */}
-      {!compositionOnly && inflows.length > 0 && (() => {
+      {!compositionOnly && !consultantsOnly && inflows.length > 0 && (() => {
         const fmtDate = (iso?: string | null) => {
           if (!iso) return "";
           const [y, m, d] = iso.split("-");
@@ -972,7 +972,7 @@ export function PaymentScheduleProposalView({
       })()}
 
       {/* Per-supplier outflow groups */}
-      {!compositionOnly && supplierBuckets.length > 0 && (
+      {!compositionOnly && !consultantsOnly && supplierBuckets.length > 0 && (
         <div className="space-y-4">
           <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Compromissos com fornecedores
