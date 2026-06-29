@@ -99,7 +99,7 @@ export const Route = createFileRoute("/_app/projects/$projectId")({
   component: ProjectDetail,
 });
 
-type TabKey = "overview" | "schedule" | "materials" | "expenses" | "rates" | "billing" | "financial" | "insights" | "stream";
+type TabKey = "overview" | "schedule" | "materials" | "expenses" | "rates" | "billing" | "financial" | "insights" | "ap" | "stream";
 
 function ProjectDetail() {
   const { t } = useTranslation();
