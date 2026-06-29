@@ -153,6 +153,8 @@ function ProjectDetail() {
   const updateProject = useUpdateProject();
   const { allowed: canSeeFinancials } = useHasPermission("projects.financials");
   const { data: budgetControl } = useStageBudgetControl({ projectId, defaultRates });
+  const { data: teamAvg } = useTeamPricingAverages();
+  const avgSaleRate = teamAvg?.avgSalePerHour ?? 0;
 
   useRecordRecentlyViewed({
     module: "projects",
