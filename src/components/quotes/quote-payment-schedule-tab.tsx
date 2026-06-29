@@ -619,6 +619,20 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false }: { 
     }
   };
 
+  if (compositionOnly) {
+    return (
+      <PaymentScheduleProposalView
+        items={items}
+        stages={stages}
+        totalFee={contractTotal}
+        stageFees={stageFees}
+        suppliers={suppliers}
+        defaultVatRate={defaultVatRate}
+        compositionOnly
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
 
