@@ -265,7 +265,7 @@ function QuoteDetail() {
       const { data: qStages, error: qsErr } = await db
         .from("quote_stages")
         .select(
-          "id, name, parent_stage_id, start_date, end_date, color, sort_order, budget, stage_kind, billing_model, retainer_monthly_amount, retainer_anchor_month, retainer_months, retainer_capacity_hours_per_month, retainer_review_months, is_fee_only, is_self",
+          "id, name, parent_stage_id, start_date, end_date, color, sort_order, budget, stage_kind, billing_model, retainer_monthly_amount, retainer_anchor_month, retainer_months, retainer_capacity_hours_per_month, retainer_review_months, is_fee_only, is_self, children_bill_independently",
         )
         .eq("quote_id", quote.id)
         .order("sort_order", { ascending: true });
@@ -308,6 +308,8 @@ function QuoteDetail() {
                 s.retainer_capacity_hours_per_month ?? 160,
               retainer_review_months: s.retainer_review_months ?? null,
               is_fee_only: s.is_fee_only ?? true,
+              children_bill_independently: (s as { children_bill_independently?: boolean | null }).children_bill_independently ?? false,
+              source_quote_stage_id: s.id,
             })
             .select("id")
             .single();
@@ -369,6 +371,8 @@ function QuoteDetail() {
               retainer_review_months: s.retainer_review_months ?? null,
               is_fee_only: s.is_fee_only ?? true,
               is_self: (s as { is_self?: boolean | null }).is_self ?? true,
+              children_bill_independently: (s as { children_bill_independently?: boolean | null }).children_bill_independently ?? false,
+              source_quote_stage_id: s.id,
             })
             .select("id")
             .single();
