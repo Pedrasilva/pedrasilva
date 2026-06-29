@@ -152,7 +152,7 @@ function InlineLabelEditor({
   );
 }
 
-export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, consultantsOnly = false, incomingOnly = false }: { quoteId: string; compositionOnly?: boolean; consultantsOnly?: boolean; incomingOnly?: boolean }) {
+export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, consultantsOnly = false, incomingOnly = false, outgoingOnly = false }: { quoteId: string; compositionOnly?: boolean; consultantsOnly?: boolean; incomingOnly?: boolean; outgoingOnly?: boolean }) {
   const { t } = useTranslation("crm");
   const itemsQ = useQuotePaymentSchedule(quoteId);
   const stagesQ = useQuoteStages(quoteId);
@@ -619,7 +619,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
     }
   };
 
-  if (compositionOnly || consultantsOnly || incomingOnly) {
+  if (compositionOnly || consultantsOnly || incomingOnly || outgoingOnly) {
     return (
       <PaymentScheduleProposalView
         items={items}
@@ -631,6 +631,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         compositionOnly={compositionOnly}
         consultantsOnly={consultantsOnly}
         incomingOnly={incomingOnly}
+        outgoingOnly={outgoingOnly}
       />
     );
   }

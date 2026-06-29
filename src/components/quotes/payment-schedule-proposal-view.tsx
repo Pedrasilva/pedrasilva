@@ -105,6 +105,9 @@ interface Props {
   /** When true, render only the "Plano de Faturação ao Cliente" block.
    *  Used by the Incoming tab. */
   incomingOnly?: boolean;
+  /** When true, render only the "Compromissos com fornecedores" block.
+   *  Used by the Outgoing tab. */
+  outgoingOnly?: boolean;
 }
 
 function netAmount(
@@ -233,6 +236,7 @@ export function PaymentScheduleProposalView({
   compositionOnly = false,
   consultantsOnly = false,
   incomingOnly = false,
+  outgoingOnly = false,
 }: Props) {
   const supplierName = useMemo(() => {
     const map = new Map<string, string>();
@@ -330,7 +334,7 @@ export function PaymentScheduleProposalView({
   return (
     <div className="space-y-6">
       {/* Top: contract composition (separated card) */}
-      {!consultantsOnly && !incomingOnly && inflows.length > 0 && (() => {
+      {!consultantsOnly && !incomingOnly && !outgoingOnly && inflows.length > 0 && (() => {
         const stageIdsAll = new Set(stages.map((s) => s.id));
         const stageById = new Map(stages.map((s) => [s.id, s]));
         const rootFor = (stageId: string): QuoteStage | null => {
@@ -400,7 +404,7 @@ export function PaymentScheduleProposalView({
 
       {/* Two-parent breakdown: Architecture vs Suppliers, with hierarchy
           preserved and listed chronologically by the Gantt dates. */}
-      {!incomingOnly && inflows.length > 0 && (() => {
+      {!incomingOnly && !outgoingOnly && inflows.length > 0 && (() => {
         type StageNode = QuoteStage & {
           parent_stage_id?: string | null;
           stage_role?: string | null;
@@ -691,7 +695,7 @@ export function PaymentScheduleProposalView({
 
 
       {/* Plano de Faturação ao Cliente — single canonical invoice plan */}
-      {(!compositionOnly && !consultantsOnly || incomingOnly) && inflows.length > 0 && (() => {
+      {(!compositionOnly && !consultantsOnly && !outgoingOnly || incomingOnly) && inflows.length > 0 && (() => {
         const fmtDate = (iso?: string | null) => {
           if (!iso) return "";
           const [y, m, d] = iso.split("-");
@@ -976,7 +980,7 @@ export function PaymentScheduleProposalView({
       })()}
 
       {/* Per-supplier outflow groups */}
-      {!compositionOnly && !consultantsOnly && !incomingOnly && supplierBuckets.length > 0 && (
+      {(!compositionOnly && !consultantsOnly && !incomingOnly || outgoingOnly) && supplierBuckets.length > 0 && (
         <div className="space-y-4">
           <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Compromissos com fornecedores

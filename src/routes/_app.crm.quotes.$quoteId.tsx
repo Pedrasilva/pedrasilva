@@ -1107,10 +1107,7 @@ function QuoteDetail() {
               <QuotePaymentScheduleTab quoteId={quoteId} incomingOnly />
             </TabsContent>
             <TabsContent value="outgoing" className="mt-4">
-              <Card>
-                <CardHeader><CardTitle className="text-base">Outgoing</CardTitle></CardHeader>
-                <CardContent className="text-sm text-muted-foreground">Editor coming soon.</CardContent>
-              </Card>
+              <QuotePaymentScheduleTab quoteId={quoteId} outgoingOnly />
             </TabsContent>
 
 
