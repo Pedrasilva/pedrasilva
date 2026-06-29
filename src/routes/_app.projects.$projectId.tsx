@@ -1331,6 +1331,19 @@ function TabBtn({
   );
 }
 
+function NoQuoteLinkedPlaceholder({ label }: { label: string }) {
+  return (
+    <div className="rounded-lg border border-dashed border-border bg-card/40 p-8 text-center">
+      <div className="text-sm font-medium text-foreground">{label}</div>
+      <div className="mt-1 text-xs text-muted-foreground">
+        This view is sourced from the project's linked quote (Gantt). No quote is linked to this project yet.
+      </div>
+      <div className="mt-2 text-[11px] text-muted-foreground">
+        Link a CRM quote from the project header to populate Architecture, Suppliers, Incoming, Outgoing, Payment schedule and Financial summary.
+      </div>
+    </div>
+  );
+
 function KpiCard({
   icon: Icon,
   label,
