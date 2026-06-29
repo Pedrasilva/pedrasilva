@@ -131,9 +131,12 @@ function HrLayout() {
           )}
         >
           {!collapsed && (
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            <Link
+              to="/hr"
+              className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors"
+            >
               {t("sidebar.title")}
-            </span>
+            </Link>
           )}
           <button
             type="button"
