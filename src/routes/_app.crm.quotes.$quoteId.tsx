@@ -1103,8 +1103,9 @@ function QuoteDetail() {
               <ArchitectureFinancialBreakdown quoteId={quoteId} />
             </TabsContent>
 
-            <TabsContent value="consultants" className="mt-4">
+            <TabsContent value="consultants" className="mt-4 space-y-4">
               <QuotePaymentScheduleTab quoteId={quoteId} consultantsOnly />
+              <QuoteExternalServicesTab quoteId={quoteId} />
             </TabsContent>
             <TabsContent value="incoming" className="mt-4">
               <QuotePaymentScheduleTab quoteId={quoteId} incomingOnly />
