@@ -901,6 +901,15 @@ function QuoteDetail() {
           {(isProject || isRetainer) && visibleTabs.includes("planning") && (
             <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
           )}
+          {(isProject || isRetainer) && (
+            <>
+              <TabsTrigger value="architecture">Architecture</TabsTrigger>
+              <TabsTrigger value="consultants">Consultants</TabsTrigger>
+              <TabsTrigger value="incoming">Incoming</TabsTrigger>
+              <TabsTrigger value="outgoing">Outgoing</TabsTrigger>
+            </>
+          )}
+
 
 
           {(isProject || isRetainer) && visibleTabs.includes("payment") && (
