@@ -152,7 +152,7 @@ function InlineLabelEditor({
   );
 }
 
-export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
+export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false }: { quoteId: string; compositionOnly?: boolean }) {
   const { t } = useTranslation("crm");
   const itemsQ = useQuotePaymentSchedule(quoteId);
   const stagesQ = useQuoteStages(quoteId);
@@ -618,6 +618,20 @@ export function QuotePaymentScheduleTab({ quoteId }: { quoteId: string }) {
       toast.error((e as Error).message);
     }
   };
+
+  if (compositionOnly) {
+    return (
+      <PaymentScheduleProposalView
+        items={items}
+        stages={stages}
+        totalFee={contractTotal}
+        stageFees={stageFees}
+        suppliers={suppliers}
+        defaultVatRate={defaultVatRate}
+        compositionOnly
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

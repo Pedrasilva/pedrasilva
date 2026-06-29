@@ -95,6 +95,10 @@ interface Props {
   stageFees: Record<string, number>;
   suppliers: SupplierInfo[];
   defaultVatRate: number;
+  /** When true, render only the contract composition card + the
+   *  "Arquitectura — total do contrato" detail block. Used by the
+   *  Architecture tab. */
+  compositionOnly?: boolean;
 }
 
 function netAmount(
@@ -220,6 +224,7 @@ export function PaymentScheduleProposalView({
   stageFees,
   suppliers,
   defaultVatRate,
+  compositionOnly = false,
 }: Props) {
   const supplierName = useMemo(() => {
     const map = new Map<string, string>();
@@ -547,7 +552,10 @@ export function PaymentScheduleProposalView({
             total: supplierTop.reduce((sum, stage) => sum + amountFor(stage, "supplier"), 0),
           },
         ];
-        const sections = allSections.filter((section) => section.rows.length > 0 && section.total > 0);
+        const filteredSections = compositionOnly
+          ? allSections.filter((s) => s.key === "architecture")
+          : allSections;
+        const sections = filteredSections.filter((section) => section.rows.length > 0 && section.total > 0);
         if (sections.length === 0) return null;
         return (
           <div className="space-y-4">
@@ -673,7 +681,7 @@ export function PaymentScheduleProposalView({
 
 
       {/* Plano de Faturação ao Cliente — single canonical invoice plan */}
-      {inflows.length > 0 && (() => {
+      {!compositionOnly && inflows.length > 0 && (() => {
         const fmtDate = (iso?: string | null) => {
           if (!iso) return "";
           const [y, m, d] = iso.split("-");
@@ -958,7 +966,7 @@ export function PaymentScheduleProposalView({
       })()}
 
       {/* Per-supplier outflow groups */}
-      {supplierBuckets.length > 0 && (
+      {!compositionOnly && supplierBuckets.length > 0 && (
         <div className="space-y-4">
           <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Compromissos com fornecedores

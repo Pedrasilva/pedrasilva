@@ -1098,10 +1098,7 @@ function QuoteDetail() {
             </TabsContent>
 
             <TabsContent value="architecture" className="mt-4">
-              <Card>
-                <CardHeader><CardTitle className="text-base">Architecture</CardTitle></CardHeader>
-                <CardContent className="text-sm text-muted-foreground">Editor coming soon.</CardContent>
-              </Card>
+              <QuotePaymentScheduleTab quoteId={quoteId} compositionOnly />
             </TabsContent>
             <TabsContent value="consultants" className="mt-4">
               <Card>
