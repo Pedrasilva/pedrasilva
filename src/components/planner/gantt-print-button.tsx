@@ -30,13 +30,21 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 
 type PaperSize = "A4" | "A3";
+type Orientation = "landscape" | "portrait";
 
-// Printable area in millimetres, landscape, with ~10mm margins on each side.
-const PAGE_MM: Record<PaperSize, { w: number; h: number }> = {
-  A4: { w: 297 - 20, h: 210 - 20 },
-  A3: { w: 420 - 20, h: 297 - 20 },
+// Paper dimensions (mm) in portrait orientation.
+const PAPER_MM: Record<PaperSize, { w: number; h: number }> = {
+  A4: { w: 210, h: 297 },
+  A3: { w: 297, h: 420 },
 };
+const MARGIN_MM = 10;
 const MM_TO_PX = 96 / 25.4;
+
+function pagePrintableMm(paper: PaperSize, orientation: Orientation) {
+  const { w, h } = PAPER_MM[paper];
+  const portrait = { w: w - MARGIN_MM * 2, h: h - MARGIN_MM * 2 };
+  return orientation === "portrait" ? portrait : { w: portrait.h, h: portrait.w };
+}
 
 interface Layout {
   pagePxW: number;
@@ -50,18 +58,18 @@ interface Layout {
 
 function computeLayout(opts: {
   paper: PaperSize;
+  orientation: Orientation;
   pages: number;
   fit: boolean;
   manualScale: number;
   contentW: number;
   contentH: number;
 }): Layout {
-  const page = PAGE_MM[opts.paper];
+  const page = pagePrintableMm(opts.paper, opts.orientation);
   const pagePxW = page.w * MM_TO_PX;
   const pagePxH = page.h * MM_TO_PX;
   let scale: number;
   if (opts.fit) {
-    // Fit the full width across `pages` pages AND the height onto one page.
     scale = Math.min(
       (pagePxW * opts.pages) / opts.contentW,
       pagePxH / opts.contentH,
