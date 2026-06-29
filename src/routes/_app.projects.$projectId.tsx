@@ -565,17 +565,12 @@ function ProjectDetail() {
             {/* Materials tab hidden — superseded by Suppliers tab. Data layer kept intact. */}
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
             {/* Billing and Financial tabs hidden per request — kept in code for quick re-enable. */}
-            {sourceQuoteId && (
-              <>
-                
-                <TabBtn icon={Building2} label="Architecture" active={tab === "architecture"} onClick={() => setTab("architecture")} />
-                <TabBtn icon={UsersIcon} label="Suppliers" active={tab === "consultants"} onClick={() => setTab("consultants")} />
-                <TabBtn icon={ArrowDownToLine} label="Incoming" active={tab === "incoming"} onClick={() => setTab("incoming")} />
-                <TabBtn icon={ArrowUpFromLine} label="Outgoing" active={tab === "outgoing"} onClick={() => setTab("outgoing")} />
-                <TabBtn icon={CalendarClock} label="Payment schedule" active={tab === "paymentSchedule"} onClick={() => setTab("paymentSchedule")} />
-                <TabBtn icon={PieChartIcon} label="Financial summary" active={tab === "financialSummary"} onClick={() => setTab("financialSummary")} />
-              </>
-            )}
+            <TabBtn icon={Building2} label="Architecture" active={tab === "architecture"} onClick={() => setTab("architecture")} />
+            <TabBtn icon={UsersIcon} label="Suppliers" active={tab === "consultants"} onClick={() => setTab("consultants")} />
+            <TabBtn icon={ArrowDownToLine} label="Incoming" active={tab === "incoming"} onClick={() => setTab("incoming")} />
+            <TabBtn icon={ArrowUpFromLine} label="Outgoing" active={tab === "outgoing"} onClick={() => setTab("outgoing")} />
+            <TabBtn icon={CalendarClock} label="Payment schedule" active={tab === "paymentSchedule"} onClick={() => setTab("paymentSchedule")} />
+            <TabBtn icon={PieChartIcon} label="Financial summary" active={tab === "financialSummary"} onClick={() => setTab("financialSummary")} />
           </div>
           <button
             onClick={() => setSidebarOpen((v) => !v)}
@@ -906,35 +901,61 @@ function ProjectDetail() {
             )}
 
 
-            {sourceQuoteId && tab === "architecture" && (
+            {tab === "architecture" && (
               <div className="mt-4 space-y-4">
-                <QuotePaymentScheduleTab quoteId={sourceQuoteId} compositionOnly />
-                <ArchitectureFinancialBreakdown quoteId={sourceQuoteId} />
+                {sourceQuoteId ? (
+                  <>
+                    <QuotePaymentScheduleTab quoteId={sourceQuoteId} compositionOnly />
+                    <ArchitectureFinancialBreakdown quoteId={sourceQuoteId} />
+                  </>
+                ) : (
+                  <NoQuoteLinkedPlaceholder label="Architecture" />
+                )}
               </div>
             )}
-            {sourceQuoteId && tab === "consultants" && (
+            {tab === "consultants" && (
               <div className="mt-4">
-                <QuotePaymentScheduleTab quoteId={sourceQuoteId} consultantsOnly />
+                {sourceQuoteId ? (
+                  <QuotePaymentScheduleTab quoteId={sourceQuoteId} consultantsOnly />
+                ) : (
+                  <NoQuoteLinkedPlaceholder label="Suppliers" />
+                )}
               </div>
             )}
-            {sourceQuoteId && tab === "incoming" && (
+            {tab === "incoming" && (
               <div className="mt-4">
-                <QuotePaymentScheduleTab quoteId={sourceQuoteId} incomingOnly />
+                {sourceQuoteId ? (
+                  <QuotePaymentScheduleTab quoteId={sourceQuoteId} incomingOnly />
+                ) : (
+                  <NoQuoteLinkedPlaceholder label="Incoming" />
+                )}
               </div>
             )}
-            {sourceQuoteId && tab === "outgoing" && (
+            {tab === "outgoing" && (
               <div className="mt-4">
-                <QuotePaymentScheduleTab quoteId={sourceQuoteId} outgoingOnly />
+                {sourceQuoteId ? (
+                  <QuotePaymentScheduleTab quoteId={sourceQuoteId} outgoingOnly />
+                ) : (
+                  <NoQuoteLinkedPlaceholder label="Outgoing" />
+                )}
               </div>
             )}
-            {sourceQuoteId && tab === "paymentSchedule" && (
+            {tab === "paymentSchedule" && (
               <div className="mt-4">
-                <QuotePaymentScheduleTab quoteId={sourceQuoteId} />
+                {sourceQuoteId ? (
+                  <QuotePaymentScheduleTab quoteId={sourceQuoteId} />
+                ) : (
+                  <NoQuoteLinkedPlaceholder label="Payment schedule" />
+                )}
               </div>
             )}
-            {sourceQuoteId && tab === "financialSummary" && (
+            {tab === "financialSummary" && (
               <div className="mt-4">
-                <QuoteFinancialSummaryTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
+                {sourceQuoteId ? (
+                  <QuoteFinancialSummaryTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
+                ) : (
+                  <NoQuoteLinkedPlaceholder label="Financial summary" />
+                )}
               </div>
             )}
 
@@ -1309,6 +1330,21 @@ function TabBtn({
     </button>
   );
 }
+
+function NoQuoteLinkedPlaceholder({ label }: { label: string }) {
+  return (
+    <div className="rounded-lg border border-dashed border-border bg-card/40 p-8 text-center">
+      <div className="text-sm font-medium text-foreground">{label}</div>
+      <div className="mt-1 text-xs text-muted-foreground">
+        This view is sourced from the project's linked quote (Gantt). No quote is linked to this project yet.
+      </div>
+      <div className="mt-2 text-[11px] text-muted-foreground">
+        Link a CRM quote from the project header to populate Architecture, Suppliers, Incoming, Outgoing, Payment schedule and Financial summary.
+      </div>
+    </div>
+  );
+}
+
 
 function KpiCard({
   icon: Icon,
