@@ -753,6 +753,12 @@ function ProjectDetail() {
               </div>
             )}
 
+            {tab === "ap" && (
+              <div className="mt-4">
+                <ProjectForecastCard projectId={projectId} />
+              </div>
+            )}
+
             {tab === "materials" && (
               <div className="mt-4">
                 <ExternalServicesSection projectId={projectId} canEdit={isAdmin && canSeeFinancials} />
