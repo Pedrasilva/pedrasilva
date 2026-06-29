@@ -1097,6 +1097,33 @@ function QuoteDetail() {
               <QuotePlanningTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} isRetainer={isRetainer} />
             </TabsContent>
 
+            <TabsContent value="architecture" className="mt-4">
+              <Card>
+                <CardHeader><CardTitle className="text-base">Architecture</CardTitle></CardHeader>
+                <CardContent className="text-sm text-muted-foreground">Editor coming soon.</CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="consultants" className="mt-4">
+              <Card>
+                <CardHeader><CardTitle className="text-base">Consultants</CardTitle></CardHeader>
+                <CardContent className="text-sm text-muted-foreground">Editor coming soon.</CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="incoming" className="mt-4">
+              <Card>
+                <CardHeader><CardTitle className="text-base">Incoming</CardTitle></CardHeader>
+                <CardContent className="text-sm text-muted-foreground">Editor coming soon.</CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="outgoing" className="mt-4">
+              <Card>
+                <CardHeader><CardTitle className="text-base">Outgoing</CardTitle></CardHeader>
+                <CardContent className="text-sm text-muted-foreground">Editor coming soon.</CardContent>
+              </Card>
+            </TabsContent>
+
+
+
 
             <TabsContent value="payment" className="mt-4">
               <QuotePaymentScheduleTab quoteId={quoteId} />
