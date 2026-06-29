@@ -1343,6 +1343,8 @@ function NoQuoteLinkedPlaceholder({ label }: { label: string }) {
       </div>
     </div>
   );
+}
+
 
 function KpiCard({
   icon: Icon,
