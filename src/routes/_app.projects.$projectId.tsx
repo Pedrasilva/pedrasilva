@@ -552,8 +552,7 @@ function ProjectDetail() {
             <TabBtn icon={ActivityIcon} label="A&P" active={tab === "ap"} onClick={() => setTab("ap")} />
             {/* Materials tab hidden — superseded by Suppliers tab. Data layer kept intact. */}
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
-            <TabBtn icon={FileText} label={t("projects:detail.tabs.billing")} active={tab === "billing"} onClick={() => setTab("billing")} />
-            <TabBtn icon={Receipt} label="Financial" active={tab === "financial"} onClick={() => setTab("financial")} />
+            {/* Billing and Financial tabs hidden per request — kept in code for quick re-enable. */}
             {sourceQuoteId && (
               <>
                 <TabBtn icon={CalendarIcon2} label="Planning" active={tab === "planning"} onClick={() => setTab("planning")} />
