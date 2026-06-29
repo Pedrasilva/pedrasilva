@@ -41,6 +41,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
           <ComposerCanvas
             blocks={items}
             selectedId={selectedId}
+            quoteIdHint={proposal.data.quote_id}
             onSelect={setSelectedId}
             onReorder={(next) => reorder.mutate(next)}
           />
