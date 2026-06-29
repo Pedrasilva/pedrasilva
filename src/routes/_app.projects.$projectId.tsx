@@ -901,35 +901,61 @@ function ProjectDetail() {
             )}
 
 
-            {sourceQuoteId && tab === "architecture" && (
+            {tab === "architecture" && (
               <div className="mt-4 space-y-4">
-                <QuotePaymentScheduleTab quoteId={sourceQuoteId} compositionOnly />
-                <ArchitectureFinancialBreakdown quoteId={sourceQuoteId} />
+                {sourceQuoteId ? (
+                  <>
+                    <QuotePaymentScheduleTab quoteId={sourceQuoteId} compositionOnly />
+                    <ArchitectureFinancialBreakdown quoteId={sourceQuoteId} />
+                  </>
+                ) : (
+                  <NoQuoteLinkedPlaceholder label="Architecture" />
+                )}
               </div>
             )}
-            {sourceQuoteId && tab === "consultants" && (
+            {tab === "consultants" && (
               <div className="mt-4">
-                <QuotePaymentScheduleTab quoteId={sourceQuoteId} consultantsOnly />
+                {sourceQuoteId ? (
+                  <QuotePaymentScheduleTab quoteId={sourceQuoteId} consultantsOnly />
+                ) : (
+                  <NoQuoteLinkedPlaceholder label="Suppliers" />
+                )}
               </div>
             )}
-            {sourceQuoteId && tab === "incoming" && (
+            {tab === "incoming" && (
               <div className="mt-4">
-                <QuotePaymentScheduleTab quoteId={sourceQuoteId} incomingOnly />
+                {sourceQuoteId ? (
+                  <QuotePaymentScheduleTab quoteId={sourceQuoteId} incomingOnly />
+                ) : (
+                  <NoQuoteLinkedPlaceholder label="Incoming" />
+                )}
               </div>
             )}
-            {sourceQuoteId && tab === "outgoing" && (
+            {tab === "outgoing" && (
               <div className="mt-4">
-                <QuotePaymentScheduleTab quoteId={sourceQuoteId} outgoingOnly />
+                {sourceQuoteId ? (
+                  <QuotePaymentScheduleTab quoteId={sourceQuoteId} outgoingOnly />
+                ) : (
+                  <NoQuoteLinkedPlaceholder label="Outgoing" />
+                )}
               </div>
             )}
-            {sourceQuoteId && tab === "paymentSchedule" && (
+            {tab === "paymentSchedule" && (
               <div className="mt-4">
-                <QuotePaymentScheduleTab quoteId={sourceQuoteId} />
+                {sourceQuoteId ? (
+                  <QuotePaymentScheduleTab quoteId={sourceQuoteId} />
+                ) : (
+                  <NoQuoteLinkedPlaceholder label="Payment schedule" />
+                )}
               </div>
             )}
-            {sourceQuoteId && tab === "financialSummary" && (
+            {tab === "financialSummary" && (
               <div className="mt-4">
-                <QuoteFinancialSummaryTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
+                {sourceQuoteId ? (
+                  <QuoteFinancialSummaryTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
+                ) : (
+                  <NoQuoteLinkedPlaceholder label="Financial summary" />
+                )}
               </div>
             )}
 
