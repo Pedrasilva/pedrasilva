@@ -162,6 +162,7 @@ export function ComposerCanvas({
                   block={b}
                   chapter={chapterByIndex[i]}
                   selected={selectedId === b.id}
+                  quoteIdHint={quoteIdHint}
                   onSelect={() => onSelect(b.id)}
                 />
               ))}
