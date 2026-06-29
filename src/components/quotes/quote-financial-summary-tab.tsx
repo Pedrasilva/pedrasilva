@@ -560,6 +560,45 @@ export function ArchitectureStagesCard({
           </div>
         )}
 
+        {showMarginSlider && avgSaleRate > 0 && (
+          <div className="rounded-md border bg-background px-3 py-3 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="uppercase tracking-wide text-muted-foreground">
+                Margem alvo (markup sobre custo)
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold tabular-nums">
+                  {marginPct.toFixed(0)}%
+                </span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 px-2 text-xs"
+                  onClick={() => setMarginPct(meanMarginPct)}
+                  disabled={Math.abs(marginPct - meanMarginPct) < 0.01}
+                >
+                  Repor média ({meanMarginPct.toFixed(0)}%)
+                </Button>
+              </div>
+            </div>
+            <Slider
+              min={0}
+              max={150}
+              step={1}
+              value={[marginPct]}
+              onValueChange={(v) => setMarginPct(v[0] ?? 0)}
+            />
+            <div className="flex justify-between text-[10px] text-muted-foreground tabular-nums">
+              <span>0%</span>
+              <span>50% (média)</span>
+              <span>150%</span>
+            </div>
+          </div>
+        )}
+
+
+
         <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 text-xs uppercase tracking-wide text-muted-foreground pb-1 border-b">
           <span>
             {t("workspace.financial.stageColumn", { defaultValue: "Fase" })}
