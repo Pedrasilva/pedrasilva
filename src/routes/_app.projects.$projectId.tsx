@@ -1326,6 +1326,9 @@ function MilestonesTable({
   };
 
   const filtered = stages.filter((s) => {
+    // Show only our own stages here — supplier-owned stages live in their
+    // own breakdowns under Consultants/Outgoing.
+    if ((s as { is_self?: boolean }).is_self === false) return false;
     if (statusFilter === "active" && s.allocations.length === 0) return false;
     if (statusFilter === "empty" && s.allocations.length > 0) return false;
     if (search) {

@@ -474,6 +474,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       children_bill_independently: (s as { children_bill_independently?: boolean }).children_bill_independently ?? false,
       bill_to_client: (s as { bill_to_client?: boolean }).bill_to_client ?? false,
       markup_pct: (s as { markup_pct?: number }).markup_pct ?? 0,
+      is_self: (s as { is_self?: boolean }).is_self ?? true,
       allocations: allocByStage.get(s.id) ?? [],
       };
     });
