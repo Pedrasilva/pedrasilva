@@ -61,6 +61,22 @@ import { RetainerMonitorPanel } from "@/components/projects/retainer-monitor-pan
 import { CommercialBaselineCard } from "@/components/projects/commercial-baseline-card";
 import { ContractBaselineCard } from "@/components/projects/contract-baseline-card";
 import { ProjectForecastCard } from "@/components/projects/project-forecast-card";
+import { useContractBaseline } from "@/lib/projects/use-contract-baseline";
+import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
+import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
+import {
+  QuoteFinancialSummaryTab,
+  ArchitectureFinancialBreakdown,
+} from "@/components/quotes/quote-financial-summary-tab";
+import {
+  Calendar as CalendarIcon2,
+  Building2,
+  Users as UsersIcon,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  CalendarClock,
+  PieChart as PieChartIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
