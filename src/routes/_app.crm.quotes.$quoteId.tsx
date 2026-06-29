@@ -405,7 +405,7 @@ function QuoteDetail() {
       let dependenciesCopied = 0;
       const { data: qDeps, error: qdErr } = await db
         .from("quote_stage_dependencies")
-        .select("predecessor_stage_id, successor_stage_id, type, lag_days")
+        .select("id, predecessor_stage_id, successor_stage_id, type, lag_days")
         .eq("quote_id", quote.id);
       if (qdErr) throw qdErr;
       for (const d of qDeps ?? []) {
@@ -417,6 +417,7 @@ function QuoteDetail() {
           successor_id: succ,
           type: d.type ?? "FS",
           lag_days: Number(d.lag_days ?? 0),
+          source_quote_dependency_id: d.id,
         });
         if (dErr) throw dErr;
         dependenciesCopied += 1;
@@ -428,7 +429,7 @@ function QuoteDetail() {
       //    month so timesheet entries roll up cleanly per month.
       const { data: qAllocs, error: qaErr } = await db
         .from("quote_allocations")
-        .select("stage_id, resource_id, start_date, end_date, hours_per_day")
+        .select("id, stage_id, resource_id, start_date, end_date, hours_per_day, allocation_percentage, cost_rate_snapshot, sale_rate_snapshot")
         .eq("quote_id", quote.id);
       if (qaErr) throw qaErr;
 
@@ -452,7 +453,9 @@ function QuoteDetail() {
               start_date: fmtDate(clampedStart, "yyyy-MM-dd"),
               end_date: fmtDate(clampedEnd, "yyyy-MM-dd"),
               hours_per_day: Number(a.hours_per_day ?? 8),
+              allocation_percentage: a.allocation_percentage ?? 100,
               status: "committed",
+              source_quote_allocation_id: a.id,
             });
             if (aErr) throw aErr;
             allocationsCopied += 1;
@@ -472,7 +475,9 @@ function QuoteDetail() {
           start_date: a.start_date,
           end_date: a.end_date,
           hours_per_day: Number(a.hours_per_day ?? 8),
+          allocation_percentage: a.allocation_percentage ?? 100,
           status: "committed",
+          source_quote_allocation_id: a.id,
         });
         if (aErr) throw aErr;
         allocationsCopied += 1;
@@ -482,7 +487,7 @@ function QuoteDetail() {
       const { data: qExt, error: qeErr } = await db
         .from("quote_external_services")
         .select(
-          "description, supplier_id, quantity, unit_cost, purchase_price, markup_type, markup_value, sale_price, sale_price_manual, status, notes",
+          "id, description, supplier_id, quantity, unit_cost, purchase_price, markup_type, markup_value, sale_price, sale_price_manual, status, notes",
         )
         .eq("quote_id", quote.id);
       if (qeErr) throw qeErr;
@@ -502,6 +507,7 @@ function QuoteDetail() {
           sale_price_manual: !!e.sale_price_manual,
           status: e.status ?? "draft",
           notes: e.notes,
+          source_quote_external_service_id: e.id,
         });
         if (mErr) throw mErr;
         externalCopied += 1;
