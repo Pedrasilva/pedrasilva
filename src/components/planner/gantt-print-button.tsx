@@ -1,18 +1,18 @@
 /**
- * GanttPrintButton — Merlin-style print dialog for the Gantt chart.
+ * GanttPrintButton — Merlin-style print dialog with live preview.
  *
- * Renders a "PDF" trigger button. The dialog lets the user pick:
+ * Lets the user pick:
  *   - Paper size: A4 or A3 (always landscape)
- *   - Scale: "Fit to page" (auto) or manual percentage
+ *   - Pages across: 1–6. When > 1 the Gantt is tiled horizontally so each
+ *     slice fills one printable page.
+ *   - Fit-to-page (height): auto-scales so each tile fits the printable
+ *     area; otherwise the user picks a manual scale.
  *
- * Printing strategy: when the user confirms, we expand the target scroll
- * container to its full scrollWidth/scrollHeight, inject a @page rule with
- * the chosen size + landscape orientation, optionally apply a CSS
- * `transform: scale(N)` so the full Gantt fits the printable area, then
- * call `window.print()`. The browser's native print dialog handles the
- * "Save as PDF" step. Cleanup runs in an `afterprint` listener.
+ * Preview: the right pane renders the same tile layout the printer will
+ * receive, shrunk to fit. Confirming triggers the browser's native print
+ * dialog (Save as PDF supported).
  */
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,30 +38,124 @@ const PAGE_MM: Record<PaperSize, { w: number; h: number }> = {
 };
 const MM_TO_PX = 96 / 25.4;
 
+interface Layout {
+  pagePxW: number;
+  pagePxH: number;
+  contentW: number;
+  contentH: number;
+  scale: number;
+  pages: number;
+  tileSrcW: number; // source pixels per tile (pagePxW / scale)
+}
+
+function computeLayout(opts: {
+  paper: PaperSize;
+  pages: number;
+  fit: boolean;
+  manualScale: number;
+  contentW: number;
+  contentH: number;
+}): Layout {
+  const page = PAGE_MM[opts.paper];
+  const pagePxW = page.w * MM_TO_PX;
+  const pagePxH = page.h * MM_TO_PX;
+  let scale: number;
+  if (opts.fit) {
+    // Fit the full width across `pages` pages AND the height onto one page.
+    scale = Math.min(
+      (pagePxW * opts.pages) / opts.contentW,
+      pagePxH / opts.contentH,
+      1,
+    );
+  } else {
+    scale = opts.manualScale / 100;
+  }
+  return {
+    pagePxW,
+    pagePxH,
+    contentW: opts.contentW,
+    contentH: opts.contentH,
+    scale,
+    pages: opts.pages,
+    tileSrcW: pagePxW / scale,
+  };
+}
+
 export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement | null }) {
   const [open, setOpen] = useState(false);
   const [paper, setPaper] = useState<PaperSize>("A4");
+  const [pages, setPages] = useState(1);
   const [fit, setFit] = useState(true);
-  const [scale, setScale] = useState(100);
+  const [manualScale, setManualScale] = useState(100);
   const cleanupRef = useRef<(() => void) | null>(null);
 
+  // Capture content size when dialog opens, so the preview & layout
+  // computations stay stable while the user tweaks options.
+  const [size, setSize] = useState<{ w: number; h: number } | null>(null);
+
+  const onOpenChange = (next: boolean) => {
+    if (next) {
+      const target = getTarget();
+      if (target) {
+        const inner = target.firstElementChild as HTMLElement | null;
+        const w = Math.max(target.scrollWidth, inner?.scrollWidth ?? 0);
+        const h = Math.max(target.scrollHeight, inner?.scrollHeight ?? 0);
+        setSize({ w, h });
+      }
+    }
+    setOpen(next);
+  };
+
+  const layout = useMemo(() => {
+    if (!size) return null;
+    return computeLayout({
+      paper,
+      pages,
+      fit,
+      manualScale,
+      contentW: size.w,
+      contentH: size.h,
+    });
+  }, [paper, pages, fit, manualScale, size]);
+
+  // Build a tiled clone of the Gantt and inject into the document, then
+  // call window.print(). Each tile is one printable page.
   const handlePrint = () => {
     const target = getTarget();
-    if (!target) return;
+    if (!target || !layout) return;
 
-    const inner = target.firstElementChild as HTMLElement | null;
-    if (!inner) return;
+    const wrapper = document.createElement("div");
+    wrapper.setAttribute("data-gantt-print-root", "true");
+    wrapper.style.position = "fixed";
+    wrapper.style.inset = "0";
+    wrapper.style.zIndex = "999999";
+    wrapper.style.background = "white";
+    wrapper.style.overflow = "hidden";
 
-    const page = PAGE_MM[paper];
-    const pagePxW = page.w * MM_TO_PX;
-    const pagePxH = page.h * MM_TO_PX;
+    for (let i = 0; i < layout.pages; i++) {
+      const tile = document.createElement("div");
+      tile.className = "gantt-print-tile";
+      tile.style.width = `${layout.pagePxW}px`;
+      tile.style.height = `${layout.pagePxH}px`;
+      tile.style.overflow = "hidden";
+      tile.style.position = "relative";
+      tile.style.background = "white";
+      tile.style.pageBreakAfter = "always";
+      // @ts-expect-error css prop
+      tile.style.breakAfter = "page";
 
-    const contentW = Math.max(target.scrollWidth, inner.scrollWidth);
-    const contentH = Math.max(target.scrollHeight, inner.scrollHeight);
-
-    let effectiveScale = scale / 100;
-    if (fit) {
-      effectiveScale = Math.min(pagePxW / contentW, pagePxH / contentH, 1);
+      const clone = target.cloneNode(true) as HTMLElement;
+      clone.style.width = `${layout.contentW}px`;
+      clone.style.height = `${layout.contentH}px`;
+      clone.style.maxHeight = "none";
+      clone.style.overflow = "visible";
+      clone.style.transform = `translateX(${-i * layout.tileSrcW}px) scale(${layout.scale})`;
+      clone.style.transformOrigin = "top left";
+      clone.style.position = "absolute";
+      clone.style.top = "0";
+      clone.style.left = "0";
+      tile.appendChild(clone);
+      wrapper.appendChild(tile);
     }
 
     const styleEl = document.createElement("style");
@@ -70,34 +164,22 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
       @page { size: ${paper} landscape; margin: 10mm; }
       @media print {
         html, body { background: white !important; }
-        body * { visibility: hidden !important; }
-        [data-gantt-print-root], [data-gantt-print-root] * { visibility: visible !important; }
-        [data-gantt-print-root] {
-          position: fixed !important;
-          inset: 0 !important;
-          width: ${contentW}px !important;
-          height: ${contentH}px !important;
-          max-height: none !important;
-          overflow: visible !important;
-          transform: scale(${effectiveScale}) !important;
-          transform-origin: top left !important;
-          background: white !important;
-        }
-        [data-gantt-print-root] > * {
-          overflow: visible !important;
-          max-height: none !important;
-          height: auto !important;
-        }
+        body > *:not([data-gantt-print-root]) { display: none !important; }
+        [data-gantt-print-root] { position: static !important; }
+        [data-gantt-print-root] .gantt-print-tile { page-break-after: always; break-after: page; }
+        [data-gantt-print-root] .gantt-print-tile:last-child { page-break-after: auto; break-after: auto; }
+      }
+      @media screen {
+        [data-gantt-print-root] { display: none; }
       }
     `;
 
-    // Mark the print root.
-    target.setAttribute("data-gantt-print-root", "true");
     document.head.appendChild(styleEl);
+    document.body.appendChild(wrapper);
 
     const cleanup = () => {
       styleEl.remove();
-      target.removeAttribute("data-gantt-print-root");
+      wrapper.remove();
       window.removeEventListener("afterprint", cleanup);
       cleanupRef.current = null;
     };
@@ -105,12 +187,11 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
     window.addEventListener("afterprint", cleanup);
 
     setOpen(false);
-    // Give the dialog a tick to close before invoking print.
-    setTimeout(() => window.print(), 100);
+    setTimeout(() => window.print(), 120);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button
           type="button"
@@ -123,72 +204,207 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
           PDF
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-5xl">
         <DialogHeader>
           <DialogTitle>Print Gantt chart</DialogTitle>
           <DialogDescription>
-            Choose paper size and fit. Use your browser's print dialog to save as PDF.
+            Choose paper size, spread across pages if needed, then preview.
+            Use your browser's print dialog to save as PDF.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5 py-2">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Paper size (landscape)</Label>
-            <RadioGroup
-              value={paper}
-              onValueChange={(v) => setPaper(v as PaperSize)}
-              className="flex gap-4"
-            >
-              <div className="flex items-center gap-2">
-                <RadioGroupItem id="paper-a4" value="A4" />
-                <Label htmlFor="paper-a4" className="text-sm">A4 (297 × 210 mm)</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <RadioGroupItem id="paper-a3" value="A3" />
-                <Label htmlFor="paper-a3" className="text-sm">A3 (420 × 297 mm)</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="fit-toggle" className="text-sm font-medium">
-                Fit to page
-              </Label>
-              <Switch id="fit-toggle" checked={fit} onCheckedChange={setFit} />
+        <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6 py-2">
+          {/* Controls */}
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Paper size (landscape)</Label>
+              <RadioGroup
+                value={paper}
+                onValueChange={(v) => setPaper(v as PaperSize)}
+                className="flex gap-4"
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem id="paper-a4" value="A4" />
+                  <Label htmlFor="paper-a4" className="text-sm">A4</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem id="paper-a3" value="A3" />
+                  <Label htmlFor="paper-a3" className="text-sm">A3</Label>
+                </div>
+              </RadioGroup>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Auto-scales the chart so the full timeline fits on one page.
-            </p>
-          </div>
 
-          {!fit && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Scale</Label>
-                <span className="text-sm tabular-nums text-muted-foreground">{scale}%</span>
+                <Label className="text-sm font-medium">Spread across pages</Label>
+                <span className="text-sm tabular-nums text-muted-foreground">
+                  {pages} {pages === 1 ? "page" : "pages"}
+                </span>
               </div>
               <Slider
-                min={25}
-                max={100}
-                step={5}
-                value={[scale]}
-                onValueChange={(v) => setScale(v[0] ?? 100)}
+                min={1}
+                max={6}
+                step={1}
+                value={[pages]}
+                onValueChange={(v) => setPages(v[0] ?? 1)}
               />
+              <p className="text-xs text-muted-foreground">
+                Tile the timeline horizontally across multiple pages for legibility.
+              </p>
             </div>
-          )}
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="fit-toggle" className="text-sm font-medium">
+                  Fit height to page
+                </Label>
+                <Switch id="fit-toggle" checked={fit} onCheckedChange={setFit} />
+              </div>
+            </div>
+
+            {!fit && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Scale</Label>
+                  <span className="text-sm tabular-nums text-muted-foreground">
+                    {manualScale}%
+                  </span>
+                </div>
+                <Slider
+                  min={25}
+                  max={100}
+                  step={5}
+                  value={[manualScale]}
+                  onValueChange={(v) => setManualScale(v[0] ?? 100)}
+                />
+              </div>
+            )}
+
+            {layout && (
+              <div className="text-xs text-muted-foreground border-t pt-3 space-y-0.5">
+                <div>Effective scale: {(layout.scale * 100).toFixed(0)}%</div>
+                <div>
+                  Page size: {Math.round(layout.pagePxW)} × {Math.round(layout.pagePxH)} px
+                </div>
+                <div>
+                  Content: {Math.round(layout.contentW)} × {Math.round(layout.contentH)} px
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Preview */}
+          <PrintPreview getTarget={getTarget} layout={layout} />
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handlePrint}>
+          <Button onClick={handlePrint} disabled={!layout}>
             <Printer className="h-4 w-4 mr-1" />
             Print
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * PrintPreview — renders the same tile layout the printer will produce,
+ * shrunk to fit the available width. Each tile mirrors one printed page.
+ */
+function PrintPreview({
+  getTarget,
+  layout,
+}: {
+  getTarget: () => HTMLElement | null;
+  layout: Layout | null;
+}) {
+  // We render each tile as a fixed-size box with overflow hidden, then
+  // wrap its inner clone container with a transform that mirrors the
+  // print transform. The whole row is shrunk to fit the preview pane.
+  const PREVIEW_MAX_W = 700;
+  const previewScale = useMemo(() => {
+    if (!layout) return 1;
+    const totalW = layout.pagePxW * layout.pages + (layout.pages - 1) * 12;
+    return Math.min(PREVIEW_MAX_W / totalW, 1);
+  }, [layout]);
+
+  if (!layout) {
+    return (
+      <div className="border rounded-md bg-muted/30 h-72 flex items-center justify-center text-sm text-muted-foreground">
+        Loading preview…
+      </div>
+    );
+  }
+
+  return (
+    <div className="border rounded-md bg-muted/20 p-3 overflow-auto">
+      <div
+        style={{
+          transform: `scale(${previewScale})`,
+          transformOrigin: "top left",
+          width: layout.pagePxW * layout.pages + (layout.pages - 1) * 12,
+        }}
+        className="flex gap-3"
+      >
+        {Array.from({ length: layout.pages }).map((_, i) => (
+          <PreviewTile key={i} index={i} layout={layout} getTarget={getTarget} />
+        ))}
+      </div>
+      <div
+        style={{ height: layout.pagePxH * previewScale + 8 }}
+        aria-hidden
+      />
+      <div className="text-xs text-muted-foreground mt-1">
+        Preview at {(previewScale * 100).toFixed(0)}% — each page above prints on one sheet.
+      </div>
+    </div>
+  );
+}
+
+function PreviewTile({
+  index,
+  layout,
+  getTarget,
+}: {
+  index: number;
+  layout: Layout;
+  getTarget: () => HTMLElement | null;
+}) {
+  // Use a ref callback to inject a fresh clone of the live Gantt into the
+  // tile. We rebuild on every render so the preview reflects current data.
+  const setRef = (node: HTMLDivElement | null) => {
+    if (!node) return;
+    const target = getTarget();
+    if (!target) return;
+    node.innerHTML = "";
+    const clone = target.cloneNode(true) as HTMLElement;
+    clone.style.width = `${layout.contentW}px`;
+    clone.style.height = `${layout.contentH}px`;
+    clone.style.maxHeight = "none";
+    clone.style.overflow = "visible";
+    clone.style.transform = `translateX(${-index * layout.tileSrcW}px) scale(${layout.scale})`;
+    clone.style.transformOrigin = "top left";
+    clone.style.position = "absolute";
+    clone.style.top = "0";
+    clone.style.left = "0";
+    clone.style.pointerEvents = "none";
+    node.appendChild(clone);
+  };
+
+  return (
+    <div
+      ref={setRef}
+      className="relative bg-white shadow border"
+      style={{
+        width: layout.pagePxW,
+        height: layout.pagePxH,
+        overflow: "hidden",
+        flex: "0 0 auto",
+      }}
+    />
   );
 }
