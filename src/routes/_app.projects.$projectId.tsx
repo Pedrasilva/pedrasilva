@@ -771,9 +771,35 @@ function ProjectDetail() {
               <div className="space-y-4">
                 <CommercialBaselineCard projectId={projectId} />
                 <ContractBaselineCard projectId={projectId} />
+                {/* Budget control moved to A&P tab */}
+
+                <RetainerMonitorPanel
+                  stages={stages}
+                  byStage={budgetControl?.byStage}
+                  showFinancials={canSeeFinancials}
+                />
+
+                <div className="rounded-lg border border-border bg-card">
+                  <MilestonesTable
+                    stages={stages}
+                    invoiced={invoicedTotal}
+                    totalBudget={totalBudget}
+                    stageCost={stageCost}
+                    stageActualRevenue={stageActualRevenue}
+                    stageActualCost={stageActualCost}
+                    stageLoggedHours={stageLoggedHours}
+                   stagePlannedHours={stagePlannedHours}
+                    defaultRates={defaultRates}
+                    canSeeFinancials={canSeeFinancials}
+                    onEditPlan={() => setTab("schedule")}
+                  />
+                </div>
+              </div>
+            )}
+
+            {tab === "ap" && (
+              <div className="mt-4 space-y-4">
                 {budgetControl && canSeeFinancials && (() => {
-                  // Budget control is architecture-only. Filter out supplier stages
-                  // (is_self === false) and rebuild project-level aggregates.
                   const archStages = stages.filter(
                     (s) => (s as { is_self?: boolean }).is_self !== false,
                   );
@@ -826,33 +852,6 @@ function ProjectDetail() {
                     />
                   );
                 })()}
-
-                <RetainerMonitorPanel
-                  stages={stages}
-                  byStage={budgetControl?.byStage}
-                  showFinancials={canSeeFinancials}
-                />
-
-                <div className="rounded-lg border border-border bg-card">
-                  <MilestonesTable
-                    stages={stages}
-                    invoiced={invoicedTotal}
-                    totalBudget={totalBudget}
-                    stageCost={stageCost}
-                    stageActualRevenue={stageActualRevenue}
-                    stageActualCost={stageActualCost}
-                    stageLoggedHours={stageLoggedHours}
-                   stagePlannedHours={stagePlannedHours}
-                    defaultRates={defaultRates}
-                    canSeeFinancials={canSeeFinancials}
-                    onEditPlan={() => setTab("schedule")}
-                  />
-                </div>
-              </div>
-            )}
-
-            {tab === "ap" && (
-              <div className="mt-4 text-sm text-muted-foreground">
                 {/* Forecast & coverage card hidden per request. Re-enable: <ProjectForecastCard projectId={projectId} /> */}
               </div>
             )}
