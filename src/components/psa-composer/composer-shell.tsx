@@ -42,6 +42,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
             blocks={items}
             selectedId={selectedId}
             quoteIdHint={proposal.data.quote_id}
+            styleSettings={proposal.data.style_settings}
             onSelect={setSelectedId}
             onReorder={(next) => reorder.mutate(next)}
           />
@@ -49,6 +50,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
         <div className="print:hidden">
           <BlockSettingsPanel
             proposalId={proposalId}
+            proposal={proposal.data}
             quoteIdHint={proposal.data.quote_id}
             block={selected}
           />

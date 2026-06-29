@@ -408,10 +408,17 @@
   --psa-header-top: 8mm;
   --psa-footer-bottom: 6mm;
 
+  /* Typography knobs (overridable per proposal via inline style on the document). */
+  --psa-heading-font: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --psa-body-font: "Source Serif 4", "EB Garamond", Georgia, "Times New Roman", serif;
+  --psa-heading-weight: 700;
+  --psa-body-align: justify;
+  --psa-body-size: 10.5pt;
+
   background: white;
   color: #111;
-  font-family: "Source Serif 4", "EB Garamond", Georgia, "Times New Roman", serif;
-  font-size: 10.5pt;
+  font-family: var(--psa-body-font);
+  font-size: var(--psa-body-size);
   line-height: 1.55;
   font-feature-settings: "kern", "liga", "onum";
   -webkit-print-color-adjust: exact;
@@ -420,7 +427,7 @@
 
 .proposal-print-document p,
 .proposal-print-document li {
-  text-align: justify;
+  text-align: var(--psa-body-align);
   hyphens: auto;
 }
 
@@ -440,8 +447,8 @@
 }
 
 .proposal-print-document .proposal-print-heading {
-  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-  font-weight: 700;
+  font-family: var(--psa-heading-font);
+  font-weight: var(--psa-heading-weight);
   letter-spacing: -0.005em;
   color: #111;
 }
