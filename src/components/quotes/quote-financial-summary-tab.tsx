@@ -544,9 +544,12 @@ export function ArchitectureStagesCard({
                       : "text-amber-600 dark:text-amber-400"
                 }`}
               >
-                {avgCostRate > 0
-                  ? `${(((avgSaleRate - avgCostRate) / avgCostRate) * 100).toFixed(1)}%`
-                  : "—"}
+                {showMarginSlider
+                  ? `${marginPct.toFixed(1)}%`
+                  : avgCostRate > 0
+                    ? `${(((avgSaleRate - avgCostRate) / avgCostRate) * 100).toFixed(1)}%`
+                    : "—"}
+
               </span>
             </div>
             {avgSaleRate === avgCostRate && avgCostRate > 0 && (
