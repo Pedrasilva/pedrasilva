@@ -28,6 +28,7 @@ export interface LiveStage {
   durationDays: number | null;
   fee: number | null;
   hours: number | null;
+  isSelf: boolean;
 }
 
 export interface LiveQuoteSnapshot {
