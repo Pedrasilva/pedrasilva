@@ -666,3 +666,22 @@ export function ArchitectureStagesCard({
   );
 }
 
+// ---------------------------------------------------------------------------
+// Self-fetching wrapper for the Architecture tab — same card + margin slider.
+// ---------------------------------------------------------------------------
+export function ArchitectureFinancialBreakdown({ quoteId }: { quoteId: string }) {
+  const stagesQ = useQuoteStages(quoteId);
+  const allocsQ = useQuoteAllocations(quoteId);
+  const { data: teamAvg } = useTeamPricingAverages();
+  return (
+    <ArchitectureStagesCard
+      stages={stagesQ.data ?? []}
+      allocations={allocsQ.data ?? []}
+      avgSaleRate={teamAvg?.avgSalePerHour ?? 0}
+      avgCostRate={teamAvg?.avgCostPerHour ?? 0}
+      showMarginSlider
+    />
+  );
+}
+
+
