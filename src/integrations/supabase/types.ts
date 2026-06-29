@@ -5425,6 +5425,7 @@ export type Database = {
           is_fee_only: boolean
           is_locked: boolean
           is_milestone: boolean
+          is_self: boolean
           markup_pct: number
           name: string
           parent_stage_id: string | null
@@ -5464,6 +5465,7 @@ export type Database = {
           is_fee_only?: boolean
           is_locked?: boolean
           is_milestone?: boolean
+          is_self?: boolean
           markup_pct?: number
           name: string
           parent_stage_id?: string | null
@@ -5503,6 +5505,7 @@ export type Database = {
           is_fee_only?: boolean
           is_locked?: boolean
           is_milestone?: boolean
+          is_self?: boolean
           markup_pct?: number
           name?: string
           parent_stage_id?: string | null
