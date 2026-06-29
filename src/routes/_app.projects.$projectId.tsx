@@ -1821,32 +1821,42 @@ function InsightsPanel({
   //   Profit = Budget (incoming / contracted fee) − Costs
   // The "Value" row is the hypothetical sale value of resources at sale rate
   // and is intentionally NOT used in the profit calculation.
-  // Pull suppliers from the source quote's consultants tab (quote_external_services).
-  // Materials column = total of all suppliers from consultants.
-  // Services column = architecture only (contract total minus suppliers).
+  // Pull totals from the immutable contract baseline so the Insights box
+  // matches the Suppliers tab numbers exactly:
+  //   Suppliers (Materials column) budget = total_external_fee
+  //   Services budget                      = total_internal_fee (architecture only)
+  // Falls back to quote_external_services revenue if baseline missing.
   const insightsBaselineQ = useContractBaseline(projectId);
-  const insightsSourceQuoteId = insightsBaselineQ.data?.header.quote_id ?? null;
+  const baselineHeader = insightsBaselineQ.data?.header ?? null;
+  const insightsSourceQuoteId = baselineHeader?.quote_id ?? null;
   const quoteExternalQ = useQuoteExternalServices(insightsSourceQuoteId ?? undefined);
   const quoteExtItems = quoteExternalQ.data ?? [];
-  const externalRow = quoteExtItems.reduce(
-    (acc: { budget: number; value: number; cost: number; profit: number; invoiced: number }, m) => {
+  const fallbackExt = quoteExtItems.reduce(
+    (acc: { budget: number; cost: number }, m) => {
       const qty = Number(m.quantity || 1);
-      const cost = Number(m.purchase_price || 0) * qty;
-      const revenue = Number(m.sale_price || 0) * qty;
-      acc.cost += cost;
-      acc.value += revenue;
-      acc.budget += revenue;
+      acc.cost += Number(m.purchase_price || 0) * qty;
+      acc.budget += Number(m.sale_price || 0) * qty;
       return acc;
     },
-    { budget: 0, value: 0, cost: 0, profit: 0, invoiced: 0 },
+    { budget: 0, cost: 0 },
   );
-  externalRow.profit = externalRow.budget - externalRow.cost;
+  const suppliersBudget = Number(baselineHeader?.total_external_fee ?? fallbackExt.budget) || 0;
+  const architectureBudget = Number(
+    baselineHeader?.total_internal_fee ?? Math.max(0, totalBudget - suppliersBudget),
+  ) || 0;
+  const externalRow = {
+    budget: suppliersBudget,
+    value: suppliersBudget,
+    cost: fallbackExt.cost,
+    profit: suppliersBudget - fallbackExt.cost,
+    invoiced: 0,
+  };
 
   const services = {
-    budget: Math.max(0, totalBudget - externalRow.budget),
+    budget: architectureBudget,
     value: earnedValue,
     cost: loggedCost,
-    profit: Math.max(0, totalBudget - externalRow.budget) - loggedCost,
+    profit: architectureBudget - loggedCost,
     invoiced: invoicedTotal,
   };
 
