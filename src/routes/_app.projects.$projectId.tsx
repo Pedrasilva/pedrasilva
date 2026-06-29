@@ -61,6 +61,22 @@ import { RetainerMonitorPanel } from "@/components/projects/retainer-monitor-pan
 import { CommercialBaselineCard } from "@/components/projects/commercial-baseline-card";
 import { ContractBaselineCard } from "@/components/projects/contract-baseline-card";
 import { ProjectForecastCard } from "@/components/projects/project-forecast-card";
+import { useContractBaseline } from "@/lib/projects/use-contract-baseline";
+import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
+import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
+import {
+  QuoteFinancialSummaryTab,
+  ArchitectureFinancialBreakdown,
+} from "@/components/quotes/quote-financial-summary-tab";
+import {
+  Calendar as CalendarIcon2,
+  Building2,
+  Users as UsersIcon,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  CalendarClock,
+  PieChart as PieChartIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -99,7 +115,25 @@ export const Route = createFileRoute("/_app/projects/$projectId")({
   component: ProjectDetail,
 });
 
-type TabKey = "overview" | "schedule" | "materials" | "expenses" | "rates" | "billing" | "financial" | "insights" | "ap" | "stream";
+type TabKey =
+  | "overview"
+  | "schedule"
+  | "materials"
+  | "expenses"
+  | "rates"
+  | "billing"
+  | "financial"
+  | "insights"
+  | "ap"
+  | "stream"
+  | "planning"
+  | "architecture"
+  | "consultants"
+  | "incoming"
+  | "outgoing"
+  | "paymentSchedule"
+  | "financialSummary";
+
 
 function ProjectDetail() {
   const { t } = useTranslation();
@@ -124,6 +158,10 @@ function ProjectDetail() {
   });
 
   const [tab, setTab] = useState<TabKey>("overview");
+  const baselineQ = useContractBaseline(projectId);
+  const sourceQuoteId = baselineQ.data?.header.quote_id ?? null;
+  const baselineMultiplier = Number(baselineQ.data?.header.pricing_multiplier ?? 1) || 1;
+
   const [dayWidth, setDayWidth] = useState(36);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [poolOpen, setPoolOpen] = useState(false);
@@ -514,6 +552,17 @@ function ProjectDetail() {
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
             <TabBtn icon={FileText} label={t("projects:detail.tabs.billing")} active={tab === "billing"} onClick={() => setTab("billing")} />
             <TabBtn icon={Receipt} label="Financial" active={tab === "financial"} onClick={() => setTab("financial")} />
+            {sourceQuoteId && (
+              <>
+                <TabBtn icon={CalendarIcon2} label="Planning" active={tab === "planning"} onClick={() => setTab("planning")} />
+                <TabBtn icon={Building2} label="Architecture" active={tab === "architecture"} onClick={() => setTab("architecture")} />
+                <TabBtn icon={UsersIcon} label="Consultants" active={tab === "consultants"} onClick={() => setTab("consultants")} />
+                <TabBtn icon={ArrowDownToLine} label="Incoming" active={tab === "incoming"} onClick={() => setTab("incoming")} />
+                <TabBtn icon={ArrowUpFromLine} label="Outgoing" active={tab === "outgoing"} onClick={() => setTab("outgoing")} />
+                <TabBtn icon={CalendarClock} label="Payment schedule" active={tab === "paymentSchedule"} onClick={() => setTab("paymentSchedule")} />
+                <TabBtn icon={PieChartIcon} label="Financial summary" active={tab === "financialSummary"} onClick={() => setTab("financialSummary")} />
+              </>
+            )}
           </div>
           <button
             onClick={() => setSidebarOpen((v) => !v)}
@@ -791,6 +840,43 @@ function ProjectDetail() {
             {tab === "financial" && (
               <div className="mt-4">
                 <ProjectFinancialTab projectId={projectId} />
+              </div>
+            )}
+
+            {sourceQuoteId && tab === "planning" && (
+              <div className="mt-4">
+                <QuotePlanningTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
+              </div>
+            )}
+            {sourceQuoteId && tab === "architecture" && (
+              <div className="mt-4 space-y-4">
+                <QuotePaymentScheduleTab quoteId={sourceQuoteId} compositionOnly />
+                <ArchitectureFinancialBreakdown quoteId={sourceQuoteId} />
+              </div>
+            )}
+            {sourceQuoteId && tab === "consultants" && (
+              <div className="mt-4">
+                <QuotePaymentScheduleTab quoteId={sourceQuoteId} consultantsOnly />
+              </div>
+            )}
+            {sourceQuoteId && tab === "incoming" && (
+              <div className="mt-4">
+                <QuotePaymentScheduleTab quoteId={sourceQuoteId} incomingOnly />
+              </div>
+            )}
+            {sourceQuoteId && tab === "outgoing" && (
+              <div className="mt-4">
+                <QuotePaymentScheduleTab quoteId={sourceQuoteId} outgoingOnly />
+              </div>
+            )}
+            {sourceQuoteId && tab === "paymentSchedule" && (
+              <div className="mt-4">
+                <QuotePaymentScheduleTab quoteId={sourceQuoteId} />
+              </div>
+            )}
+            {sourceQuoteId && tab === "financialSummary" && (
+              <div className="mt-4">
+                <QuoteFinancialSummaryTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
               </div>
             )}
 
