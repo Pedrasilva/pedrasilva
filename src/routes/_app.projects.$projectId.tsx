@@ -721,7 +721,6 @@ function ProjectDetail() {
               <div className="space-y-4">
                 <CommercialBaselineCard projectId={projectId} />
                 <ContractBaselineCard projectId={projectId} />
-                <ProjectForecastCard projectId={projectId} />
                 {budgetControl && canSeeFinancials && (
                   <BudgetControlPanel
                     project={budgetControl.project}
