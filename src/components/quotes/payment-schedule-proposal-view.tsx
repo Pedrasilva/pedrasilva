@@ -404,7 +404,7 @@ export function PaymentScheduleProposalView({
 
       {/* Two-parent breakdown: Architecture vs Suppliers, with hierarchy
           preserved and listed chronologically by the Gantt dates. */}
-      {inflows.length > 0 && (() => {
+      {showDetail && inflows.length > 0 && (() => {
         type StageNode = QuoteStage & {
           parent_stage_id?: string | null;
           stage_role?: string | null;
