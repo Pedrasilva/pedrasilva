@@ -1137,6 +1137,8 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
             >
               {poolCollapsed ? <PanelRightOpen className="h-3.5 w-3.5" /> : <PanelRightClose className="h-3.5 w-3.5" />}
             </Button>
+            <div className="mx-1 h-4 w-px bg-border" />
+            <GanttPrintButton getTarget={() => chartRef.current} />
           </div>
         )}
       </div>
