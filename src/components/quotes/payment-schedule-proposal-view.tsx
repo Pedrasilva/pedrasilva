@@ -696,7 +696,7 @@ export function PaymentScheduleProposalView({
 
 
       {/* Plano de Faturação ao Cliente — single canonical invoice plan */}
-      {inflows.length > 0 && (() => {
+      {showReceiving && inflows.length > 0 && (() => {
         const fmtDate = (iso?: string | null) => {
           if (!iso) return "";
           const [y, m, d] = iso.split("-");
