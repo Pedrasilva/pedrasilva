@@ -141,8 +141,7 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
       tile.style.position = "relative";
       tile.style.background = "white";
       tile.style.pageBreakAfter = "always";
-      // @ts-expect-error css prop
-      tile.style.breakAfter = "page";
+      (tile.style as CSSStyleDeclaration).breakAfter = "page";
 
       const clone = target.cloneNode(true) as HTMLElement;
       clone.style.width = `${layout.contentW}px`;
