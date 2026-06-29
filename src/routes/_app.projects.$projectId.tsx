@@ -810,11 +810,13 @@ function ProjectDetail() {
               </div>
             )}
 
+            {/* Materials tab content hidden — see Suppliers tab. Kept for quick re-enable.
             {tab === "materials" && (
               <div className="mt-4">
                 <ExternalServicesSection projectId={projectId} canEdit={isAdmin && canSeeFinancials} />
               </div>
-            )}
+            )} */}
+
 
             {tab === "expenses" && (
               <div className="mt-4">
