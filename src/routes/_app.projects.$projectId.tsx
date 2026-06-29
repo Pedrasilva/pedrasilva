@@ -63,6 +63,7 @@ import { RetainerMonitorPanel } from "@/components/projects/retainer-monitor-pan
 import { CommercialBaselineCard } from "@/components/projects/commercial-baseline-card";
 import { ContractBaselineCard } from "@/components/projects/contract-baseline-card";
 import { ProjectForecastCard } from "@/components/projects/project-forecast-card";
+import { ProjectSyncStatusBadge } from "@/components/projects/project-sync-status-badge";
 import { useContractBaseline } from "@/lib/projects/use-contract-baseline";
 import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
 import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
@@ -497,6 +498,7 @@ function ProjectDetail() {
               }
             />
             <StatusBadge status={project.status} />
+            <ProjectSyncStatusBadge projectId={project.id} sourceQuoteId={sourceQuoteId} canEdit={isAdmin} />
           </div>
 
           {/* MIDDLE: contextual meta — client · dates · team */}

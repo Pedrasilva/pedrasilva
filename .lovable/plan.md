@@ -1,45 +1,88 @@
-## Goal
+# Quote ↔ Project Unification
 
-Make the left "WBS · Stage" panel behave like the reference screenshot in **both** the CRM quote planner and the Project plan view (single shared component — Gantt is one source of truth).
+Four workstreams, sequenced. Each is independently shippable.
+
+## 1. Universalize the Mastercard dashboard
+
+All project dashboards (existing and future) inherit the layout we built for Mastercard.
+
+Already in `src/routes/_app.projects.$projectId.tsx`, scoped project-wide:
+- Tabs: Overview, Insights, **A&P**, Schedule, Allocations, Tasks (no Planning, Billing, Financial, Materials)
+- Insights: Services = `total_internal_fee` (Architecture only), Suppliers = `total_external_fee`; no External services card, no Expenses card
+- A&P tab hosts `ProjectForecastCard` + `BudgetControlPanel` (architecture-only filter via `is_self !== false`)
+- Milestones table: hierarchical (parent stages as section headers, children indented, rollup totals, hierarchical numbering)
+- Planned hours fallback: budget ÷ avg sale rate when no allocations
+- Schedule tab renders `QuotePlanningTab` when `sourceQuoteId` exists (single Gantt source of truth)
+
+Action: nothing to migrate — these changes already apply to every project rendered through this route. Verify no other route (`_app.projects.gantt.tsx`, `_app.projects.financials.tsx`, etc.) re-exposes the hidden tabs; remove stale entry points from nav configs if found.
+
+## 2. Quote ↔ Project conversion audit
+
+Deliverable: `/mnt/documents/quote-project-parity-audit.md` covering every quote table and where each field lands (or doesn't) in the project.
+
+Audit pairs:
 
 ```text
-| # | Milestones & Tasks      | Dur. | Start      | Due        | Budget    | Time | Dep. |◀━━┃━━▶  Gantt
-| 1 | ▼ 2521 BCG Offices      | 323  | 17/11/2025 | 10/02/2027 | €110,000  |      |      |
-| 2 |   0 - Gestão e contracto| 1    | 17/11/2025 | 17/11/2025 |           |      |      |
-| 3 |   1 - Programme...      | 28   | 17/11/2025 | 24/12/2025 | €22,550   |      | 2FS  |
-| + | Insert new stage…       |      |            |            |           |      |      |
+quote_stages              → pm_stages
+quote_stage_dependencies  → pm_stage_dependencies
+quote_allocations         → pm_allocations
+quote_external_services   → pm_stage_supplier_costs / pm_suppliers
+quote_payment_schedule_items → pm_payment_schedule_items
+quote_stage_supplier_costs → pm_stage_supplier_costs
+fee_proposals (header)    → pm_projects + pm_project_commercial_baselines
 ```
 
-## Scope
+For each: column-by-column mapping, conversion code location, gaps, drift risk. Output as markdown artifact for review.
 
-1. **Spreadsheet WBS** — replace the current single-cell row with a proper grid of columns: `#`, `Milestones & Tasks`, `Dur.`, `Start`, `Due`, `Budget`, `Time`, `Dep.`. All cells inline-editable (already wired for name/WBS; add date, duration, budget, dep).
-2. **Draggable splitter** — vertical handle between WBS panel and Gantt canvas; drag to resize the WBS width (clamped 280–900 px). Persist per-user in `localStorage` so it survives reloads.
-3. **Trailing insert row** — a permanent "+ Insert new stage…" row at the bottom of the table (and an inline `+` on hover at the end of each parent's children block) that calls the existing `onInsertStage` plumbing.
-4. **FS auto-cascade on inline edits** — when the user edits `Dur.` or `Due` in the WBS, run the same `computeCascade` that drag-on-Gantt already uses, so any FS successor shifts forward/back automatically. Already implemented for Gantt drag; just route inline edits through the same mutation (`useUpdateStageWithCascade` / `useUpdateQuoteStageWithCascade`).
+## 3. Fix known conversion gaps
 
-## Files to change
+Driven by audit findings, but baseline known issues:
+- `parent_stage_id` for retainer + monthly + standard stages (partially fixed; verify all branches in `src/routes/_app.crm.quotes.$quoteId.tsx` conversion mutation)
+- `is_self` flag propagation (internal vs supplier)
+- `stage_kind`, `billing_model`, retainer fields (`retainer_anchor_month`, `retainer_months`, `retainer_capacity_hours_per_month`)
+- `sort_order` consistency
+- `children_bill_independently` flag
+- Supplier external services → `pm_suppliers` + `pm_stage_supplier_costs` rows linked back to the right parent stage
+- Payment schedule items including invoice status, trigger metadata, billing dates
 
-- `src/components/projects/gantt-outline-column.tsx` — main rewrite into a table grid; add new editable cells (`DurationCell`, `DateCell`, `BudgetCell`, `DepCell`); add insert row; add new optional props (`onUpdateStageBounds`, `onUpdateStageBudget`, dependency list + handlers).
-- `src/components/projects/gantt-chart.tsx` — replace the static `outlineWidth` with a controlled prop driven by the splitter; render the drag handle between outline column and canvas; pass the new mutation handlers through.
-- `src/components/planner/planner-gantt.tsx` — store outline width in state (seeded from `localStorage`), wire `onUpdateStageBounds` to the existing cascade hook for both quote-mode and project-mode adapters.
-- `src/lib/projects/planner-adapter.ts` (and the two adapter hooks) — already expose `updateStage`; just confirm both wrappers route through `computeCascade`. No new fields needed.
+## 4. Live sync (quote → project mirror)
 
-## Behavior details
+Auto-sync direction: **quote is source of truth**, project mirrors. Edits to quote propagate; project remains read-mostly for synced fields.
 
-- **Dur.** is computed `differenceInCalendarDays(end, start) + 1`. Editing Dur. keeps `start_date` and shifts `end_date`. Editing `Due` keeps start; editing `Start` keeps duration. All three commits go through the cascade mutation.
-- **Dep.** cell shows e.g. `2FS`, `3FS+2d`. Click to open a small popover listing siblings + type (FS/SS/FF/SF) + lag. Uses existing `createDependency` / `updateDependency` / `deleteDependency` from the adapter.
-- **Budget** is read-only on parents (rollup), editable on leaves; updates `quote_stages.budget` / `pm_stages.budget`.
-- **Time / Dep.** columns are narrow and right-aligned, tabular-nums, matching the screenshot.
-- **Splitter** is a 4 px hit area, 1 px visible line, `cursor-col-resize`, with pointer capture; drag updates width on `pointermove`, writes `localStorage` on `pointerup`.
-- **Insert row** dispatches `onInsertStage(lastVisibleId, "below")`; when the tree is empty, it dispatches a new "create root" path (already supported by both adapters).
+Implementation:
+- DB triggers on `quote_stages`, `quote_stage_dependencies`, `quote_allocations`, `quote_external_services`, `quote_payment_schedule_items`: when row changes AND a `pm_projects` row references the parent quote via `source_quote_id`, upsert/delete the mirrored `pm_*` row.
+- Mirror by stable key: store `source_quote_stage_id` (already partly present) on `pm_stages`; same for allocations, dependencies, externals, payment items. Add columns where missing.
+- Sync metadata: `pm_projects.last_synced_at`, `pm_projects.sync_status` (`live` | `paused` | `diverged`).
+- UI sync indicator: badge in project header — "Live-synced from quote · last sync HH:mm" with a "Pause sync" button (sets status to `paused`, disables trigger via row flag).
+- Variance shown only when user has manually edited a mirrored row while sync is paused.
 
-## Non-goals
+## 5. Unify planner UI components
 
-- No backend / schema changes.
-- No change to the Gantt timeline rendering itself.
-- No new column types beyond the 8 in the screenshot.
+`QuoteGantt` and `ProjectGantt` already share `GanttChart` via the planner adapter pattern (`useQuotePlannerAdapter` / project equivalent). Extend the same pattern to:
+- Financial summary (one component, two adapters)
+- Hierarchical milestones table (extract from `_app.projects.$projectId.tsx` into shared `<HierarchicalStagesTable>`, used in both quote financial summary and project A&P)
+- Insights tiles (shared `<ContractTotalsStrip>`)
 
-## Validation
+Goal: any UI improvement made in one module automatically benefits the other.
 
-- `tsgo` clean.
-- Manual: in the quote planner, drag the splitter, edit a Dur. on stage 3, confirm stage 4 (FS) slides; verify the same on `/projects/$projectId`.
+## Sequencing
+
+1. Write audit (`/mnt/documents/quote-project-parity-audit.md`) — read-only investigation, produces the gap list.
+2. Apply migration to add missing `source_quote_*_id` mirror columns + sync metadata columns.
+3. Add DB triggers for live sync.
+4. Wire conversion code to populate mirror keys for new conversions; backfill existing projects.
+5. Add sync-status badge component in project header.
+6. Refactor hierarchical milestones table + financial summary into shared components.
+
+## Technical notes (for reference)
+
+- Existing column `pm_stages.source_quote_stage_id` may already exist — audit confirms.
+- Triggers must be SECURITY DEFINER + careful with recursion (mirror writes must not re-trigger).
+- Conversion code lives in `src/routes/_app.crm.quotes.$quoteId.tsx` (mutation) and `src/lib/project-bootstrap/` (newer bootstrap path).
+- Backfill done via one-off migration script matching by `(name, sort_order, parent path)` similar to the parent_stage_id backfill we ran last turn.
+
+## Out of scope (deferred)
+
+- Freezing the quote at conversion (per user: revisit once stable)
+- Project-side edits propagating back to quote
+- Multi-project from one quote (one-to-many sync)
