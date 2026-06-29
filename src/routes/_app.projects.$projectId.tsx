@@ -909,7 +909,7 @@ function ProjectDetail() {
                     <ArchitectureFinancialBreakdown quoteId={sourceQuoteId} />
                   </>
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Architecture" />
+                  <NoQuoteLinkedPlaceholder label="Architecture" projectId={projectId} />
                 )}
               </div>
             )}
@@ -918,7 +918,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} consultantsOnly />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Suppliers" />
+                  <NoQuoteLinkedPlaceholder label="Suppliers" projectId={projectId} />
                 )}
               </div>
             )}
@@ -927,7 +927,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} incomingOnly />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Incoming" />
+                  <NoQuoteLinkedPlaceholder label="Incoming" projectId={projectId} />
                 )}
               </div>
             )}
@@ -936,7 +936,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} outgoingOnly />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Outgoing" />
+                  <NoQuoteLinkedPlaceholder label="Outgoing" projectId={projectId} />
                 )}
               </div>
             )}
@@ -945,7 +945,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Payment schedule" />
+                  <NoQuoteLinkedPlaceholder label="Payment schedule" projectId={projectId} />
                 )}
               </div>
             )}
@@ -954,7 +954,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuoteFinancialSummaryTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Financial summary" />
+                  <NoQuoteLinkedPlaceholder label="Financial summary" projectId={projectId} />
                 )}
               </div>
             )}
