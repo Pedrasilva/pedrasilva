@@ -78,7 +78,7 @@ export function BlockLibraryPanel({
           )}
         </ul>
       </ScrollArea>
-      <div className="border-t p-2">
+      <div className="space-y-2 border-t p-2">
         <Button
           variant="outline"
           size="sm"
@@ -102,6 +102,30 @@ export function BlockLibraryPanel({
           }
         >
           <Plus className="mr-1 h-3.5 w-3.5" /> Texto Livre
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full"
+          onClick={() =>
+            add.mutate({
+              lib: {
+                id: "page-break",
+                kind: "page_break",
+                label: "Quebra de Página",
+                default_title: "Quebra de Página",
+                default_content_rich: {},
+                default_source_type: "manual",
+                default_source_ref: {},
+                default_contract_relevance: "both",
+                sort_hint: 999,
+                is_system: false,
+              },
+              afterOrder: lastOrder,
+            })
+          }
+        >
+          <Plus className="mr-1 h-3.5 w-3.5" /> Quebra de Página
         </Button>
       </div>
     </aside>
