@@ -226,7 +226,7 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
           {/* Controls */}
           <div className="space-y-5">
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Paper size (landscape)</Label>
+              <Label className="text-sm font-medium">Paper size</Label>
               <RadioGroup
                 value={paper}
                 onValueChange={(v) => setPaper(v as PaperSize)}
@@ -239,6 +239,24 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
                 <div className="flex items-center gap-2">
                   <RadioGroupItem id="paper-a3" value="A3" />
                   <Label htmlFor="paper-a3" className="text-sm">A3</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Orientation</Label>
+              <RadioGroup
+                value={orientation}
+                onValueChange={(v) => setOrientation(v as Orientation)}
+                className="flex gap-4"
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem id="orient-landscape" value="landscape" />
+                  <Label htmlFor="orient-landscape" className="text-sm">Landscape</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem id="orient-portrait" value="portrait" />
+                  <Label htmlFor="orient-portrait" className="text-sm">Portrait</Label>
                 </div>
               </RadioGroup>
             </div>
