@@ -497,6 +497,7 @@ function ProjectDetail() {
               }
             />
             <StatusBadge status={project.status} />
+            <ProjectSyncStatusBadge projectId={project.id} sourceQuoteId={sourceQuoteId} canEdit={isAdmin} />
           </div>
 
           {/* MIDDLE: contextual meta — client · dates · team */}
