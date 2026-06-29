@@ -909,7 +909,7 @@ function ProjectDetail() {
                     <ArchitectureFinancialBreakdown quoteId={sourceQuoteId} />
                   </>
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Architecture" />
+                  <NoQuoteLinkedPlaceholder label="Architecture" projectId={projectId} />
                 )}
               </div>
             )}
@@ -918,7 +918,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} consultantsOnly />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Suppliers" />
+                  <NoQuoteLinkedPlaceholder label="Suppliers" projectId={projectId} />
                 )}
               </div>
             )}
@@ -927,7 +927,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} incomingOnly />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Incoming" />
+                  <NoQuoteLinkedPlaceholder label="Incoming" projectId={projectId} />
                 )}
               </div>
             )}
@@ -936,7 +936,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} outgoingOnly />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Outgoing" />
+                  <NoQuoteLinkedPlaceholder label="Outgoing" projectId={projectId} />
                 )}
               </div>
             )}
@@ -945,7 +945,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuotePaymentScheduleTab quoteId={sourceQuoteId} />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Payment schedule" />
+                  <NoQuoteLinkedPlaceholder label="Payment schedule" projectId={projectId} />
                 )}
               </div>
             )}
@@ -954,7 +954,7 @@ function ProjectDetail() {
                 {sourceQuoteId ? (
                   <QuoteFinancialSummaryTab quoteId={sourceQuoteId} pricingMultiplier={baselineMultiplier} />
                 ) : (
-                  <NoQuoteLinkedPlaceholder label="Financial summary" />
+                  <NoQuoteLinkedPlaceholder label="Financial summary" projectId={projectId} />
                 )}
               </div>
             )}
@@ -1331,7 +1331,25 @@ function TabBtn({
   );
 }
 
-function NoQuoteLinkedPlaceholder({ label }: { label: string }) {
+function NoQuoteLinkedPlaceholder({ label, projectId }: { label: string; projectId?: string }) {
+  const qc = (typeof window !== "undefined") ? undefined : undefined; // placeholder to avoid hook order
+  const [busy, setBusy] = useState(false);
+  const handleBackfill = async () => {
+    if (!projectId) return;
+    setBusy(true);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any).rpc("ensure_project_has_quote", { _project_id: projectId });
+      if (error) throw error;
+      toast.success(`Quote created (${String(data).slice(0, 8)}…). Reloading…`);
+      setTimeout(() => window.location.reload(), 600);
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+    void qc;
+  };
   return (
     <div className="rounded-lg border border-dashed border-border bg-card/40 p-8 text-center">
       <div className="text-sm font-medium text-foreground">{label}</div>
@@ -1339,8 +1357,18 @@ function NoQuoteLinkedPlaceholder({ label }: { label: string }) {
         This view is sourced from the project's linked quote (Gantt). No quote is linked to this project yet.
       </div>
       <div className="mt-2 text-[11px] text-muted-foreground">
-        Link a CRM quote from the project header to populate Architecture, Suppliers, Incoming, Outgoing, Payment schedule and Financial summary.
+        Create a back-linked quote mirrored from the project Gantt to populate Architecture, Suppliers, Incoming, Outgoing, Payment schedule and Financial summary.
       </div>
+      {projectId && (
+        <button
+          type="button"
+          onClick={handleBackfill}
+          disabled={busy}
+          className="mt-3 inline-flex items-center gap-1 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent disabled:opacity-50"
+        >
+          {busy ? "Creating…" : "Create back-linked quote from Gantt"}
+        </button>
+      )}
     </div>
   );
 }
