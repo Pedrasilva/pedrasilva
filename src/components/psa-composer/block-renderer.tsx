@@ -1,9 +1,10 @@
 /**
  * Block renderer — given a PsaProposalBlock and the resolved LiveQuoteSnapshot,
- * renders the block body in the canvas with PSA-style typography.
+ * renders the block body inside the A4 print container.
  *
- * Live-data blocks reference quote data and never duplicate it. Manual /
- * library blocks render their `content_rich.text` field.
+ * Manual / library / mixed blocks render `content_rich.html` (from the TipTap
+ * editor) when present, falling back to the legacy plain `content_rich.text`
+ * field. Live-data blocks ignore content_rich and reference the snapshot.
  */
 import type { PsaProposalBlock } from "@/lib/psa-proposal/types";
 import {
@@ -14,7 +15,7 @@ import {
 
 function H({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mb-3 text-lg font-semibold tracking-tight text-zinc-900">
+    <h2 className="proposal-print-heading mb-3 text-lg font-semibold tracking-tight text-zinc-900">
       {children}
     </h2>
   );
@@ -28,6 +29,27 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <p className="text-sm italic text-zinc-400">{children}</p>;
 }
 
+function RichContent({ html, text }: { html?: string; text?: string }) {
+  if (html && html.trim() && html !== "<p></p>") {
+    return (
+      <div
+        className="psa-rich text-sm leading-relaxed text-zinc-800 [&_h2]:proposal-print-heading [&_h3]:proposal-print-heading [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_p]:mb-2 [&_ul]:mb-2 [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:mb-2 [&_ol]:ml-5 [&_ol]:list-decimal [&_li]:mb-0.5 [&_a]:text-blue-700 [&_a]:underline [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-zinc-300 [&_th]:bg-zinc-50 [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_td]:border [&_td]:border-zinc-300 [&_td]:px-2 [&_td]:py-1"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    );
+  }
+  if (text && text.trim()) {
+    return (
+      <>
+        {text.split("\n\n").map((para, i) => (
+          <P key={i}>{para}</P>
+        ))}
+      </>
+    );
+  }
+  return null;
+}
+
 export function BlockBody({
   block,
   live,
@@ -38,12 +60,14 @@ export function BlockBody({
   chapterNumber: number | null;
 }) {
   const text = (block.content_rich?.text as string | undefined) ?? "";
+  const html = (block.content_rich?.html as string | undefined) ?? "";
   const num = chapterNumber ? `${chapterNumber}. ` : "";
+  const rich = <RichContent html={html} text={text} />;
 
   switch (block.block_type) {
     case "cover":
       return (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="proposal-cover proposal-avoid-break flex flex-col items-center justify-center py-24 text-center">
           <div className="text-xs uppercase tracking-[0.3em] text-zinc-500">
             Proposta de Honorários
           </div>
@@ -63,7 +87,7 @@ export function BlockBody({
 
     case "index":
       return (
-        <div>
+        <div className="proposal-avoid-break">
           <H>{num}Índice</H>
           <Empty>O índice é gerado automaticamente a partir dos blocos visíveis na exportação PDF.</Empty>
         </div>
@@ -73,7 +97,7 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
-          {text ? <P>{text}</P> : (
+          {rich ?? (
             <P>
               A Pedra Silva Arquitectos é um atelier de arquitetura com sede em Lisboa,
               com prática consolidada em projeto, coordenação e acompanhamento de obra.
@@ -87,7 +111,7 @@ export function BlockBody({
         <div>
           <H>{num}{block.title}</H>
           {live?.projectDescription && <P>{live.projectDescription}</P>}
-          {text && <P>{text}</P>}
+          {rich}
         </div>
       );
 
@@ -112,20 +136,68 @@ export function BlockBody({
         </div>
       );
 
-    case "stage_item":
+    case "stage_item": {
+      const stageId = (block.source_ref as { stage_id?: string } | undefined)?.stage_id;
+      const stage = stageId ? live?.stages.find((s) => s.id === stageId) : undefined;
+      if (!stage) {
+        return (
+          <div>
+            <H>{num}{block.title}</H>
+            <Empty>
+              Selecione uma fase do orçamento no painel direito para preencher este bloco.
+            </Empty>
+          </div>
+        );
+      }
       return (
-        <div>
-          <H>{num}{block.title}</H>
-          <Empty>Selecione uma fase no painel direito (source_ref: {`{kind:"stage", stage_id}`}).</Empty>
+        <div className="proposal-avoid-break">
+          <H>{num}{stage.code ? `${stage.code} — ` : ""}{stage.name}</H>
+          {stage.description && <P>{stage.description}</P>}
+          {rich}
+          <dl className="mt-3 grid grid-cols-3 gap-3 text-sm">
+            <div>
+              <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Duração</dt>
+              <dd className="font-medium text-zinc-900">
+                {stage.durationDays != null ? `${stage.durationDays} dias` : "—"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Honorários</dt>
+              <dd className="font-medium text-zinc-900">{formatCurrencyEUR(stage.fee)}</dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Horas estimadas</dt>
+              <dd className="font-medium text-zinc-900">{stage.hours ?? "—"}</dd>
+            </div>
+          </dl>
+          {(() => {
+            const deliverables =
+              (block.content_rich?.deliverables as string | undefined) ?? "";
+            const items = deliverables.split("\n").map((l) => l.trim()).filter(Boolean);
+            if (!items.length) return null;
+            return (
+              <div className="mt-3">
+                <div className="mb-1 text-[10px] uppercase tracking-wide text-zinc-500">
+                  Entregáveis
+                </div>
+                <ul className="ml-5 list-disc space-y-0.5 text-sm text-zinc-800">
+                  {items.map((d, i) => (
+                    <li key={i}>{d}</li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })()}
         </div>
       );
+    }
 
     case "timeline":
       return (
         <div>
           <H>{num}{block.title}</H>
           {live?.stages?.length ? (
-            <table className="w-full border-collapse text-sm">
+            <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
                   <th className="py-1">Fase</th>
@@ -156,7 +228,7 @@ export function BlockBody({
         <div>
           <H>{num}{block.title}</H>
           {live?.consultants?.length ? (
-            <table className="w-full border-collapse text-sm">
+            <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
                   <th className="py-1">Especialidade</th>
@@ -185,7 +257,7 @@ export function BlockBody({
         <div>
           <H>{num}{block.title}</H>
           {live?.stages?.length ? (
-            <table className="w-full border-collapse text-sm">
+            <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
                   <th className="py-1">Fase</th>
@@ -220,7 +292,7 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
-          <P>{text || "Os honorários da fase de obra são calculados em regime mensal durante a execução."}</P>
+          {rich ?? <P>Os honorários da fase de obra são calculados em regime mensal durante a execução.</P>}
         </div>
       );
 
@@ -228,7 +300,7 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
-          <P>{text || "Os honorários são facturados de acordo com o plano de pagamentos. IVA à taxa legal em vigor."}</P>
+          {rich ?? <P>Os honorários são facturados de acordo com o plano de pagamentos. IVA à taxa legal em vigor.</P>}
         </div>
       );
 
@@ -237,7 +309,7 @@ export function BlockBody({
         <div>
           <H>{num}{block.title}</H>
           {live?.paymentSchedule?.length ? (
-            <table className="w-full border-collapse text-sm">
+            <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
                   <th className="py-1">Descrição</th>
@@ -262,6 +334,14 @@ export function BlockBody({
       );
 
     case "exclusions":
+      if (html && html.trim() && html !== "<p></p>") {
+        return (
+          <div>
+            <H>{num}{block.title}</H>
+            {rich}
+          </div>
+        );
+      }
       return (
         <div>
           <H>{num}{block.title}</H>
@@ -277,27 +357,31 @@ export function BlockBody({
 
     case "acceptance":
       return (
-        <div>
+        <div className="proposal-signature-block proposal-avoid-break">
           <H>{num}{block.title}</H>
-          <P>
-            A presente proposta é válida por 30 dias a contar da data acima. A aceitação
-            far-se-á por assinatura abaixo.
-          </P>
-          <div className="mt-12 grid grid-cols-2 gap-12 text-sm">
-            <div>
-              <div className="h-px bg-zinc-400" />
-              <div className="mt-1 text-xs text-zinc-500">Pelo Cliente</div>
+          <p className="proposal-signature-hint">
+            A presente proposta é válida por 30 dias a contar da data acima.
+            A aceitação far-se-á por assinatura abaixo.
+          </p>
+          <div className="proposal-signature-grid">
+            <div className="proposal-signature-cell">
+              <div className="proposal-signature-line" />
+              <div className="proposal-signature-label">Pelo Cliente</div>
             </div>
-            <div>
-              <div className="h-px bg-zinc-400" />
-              <div className="mt-1 text-xs text-zinc-500">Pedra Silva Arquitectos</div>
+            <div className="proposal-signature-cell">
+              <div className="proposal-signature-line" />
+              <div className="proposal-signature-label">Pedra Silva Arquitectos</div>
             </div>
           </div>
         </div>
       );
 
     case "page_break":
-      return <div className="my-8 border-t-2 border-dashed border-zinc-300 text-center text-[10px] uppercase tracking-widest text-zinc-400">Quebra de Página</div>;
+      return (
+        <div className="proposal-page-break-before my-8 border-t-2 border-dashed border-zinc-300 text-center text-[10px] uppercase tracking-widest text-zinc-400 print:border-0 print:text-transparent">
+          Quebra de Página
+        </div>
+      );
 
     case "additional_services":
     case "general":
@@ -307,9 +391,7 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
-          {text ? text.split("\n\n").map((para, i) => <P key={i}>{para}</P>) : (
-            <Empty>Sem conteúdo. Edite no painel direito.</Empty>
-          )}
+          {rich ?? <Empty>Sem conteúdo. Edite no painel direito.</Empty>}
         </div>
       );
   }
