@@ -84,6 +84,15 @@ function stepZoom(current: ZoomMode, delta: 1 | -1): ZoomMode {
   return ZOOM_ORDER[next];
 }
 
+const GANTT_RESIZER_WIDTH = 6;
+const GANTT_SCROLLBAR_GUARD = 24;
+
+function fittedDayWidth(chartWidth: number, outlineWidth: number, totalDays: number): number {
+  const timelineWidth = Math.max(240, chartWidth - outlineWidth - GANTT_RESIZER_WIDTH - GANTT_SCROLLBAR_GUARD);
+  const fitWidth = timelineWidth / Math.max(1, totalDays);
+  return Math.max(0.35, Math.min(32, fitWidth));
+}
+
 export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase }: Props) {
   const { t } = useTranslation("crm");
   const stagesQ = useQuoteStages(quoteId);
@@ -943,13 +952,11 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
 
   const computedDayWidth = useMemo(() => {
     if (dayWidthProp !== undefined) return dayWidthProp;
-    const target = Math.max(400, chartWidth - 24);
-    const fitWidth = target / Math.max(1, totalDays);
     if (zoom === "fit") {
-      return Math.max(1, Math.min(32, fitWidth));
+      return fittedDayWidth(chartWidth, outlineWidth, totalDays);
     }
     return ZOOM_DAY_WIDTHS[zoom];
-  }, [zoom, totalDays, dayWidthProp, chartWidth]);
+  }, [zoom, totalDays, dayWidthProp, chartWidth, outlineWidth]);
 
   if (stagesQ.isLoading) {
     return (
@@ -1387,11 +1394,9 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
 
   const computedDayWidth = useMemo(() => {
     if (dayWidthProp !== undefined) return dayWidthProp;
-    const target = Math.max(400, chartWidth - 24);
-    const fitWidth = target / Math.max(1, totalDays);
-    if (zoom === "fit") return Math.max(1, Math.min(32, fitWidth));
+    if (zoom === "fit") return fittedDayWidth(chartWidth, outlineWidth, totalDays);
     return ZOOM_DAY_WIDTHS[zoom];
-  }, [zoom, totalDays, dayWidthProp, chartWidth]);
+  }, [zoom, totalDays, dayWidthProp, chartWidth, outlineWidth]);
 
   // ---- Handlers (admin-gated) -----------------------------------------
   const handleRename = useCallback(
