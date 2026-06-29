@@ -368,6 +368,7 @@ function QuoteDetail() {
                 s.retainer_capacity_hours_per_month ?? 160,
               retainer_review_months: s.retainer_review_months ?? null,
               is_fee_only: s.is_fee_only ?? true,
+              is_self: (s as { is_self?: boolean | null }).is_self ?? true,
             })
             .select("id")
             .single();
