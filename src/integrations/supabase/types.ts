@@ -6597,6 +6597,7 @@ export type Database = {
           quote_id: string | null
           sent_at: string | null
           status: Database["public"]["Enums"]["psa_proposal_status"]
+          style_settings: Json
           title: string
           updated_at: string
           vat_mode: string | null
@@ -6611,6 +6612,7 @@ export type Database = {
           quote_id?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["psa_proposal_status"]
+          style_settings?: Json
           title?: string
           updated_at?: string
           vat_mode?: string | null
@@ -6625,6 +6627,7 @@ export type Database = {
           quote_id?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["psa_proposal_status"]
+          style_settings?: Json
           title?: string
           updated_at?: string
           vat_mode?: string | null
