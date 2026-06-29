@@ -1198,7 +1198,7 @@ export function GanttChart({
                     ? `repeating-linear-gradient(135deg, ${supplierFill} 0 8px, ${supplierFill}cc 8px 16px)`
                     : undefined;
                   return (
-                <div className="group absolute" style={{ left: stageX, width: stageW, top: 0, height: STAGE_ROW_H }}>
+                  <div className="group absolute" style={{ left: stageX, width: stageW, top: 0, height: STAGE_ROW_H }}>
                   {!isSupplierBar && (
                     <div className="absolute left-0 right-0 top-0 h-1.5 overflow-hidden rounded-t-md bg-budget">
                       <div
@@ -1218,7 +1218,7 @@ export function GanttChart({
                   )}
 
                   <div
-                    className={`absolute left-0 right-0 ${isSupplierBar ? "rounded-md border-2 border-dashed border-foreground/40" : "top-1.5 bottom-0 rounded-b-md border border-foreground/10"} cursor-grab active:cursor-grabbing`}
+                    className={`absolute left-0 right-0 overflow-hidden ${isSupplierBar ? "rounded-md border-2 border-dashed border-foreground/40" : "top-1.5 bottom-0 rounded-b-md border border-foreground/10"} cursor-grab active:cursor-grabbing`}
                     style={{
                       backgroundColor: isSupplierBar ? undefined : stage.color,
                       backgroundImage: supplierBg,
@@ -1237,15 +1237,15 @@ export function GanttChart({
                       })
                     }
                   >
-                    <div className="flex h-full items-center justify-between gap-2 px-2.5 text-foreground">
+                    <div className="flex h-full min-w-0 items-center justify-between gap-2 px-2.5 text-foreground">
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex min-w-0 items-center gap-1.5">
                           <span className="truncate text-sm font-semibold leading-tight">{stage.name}</span>
                           <span className="rounded bg-background/40 px-1 py-px font-mono text-[9px]">
                             {workingDays(sStart, sEnd)}d
                           </span>
                           {isSupplierBar && Number(stage.budget ?? 0) > 0 && (
-                            <span className="ml-auto rounded bg-background/70 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-foreground shadow-sm">
+                            <span className="ml-auto shrink-0 rounded bg-background/70 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-foreground shadow-sm">
                               {euros(Number(stage.budget))}
                             </span>
                           )}
@@ -1315,7 +1315,7 @@ export function GanttChart({
                           if (!confirm(t("gantt.stage.deleteConfirm", { name: stage.name }))) return;
                           await adapter.deleteStage({ id: stage.id, projectId: stage.projectId });
                         }}
-                        className="rounded p-1 opacity-0 transition hover:bg-background/30 group-hover:opacity-100"
+                        className="shrink-0 rounded p-1 opacity-0 transition hover:bg-background/30 group-hover:opacity-100"
                         aria-label={t("gantt.stage.deleteAction")}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -1325,7 +1325,7 @@ export function GanttChart({
                           <button
                             onPointerDown={(e) => e.stopPropagation()}
                             onClick={(e) => e.stopPropagation()}
-                            className={`rounded p-1 transition hover:bg-background/30 ${features.planningMode ? "opacity-90" : "opacity-0 group-hover:opacity-100"}`}
+                            className={`shrink-0 rounded p-1 transition hover:bg-background/30 ${features.planningMode ? "opacity-90" : "opacity-0 group-hover:opacity-100"}`}
                             aria-label={t("gantt.stage.financialsAction", { defaultValue: "Show financials" })}
                           >
                             <Info className="h-3.5 w-3.5" />
