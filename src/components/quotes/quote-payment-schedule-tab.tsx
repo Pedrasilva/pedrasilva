@@ -619,7 +619,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
     }
   };
 
-  if (compositionOnly || consultantsOnly || incomingOnly) {
+  if (compositionOnly || consultantsOnly || incomingOnly || outgoingOnly) {
     return (
       <PaymentScheduleProposalView
         items={items}
@@ -631,6 +631,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         compositionOnly={compositionOnly}
         consultantsOnly={consultantsOnly}
         incomingOnly={incomingOnly}
+        outgoingOnly={outgoingOnly}
       />
     );
   }
