@@ -98,16 +98,25 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
         vatStatus: q.vat_mode ?? null,
         totalArchitectureFee: q.total_internal_fee ?? q.total_fee ?? null,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        stages: (stages ?? []).map((s: any) => ({
-          id: s.id,
-          name: s.name,
-          code: s.code,
-          startDate: s.start_date,
-          endDate: s.end_date,
-          durationDays: s.duration_days,
-          fee: s.fee,
-          hours: s.estimated_hours,
-        })),
+        stages: (stages ?? []).map((s: any) => {
+          const start = s.start_date ? new Date(s.start_date) : null;
+          const end = s.end_date ? new Date(s.end_date) : null;
+          const days =
+            start && end
+              ? Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1)
+              : null;
+          return {
+            id: s.id,
+            name: s.name,
+            code: s.phase_code ?? null,
+            description: s.description ?? null,
+            startDate: s.start_date,
+            endDate: s.end_date,
+            durationDays: days,
+            fee: s.budget ?? null,
+            hours: null,
+          };
+        }),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         consultants: (ext ?? []).map((c: any) => ({
           id: c.id,
