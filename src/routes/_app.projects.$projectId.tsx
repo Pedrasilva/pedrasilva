@@ -65,6 +65,7 @@ import { ContractBaselineCard } from "@/components/projects/contract-baseline-ca
 import { ProjectForecastCard } from "@/components/projects/project-forecast-card";
 import { useContractBaseline } from "@/lib/projects/use-contract-baseline";
 import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
+import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
 import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
 import {
   QuoteFinancialSummaryTab,
@@ -152,6 +153,8 @@ function ProjectDetail() {
   const updateProject = useUpdateProject();
   const { allowed: canSeeFinancials } = useHasPermission("projects.financials");
   const { data: budgetControl } = useStageBudgetControl({ projectId, defaultRates });
+  const { data: teamAvg } = useTeamPricingAverages();
+  const avgSaleRate = teamAvg?.avgSalePerHour ?? 0;
 
   useRecordRecentlyViewed({
     module: "projects",
@@ -328,7 +331,7 @@ function ProjectDetail() {
   const stagePlannedHours = (stageId: string) => {
     const s = stages.find((x) => x.id === stageId);
     if (!s) return 0;
-    return s.allocations.reduce(
+    const fromAllocs = s.allocations.reduce(
       (acc, a) =>
         acc +
         allocationHours({
@@ -338,6 +341,13 @@ function ProjectDetail() {
         }),
       0,
     );
+    if (fromAllocs > 0) return fromAllocs;
+    // Fallback — implied hours from quote-derived budget ÷ avg sale rate.
+    // Mirrors the Financial Summary formula so the single-source Gantt
+    // (quote stages) drives planned hours for fixed-fee work.
+    const budget = Number(s.budget ?? 0);
+    if (budget <= 0 || avgSaleRate <= 0) return 0;
+    return budget / avgSaleRate;
   };
   const stageLoggedHours = (stageId: string) =>
     timeRows?.find((r) => r.stage_id === stageId)?.hours ?? 0;
