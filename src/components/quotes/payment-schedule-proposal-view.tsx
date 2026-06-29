@@ -99,6 +99,9 @@ interface Props {
    *  "Arquitectura — total do contrato" detail block. Used by the
    *  Architecture tab. */
   compositionOnly?: boolean;
+  /** When true, render only the "Fornecedores — total do contrato"
+   *  detail block. Used by the Consultants tab. */
+  consultantsOnly?: boolean;
 }
 
 function netAmount(
@@ -225,6 +228,7 @@ export function PaymentScheduleProposalView({
   suppliers,
   defaultVatRate,
   compositionOnly = false,
+  consultantsOnly = false,
 }: Props) {
   const supplierName = useMemo(() => {
     const map = new Map<string, string>();
@@ -322,7 +326,7 @@ export function PaymentScheduleProposalView({
   return (
     <div className="space-y-6">
       {/* Top: contract composition (separated card) */}
-      {inflows.length > 0 && (() => {
+      {!consultantsOnly && inflows.length > 0 && (() => {
         const stageIdsAll = new Set(stages.map((s) => s.id));
         const stageById = new Map(stages.map((s) => [s.id, s]));
         const rootFor = (stageId: string): QuoteStage | null => {
@@ -554,7 +558,9 @@ export function PaymentScheduleProposalView({
         ];
         const filteredSections = compositionOnly
           ? allSections.filter((s) => s.key === "architecture")
-          : allSections;
+          : consultantsOnly
+            ? allSections.filter((s) => s.key === "supplier")
+            : allSections;
         const sections = filteredSections.filter((section) => section.rows.length > 0 && section.total > 0);
         if (sections.length === 0) return null;
         return (
@@ -681,7 +687,7 @@ export function PaymentScheduleProposalView({
 
 
       {/* Plano de Faturação ao Cliente — single canonical invoice plan */}
-      {!compositionOnly && inflows.length > 0 && (() => {
+      {!compositionOnly && !consultantsOnly && inflows.length > 0 && (() => {
         const fmtDate = (iso?: string | null) => {
           if (!iso) return "";
           const [y, m, d] = iso.split("-");
@@ -966,7 +972,7 @@ export function PaymentScheduleProposalView({
       })()}
 
       {/* Per-supplier outflow groups */}
-      {!compositionOnly && supplierBuckets.length > 0 && (
+      {!compositionOnly && !consultantsOnly && supplierBuckets.length > 0 && (
         <div className="space-y-4">
           <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Compromissos com fornecedores
