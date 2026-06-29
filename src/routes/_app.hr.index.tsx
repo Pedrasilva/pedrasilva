@@ -31,7 +31,7 @@ const fmtEUR = (n: number | null | undefined) =>
 function HrDashboard() {
   const { t } = useTranslation("hr");
   const { isAdmin } = useAuth();
-  const { permissions, isLoading: permsLoading } = useMyPermissions();
+  const { permissions, loading: permsLoading } = useMyPermissions();
   const canFinance = isAdmin || permissions.has("finance.dashboard");
   const canSeeCockpit =
     isAdmin ||
