@@ -32,7 +32,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
-      <ComposerTopBar proposal={proposal.data} />
+      <ComposerTopBar proposal={proposal.data} blocks={items} />
       <div className="flex min-h-0 flex-1 overflow-hidden print:block">
         <div className="print:hidden">
           <BlockLibraryPanel proposalId={proposalId} blocks={items} />
