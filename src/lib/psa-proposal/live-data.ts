@@ -67,7 +67,7 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
       // Stages
       const { data: stages } = await supabase
         .from("quote_stages")
-        .select("id,name,code,start_date,end_date,duration_days,fee,estimated_hours")
+        .select("id,name,description,phase_code,start_date,end_date,budget")
         .eq("quote_id", quoteId!)
         .order("start_date", { ascending: true, nullsFirst: false });
 
