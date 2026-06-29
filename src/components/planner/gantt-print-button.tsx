@@ -30,13 +30,21 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 
 type PaperSize = "A4" | "A3";
+type Orientation = "landscape" | "portrait";
 
-// Printable area in millimetres, landscape, with ~10mm margins on each side.
-const PAGE_MM: Record<PaperSize, { w: number; h: number }> = {
-  A4: { w: 297 - 20, h: 210 - 20 },
-  A3: { w: 420 - 20, h: 297 - 20 },
+// Paper dimensions (mm) in portrait orientation.
+const PAPER_MM: Record<PaperSize, { w: number; h: number }> = {
+  A4: { w: 210, h: 297 },
+  A3: { w: 297, h: 420 },
 };
+const MARGIN_MM = 10;
 const MM_TO_PX = 96 / 25.4;
+
+function pagePrintableMm(paper: PaperSize, orientation: Orientation) {
+  const { w, h } = PAPER_MM[paper];
+  const portrait = { w: w - MARGIN_MM * 2, h: h - MARGIN_MM * 2 };
+  return orientation === "portrait" ? portrait : { w: portrait.h, h: portrait.w };
+}
 
 interface Layout {
   pagePxW: number;
@@ -50,18 +58,18 @@ interface Layout {
 
 function computeLayout(opts: {
   paper: PaperSize;
+  orientation: Orientation;
   pages: number;
   fit: boolean;
   manualScale: number;
   contentW: number;
   contentH: number;
 }): Layout {
-  const page = PAGE_MM[opts.paper];
+  const page = pagePrintableMm(opts.paper, opts.orientation);
   const pagePxW = page.w * MM_TO_PX;
   const pagePxH = page.h * MM_TO_PX;
   let scale: number;
   if (opts.fit) {
-    // Fit the full width across `pages` pages AND the height onto one page.
     scale = Math.min(
       (pagePxW * opts.pages) / opts.contentW,
       pagePxH / opts.contentH,
@@ -84,6 +92,7 @@ function computeLayout(opts: {
 export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement | null }) {
   const [open, setOpen] = useState(false);
   const [paper, setPaper] = useState<PaperSize>("A4");
+  const [orientation, setOrientation] = useState<Orientation>("landscape");
   const [pages, setPages] = useState(1);
   const [fit, setFit] = useState(true);
   const [manualScale, setManualScale] = useState(100);
@@ -110,13 +119,14 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
     if (!size) return null;
     return computeLayout({
       paper,
+      orientation,
       pages,
       fit,
       manualScale,
       contentW: size.w,
       contentH: size.h,
     });
-  }, [paper, pages, fit, manualScale, size]);
+  }, [paper, orientation, pages, fit, manualScale, size]);
 
   // Build a tiled clone of the Gantt and inject into the document, then
   // call window.print(). Each tile is one printable page.
@@ -160,7 +170,7 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
     const styleEl = document.createElement("style");
     styleEl.setAttribute("data-gantt-print", "true");
     styleEl.textContent = `
-      @page { size: ${paper} landscape; margin: 10mm; }
+      @page { size: ${paper} ${orientation}; margin: 10mm; }
       @media print {
         html, body { background: white !important; }
         body > *:not([data-gantt-print-root]) { display: none !important; }
@@ -216,7 +226,7 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
           {/* Controls */}
           <div className="space-y-5">
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Paper size (landscape)</Label>
+              <Label className="text-sm font-medium">Paper size</Label>
               <RadioGroup
                 value={paper}
                 onValueChange={(v) => setPaper(v as PaperSize)}
@@ -229,6 +239,24 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
                 <div className="flex items-center gap-2">
                   <RadioGroupItem id="paper-a3" value="A3" />
                   <Label htmlFor="paper-a3" className="text-sm">A3</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Orientation</Label>
+              <RadioGroup
+                value={orientation}
+                onValueChange={(v) => setOrientation(v as Orientation)}
+                className="flex gap-4"
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem id="orient-landscape" value="landscape" />
+                  <Label htmlFor="orient-landscape" className="text-sm">Landscape</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem id="orient-portrait" value="portrait" />
+                  <Label htmlFor="orient-portrait" className="text-sm">Portrait</Label>
                 </div>
               </RadioGroup>
             </div>
