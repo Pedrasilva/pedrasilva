@@ -619,7 +619,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
     }
   };
 
-  if (compositionOnly || consultantsOnly) {
+  if (compositionOnly || consultantsOnly || incomingOnly) {
     return (
       <PaymentScheduleProposalView
         items={items}
@@ -630,6 +630,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         defaultVatRate={defaultVatRate}
         compositionOnly={compositionOnly}
         consultantsOnly={consultantsOnly}
+        incomingOnly={incomingOnly}
       />
     );
   }
