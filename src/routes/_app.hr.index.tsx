@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import {
   Users, UserCheck, Plane, Wallet, ClipboardCheck, Coins, CalendarRange, CalendarCheck,
