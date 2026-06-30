@@ -29,6 +29,8 @@ export interface LiveStage {
   fee: number | null;
   hours: number | null;
   isSelf: boolean;
+  isMilestone: boolean;
+  parentStageId: string | null;
 }
 
 export interface LiveQuoteSnapshot {
