@@ -180,6 +180,8 @@ export function QuickQuoteDialog({
               </p>
             )}
           </div>
+        </div>
+
 
         <DialogFooter>
           <Button variant="ghost" onClick={onClose} disabled={create.isPending}>
