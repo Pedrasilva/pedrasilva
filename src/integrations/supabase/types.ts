@@ -8010,8 +8010,10 @@ export type Database = {
           data_inicio: string
           dias_uteis: number
           estado: string
+          horas: number | null
           id: string
           notas: string | null
+          periodo: string
           tipo: Database["public"]["Enums"]["absence_type"]
           updated_at: string
         }
@@ -8024,8 +8026,10 @@ export type Database = {
           data_inicio: string
           dias_uteis?: number
           estado?: string
+          horas?: number | null
           id?: string
           notas?: string | null
+          periodo?: string
           tipo?: Database["public"]["Enums"]["absence_type"]
           updated_at?: string
         }
@@ -8038,8 +8042,10 @@ export type Database = {
           data_inicio?: string
           dias_uteis?: number
           estado?: string
+          horas?: number | null
           id?: string
           notas?: string | null
+          periodo?: string
           tipo?: Database["public"]["Enums"]["absence_type"]
           updated_at?: string
         }

@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
@@ -208,21 +209,36 @@ function FeriasPage() {
   const [newReq, setNewReq] = useState<{
     collaborator_id: string;
     tipo: AbsenceType;
+    periodo: "dia_inteiro" | "manha" | "tarde" | "horas";
     data_inicio: string;
     data_fim: string;
+    horas: string;
     notas: string;
   }>({
     collaborator_id: "",
     tipo: "ferias",
+    periodo: "dia_inteiro",
     data_inicio: "",
     data_fim: "",
+    horas: "",
     notas: "",
   });
 
-  const dias = useMemo(
-    () => countWeekdays(newReq.data_inicio, newReq.data_fim, holidayDates),
-    [newReq.data_inicio, newReq.data_fim, holidayDates],
-  );
+  // Dias úteis efectivos consoante a duração escolhida.
+  // - dia_inteiro: conta dias úteis no intervalo (excluindo feriados)
+  // - manha / tarde: 0.5 num único dia
+  // - horas: horas / 8 (assume jornada base de 8h; o desconto efectivo
+  //   no saldo de férias só se aplica quando tipo === "ferias")
+  const dias = useMemo(() => {
+    if (newReq.periodo === "dia_inteiro") {
+      return countWeekdays(newReq.data_inicio, newReq.data_fim, holidayDates);
+    }
+    if (!newReq.data_inicio) return 0;
+    if (newReq.periodo === "manha" || newReq.periodo === "tarde") return 0.5;
+    const h = parseFloat(newReq.horas);
+    if (!Number.isFinite(h) || h <= 0) return 0;
+    return Math.round((h / 8) * 100) / 100;
+  }, [newReq.periodo, newReq.data_inicio, newReq.data_fim, newReq.horas, holidayDates]);
 
   // Lista de feriados que caem dentro do período seleccionado (em dias úteis)
   const feriadosNoPeriodo = useMemo(() => {
@@ -238,24 +254,44 @@ function FeriasPage() {
     mutationFn: async () => {
       const collab_id = isAdmin && newReq.collaborator_id ? newReq.collaborator_id : myCollab?.id;
       if (!collab_id) throw new Error("Sem colaborador associado à sua conta");
-      if (!newReq.data_inicio || !newReq.data_fim) throw new Error("Indique as datas");
+      if (!newReq.data_inicio) throw new Error("Indique a data");
+      // Para período parcial (meio-dia ou horas) usamos um único dia.
+      const isFullDay = newReq.periodo === "dia_inteiro";
+      const dataFim = isFullDay ? (newReq.data_fim || newReq.data_inicio) : newReq.data_inicio;
+      if (isFullDay && !newReq.data_fim) throw new Error("Indique as datas");
       if (dias <= 0) throw new Error("Período inválido");
+      const horasNum =
+        newReq.periodo === "horas"
+          ? parseFloat(newReq.horas)
+          : newReq.periodo === "manha" || newReq.periodo === "tarde"
+            ? 4
+            : null;
       const { error } = await supabase.from("vacation_requests").insert({
         collaborator_id: collab_id,
         tipo: newReq.tipo,
         data_inicio: newReq.data_inicio,
-        data_fim: newReq.data_fim,
+        data_fim: dataFim,
         dias_uteis: dias,
+        periodo: newReq.periodo,
+        horas: horasNum,
         notas: newReq.notas || null,
         estado: "pendente",
-      });
+      } as never);
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Pedido criado");
       qc.invalidateQueries({ queryKey: ["vacation_requests"] });
       setNewOpen(false);
-      setNewReq({ collaborator_id: "", tipo: "ferias", data_inicio: "", data_fim: "", notas: "" });
+      setNewReq({
+        collaborator_id: "",
+        tipo: "ferias",
+        periodo: "dia_inteiro",
+        data_inicio: "",
+        data_fim: "",
+        horas: "",
+        notas: "",
+      });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -381,7 +417,33 @@ function FeriasPage() {
                 </Select>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
-                <Label className="text-xs text-muted-foreground">Período</Label>
+                <Label className="text-xs text-muted-foreground">Duração</Label>
+                <Select
+                  value={newReq.periodo}
+                  onValueChange={(v) =>
+                    setNewReq((f) => ({
+                      ...f,
+                      periodo: v as "dia_inteiro" | "manha" | "tarde" | "horas",
+                      // Quando passa a parcial limpa data_fim para forçar dia único
+                      data_fim: v === "dia_inteiro" ? f.data_fim : "",
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="dia_inteiro">Dia(s) inteiro(s)</SelectItem>
+                    <SelectItem value="manha">Meio-dia — manhã (4h)</SelectItem>
+                    <SelectItem value="tarde">Meio-dia — tarde (4h)</SelectItem>
+                    <SelectItem value="horas">Algumas horas…</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label className="text-xs text-muted-foreground">
+                  {newReq.periodo === "dia_inteiro" ? "Período" : "Dia"}
+                </Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -392,7 +454,13 @@ function FeriasPage() {
                       )}
                     >
                       <CalendarDays className="mr-2 h-4 w-4" />
-                      {newReq.data_inicio && newReq.data_fim ? (
+                      {newReq.periodo !== "dia_inteiro" ? (
+                        newReq.data_inicio ? (
+                          format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: pt })
+                        ) : (
+                          <span>Seleccionar dia…</span>
+                        )
+                      ) : newReq.data_inicio && newReq.data_fim ? (
                         <>
                           {format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: pt })}
                           {" → "}
@@ -409,31 +477,54 @@ function FeriasPage() {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="range"
-                      numberOfMonths={2}
-                      locale={pt}
-                      weekStartsOn={1}
-                      defaultMonth={newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : new Date()}
-                      modifiers={{ holiday: holidayDateObjects }}
-                      modifiersClassNames={{
-                        holiday:
-                          "relative text-destructive font-semibold after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-destructive",
-                      }}
-                      selected={
-                        {
-                          from: newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : undefined,
-                          to: newReq.data_fim ? new Date(newReq.data_fim + "T00:00:00") : undefined,
-                        } as DateRange
-                      }
-                      onSelect={(range: DateRange | undefined) => {
-                        setNewReq((f) => ({
-                          ...f,
-                          data_inicio: range?.from ? format(range.from, "yyyy-MM-dd") : "",
-                          data_fim: range?.to ? format(range.to, "yyyy-MM-dd") : "",
-                        }));
-                      }}
-                    />
+                    {newReq.periodo === "dia_inteiro" ? (
+                      <Calendar
+                        mode="range"
+                        numberOfMonths={2}
+                        locale={pt}
+                        weekStartsOn={1}
+                        defaultMonth={newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : new Date()}
+                        modifiers={{ holiday: holidayDateObjects }}
+                        modifiersClassNames={{
+                          holiday:
+                            "relative text-destructive font-semibold after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-destructive",
+                        }}
+                        selected={
+                          {
+                            from: newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : undefined,
+                            to: newReq.data_fim ? new Date(newReq.data_fim + "T00:00:00") : undefined,
+                          } as DateRange
+                        }
+                        onSelect={(range: DateRange | undefined) => {
+                          setNewReq((f) => ({
+                            ...f,
+                            data_inicio: range?.from ? format(range.from, "yyyy-MM-dd") : "",
+                            data_fim: range?.to ? format(range.to, "yyyy-MM-dd") : "",
+                          }));
+                        }}
+                      />
+                    ) : (
+                      <Calendar
+                        mode="single"
+                        numberOfMonths={1}
+                        locale={pt}
+                        weekStartsOn={1}
+                        defaultMonth={newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : new Date()}
+                        modifiers={{ holiday: holidayDateObjects }}
+                        modifiersClassNames={{
+                          holiday:
+                            "relative text-destructive font-semibold after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-destructive",
+                        }}
+                        selected={newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : undefined}
+                        onSelect={(d: Date | undefined) => {
+                          setNewReq((f) => ({
+                            ...f,
+                            data_inicio: d ? format(d, "yyyy-MM-dd") : "",
+                            data_fim: d ? format(d, "yyyy-MM-dd") : "",
+                          }));
+                        }}
+                      />
+                    )}
                     <div className="border-t px-3 py-2 text-[11px] text-muted-foreground">
                       <span className="mr-1 inline-block h-2 w-2 rounded-full bg-destructive align-middle" />
                       Feriados (não contam como dias úteis)
@@ -441,6 +532,24 @@ function FeriasPage() {
                   </PopoverContent>
                 </Popover>
               </div>
+              {newReq.periodo === "horas" && (
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label className="text-xs text-muted-foreground">Horas</Label>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    min={0.5}
+                    max={8}
+                    step={0.5}
+                    placeholder="ex.: 2"
+                    value={newReq.horas}
+                    onChange={(e) => setNewReq((f) => ({ ...f, horas: e.target.value }))}
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Indique o número de horas autorizadas (até 8h por dia).
+                  </p>
+                </div>
+              )}
               <div className="space-y-1.5 sm:col-span-2">
                 <Label className="text-xs text-muted-foreground">Notas (opcional)</Label>
                 <Textarea
@@ -451,11 +560,22 @@ function FeriasPage() {
               </div>
               <div className="sm:col-span-2 space-y-2 rounded-md bg-muted px-3 py-2 text-sm">
                 <div>
-                  Dias úteis: <span className="font-semibold">{dias}</span>
-                  {feriadosNoPeriodo.length > 0 && (
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      ({feriadosNoPeriodo.length} feriado(s) excluído(s))
-                    </span>
+                  {newReq.periodo === "horas" ? (
+                    <>
+                      Horas: <span className="font-semibold">{newReq.horas || 0}</span>
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        (= {dias} dia(s) úteis)
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      Dias úteis: <span className="font-semibold">{dias}</span>
+                      {feriadosNoPeriodo.length > 0 && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          ({feriadosNoPeriodo.length} feriado(s) excluído(s))
+                        </span>
+                      )}
+                    </>
                   )}
                 </div>
                 {feriadosNoPeriodo.length > 0 && (
