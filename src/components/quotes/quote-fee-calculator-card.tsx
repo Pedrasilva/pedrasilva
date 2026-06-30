@@ -314,7 +314,16 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-end gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <span className="mr-auto text-xs text-muted-foreground">
+            {autoSaveState === "saving"
+              ? "A guardar…"
+              : autoSaveState === "saved"
+                ? "Guardado automaticamente"
+                : autoSaveState === "error"
+                  ? "Erro ao guardar"
+                  : ""}
+          </span>
           <Button
             variant="outline" size="sm"
             disabled={save.isPending}
