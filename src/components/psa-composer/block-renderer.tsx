@@ -125,7 +125,8 @@ export function BlockBody({
   const html = (block.content_rich?.html as string | undefined) ?? "";
   const num = chapterNumber ? `${chapterNumber}. ` : "";
   const richHas = hasRichContent(html, text);
-  const rich = <RichContent html={html} text={text} />;
+  const tokenMap = buildTokenMap(live);
+  const rich = <RichContent html={html} text={text} tokenMap={tokenMap} />;
 
   // Self stages only — PSA-facing tables must exclude supplier rows. The
   // consultants block is the place where suppliers appear.
