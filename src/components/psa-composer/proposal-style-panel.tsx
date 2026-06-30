@@ -73,6 +73,8 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
 
   const bodySize = s.bodySize ?? 10.5;
   const headingScale = s.headingScale ?? 1;
+  const marginTop = s.marginTop ?? 34;
+  const marginBottom = s.marginBottom ?? 32;
 
   return (
     <div className="flex flex-col gap-3">
