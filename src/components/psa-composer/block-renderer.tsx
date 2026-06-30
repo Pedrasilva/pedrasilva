@@ -14,6 +14,7 @@ import {
   formatDatePT,
   formatDurationAdaptive,
 } from "@/lib/psa-proposal/live-data";
+import { buildTokenMap, resolveTokens } from "@/lib/psa-proposal/tokens";
 
 function H({ children }: { children: React.ReactNode }) {
   return (
