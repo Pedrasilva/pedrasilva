@@ -166,37 +166,62 @@ export function BlockSettingsPanel({
       )}
 
       {block.block_type === "stage_item" && (
-        <div className="space-y-1">
-          <Label className="text-xs">Fase do orçamento</Label>
-          <Select
-            value={sourceRef.stage_id ?? ""}
-            onValueChange={(v) =>
-              update.mutate({
-                id: block.id,
-                patch: { source_ref: { ...sourceRef, stage_id: v } },
-              })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Escolher fase..." />
-            </SelectTrigger>
-            <SelectContent>
-              {(liveQuery.data?.stages ?? []).map((s) => (
-                <SelectItem key={s.id} value={s.id}>
-                  {s.code ? `${s.code} — ` : ""}{s.name}
-                </SelectItem>
-              ))}
-              {!liveQuery.data?.stages?.length && (
-                <div className="px-2 py-1.5 text-xs text-zinc-500">
-                  Defina primeiro o Quote ID acima.
-                </div>
-              )}
-            </SelectContent>
-          </Select>
-          <div className="pt-2">
-            <Label className="text-xs">Entregáveis (um por linha)</Label>
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <Label className="text-xs">Fase do orçamento</Label>
+            <Select
+              value={sourceRef.stage_id ?? ""}
+              onValueChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: { source_ref: { ...sourceRef, stage_id: v } },
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Escolher fase..." />
+              </SelectTrigger>
+              <SelectContent>
+                {(liveQuery.data?.stages ?? []).map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.code ? `${s.code} — ` : ""}{s.name}
+                  </SelectItem>
+                ))}
+                {!liveQuery.data?.stages?.length && (
+                  <div className="px-2 py-1.5 text-xs text-zinc-500">
+                    Defina primeiro o Quote ID acima.
+                  </div>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-xs">Conteúdo</Label>
+            <RichTextEditor
+              value={html || (legacyText ? `<p>${legacyText.replace(/\n/g, "</p><p>")}</p>` : "")}
+              onChange={({ html, text }) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    content_rich: { ...(block.content_rich ?? {}), html, text },
+                  },
+                })
+              }
+              placeholder="Descrição livre desta fase..."
+              tokenEntries={buildTokenPickerEntries(liveQuery.data)}
+            />
+            <p className="text-[10px] text-zinc-500">
+              Use <code className="rounded bg-zinc-100 px-1">{"{{token}}"}</code> ou
+              "Inserir do orçamento" para puxar dados do quote.
+            </p>
+          </div>
+
+          <div>
+            <Label className="text-xs">Entregáveis (texto livre)</Label>
             <Textarea
-              rows={4}
+              rows={10}
+              className="min-h-[220px]"
               value={(block.content_rich?.deliverables as string | undefined) ?? ""}
               onChange={(e) =>
                 update.mutate({
@@ -212,29 +237,52 @@ export function BlockSettingsPanel({
               placeholder="Memória descritiva&#10;Planos cotados&#10;Cortes e alçados"
             />
           </div>
-          <div className="pt-2">
-            <Label className="text-xs">Informação necessária do cliente (uma por linha)</Label>
-            <Textarea
-              rows={4}
-              value={(block.content_rich?.client_info as string | undefined) ?? ""}
-              onChange={(e) =>
+
+          <div className="flex items-center justify-between rounded-md border bg-background p-2">
+            <Label className="text-xs">Mostrar "Informação necessária do cliente"</Label>
+            <Switch
+              checked={
+                (block.content_rich?.client_info_visible as boolean | undefined) ?? true
+              }
+              onCheckedChange={(v) =>
                 update.mutate({
                   id: block.id,
                   patch: {
                     content_rich: {
                       ...(block.content_rich ?? {}),
-                      client_info: e.target.value,
+                      client_info_visible: v,
                     },
                   },
                 })
               }
-              placeholder="Levantamento topográfico&#10;Indicações de orçamento&#10;Desenhos existentes&#10;Objetivos do projeto"
             />
           </div>
+
+          {((block.content_rich?.client_info_visible as boolean | undefined) ?? true) && (
+            <div>
+              <Label className="text-xs">Informação necessária do cliente (uma por linha)</Label>
+              <Textarea
+                rows={5}
+                value={(block.content_rich?.client_info as string | undefined) ?? ""}
+                onChange={(e) =>
+                  update.mutate({
+                    id: block.id,
+                    patch: {
+                      content_rich: {
+                        ...(block.content_rich ?? {}),
+                        client_info: e.target.value,
+                      },
+                    },
+                  })
+                }
+                placeholder="Levantamento topográfico&#10;Indicações de orçamento&#10;Desenhos existentes&#10;Objetivos do projeto"
+              />
+            </div>
+          )}
         </div>
       )}
 
-      {supportsRich && (
+      {supportsRich && block.block_type !== "stage_item" && (
         <div className="space-y-1">
           <Label className="text-xs">Conteúdo</Label>
           <RichTextEditor
