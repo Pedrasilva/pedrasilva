@@ -1,0 +1,1 @@
+UPDATE psa_block_library SET label = 'Stage Item' WHERE kind = 'stage_item';
