@@ -1101,3 +1101,85 @@ function HourCell({
     </Popover>
   );
 }
+
+// ----------------------------- Collaborator picker -----------------------------
+
+type CollabPickerRow = { id: string; nome: string; email: string | null };
+
+function CollaboratorViewPicker({
+  selectedCollaboratorId,
+  selfCollaboratorId,
+  onChange,
+}: {
+  selectedCollaboratorId: string | null;
+  selfCollaboratorId: string | null;
+  onChange: (id: string | null) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const { data: collaborators = [] } = useQuery({
+    queryKey: ["timesheet-collaborator-picker"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("collaborators")
+        .select("id, nome, email")
+        .is("archived_at", null)
+        .order("nome", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as CollabPickerRow[];
+    },
+  });
+
+  const selected = collaborators.find((c) => c.id === selectedCollaboratorId) ?? null;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-2">
+          <Eye className="h-3.5 w-3.5" />
+          <span className="max-w-[180px] truncate">
+            {selected ? selected.nome : "Selecionar colaborador…"}
+          </span>
+          <ChevronsUpDown className="h-3 w-3 opacity-60" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-[280px] p-0">
+        <Command>
+          <CommandInput placeholder="Procurar colaborador…" />
+          <CommandList>
+            <CommandEmpty>Nenhum colaborador encontrado.</CommandEmpty>
+            <CommandGroup heading="Ver timesheet de…">
+              {collaborators.map((c) => (
+                <CommandItem
+                  key={c.id}
+                  value={`${c.nome} ${c.email ?? ""}`}
+                  onSelect={() => {
+                    onChange(c.id === selfCollaboratorId ? null : c.id);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${
+                      selectedCollaboratorId === c.id ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-sm">
+                      {c.nome}
+                      {c.id === selfCollaboratorId && (
+                        <span className="ml-1 text-[10px] text-muted-foreground">(eu)</span>
+                      )}
+                    </span>
+                    {c.email && (
+                      <span className="text-[11px] text-muted-foreground">{c.email}</span>
+                    )}
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
