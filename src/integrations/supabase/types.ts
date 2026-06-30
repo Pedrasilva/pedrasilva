@@ -8156,6 +8156,7 @@ export type Database = {
           language_preference: string | null
           nome: string | null
           numero_colaborador: string | null
+          target_chargeability_pct: number | null
           updated_at: string | null
         }
         Insert: {
@@ -8176,6 +8177,7 @@ export type Database = {
           language_preference?: string | null
           nome?: string | null
           numero_colaborador?: string | null
+          target_chargeability_pct?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -8196,6 +8198,7 @@ export type Database = {
           language_preference?: string | null
           nome?: string | null
           numero_colaborador?: string | null
+          target_chargeability_pct?: number | null
           updated_at?: string | null
         }
         Relationships: []
