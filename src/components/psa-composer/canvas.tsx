@@ -133,14 +133,22 @@ export function ComposerCanvas({
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  const chapterByIndex = useMemo(() => {
+  const { chapterByIndex, toc } = useMemo(() => {
     let n = 0;
-    return blocks.map((b) => {
-      if (NON_NUMBERED.includes(b.block_type) || !b.is_visible) return null;
+    const idx: (number | null)[] = [];
+    const t: { chapter: number; title: string }[] = [];
+    for (const b of blocks) {
+      if (NON_NUMBERED.includes(b.block_type) || !b.is_visible) {
+        idx.push(null);
+        continue;
+      }
       n += 1;
-      return n;
-    });
+      idx.push(n);
+      t.push({ chapter: n, title: b.title || b.block_type });
+    }
+    return { chapterByIndex: idx, toc: t };
   }, [blocks]);
+
 
   function handleDragEnd(e: DragEndEvent) {
     const { active, over } = e;
