@@ -259,6 +259,7 @@ function TimesheetPage() {
   const userId = user?.id ?? null;
   const dispatchedPrefillRef = useRef<Set<string>>(new Set());
   useEffect(() => {
+    if (readOnly) return;
     if (!userId || nonWorkingPrefill.length === 0) return;
     for (const row of nonWorkingPrefill) {
       const existing = entryMap.get(nonWorkingKey(row.leave_type));
