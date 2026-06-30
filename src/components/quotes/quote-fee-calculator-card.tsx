@@ -75,6 +75,34 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
     [inputs.stages],
   );
 
+  // Auto-save inputs to fee_proposals.project_fee_calculation (JSONB) on
+  // every change, debounced. The manual "Save draft" button stays as a
+  // visible confirmation, but typing values is enough — no click required.
+  const isFirstRender = useRef(true);
+  const [autoSaveState, setAutoSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setAutoSaveState("saving");
+    const handle = setTimeout(async () => {
+      const { error } = await supabase
+        .from("fee_proposals")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .update({ project_fee_calculation: inputs as any })
+        .eq("id", quoteId);
+      if (error) {
+        setAutoSaveState("error");
+        toast.error(error.message);
+      } else {
+        setAutoSaveState("saved");
+        qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
+      }
+    }, 600);
+    return () => clearTimeout(handle);
+  }, [inputs, quoteId, qc]);
+
   const save = useMutation({
     mutationFn: async (apply: boolean) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
