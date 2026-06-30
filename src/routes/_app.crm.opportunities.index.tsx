@@ -552,10 +552,6 @@ function QuoteCategoryChooserDialog({
   isPending: boolean;
 }) {
   const { t } = useTranslation("crm");
-  const [step, setStep] = useState<1 | 2>(1);
-  const [category, setCategory] = useState<QuoteCategory>("project");
-  const [templateId, setTemplateId] = useState<string | null>(null);
-
   const cards: { value: QuoteCategory; icon: typeof Briefcase }[] = [
     { value: "project", icon: Briefcase },
     { value: "time_based", icon: Clock },
@@ -564,8 +560,6 @@ function QuoteCategoryChooserDialog({
 
   const handleClose = () => {
     if (isPending) return;
-    setStep(1);
-    setTemplateId(null);
     onClose();
   };
 
@@ -575,9 +569,7 @@ function QuoteCategoryChooserDialog({
         <DialogHeader>
           <DialogTitle>{t("quotes.newQuoteDialog.title")}</DialogTitle>
           <DialogDescription>
-            {step === 1
-              ? t("quotes.newQuoteDialog.categoryChooserDescription")
-              : t("templates.picker.label")}
+            {t("quotes.newQuoteDialog.categoryChooserDescription")}
           </DialogDescription>
         </DialogHeader>
 
