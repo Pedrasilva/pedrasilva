@@ -75,6 +75,7 @@ export function ComposerTopBar({
         </SelectContent>
       </Select>
       <div className="ml-auto flex items-center gap-2">
+        <ProposalHistoryDialog proposalId={proposal.id} />
         <Button
           variant="outline"
           size="sm"
