@@ -316,7 +316,7 @@ export function RichTextEditor({
   if (!editor) return null;
   return (
     <div className="space-y-0">
-      <Toolbar editor={editor} />
+      <Toolbar editor={editor} tokenEntries={tokenEntries} />
       <EditorContent editor={editor} data-placeholder={placeholder} />
     </div>
   );
