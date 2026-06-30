@@ -33,6 +33,28 @@ export function BlockLibraryPanel({
     ? Math.max(...blocks.map((b) => b.sort_order))
     : 0;
 
+  function addBlock(lib: PsaLibraryEntry) {
+    add.mutate(
+      { lib, afterOrder: lastOrder },
+      {
+        onSuccess: (res) => {
+          toast.success(`Bloco "${lib.default_title}" adicionado`);
+          // Scroll the newly inserted block into view after re-render.
+          setTimeout(() => {
+            const el = document.querySelector(
+              `[data-proposal-block-id="${res.id}"]`,
+            );
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 250);
+        },
+        onError: (e: unknown) => {
+          const msg = e instanceof Error ? e.message : "Erro ao adicionar bloco";
+          toast.error(msg);
+        },
+      },
+    );
+  }
+
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col border-r bg-muted/30 xl:w-64">
       <div className="border-b px-3 py-2">
