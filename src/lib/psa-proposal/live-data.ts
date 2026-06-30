@@ -186,6 +186,8 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
             fee: s.budget ?? null,
             hours: null,
             isSelf: s.is_self !== false,
+            isMilestone: s.is_milestone === true,
+            parentStageId: s.parent_stage_id ?? null,
           };
         }),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
