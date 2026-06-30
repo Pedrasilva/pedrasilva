@@ -604,19 +604,9 @@ function QuoteCategoryChooserDialog({
         </div>
 
         <DialogFooter>
-          {step === 2 && (
-            <Button variant="ghost" onClick={() => setStep(1)} disabled={isPending}>
-              {t("common.back")}
-            </Button>
-          )}
           <Button variant="ghost" onClick={handleClose} disabled={isPending}>
             {t("common.cancel")}
           </Button>
-          {step === 2 && (
-            <Button onClick={() => onPick(category, templateId)} disabled={isPending}>
-              {t("quotes.newQuoteDialog.createButton")}
-            </Button>
-          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
