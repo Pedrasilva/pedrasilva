@@ -83,6 +83,25 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
         os parágrafos usam o tipo de letra de body.
       </p>
 
+      <div className="rounded-md border border-zinc-300 bg-zinc-50 p-2 space-y-1.5">
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-700">
+          Predefinição
+        </div>
+        <Button
+          variant="default"
+          size="sm"
+          className="w-full"
+          onClick={() => update.mutate({ style_settings: PSA_BRAND_PRESET } as Partial<PsaProposal>)}
+        >
+          Aplicar marca Pedra Silva
+        </Button>
+        <p className="text-[10px] text-zinc-500 leading-snug">
+          The Future (títulos) + Signifier (texto), conforme manual gráfico.
+        </p>
+      </div>
+
+
+
       <div className="space-y-1">
         <Label className="text-xs">Tipo de letra — Títulos</Label>
         <Select
