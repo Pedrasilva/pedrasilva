@@ -18,10 +18,14 @@ export function BlockLibraryPanel({
   proposalId,
   blocks,
   quoteIdHint,
+  selectedId,
+  onInserted,
 }: {
   proposalId: string;
   blocks: PsaProposalBlock[];
   quoteIdHint?: string | null;
+  selectedId?: string | null;
+  onInserted?: (id: string) => void;
 }) {
   const lib = useBlockLibrary();
   const add = useAddLibraryBlock(proposalId);
@@ -33,9 +37,11 @@ export function BlockLibraryPanel({
       !q ? true : l.label.toLowerCase().includes(q.toLowerCase()),
     ) ?? [];
 
-  const lastOrder = blocks.length
-    ? Math.max(...blocks.map((b) => b.sort_order))
-    : 0;
+  const sorted = [...blocks].sort((a, b) => a.sort_order - b.sort_order);
+  const selectedBlock = selectedId ? sorted.find((b) => b.id === selectedId) : null;
+  const lastOrder = sorted.length ? sorted[sorted.length - 1].sort_order : 0;
+  const afterOrder = selectedBlock ? selectedBlock.sort_order : lastOrder;
+
 
   function pickNextStageId(): string | undefined {
     const stages = (live.data?.stages ?? []).filter(
@@ -63,11 +69,13 @@ export function BlockLibraryPanel({
       }
     }
     add.mutate(
-      { lib: entry, afterOrder: lastOrder },
+      { lib: entry, afterOrder },
       {
         onSuccess: (res) => {
           toast.success(`Bloco "${entry.default_title}" adicionado`);
+          onInserted?.(res.id);
           // Scroll the newly inserted block into view after re-render.
+
           setTimeout(() => {
             const el = document.querySelector(
               `[data-proposal-block-id="${res.id}"]`,
