@@ -26,6 +26,7 @@ import {
   Quote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BirthdayFireworks } from "@/components/BirthdayFireworks";
 import type { PermissionKey } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_app/")({
@@ -237,7 +238,10 @@ function HubPage() {
             "linear-gradient(180deg, var(--cream) 0%, var(--background) 100%)",
         }}
       >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 lg:py-16">
+        {todayCelebrations.some((c) => c.kind === "birthday") && (
+          <BirthdayFireworks />
+        )}
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-12 lg:py-16">
           <div className="flex items-baseline justify-between gap-6">
             <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
               {today}
