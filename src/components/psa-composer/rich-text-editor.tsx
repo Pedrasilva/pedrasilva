@@ -27,7 +27,7 @@ import {
   Link2,
   Table as TableIcon,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 function ToolbarButton({
