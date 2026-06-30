@@ -29,6 +29,8 @@ export interface LiveStage {
   fee: number | null;
   hours: number | null;
   isSelf: boolean;
+  isMilestone: boolean;
+  parentStageId: string | null;
 }
 
 export interface LiveQuoteSnapshot {
@@ -98,7 +100,7 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
       const { data: stages } = await supabase
         .from("quote_stages")
         .select(
-          "id,name,description,phase_code,start_date,end_date,budget,sort_order,is_self",
+          "id,name,description,phase_code,start_date,end_date,budget,sort_order,is_self,is_milestone,parent_stage_id",
         )
         .eq("quote_id", quoteId!)
         .order("sort_order", { ascending: true, nullsFirst: false })
@@ -184,6 +186,8 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
             fee: s.budget ?? null,
             hours: null,
             isSelf: s.is_self !== false,
+            isMilestone: s.is_milestone === true,
+            parentStageId: s.parent_stage_id ?? null,
           };
         }),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
