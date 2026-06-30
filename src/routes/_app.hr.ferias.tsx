@@ -209,21 +209,36 @@ function FeriasPage() {
   const [newReq, setNewReq] = useState<{
     collaborator_id: string;
     tipo: AbsenceType;
+    periodo: "dia_inteiro" | "manha" | "tarde" | "horas";
     data_inicio: string;
     data_fim: string;
+    horas: string;
     notas: string;
   }>({
     collaborator_id: "",
     tipo: "ferias",
+    periodo: "dia_inteiro",
     data_inicio: "",
     data_fim: "",
+    horas: "",
     notas: "",
   });
 
-  const dias = useMemo(
-    () => countWeekdays(newReq.data_inicio, newReq.data_fim, holidayDates),
-    [newReq.data_inicio, newReq.data_fim, holidayDates],
-  );
+  // Dias úteis efectivos consoante a duração escolhida.
+  // - dia_inteiro: conta dias úteis no intervalo (excluindo feriados)
+  // - manha / tarde: 0.5 num único dia
+  // - horas: horas / 8 (assume jornada base de 8h; o desconto efectivo
+  //   no saldo de férias só se aplica quando tipo === "ferias")
+  const dias = useMemo(() => {
+    if (newReq.periodo === "dia_inteiro") {
+      return countWeekdays(newReq.data_inicio, newReq.data_fim, holidayDates);
+    }
+    if (!newReq.data_inicio) return 0;
+    if (newReq.periodo === "manha" || newReq.periodo === "tarde") return 0.5;
+    const h = parseFloat(newReq.horas);
+    if (!Number.isFinite(h) || h <= 0) return 0;
+    return Math.round((h / 8) * 100) / 100;
+  }, [newReq.periodo, newReq.data_inicio, newReq.data_fim, newReq.horas, holidayDates]);
 
   // Lista de feriados que caem dentro do período seleccionado (em dias úteis)
   const feriadosNoPeriodo = useMemo(() => {
