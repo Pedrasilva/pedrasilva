@@ -1152,23 +1152,10 @@ function QuoteDetail() {
         <TabsContent value="financial" className="mt-4">
           <QuoteFinancialSummaryTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
         </TabsContent>
-        <TabsContent value="proposal" className="mt-4 space-y-3">
-          <div className="flex justify-end">
-            <ApplyTemplateDialog
-              quoteId={quoteId}
-              category={quote.quote_category ?? "project"}
-            />
-          </div>
-          <QuoteProposalTab
+        <TabsContent value="proposal" className="mt-4">
+          <QuoteProposalComposerEmbed
             quoteId={quoteId}
-            pricingMultiplier={pricingMultiplier}
-            title={form.titulo || quote.titulo}
-            description={form.proposal_description || quote.proposal_description || quote.notas}
-            clientName={quote.company?.nome ?? null}
-            accountName={quote.account?.name ?? null}
-            quoteType={quote.quote_type ?? "standard_project"}
-            quoteCategory={quote.quote_category}
-            ontologyFamilyCode={(quote as unknown as { ontology_family_code?: string | null }).ontology_family_code ?? null}
+            quoteTitle={form.titulo || quote.titulo}
           />
         </TabsContent>
       </Tabs>
