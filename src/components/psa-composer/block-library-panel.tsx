@@ -10,18 +10,22 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { useBlockLibrary, useAddLibraryBlock } from "@/lib/psa-proposal/use-psa-proposal";
+import { useLiveQuoteSnapshot } from "@/lib/psa-proposal/live-data";
 import { RelevanceBadge } from "./relevance-badge";
 import type { PsaProposalBlock, PsaLibraryEntry } from "@/lib/psa-proposal/types";
 
 export function BlockLibraryPanel({
   proposalId,
   blocks,
+  quoteIdHint,
 }: {
   proposalId: string;
   blocks: PsaProposalBlock[];
+  quoteIdHint?: string | null;
 }) {
   const lib = useBlockLibrary();
   const add = useAddLibraryBlock(proposalId);
+  const live = useLiveQuoteSnapshot(quoteIdHint ?? null);
   const [q, setQ] = useState("");
 
   const items =
@@ -33,12 +37,36 @@ export function BlockLibraryPanel({
     ? Math.max(...blocks.map((b) => b.sort_order))
     : 0;
 
-  function addBlock(lib: PsaLibraryEntry) {
+  function pickNextStageId(): string | undefined {
+    const stages = (live.data?.stages ?? []).filter(
+      (s) => s.isSelf && !s.isMilestone,
+    );
+    if (!stages.length) return undefined;
+    const used = new Set(
+      blocks
+        .filter((b) => b.block_type === "stage_item")
+        .map((b) => (b.source_ref as { stage_id?: string } | undefined)?.stage_id)
+        .filter(Boolean) as string[],
+    );
+    return (stages.find((s) => !used.has(s.id)) ?? stages[0]).id;
+  }
+
+  function addBlock(libEntry: PsaLibraryEntry) {
+    let entry = libEntry;
+    if (libEntry.kind === "stage_item") {
+      const stageId = pickNextStageId();
+      if (stageId) {
+        entry = {
+          ...libEntry,
+          default_source_ref: { ...(libEntry.default_source_ref ?? {}), stage_id: stageId },
+        };
+      }
+    }
     add.mutate(
-      { lib, afterOrder: lastOrder },
+      { lib: entry, afterOrder: lastOrder },
       {
         onSuccess: (res) => {
-          toast.success(`Bloco "${lib.default_title}" adicionado`);
+          toast.success(`Bloco "${entry.default_title}" adicionado`);
           // Scroll the newly inserted block into view after re-render.
           setTimeout(() => {
             const el = document.querySelector(
