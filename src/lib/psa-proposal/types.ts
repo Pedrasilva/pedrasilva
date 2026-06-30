@@ -55,6 +55,8 @@ export interface PsaProposalStyleSettings {
   bodyAlign?: "left" | "justify" | "center" | "right";
   bodySize?: number; // body text in pt
   headingScale?: number; // multiplier for heading sizes (1 = default)
+  marginTop?: number; // mm — top margin (controls header→body space)
+  marginBottom?: number; // mm — bottom margin (controls body→footer space)
 }
 
 export interface PsaProposal {
