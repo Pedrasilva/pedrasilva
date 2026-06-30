@@ -97,11 +97,14 @@ export function BlockBody({
   block,
   live,
   chapterNumber,
+  toc,
 }: {
   block: PsaProposalBlock;
   live: LiveQuoteSnapshot | undefined;
   chapterNumber: number | null;
+  toc?: { chapter: number; title: string }[];
 }) {
+
   const text = (block.content_rich?.text as string | undefined) ?? "";
   const html = (block.content_rich?.html as string | undefined) ?? "";
   const num = chapterNumber ? `${chapterNumber}. ` : "";
@@ -143,10 +146,22 @@ export function BlockBody({
     case "index":
       return (
         <div className="proposal-avoid-break">
-          <H>{num}Índice</H>
-          <Empty>O índice é gerado automaticamente a partir dos blocos visíveis na exportação PDF.</Empty>
+          <H>Índice</H>
+          {toc && toc.length ? (
+            <ol className="space-y-1 text-sm text-zinc-800 list-none ml-0">
+              {toc.map((e) => (
+                <li key={e.chapter} className="flex items-baseline gap-2">
+                  <span className="font-medium tabular-nums w-6">{e.chapter}.</span>
+                  <span className="flex-1">{e.title}</span>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <Empty>O índice é gerado automaticamente a partir dos blocos visíveis.</Empty>
+          )}
         </div>
       );
+
 
     case "about":
       return (

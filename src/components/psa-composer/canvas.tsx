@@ -41,12 +41,14 @@ const NON_NUMBERED: PsaBlockType[] = ["cover", "index", "acceptance", "page_brea
 function SortableRow({
   block,
   chapter,
+  toc,
   selected,
   quoteIdHint,
   onSelect,
 }: {
   block: PsaProposalBlock;
   chapter: number | null;
+  toc: { chapter: number; title: string }[];
   selected: boolean;
   quoteIdHint: string | null;
   onSelect: () => void;
@@ -57,8 +59,10 @@ function SortableRow({
   const useLive =
     block.source_type === "live_quote" ||
     block.source_type === "mixed" ||
-    block.block_type === "stage_item";
+    block.block_type === "stage_item" ||
+    block.block_type === "index";
   const live = useLiveQuoteSnapshot(useLive ? refQuoteId ?? quoteIdHint : null).data;
+
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -103,10 +107,11 @@ function SortableRow({
         {!block.is_visible && <EyeOff className="h-3 w-3" />}
         {block.is_locked && <Lock className="h-3 w-3" />}
       </div>
-      <BlockBody block={block} live={live} chapterNumber={chapter} />
+      <BlockBody block={block} live={live} chapterNumber={chapter} toc={toc} />
     </div>
   );
 }
+
 
 export function ComposerCanvas({
   blocks,
@@ -128,14 +133,22 @@ export function ComposerCanvas({
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  const chapterByIndex = useMemo(() => {
+  const { chapterByIndex, toc } = useMemo(() => {
     let n = 0;
-    return blocks.map((b) => {
-      if (NON_NUMBERED.includes(b.block_type) || !b.is_visible) return null;
+    const idx: (number | null)[] = [];
+    const t: { chapter: number; title: string }[] = [];
+    for (const b of blocks) {
+      if (NON_NUMBERED.includes(b.block_type) || !b.is_visible) {
+        idx.push(null);
+        continue;
+      }
       n += 1;
-      return n;
-    });
+      idx.push(n);
+      t.push({ chapter: n, title: b.title || b.block_type });
+    }
+    return { chapterByIndex: idx, toc: t };
   }, [blocks]);
+
 
   function handleDragEnd(e: DragEndEvent) {
     const { active, over } = e;
@@ -170,11 +183,13 @@ export function ComposerCanvas({
                   key={b.id}
                   block={b}
                   chapter={chapterByIndex[i]}
+                  toc={toc}
                   selected={selectedId === b.id}
                   quoteIdHint={quoteIdHint}
                   onSelect={() => onSelect(b.id)}
                 />
               ))}
+
             </div>
           </SortableContext>
         </DndContext>
