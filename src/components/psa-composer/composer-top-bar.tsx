@@ -22,6 +22,9 @@ import type {
   PsaProposalStatus,
 } from "@/lib/psa-proposal/types";
 import { ConvertToContractDialog } from "./convert-to-contract-dialog";
+import { ProposalHistoryDialog } from "./proposal-history-dialog";
+import { useAutoSnapshotTrigger } from "@/lib/psa-proposal/use-proposal-history";
+import { useEffect } from "react";
 
 const STATUSES: PsaProposalStatus[] = [
   "draft",
