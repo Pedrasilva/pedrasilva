@@ -9,7 +9,7 @@
  * Hidden for Consultancy Proposals — the parent route already gates that
  * via `quote.quote_category`.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
