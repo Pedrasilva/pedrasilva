@@ -183,11 +183,13 @@ export function ComposerCanvas({
                   key={b.id}
                   block={b}
                   chapter={chapterByIndex[i]}
+                  toc={toc}
                   selected={selectedId === b.id}
                   quoteIdHint={quoteIdHint}
                   onSelect={() => onSelect(b.id)}
                 />
               ))}
+
             </div>
           </SortableContext>
         </DndContext>
