@@ -1000,3 +1000,13 @@
 .psa-rich ul ul { list-style: circle outside !important; }
 .psa-rich ul ul ul { list-style: square outside !important; }
 .psa-rich li { margin: 0.15rem 0; display: list-item; }
+
+/* Unresolved merge tokens — shown in the proposal preview as a subtle hint. */
+.psa-token-unresolved {
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 3px;
+  padding: 0 2px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+}
