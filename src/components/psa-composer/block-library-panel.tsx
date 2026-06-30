@@ -69,11 +69,13 @@ export function BlockLibraryPanel({
       }
     }
     add.mutate(
-      { lib: entry, afterOrder: lastOrder },
+      { lib: entry, afterOrder },
       {
         onSuccess: (res) => {
           toast.success(`Bloco "${entry.default_title}" adicionado`);
+          onInserted?.(res.id);
           // Scroll the newly inserted block into view after re-render.
+
           setTimeout(() => {
             const el = document.querySelector(
               `[data-proposal-block-id="${res.id}"]`,
