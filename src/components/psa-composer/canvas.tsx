@@ -107,10 +107,11 @@ function SortableRow({
         {!block.is_visible && <EyeOff className="h-3 w-3" />}
         {block.is_locked && <Lock className="h-3 w-3" />}
       </div>
-      <BlockBody block={block} live={live} chapterNumber={chapter} />
+      <BlockBody block={block} live={live} chapterNumber={chapter} toc={toc} />
     </div>
   );
 }
+
 
 export function ComposerCanvas({
   blocks,
