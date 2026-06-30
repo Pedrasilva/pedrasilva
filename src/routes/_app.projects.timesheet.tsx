@@ -319,36 +319,37 @@ function TimesheetPage() {
                 Read-only · viewing another collaborator
               </span>
             )}
-          </div>
-
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-7 w-7"
-              onClick={() => setWeekAnchor((d) => addWeeks(d, -1))}
-              aria-label="Previous week"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <button
-              onClick={() => setWeekAnchor(new Date())}
-              className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-accent"
-            >
-              <CalendarDays className="h-3.5 w-3.5" />
-              {format(weekStartDate, "MMM d")} –{" "}
-              {format(addDays(weekStartDate, 6), "MMM d, yyyy")}
-            </button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-7 w-7"
-              onClick={() => setWeekAnchor((d) => addWeeks(d, 1))}
-              aria-label="Next week"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1.5">
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                onClick={() => setWeekAnchor((d) => addWeeks(d, -1))}
+                aria-label="Previous week"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <button
+                onClick={() => setWeekAnchor(new Date())}
+                className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-accent"
+              >
+                <CalendarDays className="h-3.5 w-3.5" />
+                {format(weekStartDate, "MMM d")} –{" "}
+                {format(addDays(weekStartDate, 6), "MMM d, yyyy")}
+              </button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                onClick={() => setWeekAnchor((d) => addWeeks(d, 1))}
+                aria-label="Next week"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
+
 
         {/* Summary chips */}
         <div className="mt-4 flex flex-wrap gap-2">
