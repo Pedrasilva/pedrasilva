@@ -180,26 +180,68 @@ export function BlockBody({
         </div>
       );
 
-    case "stage_list":
+    case "stage_list": {
+      const nonMilestone = selfStages.filter((s) => !s.isMilestone);
+      const parents = nonMilestone.filter((s) => !s.parentStageId);
+      const childrenOf = (pid: string) =>
+        nonMilestone.filter((s) => s.parentStageId === pid);
+      const orphans = nonMilestone.filter(
+        (s) => s.parentStageId && !parents.some((p) => p.id === s.parentStageId),
+      );
+      const renderStage = (s: LiveStage) => (
+        <li key={s.id}>
+          <span className="font-medium">
+            {s.code ? `${s.code} — ` : ""}
+            {s.name}
+          </span>
+          {s.durationDays != null && (
+            <span className="ml-2 text-zinc-500">({s.durationDays} dias)</span>
+          )}
+        </li>
+      );
       return (
         <div>
           <H>{num}{block.title}</H>
-          {selfStages.length ? (
-            <ol className="ml-5 list-decimal space-y-1 text-sm text-zinc-800">
-              {selfStages.map((s) => (
-                <li key={s.id}>
-                  <span className="font-medium">{s.code ? `${s.code} — ` : ""}{s.name}</span>
-                  {s.durationDays != null && (
-                    <span className="ml-2 text-zinc-500">({s.durationDays} dias)</span>
-                  )}
-                </li>
-              ))}
-            </ol>
+          {nonMilestone.length ? (
+            <div className="space-y-3">
+              {parents.map((p) => {
+                const kids = childrenOf(p.id);
+                if (!kids.length) {
+                  // Parent with no children — render as standalone stage line.
+                  return (
+                    <ol key={p.id} className="ml-5 list-decimal text-sm text-zinc-800">
+                      {renderStage(p)}
+                    </ol>
+                  );
+                }
+                return (
+                  <div key={p.id}>
+                    <h3 className="proposal-print-heading mb-1 text-sm font-semibold tracking-tight text-zinc-900">
+                      {p.code ? `${p.code} — ` : ""}{p.name}
+                      {p.durationDays != null && (
+                        <span className="ml-2 font-normal text-zinc-500">
+                          ({p.durationDays} dias)
+                        </span>
+                      )}
+                    </h3>
+                    <ol className="ml-5 list-decimal space-y-1 text-sm text-zinc-800">
+                      {kids.map(renderStage)}
+                    </ol>
+                  </div>
+                );
+              })}
+              {orphans.length > 0 && (
+                <ol className="ml-5 list-decimal space-y-1 text-sm text-zinc-800">
+                  {orphans.map(renderStage)}
+                </ol>
+              )}
+            </div>
           ) : (
             <Empty>Sem fases definidas no orçamento.</Empty>
           )}
         </div>
       );
+    }
 
     case "stage_item": {
       const stageId = (block.source_ref as { stage_id?: string } | undefined)?.stage_id;
