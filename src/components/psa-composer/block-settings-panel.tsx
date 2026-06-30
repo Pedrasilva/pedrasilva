@@ -212,6 +212,25 @@ export function BlockSettingsPanel({
               placeholder="Memória descritiva&#10;Planos cotados&#10;Cortes e alçados"
             />
           </div>
+          <div className="pt-2">
+            <Label className="text-xs">Informação necessária do cliente (uma por linha)</Label>
+            <Textarea
+              rows={4}
+              value={(block.content_rich?.client_info as string | undefined) ?? ""}
+              onChange={(e) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    content_rich: {
+                      ...(block.content_rich ?? {}),
+                      client_info: e.target.value,
+                    },
+                  },
+                })
+              }
+              placeholder="Levantamento topográfico&#10;Indicações de orçamento&#10;Desenhos existentes&#10;Objetivos do projeto"
+            />
+          </div>
         </div>
       )}
 
