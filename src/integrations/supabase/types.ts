@@ -8527,6 +8527,10 @@ export type Database = {
       financial_expense_payment_backfill_run: { Args: never; Returns: Json }
       get_my_collaborator_id: { Args: never; Returns: string }
       get_reimbursement_supplier_id: { Args: never; Returns: string }
+      get_user_id_for_collaborator: {
+        Args: { p_collaborator_id: string }
+        Returns: string
+      }
       hard_purge_fee_proposal: {
         Args: { _note?: string; _proposal_id: string }
         Returns: undefined
