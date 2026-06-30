@@ -22,6 +22,8 @@ export type PsaBlockType =
   | "stage_list"
   | "stage_item"
   | "timeline"
+  | "gantt_design"
+  | "gantt_construction"
   | "consultants"
   | "fee_table"
   | "construction_fee"

@@ -8951,6 +8951,8 @@ export type Database = {
         | "acceptance"
         | "custom_text"
         | "page_break"
+        | "gantt_design"
+        | "gantt_construction"
       psa_contract_relevance:
         | "proposal_only"
         | "contract_relevant"
@@ -9338,6 +9340,8 @@ export const Constants = {
         "acceptance",
         "custom_text",
         "page_break",
+        "gantt_design",
+        "gantt_construction",
       ],
       psa_contract_relevance: [
         "proposal_only",
