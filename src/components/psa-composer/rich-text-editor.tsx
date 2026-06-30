@@ -69,7 +69,13 @@ function ToolbarButton({
   );
 }
 
-function Toolbar({ editor }: { editor: Editor }) {
+function Toolbar({
+  editor,
+  tokenEntries,
+}: {
+  editor: Editor;
+  tokenEntries?: TokenCatalogEntry[];
+}) {
   return (
     <div className="flex flex-wrap items-center gap-0.5 rounded-t-md border border-b-0 bg-zinc-50 px-1 py-1">
       <ToolbarButton
