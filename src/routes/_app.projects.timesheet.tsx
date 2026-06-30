@@ -303,7 +303,24 @@ function TimesheetPage() {
               Log time per project stage, internal cost center, or non-working time.
             </p>
           </div>
-          <div className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1.5">
+          <div className="flex flex-wrap items-center gap-2">
+            {isRealAdmin && (
+              <CollaboratorViewPicker
+                selectedCollaboratorId={viewedCollaboratorId ?? selfProfile?.collaborator_id ?? null}
+                selfCollaboratorId={selfProfile?.collaborator_id ?? null}
+                onChange={(id) => {
+                  setViewedCollaboratorId(id);
+                  setExtraTaskIds([]);
+                }}
+              />
+            )}
+            {readOnly && (
+              <span className="rounded-full border border-amber-400/40 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                Read-only · viewing another collaborator
+              </span>
+            )}
+          </div>
+
             <Button
               size="icon"
               variant="ghost"
