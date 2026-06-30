@@ -39,19 +39,33 @@ function hasRichContent(html?: string, text?: string) {
   return false;
 }
 
-function RichContent({ html, text }: { html?: string; text?: string }) {
+function RichContent({
+  html,
+  text,
+  tokenMap,
+}: {
+  html?: string;
+  text?: string;
+  tokenMap?: Record<string, string>;
+}) {
   if (html && html.trim() && html !== "<p></p>" && html !== "<p><br></p>") {
+    const resolved = tokenMap ? resolveTokens(html, tokenMap).output : html;
     return (
       <div
         className="psa-rich text-sm leading-relaxed text-zinc-800 [&_h2]:proposal-print-heading [&_h3]:proposal-print-heading [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_p]:mb-2 [&_ul]:mb-2 [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:mb-2 [&_ol]:ml-5 [&_ol]:list-decimal [&_li]:mb-0.5 [&_a]:text-blue-700 [&_a]:underline [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-zinc-300 [&_th]:bg-zinc-50 [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_td]:border [&_td]:border-zinc-300 [&_td]:px-2 [&_td]:py-1"
-        dangerouslySetInnerHTML={{ __html: html }}
+        dangerouslySetInnerHTML={{ __html: resolved }}
       />
     );
   }
   if (text && text.trim()) {
+    const resolved = tokenMap
+      ? text.replace(/\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/g, (_, k) =>
+          Object.prototype.hasOwnProperty.call(tokenMap, k) ? tokenMap[k] : `{{${k}}}`,
+        )
+      : text;
     return (
       <>
-        {text.split("\n\n").map((para, i) => (
+        {resolved.split("\n\n").map((para, i) => (
           <P key={i}>{para}</P>
         ))}
       </>
