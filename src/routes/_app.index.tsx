@@ -26,6 +26,7 @@ import {
   Quote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BirthdayFireworks } from "@/components/BirthdayFireworks";
 import type { PermissionKey } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_app/")({
