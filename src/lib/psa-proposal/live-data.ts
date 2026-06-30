@@ -166,15 +166,18 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
         stages: (stages ?? []).map((s: any) => {
           const start = s.start_date ? new Date(s.start_date) : null;
           const end = s.end_date ? new Date(s.end_date) : null;
-          const days =
-            start && end
-              ? Math.max(
-                  1,
-                  Math.round(
-                    (end.getTime() - start.getTime()) / 86400000,
-                  ) + 1,
-                )
-              : null;
+          // Working days (Mon–Fri) inclusive — matches the planner Gantt label.
+          let days: number | null = null;
+          if (start && end) {
+            let count = 0;
+            const cur = new Date(start);
+            while (cur <= end) {
+              const d = cur.getDay();
+              if (d !== 0 && d !== 6) count++;
+              cur.setDate(cur.getDate() + 1);
+            }
+            days = Math.max(1, count);
+          }
           return {
             id: s.id,
             name: s.name,
@@ -232,4 +235,22 @@ export function formatDatePT(d: string | null | undefined): string {
   } catch {
     return d;
   }
+}
+
+/**
+ * Format a working-day duration adaptively:
+ *  - <7 days  → "N dia(s)"
+ *  - <20 days (≈ <4 weeks) → "N semana(s)" (5 working days per week)
+ *  - otherwise → "N mês/meses" (≈ 20 working days per month)
+ */
+export function formatDurationAdaptive(days: number | null | undefined): string {
+  if (days == null || !Number.isFinite(days)) return "—";
+  const d = Math.max(1, Math.round(days));
+  if (d < 7) return `${d} ${d === 1 ? "dia" : "dias"}`;
+  if (d < 20) {
+    const w = Math.max(1, Math.round(d / 5));
+    return `${w} ${w === 1 ? "semana" : "semanas"}`;
+  }
+  const m = Math.max(1, Math.round(d / 20));
+  return `${m} ${m === 1 ? "mês" : "meses"}`;
 }
