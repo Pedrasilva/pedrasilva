@@ -166,6 +166,7 @@ export function ComposerCanvas({
   if (styleSettings?.headingWeight) (styleVars as Record<string, string>)["--psa-heading-weight"] = String(styleSettings.headingWeight);
   if (styleSettings?.bodyAlign) (styleVars as Record<string, string>)["--psa-body-align"] = styleSettings.bodyAlign;
   if (styleSettings?.bodySize) (styleVars as Record<string, string>)["--psa-body-size"] = `${styleSettings.bodySize}pt`;
+  if (styleSettings?.headingScale) (styleVars as Record<string, string>)["--psa-heading-scale"] = String(styleSettings.headingScale);
 
   return (
     <div className="print-area">

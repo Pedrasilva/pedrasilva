@@ -72,6 +72,7 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
   }
 
   const bodySize = s.bodySize ?? 10.5;
+  const headingScale = s.headingScale ?? 1;
 
   return (
     <div className="flex flex-col gap-3">
@@ -172,6 +173,23 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
           onValueChange={([v]) => patch({ bodySize: v })}
         />
       </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">
+          Tamanho dos títulos ({Math.round(headingScale * 100)}%)
+        </Label>
+        <Slider
+          min={0.7}
+          max={1.6}
+          step={0.05}
+          value={[headingScale]}
+          onValueChange={([v]) => patch({ headingScale: v })}
+        />
+        <p className="text-[10px] text-zinc-500">
+          Escala H1/H2/H3 em conjunto. 100% = predefinição.
+        </p>
+      </div>
+
 
       <div className="pt-2">
         <Button
