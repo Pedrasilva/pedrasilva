@@ -277,8 +277,12 @@ export function BlockBody({
       }
       const deliverables = ((block.content_rich?.deliverables as string | undefined) ?? "")
         .split("\n").map((l) => l.trim()).filter(Boolean);
-      const clientInfo = ((block.content_rich?.client_info as string | undefined) ?? "")
-        .split("\n").map((l) => l.trim()).filter(Boolean);
+      const clientInfoVisible =
+        (block.content_rich?.client_info_visible as boolean | undefined) ?? true;
+      const clientInfo = clientInfoVisible
+        ? ((block.content_rich?.client_info as string | undefined) ?? "")
+            .split("\n").map((l) => l.trim()).filter(Boolean)
+        : [];
       return (
         <div className="proposal-avoid-break">
           <H>{num}{stage.code ? `${stage.code} — ` : ""}{stage.name}</H>
