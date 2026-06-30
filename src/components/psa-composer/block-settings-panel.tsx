@@ -34,6 +34,7 @@ import {
 import { RelevanceBadge } from "./relevance-badge";
 import { RichTextEditor } from "./rich-text-editor";
 import { useLiveQuoteSnapshot } from "@/lib/psa-proposal/live-data";
+import { buildTokenPickerEntries } from "@/lib/psa-proposal/tokens";
 import { ProposalStylePanel } from "./proposal-style-panel";
 import type { PsaProposal } from "@/lib/psa-proposal/types";
 
