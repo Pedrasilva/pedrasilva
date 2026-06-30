@@ -581,40 +581,27 @@ function QuoteCategoryChooserDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {step === 1 ? (
-          <div className="grid gap-2 sm:grid-cols-3">
-            {cards.map(({ value, icon: Icon }) => (
-              <button
-                key={value}
-                type="button"
-                disabled={isPending}
-                onClick={() => { setCategory(value); setStep(2); }}
-                className="flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors hover:bg-muted/50 hover:border-primary/40 disabled:opacity-50"
-              >
-                <div className="flex items-center gap-2">
-                  <Icon className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-semibold">
-                    {t(`quotes.newQuoteDialog.category.${value}.title`)}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {t(`quotes.newQuoteDialog.category.${value}.hint`)}
-                </p>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div className="grid gap-3">
-            <Label>{t("templates.picker.label")}</Label>
-            <div className="max-h-72 overflow-y-auto">
-              <QuoteTemplatePicker
-                category={category}
-                value={templateId}
-                onChange={setTemplateId}
-              />
-            </div>
-          </div>
-        )}
+        <div className="grid gap-2 sm:grid-cols-3">
+          {cards.map(({ value, icon: Icon }) => (
+            <button
+              key={value}
+              type="button"
+              disabled={isPending}
+              onClick={() => onPick(value, null)}
+              className="flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors hover:bg-muted/50 hover:border-primary/40 disabled:opacity-50"
+            >
+              <div className="flex items-center gap-2">
+                <Icon className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold">
+                  {t(`quotes.newQuoteDialog.category.${value}.title`)}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t(`quotes.newQuoteDialog.category.${value}.hint`)}
+              </p>
+            </button>
+          ))}
+        </div>
 
         <DialogFooter>
           {step === 2 && (
