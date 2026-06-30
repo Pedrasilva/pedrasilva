@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { useBlockLibrary, useAddLibraryBlock } from "@/lib/psa-proposal/use-psa-proposal";
+import { useLiveQuoteSnapshot } from "@/lib/psa-proposal/live-data";
 import { RelevanceBadge } from "./relevance-badge";
 import type { PsaProposalBlock, PsaLibraryEntry } from "@/lib/psa-proposal/types";
 
