@@ -11,11 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
 import {
-  Popover as PickerPopover,
-  PopoverContent as PickerPopoverContent,
-  PopoverTrigger as PickerPopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Command,
   CommandEmpty,
   CommandGroup,
