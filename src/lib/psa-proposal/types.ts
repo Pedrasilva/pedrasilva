@@ -53,7 +53,8 @@ export interface PsaProposalStyleSettings {
   bodyFont?: string;
   headingWeight?: number;
   bodyAlign?: "left" | "justify" | "center" | "right";
-  bodySize?: number; // in pt
+  bodySize?: number; // body text in pt
+  headingScale?: number; // multiplier for heading sizes (1 = default)
 }
 
 export interface PsaProposal {
