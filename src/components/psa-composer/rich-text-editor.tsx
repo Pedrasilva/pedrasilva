@@ -158,6 +158,58 @@ function Toolbar({
       >
         <TableIcon className="h-3.5 w-3.5" />
       </ToolbarButton>
+      {tokenEntries && tokenEntries.length > 0 ? (
+        <>
+          <div className="mx-1 h-4 w-px bg-zinc-300" />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                title="Inserir dado do orçamento"
+                onMouseDown={(e) => e.preventDefault()}
+                className="flex items-center gap-1 rounded p-1 text-zinc-600 hover:bg-zinc-200"
+              >
+                <Database className="h-3.5 w-3.5" />
+                <span className="text-[11px]">Inserir do orçamento</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="max-h-80 w-72 overflow-y-auto">
+              {(["Projecto", "Cliente", "Totais", "Programa", "Fases"] as const).map(
+                (group) => {
+                  const items = tokenEntries.filter((e) => e.group === group);
+                  if (!items.length) return null;
+                  return (
+                    <div key={group}>
+                      <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-zinc-500">
+                        {group}
+                      </DropdownMenuLabel>
+                      {items.map((entry) => (
+                        <DropdownMenuItem
+                          key={entry.token}
+                          onSelect={() => {
+                            editor
+                              .chain()
+                              .focus()
+                              .insertContent(`{{${entry.token}}}`)
+                              .run();
+                          }}
+                          className="text-xs"
+                        >
+                          <span className="flex-1 truncate">{entry.label}</span>
+                          <code className="ml-2 rounded bg-zinc-100 px-1 text-[10px] text-zinc-600">
+                            {entry.token}
+                          </code>
+                        </DropdownMenuItem>
+                      ))}
+                      <DropdownMenuSeparator />
+                    </div>
+                  );
+                },
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </>
+      ) : null}
     </div>
   );
 }
