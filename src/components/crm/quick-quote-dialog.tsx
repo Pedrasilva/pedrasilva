@@ -91,20 +91,12 @@ export function QuickQuoteDialog({
       if (error) throw error;
       return data;
     },
-    onSuccess: async (data) => {
-      if (templateId) {
-        try {
-          await instantiate.mutateAsync({ quoteId: data.id, templateId });
-        } catch (e) {
-          toast.error((e as Error).message);
-        }
-      }
+    onSuccess: (data) => {
       toast.success(t("crm:quotes.newQuoteDialog.createdToast"));
       qc.invalidateQueries({ queryKey: ["crm_opportunities"] });
       qc.invalidateQueries({ queryKey: ["fee_proposals_by_opp", selected?.id] });
       setOpportunityId("");
       setCategory("project");
-      setTemplateId(null);
       onClose();
       navigate({ to: "/crm/quotes/$quoteId", params: { quoteId: data.id } });
     },
