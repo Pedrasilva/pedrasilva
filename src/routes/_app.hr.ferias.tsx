@@ -254,24 +254,44 @@ function FeriasPage() {
     mutationFn: async () => {
       const collab_id = isAdmin && newReq.collaborator_id ? newReq.collaborator_id : myCollab?.id;
       if (!collab_id) throw new Error("Sem colaborador associado à sua conta");
-      if (!newReq.data_inicio || !newReq.data_fim) throw new Error("Indique as datas");
+      if (!newReq.data_inicio) throw new Error("Indique a data");
+      // Para período parcial (meio-dia ou horas) usamos um único dia.
+      const isFullDay = newReq.periodo === "dia_inteiro";
+      const dataFim = isFullDay ? (newReq.data_fim || newReq.data_inicio) : newReq.data_inicio;
+      if (isFullDay && !newReq.data_fim) throw new Error("Indique as datas");
       if (dias <= 0) throw new Error("Período inválido");
+      const horasNum =
+        newReq.periodo === "horas"
+          ? parseFloat(newReq.horas)
+          : newReq.periodo === "manha" || newReq.periodo === "tarde"
+            ? 4
+            : null;
       const { error } = await supabase.from("vacation_requests").insert({
         collaborator_id: collab_id,
         tipo: newReq.tipo,
         data_inicio: newReq.data_inicio,
-        data_fim: newReq.data_fim,
+        data_fim: dataFim,
         dias_uteis: dias,
+        periodo: newReq.periodo,
+        horas: horasNum,
         notas: newReq.notas || null,
         estado: "pendente",
-      });
+      } as never);
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Pedido criado");
       qc.invalidateQueries({ queryKey: ["vacation_requests"] });
       setNewOpen(false);
-      setNewReq({ collaborator_id: "", tipo: "ferias", data_inicio: "", data_fim: "", notas: "" });
+      setNewReq({
+        collaborator_id: "",
+        tipo: "ferias",
+        periodo: "dia_inteiro",
+        data_inicio: "",
+        data_fim: "",
+        horas: "",
+        notas: "",
+      });
     },
     onError: (e: Error) => toast.error(e.message),
   });
