@@ -23,7 +23,8 @@ import type {
 } from "@/lib/psa-proposal/types";
 
 const HEADING_FONTS = [
-  { label: "Inter (sans, default)", value: '"Inter", "Helvetica Neue", Arial, sans-serif' },
+  { label: "The Future (Pedra Silva)", value: '"The Future", "Inter", "Helvetica Neue", Arial, sans-serif' },
+  { label: "Inter (sans)", value: '"Inter", "Helvetica Neue", Arial, sans-serif' },
   { label: "Manrope (sans)", value: '"Manrope", ui-sans-serif, system-ui, sans-serif' },
   { label: "Fraunces (display serif)", value: '"Fraunces", Georgia, serif' },
   { label: "Source Serif (serif)", value: '"Source Serif 4", Georgia, serif' },
@@ -31,12 +32,22 @@ const HEADING_FONTS = [
 ];
 
 const BODY_FONTS = [
-  { label: "Source Serif (default)", value: '"Source Serif 4", "EB Garamond", Georgia, serif' },
+  { label: "Signifier (Pedra Silva)", value: '"Signifier", "Source Serif 4", Georgia, serif' },
+  { label: "Source Serif (serif)", value: '"Source Serif 4", "EB Garamond", Georgia, serif' },
   { label: "EB Garamond (classic serif)", value: '"EB Garamond", Georgia, serif' },
   { label: "Fraunces (display serif)", value: '"Fraunces", Georgia, serif' },
   { label: "Inter (sans)", value: '"Inter", "Helvetica Neue", Arial, sans-serif' },
   { label: "Manrope (sans)", value: '"Manrope", ui-sans-serif, system-ui, sans-serif' },
 ];
+
+const PSA_BRAND_PRESET: PsaProposalStyleSettings = {
+  headingFont: '"The Future", "Inter", "Helvetica Neue", Arial, sans-serif',
+  bodyFont: '"Signifier", "Source Serif 4", Georgia, serif',
+  headingWeight: 700,
+  bodyAlign: "justify",
+  bodySize: 10.5,
+};
+
 
 const WEIGHTS = [
   { label: "Regular (400)", value: 400 },
@@ -71,6 +82,25 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
         Aplica-se a todos os blocos. Os títulos usam o tipo de letra de heading;
         os parágrafos usam o tipo de letra de body.
       </p>
+
+      <div className="rounded-md border border-zinc-300 bg-zinc-50 p-2 space-y-1.5">
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-700">
+          Predefinição
+        </div>
+        <Button
+          variant="default"
+          size="sm"
+          className="w-full"
+          onClick={() => update.mutate({ style_settings: PSA_BRAND_PRESET } as Partial<PsaProposal>)}
+        >
+          Aplicar marca Pedra Silva
+        </Button>
+        <p className="text-[10px] text-zinc-500 leading-snug">
+          The Future (títulos) + Signifier (texto), conforme manual gráfico.
+        </p>
+      </div>
+
+
 
       <div className="space-y-1">
         <Label className="text-xs">Tipo de letra — Títulos</Label>
