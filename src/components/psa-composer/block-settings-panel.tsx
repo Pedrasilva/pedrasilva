@@ -5,7 +5,7 @@
  * contract_relevance, visibility, lock, per-block page-break-before, plus
  * stage selection for the Individual Stage block and a deliverables list.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Copy, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
