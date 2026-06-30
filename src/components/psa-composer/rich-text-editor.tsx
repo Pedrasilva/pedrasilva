@@ -26,7 +26,17 @@ import {
   ListOrdered,
   Link2,
   Table as TableIcon,
+  Database,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import type { TokenCatalogEntry } from "@/lib/psa-proposal/tokens";
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
