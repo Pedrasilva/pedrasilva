@@ -359,6 +359,153 @@ export function BlockBody({
         </div>
       );
 
+    case "gantt_design":
+    case "gantt_construction": {
+      const scope: "design" | "construction" =
+        block.block_type === "gantt_design" ? "design" : "construction";
+      const designRe = /\b(design|projeto|projecto)\b/i;
+      const constructionRe = /(constru[cç][aã]o|obra|construction|tender|concurso|execu[cç][aã]o)/i;
+      const re = scope === "design" ? designRe : constructionRe;
+      const overrideId = (block.source_ref as { parent_stage_id?: string } | undefined)?.parent_stage_id;
+      const allStages = (live?.stages ?? []).filter((s) => s.isSelf);
+      const roots = allStages.filter((s) => !s.parentStageId);
+      const parent =
+        (overrideId && allStages.find((s) => s.id === overrideId)) ||
+        roots.find((s) => re.test(s.name) || re.test(s.code ?? "")) ||
+        null;
+
+      // Collect all descendants of the matched parent (depth-first).
+      const collectDescendants = (parentId: string): LiveStage[] => {
+        const direct = allStages.filter((s) => s.parentStageId === parentId);
+        const out: LiveStage[] = [];
+        for (const s of direct) {
+          out.push(s);
+          out.push(...collectDescendants(s.id));
+        }
+        return out;
+      };
+      const rows = (parent ? collectDescendants(parent.id) : [])
+        .filter((s) => !s.isMilestone && s.startDate && s.endDate);
+
+      if (!parent || !rows.length) {
+        return (
+          <div>
+            <H>{num}{block.title}</H>
+            <Empty>
+              {scope === "design"
+                ? "Sem fases de projeto com datas definidas."
+                : "Sem fases de obra com datas definidas."}
+            </Empty>
+          </div>
+        );
+      }
+
+      const tsList = rows.flatMap((s) => [
+        new Date(s.startDate!).getTime(),
+        new Date(s.endDate!).getTime(),
+      ]);
+      const minTs = Math.min(...tsList);
+      const maxTs = Math.max(...tsList);
+      const start = new Date(minTs);
+      const end = new Date(maxTs);
+      // Snap header to month boundaries.
+      const headStart = new Date(start.getFullYear(), start.getMonth(), 1);
+      const headEnd = new Date(end.getFullYear(), end.getMonth() + 1, 1);
+      const span = headEnd.getTime() - headStart.getTime();
+
+      const months: { label: string; left: number; width: number }[] = [];
+      const cursor = new Date(headStart);
+      while (cursor < headEnd) {
+        const next = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+        const left = ((cursor.getTime() - headStart.getTime()) / span) * 100;
+        const width = ((next.getTime() - cursor.getTime()) / span) * 100;
+        months.push({
+          label: cursor.toLocaleDateString("pt-PT", { month: "short" }).replace(".", ""),
+          left,
+          width,
+        });
+        cursor.setMonth(cursor.getMonth() + 1);
+      }
+
+      const totalDays = Math.round(
+        (new Date(maxTs).getTime() - new Date(minTs).getTime()) / 86400000,
+      );
+
+      return (
+        <div className="proposal-avoid-break">
+          <H>{num}{block.title}</H>
+          <div className="mb-2 text-xs text-zinc-500">
+            {parent.code ? `${parent.code} — ` : ""}{parent.name} ·{" "}
+            {formatDatePT(start.toISOString())} → {formatDatePT(end.toISOString())} ·{" "}
+            {totalDays} dias
+          </div>
+          <div className="overflow-hidden rounded border border-zinc-200">
+            <table className="w-full border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-zinc-200 bg-zinc-50">
+                  <th className="w-[34%] px-2 py-1 text-left font-medium text-zinc-600">
+                    Fase
+                  </th>
+                  <th className="px-0 py-1">
+                    <div className="relative h-4 w-full">
+                      {months.map((m, i) => (
+                        <div
+                          key={i}
+                          className="absolute top-0 flex h-4 items-center justify-center border-l border-zinc-200 text-[10px] uppercase tracking-wide text-zinc-500"
+                          style={{ left: `${m.left}%`, width: `${m.width}%` }}
+                        >
+                          {m.label}
+                        </div>
+                      ))}
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((s) => {
+                  const sStart = new Date(s.startDate!).getTime();
+                  const sEnd = new Date(s.endDate!).getTime();
+                  const left = ((sStart - headStart.getTime()) / span) * 100;
+                  const width = Math.max(
+                    0.8,
+                    ((sEnd - sStart) / span) * 100,
+                  );
+                  return (
+                    <tr key={s.id} className="border-b border-zinc-100 last:border-0">
+                      <td className="px-2 py-1.5 align-middle text-zinc-800">
+                        <div className="truncate">
+                          {s.code ? <span className="text-zinc-500">{s.code} — </span> : null}
+                          {s.name}
+                        </div>
+                      </td>
+                      <td className="px-0 py-1.5">
+                        <div className="relative h-4 w-full">
+                          {months.map((m, i) => (
+                            <div
+                              key={i}
+                              className="absolute top-0 h-4 border-l border-zinc-100"
+                              style={{ left: `${m.left}%`, width: `${m.width}%` }}
+                            />
+                          ))}
+                          <div
+                            className="absolute top-1 h-2 rounded-sm bg-zinc-800 print:bg-zinc-700"
+                            style={{ left: `${left}%`, width: `${width}%` }}
+                            title={`${formatDatePT(s.startDate)} → ${formatDatePT(s.endDate)}`}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+
+
+
     case "consultants":
       return (
         <div>
