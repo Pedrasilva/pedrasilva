@@ -6586,6 +6586,44 @@ export type Database = {
           },
         ]
       }
+      psa_proposal_snapshots: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string | null
+          proposal_id: string
+          reason: string | null
+          snapshot: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          proposal_id: string
+          reason?: string | null
+          snapshot: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          proposal_id?: string
+          reason?: string | null
+          snapshot?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "psa_proposal_snapshots_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "psa_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       psa_proposals: {
         Row: {
           client_snapshot: Json
