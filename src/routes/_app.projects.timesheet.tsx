@@ -2,11 +2,28 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { addDays, addWeeks, format, startOfWeek } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/projects/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
+import {
+  Popover as PickerPopover,
+  PopoverContent as PickerPopoverContent,
+  PopoverTrigger as PickerPopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Check, ChevronsUpDown, Eye } from "lucide-react";
 import {
   useTimesheetRows,
   useTimesheetEntries,
