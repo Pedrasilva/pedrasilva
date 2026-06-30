@@ -323,44 +323,6 @@ export function BlockBody({
         </div>
       );
     }
-      return (
-        <div className="proposal-avoid-break">
-          <H>{num}{stage.code ? `${stage.code} — ` : ""}{stage.name}</H>
-          {stage.description && <P>{stage.description}</P>}
-          {richHas && rich}
-          <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Duração</dt>
-              <dd className="font-medium text-zinc-900">
-                {stage.durationDays != null ? `${stage.durationDays} dias` : "—"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Honorários</dt>
-              <dd className="font-medium text-zinc-900">{formatCurrencyEUR(stage.fee)}</dd>
-            </div>
-          </dl>
-          {(() => {
-            const deliverables =
-              (block.content_rich?.deliverables as string | undefined) ?? "";
-            const items = deliverables.split("\n").map((l) => l.trim()).filter(Boolean);
-            if (!items.length) return null;
-            return (
-              <div className="mt-3">
-                <div className="mb-1 text-[10px] uppercase tracking-wide text-zinc-500">
-                  Entregáveis
-                </div>
-                <ul className="ml-5 list-disc space-y-0.5 text-sm text-zinc-800">
-                  {items.map((d, i) => (
-                    <li key={i}>{d}</li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })()}
-        </div>
-      );
-    }
 
     case "timeline":
       return (
