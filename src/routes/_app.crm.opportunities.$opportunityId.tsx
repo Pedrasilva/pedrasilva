@@ -27,7 +27,7 @@ import {
   type QuoteType, type QuoteCategory, type Contact, contactFullName,
 } from "@/lib/crm/types";
 import { Briefcase, Clock, Repeat2 } from "lucide-react";
-import { QuoteTemplatePicker } from "@/components/quotes/quote-template-picker";
+
 import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";
 
 export const Route = createFileRoute("/_app/crm/opportunities/$opportunityId")({
@@ -689,17 +689,8 @@ function NewQuoteDialog({
           </div>
         ) : (
           <div className="grid gap-4">
-            {/* Frame 2 — Template, then quote details */}
-            <div>
-              <Label>{t("templates.picker.label")}</Label>
-              <div className="mt-1 max-h-72 overflow-y-auto">
-                <QuoteTemplatePicker
-                  category={form.quote_category}
-                  value={templateId}
-                  onChange={setTemplateId}
-                />
-              </div>
-            </div>
+            {/* Frame 2 — Quote details */}
+
 
             <div>
               <Label>{t("common.title")} *</Label>

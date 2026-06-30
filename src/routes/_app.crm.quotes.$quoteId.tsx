@@ -34,8 +34,7 @@ import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
 import { QuoteExternalServicesTab } from "@/components/quotes/quote-external-services-tab";
 import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
 import { QuoteFinancialSummaryTab, ArchitectureFinancialBreakdown } from "@/components/quotes/quote-financial-summary-tab";
-import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
-import { ApplyTemplateDialog } from "@/components/quotes/apply-template-dialog";
+import { QuoteProposalComposerEmbed } from "@/components/quotes/quote-proposal-composer-embed";
 import { QuoteTimeBasedSettingsTab } from "@/components/quotes/quote-time-based-settings-tab";
 import { QuoteFeeCalculatorCard } from "@/components/quotes/quote-fee-calculator-card";
 import { QuoteOntologyBootstrapCard } from "@/components/quotes/quote-ontology-bootstrap-card";
@@ -1152,23 +1151,10 @@ function QuoteDetail() {
         <TabsContent value="financial" className="mt-4">
           <QuoteFinancialSummaryTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
         </TabsContent>
-        <TabsContent value="proposal" className="mt-4 space-y-3">
-          <div className="flex justify-end">
-            <ApplyTemplateDialog
-              quoteId={quoteId}
-              category={quote.quote_category ?? "project"}
-            />
-          </div>
-          <QuoteProposalTab
+        <TabsContent value="proposal" className="mt-4">
+          <QuoteProposalComposerEmbed
             quoteId={quoteId}
-            pricingMultiplier={pricingMultiplier}
-            title={form.titulo || quote.titulo}
-            description={form.proposal_description || quote.proposal_description || quote.notas}
-            clientName={quote.company?.nome ?? null}
-            accountName={quote.account?.name ?? null}
-            quoteType={quote.quote_type ?? "standard_project"}
-            quoteCategory={quote.quote_category}
-            ontologyFamilyCode={(quote as unknown as { ontology_family_code?: string | null }).ontology_family_code ?? null}
+            quoteTitle={form.titulo || quote.titulo}
           />
         </TabsContent>
       </Tabs>
