@@ -1705,7 +1705,7 @@ export function GanttChart({
             const p = stageLayouts.get(d.predecessor_id)!;
             const s = stageLayouts.get(d.successor_id)!;
             const fromX = d.type === "FS" || d.type === "FF" ? p.x + p.w : p.x;
-            const toX = d.type === "FS" || d.type === "SF" ? s.x : s.x + s.w;
+            const toX = d.type === "FS" || d.type === "SS" ? s.x : s.x + s.w;
             const fromY = p.anchorY;
             const toY = s.anchorY;
             // Exit predecessor on its anchor side; approach successor on its
@@ -1713,7 +1713,7 @@ export function GanttChart({
             // thus the arrowhead orientation) is always correct, even when
             // the source and target overlap horizontally.
             const exitX = d.type === "FS" || d.type === "FF" ? fromX + 12 : fromX - 12;
-            const approachX = d.type === "FS" || d.type === "SF" ? toX - 12 : toX + 12;
+            const approachX = d.type === "FS" || d.type === "SS" ? toX - 12 : toX + 12;
             const midY = (fromY + toY) / 2;
             const path = `M ${fromX} ${fromY} L ${exitX} ${fromY} L ${exitX} ${midY} L ${approachX} ${midY} L ${approachX} ${toY} L ${toX} ${toY}`;
             const strokeColor =
