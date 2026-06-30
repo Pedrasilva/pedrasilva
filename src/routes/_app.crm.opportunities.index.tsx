@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Target, LayoutGrid, List, FileText, ArrowRight, Briefcase, Clock, Repeat2, MoreVertical, Archive, Trash2, ExternalLink } from "lucide-react";
-import { QuoteTemplatePicker } from "@/components/quotes/quote-template-picker";
+
 import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";
 import { CompanyPicker } from "@/components/crm/company-picker";
 import {
