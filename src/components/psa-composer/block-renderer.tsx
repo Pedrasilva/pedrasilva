@@ -275,12 +275,40 @@ export function BlockBody({
           </div>
         );
       }
+      const deliverables = ((block.content_rich?.deliverables as string | undefined) ?? "")
+        .split("\n").map((l) => l.trim()).filter(Boolean);
+      const clientInfo = ((block.content_rich?.client_info as string | undefined) ?? "")
+        .split("\n").map((l) => l.trim()).filter(Boolean);
       return (
         <div className="proposal-avoid-break">
           <H>{num}{stage.code ? `${stage.code} — ` : ""}{stage.name}</H>
           {stage.description && <P>{stage.description}</P>}
-          {richHas && rich}
-          <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
+          {richHas && <div className="mb-3">{rich}</div>}
+          {deliverables.length > 0 && (
+            <div className="mt-3">
+              <div className="mb-1 text-[10px] uppercase tracking-wide text-zinc-500">
+                Âmbito e entregáveis
+              </div>
+              <ul className="ml-5 list-disc space-y-0.5 text-sm text-zinc-800">
+                {deliverables.map((d, i) => (
+                  <li key={i}>{d}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {clientInfo.length > 0 && (
+            <div className="mt-3">
+              <div className="mb-1 text-[10px] uppercase tracking-wide text-zinc-500">
+                Informação necessária do cliente
+              </div>
+              <ul className="ml-5 list-disc space-y-0.5 text-sm text-zinc-800">
+                {clientInfo.map((d, i) => (
+                  <li key={i}>{d}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
             <div>
               <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Duração</dt>
               <dd className="font-medium text-zinc-900">
@@ -292,24 +320,6 @@ export function BlockBody({
               <dd className="font-medium text-zinc-900">{formatCurrencyEUR(stage.fee)}</dd>
             </div>
           </dl>
-          {(() => {
-            const deliverables =
-              (block.content_rich?.deliverables as string | undefined) ?? "";
-            const items = deliverables.split("\n").map((l) => l.trim()).filter(Boolean);
-            if (!items.length) return null;
-            return (
-              <div className="mt-3">
-                <div className="mb-1 text-[10px] uppercase tracking-wide text-zinc-500">
-                  Entregáveis
-                </div>
-                <ul className="ml-5 list-disc space-y-0.5 text-sm text-zinc-800">
-                  {items.map((d, i) => (
-                    <li key={i}>{d}</li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })()}
         </div>
       );
     }

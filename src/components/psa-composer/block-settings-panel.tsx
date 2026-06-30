@@ -99,7 +99,8 @@ export function BlockSettingsPanel({
   const supportsRich =
     block.source_type === "manual" ||
     block.source_type === "library" ||
-    block.source_type === "mixed";
+    block.source_type === "mixed" ||
+    block.block_type === "stage_item";
 
   return (
     <aside className="flex h-full w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l bg-muted/30 p-3 text-sm xl:w-80">
@@ -209,6 +210,25 @@ export function BlockSettingsPanel({
                 })
               }
               placeholder="Memória descritiva&#10;Planos cotados&#10;Cortes e alçados"
+            />
+          </div>
+          <div className="pt-2">
+            <Label className="text-xs">Informação necessária do cliente (uma por linha)</Label>
+            <Textarea
+              rows={4}
+              value={(block.content_rich?.client_info as string | undefined) ?? ""}
+              onChange={(e) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    content_rich: {
+                      ...(block.content_rich ?? {}),
+                      client_info: e.target.value,
+                    },
+                  },
+                })
+              }
+              placeholder="Levantamento topográfico&#10;Indicações de orçamento&#10;Desenhos existentes&#10;Objetivos do projeto"
             />
           </div>
         </div>
