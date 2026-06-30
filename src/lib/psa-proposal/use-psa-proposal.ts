@@ -198,19 +198,24 @@ export function useDuplicateBlock(proposalId: string | undefined) {
 export function useAddLibraryBlock(proposalId: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (args: { lib: PsaLibraryEntry; afterOrder: number }) => {
+    mutationFn: async (args: { lib: PsaLibraryEntry; afterOrder: number }): Promise<{ id: string }> => {
       if (!proposalId) throw new Error("No proposal id");
-      const { error } = await sb.from("psa_proposal_blocks").insert({
-        proposal_id: proposalId,
-        sort_order: args.afterOrder + 5,
-        block_type: args.lib.kind,
-        title: args.lib.default_title,
-        source_type: args.lib.default_source_type,
-        source_ref: args.lib.default_source_ref,
-        content_rich: args.lib.default_content_rich,
-        contract_relevance: args.lib.default_contract_relevance,
-      });
+      const { data, error } = await sb
+        .from("psa_proposal_blocks")
+        .insert({
+          proposal_id: proposalId,
+          sort_order: args.afterOrder + 5,
+          block_type: args.lib.kind,
+          title: args.lib.default_title,
+          source_type: args.lib.default_source_type,
+          source_ref: args.lib.default_source_ref,
+          content_rich: args.lib.default_content_rich,
+          contract_relevance: args.lib.default_contract_relevance,
+        })
+        .select("id")
+        .single();
       if (error) throw error;
+      return data as { id: string };
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["psa-proposal-blocks", proposalId] });

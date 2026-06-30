@@ -78,6 +78,7 @@ function SortableRow({
     <div
       ref={setNodeRef}
       style={style}
+      data-proposal-block-id={block.id}
       onClick={onSelect}
       className={cn(
         "proposal-print-block group relative mb-4 rounded-md transition print:mb-0 print:rounded-none",

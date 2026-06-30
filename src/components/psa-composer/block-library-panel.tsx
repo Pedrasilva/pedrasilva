@@ -8,9 +8,10 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 import { useBlockLibrary, useAddLibraryBlock } from "@/lib/psa-proposal/use-psa-proposal";
 import { RelevanceBadge } from "./relevance-badge";
-import type { PsaProposalBlock } from "@/lib/psa-proposal/types";
+import type { PsaProposalBlock, PsaLibraryEntry } from "@/lib/psa-proposal/types";
 
 export function BlockLibraryPanel({
   proposalId,
@@ -31,6 +32,28 @@ export function BlockLibraryPanel({
   const lastOrder = blocks.length
     ? Math.max(...blocks.map((b) => b.sort_order))
     : 0;
+
+  function addBlock(lib: PsaLibraryEntry) {
+    add.mutate(
+      { lib, afterOrder: lastOrder },
+      {
+        onSuccess: (res) => {
+          toast.success(`Bloco "${lib.default_title}" adicionado`);
+          // Scroll the newly inserted block into view after re-render.
+          setTimeout(() => {
+            const el = document.querySelector(
+              `[data-proposal-block-id="${res.id}"]`,
+            );
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 250);
+        },
+        onError: (e: unknown) => {
+          const msg = e instanceof Error ? e.message : "Erro ao adicionar bloco";
+          toast.error(msg);
+        },
+      },
+    );
+  }
 
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col border-r bg-muted/30 xl:w-64">
@@ -56,9 +79,7 @@ export function BlockLibraryPanel({
             <li key={l.id}>
               <button
                 type="button"
-                onClick={() =>
-                  add.mutate({ lib: l, afterOrder: lastOrder })
-                }
+                onClick={() => addBlock(l)}
                 className="group flex w-full items-center justify-between gap-2 rounded-md border bg-background px-2 py-1.5 text-left text-sm hover:border-blue-300 hover:bg-blue-50"
               >
                 <div className="min-w-0">
@@ -84,20 +105,17 @@ export function BlockLibraryPanel({
           size="sm"
           className="w-full"
           onClick={() =>
-            add.mutate({
-              lib: {
-                id: "custom",
-                kind: "custom_text",
-                label: "Texto Livre",
-                default_title: "Novo bloco",
-                default_content_rich: { text: "" },
-                default_source_type: "manual",
-                default_source_ref: {},
-                default_contract_relevance: "proposal_only",
-                sort_hint: 999,
-                is_system: false,
-              },
-              afterOrder: lastOrder,
+            addBlock({
+              id: "custom",
+              kind: "custom_text",
+              label: "Texto Livre",
+              default_title: "Novo bloco",
+              default_content_rich: { text: "" },
+              default_source_type: "manual",
+              default_source_ref: {},
+              default_contract_relevance: "proposal_only",
+              sort_hint: 999,
+              is_system: false,
             })
           }
         >
@@ -108,20 +126,17 @@ export function BlockLibraryPanel({
           size="sm"
           className="w-full"
           onClick={() =>
-            add.mutate({
-              lib: {
-                id: "page-break",
-                kind: "page_break",
-                label: "Quebra de Página",
-                default_title: "Quebra de Página",
-                default_content_rich: {},
-                default_source_type: "manual",
-                default_source_ref: {},
-                default_contract_relevance: "both",
-                sort_hint: 999,
-                is_system: false,
-              },
-              afterOrder: lastOrder,
+            addBlock({
+              id: "page-break",
+              kind: "page_break",
+              label: "Quebra de Página",
+              default_title: "Quebra de Página",
+              default_content_rich: {},
+              default_source_type: "manual",
+              default_source_ref: {},
+              default_contract_relevance: "both",
+              sort_hint: 999,
+              is_system: false,
             })
           }
         >
