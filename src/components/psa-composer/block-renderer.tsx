@@ -97,11 +97,14 @@ export function BlockBody({
   block,
   live,
   chapterNumber,
+  toc,
 }: {
   block: PsaProposalBlock;
   live: LiveQuoteSnapshot | undefined;
   chapterNumber: number | null;
+  toc?: { chapter: number; title: string }[];
 }) {
+
   const text = (block.content_rich?.text as string | undefined) ?? "";
   const html = (block.content_rich?.html as string | undefined) ?? "";
   const num = chapterNumber ? `${chapterNumber}. ` : "";
