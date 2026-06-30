@@ -79,9 +79,7 @@ export function BlockLibraryPanel({
             <li key={l.id}>
               <button
                 type="button"
-                onClick={() =>
-                  add.mutate({ lib: l, afterOrder: lastOrder })
-                }
+                onClick={() => addBlock(l)}
                 className="group flex w-full items-center justify-between gap-2 rounded-md border bg-background px-2 py-1.5 text-left text-sm hover:border-blue-300 hover:bg-blue-50"
               >
                 <div className="min-w-0">
