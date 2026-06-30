@@ -218,10 +218,12 @@ export function RichTextEditor({
   value,
   onChange,
   placeholder,
+  tokenEntries,
 }: {
   value: string;
   onChange: (next: { html: string; text: string }) => void;
   placeholder?: string;
+  tokenEntries?: TokenCatalogEntry[];
 }) {
   // Keep latest onChange in a ref so the editor instance can call the freshest
   // version without being recreated on every render.
