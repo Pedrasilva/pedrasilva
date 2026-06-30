@@ -106,7 +106,7 @@ export function useQuotePlannerAdapter(
   return {
     mode: "quote",
     dependencies: normalizedDeps,
-    defaultRates: undefined,
+    defaultRates: defaults,
     resources,
 
     updateStage: async (a) => {
