@@ -41,12 +41,14 @@ const NON_NUMBERED: PsaBlockType[] = ["cover", "index", "acceptance", "page_brea
 function SortableRow({
   block,
   chapter,
+  toc,
   selected,
   quoteIdHint,
   onSelect,
 }: {
   block: PsaProposalBlock;
   chapter: number | null;
+  toc: { chapter: number; title: string }[];
   selected: boolean;
   quoteIdHint: string | null;
   onSelect: () => void;
@@ -57,8 +59,10 @@ function SortableRow({
   const useLive =
     block.source_type === "live_quote" ||
     block.source_type === "mixed" ||
-    block.block_type === "stage_item";
+    block.block_type === "stage_item" ||
+    block.block_type === "index";
   const live = useLiveQuoteSnapshot(useLive ? refQuoteId ?? quoteIdHint : null).data;
+
 
   const style = {
     transform: CSS.Transform.toString(transform),
