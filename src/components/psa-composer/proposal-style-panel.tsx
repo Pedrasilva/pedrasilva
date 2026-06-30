@@ -193,6 +193,37 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
       </div>
 
 
+      <div className="pt-2 border-t border-zinc-200" />
+
+      <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+        Margens da página
+      </div>
+      <p className="text-[11px] text-zinc-500">
+        Controla o espaço entre o cabeçalho/rodapé e o corpo de texto.
+      </p>
+
+      <div className="space-y-1">
+        <Label className="text-xs">Margem superior ({marginTop} mm)</Label>
+        <Slider
+          min={15}
+          max={60}
+          step={1}
+          value={[marginTop]}
+          onValueChange={([v]) => patch({ marginTop: v })}
+        />
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">Margem inferior ({marginBottom} mm)</Label>
+        <Slider
+          min={15}
+          max={60}
+          step={1}
+          value={[marginBottom]}
+          onValueChange={([v]) => patch({ marginBottom: v })}
+        />
+      </div>
+
       <div className="pt-2">
         <Button
           variant="outline"
