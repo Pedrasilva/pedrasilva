@@ -131,7 +131,7 @@ export function QuickQuoteDialog({
                 <button
                   key={value}
                   type="button"
-                  onClick={() => { setCategory(value); setTemplateId(null); }}
+                  onClick={() => setCategory(value)}
                   className={`flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-colors ${
                     category === value
                       ? "border-primary bg-primary/5 ring-1 ring-primary"
@@ -181,14 +181,6 @@ export function QuickQuoteDialog({
             )}
           </div>
 
-          {/* Step 3 — optional template (filtered by chosen type) */}
-          <div>
-            <Label>{t("crm:templates.picker.label")}</Label>
-            <div className="mt-1 max-h-64 overflow-y-auto">
-              <QuoteTemplatePicker category={category} value={templateId} onChange={setTemplateId} />
-            </div>
-          </div>
-        </div>
         <DialogFooter>
           <Button variant="ghost" onClick={onClose} disabled={create.isPending}>
             {t("crm:common.cancel")}
