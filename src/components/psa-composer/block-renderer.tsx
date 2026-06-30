@@ -197,14 +197,7 @@ export function BlockBody({
         if (!s.parentStageId || !knownIds.has(s.parentStageId)) roots.push(s);
       }
       const stageLabel = (s: LiveStage) => (
-        <>
-          <span>{s.code ? `${s.code} — ` : ""}{s.name}</span>
-          {s.durationDays != null && (
-            <span className="ml-2 font-normal text-zinc-500">
-              ({formatDurationAdaptive(s.durationDays)})
-            </span>
-          )}
-        </>
+        <span>{s.code ? `${s.code} — ` : ""}{s.name}</span>
       );
 
       const renderNode = (s: LiveStage, depth: number): React.ReactNode => {
