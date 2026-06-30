@@ -551,14 +551,14 @@ function TimesheetPage() {
                       onRemove={() =>
                         setExtraTaskIds((ids) => ids.filter((x) => x !== r.task_id))
                       }
-                      pending={upsert.isPending}
+                      pending={upsert.isPending || readOnly}
                       rowTotal={rowTotalFor(projectKey(r.task_id))}
                       onCommit={(dateStr, hours, notes, billable, existingId) =>
                         upsert.mutate(
                           {
                             entry_type: "project",
                             task_id: r.task_id,
-                            user_id: user!.id,
+                            user_id: effectiveUserId!,
                             entry_date: dateStr,
                             hours,
                             notes,
@@ -593,14 +593,14 @@ function TimesheetPage() {
                       days={days}
                       entryMap={entryMap}
                       keyFn={() => internalKey(cat.name)}
-                      pending={upsert.isPending}
+                      pending={upsert.isPending || readOnly}
                       rowTotal={rowTotalFor(internalKey(cat.name))}
                       onCommit={(dateStr, hours, notes, _billable, existingId) =>
                         upsert.mutate(
                           {
                             entry_type: "internal",
                             internal_category: cat.name,
-                            user_id: user!.id,
+                            user_id: effectiveUserId!,
                             entry_date: dateStr,
                             hours,
                             notes,
@@ -637,14 +637,14 @@ function TimesheetPage() {
                       days={days}
                       entryMap={entryMap}
                       keyFn={() => nonWorkingKey(row.leave_type)}
-                      pending={upsert.isPending}
+                      pending={upsert.isPending || readOnly}
                       rowTotal={rowTotalFor(nonWorkingKey(row.leave_type))}
                       onCommit={(dateStr, hours, notes, _billable, existingId) =>
                         upsert.mutate(
                           {
                             entry_type: "non_working",
                             leave_type: row.leave_type,
-                            user_id: user!.id,
+                            user_id: effectiveUserId!,
                             entry_date: dateStr,
                             hours,
                             notes,
