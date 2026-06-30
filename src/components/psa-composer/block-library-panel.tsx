@@ -105,20 +105,17 @@ export function BlockLibraryPanel({
           size="sm"
           className="w-full"
           onClick={() =>
-            add.mutate({
-              lib: {
-                id: "custom",
-                kind: "custom_text",
-                label: "Texto Livre",
-                default_title: "Novo bloco",
-                default_content_rich: { text: "" },
-                default_source_type: "manual",
-                default_source_ref: {},
-                default_contract_relevance: "proposal_only",
-                sort_hint: 999,
-                is_system: false,
-              },
-              afterOrder: lastOrder,
+            addBlock({
+              id: "custom",
+              kind: "custom_text",
+              label: "Texto Livre",
+              default_title: "Novo bloco",
+              default_content_rich: { text: "" },
+              default_source_type: "manual",
+              default_source_ref: {},
+              default_contract_relevance: "proposal_only",
+              sort_hint: 999,
+              is_system: false,
             })
           }
         >
