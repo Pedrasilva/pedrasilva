@@ -621,8 +621,8 @@ export function GanttChart({
       .createAllocation({
         stage_id: stage.id,
         resource_id: resourceId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: fullStart,
+        end_date: fullEnd,
         hours_per_day: 6,
         projectId: stage.projectId,
       })
