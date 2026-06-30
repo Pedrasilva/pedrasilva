@@ -8,9 +8,10 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 import { useBlockLibrary, useAddLibraryBlock } from "@/lib/psa-proposal/use-psa-proposal";
 import { RelevanceBadge } from "./relevance-badge";
-import type { PsaProposalBlock } from "@/lib/psa-proposal/types";
+import type { PsaProposalBlock, PsaLibraryEntry } from "@/lib/psa-proposal/types";
 
 export function BlockLibraryPanel({
   proposalId,
