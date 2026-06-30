@@ -47,7 +47,19 @@ export function CollaboratorAvatar({
 
   const path = fotoPath !== undefined ? fotoPath : lookup?.foto_path ?? null;
   const displayName = name ?? lookup?.nome ?? null;
-  const url = collaboratorPhotoUrl(path);
+  const { data: signedUrl } = useQuery({
+    queryKey: ["collaborator-photo-signed", path],
+    enabled: !!path,
+    staleTime: 50 * 60 * 1000,
+    queryFn: async () => {
+      const { data, error } = await supabase.storage
+        .from(COLLABORATOR_PHOTO_BUCKET)
+        .createSignedUrl(path!, 60 * 60);
+      if (error) return null;
+      return data?.signedUrl ?? null;
+    },
+  });
+  const url = signedUrl ?? null;
   const initials = getInitials(displayName);
 
   return (
