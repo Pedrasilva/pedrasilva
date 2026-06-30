@@ -847,3 +847,18 @@
 }
 .psa-rich-content li,
 .proposal-block li { margin: 0.15rem 0; }
+
+/* Canvas-rendered rich blocks: force list markers (Tailwind arbitrary selectors can be outranked by typography resets) */
+.psa-rich ul {
+  list-style: disc outside !important;
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+.psa-rich ol {
+  list-style: decimal outside !important;
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+.psa-rich ul ul { list-style: circle outside !important; }
+.psa-rich ul ul ul { list-style: square outside !important; }
+.psa-rich li { margin: 0.15rem 0; display: list-item; }
