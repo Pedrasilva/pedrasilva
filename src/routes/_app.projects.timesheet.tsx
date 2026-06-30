@@ -2,11 +2,23 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { addDays, addWeeks, format, startOfWeek } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/projects/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import { useProjectsAuth } from "@/lib/projects/use-auth";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Check, ChevronsUpDown, Eye } from "lucide-react";
 import {
   useTimesheetRows,
   useTimesheetEntries,
@@ -54,10 +66,51 @@ type CellInfo = {
 };
 
 function TimesheetPage() {
-  const { profile, user } = useProjectsAuth();
+  const { profile: selfProfile, user } = useProjectsAuth();
+  const { isRealAdmin } = useAuth();
   const [weekAnchor, setWeekAnchor] = useState<Date>(() => new Date());
   const [extraTaskIds, setExtraTaskIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Admin "view as" selection — defaults to the logged-in user. Non-admins
+  // only ever see their own timesheet.
+  const [viewedCollaboratorId, setViewedCollaboratorId] = useState<string | null>(null);
+
+  // Resolve viewed collaborator → resource_id, user_id (auth) when admin
+  // is impersonating someone else.
+  const { data: viewedTarget } = useQuery({
+    queryKey: ["timesheet-view-target", viewedCollaboratorId],
+    enabled: !!viewedCollaboratorId && isRealAdmin,
+    queryFn: async () => {
+      const collabId = viewedCollaboratorId!;
+      const [{ data: resource }, { data: userId }] = await Promise.all([
+        supabase
+          .from("pm_resources")
+          .select("id")
+          .eq("collaborator_id", collabId)
+          .maybeSingle(),
+        supabase.rpc("get_user_id_for_collaborator", { p_collaborator_id: collabId }),
+      ]);
+      return {
+        resource_id: (resource?.id as string | undefined) ?? null,
+        user_id: (userId as string | null) ?? null,
+        collaborator_id: collabId,
+      };
+    },
+  });
+
+  // Effective identity used by the queries below.
+  const isViewingOther = !!viewedCollaboratorId && viewedCollaboratorId !== selfProfile?.collaborator_id;
+  const effectiveResourceId = isViewingOther
+    ? (viewedTarget?.resource_id ?? null)
+    : (selfProfile?.resource_id ?? null);
+  const effectiveUserId = isViewingOther
+    ? (viewedTarget?.user_id ?? null)
+    : (user?.id ?? null);
+  const effectiveCollaboratorId = isViewingOther
+    ? (viewedTarget?.collaborator_id ?? null)
+    : (selfProfile?.collaborator_id ?? null);
+  const readOnly = isViewingOther;
 
   const weekStartDate = useMemo(
     () => startOfWeek(weekAnchor, { weekStartsOn: 1 }),
@@ -71,19 +124,19 @@ function TimesheetPage() {
   const weekEnd = format(addDays(weekStartDate, 6), "yyyy-MM-dd");
 
   const { data: projectRows = [], isLoading } = useTimesheetRows({
-    resourceId: profile?.resource_id ?? null,
-    userId: user?.id ?? null,
+    resourceId: effectiveResourceId,
+    userId: effectiveUserId,
     weekStart,
     weekEnd,
     extraTaskIds,
   });
   const { data: entries = [] } = useTimesheetEntries({
-    userId: user?.id ?? null,
+    userId: effectiveUserId,
     weekStart,
     weekEnd,
   });
   const { data: nonWorkingPrefill = [] } = useNonWorkingPrefill({
-    collaboratorId: profile?.collaborator_id ?? null,
+    collaboratorId: effectiveCollaboratorId,
     weekStart,
     weekEnd,
   });
@@ -94,6 +147,19 @@ function TimesheetPage() {
   const ensureRow = useEnsureStageRow();
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
   const [addPopoverOpen, setAddPopoverOpen] = useState(false);
+
+  // Profile shape kept for downstream noResource guard below.
+  const profile = isViewingOther
+    ? viewedTarget
+      ? {
+          full_name: null,
+          resource_id: viewedTarget.resource_id,
+          collaborator_id: viewedTarget.collaborator_id,
+        }
+      : null
+    : selfProfile;
+
+
 
   // Internal cost centers are admin-managed (DB-backed). The picker shows
   // ACTIVE categories only — archived ones disappear from the list of
@@ -193,6 +259,7 @@ function TimesheetPage() {
   const userId = user?.id ?? null;
   const dispatchedPrefillRef = useRef<Set<string>>(new Set());
   useEffect(() => {
+    if (readOnly) return;
     if (!userId || nonWorkingPrefill.length === 0) return;
     for (const row of nonWorkingPrefill) {
       const existing = entryMap.get(nonWorkingKey(row.leave_type));
@@ -236,35 +303,53 @@ function TimesheetPage() {
               Log time per project stage, internal cost center, or non-working time.
             </p>
           </div>
-          <div className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1.5">
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-7 w-7"
-              onClick={() => setWeekAnchor((d) => addWeeks(d, -1))}
-              aria-label="Previous week"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <button
-              onClick={() => setWeekAnchor(new Date())}
-              className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-accent"
-            >
-              <CalendarDays className="h-3.5 w-3.5" />
-              {format(weekStartDate, "MMM d")} –{" "}
-              {format(addDays(weekStartDate, 6), "MMM d, yyyy")}
-            </button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-7 w-7"
-              onClick={() => setWeekAnchor((d) => addWeeks(d, 1))}
-              aria-label="Next week"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {isRealAdmin && (
+              <CollaboratorViewPicker
+                selectedCollaboratorId={viewedCollaboratorId ?? selfProfile?.collaborator_id ?? null}
+                selfCollaboratorId={selfProfile?.collaborator_id ?? null}
+                onChange={(id) => {
+                  setViewedCollaboratorId(id);
+                  setExtraTaskIds([]);
+                }}
+              />
+            )}
+            {readOnly && (
+              <span className="rounded-full border border-amber-400/40 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                Read-only · viewing another collaborator
+              </span>
+            )}
+            <div className="flex items-center gap-2 rounded-md border border-border bg-card px-2 py-1.5">
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                onClick={() => setWeekAnchor((d) => addWeeks(d, -1))}
+                aria-label="Previous week"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <button
+                onClick={() => setWeekAnchor(new Date())}
+                className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-accent"
+              >
+                <CalendarDays className="h-3.5 w-3.5" />
+                {format(weekStartDate, "MMM d")} –{" "}
+                {format(addDays(weekStartDate, 6), "MMM d, yyyy")}
+              </button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                onClick={() => setWeekAnchor((d) => addWeeks(d, 1))}
+                aria-label="Next week"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
+
 
         {/* Summary chips */}
         <div className="mt-4 flex flex-wrap gap-2">
@@ -288,7 +373,7 @@ function TimesheetPage() {
             <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-4 py-2">
               <Popover open={addPopoverOpen} onOpenChange={setAddPopoverOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-1.5">
+                  <Button variant="outline" size="sm" className="gap-1.5" disabled={readOnly}>
                     <Plus className="h-3.5 w-3.5" />
                     Add project / stage
                   </Button>
@@ -466,14 +551,14 @@ function TimesheetPage() {
                       onRemove={() =>
                         setExtraTaskIds((ids) => ids.filter((x) => x !== r.task_id))
                       }
-                      pending={upsert.isPending}
+                      pending={upsert.isPending || readOnly}
                       rowTotal={rowTotalFor(projectKey(r.task_id))}
                       onCommit={(dateStr, hours, notes, billable, existingId) =>
                         upsert.mutate(
                           {
                             entry_type: "project",
                             task_id: r.task_id,
-                            user_id: user!.id,
+                            user_id: effectiveUserId!,
                             entry_date: dateStr,
                             hours,
                             notes,
@@ -508,14 +593,14 @@ function TimesheetPage() {
                       days={days}
                       entryMap={entryMap}
                       keyFn={() => internalKey(cat.name)}
-                      pending={upsert.isPending}
+                      pending={upsert.isPending || readOnly}
                       rowTotal={rowTotalFor(internalKey(cat.name))}
                       onCommit={(dateStr, hours, notes, _billable, existingId) =>
                         upsert.mutate(
                           {
                             entry_type: "internal",
                             internal_category: cat.name,
-                            user_id: user!.id,
+                            user_id: effectiveUserId!,
                             entry_date: dateStr,
                             hours,
                             notes,
@@ -552,14 +637,14 @@ function TimesheetPage() {
                       days={days}
                       entryMap={entryMap}
                       keyFn={() => nonWorkingKey(row.leave_type)}
-                      pending={upsert.isPending}
+                      pending={upsert.isPending || readOnly}
                       rowTotal={rowTotalFor(nonWorkingKey(row.leave_type))}
                       onCommit={(dateStr, hours, notes, _billable, existingId) =>
                         upsert.mutate(
                           {
                             entry_type: "non_working",
                             leave_type: row.leave_type,
-                            user_id: user!.id,
+                            user_id: effectiveUserId!,
                             entry_date: dateStr,
                             hours,
                             notes,
@@ -1016,3 +1101,85 @@ function HourCell({
     </Popover>
   );
 }
+
+// ----------------------------- Collaborator picker -----------------------------
+
+type CollabPickerRow = { id: string; nome: string; email: string | null };
+
+function CollaboratorViewPicker({
+  selectedCollaboratorId,
+  selfCollaboratorId,
+  onChange,
+}: {
+  selectedCollaboratorId: string | null;
+  selfCollaboratorId: string | null;
+  onChange: (id: string | null) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const { data: collaborators = [] } = useQuery({
+    queryKey: ["timesheet-collaborator-picker"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("collaborators")
+        .select("id, nome, email")
+        .is("archived_at", null)
+        .order("nome", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as CollabPickerRow[];
+    },
+  });
+
+  const selected = collaborators.find((c) => c.id === selectedCollaboratorId) ?? null;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-2">
+          <Eye className="h-3.5 w-3.5" />
+          <span className="max-w-[180px] truncate">
+            {selected ? selected.nome : "Selecionar colaborador…"}
+          </span>
+          <ChevronsUpDown className="h-3 w-3 opacity-60" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-[280px] p-0">
+        <Command>
+          <CommandInput placeholder="Procurar colaborador…" />
+          <CommandList>
+            <CommandEmpty>Nenhum colaborador encontrado.</CommandEmpty>
+            <CommandGroup heading="Ver timesheet de…">
+              {collaborators.map((c) => (
+                <CommandItem
+                  key={c.id}
+                  value={`${c.nome} ${c.email ?? ""}`}
+                  onSelect={() => {
+                    onChange(c.id === selfCollaboratorId ? null : c.id);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${
+                      selectedCollaboratorId === c.id ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-sm">
+                      {c.nome}
+                      {c.id === selfCollaboratorId && (
+                        <span className="ml-1 text-[10px] text-muted-foreground">(eu)</span>
+                      )}
+                    </span>
+                    {c.email && (
+                      <span className="text-[11px] text-muted-foreground">{c.email}</span>
+                    )}
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
