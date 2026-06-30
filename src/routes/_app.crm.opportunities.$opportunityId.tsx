@@ -27,7 +27,7 @@ import {
   type QuoteType, type QuoteCategory, type Contact, contactFullName,
 } from "@/lib/crm/types";
 import { Briefcase, Clock, Repeat2 } from "lucide-react";
-import { QuoteTemplatePicker } from "@/components/quotes/quote-template-picker";
+
 import { useInstantiateQuoteTemplate } from "@/lib/quotes/quote-templates";
 
 export const Route = createFileRoute("/_app/crm/opportunities/$opportunityId")({
