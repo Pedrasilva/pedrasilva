@@ -167,14 +167,24 @@ export function ComposerCanvas({
   if (styleSettings?.bodyAlign) (styleVars as Record<string, string>)["--psa-body-align"] = styleSettings.bodyAlign;
   if (styleSettings?.bodySize) (styleVars as Record<string, string>)["--psa-body-size"] = `${styleSettings.bodySize}pt`;
   if (styleSettings?.headingScale) (styleVars as Record<string, string>)["--psa-heading-scale"] = String(styleSettings.headingScale);
+  if (styleSettings?.marginTop != null) (styleVars as Record<string, string>)["--psa-margin-top"] = `${styleSettings.marginTop}mm`;
+  if (styleSettings?.marginBottom != null) (styleVars as Record<string, string>)["--psa-margin-bottom"] = `${styleSettings.marginBottom}mm`;
 
   return (
     <div className="print-area">
       <div className="proposal-print-document" style={styleVars}>
-        {/* PSA running header — `position: fixed` in print so it repeats per page */}
-        <div className="proposal-page-header flex items-end justify-between border-b border-zinc-300 pb-2 text-[10px] uppercase tracking-widest text-zinc-500">
-          <div className="font-semibold text-zinc-900">Pedra Silva Arquitectos</div>
-          <div>Lisboa · Portugal · geral@pedrasilva.pt</div>
+        {/* PSA running header — fixed in print so it repeats per page.
+            Layout mirrors the Pedra Silva PDF letterhead: brand mark top-left,
+            contact links top-right. */}
+        <div className="proposal-page-header">
+          <div className="proposal-letterhead-brand">
+            <span className="proposal-letterhead-brand-line">PEDRA SILVA</span>
+            <span className="proposal-letterhead-brand-sub">ARCHITECTS</span>
+          </div>
+          <div className="proposal-letterhead-contact">
+            <div>info@pedrasilva.com</div>
+            <a href="https://www.pedrasilva.com" target="_blank" rel="noreferrer">www.pedrasilva.com</a>
+          </div>
         </div>
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -196,9 +206,12 @@ export function ComposerCanvas({
           </SortableContext>
         </DndContext>
 
-        {/* PSA running footer */}
-        <div className="proposal-page-footer border-t border-zinc-300 pt-2 text-center text-[10px] text-zinc-500">
-          Pedra Silva Arquitectos · Rua Exemplo, Lisboa · NIF 000 000 000
+        {/* PSA running footer — address bottom-left, marks bottom-right. */}
+        <div className="proposal-page-footer">
+          <div className="proposal-page-address">
+            Trav. Corpo Santo 10, 1.ºD<br />
+            1200-131 Lisboa, Portugal
+          </div>
         </div>
       </div>
     </div>
