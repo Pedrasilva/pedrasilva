@@ -22,6 +22,9 @@ import type {
   PsaProposalStatus,
 } from "@/lib/psa-proposal/types";
 import { ConvertToContractDialog } from "./convert-to-contract-dialog";
+import { ProposalHistoryDialog } from "./proposal-history-dialog";
+import { useAutoSnapshotTrigger } from "@/lib/psa-proposal/use-proposal-history";
+import { useEffect } from "react";
 
 const STATUSES: PsaProposalStatus[] = [
   "draft",
@@ -41,6 +44,13 @@ export function ComposerTopBar({
 }) {
   const update = useUpdateProposal(proposal.id);
   const [convertOpen, setConvertOpen] = useState(false);
+  const autoSnap = useAutoSnapshotTrigger(proposal.id);
+
+  // Throttled auto-snapshot whenever the proposal or its blocks change.
+  // The hook itself caps frequency to ~1 per 5 min via localStorage.
+  useEffect(() => {
+    autoSnap();
+  }, [proposal.updated_at, blocks.length, autoSnap]);
 
   return (
     <div className="flex items-center gap-2 border-b bg-background px-3 py-2 print:hidden">
@@ -65,6 +75,7 @@ export function ComposerTopBar({
         </SelectContent>
       </Select>
       <div className="ml-auto flex items-center gap-2">
+        <ProposalHistoryDialog proposalId={proposal.id} />
         <Button
           variant="outline"
           size="sm"
