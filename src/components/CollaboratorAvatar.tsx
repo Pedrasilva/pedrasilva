@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { collaboratorPhotoUrl, getInitials } from "@/lib/collaborator-photo";
+import { COLLABORATOR_PHOTO_BUCKET, getInitials } from "@/lib/collaborator-photo";
 import { cn } from "@/lib/utils";
 
 type Props = {
