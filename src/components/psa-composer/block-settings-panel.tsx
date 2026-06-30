@@ -53,10 +53,25 @@ export function BlockSettingsPanel({
   const dup = useDuplicateBlock(proposalId);
 
   const [title, setTitle] = useState(block?.title ?? "");
+  const titleDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setTitle(block?.title ?? "");
   }, [block?.id, block?.title]);
+
+  // Debounced autosave for the title so a refresh mid-edit doesn't lose it.
+  useEffect(() => {
+    if (!block) return;
+    if (title === block.title) return;
+    if (titleDebounce.current) clearTimeout(titleDebounce.current);
+    titleDebounce.current = setTimeout(() => {
+      update.mutate({ id: block.id, patch: { title } });
+    }, 600);
+    return () => {
+      if (titleDebounce.current) clearTimeout(titleDebounce.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, block?.id]);
 
   // Always call hooks — pass null when no block to keep order stable.
   const sourceRef = (block?.source_ref ?? {}) as { quote_id?: string; stage_id?: string };
