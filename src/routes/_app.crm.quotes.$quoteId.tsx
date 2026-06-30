@@ -36,6 +36,7 @@ import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-sched
 import { QuoteFinancialSummaryTab, ArchitectureFinancialBreakdown } from "@/components/quotes/quote-financial-summary-tab";
 import { QuoteProposalTab } from "@/components/quotes/quote-proposal-tab";
 import { ApplyTemplateDialog } from "@/components/quotes/apply-template-dialog";
+import { QuoteProposalComposerEmbed } from "@/components/quotes/quote-proposal-composer-embed";
 import { QuoteTimeBasedSettingsTab } from "@/components/quotes/quote-time-based-settings-tab";
 import { QuoteFeeCalculatorCard } from "@/components/quotes/quote-fee-calculator-card";
 import { QuoteOntologyBootstrapCard } from "@/components/quotes/quote-ontology-bootstrap-card";
