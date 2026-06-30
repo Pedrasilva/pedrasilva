@@ -23,7 +23,8 @@ import type {
 } from "@/lib/psa-proposal/types";
 
 const HEADING_FONTS = [
-  { label: "Inter (sans, default)", value: '"Inter", "Helvetica Neue", Arial, sans-serif' },
+  { label: "The Future (Pedra Silva)", value: '"The Future", "Inter", "Helvetica Neue", Arial, sans-serif' },
+  { label: "Inter (sans)", value: '"Inter", "Helvetica Neue", Arial, sans-serif' },
   { label: "Manrope (sans)", value: '"Manrope", ui-sans-serif, system-ui, sans-serif' },
   { label: "Fraunces (display serif)", value: '"Fraunces", Georgia, serif' },
   { label: "Source Serif (serif)", value: '"Source Serif 4", Georgia, serif' },
@@ -31,12 +32,22 @@ const HEADING_FONTS = [
 ];
 
 const BODY_FONTS = [
-  { label: "Source Serif (default)", value: '"Source Serif 4", "EB Garamond", Georgia, serif' },
+  { label: "Signifier (Pedra Silva)", value: '"Signifier", "Source Serif 4", Georgia, serif' },
+  { label: "Source Serif (serif)", value: '"Source Serif 4", "EB Garamond", Georgia, serif' },
   { label: "EB Garamond (classic serif)", value: '"EB Garamond", Georgia, serif' },
   { label: "Fraunces (display serif)", value: '"Fraunces", Georgia, serif' },
   { label: "Inter (sans)", value: '"Inter", "Helvetica Neue", Arial, sans-serif' },
   { label: "Manrope (sans)", value: '"Manrope", ui-sans-serif, system-ui, sans-serif' },
 ];
+
+const PSA_BRAND_PRESET: PsaProposalStyleSettings = {
+  headingFont: '"The Future", "Inter", "Helvetica Neue", Arial, sans-serif',
+  bodyFont: '"Signifier", "Source Serif 4", Georgia, serif',
+  headingWeight: 700,
+  bodyAlign: "justify",
+  bodySize: 10.5,
+};
+
 
 const WEIGHTS = [
   { label: "Regular (400)", value: 400 },
