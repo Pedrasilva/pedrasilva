@@ -27,7 +27,7 @@ import {
   Link2,
   Table as TableIcon,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 function ToolbarButton({
@@ -155,6 +155,28 @@ export function RichTextEditor({
   onChange: (next: { html: string; text: string }) => void;
   placeholder?: string;
 }) {
+  // Keep latest onChange in a ref so the editor instance can call the freshest
+  // version without being recreated on every render.
+  const onChangeRef = useRef(onChange);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  // Debounced autosave: flush pending edits ~700ms after the last keystroke.
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingRef = useRef<{ html: string; text: string } | null>(null);
+
+  const flush = () => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    if (pendingRef.current) {
+      onChangeRef.current(pendingRef.current);
+      pendingRef.current = null;
+    }
+  };
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -182,14 +204,38 @@ export function RichTextEditor({
           .replace(/<\/font>/gi, "");
       },
     },
+    onUpdate: ({ editor: ed }) => {
+      pendingRef.current = { html: ed.getHTML(), text: ed.getText() };
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(flush, 700);
+    },
     onBlur: ({ editor: ed }) => {
-      onChange({ html: ed.getHTML(), text: ed.getText() });
+      pendingRef.current = { html: ed.getHTML(), text: ed.getText() };
+      flush();
     },
   });
 
-  // Sync external value changes (block switch).
+  // Flush pending content if the user navigates away or closes the tab.
+  useEffect(() => {
+    const handler = () => flush();
+    window.addEventListener("beforeunload", handler);
+    window.addEventListener("pagehide", handler);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") flush();
+    });
+    return () => {
+      window.removeEventListener("beforeunload", handler);
+      window.removeEventListener("pagehide", handler);
+      flush();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sync external value changes (block switch). Flush pending edits first so
+  // we never overwrite unsaved content from the previous block.
   useEffect(() => {
     if (!editor) return;
+    flush();
     const current = editor.getHTML();
     if (value !== current) {
       editor.commands.setContent(value || "", { emitUpdate: false });
