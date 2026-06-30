@@ -66,10 +66,51 @@ type CellInfo = {
 };
 
 function TimesheetPage() {
-  const { profile, user } = useProjectsAuth();
+  const { profile: selfProfile, user } = useProjectsAuth();
+  const { isRealAdmin } = useAuth();
   const [weekAnchor, setWeekAnchor] = useState<Date>(() => new Date());
   const [extraTaskIds, setExtraTaskIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Admin "view as" selection — defaults to the logged-in user. Non-admins
+  // only ever see their own timesheet.
+  const [viewedCollaboratorId, setViewedCollaboratorId] = useState<string | null>(null);
+
+  // Resolve viewed collaborator → resource_id, user_id (auth) when admin
+  // is impersonating someone else.
+  const { data: viewedTarget } = useQuery({
+    queryKey: ["timesheet-view-target", viewedCollaboratorId],
+    enabled: !!viewedCollaboratorId && isRealAdmin,
+    queryFn: async () => {
+      const collabId = viewedCollaboratorId!;
+      const [{ data: resource }, { data: userId }] = await Promise.all([
+        supabase
+          .from("pm_resources")
+          .select("id")
+          .eq("collaborator_id", collabId)
+          .maybeSingle(),
+        supabase.rpc("get_user_id_for_collaborator", { p_collaborator_id: collabId }),
+      ]);
+      return {
+        resource_id: (resource?.id as string | undefined) ?? null,
+        user_id: (userId as string | null) ?? null,
+        collaborator_id: collabId,
+      };
+    },
+  });
+
+  // Effective identity used by the queries below.
+  const isViewingOther = !!viewedCollaboratorId && viewedCollaboratorId !== selfProfile?.collaborator_id;
+  const effectiveResourceId = isViewingOther
+    ? (viewedTarget?.resource_id ?? null)
+    : (selfProfile?.resource_id ?? null);
+  const effectiveUserId = isViewingOther
+    ? (viewedTarget?.user_id ?? null)
+    : (user?.id ?? null);
+  const effectiveCollaboratorId = isViewingOther
+    ? (viewedTarget?.collaborator_id ?? null)
+    : (selfProfile?.collaborator_id ?? null);
+  const readOnly = isViewingOther;
 
   const weekStartDate = useMemo(
     () => startOfWeek(weekAnchor, { weekStartsOn: 1 }),
@@ -83,19 +124,19 @@ function TimesheetPage() {
   const weekEnd = format(addDays(weekStartDate, 6), "yyyy-MM-dd");
 
   const { data: projectRows = [], isLoading } = useTimesheetRows({
-    resourceId: profile?.resource_id ?? null,
-    userId: user?.id ?? null,
+    resourceId: effectiveResourceId,
+    userId: effectiveUserId,
     weekStart,
     weekEnd,
     extraTaskIds,
   });
   const { data: entries = [] } = useTimesheetEntries({
-    userId: user?.id ?? null,
+    userId: effectiveUserId,
     weekStart,
     weekEnd,
   });
   const { data: nonWorkingPrefill = [] } = useNonWorkingPrefill({
-    collaboratorId: profile?.collaborator_id ?? null,
+    collaboratorId: effectiveCollaboratorId,
     weekStart,
     weekEnd,
   });
@@ -106,6 +147,19 @@ function TimesheetPage() {
   const ensureRow = useEnsureStageRow();
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
   const [addPopoverOpen, setAddPopoverOpen] = useState(false);
+
+  // Profile shape kept for downstream noResource guard below.
+  const profile = isViewingOther
+    ? viewedTarget
+      ? {
+          full_name: null,
+          resource_id: viewedTarget.resource_id,
+          collaborator_id: viewedTarget.collaborator_id,
+        }
+      : null
+    : selfProfile;
+
+
 
   // Internal cost centers are admin-managed (DB-backed). The picker shows
   // ACTIVE categories only — archived ones disappear from the list of
