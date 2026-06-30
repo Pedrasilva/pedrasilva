@@ -560,11 +560,22 @@ function FeriasPage() {
               </div>
               <div className="sm:col-span-2 space-y-2 rounded-md bg-muted px-3 py-2 text-sm">
                 <div>
-                  Dias úteis: <span className="font-semibold">{dias}</span>
-                  {feriadosNoPeriodo.length > 0 && (
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      ({feriadosNoPeriodo.length} feriado(s) excluído(s))
-                    </span>
+                  {newReq.periodo === "horas" ? (
+                    <>
+                      Horas: <span className="font-semibold">{newReq.horas || 0}</span>
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        (= {dias} dia(s) úteis)
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      Dias úteis: <span className="font-semibold">{dias}</span>
+                      {feriadosNoPeriodo.length > 0 && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          ({feriadosNoPeriodo.length} feriado(s) excluído(s))
+                        </span>
+                      )}
+                    </>
                   )}
                 </div>
                 {feriadosNoPeriodo.length > 0 && (
