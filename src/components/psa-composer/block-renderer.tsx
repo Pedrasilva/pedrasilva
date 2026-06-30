@@ -234,6 +234,7 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
+          {richHas && <div className="mb-3">{rich}</div>}
           {nonMilestone.length ? (
             <div className="space-y-3">
               {roots.map((r) => renderNode(r, 0))}
