@@ -166,15 +166,18 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
         stages: (stages ?? []).map((s: any) => {
           const start = s.start_date ? new Date(s.start_date) : null;
           const end = s.end_date ? new Date(s.end_date) : null;
-          const days =
-            start && end
-              ? Math.max(
-                  1,
-                  Math.round(
-                    (end.getTime() - start.getTime()) / 86400000,
-                  ) + 1,
-                )
-              : null;
+          // Working days (Mon–Fri) inclusive — matches the planner Gantt label.
+          let days: number | null = null;
+          if (start && end) {
+            let count = 0;
+            const cur = new Date(start);
+            while (cur <= end) {
+              const d = cur.getDay();
+              if (d !== 0 && d !== 6) count++;
+              cur.setDate(cur.getDate() + 1);
+            }
+            days = Math.max(1, count);
+          }
           return {
             id: s.id,
             name: s.name,
