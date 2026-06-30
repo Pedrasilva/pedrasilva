@@ -236,3 +236,21 @@ export function formatDatePT(d: string | null | undefined): string {
     return d;
   }
 }
+
+/**
+ * Format a working-day duration adaptively:
+ *  - <7 days  → "N dia(s)"
+ *  - <20 days (≈ <4 weeks) → "N semana(s)" (5 working days per week)
+ *  - otherwise → "N mês/meses" (≈ 20 working days per month)
+ */
+export function formatDurationAdaptive(days: number | null | undefined): string {
+  if (days == null || !Number.isFinite(days)) return "—";
+  const d = Math.max(1, Math.round(days));
+  if (d < 7) return `${d} ${d === 1 ? "dia" : "dias"}`;
+  if (d < 20) {
+    const w = Math.max(1, Math.round(d / 5));
+    return `${w} ${w === 1 ? "semana" : "semanas"}`;
+  }
+  const m = Math.max(1, Math.round(d / 20));
+  return `${m} ${m === 1 ? "mês" : "meses"}`;
+}
