@@ -9,7 +9,7 @@
  * Hidden for Consultancy Proposals — the parent route already gates that
  * via `quote.quote_category`.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -74,6 +74,34 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
     () => inputs.stages.reduce((sum, s) => sum + (Number(s.percentage) || 0), 0),
     [inputs.stages],
   );
+
+  // Auto-save inputs to fee_proposals.project_fee_calculation (JSONB) on
+  // every change, debounced. The manual "Save draft" button stays as a
+  // visible confirmation, but typing values is enough — no click required.
+  const isFirstRender = useRef(true);
+  const [autoSaveState, setAutoSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setAutoSaveState("saving");
+    const handle = setTimeout(async () => {
+      const { error } = await supabase
+        .from("fee_proposals")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .update({ project_fee_calculation: inputs as any })
+        .eq("id", quoteId);
+      if (error) {
+        setAutoSaveState("error");
+        toast.error(error.message);
+      } else {
+        setAutoSaveState("saved");
+        qc.invalidateQueries({ queryKey: ["fee_proposal", quoteId] });
+      }
+    }, 600);
+    return () => clearTimeout(handle);
+  }, [inputs, quoteId, qc]);
 
   const save = useMutation({
     mutationFn: async (apply: boolean) => {
@@ -286,7 +314,16 @@ export function QuoteFeeCalculatorCard({ quoteId, initialPayload, onApplied }: P
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-end gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <span className="mr-auto text-xs text-muted-foreground">
+            {autoSaveState === "saving"
+              ? "A guardar…"
+              : autoSaveState === "saved"
+                ? "Guardado automaticamente"
+                : autoSaveState === "error"
+                  ? "Erro ao guardar"
+                  : ""}
+          </span>
           <Button
             variant="outline" size="sm"
             disabled={save.isPending}
