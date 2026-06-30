@@ -417,7 +417,33 @@ function FeriasPage() {
                 </Select>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
-                <Label className="text-xs text-muted-foreground">Período</Label>
+                <Label className="text-xs text-muted-foreground">Duração</Label>
+                <Select
+                  value={newReq.periodo}
+                  onValueChange={(v) =>
+                    setNewReq((f) => ({
+                      ...f,
+                      periodo: v as "dia_inteiro" | "manha" | "tarde" | "horas",
+                      // Quando passa a parcial limpa data_fim para forçar dia único
+                      data_fim: v === "dia_inteiro" ? f.data_fim : "",
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="dia_inteiro">Dia(s) inteiro(s)</SelectItem>
+                    <SelectItem value="manha">Meio-dia — manhã (4h)</SelectItem>
+                    <SelectItem value="tarde">Meio-dia — tarde (4h)</SelectItem>
+                    <SelectItem value="horas">Algumas horas…</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label className="text-xs text-muted-foreground">
+                  {newReq.periodo === "dia_inteiro" ? "Período" : "Dia"}
+                </Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -428,7 +454,13 @@ function FeriasPage() {
                       )}
                     >
                       <CalendarDays className="mr-2 h-4 w-4" />
-                      {newReq.data_inicio && newReq.data_fim ? (
+                      {newReq.periodo !== "dia_inteiro" ? (
+                        newReq.data_inicio ? (
+                          format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: pt })
+                        ) : (
+                          <span>Seleccionar dia…</span>
+                        )
+                      ) : newReq.data_inicio && newReq.data_fim ? (
                         <>
                           {format(new Date(newReq.data_inicio + "T00:00:00"), "d MMM yyyy", { locale: pt })}
                           {" → "}
@@ -445,31 +477,54 @@ function FeriasPage() {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="range"
-                      numberOfMonths={2}
-                      locale={pt}
-                      weekStartsOn={1}
-                      defaultMonth={newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : new Date()}
-                      modifiers={{ holiday: holidayDateObjects }}
-                      modifiersClassNames={{
-                        holiday:
-                          "relative text-destructive font-semibold after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-destructive",
-                      }}
-                      selected={
-                        {
-                          from: newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : undefined,
-                          to: newReq.data_fim ? new Date(newReq.data_fim + "T00:00:00") : undefined,
-                        } as DateRange
-                      }
-                      onSelect={(range: DateRange | undefined) => {
-                        setNewReq((f) => ({
-                          ...f,
-                          data_inicio: range?.from ? format(range.from, "yyyy-MM-dd") : "",
-                          data_fim: range?.to ? format(range.to, "yyyy-MM-dd") : "",
-                        }));
-                      }}
-                    />
+                    {newReq.periodo === "dia_inteiro" ? (
+                      <Calendar
+                        mode="range"
+                        numberOfMonths={2}
+                        locale={pt}
+                        weekStartsOn={1}
+                        defaultMonth={newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : new Date()}
+                        modifiers={{ holiday: holidayDateObjects }}
+                        modifiersClassNames={{
+                          holiday:
+                            "relative text-destructive font-semibold after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-destructive",
+                        }}
+                        selected={
+                          {
+                            from: newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : undefined,
+                            to: newReq.data_fim ? new Date(newReq.data_fim + "T00:00:00") : undefined,
+                          } as DateRange
+                        }
+                        onSelect={(range: DateRange | undefined) => {
+                          setNewReq((f) => ({
+                            ...f,
+                            data_inicio: range?.from ? format(range.from, "yyyy-MM-dd") : "",
+                            data_fim: range?.to ? format(range.to, "yyyy-MM-dd") : "",
+                          }));
+                        }}
+                      />
+                    ) : (
+                      <Calendar
+                        mode="single"
+                        numberOfMonths={1}
+                        locale={pt}
+                        weekStartsOn={1}
+                        defaultMonth={newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : new Date()}
+                        modifiers={{ holiday: holidayDateObjects }}
+                        modifiersClassNames={{
+                          holiday:
+                            "relative text-destructive font-semibold after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-destructive",
+                        }}
+                        selected={newReq.data_inicio ? new Date(newReq.data_inicio + "T00:00:00") : undefined}
+                        onSelect={(d: Date | undefined) => {
+                          setNewReq((f) => ({
+                            ...f,
+                            data_inicio: d ? format(d, "yyyy-MM-dd") : "",
+                            data_fim: d ? format(d, "yyyy-MM-dd") : "",
+                          }));
+                        }}
+                      />
+                    )}
                     <div className="border-t px-3 py-2 text-[11px] text-muted-foreground">
                       <span className="mr-1 inline-block h-2 w-2 rounded-full bg-destructive align-middle" />
                       Feriados (não contam como dias úteis)
@@ -477,6 +532,24 @@ function FeriasPage() {
                   </PopoverContent>
                 </Popover>
               </div>
+              {newReq.periodo === "horas" && (
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label className="text-xs text-muted-foreground">Horas</Label>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    min={0.5}
+                    max={8}
+                    step={0.5}
+                    placeholder="ex.: 2"
+                    value={newReq.horas}
+                    onChange={(e) => setNewReq((f) => ({ ...f, horas: e.target.value }))}
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Indique o número de horas autorizadas (até 8h por dia).
+                  </p>
+                </div>
+              )}
               <div className="space-y-1.5 sm:col-span-2">
                 <Label className="text-xs text-muted-foreground">Notas (opcional)</Label>
                 <Textarea
