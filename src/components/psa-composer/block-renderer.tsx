@@ -12,6 +12,7 @@ import {
   type LiveStage,
   formatCurrencyEUR,
   formatDatePT,
+  formatDurationAdaptive,
 } from "@/lib/psa-proposal/live-data";
 
 function H({ children }: { children: React.ReactNode }) {
