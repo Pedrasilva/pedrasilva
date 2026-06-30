@@ -2,6 +2,38 @@
 @source "../src";
 @import "tw-animate-css";
 
+/* ─── Pedra Silva brand fonts (self-hosted via Lovable Assets CDN) ───── */
+@font-face {
+  font-family: "The Future";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/__l5e/assets-v1/34ebf2fb-37d8-4fc2-8321-e1296e125869/the-future-light.woff2") format("woff2");
+}
+@font-face {
+  font-family: "The Future";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/__l5e/assets-v1/842626f3-9ac9-4937-8ead-7e2d2618e4b1/the-future-regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "The Future";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/__l5e/assets-v1/66e47949-79d6-4e62-8dce-a06c2454be03/the-future-bold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Signifier";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/__l5e/assets-v1/357b9697-a2c0-4df7-ab7d-d114b583c4a2/signifier-regular.woff2") format("woff2");
+}
+
+
+
 
 @custom-variant dark (&:is(.dark *));
 
