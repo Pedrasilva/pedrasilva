@@ -612,17 +612,17 @@ export function GanttChart({
       return;
     }
 
-    const stageEnd = new Date(stage.end_date);
-    let endCandidate = addDays(addDays(origin, dropDayOffset), 4);
-    if (endCandidate > stageEnd) endCandidate = stageEnd;
-    const endDate = format(endCandidate, "yyyy-MM-dd");
+    // New resource drop — span the full stage so the user doesn't have to
+    // stretch the allocation after placement.
+    const fullStart = stage.start_date;
+    const fullEnd = stage.end_date;
 
     adapter
       .createAllocation({
         stage_id: stage.id,
         resource_id: resourceId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: fullStart,
+        end_date: fullEnd,
         hours_per_day: 6,
         projectId: stage.projectId,
       })
