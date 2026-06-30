@@ -1744,7 +1744,7 @@ export function GanttChart({
               const anchorStageId = which === "from" ? d.successor_id : d.predecessor_id;
               const anchorSide: "start" | "end" =
                 which === "from"
-                  ? d.type === "FS" || d.type === "SF" ? "start" : "end"
+                  ? d.type === "FS" || d.type === "SS" ? "start" : "end"
                   : d.type === "FS" || d.type === "FF" ? "end" : "start";
               updateLink({
                 fromStageId: anchorStageId,
