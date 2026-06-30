@@ -34,6 +34,7 @@ import {
 import { RelevanceBadge } from "./relevance-badge";
 import { RichTextEditor } from "./rich-text-editor";
 import { useLiveQuoteSnapshot } from "@/lib/psa-proposal/live-data";
+import { buildTokenPickerEntries } from "@/lib/psa-proposal/tokens";
 import { ProposalStylePanel } from "./proposal-style-panel";
 import type { PsaProposal } from "@/lib/psa-proposal/types";
 
@@ -227,10 +228,12 @@ export function BlockSettingsPanel({
               })
             }
             placeholder="Escreva o conteúdo deste bloco..."
+            tokenEntries={buildTokenPickerEntries(liveQuery.data)}
           />
           <p className="text-[10px] text-zinc-500">
-            Suporta negrito, itálico, sublinhado, títulos, listas, tabelas e links. Aceita
-            colar do Word.
+            Suporta negrito, itálico, sublinhado, títulos, listas, tabelas e links. Use{" "}
+            <code className="rounded bg-zinc-100 px-1">{"{{token}}"}</code> ou o menu
+            "Inserir do orçamento" para puxar dados do quote.
           </p>
         </div>
       )}
