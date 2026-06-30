@@ -609,19 +609,66 @@
   border-bottom: 0;
 }
 
-/* List rows used by generated renderers */
-.proposal-print-document .proposal-print-block ul:not([class*="list-"]),
-.proposal-print-document .proposal-print-block ol:not([class*="list-"]) {
+/* Legacy generated-list rows (NOT the rich-text TipTap output).
+   Scoped to `.proposal-generated-list` so user rich-text bullets render
+   normally with disc/decimal markers and no horizontal dividers. */
+.proposal-print-document .proposal-print-block ul.proposal-generated-list,
+.proposal-print-document .proposal-print-block ol.proposal-generated-list {
   margin: 0.4rem 0 0;
   padding: 0;
   list-style: none;
 }
-.proposal-print-document .proposal-print-block ul:not([class*="list-"]) > li {
+.proposal-print-document .proposal-print-block ul.proposal-generated-list > li {
   padding: 0.35rem 0;
   border-bottom: 0.3pt solid #d4d4d4;
 }
-.proposal-print-document .proposal-print-block ul:not([class*="list-"]) > li:last-child {
+.proposal-print-document .proposal-print-block ul.proposal-generated-list > li:last-child {
   border-bottom: 0;
+}
+
+/* Rich-text (TipTap) content inside blocks: native bullet/number markers,
+   nested levels get appropriate marker style, no horizontal dividers. */
+.proposal-print-document .psa-rich ul,
+.ProseMirror ul {
+  list-style: disc;
+  margin: 0.4rem 0;
+  padding-left: 1.5rem;
+}
+.proposal-print-document .psa-rich ul ul,
+.ProseMirror ul ul {
+  list-style: circle;
+}
+.proposal-print-document .psa-rich ul ul ul,
+.ProseMirror ul ul ul {
+  list-style: square;
+}
+.proposal-print-document .psa-rich ol,
+.ProseMirror ol {
+  list-style: decimal;
+  margin: 0.4rem 0;
+  padding-left: 1.5rem;
+}
+.proposal-print-document .psa-rich li,
+.ProseMirror li {
+  padding: 0;
+  border: 0;
+  margin: 0.15rem 0;
+}
+
+/* Headings visible inside both the editor and the rendered block */
+.proposal-print-document .psa-rich h2,
+.ProseMirror h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0.75rem 0 0.4rem;
+}
+.proposal-print-document .psa-rich h3,
+.ProseMirror h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0.6rem 0 0.3rem;
 }
 
 /* ─── Acceptance / signature block ───────────────────────────────
