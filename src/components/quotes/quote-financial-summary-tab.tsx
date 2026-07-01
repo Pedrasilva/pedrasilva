@@ -173,12 +173,16 @@ export function QuoteFinancialSummaryTab({
     ? parseTimeBasedSettings(quoteRow.time_based_settings, quoteRow.quote_type)
     : null;
 
+  const feeSourceMode: "allocation" | "budget" =
+    quoteRow?.fee_source_mode === "budget" ? "budget" : "allocation";
   const summary = rollupQuote({
     allocations,
     externalServices,
     pricingMultiplier: liveMultiplier,
     category,
     timeBasedSettings,
+    feeSourceMode,
+    stages,
   });
 
   const band = marginBand(summary.effectiveMargin);
