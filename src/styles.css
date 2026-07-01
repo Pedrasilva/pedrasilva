@@ -441,6 +441,11 @@
   --psa-margin-bottom: 32mm; /* extra room so body text cannot run into the fixed footer */
   --psa-header-top: 8mm;
   --psa-footer-bottom: 6mm;
+  /* Header/footer horizontal insets are intentionally independent of the
+     body margin sliders so that adjusting body margins doesn't shift the
+     brand frame. */
+  --psa-frame-left: 14mm;
+  --psa-frame-right: 14mm;
 
   /* Typography knobs (overridable per proposal via inline style on the document). */
   --psa-heading-font: "Inter", "Helvetica Neue", Arial, sans-serif;
@@ -856,8 +861,8 @@
   .proposal-page-header,
   .proposal-page-footer {
     position: absolute;
-    left: var(--psa-margin-left);
-    right: var(--psa-margin-right);
+    left: var(--psa-frame-left);
+    right: var(--psa-frame-right);
   }
   .proposal-page-header { top: var(--psa-header-top); }
   .proposal-page-footer { bottom: var(--psa-footer-bottom); }
@@ -901,8 +906,8 @@
   .print-area .proposal-page-header,
   .print-area .proposal-page-footer {
     position: fixed;
-    left: var(--psa-margin-left);
-    right: var(--psa-margin-right);
+    left: var(--psa-frame-left);
+    right: var(--psa-frame-right);
     background: white;
     z-index: 100;
   }
