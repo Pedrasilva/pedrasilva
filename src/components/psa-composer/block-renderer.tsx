@@ -470,9 +470,11 @@ export function BlockBody({
           <div>
             <H>{num}{block.title}</H>
             <Empty>
-              {scope === "design"
+              {block.block_type === "gantt_design"
                 ? "Sem fases de projeto com datas definidas."
-                : "Sem fases de obra com datas definidas."}
+                : block.block_type === "gantt_construction"
+                ? "Sem fases de obra com datas definidas."
+                : "Selecione uma fase pai nas definições do bloco."}
             </Empty>
           </div>
         );
