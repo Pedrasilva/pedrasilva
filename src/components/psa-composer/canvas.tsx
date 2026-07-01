@@ -210,18 +210,21 @@ export function ComposerCanvas({
     <div className="print-area">
       <div className="proposal-print-document" style={styleVars}>
         {/* PSA running header — fixed in print so it repeats per page.
-            Layout mirrors the Pedra Silva PDF letterhead: brand mark top-left,
-            contact links top-right. */}
-        <div className="proposal-page-header">
-          <div className="proposal-letterhead-brand">
-            <span className="proposal-letterhead-brand-line">PEDRA SILVA</span>
-            <span className="proposal-letterhead-brand-sub">ARCHITECTS</span>
+            Content is editable via the Style panel. */}
+        {showHeader && (
+          <div className="proposal-page-header">
+            <div className="proposal-letterhead-brand">
+              {headerBrand && <span className="proposal-letterhead-brand-line">{headerBrand}</span>}
+              {headerBrandSub && <span className="proposal-letterhead-brand-sub">{headerBrandSub}</span>}
+            </div>
+            <div className="proposal-letterhead-contact">
+              {headerEmail && <div>{headerEmail}</div>}
+              {headerWebsite && (
+                <a href={headerWebsite.startsWith("http") ? headerWebsite : `https://${headerWebsite}`} target="_blank" rel="noreferrer">{headerWebsite}</a>
+              )}
+            </div>
           </div>
-          <div className="proposal-letterhead-contact">
-            <div>info@pedrasilva.com</div>
-            <a href="https://www.pedrasilva.com" target="_blank" rel="noreferrer">www.pedrasilva.com</a>
-          </div>
-        </div>
+        )}
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
