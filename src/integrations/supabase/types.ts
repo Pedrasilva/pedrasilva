@@ -1992,6 +1992,7 @@ export type Database = {
           deleted_at: string | null
           deleted_by: string | null
           fee_percentage: number | null
+          fee_source_mode: string
           fee_structure_type: Database["public"]["Enums"]["crm_fee_structure"]
           first_payment_terms: string
           id: string
@@ -2043,6 +2044,7 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           fee_percentage?: number | null
+          fee_source_mode?: string
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           first_payment_terms?: string
           id?: string
@@ -2094,6 +2096,7 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           fee_percentage?: number | null
+          fee_source_mode?: string
           fee_structure_type?: Database["public"]["Enums"]["crm_fee_structure"]
           first_payment_terms?: string
           id?: string
