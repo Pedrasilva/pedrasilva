@@ -1645,6 +1645,8 @@ export function GanttChart({
                                         startX: e.clientX,
                                         origStart: a.start_date,
                                         origEnd: a.end_date,
+                                        stageStart: stage.start_date,
+                                        stageEnd: stage.end_date,
                                       })
                                     }
                                   />
@@ -1658,6 +1660,8 @@ export function GanttChart({
                                         startX: e.clientX,
                                         origStart: a.start_date,
                                         origEnd: a.end_date,
+                                        stageStart: stage.start_date,
+                                        stageEnd: stage.end_date,
                                       })
                                     }
                                   />
