@@ -214,8 +214,11 @@ export function ComposerCanvas({
         {showHeader && (
           <div className="proposal-page-header">
             <div className="proposal-letterhead-brand">
-              {headerBrand && <span className="proposal-letterhead-brand-line">{headerBrand}</span>}
-              {headerBrandSub && <span className="proposal-letterhead-brand-sub">{headerBrandSub}</span>}
+              <img
+                src={psaLogo.url}
+                alt={`${headerBrand ?? "Pedra Silva"} ${headerBrandSub ?? "Architects"}`.trim()}
+                className="proposal-letterhead-logo"
+              />
             </div>
             <div className="proposal-letterhead-contact">
               {headerEmail && <div>{headerEmail}</div>}
