@@ -92,12 +92,19 @@ function SortableRow({
   const pageBreakBefore = Boolean(
     (block.content_rich as { pageBreakBefore?: boolean } | undefined)?.pageBreakBefore,
   );
+  const pageAlignY = (block.content_rich as { pageAlignY?: string } | undefined)?.pageAlignY;
+  const pageAlignX = (block.content_rich as { pageAlignX?: string } | undefined)?.pageAlignX;
+  const pageAligned =
+    (pageAlignY && pageAlignY !== "none") || (pageAlignX && pageAlignX !== "none");
 
   return (
     <div
       ref={setNodeRef}
       style={style}
       data-proposal-block-id={block.id}
+      data-page-aligned={pageAligned ? "true" : undefined}
+      data-page-align-y={pageAlignY && pageAlignY !== "none" ? pageAlignY : undefined}
+      data-page-align-x={pageAlignX && pageAlignX !== "none" ? pageAlignX : undefined}
       onClick={onSelect}
       className={cn(
         "proposal-print-block group relative mb-4 rounded-md transition print:mb-0 print:rounded-none",

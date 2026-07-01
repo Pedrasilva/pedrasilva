@@ -363,6 +363,60 @@ export function BlockSettingsPanel({
         />
       </div>
 
+      <div className="space-y-2 rounded-md border bg-background p-2">
+        <Label className="text-xs font-semibold">Alinhar na página</Label>
+        <p className="text-[10px] text-zinc-500">
+          Faz o bloco ocupar uma página inteira e ancora o conteúdo ao canto escolhido (ex.: canto inferior esquerdo).
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <Label className="text-[10px] uppercase text-zinc-500">Vertical</Label>
+            <Select
+              value={(block.content_rich?.pageAlignY as string | undefined) ?? "none"}
+              onValueChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    content_rich: { ...(block.content_rich ?? {}), pageAlignY: v },
+                  },
+                })
+              }
+            >
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Automático</SelectItem>
+                <SelectItem value="top">Topo</SelectItem>
+                <SelectItem value="middle">Meio</SelectItem>
+                <SelectItem value="bottom">Fundo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[10px] uppercase text-zinc-500">Horizontal</Label>
+            <Select
+              value={(block.content_rich?.pageAlignX as string | undefined) ?? "none"}
+              onValueChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    content_rich: { ...(block.content_rich ?? {}), pageAlignX: v },
+                  },
+                })
+              }
+            >
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Automático</SelectItem>
+                <SelectItem value="left">Esquerda</SelectItem>
+                <SelectItem value="center">Centro</SelectItem>
+                <SelectItem value="right">Direita</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+
       <div className="mt-auto flex gap-2 pt-2">
         <Button
           variant="outline"
