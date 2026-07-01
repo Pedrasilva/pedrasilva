@@ -162,9 +162,9 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
     queryKey: ["fee-proposal-summary", quoteId],
     enabled: !!quoteId,
     queryFn: async () => {
-      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { eq: (c: string, v: string) => { single: () => Promise<{ data: { pricing_multiplier: number | null; valor: number | null; quote_category: string | null; default_vat_rate: number | null; default_payment_terms: string | null; first_payment_terms: string | null } | null; error: { message: string } | null }> } } } })
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { eq: (c: string, v: string) => { single: () => Promise<{ data: { pricing_multiplier: number | null; valor: number | null; quote_category: string | null; default_vat_rate: number | null; default_payment_terms: string | null; first_payment_terms: string | null; fee_source_mode: string | null } | null; error: { message: string } | null }> } } } })
         .from("fee_proposals")
-        .select("pricing_multiplier,valor,quote_category,default_vat_rate,default_payment_terms,first_payment_terms")
+        .select("pricing_multiplier,valor,quote_category,default_vat_rate,default_payment_terms,first_payment_terms,fee_source_mode")
         .eq("id", quoteId)
         .single();
       if (error) throw new Error(error.message);
@@ -179,6 +179,8 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
   const allocations = allocationsQ.data ?? [];
   const externals = externalsQ.data ?? [];
   const pricingMultiplier = Number(quoteQ.data?.pricing_multiplier ?? 1) || 1;
+  const feeSourceMode: "allocation" | "budget" =
+    quoteQ.data?.fee_source_mode === "budget" ? "budget" : "allocation";
   const defaultVatRate = Number(quoteQ.data?.default_vat_rate ?? 23) || 23;
   const paymentDefaults: PaymentDefaults = {
     vatRate: defaultVatRate,
@@ -190,9 +192,11 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
     externalServices: externals,
     pricingMultiplier,
     category: (quoteQ.data?.quote_category as "project" | "time_based" | "retainer" | "consultancy" | undefined) ?? undefined,
+    feeSourceMode,
+    stages,
   });
   const totalFee = rollup.totalFee || Number(quoteQ.data?.valor ?? 0) || 0;
-  const leafStageFees = computeStageFees(stages, allocations, externals, pricingMultiplier);
+  const leafStageFees = computeStageFees(stages, allocations, externals, pricingMultiplier, feeSourceMode);
   // Roll children up into their parent bars (calculated/fixed budget mode),
   // then merge so per-item amount resolution can look up either map.
   const topLevelStageFees = rolledUpBillableFees(stages, leafStageFees);
