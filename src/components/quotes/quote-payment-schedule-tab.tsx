@@ -643,6 +643,9 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
   return (
     <div className="space-y-6">
 
+      <QuoteFeeSourceToggle quoteId={quoteId} />
+
+
       {/* Quote-level billing defaults */}
       <Card>
         <CardHeader className="pb-3">
