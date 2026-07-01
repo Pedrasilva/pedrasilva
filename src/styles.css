@@ -1048,6 +1048,13 @@
   width: 100%;
   max-width: 100%;
 }
+/* When horizontally anchored, let the child shrink so justify-content works. */
+.proposal-print-block[data-page-align-x="left"] > *,
+.proposal-print-block[data-page-align-x="right"] > * {
+  width: auto;
+  max-width: 100%;
+}
+.proposal-print-block[data-page-align-x="left"]   > * { text-align: left; }
 .proposal-print-block[data-page-align-x="center"] > * { text-align: center; }
 .proposal-print-block[data-page-align-x="right"]  > * { text-align: right; }
 
