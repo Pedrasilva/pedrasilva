@@ -4,7 +4,7 @@
  * would migrate to the future Contract Composer.
  */
 import { useState } from "react";
-import { FileDown, Printer, FileSignature } from "lucide-react";
+import { FileDown, Printer, FileSignature, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useUpdateProposal } from "@/lib/psa-proposal/use-psa-proposal";
 import type {
   PsaProposal,
@@ -23,6 +30,7 @@ import type {
 } from "@/lib/psa-proposal/types";
 import { ConvertToContractDialog } from "./convert-to-contract-dialog";
 import { ProposalHistoryDialog } from "./proposal-history-dialog";
+import { ProposalStylePanel } from "./proposal-style-panel";
 import { useAutoSnapshotTrigger } from "@/lib/psa-proposal/use-proposal-history";
 import { useEffect } from "react";
 
@@ -76,6 +84,25 @@ export function ComposerTopBar({
       </Select>
       <div className="ml-auto flex items-center gap-2">
         <ProposalHistoryDialog proposalId={proposal.id} />
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              title="Definições da proposta (tipografia, margens, cabeçalho, rodapé)"
+            >
+              <Settings className="mr-1 h-3.5 w-3.5" /> Definições
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[380px] overflow-y-auto sm:max-w-[380px]">
+            <SheetHeader>
+              <SheetTitle>Definições da Proposta</SheetTitle>
+            </SheetHeader>
+            <div className="mt-4">
+              <ProposalStylePanel proposal={proposal} />
+            </div>
+          </SheetContent>
+        </Sheet>
         <Button
           variant="outline"
           size="sm"
