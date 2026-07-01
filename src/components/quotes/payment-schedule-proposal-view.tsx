@@ -746,8 +746,52 @@ export function PaymentScheduleProposalView({
                 </Card>
               );
             })}
+            {hasOptional && (
+              <Card key="optional" className="border-amber-300 dark:border-amber-800">
+                <CardHeader className="pb-3 bg-amber-50 dark:bg-amber-950/40">
+                  <div className="flex items-baseline justify-between gap-4">
+                    <CardTitle className="text-sm uppercase tracking-wide">
+                      Serviços opcionais — não incluídos no total do contrato
+                    </CardTitle>
+                    <div className="text-base font-semibold tabular-nums">{formatEUR(optionalTotal)}</div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-3">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/40">
+                        <TableHead>Fase</TableHead>
+                        <TableHead className="text-right">Valor sem IVA</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {optionalRows.map((r) => (
+                        <TableRow key={r.stageId}>
+                          <TableCell
+                            className={r.level === 0 ? "font-medium" : "pl-6 text-muted-foreground"}
+                            style={{ paddingLeft: r.level > 0 ? `${1 + r.level * 1.25}rem` : undefined }}
+                          >
+                            {r.level > 0 ? `↳ ${r.name}` : r.name}
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums">{formatEUR(r.amount)}</TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
+                        <TableCell>Total opcional</TableCell>
+                        <TableCell className="text-right tabular-nums">{formatEUR(optionalTotal)}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                  <p className="mt-3 text-[11px] text-muted-foreground">
+                    Estes serviços são apresentados a título indicativo e não fazem parte do valor total do contrato.
+                    Caso sejam adjudicados, serão faturados em adenda.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         );
+
 
       })()}
 
