@@ -229,6 +229,28 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
         />
       </div>
 
+      <div className="space-y-1">
+        <Label className="text-xs">Margem esquerda ({marginLeft} mm)</Label>
+        <Slider
+          min={5}
+          max={60}
+          step={1}
+          value={[marginLeft]}
+          onValueChange={([v]) => patch({ marginLeft: v })}
+        />
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">Margem direita ({marginRight} mm)</Label>
+        <Slider
+          min={5}
+          max={60}
+          step={1}
+          value={[marginRight]}
+          onValueChange={([v]) => patch({ marginRight: v })}
+        />
+      </div>
+
       <div className="pt-2 border-t border-zinc-200" />
 
       <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
