@@ -59,6 +59,8 @@ export interface PsaProposalStyleSettings {
   headingScale?: number; // multiplier for heading sizes (1 = default)
   marginTop?: number; // mm — top margin (controls header→body space)
   marginBottom?: number; // mm — bottom margin (controls body→footer space)
+  marginLeft?: number; // mm — left page margin
+  marginRight?: number; // mm — right page margin
   // Header / footer content — editable per proposal.
   showHeader?: boolean;
   showFooter?: boolean;
