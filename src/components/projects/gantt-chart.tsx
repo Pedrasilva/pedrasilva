@@ -139,7 +139,16 @@ interface DragState {
   startX: number;
   origStart: string;
   origEnd: string;
+  /** For allocation drags: the parent stage bounds so the bar can be
+   *  clamped inside its stage. Undefined for stage drags. */
+  stageStart?: string;
+  stageEnd?: string;
 }
+
+/** Minimum pointer displacement before a drag begins mutating dates.
+ *  Prevents accidental shifts when the user taps/clicks the card
+ *  (especially on touch or at small dayWidth in "Fit" zoom). */
+const DRAG_THRESHOLD_PX = 6;
 
 interface LinkDragState {
   fromStageId: string;
