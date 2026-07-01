@@ -63,6 +63,23 @@ export function rollupQuoteAllocations(
   };
 }
 
+/** Sum stage.budget across leaf stages (parents whose id appears as a
+ *  parent_stage_id are skipped so budgets aren't double-counted). */
+export function sumLeafBudgets(
+  stages: Array<{ id: string; budget?: number | string | null; parent_stage_id?: string | null }>,
+): number {
+  const parents = new Set<string>();
+  for (const s of stages) {
+    if (s.parent_stage_id) parents.add(s.parent_stage_id);
+  }
+  let total = 0;
+  for (const s of stages) {
+    if (parents.has(s.id)) continue;
+    total += Number(s.budget ?? 0) || 0;
+  }
+  return Math.round(total * 100) / 100;
+}
+
 export interface QuoteFinancialSummary {
   internal: FinancialsRow & { hours: number };
   external: FinancialsRow;
@@ -76,12 +93,16 @@ export interface QuoteFinancialSummary {
 
 export type QuoteCategoryHint = "project" | "time_based" | "retainer" | "consultancy";
 
+export type QuoteFeeSourceMode = "allocation" | "budget";
+
 export function rollupQuote({
   allocations,
   externalServices,
   pricingMultiplier = 1,
   category,
   timeBasedSettings,
+  feeSourceMode = "allocation",
+  stages = [],
 }: {
   allocations: QuoteAllocationWithResource[];
   externalServices: QuoteExternalServiceWithSupplier[];
@@ -92,14 +113,29 @@ export function rollupQuote({
    *  for time-based / retainer quotes). */
   category?: QuoteCategoryHint;
   timeBasedSettings?: TimeBasedSettings | null;
+  /** How to derive the sale/fee side: sum of resource allocations
+   *  (default) or sum of manually-typed stage budgets. */
+  feeSourceMode?: QuoteFeeSourceMode;
+  /** Required when feeSourceMode === "budget": the stage rows carrying
+   *  the manual budget values. */
+  stages?: Array<{ id: string; budget?: number | string | null; parent_stage_id?: string | null }>;
 }): QuoteFinancialSummary {
   const internal = rollupQuoteAllocations(allocations);
   const external = rollupExternalServices(externalServices);
 
   const m = pricingMultiplier > 0 ? pricingMultiplier : 1;
-  let internalFee = internal.value * m;
+  let internalFee =
+    feeSourceMode === "budget"
+      ? sumLeafBudgets(stages) * m
+      : internal.value * m;
   const externalFee = external.value * m;
   const totalCost = internal.cost + external.cost;
+
+  if (feeSourceMode === "budget") {
+    internal.value = internalFee / m;
+    internal.budget = internal.value;
+    internal.profit = internal.value - internal.cost;
+  }
 
   // Time-based / retainer: derive fee from the saved commercial settings
   // when allocations are empty so the financial summary is not blank.

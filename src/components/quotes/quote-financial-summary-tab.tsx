@@ -25,6 +25,7 @@ import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings, marginBand } from "@/lib/quotes/quote-warnings";
 import { QuoteWarningsBanner } from "@/components/quotes/quote-warnings-banner";
+import { QuoteFeeSourceToggle } from "@/components/quotes/quote-fee-source-toggle";
 import { formatEUR, normalizeQuoteCategory } from "@/lib/crm/types";
 import { parseTimeBasedSettings } from "@/lib/quotes/time-based-settings";
 import { useTeamPricingAverages } from "@/lib/quotes/use-team-pricing-averages";
@@ -109,7 +110,7 @@ export function QuoteFinancialSummaryTab({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("fee_proposals")
-        .select("quote_category, quote_type, time_based_settings")
+        .select("quote_category, quote_type, time_based_settings, fee_source_mode")
         .eq("id", quoteId)
         .single();
       if (error) throw error;
@@ -117,6 +118,7 @@ export function QuoteFinancialSummaryTab({
         quote_category: string | null;
         quote_type: string | null;
         time_based_settings: unknown;
+        fee_source_mode: string | null;
       };
     },
   });
@@ -172,12 +174,16 @@ export function QuoteFinancialSummaryTab({
     ? parseTimeBasedSettings(quoteRow.time_based_settings, quoteRow.quote_type)
     : null;
 
+  const feeSourceMode: "allocation" | "budget" =
+    quoteRow?.fee_source_mode === "budget" ? "budget" : "allocation";
   const summary = rollupQuote({
     allocations,
     externalServices,
     pricingMultiplier: liveMultiplier,
     category,
     timeBasedSettings,
+    feeSourceMode,
+    stages,
   });
 
   const band = marginBand(summary.effectiveMargin);
@@ -206,6 +212,7 @@ export function QuoteFinancialSummaryTab({
 
   return (
     <div className="space-y-6">
+      <QuoteFeeSourceToggle quoteId={quoteId} />
       <QuoteWarningsBanner warnings={warnings} />
 
 

@@ -146,19 +146,42 @@ export const DEFAULT_STAGE_MILESTONE_OPTIONS: StageMilestonesOptions = {
  * Multiplier is applied to the sale side, matching `rollupQuote`.
  * Stages with no rows return 0.
  */
+export type FeeSourceMode = "allocation" | "budget";
+
 export function computeStageFees(
   stages: QuoteStage[],
   allocations: QuoteAllocationWithResource[],
   externalServices: QuoteExternalServiceWithSupplier[],
   pricingMultiplier = 1,
+  feeSourceMode: FeeSourceMode = "allocation",
 ): Record<string, number> {
   const m = pricingMultiplier > 0 ? pricingMultiplier : 1;
   const map: Record<string, number> = {};
   for (const s of stages) map[s.id] = 0;
-  for (const a of allocations) {
-    if (!a.stage_id || !(a.stage_id in map)) continue;
-    map[a.stage_id] += quoteAllocationLine(a).revenue * m;
+
+  if (feeSourceMode === "budget") {
+    // Budget mode: leaf fee = stage.budget (typed by the user). Parents are
+    // rolled up downstream via rolledUpBillableFees.
+    const childrenByParent = new Map<string, QuoteStage[]>();
+    for (const s of stages) {
+      const p = (s as unknown as { parent_stage_id?: string | null }).parent_stage_id ?? null;
+      if (!p) continue;
+      const list = childrenByParent.get(p) ?? [];
+      list.push(s);
+      childrenByParent.set(p, list);
+    }
+    for (const s of stages) {
+      const isLeaf = !childrenByParent.has(s.id);
+      if (isLeaf) map[s.id] += Number(s.budget ?? 0) || 0;
+    }
+  } else {
+    for (const a of allocations) {
+      if (!a.stage_id || !(a.stage_id in map)) continue;
+      map[a.stage_id] += quoteAllocationLine(a).revenue * m;
+    }
   }
+
+  // External services always count (they are real supplier commitments).
   for (const es of externalServices) {
     if (!es.stage_id || !(es.stage_id in map)) continue;
     const value = Number(es.sale_price ?? 0) * Number(es.quantity ?? 1);
