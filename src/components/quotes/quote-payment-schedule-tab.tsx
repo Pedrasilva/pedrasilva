@@ -701,19 +701,18 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         </CardContent>
       </Card>
 
-      {/* Global update action — sticky so it stays visible while scrolling. */}
-      <div className="sticky top-0 z-20 -mx-1 flex items-center justify-between gap-3 rounded-md border bg-background/95 px-3 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/75">
-        <div className="text-xs text-muted-foreground">
-          {t("workspace.payment.globalUpdateHint", {
+      {/* Global update action — floating button anchored to the viewport so it
+          stays visible regardless of scroll or containing overflow contexts. */}
+      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
+        <Button
+          size="sm"
+          className="gap-2 shadow-lg"
+          onClick={syncFromGantt}
+          disabled={upsert.isPending || applyGen.isPending}
+          title={t("workspace.payment.globalUpdateHint", {
             defaultValue:
               "Regenerate the full billing schedule from the current Gantt (budgets, dates, suppliers). Manual rows are preserved.",
           })}
-        </div>
-        <Button
-          size="sm"
-          className="gap-2 shrink-0"
-          onClick={syncFromGantt}
-          disabled={upsert.isPending || applyGen.isPending}
         >
           <RefreshCw className="h-3.5 w-3.5" />
           {t("workspace.payment.globalUpdate", { defaultValue: "Update schedule from Gantt" })}
