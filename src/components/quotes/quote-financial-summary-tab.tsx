@@ -109,7 +109,7 @@ export function QuoteFinancialSummaryTab({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("fee_proposals")
-        .select("quote_category, quote_type, time_based_settings")
+        .select("quote_category, quote_type, time_based_settings, fee_source_mode")
         .eq("id", quoteId)
         .single();
       if (error) throw error;
@@ -117,6 +117,7 @@ export function QuoteFinancialSummaryTab({
         quote_category: string | null;
         quote_type: string | null;
         time_based_settings: unknown;
+        fee_source_mode: string | null;
       };
     },
   });
