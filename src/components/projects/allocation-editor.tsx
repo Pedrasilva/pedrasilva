@@ -385,15 +385,15 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
                   <div className="flex items-center gap-1">
                     <Input
                       type="number"
+                      inputMode="decimal"
                       min={0}
                       max={24}
                       step={0.1}
-                      value={hours}
-                      onChange={(e) => {
-                        const h = Number(e.target.value);
-                        setHours(round1(h));
-                        if (recoverableHoursPerDay > 0) {
-                          setPct(Math.max(0, Math.min(100, Math.round((h / recoverableHoursPerDay) * 100))));
+                      value={hoursText}
+                      onChange={(e) => onHoursChange(e.target.value)}
+                      onBlur={() => {
+                        if (hoursText.trim() === "" || !Number.isFinite(Number(hoursText))) {
+                          setHoursText(String(hours));
                         }
                       }}
                       className="h-7 w-20 text-right font-mono text-[11px]"
