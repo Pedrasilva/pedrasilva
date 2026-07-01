@@ -846,11 +846,11 @@
     background-size: 100% auto;
     -webkit-mask-image: linear-gradient(to right,
       black 0, black var(--psa-margin-left),
-      transparent var(--psa-margin-left), transparent calc(100% - var(--psa-margin-x)),
+      transparent var(--psa-margin-left), transparent calc(100% - var(--psa-margin-right)),
       black calc(100% - var(--psa-margin-left)), black 100%);
             mask-image: linear-gradient(to right,
       black 0, black var(--psa-margin-left),
-      transparent var(--psa-margin-left), transparent calc(100% - var(--psa-margin-x)),
+      transparent var(--psa-margin-left), transparent calc(100% - var(--psa-margin-right)),
       black calc(100% - var(--psa-margin-left)), black 100%);
   }
   .proposal-page-header,
