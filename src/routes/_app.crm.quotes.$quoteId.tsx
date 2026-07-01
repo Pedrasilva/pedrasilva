@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { QuoteWorkflowActions } from "@/components/quotes/quote-workflow-actions";
 import { InlineEditableTitle } from "@/components/inline-editable-title";
@@ -51,6 +51,7 @@ import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
+import { useSyncQuotePaymentScheduleFromGantt } from "@/lib/quotes/use-sync-quote-payment-schedule";
 import { rollupQuote } from "@/lib/quotes/financial-rollups";
 import {
   anchorMonthStart,
@@ -726,6 +727,7 @@ function QuoteDetail() {
   const allocsQ = useQuoteAllocations(quoteId);
   const externalQ = useQuoteExternalServices(quoteId);
   const paymentQ = useQuotePaymentSchedule(quoteId);
+  const scheduleSync = useSyncQuotePaymentScheduleFromGantt(quoteId);
   void rollupQuote; // keep import — used by conversion mutation above
 
 
@@ -848,6 +850,19 @@ function QuoteDetail() {
             <span className={`h-2 w-2 rounded-full ${status?.color}`} />
             {status ? t(`quoteStatus.${status.value}`) : ""}
           </span>
+          {(isProject || isRetainer) && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={scheduleSync.syncFromGantt}
+              disabled={scheduleSync.disabled || isLocked}
+              title={t("workspace.payment.headerUpdateHint")}
+            >
+              <RefreshCw className={cn("h-4 w-4", scheduleSync.isPending && "animate-spin")} />
+              {t("workspace.payment.headerUpdate")}
+            </Button>
+          )}
           <QuoteWorkflowActions
             quoteId={quoteId}
             status={quote.quote_status}

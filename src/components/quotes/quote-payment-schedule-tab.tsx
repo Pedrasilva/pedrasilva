@@ -22,7 +22,7 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, ArrowUp, ArrowDown, Wand2, Pencil, RefreshCw } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Wand2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import {
   useQuotePaymentSchedule,
@@ -701,24 +701,6 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         </CardContent>
       </Card>
 
-      {/* Global update action — floating button anchored to the viewport so it
-          stays visible regardless of scroll or containing overflow contexts. */}
-      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
-        <Button
-          size="sm"
-          className="gap-2 shadow-lg"
-          onClick={syncFromGantt}
-          disabled={upsert.isPending || applyGen.isPending}
-          title={t("workspace.payment.globalUpdateHint", {
-            defaultValue:
-              "Regenerate the full billing schedule from the current Gantt (budgets, dates, suppliers). Manual rows are preserved.",
-          })}
-        >
-          <RefreshCw className="h-3.5 w-3.5" />
-          {t("workspace.payment.globalUpdate", { defaultValue: "Update schedule from Gantt" })}
-        </Button>
-      </div>
-
       {/* Proposal-style read-only layout (mirrors printed proposal) */}
       <PaymentScheduleProposalView
         items={items}
@@ -739,17 +721,6 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 py-3">
           <CardTitle className="text-base">{t("workspace.payment.title")}</CardTitle>
           <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-2"
-              onClick={syncFromGantt}
-              disabled={upsert.isPending || applyGen.isPending}
-              title={t("workspace.payment.syncFromGanttHint", { defaultValue: "Pull any missing suppliers from the planning Gantt into the schedule" })}
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-              {t("workspace.payment.syncFromGantt", { defaultValue: "Update from Gantt" })}
-            </Button>
             <Popover>
               <PopoverTrigger asChild>
                 <Button size="sm" variant="outline" className="gap-2">
