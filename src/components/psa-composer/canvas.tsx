@@ -36,6 +36,7 @@ import { BlockBody } from "./block-renderer";
 import { RelevanceBadge } from "./relevance-badge";
 import { useLiveQuoteSnapshot } from "@/lib/psa-proposal/live-data";
 import { useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
+import psaLogo from "@/assets/logotipo-psa.jpg.asset.json";
 
 // Blocks whose primary content is free rich text — editable inline on canvas.
 const INLINE_EDITABLE_TYPES: PsaBlockType[] = [
@@ -214,8 +215,11 @@ export function ComposerCanvas({
         {showHeader && (
           <div className="proposal-page-header">
             <div className="proposal-letterhead-brand">
-              {headerBrand && <span className="proposal-letterhead-brand-line">{headerBrand}</span>}
-              {headerBrandSub && <span className="proposal-letterhead-brand-sub">{headerBrandSub}</span>}
+              <img
+                src={psaLogo.url}
+                alt={`${headerBrand ?? "Pedra Silva"} ${headerBrandSub ?? "Architects"}`.trim()}
+                className="proposal-letterhead-logo"
+              />
             </div>
             <div className="proposal-letterhead-contact">
               {headerEmail && <div>{headerEmail}</div>}
