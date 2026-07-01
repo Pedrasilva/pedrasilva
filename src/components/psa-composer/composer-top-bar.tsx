@@ -90,6 +90,31 @@ export function ComposerTopBar({
           onClick={() => setConvertOpen(true)}
           title="Pré-visualizar migração para contrato"
         >
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              title="Definições da proposta (tipografia, margens, cabeçalho, rodapé)"
+            >
+              <Settings className="mr-1 h-3.5 w-3.5" /> Definições
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[380px] overflow-y-auto sm:max-w-[380px]">
+            <SheetHeader>
+              <SheetTitle>Definições da Proposta</SheetTitle>
+            </SheetHeader>
+            <div className="mt-4">
+              <ProposalStylePanel proposal={proposal} />
+            </div>
+          </SheetContent>
+        </Sheet>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setConvertOpen(true)}
+          title="Pré-visualizar migração para contrato"
+        >
           <FileSignature className="mr-1 h-3.5 w-3.5" /> Converter para Contrato
         </Button>
         <Button variant="outline" size="sm" onClick={() => window.print()}>
