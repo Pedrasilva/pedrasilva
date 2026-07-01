@@ -18,18 +18,17 @@ import {
 } from "./use-quote-external-services";
 import { useApplyPaymentGenerator } from "./use-quote-payment-schedule";
 import { useQuoteStages } from "./use-quote-stages";
+import type { QuoteStage } from "./types";
 
-type SupplierStage = ReturnType<typeof useQuoteStages>["data"] extends Array<infer T>
-  ? T & {
-      parent_stage_id?: string | null;
-      supplier_id?: string | null;
-      supplier_placeholder?: string | null;
-      is_self?: boolean | null;
-      supplier_company_id?: string | null;
-      budget?: number | null;
-      budget_mode?: string | null;
-    }
-  : never;
+type SupplierStage = QuoteStage & {
+  parent_stage_id?: string | null;
+  supplier_id?: string | null;
+  supplier_placeholder?: string | null;
+  is_self?: boolean | null;
+  supplier_company_id?: string | null;
+  budget?: number | null;
+  budget_mode?: string | null;
+};
 
 type InheritedSupplier =
   | { kind: "self" }
