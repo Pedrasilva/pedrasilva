@@ -131,6 +131,12 @@ export function rollupQuote({
   const externalFee = external.value * m;
   const totalCost = internal.cost + external.cost;
 
+  if (feeSourceMode === "budget") {
+    internal.value = internalFee / m;
+    internal.budget = internal.value;
+    internal.profit = internal.value - internal.cost;
+  }
+
   // Time-based / retainer: derive fee from the saved commercial settings
   // when allocations are empty so the financial summary is not blank.
   const isTimeBased = category === "time_based" || category === "consultancy";
