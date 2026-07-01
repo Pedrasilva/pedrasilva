@@ -14,7 +14,20 @@ import {
   formatDatePT,
   formatDurationAdaptive,
 } from "@/lib/psa-proposal/live-data";
-import { buildTokenMap, resolveTokens } from "@/lib/psa-proposal/tokens";
+import {
+  buildTokenMap,
+  buildTokenPickerEntries,
+  resolveTokens,
+} from "@/lib/psa-proposal/tokens";
+import { cn } from "@/lib/utils";
+import {
+  RichTextEditor,
+  spacingClass,
+  lineHeightClass,
+} from "./rich-text-editor";
+
+type Spacing = "tight" | "normal" | "relaxed" | "loose";
+type LineHeight = "tight" | "normal" | "relaxed" | "loose";
 
 function H({ children }: { children: React.ReactNode }) {
   return (
@@ -43,19 +56,23 @@ function RichContent({
   html,
   text,
   tokenMap,
+  paragraphSpacing,
+  lineHeight,
 }: {
   html?: string;
   text?: string;
   tokenMap?: Record<string, string>;
+  paragraphSpacing?: Spacing;
+  lineHeight?: LineHeight;
 }) {
+  const wrapClass = cn(
+    "psa-rich text-sm leading-relaxed text-zinc-800 [&_h2]:proposal-print-heading [&_h3]:proposal-print-heading [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:ml-5 [&_ol]:list-decimal [&_li]:mb-0.5 [&_a]:text-blue-700 [&_a]:underline [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-zinc-300 [&_th]:bg-zinc-50 [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_td]:border [&_td]:border-zinc-300 [&_td]:px-2 [&_td]:py-1",
+    spacingClass(paragraphSpacing),
+    lineHeightClass(lineHeight),
+  );
   if (html && html.trim() && html !== "<p></p>" && html !== "<p><br></p>") {
     const resolved = tokenMap ? resolveTokens(html, tokenMap).output : html;
-    return (
-      <div
-        className="psa-rich text-sm leading-relaxed text-zinc-800 [&_h2]:proposal-print-heading [&_h3]:proposal-print-heading [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_p]:mb-2 [&_ul]:mb-2 [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:mb-2 [&_ol]:ml-5 [&_ol]:list-decimal [&_li]:mb-0.5 [&_a]:text-blue-700 [&_a]:underline [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-zinc-300 [&_th]:bg-zinc-50 [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_td]:border [&_td]:border-zinc-300 [&_td]:px-2 [&_td]:py-1"
-        dangerouslySetInnerHTML={{ __html: resolved }}
-      />
-    );
+    return <div className={wrapClass} dangerouslySetInnerHTML={{ __html: resolved }} />;
   }
   if (text && text.trim()) {
     const resolved = tokenMap
@@ -64,11 +81,13 @@ function RichContent({
         )
       : text;
     return (
-      <>
+      <div className={wrapClass}>
         {resolved.split("\n\n").map((para, i) => (
-          <P key={i}>{para}</P>
+          <p key={i} className="mb-2">
+            {para}
+          </p>
         ))}
-      </>
+      </div>
     );
   }
   return null;
@@ -114,19 +133,51 @@ export function BlockBody({
   live,
   chapterNumber,
   toc,
+  editable,
+  onPatchContent,
 }: {
   block: PsaProposalBlock;
   live: LiveQuoteSnapshot | undefined;
   chapterNumber: number | null;
   toc?: { chapter: number; title: string }[];
+  editable?: boolean;
+  onPatchContent?: (patch: Record<string, unknown>) => void;
 }) {
 
   const text = (block.content_rich?.text as string | undefined) ?? "";
   const html = (block.content_rich?.html as string | undefined) ?? "";
+  const paragraphSpacing = block.content_rich?.paragraphSpacing as Spacing | undefined;
+  const lineHeight = block.content_rich?.lineHeight as LineHeight | undefined;
   const num = chapterNumber ? `${chapterNumber}. ` : "";
   const richHas = hasRichContent(html, text);
   const tokenMap = buildTokenMap(live);
-  const rich = <RichContent html={html} text={text} tokenMap={tokenMap} />;
+  const tokenEntries = buildTokenPickerEntries(live);
+
+  const rich =
+    editable && onPatchContent ? (
+      <RichTextEditor
+        value={
+          html ||
+          (text ? `<p>${text.split("\n\n").join("</p><p>")}</p>` : "")
+        }
+        onChange={({ html: h, text: t }) => onPatchContent({ html: h, text: t })}
+        placeholder="Escreva o conteúdo deste bloco..."
+        tokenEntries={tokenEntries}
+        paragraphSpacing={paragraphSpacing}
+        lineHeight={lineHeight}
+        onParagraphSpacingChange={(v) => onPatchContent({ paragraphSpacing: v })}
+        onLineHeightChange={(v) => onPatchContent({ lineHeight: v })}
+        editorClassName="border-0 rounded-none bg-transparent px-0 py-0 shadow-none focus:ring-0"
+      />
+    ) : (
+      <RichContent
+        html={html}
+        text={text}
+        tokenMap={tokenMap}
+        paragraphSpacing={paragraphSpacing}
+        lineHeight={lineHeight}
+      />
+    );
 
   // Self stages only — PSA-facing tables must exclude supplier rows. The
   // consultants block is the place where suppliers appear.
@@ -134,8 +185,12 @@ export function BlockBody({
 
   function fallback(blockType: string) {
     const t = DEFAULT_TEXT[blockType];
+    if (editable && onPatchContent) {
+      return rich;
+    }
     return t ? <P>{t}</P> : <Empty>Sem conteúdo. Edite no painel direito.</Empty>;
   }
+
 
   switch (block.block_type) {
     case "cover":

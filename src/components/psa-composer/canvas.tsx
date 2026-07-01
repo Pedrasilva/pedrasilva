@@ -35,6 +35,22 @@ import type { PsaProposalBlock, PsaBlockType } from "@/lib/psa-proposal/types";
 import { BlockBody } from "./block-renderer";
 import { RelevanceBadge } from "./relevance-badge";
 import { useLiveQuoteSnapshot } from "@/lib/psa-proposal/live-data";
+import { useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
+
+// Blocks whose primary content is free rich text — editable inline on canvas.
+const INLINE_EDITABLE_TYPES: PsaBlockType[] = [
+  "about",
+  "scope",
+  "stage_list",
+  "stage_item",
+  "custom_text",
+  "construction_fee",
+  "payment_terms",
+  "additional_services",
+  "general",
+  "suspension",
+  "exclusions",
+];
 
 const NON_NUMBERED: PsaBlockType[] = ["cover", "index", "acceptance", "page_break"];
 
@@ -45,6 +61,7 @@ function SortableRow({
   selected,
   quoteIdHint,
   onSelect,
+  onPatchContent,
 }: {
   block: PsaProposalBlock;
   chapter: number | null;
@@ -52,6 +69,7 @@ function SortableRow({
   selected: boolean;
   quoteIdHint: string | null;
   onSelect: () => void;
+  onPatchContent: (patch: Record<string, unknown>) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: block.id });
@@ -108,13 +126,21 @@ function SortableRow({
         {!block.is_visible && <EyeOff className="h-3 w-3" />}
         {block.is_locked && <Lock className="h-3 w-3" />}
       </div>
-      <BlockBody block={block} live={live} chapterNumber={chapter} toc={toc} />
+      <BlockBody
+        block={block}
+        live={live}
+        chapterNumber={chapter}
+        toc={toc}
+        editable={selected && INLINE_EDITABLE_TYPES.includes(block.block_type) && !block.is_locked}
+        onPatchContent={onPatchContent}
+      />
     </div>
   );
 }
 
 
 export function ComposerCanvas({
+  proposalId,
   blocks,
   selectedId,
   onSelect,
@@ -122,6 +148,7 @@ export function ComposerCanvas({
   quoteIdHint,
   styleSettings,
 }: {
+  proposalId: string;
   blocks: PsaProposalBlock[];
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -129,6 +156,7 @@ export function ComposerCanvas({
   quoteIdHint: string | null;
   styleSettings?: import("@/lib/psa-proposal/types").PsaProposalStyleSettings;
 }) {
+  const update = useUpdateBlock(proposalId);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -199,6 +227,14 @@ export function ComposerCanvas({
                   selected={selectedId === b.id}
                   quoteIdHint={quoteIdHint}
                   onSelect={() => onSelect(b.id)}
+                  onPatchContent={(patch) =>
+                    update.mutate({
+                      id: b.id,
+                      patch: {
+                        content_rich: { ...(b.content_rich ?? {}), ...patch },
+                      },
+                    })
+                  }
                 />
               ))}
 
