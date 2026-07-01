@@ -25,7 +25,7 @@ export function isOptionalStage(
   while (cur && !seen.has(cur.id)) {
     if (cur.is_optional === true) return true;
     seen.add(cur.id);
-    const pid = cur.parent_stage_id ?? null;
+    const pid: string | null = cur.parent_stage_id ?? null;
     cur = pid ? (byId.get(pid) as StageLike | undefined) : undefined;
   }
   return false;
