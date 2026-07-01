@@ -435,6 +435,8 @@
   --psa-page-w: 210mm;
   --psa-page-h: 297mm;
   --psa-margin-x: 14mm;
+  --psa-margin-left: var(--psa-margin-x);
+  --psa-margin-right: var(--psa-margin-x);
   --psa-margin-top: 34mm;    /* room for the logo while keeping the header close to the page edge */
   --psa-margin-bottom: 32mm; /* extra room so body text cannot run into the fixed footer */
   --psa-header-top: 8mm;
