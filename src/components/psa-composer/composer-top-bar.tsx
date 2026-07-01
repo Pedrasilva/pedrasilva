@@ -4,7 +4,7 @@
  * would migrate to the future Contract Composer.
  */
 import { useState } from "react";
-import { FileDown, Printer, FileSignature } from "lucide-react";
+import { FileDown, Printer, FileSignature, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useUpdateProposal } from "@/lib/psa-proposal/use-psa-proposal";
 import type {
   PsaProposal,
@@ -23,6 +30,7 @@ import type {
 } from "@/lib/psa-proposal/types";
 import { ConvertToContractDialog } from "./convert-to-contract-dialog";
 import { ProposalHistoryDialog } from "./proposal-history-dialog";
+import { ProposalStylePanel } from "./proposal-style-panel";
 import { useAutoSnapshotTrigger } from "@/lib/psa-proposal/use-proposal-history";
 import { useEffect } from "react";
 
