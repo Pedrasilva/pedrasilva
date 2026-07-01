@@ -227,6 +227,14 @@ export function ComposerCanvas({
                   selected={selectedId === b.id}
                   quoteIdHint={quoteIdHint}
                   onSelect={() => onSelect(b.id)}
+                  onPatchContent={(patch) =>
+                    update.mutate({
+                      id: b.id,
+                      patch: {
+                        content_rich: { ...(b.content_rich ?? {}), ...patch },
+                      },
+                    })
+                  }
                 />
               ))}
 
