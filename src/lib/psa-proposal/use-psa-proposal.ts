@@ -253,6 +253,7 @@ export const BLOCK_TYPE_LABEL: Record<PsaBlockType, string> = {
   timeline: "Cronograma",
   gantt_design: "Gantt — Projeto",
   gantt_construction: "Gantt — Obra",
+  gantt_partial: "Gantt Parcial",
   consultants: "Consultores",
   fee_table: "Tabela de Honorários",
   construction_fee: "Honorários em Obra",
