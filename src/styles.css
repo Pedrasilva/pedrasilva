@@ -1023,3 +1023,31 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.9em;
 }
+
+/* ─── Page-align blocks ──────────────────────────────────────────
+   When a block has data-page-align-y (top/middle/bottom) or
+   data-page-align-x (left/center/right) it fills a full A4 content
+   area on its own page, so the user can anchor a single block to
+   (e.g.) the bottom-left of the page. */
+.proposal-print-document .proposal-print-block[data-page-aligned="true"] {
+  display: flex;
+  width: 100%;
+  min-height: calc(var(--psa-page-h) - var(--psa-margin-top) - var(--psa-margin-bottom));
+  page-break-before: always;
+  break-before: page;
+  page-break-after: always;
+  break-after: page;
+}
+.proposal-print-block[data-page-align-y="top"]    { align-items: flex-start; }
+.proposal-print-block[data-page-align-y="middle"] { align-items: center; }
+.proposal-print-block[data-page-align-y="bottom"] { align-items: flex-end; }
+.proposal-print-block[data-page-align-x="left"]   { justify-content: flex-start; }
+.proposal-print-block[data-page-align-x="center"] { justify-content: center; }
+.proposal-print-block[data-page-align-x="right"]  { justify-content: flex-end; }
+.proposal-print-block[data-page-aligned="true"] > * {
+  width: 100%;
+  max-width: 100%;
+}
+.proposal-print-block[data-page-align-x="center"] > * { text-align: center; }
+.proposal-print-block[data-page-align-x="right"]  > * { text-align: right; }
+
