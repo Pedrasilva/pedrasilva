@@ -188,6 +188,14 @@ export function ComposerCanvas({
     onReorder(arrayMove(blocks, oldIdx, newIdx));
   }
 
+  const showHeader = styleSettings?.showHeader !== false;
+  const showFooter = styleSettings?.showFooter !== false;
+  const headerBrand = styleSettings?.headerBrand ?? "PEDRA SILVA";
+  const headerBrandSub = styleSettings?.headerBrandSub ?? "ARCHITECTS";
+  const headerEmail = styleSettings?.headerContactEmail ?? "info@pedrasilva.com";
+  const headerWebsite = styleSettings?.headerContactWebsite ?? "www.pedrasilva.com";
+  const footerAddress = styleSettings?.footerAddress ?? "Trav. Corpo Santo 10, 1.ºD\n1200-131 Lisboa, Portugal";
+
   const styleVars: React.CSSProperties = {};
   if (styleSettings?.headingFont) (styleVars as Record<string, string>)["--psa-heading-font"] = styleSettings.headingFont;
   if (styleSettings?.bodyFont) (styleVars as Record<string, string>)["--psa-body-font"] = styleSettings.bodyFont;
