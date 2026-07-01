@@ -39,6 +39,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
         </div>
         <div className="min-h-0 flex-1 overflow-auto bg-zinc-100 print:overflow-visible print:bg-white">
           <ComposerCanvas
+            proposalId={proposalId}
             blocks={items}
             selectedId={selectedId}
             quoteIdHint={proposal.data.quote_id}
