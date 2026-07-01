@@ -627,7 +627,8 @@ export function PaymentScheduleProposalView({
             ? allSections.filter((s) => s.key === "supplier")
             : allSections;
         const sections = filteredSections.filter((section) => section.rows.length > 0 && section.total > 0);
-        if (sections.length === 0) return null;
+        const hasOptional = !compositionOnly && !consultantsOnly && optionalRows.length > 0 && optionalTotal > 0;
+        if (sections.length === 0 && !hasOptional) return null;
         return (
           <div className="space-y-4">
             <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
