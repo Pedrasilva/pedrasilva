@@ -28,6 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatEUR } from "@/lib/crm/types";
 import type { QuotePaymentScheduleItem, QuoteStage } from "@/lib/quotes/types";
 import { resolveScheduleItemAmount } from "@/lib/quotes/payment-generators";
+import { isOptionalStage } from "@/lib/quotes/optional-stages";
 
 type BillingStatus = "planned" | "issued" | "paid" | "cancelled";
 
@@ -427,6 +428,8 @@ export function PaymentScheduleProposalView({
 
         const nodes = stages as StageNode[];
         const stageById = new Map(nodes.map((s) => [s.id, s]));
+        const isOptional = (s: StageNode) =>
+          isOptionalStage(s, stageById as unknown as Map<string, QuoteStage>);
         const childrenByParent = new Map<string, StageNode[]>();
         for (const stage of nodes) {
           const parentId = stage.parent_stage_id ?? null;
@@ -481,10 +484,16 @@ export function PaymentScheduleProposalView({
           if (as.end !== bs.end) return as.end < bs.end ? -1 : 1;
           return (a.sort_order ?? 0) - (b.sort_order ?? 0);
         };
+        // Contract sections exclude optional stages entirely. Optional trees
+        // are rendered in their own section below and don't count towards
+        // the contract total.
         const relevantChildren = (stage: StageNode, section: SectionKey): StageNode[] =>
           childList(stage)
+            .filter((child) => !isOptional(child))
             .filter((child) => (section === "supplier" ? isSupplierStage(child) : !isSupplierStage(child)))
             .sort(compareStages);
+        const optionalChildren = (stage: StageNode): StageNode[] =>
+          childList(stage).sort(compareStages);
         const ownAmount = (stage: StageNode): number => {
           const fee = Number(stageFees[stage.id] ?? 0);
           const budget = Number(stage.budget ?? 0);
@@ -524,7 +533,9 @@ export function PaymentScheduleProposalView({
         const roots = nodes
           .filter((stage) => !stage.parent_stage_id || !stageById.has(stage.parent_stage_id))
           .sort(compareStages);
-        let architectureTop = roots.filter((stage) => !isSupplierStage(stage));
+        // Non-optional roots feed the contract sections.
+        const contractRoots = roots.filter((stage) => !isOptional(stage));
+        let architectureTop = contractRoots.filter((stage) => !isSupplierStage(stage));
         if (architectureTop.length === 1) {
           const [root] = architectureTop;
           const rootLooksLikeContainer = /arquitectura|arquitetura|architecture/i.test(root.name);
@@ -539,9 +550,19 @@ export function PaymentScheduleProposalView({
         architectureTop = architectureTop.flatMap(flattenDisplayContainer).sort(compareStages);
         const supplierTop = nodes
           .filter((stage) => {
+            if (isOptional(stage)) return false;
             if (!isSupplierStage(stage)) return false;
             const parent = stage.parent_stage_id ? stageById.get(stage.parent_stage_id) : undefined;
             return !parent || !isSupplierStage(parent);
+          })
+          .sort(compareStages);
+
+        // Optional roots — top of each optional subtree.
+        const optionalTop = nodes
+          .filter((stage) => {
+            if (!isOptional(stage)) return false;
+            const parent = stage.parent_stage_id ? stageById.get(stage.parent_stage_id) : undefined;
+            return !parent || !isOptional(parent);
           })
           .sort(compareStages);
 
@@ -549,6 +570,42 @@ export function PaymentScheduleProposalView({
         for (const stage of architectureTop) pushRows(stage, "architecture", stage.name, 0, architectureRows);
         const supplierRows: Row[] = [];
         for (const stage of supplierTop) pushRows(stage, "supplier", stage.name, 0, supplierRows);
+
+        // Optional-section rows use the FULL subtree (no arch/supplier split).
+        const optionalOwnAmount = (stage: StageNode): number => {
+          const fee = Number(stageFees[stage.id] ?? 0);
+          const budget = Number(stage.budget ?? 0);
+          return Math.round((fee > 0 ? fee : budget) * 100) / 100;
+        };
+        const optionalAmountFor = (stage: StageNode): number => {
+          const kids = optionalChildren(stage);
+          const childTotal = kids.reduce((sum, k) => sum + optionalAmountFor(k), 0);
+          const fallback = optionalOwnAmount(stage);
+          return Math.round((childTotal > 0 ? childTotal : fallback) * 100) / 100;
+        };
+        const pushOptionalRows = (stage: StageNode, rootName: string, level: number, rows: Row[]) => {
+          const amount = optionalAmountFor(stage);
+          if (amount <= 0 && level > 0) {
+            // still show zero-amount children only if user set explicit budget — else skip
+          }
+          const span = effectiveSpan(stage);
+          rows.push({
+            stageId: stage.id,
+            name: stage.name,
+            rootName,
+            level,
+            amount,
+            start: span.start,
+            end: span.end,
+            sortOrder: stage.sort_order ?? 0,
+          });
+          for (const child of optionalChildren(stage)) {
+            pushOptionalRows(child, rootName, level + 1, rows);
+          }
+        };
+        const optionalRows: Row[] = [];
+        for (const stage of optionalTop) pushOptionalRows(stage, stage.name, 0, optionalRows);
+        const optionalTotal = optionalTop.reduce((sum, s) => sum + optionalAmountFor(s), 0);
 
         const allSections: Array<{ key: SectionKey; title: string; rows: Row[]; total: number }> = [
           {
@@ -570,7 +627,8 @@ export function PaymentScheduleProposalView({
             ? allSections.filter((s) => s.key === "supplier")
             : allSections;
         const sections = filteredSections.filter((section) => section.rows.length > 0 && section.total > 0);
-        if (sections.length === 0) return null;
+        const hasOptional = !compositionOnly && !consultantsOnly && optionalRows.length > 0 && optionalTotal > 0;
+        if (sections.length === 0 && !hasOptional) return null;
         return (
           <div className="space-y-4">
             <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
@@ -688,8 +746,52 @@ export function PaymentScheduleProposalView({
                 </Card>
               );
             })}
+            {hasOptional && (
+              <Card key="optional" className="border-amber-300 dark:border-amber-800">
+                <CardHeader className="pb-3 bg-amber-50 dark:bg-amber-950/40">
+                  <div className="flex items-baseline justify-between gap-4">
+                    <CardTitle className="text-sm uppercase tracking-wide">
+                      Serviços opcionais — não incluídos no total do contrato
+                    </CardTitle>
+                    <div className="text-base font-semibold tabular-nums">{formatEUR(optionalTotal)}</div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-3">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/40">
+                        <TableHead>Fase</TableHead>
+                        <TableHead className="text-right">Valor sem IVA</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {optionalRows.map((r) => (
+                        <TableRow key={r.stageId}>
+                          <TableCell
+                            className={r.level === 0 ? "font-medium" : "pl-6 text-muted-foreground"}
+                            style={{ paddingLeft: r.level > 0 ? `${1 + r.level * 1.25}rem` : undefined }}
+                          >
+                            {r.level > 0 ? `↳ ${r.name}` : r.name}
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums">{formatEUR(r.amount)}</TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow className="border-t-2 border-foreground/40 font-semibold bg-muted/20">
+                        <TableCell>Total opcional</TableCell>
+                        <TableCell className="text-right tabular-nums">{formatEUR(optionalTotal)}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                  <p className="mt-3 text-[11px] text-muted-foreground">
+                    Estes serviços são apresentados a título indicativo e não fazem parte do valor total do contrato.
+                    Caso sejam adjudicados, serão faturados em adenda.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         );
+
 
       })()}
 

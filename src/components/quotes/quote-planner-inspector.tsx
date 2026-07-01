@@ -426,6 +426,57 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               {t("workspace.planning.milestoneHint", { defaultValue: "Single-date marker" })}
             </span>
           </label>
+
+          {(() => {
+            // Optional-service toggle: shown when the stage is a parent
+            // (has children) or a root. Descendants inherit and are hidden.
+            const byId = new Map(allStages.map((s) => [s.id, s]));
+            const hasChildren = allStages.some(
+              (c) => (c as { parent_stage_id?: string | null }).parent_stage_id === stage.id,
+            );
+            const parentId = (stage as { parent_stage_id?: string | null }).parent_stage_id ?? null;
+            let ancestorOptional = false;
+            let cur = parentId ? byId.get(parentId) : undefined;
+            const seen = new Set<string>();
+            while (cur && !seen.has(cur.id)) {
+              if ((cur as { is_optional?: boolean }).is_optional) { ancestorOptional = true; break; }
+              seen.add(cur.id);
+              const pid = (cur as { parent_stage_id?: string | null }).parent_stage_id ?? null;
+              cur = pid ? byId.get(pid) : undefined;
+            }
+            if (ancestorOptional) {
+              return (
+                <div className="rounded-md border border-dashed bg-amber-50 px-2.5 py-2 text-xs text-amber-900">
+                  {t("workspace.planning.optionalInherited", {
+                    defaultValue: "Optional (inherited from parent) — excluded from contract total.",
+                  })}
+                </div>
+              );
+            }
+            if (!hasChildren && parentId) return null;
+            const isOptional = !!(stage as { is_optional?: boolean }).is_optional;
+            return (
+              <label className="flex items-center gap-2 rounded-md border bg-muted/30 px-2.5 py-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={isOptional}
+                  onChange={(e) =>
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    upsertStage.mutate({ id: stage.id, is_optional: e.target.checked } as any)
+                  }
+                  className="h-4 w-4"
+                />
+                <span className="font-medium">
+                  {t("workspace.planning.optionalService", { defaultValue: "Optional service" })}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {t("workspace.planning.optionalHint", {
+                    defaultValue: "Not counted in contract total",
+                  })}
+                </span>
+              </label>
+            );
+          })()}
           {!(stage as { is_milestone?: boolean }).is_milestone && (
             <>
               <div className="grid grid-cols-2 gap-2">

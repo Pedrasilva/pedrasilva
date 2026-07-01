@@ -68,9 +68,27 @@ export function useSyncQuotePaymentScheduleFromGantt(quoteId: string) {
     },
   });
 
-  const stages = stagesQ.data ?? [];
-  const allocations = allocationsQ.data ?? [];
-  const externals = externalsQ.data ?? [];
+  // Optional stages (and their descendants) are quoted separately as
+  // "Optional Services" and MUST NOT appear in the generated payment
+  // schedule — excluding them here keeps them out of every downstream
+  // calculation (rollup, stage fees, external outflows, generator).
+  const allStages = stagesQ.data ?? [];
+  const optionalById = new Map(allStages.map((s) => [s.id, s]));
+  const inheritedOptional = (s: QuoteStage): boolean => {
+    const seen = new Set<string>();
+    let cur: (QuoteStage & { parent_stage_id?: string | null; is_optional?: boolean }) | undefined = s;
+    while (cur && !seen.has(cur.id)) {
+      if ((cur as { is_optional?: boolean }).is_optional) return true;
+      seen.add(cur.id);
+      const pid: string | null = (cur as { parent_stage_id?: string | null }).parent_stage_id ?? null;
+      cur = pid ? (optionalById.get(pid) as typeof cur) : undefined;
+    }
+    return false;
+  };
+  const stages = allStages.filter((s) => !inheritedOptional(s));
+  const optionalStageIds = new Set(allStages.filter(inheritedOptional).map((s) => s.id));
+  const allocations = (allocationsQ.data ?? []).filter((a) => !optionalStageIds.has(a.stage_id));
+  const externals = (externalsQ.data ?? []).filter((e) => !e.stage_id || !optionalStageIds.has(e.stage_id));
 
   const stageSupplierIds = Array.from(
     new Set(

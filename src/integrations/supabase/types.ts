@@ -7274,6 +7274,7 @@ export type Database = {
           is_fee_only: boolean
           is_generated: boolean
           is_milestone: boolean
+          is_optional: boolean
           is_self: boolean
           linked_stage_id: string | null
           manual_override: boolean
@@ -7316,6 +7317,7 @@ export type Database = {
           is_fee_only?: boolean
           is_generated?: boolean
           is_milestone?: boolean
+          is_optional?: boolean
           is_self?: boolean
           linked_stage_id?: string | null
           manual_override?: boolean
@@ -7358,6 +7360,7 @@ export type Database = {
           is_fee_only?: boolean
           is_generated?: boolean
           is_milestone?: boolean
+          is_optional?: boolean
           is_self?: boolean
           linked_stage_id?: string | null
           manual_override?: boolean
