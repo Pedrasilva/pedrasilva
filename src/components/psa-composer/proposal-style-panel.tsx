@@ -7,6 +7,9 @@
  * and applied to .proposal-print-document via CSS variables on the canvas.
  */
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -223,6 +226,76 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
           onValueChange={([v]) => patch({ marginBottom: v })}
         />
       </div>
+
+      <div className="pt-2 border-t border-zinc-200" />
+
+      <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+        Cabeçalho
+      </div>
+
+      <div className="flex items-center justify-between">
+        <Label className="text-xs">Mostrar cabeçalho</Label>
+        <Switch
+          checked={s.showHeader !== false}
+          onCheckedChange={(v) => patch({ showHeader: v })}
+        />
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">Marca (linha 1)</Label>
+        <Input
+          value={s.headerBrand ?? "PEDRA SILVA"}
+          onChange={(e) => patch({ headerBrand: e.target.value })}
+        />
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">Marca (linha 2)</Label>
+        <Input
+          value={s.headerBrandSub ?? "ARCHITECTS"}
+          onChange={(e) => patch({ headerBrandSub: e.target.value })}
+        />
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">Email de contacto</Label>
+        <Input
+          value={s.headerContactEmail ?? "info@pedrasilva.com"}
+          onChange={(e) => patch({ headerContactEmail: e.target.value })}
+        />
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">Website</Label>
+        <Input
+          value={s.headerContactWebsite ?? "www.pedrasilva.com"}
+          onChange={(e) => patch({ headerContactWebsite: e.target.value })}
+        />
+      </div>
+
+      <div className="pt-2 border-t border-zinc-200" />
+
+      <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+        Rodapé
+      </div>
+
+      <div className="flex items-center justify-between">
+        <Label className="text-xs">Mostrar rodapé</Label>
+        <Switch
+          checked={s.showFooter !== false}
+          onCheckedChange={(v) => patch({ showFooter: v })}
+        />
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">Morada (uma linha por linha)</Label>
+        <Textarea
+          rows={3}
+          value={s.footerAddress ?? "Trav. Corpo Santo 10, 1.ºD\n1200-131 Lisboa, Portugal"}
+          onChange={(e) => patch({ footerAddress: e.target.value })}
+        />
+      </div>
+
 
       <div className="pt-2">
         <Button

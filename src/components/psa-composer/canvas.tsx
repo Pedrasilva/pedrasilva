@@ -188,6 +188,14 @@ export function ComposerCanvas({
     onReorder(arrayMove(blocks, oldIdx, newIdx));
   }
 
+  const showHeader = styleSettings?.showHeader !== false;
+  const showFooter = styleSettings?.showFooter !== false;
+  const headerBrand = styleSettings?.headerBrand ?? "PEDRA SILVA";
+  const headerBrandSub = styleSettings?.headerBrandSub ?? "ARCHITECTS";
+  const headerEmail = styleSettings?.headerContactEmail ?? "info@pedrasilva.com";
+  const headerWebsite = styleSettings?.headerContactWebsite ?? "www.pedrasilva.com";
+  const footerAddress = styleSettings?.footerAddress ?? "Trav. Corpo Santo 10, 1.ºD\n1200-131 Lisboa, Portugal";
+
   const styleVars: React.CSSProperties = {};
   if (styleSettings?.headingFont) (styleVars as Record<string, string>)["--psa-heading-font"] = styleSettings.headingFont;
   if (styleSettings?.bodyFont) (styleVars as Record<string, string>)["--psa-body-font"] = styleSettings.bodyFont;
@@ -202,18 +210,21 @@ export function ComposerCanvas({
     <div className="print-area">
       <div className="proposal-print-document" style={styleVars}>
         {/* PSA running header — fixed in print so it repeats per page.
-            Layout mirrors the Pedra Silva PDF letterhead: brand mark top-left,
-            contact links top-right. */}
-        <div className="proposal-page-header">
-          <div className="proposal-letterhead-brand">
-            <span className="proposal-letterhead-brand-line">PEDRA SILVA</span>
-            <span className="proposal-letterhead-brand-sub">ARCHITECTS</span>
+            Content is editable via the Style panel. */}
+        {showHeader && (
+          <div className="proposal-page-header">
+            <div className="proposal-letterhead-brand">
+              {headerBrand && <span className="proposal-letterhead-brand-line">{headerBrand}</span>}
+              {headerBrandSub && <span className="proposal-letterhead-brand-sub">{headerBrandSub}</span>}
+            </div>
+            <div className="proposal-letterhead-contact">
+              {headerEmail && <div>{headerEmail}</div>}
+              {headerWebsite && (
+                <a href={headerWebsite.startsWith("http") ? headerWebsite : `https://${headerWebsite}`} target="_blank" rel="noreferrer">{headerWebsite}</a>
+              )}
+            </div>
           </div>
-          <div className="proposal-letterhead-contact">
-            <div>info@pedrasilva.com</div>
-            <a href="https://www.pedrasilva.com" target="_blank" rel="noreferrer">www.pedrasilva.com</a>
-          </div>
-        </div>
+        )}
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
@@ -242,13 +253,19 @@ export function ComposerCanvas({
           </SortableContext>
         </DndContext>
 
-        {/* PSA running footer — address bottom-left, marks bottom-right. */}
-        <div className="proposal-page-footer">
-          <div className="proposal-page-address">
-            Trav. Corpo Santo 10, 1.ºD<br />
-            1200-131 Lisboa, Portugal
+        {/* PSA running footer — editable via the Style panel. */}
+        {showFooter && (
+          <div className="proposal-page-footer">
+            <div className="proposal-page-address">
+              {footerAddress.split("\n").map((line, i) => (
+                <span key={i}>
+                  {line}
+                  {i < footerAddress.split("\n").length - 1 && <br />}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
