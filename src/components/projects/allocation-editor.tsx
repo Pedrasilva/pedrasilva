@@ -141,8 +141,36 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
   function applyPct(nextPct: number) {
     const clamped = Math.max(0, Math.min(100, nextPct));
     setPct(clamped);
-    // Hours/day is derived from HR-recoverable capacity, not a flat 8h base.
-    setHours(round1((clamped / 100) * recoverableHoursPerDay));
+    setPctText(String(clamped));
+    const h = round1((clamped / 100) * recoverableHoursPerDay);
+    setHours(h);
+    setHoursText(String(h));
+  }
+
+  function onPctChange(text: string) {
+    setPctText(text);
+    if (text.trim() === "") return;
+    const n = Number(text);
+    if (!Number.isFinite(n)) return;
+    const clamped = Math.max(0, Math.min(100, n));
+    setPct(clamped);
+    const h = round1((clamped / 100) * recoverableHoursPerDay);
+    setHours(h);
+    setHoursText(String(h));
+  }
+
+  function onHoursChange(text: string) {
+    setHoursText(text);
+    if (text.trim() === "") return;
+    const n = Number(text);
+    if (!Number.isFinite(n)) return;
+    const clamped = Math.max(0, Math.min(24, n));
+    setHours(clamped);
+    if (recoverableHoursPerDay > 0) {
+      const p = Math.max(0, Math.min(100, Math.round((clamped / recoverableHoursPerDay) * 100)));
+      setPct(p);
+      setPctText(String(p));
+    }
   }
 
 
