@@ -76,12 +76,16 @@ export interface QuoteFinancialSummary {
 
 export type QuoteCategoryHint = "project" | "time_based" | "retainer" | "consultancy";
 
+export type QuoteFeeSourceMode = "allocation" | "budget";
+
 export function rollupQuote({
   allocations,
   externalServices,
   pricingMultiplier = 1,
   category,
   timeBasedSettings,
+  feeSourceMode = "allocation",
+  stages = [],
 }: {
   allocations: QuoteAllocationWithResource[];
   externalServices: QuoteExternalServiceWithSupplier[];
@@ -92,12 +96,21 @@ export function rollupQuote({
    *  for time-based / retainer quotes). */
   category?: QuoteCategoryHint;
   timeBasedSettings?: TimeBasedSettings | null;
+  /** How to derive the sale/fee side: sum of resource allocations
+   *  (default) or sum of manually-typed stage budgets. */
+  feeSourceMode?: QuoteFeeSourceMode;
+  /** Required when feeSourceMode === "budget": the stage rows carrying
+   *  the manual budget values. */
+  stages?: Array<{ id: string; budget?: number | string | null; parent_stage_id?: string | null }>;
 }): QuoteFinancialSummary {
   const internal = rollupQuoteAllocations(allocations);
   const external = rollupExternalServices(externalServices);
 
   const m = pricingMultiplier > 0 ? pricingMultiplier : 1;
-  let internalFee = internal.value * m;
+  let internalFee =
+    feeSourceMode === "budget"
+      ? sumLeafBudgets(stages) * m
+      : internal.value * m;
   const externalFee = external.value * m;
   const totalCost = internal.cost + external.cost;
 
