@@ -211,6 +211,7 @@ export function QuoteFinancialSummaryTab({
 
   return (
     <div className="space-y-6">
+      <QuoteFeeSourceToggle quoteId={quoteId} />
       <QuoteWarningsBanner warnings={warnings} />
 
 
