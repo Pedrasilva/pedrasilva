@@ -35,6 +35,22 @@ import type { PsaProposalBlock, PsaBlockType } from "@/lib/psa-proposal/types";
 import { BlockBody } from "./block-renderer";
 import { RelevanceBadge } from "./relevance-badge";
 import { useLiveQuoteSnapshot } from "@/lib/psa-proposal/live-data";
+import { useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
+
+// Blocks whose primary content is free rich text — editable inline on canvas.
+const INLINE_EDITABLE_TYPES: PsaBlockType[] = [
+  "about",
+  "scope",
+  "stage_list",
+  "stage_item",
+  "custom_text",
+  "construction_fee",
+  "payment_terms",
+  "additional_services",
+  "general",
+  "suspension",
+  "exclusions",
+];
 
 const NON_NUMBERED: PsaBlockType[] = ["cover", "index", "acceptance", "page_break"];
 
