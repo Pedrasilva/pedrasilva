@@ -78,6 +78,8 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
   const headingScale = s.headingScale ?? 1;
   const marginTop = s.marginTop ?? 34;
   const marginBottom = s.marginBottom ?? 32;
+  const marginLeft = s.marginLeft ?? 14;
+  const marginRight = s.marginRight ?? 14;
 
   return (
     <div className="flex flex-col gap-3">
@@ -224,6 +226,28 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
           step={1}
           value={[marginBottom]}
           onValueChange={([v]) => patch({ marginBottom: v })}
+        />
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">Margem esquerda ({marginLeft} mm)</Label>
+        <Slider
+          min={5}
+          max={60}
+          step={1}
+          value={[marginLeft]}
+          onValueChange={([v]) => patch({ marginLeft: v })}
+        />
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">Margem direita ({marginRight} mm)</Label>
+        <Slider
+          min={5}
+          max={60}
+          step={1}
+          value={[marginRight]}
+          onValueChange={([v]) => patch({ marginRight: v })}
         />
       </div>
 
