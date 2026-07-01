@@ -80,7 +80,7 @@ export function useSyncQuotePaymentScheduleFromGantt(quoteId: string) {
     while (cur && !seen.has(cur.id)) {
       if ((cur as { is_optional?: boolean }).is_optional) return true;
       seen.add(cur.id);
-      const pid = (cur as { parent_stage_id?: string | null }).parent_stage_id ?? null;
+      const pid: string | null = (cur as { parent_stage_id?: string | null }).parent_stage_id ?? null;
       cur = pid ? (optionalById.get(pid) as typeof cur) : undefined;
     }
     return false;
