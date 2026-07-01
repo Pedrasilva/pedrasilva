@@ -75,8 +75,11 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
     recoverableHoursPerDay > 0
       ? Math.round((Number(allocation.hours_per_day) / recoverableHoursPerDay) * 100)
       : 100;
-  const [pct, setPct] = useState<number>(storedPct ?? Math.min(100, Math.max(0, backComputedPct)));
+  const initialPct = storedPct ?? Math.min(100, Math.max(0, backComputedPct));
+  const [pct, setPct] = useState<number>(initialPct);
+  const [pctText, setPctText] = useState<string>(String(initialPct));
   const [hours, setHours] = useState(Number(allocation.hours_per_day));
+  const [hoursText, setHoursText] = useState<string>(String(round1(Number(allocation.hours_per_day))));
   const [start, setStart] = useState(allocation.start_date);
   const [end, setEnd] = useState(allocation.end_date);
   const initialStatus: AllocationStatus =
@@ -91,8 +94,12 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
     if (!open) return;
     setStart(allocation.start_date);
     setEnd(allocation.end_date);
-    setHours(Number(allocation.hours_per_day));
-    setPct(storedPct ?? Math.min(100, Math.max(0, backComputedPct)));
+    const h = Number(allocation.hours_per_day);
+    setHours(h);
+    setHoursText(String(round1(h)));
+    const p = storedPct ?? Math.min(100, Math.max(0, backComputedPct));
+    setPct(p);
+    setPctText(String(p));
     setStatus(initialStatus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, allocation.start_date, allocation.end_date, allocation.hours_per_day]);
