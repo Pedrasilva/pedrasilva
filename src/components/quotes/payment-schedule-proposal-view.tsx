@@ -428,6 +428,8 @@ export function PaymentScheduleProposalView({
 
         const nodes = stages as StageNode[];
         const stageById = new Map(nodes.map((s) => [s.id, s]));
+        const isOptional = (s: StageNode) =>
+          isOptionalStage(s, stageById as unknown as Map<string, QuoteStage>);
         const childrenByParent = new Map<string, StageNode[]>();
         for (const stage of nodes) {
           const parentId = stage.parent_stage_id ?? null;
@@ -482,10 +484,16 @@ export function PaymentScheduleProposalView({
           if (as.end !== bs.end) return as.end < bs.end ? -1 : 1;
           return (a.sort_order ?? 0) - (b.sort_order ?? 0);
         };
+        // Contract sections exclude optional stages entirely. Optional trees
+        // are rendered in their own section below and don't count towards
+        // the contract total.
         const relevantChildren = (stage: StageNode, section: SectionKey): StageNode[] =>
           childList(stage)
+            .filter((child) => !isOptional(child))
             .filter((child) => (section === "supplier" ? isSupplierStage(child) : !isSupplierStage(child)))
             .sort(compareStages);
+        const optionalChildren = (stage: StageNode): StageNode[] =>
+          childList(stage).sort(compareStages);
         const ownAmount = (stage: StageNode): number => {
           const fee = Number(stageFees[stage.id] ?? 0);
           const budget = Number(stage.budget ?? 0);
