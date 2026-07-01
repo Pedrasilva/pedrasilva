@@ -861,8 +861,8 @@
   .proposal-page-header,
   .proposal-page-footer {
     position: absolute;
-    left: var(--psa-margin-left);
-    right: var(--psa-margin-right);
+    left: var(--psa-frame-left);
+    right: var(--psa-frame-right);
   }
   .proposal-page-header { top: var(--psa-header-top); }
   .proposal-page-footer { bottom: var(--psa-footer-bottom); }
