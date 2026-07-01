@@ -7,6 +7,9 @@
  * and applied to .proposal-print-document via CSS variables on the canvas.
  */
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
