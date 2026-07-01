@@ -32,6 +32,17 @@ function round1(n: number): number {
   return Math.round(n * 10) / 10;
 }
 
+function parseDecimal(text: string): number | null {
+  const normalized = text.trim().replace(",", ".");
+  if (normalized === "") return null;
+  const n = Number(normalized);
+  return Number.isFinite(n) ? n : null;
+}
+
+function formatDecimal(n: number): string {
+  return String(round1(n));
+}
+
 export function AllocationEditor({ allocation, projectId, adapter }: Props) {
   const [open, setOpen] = useState(false);
   const allocWithExtras = allocation as AllocationWithStatus;
@@ -141,35 +152,33 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
   function applyPct(nextPct: number) {
     const clamped = Math.max(0, Math.min(100, nextPct));
     setPct(clamped);
-    setPctText(String(clamped));
+    setPctText(formatDecimal(clamped));
     const h = round1((clamped / 100) * recoverableHoursPerDay);
     setHours(h);
-    setHoursText(String(h));
+    setHoursText(formatDecimal(h));
   }
 
   function onPctChange(text: string) {
     setPctText(text);
-    if (text.trim() === "") return;
-    const n = Number(text);
-    if (!Number.isFinite(n)) return;
+    const n = parseDecimal(text);
+    if (n == null) return;
     const clamped = Math.max(0, Math.min(100, n));
     setPct(clamped);
     const h = round1((clamped / 100) * recoverableHoursPerDay);
     setHours(h);
-    setHoursText(String(h));
+    setHoursText(formatDecimal(h));
   }
 
   function onHoursChange(text: string) {
     setHoursText(text);
-    if (text.trim() === "") return;
-    const n = Number(text);
-    if (!Number.isFinite(n)) return;
+    const n = parseDecimal(text);
+    if (n == null) return;
     const clamped = Math.max(0, Math.min(24, n));
     setHours(clamped);
     if (recoverableHoursPerDay > 0) {
-      const p = Math.max(0, Math.min(100, Math.round((clamped / recoverableHoursPerDay) * 100)));
+      const p = round1(Math.max(0, Math.min(100, (clamped / recoverableHoursPerDay) * 100)));
       setPct(p);
-      setPctText(String(p));
+      setPctText(formatDecimal(p));
     }
   }
 
@@ -178,12 +187,15 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
     try {
       // In allocation-% mode HR-recoverable × pct/100 drives hours/day; otherwise
       // the manual hours field is the source of truth.
-      const hoursToSave = hours;
+      const parsedHours = parseDecimal(hoursText);
+      const parsedPct = parseDecimal(pctText);
+      const hoursToSave = parsedHours == null ? hours : Math.max(0, Math.min(24, parsedHours));
+      const pctToSave = parsedPct == null ? pct : Math.max(0, Math.min(100, parsedPct));
       const patch: Parameters<typeof adapter.updateAllocation>[0]["patch"] = showStatusToggle
         ? { start_date: start, end_date: end, hours_per_day: hoursToSave, status }
         : { start_date: start, end_date: end, hours_per_day: hoursToSave };
       if (showPercentage) {
-        patch.allocation_percentage = pct;
+        patch.allocation_percentage = pctToSave;
       }
       await adapter.updateAllocation({
         id: allocation.id,
@@ -225,12 +237,18 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="absolute inset-0"
+          className="absolute inset-0 rounded-md"
           aria-label={`Editar ${allocation.resource.name}`}
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         />
       </PopoverTrigger>
-      <PopoverContent className="w-80" align="start">
+      <PopoverContent
+        className="z-[100] w-80"
+        align="start"
+        onPointerDown={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
         <div className="space-y-3">
           <div className="flex items-center gap-2 border-b border-border pb-2">
             <div className="h-3 w-3 rounded-full" style={{ backgroundColor: allocation.resource.color }} />
@@ -347,16 +365,18 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
                 <div className="flex items-center gap-2">
                   <Input
                     id="a-pct"
-                    type="number"
+                    type="text"
                     inputMode="decimal"
-                    min={0}
-                    max={100}
-                    step={1}
                     value={pctText}
                     onChange={(e) => onPctChange(e.target.value)}
                     onBlur={() => {
-                      if (pctText.trim() === "" || !Number.isFinite(Number(pctText))) {
-                        setPctText(String(pct));
+                      const n = parseDecimal(pctText);
+                      if (n == null) {
+                        setPctText(formatDecimal(pct));
+                      } else {
+                        const clamped = Math.max(0, Math.min(100, n));
+                        setPct(clamped);
+                        setPctText(formatDecimal(clamped));
                       }
                     }}
                     className="w-24"
@@ -384,16 +404,18 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
                   <span className="text-muted-foreground">Horas/dia</span>
                   <div className="flex items-center gap-1">
                     <Input
-                      type="number"
+                      type="text"
                       inputMode="decimal"
-                      min={0}
-                      max={24}
-                      step={0.1}
                       value={hoursText}
                       onChange={(e) => onHoursChange(e.target.value)}
                       onBlur={() => {
-                        if (hoursText.trim() === "" || !Number.isFinite(Number(hoursText))) {
-                          setHoursText(String(hours));
+                        const n = parseDecimal(hoursText);
+                        if (n == null) {
+                          setHoursText(formatDecimal(hours));
+                        } else {
+                          const clamped = Math.max(0, Math.min(24, n));
+                          setHours(clamped);
+                          setHoursText(formatDecimal(clamped));
                         }
                       }}
                       className="h-7 w-20 text-right font-mono text-[11px]"

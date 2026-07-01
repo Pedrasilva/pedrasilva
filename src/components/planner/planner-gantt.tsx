@@ -330,7 +330,7 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         is_locked: false,
         external_id: null,
         total_hours_imported: null,
-        allocation_percentage: null,
+        allocation_percentage: a.allocation_percentage,
         source_quote_allocation_id: null,
         resource: resourceForAlloc,
       };
