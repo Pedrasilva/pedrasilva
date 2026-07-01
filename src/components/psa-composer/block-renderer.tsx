@@ -14,7 +14,20 @@ import {
   formatDatePT,
   formatDurationAdaptive,
 } from "@/lib/psa-proposal/live-data";
-import { buildTokenMap, resolveTokens } from "@/lib/psa-proposal/tokens";
+import {
+  buildTokenMap,
+  buildTokenPickerEntries,
+  resolveTokens,
+} from "@/lib/psa-proposal/tokens";
+import { cn } from "@/lib/utils";
+import {
+  RichTextEditor,
+  spacingClass,
+  lineHeightClass,
+} from "./rich-text-editor";
+
+type Spacing = "tight" | "normal" | "relaxed" | "loose";
+type LineHeight = "tight" | "normal" | "relaxed" | "loose";
 
 function H({ children }: { children: React.ReactNode }) {
   return (
