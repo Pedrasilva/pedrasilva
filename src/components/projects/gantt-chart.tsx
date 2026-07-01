@@ -139,7 +139,16 @@ interface DragState {
   startX: number;
   origStart: string;
   origEnd: string;
+  /** For allocation drags: the parent stage bounds so the bar can be
+   *  clamped inside its stage. Undefined for stage drags. */
+  stageStart?: string;
+  stageEnd?: string;
 }
+
+/** Minimum pointer displacement before a drag begins mutating dates.
+ *  Prevents accidental shifts when the user taps/clicks the card
+ *  (especially on touch or at small dayWidth in "Fit" zoom). */
+const DRAG_THRESHOLD_PX = 6;
 
 interface LinkDragState {
   fromStageId: string;
@@ -414,6 +423,20 @@ export function GanttChart({
     }
     if (!drag) return;
     const dx = e.clientX - drag.startX;
+    // Ignore micro-movements so a plain click/tap on the resource card
+    // (e.g. to open the editor popover) doesn't shift the allocation.
+    if (Math.abs(dx) < DRAG_THRESHOLD_PX) {
+      setDraftDates((m) => {
+        if (!m.has(drag.id)) return m;
+        const next = new Map(m);
+        next.delete(drag.id);
+        if (drag.type === "stage-move" && hierarchy?.get(drag.id)?.isSummary) {
+          for (const d of collectDescendants(drag.id)) next.delete(d.id);
+        }
+        return next;
+      });
+      return;
+    }
     const days = Math.round(dx / dayWidth);
     if (days === 0) {
       setDraftDates((m) => {
@@ -440,6 +463,34 @@ export function GanttChart({
     } else if (drag.type === "resize-r" || drag.type === "stage-resize-r") {
       const en = addDays(origEnd, days);
       if (en >= origStart) newEnd = format(en, "yyyy-MM-dd");
+    }
+
+    // Clamp allocation drags inside the parent stage boundary.
+    if (
+      (drag.type === "move" || drag.type === "resize-l" || drag.type === "resize-r") &&
+      drag.stageStart &&
+      drag.stageEnd
+    ) {
+      const sMin = drag.stageStart;
+      const sMax = drag.stageEnd;
+      if (drag.type === "move") {
+        const durMs = new Date(newEnd).getTime() - new Date(newStart).getTime();
+        if (newStart < sMin) {
+          newStart = sMin;
+          newEnd = format(new Date(new Date(sMin).getTime() + durMs), "yyyy-MM-dd");
+        }
+        if (newEnd > sMax) {
+          newEnd = sMax;
+          newStart = format(new Date(new Date(sMax).getTime() - durMs), "yyyy-MM-dd");
+          if (newStart < sMin) newStart = sMin;
+        }
+      } else if (drag.type === "resize-l") {
+        if (newStart < sMin) newStart = sMin;
+        if (newStart > newEnd) newStart = newEnd;
+      } else if (drag.type === "resize-r") {
+        if (newEnd > sMax) newEnd = sMax;
+        if (newEnd < newStart) newEnd = newStart;
+      }
     }
     setDraftDates((m) => {
       const next = new Map(m).set(drag.id, { start: newStart, end: newEnd });
@@ -1497,6 +1548,8 @@ export function GanttChart({
                                   startX: e.clientX,
                                   origStart: a.start_date,
                                   origEnd: a.end_date,
+                                  stageStart: stage.start_date,
+                                  stageEnd: stage.end_date,
                                 });
                               }}
                             >
@@ -1592,6 +1645,8 @@ export function GanttChart({
                                         startX: e.clientX,
                                         origStart: a.start_date,
                                         origEnd: a.end_date,
+                                        stageStart: stage.start_date,
+                                        stageEnd: stage.end_date,
                                       })
                                     }
                                   />
@@ -1605,6 +1660,8 @@ export function GanttChart({
                                         startX: e.clientX,
                                         origStart: a.start_date,
                                         origEnd: a.end_date,
+                                        stageStart: stage.start_date,
+                                        stageEnd: stage.end_date,
                                       })
                                     }
                                   />
