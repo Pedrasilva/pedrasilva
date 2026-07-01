@@ -348,11 +348,17 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
                   <Input
                     id="a-pct"
                     type="number"
+                    inputMode="decimal"
                     min={0}
                     max={100}
-                    step={5}
-                    value={pct}
-                    onChange={(e) => applyPct(Number(e.target.value))}
+                    step={1}
+                    value={pctText}
+                    onChange={(e) => onPctChange(e.target.value)}
+                    onBlur={() => {
+                      if (pctText.trim() === "" || !Number.isFinite(Number(pctText))) {
+                        setPctText(String(pct));
+                      }
+                    }}
                     className="w-24"
                   />
                   <div className="flex flex-wrap gap-1">
