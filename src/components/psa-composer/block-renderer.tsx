@@ -133,19 +133,51 @@ export function BlockBody({
   live,
   chapterNumber,
   toc,
+  editable,
+  onPatchContent,
 }: {
   block: PsaProposalBlock;
   live: LiveQuoteSnapshot | undefined;
   chapterNumber: number | null;
   toc?: { chapter: number; title: string }[];
+  editable?: boolean;
+  onPatchContent?: (patch: Record<string, unknown>) => void;
 }) {
 
   const text = (block.content_rich?.text as string | undefined) ?? "";
   const html = (block.content_rich?.html as string | undefined) ?? "";
+  const paragraphSpacing = block.content_rich?.paragraphSpacing as Spacing | undefined;
+  const lineHeight = block.content_rich?.lineHeight as LineHeight | undefined;
   const num = chapterNumber ? `${chapterNumber}. ` : "";
   const richHas = hasRichContent(html, text);
   const tokenMap = buildTokenMap(live);
-  const rich = <RichContent html={html} text={text} tokenMap={tokenMap} />;
+  const tokenEntries = buildTokenPickerEntries(live);
+
+  const rich =
+    editable && onPatchContent ? (
+      <RichTextEditor
+        value={
+          html ||
+          (text ? `<p>${text.split("\n\n").join("</p><p>")}</p>` : "")
+        }
+        onChange={({ html: h, text: t }) => onPatchContent({ html: h, text: t })}
+        placeholder="Escreva o conteúdo deste bloco..."
+        tokenEntries={tokenEntries}
+        paragraphSpacing={paragraphSpacing}
+        lineHeight={lineHeight}
+        onParagraphSpacingChange={(v) => onPatchContent({ paragraphSpacing: v })}
+        onLineHeightChange={(v) => onPatchContent({ lineHeight: v })}
+        editorClassName="border-0 rounded-none bg-transparent px-0 py-0 shadow-none focus:ring-0"
+      />
+    ) : (
+      <RichContent
+        html={html}
+        text={text}
+        tokenMap={tokenMap}
+        paragraphSpacing={paragraphSpacing}
+        lineHeight={lineHeight}
+      />
+    );
 
   // Self stages only — PSA-facing tables must exclude supplier rows. The
   // consultants block is the place where suppliers appear.
@@ -153,8 +185,12 @@ export function BlockBody({
 
   function fallback(blockType: string) {
     const t = DEFAULT_TEXT[blockType];
+    if (editable && onPatchContent) {
+      return rich;
+    }
     return t ? <P>{t}</P> : <Empty>Sem conteúdo. Edite no painel direito.</Empty>;
   }
+
 
   switch (block.block_type) {
     case "cover":
