@@ -400,7 +400,7 @@ export function BlockBody({
         const ak = startKey(a);
         const bk = startKey(b);
         if (ak !== bk) return ak < bk ? -1 : 1;
-        return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+        return 0;
       };
       for (const [, arr] of kidsOf) arr.sort(sortFn);
       const roots = selfStages
