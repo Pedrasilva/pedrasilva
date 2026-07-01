@@ -28,6 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatEUR } from "@/lib/crm/types";
 import type { QuotePaymentScheduleItem, QuoteStage } from "@/lib/quotes/types";
 import { resolveScheduleItemAmount } from "@/lib/quotes/payment-generators";
+import { isOptionalStage } from "@/lib/quotes/optional-stages";
 
 type BillingStatus = "planned" | "issued" | "paid" | "cancelled";
 
