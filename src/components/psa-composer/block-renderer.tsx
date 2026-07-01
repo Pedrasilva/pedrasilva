@@ -459,8 +459,11 @@ export function BlockBody({
             <table className="w-full border-collapse text-xs">
               <thead>
                 <tr className="border-b border-zinc-200 bg-zinc-50">
-                  <th className="w-[34%] px-2 py-1 text-left font-medium text-zinc-600">
+                  <th className="w-[28%] px-2 py-1 text-left font-medium text-zinc-600">
                     Fase
+                  </th>
+                  <th className="w-[70px] px-2 py-1 text-right font-medium text-zinc-600 whitespace-nowrap">
+                    Duração
                   </th>
                   <th className="px-0 py-1">
                     <div className="relative h-4 w-full">
