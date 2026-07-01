@@ -906,8 +906,8 @@
   .print-area .proposal-page-header,
   .print-area .proposal-page-footer {
     position: fixed;
-    left: var(--psa-margin-left);
-    right: var(--psa-margin-right);
+    left: var(--psa-frame-left);
+    right: var(--psa-frame-right);
     background: white;
     z-index: 100;
   }
