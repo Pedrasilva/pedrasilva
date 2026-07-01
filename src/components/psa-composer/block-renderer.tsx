@@ -489,6 +489,10 @@ export function BlockBody({
                     0.8,
                     ((sEnd - sStart) / span) * 100,
                   );
+                  const weeks = Math.max(
+                    1,
+                    Math.round((sEnd - sStart) / (86400000 * 7)),
+                  );
                   return (
                     <tr key={s.id} className="border-b border-zinc-100 last:border-0">
                       <td className="px-2 py-1.5 align-middle text-zinc-800">
@@ -496,6 +500,9 @@ export function BlockBody({
                           {s.code ? <span className="text-zinc-500">{s.code} — </span> : null}
                           {s.name}
                         </div>
+                      </td>
+                      <td className="px-2 py-1.5 text-right align-middle text-zinc-700 whitespace-nowrap">
+                        {weeks} {weeks === 1 ? "sem" : "sems"}
                       </td>
                       <td className="px-0 py-1.5">
                         <div className="relative h-4 w-full">
