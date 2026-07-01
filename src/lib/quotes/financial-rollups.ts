@@ -63,6 +63,23 @@ export function rollupQuoteAllocations(
   };
 }
 
+/** Sum stage.budget across leaf stages (parents whose id appears as a
+ *  parent_stage_id are skipped so budgets aren't double-counted). */
+export function sumLeafBudgets(
+  stages: Array<{ id: string; budget?: number | string | null; parent_stage_id?: string | null }>,
+): number {
+  const parents = new Set<string>();
+  for (const s of stages) {
+    if (s.parent_stage_id) parents.add(s.parent_stage_id);
+  }
+  let total = 0;
+  for (const s of stages) {
+    if (parents.has(s.id)) continue;
+    total += Number(s.budget ?? 0) || 0;
+  }
+  return Math.round(total * 100) / 100;
+}
+
 export interface QuoteFinancialSummary {
   internal: FinancialsRow & { hours: number };
   external: FinancialsRow;
