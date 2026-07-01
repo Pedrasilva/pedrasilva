@@ -701,8 +701,8 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         </CardContent>
       </Card>
 
-      {/* Global update action — visible at the top of the payment schedule */}
-      <div className="flex items-center justify-between rounded-md border bg-muted/30 px-3 py-2">
+      {/* Global update action — sticky so it stays visible while scrolling. */}
+      <div className="sticky top-0 z-20 -mx-1 flex items-center justify-between gap-3 rounded-md border bg-background/95 px-3 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/75">
         <div className="text-xs text-muted-foreground">
           {t("workspace.payment.globalUpdateHint", {
             defaultValue:
@@ -711,7 +711,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         </div>
         <Button
           size="sm"
-          className="gap-2"
+          className="gap-2 shrink-0"
           onClick={syncFromGantt}
           disabled={upsert.isPending || applyGen.isPending}
         >
