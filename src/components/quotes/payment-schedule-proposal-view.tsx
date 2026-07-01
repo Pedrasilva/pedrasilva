@@ -533,7 +533,9 @@ export function PaymentScheduleProposalView({
         const roots = nodes
           .filter((stage) => !stage.parent_stage_id || !stageById.has(stage.parent_stage_id))
           .sort(compareStages);
-        let architectureTop = roots.filter((stage) => !isSupplierStage(stage));
+        // Non-optional roots feed the contract sections.
+        const contractRoots = roots.filter((stage) => !isOptional(stage));
+        let architectureTop = contractRoots.filter((stage) => !isSupplierStage(stage));
         if (architectureTop.length === 1) {
           const [root] = architectureTop;
           const rootLooksLikeContainer = /arquitectura|arquitetura|architecture/i.test(root.name);
@@ -548,9 +550,19 @@ export function PaymentScheduleProposalView({
         architectureTop = architectureTop.flatMap(flattenDisplayContainer).sort(compareStages);
         const supplierTop = nodes
           .filter((stage) => {
+            if (isOptional(stage)) return false;
             if (!isSupplierStage(stage)) return false;
             const parent = stage.parent_stage_id ? stageById.get(stage.parent_stage_id) : undefined;
             return !parent || !isSupplierStage(parent);
+          })
+          .sort(compareStages);
+
+        // Optional roots — top of each optional subtree.
+        const optionalTop = nodes
+          .filter((stage) => {
+            if (!isOptional(stage)) return false;
+            const parent = stage.parent_stage_id ? stageById.get(stage.parent_stage_id) : undefined;
+            return !parent || !isOptional(parent);
           })
           .sort(compareStages);
 
@@ -558,6 +570,42 @@ export function PaymentScheduleProposalView({
         for (const stage of architectureTop) pushRows(stage, "architecture", stage.name, 0, architectureRows);
         const supplierRows: Row[] = [];
         for (const stage of supplierTop) pushRows(stage, "supplier", stage.name, 0, supplierRows);
+
+        // Optional-section rows use the FULL subtree (no arch/supplier split).
+        const optionalOwnAmount = (stage: StageNode): number => {
+          const fee = Number(stageFees[stage.id] ?? 0);
+          const budget = Number(stage.budget ?? 0);
+          return Math.round((fee > 0 ? fee : budget) * 100) / 100;
+        };
+        const optionalAmountFor = (stage: StageNode): number => {
+          const kids = optionalChildren(stage);
+          const childTotal = kids.reduce((sum, k) => sum + optionalAmountFor(k), 0);
+          const fallback = optionalOwnAmount(stage);
+          return Math.round((childTotal > 0 ? childTotal : fallback) * 100) / 100;
+        };
+        const pushOptionalRows = (stage: StageNode, rootName: string, level: number, rows: Row[]) => {
+          const amount = optionalAmountFor(stage);
+          if (amount <= 0 && level > 0) {
+            // still show zero-amount children only if user set explicit budget — else skip
+          }
+          const span = effectiveSpan(stage);
+          rows.push({
+            stageId: stage.id,
+            name: stage.name,
+            rootName,
+            level,
+            amount,
+            start: span.start,
+            end: span.end,
+            sortOrder: stage.sort_order ?? 0,
+          });
+          for (const child of optionalChildren(stage)) {
+            pushOptionalRows(child, rootName, level + 1, rows);
+          }
+        };
+        const optionalRows: Row[] = [];
+        for (const stage of optionalTop) pushOptionalRows(stage, stage.name, 0, optionalRows);
+        const optionalTotal = optionalTop.reduce((sum, s) => sum + optionalAmountFor(s), 0);
 
         const allSections: Array<{ key: SectionKey; title: string; rows: Row[]; total: number }> = [
           {
