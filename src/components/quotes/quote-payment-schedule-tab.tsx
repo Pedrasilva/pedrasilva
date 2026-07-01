@@ -22,7 +22,7 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, ArrowUp, ArrowDown, Wand2, Pencil, RefreshCw } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Wand2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import {
   useQuotePaymentSchedule,
@@ -721,17 +721,6 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 py-3">
           <CardTitle className="text-base">{t("workspace.payment.title")}</CardTitle>
           <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-2"
-              onClick={syncFromGantt}
-              disabled={upsert.isPending || applyGen.isPending}
-              title={t("workspace.payment.syncFromGanttHint", { defaultValue: "Pull any missing suppliers from the planning Gantt into the schedule" })}
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-              {t("workspace.payment.syncFromGantt", { defaultValue: "Update from Gantt" })}
-            </Button>
             <Popover>
               <PopoverTrigger asChild>
                 <Button size="sm" variant="outline" className="gap-2">
