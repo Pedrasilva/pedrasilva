@@ -59,6 +59,14 @@ export interface PsaProposalStyleSettings {
   headingScale?: number; // multiplier for heading sizes (1 = default)
   marginTop?: number; // mm — top margin (controls header→body space)
   marginBottom?: number; // mm — bottom margin (controls body→footer space)
+  // Header / footer content — editable per proposal.
+  showHeader?: boolean;
+  showFooter?: boolean;
+  headerBrand?: string;
+  headerBrandSub?: string;
+  headerContactEmail?: string;
+  headerContactWebsite?: string;
+  footerAddress?: string; // multiline; \n rendered as <br>
 }
 
 export interface PsaProposal {
