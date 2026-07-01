@@ -368,10 +368,26 @@ export function BlockBody({
       const re = scope === "design" ? designRe : constructionRe;
       const overrideId = (block.source_ref as { parent_stage_id?: string } | undefined)?.parent_stage_id;
       const allStages = (live?.stages ?? []).filter((s) => s.isSelf);
-      const roots = allStages.filter((s) => !s.parentStageId);
+      // Search all stages (not just roots) — the design/construction parent
+      // is often nested under an "Architecture" root.
+      const matches = allStages.filter(
+        (s) => re.test(s.name) || re.test(s.code ?? ""),
+      );
+      // Prefer the shallowest match (closest to root) so we get the parent
+      // grouping stage, not one of its own descendants.
+      const depthOf = (id: string): number => {
+        let d = 0;
+        let cur: LiveStage | undefined = allStages.find((x) => x.id === id);
+        while (cur?.parentStageId) {
+          d++;
+          cur = allStages.find((x) => x.id === cur!.parentStageId);
+        }
+        return d;
+      };
+      const shallowest = matches.slice().sort((a, b) => depthOf(a.id) - depthOf(b.id))[0];
       const parent =
         (overrideId && allStages.find((s) => s.id === overrideId)) ||
-        roots.find((s) => re.test(s.name) || re.test(s.code ?? "")) ||
+        shallowest ||
         null;
 
       // Collect all descendants of the matched parent (depth-first).
