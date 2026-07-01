@@ -163,6 +163,27 @@ export function BlockLibraryPanel({
           className="w-full"
           onClick={() =>
             addBlock({
+              id: "gantt-partial",
+              kind: "gantt_partial",
+              label: "Gantt Parcial",
+              default_title: "Cronograma — Fase",
+              default_content_rich: {},
+              default_source_type: "live_quote",
+              default_source_ref: {},
+              default_contract_relevance: "proposal_only",
+              sort_hint: 999,
+              is_system: false,
+            })
+          }
+        >
+          <Plus className="mr-1 h-3.5 w-3.5" /> Gantt Parcial
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full"
+          onClick={() =>
+            addBlock({
               id: "page-break",
               kind: "page_break",
               label: "Quebra de Página",
