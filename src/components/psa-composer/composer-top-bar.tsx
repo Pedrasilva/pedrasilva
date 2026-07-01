@@ -84,12 +84,6 @@ export function ComposerTopBar({
       </Select>
       <div className="ml-auto flex items-center gap-2">
         <ProposalHistoryDialog proposalId={proposal.id} />
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setConvertOpen(true)}
-          title="Pré-visualizar migração para contrato"
-        >
         <Sheet>
           <SheetTrigger asChild>
             <Button
