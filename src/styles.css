@@ -817,7 +817,7 @@
     max-width: 1200px;
     min-height: var(--psa-page-h);
     margin: 24px auto;
-    padding: var(--psa-margin-top) var(--psa-margin-x) var(--psa-margin-bottom);
+    padding: var(--psa-margin-top) var(--psa-margin-right) var(--psa-margin-bottom) var(--psa-margin-left);
     box-sizing: border-box;
     background: white;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
@@ -845,19 +845,19 @@
     /* Restrict to the left/right margin gutters only. */
     background-size: 100% auto;
     -webkit-mask-image: linear-gradient(to right,
-      black 0, black var(--psa-margin-x),
-      transparent var(--psa-margin-x), transparent calc(100% - var(--psa-margin-x)),
-      black calc(100% - var(--psa-margin-x)), black 100%);
+      black 0, black var(--psa-margin-left),
+      transparent var(--psa-margin-left), transparent calc(100% - var(--psa-margin-x)),
+      black calc(100% - var(--psa-margin-left)), black 100%);
             mask-image: linear-gradient(to right,
-      black 0, black var(--psa-margin-x),
-      transparent var(--psa-margin-x), transparent calc(100% - var(--psa-margin-x)),
-      black calc(100% - var(--psa-margin-x)), black 100%);
+      black 0, black var(--psa-margin-left),
+      transparent var(--psa-margin-left), transparent calc(100% - var(--psa-margin-x)),
+      black calc(100% - var(--psa-margin-left)), black 100%);
   }
   .proposal-page-header,
   .proposal-page-footer {
     position: absolute;
-    left: var(--psa-margin-x);
-    right: var(--psa-margin-x);
+    left: var(--psa-margin-left);
+    right: var(--psa-margin-right);
   }
   .proposal-page-header { top: var(--psa-header-top); }
   .proposal-page-footer { bottom: var(--psa-footer-bottom); }
@@ -887,7 +887,7 @@
     min-height: var(--psa-page-h);
     max-width: none;
     margin: 0 auto;
-    padding: var(--psa-margin-top) var(--psa-margin-x) var(--psa-margin-bottom);
+    padding: var(--psa-margin-top) var(--psa-margin-right) var(--psa-margin-bottom) var(--psa-margin-left);
     box-shadow: none !important;
     border: none !important;
     background: white !important;
@@ -901,8 +901,8 @@
   .print-area .proposal-page-header,
   .print-area .proposal-page-footer {
     position: fixed;
-    left: var(--psa-margin-x);
-    right: var(--psa-margin-x);
+    left: var(--psa-margin-left);
+    right: var(--psa-margin-right);
     background: white;
     z-index: 100;
   }
