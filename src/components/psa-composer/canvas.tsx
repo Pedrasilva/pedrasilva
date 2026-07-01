@@ -61,6 +61,7 @@ function SortableRow({
   selected,
   quoteIdHint,
   onSelect,
+  onPatchContent,
 }: {
   block: PsaProposalBlock;
   chapter: number | null;
@@ -68,6 +69,7 @@ function SortableRow({
   selected: boolean;
   quoteIdHint: string | null;
   onSelect: () => void;
+  onPatchContent: (patch: Record<string, unknown>) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: block.id });
