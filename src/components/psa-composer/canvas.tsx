@@ -253,13 +253,19 @@ export function ComposerCanvas({
           </SortableContext>
         </DndContext>
 
-        {/* PSA running footer — address bottom-left, marks bottom-right. */}
-        <div className="proposal-page-footer">
-          <div className="proposal-page-address">
-            Trav. Corpo Santo 10, 1.ºD<br />
-            1200-131 Lisboa, Portugal
+        {/* PSA running footer — editable via the Style panel. */}
+        {showFooter && (
+          <div className="proposal-page-footer">
+            <div className="proposal-page-address">
+              {footerAddress.split("\n").map((line, i) => (
+                <span key={i}>
+                  {line}
+                  {i < footerAddress.split("\n").length - 1 && <br />}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
