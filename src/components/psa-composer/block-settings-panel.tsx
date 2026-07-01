@@ -282,6 +282,54 @@ export function BlockSettingsPanel({
         </div>
       )}
 
+      {(block.block_type === "gantt_partial" ||
+        block.block_type === "gantt_design" ||
+        block.block_type === "gantt_construction") && (
+        <div className="space-y-1">
+          <Label className="text-xs">
+            Fase pai {block.block_type === "gantt_partial" ? "(obrigatória)" : "(opcional — sobrepõe deteção automática)"}
+          </Label>
+          <Select
+            value={sourceRef.parent_stage_id ?? ""}
+            onValueChange={(v) =>
+              update.mutate({
+                id: block.id,
+                patch: {
+                  source_ref: {
+                    ...sourceRef,
+                    parent_stage_id: v === "__auto__" ? undefined : v,
+                  },
+                },
+              })
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Escolher fase pai..." />
+            </SelectTrigger>
+            <SelectContent>
+              {block.block_type !== "gantt_partial" && (
+                <SelectItem value="__auto__">Automático</SelectItem>
+              )}
+              {(liveQuery.data?.stages ?? [])
+                .filter((s) => s.isSelf && !s.isMilestone)
+                .map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.code ? `${s.code} — ` : ""}{s.name}
+                  </SelectItem>
+                ))}
+              {!liveQuery.data?.stages?.length && (
+                <div className="px-2 py-1.5 text-xs text-zinc-500">
+                  Defina primeiro o Quote ID acima.
+                </div>
+              )}
+            </SelectContent>
+          </Select>
+          <p className="text-[10px] text-zinc-500">
+            Renderiza um Gantt simplificado com todas as sub-fases desta fase pai.
+          </p>
+        </div>
+      )}
+
       {supportsRich && block.block_type !== "stage_item" && (
         <div className="space-y-1">
           <Label className="text-xs">Conteúdo</Label>
