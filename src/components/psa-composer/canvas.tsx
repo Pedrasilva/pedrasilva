@@ -126,7 +126,14 @@ function SortableRow({
         {!block.is_visible && <EyeOff className="h-3 w-3" />}
         {block.is_locked && <Lock className="h-3 w-3" />}
       </div>
-      <BlockBody block={block} live={live} chapterNumber={chapter} toc={toc} />
+      <BlockBody
+        block={block}
+        live={live}
+        chapterNumber={chapter}
+        toc={toc}
+        editable={selected && INLINE_EDITABLE_TYPES.includes(block.block_type) && !block.is_locked}
+        onPatchContent={onPatchContent}
+      />
     </div>
   );
 }
