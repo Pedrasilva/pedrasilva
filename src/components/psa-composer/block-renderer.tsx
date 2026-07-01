@@ -383,7 +383,62 @@ export function BlockBody({
       );
     }
 
-    case "timeline":
+    case "timeline": {
+      // Group by hierarchy: parents/grandparents render as titles (header rows),
+      // only leaves render as data rows with dates + duration.
+      const inSet = new Set(selfStages.map((s) => s.id));
+      const kidsOf = new Map<string, typeof selfStages>();
+      for (const s of selfStages) {
+        const p = s.parentStageId && inSet.has(s.parentStageId) ? s.parentStageId : null;
+        if (!p) continue;
+        const arr = kidsOf.get(p) ?? [];
+        arr.push(s);
+        kidsOf.set(p, arr);
+      }
+      const startKey = (s: (typeof selfStages)[number]) => s.startDate ?? "";
+      const sortFn = (a: (typeof selfStages)[number], b: (typeof selfStages)[number]) => {
+        const ak = startKey(a);
+        const bk = startKey(b);
+        if (ak !== bk) return ak < bk ? -1 : 1;
+        return 0;
+      };
+      for (const [, arr] of kidsOf) arr.sort(sortFn);
+      const roots = selfStages
+        .filter((s) => !s.parentStageId || !inSet.has(s.parentStageId))
+        .slice()
+        .sort(sortFn);
+
+      const rows: React.ReactNode[] = [];
+      const walk = (s: (typeof selfStages)[number], depth: number) => {
+        const kids = kidsOf.get(s.id) ?? [];
+        const label = s.code ? `${s.code} — ${s.name}` : s.name;
+        const pad = { paddingLeft: `${depth * 14}px` } as React.CSSProperties;
+        if (kids.length > 0) {
+          rows.push(
+            <tr key={s.id} className="border-b border-zinc-200 bg-zinc-50">
+              <td
+                colSpan={4}
+                className="py-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-700"
+                style={pad}
+              >
+                {label}
+              </td>
+            </tr>,
+          );
+          for (const k of kids) walk(k, depth + 1);
+        } else {
+          rows.push(
+            <tr key={s.id} className="border-b border-zinc-100">
+              <td className="py-1" style={pad}>{label}</td>
+              <td className="py-1">{formatDatePT(s.startDate)}</td>
+              <td className="py-1">{formatDatePT(s.endDate)}</td>
+              <td className="py-1 text-right">{s.durationDays ?? "—"} d</td>
+            </tr>,
+          );
+        }
+      };
+      for (const r of roots) walk(r, 0);
+
       return (
         <div>
           <H>{num}{block.title}</H>
@@ -397,22 +452,15 @@ export function BlockBody({
                   <th className="py-1 text-right">Duração</th>
                 </tr>
               </thead>
-              <tbody>
-                {selfStages.map((s) => (
-                  <tr key={s.id} className="border-b border-zinc-100">
-                    <td className="py-1">{s.name}</td>
-                    <td className="py-1">{formatDatePT(s.startDate)}</td>
-                    <td className="py-1">{formatDatePT(s.endDate)}</td>
-                    <td className="py-1 text-right">{s.durationDays ?? "—"} d</td>
-                  </tr>
-                ))}
-              </tbody>
+              <tbody>{rows}</tbody>
             </table>
           ) : (
             <Empty>Sem cronograma disponível.</Empty>
           )}
         </div>
       );
+    }
+
 
     case "gantt_design":
     case "gantt_construction":
