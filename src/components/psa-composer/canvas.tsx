@@ -140,6 +140,7 @@ function SortableRow({
 
 
 export function ComposerCanvas({
+  proposalId,
   blocks,
   selectedId,
   onSelect,
@@ -147,6 +148,7 @@ export function ComposerCanvas({
   quoteIdHint,
   styleSettings,
 }: {
+  proposalId: string;
   blocks: PsaProposalBlock[];
   selectedId: string | null;
   onSelect: (id: string) => void;
@@ -154,6 +156,7 @@ export function ComposerCanvas({
   quoteIdHint: string | null;
   styleSettings?: import("@/lib/psa-proposal/types").PsaProposalStyleSettings;
 }) {
+  const update = useUpdateBlock(proposalId);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
