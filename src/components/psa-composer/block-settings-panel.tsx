@@ -75,7 +75,7 @@ export function BlockSettingsPanel({
   }, [title, block?.id]);
 
   // Always call hooks — pass null when no block to keep order stable.
-  const sourceRef = (block?.source_ref ?? {}) as { quote_id?: string; stage_id?: string };
+  const sourceRef = (block?.source_ref ?? {}) as { quote_id?: string; stage_id?: string; parent_stage_id?: string };
   const effectiveQuoteId = sourceRef.quote_id ?? quoteIdHint ?? "";
   const liveQuery = useLiveQuoteSnapshot(effectiveQuoteId || null);
 
