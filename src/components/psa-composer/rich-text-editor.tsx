@@ -1,14 +1,15 @@
 /**
  * TipTap-based rich text editor used by manual / library / mixed PSA blocks.
  *
- * Supports: bold, italic, underline, headings (H2/H3), bullet + numbered lists,
- * tables, links, and forgiving paste-from-Word (StarterKit strips most Word
- * cruft; we additionally strip `class`/`style` attributes via transformPastedHTML).
- *
- * Persists HTML to `content_rich.html`. Keeps `content_rich.text` mirrored
- * (plain text) for backward compatibility with existing blocks.
+ * Now used both in the right-hand settings panel AND inline on the canvas
+ * (CanvaDoc-style WYSIWYG). Supports: bold, italic, underline, headings
+ * (H2/H3), bullet + numbered lists, indent/outdent (list items via
+ * sinkListItem/liftListItem; paragraphs/headings via a custom Indent
+ * extension that persists as inline padding-left), tables, links, and
+ * paragraph-spacing / line-height controls whose current value is passed in
+ * from the parent (so it can be persisted on `content_rich`).
  */
-import { useEditor, EditorContent, type Editor } from "@tiptap/react";
+import { useEditor, EditorContent, type Editor, Extension } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
@@ -27,6 +28,9 @@ import {
   Link2,
   Table as TableIcon,
   Database,
+  IndentIncrease,
+  IndentDecrease,
+  AlignJustify,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -39,6 +43,111 @@ import {
 import type { TokenCatalogEntry } from "@/lib/psa-proposal/tokens";
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+
+/**
+ * Paragraph / heading indent extension. Adds a numeric `indent` attribute
+ * (0-8) to paragraph and heading nodes, rendered as inline `padding-left`.
+ * List item indent uses StarterKit's built-in sinkListItem / liftListItem.
+ */
+const INDENT_STEP_EM = 1.5;
+const INDENT_MAX = 8;
+const Indent = Extension.create({
+  name: "psaIndent",
+  addOptions() {
+    return { types: ["paragraph", "heading"] as string[] };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          indent: {
+            default: 0,
+            parseHTML: (element: HTMLElement) => {
+              const raw = element.style.paddingLeft || "";
+              const m = raw.match(/([\d.]+)em/);
+              if (!m) return 0;
+              return Math.round(parseFloat(m[1]) / INDENT_STEP_EM);
+            },
+            renderHTML: (attributes: { indent?: number }) => {
+              const n = attributes.indent ?? 0;
+              if (!n) return {};
+              return { style: `padding-left: ${n * INDENT_STEP_EM}em` };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
+
+function applyIndent(editor: Editor, delta: 1 | -1) {
+  // Lists: use built-in sink / lift so nesting stays valid.
+  if (editor.isActive("listItem")) {
+    if (delta > 0) editor.chain().focus().sinkListItem("listItem").run();
+    else editor.chain().focus().liftListItem("listItem").run();
+    return;
+  }
+  const { $from } = editor.state.selection;
+  // Walk up until we find a paragraph or heading node.
+  for (let d = $from.depth; d > 0; d--) {
+    const node = $from.node(d);
+    if (node.type.name === "paragraph" || node.type.name === "heading") {
+      const cur = (node.attrs.indent as number | undefined) ?? 0;
+      const next = Math.max(0, Math.min(INDENT_MAX, cur + delta));
+      editor
+        .chain()
+        .focus()
+        .updateAttributes(node.type.name, { indent: next })
+        .run();
+      return;
+    }
+  }
+}
+
+type Spacing = "tight" | "normal" | "relaxed" | "loose";
+type LineHeight = "tight" | "normal" | "relaxed" | "loose";
+
+const SPACING_LABEL: Record<Spacing, string> = {
+  tight: "Compacto",
+  normal: "Normal",
+  relaxed: "Espaçado",
+  loose: "Muito espaçado",
+};
+const LINEHEIGHT_LABEL: Record<LineHeight, string> = {
+  tight: "1.2",
+  normal: "1.5",
+  relaxed: "1.75",
+  loose: "2.0",
+};
+
+export function spacingClass(v: Spacing | undefined) {
+  switch (v) {
+    case "tight":
+      return "[&_p]:mb-1 [&_ul]:mb-1 [&_ol]:mb-1";
+    case "relaxed":
+      return "[&_p]:mb-3 [&_ul]:mb-3 [&_ol]:mb-3";
+    case "loose":
+      return "[&_p]:mb-5 [&_ul]:mb-5 [&_ol]:mb-5";
+    case "normal":
+    default:
+      return "[&_p]:mb-2 [&_ul]:mb-2 [&_ol]:mb-2";
+  }
+}
+
+export function lineHeightClass(v: LineHeight | undefined) {
+  switch (v) {
+    case "tight":
+      return "[&_p]:leading-tight [&_li]:leading-tight";
+    case "relaxed":
+      return "[&_p]:leading-loose [&_li]:leading-loose";
+    case "loose":
+      return "[&_p]:leading-[2] [&_li]:leading-[2]";
+    case "normal":
+    default:
+      return "[&_p]:leading-relaxed [&_li]:leading-relaxed";
+  }
+}
 
 function ToolbarButton({
   active,
@@ -72,9 +181,17 @@ function ToolbarButton({
 function Toolbar({
   editor,
   tokenEntries,
+  paragraphSpacing,
+  lineHeight,
+  onParagraphSpacingChange,
+  onLineHeightChange,
 }: {
   editor: Editor;
   tokenEntries?: TokenCatalogEntry[];
+  paragraphSpacing?: Spacing;
+  lineHeight?: LineHeight;
+  onParagraphSpacingChange?: (v: Spacing) => void;
+  onLineHeightChange?: (v: LineHeight) => void;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-0.5 rounded-t-md border border-b-0 bg-zinc-50 px-1 py-1">
@@ -129,6 +246,18 @@ function Toolbar({
       >
         <ListOrdered className="h-3.5 w-3.5" />
       </ToolbarButton>
+      <ToolbarButton
+        title="Diminuir avanço"
+        onClick={() => applyIndent(editor, -1)}
+      >
+        <IndentDecrease className="h-3.5 w-3.5" />
+      </ToolbarButton>
+      <ToolbarButton
+        title="Aumentar avanço"
+        onClick={() => applyIndent(editor, 1)}
+      >
+        <IndentIncrease className="h-3.5 w-3.5" />
+      </ToolbarButton>
       <div className="mx-1 h-4 w-px bg-zinc-300" />
       <ToolbarButton
         title="Link"
@@ -158,6 +287,67 @@ function Toolbar({
       >
         <TableIcon className="h-3.5 w-3.5" />
       </ToolbarButton>
+
+      {(onParagraphSpacingChange || onLineHeightChange) && (
+        <>
+          <div className="mx-1 h-4 w-px bg-zinc-300" />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                title="Espaçamento e entrelinha"
+                onMouseDown={(e) => e.preventDefault()}
+                className="flex items-center gap-1 rounded p-1 text-zinc-600 hover:bg-zinc-200"
+              >
+                <AlignJustify className="h-3.5 w-3.5" />
+                <span className="text-[11px]">Espaçamento</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              {onParagraphSpacingChange && (
+                <>
+                  <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-zinc-500">
+                    Entre parágrafos
+                  </DropdownMenuLabel>
+                  {(Object.keys(SPACING_LABEL) as Spacing[]).map((k) => (
+                    <DropdownMenuItem
+                      key={k}
+                      onSelect={() => onParagraphSpacingChange(k)}
+                      className={cn(
+                        "text-xs",
+                        (paragraphSpacing ?? "normal") === k && "bg-zinc-100 font-medium",
+                      )}
+                    >
+                      {SPACING_LABEL[k]}
+                    </DropdownMenuItem>
+                  ))}
+                </>
+              )}
+              {onParagraphSpacingChange && onLineHeightChange && <DropdownMenuSeparator />}
+              {onLineHeightChange && (
+                <>
+                  <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-zinc-500">
+                    Entrelinha
+                  </DropdownMenuLabel>
+                  {(Object.keys(LINEHEIGHT_LABEL) as LineHeight[]).map((k) => (
+                    <DropdownMenuItem
+                      key={k}
+                      onSelect={() => onLineHeightChange(k)}
+                      className={cn(
+                        "text-xs",
+                        (lineHeight ?? "normal") === k && "bg-zinc-100 font-medium",
+                      )}
+                    >
+                      {LINEHEIGHT_LABEL[k]}
+                    </DropdownMenuItem>
+                  ))}
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </>
+      )}
+
       {tokenEntries && tokenEntries.length > 0 ? (
         <>
           <div className="mx-1 h-4 w-px bg-zinc-300" />
@@ -219,11 +409,23 @@ export function RichTextEditor({
   onChange,
   placeholder,
   tokenEntries,
+  paragraphSpacing,
+  lineHeight,
+  onParagraphSpacingChange,
+  onLineHeightChange,
+  editorClassName,
+  autoFocus,
 }: {
   value: string;
   onChange: (next: { html: string; text: string }) => void;
   placeholder?: string;
   tokenEntries?: TokenCatalogEntry[];
+  paragraphSpacing?: Spacing;
+  lineHeight?: LineHeight;
+  onParagraphSpacingChange?: (v: Spacing) => void;
+  onLineHeightChange?: (v: LineHeight) => void;
+  editorClassName?: string;
+  autoFocus?: boolean;
 }) {
   // Keep latest onChange in a ref so the editor instance can call the freshest
   // version without being recreated on every render.
@@ -251,6 +453,7 @@ export function RichTextEditor({
     extensions: [
       StarterKit,
       Underline,
+      Indent,
       Link.configure({ openOnClick: false, autolink: true }),
       Table.configure({ resizable: false }),
       TableRow,
@@ -258,10 +461,15 @@ export function RichTextEditor({
       TableHeader,
     ],
     content: value || "",
+    autofocus: autoFocus ? "end" : false,
     editorProps: {
       attributes: {
-        class:
+        class: cn(
           "min-h-[160px] max-w-none rounded-b-md border border-input bg-background px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring",
+          spacingClass(paragraphSpacing),
+          lineHeightClass(lineHeight),
+          editorClassName,
+        ),
       },
       transformPastedHTML(html) {
         // Strip Word/Google Docs noise: inline styles, class names, MS-specific tags.
@@ -313,10 +521,37 @@ export function RichTextEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, editor]);
 
+  // Keep the editor DOM class in sync with spacing / lineHeight changes.
+  useEffect(() => {
+    if (!editor) return;
+    const dom = editor.view.dom as HTMLElement;
+    // Rebuild the class attribute rather than toggling per key — the exact
+    // set of utility classes changes with each variant.
+    dom.className = cn(
+      "min-h-[160px] max-w-none rounded-b-md border border-input bg-background px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring",
+      spacingClass(paragraphSpacing),
+      lineHeightClass(lineHeight),
+      editorClassName,
+    );
+  }, [editor, paragraphSpacing, lineHeight, editorClassName]);
+
   if (!editor) return null;
   return (
-    <div className="space-y-0">
-      <Toolbar editor={editor} tokenEntries={tokenEntries} />
+    <div
+      className="space-y-0"
+      // Stop clicks from bubbling to the canvas (which would deselect the
+      // block and unmount the editor mid-edit).
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <Toolbar
+        editor={editor}
+        tokenEntries={tokenEntries}
+        paragraphSpacing={paragraphSpacing}
+        lineHeight={lineHeight}
+        onParagraphSpacingChange={onParagraphSpacingChange}
+        onLineHeightChange={onLineHeightChange}
+      />
       <EditorContent editor={editor} data-placeholder={placeholder} />
     </div>
   );
