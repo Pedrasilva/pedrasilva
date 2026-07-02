@@ -122,6 +122,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       resource_hourly_rate: last.resource_hourly_rate,
       frequency_mode: last.frequency_mode,
       frequency_value: last.frequency_value,
+      duration_months_override: last.duration_months_override,
       stage_id: last.stage_id,
     };
   }
@@ -138,6 +139,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       resource_hourly_rate: prev?.resource_hourly_rate ?? 0,
       frequency_mode: prev?.frequency_mode ?? "per_month",
       frequency_value: prev?.frequency_value ?? 2,
+      duration_months_override: prev?.duration_months_override ?? null,
       stage_id: prev?.stage_id ?? null,
       notes: "",
     });
@@ -162,6 +164,10 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       resource_hourly_rate: Number(draft.resource_hourly_rate) || 0,
       frequency_mode: (draft.frequency_mode as QuoteSiteTripFrequencyMode) ?? "per_month",
       frequency_value: Number(draft.frequency_value) || 0,
+      duration_months_override:
+        draft.duration_months_override == null || draft.duration_months_override === ("" as unknown as number)
+          ? null
+          : Number(draft.duration_months_override) || null,
       stage_id: draft.stage_id ?? null,
       notes: draft.notes ?? null,
     };
@@ -175,6 +181,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       resource_hourly_rate: payload.resource_hourly_rate,
       frequency_mode: payload.frequency_mode,
       frequency_value: payload.frequency_value,
+      duration_months_override: payload.duration_months_override,
       stage_id: payload.stage_id,
     };
     setDraft(null);
@@ -364,13 +371,26 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                         </div>
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
-                        {trip.frequency_mode === "per_month" && months == null ? (
-                          <span
-                            className="text-muted-foreground"
-                            title="Assign a stage with dates to compute trip count"
-                          >
-                            —
-                          </span>
+                        {trip.frequency_mode === "per_month" ? (
+                          <div className="flex items-center justify-end gap-1">
+                            <NumberCell
+                              value={trip.duration_months_override ?? months ?? 0}
+                              onCommit={(v) =>
+                                patch(trip, {
+                                  duration_months_override: v > 0 ? v : null,
+                                })
+                              }
+                              className="w-14"
+                              step="1"
+                            />
+                            <span className="text-[10px] text-muted-foreground mr-1">mo</span>
+                            <span>
+                              ={" "}
+                              {cost.totalTrips.toFixed(
+                                cost.totalTrips % 1 === 0 ? 0 : 1,
+                              )}
+                            </span>
+                          </div>
                         ) : (
                           cost.totalTrips.toFixed(cost.totalTrips % 1 === 0 ? 0 : 1)
                         )}
@@ -554,6 +574,27 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                       </SelectContent>
                     </Select>
                   </div>
+                </Field>
+                <Field label="Duration (months, override)">
+                  <Input
+                    type="number"
+                    step="1"
+                    min="0"
+                    placeholder="From stage dates"
+                    value={
+                      draft.duration_months_override == null
+                        ? ""
+                        : String(draft.duration_months_override)
+                    }
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setDraft({
+                        ...draft,
+                        duration_months_override: v === "" ? null : Number(v),
+                      });
+                    }}
+                    title="Overrides the stage's date-derived duration when frequency is 'per month'. Leave empty to use stage dates."
+                  />
                 </Field>
                 <Field label="Notes" className="md:col-span-3">
                   <Textarea

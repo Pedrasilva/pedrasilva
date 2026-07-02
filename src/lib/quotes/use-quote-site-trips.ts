@@ -26,6 +26,9 @@ export interface QuoteSiteTrip {
   resource_hourly_rate: number;
   frequency_mode: QuoteSiteTripFrequencyMode;
   frequency_value: number;
+  /** Optional override (in months) for the construction period. When set and
+   *  frequency_mode = "per_month", this replaces the stage's date-derived duration. */
+  duration_months_override: number | null;
   notes: string | null;
   sort_order: number;
   created_at: string;
@@ -133,7 +136,7 @@ export function computeTripHourlyRate(
 export function computeTripCost(
   trip: Pick<
     QuoteSiteTrip,
-    "km" | "price_per_km" | "trip_hours" | "resource_hourly_rate" | "resource_ids" | "frequency_mode" | "frequency_value"
+    "km" | "price_per_km" | "trip_hours" | "resource_hourly_rate" | "resource_ids" | "frequency_mode" | "frequency_value" | "duration_months_override"
   >,
   stageMonths: number | null,
   resourceRateById: Map<string, number> = new Map(),
@@ -146,9 +149,14 @@ export function computeTripCost(
   const perTripHrCost = hrs * rate * 2;
   const perTripTotal = perTripKmCost + perTripHrCost;
   const freqVal = Number(trip.frequency_value) || 0;
+  const override = trip.duration_months_override;
+  const effectiveMonths =
+    override != null && Number.isFinite(Number(override)) && Number(override) > 0
+      ? Number(override)
+      : stageMonths;
   const totalTrips =
     trip.frequency_mode === "per_month"
-      ? freqVal * (stageMonths ?? 0)
+      ? freqVal * (effectiveMonths ?? 0)
       : freqVal;
   return {
     perTripKmCost,
