@@ -365,13 +365,13 @@ export function BlockBody({
         <div className="proposal-avoid-break">
           <H>{num}{stage.code ? `${stage.code} — ` : ""}{stage.name}</H>
           {stage.description && <P>{stage.description}</P>}
-          {richHas && <div className="mb-3">{rich}</div>}
+          {richHas && <div className="mb-4">{rich}</div>}
           {deliverables.length > 0 && (
-            <div className="mt-3">
-              <div className="mb-1 text-[10px] uppercase tracking-wide text-zinc-500">
+            <div className="mt-6">
+              <h3 className="mb-2 text-sm font-semibold tracking-tight text-zinc-900">
                 {L.scopeDeliverables}
-              </div>
-              <ul className="ml-5 list-disc space-y-0.5 text-sm text-zinc-800">
+              </h3>
+              <ul className="ml-5 list-disc space-y-1 text-sm leading-relaxed text-zinc-800">
                 {deliverables.map((d, i) => (
                   <li key={i}>{d}</li>
                 ))}
@@ -379,32 +379,33 @@ export function BlockBody({
             </div>
           )}
           {clientInfo.length > 0 && (
-            <div className="mt-3">
-              <div className="mb-1 text-[10px] uppercase tracking-wide text-zinc-500">
+            <div className="mt-6">
+              <h3 className="mb-2 text-sm font-semibold tracking-tight text-zinc-900">
                 {L.clientInfoRequired}
-              </div>
-              <ul className="ml-5 list-disc space-y-0.5 text-sm text-zinc-800">
+              </h3>
+              <ul className="ml-5 list-disc space-y-1 text-sm leading-relaxed text-zinc-800">
                 {clientInfo.map((d, i) => (
                   <li key={i}>{d}</li>
                 ))}
               </ul>
             </div>
           )}
-          <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+          <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-zinc-200 pt-4 text-sm">
             <div>
-              <dt className="text-[10px] uppercase tracking-wide text-zinc-500">{L.duration}</dt>
-              <dd className="font-medium text-zinc-900">
+              <dt className="mb-1 text-sm font-semibold tracking-tight text-zinc-900">{L.duration}</dt>
+              <dd className="text-zinc-700">
                 {stage.durationDays != null ? `${stage.durationDays} ${L.daysUnit}` : "—"}
               </dd>
             </div>
             <div>
-              <dt className="text-[10px] uppercase tracking-wide text-zinc-500">{L.fees}</dt>
-              <dd className="font-medium text-zinc-900">{formatCurrencyEUR(stage.fee, lang)}</dd>
+              <dt className="mb-1 text-sm font-semibold tracking-tight text-zinc-900">{L.fees}</dt>
+              <dd className="text-zinc-700">{formatCurrencyEUR(stage.fee, lang)}</dd>
             </div>
           </dl>
         </div>
       );
     }
+
 
 
     case "timeline": {
