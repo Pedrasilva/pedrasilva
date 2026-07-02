@@ -753,7 +753,7 @@ export function BlockBody({
           rows.push(
             <tr key={s.id} className="border-b border-zinc-100">
               <td className="py-1" style={pad}>{label}</td>
-              <td className="py-1 text-right">{formatCurrencyEUR(Number(s.fee) || 0)}</td>
+              <td className="py-1 text-right">{formatCurrencyEUR(Number(s.fee) || 0, lang)}</td>
             </tr>,
           );
         }
@@ -767,20 +767,20 @@ export function BlockBody({
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
-                  <th className="py-1">Fase</th>
-                  <th className="py-1 text-right">Honorários</th>
+                  <th className="py-1">{L.phase}</th>
+                  <th className="py-1 text-right">{L.fees}</th>
                 </tr>
               </thead>
               <tbody>
                 {rows}
                 <tr className="font-semibold">
-                  <td className="py-1">Total Arquitetura</td>
-                  <td className="py-1 text-right">{formatCurrencyEUR(total)}</td>
+                  <td className="py-1">{L.totalArchitecture}</td>
+                  <td className="py-1 text-right">{formatCurrencyEUR(total, lang)}</td>
                 </tr>
               </tbody>
             </table>
           ) : (
-            <Empty>Sem honorários para apresentar.</Empty>
+            <Empty>{L.noFeesToShow}</Empty>
           )}
         </div>
       );
