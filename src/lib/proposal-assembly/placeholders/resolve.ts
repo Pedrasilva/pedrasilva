@@ -60,13 +60,13 @@ function formatDaysWeeksMonths(days: number | null | undefined): string {
   if (days == null || !Number.isFinite(Number(days))) return "duration to be confirmed";
   const d = Math.max(0, Math.round(Number(days)));
   if (d === 0) return "duration to be confirmed";
-  const daysLabel = `${fmtNumber(d)} working day${d === 1 ? "" : "s"}`;
-  if (d < 7) return daysLabel;
-  const w = Math.round(d / 7);
-  const weeksLabel = `~${w} week${w === 1 ? "" : "s"}`;
-  if (d < 30) return `${daysLabel} (${weeksLabel})`;
-  const m = Math.round(d / 30);
-  return `${daysLabel} (${weeksLabel} · ~${m} month${m === 1 ? "" : "s"})`;
+  if (d <= 7) return `${fmtNumber(d)} day${d === 1 ? "" : "s"}`;
+  if (d <= 28) {
+    const w = Math.round(d / 7);
+    return `${w} week${w === 1 ? "" : "s"}`;
+  }
+  const m = Math.max(1, Math.round(d / 30));
+  return `${m} month${m === 1 ? "" : "s"}`;
 }
 
 function renderProgramme(data: AssemblyData): string {
