@@ -842,12 +842,12 @@ export function BlockBody({
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
-                  <th className="py-1 w-20">Fatura</th>
-                  <th className="py-1 w-24">Data</th>
+                  <th className="py-1 w-20">{L.invoiceCol}</th>
+                  <th className="py-1 w-24">{L.dateCol}</th>
                   <th className="py-1">{L.description}</th>
-                  <th className="py-1 text-right">Sem IVA</th>
-                  <th className="py-1 text-right">IVA</th>
-                  <th className="py-1 text-right">Com IVA</th>
+                  <th className="py-1 text-right">{L.netCol}</th>
+                  <th className="py-1 text-right">{L.vatCol}</th>
+                  <th className="py-1 text-right">{L.grossCol}</th>
                 </tr>
               </thead>
               <tbody>
