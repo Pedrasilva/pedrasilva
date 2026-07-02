@@ -7108,6 +7108,89 @@ export type Database = {
           },
         ]
       }
+      quote_site_trips: {
+        Row: {
+          created_at: string
+          frequency_mode: string
+          frequency_value: number
+          id: string
+          km: number
+          label: string
+          notes: string | null
+          price_per_km: number
+          quote_id: string
+          resource_hourly_rate: number
+          resource_id: string | null
+          sort_order: number
+          stage_id: string | null
+          trip_hours: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          frequency_mode?: string
+          frequency_value?: number
+          id?: string
+          km?: number
+          label?: string
+          notes?: string | null
+          price_per_km?: number
+          quote_id: string
+          resource_hourly_rate?: number
+          resource_id?: string | null
+          sort_order?: number
+          stage_id?: string | null
+          trip_hours?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          frequency_mode?: string
+          frequency_value?: number
+          id?: string
+          km?: number
+          label?: string
+          notes?: string | null
+          price_per_km?: number
+          quote_id?: string
+          resource_hourly_rate?: number
+          resource_id?: string | null
+          sort_order?: number
+          stage_id?: string | null
+          trip_hours?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_site_trips_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_site_trips_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_site_trips_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "pm_resources_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_site_trips_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "quote_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_stage_dependencies: {
         Row: {
           created_at: string
