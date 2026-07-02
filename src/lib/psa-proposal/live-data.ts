@@ -750,6 +750,8 @@ export interface ProposalLabels {
   fees: string;
   totalArchitecture: string;
   totalSuppliers: string;
+  totalOptional: string;
+
   feeTableIntro: string;
 
   scheduleUnavailable: string;
