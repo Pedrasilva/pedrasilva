@@ -281,12 +281,11 @@ export function PaymentScheduleProposalView({
     nodes.forEach((stage) => m.set(stage.id, { ...effectiveSpan(stage), sortOrder: stage.sort_order ?? 0 }));
     return m;
   }, [stages]);
+  // Include every inflow — project_start items (down payments / Adjudicação)
+  // must appear in the invoice grid so the schedule follows the full Gantt
+  // chronology from day zero, not just from the first monthly stage.
   const inflows = items
-    .filter(
-      (it) =>
-        (it.direction ?? "inflow") === "inflow" &&
-        it.trigger_type !== "project_start",
-    )
+    .filter((it) => (it.direction ?? "inflow") === "inflow")
     .slice()
     .sort((a, b) => {
       const sa = a.stage_id ? stageSortMeta.get(a.stage_id) : undefined;
