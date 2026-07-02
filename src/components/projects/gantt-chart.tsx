@@ -1087,12 +1087,18 @@ export function GanttChart({
         })}
         {Array.from({ length: totalDays }).map((_, i) => {
           const d = addDays(origin, i);
-          if (!isWeekend(d)) return null;
+          const iso = format(d, "yyyy-MM-dd");
+          const isHol = holidaySet?.has(iso);
+          const isWe = isWeekend(d);
+          if (!isWe && !isHol) return null;
           return (
             <div
-              key={`we-${i}`}
-              className="pointer-events-none absolute top-0 h-full bg-muted/40"
+              key={`nw-${i}`}
+              className={`pointer-events-none absolute top-0 h-full ${
+                isHol ? "bg-muted-foreground/25" : "bg-muted/40"
+              }`}
               style={{ left: i * dayWidth, width: dayWidth }}
+              title={isHol ? `Feriado — ${iso}` : undefined}
             />
           );
         })}
