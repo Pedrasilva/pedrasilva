@@ -1665,7 +1665,7 @@ export function GanttChart({
                                       })
                                     }
                                   />
-                                  <AllocationEditor allocation={a} projectId={stage.projectId} adapter={adapter} />
+                                  <AllocationEditor allocation={a} projectId={stage.projectId} adapter={adapter} stageStart={stage.start_date} stageEnd={stage.end_date} />
                                 </>
                               )}
                             </div>

@@ -19,6 +19,9 @@ interface Props {
   /** Scoping ID for the underlying mode (project_id in project mode, quote_id in quote mode). */
   projectId: string;
   adapter: PlannerAdapter;
+  /** Parent stage bounds — allocations are always clamped within these. */
+  stageStart?: string;
+  stageEnd?: string;
 }
 
 type AllocationWithStatus = AllocationWithResource & {
@@ -43,9 +46,17 @@ function formatDecimal(n: number): string {
   return String(round1(n));
 }
 
-export function AllocationEditor({ allocation, projectId, adapter }: Props) {
+export function AllocationEditor({ allocation, projectId, adapter, stageStart, stageEnd }: Props) {
   const [open, setOpen] = useState(false);
   const allocWithExtras = allocation as AllocationWithStatus;
+
+  // Clamp any date to the stage window so allocations can never bleed outside.
+  const clampToStage = (iso: string): string => {
+    if (!iso) return iso;
+    if (stageStart && iso < stageStart) return stageStart;
+    if (stageEnd && iso > stageEnd) return stageEnd;
+    return iso;
+  };
 
   const { data: schedules } = useResourceSchedules();
   const schedule = schedules?.get(allocation.resource.id);
@@ -103,8 +114,8 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
   // from the first mount.
   useEffect(() => {
     if (!open) return;
-    setStart(allocation.start_date);
-    setEnd(allocation.end_date);
+    setStart(clampToStage(allocation.start_date));
+    setEnd(clampToStage(allocation.end_date));
     const h = Number(allocation.hours_per_day);
     setHours(h);
     setHoursText(String(round1(h)));
@@ -191,9 +202,13 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
       const parsedPct = parseDecimal(pctText);
       const hoursToSave = parsedHours == null ? hours : Math.max(0, Math.min(24, parsedHours));
       const pctToSave = parsedPct == null ? pct : Math.max(0, Math.min(100, parsedPct));
+      // Enforce stage-boundary invariant at save time.
+      const clampedStart = clampToStage(start);
+      const clampedEnd = clampToStage(end);
+      const safeStart = clampedStart > clampedEnd ? clampedEnd : clampedStart;
       const patch: Parameters<typeof adapter.updateAllocation>[0]["patch"] = showStatusToggle
-        ? { start_date: start, end_date: end, hours_per_day: hoursToSave, status }
-        : { start_date: start, end_date: end, hours_per_day: hoursToSave };
+        ? { start_date: safeStart, end_date: clampedEnd, hours_per_day: hoursToSave, status }
+        : { start_date: safeStart, end_date: clampedEnd, hours_per_day: hoursToSave };
       if (showPercentage) {
         patch.allocation_percentage = pctToSave;
       }
@@ -335,11 +350,25 @@ export function AllocationEditor({ allocation, projectId, adapter }: Props) {
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Label htmlFor="a-start" className="text-xs">Início</Label>
-              <Input id="a-start" type="date" value={start} onChange={(e) => setStart(e.target.value)} />
+              <Input
+                id="a-start"
+                type="date"
+                value={start}
+                min={stageStart}
+                max={stageEnd}
+                onChange={(e) => setStart(clampToStage(e.target.value))}
+              />
             </div>
             <div>
               <Label htmlFor="a-end" className="text-xs">Fim</Label>
-              <Input id="a-end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
+              <Input
+                id="a-end"
+                type="date"
+                value={end}
+                min={stageStart}
+                max={stageEnd}
+                onChange={(e) => setEnd(clampToStage(e.target.value))}
+              />
             </div>
           </div>
           {showPercentage ? (
