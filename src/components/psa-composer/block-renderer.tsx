@@ -416,25 +416,23 @@ export function BlockBody({
             </div>
           </dl>
           {resourcesVisible && resourceRows.length > 0 && (
-            <div className="mt-6">
-              <h3 className="mb-2 text-sm font-semibold tracking-tight text-zinc-900">
+            <div className="mt-6 text-sm">
+              <h3 className="mb-1 text-sm font-semibold tracking-tight text-zinc-900">
                 {L.resourceBreakdown}
               </h3>
-              <table className="w-full border-collapse text-sm leading-relaxed">
-                <tbody>
-                  {resourceRows.map((r, i) => (
-                    <tr key={i} className="border-b border-zinc-100 last:border-0">
-                      <td className="py-1 text-zinc-800">{r.role}</td>
-                      <td className="py-1 text-right tabular-nums text-zinc-800">
-                        {r.hours}{L.hoursShort}
-
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="space-y-0.5">
+                {resourceRows.map((r, i) => (
+                  <div key={i} className="flex items-baseline justify-between">
+                    <span className="text-zinc-700">{r.role}</span>
+                    <span className="tabular-nums text-zinc-700">
+                      {r.hours}{L.hoursShort}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
+
 
 
         </div>
