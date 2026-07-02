@@ -36,6 +36,13 @@ export interface LiveStage {
   endDate: string | null;
   durationDays: number | null;
   fee: number | null;
+  /** Raw stage budget before any admin markup — same as `fee` when no
+   *  supplier admin markup applies. Preserved so downstream consumers
+   *  can still see the pre-markup number when needed. */
+  rawFee: number | null;
+  /** Supplier admin markup percentage inherited from the stage's group
+   *  root (0 when no supplier or no markup configured). */
+  supplierMarkupPct: number;
   hours: number | null;
   isSelf: boolean;
   isMilestone: boolean;
