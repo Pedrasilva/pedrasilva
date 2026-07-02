@@ -125,8 +125,9 @@ function buildConsultantRows(input: {
   stageById: Map<string, { id: string; parent_stage_id: string | null; budget: number | null }>;
   supplierNames: Map<string, string>;
   pmSupplierNames: Map<string, string>;
+  supplierMarkups: SupplierMarkupRow[];
 }): LiveQuoteSnapshot["consultants"] {
-  const { externalServices, stages, supplierNames, pmSupplierNames } = input;
+  const { externalServices, stages, supplierNames, pmSupplierNames, supplierMarkups } = input;
 
   type Stage = {
     id: string;
