@@ -836,7 +836,7 @@ export function PaymentScheduleProposalView({
           const ds = fmtDate(d);
           switch (it.trigger_type) {
             case "project_start":
-              return `No início do projecto${ds ? ` (${ds})` : ""}`;
+              return `Adiantamento recebido${ds ? ` (${ds})` : ""}`;
             case "stage_start":
               return stageName
                 ? `No início de ${stageName}${ds ? ` (${ds})` : ""}`
@@ -905,16 +905,19 @@ export function PaymentScheduleProposalView({
         const orderKeys: string[] = [];
         for (const it of inflows) {
           const d = dateFor(it);
-          // Group by calendar month so items planned within the same month
-          // are consolidated into a single invoice (one line per service).
-          const ym = d.length >= 7 ? d.slice(0, 7) : d;
-          const key = `m:${ym}`;
+          // Down payments (project_start) get their own invoice on the exact
+          // project-start date so they are not folded into the first month.
+          const isDownpayment = it.trigger_type === "project_start";
+          const bucket = isDownpayment
+            ? `dp:${d}`
+            : d.length >= 7 ? d.slice(0, 7) : d;
+          const key = isDownpayment ? bucket : `m:${bucket}`;
           let inv = invoiceMap.get(key);
           if (!inv) {
             inv = { key, plannedDate: d, items: [], paymentTerms: it.payment_terms ?? null };
             invoiceMap.set(key, inv);
             orderKeys.push(key);
-          } else if (d > inv.plannedDate) {
+          } else if (!isDownpayment && d > inv.plannedDate) {
             // Use the latest date in the month as the invoice's planned date.
             inv.plannedDate = d;
           }

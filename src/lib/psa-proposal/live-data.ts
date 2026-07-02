@@ -497,7 +497,7 @@ export function useLiveQuoteSnapshot(
         const stageName = s?.name ?? "";
         const ds = fmtDate(dateFor(p));
         switch (p.trigger_type) {
-          case "project_start": return `${L.atProjectStart}${ds ? ` (${ds})` : ""}`;
+          case "project_start": return `${L.downpaymentReceived}${ds ? ` (${ds})` : ""}`;
           case "stage_start": return stageName ? `${L.atStartOf} ${stageName}${ds ? ` (${ds})` : ""}` : `${L.atStartOfStage}${ds ? ` (${ds})` : ""}`;
           case "stage_end": return stageName ? `${L.uponCompletionOf} ${stageName}${ds ? ` (${ds})` : ""}` : `${L.uponCompletionOfStage}${ds ? ` (${ds})` : ""}`;
           case "manual_date": return `${L.onDate} ${ds || L.dateTBD}`;
@@ -527,21 +527,25 @@ export function useLiveQuoteSnapshot(
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const inflows = ((pay ?? []) as any[]).filter(
-        (p) => (p.direction ?? "inflow") === "inflow" && p.trigger_type !== "project_start",
+        (p) => (p.direction ?? "inflow") === "inflow",
       );
       type Invoice = { key: string; plannedDate: string; items: any[]; paymentTerms: string | null };
       const invoiceMap = new Map<string, Invoice>();
       const orderKeys: string[] = [];
       for (const it of inflows) {
         const d = dateFor(it);
-        const ym = d.length >= 7 ? d.slice(0, 7) : d;
-        const key = `m:${ym}`;
+        // Down payments (project_start) get their own invoice on the exact
+        // project-start date, not folded into the first month's invoice.
+        const isDownpayment = it.trigger_type === "project_start";
+        const key = isDownpayment
+          ? `dp:${d}`
+          : `m:${d.length >= 7 ? d.slice(0, 7) : d}`;
         let inv = invoiceMap.get(key);
         if (!inv) {
           inv = { key, plannedDate: d, items: [], paymentTerms: it.payment_terms ?? null };
           invoiceMap.set(key, inv);
           orderKeys.push(key);
-        } else if (d > inv.plannedDate) {
+        } else if (!isDownpayment && d > inv.plannedDate) {
           inv.plannedDate = d;
         }
         inv.items.push(it);
@@ -771,6 +775,7 @@ export interface ProposalLabels {
   monthlyOf: string;
   monthly: string;
   atProjectStart: string;
+  downpaymentReceived: string;
   atStartOf: string;
   atStartOfStage: string;
   uponCompletionOf: string;
@@ -837,6 +842,7 @@ const LABELS_PT: ProposalLabels = {
   monthlyOf: "Mensalidade de",
   monthly: "Mensalidade",
   atProjectStart: "No início do projecto",
+  downpaymentReceived: "Adiantamento recebido",
   atStartOf: "No início de",
   atStartOfStage: "No início da fase",
   uponCompletionOf: "Na conclusão de",
@@ -905,6 +911,7 @@ const LABELS_EN: ProposalLabels = {
   monthlyOf: "Monthly fee for",
   monthly: "Monthly fee",
   atProjectStart: "At project start",
+  downpaymentReceived: "Downpayment received",
   atStartOf: "At the start of",
   atStartOfStage: "At the start of the stage",
   uponCompletionOf: "Upon completion of",
