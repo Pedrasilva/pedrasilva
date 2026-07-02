@@ -483,6 +483,42 @@ export function useLiveQuoteSnapshot(
         markup_pct: Number(r.markup_pct) || 0,
       }));
 
+      // ── Site trips (Construction Assistance) ──
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: siteTripsRaw } = await (supabase as any)
+        .from("quote_site_trips")
+        .select(
+          "id,label,stage_id,km,price_per_km,trip_hours,resource_id,resource_ids,resource_hourly_rate,frequency_mode,frequency_value,duration_months_override,notes,sort_order",
+        )
+        .eq("quote_id", quoteId!)
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: true });
+
+      // Collect all resource ids we need to look up (both from trips and stage allocations).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const tripResourceIds = new Set<string>();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((siteTripsRaw ?? []) as any[]).forEach((t) => {
+        (t.resource_ids ?? []).forEach((id: string) => id && tripResourceIds.add(id));
+        if (t.resource_id) tripResourceIds.add(t.resource_id);
+      });
+      const resourceRateById = new Map<string, number>();
+      const resourceNameById = new Map<string, string>();
+      if (tripResourceIds.size) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: resRows } = await (supabase as any)
+          .from("pm_resources")
+          .select("id,name,hourly_rate")
+          .in("id", Array.from(tripResourceIds));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ((resRows ?? []) as any[]).forEach((r) => {
+          if (!r?.id) return;
+          resourceRateById.set(r.id, Number(r.hourly_rate) || 0);
+          if (r.name) resourceNameById.set(r.id, String(r.name));
+        });
+      }
+
+
 
       const { data: pay } = await supabase
         .from("quote_payment_schedule_items")
