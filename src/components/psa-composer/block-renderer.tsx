@@ -751,7 +751,9 @@ export function BlockBody({
     case "fee_table": {
       // Hierarchy: grandparents/parents render as title rows (no fee);
       // only leaves render fee values. Total = sum of leaf fees.
-      const inSet = new Set(selfStages.map((s) => s.id));
+      const feeStages = selfStages.filter((s) => !s.isMilestone);
+      const inSet = new Set(feeStages.map((s) => s.id));
+
       const kidsOf = new Map<string, typeof selfStages>();
       for (const s of selfStages) {
         const p = s.parentStageId && inSet.has(s.parentStageId) ? s.parentStageId : null;
