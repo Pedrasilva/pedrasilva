@@ -543,10 +543,10 @@ export function BlockBody({
             <H>{num}{block.title}</H>
             <Empty>
               {block.block_type === "gantt_design"
-                ? "Sem fases de projeto com datas definidas."
+                ? L.noDesignPhases
                 : block.block_type === "gantt_construction"
-                ? "Sem fases de obra com datas definidas."
-                : "Selecione uma fase pai nas definições do bloco."}
+                ? L.noConstructionPhases
+                : L.chooseParentInSettings}
             </Empty>
           </div>
         );
