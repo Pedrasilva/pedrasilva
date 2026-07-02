@@ -950,6 +950,7 @@ function QuoteDetail() {
               <TabsTrigger value="consultants">Suppliers</TabsTrigger>
               <TabsTrigger value="incoming">Incoming</TabsTrigger>
               <TabsTrigger value="outgoing">Outgoing</TabsTrigger>
+              <TabsTrigger value="construction-assistance">Construction assistance</TabsTrigger>
             </>
           )}
 
