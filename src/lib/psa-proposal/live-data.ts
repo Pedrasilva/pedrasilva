@@ -86,6 +86,9 @@ export function useLiveQuoteSnapshot(
   return useQuery({
     enabled: !!quoteId,
     queryKey: ["psa-live-quote", quoteId, lang],
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<LiveQuoteSnapshot> => {
       const L = getProposalLabels(lang);
       const missing: string[] = [];
