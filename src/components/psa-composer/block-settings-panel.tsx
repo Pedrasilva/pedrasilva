@@ -33,10 +33,15 @@ import {
 } from "@/lib/psa-proposal/types";
 import { RelevanceBadge } from "./relevance-badge";
 import { RichTextEditor } from "./rich-text-editor";
-import { useLiveQuoteSnapshot } from "@/lib/psa-proposal/live-data";
+import { useLiveQuoteSnapshot, type LiveStage } from "@/lib/psa-proposal/live-data";
 import { buildTokenPickerEntries } from "@/lib/psa-proposal/tokens";
 import { ProposalStylePanel } from "./proposal-style-panel";
 import type { PsaProposal } from "@/lib/psa-proposal/types";
+import {
+  buildStageNumberMap,
+  compareWbsNumbers,
+  formatStageLabel,
+} from "@/lib/quotes/stage-numbering";
 
 export function BlockSettingsPanel({
   proposalId,
