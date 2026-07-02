@@ -91,6 +91,19 @@ export function BlockLibraryPanel({
       sort_hint: 999,
       is_system: false,
     },
+    {
+      id: "travel-expenses",
+      kind: "travel_expenses",
+      label: "Despesas de Deslocação",
+      default_title: "Despesas de Deslocação",
+      default_content_rich: {},
+      default_source_type: "live_quote",
+      default_source_ref: {},
+      default_contract_relevance: "proposal_only",
+      sort_hint: 999,
+      is_system: false,
+    },
+
 
     {
       id: "page-break",
