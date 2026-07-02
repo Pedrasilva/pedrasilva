@@ -676,9 +676,9 @@ export function BlockBody({
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
-                  <th className="py-1">Especialidade</th>
-                  <th className="py-1">Consultor</th>
-                  <th className="py-1 text-right">Honorários</th>
+                  <th className="py-1">{L.discipline}</th>
+                  <th className="py-1">{L.consultant}</th>
+                  <th className="py-1 text-right">{L.fees}</th>
                 </tr>
               </thead>
               <tbody>
@@ -686,13 +686,13 @@ export function BlockBody({
                   <tr key={c.id} className="border-b border-zinc-100">
                     <td className="py-1">{c.discipline ?? "—"}</td>
                     <td className="py-1">{c.name}</td>
-                    <td className="py-1 text-right">{formatCurrencyEUR(c.fee)}</td>
+                    <td className="py-1 text-right">{formatCurrencyEUR(c.fee, lang)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           ) : (
-            <Empty>Sem consultores definidos.</Empty>
+            <Empty>{L.noConsultants}</Empty>
           )}
         </div>
       );
