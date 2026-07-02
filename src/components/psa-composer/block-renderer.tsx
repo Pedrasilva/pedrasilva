@@ -6,6 +6,7 @@
  * editor) when present, falling back to the legacy plain `content_rich.text`
  * field. Live-data blocks ignore content_rich and reference the snapshot.
  */
+import React from "react";
 import type { PsaProposalBlock } from "@/lib/psa-proposal/types";
 import {
   type LiveQuoteSnapshot,
