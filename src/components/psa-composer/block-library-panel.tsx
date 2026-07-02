@@ -80,6 +80,19 @@ export function BlockLibraryPanel({
       is_system: false,
     },
     {
+      id: "optional-fee-table",
+      kind: "optional_fee_table",
+      label: "Honorários Opcionais",
+      default_title: "Serviços Opcionais",
+      default_content_rich: {},
+      default_source_type: "live_quote",
+      default_source_ref: {},
+      default_contract_relevance: "proposal_only",
+      sort_hint: 999,
+      is_system: false,
+    },
+
+    {
       id: "page-break",
       kind: "page_break",
       label: "Quebra de Página",
