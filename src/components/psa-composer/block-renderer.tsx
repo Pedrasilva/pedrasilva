@@ -867,7 +867,7 @@ export function BlockBody({
                       <tr className="text-xs bg-zinc-50">
                         <td className="py-1" />
                         <td className="py-1" />
-                        <td className="py-1 font-semibold">Subtotal {inv.label}</td>
+                        <td className="py-1 font-semibold">{L.subtotal} {inv.label}</td>
                         <td className="py-1 text-right tabular-nums font-semibold">{formatCurrencyEUR(inv.net, lang)}</td>
                         <td className="py-1 text-right tabular-nums text-zinc-500">{formatCurrencyEUR(inv.vat, lang)}</td>
                         <td className="py-1 text-right tabular-nums font-semibold">{formatCurrencyEUR(inv.total, lang)}</td>
