@@ -101,7 +101,8 @@ export function BlockSettingsPanel({
     block.source_type === "library" ||
     block.source_type === "mixed" ||
     block.block_type === "stage_item" ||
-    block.block_type === "stage_list";
+    block.block_type === "stage_list" ||
+    block.block_type === "timeline";
 
   return (
     <aside className="flex h-full w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l bg-muted/30 p-3 text-sm xl:w-80">
