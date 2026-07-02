@@ -64,6 +64,18 @@ export interface LiveQuoteSnapshot {
     amount: number | null;
     plannedDate: string | null;
   }>;
+  paymentInvoices: Array<{
+    key: string;
+    label: string;
+    plannedDate: string | null;
+    lines: Array<{ description: string; net: number; vat: number }>;
+    net: number;
+    vat: number;
+    total: number;
+    paymentTerms: string | null;
+  }>;
+  paymentInvoicesTotal: { net: number; vat: number; total: number };
+  defaultVatRate: number;
   missing: string[];
 }
 
