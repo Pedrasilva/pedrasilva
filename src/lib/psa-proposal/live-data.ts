@@ -115,6 +115,7 @@ function buildConsultantRows(input: {
     name: string;
     parent_stage_id: string | null;
     is_self: boolean | null;
+    is_optional: boolean | null;
     budget: number | null;
     budget_mode: string | null;
     supplier_id: string | null;
