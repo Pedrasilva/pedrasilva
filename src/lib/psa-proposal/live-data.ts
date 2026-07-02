@@ -887,6 +887,7 @@ const LABELS_EN: ProposalLabels = {
   duration: "Duration",
   fees: "Fees",
   totalArchitecture: "Total Architecture",
+  totalSuppliers: "Total Suppliers",
   scheduleUnavailable: "No schedule available.",
   noFeesToShow: "No fees to display.",
   noPhasesDefined: "No stages defined in the quote.",
