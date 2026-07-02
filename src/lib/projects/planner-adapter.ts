@@ -61,6 +61,7 @@ export interface PlannerAllocationCreateArgs {
   end_date: string;
   hours_per_day: number;
   projectId: string;
+  allocation_percentage?: number | null;
 }
 
 export interface PlannerAllocationUpdateArgs {
