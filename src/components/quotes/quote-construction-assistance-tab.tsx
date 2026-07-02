@@ -101,10 +101,14 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
     });
   }
 
+  function startEdit(trip: QuoteSiteTrip) {
+    setDraft({ ...trip });
+  }
+
   async function saveDraft() {
     if (!draft) return;
     const ids = draft.resource_ids ?? [];
-    await upsert.mutateAsync({
+    const payload = {
       quote_id: quoteId,
       label: draft.label ?? "Site trip",
       km: Number(draft.km) || 0,
@@ -117,7 +121,8 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       frequency_value: Number(draft.frequency_value) || 0,
       stage_id: draft.stage_id ?? null,
       notes: draft.notes ?? null,
-    });
+    };
+    await upsert.mutateAsync(draft.id ? { id: draft.id, ...payload } : payload);
     setDraft(null);
   }
 
