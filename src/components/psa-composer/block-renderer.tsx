@@ -422,9 +422,9 @@ export function BlockBody({
               </h3>
               <div className="space-y-0.5">
                 {resourceRows.map((r, i) => (
-                  <div key={i} className="flex items-baseline justify-between">
-                    <span className="text-zinc-700">{r.role}</span>
-                    <span className="tabular-nums text-zinc-700">
+                  <div key={i} className="flex items-baseline gap-3 text-zinc-700">
+                    <span>{r.role}</span>
+                    <span className="tabular-nums">
                       {r.hours}{L.hoursShort}
                     </span>
                   </div>
