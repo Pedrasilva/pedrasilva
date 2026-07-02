@@ -357,6 +357,11 @@ export interface ProposalLabels {
   deliverables: string;
   clientInfoRequired: string;
   scopeDeliverables: string;
+  resourceBreakdown: string;
+  role: string;
+  hours: string;
+  hoursShort: string;
+
   emptyEditRight: string;
   chooseStage: string;
   dayShort: string; // "d" / "d"
