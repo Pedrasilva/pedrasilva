@@ -117,17 +117,35 @@ export function stageDurationMonths(
   return days / 30.4375;
 }
 
+/**
+ * Effective hourly rate for a trip.
+ * If the trip has one or more `resource_ids`, the rate is the SUM of each
+ * resource's sale rate (their `hourly_rate` on `pm_resources`). Otherwise
+ * falls back to the manual `resource_hourly_rate` override.
+ */
+export function computeTripHourlyRate(
+  trip: Pick<QuoteSiteTrip, "resource_ids" | "resource_hourly_rate">,
+  resourceRateById: Map<string, number>,
+): number {
+  const ids = trip.resource_ids ?? [];
+  if (ids.length > 0) {
+    return ids.reduce((sum, id) => sum + (Number(resourceRateById.get(id)) || 0), 0);
+  }
+  return Number(trip.resource_hourly_rate) || 0;
+}
+
 export function computeTripCost(
   trip: Pick<
     QuoteSiteTrip,
-    "km" | "price_per_km" | "trip_hours" | "resource_hourly_rate" | "frequency_mode" | "frequency_value"
+    "km" | "price_per_km" | "trip_hours" | "resource_hourly_rate" | "resource_ids" | "frequency_mode" | "frequency_value"
   >,
   stageMonths: number | null,
+  resourceRateById: Map<string, number> = new Map(),
 ): TripCostBreakdown {
   const km = Number(trip.km) || 0;
   const ppk = Number(trip.price_per_km) || 0;
   const hrs = Number(trip.trip_hours) || 0;
-  const rate = Number(trip.resource_hourly_rate) || 0;
+  const rate = computeTripHourlyRate(trip, resourceRateById);
   const perTripKmCost = km * ppk * 2;
   const perTripHrCost = hrs * rate * 2;
   const perTripTotal = perTripKmCost + perTripHrCost;
