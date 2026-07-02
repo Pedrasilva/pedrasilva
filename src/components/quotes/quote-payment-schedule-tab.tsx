@@ -700,6 +700,9 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
           <div className="border-t pt-4">
             <QuoteFeeSourceToggle quoteId={quoteId} compact />
           </div>
+          <div className="border-t pt-4">
+            <QuoteSupplierMarkupEditor quoteId={quoteId} />
+          </div>
         </CardContent>
       </Card>
 
