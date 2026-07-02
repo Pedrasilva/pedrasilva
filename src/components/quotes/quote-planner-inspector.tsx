@@ -121,8 +121,11 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
         }
       }
     }
-    return allStages.filter((s) => s.id !== stageId && !existing.has(s.id) && !descendants.has(s.id));
-  }, [allStages, deps, predecessors, stageId]);
+    return allStages
+      .filter((s) => s.id !== stageId && !existing.has(s.id) && !descendants.has(s.id))
+      .slice()
+      .sort((a, b) => compareWbsNumbers(wbsMap.get(a.id), wbsMap.get(b.id)));
+  }, [allStages, deps, predecessors, stageId, wbsMap]);
 
   const successorOptions = useMemo(() => {
     const existing = new Set(successors.map((d) => d.successor_stage_id));
@@ -137,8 +140,12 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
         }
       }
     }
-    return allStages.filter((s) => s.id !== stageId && !existing.has(s.id) && !ancestors.has(s.id));
-  }, [allStages, deps, successors, stageId]);
+    return allStages
+      .filter((s) => s.id !== stageId && !existing.has(s.id) && !ancestors.has(s.id))
+      .slice()
+      .sort((a, b) => compareWbsNumbers(wbsMap.get(a.id), wbsMap.get(b.id)));
+  }, [allStages, deps, successors, stageId, wbsMap]);
+
 
   // New-dependency form (used in both panels)
   const [newPred, setNewPred] = useState<{ pred: string; type: QuoteDepType; lag: string }>(
