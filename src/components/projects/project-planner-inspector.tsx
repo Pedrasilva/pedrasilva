@@ -299,8 +299,23 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                     key={`sd-${stage.id}-${stage.start_date}`}
                     defaultValue={stage.start_date}
                     onBlur={(e) => {
-                      if (e.target.value && e.target.value !== stage.start_date)
-                        patch({ start_date: e.target.value });
+                      const v = e.target.value;
+                      if (!v || v === stage.start_date) return;
+                      // Move (preserve duration) instead of resize.
+                      const durMs =
+                        parseISO(stage.end_date).getTime() -
+                        parseISO(stage.start_date).getTime();
+                      const newStart = parseISO(v);
+                      const newEnd = new Date(newStart.getTime() + durMs);
+                      updateStageCascade
+                        .mutateAsync({
+                          id: stage.id,
+                          start_date: format(newStart, "yyyy-MM-dd"),
+                          end_date: format(newEnd, "yyyy-MM-dd"),
+                          projectId,
+                          shiftAllocations: true,
+                        })
+                        .catch((err) => toast.error((err as Error).message));
                     }}
                   />
                 </div>
@@ -313,12 +328,33 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
                     key={`ed-${stage.id}-${stage.end_date}`}
                     defaultValue={stage.end_date}
                     onBlur={(e) => {
-                      if (e.target.value && e.target.value !== stage.end_date)
-                        patch({ end_date: e.target.value });
+                      const v = e.target.value;
+                      if (!v || v === stage.end_date) return;
+                      // Move (preserve duration) instead of resize.
+                      const durMs =
+                        parseISO(stage.end_date).getTime() -
+                        parseISO(stage.start_date).getTime();
+                      const newEnd = parseISO(v);
+                      const newStart = new Date(newEnd.getTime() - durMs);
+                      updateStageCascade
+                        .mutateAsync({
+                          id: stage.id,
+                          start_date: format(newStart, "yyyy-MM-dd"),
+                          end_date: format(newEnd, "yyyy-MM-dd"),
+                          projectId,
+                          shiftAllocations: true,
+                        })
+                        .catch((err) => toast.error((err as Error).message));
                     }}
                   />
                 </div>
               </div>
+              <p className="text-[10px] text-muted-foreground">
+                {t("projects:gantt.inspector.moveHint", {
+                  defaultValue:
+                    "Alterar a data desloca a etapa (mantém a duração). Use a duração para redimensionar.",
+                })}
+              </p>
               <DurationField
                 stageId={stage.id}
                 startDate={stage.start_date}
