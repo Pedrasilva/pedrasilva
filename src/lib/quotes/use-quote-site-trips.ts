@@ -26,6 +26,9 @@ export interface QuoteSiteTrip {
   resource_hourly_rate: number;
   frequency_mode: QuoteSiteTripFrequencyMode;
   frequency_value: number;
+  /** Optional override (in months) for the construction period. When set and
+   *  frequency_mode = "per_month", this replaces the stage's date-derived duration. */
+  duration_months_override: number | null;
   notes: string | null;
   sort_order: number;
   created_at: string;
