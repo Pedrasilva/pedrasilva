@@ -436,7 +436,12 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
       const effectiveBudget = mode === "fixed"
         ? (isSupplierRole(node) ? ownBudget : ownBudget + supplierChildrenBudget)
         : (!isSupplierRole(node) && kids.some(isSupplierRole) ? ownBudget + sumBudget : sumBudget);
-      const out = { start: minStart || node.start_date, end: maxEnd || node.end_date, budget: effectiveBudget };
+      // date_mode='fixed' keeps the parent's own start/end even when it has
+      // children; 'calculated' (default) rolls up the descendant span.
+      const dateMode = ((node as { date_mode?: string | null }).date_mode ?? "calculated") as string;
+      const start = dateMode === "fixed" ? node.start_date : (minStart || node.start_date);
+      const end = dateMode === "fixed" ? node.end_date : (maxEnd || node.end_date);
+      const out = { start, end, budget: effectiveBudget };
       rollup.set(node.id, out);
       return out;
     };
