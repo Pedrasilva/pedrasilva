@@ -84,6 +84,24 @@ export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+        Idioma da Proposta / Proposal Language
+      </div>
+      <Select
+        value={(proposal.language ?? "pt-PT")}
+        onValueChange={(v) => update.mutate({ language: v } as Partial<PsaProposal>)}
+      >
+        <SelectTrigger><SelectValue /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="pt-PT">Português (Portugal)</SelectItem>
+          <SelectItem value="en">English</SelectItem>
+        </SelectContent>
+      </Select>
+      <p className="text-[11px] text-zinc-500">
+        Controla labels do sistema (Fase, Duração, meses, etc.). Nomes das fases
+        vindos do orçamento não são traduzidos.
+      </p>
+
+      <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500 mt-2">
         Tipografia da Proposta
       </div>
       <p className="text-[11px] text-zinc-500">
