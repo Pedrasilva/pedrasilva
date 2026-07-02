@@ -33,10 +33,15 @@ import {
 } from "@/lib/psa-proposal/types";
 import { RelevanceBadge } from "./relevance-badge";
 import { RichTextEditor } from "./rich-text-editor";
-import { useLiveQuoteSnapshot } from "@/lib/psa-proposal/live-data";
+import { useLiveQuoteSnapshot, type LiveStage } from "@/lib/psa-proposal/live-data";
 import { buildTokenPickerEntries } from "@/lib/psa-proposal/tokens";
 import { ProposalStylePanel } from "./proposal-style-panel";
 import type { PsaProposal } from "@/lib/psa-proposal/types";
+import {
+  buildStageNumberMap,
+  compareWbsNumbers,
+  formatStageLabel,
+} from "@/lib/quotes/stage-numbering";
 
 export function BlockSettingsPanel({
   proposalId,
@@ -78,6 +83,22 @@ export function BlockSettingsPanel({
   const sourceRef = (block?.source_ref ?? {}) as { quote_id?: string; stage_id?: string; parent_stage_id?: string };
   const effectiveQuoteId = sourceRef.quote_id ?? quoteIdHint ?? "";
   const liveQuery = useLiveQuoteSnapshot(effectiveQuoteId || null);
+
+  // Number stages with the WBS/Gantt scheme and sort by that number so the
+  // dropdown mirrors the Gantt outline exactly.
+  const numberedStages = (() => {
+    const raw = liveQuery.data?.stages ?? [];
+    const numberable = raw.map((s: LiveStage) => ({
+      id: s.id,
+      name: s.name,
+      sort_order: s.sortOrder,
+      parent_stage_id: s.parentStageId,
+    }));
+    const numMap = buildStageNumberMap(numberable);
+    return [...raw]
+      .sort((a, b) => compareWbsNumbers(numMap.get(a.id), numMap.get(b.id)))
+      .map((s) => ({ stage: s, number: numMap.get(s.id) }));
+  })();
 
   if (!block) {
     return (
@@ -189,9 +210,9 @@ export function BlockSettingsPanel({
                 <SelectValue placeholder="Escolher fase..." />
               </SelectTrigger>
               <SelectContent>
-                {(liveQuery.data?.stages ?? []).map((s) => (
+                {numberedStages.map(({ stage: s, number }) => (
                   <SelectItem key={s.id} value={s.id}>
-                    {s.code ? `${s.code} — ` : ""}{s.name}
+                    {formatStageLabel({ id: s.id, name: s.name }, number)}
                   </SelectItem>
                 ))}
                 {!liveQuery.data?.stages?.length && (
@@ -338,11 +359,11 @@ export function BlockSettingsPanel({
               {block.block_type !== "gantt_partial" && (
                 <SelectItem value="__auto__">Automático</SelectItem>
               )}
-              {(liveQuery.data?.stages ?? [])
-                .filter((s) => s.isSelf && !s.isMilestone)
-                .map((s) => (
+              {numberedStages
+                .filter(({ stage: s }) => s.isSelf && !s.isMilestone)
+                .map(({ stage: s, number }) => (
                   <SelectItem key={s.id} value={s.id}>
-                    {s.code ? `${s.code} — ` : ""}{s.name}
+                    {formatStageLabel({ id: s.id, name: s.name }, number)}
                   </SelectItem>
                 ))}
               {!liveQuery.data?.stages?.length && (
