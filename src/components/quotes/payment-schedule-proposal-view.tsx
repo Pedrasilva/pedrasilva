@@ -266,6 +266,8 @@ export function PaymentScheduleProposalView({
     const effectiveSpan = (stage: StageNode): { start: string; end: string } => {
       const children = childrenByParent.get(stage.id) ?? [];
       if (children.length === 0) return { start: stage.start_date, end: stage.end_date };
+      const dateMode = ((stage as { date_mode?: string | null }).date_mode ?? "calculated") as string;
+      if (dateMode === "fixed") return { start: stage.start_date, end: stage.end_date };
       return children.reduce(
         (span, child) => {
           const childSpan = effectiveSpan(child);
