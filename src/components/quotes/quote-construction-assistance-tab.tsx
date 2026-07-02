@@ -95,7 +95,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
     const m = new Map<string, number>();
     for (const r of resources) {
       const p = pricingQ.data?.get(r.id);
-      m.set(r.id, p?.salePerHour ?? Number(r.hourly_rate) || 0);
+      m.set(r.id, p?.salePerHour ?? (Number(r.hourly_rate) || 0));
     }
     return m;
   }, [pricingQ.data, resources]);
