@@ -818,7 +818,8 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
-          {selfStages.length ? (
+          {feeStages.length ? (
+
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
