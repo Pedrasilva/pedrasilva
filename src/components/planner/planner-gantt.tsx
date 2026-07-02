@@ -1431,7 +1431,49 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
     },
     [isAdmin, updateStage, projectId],
   );
-  useEffect(() => { setZoom("fit"); }, [projectId]);
+  useEffect(() => {
+    try {
+      const stored = window.sessionStorage.getItem(`planner.zoom.project.${projectId}`);
+      if (!stored) setZoom("fit");
+    } catch { setZoom("fit"); }
+  }, [projectId]);
+
+  // Persist and restore scroll position per project across tab switches.
+  useEffect(() => {
+    const el = chartRef.current;
+    if (!el) return;
+    try {
+      const raw = window.sessionStorage.getItem(`planner.scroll.project.${projectId}`);
+      if (raw) {
+        const { left, top } = JSON.parse(raw) as { left: number; top: number };
+        requestAnimationFrame(() => {
+          if (chartRef.current) {
+            chartRef.current.scrollLeft = left;
+            chartRef.current.scrollTop = top;
+          }
+        });
+      }
+    } catch { /* ignore */ }
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        if (!chartRef.current) return;
+        try {
+          window.sessionStorage.setItem(
+            `planner.scroll.project.${projectId}`,
+            JSON.stringify({ left: chartRef.current.scrollLeft, top: chartRef.current.scrollTop }),
+          );
+        } catch { /* ignore */ }
+      });
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [projectId]);
 
   const chartRef = useRef<HTMLDivElement | null>(null);
   const [chartWidth, setChartWidth] = useState(1100);
