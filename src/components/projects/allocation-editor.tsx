@@ -114,8 +114,8 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
   // from the first mount.
   useEffect(() => {
     if (!open) return;
-    setStart(allocation.start_date);
-    setEnd(allocation.end_date);
+    setStart(clampToStage(allocation.start_date));
+    setEnd(clampToStage(allocation.end_date));
     const h = Number(allocation.hours_per_day);
     setHours(h);
     setHoursText(String(round1(h)));
