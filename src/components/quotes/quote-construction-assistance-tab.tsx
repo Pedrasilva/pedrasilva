@@ -309,15 +309,23 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                               .map((id) => `${resourceById.get(id)?.name ?? "?"} ${fmtMoney(resourceRateById.get(id) ?? 0)}/h`)
                               .join(" + ")}`}
                           >
-                            {fmtMoney(effectiveRate)}
+                            {fmtMoney(
+                              (trip.resource_ids ?? []).reduce(
+                                (s, id) => s + (resourceRateById.get(id) ?? 0),
+                                0,
+                              ),
+                            )}
                           </span>
                         ) : (
-                          <NumberCell
-                            value={trip.resource_hourly_rate}
-                            onCommit={(v) => patch(trip, { resource_hourly_rate: v })}
-                            step="0.5"
-                          />
+                          <span className="text-muted-foreground tabular-nums">—</span>
                         )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <NumberCell
+                          value={trip.resource_hourly_rate}
+                          onCommit={(v) => patch(trip, { resource_hourly_rate: v })}
+                          step="0.5"
+                        />
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
