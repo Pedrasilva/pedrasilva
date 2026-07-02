@@ -244,8 +244,14 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
             isSelf: s.is_self !== false,
             isMilestone: s.is_milestone === true,
             parentStageId: s.parent_stage_id ?? null,
+            resources: Array.from(
+              (resourcesByStage.get(s.id) ?? new Map<string, number>()).entries(),
+            )
+              .map(([role, hours]) => ({ role, hours: Math.round(hours * 10) / 10 }))
+              .sort((a, b) => b.hours - a.hours),
           };
         }),
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         consultants: (ext ?? []).map((c: any) => ({
           id: c.id,
