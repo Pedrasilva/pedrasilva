@@ -35,6 +35,7 @@ export interface LiveStage {
   hours: number | null;
   isSelf: boolean;
   isMilestone: boolean;
+  isOptional: boolean;
   parentStageId: string | null;
   resources: LiveStageResource[];
 }
