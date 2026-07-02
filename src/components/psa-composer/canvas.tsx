@@ -34,7 +34,7 @@ import { cn } from "@/lib/utils";
 import type { PsaProposalBlock, PsaBlockType } from "@/lib/psa-proposal/types";
 import { BlockBody } from "./block-renderer";
 import { RelevanceBadge } from "./relevance-badge";
-import { useLiveQuoteSnapshot } from "@/lib/psa-proposal/live-data";
+import { useLiveQuoteSnapshot, resolveProposalLang, type ProposalLang } from "@/lib/psa-proposal/live-data";
 import { useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
 import psaLogo from "@/assets/logotipo-psa.jpg.asset.json";
 
