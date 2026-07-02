@@ -207,6 +207,42 @@ export function useLiveQuoteSnapshot(
         });
       }
 
+      // Also resolve supplier names for stage-level assignments (pm_suppliers
+      // for supplier_id, companies for supplier_company_id).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const stagesArr0 = (stages ?? []) as any[];
+      const stageCompanyIds = Array.from(
+        new Set(
+          stagesArr0.map((s) => s.supplier_company_id).filter(Boolean),
+        ),
+      ) as string[];
+      const stagePmSupplierIds = Array.from(
+        new Set(stagesArr0.map((s) => s.supplier_id).filter(Boolean)),
+      ) as string[];
+      const missingCompanyIds = stageCompanyIds.filter((id) => !supplierNames.has(id));
+      if (missingCompanyIds.length) {
+        const { data: sups3 } = await supabase
+          .from("companies")
+          .select("id,nome")
+          .in("id", missingCompanyIds);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ((sups3 ?? []) as any[]).forEach((s) => {
+          if (s?.id && s?.nome) supplierNames.set(s.id, s.nome);
+        });
+      }
+      const pmSupplierNames = new Map<string, string>();
+      if (stagePmSupplierIds.length) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: pms } = await (supabase as any)
+          .from("pm_suppliers")
+          .select("id,name")
+          .in("id", stagePmSupplierIds);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ((pms ?? []) as any[]).forEach((s) => {
+          if (s?.id && s?.name) pmSupplierNames.set(s.id, s.name);
+        });
+      }
+
       const { data: pay } = await supabase
         .from("quote_payment_schedule_items")
         .select(
