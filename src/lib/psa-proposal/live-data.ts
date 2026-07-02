@@ -562,6 +562,25 @@ export interface ProposalLabels {
   role: string;
   hours: string;
   hoursShort: string;
+  invoiceCol: string;
+  invoiceAbbr: string;
+  dateCol: string;
+  netCol: string;
+  vatCol: string;
+  grossCol: string;
+  subtotal: string;
+  total: string;
+  monthlyOf: string;
+  monthly: string;
+  atProjectStart: string;
+  atStartOf: string;
+  atStartOfStage: string;
+  uponCompletionOf: string;
+  uponCompletionOfStage: string;
+  onDate: string;
+  dateTBD: string;
+  supplierFallback: string;
+  architectureFallback: string;
 
   emptyEditRight: string;
   chooseStage: string;
