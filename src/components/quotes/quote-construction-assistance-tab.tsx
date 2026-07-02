@@ -25,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Trash2, Plus, ArrowLeftRight } from "lucide-react";
+import { Trash2, Plus, ArrowLeftRight, Pencil } from "lucide-react";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useResources } from "@/lib/projects/use-planner";
 import {
