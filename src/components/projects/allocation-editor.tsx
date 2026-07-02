@@ -46,9 +46,17 @@ function formatDecimal(n: number): string {
   return String(round1(n));
 }
 
-export function AllocationEditor({ allocation, projectId, adapter }: Props) {
+export function AllocationEditor({ allocation, projectId, adapter, stageStart, stageEnd }: Props) {
   const [open, setOpen] = useState(false);
   const allocWithExtras = allocation as AllocationWithStatus;
+
+  // Clamp any date to the stage window so allocations can never bleed outside.
+  const clampToStage = (iso: string): string => {
+    if (!iso) return iso;
+    if (stageStart && iso < stageStart) return stageStart;
+    if (stageEnd && iso > stageEnd) return stageEnd;
+    return iso;
+  };
 
   const { data: schedules } = useResourceSchedules();
   const schedule = schedules?.get(allocation.resource.id);
