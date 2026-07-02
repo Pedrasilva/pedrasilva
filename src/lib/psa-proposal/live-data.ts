@@ -86,6 +86,9 @@ export function useLiveQuoteSnapshot(
   return useQuery({
     enabled: !!quoteId,
     queryKey: ["psa-live-quote", quoteId, lang],
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<LiveQuoteSnapshot> => {
       const L = getProposalLabels(lang);
       const missing: string[] = [];
@@ -591,6 +594,8 @@ export interface ProposalLabels {
   dayShort: string; // "d" / "d"
   weekShort: string; // "sem" / "wk"
   weeksShort: string; // "sems" / "wks"
+  monthShort: string; // "mês" / "mo"
+  monthsShort: string; // "meses" / "mos"
   daysUnit: string; // "dias" / "days"
   refPrefix: string; // "Ref." / "Ref."
   noDesignPhases: string;
@@ -656,6 +661,8 @@ const LABELS_PT: ProposalLabels = {
   dayShort: "d",
   weekShort: "sem",
   weeksShort: "sems",
+  monthShort: "mês",
+  monthsShort: "meses",
   daysUnit: "dias",
   refPrefix: "Ref.",
   noDesignPhases: "Sem fases de projeto com datas definidas.",
@@ -723,6 +730,8 @@ const LABELS_EN: ProposalLabels = {
   dayShort: "d",
   weekShort: "wk",
   weeksShort: "wks",
+  monthShort: "mo",
+  monthsShort: "mos",
   daysUnit: "days",
   refPrefix: "Ref.",
   noDesignPhases: "No design stages with defined dates.",
@@ -744,3 +753,26 @@ export function formatMonthShort(d: Date, lang: ProposalLang): string {
     .toLocaleDateString(lang, { month: "short" })
     .replace(".", "");
 }
+
+/**
+ * Human-friendly duration formatter.
+ * - <= 7 days: show days
+ * - 8–28 days: show weeks (rounded)
+ * - > 28 days (>4 weeks): show months (rounded, 30-day months)
+ */
+export function formatDurationHuman(
+  days: number | null | undefined,
+  lang: ProposalLang,
+): string {
+  if (days == null || !isFinite(days)) return "—";
+  const L = getProposalLabels(lang);
+  const d = Math.max(0, Math.round(days));
+  if (d <= 7) return `${d} ${L.dayShort}`;
+  if (d <= 28) {
+    const w = Math.round(d / 7);
+    return `${w} ${w === 1 ? L.weekShort : L.weeksShort}`;
+  }
+  const m = Math.round(d / 30);
+  return `${m} ${m === 1 ? L.monthShort : L.monthsShort}`;
+}
+
