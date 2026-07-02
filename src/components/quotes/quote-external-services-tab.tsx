@@ -26,6 +26,7 @@ import {
   useDeleteQuoteExternalService,
 } from "@/lib/quotes/use-quote-external-services";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
+import { numberStages } from "@/lib/quotes/stage-numbering";
 import {
   QUOTE_EXTERNAL_SERVICE_STATUSES,
   type QuoteMarkupType,
@@ -42,6 +43,7 @@ export function QuoteExternalServicesTab({ quoteId }: { quoteId: string }) {
   const remove = useDeleteQuoteExternalService(quoteId);
   const stages = stagesQ.data ?? [];
   const services = servicesQ.data ?? [];
+  const numberedStages = useMemo(() => numberStages(stages), [stages]);
 
   const [draft, setDraft] = useState({
     description: "",
@@ -274,7 +276,9 @@ export function QuoteExternalServicesTab({ quoteId }: { quoteId: string }) {
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">—</SelectItem>
-                {stages.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                {numberedStages.map(({ stage: s, number }) => (
+                  <SelectItem key={s.id} value={s.id}>{number} {s.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
