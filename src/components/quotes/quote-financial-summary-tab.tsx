@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuoteAllocations, type QuoteAllocationWithResource } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
+import { useQuoteSupplierMarkups } from "@/lib/quotes/use-quote-supplier-markups";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings, marginBand } from "@/lib/quotes/quote-warnings";
