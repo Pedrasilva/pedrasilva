@@ -371,13 +371,26 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                         </div>
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
-                        {trip.frequency_mode === "per_month" && months == null ? (
-                          <span
-                            className="text-muted-foreground"
-                            title="Assign a stage with dates to compute trip count"
-                          >
-                            —
-                          </span>
+                        {trip.frequency_mode === "per_month" ? (
+                          <div className="flex items-center justify-end gap-1">
+                            <NumberCell
+                              value={trip.duration_months_override ?? months ?? 0}
+                              onCommit={(v) =>
+                                patch(trip, {
+                                  duration_months_override: v > 0 ? v : null,
+                                })
+                              }
+                              className="w-14"
+                              step="1"
+                            />
+                            <span className="text-[10px] text-muted-foreground mr-1">mo</span>
+                            <span>
+                              ={" "}
+                              {cost.totalTrips.toFixed(
+                                cost.totalTrips % 1 === 0 ? 0 : 1,
+                              )}
+                            </span>
+                          </div>
                         ) : (
                           cost.totalTrips.toFixed(cost.totalTrips % 1 === 0 ? 0 : 1)
                         )}
