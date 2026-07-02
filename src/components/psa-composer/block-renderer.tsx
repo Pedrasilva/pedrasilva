@@ -638,7 +638,7 @@ export function BlockBody({
                         </div>
                       </td>
                       <td className="px-2 py-1.5 text-right align-middle text-zinc-700 whitespace-nowrap">
-                        {weeks} {weeks === 1 ? "sem" : "sems"}
+                        {weeks} {weeks === 1 ? L.weekShort : L.weeksShort}
                       </td>
                       <td className="px-0 py-1.5">
                         <div className="relative h-4 w-full">
@@ -652,7 +652,7 @@ export function BlockBody({
                           <div
                             className="absolute top-1 h-2 rounded-sm bg-zinc-800 print:bg-zinc-700"
                             style={{ left: `${left}%`, width: `${width}%` }}
-                            title={`${formatDatePT(s.startDate)} → ${formatDatePT(s.endDate)}`}
+                            title={`${formatDatePT(s.startDate, lang)} → ${formatDatePT(s.endDate, lang)}`}
                           />
                         </div>
                       </td>
