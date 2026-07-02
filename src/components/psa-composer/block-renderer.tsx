@@ -588,18 +588,18 @@ export function BlockBody({
           <H>{num}{block.title}</H>
           <div className="mb-2 text-xs text-zinc-500">
             {parent.code ? `${parent.code} — ` : ""}{parent.name} ·{" "}
-            {formatDatePT(start.toISOString())} → {formatDatePT(end.toISOString())} ·{" "}
-            {totalDays} dias
+            {formatDatePT(start.toISOString(), lang)} → {formatDatePT(end.toISOString(), lang)} ·{" "}
+            {totalDays} {L.daysUnit}
           </div>
           <div className="overflow-hidden rounded border border-zinc-200">
             <table className="w-full border-collapse text-xs">
               <thead>
                 <tr className="border-b border-zinc-200 bg-zinc-50">
                   <th className="w-[28%] px-2 py-1 text-left font-medium text-zinc-600">
-                    Fase
+                    {L.phase}
                   </th>
                   <th className="w-[70px] px-2 py-1 text-right font-medium text-zinc-600 whitespace-nowrap">
-                    Duração
+                    {L.duration}
                   </th>
                   <th className="px-0 py-1">
                     <div className="relative h-4 w-full">
