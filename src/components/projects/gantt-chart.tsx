@@ -352,6 +352,49 @@ export function GanttChart({
     return out;
   }, [origin, totalDays, dateLocale]);
 
+  // Aggregate cells for adaptive header bands (quarters + years).
+  const quarters = useMemo(() => {
+    const out: { label: string; days: number; startIdx: number }[] = [];
+    for (let i = 0; i < totalDays; ) {
+      const d = addDays(origin, i);
+      const q = Math.floor(d.getMonth() / 3) + 1;
+      const y = d.getFullYear();
+      let span = 0;
+      while (i + span < totalDays) {
+        const dd = addDays(origin, i + span);
+        if (Math.floor(dd.getMonth() / 3) + 1 !== q || dd.getFullYear() !== y) break;
+        span++;
+      }
+      out.push({ label: `Q${q} ${y}`, days: span, startIdx: i });
+      i += span;
+    }
+    return out;
+  }, [origin, totalDays]);
+
+  const years = useMemo(() => {
+    const out: { label: string; days: number; startIdx: number }[] = [];
+    for (let i = 0; i < totalDays; ) {
+      const d = addDays(origin, i);
+      const y = d.getFullYear();
+      let span = 0;
+      while (i + span < totalDays) {
+        if (addDays(origin, i + span).getFullYear() !== y) break;
+        span++;
+      }
+      out.push({ label: `${y}`, days: span, startIdx: i });
+      i += span;
+    }
+    return out;
+  }, [origin, totalDays]);
+
+  // Adaptive tiered header:
+  //  - dayWidth >= 14: [Month YYYY] top, [day-of-month] bottom
+  //  - 5 <= dayWidth < 14: [Quarter YYYY] top, [MMM abbrev] bottom
+  //  - 2 <= dayWidth < 5: [Year] top, [Quarter] bottom
+  //  - dayWidth < 2: [Year] only
+  const headerTier: "monthDay" | "quarterMonth" | "yearQuarter" | "yearOnly" =
+    dayWidth >= 14 ? "monthDay" : dayWidth >= 5 ? "quarterMonth" : dayWidth >= 2 ? "yearQuarter" : "yearOnly";
+
   const today = new Date();
   const todayX = differenceInCalendarDays(today, origin) * dayWidth;
   const todayInRange = todayX >= 0 && todayX <= totalDays * dayWidth;
