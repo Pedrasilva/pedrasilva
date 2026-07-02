@@ -359,11 +359,11 @@ export function BlockSettingsPanel({
               {block.block_type !== "gantt_partial" && (
                 <SelectItem value="__auto__">Automático</SelectItem>
               )}
-              {(liveQuery.data?.stages ?? [])
-                .filter((s) => s.isSelf && !s.isMilestone)
-                .map((s) => (
+              {numberedStages
+                .filter(({ stage: s }) => s.isSelf && !s.isMilestone)
+                .map(({ stage: s, number }) => (
                   <SelectItem key={s.id} value={s.id}>
-                    {s.code ? `${s.code} — ` : ""}{s.name}
+                    {formatStageLabel({ id: s.id, name: s.name }, number)}
                   </SelectItem>
                 ))}
               {!liveQuery.data?.stages?.length && (
