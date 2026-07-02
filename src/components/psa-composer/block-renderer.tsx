@@ -854,17 +854,16 @@ export function BlockBody({
         <div className="proposal-signature-block proposal-avoid-break">
           <H>{num}{block.title}</H>
           <p className="proposal-signature-hint">
-            A presente proposta é válida por 30 dias a contar da data acima.
-            A aceitação far-se-á por assinatura abaixo.
+            {L.proposalValidity}
           </p>
           <div className="proposal-signature-grid">
             <div className="proposal-signature-cell">
               <div className="proposal-signature-line" />
-              <div className="proposal-signature-label">Pelo Cliente</div>
+              <div className="proposal-signature-label">{L.clientSignatory}</div>
             </div>
             <div className="proposal-signature-cell">
               <div className="proposal-signature-line" />
-              <div className="proposal-signature-label">Pedra Silva Arquitectos</div>
+              <div className="proposal-signature-label">{L.psaSignatory}</div>
             </div>
           </div>
         </div>
@@ -873,7 +872,7 @@ export function BlockBody({
     case "page_break":
       return (
         <div className="proposal-page-break-before my-8 border-t-2 border-dashed border-zinc-300 text-center text-[10px] uppercase tracking-widest text-zinc-400 print:border-0 print:text-transparent">
-          Quebra de Página
+          {L.pageBreak}
         </div>
       );
 
@@ -882,7 +881,7 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
-          {richHas ? rich : <Empty>Sem conteúdo. Edite no painel direito.</Empty>}
+          {richHas ? rich : <Empty>{L.emptyEditRight}</Empty>}
         </div>
       );
   }
