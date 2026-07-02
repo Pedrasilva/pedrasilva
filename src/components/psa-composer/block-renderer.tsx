@@ -754,26 +754,27 @@ export function BlockBody({
       const feeStages = selfStages.filter((s) => !s.isMilestone);
       const inSet = new Set(feeStages.map((s) => s.id));
 
-      const kidsOf = new Map<string, typeof selfStages>();
-      for (const s of selfStages) {
+      const kidsOf = new Map<string, typeof feeStages>();
+      for (const s of feeStages) {
         const p = s.parentStageId && inSet.has(s.parentStageId) ? s.parentStageId : null;
         if (!p) continue;
         const arr = kidsOf.get(p) ?? [];
         arr.push(s);
         kidsOf.set(p, arr);
       }
-      const startKey = (s: (typeof selfStages)[number]) => s.startDate ?? "";
-      const sortFn = (a: (typeof selfStages)[number], b: (typeof selfStages)[number]) => {
+      const startKey = (s: (typeof feeStages)[number]) => s.startDate ?? "";
+      const sortFn = (a: (typeof feeStages)[number], b: (typeof feeStages)[number]) => {
         const ak = startKey(a);
         const bk = startKey(b);
         if (ak !== bk) return ak < bk ? -1 : 1;
         return 0;
       };
       for (const [, arr] of kidsOf) arr.sort(sortFn);
-      const roots = selfStages
+      const roots = feeStages
         .filter((s) => !s.parentStageId || !inSet.has(s.parentStageId))
         .slice()
         .sort(sortFn);
+
 
       // Sum of leaves only (avoid double-counting rolled-up parent fees).
       let total = 0;
