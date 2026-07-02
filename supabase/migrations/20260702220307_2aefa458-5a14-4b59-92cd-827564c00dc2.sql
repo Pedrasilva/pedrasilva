@@ -1,0 +1,1 @@
+ALTER TYPE public.psa_block_type ADD VALUE IF NOT EXISTS 'optional_fee_table';
