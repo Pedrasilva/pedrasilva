@@ -751,31 +751,34 @@ export function BlockBody({
     case "fee_table": {
       // Hierarchy: grandparents/parents render as title rows (no fee);
       // only leaves render fee values. Total = sum of leaf fees.
-      const inSet = new Set(selfStages.map((s) => s.id));
-      const kidsOf = new Map<string, typeof selfStages>();
-      for (const s of selfStages) {
+      const feeStages = selfStages.filter((s) => !s.isMilestone);
+      const inSet = new Set(feeStages.map((s) => s.id));
+
+      const kidsOf = new Map<string, typeof feeStages>();
+      for (const s of feeStages) {
         const p = s.parentStageId && inSet.has(s.parentStageId) ? s.parentStageId : null;
         if (!p) continue;
         const arr = kidsOf.get(p) ?? [];
         arr.push(s);
         kidsOf.set(p, arr);
       }
-      const startKey = (s: (typeof selfStages)[number]) => s.startDate ?? "";
-      const sortFn = (a: (typeof selfStages)[number], b: (typeof selfStages)[number]) => {
+      const startKey = (s: (typeof feeStages)[number]) => s.startDate ?? "";
+      const sortFn = (a: (typeof feeStages)[number], b: (typeof feeStages)[number]) => {
         const ak = startKey(a);
         const bk = startKey(b);
         if (ak !== bk) return ak < bk ? -1 : 1;
         return 0;
       };
       for (const [, arr] of kidsOf) arr.sort(sortFn);
-      const roots = selfStages
+      const roots = feeStages
         .filter((s) => !s.parentStageId || !inSet.has(s.parentStageId))
         .slice()
         .sort(sortFn);
 
+
       // Sum of leaves only (avoid double-counting rolled-up parent fees).
       let total = 0;
-      const leafSum = (s: (typeof selfStages)[number]): number => {
+      const leafSum = (s: (typeof feeStages)[number]): number => {
         const kids = kidsOf.get(s.id) ?? [];
         if (kids.length === 0) return Number(s.fee) || 0;
         return kids.reduce((acc, k) => acc + leafSum(k), 0);
@@ -783,7 +786,8 @@ export function BlockBody({
       total = roots.reduce((acc, r) => acc + leafSum(r), 0);
 
       const rows: React.ReactNode[] = [];
-      const walk = (s: (typeof selfStages)[number], depth: number) => {
+      const walk = (s: (typeof feeStages)[number], depth: number) => {
+
         const kids = kidsOf.get(s.id) ?? [];
         const label = s.code ? `${s.code} — ${s.name}` : s.name;
         const pad = { paddingLeft: `${depth * 14}px` } as React.CSSProperties;
@@ -814,7 +818,8 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
-          {selfStages.length ? (
+          {feeStages.length ? (
+
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
