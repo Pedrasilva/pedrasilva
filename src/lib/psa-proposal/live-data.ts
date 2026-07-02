@@ -493,16 +493,13 @@ export function useLiveQuoteSnapshot(
           };
         }),
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        consultants: (ext ?? []).map((c: any) => ({
-          id: c.id,
-          name:
-            (c.supplier_company_id && supplierNames.get(c.supplier_company_id)) ||
-            c.description ||
-            "—",
-          discipline: c.description ?? null,
-          fee: c.sale_price ?? null,
-        })),
+        consultants: buildConsultantRows({
+          externalServices: ext ?? [],
+          stages: stagesArr0,
+          stageById,
+          supplierNames,
+          pmSupplierNames,
+        }),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         paymentSchedule: (pay ?? []).map((p: any) => ({
           id: p.id,
