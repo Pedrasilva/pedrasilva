@@ -62,6 +62,7 @@ export function ProjectPlannerInspector({ projectId, stages, stageId, onClose, r
   const depsQ = useStageDependencies();
   const { data: allResources } = useResources();
   const updateStage = useUpdateStage();
+  const updateStageCascade = useUpdateStageWithCascade();
   const deleteStage = useDeleteStage();
   const createDep = useCreateDependency();
   const updateDep = useUpdateDependency();
