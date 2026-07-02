@@ -37,6 +37,7 @@ export interface LiveStage {
   isMilestone: boolean;
   isOptional: boolean;
   parentStageId: string | null;
+  sortOrder: number | null;
   resources: LiveStageResource[];
 }
 
