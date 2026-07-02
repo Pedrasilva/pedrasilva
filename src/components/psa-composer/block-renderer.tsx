@@ -807,7 +807,7 @@ export function BlockBody({
               <tr key={`${s.id}-subtotal`} className="font-semibold">
                 <td className="py-1" />
                 <td className="py-1" />
-                <td className="py-1 text-right border-t border-zinc-400 whitespace-nowrap">{formatCurrencyEUR(subtotal, lang)}</td>
+                <td className="py-1 text-right whitespace-nowrap">{formatCurrencyEUR(subtotal, lang)}</td>
               </tr>,
             );
           }
