@@ -83,37 +83,22 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
   }, [stages]);
 
   /**
-   * Current sale rate per resource. Pulled from `pm_resource_rates` (the
-   * rate history in HR) picking the latest row with `effective_from <= today`,
-   * so quotes reflect the actual HR pricing rather than the potentially stale
-   * `pm_resources.hourly_rate` cache column.
+   * Per-resource sale rate. Derived from the SAME HR pricing model as the
+   * `HR › Pricing` table (annual cost + BO share ÷ billable hours × margin),
+   * with the project-wide default of a 50% markup on cost. This replaces the
+   * stale `pm_resources.hourly_rate` cache and the manual `pm_resource_rates`
+   * history — so a trip's €/h always reflects the collaborator's current
+   * effective sale price in HR.
    */
-  const ratesQ = useQuery({
-    queryKey: ["pm-resource-rates", "current"],
-    queryFn: async () => {
-      const today = new Date().toISOString().slice(0, 10);
-      const { data, error } = await supabase
-        .from("pm_resource_rates")
-        .select("resource_id, sale_rate, effective_from")
-        .lte("effective_from", today)
-        .order("effective_from", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
-
+  const pricingQ = useResourcePricing();
   const resourceRateById = useMemo(() => {
     const m = new Map<string, number>();
-    // Rates are sorted desc; keep first (most recent) per resource.
-    for (const r of ratesQ.data ?? []) {
-      if (!m.has(r.resource_id)) m.set(r.resource_id, Number(r.sale_rate) || 0);
-    }
-    // Fallback to pm_resources.hourly_rate for resources with no rate history.
     for (const r of resources) {
-      if (!m.has(r.id)) m.set(r.id, Number(r.hourly_rate) || 0);
+      const p = pricingQ.data?.get(r.id);
+      m.set(r.id, p?.salePerHour ?? Number(r.hourly_rate) || 0);
     }
     return m;
-  }, [ratesQ.data, resources]);
+  }, [pricingQ.data, resources]);
 
   const resourceById = useMemo(() => {
     const m = new Map<string, (typeof resources)[number]>();
@@ -123,21 +108,43 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
 
   const [draft, setDraft] = useState<null | Partial<QuoteSiteTrip>>(null);
 
+  /**
+   * Remember the last set of trip inputs so the next "Add trip" pre-fills with
+   * those values instead of starting from zero. Seeded from the most recent
+   * existing trip on first render, then updated after every save.
+   */
+  const lastTripDefaults = useRef<Partial<QuoteSiteTrip> | null>(null);
+  if (lastTripDefaults.current == null && trips.length > 0) {
+    const last = trips[trips.length - 1];
+    lastTripDefaults.current = {
+      km: last.km,
+      price_per_km: last.price_per_km,
+      trip_hours: last.trip_hours,
+      resource_ids: last.resource_ids ?? [],
+      resource_hourly_rate: last.resource_hourly_rate,
+      frequency_mode: last.frequency_mode,
+      frequency_value: last.frequency_value,
+      stage_id: last.stage_id,
+    };
+  }
+
   function startAdd() {
+    const prev = lastTripDefaults.current;
     setDraft({
       label: "Site trip",
-      km: 0,
-      price_per_km: 0.36,
-      trip_hours: 0,
+      km: prev?.km ?? 0,
+      price_per_km: prev?.price_per_km ?? 0.36,
+      trip_hours: prev?.trip_hours ?? 0,
       resource_id: null,
-      resource_ids: [],
-      resource_hourly_rate: 0,
-      frequency_mode: "per_month",
-      frequency_value: 2,
-      stage_id: null,
+      resource_ids: prev?.resource_ids ?? [],
+      resource_hourly_rate: prev?.resource_hourly_rate ?? 0,
+      frequency_mode: prev?.frequency_mode ?? "per_month",
+      frequency_value: prev?.frequency_value ?? 2,
+      stage_id: prev?.stage_id ?? null,
       notes: "",
     });
   }
+
 
   function startEdit(trip: QuoteSiteTrip) {
     setDraft({ ...trip });
