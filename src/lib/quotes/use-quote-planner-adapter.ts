@@ -133,7 +133,7 @@ export function useQuotePlannerAdapter(
         start_date: a.start_date,
         end_date: a.end_date,
         hours_per_day: a.hours_per_day,
-        allocation_percentage: 100,
+        allocation_percentage: a.allocation_percentage ?? 75,
         cost_rate_snapshot: rates.cost,
         sale_rate_snapshot: rates.sale,
       });
