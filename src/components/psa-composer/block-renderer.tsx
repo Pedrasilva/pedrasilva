@@ -10,9 +10,11 @@ import type { PsaProposalBlock } from "@/lib/psa-proposal/types";
 import {
   type LiveQuoteSnapshot,
   type LiveStage,
+  type ProposalLang,
   formatCurrencyEUR,
   formatDatePT,
-  formatDurationAdaptive,
+  formatMonthShort,
+  getProposalLabels,
 } from "@/lib/psa-proposal/live-data";
 import {
   buildTokenMap,
