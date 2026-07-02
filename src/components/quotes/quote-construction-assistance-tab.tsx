@@ -67,6 +67,14 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
   const resources = (resourcesQ.data ?? []).filter((r) => r.active !== false);
   const trips = tripsQ.data ?? [];
 
+  // Stages ordered by Gantt WBS (1, 1.1, 1.2, 2, …) with their dotted number.
+  const numberedStages = useMemo(() => numberStages(stages), [stages]);
+  const stageNumberById = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const n of numberedStages) m.set(n.stage.id, n.number);
+    return m;
+  }, [numberedStages]);
+
   const stageById = useMemo(() => {
     const m = new Map<string, (typeof stages)[number]>();
     for (const s of stages) m.set(s.id, s);
