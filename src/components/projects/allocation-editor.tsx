@@ -19,6 +19,9 @@ interface Props {
   /** Scoping ID for the underlying mode (project_id in project mode, quote_id in quote mode). */
   projectId: string;
   adapter: PlannerAdapter;
+  /** Parent stage bounds — allocations are always clamped within these. */
+  stageStart?: string;
+  stageEnd?: string;
 }
 
 type AllocationWithStatus = AllocationWithResource & {
