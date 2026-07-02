@@ -217,19 +217,28 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
   });
 }
 
-export function formatCurrencyEUR(n: number | null | undefined): string {
+/** Two-letter locale used for proposal rendering. */
+export type ProposalLang = "pt-PT" | "en";
+
+export function resolveProposalLang(v: string | null | undefined): ProposalLang {
+  const s = (v ?? "").toLowerCase();
+  if (s.startsWith("en")) return "en";
+  return "pt-PT";
+}
+
+export function formatCurrencyEUR(n: number | null | undefined, lang: ProposalLang = "pt-PT"): string {
   if (n == null || Number.isNaN(n)) return "—";
-  return new Intl.NumberFormat("pt-PT", {
+  return new Intl.NumberFormat(lang, {
     style: "currency",
     currency: "EUR",
     maximumFractionDigits: 0,
   }).format(n);
 }
 
-export function formatDatePT(d: string | null | undefined): string {
+export function formatDatePT(d: string | null | undefined, lang: ProposalLang = "pt-PT"): string {
   if (!d) return "—";
   try {
-    return new Intl.DateTimeFormat("pt-PT", { dateStyle: "medium" }).format(
+    return new Intl.DateTimeFormat(lang, { dateStyle: "medium" }).format(
       new Date(d),
     );
   } catch {
@@ -238,19 +247,163 @@ export function formatDatePT(d: string | null | undefined): string {
 }
 
 /**
- * Format a working-day duration adaptively:
- *  - <7 days  → "N dia(s)"
- *  - <20 days (≈ <4 weeks) → "N semana(s)" (5 working days per week)
- *  - otherwise → "N mês/meses" (≈ 20 working days per month)
+ * Format a working-day duration adaptively in the given proposal language.
+ *  - <7 days  → "N day(s)" / "N dia(s)"
+ *  - <20 days → "N week(s)" / "N semana(s)" (5 working days per week)
+ *  - otherwise → "N month(s)" / "N mês/meses" (≈ 20 working days per month)
  */
-export function formatDurationAdaptive(days: number | null | undefined): string {
+export function formatDurationAdaptive(
+  days: number | null | undefined,
+  lang: ProposalLang = "pt-PT",
+): string {
   if (days == null || !Number.isFinite(days)) return "—";
   const d = Math.max(1, Math.round(days));
-  if (d < 7) return `${d} ${d === 1 ? "dia" : "dias"}`;
+  const isEn = lang === "en";
+  if (d < 7) {
+    return `${d} ${isEn ? (d === 1 ? "day" : "days") : d === 1 ? "dia" : "dias"}`;
+  }
   if (d < 20) {
     const w = Math.max(1, Math.round(d / 5));
-    return `${w} ${w === 1 ? "semana" : "semanas"}`;
+    return `${w} ${isEn ? (w === 1 ? "week" : "weeks") : w === 1 ? "semana" : "semanas"}`;
   }
   const m = Math.max(1, Math.round(d / 20));
-  return `${m} ${m === 1 ? "mês" : "meses"}`;
+  return `${m} ${isEn ? (m === 1 ? "month" : "months") : m === 1 ? "mês" : "meses"}`;
+}
+
+/**
+ * Localised labels used by block-renderer for table headers, section captions,
+ * empty-state messages and short units. Keyed by proposal language.
+ */
+export interface ProposalLabels {
+  proposalCover: string;
+  project: string;
+  index: string;
+  indexAuto: string;
+  phase: string;
+  start: string;
+  end: string;
+  duration: string;
+  fees: string;
+  totalArchitecture: string;
+  scheduleUnavailable: string;
+  noFeesToShow: string;
+  noPhasesDefined: string;
+  noConsultants: string;
+  noPaymentSchedule: string;
+  discipline: string;
+  consultant: string;
+  description: string;
+  expectedDate: string;
+  amount: string;
+  deliverables: string;
+  clientInfoRequired: string;
+  scopeDeliverables: string;
+  emptyEditRight: string;
+  chooseStage: string;
+  dayShort: string; // "d" / "d"
+  weekShort: string; // "sem" / "wk"
+  weeksShort: string; // "sems" / "wks"
+  daysUnit: string; // "dias" / "days"
+  refPrefix: string; // "Ref." / "Ref."
+  noDesignPhases: string;
+  noConstructionPhases: string;
+  chooseParentInSettings: string;
+  pageBreak: string;
+  proposalValidity: string;
+  clientSignatory: string;
+  psaSignatory: string;
+}
+
+const LABELS_PT: ProposalLabels = {
+  proposalCover: "Proposta de Honorários",
+  project: "Projeto",
+  index: "Índice",
+  indexAuto: "O índice é gerado automaticamente a partir dos blocos visíveis.",
+  phase: "Fase",
+  start: "Início",
+  end: "Fim",
+  duration: "Duração",
+  fees: "Honorários",
+  totalArchitecture: "Total Arquitetura",
+  scheduleUnavailable: "Sem cronograma disponível.",
+  noFeesToShow: "Sem honorários para apresentar.",
+  noPhasesDefined: "Sem fases definidas no orçamento.",
+  noConsultants: "Sem consultores definidos.",
+  noPaymentSchedule: "Sem plano de pagamentos definido.",
+  discipline: "Especialidade",
+  consultant: "Consultor",
+  description: "Descrição",
+  expectedDate: "Data prevista",
+  amount: "Valor",
+  deliverables: "Entregáveis",
+  clientInfoRequired: "Informação necessária do cliente",
+  scopeDeliverables: "Âmbito e entregáveis",
+  emptyEditRight: "Sem conteúdo. Edite no painel direito.",
+  chooseStage:
+    "Selecione uma fase do orçamento no painel direito para preencher este bloco.",
+  dayShort: "d",
+  weekShort: "sem",
+  weeksShort: "sems",
+  daysUnit: "dias",
+  refPrefix: "Ref.",
+  noDesignPhases: "Sem fases de projeto com datas definidas.",
+  noConstructionPhases: "Sem fases de obra com datas definidas.",
+  chooseParentInSettings: "Selecione uma fase pai nas definições do bloco.",
+  pageBreak: "Quebra de Página",
+  proposalValidity:
+    "A presente proposta é válida por 30 dias a contar da data acima. A aceitação far-se-á por assinatura abaixo.",
+  clientSignatory: "Pelo Cliente",
+  psaSignatory: "Pedra Silva Arquitectos",
+};
+
+const LABELS_EN: ProposalLabels = {
+  proposalCover: "Fee Proposal",
+  project: "Project",
+  index: "Contents",
+  indexAuto: "The table of contents is generated automatically from visible blocks.",
+  phase: "Stage",
+  start: "Start",
+  end: "End",
+  duration: "Duration",
+  fees: "Fees",
+  totalArchitecture: "Total Architecture",
+  scheduleUnavailable: "No schedule available.",
+  noFeesToShow: "No fees to display.",
+  noPhasesDefined: "No stages defined in the quote.",
+  noConsultants: "No consultants defined.",
+  noPaymentSchedule: "No payment schedule defined.",
+  discipline: "Discipline",
+  consultant: "Consultant",
+  description: "Description",
+  expectedDate: "Expected date",
+  amount: "Amount",
+  deliverables: "Deliverables",
+  clientInfoRequired: "Information required from the client",
+  scopeDeliverables: "Scope and deliverables",
+  emptyEditRight: "No content. Edit on the right panel.",
+  chooseStage:
+    "Select a quote stage on the right panel to populate this block.",
+  dayShort: "d",
+  weekShort: "wk",
+  weeksShort: "wks",
+  daysUnit: "days",
+  refPrefix: "Ref.",
+  noDesignPhases: "No design stages with defined dates.",
+  noConstructionPhases: "No construction stages with defined dates.",
+  chooseParentInSettings: "Select a parent stage in the block settings.",
+  pageBreak: "Page Break",
+  proposalValidity:
+    "This proposal is valid for 30 days from the date above. Acceptance is confirmed by signature below.",
+  clientSignatory: "For the Client",
+  psaSignatory: "Pedra Silva Arquitectos",
+};
+
+export function getProposalLabels(lang: ProposalLang): ProposalLabels {
+  return lang === "en" ? LABELS_EN : LABELS_PT;
+}
+
+export function formatMonthShort(d: Date, lang: ProposalLang): string {
+  return d
+    .toLocaleDateString(lang, { month: "short" })
+    .replace(".", "");
 }
