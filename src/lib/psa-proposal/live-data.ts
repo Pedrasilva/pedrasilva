@@ -17,6 +17,10 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  resolveSupplierMarkupPct,
+  type SupplierMarkupRow,
+} from "@/lib/quotes/supplier-markup-lookup";
 
 export interface LiveStageResource {
   role: string;
