@@ -481,7 +481,7 @@ export function GanttChart({
       });
       return;
     }
-    const days = Math.round(dx / dayWidth);
+    let days = Math.round(dx / dayWidth);
     if (days === 0) {
       setDraftDates((m) => {
         const next = new Map(m);
@@ -507,6 +507,29 @@ export function GanttChart({
     } else if (drag.type === "resize-r" || drag.type === "stage-resize-r") {
       const en = addDays(origEnd, days);
       if (en >= origStart) newEnd = format(en, "yyyy-MM-dd");
+    }
+
+    // Snap to working days: stages/allocations must not start on a weekend
+    // or on a Portuguese national holiday. Start dates snap FORWARD to the
+    // next working day (so a Saturday drop lands on Monday); end dates snap
+    // BACKWARD so a stage never ends on a non-working day either.
+    if (drag.type === "move" || drag.type === "stage-move") {
+      const snappedStart = snapToWorkdayForward(newStart, holidaySet);
+      const delta = differenceInCalendarDays(parseISO(snappedStart), parseISO(newStart));
+      if (delta !== 0) {
+        newStart = snappedStart;
+        newEnd = format(addDays(parseISO(newEnd), delta), "yyyy-MM-dd");
+        days += delta;
+      }
+      // Also pull the end back off a non-working day (rare when durations
+      // straddle a holiday), keeping the whole window in workdays.
+      newEnd = snapToWorkdayBackward(newEnd, holidaySet);
+    } else if (drag.type === "resize-l" || drag.type === "stage-resize-l") {
+      newStart = snapToWorkdayForward(newStart, holidaySet);
+      if (newStart > newEnd) newStart = newEnd;
+    } else if (drag.type === "resize-r" || drag.type === "stage-resize-r") {
+      newEnd = snapToWorkdayBackward(newEnd, holidaySet);
+      if (newEnd < newStart) newEnd = newStart;
     }
 
     // Clamp allocation drags inside the parent stage boundary.
