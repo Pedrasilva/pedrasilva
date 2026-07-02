@@ -161,6 +161,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
   const stagesQ = useQuoteStages(quoteId);
   const allocationsQ = useQuoteAllocations(quoteId);
   const externalsQ = useQuoteExternalServices(quoteId);
+  const markupsQ = useQuoteSupplierMarkups(quoteId);
   const quoteQ = useQuery({
     queryKey: ["fee-proposal-summary", quoteId],
     enabled: !!quoteId,
