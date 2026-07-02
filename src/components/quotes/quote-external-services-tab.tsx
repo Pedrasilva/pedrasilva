@@ -26,6 +26,7 @@ import {
   useDeleteQuoteExternalService,
 } from "@/lib/quotes/use-quote-external-services";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
+import { numberStages } from "@/lib/quotes/stage-numbering";
 import {
   QUOTE_EXTERNAL_SERVICE_STATUSES,
   type QuoteMarkupType,
