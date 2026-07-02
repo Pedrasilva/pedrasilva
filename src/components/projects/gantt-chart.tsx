@@ -717,7 +717,9 @@ export function GanttChart({
     }
 
     // New resource drop — span the full stage so the user doesn't have to
-    // stretch the allocation after placement.
+    // stretch the allocation after placement. Default to 75% allocation
+    // (6h/day on an 8h HR-recoverable capacity) so a fresh resource starts
+    // at a realistic-but-non-saturated project share, matching PSA policy.
     const fullStart = stage.start_date;
     const fullEnd = stage.end_date;
 
@@ -728,6 +730,7 @@ export function GanttChart({
         start_date: fullStart,
         end_date: fullEnd,
         hours_per_day: 6,
+        allocation_percentage: 75,
         projectId: stage.projectId,
       })
       .then(() => toast.success(t("gantt.toasts.resourceAllocated")))
