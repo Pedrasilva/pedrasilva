@@ -771,6 +771,7 @@ export interface ProposalLabels {
   monthlyOf: string;
   monthly: string;
   atProjectStart: string;
+  downpaymentReceived: string;
   atStartOf: string;
   atStartOfStage: string;
   uponCompletionOf: string;
