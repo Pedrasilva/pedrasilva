@@ -402,6 +402,11 @@ const LABELS_PT: ProposalLabels = {
   deliverables: "Entregáveis",
   clientInfoRequired: "Informação necessária do cliente",
   scopeDeliverables: "Âmbito e entregáveis",
+  resourceBreakdown: "Recursos afectos",
+  role: "Função",
+  hours: "Horas",
+  hoursShort: "h",
+
   emptyEditRight: "Sem conteúdo. Edite no painel direito.",
   chooseStage:
     "Selecione uma fase do orçamento no painel direito para preencher este bloco.",
