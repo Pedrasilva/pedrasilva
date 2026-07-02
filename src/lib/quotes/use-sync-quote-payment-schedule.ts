@@ -52,7 +52,7 @@ export function useSyncQuotePaymentScheduleFromGantt(quoteId: string) {
     queryFn: async () => {
       const { data, error } = await db
         .from("fee_proposals")
-        .select("pricing_multiplier,valor,quote_category,default_vat_rate,default_payment_terms,first_payment_terms,fee_source_mode")
+        .select("pricing_multiplier,valor,quote_category,default_vat_rate,default_payment_terms,first_payment_terms,fee_source_mode,quote_build_settings")
         .eq("id", quoteId)
         .single();
       if (error) throw new Error(error.message);
@@ -64,6 +64,7 @@ export function useSyncQuotePaymentScheduleFromGantt(quoteId: string) {
         default_payment_terms: string | null;
         first_payment_terms: string | null;
         fee_source_mode: string | null;
+        quote_build_settings: Record<string, unknown> | null;
       };
     },
   });
