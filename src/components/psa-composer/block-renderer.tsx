@@ -409,7 +409,7 @@ export function BlockBody({
             <div>
               <dt className="proposal-print-heading mb-1 text-sm font-semibold tracking-tight text-zinc-900">{L.duration}</dt>
               <dd className="text-zinc-700">
-                {stage.durationDays != null ? `${stage.durationDays} ${L.daysUnit}` : "—"}
+                {stage.durationDays != null ? formatDurationHuman(stage.durationDays, lang) : "—"}
               </dd>
             </div>
             <div>
@@ -634,7 +634,7 @@ export function BlockBody({
           <div className="mb-2 text-xs text-zinc-500">
             {parent.code ? `${parent.code} — ` : ""}{parent.name} ·{" "}
             {formatDatePT(start.toISOString(), lang)} → {formatDatePT(end.toISOString(), lang)} ·{" "}
-            {totalDays} {L.daysUnit}
+            {formatDurationHuman(totalDays, lang)}
           </div>
           <div className="overflow-hidden rounded border border-zinc-200">
             <table className="w-full border-collapse text-xs">
@@ -670,9 +670,9 @@ export function BlockBody({
                     0.8,
                     ((sEnd - sStart) / span) * 100,
                   );
-                  const weeks = Math.max(
+                  const stageDays = Math.max(
                     1,
-                    Math.round((sEnd - sStart) / (86400000 * 7)),
+                    Math.round((sEnd - sStart) / 86400000),
                   );
                   return (
                     <tr key={s.id} className="border-b border-zinc-100 last:border-0">
@@ -683,7 +683,7 @@ export function BlockBody({
                         </div>
                       </td>
                       <td className="px-2 py-1.5 text-right align-middle text-zinc-700 whitespace-nowrap">
-                        {weeks} {weeks === 1 ? L.weekShort : L.weeksShort}
+                        {formatDurationHuman(stageDays, lang)}
                       </td>
                       <td className="px-0 py-1.5">
                         <div className="relative h-4 w-full">
