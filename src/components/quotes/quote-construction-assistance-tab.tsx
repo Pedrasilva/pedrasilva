@@ -479,29 +479,29 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                   />
                 </Field>
                 <Field label="Resource €/h">
-                  {(draft.resource_ids?.length ?? 0) > 0 ? (
-                    <Input
-                      type="number"
-                      value={(draft.resource_ids ?? []).reduce(
-                        (s, id) => s + (resourceRateById.get(id) ?? 0),
-                        0,
-                      )}
-                      disabled
-                      title="Sum of selected resources' sale rate (€/h)"
-                    />
-                  ) : (
-                    <Input
-                      type="number"
-                      step="0.5"
-                      value={draft.resource_hourly_rate ?? 0}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          resource_hourly_rate: Number(e.target.value),
-                        })
-                      }
-                    />
-                  )}
+                  <Input
+                    type="number"
+                    value={(draft.resource_ids ?? []).reduce(
+                      (s, id) => s + (resourceRateById.get(id) ?? 0),
+                      0,
+                    )}
+                    disabled
+                    title="Sum of selected resources' sale rate (€/h)"
+                  />
+                </Field>
+                <Field label="Manual €/h">
+                  <Input
+                    type="number"
+                    step="0.5"
+                    value={draft.resource_hourly_rate ?? 0}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        resource_hourly_rate: Number(e.target.value),
+                      })
+                    }
+                    title="Additive €/h on top of the resource sale sum (per-diem, tooling, etc.)"
+                  />
                 </Field>
                 <Field label="Frequency">
                   <div className="flex gap-2">
