@@ -300,21 +300,21 @@ export function useLiveQuoteSnapshot(
         const stageName = s?.name ?? "";
         const ds = fmtDate(dateFor(p));
         switch (p.trigger_type) {
-          case "project_start": return `No início do projecto${ds ? ` (${ds})` : ""}`;
-          case "stage_start": return stageName ? `No início de ${stageName}${ds ? ` (${ds})` : ""}` : `No início da fase${ds ? ` (${ds})` : ""}`;
-          case "stage_end": return stageName ? `Na conclusão de ${stageName}${ds ? ` (${ds})` : ""}` : `Na conclusão da fase${ds ? ` (${ds})` : ""}`;
-          case "manual_date": return `Em ${ds || "data a definir"}`;
-          case "monthly": return stageName ? `Mensalidade de ${stageName}${ds ? ` (${ds})` : ""}` : (p.label || `Mensalidade${ds ? ` (${ds})` : ""}`);
+          case "project_start": return `${L.atProjectStart}${ds ? ` (${ds})` : ""}`;
+          case "stage_start": return stageName ? `${L.atStartOf} ${stageName}${ds ? ` (${ds})` : ""}` : `${L.atStartOfStage}${ds ? ` (${ds})` : ""}`;
+          case "stage_end": return stageName ? `${L.uponCompletionOf} ${stageName}${ds ? ` (${ds})` : ""}` : `${L.uponCompletionOfStage}${ds ? ` (${ds})` : ""}`;
+          case "manual_date": return `${L.onDate} ${ds || L.dateTBD}`;
+          case "monthly": return stageName ? `${L.monthlyOf} ${stageName}${ds ? ` (${ds})` : ""}` : (p.label || `${L.monthly}${ds ? ` (${ds})` : ""}`);
           default: return p.label ?? "";
         }
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const serviceOf = (p: any): { key: string; name: string; isSupplier: boolean } => {
         if (p.supplier_company_id) {
-          return { key: `c:${p.supplier_company_id}`, name: supplierNames.get(p.supplier_company_id) ?? p.supplier_label ?? "Fornecedor", isSupplier: true };
+          return { key: `c:${p.supplier_company_id}`, name: supplierNames.get(p.supplier_company_id) ?? p.supplier_label ?? L.supplierFallback, isSupplier: true };
         }
         if (p.supplier_id) {
-          return { key: `s:${p.supplier_id}`, name: supplierNames.get(p.supplier_id) ?? p.supplier_label ?? "Fornecedor", isSupplier: true };
+          return { key: `s:${p.supplier_id}`, name: supplierNames.get(p.supplier_id) ?? p.supplier_label ?? L.supplierFallback, isSupplier: true };
         }
         if (p.supplier_label && String(p.supplier_label).trim()) {
           return { key: `p:${String(p.supplier_label).trim().toLowerCase()}`, name: String(p.supplier_label).trim(), isSupplier: true };
@@ -325,7 +325,7 @@ export function useLiveQuoteSnapshot(
         if (rootRole === "supplier_group" || rootRole === "supplier_phase") {
           return { key: `r:${root!.id}`, name: root!.name, isSupplier: true };
         }
-        return { key: `arch:${root?.id ?? "_"}`, name: root && rootRole !== "supplier_group" && rootRole !== "supplier_phase" ? root.name : "Arquitectura", isSupplier: false };
+        return { key: `arch:${root?.id ?? "_"}`, name: root && rootRole !== "supplier_group" && rootRole !== "supplier_phase" ? root.name : L.architectureFallback, isSupplier: false };
       };
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
