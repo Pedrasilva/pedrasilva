@@ -480,7 +480,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                   Cancel
                 </Button>
                 <Button onClick={saveDraft} disabled={upsert.isPending}>
-                  Save trip
+                  {draft.id ? "Save changes" : "Save trip"}
                 </Button>
               </div>
             </div>
