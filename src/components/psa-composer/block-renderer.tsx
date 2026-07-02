@@ -726,7 +726,7 @@ export function BlockBody({
           {live?.consultants?.length ? (
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
+                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
                   <th className="py-1">{L.discipline}</th>
                   <th className="py-1">{L.consultant}</th>
                   <th className="py-1 text-right">{L.fees}</th>
@@ -792,7 +792,7 @@ export function BlockBody({
             <tr key={s.id} className="border-b border-zinc-200 bg-zinc-50">
               <td
                 colSpan={2}
-                className="py-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-700"
+                className="py-1 text-[11px] font-semibold tracking-wide text-zinc-700"
                 style={pad}
               >
                 {label}
@@ -817,7 +817,7 @@ export function BlockBody({
           {selfStages.length ? (
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
+                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
                   <th className="py-1">{L.phase}</th>
                   <th className="py-1 text-right">{L.fees}</th>
                 </tr>
@@ -856,7 +856,7 @@ export function BlockBody({
           {live?.paymentInvoices?.length ? (
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
+                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
                   <th className="py-1 w-20">{L.invoiceCol}</th>
                   <th className="py-1 w-24">{L.dateCol}</th>
                   <th className="py-1">{L.description}</th>
