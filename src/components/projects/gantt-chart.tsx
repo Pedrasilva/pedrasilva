@@ -1521,11 +1521,15 @@ export function GanttChart({
                               </span>
                             </div>
                             <div className="flex items-center justify-between border-t pt-1.5">
-                              <span className="text-muted-foreground">{t("gantt.stage.fin.budget", { defaultValue: "Orçamento" })}</span>
+                              <span className="text-muted-foreground">{t("gantt.stage.fin.budget", { defaultValue: "Orçamento (definido)" })}</span>
                               <span className="font-mono">{euros(budget)}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                              <span className="text-muted-foreground">{t("gantt.stage.fin.vsBudget", { defaultValue: "vs Orçamento" })}</span>
+                              <span className="text-muted-foreground">{t("gantt.stage.fin.resources", { defaultValue: "Recursos (alocados)" })}</span>
+                              <span className="font-mono">{euros(totalSale)}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-muted-foreground">{t("gantt.stage.fin.vsBudget", { defaultValue: "Orçamento vs Recursos" })}</span>
                               <span className={`font-mono ${totalSale - budget < 0 ? "text-destructive" : "text-emerald-600"}`}>
                                 {totalSale - budget >= 0 ? "+" : ""}
                                 {euros(totalSale - budget)}
