@@ -572,7 +572,7 @@ export function BlockBody({
         const left = ((cursor.getTime() - headStart.getTime()) / span) * 100;
         const width = ((next.getTime() - cursor.getTime()) / span) * 100;
         months.push({
-          label: cursor.toLocaleDateString("pt-PT", { month: "short" }).replace(".", ""),
+          label: formatMonthShort(cursor, lang),
           left,
           width,
         });
