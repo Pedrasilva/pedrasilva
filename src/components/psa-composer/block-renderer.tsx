@@ -924,9 +924,11 @@ export function BlockBody({
       return (
         <div className="proposal-signature-block proposal-avoid-break">
           <H>{num}{block.title}</H>
-          <p className="proposal-signature-hint">
-            {L.proposalValidity}
-          </p>
+          {richHas ? (
+            <div className="proposal-signature-hint">{rich}</div>
+          ) : (
+            <p className="proposal-signature-hint">{L.proposalValidity}</p>
+          )}
           <div className="proposal-signature-grid">
             <div className="proposal-signature-cell">
               <div className="proposal-signature-line" />
