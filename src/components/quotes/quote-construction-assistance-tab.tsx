@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,12 +72,38 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
     return m;
   }, [stages]);
 
-  /** Map: resource_id → sale hourly rate (pm_resources.hourly_rate). */
+  /**
+   * Current sale rate per resource. Pulled from `pm_resource_rates` (the
+   * rate history in HR) picking the latest row with `effective_from <= today`,
+   * so quotes reflect the actual HR pricing rather than the potentially stale
+   * `pm_resources.hourly_rate` cache column.
+   */
+  const ratesQ = useQuery({
+    queryKey: ["pm-resource-rates", "current"],
+    queryFn: async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const { data, error } = await supabase
+        .from("pm_resource_rates")
+        .select("resource_id, sale_rate, effective_from")
+        .lte("effective_from", today)
+        .order("effective_from", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const resourceRateById = useMemo(() => {
     const m = new Map<string, number>();
-    for (const r of resources) m.set(r.id, Number(r.hourly_rate) || 0);
+    // Rates are sorted desc; keep first (most recent) per resource.
+    for (const r of ratesQ.data ?? []) {
+      if (!m.has(r.resource_id)) m.set(r.resource_id, Number(r.sale_rate) || 0);
+    }
+    // Fallback to pm_resources.hourly_rate for resources with no rate history.
+    for (const r of resources) {
+      if (!m.has(r.id)) m.set(r.id, Number(r.hourly_rate) || 0);
+    }
     return m;
-  }, [resources]);
+  }, [ratesQ.data, resources]);
 
   const resourceById = useMemo(() => {
     const m = new Map<string, (typeof resources)[number]>();
@@ -242,6 +270,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                         <ResourceMultiSelect
                           selected={trip.resource_ids ?? []}
                           resources={resources}
+                          rateById={resourceRateById}
                           onChange={(ids) => patch(trip, { resource_ids: ids })}
                         />
                       </TableCell>
@@ -382,6 +411,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                   <ResourceMultiSelect
                     selected={draft.resource_ids ?? []}
                     resources={resources}
+                    rateById={resourceRateById}
                     onChange={(ids) => setDraft({ ...draft, resource_ids: ids })}
                     fullWidth
                   />
@@ -552,11 +582,13 @@ function ResourceMultiSelect({
   resources,
   onChange,
   fullWidth,
+  rateById,
 }: {
   selected: string[];
   resources: ResourceOption[];
   onChange: (ids: string[]) => void;
   fullWidth?: boolean;
+  rateById?: Map<string, number>;
 }) {
   const [open, setOpen] = useState(false);
   const selectedSet = new Set(selected);
@@ -601,7 +633,7 @@ function ResourceMultiSelect({
                 />
                 <span className="flex-1 truncate">{r.name}</span>
                 <span className="text-xs text-muted-foreground tabular-nums">
-                  {fmtMoney(Number(r.hourly_rate) || 0)}/h
+                  {fmtMoney(rateById?.get(r.id) ?? (Number(r.hourly_rate) || 0))}/h
                 </span>
               </label>
             );
