@@ -1895,7 +1895,7 @@ function LegacyProposalPreview({
               </p>
             ) : (
               <ul className="space-y-1.5">
-                {stages.map((s) => (
+                {numberStages(stages).map(({ stage: s, number }) => (
                   <li
                     key={s.id}
                     className="proposal-row flex items-center justify-between gap-3 text-sm border-b border-border/50 pb-1.5 last:border-0"
@@ -1905,7 +1905,7 @@ function LegacyProposalPreview({
                         className="inline-block h-2.5 w-2.5 rounded-full shrink-0"
                         style={{ background: s.color ?? "#22c55e" }}
                       />
-                      <span className="truncate">{s.name}</span>
+                      <span className="truncate">{number} {s.name}</span>
                     </div>
                     <span className="text-xs text-muted-foreground tabular-nums shrink-0">
                       {safeDate(s.start_date, locale)} → {safeDate(s.end_date, locale)}
