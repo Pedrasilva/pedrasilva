@@ -61,6 +61,7 @@ function SortableRow({
   toc,
   selected,
   quoteIdHint,
+  lang,
   onSelect,
   onPatchContent,
 }: {
@@ -69,6 +70,7 @@ function SortableRow({
   toc: { chapter: number; title: string }[];
   selected: boolean;
   quoteIdHint: string | null;
+  lang: ProposalLang;
   onSelect: () => void;
   onPatchContent: (patch: Record<string, unknown>) => void;
 }) {
