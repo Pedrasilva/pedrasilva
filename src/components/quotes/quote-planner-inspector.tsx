@@ -477,8 +477,46 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               </label>
             );
           })()}
-          {!(stage as { is_milestone?: boolean }).is_milestone && (
+          {!(stage as { is_milestone?: boolean }).is_milestone && (() => {
+            const childCount = allStages.filter(
+              (c) => (c as { parent_stage_id?: string | null }).parent_stage_id === stage.id,
+            ).length;
+            const isParentStage = childCount > 0;
+            const dateMode = (((stage as { date_mode?: string | null }).date_mode) ?? "calculated") as
+              | "calculated"
+              | "fixed";
+            const datesDisabled = isParentStage && dateMode === "calculated";
+            return (
             <>
+              {isParentStage && (
+                <div className="space-y-1">
+                  <Label className="text-xs">
+                    {t("workspace.planning.dateMode", { defaultValue: "Timeline" })}
+                  </Label>
+                  <div className="flex gap-1 rounded-md border border-border p-0.5">
+                    {(["calculated", "fixed"] as const).map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => {
+                          if (m === dateMode) return;
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          upsertStage.mutate({ id: stage.id, date_mode: m } as any);
+                        }}
+                        className={`flex-1 rounded px-2 py-1 text-[11px] transition ${
+                          dateMode === m
+                            ? "bg-foreground text-background"
+                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                        }`}
+                      >
+                        {m === "calculated"
+                          ? t("workspace.planning.dateCalculated", { defaultValue: "Inherit from children" })
+                          : t("workspace.planning.dateFixed", { defaultValue: "Fixed dates" })}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label className="text-xs">
@@ -488,9 +526,14 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                     type="date"
                     key={`sd2-${stage.id}-${stage.start_date}`}
                     defaultValue={stage.start_date}
+                    disabled={datesDisabled}
                     onBlur={(e) => {
-                      if (e.target.value !== stage.start_date)
-                        upsertStage.mutate({ id: stage.id, start_date: e.target.value });
+                      if (e.target.value !== stage.start_date) {
+                        const patch: Record<string, unknown> = { id: stage.id, start_date: e.target.value };
+                        if (isParentStage && dateMode === "calculated") patch.date_mode = "fixed";
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        upsertStage.mutate(patch as any);
+                      }
                     }}
                   />
                 </div>
@@ -502,19 +545,35 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                     type="date"
                     key={`ed2-${stage.id}-${stage.end_date}`}
                     defaultValue={stage.end_date}
+                    disabled={datesDisabled}
                     onBlur={(e) => {
-                      if (e.target.value !== stage.end_date)
-                        upsertStage.mutate({ id: stage.id, end_date: e.target.value });
+                      if (e.target.value !== stage.end_date) {
+                        const patch: Record<string, unknown> = { id: stage.id, end_date: e.target.value };
+                        if (isParentStage && dateMode === "calculated") patch.date_mode = "fixed";
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        upsertStage.mutate(patch as any);
+                      }
                     }}
                   />
                 </div>
               </div>
+              {datesDisabled && (
+                <p className="text-[10px] text-muted-foreground -mt-1">
+                  {t("workspace.planning.dateCalculatedHint", {
+                    defaultValue: "Dates are inherited from children. Switch to Fixed dates to edit.",
+                  })}
+                </p>
+              )}
               <DurationField
                 stageId={stage.id}
                 startDate={stage.start_date}
                 endDate={stage.end_date}
                 onChange={(end_date: string) => upsertStage.mutate({ id: stage.id, end_date })}
               />
+            </>
+            );
+          })()}
+          {!(stage as { is_milestone?: boolean }).is_milestone && (
               {(() => {
                 const sx = stage as typeof stage & {
                   budget_mode?: string | null;
