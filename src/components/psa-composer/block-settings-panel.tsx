@@ -104,7 +104,9 @@ export function BlockSettingsPanel({
     block.block_type === "stage_list" ||
     block.block_type === "timeline" ||
     block.block_type === "fee_table" ||
-    block.block_type === "supplier_fee_table";
+    block.block_type === "supplier_fee_table" ||
+    block.block_type === "optional_fee_table";
+
 
 
   return (
