@@ -64,6 +64,18 @@ export interface LiveQuoteSnapshot {
     amount: number | null;
     plannedDate: string | null;
   }>;
+  paymentInvoices: Array<{
+    key: string;
+    label: string;
+    plannedDate: string | null;
+    lines: Array<{ description: string; net: number; vat: number }>;
+    net: number;
+    vat: number;
+    total: number;
+    paymentTerms: string | null;
+  }>;
+  paymentInvoicesTotal: { net: number; vat: number; total: number };
+  defaultVatRate: number;
   missing: string[];
 }
 
@@ -191,14 +203,199 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
       const { data: pay } = await supabase
         .from("quote_payment_schedule_items")
         .select(
-          "id,label,trigger_type,amount_value,expected_invoice_date,sort_order",
+          "id,label,trigger_type,amount_type,amount_value,expected_invoice_date,sort_order,stage_id,direction,vat_rate,supplier_company_id,supplier_id,supplier_label,payment_terms",
         )
         .eq("quote_id", quoteId!)
         .order("sort_order", { ascending: true, nullsFirst: false })
         .order("expected_invoice_date", { ascending: true, nullsFirst: false });
 
+      // Resolve names for supplier companies referenced by payment items too.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const paySupplierIds = Array.from(
+        new Set(
+          ((pay ?? []) as any[])
+            .map((p) => p.supplier_company_id)
+            .filter(Boolean),
+        ),
+      ) as string[];
+      const missingSupplierIds = paySupplierIds.filter((id) => !supplierNames.has(id));
+      if (missingSupplierIds.length) {
+        const { data: sups2 } = await supabase
+          .from("companies")
+          .select("id,nome")
+          .in("id", missingSupplierIds);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ((sups2 ?? []) as any[]).forEach((s) => {
+          if (s?.id && s?.nome) supplierNames.set(s.id, s.nome);
+        });
+      }
+
       if (!stages?.length) missing.push("stages");
       if (!pay?.length) missing.push("paymentSchedule");
+
+      // ── Build client invoice list (mirrors the Incoming tab logic) ──
+      const defaultVatRate = Number(q.default_vat_rate ?? 23) || 23;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const stageArr = (stages ?? []) as any[];
+      const stageById = new Map<string, { id: string; name: string; start_date: string | null; end_date: string | null; budget: number | null; parent_stage_id: string | null }>(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        stageArr.map((s: any) => [s.id, s]),
+      );
+      const totalFeeForPay =
+        q.valor && Number(q.valor) > 0
+          ? Number(q.valor)
+          : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            stageArr
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              .filter((s: any) => s.is_self !== false)
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              .reduce((sum: number, s: any) => sum + (Number(s.budget) || 0), 0);
+      const stageFees: Record<string, number> = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      stageArr.forEach((s: any) => { stageFees[s.id] = Number(s.budget) || 0; });
+
+      const rootOf = (stageId: string | null | undefined) => {
+        if (!stageId) return null;
+        let cur = stageById.get(stageId) ?? null;
+        const seen = new Set<string>();
+        while (cur && cur.parent_stage_id) {
+          if (seen.has(cur.parent_stage_id)) break;
+          seen.add(cur.parent_stage_id);
+          const p = stageById.get(cur.parent_stage_id);
+          if (!p) break;
+          cur = p;
+        }
+        return cur;
+      };
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const resolveAmount = (p: any): number => {
+        const value = Number(p.amount_value ?? 0);
+        if (p.amount_type === "fixed") return value;
+        if ((p.trigger_type === "stage_start" || p.trigger_type === "stage_end") && p.stage_id && stageFees[p.stage_id] != null) {
+          return (stageFees[p.stage_id] * value) / 100;
+        }
+        return (totalFeeForPay * value) / 100;
+      };
+
+      const fmtDate = (iso?: string | null) => {
+        if (!iso) return "";
+        const [y, m, d] = iso.split("-");
+        return y && m && d ? `${d}/${m}/${y}` : iso;
+      };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const dateFor = (p: any): string => {
+        if (p.expected_invoice_date) return p.expected_invoice_date;
+        const s = p.stage_id ? stageById.get(p.stage_id) : null;
+        if (p.trigger_type === "stage_start") return s?.start_date ?? "9999-12-31";
+        return s?.end_date ?? "9999-12-31";
+      };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const triggerSentence = (p: any): string => {
+        const s = p.stage_id ? stageById.get(p.stage_id) : null;
+        const stageName = s?.name ?? "";
+        const ds = fmtDate(dateFor(p));
+        switch (p.trigger_type) {
+          case "project_start": return `No início do projecto${ds ? ` (${ds})` : ""}`;
+          case "stage_start": return stageName ? `No início de ${stageName}${ds ? ` (${ds})` : ""}` : `No início da fase${ds ? ` (${ds})` : ""}`;
+          case "stage_end": return stageName ? `Na conclusão de ${stageName}${ds ? ` (${ds})` : ""}` : `Na conclusão da fase${ds ? ` (${ds})` : ""}`;
+          case "manual_date": return `Em ${ds || "data a definir"}`;
+          case "monthly": return stageName ? `Mensalidade de ${stageName}${ds ? ` (${ds})` : ""}` : (p.label || `Mensalidade${ds ? ` (${ds})` : ""}`);
+          default: return p.label ?? "";
+        }
+      };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const serviceOf = (p: any): { key: string; name: string; isSupplier: boolean } => {
+        if (p.supplier_company_id) {
+          return { key: `c:${p.supplier_company_id}`, name: supplierNames.get(p.supplier_company_id) ?? p.supplier_label ?? "Fornecedor", isSupplier: true };
+        }
+        if (p.supplier_id) {
+          return { key: `s:${p.supplier_id}`, name: supplierNames.get(p.supplier_id) ?? p.supplier_label ?? "Fornecedor", isSupplier: true };
+        }
+        if (p.supplier_label && String(p.supplier_label).trim()) {
+          return { key: `p:${String(p.supplier_label).trim().toLowerCase()}`, name: String(p.supplier_label).trim(), isSupplier: true };
+        }
+        const root = rootOf(p.stage_id);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const rootRole = (root as any)?.stage_role as string | undefined;
+        if (rootRole === "supplier_group" || rootRole === "supplier_phase") {
+          return { key: `r:${root!.id}`, name: root!.name, isSupplier: true };
+        }
+        return { key: `arch:${root?.id ?? "_"}`, name: root && rootRole !== "supplier_group" && rootRole !== "supplier_phase" ? root.name : "Arquitectura", isSupplier: false };
+      };
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const inflows = ((pay ?? []) as any[]).filter(
+        (p) => (p.direction ?? "inflow") === "inflow" && p.trigger_type !== "project_start",
+      );
+      type Invoice = { key: string; plannedDate: string; items: any[]; paymentTerms: string | null };
+      const invoiceMap = new Map<string, Invoice>();
+      const orderKeys: string[] = [];
+      for (const it of inflows) {
+        const d = dateFor(it);
+        const ym = d.length >= 7 ? d.slice(0, 7) : d;
+        const key = `m:${ym}`;
+        let inv = invoiceMap.get(key);
+        if (!inv) {
+          inv = { key, plannedDate: d, items: [], paymentTerms: it.payment_terms ?? null };
+          invoiceMap.set(key, inv);
+          orderKeys.push(key);
+        } else if (d > inv.plannedDate) {
+          inv.plannedDate = d;
+        }
+        inv.items.push(it);
+        if (!inv.paymentTerms && it.payment_terms) inv.paymentTerms = it.payment_terms;
+      }
+      orderKeys.sort((a, b) => {
+        const da = invoiceMap.get(a)!.plannedDate;
+        const db = invoiceMap.get(b)!.plannedDate;
+        return da < db ? -1 : da > db ? 1 : 0;
+      });
+
+      const paymentInvoices = orderKeys.map((k, gi) => {
+        const inv = invoiceMap.get(k)!;
+        const groups = new Map<string, { svc: { key: string; name: string; isSupplier: boolean }; rows: any[] }>();
+        const gorder: string[] = [];
+        for (const it of inv.items) {
+          const svc = serviceOf(it);
+          if (!groups.has(svc.key)) { groups.set(svc.key, { svc, rows: [] }); gorder.push(svc.key); }
+          groups.get(svc.key)!.rows.push(it);
+        }
+        gorder.sort((a, b) => (groups.get(a)!.svc.isSupplier ? 1 : 0) - (groups.get(b)!.svc.isSupplier ? 1 : 0));
+        const lines = gorder.map((gk) => {
+          const { svc, rows } = groups.get(gk)!;
+          const net = rows.reduce((s, r) => s + resolveAmount(r), 0);
+          const vatAmt = rows.reduce((s, r) => {
+            const n = resolveAmount(r);
+            const v = Number(r.vat_rate ?? defaultVatRate);
+            return s + (n * v) / 100;
+          }, 0);
+          const head = rows[0];
+          const stageNames = Array.from(
+            new Set(rows.map((r) => (r.stage_id ? stageById.get(r.stage_id)?.name : null)).filter(Boolean)),
+          ) as string[];
+          const desc = stageNames.length > 1
+            ? `${svc.name} — ${stageNames.join(" + ")} (${fmtDate(inv.plannedDate)})`
+            : `${svc.name} — ${triggerSentence(head)}`;
+          return { description: desc, net, vat: vatAmt };
+        });
+        const net = lines.reduce((s, l) => s + l.net, 0);
+        const vat = lines.reduce((s, l) => s + l.vat, 0);
+        return {
+          key: inv.key,
+          label: `Fatura ${String(gi + 1).padStart(2, "0")}`,
+          plannedDate: inv.plannedDate,
+          lines,
+          net,
+          vat,
+          total: net + vat,
+          paymentTerms: inv.paymentTerms,
+        };
+      });
+      const paymentInvoicesTotal = paymentInvoices.reduce(
+        (acc, i) => ({ net: acc.net + i.net, vat: acc.vat + i.vat, total: acc.total + i.total }),
+        { net: 0, vat: 0, total: 0 },
+      );
 
       return {
         quoteId: quoteId!,
@@ -271,6 +468,9 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
           amount: p.amount_value,
           plannedDate: p.expected_invoice_date,
         })),
+        paymentInvoices,
+        paymentInvoicesTotal,
+        defaultVatRate,
         missing,
       };
     },

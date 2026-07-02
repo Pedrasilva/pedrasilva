@@ -6,6 +6,7 @@
  * editor) when present, falling back to the legacy plain `content_rich.text`
  * field. Live-data blocks ignore content_rich and reference the snapshot.
  */
+import React from "react";
 import type { PsaProposalBlock } from "@/lib/psa-proposal/types";
 import {
   type LiveQuoteSnapshot,
@@ -837,23 +838,49 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
-          {live?.paymentSchedule?.length ? (
+          {live?.paymentInvoices?.length ? (
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
+                  <th className="py-1 w-20">Fatura</th>
+                  <th className="py-1 w-24">Data</th>
                   <th className="py-1">{L.description}</th>
-                  <th className="py-1">{L.expectedDate}</th>
-                  <th className="py-1 text-right">{L.amount}</th>
+                  <th className="py-1 text-right">Sem IVA</th>
+                  <th className="py-1 text-right">IVA</th>
+                  <th className="py-1 text-right">Com IVA</th>
                 </tr>
               </thead>
               <tbody>
-                {live.paymentSchedule.map((p) => (
-                  <tr key={p.id} className="border-b border-zinc-100">
-                    <td className="py-1">{p.label ?? p.trigger ?? "—"}</td>
-                    <td className="py-1">{formatDatePT(p.plannedDate, lang)}</td>
-                    <td className="py-1 text-right">{formatCurrencyEUR(p.amount, lang)}</td>
-                  </tr>
+                {live.paymentInvoices.map((inv) => (
+                  <React.Fragment key={inv.key}>
+                    {inv.lines.map((ln, li) => (
+                      <tr key={`${inv.key}:${li}`} className={li === 0 ? "border-t border-zinc-200" : ""}>
+                        <td className="py-1 align-top text-xs font-semibold">{li === 0 ? inv.label : ""}</td>
+                        <td className="py-1 align-top tabular-nums text-xs">{li === 0 ? formatDatePT(inv.plannedDate, lang) : ""}</td>
+                        <td className="py-1">{ln.description}</td>
+                        <td className="py-1 text-right tabular-nums">{formatCurrencyEUR(ln.net, lang)}</td>
+                        <td className="py-1 text-right tabular-nums text-zinc-500">{formatCurrencyEUR(ln.vat, lang)}</td>
+                        <td className="py-1 text-right tabular-nums font-medium">{formatCurrencyEUR(ln.net + ln.vat, lang)}</td>
+                      </tr>
+                    ))}
+                    {inv.lines.length > 1 && (
+                      <tr className="text-xs bg-zinc-50">
+                        <td className="py-1" />
+                        <td className="py-1" />
+                        <td className="py-1 font-semibold">Subtotal {inv.label}</td>
+                        <td className="py-1 text-right tabular-nums font-semibold">{formatCurrencyEUR(inv.net, lang)}</td>
+                        <td className="py-1 text-right tabular-nums text-zinc-500">{formatCurrencyEUR(inv.vat, lang)}</td>
+                        <td className="py-1 text-right tabular-nums font-semibold">{formatCurrencyEUR(inv.total, lang)}</td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
+                <tr className="border-t-2 border-zinc-400 font-semibold">
+                  <td className="py-1" colSpan={3}>Total</td>
+                  <td className="py-1 text-right tabular-nums">{formatCurrencyEUR(live.paymentInvoicesTotal.net, lang)}</td>
+                  <td className="py-1 text-right tabular-nums text-zinc-500">{formatCurrencyEUR(live.paymentInvoicesTotal.vat, lang)}</td>
+                  <td className="py-1 text-right tabular-nums">{formatCurrencyEUR(live.paymentInvoicesTotal.total, lang)}</td>
+                </tr>
               </tbody>
             </table>
           ) : (
