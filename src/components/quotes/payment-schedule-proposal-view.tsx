@@ -836,7 +836,7 @@ export function PaymentScheduleProposalView({
           const ds = fmtDate(d);
           switch (it.trigger_type) {
             case "project_start":
-              return `No início do projecto${ds ? ` (${ds})` : ""}`;
+              return `Adiantamento recebido${ds ? ` (${ds})` : ""}`;
             case "stage_start":
               return stageName
                 ? `No início de ${stageName}${ds ? ` (${ds})` : ""}`
