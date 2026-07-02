@@ -562,6 +562,27 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     </Select>
                   </div>
                 </Field>
+                <Field label="Duration (months, override)">
+                  <Input
+                    type="number"
+                    step="1"
+                    min="0"
+                    placeholder="From stage dates"
+                    value={
+                      draft.duration_months_override == null
+                        ? ""
+                        : String(draft.duration_months_override)
+                    }
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setDraft({
+                        ...draft,
+                        duration_months_override: v === "" ? null : Number(v),
+                      });
+                    }}
+                    title="Overrides the stage's date-derived duration when frequency is 'per month'. Leave empty to use stage dates."
+                  />
+                </Field>
                 <Field label="Notes" className="md:col-span-3">
                   <Textarea
                     rows={2}
