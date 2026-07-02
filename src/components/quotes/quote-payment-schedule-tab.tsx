@@ -35,6 +35,7 @@ import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import { rollupQuote } from "@/lib/quotes/financial-rollups";
 import { QuoteFeeSourceToggle } from "@/components/quotes/quote-fee-source-toggle";
+import { QuoteSupplierMarkupEditor } from "@/components/quotes/quote-supplier-markup-editor";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import {
