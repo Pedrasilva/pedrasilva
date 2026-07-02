@@ -44,6 +44,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
             selectedId={selectedId}
             quoteIdHint={proposal.data.quote_id}
             styleSettings={proposal.data.style_settings}
+            language={proposal.data.language}
             onSelect={setSelectedId}
             onReorder={(next) => reorder.mutate(next)}
           />

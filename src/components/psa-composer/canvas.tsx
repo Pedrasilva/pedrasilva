@@ -34,7 +34,7 @@ import { cn } from "@/lib/utils";
 import type { PsaProposalBlock, PsaBlockType } from "@/lib/psa-proposal/types";
 import { BlockBody } from "./block-renderer";
 import { RelevanceBadge } from "./relevance-badge";
-import { useLiveQuoteSnapshot } from "@/lib/psa-proposal/live-data";
+import { useLiveQuoteSnapshot, resolveProposalLang, type ProposalLang } from "@/lib/psa-proposal/live-data";
 import { useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
 import psaLogo from "@/assets/logotipo-psa.jpg.asset.json";
 
@@ -61,6 +61,7 @@ function SortableRow({
   toc,
   selected,
   quoteIdHint,
+  lang,
   onSelect,
   onPatchContent,
 }: {
@@ -69,6 +70,7 @@ function SortableRow({
   toc: { chapter: number; title: string }[];
   selected: boolean;
   quoteIdHint: string | null;
+  lang: ProposalLang;
   onSelect: () => void;
   onPatchContent: (patch: Record<string, unknown>) => void;
 }) {
@@ -141,6 +143,7 @@ function SortableRow({
         toc={toc}
         editable={selected && INLINE_EDITABLE_TYPES.includes(block.block_type) && !block.is_locked}
         onPatchContent={onPatchContent}
+        lang={lang}
       />
     </div>
   );
@@ -155,6 +158,7 @@ export function ComposerCanvas({
   onReorder,
   quoteIdHint,
   styleSettings,
+  language,
 }: {
   proposalId: string;
   blocks: PsaProposalBlock[];
@@ -163,7 +167,9 @@ export function ComposerCanvas({
   onReorder: (next: PsaProposalBlock[]) => void;
   quoteIdHint: string | null;
   styleSettings?: import("@/lib/psa-proposal/types").PsaProposalStyleSettings;
+  language?: string | null;
 }) {
+  const lang = resolveProposalLang(language);
   const update = useUpdateBlock(proposalId);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -250,6 +256,7 @@ export function ComposerCanvas({
                   toc={toc}
                   selected={selectedId === b.id}
                   quoteIdHint={quoteIdHint}
+                  lang={lang}
                   onSelect={() => onSelect(b.id)}
                   onPatchContent={(patch) =>
                     update.mutate({

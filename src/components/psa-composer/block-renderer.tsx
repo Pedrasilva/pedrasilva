@@ -10,9 +10,11 @@ import type { PsaProposalBlock } from "@/lib/psa-proposal/types";
 import {
   type LiveQuoteSnapshot,
   type LiveStage,
+  type ProposalLang,
   formatCurrencyEUR,
   formatDatePT,
-  formatDurationAdaptive,
+  formatMonthShort,
+  getProposalLabels,
 } from "@/lib/psa-proposal/live-data";
 import {
   buildTokenMap,
@@ -96,7 +98,7 @@ function RichContent({
 // Default contractual boilerplate used when a block has no manual content yet.
 // Pre-send-safe: clearly neutral PSA language so empty sections do not look
 // abandoned in the PDF.
-const DEFAULT_TEXT: Partial<Record<string, string>> = {
+const DEFAULT_TEXT_PT: Partial<Record<string, string>> = {
   about:
     "A Pedra Silva Arquitectos é um atelier de arquitetura com sede em Lisboa, com prática consolidada em projeto, coordenação e acompanhamento de obra. A nossa equipa multidisciplinar acompanha o cliente desde o estudo prévio até à conclusão da obra.",
   scope:
@@ -113,6 +115,25 @@ const DEFAULT_TEXT: Partial<Record<string, string>> = {
     "Em caso de suspensão do projeto por iniciativa do Cliente, os honorários relativos às fases concluídas e em curso serão integralmente devidos. A rescisão deverá ser comunicada por escrito com 30 dias de antecedência.",
   exclusions:
     "Excluem-se desta proposta: projectos de especialidades não expressamente referidos, levantamentos topográficos, estudos geotécnicos, taxas camarárias, licenças e quaisquer encargos administrativos.",
+};
+
+const DEFAULT_TEXT_EN: Partial<Record<string, string>> = {
+  about:
+    "Pedra Silva Arquitectos is a Lisbon-based architecture practice with an established track record in design, coordination and construction administration. Our multidisciplinary team supports the client from feasibility through to project completion.",
+  scope:
+    "This proposal covers the architectural services required to develop the project, including preliminary studies, developed design, technical design and construction administration, as detailed in the stages described in this document.",
+  construction_fee:
+    "Construction-phase fees are invoiced monthly during execution, in proportion to the agreed schedule and in line with the payment plan.",
+  payment_terms:
+    "Fees are invoiced in accordance with the attached payment schedule. VAT at the applicable legal rate is added to the values shown. Payment is due within 30 days of the invoice date.",
+  additional_services:
+    "Any services not included within the scope of this proposal will be subject to a separate quote, to be agreed in advance with the Client.",
+  general:
+    "The terms set out herein are governed by applicable Portuguese law. Any changes to the scope or schedule shall be formalised in writing between the parties.",
+  suspension:
+    "In the event of suspension of the project by the Client, fees for completed and ongoing stages shall be fully due. Termination shall be notified in writing 30 days in advance.",
+  exclusions:
+    "The following are excluded from this proposal: specialist engineering disciplines not expressly listed, topographic surveys, geotechnical studies, municipal taxes, licences and any administrative fees.",
 };
 
 function StageRows({ stages }: { stages: LiveStage[] }) {
@@ -135,6 +156,7 @@ export function BlockBody({
   toc,
   editable,
   onPatchContent,
+  lang = "pt-PT",
 }: {
   block: PsaProposalBlock;
   live: LiveQuoteSnapshot | undefined;
@@ -142,7 +164,9 @@ export function BlockBody({
   toc?: { chapter: number; title: string }[];
   editable?: boolean;
   onPatchContent?: (patch: Record<string, unknown>) => void;
+  lang?: ProposalLang;
 }) {
+  const L = getProposalLabels(lang);
 
   const text = (block.content_rich?.text as string | undefined) ?? "";
   const html = (block.content_rich?.html as string | undefined) ?? "";
@@ -184,11 +208,12 @@ export function BlockBody({
   const selfStages = (live?.stages ?? []).filter((s) => s.isSelf);
 
   function fallback(blockType: string) {
-    const t = DEFAULT_TEXT[blockType];
+    const dict = lang === "en" ? DEFAULT_TEXT_EN : DEFAULT_TEXT_PT;
+    const t = dict[blockType];
     if (editable && onPatchContent) {
       return rich;
     }
-    return t ? <P>{t}</P> : <Empty>Sem conteúdo. Edite no painel direito.</Empty>;
+    return t ? <P>{t}</P> : <Empty>{L.emptyEditRight}</Empty>;
   }
 
 
@@ -197,10 +222,10 @@ export function BlockBody({
       return (
         <div className="proposal-cover proposal-avoid-break proposal-page-break-after flex flex-col items-center justify-center py-24 text-center">
           <div className="text-xs uppercase tracking-[0.3em] text-zinc-500">
-            Proposta de Honorários
+            {L.proposalCover}
           </div>
           <div className="mt-6 text-3xl font-light tracking-tight text-zinc-900">
-            {live?.projectName ?? "Projeto"}
+            {live?.projectName ?? L.project}
           </div>
           {live?.client && (
             <div className="mt-2 text-base text-zinc-700">{live.client}</div>
@@ -209,8 +234,8 @@ export function BlockBody({
             <div className="mt-1 text-sm text-zinc-500">{live.location}</div>
           )}
           <div className="mt-10 text-xs text-zinc-500">
-            {live?.projectNumber ? `Ref. ${live.projectNumber} · ` : ""}
-            {formatDatePT(live?.date)}
+            {live?.projectNumber ? `${L.refPrefix} ${live.projectNumber} · ` : ""}
+            {formatDatePT(live?.date, lang)}
           </div>
         </div>
       );
@@ -218,7 +243,7 @@ export function BlockBody({
     case "index":
       return (
         <div className="proposal-avoid-break">
-          <H>Índice</H>
+          <H>{L.index}</H>
           {toc && toc.length ? (
             <ol className="space-y-1 text-sm text-zinc-800 list-none ml-0">
               {toc.map((e) => (
@@ -229,7 +254,7 @@ export function BlockBody({
               ))}
             </ol>
           ) : (
-            <Empty>O índice é gerado automaticamente a partir dos blocos visíveis.</Empty>
+            <Empty>{L.indexAuto}</Empty>
           )}
         </div>
       );
@@ -311,7 +336,7 @@ export function BlockBody({
               {roots.map((r) => renderNode(r, 0))}
             </div>
           ) : (
-            <Empty>Sem fases definidas no orçamento.</Empty>
+            <Empty>{L.noPhasesDefined}</Empty>
           )}
         </div>
       );
@@ -324,9 +349,7 @@ export function BlockBody({
         return (
           <div>
             <H>{num}{block.title}</H>
-            <Empty>
-              Selecione uma fase do orçamento no painel direito para preencher este bloco.
-            </Empty>
+            <Empty>{L.chooseStage}</Empty>
           </div>
         );
       }
@@ -346,7 +369,7 @@ export function BlockBody({
           {deliverables.length > 0 && (
             <div className="mt-3">
               <div className="mb-1 text-[10px] uppercase tracking-wide text-zinc-500">
-                Âmbito e entregáveis
+                {L.scopeDeliverables}
               </div>
               <ul className="ml-5 list-disc space-y-0.5 text-sm text-zinc-800">
                 {deliverables.map((d, i) => (
@@ -358,7 +381,7 @@ export function BlockBody({
           {clientInfo.length > 0 && (
             <div className="mt-3">
               <div className="mb-1 text-[10px] uppercase tracking-wide text-zinc-500">
-                Informação necessária do cliente
+                {L.clientInfoRequired}
               </div>
               <ul className="ml-5 list-disc space-y-0.5 text-sm text-zinc-800">
                 {clientInfo.map((d, i) => (
@@ -369,19 +392,20 @@ export function BlockBody({
           )}
           <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
             <div>
-              <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Duração</dt>
+              <dt className="text-[10px] uppercase tracking-wide text-zinc-500">{L.duration}</dt>
               <dd className="font-medium text-zinc-900">
-                {stage.durationDays != null ? `${stage.durationDays} dias` : "—"}
+                {stage.durationDays != null ? `${stage.durationDays} ${L.daysUnit}` : "—"}
               </dd>
             </div>
             <div>
-              <dt className="text-[10px] uppercase tracking-wide text-zinc-500">Honorários</dt>
-              <dd className="font-medium text-zinc-900">{formatCurrencyEUR(stage.fee)}</dd>
+              <dt className="text-[10px] uppercase tracking-wide text-zinc-500">{L.fees}</dt>
+              <dd className="font-medium text-zinc-900">{formatCurrencyEUR(stage.fee, lang)}</dd>
             </div>
           </dl>
         </div>
       );
     }
+
 
     case "timeline": {
       // Group by hierarchy: parents/grandparents render as titles (header rows),
@@ -430,9 +454,9 @@ export function BlockBody({
           rows.push(
             <tr key={s.id} className="border-b border-zinc-100">
               <td className="py-1" style={pad}>{label}</td>
-              <td className="py-1">{formatDatePT(s.startDate)}</td>
-              <td className="py-1">{formatDatePT(s.endDate)}</td>
-              <td className="py-1 text-right">{s.durationDays ?? "—"} d</td>
+              <td className="py-1">{formatDatePT(s.startDate, lang)}</td>
+              <td className="py-1">{formatDatePT(s.endDate, lang)}</td>
+              <td className="py-1 text-right">{s.durationDays ?? "—"} {L.dayShort}</td>
             </tr>,
           );
         }
@@ -446,16 +470,16 @@ export function BlockBody({
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
-                  <th className="py-1">Fase</th>
-                  <th className="py-1">Início</th>
-                  <th className="py-1">Fim</th>
-                  <th className="py-1 text-right">Duração</th>
+                  <th className="py-1">{L.phase}</th>
+                  <th className="py-1">{L.start}</th>
+                  <th className="py-1">{L.end}</th>
+                  <th className="py-1 text-right">{L.duration}</th>
                 </tr>
               </thead>
               <tbody>{rows}</tbody>
             </table>
           ) : (
-            <Empty>Sem cronograma disponível.</Empty>
+            <Empty>{L.scheduleUnavailable}</Empty>
           )}
         </div>
       );
@@ -519,10 +543,10 @@ export function BlockBody({
             <H>{num}{block.title}</H>
             <Empty>
               {block.block_type === "gantt_design"
-                ? "Sem fases de projeto com datas definidas."
+                ? L.noDesignPhases
                 : block.block_type === "gantt_construction"
-                ? "Sem fases de obra com datas definidas."
-                : "Selecione uma fase pai nas definições do bloco."}
+                ? L.noConstructionPhases
+                : L.chooseParentInSettings}
             </Empty>
           </div>
         );
@@ -548,7 +572,7 @@ export function BlockBody({
         const left = ((cursor.getTime() - headStart.getTime()) / span) * 100;
         const width = ((next.getTime() - cursor.getTime()) / span) * 100;
         months.push({
-          label: cursor.toLocaleDateString("pt-PT", { month: "short" }).replace(".", ""),
+          label: formatMonthShort(cursor, lang),
           left,
           width,
         });
@@ -564,18 +588,18 @@ export function BlockBody({
           <H>{num}{block.title}</H>
           <div className="mb-2 text-xs text-zinc-500">
             {parent.code ? `${parent.code} — ` : ""}{parent.name} ·{" "}
-            {formatDatePT(start.toISOString())} → {formatDatePT(end.toISOString())} ·{" "}
-            {totalDays} dias
+            {formatDatePT(start.toISOString(), lang)} → {formatDatePT(end.toISOString(), lang)} ·{" "}
+            {totalDays} {L.daysUnit}
           </div>
           <div className="overflow-hidden rounded border border-zinc-200">
             <table className="w-full border-collapse text-xs">
               <thead>
                 <tr className="border-b border-zinc-200 bg-zinc-50">
                   <th className="w-[28%] px-2 py-1 text-left font-medium text-zinc-600">
-                    Fase
+                    {L.phase}
                   </th>
                   <th className="w-[70px] px-2 py-1 text-right font-medium text-zinc-600 whitespace-nowrap">
-                    Duração
+                    {L.duration}
                   </th>
                   <th className="px-0 py-1">
                     <div className="relative h-4 w-full">
@@ -614,7 +638,7 @@ export function BlockBody({
                         </div>
                       </td>
                       <td className="px-2 py-1.5 text-right align-middle text-zinc-700 whitespace-nowrap">
-                        {weeks} {weeks === 1 ? "sem" : "sems"}
+                        {weeks} {weeks === 1 ? L.weekShort : L.weeksShort}
                       </td>
                       <td className="px-0 py-1.5">
                         <div className="relative h-4 w-full">
@@ -628,7 +652,7 @@ export function BlockBody({
                           <div
                             className="absolute top-1 h-2 rounded-sm bg-zinc-800 print:bg-zinc-700"
                             style={{ left: `${left}%`, width: `${width}%` }}
-                            title={`${formatDatePT(s.startDate)} → ${formatDatePT(s.endDate)}`}
+                            title={`${formatDatePT(s.startDate, lang)} → ${formatDatePT(s.endDate, lang)}`}
                           />
                         </div>
                       </td>
@@ -652,9 +676,9 @@ export function BlockBody({
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
-                  <th className="py-1">Especialidade</th>
-                  <th className="py-1">Consultor</th>
-                  <th className="py-1 text-right">Honorários</th>
+                  <th className="py-1">{L.discipline}</th>
+                  <th className="py-1">{L.consultant}</th>
+                  <th className="py-1 text-right">{L.fees}</th>
                 </tr>
               </thead>
               <tbody>
@@ -662,13 +686,13 @@ export function BlockBody({
                   <tr key={c.id} className="border-b border-zinc-100">
                     <td className="py-1">{c.discipline ?? "—"}</td>
                     <td className="py-1">{c.name}</td>
-                    <td className="py-1 text-right">{formatCurrencyEUR(c.fee)}</td>
+                    <td className="py-1 text-right">{formatCurrencyEUR(c.fee, lang)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           ) : (
-            <Empty>Sem consultores definidos.</Empty>
+            <Empty>{L.noConsultants}</Empty>
           )}
         </div>
       );
@@ -729,7 +753,7 @@ export function BlockBody({
           rows.push(
             <tr key={s.id} className="border-b border-zinc-100">
               <td className="py-1" style={pad}>{label}</td>
-              <td className="py-1 text-right">{formatCurrencyEUR(Number(s.fee) || 0)}</td>
+              <td className="py-1 text-right">{formatCurrencyEUR(Number(s.fee) || 0, lang)}</td>
             </tr>,
           );
         }
@@ -743,20 +767,20 @@ export function BlockBody({
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
-                  <th className="py-1">Fase</th>
-                  <th className="py-1 text-right">Honorários</th>
+                  <th className="py-1">{L.phase}</th>
+                  <th className="py-1 text-right">{L.fees}</th>
                 </tr>
               </thead>
               <tbody>
                 {rows}
                 <tr className="font-semibold">
-                  <td className="py-1">Total Arquitetura</td>
-                  <td className="py-1 text-right">{formatCurrencyEUR(total)}</td>
+                  <td className="py-1">{L.totalArchitecture}</td>
+                  <td className="py-1 text-right">{formatCurrencyEUR(total, lang)}</td>
                 </tr>
               </tbody>
             </table>
           ) : (
-            <Empty>Sem honorários para apresentar.</Empty>
+            <Empty>{L.noFeesToShow}</Empty>
           )}
         </div>
       );
@@ -782,23 +806,23 @@ export function BlockBody({
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
-                  <th className="py-1">Descrição</th>
-                  <th className="py-1">Data prevista</th>
-                  <th className="py-1 text-right">Valor</th>
+                  <th className="py-1">{L.description}</th>
+                  <th className="py-1">{L.expectedDate}</th>
+                  <th className="py-1 text-right">{L.amount}</th>
                 </tr>
               </thead>
               <tbody>
                 {live.paymentSchedule.map((p) => (
                   <tr key={p.id} className="border-b border-zinc-100">
                     <td className="py-1">{p.label ?? p.trigger ?? "—"}</td>
-                    <td className="py-1">{formatDatePT(p.plannedDate)}</td>
-                    <td className="py-1 text-right">{formatCurrencyEUR(p.amount)}</td>
+                    <td className="py-1">{formatDatePT(p.plannedDate, lang)}</td>
+                    <td className="py-1 text-right">{formatCurrencyEUR(p.amount, lang)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           ) : (
-            <Empty>Sem plano de pagamentos definido.</Empty>
+            <Empty>{L.noPaymentSchedule}</Empty>
           )}
         </div>
       );
@@ -830,17 +854,16 @@ export function BlockBody({
         <div className="proposal-signature-block proposal-avoid-break">
           <H>{num}{block.title}</H>
           <p className="proposal-signature-hint">
-            A presente proposta é válida por 30 dias a contar da data acima.
-            A aceitação far-se-á por assinatura abaixo.
+            {L.proposalValidity}
           </p>
           <div className="proposal-signature-grid">
             <div className="proposal-signature-cell">
               <div className="proposal-signature-line" />
-              <div className="proposal-signature-label">Pelo Cliente</div>
+              <div className="proposal-signature-label">{L.clientSignatory}</div>
             </div>
             <div className="proposal-signature-cell">
               <div className="proposal-signature-line" />
-              <div className="proposal-signature-label">Pedra Silva Arquitectos</div>
+              <div className="proposal-signature-label">{L.psaSignatory}</div>
             </div>
           </div>
         </div>
@@ -849,7 +872,7 @@ export function BlockBody({
     case "page_break":
       return (
         <div className="proposal-page-break-before my-8 border-t-2 border-dashed border-zinc-300 text-center text-[10px] uppercase tracking-widest text-zinc-400 print:border-0 print:text-transparent">
-          Quebra de Página
+          {L.pageBreak}
         </div>
       );
 
@@ -858,7 +881,7 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
-          {richHas ? rich : <Empty>Sem conteúdo. Edite no painel direito.</Empty>}
+          {richHas ? rich : <Empty>{L.emptyEditRight}</Empty>}
         </div>
       );
   }
