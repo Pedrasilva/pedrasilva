@@ -897,6 +897,8 @@ const LABELS_EN: ProposalLabels = {
   fees: "Fees",
   totalArchitecture: "Total Architecture",
   totalSuppliers: "Total Suppliers",
+  totalOptional: "Total Optional",
+
   feeTableIntro:
     "The fee proposal below reflects the described scope of work, organised by project stage. Values are exclusive of VAT.",
 
