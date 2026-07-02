@@ -781,3 +781,27 @@ export function formatDurationHuman(
   return `${daysLabel} (${weeksLabel} · ${monthsLabel})`;
 }
 
+/**
+ * Compact single-unit duration for narrow columns (e.g. gantt row duration).
+ * Picks the coarsest unit that still reads naturally:
+ * - < 14 days → days
+ * - < 60 days → weeks
+ * - ≥ 60 days → months
+ */
+export function formatDurationCompact(
+  days: number | null | undefined,
+  lang: ProposalLang,
+): string {
+  if (days == null || !isFinite(days)) return "—";
+  const L = getProposalLabels(lang);
+  const d = Math.max(0, Math.round(days));
+  if (d < 14) return `${d} ${d === 1 ? L.dayShort : L.daysUnit}`;
+  if (d < 60) {
+    const w = Math.round(d / 7);
+    return `${w} ${w === 1 ? L.weekShort : L.weeksShort}`;
+  }
+  const m = Math.max(1, Math.round(d / 30));
+  return `${m} ${m === 1 ? L.monthShort : L.monthsShort}`;
+}
+
+

@@ -15,6 +15,7 @@ import {
   formatCurrencyEUR,
   formatDatePT,
   formatDurationHuman,
+  formatDurationCompact,
   formatMonthShort,
   getProposalLabels,
 } from "@/lib/psa-proposal/live-data";
@@ -223,7 +224,7 @@ export function BlockBody({
     case "cover":
       return (
         <div className="proposal-cover proposal-avoid-break proposal-page-break-after flex flex-col items-center justify-center py-24 text-center">
-          <div className="text-xs uppercase tracking-[0.3em] text-zinc-500">
+          <div className="text-xs tracking-[0.3em] text-zinc-500">
             {L.proposalCover}
           </div>
           <div className="mt-6 text-3xl font-light tracking-tight text-zinc-900">
@@ -648,15 +649,20 @@ export function BlockBody({
                   </th>
                   <th className="px-0 py-1">
                     <div className="relative h-4 w-full">
-                      {months.map((m, i) => (
-                        <div
-                          key={i}
-                          className="absolute top-0 flex h-4 items-center justify-center border-l border-zinc-200 text-[10px] uppercase tracking-wide text-zinc-500"
-                          style={{ left: `${m.left}%`, width: `${m.width}%` }}
-                        >
-                          {m.label}
-                        </div>
-                      ))}
+                      {(() => {
+                        // Skip labels when months are too narrow to render legibly.
+                        const minWidthPct = 100 / 18; // roughly ≥18 months → show every other
+                        const stride = months.length > 18 ? 3 : months.length > 12 ? 2 : 1;
+                        return months.map((m, i) => (
+                          <div
+                            key={i}
+                            className="absolute top-0 flex h-4 items-center justify-center border-l border-zinc-200 text-[10px] tracking-wide text-zinc-500"
+                            style={{ left: `${m.left}%`, width: `${m.width}%` }}
+                          >
+                            {i % stride === 0 && m.width >= minWidthPct ? m.label : ""}
+                          </div>
+                        ));
+                      })()}
                     </div>
                   </th>
                 </tr>
@@ -683,7 +689,7 @@ export function BlockBody({
                         </div>
                       </td>
                       <td className="px-2 py-1.5 text-right align-middle text-zinc-700 whitespace-nowrap">
-                        {formatDurationHuman(stageDays, lang)}
+                        {formatDurationCompact(stageDays, lang)}
                       </td>
                       <td className="px-0 py-1.5">
                         <div className="relative h-4 w-full">
@@ -720,7 +726,7 @@ export function BlockBody({
           {live?.consultants?.length ? (
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
+                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
                   <th className="py-1">{L.discipline}</th>
                   <th className="py-1">{L.consultant}</th>
                   <th className="py-1 text-right">{L.fees}</th>
@@ -786,7 +792,7 @@ export function BlockBody({
             <tr key={s.id} className="border-b border-zinc-200 bg-zinc-50">
               <td
                 colSpan={2}
-                className="py-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-700"
+                className="py-1 text-[11px] font-semibold tracking-wide text-zinc-700"
                 style={pad}
               >
                 {label}
@@ -811,7 +817,7 @@ export function BlockBody({
           {selfStages.length ? (
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
+                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
                   <th className="py-1">{L.phase}</th>
                   <th className="py-1 text-right">{L.fees}</th>
                 </tr>
@@ -850,7 +856,7 @@ export function BlockBody({
           {live?.paymentInvoices?.length ? (
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
+                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
                   <th className="py-1 w-20">{L.invoiceCol}</th>
                   <th className="py-1 w-24">{L.dateCol}</th>
                   <th className="py-1">{L.description}</th>
