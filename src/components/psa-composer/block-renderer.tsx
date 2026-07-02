@@ -634,7 +634,7 @@ export function BlockBody({
           <div className="mb-2 text-xs text-zinc-500">
             {parent.code ? `${parent.code} — ` : ""}{parent.name} ·{" "}
             {formatDatePT(start.toISOString(), lang)} → {formatDatePT(end.toISOString(), lang)} ·{" "}
-            {totalDays} {L.daysUnit}
+            {formatDurationHuman(totalDays, lang)}
           </div>
           <div className="overflow-hidden rounded border border-zinc-200">
             <table className="w-full border-collapse text-xs">
