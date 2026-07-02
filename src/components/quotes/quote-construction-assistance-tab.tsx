@@ -70,6 +70,19 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
     return m;
   }, [stages]);
 
+  /** Map: resource_id → sale hourly rate (pm_resources.hourly_rate). */
+  const resourceRateById = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const r of resources) m.set(r.id, Number(r.hourly_rate) || 0);
+    return m;
+  }, [resources]);
+
+  const resourceById = useMemo(() => {
+    const m = new Map<string, (typeof resources)[number]>();
+    for (const r of resources) m.set(r.id, r);
+    return m;
+  }, [resources]);
+
   const [draft, setDraft] = useState<null | Partial<QuoteSiteTrip>>(null);
 
   function startAdd() {
@@ -79,6 +92,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       price_per_km: 0.36,
       trip_hours: 0,
       resource_id: null,
+      resource_ids: [],
       resource_hourly_rate: 0,
       frequency_mode: "per_month",
       frequency_value: 2,
@@ -89,13 +103,15 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
 
   async function saveDraft() {
     if (!draft) return;
+    const ids = draft.resource_ids ?? [];
     await upsert.mutateAsync({
       quote_id: quoteId,
       label: draft.label ?? "Site trip",
       km: Number(draft.km) || 0,
       price_per_km: Number(draft.price_per_km) || 0,
       trip_hours: Number(draft.trip_hours) || 0,
-      resource_id: draft.resource_id ?? null,
+      resource_id: ids[0] ?? null,
+      resource_ids: ids,
       resource_hourly_rate: Number(draft.resource_hourly_rate) || 0,
       frequency_mode: (draft.frequency_mode as QuoteSiteTripFrequencyMode) ?? "per_month",
       frequency_value: Number(draft.frequency_value) || 0,
@@ -106,15 +122,22 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
   }
 
   async function patch(trip: QuoteSiteTrip, changes: Partial<QuoteSiteTrip>) {
-    await upsert.mutateAsync({ id: trip.id, ...changes });
+    // Keep legacy resource_id in sync with the first resource_ids entry
+    // whenever the caller updates the multi-resource list.
+    const next: Partial<QuoteSiteTrip> = { ...changes };
+    if (changes.resource_ids) {
+      next.resource_id = changes.resource_ids[0] ?? null;
+    }
+    await upsert.mutateAsync({ id: trip.id, ...next });
   }
 
   // ---- totals ----
   const rows = trips.map((t) => {
     const stage = t.stage_id ? stageById.get(t.stage_id) ?? null : null;
     const months = stageDurationMonths(stage?.start_date, stage?.end_date);
-    const cost = computeTripCost(t, months);
-    return { trip: t, stage, months, cost };
+    const cost = computeTripCost(t, months, resourceRateById);
+    const effectiveRate = computeTripHourlyRate(t, resourceRateById);
+    return { trip: t, stage, months, cost, effectiveRate };
   });
   const grandTotal = rows.reduce((s, r) => s + r.cost.totalCost, 0);
 
