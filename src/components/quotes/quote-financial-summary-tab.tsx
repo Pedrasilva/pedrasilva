@@ -186,6 +186,7 @@ export function QuoteFinancialSummaryTab({
     timeBasedSettings,
     feeSourceMode,
     stages,
+    supplierMarkups: markupsQ.data,
   });
 
   const band = marginBand(summary.effectiveMargin);
