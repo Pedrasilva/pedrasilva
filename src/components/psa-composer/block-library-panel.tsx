@@ -42,6 +42,62 @@ export function BlockLibraryPanel({
   const lastOrder = sorted.length ? sorted[sorted.length - 1].sort_order : 0;
   const afterOrder = selectedBlock ? selectedBlock.sort_order : lastOrder;
 
+  const manualEntries: PsaLibraryEntry[] = [
+    {
+      id: "custom",
+      kind: "custom_text",
+      label: "Texto Livre",
+      default_title: "Novo bloco",
+      default_content_rich: { text: "" },
+      default_source_type: "manual",
+      default_source_ref: {},
+      default_contract_relevance: "proposal_only",
+      sort_hint: 999,
+      is_system: false,
+    },
+    {
+      id: "gantt-partial",
+      kind: "gantt_partial",
+      label: "Gantt Parcial",
+      default_title: "Cronograma — Fase",
+      default_content_rich: {},
+      default_source_type: "live_quote",
+      default_source_ref: {},
+      default_contract_relevance: "proposal_only",
+      sort_hint: 999,
+      is_system: false,
+    },
+    {
+      id: "supplier-fee-table",
+      kind: "supplier_fee_table",
+      label: "Honorários Fornecedores",
+      default_title: "Honorários — Fornecedores",
+      default_content_rich: {},
+      default_source_type: "live_quote",
+      default_source_ref: {},
+      default_contract_relevance: "proposal_only",
+      sort_hint: 999,
+      is_system: false,
+    },
+    {
+      id: "page-break",
+      kind: "page_break",
+      label: "Quebra de Página",
+      default_title: "Quebra de Página",
+      default_content_rich: {},
+      default_source_type: "manual",
+      default_source_ref: {},
+      default_contract_relevance: "both",
+      sort_hint: 999,
+      is_system: false,
+    },
+  ];
+  const filteredManual = manualEntries.filter((l) =>
+    !q ? true : l.label.toLowerCase().includes(q.toLowerCase()),
+  );
+
+
+
 
   function pickNextStageId(): string | undefined {
     const stages = (live.data?.stages ?? []).filter(
