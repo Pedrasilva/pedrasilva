@@ -147,7 +147,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
   const [newSucc, setNewSucc] = useState<{ succ: string; type: QuoteDepType; lag: string }>(
     { succ: "", type: "FS", lag: "0" },
   );
-  const [newAlloc, setNewAlloc] = useState({ resource_id: "", pct: "100", hpd: "8" });
+  const [newAlloc, setNewAlloc] = useState({ resource_id: "", pct: "75", hpd: "6" });
 
   if (!stage) {
     return (
