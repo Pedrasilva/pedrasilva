@@ -792,7 +792,7 @@ export function BlockBody({
           rows.push(
             <tr key={s.id} className="border-b border-zinc-200 bg-zinc-50">
               <td
-                colSpan={2}
+                colSpan={3}
                 className="py-1 text-[11px] font-semibold tracking-wide text-zinc-700"
                 style={pad}
               >
@@ -806,7 +806,8 @@ export function BlockBody({
             rows.push(
               <tr key={`${s.id}-subtotal`} className="font-semibold">
                 <td className="py-1" />
-                <td className="py-1 text-right border-t border-zinc-400">{formatCurrencyEUR(subtotal, lang)}</td>
+                <td className="py-1" />
+                <td className="py-1 text-right border-t border-zinc-400 whitespace-nowrap">{formatCurrencyEUR(subtotal, lang)}</td>
               </tr>,
             );
           }
@@ -814,7 +815,8 @@ export function BlockBody({
           rows.push(
             <tr key={s.id} className="border-b border-zinc-100">
               <td className="py-1" style={pad}>{label}</td>
-              <td className="py-1 text-right">{formatCurrencyEUR(Number(s.fee) || 0, lang)}</td>
+              <td className="py-1 text-right whitespace-nowrap">{formatCurrencyEUR(Number(s.fee) || 0, lang)}</td>
+              <td className="py-1" />
             </tr>,
           );
         }
@@ -839,7 +841,8 @@ export function BlockBody({
                 {rows}
                 <tr className="font-semibold">
                   <td className="py-1">{L.totalArchitecture}</td>
-                  <td className="py-1 text-right">{formatCurrencyEUR(total, lang)}</td>
+                  <td className="py-1" />
+                  <td className="py-1 text-right whitespace-nowrap">{formatCurrencyEUR(total, lang)}</td>
                 </tr>
               </tbody>
             </table>
