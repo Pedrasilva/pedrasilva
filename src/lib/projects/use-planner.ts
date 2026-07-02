@@ -768,6 +768,7 @@ export function useCreateAllocation() {
       end_date: string;
       hours_per_day: number;
       projectId: string;
+      allocation_percentage?: number | null;
     }): Promise<AllocationWithResource> => {
       const { projectId: _ignore, ...payload } = input;
       const { data, error } = await supabase
