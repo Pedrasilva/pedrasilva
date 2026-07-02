@@ -202,9 +202,13 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
       const parsedPct = parseDecimal(pctText);
       const hoursToSave = parsedHours == null ? hours : Math.max(0, Math.min(24, parsedHours));
       const pctToSave = parsedPct == null ? pct : Math.max(0, Math.min(100, parsedPct));
+      // Enforce stage-boundary invariant at save time.
+      const clampedStart = clampToStage(start);
+      const clampedEnd = clampToStage(end);
+      const safeStart = clampedStart > clampedEnd ? clampedEnd : clampedStart;
       const patch: Parameters<typeof adapter.updateAllocation>[0]["patch"] = showStatusToggle
-        ? { start_date: start, end_date: end, hours_per_day: hoursToSave, status }
-        : { start_date: start, end_date: end, hours_per_day: hoursToSave };
+        ? { start_date: safeStart, end_date: clampedEnd, hours_per_day: hoursToSave, status }
+        : { start_date: safeStart, end_date: clampedEnd, hours_per_day: hoursToSave };
       if (showPercentage) {
         patch.allocation_percentage = pctToSave;
       }
