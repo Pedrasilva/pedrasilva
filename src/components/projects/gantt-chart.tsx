@@ -780,10 +780,9 @@ export function GanttChart({
       .catch((err: unknown) => toast.error((err as Error).message));
   }
 
-  // Header band heights — months (h-7=28) + days/weeks/quarters band.
-  // Day band: h-9 (36) when dayWidth ≥ 14, otherwise h-5 (20).
-  const headerHeight = 28 + (dayWidth >= 14 ? 36 : 20);
-  const milestonesHeight = milestones && milestones.length > 0 ? 32 : 0;
+  // Header band heights — top tier (h-7 = 28) + bottom tier when present.
+  const bottomBandH = headerTier === "monthDay" ? 36 : headerTier === "yearOnly" ? 0 : 20;
+  const headerHeight = 28 + bottomBandH;
 
   // Dependency labels for the WBS "Dep." column: "<predWbs>FS+2d".
   const depLabels = useMemo(() => {
