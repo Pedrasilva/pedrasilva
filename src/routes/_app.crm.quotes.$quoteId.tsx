@@ -77,6 +77,18 @@ type FullQuote = FeeProposal & {
   project_fee_calculation?: unknown;
 };
 
+const quoteWorkspaceStepKey = (quoteId: string) => `psa.quoteWorkspaceStep.${quoteId}`;
+
+function isQuoteStep(value: unknown): value is QuoteStep {
+  return value === "estimate" || value === "content" || value === "publish";
+}
+
+function readSavedQuoteStep(quoteId: string): QuoteStep {
+  if (typeof window === "undefined") return "estimate";
+  const saved = window.sessionStorage.getItem(quoteWorkspaceStepKey(quoteId));
+  return isQuoteStep(saved) ? saved : "estimate";
+}
+
 function QuoteDetail() {
   const { t } = useTranslation("crm");
   const { quoteId } = Route.useParams();
@@ -735,8 +747,17 @@ function QuoteDetail() {
   // Linear workflow state — orchestration only. All underlying tabs and
   // components below are preserved unchanged; the stepper just filters
   // which secondary tabs are surfaced per step.
-  const [step, setStep] = useState<QuoteStep>("estimate");
+  const [step, setStep] = useState<QuoteStep>(() => readSavedQuoteStep(quoteId));
   const [activeTab, setActiveTab] = useState<string>("overview");
+
+  useEffect(() => {
+    setStep(readSavedQuoteStep(quoteId));
+  }, [quoteId]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.sessionStorage.setItem(quoteWorkspaceStepKey(quoteId), step);
+  }, [quoteId, step]);
 
   // Sync the active tab whenever the workflow step changes so the visible
   // tab triggers and the rendered TabsContent stay consistent. Without

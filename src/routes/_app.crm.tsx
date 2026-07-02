@@ -24,14 +24,13 @@ function CRMLayout() {
 
   useEffect(() => {
     if (loading) {
-      setChecked(false);
       return;
     }
     setChecked(true);
     if (!allowed) navigate({ to: "/" });
   }, [loading, allowed, navigate]);
 
-  if (loading || !checked || !allowed) {
+  if (!checked || (!loading && !allowed)) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
         {t("loading")}
