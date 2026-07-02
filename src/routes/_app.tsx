@@ -49,7 +49,10 @@ function AppLayout() {
     setMobileOpen(false);
   }, [loc.pathname]);
 
-  if (loading || !session) {
+  // Keep the app shell mounted during transient auth rechecks. Unmounting the
+  // shell resets local route state, which is especially disruptive in the CRM
+  // quote workspace.
+  if (!session) {
     return (
       <div
         className="flex min-h-screen items-center justify-center text-sm text-muted-foreground"
