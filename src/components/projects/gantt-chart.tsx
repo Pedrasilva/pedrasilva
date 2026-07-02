@@ -1905,7 +1905,13 @@ export function GanttChart({
             const exitX = d.type === "FS" || d.type === "FF" ? fromX + 12 : fromX - 12;
             const approachX = d.type === "FS" || d.type === "SS" ? toX - 12 : toX + 12;
             const midY = (fromY + toY) / 2;
-            const path = `M ${fromX} ${fromY} L ${exitX} ${fromY} L ${exitX} ${midY} L ${approachX} ${midY} L ${approachX} ${toY} L ${toX} ${toY}`;
+            // FF: draw a straight vertical line at the successor's end so the
+            // arrowhead points up/down. Predecessor connects with a short
+            // horizontal stub if the two endpoints are not aligned.
+            const path =
+              d.type === "FF"
+                ? `M ${fromX} ${fromY} L ${toX} ${fromY} L ${toX} ${toY}`
+                : `M ${fromX} ${fromY} L ${exitX} ${fromY} L ${exitX} ${midY} L ${approachX} ${midY} L ${approachX} ${toY} L ${toX} ${toY}`;
             const strokeColor =
               d.type === "FS"
                 ? "var(--color-primary)"
@@ -1914,9 +1920,9 @@ export function GanttChart({
                 : d.type === "FF"
                 ? "var(--color-muted-foreground)"
                 : "var(--color-destructive)";
-            // Label at the horizontal mid-segment.
-            const labelX = (exitX + approachX) / 2;
-            const labelY = midY;
+            // Label position: FF sits by the vertical drop, others at the horizontal mid-segment.
+            const labelX = d.type === "FF" ? toX : (exitX + approachX) / 2;
+            const labelY = d.type === "FF" ? (fromY + toY) / 2 : midY;
             const lagText =
               d.lag_days === 0
                 ? ""
