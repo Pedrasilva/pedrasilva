@@ -270,6 +270,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                         <ResourceMultiSelect
                           selected={trip.resource_ids ?? []}
                           resources={resources}
+                          rateById={resourceRateById}
                           onChange={(ids) => patch(trip, { resource_ids: ids })}
                         />
                       </TableCell>
