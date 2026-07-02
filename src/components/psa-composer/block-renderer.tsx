@@ -670,9 +670,9 @@ export function BlockBody({
                     0.8,
                     ((sEnd - sStart) / span) * 100,
                   );
-                  const weeks = Math.max(
+                  const stageDays = Math.max(
                     1,
-                    Math.round((sEnd - sStart) / (86400000 * 7)),
+                    Math.round((sEnd - sStart) / 86400000),
                   );
                   return (
                     <tr key={s.id} className="border-b border-zinc-100 last:border-0">
@@ -683,7 +683,7 @@ export function BlockBody({
                         </div>
                       </td>
                       <td className="px-2 py-1.5 text-right align-middle text-zinc-700 whitespace-nowrap">
-                        {weeks} {weeks === 1 ? L.weekShort : L.weeksShort}
+                        {formatDurationHuman(stageDays, lang)}
                       </td>
                       <td className="px-0 py-1.5">
                         <div className="relative h-4 w-full">
