@@ -103,6 +103,7 @@ export function QuoteFinancialSummaryTab({
   const stagesQ = useQuoteStages(quoteId);
   const allocsQ = useQuoteAllocations(quoteId);
   const extQ = useQuoteExternalServices(quoteId);
+  const markupsQ = useQuoteSupplierMarkups(quoteId);
 
   // Fetch quote-level fields needed for the time-based / retainer rollup
   // (so the summary is no longer empty for those workflows).
