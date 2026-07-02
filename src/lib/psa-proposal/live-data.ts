@@ -445,6 +445,22 @@ export function useLiveQuoteSnapshot(
         });
       }
 
+      // Per-supplier admin markup (applied to client-billed supplier prices).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: supplierMarkupRows } = await (supabase as any)
+        .from("quote_supplier_markups")
+        .select("supplier_company_id,supplier_id,supplier_label,markup_pct")
+        .eq("quote_id", quoteId!);
+      const supplierMarkups: SupplierMarkupRow[] = (
+        (supplierMarkupRows ?? []) as SupplierMarkupRow[]
+      ).map((r) => ({
+        supplier_company_id: r.supplier_company_id ?? null,
+        supplier_id: r.supplier_id ?? null,
+        supplier_label: r.supplier_label ?? null,
+        markup_pct: Number(r.markup_pct) || 0,
+      }));
+
+
       const { data: pay } = await supabase
         .from("quote_payment_schedule_items")
         .select(
