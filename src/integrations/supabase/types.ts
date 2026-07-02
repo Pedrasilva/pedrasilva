@@ -7121,6 +7121,7 @@ export type Database = {
           quote_id: string
           resource_hourly_rate: number
           resource_id: string | null
+          resource_ids: string[]
           sort_order: number
           stage_id: string | null
           trip_hours: number
@@ -7138,6 +7139,7 @@ export type Database = {
           quote_id: string
           resource_hourly_rate?: number
           resource_id?: string | null
+          resource_ids?: string[]
           sort_order?: number
           stage_id?: string | null
           trip_hours?: number
@@ -7155,6 +7157,7 @@ export type Database = {
           quote_id?: string
           resource_hourly_rate?: number
           resource_id?: string | null
+          resource_ids?: string[]
           sort_order?: number
           stage_id?: string | null
           trip_hours?: number
