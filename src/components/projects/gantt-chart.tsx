@@ -13,6 +13,7 @@ import { Trash2, GripVertical, AlertTriangle, CalendarOff, Info } from "lucide-r
 import { allocationOverload, buildLoadMap } from "@/lib/projects/overload";
 import { leaveHoursInRange, type LeaveInterval } from "@/lib/projects/leave-capacity";
 import { useResourceSchedules, buildDailyLimitMap, dailyHoursFor } from "@/lib/projects/use-resource-schedules";
+import { snapToWorkdayForward, snapToWorkdayBackward } from "@/lib/projects/workday-snap";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -480,7 +481,7 @@ export function GanttChart({
       });
       return;
     }
-    const days = Math.round(dx / dayWidth);
+    let days = Math.round(dx / dayWidth);
     if (days === 0) {
       setDraftDates((m) => {
         const next = new Map(m);
@@ -506,6 +507,29 @@ export function GanttChart({
     } else if (drag.type === "resize-r" || drag.type === "stage-resize-r") {
       const en = addDays(origEnd, days);
       if (en >= origStart) newEnd = format(en, "yyyy-MM-dd");
+    }
+
+    // Snap to working days: stages/allocations must not start on a weekend
+    // or on a Portuguese national holiday. Start dates snap FORWARD to the
+    // next working day (so a Saturday drop lands on Monday); end dates snap
+    // BACKWARD so a stage never ends on a non-working day either.
+    if (drag.type === "move" || drag.type === "stage-move") {
+      const snappedStart = snapToWorkdayForward(newStart, holidaySet);
+      const delta = differenceInCalendarDays(parseISO(snappedStart), parseISO(newStart));
+      if (delta !== 0) {
+        newStart = snappedStart;
+        newEnd = format(addDays(parseISO(newEnd), delta), "yyyy-MM-dd");
+        days += delta;
+      }
+      // Also pull the end back off a non-working day (rare when durations
+      // straddle a holiday), keeping the whole window in workdays.
+      newEnd = snapToWorkdayBackward(newEnd, holidaySet);
+    } else if (drag.type === "resize-l" || drag.type === "stage-resize-l") {
+      newStart = snapToWorkdayForward(newStart, holidaySet);
+      if (newStart > newEnd) newStart = newEnd;
+    } else if (drag.type === "resize-r" || drag.type === "stage-resize-r") {
+      newEnd = snapToWorkdayBackward(newEnd, holidaySet);
+      if (newEnd < newStart) newEnd = newStart;
     }
 
     // Clamp allocation drags inside the parent stage boundary.
@@ -914,6 +938,8 @@ export function GanttChart({
             {Array.from({ length: totalDays }).map((_, i) => {
               const d = addDays(origin, i);
               const isWeek = isWeekend(d);
+              const iso = format(d, "yyyy-MM-dd");
+              const isHol = holidaySet?.has(iso) ?? false;
               const isMonStart = startOfWeek(d, { weekStartsOn: 1 }).getDate() === d.getDate();
               const isToday = differenceInCalendarDays(d, today) === 0;
               const weekday = format(d, "EEEEE", { locale: dateLocale });
@@ -921,9 +947,14 @@ export function GanttChart({
                 <div
                   key={i}
                   className={`relative flex flex-col items-center justify-center gap-0 leading-none ${
-                    isWeek ? "bg-muted/30 text-muted-foreground/60" : "text-muted-foreground"
+                    isHol
+                      ? "bg-muted-foreground/25 text-muted-foreground/70"
+                      : isWeek
+                        ? "bg-muted/40 text-muted-foreground/60"
+                        : "text-muted-foreground"
                   } ${isMonStart ? "border-l border-canvas-line-strong" : "border-l border-border/20"}`}
                   style={{ width: dayWidth, minWidth: dayWidth }}
+                  title={isHol ? `Feriado — ${iso}` : undefined}
                 >
                   <span className="text-[9px] uppercase tracking-wide">{weekday}</span>
                   <span
@@ -1063,12 +1094,18 @@ export function GanttChart({
         })}
         {Array.from({ length: totalDays }).map((_, i) => {
           const d = addDays(origin, i);
-          if (!isWeekend(d)) return null;
+          const iso = format(d, "yyyy-MM-dd");
+          const isHol = holidaySet?.has(iso);
+          const isWe = isWeekend(d);
+          if (!isWe && !isHol) return null;
           return (
             <div
-              key={`we-${i}`}
-              className="pointer-events-none absolute top-0 h-full bg-muted/40"
+              key={`nw-${i}`}
+              className={`pointer-events-none absolute top-0 h-full ${
+                isHol ? "bg-muted-foreground/25" : "bg-muted/40"
+              }`}
               style={{ left: i * dayWidth, width: dayWidth }}
+              title={isHol ? `Feriado — ${iso}` : undefined}
             />
           );
         })}
