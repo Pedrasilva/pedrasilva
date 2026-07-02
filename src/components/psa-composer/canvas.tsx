@@ -256,6 +256,7 @@ export function ComposerCanvas({
                   toc={toc}
                   selected={selectedId === b.id}
                   quoteIdHint={quoteIdHint}
+                  lang={lang}
                   onSelect={() => onSelect(b.id)}
                   onPatchContent={(patch) =>
                     update.mutate({
