@@ -497,7 +497,7 @@ export function useLiveQuoteSnapshot(
         const stageName = s?.name ?? "";
         const ds = fmtDate(dateFor(p));
         switch (p.trigger_type) {
-          case "project_start": return `${L.atProjectStart}${ds ? ` (${ds})` : ""}`;
+          case "project_start": return `${L.downpaymentReceived}${ds ? ` (${ds})` : ""}`;
           case "stage_start": return stageName ? `${L.atStartOf} ${stageName}${ds ? ` (${ds})` : ""}` : `${L.atStartOfStage}${ds ? ` (${ds})` : ""}`;
           case "stage_end": return stageName ? `${L.uponCompletionOf} ${stageName}${ds ? ` (${ds})` : ""}` : `${L.uponCompletionOfStage}${ds ? ` (${ds})` : ""}`;
           case "manual_date": return `${L.onDate} ${ds || L.dateTBD}`;
