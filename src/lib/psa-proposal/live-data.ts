@@ -527,21 +527,25 @@ export function useLiveQuoteSnapshot(
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const inflows = ((pay ?? []) as any[]).filter(
-        (p) => (p.direction ?? "inflow") === "inflow" && p.trigger_type !== "project_start",
+        (p) => (p.direction ?? "inflow") === "inflow",
       );
       type Invoice = { key: string; plannedDate: string; items: any[]; paymentTerms: string | null };
       const invoiceMap = new Map<string, Invoice>();
       const orderKeys: string[] = [];
       for (const it of inflows) {
         const d = dateFor(it);
-        const ym = d.length >= 7 ? d.slice(0, 7) : d;
-        const key = `m:${ym}`;
+        // Down payments (project_start) get their own invoice on the exact
+        // project-start date, not folded into the first month's invoice.
+        const isDownpayment = it.trigger_type === "project_start";
+        const key = isDownpayment
+          ? `dp:${d}`
+          : `m:${d.length >= 7 ? d.slice(0, 7) : d}`;
         let inv = invoiceMap.get(key);
         if (!inv) {
           inv = { key, plannedDate: d, items: [], paymentTerms: it.payment_terms ?? null };
           invoiceMap.set(key, inv);
           orderKeys.push(key);
-        } else if (d > inv.plannedDate) {
+        } else if (!isDownpayment && d > inv.plannedDate) {
           inv.plannedDate = d;
         }
         inv.items.push(it);
