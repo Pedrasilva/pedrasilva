@@ -835,7 +835,108 @@ export function useLiveQuoteSnapshot(
         paymentInvoices,
         paymentInvoicesTotal,
         defaultVatRate,
+        ...(() => {
+          // Build siteTrips with pre-computed costs. Stage duration comes
+          // from the stage date range (working days ≈ (end - start) / 30.44).
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const stageArrFinal = (stages ?? []) as any[];
+          const stageByIdLocal = new Map<string, { id: string; name: string; start_date: string | null; end_date: string | null; parent_stage_id: string | null; sort_order: number | null }>();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          stageArrFinal.forEach((s: any) => stageByIdLocal.set(s.id, s));
+          const stageNumberMap = (() => {
+            const childrenBy = new Map<string | null, typeof stageArrFinal>();
+            for (const s of stageArrFinal) {
+              const p = s.parent_stage_id && stageByIdLocal.has(s.parent_stage_id) ? s.parent_stage_id : null;
+              const arr = childrenBy.get(p) ?? [];
+              arr.push(s);
+              childrenBy.set(p, arr);
+            }
+            for (const arr of childrenBy.values()) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              arr.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+            }
+            const m = new Map<string, string>();
+            const walk = (parentId: string | null, prefix: number[]) => {
+              const kids = childrenBy.get(parentId) ?? [];
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              kids.forEach((st: any, idx: number) => {
+                const path = [...prefix, idx + 1];
+                m.set(st.id, path.join("."));
+                walk(st.id, path);
+              });
+            };
+            walk(null, []);
+            return m;
+          })();
+          const stageMonthsFor = (stageId: string | null): number | null => {
+            if (!stageId) return null;
+            const s = stageByIdLocal.get(stageId);
+            if (!s?.start_date || !s?.end_date) return null;
+            const start = new Date(s.start_date).getTime();
+            const end = new Date(s.end_date).getTime();
+            if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return null;
+            return (end - start) / (1000 * 60 * 60 * 24) / 30.4375;
+          };
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const rows = ((siteTripsRaw ?? []) as any[]).map((t) => {
+            const ids: string[] = Array.isArray(t.resource_ids) ? t.resource_ids : [];
+            const manual = Number(t.resource_hourly_rate) || 0;
+            const hourlyRate =
+              manual > 0
+                ? manual
+                : ids.reduce((s, id) => s + (Number(resourceRateById.get(id)) || 0), 0);
+            const km = Number(t.km) || 0;
+            const ppk = Number(t.price_per_km) || 0;
+            const hrs = Number(t.trip_hours) || 0;
+            const perTripKmCost = km * ppk * 2;
+            const perTripHrCost = hrs * hourlyRate * 2;
+            const perTripTotal = perTripKmCost + perTripHrCost;
+            const stageMonths = stageMonthsFor(t.stage_id ?? null);
+            const override = t.duration_months_override;
+            const effectiveMonths =
+              override != null && Number.isFinite(Number(override)) && Number(override) > 0
+                ? Number(override)
+                : stageMonths;
+            const freqVal = Number(t.frequency_value) || 0;
+            const totalTrips =
+              t.frequency_mode === "per_month"
+                ? freqVal * (effectiveMonths ?? 0)
+                : freqVal;
+            const totalCost = perTripTotal * totalTrips;
+            const stage = t.stage_id ? stageByIdLocal.get(t.stage_id) : null;
+            const resourceNames = ids
+              .map((id) => resourceNameById.get(id))
+              .filter((n): n is string => !!n);
+            return {
+              id: String(t.id),
+              label: String(t.label ?? ""),
+              stageId: (t.stage_id ?? null) as string | null,
+              stageName: stage?.name ?? null,
+              stageNumber: t.stage_id ? stageNumberMap.get(t.stage_id) ?? null : null,
+              km,
+              pricePerKm: ppk,
+              tripHours: hrs,
+              hourlyRate,
+              frequencyMode: (t.frequency_mode === "per_month" ? "per_month" : "total") as "per_month" | "total",
+              frequencyValue: freqVal,
+              stageMonths,
+              durationMonthsOverride:
+                override != null && Number.isFinite(Number(override)) ? Number(override) : null,
+              totalTrips,
+              perTripKmCost,
+              perTripHrCost,
+              perTripTotal,
+              totalCost,
+              resourceNames,
+              notes: t.notes ?? null,
+            };
+          });
+          const siteTripsTotal = rows.reduce((s, r) => s + (r.totalCost || 0), 0);
+          return { siteTrips: rows, siteTripsTotal };
+        })(),
         missing,
+
       };
     },
   });
