@@ -42,6 +42,7 @@ export function QuotePlanningTab({
   const stagesQ = useQuoteStages(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
   const externalQ = useQuoteExternalServices(quoteId);
+  const markupsQ = useQuoteSupplierMarkups(quoteId);
   const upsertStage = useUpsertQuoteStage(quoteId);
 
   const allStages = stagesQ.data ?? [];
