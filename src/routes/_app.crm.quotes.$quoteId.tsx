@@ -886,6 +886,7 @@ function QuoteDetail() {
               {t("workspace.payment.headerUpdate")}
             </Button>
           )}
+          <QuoteBuildSettingsDialog quoteId={quoteId} disabled={isLocked && !isAdmin} />
           <QuoteWorkflowActions
             quoteId={quoteId}
             status={quote.quote_status}
