@@ -1156,6 +1156,9 @@ function QuoteDetail() {
             <TabsContent value="outgoing" className="mt-4">
               <QuotePaymentScheduleTab quoteId={quoteId} outgoingOnly />
             </TabsContent>
+            <TabsContent value="construction-assistance" className="mt-4">
+              <QuoteConstructionAssistanceTab quoteId={quoteId} />
+            </TabsContent>
 
 
 
