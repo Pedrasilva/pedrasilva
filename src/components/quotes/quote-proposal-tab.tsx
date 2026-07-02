@@ -59,6 +59,7 @@ import proposalMarkOa from "@/assets/proposal-mark-oa.png";
 
 import { formatEUR } from "@/lib/crm/types";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
+import { numberStages } from "@/lib/quotes/stage-numbering";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
