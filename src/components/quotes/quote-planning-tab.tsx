@@ -48,6 +48,7 @@ export function QuotePlanningTab({
   const allStages = stagesQ.data ?? [];
   const allocations = allocQ.data ?? [];
   const externalServices = externalQ.data ?? [];
+  const supplierMarkups = markupsQ.data ?? [];
 
   const retainerStages = useMemo(
     () => allStages.filter((s) => (s as { stage_kind?: string }).stage_kind === "retainer_monthly"),
@@ -63,6 +64,7 @@ export function QuotePlanningTab({
       allocations,
       externalServices,
       pricingMultiplier,
+      supplierMarkups,
     });
     return buildQuoteWarnings({
       stages,
@@ -70,7 +72,7 @@ export function QuotePlanningTab({
       externalServices,
       summary,
     });
-  }, [stages, allocations, externalServices, pricingMultiplier]);
+  }, [stages, allocations, externalServices, pricingMultiplier, supplierMarkups]);
 
   const handleAddRetainerStage = async () => {
     const anchor = defaultAnchorMonth();
