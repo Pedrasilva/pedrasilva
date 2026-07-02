@@ -164,6 +164,10 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       resource_hourly_rate: Number(draft.resource_hourly_rate) || 0,
       frequency_mode: (draft.frequency_mode as QuoteSiteTripFrequencyMode) ?? "per_month",
       frequency_value: Number(draft.frequency_value) || 0,
+      duration_months_override:
+        draft.duration_months_override == null || draft.duration_months_override === ("" as unknown as number)
+          ? null
+          : Number(draft.duration_months_override) || null,
       stage_id: draft.stage_id ?? null,
       notes: draft.notes ?? null,
     };
@@ -177,6 +181,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       resource_hourly_rate: payload.resource_hourly_rate,
       frequency_mode: payload.frequency_mode,
       frequency_value: payload.frequency_value,
+      duration_months_override: payload.duration_months_override,
       stage_id: payload.stage_id,
     };
     setDraft(null);
