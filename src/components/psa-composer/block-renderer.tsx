@@ -479,7 +479,7 @@ export function BlockBody({
             <tr key={s.id} className="border-b border-zinc-200 bg-zinc-50">
               <td
                 colSpan={4}
-                className="py-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-700"
+                className="proposal-print-heading py-1 text-sm font-semibold tracking-tight text-zinc-800"
                 style={pad}
               >
                 {label}
@@ -493,24 +493,32 @@ export function BlockBody({
               <td className="py-1" style={pad}>{label}</td>
               <td className="py-1">{formatDatePT(s.startDate, lang)}</td>
               <td className="py-1">{formatDatePT(s.endDate, lang)}</td>
-              <td className="py-1 text-right">{s.durationDays ?? "—"} {L.dayShort}</td>
+              <td className="py-1 text-right">{formatDurationHuman(s.durationDays, lang)}</td>
             </tr>,
           );
         }
       };
       for (const r of roots) walk(r, 0);
 
+      const introHtml = (block.content_rich?.html as string | undefined) ?? "";
+      const introText = (block.content_rich?.text as string | undefined) ?? "";
+
       return (
         <div>
           <H>{num}{block.title}</H>
+          {hasRichContent(introHtml, introText) && (
+            <div className="mb-3">
+              <RichContent html={introHtml} text={introText} tokenMap={tokenMap} />
+            </div>
+          )}
           {selfStages.length ? (
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
-                  <th className="py-1">{L.phase}</th>
-                  <th className="py-1">{L.start}</th>
-                  <th className="py-1">{L.end}</th>
-                  <th className="py-1 text-right">{L.duration}</th>
+                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
+                  <th className="py-1 font-semibold">{L.phase}</th>
+                  <th className="py-1 font-semibold">{L.start}</th>
+                  <th className="py-1 font-semibold">{L.end}</th>
+                  <th className="py-1 text-right font-semibold">{L.duration}</th>
                 </tr>
               </thead>
               <tbody>{rows}</tbody>
