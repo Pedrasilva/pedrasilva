@@ -417,7 +417,7 @@ export function BlockBody({
           </dl>
           {resourcesVisible && resourceRows.length > 0 && (
             <div className="mt-6">
-              <h3 className="mb-3 text-sm font-semibold tracking-tight text-zinc-900">
+              <h3 className="mb-2 text-sm font-semibold tracking-tight text-zinc-900">
                 {L.resourceBreakdown}
               </h3>
               <table className="w-full border-collapse text-sm leading-relaxed">
