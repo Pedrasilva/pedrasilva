@@ -43,6 +43,7 @@ export function QuoteExternalServicesTab({ quoteId }: { quoteId: string }) {
   const remove = useDeleteQuoteExternalService(quoteId);
   const stages = stagesQ.data ?? [];
   const services = servicesQ.data ?? [];
+  const numberedStages = useMemo(() => numberStages(stages), [stages]);
 
   const [draft, setDraft] = useState({
     description: "",
