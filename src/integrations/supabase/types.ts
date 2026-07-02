@@ -7539,6 +7539,68 @@ export type Database = {
           },
         ]
       }
+      quote_supplier_markups: {
+        Row: {
+          created_at: string
+          id: string
+          markup_pct: number
+          quote_id: string
+          supplier_company_id: string | null
+          supplier_id: string | null
+          supplier_label: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          markup_pct?: number
+          quote_id: string
+          supplier_company_id?: string | null
+          supplier_id?: string | null
+          supplier_label?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          markup_pct?: number
+          quote_id?: string
+          supplier_company_id?: string | null
+          supplier_id?: string | null
+          supplier_label?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_supplier_markups_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "fee_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_supplier_markups_supplier_company_id_fkey"
+            columns: ["supplier_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_supplier_markups_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_supplier_markups_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "pm_suppliers_directory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_supplier_phase_splits: {
         Row: {
           created_at: string

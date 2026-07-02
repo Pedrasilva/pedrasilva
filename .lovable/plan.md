@@ -1,129 +1,87 @@
+## Goal
+Let the user set a per-supplier administration markup on the quote. Each supplier used in the quote is listed with its name and an editable percentage (0% by default, can be 5%, 7%, or any value). The markup inflates that supplier's client-billed price everywhere prices are shown, without touching what we pay the supplier.
 
-# PSA Proposal Composer — Build Plan
-
-A CanvaDoc/Notion-style composer that reproduces the PSA Word proposal structure (cover → acceptance) with a 3-pane layout, draggable reusable blocks, live Quote Builder data references, and PDF export. Contract-aware data model now; Contract Composer later.
-
-There is significant existing proposal infrastructure in this repo (`proposal_blocks`, `quote_proposal_documents`, `quote_proposal_document_blocks`, `proposal-assembly`, `proposal-rendering`, `proposal-ontology`). Per your "start from scratch" instruction, I will build the Composer as a NEW, parallel surface that does NOT touch the existing builder. New tables, new routes, new components. Old proposals keep working untouched.
-
----
-
-## 1. Data model (new tables, additive)
+## Where the UI lives
+In the "Predefinições de faturação" card in `quote-payment-schedule-tab.tsx`, below the fee-source toggle. A new sub-card titled "Taxa de administração por fornecedor":
 
 ```
-psa_proposals
-  id, quote_id (nullable FK), title, status (draft/review/sent/accepted),
-  client_snapshot (jsonb, frozen on send), project_snapshot (jsonb),
-  vat_mode, language, created_by, created_at, updated_at, sent_at
-
-psa_proposal_blocks
-  id, proposal_id, sort_order,
-  block_type (cover|index|about|scope|stage_list|stage_item|timeline|
-              consultants|fee_table|construction_fee|payment_terms|
-              payment_schedule|additional_services|general|suspension|
-              exclusions|acceptance|custom_text|page_break),
-  title,
-  source_type (manual|library|live_quote|mixed|contract_clause),
-  source_ref (jsonb — e.g. {kind:"stage", stage_id:"…"}),
-  content_rich (jsonb — TipTap doc for manual/mixed body),
-  contract_relevance (proposal_only|contract_relevant|both|internal_only),
-  is_visible bool, is_locked bool,
-  created_at, updated_at
-
-psa_block_library
-  id, kind (matches block_type), label, default_title,
-  default_content_rich, default_source_type, default_source_ref,
-  default_contract_relevance, sort_hint, is_system bool
-
-psa_proposal_audit
-  id, proposal_id, actor, action, payload jsonb, created_at
+Taxa de administração por fornecedor
+────────────────────────────────────
+Fornecedor                    Markup
+Studio Acústica                [ 7 ] %
+Engº Silva – Estruturas        [ 0 ] %
+BOQ Consultores                [ 5 ] %
 ```
 
-Grants: `authenticated` full CRUD on proposals + blocks scoped by RLS (creator/admin); library is read-only for `authenticated`, write for admin.
+- Row list is derived from suppliers referenced by this quote's `quote_external_services` (deduped by `supplier_company_id` / `supplier_id`, falling back to the free-text supplier label).
+- Each input accepts 0–100, defaults to 0, debounced save.
+- Empty state ("No suppliers linked to this quote yet.") when the quote has no external services.
 
-Seed `psa_block_library` with the 17 default blocks in the PSA order.
-
-## 2. Live-data resolver
-
-Pure module `src/lib/psa-proposal/live-data.ts` that, given a `quote_id` and a `source_ref`, returns the resolved value. Reads from existing tables: `fee_proposals`, `quote_stages`, `quote_external_services`, `quote_payment_schedule_items`, `quote_supplier_phase_splits`, `crm_opportunities`. No writes. Returns a `{value, label, missing[]}` shape so the UI can show "missing data" badges.
-
-Resolvable refs:
-project_number, project_name, client, date, location, project_description, scope,
-stages[], stage(id).{duration,fee,hours}, total_architecture_fee, consultants[],
-supplier_fees, timeline_gantt, payment_schedule[], vat_status, monthly_fees,
-construction_stage_fees, exclusions.
-
-## 3. UI surfaces (all new — old builder untouched)
-
-New route: `/crm/quotes/$quoteId/composer` and standalone `/proposals/$proposalId/composer`.
+## Schema
+New table `quote_supplier_markups` — one row per (quote, supplier) with the admin markup pct.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ TopBar: title • status • Preview PDF • Export PDF • Save    │
-├──────────────┬──────────────────────────┬───────────────────┤
-│ Block Library│  Canvas (A4 pages)       │ Block Settings    │
-│ (search +    │  - PSA header/logo       │ - title           │
-│  17 defaults │  - numbered chapters     │ - source_type     │
-│  + custom)   │  - blocks vertically     │ - source_ref      │
-│  drag to add │  - footer + page #s      │ - content editor  │
-│              │  - drag to reorder       │ - relevance flag  │
-│              │  - dnd-kit               │ - visible / lock  │
-│              │                          │ - duplicate /del  │
-└──────────────┴──────────────────────────┴───────────────────┘
+id                   uuid pk
+quote_id             uuid  → fee_proposals.id  (cascade delete)
+supplier_company_id  uuid  nullable → companies.id
+supplier_id          uuid  nullable → pm_suppliers.id
+supplier_label       text  nullable  (fallback when neither id is present)
+markup_pct           numeric not null default 0  (0–100)
+created_at / updated_at
+unique (quote_id, supplier_company_id, supplier_id, supplier_label)
 ```
 
-Components (`src/components/psa-composer/`):
-- `composer-shell.tsx` — 3-pane layout
-- `block-library-panel.tsx`
-- `canvas.tsx` — paginated A4 view, dnd-kit reordering
-- `block-settings-panel.tsx`
-- `top-bar.tsx`
-- `blocks/` — one renderer per block_type (cover, index, about, scope, stage-list, stage-item, timeline, consultants, fee-table, construction-fee, payment-terms, payment-schedule, additional-services, general, suspension, exclusions, acceptance, custom-text, page-break)
-- `relevance-badge.tsx` — colour-coded proposal-only/contract-relevant/both/internal
+RLS mirrors `quote_external_services` (same "can edit this quote" rule). Grants for `authenticated` + `service_role`.
 
-Each block renders its `live_quote` refs through the resolver. Mixed blocks combine TipTap rich text with inline `<DataRef refId="…"/>` placeholders.
+Resolution key for a `quote_external_services` row → markup:
+1. match `supplier_company_id`, else
+2. match `supplier_id`, else
+3. match `supplier_label` (case-insensitive, trimmed), else
+4. 0%.
 
-## 4. PSA visual chrome
+## Pricing rule
+For every supplier line in the quote:
 
-- A4 page (`210mm × 297mm`), print CSS, white background, black serif body for marketing chapters, sans for tables.
-- Fixed header band: PSA logo (existing asset) + contact line on the right.
-- Footer: studio address + auto page numbers.
-- Numbered chapters (1. Cover excluded, 2. Index, …) computed from block order, skipping `cover`, `acceptance`, `page_break`.
-- Table-based fee/payment sections matching the current Word layout.
+```
+billed_sale_price = row.sale_price × (1 + markup_pct / 100)
+```
 
-## 5. Default proposal preload
+Cost side (`purchase_price`) unchanged — we still owe the supplier the raw amount. The delta lands in revenue and profit as PSA admin.
 
-When a proposal is created from a quote, server fn `psa_proposal_bootstrap` clones the 17 system library blocks in canonical order, attaches default `source_ref`s (live_quote where applicable), and copies the quote's client/project snapshot into `psa_proposals`.
+## Code surface
 
-## 6. PDF export
+### Rollup — single source of truth
+`src/lib/quotes/financial-rollups.ts`
+- `rollupQuote` gains `supplierMarkups?: Map<lookupKey, pct>` and, when passed, computes `external.value` as the sum of per-row `sale_price × qty × (1 + pct/100)` instead of the flat `rollupExternalServices`.
+- New helper `resolveSupplierMarkup(row, markups): number` implementing the 4-step lookup.
+- `external.cost`, `internal`, retainer branches unchanged.
+- `totalFee`, `total.profit`, `effectiveMargin` naturally pick up the marked-up revenue.
 
-Use existing print pipeline pattern (like `gantt-print-button`): open a `/composer/$id/print` route that renders the canvas in print-mode-only CSS, then `window.print()` with a small dialog offering "Preview" and "Export" (browser save-as-PDF). No server-side PDF dep added.
+### Hooks
+- `src/lib/quotes/use-quote-supplier-markups.ts` (new): `useQuoteSupplierMarkups(quoteId)`, `useUpsertQuoteSupplierMarkup(quoteId)`.
+- All existing consumers of `rollupQuote` (planning tab, payment schedule tab, composer live data, contract composition) load the markups map alongside external services and pass it in.
 
-## 7. Out of scope (explicit)
+### Consumers to update
+- `src/lib/psa-proposal/live-data.ts` — the `consultants` array exposes both `fee` (marked-up = client-billed) and `supplier_fee` (raw). Totals use `fee`.
+- `src/components/psa-composer/block-renderer.tsx` — `supplier_fee_table` / consultants totals + subtotal rows.
+- `src/components/quotes/payment-schedule-proposal-view.tsx` — composition-of-contract totals, supplier bucket subtotals in the client-facing view.
+- `src/components/quotes/quote-planning-tab.tsx` — warnings summary already funnels through `rollupQuote`, so passing the map is enough.
 
-- Contract Composer — not built. `contract_relevance` flag and `psa_proposal_blocks` shape are designed so a later `contracts_from_proposal` job can read `contract_relevant`/`both` blocks.
-- Migration of existing `quote_proposal_documents` data into the new composer. The two coexist.
-- E-signature.
+### Where markup does NOT apply
+- Outgoing payments to suppliers (`supplierBuckets` in the outflow view) stay at raw `sale_price` — that is what we actually pay them.
+- Internal allocations and retainers.
 
----
+### Settings component
+New `src/components/quotes/quote-supplier-markup-editor.tsx`:
+- Queries external services for the quote, groups by supplier identity, dedupes.
+- Left-joins to `quote_supplier_markups` for current values.
+- Renders a compact table (name + `%` input). Debounced upsert on change.
+- Invalidates: `quote-supplier-markups`, `quote-financials`, `quote-payment-schedule`, `psa-proposal-live`, `fee-proposal-summary`.
 
-## Technical details
+Embedded in `quote-payment-schedule-tab.tsx` inside the Predefinições card.
 
-Stack: TanStack Start routes, server functions in `src/lib/psa-proposal/*.functions.ts` with `requireSupabaseAuth`. TipTap for rich text (already common shadcn pattern; will install `@tiptap/react`, `@tiptap/starter-kit`). dnd-kit for drag/drop (already in repo for Gantt WBS).
-
-Phasing (so I can land it incrementally rather than one mega-commit):
-1. Migration + seed library (DB only).
-2. Composer shell + canvas + block list, no editing, with bootstrap from quote.
-3. Block settings panel + per-block live-data resolver + visibility/lock/duplicate/delete.
-4. PSA chrome (header/footer/numbering/A4) + print route + PDF export.
-5. Polish: missing-data badges, status workflow, audit log entries.
-
-I'll start at step 1 (migration) once you approve.
-
----
-
-## Questions before I start
-
-1. **Quote linkage**: should every proposal require a `quote_id`, or do you also want standalone proposals (no quote attached, all manual)?
-2. **Rich text engine**: TipTap OK? It's the standard match for the Canva/Notion feel. Alternative is a plain `<textarea>` per block.
-3. **PDF route**: browser-print (free, instant, matches Gantt PDF button you liked) vs. server-side renderer (heavier, pixel-perfect). I recommend browser-print for v1.
-4. **Existing proposals**: leave the old `/crm/quotes/$id` proposal builder fully intact and add the composer as a separate "Composer" tab/button — confirm?
+## Verification
+- Set 7% on one supplier → its client-billed subtotal in the composer / composition / payment schedule increases by 7%; totals reconcile; supplier owed amount in outflows unchanged.
+- Set 0% → identical to today.
+- Add a new supplier line for a supplier not yet in the markup table → treated as 0% until the user sets one.
+- Delete the supplier's last external-services line → editor row disappears; the markup row can stay (harmless) or be cleaned up on next edit.
