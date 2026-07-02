@@ -838,6 +838,7 @@ const LABELS_PT: ProposalLabels = {
   monthlyOf: "Mensalidade de",
   monthly: "Mensalidade",
   atProjectStart: "No início do projecto",
+  downpaymentReceived: "Adiantamento recebido",
   atStartOf: "No início de",
   atStartOfStage: "No início da fase",
   uponCompletionOf: "Na conclusão de",
