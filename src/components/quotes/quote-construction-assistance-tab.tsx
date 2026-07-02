@@ -411,6 +411,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                   <ResourceMultiSelect
                     selected={draft.resource_ids ?? []}
                     resources={resources}
+                    rateById={resourceRateById}
                     onChange={(ids) => setDraft({ ...draft, resource_ids: ids })}
                     fullWidth
                   />
