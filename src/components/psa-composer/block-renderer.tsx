@@ -839,7 +839,7 @@ export function BlockBody({
               <tbody>
                 {rows}
                 <tr className="font-semibold">
-                  <td className="py-1">{L.totalArchitecture}</td>
+                  <td className="py-1 text-right">{L.totalArchitecture}</td>
                   <td className="py-1 text-right">{formatCurrencyEUR(total, lang)}</td>
                 </tr>
               </tbody>
