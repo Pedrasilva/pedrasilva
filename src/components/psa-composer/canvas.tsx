@@ -158,6 +158,7 @@ export function ComposerCanvas({
   onReorder,
   quoteIdHint,
   styleSettings,
+  language,
 }: {
   proposalId: string;
   blocks: PsaProposalBlock[];
@@ -166,7 +167,9 @@ export function ComposerCanvas({
   onReorder: (next: PsaProposalBlock[]) => void;
   quoteIdHint: string | null;
   styleSettings?: import("@/lib/psa-proposal/types").PsaProposalStyleSettings;
+  language?: string | null;
 }) {
+  const lang = resolveProposalLang(language);
   const update = useUpdateBlock(proposalId);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
