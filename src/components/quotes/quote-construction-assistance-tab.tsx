@@ -632,7 +632,7 @@ function ResourceMultiSelect({
                 />
                 <span className="flex-1 truncate">{r.name}</span>
                 <span className="text-xs text-muted-foreground tabular-nums">
-                  {fmtMoney(Number(r.hourly_rate) || 0)}/h
+                  {fmtMoney(rateById?.get(r.id) ?? Number(r.hourly_rate) || 0)}/h
                 </span>
               </label>
             );
