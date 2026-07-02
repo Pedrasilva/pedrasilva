@@ -786,7 +786,8 @@ export function BlockBody({
       total = roots.reduce((acc, r) => acc + leafSum(r), 0);
 
       const rows: React.ReactNode[] = [];
-      const walk = (s: (typeof selfStages)[number], depth: number) => {
+      const walk = (s: (typeof feeStages)[number], depth: number) => {
+
         const kids = kidsOf.get(s.id) ?? [];
         const label = s.code ? `${s.code} — ${s.name}` : s.name;
         const pad = { paddingLeft: `${depth * 14}px` } as React.CSSProperties;
