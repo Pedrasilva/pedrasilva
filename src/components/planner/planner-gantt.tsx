@@ -1405,7 +1405,14 @@ export function ProjectGantt({ projectId, showCancelled = false, dayWidth: dayWi
     });
   };
 
-  const [zoom, setZoom] = useState<ZoomMode>("fit");
+  const [zoom, setZoom] = useState<ZoomMode>(() => {
+    if (typeof window === "undefined") return "fit";
+    const stored = window.sessionStorage.getItem(`planner.zoom.project.${projectId}`);
+    return (stored as ZoomMode) || "fit";
+  });
+  useEffect(() => {
+    try { window.sessionStorage.setItem(`planner.zoom.project.${projectId}`, zoom); } catch { /* ignore */ }
+  }, [zoom, projectId]);
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const [outlineWidth, setOutlineWidth] = useState<number>(() => {
