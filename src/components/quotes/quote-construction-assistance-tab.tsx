@@ -193,17 +193,6 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
     const next: Partial<QuoteSiteTrip> = { ...changes };
     if (changes.resource_ids) {
       next.resource_id = changes.resource_ids[0] ?? null;
-      // Auto-populate Sale €/h with the resource sum when the user hasn't
-      // typed a custom sale rate yet. Once set, we leave it alone so a manual
-      // override survives resource re-selection.
-      const currentSale = Number(trip.resource_hourly_rate) || 0;
-      if (currentSale === 0) {
-        const sum = changes.resource_ids.reduce(
-          (s, id) => s + (resourceRateById.get(id) ?? 0),
-          0,
-        );
-        if (sum > 0) next.resource_hourly_rate = sum;
-      }
     }
     await upsert.mutateAsync({ id: trip.id, ...next });
   }
