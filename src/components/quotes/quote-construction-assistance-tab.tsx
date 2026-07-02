@@ -184,7 +184,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {rows.map(({ trip, stage, months, cost }) => (
+                  {rows.map(({ trip, stage, months, cost, effectiveRate }) => (
                     <TableRow key={trip.id}>
                       <TableCell>
                         <Input
