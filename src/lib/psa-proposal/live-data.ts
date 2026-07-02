@@ -94,6 +94,29 @@ export interface LiveQuoteSnapshot {
   }>;
   paymentInvoicesTotal: { net: number; vat: number; total: number };
   defaultVatRate: number;
+  siteTrips: Array<{
+    id: string;
+    label: string;
+    stageId: string | null;
+    stageName: string | null;
+    stageNumber: string | null;
+    km: number;
+    pricePerKm: number;
+    tripHours: number;
+    hourlyRate: number;
+    frequencyMode: "per_month" | "total";
+    frequencyValue: number;
+    stageMonths: number | null;
+    durationMonthsOverride: number | null;
+    totalTrips: number;
+    perTripKmCost: number;
+    perTripHrCost: number;
+    perTripTotal: number;
+    totalCost: number;
+    resourceNames: string[];
+    notes: string | null;
+  }>;
+  siteTripsTotal: number;
   missing: string[];
 }
 
