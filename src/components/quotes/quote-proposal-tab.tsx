@@ -1812,12 +1812,14 @@ function LegacyProposalPreview({
   const { data: allocations = [] } = useQuoteAllocations(quoteId);
   const { data: external = [] } = useQuoteExternalServices(quoteId);
   const { data: schedule = [] } = useQuotePaymentSchedule(quoteId);
+  const { data: supplierMarkups } = useQuoteSupplierMarkups(quoteId);
   const { data: branding } = useFirmBranding();
 
   const summary = rollupQuote({
     allocations,
     externalServices: external,
     pricingMultiplier,
+    supplierMarkups,
   });
 
   const roleMap = new Map<
