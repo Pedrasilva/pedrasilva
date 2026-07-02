@@ -1920,9 +1920,9 @@ export function GanttChart({
                 : d.type === "FF"
                 ? "var(--color-muted-foreground)"
                 : "var(--color-destructive)";
-            // Label at the horizontal mid-segment.
-            const labelX = (exitX + approachX) / 2;
-            const labelY = midY;
+            // Label position: FF sits by the vertical drop, others at the horizontal mid-segment.
+            const labelX = d.type === "FF" ? toX : (exitX + approachX) / 2;
+            const labelY = d.type === "FF" ? (fromY + toY) / 2 : midY;
             const lagText =
               d.lag_days === 0
                 ? ""
