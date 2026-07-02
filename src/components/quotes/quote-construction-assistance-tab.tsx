@@ -40,6 +40,7 @@ import {
   type QuoteSiteTrip,
   type QuoteSiteTripFrequencyMode,
 } from "@/lib/quotes/use-quote-site-trips";
+import { numberStages } from "@/lib/quotes/stage-numbering";
 
 interface Props {
   quoteId: string;
