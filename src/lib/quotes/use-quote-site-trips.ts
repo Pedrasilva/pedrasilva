@@ -121,22 +121,22 @@ export function stageDurationMonths(
 }
 
 /**
- * Effective hourly rate for a trip =
- *   sum(sale €/h of every selected resource) + manual override (`resource_hourly_rate`).
- * Each resource on the trip contributes its default sale rate (return trip cost),
- * and the manual field stacks on top for per-diem, tooling, etc.
+ * Effective hourly rate for a trip.
+ *
+ * Default = sum of the sale €/h of every selected resource on the trip
+ * (each resource contributes its own €/h; a 2-person trip bills 2× the
+ * hourly cost). The manual override (`resource_hourly_rate`) replaces
+ * that sum when it is > 0 — used for per-diem, tooling, or a negotiated
+ * flat rate. When the manual field is 0, the resource sum is used.
  */
 export function computeTripHourlyRate(
   trip: Pick<QuoteSiteTrip, "resource_ids" | "resource_hourly_rate">,
   resourceRateById: Map<string, number>,
 ): number {
-  const ids = trip.resource_ids ?? [];
-  const resourceSum = ids.reduce(
-    (s, id) => s + (Number(resourceRateById.get(id)) || 0),
-    0,
-  );
   const manual = Number(trip.resource_hourly_rate) || 0;
-  return resourceSum + manual;
+  if (manual > 0) return manual;
+  const ids = trip.resource_ids ?? [];
+  return ids.reduce((s, id) => s + (Number(resourceRateById.get(id)) || 0), 0);
 }
 
 export function computeTripCost(
