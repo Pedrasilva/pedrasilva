@@ -350,11 +350,25 @@ export function AllocationEditor({ allocation, projectId, adapter, stageStart, s
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Label htmlFor="a-start" className="text-xs">Início</Label>
-              <Input id="a-start" type="date" value={start} onChange={(e) => setStart(e.target.value)} />
+              <Input
+                id="a-start"
+                type="date"
+                value={start}
+                min={stageStart}
+                max={stageEnd}
+                onChange={(e) => setStart(clampToStage(e.target.value))}
+              />
             </div>
             <div>
               <Label htmlFor="a-end" className="text-xs">Fim</Label>
-              <Input id="a-end" type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
+              <Input
+                id="a-end"
+                type="date"
+                value={end}
+                min={stageStart}
+                max={stageEnd}
+                onChange={(e) => setEnd(clampToStage(e.target.value))}
+              />
             </div>
           </div>
           {showPercentage ? (
