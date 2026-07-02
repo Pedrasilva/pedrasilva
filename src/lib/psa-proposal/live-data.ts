@@ -755,14 +755,11 @@ export function formatMonthShort(d: Date, lang: ProposalLang): string {
 }
 
 /**
- * Human-friendly duration formatter.
- * Adaptive compound output — always leads with days, adding weeks and/or
- * months in parentheses when the magnitude warrants it:
- * - ≤ 6 days   → "N days"
- * - 7–29 days  → "N days (~W weeks)"
- * - ≥ 30 days  → "N days (~W weeks · ~M months)"
- * Weeks/months are rounded (7-day weeks, 30-day months) and prefixed with ~
- * to signal the approximation.
+ * Single-unit duration formatter used across all proposal blocks.
+ * Rule:
+ * - ≤ 7 days           → days
+ * - > 7 days, ≤ 4 wks  → weeks
+ * - > 4 weeks          → months
  */
 export function formatDurationHuman(
   days: number | null | undefined,
@@ -771,37 +768,17 @@ export function formatDurationHuman(
   if (days == null || !isFinite(days)) return "—";
   const L = getProposalLabels(lang);
   const d = Math.max(0, Math.round(days));
-  const daysLabel = `${d} ${d === 1 ? L.dayShort : L.daysUnit}`;
-  if (d < 7) return daysLabel;
-  const w = Math.round(d / 7);
-  const weeksLabel = `~${w} ${w === 1 ? L.weekShort : L.weeksShort}`;
-  if (d < 30) return `${daysLabel} (${weeksLabel})`;
-  const m = Math.round(d / 30);
-  const monthsLabel = `~${m} ${m === 1 ? L.monthShort : L.monthsShort}`;
-  return `${daysLabel} (${weeksLabel} · ${monthsLabel})`;
-}
-
-/**
- * Compact single-unit duration for narrow columns (e.g. gantt row duration).
- * Picks the coarsest unit that still reads naturally:
- * - < 14 days → days
- * - < 60 days → weeks
- * - ≥ 60 days → months
- */
-export function formatDurationCompact(
-  days: number | null | undefined,
-  lang: ProposalLang,
-): string {
-  if (days == null || !isFinite(days)) return "—";
-  const L = getProposalLabels(lang);
-  const d = Math.max(0, Math.round(days));
-  if (d < 14) return `${d} ${d === 1 ? L.dayShort : L.daysUnit}`;
-  if (d < 60) {
+  if (d <= 7) return `${d} ${d === 1 ? L.dayShort : L.daysUnit}`;
+  if (d <= 28) {
     const w = Math.round(d / 7);
     return `${w} ${w === 1 ? L.weekShort : L.weeksShort}`;
   }
   const m = Math.max(1, Math.round(d / 30));
   return `${m} ${m === 1 ? L.monthShort : L.monthsShort}`;
 }
+
+// Backwards-compat alias: identical single-unit output.
+export const formatDurationCompact = formatDurationHuman;
+
 
 
