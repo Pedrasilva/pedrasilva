@@ -689,7 +689,7 @@ export function BlockBody({
                         </div>
                       </td>
                       <td className="px-2 py-1.5 text-right align-middle text-zinc-700 whitespace-nowrap">
-                        {formatDurationHuman(stageDays, lang)}
+                        {formatDurationCompact(stageDays, lang)}
                       </td>
                       <td className="px-0 py-1.5">
                         <div className="relative h-4 w-full">
