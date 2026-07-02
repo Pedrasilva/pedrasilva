@@ -750,6 +750,8 @@ export interface ProposalLabels {
   fees: string;
   totalArchitecture: string;
   totalSuppliers: string;
+  feeTableIntro: string;
+
   scheduleUnavailable: string;
   noFeesToShow: string;
   noPhasesDefined: string;
@@ -818,6 +820,9 @@ const LABELS_PT: ProposalLabels = {
   fees: "Honorários",
   totalArchitecture: "Total Arquitetura",
   totalSuppliers: "Total Fornecedores",
+  feeTableIntro:
+    "A proposta de honorários abaixo reflecte o âmbito de trabalho descrito, organizado por fase de projecto. Os valores apresentados são líquidos de IVA.",
+
   scheduleUnavailable: "Sem cronograma disponível.",
   noFeesToShow: "Sem honorários para apresentar.",
   noPhasesDefined: "Sem fases definidas no orçamento.",
@@ -888,6 +893,9 @@ const LABELS_EN: ProposalLabels = {
   fees: "Fees",
   totalArchitecture: "Total Architecture",
   totalSuppliers: "Total Suppliers",
+  feeTableIntro:
+    "The fee proposal below reflects the described scope of work, organised by project stage. Values are exclusive of VAT.",
+
   scheduleUnavailable: "No schedule available.",
   noFeesToShow: "No fees to display.",
   noPhasesDefined: "No stages defined in the quote.",

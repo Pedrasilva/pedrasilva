@@ -815,15 +815,9 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
+          <p className="mb-3 text-sm text-zinc-600">{L.feeTableIntro}</p>
           {feeStages.length ? (
-
             <table className="proposal-print-table w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
-                  <th className="py-1">{L.phase}</th>
-                  <th className="py-1 text-right">{L.fees}</th>
-                </tr>
-              </thead>
               <tbody>
                 {rows}
                 <tr className="font-semibold">
@@ -836,6 +830,7 @@ export function BlockBody({
             <Empty>{L.noFeesToShow}</Empty>
           )}
         </div>
+
       );
     }
 
