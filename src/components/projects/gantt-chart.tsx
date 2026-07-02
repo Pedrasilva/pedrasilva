@@ -783,6 +783,7 @@ export function GanttChart({
   // Header band heights — top tier (h-7 = 28) + bottom tier when present.
   const bottomBandH = headerTier === "monthDay" ? 36 : headerTier === "yearOnly" ? 0 : 20;
   const headerHeight = 28 + bottomBandH;
+  const milestonesHeight = milestones && milestones.length > 0 ? 32 : 0;
 
   // Dependency labels for the WBS "Dep." column: "<predWbs>FS+2d".
   const depLabels = useMemo(() => {
