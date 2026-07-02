@@ -876,7 +876,7 @@ export function BlockBody({
                   </React.Fragment>
                 ))}
                 <tr className="border-t-2 border-zinc-400 font-semibold">
-                  <td className="py-1" colSpan={3}>Total</td>
+                  <td className="py-1" colSpan={3}>{L.total}</td>
                   <td className="py-1 text-right tabular-nums">{formatCurrencyEUR(live.paymentInvoicesTotal.net, lang)}</td>
                   <td className="py-1 text-right tabular-nums text-zinc-500">{formatCurrencyEUR(live.paymentInvoicesTotal.vat, lang)}</td>
                   <td className="py-1 text-right tabular-nums">{formatCurrencyEUR(live.paymentInvoicesTotal.total, lang)}</td>
