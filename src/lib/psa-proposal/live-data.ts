@@ -594,6 +594,8 @@ export interface ProposalLabels {
   dayShort: string; // "d" / "d"
   weekShort: string; // "sem" / "wk"
   weeksShort: string; // "sems" / "wks"
+  monthShort: string; // "mês" / "mo"
+  monthsShort: string; // "meses" / "mos"
   daysUnit: string; // "dias" / "days"
   refPrefix: string; // "Ref." / "Ref."
   noDesignPhases: string;
