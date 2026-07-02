@@ -208,11 +208,12 @@ export function BlockBody({
   const selfStages = (live?.stages ?? []).filter((s) => s.isSelf);
 
   function fallback(blockType: string) {
-    const t = DEFAULT_TEXT[blockType];
+    const dict = lang === "en" ? DEFAULT_TEXT_EN : DEFAULT_TEXT_PT;
+    const t = dict[blockType];
     if (editable && onPatchContent) {
       return rich;
     }
-    return t ? <P>{t}</P> : <Empty>Sem conteúdo. Edite no painel direito.</Empty>;
+    return t ? <P>{t}</P> : <Empty>{L.emptyEditRight}</Empty>;
   }
 
 
