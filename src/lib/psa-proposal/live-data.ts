@@ -203,11 +203,32 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
       const { data: pay } = await supabase
         .from("quote_payment_schedule_items")
         .select(
-          "id,label,trigger_type,amount_value,expected_invoice_date,sort_order",
+          "id,label,trigger_type,amount_type,amount_value,expected_invoice_date,sort_order,stage_id,direction,vat_rate,supplier_company_id,supplier_id,supplier_label,payment_terms",
         )
         .eq("quote_id", quoteId!)
         .order("sort_order", { ascending: true, nullsFirst: false })
         .order("expected_invoice_date", { ascending: true, nullsFirst: false });
+
+      // Resolve names for supplier companies referenced by payment items too.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const paySupplierIds = Array.from(
+        new Set(
+          ((pay ?? []) as any[])
+            .map((p) => p.supplier_company_id)
+            .filter(Boolean),
+        ),
+      ) as string[];
+      const missingSupplierIds = paySupplierIds.filter((id) => !supplierNames.has(id));
+      if (missingSupplierIds.length) {
+        const { data: sups2 } = await supabase
+          .from("companies")
+          .select("id,nome")
+          .in("id", missingSupplierIds);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ((sups2 ?? []) as any[]).forEach((s) => {
+          if (s?.id && s?.nome) supplierNames.set(s.id, s.nome);
+        });
+      }
 
       if (!stages?.length) missing.push("stages");
       if (!pay?.length) missing.push("paymentSchedule");
