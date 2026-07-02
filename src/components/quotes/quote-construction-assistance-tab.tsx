@@ -234,7 +234,8 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     <TableHead className="text-right">€/km</TableHead>
                     <TableHead className="text-right">Hours</TableHead>
                     <TableHead>Resource</TableHead>
-                    <TableHead className="text-right">€/h</TableHead>
+                    <TableHead className="text-right">Resource €/h</TableHead>
+                    <TableHead className="text-right">Manual €/h</TableHead>
                     <TableHead>Frequency</TableHead>
                     <TableHead className="text-right">Trips</TableHead>
                     <TableHead className="text-right">€/trip</TableHead>
@@ -308,15 +309,23 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                               .map((id) => `${resourceById.get(id)?.name ?? "?"} ${fmtMoney(resourceRateById.get(id) ?? 0)}/h`)
                               .join(" + ")}`}
                           >
-                            {fmtMoney(effectiveRate)}
+                            {fmtMoney(
+                              (trip.resource_ids ?? []).reduce(
+                                (s, id) => s + (resourceRateById.get(id) ?? 0),
+                                0,
+                              ),
+                            )}
                           </span>
                         ) : (
-                          <NumberCell
-                            value={trip.resource_hourly_rate}
-                            onCommit={(v) => patch(trip, { resource_hourly_rate: v })}
-                            step="0.5"
-                          />
+                          <span className="text-muted-foreground tabular-nums">—</span>
                         )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <NumberCell
+                          value={trip.resource_hourly_rate}
+                          onCommit={(v) => patch(trip, { resource_hourly_rate: v })}
+                          step="0.5"
+                        />
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
@@ -389,7 +398,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
 
                   {rows.length > 0 && (
                     <TableRow>
-                      <TableCell colSpan={10} className="text-right font-semibold">
+                      <TableCell colSpan={11} className="text-right font-semibold">
                         Grand total
                       </TableCell>
                       <TableCell className="text-right font-semibold tabular-nums">
@@ -470,29 +479,29 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                   />
                 </Field>
                 <Field label="Resource €/h">
-                  {(draft.resource_ids?.length ?? 0) > 0 ? (
-                    <Input
-                      type="number"
-                      value={(draft.resource_ids ?? []).reduce(
-                        (s, id) => s + (resourceRateById.get(id) ?? 0),
-                        0,
-                      )}
-                      disabled
-                      title="Sum of selected resources' sale rate (€/h)"
-                    />
-                  ) : (
-                    <Input
-                      type="number"
-                      step="0.5"
-                      value={draft.resource_hourly_rate ?? 0}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          resource_hourly_rate: Number(e.target.value),
-                        })
-                      }
-                    />
-                  )}
+                  <Input
+                    type="number"
+                    value={(draft.resource_ids ?? []).reduce(
+                      (s, id) => s + (resourceRateById.get(id) ?? 0),
+                      0,
+                    )}
+                    disabled
+                    title="Sum of selected resources' sale rate (€/h)"
+                  />
+                </Field>
+                <Field label="Manual €/h">
+                  <Input
+                    type="number"
+                    step="0.5"
+                    value={draft.resource_hourly_rate ?? 0}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        resource_hourly_rate: Number(e.target.value),
+                      })
+                    }
+                    title="Additive €/h on top of the resource sale sum (per-diem, tooling, etc.)"
+                  />
                 </Field>
                 <Field label="Frequency">
                   <div className="flex gap-2">
