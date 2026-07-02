@@ -820,6 +820,9 @@ const LABELS_PT: ProposalLabels = {
   fees: "Honorários",
   totalArchitecture: "Total Arquitetura",
   totalSuppliers: "Total Fornecedores",
+  feeTableIntro:
+    "A proposta de honorários abaixo reflecte o âmbito de trabalho descrito, organizado por fase de projecto. Os valores apresentados são líquidos de IVA.",
+
   scheduleUnavailable: "Sem cronograma disponível.",
   noFeesToShow: "Sem honorários para apresentar.",
   noPhasesDefined: "Sem fases definidas no orçamento.",
