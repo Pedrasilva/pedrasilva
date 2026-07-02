@@ -79,11 +79,15 @@ export interface LiveQuoteSnapshot {
   missing: string[];
 }
 
-export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
+export function useLiveQuoteSnapshot(
+  quoteId: string | null | undefined,
+  lang: ProposalLang = "pt-PT",
+) {
   return useQuery({
     enabled: !!quoteId,
-    queryKey: ["psa-live-quote", quoteId],
+    queryKey: ["psa-live-quote", quoteId, lang],
     queryFn: async (): Promise<LiveQuoteSnapshot> => {
+      const L = getProposalLabels(lang);
       const missing: string[] = [];
 
       const { data: quote } = await supabase
