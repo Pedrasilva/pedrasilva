@@ -801,6 +801,16 @@ export function BlockBody({
             </tr>,
           );
           for (const k of kids) walk(k, depth + 1);
+          if (depth >= 1) {
+            const subtotal = leafSum(s);
+            const subtotalLabel = lang === "en" ? `${s.name} subtotal` : `Subtotal ${s.name}`;
+            rows.push(
+              <tr key={`${s.id}-subtotal`} className="border-b border-zinc-200 font-semibold">
+                <td className="py-1" style={pad}>{subtotalLabel}</td>
+                <td className="py-1 text-right">{formatCurrencyEUR(subtotal, lang)}</td>
+              </tr>,
+            );
+          }
         } else {
           rows.push(
             <tr key={s.id} className="border-b border-zinc-100">
@@ -810,20 +820,7 @@ export function BlockBody({
           );
         }
       };
-      for (const r of roots) {
-        walk(r, 0);
-        const kids = kidsOf.get(r.id) ?? [];
-        if (kids.length > 0) {
-          const subtotal = leafSum(r);
-          const subtotalLabel = lang === "en" ? `${r.name} subtotal` : `Subtotal ${r.name}`;
-          rows.push(
-            <tr key={`${r.id}-subtotal`} className="border-b border-zinc-200 font-semibold">
-              <td className="py-1 text-right">{subtotalLabel}</td>
-              <td className="py-1 text-right">{formatCurrencyEUR(subtotal, lang)}</td>
-            </tr>,
-          );
-        }
-      }
+      for (const r of roots) walk(r, 0);
 
       const feeIntroHtml = (block.content_rich?.html as string | undefined) ?? "";
       const feeIntroText = (block.content_rich?.text as string | undefined) ?? "";
