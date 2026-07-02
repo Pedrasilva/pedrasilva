@@ -505,6 +505,37 @@ export function GanttChart({
           });
         }
       }
+      // When resizing a stage bar, proportionally scale its child
+      // allocations so they always remain within the stage window.
+      if (drag.type === "stage-resize-l" || drag.type === "stage-resize-r") {
+        const stageObj = stages.find((s) => s.id === drag.id);
+        if (stageObj && stageObj.allocations.length > 0) {
+          const origStartMs = new Date(drag.origStart).getTime();
+          const origEndMs = new Date(drag.origEnd).getTime();
+          const newStartMs = new Date(newStart).getTime();
+          const newEndMs = new Date(newEnd).getTime();
+          const origSpan = Math.max(1, origEndMs - origStartMs);
+          const newSpan = Math.max(0, newEndMs - newStartMs);
+          const scale = newSpan / origSpan;
+          const DAY_MS = 86400000;
+          for (const a of stageObj.allocations) {
+            const aS = new Date(a.start_date).getTime();
+            const aE = new Date(a.end_date).getTime();
+            let ns = newStartMs + (aS - origStartMs) * scale;
+            let ne = newStartMs + (aE - origStartMs) * scale;
+            // Snap to day, clamp within new stage bounds
+            ns = Math.round(ns / DAY_MS) * DAY_MS;
+            ne = Math.round(ne / DAY_MS) * DAY_MS;
+            if (ns < newStartMs) ns = newStartMs;
+            if (ne > newEndMs) ne = newEndMs;
+            if (ne < ns) ne = ns;
+            next.set(a.id, {
+              start: format(new Date(ns), "yyyy-MM-dd"),
+              end: format(new Date(ne), "yyyy-MM-dd"),
+            });
+          }
+        }
+      }
       return next;
     });
   }
