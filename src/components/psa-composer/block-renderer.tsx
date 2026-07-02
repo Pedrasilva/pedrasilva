@@ -806,23 +806,23 @@ export function BlockBody({
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
-                  <th className="py-1">Descrição</th>
-                  <th className="py-1">Data prevista</th>
-                  <th className="py-1 text-right">Valor</th>
+                  <th className="py-1">{L.description}</th>
+                  <th className="py-1">{L.expectedDate}</th>
+                  <th className="py-1 text-right">{L.amount}</th>
                 </tr>
               </thead>
               <tbody>
                 {live.paymentSchedule.map((p) => (
                   <tr key={p.id} className="border-b border-zinc-100">
                     <td className="py-1">{p.label ?? p.trigger ?? "—"}</td>
-                    <td className="py-1">{formatDatePT(p.plannedDate)}</td>
-                    <td className="py-1 text-right">{formatCurrencyEUR(p.amount)}</td>
+                    <td className="py-1">{formatDatePT(p.plannedDate, lang)}</td>
+                    <td className="py-1 text-right">{formatCurrencyEUR(p.amount, lang)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           ) : (
-            <Empty>Sem plano de pagamentos definido.</Empty>
+            <Empty>{L.noPaymentSchedule}</Empty>
           )}
         </div>
       );
