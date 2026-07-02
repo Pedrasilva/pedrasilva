@@ -806,7 +806,7 @@ export function BlockBody({
             const subtotalLabel = lang === "en" ? `${s.name} subtotal` : `Subtotal ${s.name}`;
             rows.push(
               <tr key={`${s.id}-subtotal`} className="border-b border-zinc-200 font-semibold">
-                <td className="py-1" style={pad}>{subtotalLabel}</td>
+                <td className="py-1 text-right text-zinc-700">{subtotalLabel}</td>
                 <td className="py-1 text-right">{formatCurrencyEUR(subtotal, lang)}</td>
               </tr>,
             );
