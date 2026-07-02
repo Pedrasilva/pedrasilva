@@ -256,6 +256,7 @@ export const BLOCK_TYPE_LABEL: Record<PsaBlockType, string> = {
   gantt_partial: "Gantt Parcial",
   consultants: "Consultores",
   fee_table: "Tabela de Honorários",
+  supplier_fee_table: "Tabela de Honorários — Fornecedores",
   construction_fee: "Honorários em Obra",
   payment_terms: "Condições de Pagamento",
   payment_schedule: "Payment_schedule_construction",

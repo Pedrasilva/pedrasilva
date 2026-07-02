@@ -35,6 +35,7 @@ export interface LiveStage {
   hours: number | null;
   isSelf: boolean;
   isMilestone: boolean;
+  isOptional: boolean;
   parentStageId: string | null;
   resources: LiveStageResource[];
 }
@@ -646,6 +647,7 @@ export function useLiveQuoteSnapshot(
             hours: null,
             isSelf: s.is_self !== false,
             isMilestone: s.is_milestone === true,
+            isOptional: s.is_optional === true,
             parentStageId: s.parent_stage_id ?? null,
             resources: Array.from(
               (resourcesByStage.get(s.id) ?? new Map<string, number>()).entries(),
@@ -747,6 +749,7 @@ export interface ProposalLabels {
   duration: string;
   fees: string;
   totalArchitecture: string;
+  totalSuppliers: string;
   scheduleUnavailable: string;
   noFeesToShow: string;
   noPhasesDefined: string;
@@ -814,6 +817,7 @@ const LABELS_PT: ProposalLabels = {
   duration: "Duração",
   fees: "Honorários",
   totalArchitecture: "Total Arquitetura",
+  totalSuppliers: "Total Fornecedores",
   scheduleUnavailable: "Sem cronograma disponível.",
   noFeesToShow: "Sem honorários para apresentar.",
   noPhasesDefined: "Sem fases definidas no orçamento.",
@@ -883,6 +887,7 @@ const LABELS_EN: ProposalLabels = {
   duration: "Duration",
   fees: "Fees",
   totalArchitecture: "Total Architecture",
+  totalSuppliers: "Total Suppliers",
   scheduleUnavailable: "No schedule available.",
   noFeesToShow: "No fees to display.",
   noPhasesDefined: "No stages defined in the quote.",
