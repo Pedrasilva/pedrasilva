@@ -424,9 +424,10 @@ export function BlockBody({
                 <tbody>
                   {resourceRows.map((r, i) => (
                     <tr key={i} className="border-b border-zinc-100 last:border-0">
-                      <td className="py-1.5 text-zinc-800">{r.role}</td>
-                      <td className="py-1.5 text-right tabular-nums text-zinc-800">
+                      <td className="py-1 text-zinc-800">{r.role}</td>
+                      <td className="py-1 text-right tabular-nums text-zinc-800">
                         {r.hours}{L.hoursShort}
+
                       </td>
                     </tr>
                   ))}
