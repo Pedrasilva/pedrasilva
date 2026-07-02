@@ -84,6 +84,22 @@ export function BlockSettingsPanel({
   const effectiveQuoteId = sourceRef.quote_id ?? quoteIdHint ?? "";
   const liveQuery = useLiveQuoteSnapshot(effectiveQuoteId || null);
 
+  // Number stages with the WBS/Gantt scheme and sort by that number so the
+  // dropdown mirrors the Gantt outline exactly.
+  const numberedStages = (() => {
+    const raw = liveQuery.data?.stages ?? [];
+    const numberable = raw.map((s: LiveStage) => ({
+      id: s.id,
+      name: s.name,
+      sort_order: s.sortOrder,
+      parent_stage_id: s.parentStageId,
+    }));
+    const numMap = buildStageNumberMap(numberable);
+    return [...raw]
+      .sort((a, b) => compareWbsNumbers(numMap.get(a.id), numMap.get(b.id)))
+      .map((s) => ({ stage: s, number: numMap.get(s.id) }));
+  })();
+
   if (!block) {
     return (
       <aside className="flex h-full w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l bg-muted/30 p-3 text-sm xl:w-80">
