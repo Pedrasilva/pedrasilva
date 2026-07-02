@@ -260,6 +260,7 @@ export const BLOCK_TYPE_LABEL: Record<PsaBlockType, string> = {
   optional_fee_table: "Tabela de Honorários — Opcionais",
 
   construction_fee: "Honorários em Obra",
+  travel_expenses: "Despesas de Deslocação",
   payment_terms: "Condições de Pagamento",
   payment_schedule: "Payment_schedule_construction",
   additional_services: "Serviços Adicionais",
