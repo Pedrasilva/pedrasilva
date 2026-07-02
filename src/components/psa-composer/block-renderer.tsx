@@ -15,6 +15,7 @@ import {
   formatCurrencyEUR,
   formatDatePT,
   formatDurationHuman,
+  formatDurationCompact,
   formatMonthShort,
   getProposalLabels,
 } from "@/lib/psa-proposal/live-data";
