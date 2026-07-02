@@ -222,10 +222,10 @@ export function BlockBody({
       return (
         <div className="proposal-cover proposal-avoid-break proposal-page-break-after flex flex-col items-center justify-center py-24 text-center">
           <div className="text-xs uppercase tracking-[0.3em] text-zinc-500">
-            Proposta de Honorários
+            {L.proposalCover}
           </div>
           <div className="mt-6 text-3xl font-light tracking-tight text-zinc-900">
-            {live?.projectName ?? "Projeto"}
+            {live?.projectName ?? L.project}
           </div>
           {live?.client && (
             <div className="mt-2 text-base text-zinc-700">{live.client}</div>
@@ -234,8 +234,8 @@ export function BlockBody({
             <div className="mt-1 text-sm text-zinc-500">{live.location}</div>
           )}
           <div className="mt-10 text-xs text-zinc-500">
-            {live?.projectNumber ? `Ref. ${live.projectNumber} · ` : ""}
-            {formatDatePT(live?.date)}
+            {live?.projectNumber ? `${L.refPrefix} ${live.projectNumber} · ` : ""}
+            {formatDatePT(live?.date, lang)}
           </div>
         </div>
       );
@@ -243,7 +243,7 @@ export function BlockBody({
     case "index":
       return (
         <div className="proposal-avoid-break">
-          <H>Índice</H>
+          <H>{L.index}</H>
           {toc && toc.length ? (
             <ol className="space-y-1 text-sm text-zinc-800 list-none ml-0">
               {toc.map((e) => (
@@ -254,7 +254,7 @@ export function BlockBody({
               ))}
             </ol>
           ) : (
-            <Empty>O índice é gerado automaticamente a partir dos blocos visíveis.</Empty>
+            <Empty>{L.indexAuto}</Empty>
           )}
         </div>
       );
