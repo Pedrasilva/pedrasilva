@@ -652,10 +652,10 @@ export function BlockBody({
                       {months.map((m, i) => (
                         <div
                           key={i}
-                          className="absolute top-0 flex h-4 items-center justify-center border-l border-zinc-200 text-[10px] uppercase tracking-wide text-zinc-500"
+                          className="absolute top-0 flex h-4 items-center justify-center border-l border-zinc-200 text-[10px] tracking-wide text-zinc-500"
                           style={{ left: `${m.left}%`, width: `${m.width}%` }}
                         >
-                          {m.label}
+                          {m.width >= 6 ? m.label : (m.label.startsWith("Jan") || m.label.startsWith("jan") ? m.label : "")}
                         </div>
                       ))}
                     </div>
