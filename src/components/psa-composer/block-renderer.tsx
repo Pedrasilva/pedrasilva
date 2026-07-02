@@ -409,7 +409,7 @@ export function BlockBody({
             <div>
               <dt className="proposal-print-heading mb-1 text-sm font-semibold tracking-tight text-zinc-900">{L.duration}</dt>
               <dd className="text-zinc-700">
-                {stage.durationDays != null ? `${stage.durationDays} ${L.daysUnit}` : "—"}
+                {stage.durationDays != null ? formatDurationHuman(stage.durationDays, lang) : "—"}
               </dd>
             </div>
             <div>
