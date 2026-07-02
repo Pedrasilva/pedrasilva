@@ -1,0 +1,1 @@
+ALTER TABLE public.quote_site_trips ADD COLUMN IF NOT EXISTS duration_months_override numeric;
