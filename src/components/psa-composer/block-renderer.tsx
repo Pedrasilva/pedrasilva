@@ -812,10 +812,18 @@ export function BlockBody({
       };
       for (const r of roots) walk(r, 0);
 
+      const feeIntroHtml = (block.content_rich?.html as string | undefined) ?? "";
+      const feeIntroText = (block.content_rich?.text as string | undefined) ?? "";
+
       return (
+
         <div>
           <H>{num}{block.title}</H>
-          <p className="mb-3 text-sm text-zinc-600">{L.feeTableIntro}</p>
+          {hasRichContent(feeIntroHtml, feeIntroText) && (
+            <div className="mb-3">
+              <RichContent html={feeIntroHtml} text={feeIntroText} tokenMap={tokenMap} />
+            </div>
+          )}
           {feeStages.length ? (
             <table className="proposal-print-table w-full border-collapse text-sm">
               <tbody>
@@ -830,6 +838,7 @@ export function BlockBody({
             <Empty>{L.noFeesToShow}</Empty>
           )}
         </div>
+
 
       );
     }
