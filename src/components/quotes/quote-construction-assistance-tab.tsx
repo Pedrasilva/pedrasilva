@@ -166,6 +166,17 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       notes: draft.notes ?? null,
     };
     await upsert.mutateAsync(draft.id ? { id: draft.id, ...payload } : payload);
+    // Remember these inputs so the next "Add trip" pre-fills with them.
+    lastTripDefaults.current = {
+      km: payload.km,
+      price_per_km: payload.price_per_km,
+      trip_hours: payload.trip_hours,
+      resource_ids: payload.resource_ids,
+      resource_hourly_rate: payload.resource_hourly_rate,
+      frequency_mode: payload.frequency_mode,
+      frequency_value: payload.frequency_value,
+      stage_id: payload.stage_id,
+    };
     setDraft(null);
   }
 
