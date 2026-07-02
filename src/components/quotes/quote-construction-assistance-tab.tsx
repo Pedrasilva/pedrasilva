@@ -122,6 +122,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       resource_hourly_rate: last.resource_hourly_rate,
       frequency_mode: last.frequency_mode,
       frequency_value: last.frequency_value,
+      duration_months_override: last.duration_months_override,
       stage_id: last.stage_id,
     };
   }
