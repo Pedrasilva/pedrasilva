@@ -115,6 +115,7 @@ function buildConsultantRows(input: {
     name: string;
     parent_stage_id: string | null;
     is_self: boolean | null;
+    is_optional: boolean | null;
     budget: number | null;
     budget_mode: string | null;
     supplier_id: string | null;
@@ -156,6 +157,19 @@ function buildConsultantRows(input: {
     return top;
   };
 
+  // A stage is treated as optional (and excluded from the consultants
+  // block) when it OR any ancestor has is_optional=true.
+  const isOptionalWithAncestors = (stage: Stage): boolean => {
+    let cur: Stage | undefined = stage;
+    const seen = new Set<string>();
+    while (cur && !seen.has(cur.id)) {
+      if (cur.is_optional === true) return true;
+      seen.add(cur.id);
+      cur = cur.parent_stage_id ? sById.get(cur.parent_stage_id) : undefined;
+    }
+    return false;
+  };
+
   // Collect descendants of a stage (inclusive).
   const childrenByParent = new Map<string, Stage[]>();
   for (const s of sById.values()) {
@@ -188,7 +202,9 @@ function buildConsultantRows(input: {
   for (const s of sById.values()) {
     if (s.is_self === true) continue;
     if (!supplierKey(s)) continue;
+    if (isOptionalWithAncestors(s)) continue;
     const root = groupRootFor(s);
+    if (isOptionalWithAncestors(root)) continue;
     const key = `${root.id}:${supplierKey(root) ?? ""}`;
     if (groups.has(key)) continue;
     const ownBudget = Number(root.budget) || 0;
@@ -268,7 +284,7 @@ export function useLiveQuoteSnapshot(
       const { data: stages } = await supabase
         .from("quote_stages")
         .select(
-          "id,name,description,phase_code,start_date,end_date,budget,budget_mode,sort_order,is_self,is_milestone,parent_stage_id,supplier_id,supplier_company_id,supplier_placeholder",
+          "id,name,description,phase_code,start_date,end_date,budget,budget_mode,sort_order,is_self,is_milestone,is_optional,parent_stage_id,supplier_id,supplier_company_id,supplier_placeholder",
         )
         .eq("quote_id", quoteId!)
         .order("sort_order", { ascending: true, nullsFirst: false })
