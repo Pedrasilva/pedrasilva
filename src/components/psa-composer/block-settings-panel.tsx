@@ -210,9 +210,9 @@ export function BlockSettingsPanel({
                 <SelectValue placeholder="Escolher fase..." />
               </SelectTrigger>
               <SelectContent>
-                {(liveQuery.data?.stages ?? []).map((s) => (
+                {numberedStages.map(({ stage: s, number }) => (
                   <SelectItem key={s.id} value={s.id}>
-                    {s.code ? `${s.code} — ` : ""}{s.name}
+                    {formatStageLabel({ id: s.id, name: s.name }, number)}
                   </SelectItem>
                 ))}
                 {!liveQuery.data?.stages?.length && (
