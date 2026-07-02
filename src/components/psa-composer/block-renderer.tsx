@@ -803,11 +803,10 @@ export function BlockBody({
           for (const k of kids) walk(k, depth + 1);
           if (depth >= 1) {
             const subtotal = leafSum(s);
-            const subtotalLabel = lang === "en" ? `${s.name} subtotal` : `Subtotal ${s.name}`;
             rows.push(
-              <tr key={`${s.id}-subtotal`} className="border-b border-zinc-200 font-semibold">
-                <td className="py-1 text-right">{subtotalLabel}</td>
-                <td className="py-1 text-right">{formatCurrencyEUR(subtotal, lang)}</td>
+              <tr key={`${s.id}-subtotal`} className="font-semibold">
+                <td className="py-1" />
+                <td className="py-1 text-right border-t border-zinc-400">{formatCurrencyEUR(subtotal, lang)}</td>
               </tr>,
             );
           }
