@@ -147,7 +147,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
   const [newSucc, setNewSucc] = useState<{ succ: string; type: QuoteDepType; lag: string }>(
     { succ: "", type: "FS", lag: "0" },
   );
-  const [newAlloc, setNewAlloc] = useState({ resource_id: "", pct: "100", hpd: "8" });
+  const [newAlloc, setNewAlloc] = useState({ resource_id: "", pct: "75", hpd: "6" });
 
   if (!stage) {
     return (
@@ -214,12 +214,12 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
         resource_id: newAlloc.resource_id,
         start_date: stage.start_date,
         end_date: stage.end_date,
-        hours_per_day: Number(newAlloc.hpd) || 8,
-        allocation_percentage: Number(newAlloc.pct) || 100,
+        hours_per_day: Number(newAlloc.hpd) || 6,
+        allocation_percentage: Number(newAlloc.pct) || 75,
         cost_rate_snapshot: rates.cost,
         sale_rate_snapshot: rates.sale,
       });
-      setNewAlloc({ resource_id: "", pct: "100", hpd: "8" });
+      setNewAlloc({ resource_id: "", pct: "75", hpd: "6" });
       toast.success(t("workspace.planning.resourceAdded", { defaultValue: "Resource added." }));
     } catch (e) {
       toast.error((e as Error).message);
