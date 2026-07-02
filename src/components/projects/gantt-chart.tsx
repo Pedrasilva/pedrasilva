@@ -1564,7 +1564,7 @@ export function GanttChart({
                           </div>
                         </PopoverContent>
                       </Popover>
-                      <StageDependencyEditor stage={stage} allStages={stages} adapter={adapter} />
+                      
                     </div>
 
                     <div
