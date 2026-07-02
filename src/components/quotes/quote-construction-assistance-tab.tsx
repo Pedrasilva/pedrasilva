@@ -467,19 +467,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     selected={draft.resource_ids ?? []}
                     resources={resources}
                     rateById={resourceRateById}
-                    onChange={(ids) => {
-                      const currentSale = Number(draft.resource_hourly_rate) || 0;
-                      const sum = ids.reduce(
-                        (s, id) => s + (resourceRateById.get(id) ?? 0),
-                        0,
-                      );
-                      setDraft({
-                        ...draft,
-                        resource_ids: ids,
-                        resource_hourly_rate:
-                          currentSale === 0 && sum > 0 ? sum : currentSale,
-                      });
-                    }}
+                    onChange={(ids) => setDraft({ ...draft, resource_ids: ids })}
                     fullWidth
                   />
                 </Field>
