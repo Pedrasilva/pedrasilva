@@ -357,10 +357,23 @@ export function BlockBody({
         .split("\n").map((l) => l.trim()).filter(Boolean);
       const clientInfoVisible =
         (block.content_rich?.client_info_visible as boolean | undefined) ?? true;
+      const resourcesVisible =
+        (block.content_rich?.resources_visible as boolean | undefined) ?? true;
       const clientInfo = clientInfoVisible
         ? ((block.content_rich?.client_info as string | undefined) ?? "")
             .split("\n").map((l) => l.trim()).filter(Boolean)
         : [];
+      // Aggregate identical role labels that may arrive on multiple rows.
+      const resourceRows = (() => {
+        const acc = new Map<string, number>();
+        for (const r of stage.resources ?? []) {
+          acc.set(r.role, (acc.get(r.role) ?? 0) + r.hours);
+        }
+        return Array.from(acc.entries())
+          .map(([role, hours]) => ({ role, hours: Math.round(hours * 10) / 10 }))
+          .sort((a, b) => b.hours - a.hours);
+      })();
+
       return (
         <div className="proposal-avoid-break">
           <H>{num}{stage.code ? `${stage.code} — ` : ""}{stage.name}</H>
