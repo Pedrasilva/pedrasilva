@@ -951,10 +951,49 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
     return () => ro.disconnect();
   }, [poolCollapsed]);
 
-  // Reset to "week" when switching quotes — avoids carrying over a fitted width
-  // sized for a different quote's totalDays.
+  // Reset to "fit" only if there's no persisted zoom for this quote.
   useEffect(() => {
-    setZoom("fit");
+    try {
+      const stored = window.sessionStorage.getItem(`planner.zoom.quote.${quoteId}`);
+      if (!stored) setZoom("fit");
+    } catch { setZoom("fit"); }
+  }, [quoteId]);
+
+  // Persist and restore scroll position per quote so tab switches preserve view.
+  useEffect(() => {
+    const el = chartRef.current;
+    if (!el) return;
+    try {
+      const raw = window.sessionStorage.getItem(`planner.scroll.quote.${quoteId}`);
+      if (raw) {
+        const { left, top } = JSON.parse(raw) as { left: number; top: number };
+        requestAnimationFrame(() => {
+          if (chartRef.current) {
+            chartRef.current.scrollLeft = left;
+            chartRef.current.scrollTop = top;
+          }
+        });
+      }
+    } catch { /* ignore */ }
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        if (!chartRef.current) return;
+        try {
+          window.sessionStorage.setItem(
+            `planner.scroll.quote.${quoteId}`,
+            JSON.stringify({ left: chartRef.current.scrollLeft, top: chartRef.current.scrollTop }),
+          );
+        } catch { /* ignore */ }
+      });
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, [quoteId]);
 
   const computedDayWidth = useMemo(() => {
