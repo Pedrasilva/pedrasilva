@@ -350,7 +350,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
 
           {draft && (
             <div className="mt-4 rounded-md border p-4 space-y-3">
-              <div className="font-medium text-sm">New site trip</div>
+              <div className="font-medium text-sm">{draft.id ? "Edit site trip" : "New site trip"}</div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Field label="Label">
                   <Input
