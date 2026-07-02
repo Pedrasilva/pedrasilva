@@ -25,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Trash2, Plus, ArrowLeftRight } from "lucide-react";
+import { Trash2, Plus, ArrowLeftRight, Pencil } from "lucide-react";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useResources } from "@/lib/projects/use-planner";
 import {
@@ -101,10 +101,14 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
     });
   }
 
+  function startEdit(trip: QuoteSiteTrip) {
+    setDraft({ ...trip });
+  }
+
   async function saveDraft() {
     if (!draft) return;
     const ids = draft.resource_ids ?? [];
-    await upsert.mutateAsync({
+    const payload = {
       quote_id: quoteId,
       label: draft.label ?? "Site trip",
       km: Number(draft.km) || 0,
@@ -117,7 +121,8 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       frequency_value: Number(draft.frequency_value) || 0,
       stage_id: draft.stage_id ?? null,
       notes: draft.notes ?? null,
-    });
+    };
+    await upsert.mutateAsync(draft.id ? { id: draft.id, ...payload } : payload);
     setDraft(null);
   }
 
@@ -305,13 +310,24 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                         {fmtMoney(cost.totalCost)}
                       </TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => del.mutate(trip.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-1 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title="Edit trip"
+                            onClick={() => startEdit(trip)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title="Delete trip"
+                            onClick={() => del.mutate(trip.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -334,7 +350,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
 
           {draft && (
             <div className="mt-4 rounded-md border p-4 space-y-3">
-              <div className="font-medium text-sm">New site trip</div>
+              <div className="font-medium text-sm">{draft.id ? "Edit site trip" : "New site trip"}</div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Field label="Label">
                   <Input
@@ -464,7 +480,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                   Cancel
                 </Button>
                 <Button onClick={saveDraft} disabled={upsert.isPending}>
-                  Save trip
+                  {draft.id ? "Save changes" : "Save trip"}
                 </Button>
               </div>
             </div>
