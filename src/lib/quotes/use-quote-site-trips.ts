@@ -18,7 +18,11 @@ export interface QuoteSiteTrip {
   km: number;
   price_per_km: number;
   trip_hours: number;
+  /** Legacy single-resource pointer. Kept for backward compatibility. */
   resource_id: string | null;
+  /** Multi-resource list. When non-empty, drives the per-trip hourly rate. */
+  resource_ids: string[];
+  /** Manual €/h override — used when no resources are selected. */
   resource_hourly_rate: number;
   frequency_mode: QuoteSiteTripFrequencyMode;
   frequency_value: number;
