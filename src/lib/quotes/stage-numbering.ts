@@ -74,3 +74,33 @@ export function buildStageNumberMap<T extends NumberableStage>(
 export function formatStageLabel(stage: NumberableStage, number: string | undefined): string {
   return number ? `${number} ${stage.name}` : stage.name;
 }
+
+/**
+ * Compare two dotted WBS numbers segment-by-segment numerically.
+ * "2" < "2.1" < "2.1.10" < "2.2" < "10".
+ * Missing numbers sort last.
+ */
+export function compareWbsNumbers(a: string | undefined, b: string | undefined): number {
+  if (!a && !b) return 0;
+  if (!a) return 1;
+  if (!b) return -1;
+  const pa = a.split(".").map((n) => Number(n) || 0);
+  const pb = b.split(".").map((n) => Number(n) || 0);
+  const len = Math.max(pa.length, pb.length);
+  for (let i = 0; i < len; i++) {
+    const av = pa[i] ?? 0;
+    const bv = pb[i] ?? 0;
+    if (av !== bv) return av - bv;
+  }
+  return 0;
+}
+
+/**
+ * Sort an array of stages by their WBS number (Gantt order).
+ * Non-mutating; returns a new array.
+ */
+export function sortStagesByWbs<T extends NumberableStage>(stages: T[]): T[] {
+  const map = buildStageNumberMap(stages);
+  return [...stages].sort((a, b) => compareWbsNumbers(map.get(a.id), map.get(b.id)));
+}
+
