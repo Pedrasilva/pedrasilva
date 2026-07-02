@@ -1500,17 +1500,6 @@ export function GanttChart({
                         </div>
                         )}
                       </div>
-                      <button
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          if (!confirm(t("gantt.stage.deleteConfirm", { name: stage.name }))) return;
-                          await adapter.deleteStage({ id: stage.id, projectId: stage.projectId });
-                        }}
-                        className="shrink-0 rounded p-1 opacity-0 transition hover:bg-background/30 group-hover:opacity-100"
-                        aria-label={t("gantt.stage.deleteAction")}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
                       <Popover>
                         <PopoverTrigger asChild>
                           <button
