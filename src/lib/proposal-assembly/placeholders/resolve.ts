@@ -56,11 +56,24 @@ function renderPaymentSchedule(data: AssemblyData, currency: string): string {
   return rows.map((p) => `• ${p.label || "Milestone"}: ${p.trigger || "To be confirmed"} — ${fmtMoney(p.amount, currency)}`).join("\n");
 }
 
+function formatDaysWeeksMonths(days: number | null | undefined): string {
+  if (days == null || !Number.isFinite(Number(days))) return "duration to be confirmed";
+  const d = Math.max(0, Math.round(Number(days)));
+  if (d === 0) return "duration to be confirmed";
+  const daysLabel = `${fmtNumber(d)} working day${d === 1 ? "" : "s"}`;
+  if (d < 7) return daysLabel;
+  const w = Math.round(d / 7);
+  const weeksLabel = `~${w} week${w === 1 ? "" : "s"}`;
+  if (d < 30) return `${daysLabel} (${weeksLabel})`;
+  const m = Math.round(d / 30);
+  return `${daysLabel} (${weeksLabel} · ~${m} month${m === 1 ? "" : "s"})`;
+}
+
 function renderProgramme(data: AssemblyData): string {
   const rows = data.stages.filter((s) => s.start_date || s.end_date || s.duration_days);
   if (rows.length === 0) return "Programme to be confirmed following validation of project stages.";
   return rows.map((s) => {
-    const duration = s.duration_days != null ? `${fmtNumber(s.duration_days)} working days` : "duration to be confirmed";
+    const duration = formatDaysWeeksMonths(s.duration_days);
     const dates = [s.start_date, s.end_date].filter(Boolean).join(" → ") || "dates to be confirmed";
     return `• ${stageLabel(s)}: ${dates}; ${duration}.`;
   }).join("\n");
