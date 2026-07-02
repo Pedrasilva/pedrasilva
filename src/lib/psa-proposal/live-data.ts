@@ -750,6 +750,8 @@ export interface ProposalLabels {
   fees: string;
   totalArchitecture: string;
   totalSuppliers: string;
+  totalOptional: string;
+
   feeTableIntro: string;
 
   scheduleUnavailable: string;
@@ -820,6 +822,8 @@ const LABELS_PT: ProposalLabels = {
   fees: "Honorários",
   totalArchitecture: "Total Arquitetura",
   totalSuppliers: "Total Fornecedores",
+  totalOptional: "Total Opcionais",
+
   feeTableIntro:
     "A proposta de honorários abaixo reflecte o âmbito de trabalho descrito, organizado por fase de projecto. Os valores apresentados são líquidos de IVA.",
 
@@ -893,6 +897,8 @@ const LABELS_EN: ProposalLabels = {
   fees: "Fees",
   totalArchitecture: "Total Architecture",
   totalSuppliers: "Total Suppliers",
+  totalOptional: "Total Optional",
+
   feeTableIntro:
     "The fee proposal below reflects the described scope of work, organised by project stage. Values are exclusive of VAT.",
 

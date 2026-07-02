@@ -28,6 +28,8 @@ export type PsaBlockType =
   | "consultants"
   | "fee_table"
   | "supplier_fee_table"
+  | "optional_fee_table"
+
   | "construction_fee"
   | "payment_terms"
   | "payment_schedule"

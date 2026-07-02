@@ -9055,6 +9055,7 @@ export type Database = {
         | "gantt_design"
         | "gantt_construction"
         | "supplier_fee_table"
+        | "optional_fee_table"
       psa_contract_relevance:
         | "proposal_only"
         | "contract_relevant"
@@ -9445,6 +9446,7 @@ export const Constants = {
         "gantt_design",
         "gantt_construction",
         "supplier_fee_table",
+        "optional_fee_table",
       ],
       psa_contract_relevance: [
         "proposal_only",

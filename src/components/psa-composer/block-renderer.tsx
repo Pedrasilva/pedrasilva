@@ -947,6 +947,111 @@ export function BlockBody({
       );
     }
 
+    case "optional_fee_table": {
+      // Fee table for optional stages (isOptional or descendants of optional).
+      const allStages = live?.stages ?? [];
+      const byId = new Map(allStages.map((s) => [s.id, s]));
+      const isOptionalWithAncestors = (s: LiveStage): boolean => {
+        let cur: LiveStage | undefined = s;
+        const seen = new Set<string>();
+        while (cur && !seen.has(cur.id)) {
+          if (cur.isOptional) return true;
+          seen.add(cur.id);
+          cur = cur.parentStageId ? byId.get(cur.parentStageId) : undefined;
+        }
+        return false;
+      };
+      const optionalStages = allStages.filter(
+        (s) => !s.isMilestone && isOptionalWithAncestors(s),
+      );
+
+      const inSet = new Set(optionalStages.map((s) => s.id));
+      const kidsOf = new Map<string, LiveStage[]>();
+      for (const s of optionalStages) {
+        const p = s.parentStageId && inSet.has(s.parentStageId) ? s.parentStageId : null;
+        if (!p) continue;
+        const arr = kidsOf.get(p) ?? [];
+        arr.push(s);
+        kidsOf.set(p, arr);
+      }
+      const startKey = (s: LiveStage) => s.startDate ?? "";
+      const sortFn = (a: LiveStage, b: LiveStage) => {
+        const ak = startKey(a);
+        const bk = startKey(b);
+        if (ak !== bk) return ak < bk ? -1 : 1;
+        return 0;
+      };
+      for (const [, arr] of kidsOf) arr.sort(sortFn);
+      const roots = optionalStages
+        .filter((s) => !s.parentStageId || !inSet.has(s.parentStageId))
+        .slice()
+        .sort(sortFn);
+
+      const leafSum = (s: LiveStage): number => {
+        const kids = kidsOf.get(s.id) ?? [];
+        if (kids.length === 0) return Number(s.fee) || 0;
+        return kids.reduce((acc, k) => acc + leafSum(k), 0);
+      };
+      const total = roots.reduce((acc, r) => acc + leafSum(r), 0);
+
+      const rows: React.ReactNode[] = [];
+      const walk = (s: LiveStage, depth: number) => {
+        const kids = kidsOf.get(s.id) ?? [];
+        const label = s.code ? `${s.code} — ${s.name}` : s.name;
+        const pad = { paddingLeft: `${depth * 14}px` } as React.CSSProperties;
+        if (kids.length > 0) {
+          rows.push(
+            <tr key={s.id} className="border-b border-zinc-200 bg-zinc-50">
+              <td
+                colSpan={2}
+                className="py-1 text-[11px] font-semibold tracking-wide text-zinc-700"
+                style={pad}
+              >
+                {label}
+              </td>
+            </tr>,
+          );
+          for (const k of kids) walk(k, depth + 1);
+        } else {
+          rows.push(
+            <tr key={s.id} className="border-b border-zinc-100">
+              <td className="py-1" style={pad}>{label}</td>
+              <td className="py-1 text-right">{formatCurrencyEUR(Number(s.fee) || 0, lang)}</td>
+            </tr>,
+          );
+        }
+      };
+      for (const r of roots) walk(r, 0);
+
+      const optIntroHtml = (block.content_rich?.html as string | undefined) ?? "";
+      const optIntroText = (block.content_rich?.text as string | undefined) ?? "";
+
+      return (
+        <div>
+          <H>{num}{block.title}</H>
+          {hasRichContent(optIntroHtml, optIntroText) && (
+            <div className="mb-3">
+              <RichContent html={optIntroHtml} text={optIntroText} tokenMap={tokenMap} />
+            </div>
+          )}
+          {optionalStages.length ? (
+            <table className="proposal-print-table w-full border-collapse text-sm">
+              <tbody>
+                {rows}
+                <tr className="font-semibold">
+                  <td className="py-1">{L.totalOptional}</td>
+                  <td className="py-1 text-right">{formatCurrencyEUR(total, lang)}</td>
+                </tr>
+              </tbody>
+            </table>
+          ) : (
+            <Empty>{L.noFeesToShow}</Empty>
+          )}
+        </div>
+      );
+    }
+
+
     case "construction_fee":
     case "payment_terms":
     case "additional_services":

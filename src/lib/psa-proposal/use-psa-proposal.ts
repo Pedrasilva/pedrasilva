@@ -257,6 +257,8 @@ export const BLOCK_TYPE_LABEL: Record<PsaBlockType, string> = {
   consultants: "Consultores",
   fee_table: "Tabela de Honorários",
   supplier_fee_table: "Tabela de Honorários — Fornecedores",
+  optional_fee_table: "Tabela de Honorários — Opcionais",
+
   construction_fee: "Honorários em Obra",
   payment_terms: "Condições de Pagamento",
   payment_schedule: "Payment_schedule_construction",
