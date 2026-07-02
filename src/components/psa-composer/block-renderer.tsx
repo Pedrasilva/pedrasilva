@@ -778,7 +778,7 @@ export function BlockBody({
 
       // Sum of leaves only (avoid double-counting rolled-up parent fees).
       let total = 0;
-      const leafSum = (s: (typeof selfStages)[number]): number => {
+      const leafSum = (s: (typeof feeStages)[number]): number => {
         const kids = kidsOf.get(s.id) ?? [];
         if (kids.length === 0) return Number(s.fee) || 0;
         return kids.reduce((acc, k) => acc + leafSum(k), 0);
