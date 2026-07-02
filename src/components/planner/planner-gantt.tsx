@@ -671,7 +671,14 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   // Zoom — local UI state. Default to "week" (matches old detailed view).
   // If a parent forces dayWidth via prop, that wins (uncontrolled fallback only
   // when the prop is undefined).
-  const [zoom, setZoom] = useState<ZoomMode>("fit");
+  const [zoom, setZoom] = useState<ZoomMode>(() => {
+    if (typeof window === "undefined") return "fit";
+    const stored = window.sessionStorage.getItem(`planner.zoom.quote.${quoteId}`);
+    return (stored as ZoomMode) || "fit";
+  });
+  useEffect(() => {
+    try { window.sessionStorage.setItem(`planner.zoom.quote.${quoteId}`, zoom); } catch { /* ignore */ }
+  }, [zoom, quoteId]);
   const [poolCollapsed, setPoolCollapsed] = useState(true);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const [outlineWidth, setOutlineWidth] = useState<number>(() => {
