@@ -336,35 +336,42 @@ export function PaymentScheduleProposalView({
   return (
     <div className="space-y-6">
       {/* Top: contract composition (separated card) */}
-      {!consultantsOnly && !incomingOnly && !outgoingOnly && inflows.length > 0 && (() => {
-        const stageIdsAll = new Set(stages.map((s) => s.id));
-        const stageById = new Map(stages.map((s) => [s.id, s]));
-        const rootFor = (stageId: string): QuoteStage | null => {
-          let current = stageById.get(stageId) ?? null;
-          const seen = new Set<string>();
-          while (current) {
-            const sx = current as typeof current & { parent_stage_id?: string | null };
-            const parentId = sx.parent_stage_id;
-            if (!parentId || !stageIdsAll.has(parentId) || seen.has(parentId)) return current;
-            seen.add(current.id);
-            current = stageById.get(parentId) ?? null;
-          }
-          return null;
+      {!consultantsOnly && !incomingOnly && !outgoingOnly && (() => {
+        type SNode = QuoteStage & {
+          parent_stage_id?: string | null;
+          budget?: number | null;
         };
-        const byRoot = new Map<string, { id: string; name: string; sortOrder: number; amount: number }>();
-        for (const it of inflows) {
-          if (!it.stage_id) continue;
-          const root = rootFor(it.stage_id);
-          if (!root) continue;
-          const amount = netAmount(it, totalFee, stageFees);
-          if (amount <= 0) continue;
-          const current = byRoot.get(root.id) ?? {
-            id: root.id, name: root.name, sortOrder: root.sort_order, amount: 0,
-          };
-          current.amount += amount;
-          byRoot.set(root.id, current);
+        const nodes = stages as SNode[];
+        const stageById = new Map(nodes.map((s) => [s.id, s]));
+        const kidsOf = new Map<string, SNode[]>();
+        for (const s of nodes) {
+          const pid = s.parent_stage_id ?? null;
+          if (!pid || !stageById.has(pid)) continue;
+          const arr = kidsOf.get(pid) ?? [];
+          arr.push(s);
+          kidsOf.set(pid, arr);
         }
-        const tops = Array.from(byRoot.values()).sort((a, b) => a.sortOrder - b.sortOrder);
+        const isOptional = (s: SNode) =>
+          isOptionalStage(s, stageById as unknown as Map<string, QuoteStage>);
+        const ownAmt = (s: SNode) => {
+          const fee = Number(stageFees[s.id] ?? 0);
+          const budget = Number(s.budget ?? 0);
+          return Math.round((fee > 0 ? fee : budget) * 100) / 100;
+        };
+        const rollup = (s: SNode): number => {
+          if (isOptional(s)) return 0;
+          const kids = (kidsOf.get(s.id) ?? []).filter((k) => !isOptional(k));
+          const childTotal = kids.reduce((acc, k) => acc + rollup(k), 0);
+          const fallback = ownAmt(s);
+          return Math.round((childTotal > 0 ? childTotal : fallback) * 100) / 100;
+        };
+        const roots = nodes.filter(
+          (s) => (!s.parent_stage_id || !stageById.has(s.parent_stage_id)) && !isOptional(s),
+        );
+        const tops = roots
+          .map((r) => ({ id: r.id, name: r.name, sortOrder: r.sort_order ?? 0, amount: rollup(r) }))
+          .filter((t) => t.amount > 0)
+          .sort((a, b) => a.sortOrder - b.sortOrder);
         if (tops.length <= 1) return null;
         const sum = tops.reduce((a, t) => a + t.amount, 0);
         return (
@@ -403,6 +410,7 @@ export function PaymentScheduleProposalView({
           </Card>
         );
       })()}
+
 
       {/* Two-parent breakdown: Architecture vs Suppliers, with hierarchy
           preserved and listed chronologically by the Gantt dates. */}
