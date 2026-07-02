@@ -938,6 +938,8 @@ export function GanttChart({
             {Array.from({ length: totalDays }).map((_, i) => {
               const d = addDays(origin, i);
               const isWeek = isWeekend(d);
+              const iso = format(d, "yyyy-MM-dd");
+              const isHol = holidaySet?.has(iso) ?? false;
               const isMonStart = startOfWeek(d, { weekStartsOn: 1 }).getDate() === d.getDate();
               const isToday = differenceInCalendarDays(d, today) === 0;
               const weekday = format(d, "EEEEE", { locale: dateLocale });
@@ -945,9 +947,14 @@ export function GanttChart({
                 <div
                   key={i}
                   className={`relative flex flex-col items-center justify-center gap-0 leading-none ${
-                    isWeek ? "bg-muted/30 text-muted-foreground/60" : "text-muted-foreground"
+                    isHol
+                      ? "bg-muted-foreground/25 text-muted-foreground/70"
+                      : isWeek
+                        ? "bg-muted/40 text-muted-foreground/60"
+                        : "text-muted-foreground"
                   } ${isMonStart ? "border-l border-canvas-line-strong" : "border-l border-border/20"}`}
                   style={{ width: dayWidth, minWidth: dayWidth }}
+                  title={isHol ? `Feriado — ${iso}` : undefined}
                 >
                   <span className="text-[9px] uppercase tracking-wide">{weekday}</span>
                   <span
