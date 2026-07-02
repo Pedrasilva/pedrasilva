@@ -98,7 +98,7 @@ function RichContent({
 // Default contractual boilerplate used when a block has no manual content yet.
 // Pre-send-safe: clearly neutral PSA language so empty sections do not look
 // abandoned in the PDF.
-const DEFAULT_TEXT: Partial<Record<string, string>> = {
+const DEFAULT_TEXT_PT: Partial<Record<string, string>> = {
   about:
     "A Pedra Silva Arquitectos é um atelier de arquitetura com sede em Lisboa, com prática consolidada em projeto, coordenação e acompanhamento de obra. A nossa equipa multidisciplinar acompanha o cliente desde o estudo prévio até à conclusão da obra.",
   scope:
@@ -115,6 +115,25 @@ const DEFAULT_TEXT: Partial<Record<string, string>> = {
     "Em caso de suspensão do projeto por iniciativa do Cliente, os honorários relativos às fases concluídas e em curso serão integralmente devidos. A rescisão deverá ser comunicada por escrito com 30 dias de antecedência.",
   exclusions:
     "Excluem-se desta proposta: projectos de especialidades não expressamente referidos, levantamentos topográficos, estudos geotécnicos, taxas camarárias, licenças e quaisquer encargos administrativos.",
+};
+
+const DEFAULT_TEXT_EN: Partial<Record<string, string>> = {
+  about:
+    "Pedra Silva Arquitectos is a Lisbon-based architecture practice with an established track record in design, coordination and construction administration. Our multidisciplinary team supports the client from feasibility through to project completion.",
+  scope:
+    "This proposal covers the architectural services required to develop the project, including preliminary studies, developed design, technical design and construction administration, as detailed in the stages described in this document.",
+  construction_fee:
+    "Construction-phase fees are invoiced monthly during execution, in proportion to the agreed schedule and in line with the payment plan.",
+  payment_terms:
+    "Fees are invoiced in accordance with the attached payment schedule. VAT at the applicable legal rate is added to the values shown. Payment is due within 30 days of the invoice date.",
+  additional_services:
+    "Any services not included within the scope of this proposal will be subject to a separate quote, to be agreed in advance with the Client.",
+  general:
+    "The terms set out herein are governed by applicable Portuguese law. Any changes to the scope or schedule shall be formalised in writing between the parties.",
+  suspension:
+    "In the event of suspension of the project by the Client, fees for completed and ongoing stages shall be fully due. Termination shall be notified in writing 30 days in advance.",
+  exclusions:
+    "The following are excluded from this proposal: specialist engineering disciplines not expressly listed, topographic surveys, geotechnical studies, municipal taxes, licences and any administrative fees.",
 };
 
 function StageRows({ stages }: { stages: LiveStage[] }) {
