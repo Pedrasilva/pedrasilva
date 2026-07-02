@@ -68,7 +68,12 @@ export interface LiveQuoteSnapshot {
     id: string;
     name: string;
     discipline: string | null;
+    /** Client-billed fee = supplierFee × (1 + admin markup pct). */
     fee: number | null;
+    /** Raw supplier fee, before the admin markup is applied. */
+    supplierFee: number | null;
+    /** Admin markup percentage applied (0 when none). */
+    supplierMarkupPct: number;
   }>;
   paymentSchedule: Array<{
     id: string;
