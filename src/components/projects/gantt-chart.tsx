@@ -867,40 +867,49 @@ export function GanttChart({
       }}
     >
       <div className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-        <div className="flex h-7 items-stretch border-b border-border/60">
-          {months.map((m, i) => {
-            const cellW = m.days * dayWidth;
-            // Adaptive label: full → abbreviated → numeric, based on cell width.
-            const d = addDays(origin, m.startIdx);
-            const label =
-              cellW >= 110
-                ? format(d, "MMMM yyyy", { locale: dateLocale })
-                : cellW >= 70
-                ? format(d, "MMM yyyy", { locale: dateLocale })
-                : cellW >= 44
-                ? format(d, "MMM ''yy", { locale: dateLocale })
-                : cellW >= 26
-                ? format(d, "MM/yy", { locale: dateLocale })
-                : cellW >= 14
-                ? format(d, "MM", { locale: dateLocale })
-                : "";
-            return (
-              <div
-                key={i}
-                className="flex items-center justify-center border-l border-border/40 px-1 text-[11px] font-semibold uppercase tracking-wider text-foreground/80 first:border-l-0 overflow-hidden whitespace-nowrap"
-                style={{
-                  width: cellW,
-                  minWidth: cellW,
-                  backgroundColor: i % 2 === 0 ? "oklch(0 0 0 / 0.06)" : "oklch(0 0 0 / 0.015)",
-                }}
-                title={format(d, "MMMM yyyy", { locale: dateLocale })}
-              >
-                {label}
-              </div>
-            );
-          })}
-        </div>
-        {dayWidth >= 14 && (
+        {(() => {
+          // Top tier cells (aggregated) — always readable, never crammed.
+          const topCells =
+            headerTier === "monthDay"
+              ? months.map((m) => {
+                  const d = addDays(origin, m.startIdx);
+                  const cellW = m.days * dayWidth;
+                  const label =
+                    cellW >= 110
+                      ? format(d, "MMMM yyyy", { locale: dateLocale })
+                      : cellW >= 70
+                      ? format(d, "MMM yyyy", { locale: dateLocale })
+                      : cellW >= 44
+                      ? format(d, "MMM ''yy", { locale: dateLocale })
+                      : format(d, "MMM", { locale: dateLocale });
+                  return { label, days: m.days, startIdx: m.startIdx, title: format(d, "MMMM yyyy", { locale: dateLocale }) };
+                })
+              : headerTier === "quarterMonth"
+              ? quarters.map((q) => ({ label: q.label, days: q.days, startIdx: q.startIdx, title: q.label }))
+              : years.map((y) => ({ label: y.label, days: y.days, startIdx: y.startIdx, title: y.label }));
+          return (
+            <div className="flex h-7 items-stretch border-b border-border/60">
+              {topCells.map((c, i) => {
+                const cellW = c.days * dayWidth;
+                return (
+                  <div
+                    key={i}
+                    className="flex items-center justify-center border-l border-border/40 px-1 text-[11px] font-semibold uppercase tracking-wider text-foreground/80 first:border-l-0 overflow-hidden whitespace-nowrap"
+                    style={{
+                      width: cellW,
+                      minWidth: cellW,
+                      backgroundColor: i % 2 === 0 ? "oklch(0 0 0 / 0.06)" : "oklch(0 0 0 / 0.015)",
+                    }}
+                    title={c.title}
+                  >
+                    {cellW >= 20 ? c.label : ""}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+        {headerTier === "monthDay" && (
           <div className="flex h-9">
             {Array.from({ length: totalDays }).map((_, i) => {
               const d = addDays(origin, i);
@@ -931,52 +940,47 @@ export function GanttChart({
             })}
           </div>
         )}
-        {dayWidth < 14 && dayWidth >= 5 && (
+        {headerTier === "quarterMonth" && (
           <div className="flex h-5">
-            {Array.from({ length: Math.ceil(totalDays / 7) }).map((_, wi) => {
-              const startDay = wi * 7;
-              const d = addDays(origin, startDay);
-              const daysInCell = Math.min(7, totalDays - startDay);
+            {months.map((m, i) => {
+              const cellW = m.days * dayWidth;
+              const d = addDays(origin, m.startIdx);
+              const label =
+                cellW >= 40
+                  ? format(d, "MMM", { locale: dateLocale })
+                  : cellW >= 18
+                  ? format(d, "MMM", { locale: dateLocale }).slice(0, 3)
+                  : cellW >= 10
+                  ? format(d, "M", { locale: dateLocale })
+                  : "";
               return (
                 <div
-                  key={wi}
-                  className="flex items-center justify-center border-l border-border/30 text-[9px] text-muted-foreground"
-                  style={{ width: daysInCell * dayWidth, minWidth: daysInCell * dayWidth }}
+                  key={i}
+                  className="flex items-center justify-center border-l border-border/30 text-[9px] uppercase text-muted-foreground overflow-hidden whitespace-nowrap"
+                  style={{ width: cellW, minWidth: cellW }}
+                  title={format(d, "MMMM yyyy", { locale: dateLocale })}
                 >
-                  {format(d, "d/M", { locale: dateLocale })}
+                  {label}
                 </div>
               );
             })}
           </div>
         )}
-        {dayWidth < 5 && (
+        {headerTier === "yearQuarter" && (
           <div className="flex h-5">
-            {(() => {
-              const cells: { label: string; days: number }[] = [];
-              for (let i = 0; i < totalDays; ) {
-                const d = addDays(origin, i);
-                const q = Math.floor(d.getMonth() / 3) + 1;
-                const label = `Q${q} ${d.getFullYear()}`;
-                let span = 0;
-                while (i + span < totalDays) {
-                  const dd = addDays(origin, i + span);
-                  const qq = Math.floor(dd.getMonth() / 3) + 1;
-                  if (qq !== q || dd.getFullYear() !== d.getFullYear()) break;
-                  span++;
-                }
-                cells.push({ label, days: span });
-                i += span;
-              }
-              return cells.map((c, idx) => (
+            {quarters.map((q, i) => {
+              const cellW = q.days * dayWidth;
+              return (
                 <div
-                  key={idx}
-                  className="flex items-center justify-center border-l border-border/30 text-[9px] text-muted-foreground"
-                  style={{ width: c.days * dayWidth, minWidth: c.days * dayWidth }}
+                  key={i}
+                  className="flex items-center justify-center border-l border-border/30 text-[9px] text-muted-foreground overflow-hidden whitespace-nowrap"
+                  style={{ width: cellW, minWidth: cellW }}
+                  title={q.label}
                 >
-                  {c.label}
+                  {cellW >= 24 ? q.label.split(" ")[0] : ""}
                 </div>
-              ));
-            })()}
+              );
+            })}
           </div>
         )}
         {todayInRange && (
