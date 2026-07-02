@@ -259,6 +259,27 @@ export function BlockSettingsPanel({
             />
           </div>
 
+          <div className="flex items-center justify-between rounded-md border bg-background p-2">
+            <Label className="text-xs">Mostrar tabela "Recursos afectos"</Label>
+            <Switch
+              checked={
+                (block.content_rich?.resources_visible as boolean | undefined) ?? true
+              }
+              onCheckedChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    content_rich: {
+                      ...(block.content_rich ?? {}),
+                      resources_visible: v,
+                    },
+                  },
+                })
+              }
+            />
+          </div>
+
+
           {((block.content_rich?.client_info_visible as boolean | undefined) ?? true) && (
             <div>
               <Label className="text-xs">Informação necessária do cliente (uma por linha)</Label>

@@ -357,10 +357,23 @@ export function BlockBody({
         .split("\n").map((l) => l.trim()).filter(Boolean);
       const clientInfoVisible =
         (block.content_rich?.client_info_visible as boolean | undefined) ?? true;
+      const resourcesVisible =
+        (block.content_rich?.resources_visible as boolean | undefined) ?? true;
       const clientInfo = clientInfoVisible
         ? ((block.content_rich?.client_info as string | undefined) ?? "")
             .split("\n").map((l) => l.trim()).filter(Boolean)
         : [];
+      // Aggregate identical role labels that may arrive on multiple rows.
+      const resourceRows = (() => {
+        const acc = new Map<string, number>();
+        for (const r of stage.resources ?? []) {
+          acc.set(r.role, (acc.get(r.role) ?? 0) + r.hours);
+        }
+        return Array.from(acc.entries())
+          .map(([role, hours]) => ({ role, hours: Math.round(hours * 10) / 10 }))
+          .sort((a, b) => b.hours - a.hours);
+      })();
+
       return (
         <div className="proposal-avoid-break">
           <H>{num}{stage.code ? `${stage.code} — ` : ""}{stage.name}</H>
@@ -402,7 +415,7 @@ export function BlockBody({
               <dd className="text-zinc-700">{formatCurrencyEUR(stage.fee, lang)}</dd>
             </div>
           </dl>
-          {stage.resources && stage.resources.length > 0 && (
+          {resourcesVisible && resourceRows.length > 0 && (
             <div className="mt-6">
               <h3 className="mb-2 text-sm font-semibold tracking-tight text-zinc-900">
                 {L.resourceBreakdown}
@@ -415,7 +428,7 @@ export function BlockBody({
                   </tr>
                 </thead>
                 <tbody>
-                  {stage.resources.map((r, i) => (
+                  {resourceRows.map((r, i) => (
                     <tr key={i} className="border-b border-zinc-100 last:border-0">
                       <td className="py-1.5 text-zinc-800">{r.role}</td>
                       <td className="py-1.5 text-right font-mono text-zinc-800">
@@ -426,6 +439,7 @@ export function BlockBody({
                 </tbody>
               </table>
             </div>
+
           )}
         </div>
 

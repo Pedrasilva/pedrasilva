@@ -146,12 +146,13 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
         const hrs = wd * Number(a.hours_per_day || 0);
         if (hrs <= 0) continue;
         const r = a.resource ?? {};
+        // Use only commercial / proposal roles — never person names.
         const roleLabel =
           (r.proposal_role as string | null) ||
           (r.billing_role as string | null) ||
           (r.role as string | null) ||
-          (r.name as string | null) ||
-          "—";
+          "Team";
+
         const byRole = resourcesByStage.get(a.stage_id) ?? new Map<string, number>();
         byRole.set(roleLabel, (byRole.get(roleLabel) ?? 0) + hrs);
         resourcesByStage.set(a.stage_id, byRole);
