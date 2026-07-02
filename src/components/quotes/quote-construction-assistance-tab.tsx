@@ -234,39 +234,29 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                         />
                       </TableCell>
                       <TableCell>
-                        <Select
-                          value={trip.resource_id ?? NONE_STAGE}
-                          onValueChange={(v) => {
-                            if (v === NONE_STAGE) {
-                              patch(trip, { resource_id: null });
-                              return;
-                            }
-                            const r = resources.find((x) => x.id === v);
-                            patch(trip, {
-                              resource_id: v,
-                              resource_hourly_rate: Number(r?.hourly_rate) || trip.resource_hourly_rate,
-                            });
-                          }}
-                        >
-                          <SelectTrigger className="h-8 min-w-[10rem]">
-                            <SelectValue placeholder="—" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value={NONE_STAGE}>— None —</SelectItem>
-                            {resources.map((r) => (
-                              <SelectItem key={r.id} value={r.id}>
-                                {r.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <ResourceMultiSelect
+                          selected={trip.resource_ids ?? []}
+                          resources={resources}
+                          onChange={(ids) => patch(trip, { resource_ids: ids })}
+                        />
                       </TableCell>
                       <TableCell className="text-right">
-                        <NumberCell
-                          value={trip.resource_hourly_rate}
-                          onCommit={(v) => patch(trip, { resource_hourly_rate: v })}
-                          step="0.5"
-                        />
+                        {(trip.resource_ids?.length ?? 0) > 0 ? (
+                          <span
+                            className="tabular-nums"
+                            title={`Sum of sale rates: ${(trip.resource_ids ?? [])
+                              .map((id) => `${resourceById.get(id)?.name ?? "?"} ${fmtMoney(resourceRateById.get(id) ?? 0)}/h`)
+                              .join(" + ")}`}
+                          >
+                            {fmtMoney(effectiveRate)}
+                          </span>
+                        ) : (
+                          <NumberCell
+                            value={trip.resource_hourly_rate}
+                            onCommit={(v) => patch(trip, { resource_hourly_rate: v })}
+                            step="0.5"
+                          />
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
