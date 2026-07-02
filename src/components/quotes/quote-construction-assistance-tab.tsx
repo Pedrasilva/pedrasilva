@@ -581,11 +581,13 @@ function ResourceMultiSelect({
   resources,
   onChange,
   fullWidth,
+  rateById,
 }: {
   selected: string[];
   resources: ResourceOption[];
   onChange: (ids: string[]) => void;
   fullWidth?: boolean;
+  rateById?: Map<string, number>;
 }) {
   const [open, setOpen] = useState(false);
   const selectedSet = new Set(selected);
