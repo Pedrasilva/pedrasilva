@@ -6,7 +6,7 @@
 import { Plus, Search } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { useBlockLibrary, useAddLibraryBlock } from "@/lib/psa-proposal/use-psa-proposal";
@@ -41,6 +41,62 @@ export function BlockLibraryPanel({
   const selectedBlock = selectedId ? sorted.find((b) => b.id === selectedId) : null;
   const lastOrder = sorted.length ? sorted[sorted.length - 1].sort_order : 0;
   const afterOrder = selectedBlock ? selectedBlock.sort_order : lastOrder;
+
+  const manualEntries: PsaLibraryEntry[] = [
+    {
+      id: "custom",
+      kind: "custom_text",
+      label: "Texto Livre",
+      default_title: "Novo bloco",
+      default_content_rich: { text: "" },
+      default_source_type: "manual",
+      default_source_ref: {},
+      default_contract_relevance: "proposal_only",
+      sort_hint: 999,
+      is_system: false,
+    },
+    {
+      id: "gantt-partial",
+      kind: "gantt_partial",
+      label: "Gantt Parcial",
+      default_title: "Cronograma — Fase",
+      default_content_rich: {},
+      default_source_type: "live_quote",
+      default_source_ref: {},
+      default_contract_relevance: "proposal_only",
+      sort_hint: 999,
+      is_system: false,
+    },
+    {
+      id: "supplier-fee-table",
+      kind: "supplier_fee_table",
+      label: "Honorários Fornecedores",
+      default_title: "Honorários — Fornecedores",
+      default_content_rich: {},
+      default_source_type: "live_quote",
+      default_source_ref: {},
+      default_contract_relevance: "proposal_only",
+      sort_hint: 999,
+      is_system: false,
+    },
+    {
+      id: "page-break",
+      kind: "page_break",
+      label: "Quebra de Página",
+      default_title: "Quebra de Página",
+      default_content_rich: {},
+      default_source_type: "manual",
+      default_source_ref: {},
+      default_contract_relevance: "both",
+      sort_hint: 999,
+      is_system: false,
+    },
+  ];
+  const filteredManual = manualEntries.filter((l) =>
+    !q ? true : l.label.toLowerCase().includes(q.toLowerCase()),
+  );
+
+
 
 
   function pickNextStageId(): string | undefined {
@@ -128,99 +184,30 @@ export function BlockLibraryPanel({
               </button>
             </li>
           ))}
-          {!items.length && (
+          {filteredManual.map((l) => (
+            <li key={`manual-${l.id}`}>
+              <button
+                type="button"
+                onClick={() => addBlock(l)}
+                className="group flex w-full items-center justify-between gap-2 rounded-md border bg-background px-2 py-1.5 text-left text-sm hover:border-blue-300 hover:bg-blue-50"
+              >
+                <div className="min-w-0">
+                  <div className="truncate font-medium">{l.label}</div>
+                  <div className="mt-0.5 flex items-center gap-1">
+                    <RelevanceBadge value={l.default_contract_relevance} />
+                  </div>
+                </div>
+                <Plus className="h-4 w-4 shrink-0 text-zinc-400 group-hover:text-blue-500" />
+              </button>
+            </li>
+          ))}
+          {!items.length && !filteredManual.length && (
             <li className="px-2 py-4 text-center text-xs text-zinc-500">
               Sem resultados.
             </li>
           )}
         </ul>
       </ScrollArea>
-      <div className="space-y-2 border-t p-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          onClick={() =>
-            addBlock({
-              id: "custom",
-              kind: "custom_text",
-              label: "Texto Livre",
-              default_title: "Novo bloco",
-              default_content_rich: { text: "" },
-              default_source_type: "manual",
-              default_source_ref: {},
-              default_contract_relevance: "proposal_only",
-              sort_hint: 999,
-              is_system: false,
-            })
-          }
-        >
-          <Plus className="mr-1 h-3.5 w-3.5" /> Texto Livre
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          onClick={() =>
-            addBlock({
-              id: "gantt-partial",
-              kind: "gantt_partial",
-              label: "Gantt Parcial",
-              default_title: "Cronograma — Fase",
-              default_content_rich: {},
-              default_source_type: "live_quote",
-              default_source_ref: {},
-              default_contract_relevance: "proposal_only",
-              sort_hint: 999,
-              is_system: false,
-            })
-          }
-        >
-          <Plus className="mr-1 h-3.5 w-3.5" /> Gantt Parcial
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          onClick={() =>
-            addBlock({
-              id: "supplier-fee-table",
-              kind: "supplier_fee_table",
-              label: "Tabela de Honorários — Fornecedores",
-              default_title: "Honorários — Fornecedores",
-              default_content_rich: {},
-              default_source_type: "live_quote",
-              default_source_ref: {},
-              default_contract_relevance: "proposal_only",
-              sort_hint: 999,
-              is_system: false,
-            })
-          }
-        >
-          <Plus className="mr-1 h-3.5 w-3.5" /> Honorários Fornecedores
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          onClick={() =>
-            addBlock({
-              id: "page-break",
-              kind: "page_break",
-              label: "Quebra de Página",
-              default_title: "Quebra de Página",
-              default_content_rich: {},
-              default_source_type: "manual",
-              default_source_ref: {},
-              default_contract_relevance: "both",
-              sort_hint: 999,
-              is_system: false,
-            })
-          }
-        >
-          <Plus className="mr-1 h-3.5 w-3.5" /> Quebra de Página
-        </Button>
-      </div>
     </aside>
   );
 }
