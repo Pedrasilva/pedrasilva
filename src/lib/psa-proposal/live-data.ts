@@ -679,43 +679,83 @@ export function useLiveQuoteSnapshot(
                 .filter((s) => s.is_self !== false)
                 .reduce((sum, s) => sum + (Number(s.budget) || 0), 0) || null,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        stages: (stages ?? []).map((s: any) => {
-          const start = s.start_date ? new Date(s.start_date) : null;
-          const end = s.end_date ? new Date(s.end_date) : null;
-          // Working days (Mon–Fri) inclusive — matches the planner Gantt label.
-          let days: number | null = null;
-          if (start && end) {
-            let count = 0;
-            const cur = new Date(start);
-            while (cur <= end) {
-              const d = cur.getDay();
-              if (d !== 0 && d !== 6) count++;
-              cur.setDate(cur.getDate() + 1);
+        stages: (() => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const stageArr = (stages ?? []) as any[];
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const byId = new Map<string, any>(stageArr.map((s) => [s.id, s]));
+          // Walk ancestors to find the closest supplier assignment; return
+          // the admin markup pct for that supplier (0 when none).
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const markupForStage = (s: any): number => {
+            const seen = new Set<string>();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let cur: any = s;
+            while (cur && !seen.has(cur.id)) {
+              seen.add(cur.id);
+              if (
+                cur.supplier_company_id ||
+                cur.supplier_id ||
+                (cur.supplier_placeholder ?? "").trim()
+              ) {
+                return resolveSupplierMarkupPct(
+                  {
+                    supplier_company_id: cur.supplier_company_id ?? null,
+                    supplier_id: cur.supplier_id ?? null,
+                    supplier_label: cur.supplier_placeholder ?? null,
+                  },
+                  supplierMarkups,
+                );
+              }
+              cur = cur.parent_stage_id ? byId.get(cur.parent_stage_id) : null;
             }
-            days = Math.max(1, count);
-          }
-          return {
-            id: s.id,
-            name: s.name,
-            code: s.phase_code ?? null,
-            description: s.description ?? null,
-            startDate: s.start_date,
-            endDate: s.end_date,
-            durationDays: days,
-            fee: s.budget ?? null,
-            hours: null,
-            isSelf: s.is_self !== false,
-            isMilestone: s.is_milestone === true,
-            isOptional: s.is_optional === true,
-            parentStageId: s.parent_stage_id ?? null,
-            sortOrder: s.sort_order ?? null,
-            resources: Array.from(
-              (resourcesByStage.get(s.id) ?? new Map<string, number>()).entries(),
-            )
-              .map(([role, hours]) => ({ role, hours: Math.round(hours * 10) / 10 }))
-              .sort((a, b) => b.hours - a.hours),
+            return 0;
           };
-        }),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          return stageArr.map((s: any) => {
+            const start = s.start_date ? new Date(s.start_date) : null;
+            const end = s.end_date ? new Date(s.end_date) : null;
+            let days: number | null = null;
+            if (start && end) {
+              let count = 0;
+              const cur = new Date(start);
+              while (cur <= end) {
+                const d = cur.getDay();
+                if (d !== 0 && d !== 6) count++;
+                cur.setDate(cur.getDate() + 1);
+              }
+              days = Math.max(1, count);
+            }
+            const rawFee = s.budget ?? null;
+            // Only supplier stages (non-self) receive the admin markup.
+            const pct = s.is_self === false ? markupForStage(s) : 0;
+            const fee =
+              rawFee == null ? null : (Number(rawFee) || 0) * (1 + pct / 100);
+            return {
+              id: s.id,
+              name: s.name,
+              code: s.phase_code ?? null,
+              description: s.description ?? null,
+              startDate: s.start_date,
+              endDate: s.end_date,
+              durationDays: days,
+              fee,
+              rawFee,
+              supplierMarkupPct: pct,
+              hours: null,
+              isSelf: s.is_self !== false,
+              isMilestone: s.is_milestone === true,
+              isOptional: s.is_optional === true,
+              parentStageId: s.parent_stage_id ?? null,
+              sortOrder: s.sort_order ?? null,
+              resources: Array.from(
+                (resourcesByStage.get(s.id) ?? new Map<string, number>()).entries(),
+              )
+                .map(([role, hours]) => ({ role, hours: Math.round(hours * 10) / 10 }))
+                .sort((a, b) => b.hours - a.hours),
+            };
+          });
+        })(),
 
         consultants: buildConsultantRows({
           externalServices: ext ?? [],
@@ -723,6 +763,7 @@ export function useLiveQuoteSnapshot(
           stageById,
           supplierNames,
           pmSupplierNames,
+          supplierMarkups,
         }),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         paymentSchedule: (pay ?? []).map((p: any) => ({
