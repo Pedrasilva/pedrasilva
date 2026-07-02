@@ -187,12 +187,23 @@ export function useSyncQuotePaymentScheduleFromGantt(quoteId: string) {
         }),
       ];
 
+      const buildSettings = (quoteQ.data?.quote_build_settings ?? {}) as {
+        downPaymentEnabled?: boolean;
+        downPaymentPercent?: number;
+        deductDownPaymentFromStages?: boolean;
+      };
+      const dpEnabled = buildSettings.downPaymentEnabled ?? DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentEnabled;
+      const dpPercent = Number(
+        buildSettings.downPaymentPercent ?? DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentPercent,
+      );
+      const dpDeduct =
+        buildSettings.deductDownPaymentFromStages ??
+        DEFAULT_STAGE_MILESTONE_OPTIONS.deductDownPaymentFromStages;
+
       const generated = applyPaymentDefaults(
         generateByStageBilling(stages, stageFees, {
-          downPaymentPercent: DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentEnabled
-            ? DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentPercent
-            : 0,
-          deductDownPaymentFromStages: DEFAULT_STAGE_MILESTONE_OPTIONS.deductDownPaymentFromStages,
+          downPaymentPercent: dpEnabled ? dpPercent : 0,
+          deductDownPaymentFromStages: dpDeduct,
           externalServices: effectiveExternals,
           paymentOffsetDays: 30,
         }),
