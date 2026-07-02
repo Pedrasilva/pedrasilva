@@ -647,6 +647,7 @@ export function useLiveQuoteSnapshot(
             hours: null,
             isSelf: s.is_self !== false,
             isMilestone: s.is_milestone === true,
+            isOptional: s.is_optional === true,
             parentStageId: s.parent_stage_id ?? null,
             resources: Array.from(
               (resourcesByStage.get(s.id) ?? new Map<string, number>()).entries(),
