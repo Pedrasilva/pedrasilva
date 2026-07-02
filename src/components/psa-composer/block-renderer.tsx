@@ -421,12 +421,6 @@ export function BlockBody({
                 {L.resourceBreakdown}
               </h3>
               <table className="w-full border-collapse text-sm leading-relaxed">
-                <thead>
-                  <tr className="border-b border-zinc-200 text-left text-zinc-500">
-                    <th className="py-1.5 font-normal italic">{L.role}</th>
-                    <th className="py-1.5 text-right font-normal italic">{L.hours}</th>
-                  </tr>
-                </thead>
                 <tbody>
                   {resourceRows.map((r, i) => (
                     <tr key={i} className="border-b border-zinc-100 last:border-0">
@@ -440,6 +434,7 @@ export function BlockBody({
               </table>
             </div>
           )}
+
 
         </div>
 
