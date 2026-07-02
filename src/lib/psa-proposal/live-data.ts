@@ -449,6 +449,11 @@ const LABELS_EN: ProposalLabels = {
   deliverables: "Deliverables",
   clientInfoRequired: "Information required from the client",
   scopeDeliverables: "Scope and deliverables",
+  resourceBreakdown: "Allocated resources",
+  role: "Role",
+  hours: "Hours",
+  hoursShort: "h",
+
   emptyEditRight: "No content. Edit on the right panel.",
   chooseStage:
     "Select a quote stage on the right panel to populate this block.",
