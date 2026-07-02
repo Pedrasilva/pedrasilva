@@ -454,9 +454,9 @@ export function BlockBody({
           rows.push(
             <tr key={s.id} className="border-b border-zinc-100">
               <td className="py-1" style={pad}>{label}</td>
-              <td className="py-1">{formatDatePT(s.startDate)}</td>
-              <td className="py-1">{formatDatePT(s.endDate)}</td>
-              <td className="py-1 text-right">{s.durationDays ?? "—"} d</td>
+              <td className="py-1">{formatDatePT(s.startDate, lang)}</td>
+              <td className="py-1">{formatDatePT(s.endDate, lang)}</td>
+              <td className="py-1 text-right">{s.durationDays ?? "—"} {L.dayShort}</td>
             </tr>,
           );
         }
@@ -470,16 +470,16 @@ export function BlockBody({
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs uppercase tracking-wide text-zinc-500">
-                  <th className="py-1">Fase</th>
-                  <th className="py-1">Início</th>
-                  <th className="py-1">Fim</th>
-                  <th className="py-1 text-right">Duração</th>
+                  <th className="py-1">{L.phase}</th>
+                  <th className="py-1">{L.start}</th>
+                  <th className="py-1">{L.end}</th>
+                  <th className="py-1 text-right">{L.duration}</th>
                 </tr>
               </thead>
               <tbody>{rows}</tbody>
             </table>
           ) : (
-            <Empty>Sem cronograma disponível.</Empty>
+            <Empty>{L.scheduleUnavailable}</Empty>
           )}
         </div>
       );
