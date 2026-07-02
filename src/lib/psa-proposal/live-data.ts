@@ -730,6 +730,8 @@ const LABELS_EN: ProposalLabels = {
   dayShort: "d",
   weekShort: "wk",
   weeksShort: "wks",
+  monthShort: "mo",
+  monthsShort: "mos",
   daysUnit: "days",
   refPrefix: "Ref.",
   noDesignPhases: "No design stages with defined dates.",
