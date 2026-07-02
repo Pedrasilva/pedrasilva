@@ -1004,8 +1004,6 @@ export function BlockBody({
         if (kids.length === 0) return Number(s.fee) || 0;
         return kids.reduce((acc, k) => acc + leafSum(k), 0);
       };
-      const total = roots.reduce((acc, r) => acc + leafSum(r), 0);
-
       const rows: React.ReactNode[] = [];
       const walk = (s: LiveStage, depth: number) => {
         const kids = kidsOf.get(s.id) ?? [];
@@ -1015,7 +1013,7 @@ export function BlockBody({
           rows.push(
             <tr key={s.id} className="border-b border-zinc-200 bg-zinc-50">
               <td
-                colSpan={2}
+                colSpan={3}
                 className="py-1 text-[11px] font-semibold tracking-wide text-zinc-700"
                 style={pad}
               >
@@ -1024,16 +1022,38 @@ export function BlockBody({
             </tr>,
           );
           for (const k of kids) walk(k, depth + 1);
+          if (depth >= 1) {
+            const subtotal = leafSum(s);
+            rows.push(
+              <tr key={`${s.id}-subtotal`} className="font-semibold">
+                <td className="py-1" />
+                <td className="py-1" />
+                <td className="py-1 text-right whitespace-nowrap">{formatCurrencyEUR(subtotal, lang)}</td>
+              </tr>,
+            );
+          }
         } else {
           rows.push(
             <tr key={s.id} className="border-b border-zinc-100">
               <td className="py-1" style={pad}>{label}</td>
-              <td className="py-1 text-right">{formatCurrencyEUR(Number(s.fee) || 0, lang)}</td>
+              <td className="py-1 text-right whitespace-nowrap">{formatCurrencyEUR(Number(s.fee) || 0, lang)}</td>
+              <td className="py-1" />
             </tr>,
           );
         }
       };
-      for (const r of roots) walk(r, 0);
+      for (let i = 0; i < roots.length; i++) {
+        const r = roots[i];
+        walk(r, 0);
+        const rootTotal = leafSum(r);
+        rows.push(
+          <tr key={`${r.id}-root-total`} className="font-semibold">
+            <td className="pt-6 pb-1">{r.code ? `${r.code} — ${r.name}` : r.name}</td>
+            <td className="pt-6 pb-1" />
+            <td className="pt-6 pb-1 text-right whitespace-nowrap">{formatCurrencyEUR(rootTotal, lang)}</td>
+          </tr>,
+        );
+      }
 
       const optIntroHtml = (block.content_rich?.html as string | undefined) ?? "";
       const optIntroText = (block.content_rich?.text as string | undefined) ?? "";
@@ -1050,10 +1070,6 @@ export function BlockBody({
             <table className="proposal-print-table w-full border-collapse text-sm">
               <tbody>
                 {rows}
-                <tr className="font-semibold">
-                  <td className="py-1">{L.totalOptional}</td>
-                  <td className="py-1 text-right">{formatCurrencyEUR(total, lang)}</td>
-                </tr>
               </tbody>
             </table>
           ) : (
