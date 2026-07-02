@@ -649,15 +649,20 @@ export function BlockBody({
                   </th>
                   <th className="px-0 py-1">
                     <div className="relative h-4 w-full">
-                      {months.map((m, i) => (
-                        <div
-                          key={i}
-                          className="absolute top-0 flex h-4 items-center justify-center border-l border-zinc-200 text-[10px] tracking-wide text-zinc-500"
-                          style={{ left: `${m.left}%`, width: `${m.width}%` }}
-                        >
-                          {m.width >= 6 ? m.label : (m.label.startsWith("Jan") || m.label.startsWith("jan") ? m.label : "")}
-                        </div>
-                      ))}
+                      {(() => {
+                        // Skip labels when months are too narrow to render legibly.
+                        const minWidthPct = 100 / 18; // roughly ≥18 months → show every other
+                        const stride = months.length > 18 ? 3 : months.length > 12 ? 2 : 1;
+                        return months.map((m, i) => (
+                          <div
+                            key={i}
+                            className="absolute top-0 flex h-4 items-center justify-center border-l border-zinc-200 text-[10px] tracking-wide text-zinc-500"
+                            style={{ left: `${m.left}%`, width: `${m.width}%` }}
+                          >
+                            {i % stride === 0 && m.width >= minWidthPct ? m.label : ""}
+                          </div>
+                        ));
+                      })()}
                     </div>
                   </th>
                 </tr>
