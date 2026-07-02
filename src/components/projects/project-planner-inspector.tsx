@@ -25,6 +25,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   useUpdateStage,
+  useUpdateStageWithCascade,
   useDeleteStage,
   useStageDependencies,
   useCreateDependency,
