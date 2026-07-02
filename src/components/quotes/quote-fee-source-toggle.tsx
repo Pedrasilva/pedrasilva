@@ -25,7 +25,13 @@ const db = supabase as any;
 
 export type FeeSourceMode = "allocation" | "budget";
 
-export function QuoteFeeSourceToggle({ quoteId }: { quoteId: string }) {
+export function QuoteFeeSourceToggle({
+  quoteId,
+  compact = false,
+}: {
+  quoteId: string;
+  compact?: boolean;
+}) {
   const qc = useQueryClient();
 
   const q = useQuery({
@@ -57,7 +63,6 @@ export function QuoteFeeSourceToggle({ quoteId }: { quoteId: string }) {
           ? "Contract value now uses Budget values"
           : "Contract value now uses Resource Allocations",
       );
-      // Invalidate everything that depends on stage fees / totals.
       qc.invalidateQueries({ queryKey: ["fee-proposal-fee-source-mode", quoteId] });
       qc.invalidateQueries({ queryKey: ["fee-proposal-summary", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-financials", quoteId] });
@@ -68,35 +73,51 @@ export function QuoteFeeSourceToggle({ quoteId }: { quoteId: string }) {
 
   const value: FeeSourceMode = q.data ?? "allocation";
 
+  const toggle = (
+    <ToggleGroup
+      type="single"
+      value={value}
+      onValueChange={(v) => {
+        if (!v || v === value) return;
+        mutate.mutate(v as FeeSourceMode);
+      }}
+      className="shrink-0"
+    >
+      <ToggleGroupItem value="allocation" aria-label="Alocação de recursos" className="gap-1.5">
+        <Calculator className="h-3.5 w-3.5" />
+        Alocação de recursos
+      </ToggleGroupItem>
+      <ToggleGroupItem value="budget" aria-label="Valor do orçamento" className="gap-1.5">
+        <Wallet className="h-3.5 w-3.5" />
+        Valor do orçamento
+      </ToggleGroupItem>
+    </ToggleGroup>
+  );
+
+  if (compact) {
+    return (
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="space-y-0.5">
+          <Label className="text-xs">Origem do valor do contrato</Label>
+          <p className="text-[11px] text-muted-foreground">
+            Aplica a todo o projeto — fases, sub-fases e fornecedores.
+          </p>
+        </div>
+        {toggle}
+      </div>
+    );
+  }
+
   return (
     <Card className="border-dashed">
       <CardContent className="flex flex-wrap items-center justify-between gap-3 py-3">
         <div className="space-y-0.5">
-          <Label className="text-sm font-medium">
-            Origem do valor do contrato
-          </Label>
+          <Label className="text-sm font-medium">Origem do valor do contrato</Label>
           <p className="text-xs text-muted-foreground">
             Aplica a todo o projeto — todas as fases, sub-fases e fornecedores.
           </p>
         </div>
-        <ToggleGroup
-          type="single"
-          value={value}
-          onValueChange={(v) => {
-            if (!v || v === value) return;
-            mutate.mutate(v as FeeSourceMode);
-          }}
-          className="shrink-0"
-        >
-          <ToggleGroupItem value="allocation" aria-label="Alocação de recursos" className="gap-1.5">
-            <Calculator className="h-3.5 w-3.5" />
-            Alocação de recursos
-          </ToggleGroupItem>
-          <ToggleGroupItem value="budget" aria-label="Valor do orçamento" className="gap-1.5">
-            <Wallet className="h-3.5 w-3.5" />
-            Valor do orçamento
-          </ToggleGroupItem>
-        </ToggleGroup>
+        {toggle}
       </CardContent>
     </Card>
   );
