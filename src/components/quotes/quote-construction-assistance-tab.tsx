@@ -489,7 +489,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     title="Sum of selected resources' sale rate (€/h)"
                   />
                 </Field>
-                <Field label="Manual €/h">
+                <Field label="Sale €/h">
                   <Input
                     type="number"
                     step="0.5"
