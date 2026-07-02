@@ -617,10 +617,23 @@ export function GanttChart({
     const isSummary = hierarchy?.get(dragState.id)?.isSummary ?? false;
     const summaryMove = isSummary && dragState.type === "stage-move";
     const descendants = summaryMove ? collectDescendants(dragState.id) : [];
+    const isStageResize =
+      dragState.type === "stage-resize-l" || dragState.type === "stage-resize-r";
+    const resizedStage = isStageResize
+      ? stages.find((s) => s.id === dragState.id)
+      : undefined;
+    const scaledAllocs: { id: string; projectId: string; start: string; end: string }[] = [];
+    if (resizedStage) {
+      for (const a of resizedStage.allocations) {
+        const d = draftDates.get(a.id);
+        if (d) scaledAllocs.push({ id: a.id, projectId: dragState.projectId, start: d.start, end: d.end });
+      }
+    }
     setDraftDates((m) => {
       const next = new Map(m);
       next.delete(dragState.id);
       for (const d of descendants) next.delete(d.id);
+      for (const a of scaledAllocs) next.delete(a.id);
       return next;
     });
     try {
@@ -646,6 +659,15 @@ export function GanttChart({
             start_date: draft.start,
             end_date: draft.end,
           });
+          // Persist proportionally-scaled child allocations so they stay
+          // within the resized stage window.
+          for (const a of scaledAllocs) {
+            await adapter.updateAllocation({
+              id: a.id,
+              projectId: a.projectId,
+              patch: { start_date: a.start, end_date: a.end },
+            });
+          }
         }
       } else {
         await adapter.updateAllocation({
