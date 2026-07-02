@@ -408,9 +408,9 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={NONE_STAGE}>— None —</SelectItem>
-                      {stages.map((s) => (
+                      {numberedStages.map(({ stage: s, number }) => (
                         <SelectItem key={s.id} value={s.id}>
-                          {s.name}
+                          {number} {s.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
