@@ -18,6 +18,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface LiveStageResource {
+  role: string;
+  hours: number;
+}
+
 export interface LiveStage {
   id: string;
   name: string;
@@ -31,7 +36,9 @@ export interface LiveStage {
   isSelf: boolean;
   isMilestone: boolean;
   parentStageId: string | null;
+  resources: LiveStageResource[];
 }
+
 
 export interface LiveQuoteSnapshot {
   quoteId: string;
