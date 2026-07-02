@@ -37,6 +37,7 @@ import { useQuotePlanningPool } from "@/lib/quotes/use-quote-planning-pool";
 import { useDefaultResourceRates, effectiveRates } from "@/lib/projects/use-default-rates";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
+import { compareWbsNumbers } from "@/lib/quotes/stage-numbering";
 
 interface Props {
   quoteId: string;
