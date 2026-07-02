@@ -7349,6 +7349,7 @@ export type Database = {
           children_bill_independently: boolean
           color: string
           created_at: string
+          date_mode: string
           description: string | null
           end_date: string
           external_id: string | null
@@ -7392,6 +7393,7 @@ export type Database = {
           children_bill_independently?: boolean
           color?: string
           created_at?: string
+          date_mode?: string
           description?: string | null
           end_date: string
           external_id?: string | null
@@ -7435,6 +7437,7 @@ export type Database = {
           children_bill_independently?: boolean
           color?: string
           created_at?: string
+          date_mode?: string
           description?: string | null
           end_date?: string
           external_id?: string | null
