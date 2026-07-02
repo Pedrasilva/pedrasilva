@@ -40,6 +40,7 @@ import {
   type QuoteSiteTrip,
   type QuoteSiteTripFrequencyMode,
 } from "@/lib/quotes/use-quote-site-trips";
+import { numberStages } from "@/lib/quotes/stage-numbering";
 
 interface Props {
   quoteId: string;
@@ -65,6 +66,14 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
   const stages = stagesQ.data ?? [];
   const resources = (resourcesQ.data ?? []).filter((r) => r.active !== false);
   const trips = tripsQ.data ?? [];
+
+  // Stages ordered by Gantt WBS (1, 1.1, 1.2, 2, …) with their dotted number.
+  const numberedStages = useMemo(() => numberStages(stages), [stages]);
+  const stageNumberById = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const n of numberedStages) m.set(n.stage.id, n.number);
+    return m;
+  }, [numberedStages]);
 
   const stageById = useMemo(() => {
     const m = new Map<string, (typeof stages)[number]>();
@@ -238,9 +247,9 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value={NONE_STAGE}>— None —</SelectItem>
-                            {stages.map((s) => (
+                            {numberedStages.map(({ stage: s, number }) => (
                               <SelectItem key={s.id} value={s.id}>
-                                {s.name}
+                                {number} {s.name}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -399,9 +408,9 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={NONE_STAGE}>— None —</SelectItem>
-                      {stages.map((s) => (
+                      {numberedStages.map(({ stage: s, number }) => (
                         <SelectItem key={s.id} value={s.id}>
-                          {s.name}
+                          {number} {s.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
