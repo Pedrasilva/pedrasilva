@@ -224,7 +224,7 @@ export function BlockBody({
     case "cover":
       return (
         <div className="proposal-cover proposal-avoid-break proposal-page-break-after flex flex-col items-center justify-center py-24 text-center">
-          <div className="text-xs uppercase tracking-[0.3em] text-zinc-500">
+          <div className="text-xs tracking-[0.3em] text-zinc-500">
             {L.proposalCover}
           </div>
           <div className="mt-6 text-3xl font-light tracking-tight text-zinc-900">
