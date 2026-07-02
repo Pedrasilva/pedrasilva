@@ -618,10 +618,11 @@ export function BlockBody({
         const left = ((cursor.getTime() - headStart.getTime()) / span) * 100;
         const width = ((next.getTime() - cursor.getTime()) / span) * 100;
         months.push({
-          label: formatMonthShort(cursor, lang),
+          label: formatMonthShort(cursor, lang).charAt(0).toUpperCase(),
           left,
           width,
         });
+
         cursor.setMonth(cursor.getMonth() + 1);
       }
 
