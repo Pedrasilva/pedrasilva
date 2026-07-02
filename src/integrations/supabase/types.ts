@@ -2015,6 +2015,7 @@ export type Database = {
           project_fee_calculation: Json
           proposal_description: string | null
           proposal_number: string | null
+          quote_build_settings: Json
           quote_category: Database["public"]["Enums"]["crm_quote_category"]
           quote_mode_ready: boolean
           quote_status: Database["public"]["Enums"]["crm_quote_status"]
@@ -2067,6 +2068,7 @@ export type Database = {
           project_fee_calculation?: Json
           proposal_description?: string | null
           proposal_number?: string | null
+          quote_build_settings?: Json
           quote_category?: Database["public"]["Enums"]["crm_quote_category"]
           quote_mode_ready?: boolean
           quote_status?: Database["public"]["Enums"]["crm_quote_status"]
@@ -2119,6 +2121,7 @@ export type Database = {
           project_fee_calculation?: Json
           proposal_description?: string | null
           proposal_number?: string | null
+          quote_build_settings?: Json
           quote_category?: Database["public"]["Enums"]["crm_quote_category"]
           quote_mode_ready?: boolean
           quote_status?: Database["public"]["Enums"]["crm_quote_status"]

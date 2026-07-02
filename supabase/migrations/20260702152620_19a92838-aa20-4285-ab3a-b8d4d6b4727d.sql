@@ -1,0 +1,1 @@
+ALTER TABLE public.fee_proposals ADD COLUMN IF NOT EXISTS quote_build_settings jsonb NOT NULL DEFAULT '{}'::jsonb;
