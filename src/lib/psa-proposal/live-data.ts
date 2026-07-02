@@ -79,6 +79,148 @@ export interface LiveQuoteSnapshot {
   missing: string[];
 }
 
+/**
+ * Build the consultant rows for the Consultants block.
+ *
+ * A "consultant" is a supplier engaged for a stage subtree in the Gantt
+ * (non-self stages). We group by the grandparent — i.e. the topmost
+ * ancestor that carries the supplier assignment — so that nested stages
+ * assigned to the same supplier collapse into a single row.
+ *
+ * Rules:
+ *  - Walk up each stage's ancestors; the "group root" is the topmost
+ *    ancestor that shares the same supplier key. If no ancestor is
+ *    tagged, the stage itself is the group root.
+ *  - Discipline = group root stage.name.
+ *  - Consultant name = supplier company / pm_supplier / placeholder.
+ *  - Fee = group root's budget when set; otherwise sum of the subtree
+ *    budgets.
+ *  - Legacy quote_external_services entries are kept as-is (they have no
+ *    stage grouping).
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildConsultantRows(input: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  externalServices: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  stages: any[];
+  stageById: Map<string, { id: string; parent_stage_id: string | null; budget: number | null }>;
+  supplierNames: Map<string, string>;
+  pmSupplierNames: Map<string, string>;
+}): LiveQuoteSnapshot["consultants"] {
+  const { externalServices, stages, supplierNames, pmSupplierNames } = input;
+
+  type Stage = {
+    id: string;
+    name: string;
+    parent_stage_id: string | null;
+    is_self: boolean | null;
+    budget: number | null;
+    budget_mode: string | null;
+    supplier_id: string | null;
+    supplier_company_id: string | null;
+    supplier_placeholder: string | null;
+  };
+  const sById = new Map<string, Stage>(stages.map((s) => [s.id, s as Stage]));
+  const supplierKey = (s: Stage): string | null => {
+    if (s.supplier_company_id) return `co:${s.supplier_company_id}`;
+    if (s.supplier_id) return `pm:${s.supplier_id}`;
+    const ph = (s.supplier_placeholder ?? "").trim();
+    if (ph) return `ph:${ph.toLowerCase()}`;
+    return null;
+  };
+  const supplierLabel = (s: Stage): string | null => {
+    if (s.supplier_company_id)
+      return supplierNames.get(s.supplier_company_id) ?? null;
+    if (s.supplier_id) return pmSupplierNames.get(s.supplier_id) ?? null;
+    const ph = (s.supplier_placeholder ?? "").trim();
+    return ph || null;
+  };
+
+  // For each stage carrying a supplier, walk up to the topmost ancestor
+  // that shares the same supplier key — that ancestor is the "grandparent"
+  // group root.
+  const groupRootFor = (stage: Stage): Stage => {
+    const key = supplierKey(stage);
+    if (!key) return stage;
+    let top = stage;
+    let cur: Stage | undefined = stage.parent_stage_id
+      ? sById.get(stage.parent_stage_id)
+      : undefined;
+    const seen = new Set<string>();
+    while (cur && !seen.has(cur.id)) {
+      seen.add(cur.id);
+      if (supplierKey(cur) === key) top = cur;
+      cur = cur.parent_stage_id ? sById.get(cur.parent_stage_id) : undefined;
+    }
+    return top;
+  };
+
+  // Collect descendants of a stage (inclusive).
+  const childrenByParent = new Map<string, Stage[]>();
+  for (const s of sById.values()) {
+    if (!s.parent_stage_id) continue;
+    const arr = childrenByParent.get(s.parent_stage_id) ?? [];
+    arr.push(s);
+    childrenByParent.set(s.parent_stage_id, arr);
+  }
+  const subtreeBudget = (rootId: string): number => {
+    let total = 0;
+    const stack = [rootId];
+    while (stack.length) {
+      const id = stack.pop()!;
+      const st = sById.get(id);
+      if (!st) continue;
+      const kids = childrenByParent.get(id) ?? [];
+      if (kids.length === 0) {
+        total += Number(st.budget) || 0;
+      } else {
+        for (const k of kids) stack.push(k.id);
+      }
+    }
+    return total;
+  };
+
+  const groups = new Map<
+    string,
+    { id: string; name: string; discipline: string | null; fee: number | null }
+  >();
+  for (const s of sById.values()) {
+    if (s.is_self === true) continue;
+    if (!supplierKey(s)) continue;
+    const root = groupRootFor(s);
+    const key = `${root.id}:${supplierKey(root) ?? ""}`;
+    if (groups.has(key)) continue;
+    const ownBudget = Number(root.budget) || 0;
+    const fee =
+      root.budget_mode === "fixed" && ownBudget > 0
+        ? ownBudget
+        : subtreeBudget(root.id) || ownBudget || null;
+    groups.set(key, {
+      id: `stage-${root.id}`,
+      name: supplierLabel(root) ?? "—",
+      discipline: root.name ?? null,
+      fee,
+    });
+  }
+
+  // Legacy free-form external services (kept as-is).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const legacyRows = (externalServices as any[]).map((c) => ({
+    id: c.id as string,
+    name:
+      (c.supplier_company_id && supplierNames.get(c.supplier_company_id)) ||
+      (c.supplier_id && pmSupplierNames.get(c.supplier_id)) ||
+      c.description ||
+      "—",
+    discipline: (c.description ?? null) as string | null,
+    fee: (c.sale_price ?? null) as number | null,
+  }));
+
+  return [...groups.values(), ...legacyRows];
+}
+
+
 export function useLiveQuoteSnapshot(
   quoteId: string | null | undefined,
   lang: ProposalLang = "pt-PT",
@@ -126,7 +268,7 @@ export function useLiveQuoteSnapshot(
       const { data: stages } = await supabase
         .from("quote_stages")
         .select(
-          "id,name,description,phase_code,start_date,end_date,budget,sort_order,is_self,is_milestone,parent_stage_id",
+          "id,name,description,phase_code,start_date,end_date,budget,budget_mode,sort_order,is_self,is_milestone,parent_stage_id,supplier_id,supplier_company_id,supplier_placeholder",
         )
         .eq("quote_id", quoteId!)
         .order("sort_order", { ascending: true, nullsFirst: false })
@@ -204,6 +346,42 @@ export function useLiveQuoteSnapshot(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ((sups ?? []) as any[]).forEach((s) => {
           if (s?.id && s?.nome) supplierNames.set(s.id, s.nome);
+        });
+      }
+
+      // Also resolve supplier names for stage-level assignments (pm_suppliers
+      // for supplier_id, companies for supplier_company_id).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const stagesArr0 = (stages ?? []) as any[];
+      const stageCompanyIds = Array.from(
+        new Set(
+          stagesArr0.map((s) => s.supplier_company_id).filter(Boolean),
+        ),
+      ) as string[];
+      const stagePmSupplierIds = Array.from(
+        new Set(stagesArr0.map((s) => s.supplier_id).filter(Boolean)),
+      ) as string[];
+      const missingCompanyIds = stageCompanyIds.filter((id) => !supplierNames.has(id));
+      if (missingCompanyIds.length) {
+        const { data: sups3 } = await supabase
+          .from("companies")
+          .select("id,nome")
+          .in("id", missingCompanyIds);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ((sups3 ?? []) as any[]).forEach((s) => {
+          if (s?.id && s?.nome) supplierNames.set(s.id, s.nome);
+        });
+      }
+      const pmSupplierNames = new Map<string, string>();
+      if (stagePmSupplierIds.length) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: pms } = await (supabase as any)
+          .from("pm_suppliers")
+          .select("id,name")
+          .in("id", stagePmSupplierIds);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ((pms ?? []) as any[]).forEach((s) => {
+          if (s?.id && s?.name) pmSupplierNames.set(s.id, s.name);
         });
       }
 
@@ -457,16 +635,13 @@ export function useLiveQuoteSnapshot(
           };
         }),
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        consultants: (ext ?? []).map((c: any) => ({
-          id: c.id,
-          name:
-            (c.supplier_company_id && supplierNames.get(c.supplier_company_id)) ||
-            c.description ||
-            "—",
-          discipline: c.description ?? null,
-          fee: c.sale_price ?? null,
-        })),
+        consultants: buildConsultantRows({
+          externalServices: ext ?? [],
+          stages: stagesArr0,
+          stageById,
+          supplierNames,
+          pmSupplierNames,
+        }),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         paymentSchedule: (pay ?? []).map((p: any) => ({
           id: p.id,
