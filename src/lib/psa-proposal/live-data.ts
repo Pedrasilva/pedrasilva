@@ -661,6 +661,8 @@ const LABELS_PT: ProposalLabels = {
   dayShort: "d",
   weekShort: "sem",
   weeksShort: "sems",
+  monthShort: "mês",
+  monthsShort: "meses",
   daysUnit: "dias",
   refPrefix: "Ref.",
   noDesignPhases: "Sem fases de projeto com datas definidas.",
