@@ -15,6 +15,7 @@
  */
 import {
   rollupExternalServices,
+  externalServiceLine,
   toNum,
   type FinancialsRow,
 } from "@/lib/projects/financial-rollups";
@@ -26,6 +27,10 @@ import {
   retainerMonthlyEstimate,
   type TimeBasedSettings,
 } from "./time-based-settings";
+import {
+  resolveSupplierMarkupPct,
+  type SupplierMarkupRow,
+} from "./supplier-markup-lookup";
 
 export function quoteAllocationLine(a: QuoteAllocationWithResource): {
   hours: number;
