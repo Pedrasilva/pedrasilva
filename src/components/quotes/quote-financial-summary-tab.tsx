@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuoteAllocations, type QuoteAllocationWithResource } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
+import { useQuoteSupplierMarkups } from "@/lib/quotes/use-quote-supplier-markups";
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings, marginBand } from "@/lib/quotes/quote-warnings";
@@ -102,6 +103,7 @@ export function QuoteFinancialSummaryTab({
   const stagesQ = useQuoteStages(quoteId);
   const allocsQ = useQuoteAllocations(quoteId);
   const extQ = useQuoteExternalServices(quoteId);
+  const markupsQ = useQuoteSupplierMarkups(quoteId);
 
   // Fetch quote-level fields needed for the time-based / retainer rollup
   // (so the summary is no longer empty for those workflows).
@@ -184,6 +186,7 @@ export function QuoteFinancialSummaryTab({
     timeBasedSettings,
     feeSourceMode,
     stages,
+    supplierMarkups: markupsQ.data,
   });
 
   const band = marginBand(summary.effectiveMargin);

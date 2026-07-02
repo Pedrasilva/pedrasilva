@@ -62,6 +62,7 @@ import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { numberStages } from "@/lib/quotes/stage-numbering";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
+import { useQuoteSupplierMarkups } from "@/lib/quotes/use-quote-supplier-markups";
 import { useQuotePaymentSchedule } from "@/lib/quotes/use-quote-payment-schedule";
 import { rollupQuote, quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 import { useDateLocale } from "@/i18n/use-date-locale";
@@ -1811,12 +1812,14 @@ function LegacyProposalPreview({
   const { data: allocations = [] } = useQuoteAllocations(quoteId);
   const { data: external = [] } = useQuoteExternalServices(quoteId);
   const { data: schedule = [] } = useQuotePaymentSchedule(quoteId);
+  const { data: supplierMarkups } = useQuoteSupplierMarkups(quoteId);
   const { data: branding } = useFirmBranding();
 
   const summary = rollupQuote({
     allocations,
     externalServices: external,
     pricingMultiplier,
+    supplierMarkups,
   });
 
   const roleMap = new Map<

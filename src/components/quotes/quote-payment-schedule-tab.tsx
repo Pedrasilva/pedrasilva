@@ -33,8 +33,10 @@ import {
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
+import { useQuoteSupplierMarkups } from "@/lib/quotes/use-quote-supplier-markups";
 import { rollupQuote } from "@/lib/quotes/financial-rollups";
 import { QuoteFeeSourceToggle } from "@/components/quotes/quote-fee-source-toggle";
+import { QuoteSupplierMarkupEditor } from "@/components/quotes/quote-supplier-markup-editor";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -159,6 +161,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
   const stagesQ = useQuoteStages(quoteId);
   const allocationsQ = useQuoteAllocations(quoteId);
   const externalsQ = useQuoteExternalServices(quoteId);
+  const markupsQ = useQuoteSupplierMarkups(quoteId);
   const quoteQ = useQuery({
     queryKey: ["fee-proposal-summary", quoteId],
     enabled: !!quoteId,
@@ -195,6 +198,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
     category: (quoteQ.data?.quote_category as "project" | "time_based" | "retainer" | "consultancy" | undefined) ?? undefined,
     feeSourceMode,
     stages,
+    supplierMarkups: markupsQ.data,
   });
   const totalFee = rollup.totalFee || Number(quoteQ.data?.valor ?? 0) || 0;
   const leafStageFees = computeStageFees(stages, allocations, externals, pricingMultiplier, feeSourceMode);
@@ -698,6 +702,9 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
           </div>
           <div className="border-t pt-4">
             <QuoteFeeSourceToggle quoteId={quoteId} compact />
+          </div>
+          <div className="border-t pt-4">
+            <QuoteSupplierMarkupEditor quoteId={quoteId} />
           </div>
         </CardContent>
       </Card>

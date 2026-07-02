@@ -25,6 +25,7 @@ import {
 import { useQuoteStages, useUpsertQuoteStage } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
+import { useQuoteSupplierMarkups } from "@/lib/quotes/use-quote-supplier-markups";
 import { rollupQuote } from "@/lib/quotes/financial-rollups";
 import { buildQuoteWarnings } from "@/lib/quotes/quote-warnings";
 
@@ -41,11 +42,13 @@ export function QuotePlanningTab({
   const stagesQ = useQuoteStages(quoteId);
   const allocQ = useQuoteAllocations(quoteId);
   const externalQ = useQuoteExternalServices(quoteId);
+  const markupsQ = useQuoteSupplierMarkups(quoteId);
   const upsertStage = useUpsertQuoteStage(quoteId);
 
   const allStages = stagesQ.data ?? [];
   const allocations = allocQ.data ?? [];
   const externalServices = externalQ.data ?? [];
+  const supplierMarkups = markupsQ.data ?? [];
 
   const retainerStages = useMemo(
     () => allStages.filter((s) => (s as { stage_kind?: string }).stage_kind === "retainer_monthly"),
@@ -61,6 +64,7 @@ export function QuotePlanningTab({
       allocations,
       externalServices,
       pricingMultiplier,
+      supplierMarkups,
     });
     return buildQuoteWarnings({
       stages,
@@ -68,7 +72,7 @@ export function QuotePlanningTab({
       externalServices,
       summary,
     });
-  }, [stages, allocations, externalServices, pricingMultiplier]);
+  }, [stages, allocations, externalServices, pricingMultiplier, supplierMarkups]);
 
   const handleAddRetainerStage = async () => {
     const anchor = defaultAnchorMonth();
