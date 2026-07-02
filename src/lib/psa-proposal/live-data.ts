@@ -907,6 +907,7 @@ const LABELS_EN: ProposalLabels = {
   monthlyOf: "Monthly fee for",
   monthly: "Monthly fee",
   atProjectStart: "At project start",
+  downpaymentReceived: "Downpayment received",
   atStartOf: "At the start of",
   atStartOfStage: "At the start of the stage",
   uponCompletionOf: "Upon completion of",
