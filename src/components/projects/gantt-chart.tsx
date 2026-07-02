@@ -505,6 +505,37 @@ export function GanttChart({
           });
         }
       }
+      // When resizing a stage bar, proportionally scale its child
+      // allocations so they always remain within the stage window.
+      if (drag.type === "stage-resize-l" || drag.type === "stage-resize-r") {
+        const stageObj = stages.find((s) => s.id === drag.id);
+        if (stageObj && stageObj.allocations.length > 0) {
+          const origStartMs = new Date(drag.origStart).getTime();
+          const origEndMs = new Date(drag.origEnd).getTime();
+          const newStartMs = new Date(newStart).getTime();
+          const newEndMs = new Date(newEnd).getTime();
+          const origSpan = Math.max(1, origEndMs - origStartMs);
+          const newSpan = Math.max(0, newEndMs - newStartMs);
+          const scale = newSpan / origSpan;
+          const DAY_MS = 86400000;
+          for (const a of stageObj.allocations) {
+            const aS = new Date(a.start_date).getTime();
+            const aE = new Date(a.end_date).getTime();
+            let ns = newStartMs + (aS - origStartMs) * scale;
+            let ne = newStartMs + (aE - origStartMs) * scale;
+            // Snap to day, clamp within new stage bounds
+            ns = Math.round(ns / DAY_MS) * DAY_MS;
+            ne = Math.round(ne / DAY_MS) * DAY_MS;
+            if (ns < newStartMs) ns = newStartMs;
+            if (ne > newEndMs) ne = newEndMs;
+            if (ne < ns) ne = ns;
+            next.set(a.id, {
+              start: format(new Date(ns), "yyyy-MM-dd"),
+              end: format(new Date(ne), "yyyy-MM-dd"),
+            });
+          }
+        }
+      }
       return next;
     });
   }
@@ -586,10 +617,23 @@ export function GanttChart({
     const isSummary = hierarchy?.get(dragState.id)?.isSummary ?? false;
     const summaryMove = isSummary && dragState.type === "stage-move";
     const descendants = summaryMove ? collectDescendants(dragState.id) : [];
+    const isStageResize =
+      dragState.type === "stage-resize-l" || dragState.type === "stage-resize-r";
+    const resizedStage = isStageResize
+      ? stages.find((s) => s.id === dragState.id)
+      : undefined;
+    const scaledAllocs: { id: string; projectId: string; start: string; end: string }[] = [];
+    if (resizedStage) {
+      for (const a of resizedStage.allocations) {
+        const d = draftDates.get(a.id);
+        if (d) scaledAllocs.push({ id: a.id, projectId: dragState.projectId, start: d.start, end: d.end });
+      }
+    }
     setDraftDates((m) => {
       const next = new Map(m);
       next.delete(dragState.id);
       for (const d of descendants) next.delete(d.id);
+      for (const a of scaledAllocs) next.delete(a.id);
       return next;
     });
     try {
@@ -615,6 +659,15 @@ export function GanttChart({
             start_date: draft.start,
             end_date: draft.end,
           });
+          // Persist proportionally-scaled child allocations so they stay
+          // within the resized stage window.
+          for (const a of scaledAllocs) {
+            await adapter.updateAllocation({
+              id: a.id,
+              projectId: a.projectId,
+              patch: { start_date: a.start, end_date: a.end },
+            });
+          }
         }
       } else {
         await adapter.updateAllocation({
