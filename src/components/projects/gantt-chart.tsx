@@ -13,6 +13,7 @@ import { Trash2, GripVertical, AlertTriangle, CalendarOff, Info } from "lucide-r
 import { allocationOverload, buildLoadMap } from "@/lib/projects/overload";
 import { leaveHoursInRange, type LeaveInterval } from "@/lib/projects/leave-capacity";
 import { useResourceSchedules, buildDailyLimitMap, dailyHoursFor } from "@/lib/projects/use-resource-schedules";
+import { snapToWorkdayForward, snapToWorkdayBackward } from "@/lib/projects/workday-snap";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
