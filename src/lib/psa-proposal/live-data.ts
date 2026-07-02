@@ -468,6 +468,9 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
           amount: p.amount_value,
           plannedDate: p.expected_invoice_date,
         })),
+        paymentInvoices,
+        paymentInvoicesTotal,
+        defaultVatRate,
         missing,
       };
     },
