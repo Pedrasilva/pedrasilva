@@ -753,3 +753,26 @@ export function formatMonthShort(d: Date, lang: ProposalLang): string {
     .toLocaleDateString(lang, { month: "short" })
     .replace(".", "");
 }
+
+/**
+ * Human-friendly duration formatter.
+ * - <= 7 days: show days
+ * - 8–28 days: show weeks (rounded)
+ * - > 28 days (>4 weeks): show months (rounded, 30-day months)
+ */
+export function formatDurationHuman(
+  days: number | null | undefined,
+  lang: ProposalLang,
+): string {
+  if (days == null || !isFinite(days)) return "—";
+  const L = getProposalLabels(lang);
+  const d = Math.max(0, Math.round(days));
+  if (d <= 7) return `${d} ${L.dayShort}`;
+  if (d <= 28) {
+    const w = Math.round(d / 7);
+    return `${w} ${w === 1 ? L.weekShort : L.weeksShort}`;
+  }
+  const m = Math.round(d / 30);
+  return `${m} ${m === 1 ? L.monthShort : L.monthsShort}`;
+}
+
