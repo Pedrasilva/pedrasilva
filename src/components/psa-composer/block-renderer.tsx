@@ -137,6 +137,7 @@ export function BlockBody({
   toc,
   editable,
   onPatchContent,
+  lang = "pt-PT",
 }: {
   block: PsaProposalBlock;
   live: LiveQuoteSnapshot | undefined;
@@ -144,7 +145,9 @@ export function BlockBody({
   toc?: { chapter: number; title: string }[];
   editable?: boolean;
   onPatchContent?: (patch: Record<string, unknown>) => void;
+  lang?: ProposalLang;
 }) {
+  const L = getProposalLabels(lang);
 
   const text = (block.content_rich?.text as string | undefined) ?? "";
   const html = (block.content_rich?.html as string | undefined) ?? "";
