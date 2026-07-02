@@ -216,7 +216,7 @@ function buildConsultantRows(input: {
 
   const groups = new Map<
     string,
-    { id: string; name: string; discipline: string | null; fee: number | null }
+    LiveQuoteSnapshot["consultants"][number]
   >();
   for (const s of sById.values()) {
     if (s.is_self === true) continue;
@@ -227,30 +227,55 @@ function buildConsultantRows(input: {
     const key = `${root.id}:${supplierKey(root) ?? ""}`;
     if (groups.has(key)) continue;
     const ownBudget = Number(root.budget) || 0;
-    const fee =
+    const supplierFee =
       root.budget_mode === "fixed" && ownBudget > 0
         ? ownBudget
         : subtreeBudget(root.id) || ownBudget || null;
+    const pct = resolveSupplierMarkupPct(
+      {
+        supplier_company_id: root.supplier_company_id,
+        supplier_id: root.supplier_id,
+        supplier_label: root.supplier_placeholder ?? null,
+      },
+      supplierMarkups,
+    );
+    const fee = supplierFee == null ? null : supplierFee * (1 + pct / 100);
     groups.set(key, {
       id: `stage-${root.id}`,
       name: supplierLabel(root) ?? "—",
       discipline: root.name ?? null,
       fee,
+      supplierFee,
+      supplierMarkupPct: pct,
     });
   }
 
   // Legacy free-form external services (kept as-is).
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const legacyRows = (externalServices as any[]).map((c) => ({
-    id: c.id as string,
-    name:
-      (c.supplier_company_id && supplierNames.get(c.supplier_company_id)) ||
-      (c.supplier_id && pmSupplierNames.get(c.supplier_id)) ||
-      c.description ||
-      "—",
-    discipline: (c.description ?? null) as string | null,
-    fee: (c.sale_price ?? null) as number | null,
-  }));
+  const legacyRows: LiveQuoteSnapshot["consultants"] = (externalServices as any[]).map((c) => {
+    const supplierFee = (c.sale_price ?? null) as number | null;
+    const pct = resolveSupplierMarkupPct(
+      {
+        supplier_company_id: c.supplier_company_id ?? null,
+        supplier_id: c.supplier_id ?? null,
+        supplier_label: c.description ?? null,
+      },
+      supplierMarkups,
+    );
+    const fee = supplierFee == null ? null : supplierFee * (1 + pct / 100);
+    return {
+      id: c.id as string,
+      name:
+        (c.supplier_company_id && supplierNames.get(c.supplier_company_id)) ||
+        (c.supplier_id && pmSupplierNames.get(c.supplier_id)) ||
+        c.description ||
+        "—",
+      discipline: (c.description ?? null) as string | null,
+      fee,
+      supplierFee,
+      supplierMarkupPct: pct,
+    };
+  });
 
   return [...groups.values(), ...legacyRows];
 }
