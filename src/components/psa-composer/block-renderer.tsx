@@ -812,11 +812,11 @@ export function BlockBody({
       };
       for (const r of roots) walk(r, 0);
 
-      return (
       const feeIntroHtml = (block.content_rich?.html as string | undefined) ?? "";
       const feeIntroText = (block.content_rich?.text as string | undefined) ?? "";
 
       return (
+
         <div>
           <H>{num}{block.title}</H>
           {hasRichContent(feeIntroHtml, feeIntroText) && (
