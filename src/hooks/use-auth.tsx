@@ -70,8 +70,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+    let currentUserId: string | null = null;
+    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
+      // Ignore transient events that fire on tab focus / hourly refresh —
+      // TOKEN_REFRESHED and INITIAL_SESSION keep the same user, so flipping
+      // roleLoading=true here would unmount the app shell and reset every
+      // page's local state (e.g. the quote builder's active tab).
+      if (event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") return;
+
+      const nextUserId = s?.user?.id ?? null;
+      if (nextUserId === currentUserId) return;
+      currentUserId = nextUserId;
+
       if (s?.user) {
         setRoleLoading(true);
         setTimeout(() => fetchRole(s.user.id), 0);
@@ -84,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     supabase.auth.getSession().then(async ({ data: { session: s } }) => {
       setSession(s);
+      currentUserId = s?.user?.id ?? null;
       if (s?.user) {
         await fetchRole(s.user.id);
       } else {
