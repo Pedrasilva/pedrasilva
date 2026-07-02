@@ -817,6 +817,7 @@ const LABELS_PT: ProposalLabels = {
   duration: "Duração",
   fees: "Honorários",
   totalArchitecture: "Total Arquitetura",
+  totalSuppliers: "Total Fornecedores",
   scheduleUnavailable: "Sem cronograma disponível.",
   noFeesToShow: "Sem honorários para apresentar.",
   noPhasesDefined: "Sem fases definidas no orçamento.",
