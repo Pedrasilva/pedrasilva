@@ -523,3 +523,87 @@ function NumberCell({
     />
   );
 }
+
+interface ResourceOption {
+  id: string;
+  name: string;
+  hourly_rate: number;
+  active?: boolean;
+}
+
+function ResourceMultiSelect({
+  selected,
+  resources,
+  onChange,
+  fullWidth,
+}: {
+  selected: string[];
+  resources: ResourceOption[];
+  onChange: (ids: string[]) => void;
+  fullWidth?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const selectedSet = new Set(selected);
+  const label =
+    selected.length === 0
+      ? "— None —"
+      : selected.length === 1
+        ? resources.find((r) => r.id === selected[0])?.name ?? "1 resource"
+        : `${selected.length} resources`;
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className={`h-8 justify-between font-normal ${fullWidth ? "w-full" : "min-w-[10rem]"}`}
+        >
+          <span className="truncate">{label}</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-2" align="start">
+        <div className="max-h-64 overflow-y-auto space-y-1">
+          {resources.length === 0 && (
+            <div className="text-xs text-muted-foreground p-2">No resources.</div>
+          )}
+          {resources.map((r) => {
+            const checked = selectedSet.has(r.id);
+            return (
+              <label
+                key={r.id}
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-muted cursor-pointer"
+              >
+                <Checkbox
+                  checked={checked}
+                  onCheckedChange={(v) => {
+                    const next = new Set(selectedSet);
+                    if (v) next.add(r.id);
+                    else next.delete(r.id);
+                    onChange(Array.from(next));
+                  }}
+                />
+                <span className="flex-1 truncate">{r.name}</span>
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  {fmtMoney(Number(r.hourly_rate) || 0)}/h
+                </span>
+              </label>
+            );
+          })}
+        </div>
+        {selected.length > 0 && (
+          <div className="mt-2 border-t pt-2 flex justify-end">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => onChange([])}
+            >
+              Clear
+            </Button>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
