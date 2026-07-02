@@ -1198,6 +1198,98 @@ export function BlockBody({
         </div>
       );
 
+    case "travel_expenses": {
+      const rows = live?.siteTrips ?? [];
+      const total = live?.siteTripsTotal ?? 0;
+      const isEn = lang === "en";
+      const intro = isEn
+        ? "Site trips planned during construction (or other stages). Cost per trip = km × price/km × 2 + trip hours × hourly rate × 2 (return included)."
+        : "Deslocações previstas durante a obra (ou outras fases). Custo por deslocação = km × €/km × 2 + horas × €/h × 2 (ida e volta incluídas).";
+      const T = {
+        label: isEn ? "Ref." : "Ref.",
+        stage: isEn ? "Stage" : "Fase",
+        criteria: isEn ? "Criteria" : "Critério",
+        frequency: isEn ? "Frequency" : "Frequência",
+        trips: isEn ? "Trips" : "Deslocações",
+        cost: isEn ? "Total" : "Total",
+        totalRow: isEn ? "Total" : "Total",
+        perMonth: isEn ? "per month" : "por mês",
+        totalMode: isEn ? "total" : "total",
+      };
+      const criteriaFor = (r: (typeof rows)[number]) => {
+        const parts: string[] = [];
+        if (r.km > 0 && r.pricePerKm > 0) {
+          parts.push(`${r.km} km × ${formatCurrencyEUR(r.pricePerKm, lang)}/km × 2`);
+        }
+        if (r.tripHours > 0 && r.hourlyRate > 0) {
+          parts.push(
+            `${r.tripHours} ${L.hoursShort} × ${formatCurrencyEUR(r.hourlyRate, lang)}/${L.hoursShort} × 2`,
+          );
+        }
+        return parts.join(" + ") || "—";
+      };
+      const frequencyFor = (r: (typeof rows)[number]) => {
+        if (r.frequencyMode === "per_month") {
+          return `${r.frequencyValue} ${T.perMonth}`;
+        }
+        return `${r.frequencyValue} ${T.totalMode}`;
+      };
+      return (
+        <div>
+          <H>{num}{block.title}</H>
+          <P>{intro}</P>
+          {rows.length ? (
+            <table className="proposal-print-table w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
+                  <th className="py-1 w-12">{T.label}</th>
+                  <th className="py-1">{T.stage}</th>
+                  <th className="py-1">{T.criteria}</th>
+                  <th className="py-1">{T.frequency}</th>
+                  <th className="py-1 text-right">{T.trips}</th>
+                  <th className="py-1 text-right">{T.cost}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.id} className="border-b border-zinc-100 align-top">
+                    <td className="py-1 font-medium">{r.label || "—"}</td>
+                    <td className="py-1">
+                      {r.stageNumber ? `${r.stageNumber} ` : ""}
+                      {r.stageName ?? "—"}
+                    </td>
+                    <td className="py-1 text-zinc-700">{criteriaFor(r)}</td>
+                    <td className="py-1">{frequencyFor(r)}</td>
+                    <td className="py-1 text-right tabular-nums">
+                      {Number.isFinite(r.totalTrips)
+                        ? Math.round(r.totalTrips * 100) / 100
+                        : "—"}
+                    </td>
+                    <td className="py-1 text-right tabular-nums">
+                      {formatCurrencyEUR(r.totalCost, lang)}
+                    </td>
+                  </tr>
+                ))}
+                <tr className="border-t-2 border-zinc-400 font-semibold">
+                  <td className="py-1" colSpan={5}>{T.totalRow}</td>
+                  <td className="py-1 text-right tabular-nums">
+                    {formatCurrencyEUR(total, lang)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          ) : (
+            <Empty>
+              {isEn
+                ? "No site trips defined in the Construction Assistance tab."
+                : "Sem deslocações definidas no separador Assistência à Obra."}
+            </Empty>
+          )}
+        </div>
+      );
+    }
+
+
     case "custom_text":
     default:
       return (
