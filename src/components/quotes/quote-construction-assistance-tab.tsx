@@ -362,34 +362,13 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label="Resource on trip (return incl.)">
-                  <Select
-                    value={draft.resource_id ?? NONE_STAGE}
-                    onValueChange={(v) => {
-                      if (v === NONE_STAGE) {
-                        setDraft({ ...draft, resource_id: null });
-                        return;
-                      }
-                      const r = resources.find((x) => x.id === v);
-                      setDraft({
-                        ...draft,
-                        resource_id: v,
-                        resource_hourly_rate: Number(r?.hourly_rate) || 0,
-                      });
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="—" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={NONE_STAGE}>— None —</SelectItem>
-                      {resources.map((r) => (
-                        <SelectItem key={r.id} value={r.id}>
-                          {r.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <Field label="Resources on trip (return incl.)">
+                  <ResourceMultiSelect
+                    selected={draft.resource_ids ?? []}
+                    resources={resources}
+                    onChange={(ids) => setDraft({ ...draft, resource_ids: ids })}
+                    fullWidth
+                  />
                 </Field>
                 <Field label="km to site">
                   <Input
