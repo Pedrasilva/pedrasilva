@@ -18,6 +18,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface LiveStageResource {
+  role: string;
+  hours: number;
+}
+
 export interface LiveStage {
   id: string;
   name: string;
@@ -31,7 +36,9 @@ export interface LiveStage {
   isSelf: boolean;
   isMilestone: boolean;
   parentStageId: string | null;
+  resources: LiveStageResource[];
 }
+
 
 export interface LiveQuoteSnapshot {
   quoteId: string;
@@ -105,6 +112,52 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
         .eq("quote_id", quoteId!)
         .order("sort_order", { ascending: true, nullsFirst: false })
         .order("start_date", { ascending: true, nullsFirst: false });
+
+      // Allocations per stage, joined to resource role labels, so we can
+      // show a resource breakdown (director / senior architect / …) below
+      // each stage's fee summary.
+      const { data: allocs } = await supabase
+        .from("quote_allocations")
+        .select(
+          "stage_id,start_date,end_date,hours_per_day,resource:pm_resources(proposal_role,billing_role,role,name)",
+        )
+        .eq("quote_id", quoteId!);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const workingDaysBetween = (s: string | null, e: string | null): number => {
+        if (!s || !e) return 0;
+        const start = new Date(s);
+        const end = new Date(e);
+        let count = 0;
+        const cur = new Date(start);
+        while (cur <= end) {
+          const d = cur.getDay();
+          if (d !== 0 && d !== 6) count++;
+          cur.setDate(cur.getDate() + 1);
+        }
+        return count;
+      };
+
+      const resourcesByStage = new Map<string, Map<string, number>>();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      for (const a of ((allocs ?? []) as any[])) {
+        if (!a.stage_id) continue;
+        const wd = workingDaysBetween(a.start_date, a.end_date);
+        const hrs = wd * Number(a.hours_per_day || 0);
+        if (hrs <= 0) continue;
+        const r = a.resource ?? {};
+        const roleLabel =
+          (r.proposal_role as string | null) ||
+          (r.billing_role as string | null) ||
+          (r.role as string | null) ||
+          (r.name as string | null) ||
+          "—";
+        const byRole = resourcesByStage.get(a.stage_id) ?? new Map<string, number>();
+        byRole.set(roleLabel, (byRole.get(roleLabel) ?? 0) + hrs);
+        resourcesByStage.set(a.stage_id, byRole);
+      }
+
+
 
       // External services with supplier company name resolved.
       const { data: ext } = await supabase
@@ -191,8 +244,14 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
             isSelf: s.is_self !== false,
             isMilestone: s.is_milestone === true,
             parentStageId: s.parent_stage_id ?? null,
+            resources: Array.from(
+              (resourcesByStage.get(s.id) ?? new Map<string, number>()).entries(),
+            )
+              .map(([role, hours]) => ({ role, hours: Math.round(hours * 10) / 10 }))
+              .sort((a, b) => b.hours - a.hours),
           };
         }),
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         consultants: (ext ?? []).map((c: any) => ({
           id: c.id,
@@ -298,6 +357,11 @@ export interface ProposalLabels {
   deliverables: string;
   clientInfoRequired: string;
   scopeDeliverables: string;
+  resourceBreakdown: string;
+  role: string;
+  hours: string;
+  hoursShort: string;
+
   emptyEditRight: string;
   chooseStage: string;
   dayShort: string; // "d" / "d"
@@ -338,6 +402,11 @@ const LABELS_PT: ProposalLabels = {
   deliverables: "Entregáveis",
   clientInfoRequired: "Informação necessária do cliente",
   scopeDeliverables: "Âmbito e entregáveis",
+  resourceBreakdown: "Recursos afectos",
+  role: "Função",
+  hours: "Horas",
+  hoursShort: "h",
+
   emptyEditRight: "Sem conteúdo. Edite no painel direito.",
   chooseStage:
     "Selecione uma fase do orçamento no painel direito para preencher este bloco.",
@@ -380,6 +449,11 @@ const LABELS_EN: ProposalLabels = {
   deliverables: "Deliverables",
   clientInfoRequired: "Information required from the client",
   scopeDeliverables: "Scope and deliverables",
+  resourceBreakdown: "Allocated resources",
+  role: "Role",
+  hours: "Hours",
+  hoursShort: "h",
+
   emptyEditRight: "No content. Edit on the right panel.",
   chooseStage:
     "Select a quote stage on the right panel to populate this block.",

@@ -402,7 +402,33 @@ export function BlockBody({
               <dd className="text-zinc-700">{formatCurrencyEUR(stage.fee, lang)}</dd>
             </div>
           </dl>
+          {stage.resources && stage.resources.length > 0 && (
+            <div className="mt-6">
+              <h3 className="mb-2 text-sm font-semibold tracking-tight text-zinc-900">
+                {L.resourceBreakdown}
+              </h3>
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-zinc-200 text-left text-xs uppercase tracking-wide text-zinc-500">
+                    <th className="py-1.5 font-medium">{L.role}</th>
+                    <th className="py-1.5 text-right font-medium">{L.hours}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stage.resources.map((r, i) => (
+                    <tr key={i} className="border-b border-zinc-100 last:border-0">
+                      <td className="py-1.5 text-zinc-800">{r.role}</td>
+                      <td className="py-1.5 text-right font-mono text-zinc-800">
+                        {r.hours}{L.hoursShort}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
+
       );
     }
 
