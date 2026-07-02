@@ -198,6 +198,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
     category: (quoteQ.data?.quote_category as "project" | "time_based" | "retainer" | "consultancy" | undefined) ?? undefined,
     feeSourceMode,
     stages,
+    supplierMarkups: markupsQ.data,
   });
   const totalFee = rollup.totalFee || Number(quoteQ.data?.valor ?? 0) || 0;
   const leafStageFees = computeStageFees(stages, allocations, externals, pricingMultiplier, feeSourceMode);
