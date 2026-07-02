@@ -108,6 +108,7 @@ export function rollupQuote({
   timeBasedSettings,
   feeSourceMode = "allocation",
   stages = [],
+  supplierMarkups,
 }: {
   allocations: QuoteAllocationWithResource[];
   externalServices: QuoteExternalServiceWithSupplier[];
@@ -124,9 +125,37 @@ export function rollupQuote({
   /** Required when feeSourceMode === "budget": the stage rows carrying
    *  the manual budget values. */
   stages?: Array<{ id: string; budget?: number | string | null; parent_stage_id?: string | null }>;
+  /** Per-supplier admin markup rows (from quote_supplier_markups). When
+   *  provided, the external revenue side is inflated per-row by the
+   *  matching supplier's markup pct (cost side stays untouched). */
+  supplierMarkups?: SupplierMarkupRow[] | null;
 }): QuoteFinancialSummary {
   const internal = rollupQuoteAllocations(allocations);
-  const external = rollupExternalServices(externalServices);
+
+  // Compute external revenue with per-row admin markup applied (falls back
+  // to a plain rollup when no markup rows are present).
+  let external: FinancialsRow;
+  if (supplierMarkups && supplierMarkups.length > 0) {
+    let cost = 0;
+    let revenue = 0;
+    for (const row of externalServices) {
+      const line = externalServiceLine(row);
+      const pct = resolveSupplierMarkupPct(
+        {
+          supplier_company_id:
+            (row as { supplier_company_id?: string | null }).supplier_company_id ?? null,
+          supplier_id: row.supplier_id ?? null,
+          supplier_label: row.description ?? null,
+        },
+        supplierMarkups,
+      );
+      cost += line.cost;
+      revenue += line.revenue * (1 + pct / 100);
+    }
+    external = { budget: revenue, value: revenue, cost, profit: revenue - cost, invoiced: 0 };
+  } else {
+    external = rollupExternalServices(externalServices);
+  }
 
   const m = pricingMultiplier > 0 ? pricingMultiplier : 1;
   let internalFee =
