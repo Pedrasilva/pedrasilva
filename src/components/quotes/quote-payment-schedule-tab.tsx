@@ -33,6 +33,7 @@ import {
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { useQuoteAllocations } from "@/lib/quotes/use-quote-allocations";
 import { useQuoteExternalServices } from "@/lib/quotes/use-quote-external-services";
+import { useQuoteSupplierMarkups } from "@/lib/quotes/use-quote-supplier-markups";
 import { rollupQuote } from "@/lib/quotes/financial-rollups";
 import { QuoteFeeSourceToggle } from "@/components/quotes/quote-fee-source-toggle";
 import { QuoteSupplierMarkupEditor } from "@/components/quotes/quote-supplier-markup-editor";
