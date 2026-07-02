@@ -387,7 +387,7 @@ export function useLiveQuoteSnapshot(
         const vat = lines.reduce((s, l) => s + l.vat, 0);
         return {
           key: inv.key,
-          label: `Fatura ${String(gi + 1).padStart(2, "0")}`,
+          label: `${L.invoiceAbbr} ${String(gi + 1).padStart(2, "0")}`,
           plannedDate: inv.plannedDate,
           lines,
           net,
