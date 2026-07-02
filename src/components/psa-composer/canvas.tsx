@@ -82,7 +82,7 @@ function SortableRow({
     block.source_type === "mixed" ||
     block.block_type === "stage_item" ||
     block.block_type === "index";
-  const live = useLiveQuoteSnapshot(useLive ? refQuoteId ?? quoteIdHint : null).data;
+  const live = useLiveQuoteSnapshot(useLive ? refQuoteId ?? quoteIdHint : null, lang).data;
 
 
   const style = {

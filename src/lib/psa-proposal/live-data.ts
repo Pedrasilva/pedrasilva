@@ -79,11 +79,15 @@ export interface LiveQuoteSnapshot {
   missing: string[];
 }
 
-export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
+export function useLiveQuoteSnapshot(
+  quoteId: string | null | undefined,
+  lang: ProposalLang = "pt-PT",
+) {
   return useQuery({
     enabled: !!quoteId,
-    queryKey: ["psa-live-quote", quoteId],
+    queryKey: ["psa-live-quote", quoteId, lang],
     queryFn: async (): Promise<LiveQuoteSnapshot> => {
+      const L = getProposalLabels(lang);
       const missing: string[] = [];
 
       const { data: quote } = await supabase
@@ -296,21 +300,21 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
         const stageName = s?.name ?? "";
         const ds = fmtDate(dateFor(p));
         switch (p.trigger_type) {
-          case "project_start": return `No início do projecto${ds ? ` (${ds})` : ""}`;
-          case "stage_start": return stageName ? `No início de ${stageName}${ds ? ` (${ds})` : ""}` : `No início da fase${ds ? ` (${ds})` : ""}`;
-          case "stage_end": return stageName ? `Na conclusão de ${stageName}${ds ? ` (${ds})` : ""}` : `Na conclusão da fase${ds ? ` (${ds})` : ""}`;
-          case "manual_date": return `Em ${ds || "data a definir"}`;
-          case "monthly": return stageName ? `Mensalidade de ${stageName}${ds ? ` (${ds})` : ""}` : (p.label || `Mensalidade${ds ? ` (${ds})` : ""}`);
+          case "project_start": return `${L.atProjectStart}${ds ? ` (${ds})` : ""}`;
+          case "stage_start": return stageName ? `${L.atStartOf} ${stageName}${ds ? ` (${ds})` : ""}` : `${L.atStartOfStage}${ds ? ` (${ds})` : ""}`;
+          case "stage_end": return stageName ? `${L.uponCompletionOf} ${stageName}${ds ? ` (${ds})` : ""}` : `${L.uponCompletionOfStage}${ds ? ` (${ds})` : ""}`;
+          case "manual_date": return `${L.onDate} ${ds || L.dateTBD}`;
+          case "monthly": return stageName ? `${L.monthlyOf} ${stageName}${ds ? ` (${ds})` : ""}` : (p.label || `${L.monthly}${ds ? ` (${ds})` : ""}`);
           default: return p.label ?? "";
         }
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const serviceOf = (p: any): { key: string; name: string; isSupplier: boolean } => {
         if (p.supplier_company_id) {
-          return { key: `c:${p.supplier_company_id}`, name: supplierNames.get(p.supplier_company_id) ?? p.supplier_label ?? "Fornecedor", isSupplier: true };
+          return { key: `c:${p.supplier_company_id}`, name: supplierNames.get(p.supplier_company_id) ?? p.supplier_label ?? L.supplierFallback, isSupplier: true };
         }
         if (p.supplier_id) {
-          return { key: `s:${p.supplier_id}`, name: supplierNames.get(p.supplier_id) ?? p.supplier_label ?? "Fornecedor", isSupplier: true };
+          return { key: `s:${p.supplier_id}`, name: supplierNames.get(p.supplier_id) ?? p.supplier_label ?? L.supplierFallback, isSupplier: true };
         }
         if (p.supplier_label && String(p.supplier_label).trim()) {
           return { key: `p:${String(p.supplier_label).trim().toLowerCase()}`, name: String(p.supplier_label).trim(), isSupplier: true };
@@ -321,7 +325,7 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
         if (rootRole === "supplier_group" || rootRole === "supplier_phase") {
           return { key: `r:${root!.id}`, name: root!.name, isSupplier: true };
         }
-        return { key: `arch:${root?.id ?? "_"}`, name: root && rootRole !== "supplier_group" && rootRole !== "supplier_phase" ? root.name : "Arquitectura", isSupplier: false };
+        return { key: `arch:${root?.id ?? "_"}`, name: root && rootRole !== "supplier_group" && rootRole !== "supplier_phase" ? root.name : L.architectureFallback, isSupplier: false };
       };
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -383,7 +387,7 @@ export function useLiveQuoteSnapshot(quoteId: string | null | undefined) {
         const vat = lines.reduce((s, l) => s + l.vat, 0);
         return {
           key: inv.key,
-          label: `Fatura ${String(gi + 1).padStart(2, "0")}`,
+          label: `${L.invoiceAbbr} ${String(gi + 1).padStart(2, "0")}`,
           plannedDate: inv.plannedDate,
           lines,
           net,
@@ -562,6 +566,25 @@ export interface ProposalLabels {
   role: string;
   hours: string;
   hoursShort: string;
+  invoiceCol: string;
+  invoiceAbbr: string;
+  dateCol: string;
+  netCol: string;
+  vatCol: string;
+  grossCol: string;
+  subtotal: string;
+  total: string;
+  monthlyOf: string;
+  monthly: string;
+  atProjectStart: string;
+  atStartOf: string;
+  atStartOfStage: string;
+  uponCompletionOf: string;
+  uponCompletionOfStage: string;
+  onDate: string;
+  dateTBD: string;
+  supplierFallback: string;
+  architectureFallback: string;
 
   emptyEditRight: string;
   chooseStage: string;
@@ -607,6 +630,25 @@ const LABELS_PT: ProposalLabels = {
   role: "Função",
   hours: "Horas",
   hoursShort: "h",
+  invoiceCol: "Fatura",
+  invoiceAbbr: "FT",
+  dateCol: "Data",
+  netCol: "Sem IVA",
+  vatCol: "IVA",
+  grossCol: "Com IVA",
+  subtotal: "Subtotal",
+  total: "Total",
+  monthlyOf: "Mensalidade de",
+  monthly: "Mensalidade",
+  atProjectStart: "No início do projecto",
+  atStartOf: "No início de",
+  atStartOfStage: "No início da fase",
+  uponCompletionOf: "Na conclusão de",
+  uponCompletionOfStage: "Na conclusão da fase",
+  onDate: "Em",
+  dateTBD: "data a definir",
+  supplierFallback: "Fornecedor",
+  architectureFallback: "Arquitectura",
 
   emptyEditRight: "Sem conteúdo. Edite no painel direito.",
   chooseStage:
@@ -654,6 +696,26 @@ const LABELS_EN: ProposalLabels = {
   role: "Role",
   hours: "Hours",
   hoursShort: "h",
+  invoiceCol: "Invoice",
+  invoiceAbbr: "INV",
+  dateCol: "Date",
+  netCol: "Net",
+  vatCol: "VAT",
+  grossCol: "Gross",
+  subtotal: "Subtotal",
+  total: "Total",
+  monthlyOf: "Monthly fee for",
+  monthly: "Monthly fee",
+  atProjectStart: "At project start",
+  atStartOf: "At the start of",
+  atStartOfStage: "At the start of the stage",
+  uponCompletionOf: "Upon completion of",
+  uponCompletionOfStage: "Upon completion of the stage",
+  onDate: "On",
+  dateTBD: "date to be defined",
+  supplierFallback: "Supplier",
+  architectureFallback: "Architecture",
+
 
   emptyEditRight: "No content. Edit on the right panel.",
   chooseStage:
