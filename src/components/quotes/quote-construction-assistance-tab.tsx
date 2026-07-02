@@ -4,6 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -27,6 +33,7 @@ import {
   useQuoteSiteTrips,
   useUpsertQuoteSiteTrip,
   computeTripCost,
+  computeTripHourlyRate,
   stageDurationMonths,
   type QuoteSiteTrip,
   type QuoteSiteTripFrequencyMode,
@@ -63,6 +70,19 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
     return m;
   }, [stages]);
 
+  /** Map: resource_id → sale hourly rate (pm_resources.hourly_rate). */
+  const resourceRateById = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const r of resources) m.set(r.id, Number(r.hourly_rate) || 0);
+    return m;
+  }, [resources]);
+
+  const resourceById = useMemo(() => {
+    const m = new Map<string, (typeof resources)[number]>();
+    for (const r of resources) m.set(r.id, r);
+    return m;
+  }, [resources]);
+
   const [draft, setDraft] = useState<null | Partial<QuoteSiteTrip>>(null);
 
   function startAdd() {
@@ -72,6 +92,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       price_per_km: 0.36,
       trip_hours: 0,
       resource_id: null,
+      resource_ids: [],
       resource_hourly_rate: 0,
       frequency_mode: "per_month",
       frequency_value: 2,
@@ -82,13 +103,15 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
 
   async function saveDraft() {
     if (!draft) return;
+    const ids = draft.resource_ids ?? [];
     await upsert.mutateAsync({
       quote_id: quoteId,
       label: draft.label ?? "Site trip",
       km: Number(draft.km) || 0,
       price_per_km: Number(draft.price_per_km) || 0,
       trip_hours: Number(draft.trip_hours) || 0,
-      resource_id: draft.resource_id ?? null,
+      resource_id: ids[0] ?? null,
+      resource_ids: ids,
       resource_hourly_rate: Number(draft.resource_hourly_rate) || 0,
       frequency_mode: (draft.frequency_mode as QuoteSiteTripFrequencyMode) ?? "per_month",
       frequency_value: Number(draft.frequency_value) || 0,
@@ -99,15 +122,22 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
   }
 
   async function patch(trip: QuoteSiteTrip, changes: Partial<QuoteSiteTrip>) {
-    await upsert.mutateAsync({ id: trip.id, ...changes });
+    // Keep legacy resource_id in sync with the first resource_ids entry
+    // whenever the caller updates the multi-resource list.
+    const next: Partial<QuoteSiteTrip> = { ...changes };
+    if (changes.resource_ids) {
+      next.resource_id = changes.resource_ids[0] ?? null;
+    }
+    await upsert.mutateAsync({ id: trip.id, ...next });
   }
 
   // ---- totals ----
   const rows = trips.map((t) => {
     const stage = t.stage_id ? stageById.get(t.stage_id) ?? null : null;
     const months = stageDurationMonths(stage?.start_date, stage?.end_date);
-    const cost = computeTripCost(t, months);
-    return { trip: t, stage, months, cost };
+    const cost = computeTripCost(t, months, resourceRateById);
+    const effectiveRate = computeTripHourlyRate(t, resourceRateById);
+    return { trip: t, stage, months, cost, effectiveRate };
   });
   const grandTotal = rows.reduce((s, r) => s + r.cost.totalCost, 0);
 
@@ -154,7 +184,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {rows.map(({ trip, stage, months, cost }) => (
+                  {rows.map(({ trip, stage, months, cost, effectiveRate }) => (
                     <TableRow key={trip.id}>
                       <TableCell>
                         <Input
@@ -204,39 +234,29 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                         />
                       </TableCell>
                       <TableCell>
-                        <Select
-                          value={trip.resource_id ?? NONE_STAGE}
-                          onValueChange={(v) => {
-                            if (v === NONE_STAGE) {
-                              patch(trip, { resource_id: null });
-                              return;
-                            }
-                            const r = resources.find((x) => x.id === v);
-                            patch(trip, {
-                              resource_id: v,
-                              resource_hourly_rate: Number(r?.hourly_rate) || trip.resource_hourly_rate,
-                            });
-                          }}
-                        >
-                          <SelectTrigger className="h-8 min-w-[10rem]">
-                            <SelectValue placeholder="—" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value={NONE_STAGE}>— None —</SelectItem>
-                            {resources.map((r) => (
-                              <SelectItem key={r.id} value={r.id}>
-                                {r.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <ResourceMultiSelect
+                          selected={trip.resource_ids ?? []}
+                          resources={resources}
+                          onChange={(ids) => patch(trip, { resource_ids: ids })}
+                        />
                       </TableCell>
                       <TableCell className="text-right">
-                        <NumberCell
-                          value={trip.resource_hourly_rate}
-                          onCommit={(v) => patch(trip, { resource_hourly_rate: v })}
-                          step="0.5"
-                        />
+                        {(trip.resource_ids?.length ?? 0) > 0 ? (
+                          <span
+                            className="tabular-nums"
+                            title={`Sum of sale rates: ${(trip.resource_ids ?? [])
+                              .map((id) => `${resourceById.get(id)?.name ?? "?"} ${fmtMoney(resourceRateById.get(id) ?? 0)}/h`)
+                              .join(" + ")}`}
+                          >
+                            {fmtMoney(effectiveRate)}
+                          </span>
+                        ) : (
+                          <NumberCell
+                            value={trip.resource_hourly_rate}
+                            onCommit={(v) => patch(trip, { resource_hourly_rate: v })}
+                            step="0.5"
+                          />
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
@@ -342,34 +362,13 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label="Resource on trip (return incl.)">
-                  <Select
-                    value={draft.resource_id ?? NONE_STAGE}
-                    onValueChange={(v) => {
-                      if (v === NONE_STAGE) {
-                        setDraft({ ...draft, resource_id: null });
-                        return;
-                      }
-                      const r = resources.find((x) => x.id === v);
-                      setDraft({
-                        ...draft,
-                        resource_id: v,
-                        resource_hourly_rate: Number(r?.hourly_rate) || 0,
-                      });
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="—" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={NONE_STAGE}>— None —</SelectItem>
-                      {resources.map((r) => (
-                        <SelectItem key={r.id} value={r.id}>
-                          {r.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <Field label="Resources on trip (return incl.)">
+                  <ResourceMultiSelect
+                    selected={draft.resource_ids ?? []}
+                    resources={resources}
+                    onChange={(ids) => setDraft({ ...draft, resource_ids: ids })}
+                    fullWidth
+                  />
                 </Field>
                 <Field label="km to site">
                   <Input
@@ -399,17 +398,29 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                   />
                 </Field>
                 <Field label="Resource €/h">
-                  <Input
-                    type="number"
-                    step="0.5"
-                    value={draft.resource_hourly_rate ?? 0}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        resource_hourly_rate: Number(e.target.value),
-                      })
-                    }
-                  />
+                  {(draft.resource_ids?.length ?? 0) > 0 ? (
+                    <Input
+                      type="number"
+                      value={(draft.resource_ids ?? []).reduce(
+                        (s, id) => s + (resourceRateById.get(id) ?? 0),
+                        0,
+                      )}
+                      disabled
+                      title="Sum of selected resources' sale rate (€/h)"
+                    />
+                  ) : (
+                    <Input
+                      type="number"
+                      step="0.5"
+                      value={draft.resource_hourly_rate ?? 0}
+                      onChange={(e) =>
+                        setDraft({
+                          ...draft,
+                          resource_hourly_rate: Number(e.target.value),
+                        })
+                      }
+                    />
+                  )}
                 </Field>
                 <Field label="Frequency">
                   <div className="flex gap-2">
@@ -510,5 +521,89 @@ function NumberCell({
       }}
       className={`h-8 text-right ${className ?? ""}`}
     />
+  );
+}
+
+interface ResourceOption {
+  id: string;
+  name: string;
+  hourly_rate: number;
+  active?: boolean;
+}
+
+function ResourceMultiSelect({
+  selected,
+  resources,
+  onChange,
+  fullWidth,
+}: {
+  selected: string[];
+  resources: ResourceOption[];
+  onChange: (ids: string[]) => void;
+  fullWidth?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const selectedSet = new Set(selected);
+  const label =
+    selected.length === 0
+      ? "— None —"
+      : selected.length === 1
+        ? resources.find((r) => r.id === selected[0])?.name ?? "1 resource"
+        : `${selected.length} resources`;
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className={`h-8 justify-between font-normal ${fullWidth ? "w-full" : "min-w-[10rem]"}`}
+        >
+          <span className="truncate">{label}</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-2" align="start">
+        <div className="max-h-64 overflow-y-auto space-y-1">
+          {resources.length === 0 && (
+            <div className="text-xs text-muted-foreground p-2">No resources.</div>
+          )}
+          {resources.map((r) => {
+            const checked = selectedSet.has(r.id);
+            return (
+              <label
+                key={r.id}
+                className="flex items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-muted cursor-pointer"
+              >
+                <Checkbox
+                  checked={checked}
+                  onCheckedChange={(v) => {
+                    const next = new Set(selectedSet);
+                    if (v) next.add(r.id);
+                    else next.delete(r.id);
+                    onChange(Array.from(next));
+                  }}
+                />
+                <span className="flex-1 truncate">{r.name}</span>
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  {fmtMoney(Number(r.hourly_rate) || 0)}/h
+                </span>
+              </label>
+            );
+          })}
+        </div>
+        {selected.length > 0 && (
+          <div className="mt-2 border-t pt-2 flex justify-end">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => onChange([])}
+            >
+              Clear
+            </Button>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
   );
 }
