@@ -186,6 +186,17 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
     const next: Partial<QuoteSiteTrip> = { ...changes };
     if (changes.resource_ids) {
       next.resource_id = changes.resource_ids[0] ?? null;
+      // Auto-populate Sale €/h with the resource sum when the user hasn't
+      // typed a custom sale rate yet. Once set, we leave it alone so a manual
+      // override survives resource re-selection.
+      const currentSale = Number(trip.resource_hourly_rate) || 0;
+      if (currentSale === 0) {
+        const sum = changes.resource_ids.reduce(
+          (s, id) => s + (resourceRateById.get(id) ?? 0),
+          0,
+        );
+        if (sum > 0) next.resource_hourly_rate = sum;
+      }
     }
     await upsert.mutateAsync({ id: trip.id, ...next });
   }
@@ -235,7 +246,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     <TableHead className="text-right">Hours</TableHead>
                     <TableHead>Resource</TableHead>
                     <TableHead className="text-right">Resource €/h</TableHead>
-                    <TableHead className="text-right">Manual €/h</TableHead>
+                    <TableHead className="text-right">Sale €/h</TableHead>
                     <TableHead>Frequency</TableHead>
                     <TableHead className="text-right">Trips</TableHead>
                     <TableHead className="text-right">€/trip</TableHead>
@@ -447,7 +458,19 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     selected={draft.resource_ids ?? []}
                     resources={resources}
                     rateById={resourceRateById}
-                    onChange={(ids) => setDraft({ ...draft, resource_ids: ids })}
+                    onChange={(ids) => {
+                      const currentSale = Number(draft.resource_hourly_rate) || 0;
+                      const sum = ids.reduce(
+                        (s, id) => s + (resourceRateById.get(id) ?? 0),
+                        0,
+                      );
+                      setDraft({
+                        ...draft,
+                        resource_ids: ids,
+                        resource_hourly_rate:
+                          currentSale === 0 && sum > 0 ? sum : currentSale,
+                      });
+                    }}
                     fullWidth
                   />
                 </Field>
@@ -489,7 +512,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     title="Sum of selected resources' sale rate (€/h)"
                   />
                 </Field>
-                <Field label="Manual €/h">
+                <Field label="Sale €/h">
                   <Input
                     type="number"
                     step="0.5"

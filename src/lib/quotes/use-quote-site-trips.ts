@@ -118,22 +118,16 @@ export function stageDurationMonths(
 }
 
 /**
- * Effective hourly rate for a trip.
- * = (sum of sale rates of selected resources) + (manual €/h override).
- * The manual field is additive so trips can bundle a per-diem, tooling
- * cost, or any extra hourly component alongside the resource team rate.
+ * Effective hourly rate for a trip = the manual **Sale €/h** field
+ * (`resource_hourly_rate`). The resource multi-select only informs a
+ * suggested sum shown next to the field; the sale rate the calculator
+ * actually uses is whatever the user typed / accepted into Sale €/h.
  */
 export function computeTripHourlyRate(
   trip: Pick<QuoteSiteTrip, "resource_ids" | "resource_hourly_rate">,
-  resourceRateById: Map<string, number>,
+  _resourceRateById: Map<string, number>,
 ): number {
-  const ids = trip.resource_ids ?? [];
-  const resourceSum = ids.reduce(
-    (sum, id) => sum + (Number(resourceRateById.get(id)) || 0),
-    0,
-  );
-  const manual = Number(trip.resource_hourly_rate) || 0;
-  return resourceSum + manual;
+  return Number(trip.resource_hourly_rate) || 0;
 }
 
 export function computeTripCost(
