@@ -1,0 +1,1 @@
+ALTER TABLE public.fee_proposals ADD COLUMN IF NOT EXISTS trip_billing_mode text NOT NULL DEFAULT 'resource' CHECK (trip_billing_mode IN ('resource','manual','role'));

@@ -2023,6 +2023,7 @@ export type Database = {
           revision_number: number
           time_based_settings: Json
           titulo: string
+          trip_billing_mode: string
           updated_at: string
           valor: number
         }
@@ -2076,6 +2077,7 @@ export type Database = {
           revision_number?: number
           time_based_settings?: Json
           titulo: string
+          trip_billing_mode?: string
           updated_at?: string
           valor?: number
         }
@@ -2129,6 +2131,7 @@ export type Database = {
           revision_number?: number
           time_based_settings?: Json
           titulo?: string
+          trip_billing_mode?: string
           updated_at?: string
           valor?: number
         }
