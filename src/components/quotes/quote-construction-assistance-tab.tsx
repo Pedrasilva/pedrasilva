@@ -644,6 +644,22 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     title="Overrides the stage's date-derived duration when frequency is 'per month'. Leave empty to use stage dates."
                   />
                 </Field>
+                <Field label="Show resources in proposal as">
+                  <Select
+                    value={(draft.display_mode as string) ?? "role"}
+                    onValueChange={(v) =>
+                      setDraft({ ...draft, display_mode: v as "name" | "role" })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="role">Billable role</SelectItem>
+                      <SelectItem value="name">Collaborator name</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
                 <Field label="Notes" className="md:col-span-3">
                   <Textarea
                     rows={2}
