@@ -478,6 +478,9 @@ export function BlockBody({
       const keyActivitiesText = (block.content_rich?.key_activities_text as string | undefined) ?? "";
       const stageApprovalHtml = (block.content_rich?.stage_approval_html as string | undefined) ?? "";
       const stageApprovalText = (block.content_rich?.stage_approval_text as string | undefined) ?? "";
+      const showObjective = (block.content_rich?.show_objective as boolean | undefined) ?? true;
+      const showKeyActivities = (block.content_rich?.show_key_activities as boolean | undefined) ?? true;
+      const showStageApproval = (block.content_rich?.show_stage_approval as boolean | undefined) ?? true;
 
       const SectionTitle = ({ children }: { children: React.ReactNode }) => (
         <h3 className="proposal-print-heading mb-2 text-sm font-semibold tracking-tight text-zinc-900">
