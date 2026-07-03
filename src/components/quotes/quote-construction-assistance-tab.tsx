@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +40,11 @@ import {
 } from "@/lib/quotes/use-quote-site-trips";
 import { numberStages } from "@/lib/quotes/stage-numbering";
 import { useResourcePricing } from "@/lib/quotes/use-resource-pricing";
+import { useProposalRoles } from "@/lib/proposal-roles";
+import { useQuoteSaleRates } from "@/lib/hr/use-billable-rates";
+
+/** How the effective €/h used in cost math is resolved for every trip. */
+type BillingMode = "resource" | "manual" | "role";
 
 interface Props {
   quoteId: string;
@@ -234,12 +239,80 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
     await upsert.mutateAsync({ id: trip.id, ...next });
   }
 
+  // ---- billing mode (which €/h drives cost math for every trip) ----
+  const billingModeKey = `quote-trip-billing-mode:${quoteId}`;
+  const [billingMode, setBillingMode] = useState<BillingMode>("resource");
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(billingModeKey);
+      if (stored === "resource" || stored === "manual" || stored === "role") {
+        setBillingMode(stored);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [billingModeKey]);
+  const changeBillingMode = (m: BillingMode) => {
+    setBillingMode(m);
+    try {
+      window.localStorage.setItem(billingModeKey, m);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  // Role-based sale rates (from the "Billable hourly rate" tab, per quote).
+  const { data: proposalRoles = [] } = useProposalRoles();
+  const { data: saleRates = [] } = useQuoteSaleRates(quoteId);
+  const saleByRoleCode = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const s of saleRates) m.set(s.role_name, Number(s.sale_rate) || 0);
+    return m;
+  }, [saleRates]);
+  // Map from role label → code, so resources storing the label still resolve.
+  const codeByRoleLabel = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const r of proposalRoles) {
+      m.set(r.code, r.code);
+      if (r.label_en) m.set(r.label_en, r.code);
+      if (r.label_pt) m.set(r.label_pt, r.code);
+    }
+    return m;
+  }, [proposalRoles]);
+
+  /** Rate map used for cost math on a specific trip, given the active mode. */
+  function rateMapForTrip(trip: QuoteSiteTrip): Map<string, number> {
+    if (billingMode !== "role") return resourceRateById;
+    const m = new Map<string, number>();
+    for (const id of trip.resource_ids ?? []) {
+      const r = resourceById.get(id) as
+        | { proposal_role?: string | null; billing_role?: string | null; role?: string | null }
+        | undefined;
+      const raw = (r?.proposal_role || r?.billing_role || r?.role || "").toString();
+      const code = codeByRoleLabel.get(raw) ?? raw;
+      m.set(id, saleByRoleCode.get(code) ?? 0);
+    }
+    return m;
+  }
+
+  /**
+   * When billing mode is not "manual", the per-trip manual override must be
+   * ignored so the cost math sums the per-resource rates instead. We do this
+   * by passing a shallow copy with `resource_hourly_rate: 0` into compute.
+   */
+  function tripForCompute(trip: QuoteSiteTrip): QuoteSiteTrip {
+    if (billingMode === "manual") return trip;
+    return { ...trip, resource_hourly_rate: 0 };
+  }
+
   // ---- totals ----
   const rows = trips.map((t) => {
     const stage = t.stage_id ? stageById.get(t.stage_id) ?? null : null;
     const months = stageDurationMonths(stage?.start_date, stage?.end_date);
-    const cost = computeTripCost(t, months, resourceRateById);
-    const effectiveRate = computeTripHourlyRate(t, resourceRateById);
+    const rateMap = rateMapForTrip(t);
+    const tForCompute = tripForCompute(t);
+    const cost = computeTripCost(tForCompute, months, rateMap);
+    const effectiveRate = computeTripHourlyRate(tForCompute, rateMap);
     return { trip: t, stage, months, cost, effectiveRate };
   });
   const grandTotal = rows.reduce((s, r) => s + r.cost.totalCost, 0);
@@ -247,7 +320,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div>
             <CardTitle>Construction Assistance</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
@@ -256,9 +329,32 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
               included).
             </p>
           </div>
-          <Button size="sm" onClick={startAdd}>
-            <Plus className="mr-1 h-4 w-4" /> Add trip
-          </Button>
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-end">
+              <Label className="text-xs text-muted-foreground mb-1">
+                Billing rate for all resources
+              </Label>
+              <Select
+                value={billingMode}
+                onValueChange={(v) => changeBillingMode(v as BillingMode)}
+              >
+                <SelectTrigger
+                  className="h-9 min-w-[14rem]"
+                  title="Choose which €/h drives the cost of every trip"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="resource">Resource €/h (per collaborator)</SelectItem>
+                  <SelectItem value="manual">Manual €/h (per trip)</SelectItem>
+                  <SelectItem value="role">Role €/h (billable hourly rate)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button size="sm" onClick={startAdd}>
+              <Plus className="mr-1 h-4 w-4" /> Add trip
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {rows.length === 0 && !draft && (
