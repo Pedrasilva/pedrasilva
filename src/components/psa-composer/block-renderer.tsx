@@ -1168,6 +1168,12 @@ export function BlockBody({
       const optScopeHtml = (block.content_rich?.scope_html as string | undefined) ?? "";
       const optScopeText = (block.content_rich?.scope_text as string | undefined) ?? "";
 
+      const OptSectionTitle = ({ children }: { children: React.ReactNode }) => (
+        <h3 className="proposal-print-heading mb-2 text-sm font-semibold tracking-tight text-zinc-900">
+          {children}
+        </h3>
+      );
+
       return (
         <div>
           <H>{num}{block.title}</H>
