@@ -43,6 +43,30 @@ import {
   formatStageLabel,
 } from "@/lib/quotes/stage-numbering";
 
+/** Label row with an inline on/off switch controlling section visibility. */
+function SectionLabel({
+  label,
+  checked,
+  onCheckedChange,
+}: {
+  label: string;
+  checked: boolean;
+  onCheckedChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <Label className="text-xs">{label}</Label>
+      <div className="flex items-center gap-1.5">
+        <span className="text-[10px] uppercase tracking-wider text-zinc-400">
+          {checked ? "On" : "Off"}
+        </span>
+        <Switch checked={checked} onCheckedChange={onCheckedChange} />
+      </div>
+    </div>
+  );
+}
+
+
 export function BlockSettingsPanel({
   proposalId,
   proposal,
