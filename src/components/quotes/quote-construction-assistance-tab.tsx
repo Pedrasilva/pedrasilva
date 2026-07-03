@@ -799,7 +799,7 @@ function ResourceRateList({
       ) : (
         <div className="divide-y">
           {selectedRows.map((r) => {
-            const base = rateById.get(r.id) ?? Number(r.hourly_rate) || 0;
+            const base = rateById.get(r.id) ?? (Number(r.hourly_rate) || 0);
             const ov = Number(overrides?.[r.id]) || 0;
             return (
               <div
