@@ -52,6 +52,10 @@ const INLINE_EDITABLE_TYPES: PsaBlockType[] = [
   "suspension",
   "exclusions",
   "acceptance",
+  "billable_hourly_rate",
+  "supplier_fee_table",
+  "optional_fee_table",
+  "travel_expenses",
 ];
 
 
