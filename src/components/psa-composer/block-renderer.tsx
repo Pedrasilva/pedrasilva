@@ -1494,7 +1494,7 @@ export function BlockBody({
                 <p className="mt-3 text-xs leading-relaxed text-zinc-500">
                   <span className="mr-1 font-medium text-zinc-600">*</span>
                   {T.distance}: {example.km} km · {T.pricePerKm}: {formatCurrencyEUR(example.pricePerKm, lang)}/km · {T.travelTime}: {example.tripHours} {L.hoursShort} · {T.resourceRate}: {formatCurrencyEUR(example.hourlyRate, lang)}/{L.hoursShort}
-                  {example.resourceNames?.length ? ` (${example.resourceNames.join(", ")})` : ""}
+                  {example.resourceNames?.length ? ` (${anonymize(example.resourceNames).join(", ")})` : ""}
                   {" · "}
                   {T.perTripTotal}: {formatCurrencyEUR(example.perTripTotal, lang)}.
                   {" "}
