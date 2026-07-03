@@ -132,19 +132,24 @@ export function stageDurationMonths(
  * flat rate. When the manual field is 0, the resource sum is used.
  */
 export function computeTripHourlyRate(
-  trip: Pick<QuoteSiteTrip, "resource_ids" | "resource_hourly_rate">,
+  trip: Pick<QuoteSiteTrip, "resource_ids" | "resource_hourly_rate" | "resource_hourly_rates">,
   resourceRateById: Map<string, number>,
 ): number {
   const manual = Number(trip.resource_hourly_rate) || 0;
   if (manual > 0) return manual;
   const ids = trip.resource_ids ?? [];
-  return ids.reduce((s, id) => s + (Number(resourceRateById.get(id)) || 0), 0);
+  const overrides = trip.resource_hourly_rates ?? {};
+  return ids.reduce((s, id) => {
+    const override = Number(overrides?.[id]) || 0;
+    const base = Number(resourceRateById.get(id)) || 0;
+    return s + (override > 0 ? override : base);
+  }, 0);
 }
 
 export function computeTripCost(
   trip: Pick<
     QuoteSiteTrip,
-    "km" | "price_per_km" | "trip_hours" | "resource_hourly_rate" | "resource_ids" | "frequency_mode" | "frequency_value" | "duration_months_override"
+    "km" | "price_per_km" | "trip_hours" | "resource_hourly_rate" | "resource_hourly_rates" | "resource_ids" | "frequency_mode" | "frequency_value" | "duration_months_override"
   >,
   stageMonths: number | null,
   resourceRateById: Map<string, number> = new Map(),
