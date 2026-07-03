@@ -37,6 +37,7 @@ import { Route as AppHrMinhaFichaRouteImport } from './routes/_app.hr.minha-fich
 import { Route as AppHrFeriasRouteImport } from './routes/_app.hr.ferias'
 import { Route as AppHrDiasUteisRouteImport } from './routes/_app.hr.dias-uteis'
 import { Route as AppHrColaboradoresRouteImport } from './routes/_app.hr.colaboradores'
+import { Route as AppHrBillableRatesRouteImport } from './routes/_app.hr.billable-rates'
 import { Route as AppHrBeneficiosRouteImport } from './routes/_app.hr.beneficios'
 import { Route as AppHrAdminRouteImport } from './routes/_app.hr.admin'
 import { Route as AppCrmQuoteTemplatesRouteImport } from './routes/_app.crm.quote-templates'
@@ -228,6 +229,11 @@ const AppHrDiasUteisRoute = AppHrDiasUteisRouteImport.update({
 const AppHrColaboradoresRoute = AppHrColaboradoresRouteImport.update({
   id: '/colaboradores',
   path: '/colaboradores',
+  getParentRoute: () => AppHrRoute,
+} as any)
+const AppHrBillableRatesRoute = AppHrBillableRatesRouteImport.update({
+  id: '/billable-rates',
+  path: '/billable-rates',
   getParentRoute: () => AppHrRoute,
 } as any)
 const AppHrBeneficiosRoute = AppHrBeneficiosRouteImport.update({
@@ -538,6 +544,7 @@ export interface FileRoutesByFullPath {
   '/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
+  '/hr/billable-rates': typeof AppHrBillableRatesRoute
   '/hr/colaboradores': typeof AppHrColaboradoresRoute
   '/hr/dias-uteis': typeof AppHrDiasUteisRoute
   '/hr/ferias': typeof AppHrFeriasRoute
@@ -616,6 +623,7 @@ export interface FileRoutesByTo {
   '/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
   '/hr/admin': typeof AppHrAdminRoute
   '/hr/beneficios': typeof AppHrBeneficiosRoute
+  '/hr/billable-rates': typeof AppHrBillableRatesRoute
   '/hr/colaboradores': typeof AppHrColaboradoresRoute
   '/hr/dias-uteis': typeof AppHrDiasUteisRoute
   '/hr/ferias': typeof AppHrFeriasRoute
@@ -699,6 +707,7 @@ export interface FileRoutesById {
   '/_app/crm/quote-templates': typeof AppCrmQuoteTemplatesRoute
   '/_app/hr/admin': typeof AppHrAdminRoute
   '/_app/hr/beneficios': typeof AppHrBeneficiosRoute
+  '/_app/hr/billable-rates': typeof AppHrBillableRatesRoute
   '/_app/hr/colaboradores': typeof AppHrColaboradoresRoute
   '/_app/hr/dias-uteis': typeof AppHrDiasUteisRoute
   '/_app/hr/ferias': typeof AppHrFeriasRoute
@@ -782,6 +791,7 @@ export interface FileRouteTypes {
     | '/crm/quote-templates'
     | '/hr/admin'
     | '/hr/beneficios'
+    | '/hr/billable-rates'
     | '/hr/colaboradores'
     | '/hr/dias-uteis'
     | '/hr/ferias'
@@ -860,6 +870,7 @@ export interface FileRouteTypes {
     | '/crm/quote-templates'
     | '/hr/admin'
     | '/hr/beneficios'
+    | '/hr/billable-rates'
     | '/hr/colaboradores'
     | '/hr/dias-uteis'
     | '/hr/ferias'
@@ -942,6 +953,7 @@ export interface FileRouteTypes {
     | '/_app/crm/quote-templates'
     | '/_app/hr/admin'
     | '/_app/hr/beneficios'
+    | '/_app/hr/billable-rates'
     | '/_app/hr/colaboradores'
     | '/_app/hr/dias-uteis'
     | '/_app/hr/ferias'
@@ -1207,6 +1219,13 @@ declare module '@tanstack/react-router' {
       path: '/colaboradores'
       fullPath: '/hr/colaboradores'
       preLoaderRoute: typeof AppHrColaboradoresRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/billable-rates': {
+      id: '/_app/hr/billable-rates'
+      path: '/billable-rates'
+      fullPath: '/hr/billable-rates'
+      preLoaderRoute: typeof AppHrBillableRatesRouteImport
       parentRoute: typeof AppHrRoute
     }
     '/_app/hr/beneficios': {
@@ -1710,6 +1729,7 @@ const AppFinanceRouteWithChildren = AppFinanceRoute._addFileChildren(
 interface AppHrRouteChildren {
   AppHrAdminRoute: typeof AppHrAdminRoute
   AppHrBeneficiosRoute: typeof AppHrBeneficiosRoute
+  AppHrBillableRatesRoute: typeof AppHrBillableRatesRoute
   AppHrColaboradoresRoute: typeof AppHrColaboradoresRoute
   AppHrDiasUteisRoute: typeof AppHrDiasUteisRoute
   AppHrFeriasRoute: typeof AppHrFeriasRoute
@@ -1724,6 +1744,7 @@ interface AppHrRouteChildren {
 const AppHrRouteChildren: AppHrRouteChildren = {
   AppHrAdminRoute: AppHrAdminRoute,
   AppHrBeneficiosRoute: AppHrBeneficiosRoute,
+  AppHrBillableRatesRoute: AppHrBillableRatesRoute,
   AppHrColaboradoresRoute: AppHrColaboradoresRoute,
   AppHrDiasUteisRoute: AppHrDiasUteisRoute,
   AppHrFeriasRoute: AppHrFeriasRoute,

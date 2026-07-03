@@ -214,7 +214,7 @@ export const RAIL_ITEMS: RailItem[] = [
     labelKey: "settings",
     icon: Settings,
     to: "/admin",
-    matches: ["/admin", "/hr/admin", "/hr/valor-bo", "/hr/dias-uteis", "/hr/subsidio-alimentacao"],
+    matches: ["/admin", "/hr/admin", "/hr/valor-bo", "/hr/dias-uteis", "/hr/subsidio-alimentacao", "/hr/billable-rates"],
     adminOnly: true,
     pinBottom: true,
     flyout: [
@@ -234,6 +234,7 @@ export const RAIL_ITEMS: RailItem[] = [
           { to: "/hr/valor-bo", labelKey: "settings.boValue" },
           { to: "/hr/dias-uteis", labelKey: "settings.workingDays" },
           { to: "/hr/subsidio-alimentacao", labelKey: "settings.mealAllowance" },
+          { to: "/hr/billable-rates", labelKey: "settings.billableRates" },
         ],
       },
     ],
