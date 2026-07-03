@@ -652,7 +652,7 @@ export function BlockSettingsPanel({
         </div>
       )}
 
-      {block.block_type === "optional_fee_table" && (
+      {(block.block_type === "optional_fee_table" || block.block_type === "custom_text") && (
         <div className="space-y-3">
           <div className="space-y-1">
             <Label className="text-xs">Objetivo</Label>
