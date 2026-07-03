@@ -266,6 +266,7 @@ export function BlockBody({
   editable,
   onPatchContent,
   lang = "pt-PT",
+  siblings,
 }: {
   block: PsaProposalBlock;
   live: LiveQuoteSnapshot | undefined;
@@ -274,6 +275,7 @@ export function BlockBody({
   editable?: boolean;
   onPatchContent?: (patch: Record<string, unknown>) => void;
   lang?: ProposalLang;
+  siblings?: PsaProposalBlock[];
 }) {
   const L = getProposalLabels(lang);
 
@@ -1425,6 +1427,250 @@ export function BlockBody({
       );
     }
 
+
+    case "appendix_index": {
+      const letters = ["A", "B", "C", "D", "E", "F", "G", "H"];
+      const appendices = (siblings ?? [])
+        .filter(
+          (b) =>
+            b.is_visible &&
+            (b.block_type === "appendix_payment_schedule" ||
+              b.block_type === "appendix_gantt" ||
+              b.block_type === "appendix_general_terms") &&
+            ((b.content_rich as { enabled?: boolean } | undefined)?.enabled ?? true),
+        )
+        .sort((a, b) => a.sort_order - b.sort_order);
+      const introHtmlIdx = (block.content_rich?.html as string | undefined) ?? "";
+      const introTextIdx = (block.content_rich?.text as string | undefined) ?? "";
+      return (
+        <div className="proposal-appendix proposal-page-break-before">
+          <div className="mb-8 text-center">
+            <div className="text-xs tracking-[0.4em] text-zinc-500">
+              {L.appendicesLabel}
+            </div>
+            <div className="mt-4 text-3xl font-light tracking-tight text-zinc-900">
+              {block.title || L.appendicesLabel}
+            </div>
+          </div>
+          {hasRichContent(introHtmlIdx, introTextIdx) && (
+            <div className="mb-6">
+              <RichContent html={introHtmlIdx} text={introTextIdx} tokenMap={tokenMap} />
+            </div>
+          )}
+          {appendices.length ? (
+            <ul className="mt-4 divide-y divide-zinc-200 border-t border-b border-zinc-200">
+              {appendices.map((ap, i) => {
+                const letter =
+                  (ap.content_rich as { appendix_letter?: string } | undefined)
+                    ?.appendix_letter || letters[i] || String(i + 1);
+                return (
+                  <li key={ap.id} className="flex items-baseline justify-between py-3">
+                    <div className="flex items-baseline gap-4">
+                      <div className="w-24 text-xs uppercase tracking-widest text-zinc-500">
+                        {L.appendix} {letter}
+                      </div>
+                      <div className="text-sm text-zinc-900">{ap.title}</div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <Empty>{L.noAppendices}</Empty>
+          )}
+        </div>
+      );
+    }
+
+    case "appendix_payment_schedule": {
+      const letter =
+        (block.content_rich as { appendix_letter?: string } | undefined)
+          ?.appendix_letter || "A";
+      const introHtmlA = (block.content_rich?.html as string | undefined) ?? "";
+      const introTextA = (block.content_rich?.text as string | undefined) ?? "";
+      const defaultIntro =
+        lang === "en"
+          ? "The following Monthly Payment Schedule illustrates the anticipated invoicing throughout the project based on the proposed programme and resource allocation. Should the programme or scope change, this schedule will be updated accordingly."
+          : "O seguinte Cronograma Mensal de Pagamentos ilustra a facturação prevista ao longo do projecto com base no programa proposto e na afectação de recursos. Caso o programa ou o âmbito sejam alterados, este cronograma será actualizado em conformidade.";
+      return (
+        <div className="proposal-appendix proposal-page-break-before">
+          <div className="mb-4 text-xs uppercase tracking-[0.3em] text-zinc-500">
+            {L.appendix} {letter}
+          </div>
+          <H>{block.title}</H>
+          <div className="mb-4">
+            {hasRichContent(introHtmlA, introTextA) ? (
+              <RichContent html={introHtmlA} text={introTextA} tokenMap={tokenMap} />
+            ) : (
+              <P>{defaultIntro}</P>
+            )}
+          </div>
+          {live?.paymentInvoices?.length ? (
+            <table className="proposal-print-table w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
+                  <th className="py-1 w-20">{L.invoiceCol}</th>
+                  <th className="py-1 w-24">{L.dateCol}</th>
+                  <th className="py-1">{L.description}</th>
+                  <th className="py-1 text-right">{L.netCol}</th>
+                  <th className="py-1 text-right">{L.vatCol}</th>
+                  <th className="py-1 text-right">{L.grossCol}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {live.paymentInvoices.map((inv) => (
+                  <React.Fragment key={inv.key}>
+                    {inv.lines.map((ln, li) => (
+                      <tr key={`${inv.key}:${li}`} className={li === 0 ? "border-t border-zinc-200" : ""}>
+                        <td className="py-1 align-top text-xs font-semibold">{li === 0 ? inv.label : ""}</td>
+                        <td className="py-1 align-top tabular-nums text-xs">{li === 0 ? formatDatePT(inv.plannedDate, lang) : ""}</td>
+                        <td className="py-1">{ln.description}</td>
+                        <td className="py-1 text-right tabular-nums">{formatCurrencyEUR(ln.net, lang)}</td>
+                        <td className="py-1 text-right tabular-nums text-zinc-500">{formatCurrencyEUR(ln.vat, lang)}</td>
+                        <td className="py-1 text-right tabular-nums font-medium">{formatCurrencyEUR(ln.net + ln.vat, lang)}</td>
+                      </tr>
+                    ))}
+                    {inv.lines.length > 1 && (
+                      <tr className="text-xs bg-zinc-50">
+                        <td className="py-1" />
+                        <td className="py-1" />
+                        <td className="py-1 font-semibold">{L.subtotal} {inv.label}</td>
+                        <td className="py-1 text-right tabular-nums font-semibold">{formatCurrencyEUR(inv.net, lang)}</td>
+                        <td className="py-1 text-right tabular-nums text-zinc-500">{formatCurrencyEUR(inv.vat, lang)}</td>
+                        <td className="py-1 text-right tabular-nums font-semibold">{formatCurrencyEUR(inv.total, lang)}</td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                ))}
+                <tr className="border-t-2 border-zinc-400 font-semibold">
+                  <td className="py-1" colSpan={3}>{L.total}</td>
+                  <td className="py-1 text-right tabular-nums">{formatCurrencyEUR(live.paymentInvoicesTotal.net, lang)}</td>
+                  <td className="py-1 text-right tabular-nums text-zinc-500">{formatCurrencyEUR(live.paymentInvoicesTotal.vat, lang)}</td>
+                  <td className="py-1 text-right tabular-nums">{formatCurrencyEUR(live.paymentInvoicesTotal.total, lang)}</td>
+                </tr>
+              </tbody>
+            </table>
+          ) : (
+            <Empty>{L.noPaymentSchedule}</Empty>
+          )}
+        </div>
+      );
+    }
+
+    case "appendix_gantt": {
+      const letterB =
+        (block.content_rich as { appendix_letter?: string } | undefined)
+          ?.appendix_letter || "B";
+      const orientation =
+        ((block.content_rich as { page_orientation?: string } | undefined)
+          ?.page_orientation ?? "a3-landscape") as "portrait" | "a3-landscape";
+      const introHtmlB = (block.content_rich?.html as string | undefined) ?? "";
+      const introTextB = (block.content_rich?.text as string | undefined) ?? "";
+
+      const inSet = new Set(selfStages.map((s) => s.id));
+      const kidsOf = new Map<string, typeof selfStages>();
+      for (const s of selfStages) {
+        const p = s.parentStageId && inSet.has(s.parentStageId) ? s.parentStageId : null;
+        if (!p) continue;
+        const arr = kidsOf.get(p) ?? [];
+        arr.push(s);
+        kidsOf.set(p, arr);
+      }
+      const startKeyB = (s: (typeof selfStages)[number]) => s.startDate ?? "";
+      const sortFnB = (a: (typeof selfStages)[number], b: (typeof selfStages)[number]) => {
+        const ak = startKeyB(a);
+        const bk = startKeyB(b);
+        if (ak !== bk) return ak < bk ? -1 : 1;
+        return 0;
+      };
+      for (const [, arr] of kidsOf) arr.sort(sortFnB);
+      const rootsB = selfStages
+        .filter((s) => !s.parentStageId || !inSet.has(s.parentStageId))
+        .slice()
+        .sort(sortFnB);
+      const rowsB: React.ReactNode[] = [];
+      const walkB = (s: (typeof selfStages)[number], depth: number) => {
+        const kids = kidsOf.get(s.id) ?? [];
+        const label = s.code ? `${s.code} — ${s.name}` : s.name;
+        const pad = { paddingLeft: `${depth * 14}px` } as React.CSSProperties;
+        if (kids.length > 0) {
+          rowsB.push(
+            <tr key={s.id} className="border-b border-zinc-200 bg-zinc-50">
+              <td colSpan={4} className="proposal-print-heading py-1 text-sm font-semibold text-zinc-800" style={pad}>
+                {label}
+              </td>
+            </tr>,
+          );
+          for (const k of kids) walkB(k, depth + 1);
+        } else {
+          rowsB.push(
+            <tr key={s.id} className="border-b border-zinc-100">
+              <td className="py-1" style={pad}>{label}{s.isMilestone ? " ◆" : ""}</td>
+              <td className="py-1">{formatDatePT(s.startDate, lang)}</td>
+              <td className="py-1">{formatDatePT(s.endDate, lang)}</td>
+              <td className="py-1 text-right">{formatDurationHuman(s.durationDays, lang)}</td>
+            </tr>,
+          );
+        }
+      };
+      for (const r of rootsB) walkB(r, 0);
+
+      return (
+        <div
+          className={cn(
+            "proposal-appendix proposal-page-break-before",
+            orientation === "a3-landscape" && "proposal-appendix-landscape",
+          )}
+        >
+          <div className="mb-4 text-xs uppercase tracking-[0.3em] text-zinc-500">
+            {L.appendix} {letterB}
+          </div>
+          <H>{block.title}</H>
+          {hasRichContent(introHtmlB, introTextB) && (
+            <div className="mb-4">
+              <RichContent html={introHtmlB} text={introTextB} tokenMap={tokenMap} />
+            </div>
+          )}
+          {selfStages.length ? (
+            <table className="proposal-print-table w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
+                  <th className="py-1 font-semibold">{L.phase}</th>
+                  <th className="py-1 font-semibold">{L.start}</th>
+                  <th className="py-1 font-semibold">{L.end}</th>
+                  <th className="py-1 text-right font-semibold">{L.duration}</th>
+                </tr>
+              </thead>
+              <tbody>{rowsB}</tbody>
+            </table>
+          ) : (
+            <Empty>{L.scheduleUnavailable}</Empty>
+          )}
+        </div>
+      );
+    }
+
+    case "appendix_general_terms": {
+      const letterC =
+        (block.content_rich as { appendix_letter?: string } | undefined)
+          ?.appendix_letter || "C";
+      const introHtmlC = (block.content_rich?.html as string | undefined) ?? "";
+      const introTextC = (block.content_rich?.text as string | undefined) ?? "";
+      const isEn = lang === "en";
+      const defaultTerms = isEn
+        ? `<h3>1. Scope</h3><p>These General Terms of Engagement govern the professional services provided by Pedra Silva Arquitectos, Lda. (“PSA”) in connection with the Proposal to which this Appendix is attached.</p><h3>2. Fees & Payments</h3><p>Fees are invoiced according to the Monthly Payment Schedule (Appendix A). All amounts are exclusive of VAT, which will be added at the applicable rate. Invoices are due within 30 days of issue.</p><h3>3. Programme</h3><p>The Project Programme (Appendix B) is indicative and subject to timely client decisions, third-party approvals and unforeseen events. PSA will notify the client of material impacts.</p><h3>4. Intellectual Property</h3><p>PSA retains authorship and IP rights over all designs, drawings and documents produced. A licence to use the deliverables for the Project is granted upon full payment of all invoices due.</p><h3>5. Liability</h3><p>PSA's liability is limited to the total fees paid under the Proposal, save for gross negligence or wilful misconduct. PSA holds Professional Indemnity Insurance to the amount required by law.</p><h3>6. Confidentiality</h3><p>Both parties shall keep confidential any non-public information exchanged during the engagement, save where disclosure is required by law or authority.</p><h3>7. Suspension & Termination</h3><p>Either party may suspend or terminate the engagement with 30 days' written notice. Fees for work completed up to the effective date remain due.</p><h3>8. Governing Law</h3><p>These terms are governed by Portuguese law. Disputes shall be submitted to the courts of Lisbon.</p>`
+        : `<h3>1. Âmbito</h3><p>Os presentes Termos Gerais de Prestação de Serviços regulam a prestação de serviços profissionais pela Pedra Silva Arquitectos, Lda. (“PSA”) no âmbito da Proposta a que este Anexo se encontra apenso.</p><h3>2. Honorários e Pagamentos</h3><p>Os honorários são facturados de acordo com o Cronograma Mensal de Pagamentos (Anexo A). Todos os valores são acrescidos de IVA à taxa em vigor. As facturas vencem-se 30 dias após a data de emissão.</p><h3>3. Programa</h3><p>O Programa do Projecto (Anexo B) é indicativo e depende de decisões atempadas do cliente, aprovações de terceiros e imprevistos. A PSA comunicará impactos materiais ao cliente.</p><h3>4. Propriedade Intelectual</h3><p>A PSA mantém a autoria e os direitos de propriedade intelectual sobre todos os desenhos, projectos e documentos produzidos. É concedida uma licença para uso dos entregáveis no Projecto após pagamento integral das facturas devidas.</p><h3>5. Responsabilidade</h3><p>A responsabilidade da PSA está limitada ao valor total dos honorários pagos ao abrigo da Proposta, salvo em caso de dolo ou negligência grosseira. A PSA detém Seguro de Responsabilidade Civil Profissional no valor exigido por lei.</p><h3>6. Confidencialidade</h3><p>Ambas as partes obrigam-se a manter a confidencialidade de qualquer informação não pública trocada durante o serviço, salvo se a divulgação for exigida por lei ou autoridade competente.</p><h3>7. Suspensão e Cessação</h3><p>Qualquer das partes pode suspender ou cessar o serviço mediante pré-aviso escrito de 30 dias. Os honorários referentes ao trabalho executado até à data efectiva permanecem devidos.</p><h3>8. Lei Aplicável</h3><p>Estes termos regem-se pela lei portuguesa. Os litígios são submetidos aos tribunais da comarca de Lisboa.</p>`;
+      const body = hasRichContent(introHtmlC, introTextC) ? introHtmlC || introTextC : defaultTerms;
+      return (
+        <div className="proposal-appendix proposal-page-break-before">
+          <div className="mb-4 text-xs uppercase tracking-[0.3em] text-zinc-500">
+            {L.appendix} {letterC}
+          </div>
+          <H>{block.title}</H>
+          <RichContent html={body} tokenMap={tokenMap} />
+        </div>
+      );
+    }
 
     case "custom_text":
     default: {

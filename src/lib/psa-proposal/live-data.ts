@@ -1032,6 +1032,9 @@ export interface ProposalLabels {
   keyActivities: string;
   stageApproval: string;
   scopeIncludes: string;
+  appendicesLabel: string;
+  appendix: string;
+  noAppendices: string;
   resourceBreakdown: string;
   role: string;
   hours: string;
@@ -1125,6 +1128,9 @@ const LABELS_PT: ProposalLabels = {
   keyActivities: "Actividades Principais",
   stageApproval: "Aprovação da Fase",
   scopeIncludes: "Âmbito Incluído",
+  appendicesLabel: "ANEXOS",
+  appendix: "Anexo",
+  noAppendices: "Sem anexos configurados.",
   resourceBreakdown: "Recursos afectos",
   role: "Função",
   hours: "Horas",
@@ -1220,6 +1226,9 @@ const LABELS_EN: ProposalLabels = {
   keyActivities: "Key Activities",
   stageApproval: "Stage Approval",
   scopeIncludes: "Scope Includes",
+  appendicesLabel: "APPENDICES",
+  appendix: "Appendix",
+  noAppendices: "No appendices configured.",
   resourceBreakdown: "Allocated resources",
   role: "Role",
   hours: "Hours",

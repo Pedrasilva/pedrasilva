@@ -64,6 +64,7 @@ function SortableRow({
   lang,
   onSelect,
   onPatchContent,
+  siblings,
 }: {
   block: PsaProposalBlock;
   chapter: number | null;
@@ -73,6 +74,7 @@ function SortableRow({
   lang: ProposalLang;
   onSelect: () => void;
   onPatchContent: (patch: Record<string, unknown>) => void;
+  siblings: PsaProposalBlock[];
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: block.id });
@@ -144,6 +146,7 @@ function SortableRow({
         editable={selected && INLINE_EDITABLE_TYPES.includes(block.block_type) && !block.is_locked}
         onPatchContent={onPatchContent}
         lang={lang}
+        siblings={siblings}
       />
     </div>
   );
@@ -266,6 +269,7 @@ export function ComposerCanvas({
                       },
                     })
                   }
+                  siblings={blocks}
                 />
               ))}
 

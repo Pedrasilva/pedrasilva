@@ -40,7 +40,11 @@ export type PsaBlockType =
   | "exclusions"
   | "acceptance"
   | "custom_text"
-  | "page_break";
+  | "page_break"
+  | "appendix_index"
+  | "appendix_payment_schedule"
+  | "appendix_gantt"
+  | "appendix_general_terms";
 
 export type PsaSourceType =
   | "manual"
