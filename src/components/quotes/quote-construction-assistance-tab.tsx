@@ -495,7 +495,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
 
                   {rows.length > 0 && (
                     <TableRow>
-                      <TableCell colSpan={11} className="text-right font-semibold">
+                      <TableCell colSpan={13} className="text-right font-semibold">
                         Grand total
                       </TableCell>
                       <TableCell className="text-right font-semibold tabular-nums">
