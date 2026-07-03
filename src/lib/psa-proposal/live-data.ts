@@ -1032,6 +1032,9 @@ export interface ProposalLabels {
   keyActivities: string;
   stageApproval: string;
   scopeIncludes: string;
+  appendicesLabel: string;
+  appendix: string;
+  noAppendices: string;
   resourceBreakdown: string;
   role: string;
   hours: string;
