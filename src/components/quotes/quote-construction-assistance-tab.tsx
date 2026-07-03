@@ -471,13 +471,18 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label="Resources on trip (return incl.)">
-                  <ResourceMultiSelect
+                <Field label="Resources on trip (return incl.)" className="md:col-span-3">
+                  <ResourceRateList
                     selected={draft.resource_ids ?? []}
+                    overrides={(draft.resource_hourly_rates ?? {}) as Record<string, number>}
                     resources={resources}
                     rateById={resourceRateById}
-                    onChange={(ids) => setDraft({ ...draft, resource_ids: ids })}
-                    fullWidth
+                    onChangeSelected={(ids) =>
+                      setDraft({ ...draft, resource_ids: ids })
+                    }
+                    onChangeOverrides={(next) =>
+                      setDraft({ ...draft, resource_hourly_rates: next })
+                    }
                   />
                 </Field>
                 <Field label="km to site">
@@ -505,17 +510,6 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     onChange={(e) =>
                       setDraft({ ...draft, trip_hours: Number(e.target.value) })
                     }
-                  />
-                </Field>
-                <Field label="Resource €/h">
-                  <Input
-                    type="number"
-                    value={(draft.resource_ids ?? []).reduce(
-                      (s, id) => s + (resourceRateById.get(id) ?? 0),
-                      0,
-                    )}
-                    disabled
-                    title="Sum of selected resources' sale rate (€/h)"
                   />
                 </Field>
                 <Field label="Manual €/h">
