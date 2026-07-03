@@ -269,6 +269,7 @@ export function ComposerCanvas({
                       },
                     })
                   }
+                  siblings={blocks}
                 />
               ))}
 
