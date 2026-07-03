@@ -488,7 +488,7 @@ export function useLiveQuoteSnapshot(
       const { data: siteTripsRaw } = await (supabase as any)
         .from("quote_site_trips")
         .select(
-          "id,label,stage_id,km,price_per_km,trip_hours,resource_id,resource_ids,resource_hourly_rate,frequency_mode,frequency_value,duration_months_override,notes,sort_order",
+          "id,label,stage_id,km,price_per_km,trip_hours,resource_id,resource_ids,resource_hourly_rate,frequency_mode,frequency_value,duration_months_override,display_mode,notes,sort_order",
         )
         .eq("quote_id", quoteId!)
         .order("sort_order", { ascending: true })
@@ -504,6 +504,7 @@ export function useLiveQuoteSnapshot(
       });
       const resourceRateById = new Map<string, number>();
       const resourceNameById = new Map<string, string>();
+      const resourceRoleById = new Map<string, string>();
       if (tripResourceIds.size) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: resRows } = await (supabase as any)
@@ -514,15 +515,15 @@ export function useLiveQuoteSnapshot(
         ((resRows ?? []) as any[]).forEach((r) => {
           if (!r?.id) return;
           resourceRateById.set(r.id, Number(r.hourly_rate) || 0);
-          // Prefer the billing/proposal role for client-facing display;
-          // fall back through role and finally name so nothing goes blank.
-          const label =
+          // Client-facing role: prefer proposal_role, then billing_role, then role.
+          const role =
             (r.proposal_role as string | null) ||
             (r.billing_role as string | null) ||
             (r.role as string | null) ||
-            (r.name as string | null) ||
             "";
-          if (label) resourceNameById.set(r.id, String(label));
+          if (role) resourceRoleById.set(r.id, String(role));
+          const name = (r.name as string | null) || "";
+          if (name) resourceNameById.set(r.id, String(name));
         });
       }
 
@@ -913,8 +914,17 @@ export function useLiveQuoteSnapshot(
                 : freqVal;
             const totalCost = perTripTotal * totalTrips;
             const stage = t.stage_id ? stageByIdLocal.get(t.stage_id) : null;
+            const displayMode = t.display_mode === "name" ? "name" : "role";
             const resourceNames = ids
-              .map((id) => resourceNameById.get(id))
+              .map((id) => {
+                if (displayMode === "name") {
+                  return (
+                    resourceNameById.get(id) ?? resourceRoleById.get(id) ?? ""
+                  );
+                }
+                // "role" (default): prefer role, fall back to name so nothing is blank.
+                return resourceRoleById.get(id) ?? resourceNameById.get(id) ?? "";
+              })
               .filter((n): n is string => !!n);
             return {
               id: String(t.id),

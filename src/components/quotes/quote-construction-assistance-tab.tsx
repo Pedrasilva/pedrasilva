@@ -104,6 +104,31 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
     return m;
   }, [resources]);
 
+  /** Client-facing billable role for a resource. Prefers proposal_role, then
+   * billing_role, then role. Returns empty string when nothing is set. */
+  function roleLabelFor(resourceId: string): string {
+    const r = resourceById.get(resourceId) as
+      | { proposal_role?: string | null; billing_role?: string | null; role?: string | null }
+      | undefined;
+    if (!r) return "";
+    return (r.proposal_role || r.billing_role || r.role || "").toString();
+  }
+
+  function rolesSummary(ids: string[]): string {
+    const roles = ids.map(roleLabelFor).filter(Boolean);
+    if (roles.length === 0) return "";
+    // Deduplicate while preserving order.
+    const seen = new Set<string>();
+    const uniq: string[] = [];
+    for (const r of roles) {
+      if (!seen.has(r)) {
+        seen.add(r);
+        uniq.push(r);
+      }
+    }
+    return uniq.join(", ");
+  }
+
   const [draft, setDraft] = useState<null | Partial<QuoteSiteTrip>>(null);
 
   /**
@@ -142,6 +167,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       frequency_value: prev?.frequency_value ?? 2,
       duration_months_override: prev?.duration_months_override ?? null,
       stage_id: prev?.stage_id ?? null,
+      display_mode: prev?.display_mode ?? "role",
       notes: "",
     });
   }
@@ -178,6 +204,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
           ? null
           : Number(draft.duration_months_override) || null,
       stage_id: draft.stage_id ?? null,
+      display_mode: (draft.display_mode as "name" | "role") ?? "role",
       notes: draft.notes ?? null,
     };
     await upsert.mutateAsync(draft.id ? { id: draft.id, ...payload } : payload);
@@ -192,6 +219,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       frequency_value: payload.frequency_value,
       duration_months_override: payload.duration_months_override,
       stage_id: payload.stage_id,
+      display_mode: payload.display_mode,
     };
     setDraft(null);
   }
@@ -250,6 +278,8 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     <TableHead className="text-right">€/km</TableHead>
                     <TableHead className="text-right">Hours</TableHead>
                     <TableHead>Resource</TableHead>
+                    <TableHead>Billable role</TableHead>
+                    <TableHead>Show in proposal</TableHead>
                     <TableHead className="text-right">Resource €/h</TableHead>
                     <TableHead className="text-right">Manual €/h</TableHead>
                     <TableHead>Frequency</TableHead>
@@ -316,6 +346,40 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                           rateById={resourceRateById}
                           onChange={(ids) => patch(trip, { resource_ids: ids })}
                         />
+                      </TableCell>
+                      <TableCell>
+                        {(() => {
+                          const label = rolesSummary(trip.resource_ids ?? []);
+                          return label ? (
+                            <span
+                              className="text-sm"
+                              title="Client-facing role from the HR / Commercial Role card"
+                            >
+                              {label}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">—</span>
+                          );
+                        })()}
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={(trip.display_mode as string) ?? "role"}
+                          onValueChange={(v) =>
+                            patch(trip, { display_mode: v as "name" | "role" })
+                          }
+                        >
+                          <SelectTrigger
+                            className="h-8 min-w-[7rem]"
+                            title="How resources are referenced in the generated proposal"
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="role">Role</SelectItem>
+                            <SelectItem value="name">Name</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell className="text-right">
                         {(trip.resource_ids?.length ?? 0) > 0 ? (
@@ -431,7 +495,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
 
                   {rows.length > 0 && (
                     <TableRow>
-                      <TableCell colSpan={11} className="text-right font-semibold">
+                      <TableCell colSpan={13} className="text-right font-semibold">
                         Grand total
                       </TableCell>
                       <TableCell className="text-right font-semibold tabular-nums">
@@ -579,6 +643,22 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     }}
                     title="Overrides the stage's date-derived duration when frequency is 'per month'. Leave empty to use stage dates."
                   />
+                </Field>
+                <Field label="Show resources in proposal as">
+                  <Select
+                    value={(draft.display_mode as string) ?? "role"}
+                    onValueChange={(v) =>
+                      setDraft({ ...draft, display_mode: v as "name" | "role" })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="role">Billable role</SelectItem>
+                      <SelectItem value="name">Collaborator name</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </Field>
                 <Field label="Notes" className="md:col-span-3">
                   <Textarea

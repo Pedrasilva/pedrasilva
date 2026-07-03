@@ -7147,6 +7147,7 @@ export type Database = {
       quote_site_trips: {
         Row: {
           created_at: string
+          display_mode: string
           duration_months_override: number | null
           frequency_mode: string
           frequency_value: number
@@ -7167,6 +7168,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          display_mode?: string
           duration_months_override?: number | null
           frequency_mode?: string
           frequency_value?: number
@@ -7187,6 +7189,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          display_mode?: string
           duration_months_override?: number | null
           frequency_mode?: string
           frequency_value?: number
