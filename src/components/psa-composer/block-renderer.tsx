@@ -1184,13 +1184,13 @@ export function BlockBody({
           )}
           {hasRichContent(optObjectiveHtml, optObjectiveText) && (
             <div className="mb-3">
-              <SectionTitle>{L.objective}</SectionTitle>
+              <OptSectionTitle>{L.objective}</OptSectionTitle>
               <RichContent html={optObjectiveHtml} text={optObjectiveText} tokenMap={tokenMap} />
             </div>
           )}
           {hasRichContent(optScopeHtml, optScopeText) && (
             <div className="mb-3">
-              <SectionTitle>{L.scopeIncludes}</SectionTitle>
+              <OptSectionTitle>{L.scopeIncludes}</OptSectionTitle>
               <RichContent html={optScopeHtml} text={optScopeText} tokenMap={tokenMap} />
             </div>
           )}
