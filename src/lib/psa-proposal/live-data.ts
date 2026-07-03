@@ -1028,6 +1028,9 @@ export interface ProposalLabels {
   deliverables: string;
   clientInfoRequired: string;
   scopeDeliverables: string;
+  objective: string;
+  keyActivities: string;
+  stageApproval: string;
   resourceBreakdown: string;
   role: string;
   hours: string;
@@ -1101,6 +1104,9 @@ const LABELS_PT: ProposalLabels = {
   deliverables: "Entregáveis",
   clientInfoRequired: "Informação necessária do cliente",
   scopeDeliverables: "Âmbito e entregáveis",
+  objective: "Objetivo",
+  keyActivities: "Actividades Principais",
+  stageApproval: "Aprovação da Fase",
   resourceBreakdown: "Recursos afectos",
   role: "Função",
   hours: "Horas",
@@ -1176,6 +1182,9 @@ const LABELS_EN: ProposalLabels = {
   deliverables: "Deliverables",
   clientInfoRequired: "Information required from the client",
   scopeDeliverables: "Scope and deliverables",
+  objective: "Objective",
+  keyActivities: "Key Activities",
+  stageApproval: "Stage Approval",
   resourceBreakdown: "Allocated resources",
   role: "Role",
   hours: "Hours",

@@ -245,6 +245,48 @@ export function BlockSettingsPanel({
             </p>
           </div>
 
+          <div className="space-y-1">
+            <Label className="text-xs">Objetivo</Label>
+            <RichTextEditor
+              value={(block.content_rich?.objective_html as string | undefined) ?? ""}
+              onChange={({ html, text }) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    content_rich: {
+                      ...(block.content_rich ?? {}),
+                      objective_html: html,
+                      objective_text: text,
+                    },
+                  },
+                })
+              }
+              placeholder="Objetivo desta fase..."
+              tokenEntries={buildTokenPickerEntries(liveQuery.data)}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-xs">Actividades Principais</Label>
+            <RichTextEditor
+              value={(block.content_rich?.key_activities_html as string | undefined) ?? ""}
+              onChange={({ html, text }) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    content_rich: {
+                      ...(block.content_rich ?? {}),
+                      key_activities_html: html,
+                      key_activities_text: text,
+                    },
+                  },
+                })
+              }
+              placeholder="Principais actividades desta fase..."
+              tokenEntries={buildTokenPickerEntries(liveQuery.data)}
+            />
+          </div>
+
           <div>
             <Label className="text-xs">Entregáveis (texto livre)</Label>
             <Textarea
@@ -328,6 +370,27 @@ export function BlockSettingsPanel({
               />
             </div>
           )}
+
+          <div className="space-y-1">
+            <Label className="text-xs">Aprovação da Fase</Label>
+            <RichTextEditor
+              value={(block.content_rich?.stage_approval_html as string | undefined) ?? ""}
+              onChange={({ html, text }) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    content_rich: {
+                      ...(block.content_rich ?? {}),
+                      stage_approval_html: html,
+                      stage_approval_text: text,
+                    },
+                  },
+                })
+              }
+              placeholder="Critérios / processo de aprovação da fase..."
+              tokenEntries={buildTokenPickerEntries(liveQuery.data)}
+            />
+          </div>
         </div>
       )}
 
