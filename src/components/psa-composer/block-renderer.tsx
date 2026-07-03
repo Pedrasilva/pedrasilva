@@ -1664,15 +1664,13 @@ export function BlockBody({
       const labelColWidth =
         resolvedOrientation === "a3-landscape" ? "22%" : "32%";
       const baseFontPx = resolvedOrientation === "a3-landscape" ? 12 : 10;
+      // In on-screen preview the page stays A4 portrait, so a landscape
+      // schedule reads better rotated 90° — the time axis then runs down
+      // the long side of the page. Print un-rotates via @media print so
+      // the @page A3 landscape rule handles physical orientation.
+      const rotateForScreen = resolvedOrientation === "a3-landscape";
 
-      return (
-        <div
-          className={cn(
-            "proposal-appendix proposal-page-break-before flex flex-col",
-            resolvedOrientation === "a3-landscape" && "proposal-appendix-landscape",
-          )}
-          style={{ minHeight: pageMinHeight }}
-        >
+      const chartBody = (
           <div className="mb-2 text-xs uppercase tracking-[0.3em] text-zinc-500">
             {L.appendix} {letterB}
           </div>
