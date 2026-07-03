@@ -42,7 +42,15 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Billable hourly rate</CardTitle>
+        <CardTitle className="text-base">
+          <Link
+            to="/hr/billable-rates"
+            className="inline-flex items-center gap-1.5 hover:underline"
+          >
+            Billable hourly rate
+            <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+          </Link>
+        </CardTitle>
         <CardDescription>
           Cost/hour is shared across all quotes (HR source of truth). Manual sale rate
           is specific to this quote.
