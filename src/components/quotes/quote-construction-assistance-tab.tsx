@@ -240,25 +240,34 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
   }
 
   // ---- billing mode (which €/h drives cost math for every trip) ----
-  const billingModeKey = `quote-trip-billing-mode:${quoteId}`;
+  // Persisted on fee_proposals.trip_billing_mode so the proposal Travel
+  // Expenses block computes the same totals as this table.
   const [billingMode, setBillingMode] = useState<BillingMode>("resource");
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(billingModeKey);
-      if (stored === "resource" || stored === "manual" || stored === "role") {
-        setBillingMode(stored);
+    let cancelled = false;
+    (async () => {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data } = await supabase
+        .from("fee_proposals")
+        .select("trip_billing_mode")
+        .eq("id", quoteId)
+        .maybeSingle();
+      const v = (data as { trip_billing_mode?: string } | null)?.trip_billing_mode;
+      if (!cancelled && (v === "resource" || v === "manual" || v === "role")) {
+        setBillingMode(v);
       }
-    } catch {
-      /* ignore */
-    }
-  }, [billingModeKey]);
-  const changeBillingMode = (m: BillingMode) => {
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [quoteId]);
+  const changeBillingMode = async (m: BillingMode) => {
     setBillingMode(m);
-    try {
-      window.localStorage.setItem(billingModeKey, m);
-    } catch {
-      /* ignore */
-    }
+    const { supabase } = await import("@/integrations/supabase/client");
+    await supabase
+      .from("fee_proposals")
+      .update({ trip_billing_mode: m })
+      .eq("id", quoteId);
   };
 
   // Role-based sale rates (from the "Billable hourly rate" tab, per quote).
