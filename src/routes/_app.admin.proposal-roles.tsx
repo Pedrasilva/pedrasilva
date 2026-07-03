@@ -91,6 +91,7 @@ function ProposalRolesAdminPage() {
           label_en: r.label_en,
           label_pt: r.label_pt,
           default_seniority: r.default_seniority,
+          hourly_rate: r.hourly_rate,
           sort_order: r.sort_order,
         })
         .eq("id", r.id);
@@ -213,6 +214,7 @@ function ProposalRolesAdminPage() {
                     <TableHead>{isPt ? "Título (EN)" : "Title (EN)"}</TableHead>
                     <TableHead>{isPt ? "Título (PT)" : "Title (PT)"}</TableHead>
                     <TableHead className="w-28">{isPt ? "Senioridade" : "Seniority"}</TableHead>
+                    <TableHead className="w-32 text-right">{isPt ? "Custo/hora" : "Cost / hour"}</TableHead>
                     <TableHead className="w-40 text-right">{isPt ? "Ações" : "Actions"}</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -228,7 +230,7 @@ function ProposalRolesAdminPage() {
                   ))}
                   {roles.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-6">
+                      <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-6">
                         {isPt ? "Sem títulos." : "No titles yet."}
                       </TableCell>
                     </TableRow>
@@ -261,6 +263,7 @@ function RoleRow({
     draft.label_en !== role.label_en ||
     draft.label_pt !== role.label_pt ||
     draft.default_seniority !== role.default_seniority ||
+    Number(draft.hourly_rate) !== Number(role.hourly_rate) ||
     draft.sort_order !== role.sort_order;
   const archived = !!role.archived_at;
 
@@ -310,6 +313,24 @@ function RoleRow({
             })
           }
         />
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center justify-end gap-1">
+          <Input
+            type="number"
+            min={0}
+            step="0.01"
+            className="h-8 w-24 tabular-nums text-right"
+            value={draft.hourly_rate ?? 0}
+            onChange={(e) =>
+              setDraft({
+                ...draft,
+                hourly_rate: Number(e.target.value) || 0,
+              })
+            }
+          />
+          <span className="text-muted-foreground text-xs">€</span>
+        </div>
       </TableCell>
       <TableCell className="text-right">
         <div className="flex justify-end gap-1">

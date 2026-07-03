@@ -24,6 +24,7 @@ export interface ProposalRole {
   label_en: string;
   label_pt: string;
   default_seniority: number | null;
+  hourly_rate: number;
   sort_order: number;
   archived_at: string | null;
 }

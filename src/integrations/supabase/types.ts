@@ -1045,33 +1045,6 @@ export type Database = {
           },
         ]
       }
-      billable_hourly_rates: {
-        Row: {
-          created_at: string
-          hourly_rate: number
-          id: string
-          notes: string | null
-          role_name: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          hourly_rate?: number
-          id?: string
-          notes?: string | null
-          role_name: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          hourly_rate?: number
-          id?: string
-          notes?: string | null
-          role_name?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       bo_settings: {
         Row: {
           created_at: string
@@ -6453,6 +6426,7 @@ export type Database = {
           code: string
           created_at: string
           default_seniority: number | null
+          hourly_rate: number
           id: string
           label_en: string
           label_pt: string
@@ -6464,6 +6438,7 @@ export type Database = {
           code: string
           created_at?: string
           default_seniority?: number | null
+          hourly_rate?: number
           id?: string
           label_en: string
           label_pt: string
@@ -6475,6 +6450,7 @@ export type Database = {
           code?: string
           created_at?: string
           default_seniority?: number | null
+          hourly_rate?: number
           id?: string
           label_en?: string
           label_pt?: string

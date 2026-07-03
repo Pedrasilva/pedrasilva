@@ -1,39 +1,35 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useProposalRoles } from "@/lib/proposal-roles";
+import type { ProposalRole } from "@/lib/proposal-roles";
 import {
-  useBillableRates,
-  useBillingRoles,
   useQuoteSaleRates,
-  useUpsertBillableRate,
+  useUpsertProposalRoleCost,
   useUpsertQuoteSaleRate,
 } from "@/lib/hr/use-billable-rates";
 
 /**
  * Billable hourly rates — quote-side view.
  *
- * Same table as HR settings (single source of truth per Billing Role) plus a
- * quote-specific "Manual sale rate" column. Editing the cost here updates the
- * shared HR value; editing the sale rate only affects this quote.
+ * Same table as the Titles / Commercial Roles catalog (single source of truth
+ * per role). Cost / hour edits update the catalog; Manual sale rate edits are
+ * scoped to this quote.
  */
 export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
-  const { data: roles = [], isLoading } = useBillingRoles();
-  const { data: costs = [] } = useBillableRates();
+  const { i18n } = useTranslation();
+  const isPt = i18n.language?.startsWith("pt");
+  const { data: roles = [], isLoading } = useProposalRoles();
   const { data: sales = [] } = useQuoteSaleRates(quoteId);
 
-  const upsertCost = useUpsertBillableRate();
+  const upsertCost = useUpsertProposalRoleCost();
   const upsertSale = useUpsertQuoteSaleRate(quoteId);
 
-  const costByRole = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const r of costs) m.set(r.role_name, Number(r.hourly_rate) || 0);
-    return m;
-  }, [costs]);
-
-  const saleByRole = useMemo(() => {
+  const saleByCode = useMemo(() => {
     const m = new Map<string, number>();
     for (const r of sales) m.set(r.role_name, Number(r.sale_rate) || 0);
     return m;
@@ -44,16 +40,17 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
       <CardHeader>
         <CardTitle className="text-base">
           <Link
-            to="/hr/billable-rates"
+            to="/admin/proposal-roles"
             className="inline-flex items-center gap-1.5 text-primary hover:underline"
           >
-            Billable hourly rate
+            {isPt ? "Valor/hora facturável" : "Billable hourly rate"}
             <ExternalLink className="h-4 w-4" />
           </Link>
         </CardTitle>
         <CardDescription>
-          Cost/hour is shared across all quotes (HR source of truth). Manual sale rate
-          is specific to this quote.
+          {isPt
+            ? "Custo/hora vive no catálogo de Títulos (partilhado entre todas as propostas). O valor de venda manual é específico desta proposta."
+            : "Cost/hour lives in the Titles catalog (shared across all quotes). Manual sale rate is specific to this quote."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -61,28 +58,36 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
           <div className="text-sm text-muted-foreground">Loading…</div>
         ) : roles.length === 0 ? (
           <div className="text-sm text-muted-foreground">
-            No Billing Roles found in HR.
+            {isPt ? "Sem títulos no catálogo." : "No titles in the catalog."}
           </div>
         ) : (
           <div className="overflow-hidden rounded-md border">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                  <th className="px-4 py-2 font-semibold">Recurso</th>
-                  <th className="px-4 py-2 text-right font-semibold">Cost / hour</th>
-                  <th className="px-4 py-2 text-right font-semibold">Manual sale rate</th>
+                  <th className="px-4 py-2 font-semibold">
+                    {isPt ? "Título" : "Title"}
+                  </th>
+                  <th className="px-4 py-2 text-right font-semibold">
+                    {isPt ? "Custo / hora" : "Cost / hour"}
+                  </th>
+                  <th className="px-4 py-2 text-right font-semibold">
+                    {isPt ? "Valor venda manual" : "Manual sale rate"}
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {roles.map((role) => (
-                  <tr key={role} className="border-b last:border-b-0 hover:bg-muted/20">
-                    <td className="px-4 py-2">{role}</td>
+                {roles.map((role: ProposalRole) => (
+                  <tr key={role.id} className="border-b last:border-b-0 hover:bg-muted/20">
+                    <td className="px-4 py-2">
+                      {isPt ? role.label_pt : role.label_en}
+                    </td>
                     <td className="px-4 py-2">
                       <RateCell
-                        value={costByRole.get(role) ?? 0}
+                        value={Number(role.hourly_rate) || 0}
                         onSave={(v) =>
                           upsertCost.mutate(
-                            { role_name: role, hourly_rate: v },
+                            { id: role.id, hourly_rate: v },
                             { onError: (e) => toast.error((e as Error).message) },
                           )
                         }
@@ -90,10 +95,10 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
                     </td>
                     <td className="px-4 py-2">
                       <RateCell
-                        value={saleByRole.get(role) ?? 0}
+                        value={saleByCode.get(role.code) ?? 0}
                         onSave={(v) =>
                           upsertSale.mutate(
-                            { role_name: role, sale_rate: v },
+                            { role_code: role.code, sale_rate: v },
                             { onError: (e) => toast.error((e as Error).message) },
                           )
                         }
