@@ -1345,76 +1345,169 @@ export function BlockBody({
       const rows = live?.siteTrips ?? [];
       const total = live?.siteTripsTotal ?? 0;
       const isEn = lang === "en";
-      const intro = isEn
-        ? "Site trips planned during construction (or other stages). Cost per trip = km × price/km × 2 + trip hours × hourly rate × 2 (return included)."
-        : "Deslocações previstas durante a obra (ou outras fases). Custo por deslocação = km × €/km × 2 + horas × €/h × 2 (ida e volta incluídas).";
       const T = {
-        label: isEn ? "Ref." : "Ref.",
         stage: isEn ? "Stage" : "Fase",
-        criteria: isEn ? "Criteria" : "Critério",
-        frequency: isEn ? "Frequency" : "Frequência",
         trips: isEn ? "Trips" : "Deslocações",
-        cost: isEn ? "Total" : "Total",
+        resources: isEn ? "Resources" : "Recursos",
+        cost: isEn ? "Cost" : "Custo",
         totalRow: isEn ? "Total" : "Total",
         perMonth: isEn ? "per month" : "por mês",
         totalMode: isEn ? "total" : "total",
+        howTitle: isEn ? "How travel expenses are calculated" : "Como são calculadas as despesas de deslocação",
+        distance: isEn ? "Distance office → site" : "Distância escritório → obra",
+        pricePerKm: isEn ? "Price per km" : "Preço por km",
+        perTripKm: isEn ? "Km cost per trip (return incl.)" : "Custo em km por deslocação (ida e volta)",
+        travelTime: isEn ? "Travel time per trip" : "Tempo de viagem por deslocação",
+        resourceRate: isEn ? "Resource cost" : "Custo do recurso",
+        perTripHr: isEn ? "Time cost per trip (return incl.)" : "Custo de tempo por deslocação (ida e volta)",
+        perTripTotal: isEn ? "Cost per trip" : "Custo por deslocação",
+        noData: isEn
+          ? "No site trips defined in the Travel expenses tab."
+          : "Sem deslocações definidas no separador Despesas de Deslocação.",
+        formulaHint: isEn
+          ? "Formula: km × price/km × 2 + hours × €/h × 2 (return included). Total per stage = cost per trip × number of trips."
+          : "Fórmula: km × €/km × 2 + horas × €/h × 2 (ida e volta incluídas). Total por fase = custo por deslocação × nº de deslocações.",
       };
-      const criteriaFor = (r: (typeof rows)[number]) => {
-        const parts: string[] = [];
-        if (r.km > 0 && r.pricePerKm > 0) {
-          parts.push(`${r.km} km × ${formatCurrencyEUR(r.pricePerKm, lang)}/km × 2`);
-        }
-        if (r.tripHours > 0 && r.hourlyRate > 0) {
-          parts.push(
-            `${r.tripHours} ${L.hoursShort} × ${formatCurrencyEUR(r.hourlyRate, lang)}/${L.hoursShort} × 2`,
-          );
-        }
-        return parts.join(" + ") || "—";
+
+      // Pick a representative trip for the "how it's calculated" example.
+      const example = rows[0];
+
+      // Group trips by stage for the per-stage rollup.
+      type StageBucket = {
+        key: string;
+        stageNumber: string | null;
+        stageName: string | null;
+        totalTrips: number;
+        totalCost: number;
+        resourceNames: Set<string>;
       };
-      const frequencyFor = (r: (typeof rows)[number]) => {
-        if (r.frequencyMode === "per_month") {
-          return `${r.frequencyValue} ${T.perMonth}`;
+      const buckets = new Map<string, StageBucket>();
+      for (const r of rows) {
+        const key = r.stageId ?? "__none__";
+        let b = buckets.get(key);
+        if (!b) {
+          b = {
+            key,
+            stageNumber: r.stageNumber,
+            stageName: r.stageName,
+            totalTrips: 0,
+            totalCost: 0,
+            resourceNames: new Set<string>(),
+          };
+          buckets.set(key, b);
         }
-        return `${r.frequencyValue} ${T.totalMode}`;
-      };
+        b.totalTrips += Number(r.totalTrips) || 0;
+        b.totalCost += Number(r.totalCost) || 0;
+        for (const n of r.resourceNames ?? []) b.resourceNames.add(n);
+      }
+      const stageRollup = Array.from(buckets.values()).sort((a, b) => {
+        const av = a.stageNumber ?? "\uffff";
+        const bv = b.stageNumber ?? "\uffff";
+        return av.localeCompare(bv, undefined, { numeric: true, sensitivity: "base" });
+      });
+
       return (
         <div>
           <H>{num}{block.title}</H>
-          <P>{intro}</P>
-          {rows.length ? (
+
+          {/* Editable placeholder for introductory text. */}
+          {(richHas || (editable && onPatchContent)) && (
+            <div className="mb-3">{rich}</div>
+          )}
+
+          {/* Calculation summary — derived from the first trip's parameters
+             so the client sees exactly which numbers drove the estimate. */}
+          {example ? (
+            <div className="mb-4 rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm print:bg-transparent">
+              <div className="mb-2 text-xs uppercase tracking-widest text-zinc-500">
+                {T.howTitle}
+              </div>
+              <ul className="grid grid-cols-1 gap-y-1 md:grid-cols-2 md:gap-x-6">
+                <li className="flex justify-between gap-4">
+                  <span className="text-zinc-600">{T.distance}</span>
+                  <span className="tabular-nums font-medium">
+                    {example.km} km
+                  </span>
+                </li>
+                <li className="flex justify-between gap-4">
+                  <span className="text-zinc-600">{T.pricePerKm}</span>
+                  <span className="tabular-nums font-medium">
+                    {formatCurrencyEUR(example.pricePerKm, lang)}/km
+                  </span>
+                </li>
+                <li className="flex justify-between gap-4">
+                  <span className="text-zinc-600">{T.perTripKm}</span>
+                  <span className="tabular-nums font-medium">
+                    {example.km} × {formatCurrencyEUR(example.pricePerKm, lang)} × 2 = {formatCurrencyEUR(example.perTripKmCost, lang)}
+                  </span>
+                </li>
+                <li className="flex justify-between gap-4">
+                  <span className="text-zinc-600">{T.travelTime}</span>
+                  <span className="tabular-nums font-medium">
+                    {example.tripHours} {L.hoursShort}
+                  </span>
+                </li>
+                <li className="flex justify-between gap-4">
+                  <span className="text-zinc-600">{T.resourceRate}</span>
+                  <span className="tabular-nums font-medium">
+                    {formatCurrencyEUR(example.hourlyRate, lang)}/{L.hoursShort}
+                    {example.resourceNames?.length
+                      ? ` · ${example.resourceNames.join(", ")}`
+                      : ""}
+                  </span>
+                </li>
+                <li className="flex justify-between gap-4">
+                  <span className="text-zinc-600">{T.perTripHr}</span>
+                  <span className="tabular-nums font-medium">
+                    {example.tripHours} × {formatCurrencyEUR(example.hourlyRate, lang)} × 2 = {formatCurrencyEUR(example.perTripHrCost, lang)}
+                  </span>
+                </li>
+                <li className="flex justify-between gap-4 md:col-span-2 border-t border-zinc-200 pt-1 mt-1">
+                  <span className="font-medium">{T.perTripTotal}</span>
+                  <span className="tabular-nums font-semibold">
+                    {formatCurrencyEUR(example.perTripTotal, lang)}
+                  </span>
+                </li>
+              </ul>
+              <p className="mt-2 text-xs text-zinc-500">{T.formulaHint}</p>
+            </div>
+          ) : null}
+
+          {/* Per-stage rollup: trips, resources, cost. */}
+          {stageRollup.length ? (
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
-                  <th className="py-1 w-12">{T.label}</th>
                   <th className="py-1">{T.stage}</th>
-                  <th className="py-1">{T.criteria}</th>
-                  <th className="py-1">{T.frequency}</th>
                   <th className="py-1 text-right">{T.trips}</th>
+                  <th className="py-1">{T.resources}</th>
                   <th className="py-1 text-right">{T.cost}</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => (
-                  <tr key={r.id} className="border-b border-zinc-100 align-top">
-                    <td className="py-1 font-medium">{r.label || "—"}</td>
+                {stageRollup.map((b) => (
+                  <tr key={b.key} className="border-b border-zinc-100 align-top">
                     <td className="py-1">
-                      {r.stageNumber ? `${r.stageNumber} ` : ""}
-                      {r.stageName ?? "—"}
+                      {b.stageNumber ? `${b.stageNumber} ` : ""}
+                      {b.stageName ?? "—"}
                     </td>
-                    <td className="py-1 text-zinc-700">{criteriaFor(r)}</td>
-                    <td className="py-1">{frequencyFor(r)}</td>
                     <td className="py-1 text-right tabular-nums">
-                      {Number.isFinite(r.totalTrips)
-                        ? Math.round(r.totalTrips * 100) / 100
+                      {Number.isFinite(b.totalTrips)
+                        ? Math.round(b.totalTrips * 100) / 100
+                        : "—"}
+                    </td>
+                    <td className="py-1 text-zinc-700">
+                      {b.resourceNames.size
+                        ? Array.from(b.resourceNames).join(", ")
                         : "—"}
                     </td>
                     <td className="py-1 text-right tabular-nums">
-                      {formatCurrencyEUR(r.totalCost, lang)}
+                      {formatCurrencyEUR(b.totalCost, lang)}
                     </td>
                   </tr>
                 ))}
                 <tr className="border-t-2 border-zinc-400 font-semibold">
-                  <td className="py-1" colSpan={5}>{T.totalRow}</td>
+                  <td className="py-1" colSpan={3}>{T.totalRow}</td>
                   <td className="py-1 text-right tabular-nums">
                     {formatCurrencyEUR(total, lang)}
                   </td>
@@ -1422,11 +1515,7 @@ export function BlockBody({
               </tbody>
             </table>
           ) : (
-            <Empty>
-              {isEn
-                ? "No site trips defined in the Construction Assistance tab."
-                : "Sem deslocações definidas no separador Assistência à Obra."}
-            </Empty>
+            <Empty>{T.noData}</Empty>
           )}
         </div>
       );
