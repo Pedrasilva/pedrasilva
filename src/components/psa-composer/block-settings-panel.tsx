@@ -43,6 +43,30 @@ import {
   formatStageLabel,
 } from "@/lib/quotes/stage-numbering";
 
+/** Label row with an inline on/off switch controlling section visibility. */
+function SectionLabel({
+  label,
+  checked,
+  onCheckedChange,
+}: {
+  label: string;
+  checked: boolean;
+  onCheckedChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <Label className="text-xs">{label}</Label>
+      <div className="flex items-center gap-1.5">
+        <span className="text-[10px] uppercase tracking-wider text-zinc-400">
+          {checked ? "On" : "Off"}
+        </span>
+        <Switch checked={checked} onCheckedChange={onCheckedChange} />
+      </div>
+    </div>
+  );
+}
+
+
 export function BlockSettingsPanel({
   proposalId,
   proposal,
@@ -246,7 +270,16 @@ export function BlockSettingsPanel({
           </div>
 
           <div className="space-y-1">
-            <Label className="text-xs">Objetivo</Label>
+            <SectionLabel
+              label="Objetivo"
+              checked={(block.content_rich?.show_objective as boolean | undefined) ?? true}
+              onCheckedChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: { content_rich: { ...(block.content_rich ?? {}), show_objective: v } },
+                })
+              }
+            />
             <RichTextEditor
               value={(block.content_rich?.objective_html as string | undefined) ?? ""}
               onChange={({ html, text }) =>
@@ -267,7 +300,16 @@ export function BlockSettingsPanel({
           </div>
 
           <div className="space-y-1">
-            <Label className="text-xs">Actividades Principais</Label>
+            <SectionLabel
+              label="Actividades Principais"
+              checked={(block.content_rich?.show_key_activities as boolean | undefined) ?? true}
+              onCheckedChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: { content_rich: { ...(block.content_rich ?? {}), show_key_activities: v } },
+                })
+              }
+            />
             <RichTextEditor
               value={(block.content_rich?.key_activities_html as string | undefined) ?? ""}
               onChange={({ html, text }) =>
@@ -372,7 +414,16 @@ export function BlockSettingsPanel({
           )}
 
           <div className="space-y-1">
-            <Label className="text-xs">Aprovação da Fase</Label>
+            <SectionLabel
+              label="Aprovação da Fase"
+              checked={(block.content_rich?.show_stage_approval as boolean | undefined) ?? true}
+              onCheckedChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: { content_rich: { ...(block.content_rich ?? {}), show_stage_approval: v } },
+                })
+              }
+            />
             <RichTextEditor
               value={(block.content_rich?.stage_approval_html as string | undefined) ?? ""}
               onChange={({ html, text }) =>
@@ -710,7 +761,16 @@ export function BlockSettingsPanel({
       {(block.block_type === "optional_fee_table" || block.block_type === "custom_text") && (
         <div className="space-y-3">
           <div className="space-y-1">
-            <Label className="text-xs">Objetivo</Label>
+            <SectionLabel
+              label="Objetivo"
+              checked={(block.content_rich?.show_objective as boolean | undefined) ?? true}
+              onCheckedChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: { content_rich: { ...(block.content_rich ?? {}), show_objective: v } },
+                })
+              }
+            />
             <RichTextEditor
               value={(block.content_rich?.objective_html as string | undefined) ?? ""}
               onChange={({ html, text }) =>
@@ -730,7 +790,16 @@ export function BlockSettingsPanel({
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Âmbito Incluído</Label>
+            <SectionLabel
+              label="Âmbito Incluído"
+              checked={(block.content_rich?.show_scope_includes as boolean | undefined) ?? true}
+              onCheckedChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: { content_rich: { ...(block.content_rich ?? {}), show_scope_includes: v } },
+                })
+              }
+            />
             <RichTextEditor
               value={(block.content_rich?.scope_html as string | undefined) ?? ""}
               onChange={({ html, text }) =>

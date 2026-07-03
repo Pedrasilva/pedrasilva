@@ -478,6 +478,9 @@ export function BlockBody({
       const keyActivitiesText = (block.content_rich?.key_activities_text as string | undefined) ?? "";
       const stageApprovalHtml = (block.content_rich?.stage_approval_html as string | undefined) ?? "";
       const stageApprovalText = (block.content_rich?.stage_approval_text as string | undefined) ?? "";
+      const showObjective = (block.content_rich?.show_objective as boolean | undefined) ?? true;
+      const showKeyActivities = (block.content_rich?.show_key_activities as boolean | undefined) ?? true;
+      const showStageApproval = (block.content_rich?.show_stage_approval as boolean | undefined) ?? true;
 
       const SectionTitle = ({ children }: { children: React.ReactNode }) => (
         <h3 className="proposal-print-heading mb-2 text-sm font-semibold tracking-tight text-zinc-900">
@@ -491,14 +494,14 @@ export function BlockBody({
           {stage.description && <P>{stage.description}</P>}
           {richHas && <div className="mb-4">{rich}</div>}
 
-          {hasRichContent(objectiveHtml, objectiveText) && (
+          {showObjective && hasRichContent(objectiveHtml, objectiveText) && (
             <div className="mt-6">
               <SectionTitle>{L.objective}</SectionTitle>
               <RichContent html={objectiveHtml} text={objectiveText} tokenMap={tokenMap} />
             </div>
           )}
 
-          {hasRichContent(keyActivitiesHtml, keyActivitiesText) && (
+          {showKeyActivities && hasRichContent(keyActivitiesHtml, keyActivitiesText) && (
             <div className="mt-6">
               <SectionTitle>{L.keyActivities}</SectionTitle>
               <RichContent html={keyActivitiesHtml} text={keyActivitiesText} tokenMap={tokenMap} />
@@ -527,7 +530,7 @@ export function BlockBody({
             </div>
           )}
 
-          {hasRichContent(stageApprovalHtml, stageApprovalText) && (
+          {showStageApproval && hasRichContent(stageApprovalHtml, stageApprovalText) && (
             <div className="mt-6">
               <SectionTitle>{L.stageApproval}</SectionTitle>
               <RichContent html={stageApprovalHtml} text={stageApprovalText} tokenMap={tokenMap} />
@@ -1906,6 +1909,8 @@ export function BlockBody({
       const cObjText = (block.content_rich?.objective_text as string | undefined) ?? "";
       const cScopeHtml = (block.content_rich?.scope_html as string | undefined) ?? "";
       const cScopeText = (block.content_rich?.scope_text as string | undefined) ?? "";
+      const cShowObjective = (block.content_rich?.show_objective as boolean | undefined) ?? true;
+      const cShowScope = (block.content_rich?.show_scope_includes as boolean | undefined) ?? true;
       const CustomSectionTitle = ({ children }: { children: React.ReactNode }) => (
         <h3 className="proposal-print-heading mb-2 text-sm font-semibold tracking-tight text-zinc-900">
           {children}
@@ -1917,13 +1922,13 @@ export function BlockBody({
         <div>
           <H>{num}{block.title}</H>
           {richHas && <div className="mb-3">{rich}</div>}
-          {hasRichContent(cObjHtml, cObjText) && (
+          {cShowObjective && hasRichContent(cObjHtml, cObjText) && (
             <div className="mb-3">
               <CustomSectionTitle>{L.objective}</CustomSectionTitle>
               <RichContent html={cObjHtml} text={cObjText} tokenMap={tokenMap} />
             </div>
           )}
-          {block.block_type === "custom_text" && (
+          {block.block_type === "custom_text" && cShowScope && (
             <div className="mb-3">
               <CustomSectionTitle>{L.scopeIncludes}</CustomSectionTitle>
               {hasRichContent(cScopeHtml, cScopeText) ? (
