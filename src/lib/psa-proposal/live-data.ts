@@ -117,6 +117,19 @@ export interface LiveQuoteSnapshot {
     notes: string | null;
   }>;
   siteTripsTotal: number;
+  /**
+   * Billable hourly rates catalog for this quote — one entry per active
+   * proposal role, sorted by sale rate descending. `saleRate` comes from
+   * the quote-scoped `quote_billable_hourly_rates` override; `hourlyRate`
+   * is the shared cost from the `proposal_roles` catalog.
+   */
+  billableRates: Array<{
+    code: string;
+    label_pt: string;
+    label_en: string;
+    hourlyRate: number;
+    saleRate: number;
+  }>;
   missing: string[];
 }
 
