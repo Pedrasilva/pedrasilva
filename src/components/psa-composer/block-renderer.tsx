@@ -1566,90 +1566,205 @@ export function BlockBody({
       const letterB =
         (block.content_rich as { appendix_letter?: string } | undefined)
           ?.appendix_letter || "B";
-      const orientation =
+      const orientationSetting =
         ((block.content_rich as { page_orientation?: string } | undefined)
-          ?.page_orientation ?? "a3-landscape") as "portrait" | "a3-landscape";
+          ?.page_orientation ?? "auto") as "auto" | "portrait" | "a3-landscape";
       const introHtmlB = (block.content_rich?.html as string | undefined) ?? "";
       const introTextB = (block.content_rich?.text as string | undefined) ?? "";
 
-      const inSet = new Set(selfStages.map((s) => s.id));
-      const kidsOf = new Map<string, typeof selfStages>();
-      for (const s of selfStages) {
-        const p = s.parentStageId && inSet.has(s.parentStageId) ? s.parentStageId : null;
+      // Build hierarchy, skipping stages with no dates ("empty lines")
+      const datedStages = selfStages.filter((s) => s.startDate && s.endDate);
+      const inSetB = new Set(datedStages.map((s) => s.id));
+      const kidsOfB = new Map<string, typeof datedStages>();
+      for (const s of datedStages) {
+        const p = s.parentStageId && inSetB.has(s.parentStageId) ? s.parentStageId : null;
         if (!p) continue;
-        const arr = kidsOf.get(p) ?? [];
+        const arr = kidsOfB.get(p) ?? [];
         arr.push(s);
-        kidsOf.set(p, arr);
+        kidsOfB.set(p, arr);
       }
-      const startKeyB = (s: (typeof selfStages)[number]) => s.startDate ?? "";
-      const sortFnB = (a: (typeof selfStages)[number], b: (typeof selfStages)[number]) => {
-        const ak = startKeyB(a);
-        const bk = startKeyB(b);
+      const sortFnB = (a: (typeof datedStages)[number], b: (typeof datedStages)[number]) => {
+        const ak = a.startDate ?? "";
+        const bk = b.startDate ?? "";
         if (ak !== bk) return ak < bk ? -1 : 1;
         return 0;
       };
-      for (const [, arr] of kidsOf) arr.sort(sortFnB);
-      const rootsB = selfStages
-        .filter((s) => !s.parentStageId || !inSet.has(s.parentStageId))
+      for (const [, arr] of kidsOfB) arr.sort(sortFnB);
+      const rootsB = datedStages
+        .filter((s) => !s.parentStageId || !inSetB.has(s.parentStageId))
         .slice()
         .sort(sortFnB);
-      const rowsB: React.ReactNode[] = [];
-      const walkB = (s: (typeof selfStages)[number], depth: number) => {
-        const kids = kidsOf.get(s.id) ?? [];
-        const label = s.code ? `${s.code} — ${s.name}` : s.name;
-        const pad = { paddingLeft: `${depth * 14}px` } as React.CSSProperties;
-        if (kids.length > 0) {
-          rowsB.push(
-            <tr key={s.id} className="border-b border-zinc-200 bg-zinc-50">
-              <td colSpan={4} className="proposal-print-heading py-1 text-sm font-semibold text-zinc-800" style={pad}>
-                {label}
-              </td>
-            </tr>,
-          );
-          for (const k of kids) walkB(k, depth + 1);
-        } else {
-          rowsB.push(
-            <tr key={s.id} className="border-b border-zinc-100">
-              <td className="py-1" style={pad}>{label}{s.isMilestone ? " ◆" : ""}</td>
-              <td className="py-1">{formatDatePT(s.startDate, lang)}</td>
-              <td className="py-1">{formatDatePT(s.endDate, lang)}</td>
-              <td className="py-1 text-right">{formatDurationHuman(s.durationDays, lang)}</td>
-            </tr>,
-          );
-        }
+
+      type Row = {
+        stage: (typeof datedStages)[number];
+        depth: number;
+        isGroup: boolean;
+      };
+      const rows: Row[] = [];
+      const walkB = (s: (typeof datedStages)[number], depth: number) => {
+        const kids = kidsOfB.get(s.id) ?? [];
+        rows.push({ stage: s, depth, isGroup: kids.length > 0 });
+        for (const k of kids) walkB(k, depth + 1);
       };
       for (const r of rootsB) walkB(r, 0);
+
+      // Compute date range
+      let minTs = Infinity;
+      let maxTs = -Infinity;
+      for (const r of rows) {
+        const s = new Date(r.stage.startDate as string).getTime();
+        const e = new Date(r.stage.endDate as string).getTime();
+        if (!Number.isNaN(s)) minTs = Math.min(minTs, s);
+        if (!Number.isNaN(e)) maxTs = Math.max(maxTs, e);
+      }
+      const hasRange = rows.length > 0 && Number.isFinite(minTs) && Number.isFinite(maxTs) && maxTs > minTs;
+      const totalDays = hasRange ? Math.max(1, Math.round((maxTs - minTs) / 86400000)) : 1;
+      const totalMonths = hasRange
+        ? Math.max(1, Math.round(totalDays / 30))
+        : 1;
+
+      // Auto-orientation: portrait when the schedule is small enough to be
+      // legible on A4 portrait, otherwise A3 landscape.
+      const resolvedOrientation: "portrait" | "a3-landscape" =
+        orientationSetting === "auto"
+          ? rows.length <= 10 && totalMonths <= 6
+            ? "portrait"
+            : "a3-landscape"
+          : orientationSetting;
+
+      // Month ticks along the timeline
+      const monthTicks: { label: string; leftPct: number }[] = [];
+      if (hasRange) {
+        const start = new Date(minTs);
+        const cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+        // Advance to first month boundary at or after minTs
+        while (cursor.getTime() < minTs) cursor.setMonth(cursor.getMonth() + 1);
+        while (cursor.getTime() <= maxTs) {
+          const leftPct = ((cursor.getTime() - minTs) / (maxTs - minTs)) * 100;
+          monthTicks.push({
+            label: `${formatMonthShort(cursor.toISOString(), lang)} ${String(cursor.getFullYear()).slice(2)}`,
+            leftPct,
+          });
+          cursor.setMonth(cursor.getMonth() + 1);
+        }
+      }
+
+      const barFor = (r: Row) => {
+        const s = new Date(r.stage.startDate as string).getTime();
+        const e = new Date(r.stage.endDate as string).getTime();
+        const leftPct = ((s - minTs) / (maxTs - minTs)) * 100;
+        const widthPct = Math.max(0.4, ((e - s) / (maxTs - minTs)) * 100);
+        return { leftPct, widthPct };
+      };
+
+      // Sizing tuned so all stages fit on one page.
+      const rowH = Math.max(14, Math.min(22, Math.floor(520 / Math.max(rows.length, 1))));
 
       return (
         <div
           className={cn(
             "proposal-appendix proposal-page-break-before",
-            orientation === "a3-landscape" && "proposal-appendix-landscape",
+            resolvedOrientation === "a3-landscape" && "proposal-appendix-landscape",
           )}
         >
-          <div className="mb-4 text-xs uppercase tracking-[0.3em] text-zinc-500">
+          <div className="mb-3 text-xs uppercase tracking-[0.3em] text-zinc-500">
             {L.appendix} {letterB}
           </div>
           <H>{block.title}</H>
           {hasRichContent(introHtmlB, introTextB) && (
-            <div className="mb-4">
+            <div className="mb-3">
               <RichContent html={introHtmlB} text={introTextB} tokenMap={tokenMap} />
             </div>
           )}
-          {selfStages.length ? (
-            <table className="proposal-print-table w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
-                  <th className="py-1 font-semibold">{L.phase}</th>
-                  <th className="py-1 font-semibold">{L.start}</th>
-                  <th className="py-1 font-semibold">{L.end}</th>
-                  <th className="py-1 text-right font-semibold">{L.duration}</th>
-                </tr>
-              </thead>
-              <tbody>{rowsB}</tbody>
-            </table>
-          ) : (
+          {rows.length === 0 ? (
             <Empty>{L.scheduleUnavailable}</Empty>
+          ) : (
+            <div className="w-full">
+              {/* Header: month scale */}
+              <div className="flex border-b border-zinc-300 text-[10px] uppercase tracking-wide text-zinc-500">
+                <div className="w-[32%] shrink-0 py-1 pr-2 font-semibold">{L.phase}</div>
+                <div className="relative flex-1 py-1">
+                  <div className="relative h-4">
+                    {monthTicks.map((t, i) => (
+                      <div
+                        key={i}
+                        className="absolute top-0 h-full border-l border-zinc-200 pl-1"
+                        style={{ left: `${t.leftPct}%` }}
+                      >
+                        <span className="whitespace-nowrap">{t.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {/* Rows */}
+              <div className="w-full">
+                {rows.map((r) => {
+                  const { leftPct, widthPct } = barFor(r);
+                  const label = r.stage.code
+                    ? `${r.stage.code} — ${r.stage.name}`
+                    : r.stage.name;
+                  return (
+                    <div
+                      key={r.stage.id}
+                      className={cn(
+                        "flex items-center border-b border-zinc-100",
+                        r.isGroup && "bg-zinc-50",
+                      )}
+                      style={{ height: `${rowH}px` }}
+                    >
+                      <div
+                        className={cn(
+                          "w-[32%] shrink-0 truncate pr-2 text-[10px]",
+                          r.isGroup ? "font-semibold text-zinc-800" : "text-zinc-700",
+                        )}
+                        style={{ paddingLeft: `${r.depth * 10}px` }}
+                        title={label}
+                      >
+                        {label}
+                        {r.stage.isMilestone ? " ◆" : ""}
+                      </div>
+                      <div className="relative flex-1 h-full">
+                        {/* month gridlines */}
+                        {monthTicks.map((t, i) => (
+                          <div
+                            key={i}
+                            className="absolute top-0 h-full border-l border-zinc-100"
+                            style={{ left: `${t.leftPct}%` }}
+                          />
+                        ))}
+                        {/* bar */}
+                        {r.stage.isMilestone ? (
+                          <div
+                            className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 h-2 w-2 rotate-45 bg-zinc-900"
+                            style={{ left: `${leftPct}%` }}
+                          />
+                        ) : (
+                          <div
+                            className={cn(
+                              "absolute top-1/2 -translate-y-1/2 rounded-[2px]",
+                              r.isGroup ? "bg-zinc-800" : "bg-zinc-500",
+                            )}
+                            style={{
+                              left: `${leftPct}%`,
+                              width: `${widthPct}%`,
+                              height: r.isGroup ? "6px" : `${Math.max(6, rowH - 8)}px`,
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Footer: range summary */}
+              {hasRange && (
+                <div className="mt-2 flex justify-between text-[10px] text-zinc-500">
+                  <span>{formatDatePT(new Date(minTs).toISOString(), lang)}</span>
+                  <span>{formatDatePT(new Date(maxTs).toISOString(), lang)}</span>
+                </div>
+              )}
+            </div>
           )}
         </div>
       );
