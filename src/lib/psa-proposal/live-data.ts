@@ -806,6 +806,25 @@ export function useLiveQuoteSnapshot(
         }))
       ).sort((a, b) => b.saleRate - a.saleRate);
 
+      // Resolve each resource's role code to its localized display label
+      // using the proposal_roles catalog. Falls back to the raw code so
+      // nothing ever renders blank.
+      const roleLabelByCode = new Map<string, string>();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((roleRows ?? []) as any[]).forEach((r) => {
+        const code = String(r.code ?? "");
+        if (!code) return;
+        const label = lang === "en"
+          ? String(r.label_en ?? r.label_pt ?? code)
+          : String(r.label_pt ?? r.label_en ?? code);
+        roleLabelByCode.set(code, label);
+      });
+      for (const [resId, code] of resourceRoleCodeById) {
+        resourceRoleById.set(resId, roleLabelByCode.get(code) ?? code);
+      }
+
+
+
 
       return {
         quoteId: quoteId!,
