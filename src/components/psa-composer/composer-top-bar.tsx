@@ -162,8 +162,19 @@ function downloadAsWord(title: string) {
   )
     .map((n) => n.outerHTML)
     .join("\n");
+  // Clone and strip UI-only chrome (editor toolbars, buttons, print:hidden) so
+  // the exported Word doc contains only the rendered proposal.
+  const clone = container.cloneNode(true) as HTMLElement;
+  clone
+    .querySelectorAll(
+      '[data-editor-toolbar="true"], .ProseMirror-menubar, button, [contenteditable="true"] .ProseMirror-menu, .print\\:hidden',
+    )
+    .forEach((n) => n.remove());
+  // Flatten contenteditable so Word doesn't render an editable region.
+  clone.querySelectorAll('[contenteditable]').forEach((n) => n.removeAttribute('contenteditable'));
   const safeTitle = (title || "proposta").replace(/[^a-z0-9\-_\s]/gi, "").trim() || "proposta";
-  const source = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${safeTitle}</title>${styles}<style>@page{size:A4;margin:20mm}body{font-family:'Inter',Arial,sans-serif}</style></head><body>${container.outerHTML}</body></html>`;
+  const source = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${safeTitle}</title>${styles}<style>@page{size:A4;margin:20mm}body{font-family:'Inter',Arial,sans-serif}</style></head><body>${clone.outerHTML}</body></html>`;
+
   const blob = new Blob(["\ufeff", source], {
     type: "application/msword",
   });

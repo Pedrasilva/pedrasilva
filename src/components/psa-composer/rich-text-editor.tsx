@@ -258,7 +258,7 @@ function Toolbar({
   onLineHeightChange?: (v: LineHeight) => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-0.5 rounded-t-md border border-b-0 bg-zinc-50 px-1 py-1">
+    <div data-editor-toolbar="true" className="flex flex-wrap items-center gap-0.5 rounded-t-md border border-b-0 bg-zinc-50 px-1 py-1 print:hidden">
       <ToolbarButton
         title="Negrito"
         active={editor.isActive("bold")}
