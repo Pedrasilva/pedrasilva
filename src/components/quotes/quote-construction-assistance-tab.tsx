@@ -320,7 +320,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div>
             <CardTitle>Construction Assistance</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
@@ -329,9 +329,32 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
               included).
             </p>
           </div>
-          <Button size="sm" onClick={startAdd}>
-            <Plus className="mr-1 h-4 w-4" /> Add trip
-          </Button>
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-end">
+              <Label className="text-xs text-muted-foreground mb-1">
+                Billing rate for all resources
+              </Label>
+              <Select
+                value={billingMode}
+                onValueChange={(v) => changeBillingMode(v as BillingMode)}
+              >
+                <SelectTrigger
+                  className="h-9 min-w-[14rem]"
+                  title="Choose which €/h drives the cost of every trip"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="resource">Resource €/h (per collaborator)</SelectItem>
+                  <SelectItem value="manual">Manual €/h (per trip)</SelectItem>
+                  <SelectItem value="role">Role €/h (billable hourly rate)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button size="sm" onClick={startAdd}>
+              <Plus className="mr-1 h-4 w-4" /> Add trip
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {rows.length === 0 && !draft && (
