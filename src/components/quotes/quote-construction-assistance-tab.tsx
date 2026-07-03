@@ -136,6 +136,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       trip_hours: prev?.trip_hours ?? 0,
       resource_id: null,
       resource_ids: prev?.resource_ids ?? [],
+      resource_hourly_rates: prev?.resource_hourly_rates ?? {},
       resource_hourly_rate: prev?.resource_hourly_rate ?? 0,
       frequency_mode: prev?.frequency_mode ?? "per_month",
       frequency_value: prev?.frequency_value ?? 2,
@@ -153,6 +154,13 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
   async function saveDraft() {
     if (!draft) return;
     const ids = draft.resource_ids ?? [];
+    // Keep the per-resource override map trimmed to currently selected resources.
+    const rawOverrides = (draft.resource_hourly_rates ?? {}) as Record<string, number>;
+    const overrides: Record<string, number> = {};
+    for (const id of ids) {
+      const v = Number(rawOverrides[id]) || 0;
+      if (v > 0) overrides[id] = v;
+    }
     const payload = {
       quote_id: quoteId,
       label: draft.label ?? "Site trip",
@@ -161,6 +169,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       trip_hours: Number(draft.trip_hours) || 0,
       resource_id: ids[0] ?? null,
       resource_ids: ids,
+      resource_hourly_rates: overrides,
       resource_hourly_rate: Number(draft.resource_hourly_rate) || 0,
       frequency_mode: (draft.frequency_mode as QuoteSiteTripFrequencyMode) ?? "per_month",
       frequency_value: Number(draft.frequency_value) || 0,
@@ -172,12 +181,12 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       notes: draft.notes ?? null,
     };
     await upsert.mutateAsync(draft.id ? { id: draft.id, ...payload } : payload);
-    // Remember these inputs so the next "Add trip" pre-fills with them.
     lastTripDefaults.current = {
       km: payload.km,
       price_per_km: payload.price_per_km,
       trip_hours: payload.trip_hours,
       resource_ids: payload.resource_ids,
+      resource_hourly_rates: payload.resource_hourly_rates,
       resource_hourly_rate: payload.resource_hourly_rate,
       frequency_mode: payload.frequency_mode,
       frequency_value: payload.frequency_value,
@@ -313,14 +322,18 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                           <span
                             className="tabular-nums"
                             title={`Sum of sale rates: ${(trip.resource_ids ?? [])
-                              .map((id) => `${resourceById.get(id)?.name ?? "?"} ${fmtMoney(resourceRateById.get(id) ?? 0)}/h`)
+                              .map((id) => {
+                                const ov = Number(trip.resource_hourly_rates?.[id]) || 0;
+                                const r = ov > 0 ? ov : resourceRateById.get(id) ?? 0;
+                                return `${resourceById.get(id)?.name ?? "?"} ${fmtMoney(r)}/h${ov > 0 ? " (custom)" : ""}`;
+                              })
                               .join(" + ")}`}
                           >
                             {fmtMoney(
-                              (trip.resource_ids ?? []).reduce(
-                                (s, id) => s + (resourceRateById.get(id) ?? 0),
-                                0,
-                              ),
+                              (trip.resource_ids ?? []).reduce((s, id) => {
+                                const ov = Number(trip.resource_hourly_rates?.[id]) || 0;
+                                return s + (ov > 0 ? ov : resourceRateById.get(id) ?? 0);
+                              }, 0),
                             )}
                           </span>
                         ) : (
@@ -462,13 +475,18 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field label="Resources on trip (return incl.)">
-                  <ResourceMultiSelect
+                <Field label="Resources on trip (return incl.)" className="md:col-span-3">
+                  <ResourceRateList
                     selected={draft.resource_ids ?? []}
+                    overrides={(draft.resource_hourly_rates ?? {}) as Record<string, number>}
                     resources={resources}
                     rateById={resourceRateById}
-                    onChange={(ids) => setDraft({ ...draft, resource_ids: ids })}
-                    fullWidth
+                    onChangeSelected={(ids) =>
+                      setDraft({ ...draft, resource_ids: ids })
+                    }
+                    onChangeOverrides={(next) =>
+                      setDraft({ ...draft, resource_hourly_rates: next })
+                    }
                   />
                 </Field>
                 <Field label="km to site">
@@ -496,17 +514,6 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     onChange={(e) =>
                       setDraft({ ...draft, trip_hours: Number(e.target.value) })
                     }
-                  />
-                </Field>
-                <Field label="Resource €/h">
-                  <Input
-                    type="number"
-                    value={(draft.resource_ids ?? []).reduce(
-                      (s, id) => s + (resourceRateById.get(id) ?? 0),
-                      0,
-                    )}
-                    disabled
-                    title="Sum of selected resources' sale rate (€/h)"
                   />
                 </Field>
                 <Field label="Manual €/h">
@@ -729,5 +736,128 @@ function ResourceMultiSelect({
         )}
       </PopoverContent>
     </Popover>
+  );
+}
+
+/**
+ * Per-resource list for the trip draft form. Lets the user pick which resources
+ * are on the trip AND set an optional custom €/h override for each one. When an
+ * override is empty/0, the resource's default sale rate (from HR pricing) is
+ * used automatically.
+ */
+function ResourceRateList({
+  selected,
+  overrides,
+  resources,
+  rateById,
+  onChangeSelected,
+  onChangeOverrides,
+}: {
+  selected: string[];
+  overrides: Record<string, number>;
+  resources: ResourceOption[];
+  rateById: Map<string, number>;
+  onChangeSelected: (ids: string[]) => void;
+  onChangeOverrides: (next: Record<string, number>) => void;
+}) {
+  const selectedSet = new Set(selected);
+  const selectedRows = selected
+    .map((id) => resources.find((r) => r.id === id))
+    .filter((r): r is ResourceOption => Boolean(r));
+  const available = resources.filter((r) => !selectedSet.has(r.id));
+
+  const total = selected.reduce((s, id) => {
+    const ov = Number(overrides?.[id]) || 0;
+    return s + (ov > 0 ? ov : rateById.get(id) ?? 0);
+  }, 0);
+
+  function addResource(id: string) {
+    if (!id || selectedSet.has(id)) return;
+    onChangeSelected([...selected, id]);
+  }
+  function removeResource(id: string) {
+    onChangeSelected(selected.filter((x) => x !== id));
+    if (overrides?.[id] != null) {
+      const next = { ...overrides };
+      delete next[id];
+      onChangeOverrides(next);
+    }
+  }
+  function setOverride(id: string, v: number) {
+    const next = { ...(overrides ?? {}) };
+    if (v > 0) next[id] = v;
+    else delete next[id];
+    onChangeOverrides(next);
+  }
+
+  return (
+    <div className="rounded-md border">
+      {selectedRows.length === 0 ? (
+        <div className="text-xs text-muted-foreground px-3 py-2">
+          No resources on this trip yet.
+        </div>
+      ) : (
+        <div className="divide-y">
+          {selectedRows.map((r) => {
+            const base = rateById.get(r.id) ?? (Number(r.hourly_rate) || 0);
+            const ov = Number(overrides?.[r.id]) || 0;
+            return (
+              <div
+                key={r.id}
+                className="flex items-center gap-3 px-3 py-2 text-sm"
+              >
+                <span className="flex-1 truncate">{r.name}</span>
+                <span
+                  className="text-xs text-muted-foreground tabular-nums"
+                  title="Default sale rate from HR pricing"
+                >
+                  default {fmtMoney(base)}/h
+                </span>
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="number"
+                    step="0.5"
+                    placeholder="custom €/h"
+                    className="h-8 w-28 text-right"
+                    value={ov > 0 ? ov : ""}
+                    onChange={(e) =>
+                      setOverride(r.id, Number(e.target.value) || 0)
+                    }
+                    title="Custom sale €/h for this resource on this trip. Leave empty to use the default."
+                  />
+                  <span className="text-xs text-muted-foreground">€/h</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeResource(r.id)}
+                  title="Remove resource"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <div className="flex items-center justify-between gap-2 border-t px-3 py-2">
+        <Select value="" onValueChange={addResource}>
+          <SelectTrigger className="h-8 w-64">
+            <SelectValue placeholder={available.length === 0 ? "All resources added" : "Add resource…"} />
+          </SelectTrigger>
+          <SelectContent>
+            {available.map((r) => (
+              <SelectItem key={r.id} value={r.id}>
+                {r.name} · {fmtMoney(rateById.get(r.id) ?? (Number(r.hourly_rate) || 0))}/h
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <span className="text-xs text-muted-foreground tabular-nums">
+          Combined €/h: <span className="font-medium text-foreground">{fmtMoney(total)}</span>
+        </span>
+      </div>
+    </div>
   );
 }

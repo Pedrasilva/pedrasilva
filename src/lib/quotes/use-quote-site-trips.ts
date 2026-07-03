@@ -22,7 +22,9 @@ export interface QuoteSiteTrip {
   resource_id: string | null;
   /** Multi-resource list. When non-empty, drives the per-trip hourly rate. */
   resource_ids: string[];
-  /** Manual €/h override — used when no resources are selected. */
+  /** Per-resource €/h override map (resource_id → hourly rate). Empty/0 = use resource default. */
+  resource_hourly_rates: Record<string, number>;
+  /** Manual €/h override — replaces the resource sum when > 0. */
   resource_hourly_rate: number;
   frequency_mode: QuoteSiteTripFrequencyMode;
   frequency_value: number;
@@ -130,19 +132,24 @@ export function stageDurationMonths(
  * flat rate. When the manual field is 0, the resource sum is used.
  */
 export function computeTripHourlyRate(
-  trip: Pick<QuoteSiteTrip, "resource_ids" | "resource_hourly_rate">,
+  trip: Pick<QuoteSiteTrip, "resource_ids" | "resource_hourly_rate" | "resource_hourly_rates">,
   resourceRateById: Map<string, number>,
 ): number {
   const manual = Number(trip.resource_hourly_rate) || 0;
   if (manual > 0) return manual;
   const ids = trip.resource_ids ?? [];
-  return ids.reduce((s, id) => s + (Number(resourceRateById.get(id)) || 0), 0);
+  const overrides = trip.resource_hourly_rates ?? {};
+  return ids.reduce((s, id) => {
+    const override = Number(overrides?.[id]) || 0;
+    const base = Number(resourceRateById.get(id)) || 0;
+    return s + (override > 0 ? override : base);
+  }, 0);
 }
 
 export function computeTripCost(
   trip: Pick<
     QuoteSiteTrip,
-    "km" | "price_per_km" | "trip_hours" | "resource_hourly_rate" | "resource_ids" | "frequency_mode" | "frequency_value" | "duration_months_override"
+    "km" | "price_per_km" | "trip_hours" | "resource_hourly_rate" | "resource_hourly_rates" | "resource_ids" | "frequency_mode" | "frequency_value" | "duration_months_override"
   >,
   stageMonths: number | null,
   resourceRateById: Map<string, number> = new Map(),

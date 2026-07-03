@@ -7124,6 +7124,7 @@ export type Database = {
           price_per_km: number
           quote_id: string
           resource_hourly_rate: number
+          resource_hourly_rates: Json
           resource_id: string | null
           resource_ids: string[]
           sort_order: number
@@ -7143,6 +7144,7 @@ export type Database = {
           price_per_km?: number
           quote_id: string
           resource_hourly_rate?: number
+          resource_hourly_rates?: Json
           resource_id?: string | null
           resource_ids?: string[]
           sort_order?: number
@@ -7162,6 +7164,7 @@ export type Database = {
           price_per_km?: number
           quote_id?: string
           resource_hourly_rate?: number
+          resource_hourly_rates?: Json
           resource_id?: string | null
           resource_ids?: string[]
           sort_order?: number
