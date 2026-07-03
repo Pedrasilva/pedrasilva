@@ -791,15 +791,30 @@
   margin: 0.15rem 0;
 }
 
-/* Headings visible inside both the editor and the rendered block */
-.proposal-print-document .psa-rich h2,
+/* Headings visible inside both the editor and the rendered block.
+   In the rendered proposal, sizes are kept in sync with the pt-based
+   heading scale so rich-text H2/H3 match section headings exactly. */
+.proposal-print-document .psa-rich h2 {
+  font-size: calc(12.5pt * var(--psa-heading-scale, 1));
+  font-weight: var(--psa-heading-weight);
+  line-height: 1.3;
+  margin: 0.9rem 0 0.4rem;
+  letter-spacing: -0.005em;
+}
+.proposal-print-document .psa-rich h3 {
+  font-size: calc(11pt * var(--psa-heading-scale, 1));
+  font-weight: var(--psa-heading-weight);
+  line-height: 1.3;
+  margin: 0.7rem 0 0.3rem;
+  letter-spacing: -0.005em;
+}
+/* Editor-only sizing (rem-based) — doesn't affect the printed document. */
 .ProseMirror h2 {
   font-size: 1.15rem;
   font-weight: 700;
   line-height: 1.25;
   margin: 0.75rem 0 0.4rem;
 }
-.proposal-print-document .psa-rich h3,
 .ProseMirror h3 {
   font-size: 1rem;
   font-weight: 600;
@@ -817,8 +832,9 @@
   border-top: 0.5pt solid #888;
 }
 .proposal-print-document .proposal-signature-hint {
-  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--psa-heading-font);
   font-size: 9pt;
+  line-height: 1.45;
   color: #555;
   text-align: left;
   margin-bottom: 8mm;
@@ -838,8 +854,9 @@
   border-bottom: 0.5pt solid #111;
 }
 .proposal-print-document .proposal-signature-label {
-  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--psa-heading-font);
   font-size: 8.5pt;
+  font-weight: 500;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #555;
