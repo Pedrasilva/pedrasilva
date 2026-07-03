@@ -104,6 +104,31 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
     return m;
   }, [resources]);
 
+  /** Client-facing billable role for a resource. Prefers proposal_role, then
+   * billing_role, then role. Returns empty string when nothing is set. */
+  function roleLabelFor(resourceId: string): string {
+    const r = resourceById.get(resourceId) as
+      | { proposal_role?: string | null; billing_role?: string | null; role?: string | null }
+      | undefined;
+    if (!r) return "";
+    return (r.proposal_role || r.billing_role || r.role || "").toString();
+  }
+
+  function rolesSummary(ids: string[]): string {
+    const roles = ids.map(roleLabelFor).filter(Boolean);
+    if (roles.length === 0) return "";
+    // Deduplicate while preserving order.
+    const seen = new Set<string>();
+    const uniq: string[] = [];
+    for (const r of roles) {
+      if (!seen.has(r)) {
+        seen.add(r);
+        uniq.push(r);
+      }
+    }
+    return uniq.join(", ");
+  }
+
   const [draft, setDraft] = useState<null | Partial<QuoteSiteTrip>>(null);
 
   /**
