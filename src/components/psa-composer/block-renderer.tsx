@@ -501,7 +501,7 @@ export function BlockBody({
             </div>
           )}
 
-          {hasRichContent(keyActivitiesHtml, keyActivitiesText) && (
+          {showKeyActivities && hasRichContent(keyActivitiesHtml, keyActivitiesText) && (
             <div className="mt-6">
               <SectionTitle>{L.keyActivities}</SectionTitle>
               <RichContent html={keyActivitiesHtml} text={keyActivitiesText} tokenMap={tokenMap} />
