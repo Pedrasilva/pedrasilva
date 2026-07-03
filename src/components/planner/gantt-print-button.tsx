@@ -100,6 +100,7 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
   const [pages, setPages] = useState(1);
   const [fit, setFit] = useState(true);
   const [manualScale, setManualScale] = useState(100);
+  const [zoom, setZoom] = useState(100);
   const cleanupRef = useRef<(() => void) | null>(null);
 
   // Capture content size when dialog opens, so the preview & layout
