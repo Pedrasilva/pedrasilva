@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ExternalLink } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -34,6 +34,26 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
     for (const r of sales) m.set(r.role_name, Number(r.sale_rate) || 0);
     return m;
   }, [sales]);
+
+  /** Sort state for the Manual sale rate column. `null` = catalog order. */
+  const [saleSort, setSaleSort] = useState<"desc" | "asc" | null>(null);
+
+  const orderedRoles = useMemo(() => {
+    if (!saleSort) return roles;
+    const copy = [...roles];
+    copy.sort((a, b) => {
+      const sa = saleByCode.get(a.code) ?? 0;
+      const sb = saleByCode.get(b.code) ?? 0;
+      return saleSort === "desc" ? sb - sa : sa - sb;
+    });
+    return copy;
+  }, [roles, saleByCode, saleSort]);
+
+  const toggleSaleSort = () => {
+    setSaleSort((prev) =>
+      prev === null ? "desc" : prev === "desc" ? "asc" : null,
+    );
+  };
 
   return (
     <Card>
@@ -72,12 +92,30 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
                     {isPt ? "Custo / hora" : "Cost / hour"}
                   </th>
                   <th className="px-4 py-2 text-right font-semibold">
-                    {isPt ? "Valor venda manual" : "Manual sale rate"}
+                    <button
+                      type="button"
+                      onClick={toggleSaleSort}
+                      className="inline-flex items-center gap-1 uppercase tracking-wide hover:text-foreground"
+                      title={
+                        isPt
+                          ? "Ordenar por valor de venda"
+                          : "Sort by sale value"
+                      }
+                    >
+                      {isPt ? "Valor venda manual" : "Manual sale rate"}
+                      {saleSort === "desc" ? (
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      ) : saleSort === "asc" ? (
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <ArrowUpDown className="h-3.5 w-3.5 opacity-50" />
+                      )}
+                    </button>
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {roles.map((role: ProposalRole) => (
+                {orderedRoles.map((role: ProposalRole) => (
                   <tr key={role.id} className="border-b last:border-b-0 hover:bg-muted/20">
                     <td className="px-4 py-2">
                       {isPt ? role.label_pt : role.label_en}
