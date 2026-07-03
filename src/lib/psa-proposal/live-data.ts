@@ -996,6 +996,7 @@ export function useLiveQuoteSnapshot(
           const siteTripsTotal = rows.reduce((s, r) => s + (r.totalCost || 0), 0);
           return { siteTrips: rows, siteTripsTotal };
         })(),
+        billableRates,
         missing,
 
       };
