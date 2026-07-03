@@ -64,6 +64,7 @@ function SortableRow({
   lang,
   onSelect,
   onPatchContent,
+  siblings,
 }: {
   block: PsaProposalBlock;
   chapter: number | null;
@@ -73,6 +74,7 @@ function SortableRow({
   lang: ProposalLang;
   onSelect: () => void;
   onPatchContent: (patch: Record<string, unknown>) => void;
+  siblings: PsaProposalBlock[];
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: block.id });
