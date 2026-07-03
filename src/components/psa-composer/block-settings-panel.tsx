@@ -300,7 +300,16 @@ export function BlockSettingsPanel({
           </div>
 
           <div className="space-y-1">
-            <Label className="text-xs">Actividades Principais</Label>
+            <SectionLabel
+              label="Actividades Principais"
+              checked={(block.content_rich?.show_key_activities as boolean | undefined) ?? true}
+              onCheckedChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: { content_rich: { ...(block.content_rich ?? {}), show_key_activities: v } },
+                })
+              }
+            />
             <RichTextEditor
               value={(block.content_rich?.key_activities_html as string | undefined) ?? ""}
               onChange={({ html, text }) =>
