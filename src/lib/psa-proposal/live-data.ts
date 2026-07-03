@@ -1166,7 +1166,23 @@ const LABELS_PT: ProposalLabels = {
     "A presente proposta é válida por 30 dias a contar da data acima. A aceitação far-se-á por assinatura abaixo.",
   clientSignatory: "Pelo Cliente",
   psaSignatory: "Pedra Silva Arquitectos",
+  phaseSummary: "Resumo da Fase",
+  professionalFee: "Honorários",
+  teamAllocation: "Afectação de equipa",
+  reviewCyclesIncluded: "Ciclos de revisão incluídos",
+  reviewCycleSingular: "ciclo de revisão consolidado",
+  reviewCyclePlural: "ciclos de revisão consolidados",
+  coordinationMeetings: "Reuniões de coordenação incluídas",
+  drawingIssue: "Pacote de entrega",
+  clientApprovalRequired: "Aprovação do cliente necessária",
+  cgiImagesIncluded: "Imagens 3D incluídas",
+  bimLod: "BIM / LOD",
+  yes: "Sim",
+  no: "Não",
+  toBeDefined: "A definir",
+  included: "Incluído",
 };
+
 
 const LABELS_EN: ProposalLabels = {
   proposalCover: "Fee Proposal",
