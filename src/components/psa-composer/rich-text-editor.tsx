@@ -623,6 +623,9 @@ export function RichTextEditor({
   // Debounced autosave: flush pending edits ~700ms after the last keystroke.
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingRef = useRef<{ html: string; text: string } | null>(null);
+  // Track the HTML we last emitted upward, so when it comes back as `value`
+  // we can skip re-setting content (which would blow away the cursor).
+  const lastEmittedRef = useRef<string | null>(null);
 
   const flush = () => {
     if (debounceRef.current) {
@@ -630,10 +633,20 @@ export function RichTextEditor({
       debounceRef.current = null;
     }
     if (pendingRef.current) {
+      lastEmittedRef.current = pendingRef.current.html;
       onChangeRef.current(pendingRef.current);
       pendingRef.current = null;
     }
   };
+
+  // Inline mode (editorClassName supplied by canvas) inherits typography from
+  // the surrounding .proposal-print-document. Only the "settings-panel" mode
+  // uses the heavy internal utility overrides.
+  const isInline = !!editorClassName;
+
+  const baseEditorClass = isInline
+    ? "psa-rich max-w-none focus:outline-none [&_strong]:font-semibold [&_em]:italic [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:ml-5 [&_ol]:list-decimal [&_a]:text-blue-700 [&_a]:underline"
+    : "psa-rich min-h-[160px] max-w-none rounded-b-md border border-input bg-background px-3 py-2 text-sm leading-relaxed text-zinc-800 focus:outline-none focus:ring-2 focus:ring-ring [&_h1]:mt-4 [&_h1]:mb-2 [&_h1]:text-lg [&_h1]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_strong]:font-semibold [&_em]:italic [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:ml-5 [&_ol]:list-decimal [&_li]:mb-0.5 [&_a]:text-blue-700 [&_a]:underline [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-zinc-300 [&_th]:bg-zinc-50 [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_td]:border [&_td]:border-zinc-300 [&_td]:px-2 [&_td]:py-1";
 
   const editor = useEditor({
     extensions: [
@@ -654,7 +667,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class: cn(
-          "psa-rich min-h-[160px] max-w-none rounded-b-md border border-input bg-background px-3 py-2 text-sm leading-relaxed text-zinc-800 focus:outline-none focus:ring-2 focus:ring-ring [&_h1]:mt-4 [&_h1]:mb-2 [&_h1]:text-lg [&_h1]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_strong]:font-semibold [&_em]:italic [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:ml-5 [&_ol]:list-decimal [&_li]:mb-0.5 [&_a]:text-blue-700 [&_a]:underline [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-zinc-300 [&_th]:bg-zinc-50 [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_td]:border [&_td]:border-zinc-300 [&_td]:px-2 [&_td]:py-1",
+          baseEditorClass,
           spacingClass(paragraphSpacing),
           lineHeightClass(lineHeight),
           editorClassName,
@@ -683,6 +696,20 @@ export function RichTextEditor({
     },
   });
 
+  // Force the toolbar to re-render on every selection/content transaction so
+  // active states (Bold, H2, list, etc.) reflect the caret's current context.
+  const [, setToolbarTick] = useState(0);
+  useEffect(() => {
+    if (!editor) return;
+    const update = () => setToolbarTick((n) => n + 1);
+    editor.on("selectionUpdate", update);
+    editor.on("transaction", update);
+    return () => {
+      editor.off("selectionUpdate", update);
+      editor.off("transaction", update);
+    };
+  }, [editor]);
+
   // Flush pending content if the user navigates away or closes the tab.
   useEffect(() => {
     const handler = () => flush();
@@ -699,11 +726,17 @@ export function RichTextEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sync external value changes (block switch). Flush pending edits first so
-  // we never overwrite unsaved content from the previous block.
+  // Sync external value changes (block switch). Skip when the incoming value
+  // is the one we just emitted upward — otherwise setContent resets the
+  // cursor to the end while the user is typing.
   useEffect(() => {
     if (!editor) return;
-    flush();
+    if (value === lastEmittedRef.current) return;
+    // Don't clobber unsaved edits while focused; flush and re-check.
+    if (editor.isFocused) {
+      flush();
+      if (value === lastEmittedRef.current) return;
+    }
     const current = editor.getHTML();
     if (value !== current) {
       editor.commands.setContent(value || "", { emitUpdate: false });
@@ -715,16 +748,13 @@ export function RichTextEditor({
   useEffect(() => {
     if (!editor) return;
     const dom = editor.view.dom as HTMLElement;
-    // Rebuild the class attribute rather than toggling per key — the exact
-    // set of utility classes changes with each variant.
     dom.className = cn(
-      "psa-rich min-h-[160px] max-w-none rounded-b-md border border-input bg-background px-3 py-2 text-sm leading-relaxed text-zinc-800 focus:outline-none focus:ring-2 focus:ring-ring [&_h1]:mt-4 [&_h1]:mb-2 [&_h1]:text-lg [&_h1]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_strong]:font-semibold [&_em]:italic [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:ml-5 [&_ol]:list-decimal [&_li]:mb-0.5 [&_a]:text-blue-700 [&_a]:underline [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-zinc-300 [&_th]:bg-zinc-50 [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_td]:border [&_td]:border-zinc-300 [&_td]:px-2 [&_td]:py-1",
+      baseEditorClass,
       spacingClass(paragraphSpacing),
       lineHeightClass(lineHeight),
       editorClassName,
     );
-
-  }, [editor, paragraphSpacing, lineHeight, editorClassName]);
+  }, [editor, paragraphSpacing, lineHeight, editorClassName, baseEditorClass]);
 
   if (!editor) return null;
   return (
@@ -735,14 +765,16 @@ export function RichTextEditor({
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
-      <Toolbar
-        editor={editor}
-        tokenEntries={tokenEntries}
-        paragraphSpacing={paragraphSpacing}
-        lineHeight={lineHeight}
-        onParagraphSpacingChange={onParagraphSpacingChange}
-        onLineHeightChange={onLineHeightChange}
-      />
+      <div className={cn(isInline && "sticky top-1 z-20 -mx-1 mb-1 rounded-md border bg-white/95 shadow-sm backdrop-blur")}>
+        <Toolbar
+          editor={editor}
+          tokenEntries={tokenEntries}
+          paragraphSpacing={paragraphSpacing}
+          lineHeight={lineHeight}
+          onParagraphSpacingChange={onParagraphSpacingChange}
+          onLineHeightChange={onLineHeightChange}
+        />
+      </div>
       <EditorContent editor={editor} data-placeholder={placeholder} />
     </div>
   );
