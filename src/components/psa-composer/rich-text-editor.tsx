@@ -17,12 +17,17 @@ import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { FontFamily } from "@tiptap/extension-font-family";
 import {
   Bold,
   Italic,
   Underline as UnderlineIcon,
+  Heading1,
   Heading2,
   Heading3,
+  Pilcrow,
+  Type,
   List,
   ListOrdered,
   Link2,
@@ -31,6 +36,7 @@ import {
   IndentIncrease,
   IndentDecrease,
   AlignJustify,
+  ChevronDown,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -43,6 +49,64 @@ import {
 import type { TokenCatalogEntry } from "@/lib/psa-proposal/tokens";
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+
+/**
+ * Custom FontSize mark stored on TextStyle. Renders as inline `font-size`.
+ */
+const FontSize = Extension.create({
+  name: "psaFontSize",
+  addOptions() {
+    return { types: ["textStyle"] as string[] };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: (element: HTMLElement) => element.style.fontSize || null,
+            renderHTML: (attributes: { fontSize?: string | null }) => {
+              if (!attributes.fontSize) return {};
+              return { style: `font-size: ${attributes.fontSize}` };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setFontSize:
+        (size: string | null) =>
+        ({ chain }: { chain: () => ReturnType<Editor["chain"]> }) => {
+          if (!size) {
+            return chain().setMark("textStyle", { fontSize: null }).removeEmptyTextStyle().run();
+          }
+          return chain().setMark("textStyle", { fontSize: size }).run();
+        },
+    } as never;
+  },
+});
+
+const FONT_FAMILIES: { label: string; value: string }[] = [
+  { label: "Padrão", value: "" },
+  { label: "Sans (Inter)", value: "Inter, system-ui, sans-serif" },
+  { label: "Serif (Georgia)", value: "Georgia, 'Times New Roman', serif" },
+  { label: "Mono (JetBrains)", value: "'JetBrains Mono', ui-monospace, monospace" },
+  { label: "Signifier", value: "'Signifier', Georgia, serif" },
+  { label: "The Future", value: "'The Future', Inter, sans-serif" },
+];
+
+const FONT_SIZES: { label: string; value: string }[] = [
+  { label: "Pequeno (12)", value: "12px" },
+  { label: "Normal (14)", value: "14px" },
+  { label: "Médio (16)", value: "16px" },
+  { label: "Grande (18)", value: "18px" },
+  { label: "Título 3 (20)", value: "20px" },
+  { label: "Título 2 (24)", value: "24px" },
+  { label: "Título 1 (32)", value: "32px" },
+];
 
 /**
  * Paragraph / heading indent extension. Adds a numeric `indent` attribute
