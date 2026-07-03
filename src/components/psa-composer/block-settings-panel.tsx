@@ -761,7 +761,16 @@ export function BlockSettingsPanel({
       {(block.block_type === "optional_fee_table" || block.block_type === "custom_text") && (
         <div className="space-y-3">
           <div className="space-y-1">
-            <Label className="text-xs">Objetivo</Label>
+            <SectionLabel
+              label="Objetivo"
+              checked={(block.content_rich?.show_objective as boolean | undefined) ?? true}
+              onCheckedChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: { content_rich: { ...(block.content_rich ?? {}), show_objective: v } },
+                })
+              }
+            />
             <RichTextEditor
               value={(block.content_rich?.objective_html as string | undefined) ?? ""}
               onChange={({ html, text }) =>
