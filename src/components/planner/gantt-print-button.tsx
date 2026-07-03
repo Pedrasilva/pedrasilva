@@ -62,6 +62,7 @@ function computeLayout(opts: {
   pages: number;
   fit: boolean;
   manualScale: number;
+  zoom: number;
   contentW: number;
   contentH: number;
 }): Layout {
@@ -70,6 +71,7 @@ function computeLayout(opts: {
   const pagePxH = page.h * MM_TO_PX;
   let scale: number;
   if (opts.fit) {
+    // Fit height, then also fit width across the requested number of pages.
     scale = Math.min(
       (pagePxW * opts.pages) / opts.contentW,
       pagePxH / opts.contentH,
@@ -78,6 +80,8 @@ function computeLayout(opts: {
   } else {
     scale = opts.manualScale / 100;
   }
+  // Apply user zoom multiplier on top of the base scale.
+  scale = scale * (opts.zoom / 100);
   return {
     pagePxW,
     pagePxH,
@@ -96,6 +100,7 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
   const [pages, setPages] = useState(1);
   const [fit, setFit] = useState(true);
   const [manualScale, setManualScale] = useState(100);
+  const [zoom, setZoom] = useState(100);
   const cleanupRef = useRef<(() => void) | null>(null);
 
   // Capture content size when dialog opens, so the preview & layout
@@ -123,10 +128,11 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
       pages,
       fit,
       manualScale,
+      zoom,
       contentW: size.w,
       contentH: size.h,
     });
-  }, [paper, orientation, pages, fit, manualScale, size]);
+  }, [paper, orientation, pages, fit, manualScale, zoom, size]);
 
   // Build a tiled clone of the Gantt and inject into the document, then
   // call window.print(). Each tile is one printable page.
@@ -306,6 +312,39 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
                 />
               </div>
             )}
+
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Zoom</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm tabular-nums text-muted-foreground">
+                    {zoom}%
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={() => setZoom(100)}
+                    title="Reset zoom"
+                  >
+                    Reset
+                  </Button>
+                </div>
+              </div>
+              <Slider
+                min={25}
+                max={300}
+                step={5}
+                value={[zoom]}
+                onValueChange={(v) => setZoom(v[0] ?? 100)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Extra zoom applied on top of the fit / scale setting.
+              </p>
+            </div>
+
 
             {layout && (
               <div className="text-xs text-muted-foreground border-t pt-3 space-y-0.5">

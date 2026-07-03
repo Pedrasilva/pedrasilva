@@ -429,6 +429,17 @@ export function GanttChart({
     return out;
   }, [stages, draftDates, origin, dayWidth, hierarchy, resourcesCollapsed]);
 
+  // Real content height — sum of the positioned rows. Used to size the
+  // canvas so we don't render an oversized empty area below the last stage.
+  const totalContentHeight = useMemo(() => {
+    let max = 0;
+    for (const l of stageLayouts.values()) {
+      const bottom = l.top + l.height;
+      if (bottom > max) max = bottom;
+    }
+    return Math.ceil(max);
+  }, [stageLayouts]);
+
   const visibleDeps = useMemo(() => {
     if (!deps) return [];
     return deps.filter((d) => stageLayouts.has(d.predecessor_id) && stageLayouts.has(d.successor_id));
@@ -1069,7 +1080,7 @@ export function GanttChart({
         </div>
       )}
 
-      <div className="relative gantt-canvas-bg gantt-week-marker" style={{ minHeight: stages.length * 200 }}>
+      <div className="relative gantt-canvas-bg gantt-week-marker" style={{ height: totalContentHeight, minHeight: totalContentHeight }} data-gantt-content>
         {months.map((m, i) => (
           <div
             key={`mb-${i}`}
