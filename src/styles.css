@@ -460,6 +460,9 @@
   font-size: var(--psa-body-size);
   line-height: 1.55;
   font-feature-settings: "kern", "liga", "onum";
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
