@@ -1028,6 +1028,9 @@ export interface ProposalLabels {
   deliverables: string;
   clientInfoRequired: string;
   scopeDeliverables: string;
+  objective: string;
+  keyActivities: string;
+  stageApproval: string;
   resourceBreakdown: string;
   role: string;
   hours: string;
