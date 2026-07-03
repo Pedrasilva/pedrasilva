@@ -136,6 +136,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       trip_hours: prev?.trip_hours ?? 0,
       resource_id: null,
       resource_ids: prev?.resource_ids ?? [],
+      resource_hourly_rates: prev?.resource_hourly_rates ?? {},
       resource_hourly_rate: prev?.resource_hourly_rate ?? 0,
       frequency_mode: prev?.frequency_mode ?? "per_month",
       frequency_value: prev?.frequency_value ?? 2,
@@ -153,6 +154,13 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
   async function saveDraft() {
     if (!draft) return;
     const ids = draft.resource_ids ?? [];
+    // Keep the per-resource override map trimmed to currently selected resources.
+    const rawOverrides = (draft.resource_hourly_rates ?? {}) as Record<string, number>;
+    const overrides: Record<string, number> = {};
+    for (const id of ids) {
+      const v = Number(rawOverrides[id]) || 0;
+      if (v > 0) overrides[id] = v;
+    }
     const payload = {
       quote_id: quoteId,
       label: draft.label ?? "Site trip",
@@ -161,6 +169,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       trip_hours: Number(draft.trip_hours) || 0,
       resource_id: ids[0] ?? null,
       resource_ids: ids,
+      resource_hourly_rates: overrides,
       resource_hourly_rate: Number(draft.resource_hourly_rate) || 0,
       frequency_mode: (draft.frequency_mode as QuoteSiteTripFrequencyMode) ?? "per_month",
       frequency_value: Number(draft.frequency_value) || 0,
@@ -172,12 +181,12 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       notes: draft.notes ?? null,
     };
     await upsert.mutateAsync(draft.id ? { id: draft.id, ...payload } : payload);
-    // Remember these inputs so the next "Add trip" pre-fills with them.
     lastTripDefaults.current = {
       km: payload.km,
       price_per_km: payload.price_per_km,
       trip_hours: payload.trip_hours,
       resource_ids: payload.resource_ids,
+      resource_hourly_rates: payload.resource_hourly_rates,
       resource_hourly_rate: payload.resource_hourly_rate,
       frequency_mode: payload.frequency_mode,
       frequency_value: payload.frequency_value,
