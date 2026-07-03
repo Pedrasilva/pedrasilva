@@ -934,6 +934,16 @@
     page-break-after: always;
     break-after: page;
   }
+  .print-area .proposal-appendix {
+    page-break-before: always;
+    break-before: page;
+  }
+  @page appendix-landscape {
+    size: A3 landscape;
+  }
+  .print-area .proposal-appendix-landscape {
+    page: appendix-landscape;
+  }
   .print-area .proposal-print-heading {
     page-break-after: avoid;
     break-after: avoid-page;
