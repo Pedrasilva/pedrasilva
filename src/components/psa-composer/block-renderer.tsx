@@ -76,7 +76,7 @@ function RichContent({
   lineHeight?: LineHeight;
 }) {
   const wrapClass = cn(
-    "psa-rich text-sm leading-relaxed text-zinc-800 [&_h2]:proposal-print-heading [&_h3]:proposal-print-heading [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:ml-5 [&_ol]:list-decimal [&_li]:mb-0.5 [&_a]:text-blue-700 [&_a]:underline [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-zinc-300 [&_th]:bg-zinc-50 [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_td]:border [&_td]:border-zinc-300 [&_td]:px-2 [&_td]:py-1",
+    "psa-rich text-sm leading-relaxed text-zinc-800 [&_h2]:proposal-print-heading [&_h3]:proposal-print-heading [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:ml-5 [&_ol]:list-decimal [&_li]:mb-0.5 [&_a]:text-blue-700 [&_a]:underline [&_table]:my-1 [&_table]:w-full [&_table]:border-collapse [&_thead]:hidden [&_th]:border-0 [&_th]:bg-transparent [&_th]:px-0 [&_th]:py-0 [&_th]:text-left [&_th]:font-normal [&_td]:border-0 [&_td]:px-0 [&_td]:py-0 [&_td]:pr-4 [&_td]:align-baseline [&_tr]:leading-relaxed",
     spacingClass(paragraphSpacing),
     lineHeightClass(lineHeight),
   );
