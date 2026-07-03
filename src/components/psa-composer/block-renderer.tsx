@@ -1248,10 +1248,13 @@ export function BlockBody({
                 </tr>
               </thead>
               <tbody>
-                {live.paymentInvoices.map((inv) => (
+                {live.paymentInvoices.map((inv, invIdx) => (
                   <React.Fragment key={inv.key}>
                     {inv.lines.map((ln, li) => (
-                      <tr key={`${inv.key}:${li}`} className={li === 0 ? "border-t border-zinc-200" : ""}>
+                      <tr
+                        key={`${inv.key}:${li}`}
+                        className={li === 0 && invIdx > 0 ? "proposal-payment-invoice-start" : ""}
+                      >
                         <td className="py-1 align-top text-xs font-semibold">{li === 0 ? inv.label : ""}</td>
                         <td className="py-1 align-top tabular-nums text-xs">{li === 0 ? formatDatePT(inv.plannedDate, lang) : ""}</td>
                         <td className="py-1">{ln.description}</td>
@@ -1260,6 +1263,7 @@ export function BlockBody({
                         <td className="py-1 text-right tabular-nums font-medium">{formatCurrencyEUR(ln.net + ln.vat, lang)}</td>
                       </tr>
                     ))}
+
                     {inv.lines.length > 1 && (
                       <tr className="text-xs bg-zinc-50">
                         <td className="py-1" />
