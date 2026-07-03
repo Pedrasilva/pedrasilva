@@ -314,6 +314,24 @@ function RoleRow({
           }
         />
       </TableCell>
+      <TableCell>
+        <div className="flex items-center justify-end gap-1">
+          <Input
+            type="number"
+            min={0}
+            step="0.01"
+            className="h-8 w-24 tabular-nums text-right"
+            value={draft.hourly_rate ?? 0}
+            onChange={(e) =>
+              setDraft({
+                ...draft,
+                hourly_rate: Number(e.target.value) || 0,
+              })
+            }
+          />
+          <span className="text-muted-foreground text-xs">€</span>
+        </div>
+      </TableCell>
       <TableCell className="text-right">
         <div className="flex justify-end gap-1">
           <Button
