@@ -1072,7 +1072,23 @@ export interface ProposalLabels {
   proposalValidity: string;
   clientSignatory: string;
   psaSignatory: string;
+  phaseSummary: string;
+  professionalFee: string;
+  teamAllocation: string;
+  reviewCyclesIncluded: string;
+  reviewCycleSingular: string;
+  reviewCyclePlural: string;
+  coordinationMeetings: string;
+  drawingIssue: string;
+  clientApprovalRequired: string;
+  cgiImagesIncluded: string;
+  bimLod: string;
+  yes: string;
+  no: string;
+  toBeDefined: string;
+  included: string;
 }
+
 
 const LABELS_PT: ProposalLabels = {
   proposalCover: "Proposta de Honorários",
