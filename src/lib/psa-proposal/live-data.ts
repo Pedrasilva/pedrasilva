@@ -1124,6 +1124,7 @@ const LABELS_PT: ProposalLabels = {
   objective: "Objetivo",
   keyActivities: "Actividades Principais",
   stageApproval: "Aprovação da Fase",
+  scopeIncludes: "Âmbito Incluído",
   resourceBreakdown: "Recursos afectos",
   role: "Função",
   hours: "Horas",
