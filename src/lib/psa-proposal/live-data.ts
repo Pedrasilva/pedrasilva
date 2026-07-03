@@ -743,6 +743,36 @@ export function useLiveQuoteSnapshot(
         { net: 0, vat: 0, total: 0 },
       );
 
+      // ── Billable hourly rates catalog (proposal_roles + quote overrides) ──
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: roleRows } = await (supabase as any)
+        .from("proposal_roles")
+        .select("code,label_pt,label_en,hourly_rate,sort_order,archived_at")
+        .is("archived_at", null)
+        .order("sort_order", { ascending: true });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: saleRows } = await (supabase as any)
+        .from("quote_billable_hourly_rates")
+        .select("role_name,sale_rate")
+        .eq("quote_id", quoteId!);
+      const saleByCode = new Map<string, number>();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((saleRows ?? []) as any[]).forEach((r) => {
+        if (r?.role_name)
+          saleByCode.set(String(r.role_name), Number(r.sale_rate) || 0);
+      });
+      const billableRates = (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ((roleRows ?? []) as any[]).map((r) => ({
+          code: String(r.code ?? ""),
+          label_pt: String(r.label_pt ?? r.code ?? ""),
+          label_en: String(r.label_en ?? r.code ?? ""),
+          hourlyRate: Number(r.hourly_rate) || 0,
+          saleRate: saleByCode.get(String(r.code ?? "")) ?? 0,
+        }))
+      ).sort((a, b) => b.saleRate - a.saleRate);
+
+
       return {
         quoteId: quoteId!,
         projectNumber: q.proposal_number ? String(q.proposal_number) : null,
