@@ -214,6 +214,7 @@ function ProposalRolesAdminPage() {
                     <TableHead>{isPt ? "Título (EN)" : "Title (EN)"}</TableHead>
                     <TableHead>{isPt ? "Título (PT)" : "Title (PT)"}</TableHead>
                     <TableHead className="w-28">{isPt ? "Senioridade" : "Seniority"}</TableHead>
+                    <TableHead className="w-32 text-right">{isPt ? "Custo/hora" : "Cost / hour"}</TableHead>
                     <TableHead className="w-40 text-right">{isPt ? "Ações" : "Actions"}</TableHead>
                   </TableRow>
                 </TableHeader>
