@@ -485,8 +485,13 @@
   break-inside: avoid;
 }
 
+/* Every heading in the proposal — regardless of block, tag level, or
+   whether it carries the .proposal-print-heading marker class — uses the
+   configured heading font. This guarantees a single typographic voice
+   across cover, section titles, appendices and inline rich-text headings. */
+.proposal-print-document :is(h1, h2, h3, h4, h5, h6),
 .proposal-print-document .proposal-print-heading {
-  font-family: var(--psa-heading-font);
+  font-family: var(--psa-heading-font) !important;
   font-weight: var(--psa-heading-weight);
   letter-spacing: -0.005em;
   color: #111;
