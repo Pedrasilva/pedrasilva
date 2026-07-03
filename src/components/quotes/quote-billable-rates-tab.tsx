@@ -92,7 +92,25 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
                     {isPt ? "Custo / hora" : "Cost / hour"}
                   </th>
                   <th className="px-4 py-2 text-right font-semibold">
-                    {isPt ? "Valor venda manual" : "Manual sale rate"}
+                    <button
+                      type="button"
+                      onClick={toggleSaleSort}
+                      className="inline-flex items-center gap-1 uppercase tracking-wide hover:text-foreground"
+                      title={
+                        isPt
+                          ? "Ordenar por valor de venda"
+                          : "Sort by sale value"
+                      }
+                    >
+                      {isPt ? "Valor venda manual" : "Manual sale rate"}
+                      {saleSort === "desc" ? (
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      ) : saleSort === "asc" ? (
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <ArrowUpDown className="h-3.5 w-3.5 opacity-50" />
+                      )}
+                    </button>
                   </th>
                 </tr>
               </thead>
