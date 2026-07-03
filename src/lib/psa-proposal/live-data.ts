@@ -501,7 +501,7 @@ export function useLiveQuoteSnapshot(
       const { data: siteTripsRaw } = await (supabase as any)
         .from("quote_site_trips")
         .select(
-          "id,label,stage_id,km,price_per_km,trip_hours,resource_id,resource_ids,resource_hourly_rate,frequency_mode,frequency_value,duration_months_override,display_mode,notes,sort_order",
+          "id,label,stage_id,km,price_per_km,trip_hours,resource_id,resource_ids,resource_hourly_rates,resource_hourly_rate,frequency_mode,frequency_value,duration_months_override,display_mode,notes,sort_order",
         )
         .eq("quote_id", quoteId!)
         .order("sort_order", { ascending: true })
@@ -990,6 +990,10 @@ export function useLiveQuoteSnapshot(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const rows = ((siteTripsRaw ?? []) as any[]).map((t) => {
             const ids: string[] = Array.isArray(t.resource_ids) ? t.resource_ids : [];
+            const resourceHourlyRates =
+              t.resource_hourly_rates && typeof t.resource_hourly_rates === "object"
+                ? (t.resource_hourly_rates as Record<string, unknown>)
+                : {};
             const manual = Number(t.resource_hourly_rate) || 0;
             const hourlyRate =
               billingMode === "manual"
@@ -1000,7 +1004,10 @@ export function useLiveQuoteSnapshot(
                       return s + (saleByCode.get(code) ?? 0);
                     }, 0)
                   : ids.reduce(
-                      (s, id) => s + (Number(resourceRateById.get(id)) || 0),
+                      (s, id) => {
+                        const override = Number(resourceHourlyRates[id]) || 0;
+                        return s + (override > 0 ? override : Number(resourceRateById.get(id)) || 0);
+                      },
                       0,
                     );
             const km = Number(t.km) || 0;
