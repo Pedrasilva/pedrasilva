@@ -32,6 +32,7 @@ export type PsaBlockType =
 
   | "construction_fee"
   | "travel_expenses"
+  | "billable_hourly_rate"
   | "payment_terms"
   | "payment_schedule"
   | "additional_services"
