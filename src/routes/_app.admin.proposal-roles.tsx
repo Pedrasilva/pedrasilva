@@ -230,7 +230,7 @@ function ProposalRolesAdminPage() {
                   ))}
                   {roles.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-6">
+                      <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-6">
                         {isPt ? "Sem títulos." : "No titles yet."}
                       </TableCell>
                     </TableRow>
