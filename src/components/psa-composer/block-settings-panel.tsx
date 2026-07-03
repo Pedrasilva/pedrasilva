@@ -752,6 +752,110 @@ export function BlockSettingsPanel({
         </div>
       )}
 
+      {(block.block_type === "appendix_index" ||
+        block.block_type === "appendix_payment_schedule" ||
+        block.block_type === "appendix_gantt" ||
+        block.block_type === "appendix_general_terms") && (
+        <div className="space-y-3 rounded-md border border-dashed bg-background/60 p-2">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+            Anexo
+          </div>
+          {block.block_type !== "appendix_index" && (
+            <>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">Letra</Label>
+                  <Input
+                    value={(block.content_rich?.appendix_letter as string | undefined) ?? ""}
+                    onChange={(e) =>
+                      update.mutate({
+                        id: block.id,
+                        patch: {
+                          content_rich: {
+                            ...(block.content_rich ?? {}),
+                            appendix_letter: e.target.value.toUpperCase(),
+                          },
+                        },
+                      })
+                    }
+                    placeholder="A"
+                  />
+                </div>
+                <div className="flex items-end gap-2">
+                  <Switch
+                    checked={(block.content_rich?.enabled as boolean | undefined) ?? true}
+                    onCheckedChange={(v) =>
+                      update.mutate({
+                        id: block.id,
+                        patch: {
+                          content_rich: {
+                            ...(block.content_rich ?? {}),
+                            enabled: v,
+                          },
+                        },
+                      })
+                    }
+                  />
+                  <Label className="text-xs">Activo</Label>
+                </div>
+              </div>
+            </>
+          )}
+          {block.block_type === "appendix_gantt" && (
+            <div className="space-y-1">
+              <Label className="text-xs">Orientação</Label>
+              <Select
+                value={
+                  (block.content_rich?.page_orientation as string | undefined) ??
+                  "a3-landscape"
+                }
+                onValueChange={(v) =>
+                  update.mutate({
+                    id: block.id,
+                    patch: {
+                      content_rich: {
+                        ...(block.content_rich ?? {}),
+                        page_orientation: v,
+                      },
+                    },
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="portrait">A4 Retrato</SelectItem>
+                  <SelectItem value="a3-landscape">A3 Paisagem</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          <div className="space-y-1">
+            <Label className="text-xs">Introdução</Label>
+            <RichTextEditor
+              value={(block.content_rich?.html as string | undefined) ?? ""}
+              onChange={({ html, text }) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    content_rich: { ...(block.content_rich ?? {}), html, text },
+                  },
+                })
+              }
+              placeholder="Introdução do anexo (opcional)…"
+              tokenEntries={buildTokenPickerEntries(liveQuery.data)}
+            />
+            <p className="text-[10px] text-zinc-500">
+              Renderizado no início do anexo. Se deixar vazio, é usado o texto por
+              defeito (quando aplicável).
+            </p>
+          </div>
+        </div>
+      )}
+
+
+
 
       <div className="space-y-1">
         <Label className="text-xs">Relevância contratual</Label>
