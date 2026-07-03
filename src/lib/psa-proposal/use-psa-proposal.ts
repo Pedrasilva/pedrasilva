@@ -270,6 +270,10 @@ export const BLOCK_TYPE_LABEL: Record<PsaBlockType, string> = {
   acceptance: "Validade e Aceitação",
   custom_text: "Texto Livre",
   page_break: "Quebra de Página",
+  appendix_index: "Índice de Anexos",
+  appendix_payment_schedule: "Anexo — Cronograma de Pagamentos",
+  appendix_gantt: "Anexo — Programa do Projeto",
+  appendix_general_terms: "Anexo — Termos Gerais PSA",
 };
 
 export type { PsaContractRelevance, PsaSourceType };
