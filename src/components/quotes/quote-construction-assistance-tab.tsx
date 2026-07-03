@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +40,11 @@ import {
 } from "@/lib/quotes/use-quote-site-trips";
 import { numberStages } from "@/lib/quotes/stage-numbering";
 import { useResourcePricing } from "@/lib/quotes/use-resource-pricing";
+import { useProposalRoles } from "@/lib/proposal-roles";
+import { useQuoteSaleRates } from "@/lib/hr/use-billable-rates";
+
+/** How the effective €/h used in cost math is resolved for every trip. */
+type BillingMode = "resource" | "manual" | "role";
 
 interface Props {
   quoteId: string;
