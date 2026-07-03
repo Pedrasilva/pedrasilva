@@ -311,6 +311,8 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
                   onValueChange={(v) => setManualScale(v[0] ?? 100)}
                 />
               </div>
+            )}
+
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
