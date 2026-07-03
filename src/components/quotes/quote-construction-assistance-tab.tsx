@@ -738,3 +738,126 @@ function ResourceMultiSelect({
     </Popover>
   );
 }
+
+/**
+ * Per-resource list for the trip draft form. Lets the user pick which resources
+ * are on the trip AND set an optional custom €/h override for each one. When an
+ * override is empty/0, the resource's default sale rate (from HR pricing) is
+ * used automatically.
+ */
+function ResourceRateList({
+  selected,
+  overrides,
+  resources,
+  rateById,
+  onChangeSelected,
+  onChangeOverrides,
+}: {
+  selected: string[];
+  overrides: Record<string, number>;
+  resources: ResourceOption[];
+  rateById: Map<string, number>;
+  onChangeSelected: (ids: string[]) => void;
+  onChangeOverrides: (next: Record<string, number>) => void;
+}) {
+  const selectedSet = new Set(selected);
+  const selectedRows = selected
+    .map((id) => resources.find((r) => r.id === id))
+    .filter((r): r is ResourceOption => Boolean(r));
+  const available = resources.filter((r) => !selectedSet.has(r.id));
+
+  const total = selected.reduce((s, id) => {
+    const ov = Number(overrides?.[id]) || 0;
+    return s + (ov > 0 ? ov : rateById.get(id) ?? 0);
+  }, 0);
+
+  function addResource(id: string) {
+    if (!id || selectedSet.has(id)) return;
+    onChangeSelected([...selected, id]);
+  }
+  function removeResource(id: string) {
+    onChangeSelected(selected.filter((x) => x !== id));
+    if (overrides?.[id] != null) {
+      const next = { ...overrides };
+      delete next[id];
+      onChangeOverrides(next);
+    }
+  }
+  function setOverride(id: string, v: number) {
+    const next = { ...(overrides ?? {}) };
+    if (v > 0) next[id] = v;
+    else delete next[id];
+    onChangeOverrides(next);
+  }
+
+  return (
+    <div className="rounded-md border">
+      {selectedRows.length === 0 ? (
+        <div className="text-xs text-muted-foreground px-3 py-2">
+          No resources on this trip yet.
+        </div>
+      ) : (
+        <div className="divide-y">
+          {selectedRows.map((r) => {
+            const base = rateById.get(r.id) ?? Number(r.hourly_rate) || 0;
+            const ov = Number(overrides?.[r.id]) || 0;
+            return (
+              <div
+                key={r.id}
+                className="flex items-center gap-3 px-3 py-2 text-sm"
+              >
+                <span className="flex-1 truncate">{r.name}</span>
+                <span
+                  className="text-xs text-muted-foreground tabular-nums"
+                  title="Default sale rate from HR pricing"
+                >
+                  default {fmtMoney(base)}/h
+                </span>
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="number"
+                    step="0.5"
+                    placeholder="custom €/h"
+                    className="h-8 w-28 text-right"
+                    value={ov > 0 ? ov : ""}
+                    onChange={(e) =>
+                      setOverride(r.id, Number(e.target.value) || 0)
+                    }
+                    title="Custom sale €/h for this resource on this trip. Leave empty to use the default."
+                  />
+                  <span className="text-xs text-muted-foreground">€/h</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeResource(r.id)}
+                  title="Remove resource"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <div className="flex items-center justify-between gap-2 border-t px-3 py-2">
+        <Select value="" onValueChange={addResource}>
+          <SelectTrigger className="h-8 w-64">
+            <SelectValue placeholder={available.length === 0 ? "All resources added" : "Add resource…"} />
+          </SelectTrigger>
+          <SelectContent>
+            {available.map((r) => (
+              <SelectItem key={r.id} value={r.id}>
+                {r.name} · {fmtMoney(rateById.get(r.id) ?? Number(r.hourly_rate) || 0)}/h
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <span className="text-xs text-muted-foreground tabular-nums">
+          Combined €/h: <span className="font-medium text-foreground">{fmtMoney(total)}</span>
+        </span>
+      </div>
+    </div>
+  );
+}
