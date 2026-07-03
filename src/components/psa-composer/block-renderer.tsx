@@ -1313,7 +1313,7 @@ export function BlockBody({
         <div className="proposal-signature-block proposal-avoid-break">
           <H>{num}{block.title}</H>
           {richHas ? (
-            <div className="proposal-signature-hint">{rich}</div>
+            rich
           ) : (
             <p className="proposal-signature-hint">{L.proposalValidity}</p>
           )}
