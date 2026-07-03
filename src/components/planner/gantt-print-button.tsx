@@ -62,6 +62,7 @@ function computeLayout(opts: {
   pages: number;
   fit: boolean;
   manualScale: number;
+  zoom: number;
   contentW: number;
   contentH: number;
 }): Layout {
@@ -70,6 +71,7 @@ function computeLayout(opts: {
   const pagePxH = page.h * MM_TO_PX;
   let scale: number;
   if (opts.fit) {
+    // Fit height, then also fit width across the requested number of pages.
     scale = Math.min(
       (pagePxW * opts.pages) / opts.contentW,
       pagePxH / opts.contentH,
@@ -78,6 +80,8 @@ function computeLayout(opts: {
   } else {
     scale = opts.manualScale / 100;
   }
+  // Apply user zoom multiplier on top of the base scale.
+  scale = scale * (opts.zoom / 100);
   return {
     pagePxW,
     pagePxH,
