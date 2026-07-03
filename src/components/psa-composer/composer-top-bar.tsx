@@ -4,7 +4,7 @@
  * would migrate to the future Contract Composer.
  */
 import { useState } from "react";
-import { FileDown, Printer, FileSignature, Settings } from "lucide-react";
+import { FileDown, Printer, FileSignature, Settings, FileText, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
@@ -114,15 +120,27 @@ export function ComposerTopBar({
         <Button variant="outline" size="sm" onClick={() => window.print()}>
           <Printer className="mr-1 h-3.5 w-3.5" /> Pré-visualizar
         </Button>
-        <Button
-          size="sm"
-          onClick={() => {
-            window.print();
-            toast.message("Use 'Guardar como PDF' no diálogo de impressão.");
-          }}
-        >
-          <FileDown className="mr-1 h-3.5 w-3.5" /> Exportar PDF
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm">
+              <FileDown className="mr-1 h-3.5 w-3.5" /> Descarregar
+              <ChevronDown className="ml-1 h-3.5 w-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => {
+                window.print();
+                toast.message("Use 'Guardar como PDF' no diálogo de impressão.");
+              }}
+            >
+              <FileDown className="mr-2 h-3.5 w-3.5" /> PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => downloadAsWord(proposal.title)}>
+              <FileText className="mr-2 h-3.5 w-3.5" /> Word (.doc)
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <ConvertToContractDialog
         open={convertOpen}
@@ -131,4 +149,31 @@ export function ComposerTopBar({
       />
     </div>
   );
+}
+
+function downloadAsWord(title: string) {
+  const container = document.querySelector(".proposal-print-document");
+  if (!container) {
+    toast.error("Não foi possível encontrar a proposta para exportar.");
+    return;
+  }
+  const styles = Array.from(
+    document.querySelectorAll('style, link[rel="stylesheet"]'),
+  )
+    .map((n) => n.outerHTML)
+    .join("\n");
+  const safeTitle = (title || "proposta").replace(/[^a-z0-9\-_\s]/gi, "").trim() || "proposta";
+  const source = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${safeTitle}</title>${styles}<style>@page{size:A4;margin:20mm}body{font-family:'Inter',Arial,sans-serif}</style></head><body>${container.outerHTML}</body></html>`;
+  const blob = new Blob(["\ufeff", source], {
+    type: "application/msword",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${safeTitle}.doc`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast.success("Documento Word transferido.");
 }
