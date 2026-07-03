@@ -914,8 +914,17 @@ export function useLiveQuoteSnapshot(
                 : freqVal;
             const totalCost = perTripTotal * totalTrips;
             const stage = t.stage_id ? stageByIdLocal.get(t.stage_id) : null;
+            const displayMode = t.display_mode === "name" ? "name" : "role";
             const resourceNames = ids
-              .map((id) => resourceNameById.get(id))
+              .map((id) => {
+                if (displayMode === "name") {
+                  return (
+                    resourceNameById.get(id) ?? resourceRoleById.get(id) ?? ""
+                  );
+                }
+                // "role" (default): prefer role, fall back to name so nothing is blank.
+                return resourceRoleById.get(id) ?? resourceNameById.get(id) ?? "";
+              })
               .filter((n): n is string => !!n);
             return {
               id: String(t.id),
