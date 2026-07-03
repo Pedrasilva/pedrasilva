@@ -439,35 +439,12 @@ export function BlockBody({
             </div>
           )}
 
-          <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-zinc-200 pt-4 text-sm">
-            <div>
-              <dt className="proposal-print-heading mb-1 text-sm font-semibold tracking-tight text-zinc-900">{L.duration}</dt>
-              <dd className="text-zinc-700">
-                {stage.durationDays != null ? formatDurationHuman(stage.durationDays, lang) : "—"}
-              </dd>
-            </div>
-            <div>
-              <dt className="proposal-print-heading mb-1 text-sm font-semibold tracking-tight text-zinc-900">{L.fees}</dt>
-              <dd className="text-zinc-700">{formatCurrencyEUR(stage.fee, lang)}</dd>
-            </div>
-          </dl>
-          {resourcesVisible && resourceRows.length > 0 && (
-            <div className="mt-6 text-sm">
-              <h3 className="proposal-print-heading mb-1 text-sm font-semibold tracking-tight text-zinc-900">
-                {L.resourceBreakdown}
-              </h3>
-              <div className="space-y-0.5">
-                {resourceRows.map((r, i) => (
-                  <div key={i} className="flex items-baseline gap-3 text-zinc-700">
-                    <span>{r.role}</span>
-                    <span className="tabular-nums">
-                      {r.hours}{L.hoursShort}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <PhaseSummaryCard
+            stage={stage}
+            block={block}
+            lang={lang}
+            L={L}
+          />
 
 
 
@@ -475,6 +452,7 @@ export function BlockBody({
 
       );
     }
+
 
 
 
