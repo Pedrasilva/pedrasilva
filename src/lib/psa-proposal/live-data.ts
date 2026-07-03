@@ -1031,6 +1031,7 @@ export interface ProposalLabels {
   objective: string;
   keyActivities: string;
   stageApproval: string;
+  scopeIncludes: string;
   resourceBreakdown: string;
   role: string;
   hours: string;
