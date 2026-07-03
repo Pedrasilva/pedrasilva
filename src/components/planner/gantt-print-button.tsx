@@ -311,7 +311,38 @@ export function GanttPrintButton({ getTarget }: { getTarget: () => HTMLElement |
                   onValueChange={(v) => setManualScale(v[0] ?? 100)}
                 />
               </div>
-            )}
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Zoom</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm tabular-nums text-muted-foreground">
+                    {zoom}%
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={() => setZoom(100)}
+                    title="Reset zoom"
+                  >
+                    Reset
+                  </Button>
+                </div>
+              </div>
+              <Slider
+                min={25}
+                max={300}
+                step={5}
+                value={[zoom]}
+                onValueChange={(v) => setZoom(v[0] ?? 100)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Extra zoom applied on top of the fit / scale setting.
+              </p>
+            </div>
+
 
             {layout && (
               <div className="text-xs text-muted-foreground border-t pt-3 space-y-0.5">
