@@ -1100,8 +1100,10 @@ export function BlockBody({
         return 0;
       };
       for (const [, arr] of kidsOf) arr.sort(sortFn);
+      const selectedRootId = (block.source_ref as { stage_id?: string } | undefined)?.stage_id;
       const roots = optionalStages
         .filter((s) => !s.parentStageId || !inSet.has(s.parentStageId))
+        .filter((s) => (selectedRootId ? s.id === selectedRootId : true))
         .slice()
         .sort(sortFn);
 
