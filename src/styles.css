@@ -944,6 +944,17 @@
   .print-area .proposal-appendix-landscape {
     page: appendix-landscape;
   }
+  /* When printing on a landscape page, undo the on-screen 90° rotation
+     — the paper itself is already landscape. */
+  .print-area .proposal-appendix-landscape .proposal-gantt-rotate-outer {
+    height: auto !important;
+  }
+  .print-area .proposal-appendix-landscape .proposal-gantt-rotate-inner {
+    position: static !important;
+    width: 100% !important;
+    height: 100% !important;
+    transform: none !important;
+  }
   .print-area .proposal-print-heading {
     page-break-after: avoid;
     break-after: avoid-page;
