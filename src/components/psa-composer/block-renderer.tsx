@@ -266,6 +266,7 @@ export function BlockBody({
   editable,
   onPatchContent,
   lang = "pt-PT",
+  siblings,
 }: {
   block: PsaProposalBlock;
   live: LiveQuoteSnapshot | undefined;
@@ -274,6 +275,7 @@ export function BlockBody({
   editable?: boolean;
   onPatchContent?: (patch: Record<string, unknown>) => void;
   lang?: ProposalLang;
+  siblings?: PsaProposalBlock[];
 }) {
   const L = getProposalLabels(lang);
 
