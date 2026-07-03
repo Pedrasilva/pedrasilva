@@ -414,7 +414,16 @@ export function BlockSettingsPanel({
           )}
 
           <div className="space-y-1">
-            <Label className="text-xs">Aprovação da Fase</Label>
+            <SectionLabel
+              label="Aprovação da Fase"
+              checked={(block.content_rich?.show_stage_approval as boolean | undefined) ?? true}
+              onCheckedChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: { content_rich: { ...(block.content_rich ?? {}), show_stage_approval: v } },
+                })
+              }
+            />
             <RichTextEditor
               value={(block.content_rich?.stage_approval_html as string | undefined) ?? ""}
               onChange={({ html, text }) =>
