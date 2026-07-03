@@ -849,7 +849,7 @@ function ResourceRateList({
           <SelectContent>
             {available.map((r) => (
               <SelectItem key={r.id} value={r.id}>
-                {r.name} · {fmtMoney(rateById.get(r.id) ?? Number(r.hourly_rate) || 0)}/h
+                {r.name} · {fmtMoney(rateById.get(r.id) ?? (Number(r.hourly_rate) || 0))}/h
               </SelectItem>
             ))}
           </SelectContent>
