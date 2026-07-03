@@ -30,6 +30,11 @@ import {
   spacingClass,
   lineHeightClass,
 } from "./rich-text-editor";
+import {
+  PSA_GENERAL_TERMS_HTML_EN,
+  PSA_GENERAL_TERMS_HTML_PT,
+} from "@/lib/psa-proposal/general-terms-content";
+
 
 type Spacing = "tight" | "normal" | "relaxed" | "loose";
 type LineHeight = "tight" | "normal" | "relaxed" | "loose";
@@ -1657,9 +1662,7 @@ export function BlockBody({
       const introHtmlC = (block.content_rich?.html as string | undefined) ?? "";
       const introTextC = (block.content_rich?.text as string | undefined) ?? "";
       const isEn = lang === "en";
-      const defaultTerms = isEn
-        ? `<h3>1. Scope</h3><p>These General Terms of Engagement govern the professional services provided by Pedra Silva Arquitectos, Lda. (“PSA”) in connection with the Proposal to which this Appendix is attached.</p><h3>2. Fees & Payments</h3><p>Fees are invoiced according to the Monthly Payment Schedule (Appendix A). All amounts are exclusive of VAT, which will be added at the applicable rate. Invoices are due within 30 days of issue.</p><h3>3. Programme</h3><p>The Project Programme (Appendix B) is indicative and subject to timely client decisions, third-party approvals and unforeseen events. PSA will notify the client of material impacts.</p><h3>4. Intellectual Property</h3><p>PSA retains authorship and IP rights over all designs, drawings and documents produced. A licence to use the deliverables for the Project is granted upon full payment of all invoices due.</p><h3>5. Liability</h3><p>PSA's liability is limited to the total fees paid under the Proposal, save for gross negligence or wilful misconduct. PSA holds Professional Indemnity Insurance to the amount required by law.</p><h3>6. Confidentiality</h3><p>Both parties shall keep confidential any non-public information exchanged during the engagement, save where disclosure is required by law or authority.</p><h3>7. Suspension & Termination</h3><p>Either party may suspend or terminate the engagement with 30 days' written notice. Fees for work completed up to the effective date remain due.</p><h3>8. Governing Law</h3><p>These terms are governed by Portuguese law. Disputes shall be submitted to the courts of Lisbon.</p>`
-        : `<h3>1. Âmbito</h3><p>Os presentes Termos Gerais de Prestação de Serviços regulam a prestação de serviços profissionais pela Pedra Silva Arquitectos, Lda. (“PSA”) no âmbito da Proposta a que este Anexo se encontra apenso.</p><h3>2. Honorários e Pagamentos</h3><p>Os honorários são facturados de acordo com o Cronograma Mensal de Pagamentos (Anexo A). Todos os valores são acrescidos de IVA à taxa em vigor. As facturas vencem-se 30 dias após a data de emissão.</p><h3>3. Programa</h3><p>O Programa do Projecto (Anexo B) é indicativo e depende de decisões atempadas do cliente, aprovações de terceiros e imprevistos. A PSA comunicará impactos materiais ao cliente.</p><h3>4. Propriedade Intelectual</h3><p>A PSA mantém a autoria e os direitos de propriedade intelectual sobre todos os desenhos, projectos e documentos produzidos. É concedida uma licença para uso dos entregáveis no Projecto após pagamento integral das facturas devidas.</p><h3>5. Responsabilidade</h3><p>A responsabilidade da PSA está limitada ao valor total dos honorários pagos ao abrigo da Proposta, salvo em caso de dolo ou negligência grosseira. A PSA detém Seguro de Responsabilidade Civil Profissional no valor exigido por lei.</p><h3>6. Confidencialidade</h3><p>Ambas as partes obrigam-se a manter a confidencialidade de qualquer informação não pública trocada durante o serviço, salvo se a divulgação for exigida por lei ou autoridade competente.</p><h3>7. Suspensão e Cessação</h3><p>Qualquer das partes pode suspender ou cessar o serviço mediante pré-aviso escrito de 30 dias. Os honorários referentes ao trabalho executado até à data efectiva permanecem devidos.</p><h3>8. Lei Aplicável</h3><p>Estes termos regem-se pela lei portuguesa. Os litígios são submetidos aos tribunais da comarca de Lisboa.</p>`;
+      const defaultTerms = isEn ? PSA_GENERAL_TERMS_HTML_EN : PSA_GENERAL_TERMS_HTML_PT;
       const body = hasRichContent(introHtmlC, introTextC) ? introHtmlC || introTextC : defaultTerms;
       return (
         <div className="proposal-appendix proposal-page-break-before">
@@ -1667,10 +1670,16 @@ export function BlockBody({
             {L.appendix} {letterC}
           </div>
           <H>{block.title}</H>
-          <RichContent html={body} tokenMap={tokenMap} />
+          <div
+            className="psa-general-terms-columns text-[11px] leading-snug text-zinc-800 [column-count:2] [column-gap:2rem] [column-rule:1px_solid_theme(colors.zinc.200)] [&_h3]:break-after-avoid [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-[12px] [&_h3]:font-semibold [&_h3]:uppercase [&_h3]:tracking-wide [&_h3]:text-zinc-900 [&_h3:first-child]:mt-0 [&_p]:mb-2 [&_p]:break-inside-avoid [&_strong]:font-semibold"
+            dangerouslySetInnerHTML={{
+              __html: tokenMap ? resolveTokens(body, tokenMap).output : body,
+            }}
+          />
         </div>
       );
     }
+
 
     case "custom_text":
     default: {
