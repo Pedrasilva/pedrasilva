@@ -1372,6 +1372,36 @@ export function BlockBody({
       // Pick a representative trip for the "how it's calculated" example.
       const example = rows[0];
 
+      // Anonymize resource names as Resource I, II, III… (stable order of
+      // first appearance across trips) so the client-facing block never
+      // exposes internal role labels.
+      const toRoman = (n: number): string => {
+        const map: Array<[number, string]> = [
+          [1000, "M"], [900, "CM"], [500, "D"], [400, "CD"],
+          [100, "C"], [90, "XC"], [50, "L"], [40, "XL"],
+          [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"],
+        ];
+        let out = "";
+        let v = n;
+        for (const [val, sym] of map) {
+          while (v >= val) { out += sym; v -= val; }
+        }
+        return out;
+      };
+      const resourceLabelByName = new Map<string, string>();
+      for (const r of rows) {
+        for (const n of r.resourceNames ?? []) {
+          if (!resourceLabelByName.has(n)) {
+            resourceLabelByName.set(
+              n,
+              `${isEn ? "Resource" : "Recurso"} ${toRoman(resourceLabelByName.size + 1)}`,
+            );
+          }
+        }
+      }
+      const anonymize = (names: string[] | undefined | null): string[] =>
+        (names ?? []).map((n) => resourceLabelByName.get(n) ?? n);
+
       // Group trips by stage for the per-stage rollup.
       type StageBucket = {
         key: string;
@@ -1442,7 +1472,7 @@ export function BlockBody({
                       </td>
                       <td className="py-1 text-zinc-700">
                         {b.resourceNames.size
-                          ? Array.from(b.resourceNames).join(", ")
+                          ? anonymize(Array.from(b.resourceNames)).join(", ")
                           : "—"}
                       </td>
                       <td className="py-1 text-right tabular-nums">
@@ -1464,7 +1494,7 @@ export function BlockBody({
                 <p className="mt-3 text-xs leading-relaxed text-zinc-500">
                   <span className="mr-1 font-medium text-zinc-600">*</span>
                   {T.distance}: {example.km} km · {T.pricePerKm}: {formatCurrencyEUR(example.pricePerKm, lang)}/km · {T.travelTime}: {example.tripHours} {L.hoursShort} · {T.resourceRate}: {formatCurrencyEUR(example.hourlyRate, lang)}/{L.hoursShort}
-                  {example.resourceNames?.length ? ` (${example.resourceNames.join(", ")})` : ""}
+                  {example.resourceNames?.length ? ` (${anonymize(example.resourceNames).join(", ")})` : ""}
                   {" · "}
                   {T.perTripTotal}: {formatCurrencyEUR(example.perTripTotal, lang)}.
                   {" "}
