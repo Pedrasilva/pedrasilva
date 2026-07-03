@@ -373,7 +373,8 @@
       "settings.projectsAdmin": "Administração de projetos",
       "settings.boValue": "Valor BO/hora",
       "settings.workingDays": "Dias úteis",
-      "settings.mealAllowance": "Subsídio de alimentação"
+      "settings.mealAllowance": "Subsídio de alimentação",
+      "settings.billableRates": "Valor/hora facturável"
     },
     "top": {
       "create": "Criar",
