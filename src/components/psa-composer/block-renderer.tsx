@@ -494,7 +494,7 @@ export function BlockBody({
           {stage.description && <P>{stage.description}</P>}
           {richHas && <div className="mb-4">{rich}</div>}
 
-          {hasRichContent(objectiveHtml, objectiveText) && (
+          {showObjective && hasRichContent(objectiveHtml, objectiveText) && (
             <div className="mt-6">
               <SectionTitle>{L.objective}</SectionTitle>
               <RichContent html={objectiveHtml} text={objectiveText} tokenMap={tokenMap} />
