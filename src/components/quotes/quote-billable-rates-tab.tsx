@@ -45,10 +45,10 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
         <CardTitle className="text-base">
           <Link
             to="/hr/billable-rates"
-            className="inline-flex items-center gap-1.5 hover:underline"
+            className="inline-flex items-center gap-1.5 text-primary hover:underline"
           >
             Billable hourly rate
-            <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+            <ExternalLink className="h-4 w-4" />
           </Link>
         </CardTitle>
         <CardDescription>
