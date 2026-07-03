@@ -460,6 +460,9 @@
   font-size: var(--psa-body-size);
   line-height: 1.55;
   font-feature-settings: "kern", "liga", "onum";
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
@@ -547,8 +550,9 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  font-family: var(--psa-heading-font, "Inter", "Helvetica Neue", Arial, sans-serif);
+  font-family: var(--psa-heading-font);
   color: #111;
+  font-feature-settings: "kern", "liga";
 }
 
 /* Letterhead — typographic brand mark, mirrors PDF letterhead */
@@ -573,17 +577,17 @@
   font-size: 9pt;
   font-weight: 400;
   letter-spacing: 0.42em;
-  color: #9a9a9a;
+  color: #6b6b6b;
   margin-top: 1mm;
 }
 .proposal-letterhead-contact {
   text-align: right;
   font-size: 9pt;
-  line-height: 1.4;
-  color: #222;
+  line-height: 1.45;
+  color: #333;
 }
 .proposal-letterhead-contact a {
-  color: #1a1a1a;
+  color: #111;
   text-decoration: underline;
   text-decoration-thickness: 0.4pt;
   text-underline-offset: 1.5pt;
@@ -606,10 +610,11 @@
 .proposal-page-footer {
   align-items: flex-end;
   font-size: 8.5pt;
+  line-height: 1.45;
 }
 .proposal-page-address {
   font-style: italic;
-  color: #222;
+  color: #333;
   line-height: 1.45;
 }
 .proposal-page-marks {
@@ -637,38 +642,41 @@
   margin-bottom: 10mm;
 }
 .proposal-cover-eyebrow {
-  font-family: "Inter", sans-serif;
+  font-family: var(--psa-heading-font);
   font-size: 9pt;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #555;
+  color: #6b6b6b;
   margin: 0 0 0.5rem 0;
 }
 .proposal-cover-title {
-  font-size: 22pt !important;
+  font-size: calc(22pt * var(--psa-heading-scale, 1)) !important;
   line-height: 1.15 !important;
+  letter-spacing: -0.01em;
   margin: 0 0 0.8rem 0 !important;
 }
 .proposal-cover-client {
-  font-family: "Inter", sans-serif;
+  font-family: var(--psa-heading-font);
   font-size: 10.5pt;
-  color: #333;
+  font-weight: 500;
+  color: #222;
   margin: 0 0 0.4rem 0;
   text-align: left;
 }
 .proposal-cover-date {
-  font-family: "Inter", sans-serif;
+  font-family: var(--psa-heading-font);
   font-size: 10pt;
   color: #444;
   margin: 0;
   text-align: left;
 }
 .proposal-cover-date-label {
-  color: #888;
+  color: #6b6b6b;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 8.5pt;
+  font-weight: 500;
 }
 
 /* ─── Tables shared by generated renderers ──────────────────────── */
@@ -679,6 +687,8 @@
   font-size: var(--psa-body-size);
   line-height: 1.55;
   margin-top: 0.25rem;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "kern", "liga", "tnum", "lnum";
 }
 .proposal-print-document table th,
 .proposal-print-document table td {
@@ -693,9 +703,9 @@
   letter-spacing: 0;
   font-size: var(--psa-body-size);
   font-weight: 500;
-  color: #666;
+  color: #555;
   font-family: inherit;
-  padding: 0 0.5rem 0.05rem 0;
+  padding: 0 0.5rem 0.15rem 0;
 }
 .proposal-print-document .proposal-print-table {
   border: 0;
@@ -705,9 +715,9 @@
 .proposal-print-document .proposal-print-table thead th {
   background: transparent;
   border-bottom: 0.5pt dotted #999;
-  color: #666;
+  color: #555;
   font-weight: 500;
-  padding: 0 0.5rem 0.05rem 0;
+  padding: 0 0.5rem 0.15rem 0;
 }
 .proposal-print-document .proposal-print-table th,
 .proposal-print-document .proposal-print-table td {
@@ -720,6 +730,12 @@
 }
 .proposal-print-document .proposal-print-table tbody tr:last-child {
   border-bottom: 0;
+}
+/* Align numeric-looking columns to the right for a tidier grid. */
+.proposal-print-document .proposal-print-table td.proposal-num,
+.proposal-print-document .proposal-print-table th.proposal-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 /* Extra breathing room between distinct invoices in the payment schedule
@@ -775,15 +791,30 @@
   margin: 0.15rem 0;
 }
 
-/* Headings visible inside both the editor and the rendered block */
-.proposal-print-document .psa-rich h2,
+/* Headings visible inside both the editor and the rendered block.
+   In the rendered proposal, sizes are kept in sync with the pt-based
+   heading scale so rich-text H2/H3 match section headings exactly. */
+.proposal-print-document .psa-rich h2 {
+  font-size: calc(12.5pt * var(--psa-heading-scale, 1));
+  font-weight: var(--psa-heading-weight);
+  line-height: 1.3;
+  margin: 0.9rem 0 0.4rem;
+  letter-spacing: -0.005em;
+}
+.proposal-print-document .psa-rich h3 {
+  font-size: calc(11pt * var(--psa-heading-scale, 1));
+  font-weight: var(--psa-heading-weight);
+  line-height: 1.3;
+  margin: 0.7rem 0 0.3rem;
+  letter-spacing: -0.005em;
+}
+/* Editor-only sizing (rem-based) — doesn't affect the printed document. */
 .ProseMirror h2 {
   font-size: 1.15rem;
   font-weight: 700;
   line-height: 1.25;
   margin: 0.75rem 0 0.4rem;
 }
-.proposal-print-document .psa-rich h3,
 .ProseMirror h3 {
   font-size: 1rem;
   font-weight: 600;
@@ -801,8 +832,9 @@
   border-top: 0.5pt solid #888;
 }
 .proposal-print-document .proposal-signature-hint {
-  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--psa-heading-font);
   font-size: 9pt;
+  line-height: 1.45;
   color: #555;
   text-align: left;
   margin-bottom: 8mm;
@@ -822,8 +854,9 @@
   border-bottom: 0.5pt solid #111;
 }
 .proposal-print-document .proposal-signature-label {
-  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--psa-heading-font);
   font-size: 8.5pt;
+  font-weight: 500;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #555;
