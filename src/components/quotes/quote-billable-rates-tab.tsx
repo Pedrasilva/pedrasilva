@@ -16,7 +16,7 @@ import { toast } from "sonner";
  * downstream calculation — it's just the master rate card for the quote.
  */
 
-type RoleRow = { role_name: string };
+type CollabRow = { billing_role: string | null };
 
 type RateRow = {
   id: string;
