@@ -38,6 +38,7 @@ const HEADING_FONTS = [
 
 const BODY_FONTS = [
   { label: "Signifier (Pedra Silva)", value: '"Signifier", "Source Serif 4", Georgia, serif' },
+  { label: "The Future (Pedra Silva)", value: '"The Future", "Inter", "Helvetica Neue", Arial, sans-serif' },
   { label: "Source Serif (serif)", value: '"Source Serif 4", "EB Garamond", Georgia, serif' },
   { label: "EB Garamond (classic serif)", value: '"EB Garamond", Georgia, serif' },
   { label: "Fraunces (display serif)", value: '"Fraunces", Georgia, serif' },
