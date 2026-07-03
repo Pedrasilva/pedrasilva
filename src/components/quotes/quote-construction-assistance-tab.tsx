@@ -322,14 +322,18 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                           <span
                             className="tabular-nums"
                             title={`Sum of sale rates: ${(trip.resource_ids ?? [])
-                              .map((id) => `${resourceById.get(id)?.name ?? "?"} ${fmtMoney(resourceRateById.get(id) ?? 0)}/h`)
+                              .map((id) => {
+                                const ov = Number(trip.resource_hourly_rates?.[id]) || 0;
+                                const r = ov > 0 ? ov : resourceRateById.get(id) ?? 0;
+                                return `${resourceById.get(id)?.name ?? "?"} ${fmtMoney(r)}/h${ov > 0 ? " (custom)" : ""}`;
+                              })
                               .join(" + ")}`}
                           >
                             {fmtMoney(
-                              (trip.resource_ids ?? []).reduce(
-                                (s, id) => s + (resourceRateById.get(id) ?? 0),
-                                0,
-                              ),
+                              (trip.resource_ids ?? []).reduce((s, id) => {
+                                const ov = Number(trip.resource_hourly_rates?.[id]) || 0;
+                                return s + (ov > 0 ? ov : resourceRateById.get(id) ?? 0);
+                              }, 0),
                             )}
                           </span>
                         ) : (
