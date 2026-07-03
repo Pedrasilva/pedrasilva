@@ -1261,7 +1261,23 @@ const LABELS_EN: ProposalLabels = {
     "This proposal is valid for 30 days from the date above. Acceptance is confirmed by signature below.",
   clientSignatory: "For the Client",
   psaSignatory: "Pedra Silva Arquitectos",
+  phaseSummary: "Phase Summary",
+  professionalFee: "Professional Fee",
+  teamAllocation: "Team Allocation",
+  reviewCyclesIncluded: "Review Cycles Included",
+  reviewCycleSingular: "consolidated review cycle",
+  reviewCyclePlural: "consolidated review cycles",
+  coordinationMeetings: "Coordination Meetings Included",
+  drawingIssue: "Drawing Issue",
+  clientApprovalRequired: "Client Approval Required",
+  cgiImagesIncluded: "CGI Images Included",
+  bimLod: "BIM / LOD",
+  yes: "Yes",
+  no: "No",
+  toBeDefined: "To be defined",
+  included: "Included",
 };
+
 
 export function getProposalLabels(lang: ProposalLang): ProposalLabels {
   return lang === "en" ? LABELS_EN : LABELS_PT;
