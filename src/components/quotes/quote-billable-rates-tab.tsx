@@ -35,6 +35,26 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
     return m;
   }, [sales]);
 
+  /** Sort state for the Manual sale rate column. `null` = catalog order. */
+  const [saleSort, setSaleSort] = useState<"desc" | "asc" | null>(null);
+
+  const orderedRoles = useMemo(() => {
+    if (!saleSort) return roles;
+    const copy = [...roles];
+    copy.sort((a, b) => {
+      const sa = saleByCode.get(a.code) ?? 0;
+      const sb = saleByCode.get(b.code) ?? 0;
+      return saleSort === "desc" ? sb - sa : sa - sb;
+    });
+    return copy;
+  }, [roles, saleByCode, saleSort]);
+
+  const toggleSaleSort = () => {
+    setSaleSort((prev) =>
+      prev === null ? "desc" : prev === "desc" ? "asc" : null,
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
