@@ -270,7 +270,16 @@ export function BlockSettingsPanel({
           </div>
 
           <div className="space-y-1">
-            <Label className="text-xs">Objetivo</Label>
+            <SectionLabel
+              label="Objetivo"
+              checked={(block.content_rich?.show_objective as boolean | undefined) ?? true}
+              onCheckedChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: { content_rich: { ...(block.content_rich ?? {}), show_objective: v } },
+                })
+              }
+            />
             <RichTextEditor
               value={(block.content_rich?.objective_html as string | undefined) ?? ""}
               onChange={({ html, text }) =>
