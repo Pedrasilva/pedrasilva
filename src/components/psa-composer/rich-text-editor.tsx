@@ -647,12 +647,13 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class: cn(
-          "min-h-[160px] max-w-none rounded-b-md border border-input bg-background px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring",
+          "psa-rich min-h-[160px] max-w-none rounded-b-md border border-input bg-background px-3 py-2 text-sm leading-relaxed text-zinc-800 focus:outline-none focus:ring-2 focus:ring-ring [&_h1]:mt-4 [&_h1]:mb-2 [&_h1]:text-lg [&_h1]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_strong]:font-semibold [&_em]:italic [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:ml-5 [&_ol]:list-decimal [&_li]:mb-0.5 [&_a]:text-blue-700 [&_a]:underline [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-zinc-300 [&_th]:bg-zinc-50 [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_td]:border [&_td]:border-zinc-300 [&_td]:px-2 [&_td]:py-1",
           spacingClass(paragraphSpacing),
           lineHeightClass(lineHeight),
           editorClassName,
         ),
       },
+
       transformPastedHTML(html) {
         // Strip Word/Google Docs noise: inline styles, class names, MS-specific tags.
         return html
@@ -710,11 +711,12 @@ export function RichTextEditor({
     // Rebuild the class attribute rather than toggling per key — the exact
     // set of utility classes changes with each variant.
     dom.className = cn(
-      "min-h-[160px] max-w-none rounded-b-md border border-input bg-background px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-ring",
+      "psa-rich min-h-[160px] max-w-none rounded-b-md border border-input bg-background px-3 py-2 text-sm leading-relaxed text-zinc-800 focus:outline-none focus:ring-2 focus:ring-ring [&_h1]:mt-4 [&_h1]:mb-2 [&_h1]:text-lg [&_h1]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_strong]:font-semibold [&_em]:italic [&_ul]:ml-5 [&_ul]:list-disc [&_ol]:ml-5 [&_ol]:list-decimal [&_li]:mb-0.5 [&_a]:text-blue-700 [&_a]:underline [&_table]:my-2 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-zinc-300 [&_th]:bg-zinc-50 [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_td]:border [&_td]:border-zinc-300 [&_td]:px-2 [&_td]:py-1",
       spacingClass(paragraphSpacing),
       lineHeightClass(lineHeight),
       editorClassName,
     );
+
   }, [editor, paragraphSpacing, lineHeight, editorClassName]);
 
   if (!editor) return null;
