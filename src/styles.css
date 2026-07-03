@@ -676,43 +676,47 @@
 .proposal-print-document table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 9.5pt;
-  margin-top: 0.4rem;
+  font-size: var(--psa-body-size);
+  line-height: 1.4;
+  margin-top: 0.25rem;
 }
 .proposal-print-document table th,
 .proposal-print-document table td {
-  padding: 0.45rem 0.6rem;
-  vertical-align: top;
+  padding: 0.1rem 0.5rem 0.1rem 0;
+  vertical-align: baseline;
   text-align: left;
+  line-height: 1.4;
 }
 .proposal-print-document table thead th {
   border-bottom: 0.5pt dotted #999;
   text-transform: none;
   letter-spacing: 0;
-  font-size: 9pt;
+  font-size: var(--psa-body-size);
   font-weight: 500;
   color: #666;
   font-family: inherit;
+  padding-bottom: 0.15rem;
 }
 .proposal-print-document .proposal-print-table {
   border: 0;
   border-radius: 0;
-  margin-top: 0.6rem;
+  margin-top: 0.35rem;
 }
 .proposal-print-document .proposal-print-table thead th {
   background: transparent;
   border-bottom: 0.5pt dotted #999;
   color: #666;
   font-weight: 500;
-  padding: 0.4rem 0.6rem;
+  padding: 0.15rem 0.5rem 0.15rem 0;
 }
 .proposal-print-document .proposal-print-table th,
 .proposal-print-document .proposal-print-table td {
-  padding: 0.4rem 0.6rem;
+  padding: 0.1rem 0.5rem 0.1rem 0;
   border-right: 0;
+  line-height: 1.4;
 }
 .proposal-print-document .proposal-print-table tbody tr {
-  border-bottom: 0.5pt dotted #ccc;
+  border-bottom: 0;
 }
 .proposal-print-document .proposal-print-table tbody tr:last-child {
   border-bottom: 0;
