@@ -347,8 +347,40 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                           onChange={(ids) => patch(trip, { resource_ids: ids })}
                         />
                       </TableCell>
-                      <TableCell className="text-right">
-                        {(trip.resource_ids?.length ?? 0) > 0 ? (
+                      <TableCell>
+                        {(() => {
+                          const label = rolesSummary(trip.resource_ids ?? []);
+                          return label ? (
+                            <span
+                              className="text-sm"
+                              title="Client-facing role from the HR / Commercial Role card"
+                            >
+                              {label}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">—</span>
+                          );
+                        })()}
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={(trip.display_mode as string) ?? "role"}
+                          onValueChange={(v) =>
+                            patch(trip, { display_mode: v as "name" | "role" })
+                          }
+                        >
+                          <SelectTrigger
+                            className="h-8 min-w-[7rem]"
+                            title="How resources are referenced in the generated proposal"
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="role">Role</SelectItem>
+                            <SelectItem value="name">Name</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
                           <span
                             className="tabular-nums"
                             title={`Sum of sale rates: ${(trip.resource_ids ?? [])
