@@ -278,6 +278,8 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                     <TableHead className="text-right">€/km</TableHead>
                     <TableHead className="text-right">Hours</TableHead>
                     <TableHead>Resource</TableHead>
+                    <TableHead>Billable role</TableHead>
+                    <TableHead>Show in proposal</TableHead>
                     <TableHead className="text-right">Resource €/h</TableHead>
                     <TableHead className="text-right">Manual €/h</TableHead>
                     <TableHead>Frequency</TableHead>
