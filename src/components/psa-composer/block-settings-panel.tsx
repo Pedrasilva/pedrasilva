@@ -790,7 +790,16 @@ export function BlockSettingsPanel({
             />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Âmbito Incluído</Label>
+            <SectionLabel
+              label="Âmbito Incluído"
+              checked={(block.content_rich?.show_scope_includes as boolean | undefined) ?? true}
+              onCheckedChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: { content_rich: { ...(block.content_rich ?? {}), show_scope_includes: v } },
+                })
+              }
+            />
             <RichTextEditor
               value={(block.content_rich?.scope_html as string | undefined) ?? ""}
               onChange={({ html, text }) =>
