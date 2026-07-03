@@ -391,8 +391,194 @@ export function BlockSettingsPanel({
               tokenEntries={buildTokenPickerEntries(liveQuery.data)}
             />
           </div>
+
+          <div className="space-y-2 rounded-md border bg-background p-2">
+            <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Resumo da Fase
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">Mostrar cartão de resumo</Label>
+              <Switch
+                checked={(block.content_rich?.show_phase_summary_card as boolean | undefined) ?? true}
+                onCheckedChange={(v) =>
+                  update.mutate({
+                    id: block.id,
+                    patch: {
+                      content_rich: { ...(block.content_rich ?? {}), show_phase_summary_card: v },
+                    },
+                  })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">Mostrar horas estimadas</Label>
+              <Switch
+                checked={(block.content_rich?.show_estimated_hours_by_phase as boolean | undefined) ?? true}
+                onCheckedChange={(v) =>
+                  update.mutate({
+                    id: block.id,
+                    patch: {
+                      content_rich: { ...(block.content_rich ?? {}), show_estimated_hours_by_phase: v },
+                    },
+                  })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">Mostrar honorários da fase</Label>
+              <Switch
+                checked={(block.content_rich?.show_phase_fee_in_scope as boolean | undefined) ?? true}
+                onCheckedChange={(v) =>
+                  update.mutate({
+                    id: block.id,
+                    patch: {
+                      content_rich: { ...(block.content_rich ?? {}), show_phase_fee_in_scope: v },
+                    },
+                  })
+                }
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs">Ciclos de revisão incluídos</Label>
+              <Input
+                type="number"
+                min={0}
+                value={(block.content_rich?.review_cycles_included as number | undefined) ?? 1}
+                onChange={(e) =>
+                  update.mutate({
+                    id: block.id,
+                    patch: {
+                      content_rich: {
+                        ...(block.content_rich ?? {}),
+                        review_cycles_included: e.target.value === "" ? null : Number(e.target.value),
+                      },
+                    },
+                  })
+                }
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs">Reuniões de coordenação incluídas (opcional)</Label>
+              <Input
+                type="number"
+                min={0}
+                value={
+                  block.content_rich?.meetings_included == null
+                    ? ""
+                    : String(block.content_rich?.meetings_included)
+                }
+                onChange={(e) =>
+                  update.mutate({
+                    id: block.id,
+                    patch: {
+                      content_rich: {
+                        ...(block.content_rich ?? {}),
+                        meetings_included: e.target.value === "" ? null : Number(e.target.value),
+                      },
+                    },
+                  })
+                }
+                placeholder="—"
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs">Pacote de entrega</Label>
+              <Input
+                value={(block.content_rich?.package_type as string | undefined) ?? ""}
+                onChange={(e) =>
+                  update.mutate({
+                    id: block.id,
+                    patch: {
+                      content_rich: { ...(block.content_rich ?? {}), package_type: e.target.value },
+                    },
+                  })
+                }
+                placeholder="Ex: Tender Package"
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">Aprovação do cliente necessária</Label>
+              <Switch
+                checked={(block.content_rich?.requires_client_approval as boolean | undefined) ?? true}
+                onCheckedChange={(v) =>
+                  update.mutate({
+                    id: block.id,
+                    patch: {
+                      content_rich: { ...(block.content_rich ?? {}), requires_client_approval: v },
+                    },
+                  })
+                }
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs">Imagens 3D (CGI) incluídas</Label>
+              <Input
+                type="number"
+                min={0}
+                value={
+                  block.content_rich?.cgi_count == null
+                    ? ""
+                    : String(block.content_rich?.cgi_count)
+                }
+                onChange={(e) =>
+                  update.mutate({
+                    id: block.id,
+                    patch: {
+                      content_rich: {
+                        ...(block.content_rich ?? {}),
+                        cgi_count: e.target.value === "" ? null : Number(e.target.value),
+                      },
+                    },
+                  })
+                }
+                placeholder="0"
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">BIM activo nesta fase</Label>
+              <Switch
+                checked={(block.content_rich?.bim_enabled as boolean | undefined) ?? false}
+                onCheckedChange={(v) =>
+                  update.mutate({
+                    id: block.id,
+                    patch: {
+                      content_rich: { ...(block.content_rich ?? {}), bim_enabled: v, show_bim_lod_by_phase: v },
+                    },
+                  })
+                }
+              />
+            </div>
+
+            {((block.content_rich?.bim_enabled as boolean | undefined) ?? false) && (
+              <div>
+                <Label className="text-xs">BIM / LOD</Label>
+                <Input
+                  value={(block.content_rich?.bim_lod as string | undefined) ?? ""}
+                  onChange={(e) =>
+                    update.mutate({
+                      id: block.id,
+                      patch: {
+                        content_rich: { ...(block.content_rich ?? {}), bim_lod: e.target.value },
+                      },
+                    })
+                  }
+                  placeholder="Ex: LOD 300"
+                />
+              </div>
+            )}
+          </div>
         </div>
       )}
+
 
       {(block.block_type === "gantt_partial" ||
         block.block_type === "gantt_design" ||
