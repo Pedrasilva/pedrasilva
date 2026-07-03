@@ -146,6 +146,7 @@ function SortableRow({
         editable={selected && INLINE_EDITABLE_TYPES.includes(block.block_type) && !block.is_locked}
         onPatchContent={onPatchContent}
         lang={lang}
+        siblings={siblings}
       />
     </div>
   );
