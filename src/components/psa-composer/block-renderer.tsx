@@ -1632,20 +1632,47 @@ export function BlockBody({
             : "a3-landscape"
           : orientationSetting;
 
-      // Month ticks along the timeline
-      const monthTicks: { label: string; leftPct: number }[] = [];
+      // Month & year ticks along the timeline
+      const monthTicks: { label: string; leftPct: number; nextLeftPct: number }[] = [];
+      const yearBands: { year: number; leftPct: number; widthPct: number }[] = [];
       if (hasRange) {
         const start = new Date(minTs);
         const cursor = new Date(start.getFullYear(), start.getMonth(), 1);
-        // Advance to first month boundary at or after minTs
         while (cursor.getTime() < minTs) cursor.setMonth(cursor.getMonth() + 1);
+        const pcts: { ts: number; label: string; year: number }[] = [];
         while (cursor.getTime() <= maxTs) {
-          const leftPct = ((cursor.getTime() - minTs) / (maxTs - minTs)) * 100;
-          monthTicks.push({
-            label: `${formatMonthShort(new Date(cursor), lang)} ${String(cursor.getFullYear()).slice(2)}`,
-            leftPct,
+          pcts.push({
+            ts: cursor.getTime(),
+            label: formatMonthShort(new Date(cursor), lang),
+            year: cursor.getFullYear(),
           });
           cursor.setMonth(cursor.getMonth() + 1);
+        }
+        for (let i = 0; i < pcts.length; i++) {
+          const leftPct = ((pcts[i].ts - minTs) / (maxTs - minTs)) * 100;
+          const nextTs = i + 1 < pcts.length ? pcts[i + 1].ts : maxTs;
+          const nextLeftPct = ((nextTs - minTs) / (maxTs - minTs)) * 100;
+          monthTicks.push({ label: pcts[i].label, leftPct, nextLeftPct });
+        }
+        // Year bands
+        const yearsSeen = new Map<number, { start: number; end: number }>();
+        for (const p of pcts) {
+          const y = p.year;
+          const b = yearsSeen.get(y);
+          if (!b) yearsSeen.set(y, { start: p.ts, end: p.ts });
+          else b.end = p.ts;
+        }
+        // Include end of range to close the last year band
+        const sortedYears = Array.from(yearsSeen.keys()).sort((a, b) => a - b);
+        for (let i = 0; i < sortedYears.length; i++) {
+          const y = sortedYears[i];
+          const band = yearsSeen.get(y)!;
+          const startTs = band.start;
+          const nextStart =
+            i + 1 < sortedYears.length ? yearsSeen.get(sortedYears[i + 1])!.start : maxTs;
+          const leftPct = ((startTs - minTs) / (maxTs - minTs)) * 100;
+          const widthPct = ((nextStart - startTs) / (maxTs - minTs)) * 100;
+          yearBands.push({ year: y, leftPct, widthPct: Math.max(0, widthPct) });
         }
       }
 
@@ -1661,43 +1688,64 @@ export function BlockBody({
       // margins so the chart makes best use of the paper.
       const pageMinHeight =
         resolvedOrientation === "a3-landscape" ? "260mm" : "240mm";
-      const labelColWidth =
-        resolvedOrientation === "a3-landscape" ? "22%" : "32%";
-      const baseFontPx = resolvedOrientation === "a3-landscape" ? 12 : 10;
-      // In on-screen preview the page stays A4 portrait, so a landscape
-      // schedule reads better rotated 90° — the time axis then runs down
-      // the long side of the page. Print un-rotates via @media print so
-      // the @page A3 landscape rule handles physical orientation.
-      const rotateForScreen = resolvedOrientation === "a3-landscape";
+      // Column widths for WBS / stage name / duration
+      const isLandscape = resolvedOrientation === "a3-landscape";
+      const wbsColW = isLandscape ? "6%" : "8%";
+      const nameColW = isLandscape ? "18%" : "24%";
+      const durColW = isLandscape ? "5%" : "6%";
+      const outlineTotalPct = isLandscape ? 29 : 38;
+      const baseFontPx = isLandscape ? 12 : 10;
+      const rotateForScreen = isLandscape;
+
+      const durLabel = (r: Row) => {
+        if (r.stage.durationDays == null) return "";
+        const d = Math.max(0, Math.round(r.stage.durationDays));
+        return `${d}d`;
+      };
 
       const chartInner = (
-        <div className="flex h-full w-full flex-1 flex-col" style={{ fontSize: `${baseFontPx}px` }}>
-          {/* Header: month scale */}
-          <div className="flex border-b border-zinc-300 uppercase tracking-wide text-zinc-500" style={{ fontSize: `${baseFontPx - 1}px` }}>
-            <div className="shrink-0 py-1 pr-2 font-semibold" style={{ width: labelColWidth }}>
-              {L.phase}
+        <div className="flex h-full w-full flex-1 flex-col text-zinc-800" style={{ fontSize: `${baseFontPx}px` }}>
+          {/* Header: outline columns + year band + month band */}
+          <div className="flex border-b border-zinc-400" style={{ fontSize: `${baseFontPx - 1}px` }}>
+            <div className="flex shrink-0 items-end gap-1 pr-2 uppercase tracking-wide text-zinc-500" style={{ width: `${outlineTotalPct}%` }}>
+              <div className="shrink-0 py-1" style={{ width: wbsColW }}>WBS</div>
+              <div className="flex-1 py-1 font-semibold">{L.phase}</div>
+              <div className="shrink-0 py-1 text-right" style={{ width: durColW }}>{L.duration}</div>
             </div>
-            <div className="relative flex-1 py-1">
+            <div className="relative flex-1">
+              {/* Year band */}
+              <div className="relative h-4 border-b border-zinc-300">
+                {yearBands.map((yb, i) => (
+                  <div
+                    key={`yb-${i}`}
+                    className="absolute top-0 h-full border-l border-zinc-400 pl-1 font-semibold text-zinc-700"
+                    style={{ left: `${yb.leftPct}%`, width: `${yb.widthPct}%` }}
+                  >
+                    {yb.year}
+                  </div>
+                ))}
+              </div>
+              {/* Month band */}
               <div className="relative h-4">
                 {monthTicks.map((t, i) => (
                   <div
-                    key={i}
-                    className="absolute top-0 h-full border-l border-zinc-200 pl-1"
-                    style={{ left: `${t.leftPct}%` }}
+                    key={`m-${i}`}
+                    className="absolute top-0 h-full border-l border-zinc-200 pl-0.5 text-[9px] uppercase tracking-wide text-zinc-500"
+                    style={{ left: `${t.leftPct}%`, width: `${Math.max(0, t.nextLeftPct - t.leftPct)}%` }}
                   >
-                    <span className="whitespace-nowrap">{t.label}</span>
+                    {t.label}
                   </div>
                 ))}
               </div>
             </div>
           </div>
-          {/* Rows — flex-1 so they expand to fill the whole page */}
+
+          {/* Rows */}
           <div className="flex w-full flex-1 flex-col">
             {rows.map((r) => {
               const { leftPct, widthPct } = barFor(r);
-              const label = r.stage.code
-                ? `${r.stage.code} — ${r.stage.name}`
-                : r.stage.name;
+              const name = r.stage.name;
+              const wbs = r.stage.code ?? "";
               return (
                 <div
                   key={r.stage.id}
@@ -1707,18 +1755,26 @@ export function BlockBody({
                   )}
                   style={{ minHeight: "14px" }}
                 >
-                  <div
-                    className={cn(
-                      "shrink-0 truncate pr-2",
-                      r.isGroup ? "font-semibold text-zinc-800" : "text-zinc-700",
-                    )}
-                    style={{ width: labelColWidth, paddingLeft: `${r.depth * 10}px` }}
-                    title={label}
-                  >
-                    {label}
-                    {r.stage.isMilestone ? " ◆" : ""}
+                  <div className="flex shrink-0 items-center pr-2" style={{ width: `${outlineTotalPct}%` }}>
+                    <div className="shrink-0 truncate text-zinc-500" style={{ width: wbsColW, fontSize: `${baseFontPx - 1}px` }}>
+                      {wbs}
+                    </div>
+                    <div
+                      className={cn(
+                        "flex-1 truncate",
+                        r.isGroup ? "font-semibold uppercase tracking-wide text-zinc-800" : "text-zinc-700",
+                      )}
+                      style={{ paddingLeft: `${r.depth * 8}px` }}
+                      title={name}
+                    >
+                      {name}
+                    </div>
+                    <div className="shrink-0 truncate text-right text-zinc-500" style={{ width: durColW, fontSize: `${baseFontPx - 1}px` }}>
+                      {durLabel(r)}
+                    </div>
                   </div>
                   <div className="relative h-full flex-1">
+                    {/* month gridlines */}
                     {monthTicks.map((t, i) => (
                       <div
                         key={i}
@@ -1726,22 +1782,40 @@ export function BlockBody({
                         style={{ left: `${t.leftPct}%` }}
                       />
                     ))}
+                    {/* year gridlines */}
+                    {yearBands.map((yb, i) => (
+                      <div
+                        key={`yg-${i}`}
+                        className="absolute top-0 h-full border-l border-zinc-300"
+                        style={{ left: `${yb.leftPct}%` }}
+                      />
+                    ))}
+                    {/* bar */}
                     {r.stage.isMilestone ? (
                       <div
-                        className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 h-2.5 w-2.5 rotate-45 bg-zinc-900"
+                        className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 h-2.5 w-2.5 rotate-45 bg-emerald-600"
                         style={{ left: `${leftPct}%` }}
                       />
+                    ) : r.isGroup ? (
+                      <>
+                        {/* Group summary bracket */}
+                        <div
+                          className="absolute top-1/2 -translate-y-1/2 bg-zinc-800"
+                          style={{ left: `${leftPct}%`, width: `${widthPct}%`, height: "3px" }}
+                        />
+                        <div
+                          className="absolute bg-zinc-800"
+                          style={{ left: `${leftPct}%`, top: "38%", width: "2px", height: "24%" }}
+                        />
+                        <div
+                          className="absolute bg-zinc-800"
+                          style={{ left: `calc(${leftPct + widthPct}% - 2px)`, top: "38%", width: "2px", height: "24%" }}
+                        />
+                      </>
                     ) : (
                       <div
-                        className={cn(
-                          "absolute top-1/2 -translate-y-1/2 rounded-[2px]",
-                          r.isGroup ? "bg-zinc-800" : "bg-zinc-500",
-                        )}
-                        style={{
-                          left: `${leftPct}%`,
-                          width: `${widthPct}%`,
-                          height: r.isGroup ? "40%" : "70%",
-                        }}
+                        className="absolute top-1/2 -translate-y-1/2 rounded-[2px] bg-emerald-500"
+                        style={{ left: `${leftPct}%`, width: `${widthPct}%`, height: "60%" }}
                       />
                     )}
                   </div>
@@ -1749,6 +1823,7 @@ export function BlockBody({
               );
             })}
           </div>
+
           {/* Footer: range summary */}
           {hasRange && (
             <div className="mt-2 flex justify-between text-zinc-500" style={{ fontSize: `${baseFontPx - 1}px` }}>
