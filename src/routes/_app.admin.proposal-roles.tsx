@@ -91,6 +91,7 @@ function ProposalRolesAdminPage() {
           label_en: r.label_en,
           label_pt: r.label_pt,
           default_seniority: r.default_seniority,
+          hourly_rate: r.hourly_rate,
           sort_order: r.sort_order,
         })
         .eq("id", r.id);
