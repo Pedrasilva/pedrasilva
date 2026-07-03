@@ -1472,7 +1472,7 @@ export function BlockBody({
                       </td>
                       <td className="py-1 text-zinc-700">
                         {b.resourceNames.size
-                          ? Array.from(b.resourceNames).join(", ")
+                          ? anonymize(Array.from(b.resourceNames)).join(", ")
                           : "—"}
                       </td>
                       <td className="py-1 text-right tabular-nums">
