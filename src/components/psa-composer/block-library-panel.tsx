@@ -103,6 +103,18 @@ export function BlockLibraryPanel({
       sort_hint: 999,
       is_system: false,
     },
+    {
+      id: "billable-hourly-rate",
+      kind: "billable_hourly_rate",
+      label: "Valor/hora Facturável",
+      default_title: "Valor/hora Facturável",
+      default_content_rich: { text: "" },
+      default_source_type: "live_quote",
+      default_source_ref: {},
+      default_contract_relevance: "proposal_only",
+      sort_hint: 999,
+      is_system: false,
+    },
 
 
     {
