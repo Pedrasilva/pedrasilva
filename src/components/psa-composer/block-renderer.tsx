@@ -1494,6 +1494,57 @@ export function BlockBody({
       );
     }
 
+    case "billable_hourly_rate": {
+      const isEn = lang === "en";
+      const T = {
+        role: isEn ? "Title" : "Título",
+        saleRate: isEn ? "Sale rate" : "Valor de venda",
+        perHour: isEn ? "/ hour" : "/ hora",
+        noData: isEn
+          ? "No billable rates configured for this proposal."
+          : "Sem valores facturáveis definidos para esta proposta.",
+      };
+      // Show only titles that have a sale value set; sorted desc by live-data.
+      const rows = (live?.billableRates ?? []).filter((r) => r.saleRate > 0);
+      return (
+        <div>
+          <H>{num}{block.title}</H>
+
+          {/* Editable placeholder for introductory text. */}
+          {(richHas || (editable && onPatchContent)) && (
+            <div className="mb-3">{rich}</div>
+          )}
+
+          {rows.length ? (
+            <table className="proposal-print-table w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
+                  <th className="py-1">{T.role}</th>
+                  <th className="py-1 text-right">
+                    {T.saleRate} {T.perHour}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.code} className="border-b border-zinc-100">
+                    <td className="py-1">{isEn ? r.label_en : r.label_pt}</td>
+                    <td className="py-1 text-right tabular-nums">
+                      {formatCurrencyEUR(r.saleRate, lang)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <Empty>{T.noData}</Empty>
+          )}
+        </div>
+      );
+    }
+
+
+
 
     case "appendix_index": {
       const letters = ["A", "B", "C", "D", "E", "F", "G", "H"];
