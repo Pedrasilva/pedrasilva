@@ -381,6 +381,8 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
                           </SelectContent>
                         </Select>
                       </TableCell>
+                      <TableCell className="text-right">
+                        {(trip.resource_ids?.length ?? 0) > 0 ? (
                           <span
                             className="tabular-nums"
                             title={`Sum of sale rates: ${(trip.resource_ids ?? [])
