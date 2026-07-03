@@ -722,6 +722,13 @@
   border-bottom: 0;
 }
 
+/* Extra breathing room between distinct invoices in the payment schedule
+   so consecutive invoices don't blur into one continuous block of text. */
+.proposal-print-document .proposal-print-table tr.proposal-payment-invoice-start > td {
+  padding-top: 0.9rem;
+  border-top: 0.5pt solid #d4d4d8;
+}
+
 /* Legacy generated-list rows (NOT the rich-text TipTap output).
    Scoped to `.proposal-generated-list` so user rich-text bullets render
    normally with disc/decimal markers and no horizontal dividers. */
