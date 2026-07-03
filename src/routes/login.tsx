@@ -7,23 +7,38 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import logoPsa from "@/assets/logo-psa.png";
 
+// Preserve `?next=` through the whole auth flow so the MCP consent route
+// (and any other same-origin destination) survives Google OAuth round-trip.
+function safeRelative(next: string | undefined): string {
+  if (!next) return "/";
+  if (!next.startsWith("/") || next.startsWith("//")) return "/";
+  return next;
+}
+
 export const Route = createFileRoute("/login")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" ? s.next : undefined,
+  }),
   component: LoginPage,
 });
 
 function LoginPage() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const target = safeRelative(next);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && session) navigate({ to: "/" });
-  }, [loading, session, navigate]);
+    if (!loading && session) {
+      window.location.href = target;
+    }
+  }, [loading, session, target]);
 
   const handleGoogle = async () => {
     setBusy(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}${target}`,
     });
     if (result.error) {
       setBusy(false);
@@ -31,7 +46,7 @@ function LoginPage() {
       return;
     }
     if (result.redirected) return;
-    navigate({ to: "/" });
+    window.location.href = target;
   };
 
   return (

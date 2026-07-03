@@ -54,6 +54,7 @@ import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports
 import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin.company-settings'
 import { Route as AppAdminBackupsRouteImport } from './routes/_app.admin.backups'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AppFinanceDocumentsIndexRouteImport } from './routes/_app.finance.documents.index'
 import { Route as AppCrmOpportunitiesIndexRouteImport } from './routes/_app.crm.opportunities.index'
 import { Route as ApiPublicHooksRunBackupRouteImport } from './routes/api/public/hooks/run-backup'
@@ -322,6 +323,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppFinanceDocumentsIndexRoute =
   AppFinanceDocumentsIndexRouteImport.update({
     id: '/documents/',
@@ -555,6 +561,7 @@ export interface FileRoutesByFullPath {
   '/finance': typeof AppFinanceRouteWithChildren
   '/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/backups': typeof AppAdminBackupsRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
@@ -637,6 +644,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/': typeof AppIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/backups': typeof AppAdminBackupsRoute
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
@@ -724,6 +732,7 @@ export interface FileRoutesById {
   '/_app/hr': typeof AppHrRouteWithChildren
   '/api/notify-expense': typeof ApiNotifyExpenseRoute
   '/_app/': typeof AppIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_app/admin/backups': typeof AppAdminBackupsRoute
   '/_app/admin/company-settings': typeof AppAdminCompanySettingsRoute
@@ -811,6 +820,7 @@ export interface FileRouteTypes {
     | '/finance'
     | '/hr'
     | '/api/notify-expense'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/backups'
     | '/admin/company-settings'
@@ -893,6 +903,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/api/notify-expense'
     | '/'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/backups'
     | '/admin/company-settings'
@@ -979,6 +990,7 @@ export interface FileRouteTypes {
     | '/_app/hr'
     | '/api/notify-expense'
     | '/_app/'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_app/admin/backups'
     | '/_app/admin/company-settings'
@@ -1062,6 +1074,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiNotifyExpenseRoute: typeof ApiNotifyExpenseRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicHooksRunBackupRoute: typeof ApiPublicHooksRunBackupRoute
 }
@@ -1381,6 +1394,13 @@ declare module '@tanstack/react-router' {
       path: '/.mcp/invoke-tool/$tool'
       fullPath: '/.mcp/invoke-tool/$tool'
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/finance/documents/': {
@@ -1902,6 +1922,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiNotifyExpenseRoute: ApiNotifyExpenseRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicHooksRunBackupRoute: ApiPublicHooksRunBackupRoute,
 }
