@@ -1657,32 +1657,40 @@ export function BlockBody({
         return { leftPct, widthPct };
       };
 
-      // Sizing tuned so all stages fit on one page.
-      const rowH = Math.max(14, Math.min(22, Math.floor(520 / Math.max(rows.length, 1))));
+      // Fill the entire appendix page. Heights are print-page sizes minus
+      // margins so the chart makes best use of the paper.
+      const pageMinHeight =
+        resolvedOrientation === "a3-landscape" ? "260mm" : "240mm";
+      const labelColWidth =
+        resolvedOrientation === "a3-landscape" ? "22%" : "32%";
+      const baseFontPx = resolvedOrientation === "a3-landscape" ? 12 : 10;
 
       return (
         <div
           className={cn(
-            "proposal-appendix proposal-page-break-before",
+            "proposal-appendix proposal-page-break-before flex flex-col",
             resolvedOrientation === "a3-landscape" && "proposal-appendix-landscape",
           )}
+          style={{ minHeight: pageMinHeight }}
         >
-          <div className="mb-3 text-xs uppercase tracking-[0.3em] text-zinc-500">
+          <div className="mb-2 text-xs uppercase tracking-[0.3em] text-zinc-500">
             {L.appendix} {letterB}
           </div>
           <H>{block.title}</H>
           {hasRichContent(introHtmlB, introTextB) && (
-            <div className="mb-3">
+            <div className="mb-2">
               <RichContent html={introHtmlB} text={introTextB} tokenMap={tokenMap} />
             </div>
           )}
           {rows.length === 0 ? (
             <Empty>{L.scheduleUnavailable}</Empty>
           ) : (
-            <div className="w-full">
+            <div className="flex w-full flex-1 flex-col" style={{ fontSize: `${baseFontPx}px` }}>
               {/* Header: month scale */}
-              <div className="flex border-b border-zinc-300 text-[10px] uppercase tracking-wide text-zinc-500">
-                <div className="w-[32%] shrink-0 py-1 pr-2 font-semibold">{L.phase}</div>
+              <div className="flex border-b border-zinc-300 uppercase tracking-wide text-zinc-500" style={{ fontSize: `${baseFontPx - 1}px` }}>
+                <div className="shrink-0 py-1 pr-2 font-semibold" style={{ width: labelColWidth }}>
+                  {L.phase}
+                </div>
                 <div className="relative flex-1 py-1">
                   <div className="relative h-4">
                     {monthTicks.map((t, i) => (
@@ -1697,8 +1705,8 @@ export function BlockBody({
                   </div>
                 </div>
               </div>
-              {/* Rows */}
-              <div className="w-full">
+              {/* Rows — flex-1 so they expand to fill the whole page */}
+              <div className="flex w-full flex-1 flex-col">
                 {rows.map((r) => {
                   const { leftPct, widthPct } = barFor(r);
                   const label = r.stage.code
@@ -1708,23 +1716,23 @@ export function BlockBody({
                     <div
                       key={r.stage.id}
                       className={cn(
-                        "flex items-center border-b border-zinc-100",
+                        "flex flex-1 items-center border-b border-zinc-100",
                         r.isGroup && "bg-zinc-50",
                       )}
-                      style={{ height: `${rowH}px` }}
+                      style={{ minHeight: "14px" }}
                     >
                       <div
                         className={cn(
-                          "w-[32%] shrink-0 truncate pr-2 text-[10px]",
+                          "shrink-0 truncate pr-2",
                           r.isGroup ? "font-semibold text-zinc-800" : "text-zinc-700",
                         )}
-                        style={{ paddingLeft: `${r.depth * 10}px` }}
+                        style={{ width: labelColWidth, paddingLeft: `${r.depth * 10}px` }}
                         title={label}
                       >
                         {label}
                         {r.stage.isMilestone ? " ◆" : ""}
                       </div>
-                      <div className="relative flex-1 h-full">
+                      <div className="relative h-full flex-1">
                         {/* month gridlines */}
                         {monthTicks.map((t, i) => (
                           <div
@@ -1736,7 +1744,7 @@ export function BlockBody({
                         {/* bar */}
                         {r.stage.isMilestone ? (
                           <div
-                            className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 h-2 w-2 rotate-45 bg-zinc-900"
+                            className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 h-2.5 w-2.5 rotate-45 bg-zinc-900"
                             style={{ left: `${leftPct}%` }}
                           />
                         ) : (
@@ -1748,7 +1756,7 @@ export function BlockBody({
                             style={{
                               left: `${leftPct}%`,
                               width: `${widthPct}%`,
-                              height: r.isGroup ? "6px" : `${Math.max(6, rowH - 8)}px`,
+                              height: r.isGroup ? "40%" : "70%",
                             }}
                           />
                         )}
@@ -1759,7 +1767,7 @@ export function BlockBody({
               </div>
               {/* Footer: range summary */}
               {hasRange && (
-                <div className="mt-2 flex justify-between text-[10px] text-zinc-500">
+                <div className="mt-2 flex justify-between text-zinc-500" style={{ fontSize: `${baseFontPx - 1}px` }}>
                   <span>{formatDatePT(new Date(minTs).toISOString(), lang)}</span>
                   <span>{formatDatePT(new Date(maxTs).toISOString(), lang)}</span>
                 </div>
