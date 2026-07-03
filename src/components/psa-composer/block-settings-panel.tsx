@@ -652,6 +652,61 @@ export function BlockSettingsPanel({
         </div>
       )}
 
+      {block.block_type === "optional_fee_table" && (() => {
+        const allStages = liveQuery.data?.stages ?? [];
+        const byId = new Map(allStages.map((s) => [s.id, s]));
+        const isOptional = (s: LiveStage): boolean => {
+          let cur: LiveStage | undefined = s;
+          const seen = new Set<string>();
+          while (cur && !seen.has(cur.id)) {
+            if (cur.isOptional) return true;
+            seen.add(cur.id);
+            cur = cur.parentStageId ? byId.get(cur.parentStageId) : undefined;
+          }
+          return false;
+        };
+        const optionalRoots = allStages.filter(
+          (s) => !s.isMilestone && isOptional(s) &&
+            (!s.parentStageId || !isOptional(byId.get(s.parentStageId)!)),
+        );
+        const current = (block.source_ref as { stage_id?: string } | undefined)?.stage_id ?? "__all__";
+        return (
+          <div className="space-y-1">
+            <Label className="text-xs">Fase opcional (raiz)</Label>
+            <Select
+              value={current}
+              onValueChange={(v) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    source_ref: {
+                      ...sourceRef,
+                      stage_id: v === "__all__" ? undefined : v,
+                    },
+                  },
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">Todas as fases opcionais</SelectItem>
+                {optionalRoots.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.code ? `${s.code} — ${s.name}` : s.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-[10px] text-zinc-500">
+              Deixe "Todas" para mostrar todos os serviços opcionais, ou selecione uma
+              fase raiz (ex.: Interior Design) para separar num bloco próprio.
+            </p>
+          </div>
+        );
+      })()}
+
       {(block.block_type === "optional_fee_table" || block.block_type === "custom_text") && (
         <div className="space-y-3">
           <div className="space-y-1">
