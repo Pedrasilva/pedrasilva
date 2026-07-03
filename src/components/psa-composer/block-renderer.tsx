@@ -1642,7 +1642,7 @@ export function BlockBody({
         while (cursor.getTime() <= maxTs) {
           const leftPct = ((cursor.getTime() - minTs) / (maxTs - minTs)) * 100;
           monthTicks.push({
-            label: `${formatMonthShort(cursor.toISOString(), lang)} ${String(cursor.getFullYear()).slice(2)}`,
+            label: `${formatMonthShort(new Date(cursor), lang)} ${String(cursor.getFullYear()).slice(2)}`,
             leftPct,
           });
           cursor.setMonth(cursor.getMonth() + 1);
