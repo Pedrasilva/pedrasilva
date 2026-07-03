@@ -1909,6 +1909,8 @@ export function BlockBody({
       const cObjText = (block.content_rich?.objective_text as string | undefined) ?? "";
       const cScopeHtml = (block.content_rich?.scope_html as string | undefined) ?? "";
       const cScopeText = (block.content_rich?.scope_text as string | undefined) ?? "";
+      const cShowObjective = (block.content_rich?.show_objective as boolean | undefined) ?? true;
+      const cShowScope = (block.content_rich?.show_scope_includes as boolean | undefined) ?? true;
       const CustomSectionTitle = ({ children }: { children: React.ReactNode }) => (
         <h3 className="proposal-print-heading mb-2 text-sm font-semibold tracking-tight text-zinc-900">
           {children}
@@ -1920,13 +1922,13 @@ export function BlockBody({
         <div>
           <H>{num}{block.title}</H>
           {richHas && <div className="mb-3">{rich}</div>}
-          {hasRichContent(cObjHtml, cObjText) && (
+          {cShowObjective && hasRichContent(cObjHtml, cObjText) && (
             <div className="mb-3">
               <CustomSectionTitle>{L.objective}</CustomSectionTitle>
               <RichContent html={cObjHtml} text={cObjText} tokenMap={tokenMap} />
             </div>
           )}
-          {block.block_type === "custom_text" && (
+          {block.block_type === "custom_text" && cShowScope && (
             <div className="mb-3">
               <CustomSectionTitle>{L.scopeIncludes}</CustomSectionTitle>
               {hasRichContent(cScopeHtml, cScopeText) ? (
