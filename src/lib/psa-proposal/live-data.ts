@@ -1072,7 +1072,23 @@ export interface ProposalLabels {
   proposalValidity: string;
   clientSignatory: string;
   psaSignatory: string;
+  phaseSummary: string;
+  professionalFee: string;
+  teamAllocation: string;
+  reviewCyclesIncluded: string;
+  reviewCycleSingular: string;
+  reviewCyclePlural: string;
+  coordinationMeetings: string;
+  drawingIssue: string;
+  clientApprovalRequired: string;
+  cgiImagesIncluded: string;
+  bimLod: string;
+  yes: string;
+  no: string;
+  toBeDefined: string;
+  included: string;
 }
+
 
 const LABELS_PT: ProposalLabels = {
   proposalCover: "Proposta de Honorários",
@@ -1150,7 +1166,23 @@ const LABELS_PT: ProposalLabels = {
     "A presente proposta é válida por 30 dias a contar da data acima. A aceitação far-se-á por assinatura abaixo.",
   clientSignatory: "Pelo Cliente",
   psaSignatory: "Pedra Silva Arquitectos",
+  phaseSummary: "Resumo da Fase",
+  professionalFee: "Honorários",
+  teamAllocation: "Afectação de equipa",
+  reviewCyclesIncluded: "Ciclos de revisão incluídos",
+  reviewCycleSingular: "ciclo de revisão consolidado",
+  reviewCyclePlural: "ciclos de revisão consolidados",
+  coordinationMeetings: "Reuniões de coordenação incluídas",
+  drawingIssue: "Pacote de entrega",
+  clientApprovalRequired: "Aprovação do cliente necessária",
+  cgiImagesIncluded: "Imagens 3D incluídas",
+  bimLod: "BIM / LOD",
+  yes: "Sim",
+  no: "Não",
+  toBeDefined: "A definir",
+  included: "Incluído",
 };
+
 
 const LABELS_EN: ProposalLabels = {
   proposalCover: "Fee Proposal",
@@ -1229,7 +1261,23 @@ const LABELS_EN: ProposalLabels = {
     "This proposal is valid for 30 days from the date above. Acceptance is confirmed by signature below.",
   clientSignatory: "For the Client",
   psaSignatory: "Pedra Silva Arquitectos",
+  phaseSummary: "Phase Summary",
+  professionalFee: "Professional Fee",
+  teamAllocation: "Team Allocation",
+  reviewCyclesIncluded: "Review Cycles Included",
+  reviewCycleSingular: "consolidated review cycle",
+  reviewCyclePlural: "consolidated review cycles",
+  coordinationMeetings: "Coordination Meetings Included",
+  drawingIssue: "Drawing Issue",
+  clientApprovalRequired: "Client Approval Required",
+  cgiImagesIncluded: "CGI Images Included",
+  bimLod: "BIM / LOD",
+  yes: "Yes",
+  no: "No",
+  toBeDefined: "To be defined",
+  included: "Included",
 };
+
 
 export function getProposalLabels(lang: ProposalLang): ProposalLabels {
   return lang === "en" ? LABELS_EN : LABELS_PT;
