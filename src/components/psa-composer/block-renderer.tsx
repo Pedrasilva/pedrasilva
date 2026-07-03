@@ -1188,12 +1188,17 @@ export function BlockBody({
               <RichContent html={optObjectiveHtml} text={optObjectiveText} tokenMap={tokenMap} />
             </div>
           )}
-          {hasRichContent(optScopeHtml, optScopeText) && (
-            <div className="mb-3">
-              <OptSectionTitle>{L.scopeIncludes}</OptSectionTitle>
+          <div className="mb-3">
+            <OptSectionTitle>{L.scopeIncludes}</OptSectionTitle>
+            {hasRichContent(optScopeHtml, optScopeText) ? (
               <RichContent html={optScopeHtml} text={optScopeText} tokenMap={tokenMap} />
-            </div>
-          )}
+            ) : (
+              <p className="text-sm italic text-zinc-400">
+                Adicione o âmbito incluído nas definições do bloco.
+              </p>
+            )}
+          </div>
+
           {optionalStages.length ? (
             <table className="proposal-print-table w-full border-collapse text-sm">
               <tbody>
