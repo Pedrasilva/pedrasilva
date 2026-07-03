@@ -687,6 +687,8 @@
   font-size: var(--psa-body-size);
   line-height: 1.55;
   margin-top: 0.25rem;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "kern", "liga", "tnum", "lnum";
 }
 .proposal-print-document table th,
 .proposal-print-document table td {
@@ -701,9 +703,9 @@
   letter-spacing: 0;
   font-size: var(--psa-body-size);
   font-weight: 500;
-  color: #666;
+  color: #555;
   font-family: inherit;
-  padding: 0 0.5rem 0.05rem 0;
+  padding: 0 0.5rem 0.15rem 0;
 }
 .proposal-print-document .proposal-print-table {
   border: 0;
@@ -713,9 +715,9 @@
 .proposal-print-document .proposal-print-table thead th {
   background: transparent;
   border-bottom: 0.5pt dotted #999;
-  color: #666;
+  color: #555;
   font-weight: 500;
-  padding: 0 0.5rem 0.05rem 0;
+  padding: 0 0.5rem 0.15rem 0;
 }
 .proposal-print-document .proposal-print-table th,
 .proposal-print-document .proposal-print-table td {
@@ -728,6 +730,12 @@
 }
 .proposal-print-document .proposal-print-table tbody tr:last-child {
   border-bottom: 0;
+}
+/* Align numeric-looking columns to the right for a tidier grid. */
+.proposal-print-document .proposal-print-table td.proposal-num,
+.proposal-print-document .proposal-print-table th.proposal-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 /* Extra breathing room between distinct invoices in the payment schedule
