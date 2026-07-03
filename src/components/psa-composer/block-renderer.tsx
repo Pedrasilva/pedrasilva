@@ -1425,12 +1425,45 @@ export function BlockBody({
 
 
     case "custom_text":
-    default:
+    default: {
+      const cObjHtml = (block.content_rich?.objective_html as string | undefined) ?? "";
+      const cObjText = (block.content_rich?.objective_text as string | undefined) ?? "";
+      const cScopeHtml = (block.content_rich?.scope_html as string | undefined) ?? "";
+      const cScopeText = (block.content_rich?.scope_text as string | undefined) ?? "";
+      const CustomSectionTitle = ({ children }: { children: React.ReactNode }) => (
+        <h3 className="proposal-print-heading mb-2 text-sm font-semibold tracking-tight text-zinc-900">
+          {children}
+        </h3>
+      );
+      const hasAnyStructured =
+        hasRichContent(cObjHtml, cObjText) || hasRichContent(cScopeHtml, cScopeText);
       return (
         <div>
           <H>{num}{block.title}</H>
-          {richHas ? rich : <Empty>{L.emptyEditRight}</Empty>}
+          {richHas && <div className="mb-3">{rich}</div>}
+          {hasRichContent(cObjHtml, cObjText) && (
+            <div className="mb-3">
+              <CustomSectionTitle>{L.objective}</CustomSectionTitle>
+              <RichContent html={cObjHtml} text={cObjText} tokenMap={tokenMap} />
+            </div>
+          )}
+          {block.block_type === "custom_text" && (
+            <div className="mb-3">
+              <CustomSectionTitle>{L.scopeIncludes}</CustomSectionTitle>
+              {hasRichContent(cScopeHtml, cScopeText) ? (
+                <RichContent html={cScopeHtml} text={cScopeText} tokenMap={tokenMap} />
+              ) : (
+                <p className="text-sm italic text-zinc-400">
+                  Adicione o âmbito incluído nas definições do bloco.
+                </p>
+              )}
+            </div>
+          )}
+          {!richHas && !hasAnyStructured && block.block_type !== "custom_text" && (
+            <Empty>{L.emptyEditRight}</Empty>
+          )}
         </div>
       );
+    }
   }
 }
