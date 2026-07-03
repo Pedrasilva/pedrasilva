@@ -975,6 +975,7 @@ function QuoteDetail() {
               <TabsTrigger value="incoming">Incoming</TabsTrigger>
               <TabsTrigger value="outgoing">Outgoing</TabsTrigger>
               <TabsTrigger value="construction-assistance">Travel expenses</TabsTrigger>
+              <TabsTrigger value="billable-rates">Billable hourly rate</TabsTrigger>
             </>
           )}
 
