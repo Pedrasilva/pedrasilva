@@ -34,6 +34,7 @@ import {
 import { QuotePlanningTab } from "@/components/quotes/quote-planning-tab";
 import { QuoteExternalServicesTab } from "@/components/quotes/quote-external-services-tab";
 import { QuoteConstructionAssistanceTab } from "@/components/quotes/quote-construction-assistance-tab";
+import { QuoteBillableRatesTab } from "@/components/quotes/quote-billable-rates-tab";
 import { QuotePaymentScheduleTab } from "@/components/quotes/quote-payment-schedule-tab";
 import { QuoteFinancialSummaryTab, ArchitectureFinancialBreakdown } from "@/components/quotes/quote-financial-summary-tab";
 import { QuoteProposalComposerEmbed } from "@/components/quotes/quote-proposal-composer-embed";
