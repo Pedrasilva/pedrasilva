@@ -9118,6 +9118,10 @@ export type Database = {
         | "gantt_construction"
         | "supplier_fee_table"
         | "optional_fee_table"
+        | "appendix_index"
+        | "appendix_payment_schedule"
+        | "appendix_gantt"
+        | "appendix_general_terms"
       psa_contract_relevance:
         | "proposal_only"
         | "contract_relevant"
@@ -9509,6 +9513,10 @@ export const Constants = {
         "gantt_construction",
         "supplier_fee_table",
         "optional_fee_table",
+        "appendix_index",
+        "appendix_payment_schedule",
+        "appendix_gantt",
+        "appendix_general_terms",
       ],
       psa_contract_relevance: [
         "proposal_only",
