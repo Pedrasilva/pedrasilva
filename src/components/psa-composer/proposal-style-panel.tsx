@@ -70,10 +70,33 @@ const ALIGNMENTS: { label: string; value: NonNullable<PsaProposalStyleSettings["
 
 export function ProposalStylePanel({ proposal }: { proposal: PsaProposal }) {
   const update = useUpdateProposal(proposal.id);
+  const qc = useQueryClient();
   const s = proposal.style_settings ?? {};
+  const pendingRef = useRef<PsaProposalStyleSettings | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function patch(next: Partial<PsaProposalStyleSettings>) {
-    update.mutate({ style_settings: { ...s, ...next } } as Partial<PsaProposal>);
+    // Merge onto latest pending (or current) settings to avoid overwrites
+    // between rapid slider ticks.
+    const base = pendingRef.current ?? s;
+    const merged = { ...base, ...next } as PsaProposalStyleSettings;
+    pendingRef.current = merged;
+
+    // Optimistic cache update so the canvas re-renders instantly.
+    qc.setQueryData<PsaProposal | undefined>(
+      ["psa-proposal", proposal.id],
+      (prev) => (prev ? { ...prev, style_settings: merged } : prev),
+    );
+
+    // Debounce the network write so dragging a slider doesn't fire a
+    // request per tick.
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      const toSave = pendingRef.current;
+      pendingRef.current = null;
+      timerRef.current = null;
+      if (toSave) update.mutate({ style_settings: toSave } as Partial<PsaProposal>);
+    }, 250);
   }
 
   const bodySize = s.bodySize ?? 10.5;
