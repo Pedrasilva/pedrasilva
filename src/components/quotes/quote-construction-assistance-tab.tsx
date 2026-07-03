@@ -204,6 +204,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
           ? null
           : Number(draft.duration_months_override) || null,
       stage_id: draft.stage_id ?? null,
+      display_mode: (draft.display_mode as "name" | "role") ?? "role",
       notes: draft.notes ?? null,
     };
     await upsert.mutateAsync(draft.id ? { id: draft.id, ...payload } : payload);
@@ -218,6 +219,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       frequency_value: payload.frequency_value,
       duration_months_override: payload.duration_months_override,
       stage_id: payload.stage_id,
+      display_mode: payload.display_mode,
     };
     setDraft(null);
   }
