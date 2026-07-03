@@ -1163,6 +1163,16 @@ export function BlockBody({
 
       const optIntroHtml = (block.content_rich?.html as string | undefined) ?? "";
       const optIntroText = (block.content_rich?.text as string | undefined) ?? "";
+      const optObjectiveHtml = (block.content_rich?.objective_html as string | undefined) ?? "";
+      const optObjectiveText = (block.content_rich?.objective_text as string | undefined) ?? "";
+      const optScopeHtml = (block.content_rich?.scope_html as string | undefined) ?? "";
+      const optScopeText = (block.content_rich?.scope_text as string | undefined) ?? "";
+
+      const OptSectionTitle = ({ children }: { children: React.ReactNode }) => (
+        <h3 className="proposal-print-heading mb-2 text-sm font-semibold tracking-tight text-zinc-900">
+          {children}
+        </h3>
+      );
 
       return (
         <div>
@@ -1170,6 +1180,18 @@ export function BlockBody({
           {hasRichContent(optIntroHtml, optIntroText) && (
             <div className="mb-3">
               <RichContent html={optIntroHtml} text={optIntroText} tokenMap={tokenMap} />
+            </div>
+          )}
+          {hasRichContent(optObjectiveHtml, optObjectiveText) && (
+            <div className="mb-3">
+              <OptSectionTitle>{L.objective}</OptSectionTitle>
+              <RichContent html={optObjectiveHtml} text={optObjectiveText} tokenMap={tokenMap} />
+            </div>
+          )}
+          {hasRichContent(optScopeHtml, optScopeText) && (
+            <div className="mb-3">
+              <OptSectionTitle>{L.scopeIncludes}</OptSectionTitle>
+              <RichContent html={optScopeHtml} text={optScopeText} tokenMap={tokenMap} />
             </div>
           )}
           {optionalStages.length ? (
@@ -1184,6 +1206,7 @@ export function BlockBody({
         </div>
       );
     }
+
 
 
     case "construction_fee":

@@ -628,7 +628,7 @@ export function BlockSettingsPanel({
         </div>
       )}
 
-      {supportsRich && block.block_type !== "stage_item" && (
+      {supportsRich && block.block_type !== "stage_item" && block.block_type !== "optional_fee_table" && (
         <div className="space-y-1">
           <Label className="text-xs">Conteúdo</Label>
           <RichTextEditor
@@ -651,6 +651,52 @@ export function BlockSettingsPanel({
           </p>
         </div>
       )}
+
+      {block.block_type === "optional_fee_table" && (
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <Label className="text-xs">Objetivo</Label>
+            <RichTextEditor
+              value={(block.content_rich?.objective_html as string | undefined) ?? ""}
+              onChange={({ html, text }) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    content_rich: {
+                      ...(block.content_rich ?? {}),
+                      objective_html: html,
+                      objective_text: text,
+                    },
+                  },
+                })
+              }
+              placeholder="Objetivo dos serviços opcionais..."
+              tokenEntries={buildTokenPickerEntries(liveQuery.data)}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Âmbito Incluído</Label>
+            <RichTextEditor
+              value={(block.content_rich?.scope_html as string | undefined) ?? ""}
+              onChange={({ html, text }) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    content_rich: {
+                      ...(block.content_rich ?? {}),
+                      scope_html: html,
+                      scope_text: text,
+                    },
+                  },
+                })
+              }
+              placeholder="Lista o âmbito incluído (uma linha por item)..."
+              tokenEntries={buildTokenPickerEntries(liveQuery.data)}
+            />
+          </div>
+        </div>
+      )}
+
 
       <div className="space-y-1">
         <Label className="text-xs">Relevância contratual</Label>
