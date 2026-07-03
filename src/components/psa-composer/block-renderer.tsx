@@ -530,7 +530,7 @@ export function BlockBody({
             </div>
           )}
 
-          {hasRichContent(stageApprovalHtml, stageApprovalText) && (
+          {showStageApproval && hasRichContent(stageApprovalHtml, stageApprovalText) && (
             <div className="mt-6">
               <SectionTitle>{L.stageApproval}</SectionTitle>
               <RichContent html={stageApprovalHtml} text={stageApprovalText} tokenMap={tokenMap} />
