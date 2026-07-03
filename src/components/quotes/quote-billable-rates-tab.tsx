@@ -39,7 +39,7 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
       if (error) throw error;
       // Dedupe + trim; ignore empty strings.
       const set = new Set<string>();
-      for (const r of (data ?? []) as RoleRow[]) {
+      for (const r of (data ?? []) as CollabRow[]) {
         const v = (r.billing_role ?? "").trim();
         if (v) set.add(v);
       }
