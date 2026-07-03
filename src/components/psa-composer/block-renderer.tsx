@@ -377,16 +377,42 @@ export function BlockBody({
           .sort((a, b) => b.hours - a.hours);
       })();
 
+      const objectiveHtml = (block.content_rich?.objective_html as string | undefined) ?? "";
+      const objectiveText = (block.content_rich?.objective_text as string | undefined) ?? "";
+      const keyActivitiesHtml = (block.content_rich?.key_activities_html as string | undefined) ?? "";
+      const keyActivitiesText = (block.content_rich?.key_activities_text as string | undefined) ?? "";
+      const stageApprovalHtml = (block.content_rich?.stage_approval_html as string | undefined) ?? "";
+      const stageApprovalText = (block.content_rich?.stage_approval_text as string | undefined) ?? "";
+
+      const SectionTitle = ({ children }: { children: React.ReactNode }) => (
+        <h3 className="proposal-print-heading mb-2 text-sm font-semibold tracking-tight text-zinc-900">
+          {children}
+        </h3>
+      );
+
       return (
         <div className="proposal-avoid-break">
           <H>{num}{stage.code ? `${stage.code} — ` : ""}{stage.name}</H>
           {stage.description && <P>{stage.description}</P>}
           {richHas && <div className="mb-4">{rich}</div>}
+
+          {hasRichContent(objectiveHtml, objectiveText) && (
+            <div className="mt-6">
+              <SectionTitle>{L.objective}</SectionTitle>
+              <RichContent html={objectiveHtml} text={objectiveText} tokenMap={tokenMap} />
+            </div>
+          )}
+
+          {hasRichContent(keyActivitiesHtml, keyActivitiesText) && (
+            <div className="mt-6">
+              <SectionTitle>{L.keyActivities}</SectionTitle>
+              <RichContent html={keyActivitiesHtml} text={keyActivitiesText} tokenMap={tokenMap} />
+            </div>
+          )}
+
           {deliverables.length > 0 && (
             <div className="mt-6">
-              <h3 className="proposal-print-heading mb-2 text-sm font-semibold tracking-tight text-zinc-900">
-                {L.scopeDeliverables}
-              </h3>
+              <SectionTitle>{L.scopeDeliverables}</SectionTitle>
               <ul className="ml-5 list-disc space-y-1 text-sm leading-relaxed text-zinc-800">
                 {deliverables.map((d, i) => (
                   <li key={i}>{d}</li>
@@ -394,11 +420,10 @@ export function BlockBody({
               </ul>
             </div>
           )}
+
           {clientInfo.length > 0 && (
             <div className="mt-6">
-              <h3 className="proposal-print-heading mb-2 text-sm font-semibold tracking-tight text-zinc-900">
-                {L.clientInfoRequired}
-              </h3>
+              <SectionTitle>{L.clientInfoRequired}</SectionTitle>
               <ul className="ml-5 list-disc space-y-1 text-sm leading-relaxed text-zinc-800">
                 {clientInfo.map((d, i) => (
                   <li key={i}>{d}</li>
@@ -406,6 +431,14 @@ export function BlockBody({
               </ul>
             </div>
           )}
+
+          {hasRichContent(stageApprovalHtml, stageApprovalText) && (
+            <div className="mt-6">
+              <SectionTitle>{L.stageApproval}</SectionTitle>
+              <RichContent html={stageApprovalHtml} text={stageApprovalText} tokenMap={tokenMap} />
+            </div>
+          )}
+
           <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-zinc-200 pt-4 text-sm">
             <div>
               <dt className="proposal-print-heading mb-1 text-sm font-semibold tracking-tight text-zinc-900">{L.duration}</dt>
