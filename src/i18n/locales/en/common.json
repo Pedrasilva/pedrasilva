@@ -373,7 +373,8 @@
       "settings.projectsAdmin": "Projects admin",
       "settings.boValue": "BO value / hour",
       "settings.workingDays": "Working days",
-      "settings.mealAllowance": "Meal allowance"
+      "settings.mealAllowance": "Meal allowance",
+      "settings.billableRates": "Billable hourly rate"
     },
     "top": {
       "create": "Create",
