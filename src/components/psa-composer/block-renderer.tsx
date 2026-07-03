@@ -30,6 +30,11 @@ import {
   spacingClass,
   lineHeightClass,
 } from "./rich-text-editor";
+import {
+  PSA_GENERAL_TERMS_HTML_EN,
+  PSA_GENERAL_TERMS_HTML_PT,
+} from "@/lib/psa-proposal/general-terms-content";
+
 
 type Spacing = "tight" | "normal" | "relaxed" | "loose";
 type LineHeight = "tight" | "normal" | "relaxed" | "loose";
