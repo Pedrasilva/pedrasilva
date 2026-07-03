@@ -6765,48 +6765,33 @@ export type Database = {
       }
       quote_billable_hourly_rates: {
         Row: {
-          collaborator_id: string
           created_at: string
           hourly_rate: number
           id: string
           notes: string | null
           quote_id: string
+          role_name: string
           updated_at: string
         }
         Insert: {
-          collaborator_id: string
           created_at?: string
           hourly_rate?: number
           id?: string
           notes?: string | null
           quote_id: string
+          role_name?: string
           updated_at?: string
         }
         Update: {
-          collaborator_id?: string
           created_at?: string
           hourly_rate?: number
           id?: string
           notes?: string | null
           quote_id?: string
+          role_name?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "quote_billable_hourly_rates_collaborator_id_fkey"
-            columns: ["collaborator_id"]
-            isOneToOne: false
-            referencedRelation: "collaborators"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quote_billable_hourly_rates_collaborator_id_fkey"
-            columns: ["collaborator_id"]
-            isOneToOne: false
-            referencedRelation: "collaborators_directory"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       quote_external_services: {
         Row: {
