@@ -488,7 +488,7 @@ export function useLiveQuoteSnapshot(
       const { data: siteTripsRaw } = await (supabase as any)
         .from("quote_site_trips")
         .select(
-          "id,label,stage_id,km,price_per_km,trip_hours,resource_id,resource_ids,resource_hourly_rate,frequency_mode,frequency_value,duration_months_override,notes,sort_order",
+          "id,label,stage_id,km,price_per_km,trip_hours,resource_id,resource_ids,resource_hourly_rate,frequency_mode,frequency_value,duration_months_override,display_mode,notes,sort_order",
         )
         .eq("quote_id", quoteId!)
         .order("sort_order", { ascending: true })
