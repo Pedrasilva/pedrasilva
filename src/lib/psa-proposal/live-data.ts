@@ -508,13 +508,21 @@ export function useLiveQuoteSnapshot(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: resRows } = await (supabase as any)
           .from("pm_resources")
-          .select("id,name,hourly_rate")
+          .select("id,name,hourly_rate,proposal_role,billing_role,role")
           .in("id", Array.from(tripResourceIds));
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ((resRows ?? []) as any[]).forEach((r) => {
           if (!r?.id) return;
           resourceRateById.set(r.id, Number(r.hourly_rate) || 0);
-          if (r.name) resourceNameById.set(r.id, String(r.name));
+          // Prefer the billing/proposal role for client-facing display;
+          // fall back through role and finally name so nothing goes blank.
+          const label =
+            (r.proposal_role as string | null) ||
+            (r.billing_role as string | null) ||
+            (r.role as string | null) ||
+            (r.name as string | null) ||
+            "";
+          if (label) resourceNameById.set(r.id, String(label));
         });
       }
 

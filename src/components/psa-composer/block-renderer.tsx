@@ -1372,35 +1372,10 @@ export function BlockBody({
       // Pick a representative trip for the "how it's calculated" example.
       const example = rows[0];
 
-      // Anonymize resource names as Resource I, II, III… (stable order of
-      // first appearance across trips) so the client-facing block never
-      // exposes internal role labels.
-      const toRoman = (n: number): string => {
-        const map: Array<[number, string]> = [
-          [1000, "M"], [900, "CM"], [500, "D"], [400, "CD"],
-          [100, "C"], [90, "XC"], [50, "L"], [40, "XL"],
-          [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"],
-        ];
-        let out = "";
-        let v = n;
-        for (const [val, sym] of map) {
-          while (v >= val) { out += sym; v -= val; }
-        }
-        return out;
-      };
-      const resourceLabelByName = new Map<string, string>();
-      for (const r of rows) {
-        for (const n of r.resourceNames ?? []) {
-          if (!resourceLabelByName.has(n)) {
-            resourceLabelByName.set(
-              n,
-              `${isEn ? "Resource" : "Recurso"} ${toRoman(resourceLabelByName.size + 1)}`,
-            );
-          }
-        }
-      }
+      // Resource labels come from the billing role (proposal_role /
+      // billing_role) already resolved server-side, so we just dedupe here.
       const anonymize = (names: string[] | undefined | null): string[] =>
-        (names ?? []).map((n) => resourceLabelByName.get(n) ?? n);
+        Array.from(new Set((names ?? []).filter(Boolean)));
 
       // Group trips by stage for the per-stage rollup.
       type StageBucket = {
