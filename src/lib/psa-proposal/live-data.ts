@@ -983,14 +983,26 @@ export function useLiveQuoteSnapshot(
             return (end - start) / (1000 * 60 * 60 * 24) / 30.4375;
           };
 
+          const billingMode: "resource" | "manual" | "role" =
+            q.trip_billing_mode === "manual" || q.trip_billing_mode === "role"
+              ? q.trip_billing_mode
+              : "resource";
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const rows = ((siteTripsRaw ?? []) as any[]).map((t) => {
             const ids: string[] = Array.isArray(t.resource_ids) ? t.resource_ids : [];
             const manual = Number(t.resource_hourly_rate) || 0;
             const hourlyRate =
-              manual > 0
+              billingMode === "manual"
                 ? manual
-                : ids.reduce((s, id) => s + (Number(resourceRateById.get(id)) || 0), 0);
+                : billingMode === "role"
+                  ? ids.reduce((s, id) => {
+                      const code = resourceRoleCodeById.get(id) ?? "";
+                      return s + (saleByCode.get(code) ?? 0);
+                    }, 0)
+                  : ids.reduce(
+                      (s, id) => s + (Number(resourceRateById.get(id)) || 0),
+                      0,
+                    );
             const km = Number(t.km) || 0;
             const ppk = Number(t.price_per_km) || 0;
             const hrs = Number(t.trip_hours) || 0;
