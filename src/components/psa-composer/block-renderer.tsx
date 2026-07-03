@@ -231,15 +231,8 @@ function PhaseSummaryCard({
   if (showFee) rows.push({ label: L.professionalFee, value: feeLabel });
   if (showHours && hoursLabel)
     rows.push({ label: L.teamAllocation, value: hoursLabel });
-  if (showReview)
-    rows.push({ label: L.reviewCyclesIncluded, value: reviewLabel });
   if (showMeetings && meetings != null && meetings > 0)
     rows.push({ label: L.coordinationMeetings, value: String(meetings) });
-  rows.push({ label: L.drawingIssue, value: packageType });
-  rows.push({
-    label: L.clientApprovalRequired,
-    value: requiresApproval ? L.yes : L.no,
-  });
   if (showCgi && cgiCount != null && cgiCount > 0)
     rows.push({ label: L.cgiImagesIncluded, value: String(cgiCount) });
   if (showBim && bimEnabled && bimLod)
