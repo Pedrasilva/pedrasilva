@@ -1670,7 +1670,103 @@ export function BlockBody({
       // the @page A3 landscape rule handles physical orientation.
       const rotateForScreen = resolvedOrientation === "a3-landscape";
 
-      const chartBody = (
+      const chartInner = (
+        <div className="flex h-full w-full flex-1 flex-col" style={{ fontSize: `${baseFontPx}px` }}>
+          {/* Header: month scale */}
+          <div className="flex border-b border-zinc-300 uppercase tracking-wide text-zinc-500" style={{ fontSize: `${baseFontPx - 1}px` }}>
+            <div className="shrink-0 py-1 pr-2 font-semibold" style={{ width: labelColWidth }}>
+              {L.phase}
+            </div>
+            <div className="relative flex-1 py-1">
+              <div className="relative h-4">
+                {monthTicks.map((t, i) => (
+                  <div
+                    key={i}
+                    className="absolute top-0 h-full border-l border-zinc-200 pl-1"
+                    style={{ left: `${t.leftPct}%` }}
+                  >
+                    <span className="whitespace-nowrap">{t.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Rows — flex-1 so they expand to fill the whole page */}
+          <div className="flex w-full flex-1 flex-col">
+            {rows.map((r) => {
+              const { leftPct, widthPct } = barFor(r);
+              const label = r.stage.code
+                ? `${r.stage.code} — ${r.stage.name}`
+                : r.stage.name;
+              return (
+                <div
+                  key={r.stage.id}
+                  className={cn(
+                    "flex flex-1 items-center border-b border-zinc-100",
+                    r.isGroup && "bg-zinc-50",
+                  )}
+                  style={{ minHeight: "14px" }}
+                >
+                  <div
+                    className={cn(
+                      "shrink-0 truncate pr-2",
+                      r.isGroup ? "font-semibold text-zinc-800" : "text-zinc-700",
+                    )}
+                    style={{ width: labelColWidth, paddingLeft: `${r.depth * 10}px` }}
+                    title={label}
+                  >
+                    {label}
+                    {r.stage.isMilestone ? " ◆" : ""}
+                  </div>
+                  <div className="relative h-full flex-1">
+                    {monthTicks.map((t, i) => (
+                      <div
+                        key={i}
+                        className="absolute top-0 h-full border-l border-zinc-100"
+                        style={{ left: `${t.leftPct}%` }}
+                      />
+                    ))}
+                    {r.stage.isMilestone ? (
+                      <div
+                        className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 h-2.5 w-2.5 rotate-45 bg-zinc-900"
+                        style={{ left: `${leftPct}%` }}
+                      />
+                    ) : (
+                      <div
+                        className={cn(
+                          "absolute top-1/2 -translate-y-1/2 rounded-[2px]",
+                          r.isGroup ? "bg-zinc-800" : "bg-zinc-500",
+                        )}
+                        style={{
+                          left: `${leftPct}%`,
+                          width: `${widthPct}%`,
+                          height: r.isGroup ? "40%" : "70%",
+                        }}
+                      />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {/* Footer: range summary */}
+          {hasRange && (
+            <div className="mt-2 flex justify-between text-zinc-500" style={{ fontSize: `${baseFontPx - 1}px` }}>
+              <span>{formatDatePT(new Date(minTs).toISOString(), lang)}</span>
+              <span>{formatDatePT(new Date(maxTs).toISOString(), lang)}</span>
+            </div>
+          )}
+        </div>
+      );
+
+      return (
+        <div
+          className={cn(
+            "proposal-appendix proposal-page-break-before flex flex-col",
+            resolvedOrientation === "a3-landscape" && "proposal-appendix-landscape",
+          )}
+          style={{ minHeight: pageMinHeight }}
+        >
           <div className="mb-2 text-xs uppercase tracking-[0.3em] text-zinc-500">
             {L.appendix} {letterB}
           </div>
@@ -1682,95 +1778,29 @@ export function BlockBody({
           )}
           {rows.length === 0 ? (
             <Empty>{L.scheduleUnavailable}</Empty>
-          ) : (
-            <div className="flex w-full flex-1 flex-col" style={{ fontSize: `${baseFontPx}px` }}>
-              {/* Header: month scale */}
-              <div className="flex border-b border-zinc-300 uppercase tracking-wide text-zinc-500" style={{ fontSize: `${baseFontPx - 1}px` }}>
-                <div className="shrink-0 py-1 pr-2 font-semibold" style={{ width: labelColWidth }}>
-                  {L.phase}
-                </div>
-                <div className="relative flex-1 py-1">
-                  <div className="relative h-4">
-                    {monthTicks.map((t, i) => (
-                      <div
-                        key={i}
-                        className="absolute top-0 h-full border-l border-zinc-200 pl-1"
-                        style={{ left: `${t.leftPct}%` }}
-                      >
-                        <span className="whitespace-nowrap">{t.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+          ) : rotateForScreen ? (
+            // Rotate the chart 90° so the time axis runs down the long
+            // side of the portrait preview page. The inner element uses
+            // swapped dimensions (page height × page width) and rotates
+            // back into the outer frame.
+            <div
+              className="proposal-gantt-rotate-outer relative w-full overflow-hidden"
+              style={{ height: "240mm" }}
+            >
+              <div
+                className="proposal-gantt-rotate-inner absolute left-0 top-0 flex flex-col"
+                style={{
+                  width: "240mm",
+                  height: "170mm",
+                  transformOrigin: "top left",
+                  transform: "rotate(-90deg) translate(-100%, 0)",
+                }}
+              >
+                {chartInner}
               </div>
-              {/* Rows — flex-1 so they expand to fill the whole page */}
-              <div className="flex w-full flex-1 flex-col">
-                {rows.map((r) => {
-                  const { leftPct, widthPct } = barFor(r);
-                  const label = r.stage.code
-                    ? `${r.stage.code} — ${r.stage.name}`
-                    : r.stage.name;
-                  return (
-                    <div
-                      key={r.stage.id}
-                      className={cn(
-                        "flex flex-1 items-center border-b border-zinc-100",
-                        r.isGroup && "bg-zinc-50",
-                      )}
-                      style={{ minHeight: "14px" }}
-                    >
-                      <div
-                        className={cn(
-                          "shrink-0 truncate pr-2",
-                          r.isGroup ? "font-semibold text-zinc-800" : "text-zinc-700",
-                        )}
-                        style={{ width: labelColWidth, paddingLeft: `${r.depth * 10}px` }}
-                        title={label}
-                      >
-                        {label}
-                        {r.stage.isMilestone ? " ◆" : ""}
-                      </div>
-                      <div className="relative h-full flex-1">
-                        {/* month gridlines */}
-                        {monthTicks.map((t, i) => (
-                          <div
-                            key={i}
-                            className="absolute top-0 h-full border-l border-zinc-100"
-                            style={{ left: `${t.leftPct}%` }}
-                          />
-                        ))}
-                        {/* bar */}
-                        {r.stage.isMilestone ? (
-                          <div
-                            className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 h-2.5 w-2.5 rotate-45 bg-zinc-900"
-                            style={{ left: `${leftPct}%` }}
-                          />
-                        ) : (
-                          <div
-                            className={cn(
-                              "absolute top-1/2 -translate-y-1/2 rounded-[2px]",
-                              r.isGroup ? "bg-zinc-800" : "bg-zinc-500",
-                            )}
-                            style={{
-                              left: `${leftPct}%`,
-                              width: `${widthPct}%`,
-                              height: r.isGroup ? "40%" : "70%",
-                            }}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              {/* Footer: range summary */}
-              {hasRange && (
-                <div className="mt-2 flex justify-between text-zinc-500" style={{ fontSize: `${baseFontPx - 1}px` }}>
-                  <span>{formatDatePT(new Date(minTs).toISOString(), lang)}</span>
-                  <span>{formatDatePT(new Date(maxTs).toISOString(), lang)}</span>
-                </div>
-              )}
             </div>
+          ) : (
+            chartInner
           )}
         </div>
       );
