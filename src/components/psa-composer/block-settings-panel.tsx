@@ -370,6 +370,27 @@ export function BlockSettingsPanel({
               />
             </div>
           )}
+
+          <div className="space-y-1">
+            <Label className="text-xs">Aprovação da Fase</Label>
+            <RichTextEditor
+              value={(block.content_rich?.stage_approval_html as string | undefined) ?? ""}
+              onChange={({ html, text }) =>
+                update.mutate({
+                  id: block.id,
+                  patch: {
+                    content_rich: {
+                      ...(block.content_rich ?? {}),
+                      stage_approval_html: html,
+                      stage_approval_text: text,
+                    },
+                  },
+                })
+              }
+              placeholder="Critérios / processo de aprovação da fase..."
+              tokenEntries={buildTokenPickerEntries(liveQuery.data)}
+            />
+          </div>
         </div>
       )}
 
