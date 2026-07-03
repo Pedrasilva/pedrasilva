@@ -89,7 +89,8 @@ function SortableRow({
     block.source_type === "live_quote" ||
     block.source_type === "mixed" ||
     block.block_type === "stage_item" ||
-    block.block_type === "index";
+    block.block_type === "index" ||
+    block.block_type === "travel_expenses";
   const live = useLiveQuoteSnapshot(useLive ? refQuoteId ?? quoteIdHint : null, lang).data;
 
 
