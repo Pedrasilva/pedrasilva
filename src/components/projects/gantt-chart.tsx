@@ -1080,7 +1080,7 @@ export function GanttChart({
         </div>
       )}
 
-      <div className="relative gantt-canvas-bg gantt-week-marker" style={{ minHeight: stages.length * 200 }}>
+      <div className="relative gantt-canvas-bg gantt-week-marker" style={{ height: totalContentHeight, minHeight: totalContentHeight }} data-gantt-content>
         {months.map((m, i) => (
           <div
             key={`mb-${i}`}
