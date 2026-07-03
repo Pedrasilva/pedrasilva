@@ -504,6 +504,7 @@ export function useLiveQuoteSnapshot(
       });
       const resourceRateById = new Map<string, number>();
       const resourceNameById = new Map<string, string>();
+      const resourceRoleById = new Map<string, string>();
       if (tripResourceIds.size) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: resRows } = await (supabase as any)
@@ -514,15 +515,15 @@ export function useLiveQuoteSnapshot(
         ((resRows ?? []) as any[]).forEach((r) => {
           if (!r?.id) return;
           resourceRateById.set(r.id, Number(r.hourly_rate) || 0);
-          // Prefer the billing/proposal role for client-facing display;
-          // fall back through role and finally name so nothing goes blank.
-          const label =
+          // Client-facing role: prefer proposal_role, then billing_role, then role.
+          const role =
             (r.proposal_role as string | null) ||
             (r.billing_role as string | null) ||
             (r.role as string | null) ||
-            (r.name as string | null) ||
             "";
-          if (label) resourceNameById.set(r.id, String(label));
+          if (role) resourceRoleById.set(r.id, String(role));
+          const name = (r.name as string | null) || "";
+          if (name) resourceNameById.set(r.id, String(name));
         });
       }
 
