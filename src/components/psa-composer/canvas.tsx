@@ -181,6 +181,17 @@ export function ComposerCanvas({
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
+  // Resolve live snapshot once to enrich TOC titles (e.g. stage_item blocks
+  // often carry the generic title "Fase" — resolve the real phase name).
+  const firstQuoteRef = useMemo(() => {
+    for (const b of blocks) {
+      const rid = (b.source_ref as { quote_id?: string } | undefined)?.quote_id;
+      if (rid) return rid;
+    }
+    return null;
+  }, [blocks]);
+  const liveForToc = useLiveQuoteSnapshot(firstQuoteRef ?? quoteIdHint, lang).data;
+
   const { chapterByIndex, toc } = useMemo(() => {
     let n = 0;
     const idx: (number | null)[] = [];
@@ -192,10 +203,23 @@ export function ComposerCanvas({
       }
       n += 1;
       idx.push(n);
-      t.push({ chapter: n, title: b.title || b.block_type });
+      let title = (b.title ?? "").trim();
+      if (b.block_type === "stage_item") {
+        const stageId = (b.source_ref as { stage_id?: string } | undefined)?.stage_id;
+        const stage = stageId ? liveForToc?.stages.find((s) => s.id === stageId) : undefined;
+        if (stage) {
+          const parts = [stage.code, stage.name].filter(Boolean) as string[];
+          const resolved = parts.join(" — ");
+          if (resolved) title = resolved;
+        }
+      }
+      // Strip trailing "(cópia)"/"(copy)" markers from duplicated blocks.
+      title = title.replace(/\s*\((?:cópia|copia|copy)\)\s*$/i, "").trim();
+      if (!title) title = b.block_type;
+      t.push({ chapter: n, title });
     }
     return { chapterByIndex: idx, toc: t };
-  }, [blocks]);
+  }, [blocks, liveForToc]);
 
 
   function handleDragEnd(e: DragEndEvent) {
