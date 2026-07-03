@@ -1,0 +1,1 @@
+ALTER TABLE public.quote_site_trips ADD COLUMN IF NOT EXISTS resource_hourly_rates jsonb NOT NULL DEFAULT '{}'::jsonb;
