@@ -152,6 +152,112 @@ function StageRows({ stages }: { stages: LiveStage[] }) {
   );
 }
 
+function PhaseSummaryCard({
+  stage,
+  block,
+  lang,
+  L,
+}: {
+  stage: LiveStage;
+  block: PsaProposalBlock;
+  lang: ProposalLang;
+  L: ReturnType<typeof getProposalLabels>;
+}) {
+  const cr = (block.content_rich ?? {}) as Record<string, unknown>;
+  const num = (v: unknown): number | null => {
+    if (v == null || v === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  };
+  const str = (v: unknown): string | null => {
+    if (typeof v !== "string") return null;
+    const t = v.trim();
+    return t.length ? t : null;
+  };
+  const bool = (v: unknown, dflt: boolean): boolean =>
+    typeof v === "boolean" ? v : dflt;
+
+  const showCard = bool(cr.show_phase_summary_card, true);
+  if (!showCard) return null;
+
+  const showHours = bool(cr.show_estimated_hours_by_phase, true);
+  const showFee = bool(cr.show_phase_fee_in_scope, true);
+  const showReview = bool(cr.show_review_cycles_by_phase, true);
+  const showMeetings = bool(cr.show_meetings_by_phase, true);
+  const showCgi = bool(cr.show_cgi_count_by_phase, true);
+  const showBim = bool(cr.show_bim_lod_by_phase, false);
+
+  const durationLabel =
+    stage.durationDays != null
+      ? formatDurationHuman(stage.durationDays, lang)
+      : L.toBeDefined;
+
+  const feeLabel =
+    stage.fee != null && Number.isFinite(Number(stage.fee))
+      ? formatCurrencyEUR(stage.fee, lang)
+      : L.toBeDefined;
+
+  const totalHours = (stage.resources ?? []).reduce(
+    (sum, r) => sum + Number(r.hours ?? 0),
+    0,
+  );
+  const hoursLabel =
+    totalHours > 0
+      ? `${new Intl.NumberFormat(lang === "en" ? "en-GB" : "pt-PT", {
+          maximumFractionDigits: 0,
+        }).format(Math.round(totalHours))} ${L.hoursShort}`
+      : null;
+
+  const reviewCycles = num(cr.review_cycles_included) ?? 1;
+  const reviewLabel = `${reviewCycles} ${
+    reviewCycles === 1 ? L.reviewCycleSingular : L.reviewCyclePlural
+  }`;
+
+  const meetings = num(cr.meetings_included);
+  const packageType = str(cr.package_type) ?? stage.name;
+  const requiresApproval = bool(cr.requires_client_approval, true);
+  const cgiCount = num(cr.cgi_count);
+  const bimEnabled = bool(cr.bim_enabled, false);
+  const bimLod = str(cr.bim_lod);
+
+  type Row = { label: string; value: React.ReactNode };
+  const rows: Row[] = [];
+  rows.push({ label: L.duration, value: durationLabel });
+  if (showFee) rows.push({ label: L.professionalFee, value: feeLabel });
+  if (showHours && hoursLabel)
+    rows.push({ label: L.teamAllocation, value: hoursLabel });
+  if (showReview)
+    rows.push({ label: L.reviewCyclesIncluded, value: reviewLabel });
+  if (showMeetings && meetings != null && meetings > 0)
+    rows.push({ label: L.coordinationMeetings, value: String(meetings) });
+  rows.push({ label: L.drawingIssue, value: packageType });
+  rows.push({
+    label: L.clientApprovalRequired,
+    value: requiresApproval ? L.yes : L.no,
+  });
+  if (showCgi && cgiCount != null && cgiCount > 0)
+    rows.push({ label: L.cgiImagesIncluded, value: String(cgiCount) });
+  if (showBim && bimEnabled && bimLod)
+    rows.push({ label: L.bimLod, value: bimLod });
+
+  return (
+    <div className="proposal-avoid-break mt-8 rounded-md border border-zinc-200 bg-zinc-50/60 p-4">
+      <h3 className="proposal-print-heading mb-3 text-sm font-semibold tracking-tight text-zinc-900">
+        {L.phaseSummary}
+      </h3>
+      <dl className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-6 gap-y-2 text-sm">
+        {rows.map((r, i) => (
+          <React.Fragment key={i}>
+            <dt className="text-zinc-500">{r.label}</dt>
+            <dd className="text-zinc-900 tabular-nums">{r.value}</dd>
+          </React.Fragment>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
+
 export function BlockBody({
   block,
   live,
