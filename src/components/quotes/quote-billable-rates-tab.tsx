@@ -1,104 +1,49 @@
 import { useEffect, useMemo, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
+import {
+  useBillableRates,
+  useBillingRoles,
+  useQuoteSaleRates,
+  useUpsertBillableRate,
+  useUpsertQuoteSaleRate,
+} from "@/lib/hr/use-billable-rates";
 
 /**
- * Billable hourly rates — per quote, per Billing Role.
+ * Billable hourly rates — quote-side view.
  *
- * Lists every distinct Billing Role present in HR and lets the user enter a
- * €/h value manually. Values persist in `quote_billable_hourly_rates` keyed
- * by (quote_id, role_name).
- *
- * Intentionally standalone: this data is NOT yet referenced by any
- * downstream calculation — it's just the master rate card for the quote.
+ * Same table as HR settings (single source of truth per Billing Role) plus a
+ * quote-specific "Manual sale rate" column. Editing the cost here updates the
+ * shared HR value; editing the sale rate only affects this quote.
  */
-
-type CollabRow = { billing_role: string | null };
-
-type RateRow = {
-  id: string;
-  quote_id: string;
-  role_name: string;
-  hourly_rate: number;
-};
-
 export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
-  const qc = useQueryClient();
+  const { data: roles = [], isLoading } = useBillingRoles();
+  const { data: costs = [] } = useBillableRates();
+  const { data: sales = [] } = useQuoteSaleRates(quoteId);
 
-  const { data: roles = [], isLoading } = useQuery({
-    queryKey: ["billable-rates:roles"],
-    queryFn: async (): Promise<string[]> => {
-      const { data, error } = await supabase
-        .from("collaborators")
-        .select("billing_role")
-        .is("archived_at", null)
-        .not("billing_role", "is", null);
-      if (error) throw error;
-      // Dedupe + trim; ignore empty strings.
-      const set = new Set<string>();
-      for (const r of (data ?? []) as CollabRow[]) {
-        const v = (r.billing_role ?? "").trim();
-        if (v) set.add(v);
-      }
-      return Array.from(set).sort((a, b) => a.localeCompare(b, "pt"));
-    },
-  });
+  const upsertCost = useUpsertBillableRate();
+  const upsertSale = useUpsertQuoteSaleRate(quoteId);
 
-  const { data: rates = [] } = useQuery({
-    queryKey: ["billable-rates", quoteId],
-    queryFn: async (): Promise<RateRow[]> => {
-      const { data, error } = await (supabase as unknown as {
-        from: (t: string) => {
-          select: (c: string) => {
-            eq: (k: string, v: string) => Promise<{ data: RateRow[] | null; error: unknown }>;
-          };
-        };
-      })
-        .from("quote_billable_hourly_rates")
-        .select("id, quote_id, role_name, hourly_rate")
-        .eq("quote_id", quoteId);
-      if (error) throw error as Error;
-      return (data ?? []) as RateRow[];
-    },
-  });
-
-  const rateByRole = useMemo(() => {
-    const m = new Map<string, RateRow>();
-    for (const r of rates) m.set(r.role_name, r);
+  const costByRole = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const r of costs) m.set(r.role_name, Number(r.hourly_rate) || 0);
     return m;
-  }, [rates]);
+  }, [costs]);
 
-  const upsert = useMutation({
-    mutationFn: async (input: { role_name: string; hourly_rate: number }) => {
-      const { error } = await (supabase as unknown as {
-        from: (t: string) => {
-          upsert: (row: unknown, opts: unknown) => Promise<{ error: unknown }>;
-        };
-      })
-        .from("quote_billable_hourly_rates")
-        .upsert(
-          {
-            quote_id: quoteId,
-            role_name: input.role_name,
-            hourly_rate: input.hourly_rate,
-          },
-          { onConflict: "quote_id,role_name" },
-        );
-      if (error) throw error as Error;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["billable-rates", quoteId] }),
-    onError: (e: unknown) => toast.error((e as Error)?.message ?? "Failed to save rate"),
-  });
+  const saleByRole = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const r of sales) m.set(r.role_name, Number(r.sale_rate) || 0);
+    return m;
+  }, [sales]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Tabela de recursos</CardTitle>
+        <CardTitle className="text-base">Billable hourly rate</CardTitle>
         <CardDescription>
-          Valor/hora por Billing Role (HR). Valores inseridos manualmente — referência apenas.
+          Cost/hour is shared across all quotes (HR source of truth). Manual sale rate
+          is specific to this quote.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -114,17 +59,37 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
               <thead>
                 <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <th className="px-4 py-2 font-semibold">Recurso</th>
-                  <th className="px-4 py-2 text-right font-semibold">Valor/hora</th>
+                  <th className="px-4 py-2 text-right font-semibold">Cost / hour</th>
+                  <th className="px-4 py-2 text-right font-semibold">Manual sale rate</th>
                 </tr>
               </thead>
               <tbody>
                 {roles.map((role) => (
-                  <RateRowInput
-                    key={role}
-                    role={role}
-                    current={rateByRole.get(role)?.hourly_rate ?? 0}
-                    onSave={(v) => upsert.mutate({ role_name: role, hourly_rate: v })}
-                  />
+                  <tr key={role} className="border-b last:border-b-0 hover:bg-muted/20">
+                    <td className="px-4 py-2">{role}</td>
+                    <td className="px-4 py-2">
+                      <RateCell
+                        value={costByRole.get(role) ?? 0}
+                        onSave={(v) =>
+                          upsertCost.mutate(
+                            { role_name: role, hourly_rate: v },
+                            { onError: (e) => toast.error((e as Error).message) },
+                          )
+                        }
+                      />
+                    </td>
+                    <td className="px-4 py-2">
+                      <RateCell
+                        value={saleByRole.get(role) ?? 0}
+                        onSave={(v) =>
+                          upsertSale.mutate(
+                            { role_name: role, sale_rate: v },
+                            { onError: (e) => toast.error((e as Error).message) },
+                          )
+                        }
+                      />
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>
@@ -135,49 +100,39 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
   );
 }
 
-function RateRowInput({
-  role,
-  current,
+function RateCell({
+  value,
   onSave,
 }: {
-  role: string;
-  current: number;
+  value: number;
   onSave: (v: number) => void;
 }) {
-  const [value, setValue] = useState<string>(current > 0 ? String(current) : "");
+  const [text, setText] = useState<string>(value > 0 ? String(value) : "");
 
   useEffect(() => {
-    setValue(current > 0 ? String(current) : "");
-  }, [current]);
+    setText(value > 0 ? String(value) : "");
+  }, [value]);
 
   const commit = () => {
-    const num = Number(value.replace(",", "."));
+    const num = Number(text.replace(",", "."));
     const next = Number.isFinite(num) && num >= 0 ? num : 0;
-    if (next !== current) onSave(next);
+    if (next !== value) onSave(next);
   };
 
   return (
-    <tr className="border-b last:border-b-0 hover:bg-muted/20">
-      <td className="px-4 py-2">{role}</td>
-      <td className="px-4 py-2">
-        <div className="flex items-center justify-end gap-1">
-          <Input
-            type="number"
-            inputMode="decimal"
-            step="0.01"
-            min="0"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            onBlur={commit}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-            }}
-            className="max-w-[120px] text-right tabular-nums"
-            placeholder="0,00"
-          />
-          <span className="text-muted-foreground">€</span>
-        </div>
-      </td>
-    </tr>
+    <div className="flex items-center justify-end gap-1">
+      <Input
+        type="number"
+        inputMode="decimal"
+        step="0.01"
+        min="0"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={commit}
+        className="max-w-[120px] text-right tabular-nums"
+        placeholder="0.00"
+      />
+      <span className="text-muted-foreground">€</span>
+    </div>
   );
 }
