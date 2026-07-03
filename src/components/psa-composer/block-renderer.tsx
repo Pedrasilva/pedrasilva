@@ -1511,8 +1511,12 @@ export function BlockBody({
           <H>{num}{block.title}</H>
 
           {/* Editable placeholder for introductory text. */}
-          {(richHas || (editable && onPatchContent)) && (
-            <div className="mb-3">{rich}</div>
+          {editable && onPatchContent ? (
+            <div className="mb-4 rounded-md border border-dashed border-zinc-300 bg-zinc-50/40 px-3 py-2">
+              {rich}
+            </div>
+          ) : (
+            richHas && <div className="mb-3">{rich}</div>
           )}
 
           {rows.length ? (
