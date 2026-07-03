@@ -263,6 +263,7 @@ function RoleRow({
     draft.label_en !== role.label_en ||
     draft.label_pt !== role.label_pt ||
     draft.default_seniority !== role.default_seniority ||
+    Number(draft.hourly_rate) !== Number(role.hourly_rate) ||
     draft.sort_order !== role.sort_order;
   const archived = !!role.archived_at;
 
