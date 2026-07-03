@@ -167,6 +167,7 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
       frequency_value: prev?.frequency_value ?? 2,
       duration_months_override: prev?.duration_months_override ?? null,
       stage_id: prev?.stage_id ?? null,
+      display_mode: prev?.display_mode ?? "role",
       notes: "",
     });
   }
