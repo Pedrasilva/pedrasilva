@@ -1,87 +1,71 @@
-## Goal
-Let the user set a per-supplier administration markup on the quote. Each supplier used in the quote is listed with its name and an editable percentage (0% by default, can be 5%, 7%, or any value). The markup inflates that supplier's client-billed price everywhere prices are shown, without touching what we pay the supplier.
+# Proposal Appendices
 
-## Where the UI lives
-In the "Predefinições de faturação" card in `quote-payment-schedule-tab.tsx`, below the fee-source toggle. A new sub-card titled "Taxa de administração por fornecedor":
+Introduce an "Appendices" section rendered after the main proposal, driven by modular appendix components that can be individually enabled per proposal.
 
+## Data model
+
+Extend `PsaProposalBlock.block_type` with three new kinds:
+- `appendix_index` — renders the "APPENDICES" cover + list
+- `appendix_payment_schedule` — Appendix A
+- `appendix_gantt` — Appendix B (A3 landscape)
+- `appendix_general_terms` — Appendix C
+
+No schema migration needed: `block_type` is a free string in `psa_proposal_blocks`. `content_rich` stores per-appendix config: `{ appendix_letter, enabled, intro_html, intro_text, page_orientation }`.
+
+## Composer surface
+
+Block library panel gets a new "Appendices" group with four manual entries:
+- Índice de Anexos
+- Anexo A — Cronograma de Pagamentos
+- Anexo B — Programa do Projeto (A3)
+- Anexo C — Termos Gerais PSA
+
+Inserting an appendix block appends it after all existing blocks and forces `contract_relevance = "both"`.
+
+Block settings panel adds an "Anexo" section for appendix blocks with:
+- Letter override (A/B/C/…)
+- Enabled toggle
+- Intro rich text
+- Orientation selector (only for `appendix_gantt`: portrait / A3-landscape)
+
+## Rendering
+
+`block-renderer.tsx` new cases:
+- `appendix_index` — renders a full page: title "APPENDICES", then rows `Anexo {letter} — {title}` for every enabled appendix block in the same proposal. Reads sibling blocks via a new `siblings` prop passed by canvas.
+- `appendix_payment_schedule` — reuses existing `payment_schedule` rendering logic (extracted into a `PaymentScheduleTable` helper), prefixed with the fixed intro copy from the brief.
+- `appendix_gantt` — reuses existing `timeline` rendering, wrapped in a landscape print container (`className="proposal-appendix-landscape"`).
+- `appendix_general_terms` — renders a `<GeneralTermsDocument />` component that pulls the latest approved terms via `useLatestGeneralTerms()` (existing hook if present, otherwise a stub reading `psa_general_terms` table by `status = 'approved'` ordered by `version desc`).
+
+Every appendix wraps in `<div className="proposal-page-break proposal-appendix">…</div>` so print CSS forces `break-before: page`.
+
+`styles.css` additions:
+```css
+.proposal-appendix { page-break-before: always; break-before: page; }
+.proposal-appendix-landscape { size: A3 landscape; }
+@page appendix-landscape { size: A3 landscape; }
 ```
-Taxa de administração por fornecedor
-────────────────────────────────────
-Fornecedor                    Markup
-Studio Acústica                [ 7 ] %
-Engº Silva – Estruturas        [ 0 ] %
-BOQ Consultores                [ 5 ] %
-```
 
-- Row list is derived from suppliers referenced by this quote's `quote_external_services` (deduped by `supplier_company_id` / `supplier_id`, falling back to the free-text supplier label).
-- Each input accepts 0–100, defaults to 0, debounced save.
-- Empty state ("No suppliers linked to this quote yet.") when the quote has no external services.
+## Main proposal cleanup
 
-## Schema
-New table `quote_supplier_markups` — one row per (quote, supplier) with the admin markup pct.
+The existing `payment_schedule` and `timeline` blocks stay in the library (legacy). Add a "Convert to appendix" action in the block settings for those two types that:
+1. Creates the matching appendix block at the end of the proposal.
+2. Replaces the current block's content with the short reference sentence from the brief and switches its type to `custom_text`.
 
-```
-id                   uuid pk
-quote_id             uuid  → fee_proposals.id  (cascade delete)
-supplier_company_id  uuid  nullable → companies.id
-supplier_id          uuid  nullable → pm_suppliers.id
-supplier_label       text  nullable  (fallback when neither id is present)
-markup_pct           numeric not null default 0  (0–100)
-created_at / updated_at
-unique (quote_id, supplier_company_id, supplier_id, supplier_label)
-```
+No automatic removal — user controls migration per proposal.
 
-RLS mirrors `quote_external_services` (same "can edit this quote" rule). Grants for `authenticated` + `service_role`.
+## Files touched
 
-Resolution key for a `quote_external_services` row → markup:
-1. match `supplier_company_id`, else
-2. match `supplier_id`, else
-3. match `supplier_label` (case-insensitive, trimmed), else
-4. 0%.
+- `src/lib/psa-proposal/types.ts` — extend `PsaBlockType` union.
+- `src/components/psa-composer/block-library-panel.tsx` — add "Anexos" group + 4 manual entries.
+- `src/components/psa-composer/block-renderer.tsx` — extract `PaymentScheduleTable`; add appendix cases; accept `siblings` for index.
+- `src/components/psa-composer/canvas.tsx` — pass all sibling blocks to renderer.
+- `src/components/psa-composer/block-settings-panel.tsx` — appendix config section + "Convert to appendix" button on legacy payment_schedule/timeline blocks.
+- `src/lib/psa-proposal/live-data.ts` — add labels (`appendices`, `appendixA`, `appendixIntro`, references).
+- `src/styles.css` — appendix + landscape print rules.
+- (new) `src/components/psa-composer/general-terms-document.tsx` — renders latest approved terms; if no source table exists, renders a static PT/EN template pulled from `docs/psa-general-terms.md` (created in same edit).
 
-## Pricing rule
-For every supplier line in the quote:
+## Out of scope
 
-```
-billed_sale_price = row.sale_price × (1 + markup_pct / 100)
-```
-
-Cost side (`purchase_price`) unchanged — we still owe the supplier the raw amount. The delta lands in revenue and profit as PSA admin.
-
-## Code surface
-
-### Rollup — single source of truth
-`src/lib/quotes/financial-rollups.ts`
-- `rollupQuote` gains `supplierMarkups?: Map<lookupKey, pct>` and, when passed, computes `external.value` as the sum of per-row `sale_price × qty × (1 + pct/100)` instead of the flat `rollupExternalServices`.
-- New helper `resolveSupplierMarkup(row, markups): number` implementing the 4-step lookup.
-- `external.cost`, `internal`, retainer branches unchanged.
-- `totalFee`, `total.profit`, `effectiveMargin` naturally pick up the marked-up revenue.
-
-### Hooks
-- `src/lib/quotes/use-quote-supplier-markups.ts` (new): `useQuoteSupplierMarkups(quoteId)`, `useUpsertQuoteSupplierMarkup(quoteId)`.
-- All existing consumers of `rollupQuote` (planning tab, payment schedule tab, composer live data, contract composition) load the markups map alongside external services and pass it in.
-
-### Consumers to update
-- `src/lib/psa-proposal/live-data.ts` — the `consultants` array exposes both `fee` (marked-up = client-billed) and `supplier_fee` (raw). Totals use `fee`.
-- `src/components/psa-composer/block-renderer.tsx` — `supplier_fee_table` / consultants totals + subtotal rows.
-- `src/components/quotes/payment-schedule-proposal-view.tsx` — composition-of-contract totals, supplier bucket subtotals in the client-facing view.
-- `src/components/quotes/quote-planning-tab.tsx` — warnings summary already funnels through `rollupQuote`, so passing the map is enough.
-
-### Where markup does NOT apply
-- Outgoing payments to suppliers (`supplierBuckets` in the outflow view) stay at raw `sale_price` — that is what we actually pay them.
-- Internal allocations and retainers.
-
-### Settings component
-New `src/components/quotes/quote-supplier-markup-editor.tsx`:
-- Queries external services for the quote, groups by supplier identity, dedupes.
-- Left-joins to `quote_supplier_markups` for current values.
-- Renders a compact table (name + `%` input). Debounced upsert on change.
-- Invalidates: `quote-supplier-markups`, `quote-financials`, `quote-payment-schedule`, `psa-proposal-live`, `fee-proposal-summary`.
-
-Embedded in `quote-payment-schedule-tab.tsx` inside the Predefinições card.
-
-## Verification
-- Set 7% on one supplier → its client-billed subtotal in the composer / composition / payment schedule increases by 7%; totals reconcile; supplier owed amount in outflows unchanged.
-- Set 0% → identical to today.
-- Add a new supplier line for a supplier not yet in the markup table → treated as 0% until the user sets one.
-- Delete the supplier's last external-services line → editor row disappears; the markup row can stay (harmless) or be cleaned up on next edit.
+- Automated migration of existing proposals.
+- PDF page numbering across appendices (relies on browser print `@page` counter).
+- Uploading custom General Terms per proposal (future work).
