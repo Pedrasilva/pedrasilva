@@ -517,28 +517,62 @@ export function useLiveQuoteSnapshot(
       });
       const resourceRateById = new Map<string, number>();
       const resourceNameById = new Map<string, string>();
-      const resourceRoleById = new Map<string, string>();
+      /** Raw role code as stored on the resource / collaborator (e.g. `lead_designer`). */
+      const resourceRoleCodeById = new Map<string, string>();
       if (tripResourceIds.size) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: resRows } = await (supabase as any)
           .from("pm_resources")
-          .select("id,name,hourly_rate,proposal_role,billing_role,role")
+          .select("id,name,hourly_rate,proposal_role,billing_role,role,collaborator_id")
           .in("id", Array.from(tripResourceIds));
+        const missingRoleCollabIds = new Set<string>();
+        const collabIdByResource = new Map<string, string>();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ((resRows ?? []) as any[]).forEach((r) => {
           if (!r?.id) return;
           resourceRateById.set(r.id, Number(r.hourly_rate) || 0);
-          // Client-facing role: prefer proposal_role, then billing_role, then role.
           const role =
             (r.proposal_role as string | null) ||
             (r.billing_role as string | null) ||
             (r.role as string | null) ||
             "";
-          if (role) resourceRoleById.set(r.id, String(role));
+          if (role) {
+            resourceRoleCodeById.set(r.id, String(role));
+          } else if (r.collaborator_id) {
+            collabIdByResource.set(r.id, String(r.collaborator_id));
+            missingRoleCollabIds.add(String(r.collaborator_id));
+          }
           const name = (r.name as string | null) || "";
           if (name) resourceNameById.set(r.id, String(name));
         });
+        // Fall back to the linked collaborator's proposal_role / billing_role
+        // when the pm_resource row itself has none set.
+        if (missingRoleCollabIds.size) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { data: collabRows } = await (supabase as any)
+            .from("collaborators")
+            .select("id,proposal_role,billing_role")
+            .in("id", Array.from(missingRoleCollabIds));
+          const roleByCollabId = new Map<string, string>();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ((collabRows ?? []) as any[]).forEach((c) => {
+            if (!c?.id) return;
+            const role =
+              (c.proposal_role as string | null) ||
+              (c.billing_role as string | null) ||
+              "";
+            if (role) roleByCollabId.set(String(c.id), String(role));
+          });
+          for (const [resId, collabId] of collabIdByResource) {
+            const code = roleByCollabId.get(collabId);
+            if (code) resourceRoleCodeById.set(resId, code);
+          }
+        }
       }
+      /** Legacy: display label for role. Filled after the proposal_roles
+       *  catalog is loaded below (see `roleLabelByCode`). */
+      const resourceRoleById = new Map<string, string>();
+
 
 
 
@@ -771,6 +805,25 @@ export function useLiveQuoteSnapshot(
           saleRate: saleByCode.get(String(r.code ?? "")) ?? 0,
         }))
       ).sort((a, b) => b.saleRate - a.saleRate);
+
+      // Resolve each resource's role code to its localized display label
+      // using the proposal_roles catalog. Falls back to the raw code so
+      // nothing ever renders blank.
+      const roleLabelByCode = new Map<string, string>();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((roleRows ?? []) as any[]).forEach((r) => {
+        const code = String(r.code ?? "");
+        if (!code) return;
+        const label = lang === "en"
+          ? String(r.label_en ?? r.label_pt ?? code)
+          : String(r.label_pt ?? r.label_en ?? code);
+        roleLabelByCode.set(code, label);
+      });
+      for (const [resId, code] of resourceRoleCodeById) {
+        resourceRoleById.set(resId, roleLabelByCode.get(code) ?? code);
+      }
+
+
 
 
       return {
