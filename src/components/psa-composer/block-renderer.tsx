@@ -1415,105 +1415,63 @@ export function BlockBody({
             <div className="mb-3">{rich}</div>
           )}
 
-          {/* Calculation summary — derived from the first trip's parameters
-             so the client sees exactly which numbers drove the estimate. */}
-          {example ? (
-            <div className="mb-4 rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm print:bg-transparent">
-              <div className="mb-2 text-xs uppercase tracking-widest text-zinc-500">
-                {T.howTitle}
-              </div>
-              <ul className="grid grid-cols-1 gap-y-1 md:grid-cols-2 md:gap-x-6">
-                <li className="flex justify-between gap-4">
-                  <span className="text-zinc-600">{T.distance}</span>
-                  <span className="tabular-nums font-medium">
-                    {example.km} km
-                  </span>
-                </li>
-                <li className="flex justify-between gap-4">
-                  <span className="text-zinc-600">{T.pricePerKm}</span>
-                  <span className="tabular-nums font-medium">
-                    {formatCurrencyEUR(example.pricePerKm, lang)}/km
-                  </span>
-                </li>
-                <li className="flex justify-between gap-4">
-                  <span className="text-zinc-600">{T.perTripKm}</span>
-                  <span className="tabular-nums font-medium">
-                    {example.km} × {formatCurrencyEUR(example.pricePerKm, lang)} × 2 = {formatCurrencyEUR(example.perTripKmCost, lang)}
-                  </span>
-                </li>
-                <li className="flex justify-between gap-4">
-                  <span className="text-zinc-600">{T.travelTime}</span>
-                  <span className="tabular-nums font-medium">
-                    {example.tripHours} {L.hoursShort}
-                  </span>
-                </li>
-                <li className="flex justify-between gap-4">
-                  <span className="text-zinc-600">{T.resourceRate}</span>
-                  <span className="tabular-nums font-medium">
-                    {formatCurrencyEUR(example.hourlyRate, lang)}/{L.hoursShort}
-                    {example.resourceNames?.length
-                      ? ` · ${example.resourceNames.join(", ")}`
-                      : ""}
-                  </span>
-                </li>
-                <li className="flex justify-between gap-4">
-                  <span className="text-zinc-600">{T.perTripHr}</span>
-                  <span className="tabular-nums font-medium">
-                    {example.tripHours} × {formatCurrencyEUR(example.hourlyRate, lang)} × 2 = {formatCurrencyEUR(example.perTripHrCost, lang)}
-                  </span>
-                </li>
-                <li className="flex justify-between gap-4 md:col-span-2 border-t border-zinc-200 pt-1 mt-1">
-                  <span className="font-medium">{T.perTripTotal}</span>
-                  <span className="tabular-nums font-semibold">
-                    {formatCurrencyEUR(example.perTripTotal, lang)}
-                  </span>
-                </li>
-              </ul>
-              <p className="mt-2 text-xs text-zinc-500">{T.formulaHint}</p>
-            </div>
-          ) : null}
-
-          {/* Per-stage rollup: trips, resources, cost. */}
+          {/* Per-stage rollup: trips, resources, cost. Kept intentionally
+             simple; the calculation criteria live in the footnote below. */}
           {stageRollup.length ? (
-            <table className="proposal-print-table w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
-                  <th className="py-1">{T.stage}</th>
-                  <th className="py-1 text-right">{T.trips}</th>
-                  <th className="py-1">{T.resources}</th>
-                  <th className="py-1 text-right">{T.cost}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stageRollup.map((b) => (
-                  <tr key={b.key} className="border-b border-zinc-100 align-top">
-                    <td className="py-1">
-                      {b.stageNumber ? `${b.stageNumber} ` : ""}
-                      {b.stageName ?? "—"}
-                    </td>
+            <>
+              <table className="proposal-print-table w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
+                    <th className="py-1">{T.stage}</th>
+                    <th className="py-1 text-right">{T.trips}</th>
+                    <th className="py-1">{T.resources}</th>
+                    <th className="py-1 text-right">{T.cost}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stageRollup.map((b) => (
+                    <tr key={b.key} className="border-b border-zinc-100 align-top">
+                      <td className="py-1">
+                        {b.stageNumber ? `${b.stageNumber} ` : ""}
+                        {b.stageName ?? "—"}
+                      </td>
+                      <td className="py-1 text-right tabular-nums">
+                        {Number.isFinite(b.totalTrips)
+                          ? Math.round(b.totalTrips * 100) / 100
+                          : "—"}
+                      </td>
+                      <td className="py-1 text-zinc-700">
+                        {b.resourceNames.size
+                          ? Array.from(b.resourceNames).join(", ")
+                          : "—"}
+                      </td>
+                      <td className="py-1 text-right tabular-nums">
+                        {formatCurrencyEUR(b.totalCost, lang)}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr className="border-t-2 border-zinc-400 font-semibold">
+                    <td className="py-1" colSpan={3}>{T.totalRow}</td>
                     <td className="py-1 text-right tabular-nums">
-                      {Number.isFinite(b.totalTrips)
-                        ? Math.round(b.totalTrips * 100) / 100
-                        : "—"}
-                    </td>
-                    <td className="py-1 text-zinc-700">
-                      {b.resourceNames.size
-                        ? Array.from(b.resourceNames).join(", ")
-                        : "—"}
-                    </td>
-                    <td className="py-1 text-right tabular-nums">
-                      {formatCurrencyEUR(b.totalCost, lang)}
+                      {formatCurrencyEUR(total, lang)}
                     </td>
                   </tr>
-                ))}
-                <tr className="border-t-2 border-zinc-400 font-semibold">
-                  <td className="py-1" colSpan={3}>{T.totalRow}</td>
-                  <td className="py-1 text-right tabular-nums">
-                    {formatCurrencyEUR(total, lang)}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+
+              {/* Footnote: calculation criteria, compact and unobtrusive. */}
+              {example ? (
+                <p className="mt-3 text-xs leading-relaxed text-zinc-500">
+                  <span className="mr-1 font-medium text-zinc-600">*</span>
+                  {T.distance}: {example.km} km · {T.pricePerKm}: {formatCurrencyEUR(example.pricePerKm, lang)}/km · {T.travelTime}: {example.tripHours} {L.hoursShort} · {T.resourceRate}: {formatCurrencyEUR(example.hourlyRate, lang)}/{L.hoursShort}
+                  {example.resourceNames?.length ? ` (${example.resourceNames.join(", ")})` : ""}
+                  {" · "}
+                  {T.perTripTotal}: {formatCurrencyEUR(example.perTripTotal, lang)}.
+                  {" "}
+                  {T.formulaHint}
+                </p>
+              ) : null}
+            </>
           ) : (
             <Empty>{T.noData}</Empty>
           )}
