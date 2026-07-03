@@ -115,7 +115,7 @@ export function QuoteBillableRatesTab({ quoteId }: { quoteId: string }) {
                 </tr>
               </thead>
               <tbody>
-                {roles.map((role: ProposalRole) => (
+                {orderedRoles.map((role: ProposalRole) => (
                   <tr key={role.id} className="border-b last:border-b-0 hover:bg-muted/20">
                     <td className="px-4 py-2">
                       {isPt ? role.label_pt : role.label_en}
