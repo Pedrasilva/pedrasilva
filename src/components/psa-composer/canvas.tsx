@@ -51,7 +51,9 @@ const INLINE_EDITABLE_TYPES: PsaBlockType[] = [
   "general",
   "suspension",
   "exclusions",
+  "acceptance",
 ];
+
 
 const NON_NUMBERED: PsaBlockType[] = ["cover", "index", "acceptance", "page_break"];
 

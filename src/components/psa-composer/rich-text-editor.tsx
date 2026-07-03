@@ -356,8 +356,10 @@ function Toolbar({
             <DropdownMenuItem
               key={f.label}
               onSelect={() => {
-                if (!f.value) editor.chain().focus().unsetFontFamily().run();
-                else editor.chain().focus().setFontFamily(f.value).run();
+                const chain = editor.chain().focus();
+                if (editor.state.selection.empty) chain.selectAll();
+                if (!f.value) chain.unsetFontFamily().run();
+                else chain.setFontFamily(f.value).run();
               }}
               className="text-xs"
               style={f.value ? { fontFamily: f.value } : undefined}
@@ -386,7 +388,9 @@ function Toolbar({
           </DropdownMenuLabel>
           <DropdownMenuItem
             onSelect={() => {
-              (editor.chain().focus() as unknown as { setFontSize: (v: string | null) => { run: () => void } })
+              const chain = editor.chain().focus();
+              if (editor.state.selection.empty) chain.selectAll();
+              (chain as unknown as { setFontSize: (v: string | null) => { run: () => void } })
                 .setFontSize(null)
                 .run();
             }}
@@ -398,7 +402,9 @@ function Toolbar({
             <DropdownMenuItem
               key={s.value}
               onSelect={() => {
-                (editor.chain().focus() as unknown as { setFontSize: (v: string | null) => { run: () => void } })
+                const chain = editor.chain().focus();
+                if (editor.state.selection.empty) chain.selectAll();
+                (chain as unknown as { setFontSize: (v: string | null) => { run: () => void } })
                   .setFontSize(s.value)
                   .run();
               }}
@@ -408,6 +414,7 @@ function Toolbar({
               {s.label}
             </DropdownMenuItem>
           ))}
+
         </DropdownMenuContent>
       </DropdownMenu>
       <div className="mx-1 h-4 w-px bg-zinc-300" />
