@@ -6,6 +6,8 @@
  * the whole proposal. Values are stored as JSON in psa_proposals.style_settings
  * and applied to .proposal-print-document via CSS variables on the canvas.
  */
+import { useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
