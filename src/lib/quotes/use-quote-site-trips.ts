@@ -31,6 +31,10 @@ export interface QuoteSiteTrip {
   /** Optional override (in months) for the construction period. When set and
    *  frequency_mode = "per_month", this replaces the stage's date-derived duration. */
   duration_months_override: number | null;
+  /** How resources should be referenced in the generated proposal.
+   *  "role" (default) → billable role (proposal_role / billing_role / role).
+   *  "name" → collaborator name. */
+  display_mode: "name" | "role";
   notes: string | null;
   sort_order: number;
   created_at: string;
