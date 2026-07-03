@@ -22,7 +22,9 @@ export interface QuoteSiteTrip {
   resource_id: string | null;
   /** Multi-resource list. When non-empty, drives the per-trip hourly rate. */
   resource_ids: string[];
-  /** Manual €/h override — used when no resources are selected. */
+  /** Per-resource €/h override map (resource_id → hourly rate). Empty/0 = use resource default. */
+  resource_hourly_rates: Record<string, number>;
+  /** Manual €/h override — replaces the resource sum when > 0. */
   resource_hourly_rate: number;
   frequency_mode: QuoteSiteTripFrequencyMode;
   frequency_value: number;
