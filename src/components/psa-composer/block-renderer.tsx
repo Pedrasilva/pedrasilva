@@ -357,8 +357,18 @@ export function BlockBody({
             <ol className="space-y-1 text-sm text-zinc-800 list-none ml-0">
               {toc.map((e) => (
                 <li key={e.chapter} className="flex items-baseline gap-2">
-                  <span className="font-medium tabular-nums w-6">{e.chapter}.</span>
-                  <span className="flex-1">{e.title}</span>
+                  <a
+                    href={`#chapter-${e.chapter}`}
+                    onClick={(ev) => {
+                      ev.preventDefault();
+                      const el = document.getElementById(`chapter-${e.chapter}`);
+                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                    className="flex flex-1 items-baseline gap-2 hover:text-blue-600 hover:underline print:text-inherit print:no-underline"
+                  >
+                    <span className="font-medium tabular-nums w-6">{e.chapter}.</span>
+                    <span className="flex-1">{e.title}</span>
+                  </a>
                 </li>
               ))}
             </ol>
