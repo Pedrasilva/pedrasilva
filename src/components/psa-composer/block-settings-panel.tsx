@@ -807,7 +807,7 @@ export function BlockSettingsPanel({
               <Select
                 value={
                   (block.content_rich?.page_orientation as string | undefined) ??
-                  "a3-landscape"
+                  "auto"
                 }
                 onValueChange={(v) =>
                   update.mutate({
@@ -825,6 +825,7 @@ export function BlockSettingsPanel({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="auto">Automático</SelectItem>
                   <SelectItem value="portrait">A4 Retrato</SelectItem>
                   <SelectItem value="a3-landscape">A3 Paisagem</SelectItem>
                 </SelectContent>
