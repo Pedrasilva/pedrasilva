@@ -17,12 +17,17 @@ import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { FontFamily } from "@tiptap/extension-font-family";
 import {
   Bold,
   Italic,
   Underline as UnderlineIcon,
+  Heading1,
   Heading2,
   Heading3,
+  Pilcrow,
+  Type,
   List,
   ListOrdered,
   Link2,
@@ -31,6 +36,7 @@ import {
   IndentIncrease,
   IndentDecrease,
   AlignJustify,
+  ChevronDown,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -43,6 +49,64 @@ import {
 import type { TokenCatalogEntry } from "@/lib/psa-proposal/tokens";
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+
+/**
+ * Custom FontSize mark stored on TextStyle. Renders as inline `font-size`.
+ */
+const FontSize = Extension.create({
+  name: "psaFontSize",
+  addOptions() {
+    return { types: ["textStyle"] as string[] };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: (element: HTMLElement) => element.style.fontSize || null,
+            renderHTML: (attributes: { fontSize?: string | null }) => {
+              if (!attributes.fontSize) return {};
+              return { style: `font-size: ${attributes.fontSize}` };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setFontSize:
+        (size: string | null) =>
+        ({ chain }: { chain: () => ReturnType<Editor["chain"]> }) => {
+          if (!size) {
+            return chain().setMark("textStyle", { fontSize: null }).removeEmptyTextStyle().run();
+          }
+          return chain().setMark("textStyle", { fontSize: size }).run();
+        },
+    } as never;
+  },
+});
+
+const FONT_FAMILIES: { label: string; value: string }[] = [
+  { label: "Padrão", value: "" },
+  { label: "Sans (Inter)", value: "Inter, system-ui, sans-serif" },
+  { label: "Serif (Georgia)", value: "Georgia, 'Times New Roman', serif" },
+  { label: "Mono (JetBrains)", value: "'JetBrains Mono', ui-monospace, monospace" },
+  { label: "Signifier", value: "'Signifier', Georgia, serif" },
+  { label: "The Future", value: "'The Future', Inter, sans-serif" },
+];
+
+const FONT_SIZES: { label: string; value: string }[] = [
+  { label: "Pequeno (12)", value: "12px" },
+  { label: "Normal (14)", value: "14px" },
+  { label: "Médio (16)", value: "16px" },
+  { label: "Grande (18)", value: "18px" },
+  { label: "Título 3 (20)", value: "20px" },
+  { label: "Título 2 (24)", value: "24px" },
+  { label: "Título 1 (32)", value: "32px" },
+];
 
 /**
  * Paragraph / heading indent extension. Adds a numeric `indent` attribute
@@ -217,20 +281,135 @@ function Toolbar({
         <UnderlineIcon className="h-3.5 w-3.5" />
       </ToolbarButton>
       <div className="mx-1 h-4 w-px bg-zinc-300" />
-      <ToolbarButton
-        title="Título"
-        active={editor.isActive("heading", { level: 2 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-      >
-        <Heading2 className="h-3.5 w-3.5" />
-      </ToolbarButton>
-      <ToolbarButton
-        title="Subtítulo"
-        active={editor.isActive("heading", { level: 3 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-      >
-        <Heading3 className="h-3.5 w-3.5" />
-      </ToolbarButton>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            title="Estilo de parágrafo"
+            onMouseDown={(e) => e.preventDefault()}
+            className="flex items-center gap-1 rounded px-1.5 py-1 text-[11px] text-zinc-600 hover:bg-zinc-200"
+          >
+            <Pilcrow className="h-3.5 w-3.5" />
+            <span>
+              {editor.isActive("heading", { level: 1 })
+                ? "Título 1"
+                : editor.isActive("heading", { level: 2 })
+                ? "Título 2"
+                : editor.isActive("heading", { level: 3 })
+                ? "Título 3"
+                : "Corpo"}
+            </span>
+            <ChevronDown className="h-3 w-3" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-44">
+          <DropdownMenuItem
+            onSelect={() => editor.chain().focus().setParagraph().run()}
+            className="text-sm"
+          >
+            <Pilcrow className="mr-2 h-3.5 w-3.5" /> Corpo
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() =>
+              editor.chain().focus().toggleHeading({ level: 1 }).run()
+            }
+            className="text-base font-bold"
+          >
+            <Heading1 className="mr-2 h-4 w-4" /> Título 1
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() =>
+              editor.chain().focus().toggleHeading({ level: 2 }).run()
+            }
+            className="text-sm font-semibold"
+          >
+            <Heading2 className="mr-2 h-4 w-4" /> Título 2
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() =>
+              editor.chain().focus().toggleHeading({ level: 3 }).run()
+            }
+            className="text-sm font-medium"
+          >
+            <Heading3 className="mr-2 h-4 w-4" /> Título 3
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            title="Tipo de letra"
+            onMouseDown={(e) => e.preventDefault()}
+            className="flex items-center gap-1 rounded px-1.5 py-1 text-[11px] text-zinc-600 hover:bg-zinc-200"
+          >
+            <Type className="h-3.5 w-3.5" />
+            <ChevronDown className="h-3 w-3" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-52">
+          <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-zinc-500">
+            Tipo de letra
+          </DropdownMenuLabel>
+          {FONT_FAMILIES.map((f) => (
+            <DropdownMenuItem
+              key={f.label}
+              onSelect={() => {
+                if (!f.value) editor.chain().focus().unsetFontFamily().run();
+                else editor.chain().focus().setFontFamily(f.value).run();
+              }}
+              className="text-xs"
+              style={f.value ? { fontFamily: f.value } : undefined}
+            >
+              {f.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            title="Tamanho"
+            onMouseDown={(e) => e.preventDefault()}
+            className="flex items-center gap-1 rounded px-1.5 py-1 text-[11px] text-zinc-600 hover:bg-zinc-200"
+          >
+            <span className="font-semibold">A</span>
+            <ChevronDown className="h-3 w-3" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-44">
+          <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-zinc-500">
+            Tamanho
+          </DropdownMenuLabel>
+          <DropdownMenuItem
+            onSelect={() => {
+              (editor.chain().focus() as unknown as { setFontSize: (v: string | null) => { run: () => void } })
+                .setFontSize(null)
+                .run();
+            }}
+            className="text-xs"
+          >
+            Padrão
+          </DropdownMenuItem>
+          {FONT_SIZES.map((s) => (
+            <DropdownMenuItem
+              key={s.value}
+              onSelect={() => {
+                (editor.chain().focus() as unknown as { setFontSize: (v: string | null) => { run: () => void } })
+                  .setFontSize(s.value)
+                  .run();
+              }}
+              className="text-xs"
+              style={{ fontSize: s.value }}
+            >
+              {s.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
       <div className="mx-1 h-4 w-px bg-zinc-300" />
       <ToolbarButton
         title="Lista"
@@ -454,6 +633,9 @@ export function RichTextEditor({
       StarterKit,
       Underline,
       Indent,
+      TextStyle,
+      FontFamily.configure({ types: ["textStyle"] }),
+      FontSize,
       Link.configure({ openOnClick: false, autolink: true }),
       Table.configure({ resizable: false }),
       TableRow,
