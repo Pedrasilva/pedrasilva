@@ -4,11 +4,15 @@
  * if none, creates one (seeded with the canonical block library) and then
  * mounts <ComposerShell />.
  */
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ComposerShell } from "@/components/psa-composer/composer-shell";
-import { useCreateProposal } from "@/lib/psa-proposal/use-psa-proposal";
+import {
+  useCreateProposal,
+  useProposal,
+  useUpdateProposal,
+} from "@/lib/psa-proposal/use-psa-proposal";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sb = supabase as any;
@@ -54,14 +58,45 @@ export function QuoteProposalComposerEmbed({
 
   const ready = useMemo(() => !!proposalId, [proposalId]);
 
-  if (!ready) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center text-sm text-muted-foreground">
-        A preparar o construtor de proposta…
-      </div>
-    );
-  }
+  return ready ? (
+    <ProposalTitleSync
+      proposalId={proposalId!}
+      quoteTitle={quoteTitle ?? null}
+    />
+  ) : (
+    <div className="flex h-[60vh] items-center justify-center text-sm text-muted-foreground">
+      A preparar o construtor de proposta…
+    </div>
+  );
+}
 
-  // ComposerShell uses h-[calc(100vh-3.5rem)] which is fine inside the tab.
-  return <ComposerShell proposalId={proposalId!} />;
+/**
+ * Keeps the proposal title mirrored to the parent quote title while the
+ * proposal is still editable. Once the proposal is sent/locked the title
+ * is frozen with the sent snapshot and no longer overwritten.
+ */
+function ProposalTitleSync({
+  proposalId,
+  quoteTitle,
+}: {
+  proposalId: string;
+  quoteTitle: string | null;
+}) {
+  const proposal = useProposal(proposalId);
+  const update = useUpdateProposal(proposalId);
+  const lastSynced = useRef<string | null>(null);
+
+  useEffect(() => {
+    const p = proposal.data;
+    if (!p) return;
+    if (p.locked_at || p.status === "sent") return;
+    const target = (quoteTitle ?? "").trim();
+    if (!target) return;
+    if (p.title === target) return;
+    if (lastSynced.current === target) return;
+    lastSynced.current = target;
+    update.mutate({ title: target });
+  }, [proposal.data, quoteTitle, update]);
+
+  return <ComposerShell proposalId={proposalId} />;
 }
