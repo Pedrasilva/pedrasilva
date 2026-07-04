@@ -987,9 +987,8 @@ function QuoteDetail() {
           {visibleTabs.includes("financial") && (
             <TabsTrigger value="financial">{t("workspace.tabs.financial")}</TabsTrigger>
           )}
-          {visibleTabs.includes("proposal") && (
-            <TabsTrigger value="proposal">{t("workspace.tabs.proposal")}</TabsTrigger>
-          )}
+          {/* Proposal tab trigger hidden — content step renders the proposal
+              builder directly without a redundant tab. */}
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
