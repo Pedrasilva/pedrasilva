@@ -30,14 +30,32 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
     );
   }
 
+  const isLocked = !!proposal.data.locked_at;
+
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
       <ComposerTopBar proposal={proposal.data} blocks={items} />
-      <div className="flex min-h-0 flex-1 overflow-hidden print:block">
-        <div className="print:hidden">
-          <BlockLibraryPanel proposalId={proposalId} blocks={items} quoteIdHint={proposal.data.quote_id} selectedId={selectedId} onInserted={setSelectedId} />
+      {isLocked && (
+        <div className="border-b border-amber-300 bg-amber-50 px-4 py-2 text-xs text-amber-900 print:hidden">
+          Proposta bloqueada
+          {proposal.data.outcome === "won"
+            ? " (Ganha)"
+            : proposal.data.outcome === "lost"
+              ? " (Perdida)"
+              : ""}
+          . O conteúdo dos blocos está protegido; podes continuar a
+          descarregar as revisões enviadas em qualquer altura.
         </div>
-        <div className="min-h-0 flex-1 overflow-auto bg-zinc-100 print:overflow-visible print:bg-white">
+      )}
+      <div className="flex min-h-0 flex-1 overflow-hidden print:block">
+        {!isLocked && (
+          <div className="print:hidden">
+            <BlockLibraryPanel proposalId={proposalId} blocks={items} quoteIdHint={proposal.data.quote_id} selectedId={selectedId} onInserted={setSelectedId} />
+          </div>
+        )}
+        <div
+          className={`min-h-0 flex-1 overflow-auto bg-zinc-100 print:overflow-visible print:bg-white ${isLocked ? "pointer-events-none select-none opacity-95" : ""}`}
+        >
           <ComposerCanvas
             proposalId={proposalId}
             blocks={items}
@@ -49,15 +67,18 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
             onReorder={(next) => reorder.mutate(next)}
           />
         </div>
-        <div className="print:hidden">
-          <BlockSettingsPanel
-            proposalId={proposalId}
-            proposal={proposal.data}
-            quoteIdHint={proposal.data.quote_id}
-            block={selected}
-          />
-        </div>
+        {!isLocked && (
+          <div className="print:hidden">
+            <BlockSettingsPanel
+              proposalId={proposalId}
+              proposal={proposal.data}
+              quoteIdHint={proposal.data.quote_id}
+              block={selected}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
 }
+

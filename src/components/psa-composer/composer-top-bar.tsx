@@ -4,10 +4,22 @@
  * would migrate to the future Contract Composer.
  */
 import { useState } from "react";
-import { FileDown, Printer, FileSignature, Settings, FileText, ChevronDown } from "lucide-react";
+import {
+  FileDown,
+  Printer,
+  FileSignature,
+  Settings,
+  FileText,
+  ChevronDown,
+  Send,
+  Trophy,
+  XCircle,
+  Lock,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -28,6 +40,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useUpdateProposal } from "@/lib/psa-proposal/use-psa-proposal";
 import type {
   PsaProposal,
@@ -37,8 +60,15 @@ import type {
 import { ConvertToContractDialog } from "./convert-to-contract-dialog";
 import { ProposalHistoryDialog } from "./proposal-history-dialog";
 import { ProposalStylePanel } from "./proposal-style-panel";
+import { SendProposalDialog } from "./send-proposal-dialog";
+import { VersionsPanel } from "./versions-panel";
+import {
+  useNextRevNumber,
+  useSetProposalOutcome,
+} from "@/lib/psa-proposal/use-proposal-revisions";
 import { useAutoSnapshotTrigger } from "@/lib/psa-proposal/use-proposal-history";
 import { useEffect } from "react";
+
 
 const STATUSES: PsaProposalStatus[] = [
   "draft",
@@ -58,13 +88,17 @@ export function ComposerTopBar({
 }) {
   const update = useUpdateProposal(proposal.id);
   const [convertOpen, setConvertOpen] = useState(false);
+  const [sendOpen, setSendOpen] = useState(false);
   const autoSnap = useAutoSnapshotTrigger(proposal.id);
+  const { nextRev } = useNextRevNumber(proposal.id);
+  const setOutcome = useSetProposalOutcome(proposal.id);
+  const isLocked = !!proposal.locked_at;
 
   // Throttled auto-snapshot whenever the proposal or its blocks change.
-  // The hook itself caps frequency to ~1 per 5 min via localStorage.
   useEffect(() => {
+    if (isLocked) return;
     autoSnap();
-  }, [proposal.updated_at, blocks.length, autoSnap]);
+  }, [proposal.updated_at, blocks.length, autoSnap, isLocked]);
 
   return (
     <div className="flex items-center gap-2 border-b bg-background px-3 py-2 print:hidden">
@@ -72,10 +106,12 @@ export function ComposerTopBar({
         value={proposal.title}
         onChange={(e) => update.mutate({ title: e.target.value })}
         className="h-8 max-w-md font-medium"
+        disabled={isLocked}
       />
       <Select
         value={proposal.status}
         onValueChange={(v) => update.mutate({ status: v as PsaProposalStatus })}
+        disabled={isLocked}
       >
         <SelectTrigger className="h-8 w-32">
           <SelectValue />
@@ -88,7 +124,27 @@ export function ComposerTopBar({
           ))}
         </SelectContent>
       </Select>
+      {isLocked && (
+        <Badge
+          variant="outline"
+          className={
+            proposal.outcome === "won"
+              ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+              : proposal.outcome === "lost"
+                ? "border-rose-300 bg-rose-50 text-rose-800"
+                : "border-zinc-300 bg-zinc-50 text-zinc-700"
+          }
+        >
+          <Lock className="mr-1 h-3 w-3" />
+          {proposal.outcome === "won"
+            ? "Ganha"
+            : proposal.outcome === "lost"
+              ? "Perdida"
+              : "Bloqueada"}
+        </Badge>
+      )}
       <div className="ml-auto flex items-center gap-2">
+        <VersionsPanel proposal={proposal} />
         <ProposalHistoryDialog proposalId={proposal.id} />
         <Sheet>
           <SheetTrigger asChild>
@@ -122,7 +178,7 @@ export function ComposerTopBar({
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button size="sm">
+            <Button variant="outline" size="sm">
               <FileDown className="mr-1 h-3.5 w-3.5" /> Descarregar
               <ChevronDown className="ml-1 h-3.5 w-3.5" />
             </Button>
@@ -141,13 +197,97 @@ export function ComposerTopBar({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        {!isLocked && (
+          <>
+            <Button size="sm" onClick={() => setSendOpen(true)}>
+              <Send className="mr-1 h-3.5 w-3.5" /> Enviar Proposta
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-emerald-300 text-emerald-800 hover:bg-emerald-50"
+                  title="Marcar como Ganha e bloquear a proposta"
+                >
+                  <Trophy className="mr-1 h-3.5 w-3.5" /> Ganha
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Marcar proposta como Ganha?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    A proposta fica bloqueada — não será possível editar
+                    conteúdo, mas as revisões enviadas continuam acessíveis.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() =>
+                      setOutcome.mutate("won", {
+                        onSuccess: () => toast.success("Proposta marcada como Ganha."),
+                        onError: (e) =>
+                          toast.error(e instanceof Error ? e.message : "Erro"),
+                      })
+                    }
+                  >
+                    Confirmar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-rose-300 text-rose-800 hover:bg-rose-50"
+                  title="Marcar como Perdida e bloquear a proposta"
+                >
+                  <XCircle className="mr-1 h-3.5 w-3.5" /> Perdida
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Marcar proposta como Perdida?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    A proposta fica bloqueada — não será possível editar
+                    conteúdo, mas as revisões enviadas continuam acessíveis.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() =>
+                      setOutcome.mutate("lost", {
+                        onSuccess: () => toast.success("Proposta marcada como Perdida."),
+                        onError: (e) =>
+                          toast.error(e instanceof Error ? e.message : "Erro"),
+                      })
+                    }
+                  >
+                    Confirmar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        )}
       </div>
       <ConvertToContractDialog
         open={convertOpen}
         onOpenChange={setConvertOpen}
         blocks={blocks}
       />
+      <SendProposalDialog
+        open={sendOpen}
+        onOpenChange={setSendOpen}
+        proposal={proposal}
+        nextRev={nextRev}
+      />
     </div>
+
   );
 }
 

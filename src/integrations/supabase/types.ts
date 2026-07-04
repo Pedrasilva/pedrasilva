@@ -6603,27 +6603,42 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          kind: string
           label: string | null
+          pdf_filename: string | null
+          pdf_mime: string | null
+          pdf_storage_path: string | null
           proposal_id: string
           reason: string | null
+          rev_number: number | null
           snapshot: Json
         }
         Insert: {
           created_at?: string
           created_by?: string | null
           id?: string
+          kind?: string
           label?: string | null
+          pdf_filename?: string | null
+          pdf_mime?: string | null
+          pdf_storage_path?: string | null
           proposal_id: string
           reason?: string | null
+          rev_number?: number | null
           snapshot: Json
         }
         Update: {
           created_at?: string
           created_by?: string | null
           id?: string
+          kind?: string
           label?: string | null
+          pdf_filename?: string | null
+          pdf_mime?: string | null
+          pdf_storage_path?: string | null
           proposal_id?: string
           reason?: string | null
+          rev_number?: number | null
           snapshot?: Json
         }
         Relationships: [
@@ -6643,6 +6658,8 @@ export type Database = {
           created_by: string | null
           id: string
           language: string
+          locked_at: string | null
+          outcome: string | null
           project_snapshot: Json
           quote_id: string | null
           sent_at: string | null
@@ -6658,6 +6675,8 @@ export type Database = {
           created_by?: string | null
           id?: string
           language?: string
+          locked_at?: string | null
+          outcome?: string | null
           project_snapshot?: Json
           quote_id?: string | null
           sent_at?: string | null
@@ -6673,6 +6692,8 @@ export type Database = {
           created_by?: string | null
           id?: string
           language?: string
+          locked_at?: string | null
+          outcome?: string | null
           project_snapshot?: Json
           quote_id?: string | null
           sent_at?: string | null
