@@ -952,7 +952,7 @@ function QuoteDetail() {
         onValueChange={setActiveTab}
         className={cn("w-full", step === "publish" && "hidden")}
       >
-        <TabsList className="no-print">
+        <TabsList className={cn("no-print", step === "content" && "hidden")}>
           {visibleTabs.includes("overview") && (
             <TabsTrigger value="overview">{t("workspace.tabs.overview")}</TabsTrigger>
           )}
@@ -1198,7 +1198,7 @@ function QuoteDetail() {
         <TabsContent value="financial" className="mt-4">
           <QuoteFinancialSummaryTab quoteId={quoteId} pricingMultiplier={pricingMultiplier} />
         </TabsContent>
-        <TabsContent value="proposal" className="mt-4">
+        <TabsContent value="proposal" className={cn(step === "content" ? "mt-0" : "mt-4")}>
           <QuoteProposalComposerEmbed
             quoteId={quoteId}
             quoteTitle={form.titulo || quote.titulo}
