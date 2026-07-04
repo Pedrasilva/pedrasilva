@@ -350,11 +350,11 @@
     "stepper": {
       "ariaLabel": "Passos do fluxo da proposta",
       "estimate": {
-        "title": "1 · Estimativa",
+        "title": "1 · Ferramentas de estimativa",
         "hint": "Planeamento, externos, pagamento e financeiro"
       },
       "content": {
-        "title": "2 · Conteúdo",
+        "title": "2 · Construtor da proposta",
         "hint": "Editar o documento da proposta"
       },
       "publish": {
