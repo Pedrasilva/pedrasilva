@@ -4,10 +4,22 @@
  * would migrate to the future Contract Composer.
  */
 import { useState } from "react";
-import { FileDown, Printer, FileSignature, Settings, FileText, ChevronDown } from "lucide-react";
+import {
+  FileDown,
+  Printer,
+  FileSignature,
+  Settings,
+  FileText,
+  ChevronDown,
+  Send,
+  Trophy,
+  XCircle,
+  Lock,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -28,6 +40,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useUpdateProposal } from "@/lib/psa-proposal/use-psa-proposal";
 import type {
   PsaProposal,
@@ -37,8 +60,15 @@ import type {
 import { ConvertToContractDialog } from "./convert-to-contract-dialog";
 import { ProposalHistoryDialog } from "./proposal-history-dialog";
 import { ProposalStylePanel } from "./proposal-style-panel";
+import { SendProposalDialog } from "./send-proposal-dialog";
+import { VersionsPanel } from "./versions-panel";
+import {
+  useNextRevNumber,
+  useSetProposalOutcome,
+} from "@/lib/psa-proposal/use-proposal-revisions";
 import { useAutoSnapshotTrigger } from "@/lib/psa-proposal/use-proposal-history";
 import { useEffect } from "react";
+
 
 const STATUSES: PsaProposalStatus[] = [
   "draft",
