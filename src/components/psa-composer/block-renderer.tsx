@@ -1616,6 +1616,9 @@ export function BlockBody({
     }
 
     case "appendix_payment_schedule": {
+      const enabledA =
+        (block.content_rich as { enabled?: boolean } | undefined)?.enabled ?? true;
+      if (!enabledA) return null;
       const letter =
         (block.content_rich as { appendix_letter?: string } | undefined)
           ?.appendix_letter || "A";
