@@ -499,7 +499,8 @@ export function BlockBody({
       );
 
       return (
-        <div className="proposal-avoid-break">
+        <div>
+
           <H>{num}{stage.code ? `${stage.code} — ` : ""}{stage.name}</H>
           {stage.description && <P>{stage.description}</P>}
           {richHas && <div className="mb-4">{rich}</div>}
