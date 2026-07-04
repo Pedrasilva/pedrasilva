@@ -198,8 +198,14 @@ export function ComposerTopBar({
         >
           <FileSignature className="mr-1 h-3.5 w-3.5" /> Converter para Contrato
         </Button>
-        <Button variant="outline" size="sm" onClick={() => printWithFilename(proposal)}>
-          <Printer className="mr-1 h-3.5 w-3.5" /> Pré-visualizar
+        <Button
+          variant={previewMode ? "default" : "outline"}
+          size="sm"
+          onClick={() => onTogglePreview?.()}
+          title="Pré-visualizar a proposta como será impressa"
+        >
+          <Printer className="mr-1 h-3.5 w-3.5" />
+          {previewMode ? "Sair pré-visualização" : "Pré-visualizar"}
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
