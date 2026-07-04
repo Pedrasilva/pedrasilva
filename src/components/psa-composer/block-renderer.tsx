@@ -751,7 +751,8 @@ export function BlockBody({
       );
 
       return (
-        <div className="proposal-avoid-break">
+        <div>
+
           <H>{num}{block.title}</H>
           <div className="mb-2 text-xs text-zinc-500">
             {parent.code ? `${parent.code} — ` : ""}{parent.name} ·{" "}
