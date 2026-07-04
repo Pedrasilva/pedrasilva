@@ -952,7 +952,7 @@ function QuoteDetail() {
         onValueChange={setActiveTab}
         className={cn("w-full", step === "publish" && "hidden")}
       >
-        <TabsList className="no-print">
+        <TabsList className={cn("no-print", step === "content" && "hidden")}>
           {visibleTabs.includes("overview") && (
             <TabsTrigger value="overview">{t("workspace.tabs.overview")}</TabsTrigger>
           )}
