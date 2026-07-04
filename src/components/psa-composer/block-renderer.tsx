@@ -1603,12 +1603,22 @@ export function BlockBody({
                     ?.appendix_letter || letters[i] || String(i + 1);
                 return (
                   <li key={ap.id} className="flex items-baseline justify-between py-3">
-                    <div className="flex items-baseline gap-4">
+                    <a
+                      href={`#proposal-block-${ap.id}`}
+                      onClick={(ev) => {
+                        if (typeof window !== "undefined" && !window.matchMedia("print").matches) {
+                          ev.preventDefault();
+                          const el = document.querySelector(`[data-proposal-block-id="${ap.id}"]`);
+                          if (el) (el as HTMLElement).scrollIntoView({ behavior: "smooth", block: "start" });
+                        }
+                      }}
+                      className="proposal-toc-link flex flex-1 items-baseline gap-4 hover:text-blue-600 hover:underline print:text-inherit"
+                    >
                       <div className="w-24 text-xs uppercase tracking-widest text-zinc-500">
                         {L.appendix} {letter}
                       </div>
                       <div className="text-sm text-zinc-900">{ap.title}</div>
-                    </div>
+                    </a>
                   </li>
                 );
               })}
