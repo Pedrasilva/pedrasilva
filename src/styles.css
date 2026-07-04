@@ -1112,6 +1112,7 @@
    (e.g.) the bottom-left of the page. */
 .proposal-print-document .proposal-print-block[data-page-aligned="true"] {
   display: flex;
+  flex-direction: column;
   width: 100%;
   min-height: calc(var(--psa-page-h) - var(--psa-margin-top) - var(--psa-margin-bottom));
   page-break-before: always;
@@ -1119,25 +1120,23 @@
   page-break-after: always;
   break-after: page;
 }
-.proposal-print-block[data-page-align-y="top"]    { align-items: flex-start; }
-.proposal-print-block[data-page-align-y="middle"] { align-items: center; }
-.proposal-print-block[data-page-align-y="bottom"] { align-items: flex-end; }
-.proposal-print-block[data-page-align-x="left"]   { justify-content: flex-start; }
-.proposal-print-block[data-page-align-x="center"] { justify-content: center; }
-.proposal-print-block[data-page-align-x="right"]  { justify-content: flex-end; }
-.proposal-print-block[data-page-aligned="true"] > * {
-  width: 100%;
-  max-width: 100%;
+/* In column flex: main axis = vertical (justify-content),
+   cross axis = horizontal (align-items). */
+.proposal-print-block[data-page-align-y="top"]    { justify-content: flex-start; }
+.proposal-print-block[data-page-align-y="middle"] { justify-content: center; }
+.proposal-print-block[data-page-align-y="bottom"] { justify-content: flex-end; }
+.proposal-print-block[data-page-align-x="left"]   { align-items: flex-start; }
+.proposal-print-block[data-page-align-x="center"] { align-items: center; }
+.proposal-print-block[data-page-align-x="right"]  { align-items: flex-end; }
+/* Let the content child size to fit so cross-axis alignment works;
+   the zero-size .proposal-anchor sibling stays out of the way. */
+.proposal-print-block[data-page-aligned="true"] > .proposal-anchor {
+  flex: 0 0 0;
 }
-/* When horizontally anchored, let the child shrink so justify-content works. */
-.proposal-print-block[data-page-align-x="left"] > *,
-.proposal-print-block[data-page-align-x="right"] > * {
-  width: auto;
-  max-width: 100%;
-}
-.proposal-print-block[data-page-align-x="left"]   > * { text-align: left; }
-.proposal-print-block[data-page-align-x="center"] > * { text-align: center; }
-.proposal-print-block[data-page-align-x="right"]  > * { text-align: right; }
+.proposal-print-block[data-page-align-x="left"]   > *:not(.proposal-anchor) { text-align: left; }
+.proposal-print-block[data-page-align-x="center"] > *:not(.proposal-anchor) { text-align: center; }
+.proposal-print-block[data-page-align-x="right"]  > *:not(.proposal-anchor) { text-align: right; }
+.proposal-print-block[data-page-align-x="center"] > *:not(.proposal-anchor) { max-width: 100%; }
 
 /* Invisible in-flow anchor to keep TOC / appendix-index PDF hyperlinks
    resolving to the top of each block on print export. */
