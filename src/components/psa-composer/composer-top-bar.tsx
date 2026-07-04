@@ -117,7 +117,7 @@ export function ComposerTopBar({
         >
           <FileSignature className="mr-1 h-3.5 w-3.5" /> Converter para Contrato
         </Button>
-        <Button variant="outline" size="sm" onClick={() => window.print()}>
+        <Button variant="outline" size="sm" onClick={() => printWithFilename(proposal)}>
           <Printer className="mr-1 h-3.5 w-3.5" /> Pré-visualizar
         </Button>
         <DropdownMenu>
@@ -130,13 +130,13 @@ export function ComposerTopBar({
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => {
-                window.print();
+                printWithFilename(proposal);
                 toast.message("Use 'Guardar como PDF' no diálogo de impressão.");
               }}
             >
               <FileDown className="mr-2 h-3.5 w-3.5" /> PDF
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => downloadAsWord(proposal.title)}>
+            <DropdownMenuItem onClick={() => downloadAsWord(buildProposalFilename(proposal))}>
               <FileText className="mr-2 h-3.5 w-3.5" /> Word (.doc)
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -151,6 +151,41 @@ export function ComposerTopBar({
   );
 }
 
+/**
+ * Build the canonical proposal filename:
+ *   "{project name} {YYMMDD} proposal rev {NN}"
+ * e.g. "2626 Hotel Alqueva 260703 proposal rev 00".
+ * Revision is read from proposal.project_snapshot.rev (numeric) and
+ * defaults to 0.
+ */
+function buildProposalFilename(proposal: PsaProposal): string {
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(-2);
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  const dateStr = `${yy}${mm}${dd}`;
+  const snap = (proposal.project_snapshot ?? {}) as Record<string, unknown>;
+  const revRaw = snap.rev ?? snap.revision;
+  const revNum = Number.isFinite(Number(revRaw)) ? Number(revRaw) : 0;
+  const rev = String(Math.max(0, Math.trunc(revNum))).padStart(2, "0");
+  const name = (proposal.title || "proposta").trim();
+  return `${name} ${dateStr} proposal rev ${rev}`;
+}
+
+function printWithFilename(proposal: PsaProposal) {
+  const filename = buildProposalFilename(proposal);
+  const original = document.title;
+  document.title = filename;
+  const restore = () => {
+    document.title = original;
+    window.removeEventListener("afterprint", restore);
+  };
+  window.addEventListener("afterprint", restore);
+  window.print();
+  // Fallback in case afterprint doesn't fire.
+  setTimeout(restore, 2000);
+}
+
 function downloadAsWord(title: string) {
   const container = document.querySelector(".proposal-print-document");
   if (!container) {
@@ -162,15 +197,12 @@ function downloadAsWord(title: string) {
   )
     .map((n) => n.outerHTML)
     .join("\n");
-  // Clone and strip UI-only chrome (editor toolbars, buttons, print:hidden) so
-  // the exported Word doc contains only the rendered proposal.
   const clone = container.cloneNode(true) as HTMLElement;
   clone
     .querySelectorAll(
       '[data-editor-toolbar="true"], .ProseMirror-menubar, button, [contenteditable="true"] .ProseMirror-menu, .print\\:hidden',
     )
     .forEach((n) => n.remove());
-  // Flatten contenteditable so Word doesn't render an editable region.
   clone.querySelectorAll('[contenteditable]').forEach((n) => n.removeAttribute('contenteditable'));
   const safeTitle = (title || "proposta").replace(/[^a-z0-9\-_\s]/gi, "").trim() || "proposta";
   const source = `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${safeTitle}</title>${styles}<style>@page{size:A4;margin:20mm}body{font-family:'Inter',Arial,sans-serif}</style></head><body>${clone.outerHTML}</body></html>`;
@@ -188,3 +220,4 @@ function downloadAsWord(title: string) {
   URL.revokeObjectURL(url);
   toast.success("Documento Word transferido.");
 }
+
