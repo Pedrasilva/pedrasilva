@@ -214,7 +214,17 @@ function OpportunityDetail() {
             className="text-2xl font-semibold tracking-tight"
           />
           <p className="text-sm text-muted-foreground">
-            {opp.company?.nome ?? t("opportunities.card.noCompany")}
+            {opp.company ? (
+              <Link
+                to="/crm/companies/$companyId"
+                params={{ companyId: opp.company.id }}
+                className="hover:text-foreground hover:underline"
+              >
+                {opp.company.nome}
+              </Link>
+            ) : (
+              t("opportunities.card.noCompany")
+            )}
           </p>
         </div>
         <div className="flex items-center gap-2">
