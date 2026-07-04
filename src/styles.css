@@ -963,21 +963,21 @@
   .print-area .proposal-page-header { top: var(--psa-header-top); }
   .print-area .proposal-page-footer { bottom: var(--psa-footer-bottom); }
 
-  /* Keep each composer block atomic so it never leaves a mostly-empty
-     page. If a block doesn't fit at the end of a page it moves in full to
-     the next page, closing gaps left behind by orphaned headings or trailing
-     list items. Extra-tall blocks still fall back to breaking naturally
-     because CSS break-inside is a hint, not a hard rule. */
+  /* Let content flow continuously across pages to avoid large gaps.
+     Only keep short atomic units together (individual paragraphs/list items
+     and explicit avoid-break wrappers). Blocks themselves are allowed to
+     split so a long block doesn't push a mostly-empty page. */
   .print-area .proposal-print-document p,
   .print-area .proposal-print-document li {
     page-break-inside: avoid;
     break-inside: avoid;
-    orphans: 3;
-    widows: 3;
+    orphans: 2;
+    widows: 2;
   }
   .print-area .proposal-print-document .proposal-print-block {
-    page-break-inside: avoid;
-    break-inside: avoid;
+    /* allow natural splitting to close page gaps */
+    page-break-inside: auto;
+    break-inside: auto;
   }
   .print-area .proposal-avoid-break {
     page-break-inside: avoid;
