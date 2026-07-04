@@ -2016,6 +2016,9 @@ export function BlockBody({
     }
 
     case "appendix_general_terms": {
+      const enabledC =
+        (block.content_rich as { enabled?: boolean } | undefined)?.enabled ?? true;
+      if (!enabledC) return null;
       const letterC =
         (block.content_rich as { appendix_letter?: string } | undefined)
           ?.appendix_letter || "C";
