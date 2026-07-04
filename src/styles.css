@@ -1015,8 +1015,10 @@
   .print-area .proposal-print-heading {
     page-break-after: avoid;
     break-after: avoid-page;
-    orphans: 3;
-    widows: 3;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    orphans: 2;
+    widows: 2;
     color: #111 !important;
   }
   .print-area .proposal-print-document table thead {
