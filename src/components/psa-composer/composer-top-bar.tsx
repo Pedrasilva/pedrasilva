@@ -218,7 +218,18 @@ export function ComposerTopBar({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        {!isLocked && (
+        {isSentLocked && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-sky-400 text-sky-900 hover:bg-sky-50"
+            onClick={startNewRevision}
+            title="Criar nova revisão editável (a versão enviada mantém-se intacta)"
+          >
+            <Send className="mr-1 h-3.5 w-3.5 rotate-180" /> Nova revisão
+          </Button>
+        )}
+        {!isFinalLocked && !isSentLocked && (
           <>
             <Button size="sm" onClick={() => setSendOpen(true)}>
               <Send className="mr-1 h-3.5 w-3.5" /> Enviar Proposta
