@@ -995,21 +995,28 @@ export function useLiveQuoteSnapshot(
                 ? (t.resource_hourly_rates as Record<string, unknown>)
                 : {};
             const manual = Number(t.resource_hourly_rate) || 0;
+            const resourceSum = ids.reduce(
+              (s, id) => {
+                const override = Number(resourceHourlyRates[id]) || 0;
+                return s + (override > 0 ? override : Number(resourceRateById.get(id)) || 0);
+              },
+              0,
+            );
+            const roleSum = ids.reduce((s, id) => {
+              const code = resourceRoleCodeById.get(id) ?? "";
+              return s + (saleByCode.get(code) ?? 0);
+            }, 0);
             const hourlyRate =
               billingMode === "manual"
                 ? manual
                 : billingMode === "role"
-                  ? ids.reduce((s, id) => {
-                      const code = resourceRoleCodeById.get(id) ?? "";
-                      return s + (saleByCode.get(code) ?? 0);
-                    }, 0)
-                  : ids.reduce(
-                      (s, id) => {
-                        const override = Number(resourceHourlyRates[id]) || 0;
-                        return s + (override > 0 ? override : Number(resourceRateById.get(id)) || 0);
-                      },
-                      0,
-                    );
+                  ? roleSum > 0
+                    ? roleSum
+                    : manual // legacy fallback: quotes pre-dating billingMode kept manual €/h
+                  : resourceSum > 0
+                    ? resourceSum
+                    : manual; // legacy fallback: same for default "resource" mode
+
             const km = Number(t.km) || 0;
             const ppk = Number(t.price_per_km) || 0;
             const hrs = Number(t.trip_hours) || 0;
