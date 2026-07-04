@@ -92,13 +92,26 @@ export function ComposerTopBar({
   const autoSnap = useAutoSnapshotTrigger(proposal.id);
   const { nextRev } = useNextRevNumber(proposal.id);
   const setOutcome = useSetProposalOutcome(proposal.id);
-  const isLocked = !!proposal.locked_at;
+  const isFinalLocked = !!proposal.locked_at;
+  const isSentLocked = !isFinalLocked && proposal.status === "sent";
+  const isReadOnly = isFinalLocked || isSentLocked;
+
+  const startNewRevision = () =>
+    update.mutate(
+      { status: "draft" },
+      {
+        onSuccess: () =>
+          toast.success("Nova revisão editável iniciada."),
+        onError: (e) =>
+          toast.error(e instanceof Error ? e.message : "Erro"),
+      },
+    );
 
   // Throttled auto-snapshot whenever the proposal or its blocks change.
   useEffect(() => {
-    if (isLocked) return;
+    if (isReadOnly) return;
     autoSnap();
-  }, [proposal.updated_at, blocks.length, autoSnap, isLocked]);
+  }, [proposal.updated_at, blocks.length, autoSnap, isReadOnly]);
 
   return (
     <div className="flex items-center gap-2 border-b bg-background px-3 py-2 print:hidden">
@@ -106,12 +119,12 @@ export function ComposerTopBar({
         value={proposal.title}
         onChange={(e) => update.mutate({ title: e.target.value })}
         className="h-8 max-w-md font-medium"
-        disabled={isLocked}
+        disabled={isReadOnly}
       />
       <Select
         value={proposal.status}
         onValueChange={(v) => update.mutate({ status: v as PsaProposalStatus })}
-        disabled={isLocked}
+        disabled={isReadOnly}
       >
         <SelectTrigger className="h-8 w-32">
           <SelectValue />
@@ -124,7 +137,7 @@ export function ComposerTopBar({
           ))}
         </SelectContent>
       </Select>
-      {isLocked && (
+      {isFinalLocked && (
         <Badge
           variant="outline"
           className={
@@ -141,6 +154,14 @@ export function ComposerTopBar({
             : proposal.outcome === "lost"
               ? "Perdida"
               : "Bloqueada"}
+        </Badge>
+      )}
+      {isSentLocked && (
+        <Badge
+          variant="outline"
+          className="border-sky-300 bg-sky-50 text-sky-800"
+        >
+          <Lock className="mr-1 h-3 w-3" /> Enviada
         </Badge>
       )}
       <div className="ml-auto flex items-center gap-2">
@@ -197,11 +218,24 @@ export function ComposerTopBar({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        {!isLocked && (
+        {isSentLocked && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-sky-400 text-sky-900 hover:bg-sky-50"
+            onClick={startNewRevision}
+            title="Criar nova revisão editável (a versão enviada mantém-se intacta)"
+          >
+            <Send className="mr-1 h-3.5 w-3.5 rotate-180" /> Nova revisão
+          </Button>
+        )}
+        {!isFinalLocked && (
           <>
-            <Button size="sm" onClick={() => setSendOpen(true)}>
-              <Send className="mr-1 h-3.5 w-3.5" /> Enviar Proposta
-            </Button>
+            {!isSentLocked && (
+              <Button size="sm" onClick={() => setSendOpen(true)}>
+                <Send className="mr-1 h-3.5 w-3.5" /> Enviar Proposta
+              </Button>
+            )}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
