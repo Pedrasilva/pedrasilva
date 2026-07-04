@@ -217,10 +217,19 @@ function OpportunitiesPage() {
     navigate({ to: "/crm/opportunities/$opportunityId", params: { opportunityId: oppId } });
   };
 
+  const hasSentQuote = (o: CrmOpportunity & { quotes?: QuoteRef[] }) =>
+    (o.quotes ?? []).some((q) => q.quote_status === "sent" && !q.deleted_at && !q.archived_at);
+
   const byStage = OPPORTUNITY_STAGES.map((s) => ({
     ...s,
     label: t(`stage.${s.value}`),
-    items: opps.filter((o) => o.stage === s.value),
+    items: opps.filter((o) => {
+      if (o.stage === s.value) return true;
+      // Mirror opportunities with a sent quote into the Negotiation column,
+      // in addition to their own stage column.
+      if (s.value === "negotiation" && o.stage !== "negotiation" && hasSentQuote(o)) return true;
+      return false;
+    }),
   }));
 
   return (
