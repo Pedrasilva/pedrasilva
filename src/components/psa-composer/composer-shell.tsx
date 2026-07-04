@@ -23,6 +23,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   const reorder = useReorderBlocks(proposalId);
   const update = useUpdateProposal(proposalId);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState(false);
 
   const items = useMemo(() => blocks.data ?? [], [blocks.data]);
   const selected = items.find((b) => b.id === selectedId) ?? null;
