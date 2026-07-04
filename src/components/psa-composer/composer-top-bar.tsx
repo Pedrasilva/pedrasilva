@@ -229,11 +229,13 @@ export function ComposerTopBar({
             <Send className="mr-1 h-3.5 w-3.5 rotate-180" /> Nova revisão
           </Button>
         )}
-        {!isFinalLocked && !isSentLocked && (
+        {!isFinalLocked && (
           <>
-            <Button size="sm" onClick={() => setSendOpen(true)}>
-              <Send className="mr-1 h-3.5 w-3.5" /> Enviar Proposta
-            </Button>
+            {!isSentLocked && (
+              <Button size="sm" onClick={() => setSendOpen(true)}>
+                <Send className="mr-1 h-3.5 w-3.5" /> Enviar Proposta
+              </Button>
+            )}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
