@@ -146,6 +146,8 @@ function SortableRow({
         {!block.is_visible && <EyeOff className="h-3 w-3" />}
         {block.is_locked && <Lock className="h-3 w-3" />}
       </div>
+      {/* Stable anchor for internal PDF links (used by TOC / appendix index). */}
+      <span id={`proposal-block-${block.id}`} className="proposal-anchor" aria-hidden="true" />
       <BlockBody
         block={block}
         live={live}

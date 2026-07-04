@@ -360,11 +360,16 @@ export function BlockBody({
                   <a
                     href={`#chapter-${e.chapter}`}
                     onClick={(ev) => {
-                      ev.preventDefault();
-                      const el = document.getElementById(`chapter-${e.chapter}`);
-                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                      // Only intercept in-browser navigation; keep the
+                      // anchor href intact so Chrome's Save-as-PDF preserves
+                      // it as a clickable internal link in the exported PDF.
+                      if (typeof window !== "undefined" && !window.matchMedia("print").matches) {
+                        ev.preventDefault();
+                        const el = document.getElementById(`chapter-${e.chapter}`);
+                        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }
                     }}
-                    className="flex flex-1 items-baseline gap-2 hover:text-blue-600 hover:underline print:text-inherit print:no-underline"
+                    className="proposal-toc-link flex flex-1 items-baseline gap-2 hover:text-blue-600 hover:underline print:text-inherit"
                   >
                     <span className="font-medium tabular-nums w-6">{e.chapter}.</span>
                     <span className="flex-1">{e.title}</span>
@@ -1598,12 +1603,22 @@ export function BlockBody({
                     ?.appendix_letter || letters[i] || String(i + 1);
                 return (
                   <li key={ap.id} className="flex items-baseline justify-between py-3">
-                    <div className="flex items-baseline gap-4">
+                    <a
+                      href={`#proposal-block-${ap.id}`}
+                      onClick={(ev) => {
+                        if (typeof window !== "undefined" && !window.matchMedia("print").matches) {
+                          ev.preventDefault();
+                          const el = document.querySelector(`[data-proposal-block-id="${ap.id}"]`);
+                          if (el) (el as HTMLElement).scrollIntoView({ behavior: "smooth", block: "start" });
+                        }
+                      }}
+                      className="proposal-toc-link flex flex-1 items-baseline gap-4 hover:text-blue-600 hover:underline print:text-inherit"
+                    >
                       <div className="w-24 text-xs uppercase tracking-widest text-zinc-500">
                         {L.appendix} {letter}
                       </div>
                       <div className="text-sm text-zinc-900">{ap.title}</div>
-                    </div>
+                    </a>
                   </li>
                 );
               })}
