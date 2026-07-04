@@ -1172,3 +1172,28 @@
   }
 }
 
+/* ── Proposal on-screen preview mode ──────────────────────────────────
+   Applied when the user clicks "Pré-visualizar" in the proposal builder.
+   Mirrors the print output on-screen: hides editor chrome, side panels,
+   selection borders and block metadata badges, and switches the workspace
+   background to white so the A4 sheet reads as the final document. */
+.psa-preview-mode .print\:hidden {
+  display: none !important;
+}
+.psa-preview-mode .bg-zinc-100 {
+  background-color: #ffffff !important;
+}
+.psa-preview-mode .proposal-print-block {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+}
+.psa-preview-mode .proposal-print-block:hover {
+  border-color: transparent !important;
+}
+.psa-preview-mode .proposal-print-document {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+
