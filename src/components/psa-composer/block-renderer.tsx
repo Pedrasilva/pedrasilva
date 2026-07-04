@@ -1616,6 +1616,9 @@ export function BlockBody({
     }
 
     case "appendix_payment_schedule": {
+      const enabledA =
+        (block.content_rich as { enabled?: boolean } | undefined)?.enabled ?? true;
+      if (!enabledA) return null;
       const letter =
         (block.content_rich as { appendix_letter?: string } | undefined)
           ?.appendix_letter || "A";
@@ -1691,6 +1694,9 @@ export function BlockBody({
     }
 
     case "appendix_gantt": {
+      const enabledB =
+        (block.content_rich as { enabled?: boolean } | undefined)?.enabled ?? true;
+      if (!enabledB) return null;
       const letterB =
         (block.content_rich as { appendix_letter?: string } | undefined)
           ?.appendix_letter || "B";
@@ -2010,6 +2016,9 @@ export function BlockBody({
     }
 
     case "appendix_general_terms": {
+      const enabledC =
+        (block.content_rich as { enabled?: boolean } | undefined)?.enabled ?? true;
+      if (!enabledC) return null;
       const letterC =
         (block.content_rich as { appendix_letter?: string } | undefined)
           ?.appendix_letter || "C";
