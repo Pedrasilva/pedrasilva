@@ -3,6 +3,9 @@
  * Owns the selected-block state.
  */
 import { useState, useMemo } from "react";
+import { toast } from "sonner";
+import { FilePlus2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ComposerTopBar } from "./composer-top-bar";
 import { ComposerCanvas } from "./canvas";
 import { BlockLibraryPanel } from "./block-library-panel";
@@ -11,12 +14,14 @@ import {
   useProposal,
   useProposalBlocks,
   useReorderBlocks,
+  useUpdateProposal,
 } from "@/lib/psa-proposal/use-psa-proposal";
 
 export function ComposerShell({ proposalId }: { proposalId: string }) {
   const proposal = useProposal(proposalId);
   const blocks = useProposalBlocks(proposalId);
   const reorder = useReorderBlocks(proposalId);
+  const update = useUpdateProposal(proposalId);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const items = useMemo(() => blocks.data ?? [], [blocks.data]);
@@ -30,12 +35,45 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
     );
   }
 
-  const isLocked = !!proposal.data.locked_at;
+  const isFinalLocked = !!proposal.data.locked_at; // won / lost
+  const isSentLocked = !isFinalLocked && proposal.data.status === "sent";
+  const isReadOnly = isFinalLocked || isSentLocked;
+
+  const startNewRevision = () => {
+    update.mutate(
+      { status: "draft" },
+      {
+        onSuccess: () =>
+          toast.success(
+            "Nova revisão editável — a próxima versão será registada ao enviar.",
+          ),
+        onError: (e) =>
+          toast.error(e instanceof Error ? e.message : "Erro"),
+      },
+    );
+  };
+
+  const guardEdit = () => {
+    if (isFinalLocked) {
+      toast.error("Proposta bloqueada — não é possível editar.");
+      return;
+    }
+    if (isSentLocked) {
+      toast.message("Versão enviada bloqueada.", {
+        description:
+          "Cria uma nova revisão para continuar a editar. As revisões enviadas mantêm-se intactas.",
+        action: {
+          label: "Nova revisão",
+          onClick: startNewRevision,
+        },
+      });
+    }
+  };
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
       <ComposerTopBar proposal={proposal.data} blocks={items} />
-      {isLocked && (
+      {isFinalLocked && (
         <div className="border-b border-amber-300 bg-amber-50 px-4 py-2 text-xs text-amber-900 print:hidden">
           Proposta bloqueada
           {proposal.data.outcome === "won"
@@ -47,27 +85,63 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
           descarregar as revisões enviadas em qualquer altura.
         </div>
       )}
+      {isSentLocked && (
+        <div className="flex items-center justify-between gap-3 border-b border-sky-300 bg-sky-50 px-4 py-2 text-xs text-sky-900 print:hidden">
+          <span>
+            Versão enviada bloqueada. Para alterar qualquer campo, cria uma
+            nova revisão — a versão enviada anterior mantém-se intacta no
+            histórico.
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-sky-400 bg-white text-sky-900 hover:bg-sky-100"
+            onClick={startNewRevision}
+          >
+            <FilePlus2 className="mr-1 h-3.5 w-3.5" /> Nova revisão
+          </Button>
+        </div>
+      )}
       <div className="flex min-h-0 flex-1 overflow-hidden print:block">
-        {!isLocked && (
+        {!isReadOnly && (
           <div className="print:hidden">
             <BlockLibraryPanel proposalId={proposalId} blocks={items} quoteIdHint={proposal.data.quote_id} selectedId={selectedId} onInserted={setSelectedId} />
           </div>
         )}
         <div
-          className={`min-h-0 flex-1 overflow-auto bg-zinc-100 print:overflow-visible print:bg-white ${isLocked ? "pointer-events-none select-none opacity-95" : ""}`}
+          className={`min-h-0 flex-1 overflow-auto bg-zinc-100 print:overflow-visible print:bg-white ${isReadOnly ? "relative select-none" : ""}`}
+          onClickCapture={
+            isReadOnly
+              ? (e) => {
+                  // Allow scrolling & text selection; intercept edit-intent clicks
+                  // on inputs / editable areas / buttons that aren't in the top bar.
+                  const target = e.target as HTMLElement;
+                  const editable = target.closest(
+                    'input,textarea,select,[contenteditable="true"],button',
+                  );
+                  if (editable) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    guardEdit();
+                  }
+                }
+              : undefined
+          }
         >
-          <ComposerCanvas
-            proposalId={proposalId}
-            blocks={items}
-            selectedId={selectedId}
-            quoteIdHint={proposal.data.quote_id}
-            styleSettings={proposal.data.style_settings}
-            language={proposal.data.language}
-            onSelect={setSelectedId}
-            onReorder={(next) => reorder.mutate(next)}
-          />
+          <div className={isReadOnly ? "pointer-events-auto" : ""}>
+            <ComposerCanvas
+              proposalId={proposalId}
+              blocks={items}
+              selectedId={selectedId}
+              quoteIdHint={proposal.data.quote_id}
+              styleSettings={proposal.data.style_settings}
+              language={proposal.data.language}
+              onSelect={setSelectedId}
+              onReorder={(next) => reorder.mutate(next)}
+            />
+          </div>
         </div>
-        {!isLocked && (
+        {!isReadOnly && (
           <div className="print:hidden">
             <BlockSettingsPanel
               proposalId={proposalId}
@@ -81,4 +155,5 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
     </div>
   );
 }
+
 
