@@ -350,11 +350,11 @@
     "stepper": {
       "ariaLabel": "Quote workflow steps",
       "estimate": {
-        "title": "1 · Estimate",
+        "title": "1 · Estimate tools",
         "hint": "Plan, externals, payment & financials"
       },
       "content": {
-        "title": "2 · Content",
+        "title": "2 · Proposal builder",
         "hint": "Edit the proposal document"
       },
       "publish": {
