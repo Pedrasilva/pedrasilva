@@ -23,6 +23,7 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   const reorder = useReorderBlocks(proposalId);
   const update = useUpdateProposal(proposalId);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState(false);
 
   const items = useMemo(() => blocks.data ?? [], [blocks.data]);
   const selected = items.find((b) => b.id === selectedId) ?? null;
@@ -71,8 +72,13 @@ export function ComposerShell({ proposalId }: { proposalId: string }) {
   };
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] flex-col">
-      <ComposerTopBar proposal={proposal.data} blocks={items} />
+    <div className={`flex h-[calc(100vh-3.5rem)] flex-col ${previewMode ? "psa-preview-mode" : ""}`}>
+      <ComposerTopBar
+        proposal={proposal.data}
+        blocks={items}
+        previewMode={previewMode}
+        onTogglePreview={() => setPreviewMode((v) => !v)}
+      />
       {isFinalLocked && (
         <div className="border-b border-amber-300 bg-amber-50 px-4 py-2 text-xs text-amber-900 print:hidden">
           Proposta bloqueada
