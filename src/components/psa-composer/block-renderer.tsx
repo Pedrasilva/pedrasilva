@@ -239,7 +239,7 @@ function PhaseSummaryCard({
     rows.push({ label: L.bimLod, value: bimLod });
 
   return (
-    <div className="proposal-avoid-break mt-8 rounded-md border border-zinc-200 bg-zinc-50/60 p-4">
+    <div className="proposal-phase-summary-card mt-8 rounded-md border border-zinc-200 bg-zinc-50/60 p-4">
       <h3 className="proposal-print-heading mb-3 text-sm font-semibold tracking-tight text-zinc-900">
         {L.phaseSummary}
       </h3>
