@@ -93,9 +93,12 @@ export interface PsaProposal {
   language: string;
   created_by: string | null;
   sent_at: string | null;
+  locked_at: string | null;
+  outcome: "won" | "lost" | null;
   created_at: string;
   updated_at: string;
 }
+
 
 export interface PsaProposalBlock {
   id: string;
