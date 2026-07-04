@@ -360,11 +360,16 @@ export function BlockBody({
                   <a
                     href={`#chapter-${e.chapter}`}
                     onClick={(ev) => {
-                      ev.preventDefault();
-                      const el = document.getElementById(`chapter-${e.chapter}`);
-                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                      // Only intercept in-browser navigation; keep the
+                      // anchor href intact so Chrome's Save-as-PDF preserves
+                      // it as a clickable internal link in the exported PDF.
+                      if (typeof window !== "undefined" && !window.matchMedia("print").matches) {
+                        ev.preventDefault();
+                        const el = document.getElementById(`chapter-${e.chapter}`);
+                        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }
                     }}
-                    className="flex flex-1 items-baseline gap-2 hover:text-blue-600 hover:underline print:text-inherit print:no-underline"
+                    className="proposal-toc-link flex flex-1 items-baseline gap-2 hover:text-blue-600 hover:underline print:text-inherit"
                   >
                     <span className="font-medium tabular-nums w-6">{e.chapter}.</span>
                     <span className="flex-1">{e.title}</span>
