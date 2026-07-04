@@ -112,7 +112,7 @@ function SortableRow({
     <div
       ref={setNodeRef}
       style={style}
-      id={chapter != null ? `chapter-${chapter}` : undefined}
+      id={chapter != null ? `chapter-${chapter}` : `proposal-block-${block.id}`}
       data-proposal-block-id={block.id}
       data-page-aligned={pageAligned ? "true" : undefined}
       data-page-align-y={pageAlignY && pageAlignY !== "none" ? pageAlignY : undefined}
