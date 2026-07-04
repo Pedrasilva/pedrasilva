@@ -126,7 +126,7 @@ function SortableRow({
           ? "border-blue-400 ring-1 ring-blue-300 print:ring-0"
           : "hover:border-zinc-200",
         !block.is_visible && "opacity-60 print:hidden",
-        pageBreakBefore && "proposal-page-break-before",
+        pageBreakBefore && block.is_visible && "proposal-page-break-before",
       )}
     >
       <div className="absolute -left-6 top-1 flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 print:hidden">

@@ -1155,4 +1155,20 @@
   .proposal-toc-link { color: inherit !important; text-decoration: none !important; }
 }
 
+/* Invisible blocks must never occupy space in the printed PDF — even when
+   they carry higher-specificity layout rules such as data-page-aligned
+   (which sets display: flex + min-height + page-break). Without this
+   override those blocks would render as full blank pages. */
+@media print {
+  .proposal-print-block.print\:hidden,
+  .proposal-print-document .proposal-print-block[data-page-aligned="true"].print\:hidden {
+    display: none !important;
+    min-height: 0 !important;
+    height: 0 !important;
+    page-break-before: avoid !important;
+    page-break-after: avoid !important;
+    break-before: auto !important;
+    break-after: auto !important;
+  }
+}
 
