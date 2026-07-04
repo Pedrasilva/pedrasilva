@@ -979,7 +979,8 @@
     page-break-inside: auto;
     break-inside: auto;
   }
-  .print-area .proposal-avoid-break {
+  .print-area .proposal-avoid-break,
+  .print-area .proposal-phase-summary-card {
     page-break-inside: avoid;
     break-inside: avoid;
   }

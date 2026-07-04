@@ -239,7 +239,7 @@ function PhaseSummaryCard({
     rows.push({ label: L.bimLod, value: bimLod });
 
   return (
-    <div className="proposal-avoid-break mt-8 rounded-md border border-zinc-200 bg-zinc-50/60 p-4">
+    <div className="proposal-phase-summary-card mt-8 rounded-md border border-zinc-200 bg-zinc-50/60 p-4">
       <h3 className="proposal-print-heading mb-3 text-sm font-semibold tracking-tight text-zinc-900">
         {L.phaseSummary}
       </h3>
@@ -499,7 +499,8 @@ export function BlockBody({
       );
 
       return (
-        <div className="proposal-avoid-break">
+        <div>
+
           <H>{num}{stage.code ? `${stage.code} — ` : ""}{stage.name}</H>
           {stage.description && <P>{stage.description}</P>}
           {richHas && <div className="mb-4">{rich}</div>}
@@ -750,7 +751,8 @@ export function BlockBody({
       );
 
       return (
-        <div className="proposal-avoid-break">
+        <div>
+
           <H>{num}{block.title}</H>
           <div className="mb-2 text-xs text-zinc-500">
             {parent.code ? `${parent.code} — ` : ""}{parent.name} ·{" "}
