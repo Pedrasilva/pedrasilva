@@ -1694,6 +1694,9 @@ export function BlockBody({
     }
 
     case "appendix_gantt": {
+      const enabledB =
+        (block.content_rich as { enabled?: boolean } | undefined)?.enabled ?? true;
+      if (!enabledB) return null;
       const letterB =
         (block.content_rich as { appendix_letter?: string } | undefined)
           ?.appendix_letter || "B";
