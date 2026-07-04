@@ -1139,3 +1139,21 @@
 .proposal-print-block[data-page-align-x="center"] > * { text-align: center; }
 .proposal-print-block[data-page-align-x="right"]  > * { text-align: right; }
 
+/* Invisible in-flow anchor to keep TOC / appendix-index PDF hyperlinks
+   resolving to the top of each block on print export. */
+.proposal-anchor {
+  display: block;
+  height: 0;
+  width: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+/* TOC / appendix-index links: keep them inheriting text style on print
+   but preserve the anchor so Chrome's Save-as-PDF emits an internal link. */
+.proposal-toc-link { color: inherit; text-decoration: none; }
+@media print {
+  .proposal-toc-link { color: inherit !important; text-decoration: none !important; }
+}
+
+
