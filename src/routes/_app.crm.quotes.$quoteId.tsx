@@ -968,7 +968,7 @@ function QuoteDetail() {
           {(isProject || isRetainer) && visibleTabs.includes("planning") && (
             <TabsTrigger value="planning">{t("workspace.tabs.planning")}</TabsTrigger>
           )}
-          {(isProject || isRetainer) && (
+          {step === "estimate" && (isProject || isRetainer) && (
             <>
               <TabsTrigger value="architecture">Architecture</TabsTrigger>
               <TabsTrigger value="consultants">Suppliers</TabsTrigger>
