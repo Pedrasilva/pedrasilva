@@ -82,9 +82,13 @@ const STATUSES: PsaProposalStatus[] = [
 export function ComposerTopBar({
   proposal,
   blocks,
+  previewMode = false,
+  onTogglePreview,
 }: {
   proposal: PsaProposal;
   blocks: PsaProposalBlock[];
+  previewMode?: boolean;
+  onTogglePreview?: () => void;
 }) {
   const update = useUpdateProposal(proposal.id);
   const [convertOpen, setConvertOpen] = useState(false);
