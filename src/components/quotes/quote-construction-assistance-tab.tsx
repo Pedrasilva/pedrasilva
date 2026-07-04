@@ -308,11 +308,18 @@ export function QuoteConstructionAssistanceTab({ quoteId }: Props) {
    * When billing mode is not "manual", the per-trip manual override must be
    * ignored so the cost math sums the per-resource rates instead. We do this
    * by passing a shallow copy with `resource_hourly_rate: 0` into compute.
+   *
+   * Legacy fallback: quotes created before `trip_billing_mode` existed default
+   * to "resource" but may only carry a manual €/h (no resource_ids). For those
+   * we keep the manual value so totals don't silently collapse to €0.
    */
   function tripForCompute(trip: QuoteSiteTrip): QuoteSiteTrip {
     if (billingMode === "manual") return trip;
+    const hasResources = (trip.resource_ids ?? []).length > 0;
+    if (!hasResources) return trip;
     return { ...trip, resource_hourly_rate: 0 };
   }
+
 
   // ---- totals ----
   const rows = trips.map((t) => {
