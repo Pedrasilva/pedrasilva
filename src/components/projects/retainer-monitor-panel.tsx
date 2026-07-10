@@ -128,18 +128,54 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
         };
       });
 
-      // Blended sale rate: derived from logged hours × their real sale
-      // snapshot (Σ sale ÷ Σ hours). This is how many €/h the team is
-      // actually delivering under the retainer, so the fee ÷ blended rate
-      // is the honest "hours the fee buys" reading.
+      // Blended sale rate: derived from the resources assigned to this
+      // retainer (parent-stage allocations). Each allocation carries the
+      // resource's real €/h sale rate — average, weighted by planned
+      // monthly hours, gives the honest "hours the fee buys" rate.
+      // Falls back to actuals from logged hours (Σ sale ÷ Σ hours) if the
+      // parent has no allocations, then to the FTE capacity default.
+      const allocs = (p.allocations ?? []) as Array<{
+        hours_per_day: number | string | null;
+        start_date: string;
+        end_date: string;
+        resource: { hourly_rate: number | string | null };
+      }>;
+      let plannedHoursSum = 0;
+      let plannedSaleSum = 0;
+      for (const a of allocs) {
+        const s = parseISO(a.start_date);
+        const e = parseISO(a.end_date);
+        let wd = 0;
+        const d = new Date(s);
+        while (d <= e) {
+          const day = d.getDay();
+          if (day !== 0 && day !== 6) wd++;
+          d.setDate(d.getDate() + 1);
+        }
+        const hpd = Number(a.hours_per_day ?? 0);
+        const rate = Number(a.resource?.hourly_rate ?? 0);
+        const hrs = wd * hpd;
+        plannedHoursSum += hrs;
+        plannedSaleSum += hrs * rate;
+      }
+      const plannedBlendedRate =
+        plannedHoursSum > 0 ? plannedSaleSum / plannedHoursSum : 0;
+
       const totalHoursLogged = base.reduce((s, r) => s + r.usedHours, 0);
       const totalSaleGenerated = base.reduce((s, r) => s + r.sale, 0);
+      const actualBlendedRate =
+        totalHoursLogged > 0 && totalSaleGenerated > 0
+          ? totalSaleGenerated / totalHoursLogged
+          : 0;
+
       const blendedSaleRate =
-        totalHoursLogged > 0 ? totalSaleGenerated / totalHoursLogged : 0;
+        plannedBlendedRate > 0 ? plannedBlendedRate : actualBlendedRate;
       const includedHoursSource: "blended" | "capacity" =
         blendedSaleRate > 0 ? "blended" : "capacity";
       const includedHours =
-        blendedSaleRate > 0 ? monthlyFee / blendedSaleRate : capacityHpm;
+        blendedSaleRate > 0 && monthlyFee > 0
+          ? monthlyFee / blendedSaleRate
+          : capacityHpm;
 
       const rows: MonthRow[] = base.map((r, i) => {
         // Rolling window across the previous 2 months + this one; missing
