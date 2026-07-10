@@ -417,6 +417,12 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                     <td className="px-2 py-2 text-right font-mono tabular-nums">
                       {Math.round(g.totals.usedHours)}h / {Math.round(g.totals.includedHours)}h
                     </td>
+                    <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
+                      {euros(g.totals.cost)}
+                    </td>
+                    <td className="px-2 py-2 text-right font-mono tabular-nums">
+                      {euros(g.totals.sale)}
+                    </td>
                     <td className={cn("px-2 py-2 text-right font-mono tabular-nums", cumulativeVarianceTone)}>
                       {g.totals.variance >= 0 ? "+" : ""}
                       {Math.round(g.totals.variance)}h
@@ -424,6 +430,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                     <td className="px-2 py-2" />
                     <td className="px-2 py-2" />
                   </tr>
+
                 </tfoot>
               </table>
               <p className="mt-2 text-[11px] text-muted-foreground">
