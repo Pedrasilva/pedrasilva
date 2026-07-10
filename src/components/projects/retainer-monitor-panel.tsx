@@ -55,7 +55,7 @@ interface RetainerGroup {
   includedHours: number;
   blendedSaleRate: number;      // €/h used to derive included hours
   capacityHpm: number;          // raw retainer_capacity_hours_per_month (FTE default)
-  includedHoursSource: "blended" | "capacity"; // where includedHours came from
+  includedHoursSource: "blended" | "unknown"; // where includedHours came from
   totalMonths: number;
   rows: MonthRow[];
   totals: {
@@ -170,12 +170,15 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
 
       const blendedSaleRate =
         plannedBlendedRate > 0 ? plannedBlendedRate : actualBlendedRate;
-      const includedHoursSource: "blended" | "capacity" =
-        blendedSaleRate > 0 ? "blended" : "capacity";
+      // Included hours ALWAYS derive from the monthly fee ÷ blended sale
+      // rate. If no rate can be established (no allocations, no logged
+      // history) we surface 0 and flag it — never fall back to a generic
+      // FTE capacity, which would misrepresent what the fee buys.
+      const includedHoursSource: "blended" | "unknown" =
+        blendedSaleRate > 0 ? "blended" : "unknown";
       const includedHours =
-        blendedSaleRate > 0 && monthlyFee > 0
-          ? monthlyFee / blendedSaleRate
-          : capacityHpm;
+        blendedSaleRate > 0 && monthlyFee > 0 ? monthlyFee / blendedSaleRate : 0;
+      void capacityHpm;
 
       const rows: MonthRow[] = base.map((r, i) => {
         // Rolling window across the previous 2 months + this one; missing
@@ -268,7 +271,9 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                 </span>
                 <span>
                   {t("detail.retainerMonitor.includedHours")}:{" "}
-                  <span className="font-mono text-foreground">{Math.round(g.includedHours)}h</span>
+                  <span className="font-mono text-foreground">
+                    {g.includedHours > 0 ? `${Math.round(g.includedHours)}h` : "—"}
+                  </span>
                   {g.includedHoursSource === "blended" ? (
                     <span className="ml-1 text-[10px] text-muted-foreground">
                       ({t("detail.retainerMonitor.derivedFromBlended", {
@@ -276,8 +281,8 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                       })})
                     </span>
                   ) : (
-                    <span className="ml-1 text-[10px] text-muted-foreground">
-                      ({t("detail.retainerMonitor.capacityFallback")})
+                    <span className="ml-1 text-[10px] text-amber-600 dark:text-amber-400">
+                      ({t("detail.retainerMonitor.noRateHint")})
                     </span>
                   )}
                 </span>
