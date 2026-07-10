@@ -103,7 +103,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       const monthlyFee = Number(
         (p as { retainer_monthly_amount?: number }).retainer_monthly_amount ?? 0,
       );
-      const includedHours = Number(
+      const capacityHpm = Number(
         (p as { retainer_capacity_hours_per_month?: number })
           .retainer_capacity_hours_per_month ?? 0,
       );
@@ -111,26 +111,42 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
         a.start_date < b.start_date ? -1 : 1,
       );
 
-      // Build initial rows w/ used hours
+      // Build initial rows w/ used hours + real cost / sale actuals.
       const base = children.map((c) => {
         const ctrl = byStage?.get(c.id);
         const usedHours = Number(ctrl?.actual_hours_logged ?? 0);
+        const cost = Number(ctrl?.actual_cost_consumed ?? 0);
+        const sale = Number(ctrl?.actual_value_generated ?? 0);
         return {
           childId: c.id,
           monthDate: c.start_date,
           month: fmtDate(parseISO(c.start_date), "MMM yyyy"),
           usedHours,
+          cost,
+          sale,
           isFuture: c.start_date > todayIso,
         };
       });
+
+      // Blended sale rate: derived from logged hours × their real sale
+      // snapshot (Σ sale ÷ Σ hours). This is how many €/h the team is
+      // actually delivering under the retainer, so the fee ÷ blended rate
+      // is the honest "hours the fee buys" reading.
+      const totalHoursLogged = base.reduce((s, r) => s + r.usedHours, 0);
+      const totalSaleGenerated = base.reduce((s, r) => s + r.sale, 0);
+      const blendedSaleRate =
+        totalHoursLogged > 0 ? totalSaleGenerated / totalHoursLogged : 0;
+      const includedHoursSource: "blended" | "capacity" =
+        blendedSaleRate > 0 ? "blended" : "capacity";
+      const includedHours =
+        blendedSaleRate > 0 ? monthlyFee / blendedSaleRate : capacityHpm;
 
       const rows: MonthRow[] = base.map((r, i) => {
         // Rolling window across the previous 2 months + this one; missing
         // months (before start of series) contribute 0.
         const window = base.slice(Math.max(0, i - 2), i + 1);
-        const missing = 3 - window.length;
         const sum = window.reduce((s, w) => s + w.usedHours, 0);
-        const rollingAvg = (sum + missing * 0) / 3;
+        const rollingAvg = sum / 3;
         const variance = r.usedHours - includedHours;
         const rollingVariance = rollingAvg - includedHours;
         return {
@@ -140,6 +156,8 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
           fee: monthlyFee,
           includedHours,
           usedHours: r.usedHours,
+          cost: r.cost,
+          sale: r.sale,
           variance,
           rollingAvg,
           rollingVariance,
@@ -153,11 +171,13 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
           fee: a.fee + r.fee,
           includedHours: a.includedHours + r.includedHours,
           usedHours: a.usedHours + r.usedHours,
+          cost: a.cost + r.cost,
+          sale: a.sale + r.sale,
           variance: a.variance + (r.isFuture ? 0 : r.variance),
           monthsOver: a.monthsOver + (!r.isFuture && r.variance > 0 ? 1 : 0),
           monthsUnder: a.monthsUnder + (!r.isFuture && r.variance < 0 ? 1 : 0),
         }),
-        { fee: 0, includedHours: 0, usedHours: 0, variance: 0, monthsOver: 0, monthsUnder: 0 },
+        { fee: 0, includedHours: 0, usedHours: 0, cost: 0, sale: 0, variance: 0, monthsOver: 0, monthsUnder: 0 },
       );
 
       return {
@@ -166,6 +186,9 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
         color: p.color,
         monthlyFee,
         includedHours,
+        blendedSaleRate,
+        capacityHpm,
+        includedHoursSource,
         totalMonths: Number(
           (p as { retainer_months?: number | null }).retainer_months ?? children.length,
         ),
@@ -173,6 +196,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
         totals,
       };
     });
+
   }, [stages, byStage, i18n.language, todayIso]);
 
   if (!showFinancials || groups.length === 0) return null;
