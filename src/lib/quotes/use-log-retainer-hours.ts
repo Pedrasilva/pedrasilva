@@ -55,7 +55,7 @@ export function useLogRetainerHours(quoteId: string) {
             billable,
             notes: input.notes ?? null,
             cost_rate_snapshot: cost,
-            sale_rate_snapshot: derivedSale,
+            sale_rate_snapshot: sale,
           } as never)
           .eq("id", input.entry_id);
         if (error) throw error;
@@ -72,7 +72,7 @@ export function useLogRetainerHours(quoteId: string) {
         notes: input.notes ?? null,
         source: "retainer-inline",
         cost_rate_snapshot: cost,
-        sale_rate_snapshot: derivedSale,
+        sale_rate_snapshot: sale,
       } as never);
       if (error) throw error;
     },
