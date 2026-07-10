@@ -1,12 +1,19 @@
 /**
- * RetainerMonitorPanel — monthly budget vs actuals for retainer stages in a
- * bootstrapped project.
+ * RetainerMonitorPanel — simplified retainer view.
  *
- * Reads parent retainer stages (stage_kind = 'retainer_monthly') and their
- * monthly child stages (parent_stage_id = parent.id). For each child it
- * compares the locked monthly fee (child.budget) to actual cost consumed
- * (from useStageBudgetControl). Renders a bar chart per month + a totals
- * table.
+ * A retainer is a fixed monthly fee subscription with a soft included-hours
+ * target. We don't measure "budget vs actual €"; instead we track hours
+ * used vs included and surface a rolling 3-month utilisation so busy months
+ * absorbed by quieter ones read as amber (not red).
+ *
+ * Data model (already on `pm_stages`):
+ *   - `retainer_monthly_amount`               → fixed monthly fee (€)
+ *   - `retainer_capacity_hours_per_month`     → included hours per month
+ *   - `retainer_months`                       → months in the series
+ *   - monthly children (parent_stage_id = parent) → one row per month,
+ *     `start_date` = 1st of month, `actual_hours_logged` from useStageBudgetControl
+ *
+ * Nothing is capped or auto-invoiced; overages surface only as warnings.
  */
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -22,14 +29,20 @@ interface Props {
   showFinancials: boolean;
 }
 
+type MonthStatus = "green" | "amber" | "red" | "future";
+
 interface MonthRow {
   childId: string;
-  month: string; // formatted "Jul 2026"
+  month: string;
   monthDate: string;
-  budget: number;
-  cost: number;
-  hours: number;
-  delta: number; // budget - cost
+  fee: number;
+  includedHours: number;
+  usedHours: number;
+  variance: number;         // used - included (per month)
+  rollingAvg: number;       // 3-month rolling avg of used
+  rollingVariance: number;  // rollingAvg - included
+  status: MonthStatus;
+  isFuture: boolean;
 }
 
 interface RetainerGroup {
@@ -37,13 +50,33 @@ interface RetainerGroup {
   parentName: string;
   color: string;
   monthlyFee: number;
+  includedHours: number;
   totalMonths: number;
   rows: MonthRow[];
-  totals: { budget: number; cost: number; hours: number; delta: number };
+  totals: {
+    fee: number;
+    includedHours: number;
+    usedHours: number;
+    variance: number;
+    monthsOver: number;
+    monthsUnder: number;
+  };
+}
+
+function statusFor(
+  variance: number,
+  rollingVariance: number,
+  isFuture: boolean,
+): MonthStatus {
+  if (isFuture) return "future";
+  if (variance > 0 && rollingVariance > 0) return "red";
+  if (variance > 0) return "amber";
+  return "green";
 }
 
 export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props) {
   const { t, i18n } = useTranslation("projects");
+  const todayIso = new Date().toISOString().slice(0, 10);
 
   const groups = useMemo<RetainerGroup[]>(() => {
     const parents = stages.filter(
@@ -59,54 +92,92 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       childrenByParent.set(pid, arr);
     }
     return parents.map((p) => {
+      const monthlyFee = Number(
+        (p as { retainer_monthly_amount?: number }).retainer_monthly_amount ?? 0,
+      );
+      const includedHours = Number(
+        (p as { retainer_capacity_hours_per_month?: number })
+          .retainer_capacity_hours_per_month ?? 0,
+      );
       const children = (childrenByParent.get(p.id) ?? []).sort((a, b) =>
         a.start_date < b.start_date ? -1 : 1,
       );
-      const rows: MonthRow[] = children.map((c) => {
+
+      // Build initial rows w/ used hours
+      const base = children.map((c) => {
         const ctrl = byStage?.get(c.id);
-        const budget = Number(c.budget ?? 0);
-        const cost = Number(ctrl?.actual_cost_consumed ?? 0);
-        const hours = Number(ctrl?.actual_hours_logged ?? 0);
+        const usedHours = Number(ctrl?.actual_hours_logged ?? 0);
         return {
           childId: c.id,
-          month: fmtDate(parseISO(c.start_date), "MMM yyyy"),
           monthDate: c.start_date,
-          budget,
-          cost,
-          hours,
-          delta: budget - cost,
+          month: fmtDate(parseISO(c.start_date), "MMM yyyy"),
+          usedHours,
+          isFuture: c.start_date > todayIso,
         };
       });
+
+      const rows: MonthRow[] = base.map((r, i) => {
+        // Rolling window across the previous 2 months + this one; missing
+        // months (before start of series) contribute 0.
+        const window = base.slice(Math.max(0, i - 2), i + 1);
+        const missing = 3 - window.length;
+        const sum = window.reduce((s, w) => s + w.usedHours, 0);
+        const rollingAvg = (sum + missing * 0) / 3;
+        const variance = r.usedHours - includedHours;
+        const rollingVariance = rollingAvg - includedHours;
+        return {
+          childId: r.childId,
+          month: r.month,
+          monthDate: r.monthDate,
+          fee: monthlyFee,
+          includedHours,
+          usedHours: r.usedHours,
+          variance,
+          rollingAvg,
+          rollingVariance,
+          status: statusFor(variance, rollingVariance, r.isFuture),
+          isFuture: r.isFuture,
+        };
+      });
+
       const totals = rows.reduce(
         (a, r) => ({
-          budget: a.budget + r.budget,
-          cost: a.cost + r.cost,
-          hours: a.hours + r.hours,
-          delta: a.delta + r.delta,
+          fee: a.fee + r.fee,
+          includedHours: a.includedHours + r.includedHours,
+          usedHours: a.usedHours + r.usedHours,
+          variance: a.variance + (r.isFuture ? 0 : r.variance),
+          monthsOver: a.monthsOver + (!r.isFuture && r.variance > 0 ? 1 : 0),
+          monthsUnder: a.monthsUnder + (!r.isFuture && r.variance < 0 ? 1 : 0),
         }),
-        { budget: 0, cost: 0, hours: 0, delta: 0 },
+        { fee: 0, includedHours: 0, usedHours: 0, variance: 0, monthsOver: 0, monthsUnder: 0 },
       );
+
       return {
         parentId: p.id,
         parentName: p.name,
         color: p.color,
-        monthlyFee: Number((p as { retainer_monthly_amount?: number }).retainer_monthly_amount ?? 0),
-        totalMonths: Number((p as { retainer_months?: number | null }).retainer_months ?? children.length),
+        monthlyFee,
+        includedHours,
+        totalMonths: Number(
+          (p as { retainer_months?: number | null }).retainer_months ?? children.length,
+        ),
         rows,
         totals,
       };
     });
-  }, [stages, byStage, i18n.language]);
+  }, [stages, byStage, i18n.language, todayIso]);
 
   if (!showFinancials || groups.length === 0) return null;
 
   return (
     <section className="space-y-4">
       {groups.map((g) => {
-        const maxBar = Math.max(
-          1,
-          ...g.rows.map((r) => Math.max(r.budget, r.cost)),
-        );
+        const cumulativeVarianceTone =
+          g.totals.variance > 0
+            ? "text-destructive"
+            : g.totals.variance < 0
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-muted-foreground";
         return (
           <div key={g.parentId} className="rounded-lg border border-border bg-card p-4">
             <header className="mb-3 flex flex-wrap items-end justify-between gap-3">
@@ -116,55 +187,70 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                   style={{ backgroundColor: g.color }}
                 />
                 <h3 className="text-base font-semibold">
-                  {t("detail.retainerMonitor.title", { name: g.parentName, defaultValue: `Retainer monitor — ${g.parentName}` })}
+                  {t("detail.retainerMonitor.title", { name: g.parentName })}
                 </h3>
                 <span className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
-                  {g.totalMonths} {t("detail.retainerMonitor.months", { defaultValue: "months" })}
+                  {g.totalMonths} {t("detail.retainerMonitor.months")}
                 </span>
               </div>
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                 <span>
-                  {t("detail.retainerMonitor.monthlyFee", { defaultValue: "Monthly fee" })}:{" "}
+                  {t("detail.retainerMonitor.monthlyFee")}:{" "}
                   <span className="font-mono text-foreground">{euros(g.monthlyFee)}</span>
                 </span>
                 <span>
-                  {t("detail.retainerMonitor.budgetTotal", { defaultValue: "Budget total" })}:{" "}
-                  <span className="font-mono text-foreground">{euros(g.totals.budget)}</span>
+                  {t("detail.retainerMonitor.includedHours")}:{" "}
+                  <span className="font-mono text-foreground">{Math.round(g.includedHours)}h</span>
                 </span>
                 <span>
-                  {t("detail.retainerMonitor.actualsTotal", { defaultValue: "Actuals total" })}:{" "}
-                  <span className={cn("font-mono", g.totals.cost > g.totals.budget ? "text-destructive" : "text-foreground")}>
-                    {euros(g.totals.cost)}
+                  {t("detail.retainerMonitor.usedTotal")}:{" "}
+                  <span className="font-mono text-foreground">{Math.round(g.totals.usedHours)}h</span>
+                </span>
+                <span>
+                  {t("detail.retainerMonitor.cumulativeVariance")}:{" "}
+                  <span className={cn("font-mono", cumulativeVarianceTone)}>
+                    {g.totals.variance >= 0 ? "+" : ""}
+                    {Math.round(g.totals.variance)}h
                   </span>
                 </span>
                 <span>
-                  {t("detail.retainerMonitor.deltaTotal", { defaultValue: "Δ" })}:{" "}
-                  <span className={cn("font-mono", g.totals.delta < 0 ? "text-destructive" : "text-emerald-600 dark:text-emerald-400")}>
-                    {euros(g.totals.delta)}
-                  </span>
+                  <span className="font-mono text-emerald-600 dark:text-emerald-400">
+                    {g.totals.monthsUnder}
+                  </span>{" "}
+                  {t("detail.retainerMonitor.under")}{" · "}
+                  <span className="font-mono text-destructive">{g.totals.monthsOver}</span>{" "}
+                  {t("detail.retainerMonitor.over")}
                 </span>
               </div>
             </header>
 
-            {/* Monthly chart */}
+            {/* Monthly hours-vs-included chart */}
             <div className="mb-4 overflow-x-auto">
               <div className="flex items-end gap-2 pb-2" style={{ minHeight: 140 }}>
                 {g.rows.map((r) => {
-                  const budgetH = (r.budget / maxBar) * 120;
-                  const costH = (r.cost / maxBar) * 120;
-                  const over = r.cost > r.budget;
+                  const scale = Math.max(1, g.includedHours * 1.5, ...g.rows.map((x) => x.usedHours));
+                  const includedH = (g.includedHours / scale) * 120;
+                  const usedH = (r.usedHours / scale) * 120;
+                  const barTone =
+                    r.status === "red"
+                      ? "bg-destructive"
+                      : r.status === "amber"
+                        ? "bg-amber-500"
+                        : r.status === "future"
+                          ? "bg-muted-foreground/40"
+                          : "bg-primary";
                   return (
                     <div key={r.childId} className="flex w-16 shrink-0 flex-col items-center gap-1">
                       <div className="relative flex h-[120px] w-full items-end justify-center gap-1">
                         <div
-                          className="w-3 rounded-sm bg-muted-foreground/30"
-                          style={{ height: `${budgetH}px` }}
-                          title={`${t("detail.retainerMonitor.budget", { defaultValue: "Budget" })}: ${euros(r.budget)}`}
+                          className="w-3 rounded-sm bg-muted-foreground/25"
+                          style={{ height: `${includedH}px` }}
+                          title={`${t("detail.retainerMonitor.includedHours")}: ${Math.round(g.includedHours)}h`}
                         />
                         <div
-                          className={cn("w-3 rounded-sm", over ? "bg-destructive" : "bg-primary")}
-                          style={{ height: `${costH}px` }}
-                          title={`${t("detail.retainerMonitor.actual", { defaultValue: "Actual" })}: ${euros(r.cost)}`}
+                          className={cn("w-3 rounded-sm", barTone)}
+                          style={{ height: `${usedH}px` }}
+                          title={`${t("detail.retainerMonitor.usedHoursCol")}: ${Math.round(r.usedHours)}h`}
                         />
                       </div>
                       <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -174,14 +260,22 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                   );
                 })}
               </div>
-              <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
-                  <span className="inline-block h-2 w-2 rounded-sm bg-muted-foreground/30" />
-                  {t("detail.retainerMonitor.budget", { defaultValue: "Budget" })}
+                  <span className="inline-block h-2 w-2 rounded-sm bg-muted-foreground/25" />
+                  {t("detail.retainerMonitor.includedHours")}
                 </span>
                 <span className="inline-flex items-center gap-1">
                   <span className="inline-block h-2 w-2 rounded-sm bg-primary" />
-                  {t("detail.retainerMonitor.actual", { defaultValue: "Actual" })}
+                  {t("detail.retainerMonitor.statusGreen")}
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="inline-block h-2 w-2 rounded-sm bg-amber-500" />
+                  {t("detail.retainerMonitor.statusAmber")}
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="inline-block h-2 w-2 rounded-sm bg-destructive" />
+                  {t("detail.retainerMonitor.statusRed")}
                 </span>
               </div>
             </div>
@@ -191,42 +285,88 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    <th className="px-2 py-2">{t("detail.retainerMonitor.monthCol", { defaultValue: "Month" })}</th>
-                    <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.budgetCol", { defaultValue: "Budget" })}</th>
-                    <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.actualCol", { defaultValue: "Actual" })}</th>
-                    <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.hoursCol", { defaultValue: "Hours" })}</th>
-                    <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.deltaCol", { defaultValue: "Δ" })}</th>
+                    <th className="px-2 py-2">{t("detail.retainerMonitor.monthCol")}</th>
+                    <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.feeCol")}</th>
+                    <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.usedHoursCol")}</th>
+                    <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.varianceCol")}</th>
+                    <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.rollingCol")}</th>
+                    <th className="px-2 py-2">{t("detail.retainerMonitor.statusCol")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {g.rows.map((r) => (
-                    <tr key={r.childId} className="border-b border-border/60">
-                      <td className="px-2 py-2">{r.month}</td>
-                      <td className="px-2 py-2 text-right font-mono tabular-nums">{euros(r.budget)}</td>
-                      <td className={cn("px-2 py-2 text-right font-mono tabular-nums", r.cost > r.budget && "text-destructive")}>
-                        {euros(r.cost)}
-                      </td>
-                      <td className="px-2 py-2 text-right font-mono tabular-nums">{Math.round(r.hours)}h</td>
-                      <td className={cn("px-2 py-2 text-right font-mono tabular-nums", r.delta < 0 ? "text-destructive" : "text-emerald-600 dark:text-emerald-400")}>
-                        {euros(r.delta)}
-                      </td>
-                    </tr>
-                  ))}
+                  {g.rows.map((r) => {
+                    const varTone =
+                      r.isFuture
+                        ? "text-muted-foreground"
+                        : r.variance > 0
+                          ? "text-destructive"
+                          : r.variance < 0
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "";
+                    const pillTone =
+                      r.status === "red"
+                        ? "bg-destructive/15 text-destructive"
+                        : r.status === "amber"
+                          ? "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                          : r.status === "future"
+                            ? "bg-muted text-muted-foreground"
+                            : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400";
+                    const pillLabel =
+                      r.status === "red"
+                        ? t("detail.retainerMonitor.statusRed")
+                        : r.status === "amber"
+                          ? t("detail.retainerMonitor.statusAmber")
+                          : r.status === "future"
+                            ? t("detail.retainerMonitor.statusFuture")
+                            : t("detail.retainerMonitor.statusGreen");
+                    return (
+                      <tr key={r.childId} className="border-b border-border/60">
+                        <td className="px-2 py-2">{r.month}</td>
+                        <td className="px-2 py-2 text-right font-mono tabular-nums">{euros(r.fee)}</td>
+                        <td className="px-2 py-2 text-right font-mono tabular-nums">
+                          {Math.round(r.usedHours)}h / {Math.round(r.includedHours)}h
+                        </td>
+                        <td className={cn("px-2 py-2 text-right font-mono tabular-nums", varTone)}>
+                          {r.isFuture
+                            ? "—"
+                            : `${r.variance >= 0 ? "+" : ""}${Math.round(r.variance)}h`}
+                        </td>
+                        <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
+                          {r.isFuture ? "—" : `${Math.round(r.rollingAvg)}h`}
+                        </td>
+                        <td className="px-2 py-2">
+                          <span
+                            className={cn(
+                              "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
+                              pillTone,
+                            )}
+                          >
+                            {pillLabel}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
                 <tfoot>
                   <tr className="border-t-2 border-border text-sm font-semibold">
-                    <td className="px-2 py-2">{t("detail.retainerMonitor.totalsRow", { defaultValue: "Total" })}</td>
-                    <td className="px-2 py-2 text-right font-mono tabular-nums">{euros(g.totals.budget)}</td>
-                    <td className={cn("px-2 py-2 text-right font-mono tabular-nums", g.totals.cost > g.totals.budget && "text-destructive")}>
-                      {euros(g.totals.cost)}
+                    <td className="px-2 py-2">{t("detail.retainerMonitor.totalsRow")}</td>
+                    <td className="px-2 py-2 text-right font-mono tabular-nums">{euros(g.totals.fee)}</td>
+                    <td className="px-2 py-2 text-right font-mono tabular-nums">
+                      {Math.round(g.totals.usedHours)}h / {Math.round(g.totals.includedHours)}h
                     </td>
-                    <td className="px-2 py-2 text-right font-mono tabular-nums">{Math.round(g.totals.hours)}h</td>
-                    <td className={cn("px-2 py-2 text-right font-mono tabular-nums", g.totals.delta < 0 ? "text-destructive" : "text-emerald-600 dark:text-emerald-400")}>
-                      {euros(g.totals.delta)}
+                    <td className={cn("px-2 py-2 text-right font-mono tabular-nums", cumulativeVarianceTone)}>
+                      {g.totals.variance >= 0 ? "+" : ""}
+                      {Math.round(g.totals.variance)}h
                     </td>
+                    <td className="px-2 py-2" />
+                    <td className="px-2 py-2" />
                   </tr>
                 </tfoot>
               </table>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                {t("detail.retainerMonitor.helpText")}
+              </p>
             </div>
           </div>
         );
