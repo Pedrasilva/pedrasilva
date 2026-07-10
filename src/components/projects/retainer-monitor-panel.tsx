@@ -381,6 +381,12 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                         <td className="px-2 py-2 text-right font-mono tabular-nums">
                           {Math.round(r.usedHours)}h / {Math.round(r.includedHours)}h
                         </td>
+                        <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
+                          {r.isFuture ? "—" : euros(r.cost)}
+                        </td>
+                        <td className="px-2 py-2 text-right font-mono tabular-nums">
+                          {r.isFuture ? "—" : euros(r.sale)}
+                        </td>
                         <td className={cn("px-2 py-2 text-right font-mono tabular-nums", varTone)}>
                           {r.isFuture
                             ? "—"
@@ -401,6 +407,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                         </td>
                       </tr>
                     );
+
                   })}
                 </tbody>
                 <tfoot>
