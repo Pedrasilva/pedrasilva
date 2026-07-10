@@ -55,7 +55,7 @@ interface RetainerGroup {
   includedHours: number;
   blendedSaleRate: number;      // €/h used to derive included hours
   capacityHpm: number;          // raw retainer_capacity_hours_per_month (FTE default)
-  includedHoursSource: "blended" | "capacity"; // where includedHours came from
+  includedHoursSource: "blended" | "unknown"; // where includedHours came from
   totalMonths: number;
   rows: MonthRow[];
   totals: {
