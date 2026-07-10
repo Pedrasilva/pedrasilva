@@ -98,12 +98,16 @@
       "monthlyFee": "Monthly fee",
       "includedHours": "Included hours/mo",
       "usedTotal": "Hours used",
+      "costTotal": "Cost",
+      "saleTotal": "Sale",
       "cumulativeVariance": "Cumulative variance",
       "under": "under",
       "over": "over",
       "monthCol": "Month",
       "feeCol": "Fee",
       "usedHoursCol": "Used / included",
+      "costCol": "Cost",
+      "saleCol": "Sale",
       "varianceCol": "Variance",
       "rollingCol": "Rolling 3M avg",
       "statusCol": "Status",
@@ -112,7 +116,10 @@
       "statusRed": "Over run",
       "statusFuture": "Upcoming",
       "totalsRow": "Total",
-      "helpText": "Fee is fixed every month. Busy months are absorbed by quieter ones — amber = single busy month covered by the 3-month rolling average; red = sustained over-run."
+      "derivedFromBlended": "derived from fee ÷ blended sale rate ({{rate}}/h)",
+      "capacityFallback": "no hours logged yet — showing retainer capacity default",
+      "helpText": "Fee is fixed every month. Included hours = fee ÷ blended sale rate of the team actually delivering the retainer. Busy months are absorbed by quieter ones — amber = single busy month covered by the 3-month rolling average; red = sustained over-run."
+
     },
     "tabs": {
       "overview": "Overview",

@@ -23,42 +23,28 @@ export function useLogRetainerHours(quoteId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: LogRetainerHoursInput) => {
-      // Resolve current user's resource → cost rate for snapshot.
+      // Resolve current user's resource → snapshot both cost and sale rate.
+      // Sale rate reflects the resource's real billable value, NOT
+      // fee ÷ FTE capacity (which conflated "160h FTE default" with
+      // "hours included under the subscription fee").
       const { data: resourceId, error: rErr } = await supabase.rpc("pm_get_my_resource_id");
       if (rErr) throw rErr;
       let cost = 0;
+      let sale = 0;
       if (resourceId) {
         const { data: res } = await supabase
           .from("pm_resources")
-          .select("cost_rate")
+          .select("cost_rate, sale_rate")
           .eq("id", resourceId as string)
           .maybeSingle();
         cost = Number((res as { cost_rate: number | null } | null)?.cost_rate ?? 0);
+        sale = Number((res as { sale_rate: number | null } | null)?.sale_rate ?? 0);
       }
-
-      // Retainers are subscriptions: hours logged against a retainer stage
-      // are always billable, and the sale rate is derived from the stage's
-      // fixed monthly fee ÷ included hours (fee/capacity). This detaches
-      // retainer readings from per-resource sale rates so €0-because-non-
-      // billable never happens.
-      const { data: stage } = await supabase
-        .from("pm_stages")
-        .select("retainer_monthly_amount, retainer_capacity_hours_per_month")
-        .eq("id", input.stage_id)
-        .maybeSingle();
-      const monthlyFee = Number(
-        (stage as { retainer_monthly_amount: number | null } | null)
-          ?.retainer_monthly_amount ?? 0,
-      );
-      const capacityHpm = Number(
-        (stage as { retainer_capacity_hours_per_month: number | null } | null)
-          ?.retainer_capacity_hours_per_month ?? 0,
-      );
-      const derivedSale = capacityHpm > 0 ? monthlyFee / capacityHpm : 0;
 
       // Force billable=true — retainer hours are always billable under
       // the subscription fee.
       const billable = true;
+
 
       if (input.entry_id) {
         const { error } = await supabase
@@ -69,7 +55,7 @@ export function useLogRetainerHours(quoteId: string) {
             billable,
             notes: input.notes ?? null,
             cost_rate_snapshot: cost,
-            sale_rate_snapshot: derivedSale,
+            sale_rate_snapshot: sale,
           } as never)
           .eq("id", input.entry_id);
         if (error) throw error;
@@ -86,7 +72,7 @@ export function useLogRetainerHours(quoteId: string) {
         notes: input.notes ?? null,
         source: "retainer-inline",
         cost_rate_snapshot: cost,
-        sale_rate_snapshot: derivedSale,
+        sale_rate_snapshot: sale,
       } as never);
       if (error) throw error;
     },
