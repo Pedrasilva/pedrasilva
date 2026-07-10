@@ -340,10 +340,13 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                     <th className="px-2 py-2">{t("detail.retainerMonitor.monthCol")}</th>
                     <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.feeCol")}</th>
                     <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.usedHoursCol")}</th>
+                    <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.costCol")}</th>
+                    <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.saleCol")}</th>
                     <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.varianceCol")}</th>
                     <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.rollingCol")}</th>
                     <th className="px-2 py-2">{t("detail.retainerMonitor.statusCol")}</th>
                   </tr>
+
                 </thead>
                 <tbody>
                   {g.rows.map((r) => {
