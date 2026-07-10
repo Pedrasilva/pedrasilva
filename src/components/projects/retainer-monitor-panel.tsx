@@ -38,6 +38,8 @@ interface MonthRow {
   fee: number;
   includedHours: number;
   usedHours: number;
+  cost: number;             // actual cost consumed this month
+  sale: number;             // actual value generated this month
   variance: number;         // used - included (per month)
   rollingAvg: number;       // 3-month rolling avg of used
   rollingVariance: number;  // rollingAvg - included
@@ -51,17 +53,23 @@ interface RetainerGroup {
   color: string;
   monthlyFee: number;
   includedHours: number;
+  blendedSaleRate: number;      // €/h used to derive included hours
+  capacityHpm: number;          // raw retainer_capacity_hours_per_month (FTE default)
+  includedHoursSource: "blended" | "capacity"; // where includedHours came from
   totalMonths: number;
   rows: MonthRow[];
   totals: {
     fee: number;
     includedHours: number;
     usedHours: number;
+    cost: number;
+    sale: number;
     variance: number;
     monthsOver: number;
     monthsUnder: number;
   };
 }
+
 
 function statusFor(
   variance: number,
