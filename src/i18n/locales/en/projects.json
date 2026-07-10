@@ -118,6 +118,7 @@
       "totalsRow": "Total",
       "derivedFromBlended": "derived from fee ÷ blended sale rate ({{rate}}/h)",
       "capacityFallback": "no hours logged yet — showing retainer capacity default",
+      "noRateHint": "assign resources to derive hours from the monthly fee",
       "helpText": "Fee is fixed every month. Included hours = fee ÷ blended sale rate of the team actually delivering the retainer. Busy months are absorbed by quieter ones — amber = single busy month covered by the 3-month rolling average; red = sustained over-run."
 
     },
