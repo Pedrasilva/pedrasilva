@@ -98,12 +98,16 @@
       "monthlyFee": "Mensalidade",
       "includedHours": "Horas incluídas/mês",
       "usedTotal": "Horas usadas",
+      "costTotal": "Custo",
+      "saleTotal": "Venda",
       "cumulativeVariance": "Variação acumulada",
       "under": "abaixo",
       "over": "acima",
       "monthCol": "Mês",
       "feeCol": "Mensalidade",
       "usedHoursCol": "Usadas / incluídas",
+      "costCol": "Custo",
+      "saleCol": "Venda",
       "varianceCol": "Variação",
       "rollingCol": "Média móvel 3M",
       "statusCol": "Estado",
@@ -112,7 +116,10 @@
       "statusRed": "Excedido",
       "statusFuture": "Futuro",
       "totalsRow": "Total",
-      "helpText": "A mensalidade é fixa. Meses intensos são compensados por meses mais calmos — âmbar = mês pontualmente acima, absorvido pela média móvel; vermelho = excesso sustentado."
+      "derivedFromBlended": "derivado de mensalidade ÷ preço médio de venda ({{rate}}/h)",
+      "capacityFallback": "sem horas registadas — a mostrar capacidade por defeito do retainer",
+      "helpText": "A mensalidade é fixa. As horas incluídas = mensalidade ÷ preço médio de venda da equipa que entrega o retainer. Meses intensos são compensados por meses mais calmos — âmbar = mês pontualmente acima, absorvido pela média móvel; vermelho = excesso sustentado."
+
     },
     "tabs": {
       "overview": "Resumo",
