@@ -233,10 +233,29 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                 <span>
                   {t("detail.retainerMonitor.includedHours")}:{" "}
                   <span className="font-mono text-foreground">{Math.round(g.includedHours)}h</span>
+                  {g.includedHoursSource === "blended" ? (
+                    <span className="ml-1 text-[10px] text-muted-foreground">
+                      ({t("detail.retainerMonitor.derivedFromBlended", {
+                        rate: euros(g.blendedSaleRate),
+                      })})
+                    </span>
+                  ) : (
+                    <span className="ml-1 text-[10px] text-muted-foreground">
+                      ({t("detail.retainerMonitor.capacityFallback")})
+                    </span>
+                  )}
                 </span>
                 <span>
                   {t("detail.retainerMonitor.usedTotal")}:{" "}
                   <span className="font-mono text-foreground">{Math.round(g.totals.usedHours)}h</span>
+                </span>
+                <span>
+                  {t("detail.retainerMonitor.costTotal")}:{" "}
+                  <span className="font-mono text-foreground">{euros(g.totals.cost)}</span>
+                </span>
+                <span>
+                  {t("detail.retainerMonitor.saleTotal")}:{" "}
+                  <span className="font-mono text-foreground">{euros(g.totals.sale)}</span>
                 </span>
                 <span>
                   {t("detail.retainerMonitor.cumulativeVariance")}:{" "}
@@ -253,6 +272,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                   <span className="font-mono text-destructive">{g.totals.monthsOver}</span>{" "}
                   {t("detail.retainerMonitor.over")}
                 </span>
+
               </div>
             </header>
 
