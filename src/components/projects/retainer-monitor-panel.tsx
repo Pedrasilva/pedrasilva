@@ -170,12 +170,15 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
 
       const blendedSaleRate =
         plannedBlendedRate > 0 ? plannedBlendedRate : actualBlendedRate;
-      const includedHoursSource: "blended" | "capacity" =
-        blendedSaleRate > 0 ? "blended" : "capacity";
+      // Included hours ALWAYS derive from the monthly fee ÷ blended sale
+      // rate. If no rate can be established (no allocations, no logged
+      // history) we surface 0 and flag it — never fall back to a generic
+      // FTE capacity, which would misrepresent what the fee buys.
+      const includedHoursSource: "blended" | "unknown" =
+        blendedSaleRate > 0 ? "blended" : "unknown";
       const includedHours =
-        blendedSaleRate > 0 && monthlyFee > 0
-          ? monthlyFee / blendedSaleRate
-          : capacityHpm;
+        blendedSaleRate > 0 && monthlyFee > 0 ? monthlyFee / blendedSaleRate : 0;
+      void capacityHpm;
 
       const rows: MonthRow[] = base.map((r, i) => {
         // Rolling window across the previous 2 months + this one; missing
