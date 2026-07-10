@@ -18,6 +18,8 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { parseISO, format as fmtDate } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { euros } from "@/lib/projects/gantt-utils";
 import { cn } from "@/lib/utils";
 import type { StageWithAllocations } from "@/lib/projects/types";
@@ -478,9 +480,207 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                 {t("detail.retainerMonitor.helpText")}
               </p>
             </div>
+
+            <RetainerByResource parentStageId={g.parentId} />
           </div>
         );
       })}
     </section>
+  );
+}
+
+interface ByResourceProps {
+  parentStageId: string;
+}
+
+interface ResourceRow {
+  resourceId: string;
+  name: string;
+  hours: number;
+  billableHours: number;
+  cost: number;
+  sale: number;
+}
+
+function RetainerByResource({ parentStageId }: ByResourceProps) {
+  const { t } = useTranslation("projects");
+  const { data } = useQuery({
+    queryKey: ["retainer-by-resource", parentStageId],
+    queryFn: async (): Promise<ResourceRow[]> => {
+      // All stages that belong to this retainer: the parent itself + monthly children.
+      const { data: stages } = await supabase
+        .from("pm_stages")
+        .select("id")
+        .or(`id.eq.${parentStageId},parent_stage_id.eq.${parentStageId}`);
+      const stageIds = (stages ?? []).map((s) => s.id);
+      if (stageIds.length === 0) return [];
+
+      const { data: allocs } = await supabase
+        .from("pm_allocations")
+        .select(
+          "id, resource:pm_resources(id, name, full_name, cost_rate, hourly_rate)",
+        )
+        .in("stage_id", stageIds);
+      const allocInfo = new Map<
+        string,
+        { resourceId: string; name: string; cost: number; sale: number }
+      >();
+      for (const a of (allocs ?? []) as Array<{
+        id: string;
+        resource: {
+          id: string;
+          name: string | null;
+          full_name: string | null;
+          cost_rate: number | string | null;
+          hourly_rate: number | string | null;
+        };
+      }>) {
+        allocInfo.set(a.id, {
+          resourceId: a.resource.id,
+          name: a.resource.full_name || a.resource.name || "—",
+          cost: Number(a.resource.cost_rate ?? 0),
+          sale: Number(a.resource.hourly_rate ?? 0),
+        });
+      }
+      if (allocInfo.size === 0) return [];
+
+      const { data: tasks } = await supabase
+        .from("pm_tasks")
+        .select("id, allocation_id")
+        .in("allocation_id", Array.from(allocInfo.keys()));
+      const taskAlloc = new Map<string, string>();
+      for (const tk of (tasks ?? []) as Array<{ id: string; allocation_id: string }>) {
+        taskAlloc.set(tk.id, tk.allocation_id);
+      }
+      if (taskAlloc.size === 0) return [];
+
+      const { data: ents } = await supabase
+        .from("pm_time_entries")
+        .select("task_id, hours, billable, cost_rate_snapshot, sale_rate_snapshot")
+        .eq("entry_type", "project")
+        .in("task_id", Array.from(taskAlloc.keys()));
+
+      const byRes = new Map<string, ResourceRow>();
+      for (const e of (ents ?? []) as Array<{
+        task_id: string;
+        hours: number | string;
+        billable: boolean;
+        cost_rate_snapshot: number | string | null;
+        sale_rate_snapshot: number | string | null;
+      }>) {
+        const allocId = taskAlloc.get(e.task_id);
+        if (!allocId) continue;
+        const info = allocInfo.get(allocId);
+        if (!info) continue;
+        const h = Number(e.hours);
+        const costRate = e.cost_rate_snapshot != null ? Number(e.cost_rate_snapshot) : info.cost;
+        const saleRate = e.sale_rate_snapshot != null ? Number(e.sale_rate_snapshot) : info.sale;
+        const cur = byRes.get(info.resourceId) ?? {
+          resourceId: info.resourceId,
+          name: info.name,
+          hours: 0,
+          billableHours: 0,
+          cost: 0,
+          sale: 0,
+        };
+        cur.hours += h;
+        if (e.billable) cur.billableHours += h;
+        cur.cost += h * costRate;
+        if (e.billable) cur.sale += h * saleRate;
+        byRes.set(info.resourceId, cur);
+      }
+      return Array.from(byRes.values())
+        .filter((r) => r.hours > 0)
+        .sort((a, b) => b.sale - a.sale);
+    },
+  });
+
+  if (!data || data.length === 0) return null;
+
+  const totals = data.reduce(
+    (a, r) => ({
+      hours: a.hours + r.hours,
+      cost: a.cost + r.cost,
+      sale: a.sale + r.sale,
+    }),
+    { hours: 0, cost: 0, sale: 0 },
+  );
+  const totalMargin = totals.sale - totals.cost;
+  const totalPct = totals.sale > 0 ? (totalMargin / totals.sale) * 100 : 0;
+
+  return (
+    <div className="mt-4 rounded-md border border-border/70 bg-muted/20 p-3">
+      <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {t("detail.retainerMonitor.byResourceTitle")}
+      </h4>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <th className="px-2 py-2">{t("detail.retainerMonitor.resourceCol")}</th>
+              <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.hoursCol")}</th>
+              <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.costCol")}</th>
+              <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.saleCol")}</th>
+              <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.marginCol")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((r) => {
+              const margin = r.sale - r.cost;
+              const pct = r.sale > 0 ? (margin / r.sale) * 100 : 0;
+              const tone =
+                margin > 0
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : margin < 0
+                    ? "text-destructive"
+                    : "text-muted-foreground";
+              return (
+                <tr key={r.resourceId} className="border-b border-border/60">
+                  <td className="px-2 py-2">{r.name}</td>
+                  <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
+                    {Math.round(r.hours)}h
+                  </td>
+                  <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
+                    {euros(r.cost)}
+                  </td>
+                  <td className="px-2 py-2 text-right font-mono tabular-nums">
+                    {euros(r.sale)}
+                  </td>
+                  <td className={cn("px-2 py-2 text-right font-mono tabular-nums", tone)}>
+                    {euros(margin)}{" "}
+                    <span className="text-[10px]">({pct >= 0 ? "+" : ""}{Math.round(pct)}%)</span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr className="text-sm font-semibold">
+              <td className="px-2 py-2">{t("detail.retainerMonitor.totalsRow")}</td>
+              <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
+                {Math.round(totals.hours)}h
+              </td>
+              <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
+                {euros(totals.cost)}
+              </td>
+              <td className="px-2 py-2 text-right font-mono tabular-nums">{euros(totals.sale)}</td>
+              <td
+                className={cn(
+                  "px-2 py-2 text-right font-mono tabular-nums",
+                  totalMargin > 0
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : totalMargin < 0
+                      ? "text-destructive"
+                      : "text-muted-foreground",
+                )}
+              >
+                {euros(totalMargin)}{" "}
+                <span className="text-[10px]">({totalPct >= 0 ? "+" : ""}{Math.round(totalPct)}%)</span>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
   );
 }
