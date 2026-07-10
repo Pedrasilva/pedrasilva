@@ -271,7 +271,9 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                 </span>
                 <span>
                   {t("detail.retainerMonitor.includedHours")}:{" "}
-                  <span className="font-mono text-foreground">{Math.round(g.includedHours)}h</span>
+                  <span className="font-mono text-foreground">
+                    {g.includedHours > 0 ? `${Math.round(g.includedHours)}h` : "—"}
+                  </span>
                   {g.includedHoursSource === "blended" ? (
                     <span className="ml-1 text-[10px] text-muted-foreground">
                       ({t("detail.retainerMonitor.derivedFromBlended", {
@@ -279,8 +281,8 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                       })})
                     </span>
                   ) : (
-                    <span className="ml-1 text-[10px] text-muted-foreground">
-                      ({t("detail.retainerMonitor.capacityFallback")})
+                    <span className="ml-1 text-[10px] text-amber-600 dark:text-amber-400">
+                      ({t("detail.retainerMonitor.noRateHint")})
                     </span>
                   )}
                 </span>
