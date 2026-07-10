@@ -18,6 +18,8 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { parseISO, format as fmtDate } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { euros } from "@/lib/projects/gantt-utils";
 import { cn } from "@/lib/utils";
 import type { StageWithAllocations } from "@/lib/projects/types";
