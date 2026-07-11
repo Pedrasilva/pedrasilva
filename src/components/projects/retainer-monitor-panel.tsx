@@ -186,6 +186,16 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
   }, [stages]);
   const { data: directByStage } = useDirectRetainerEntries(childIds);
 
+  const retainerStageIds = useMemo(() => {
+    const parents = stages
+      .filter((s) => (s as { stage_kind?: string }).stage_kind === "retainer_monthly")
+      .map((s) => s.id);
+    return [...parents, ...childIds];
+  }, [stages, childIds]);
+  const { data: actualHoursByResource } = useActualHoursByResource(retainerStageIds);
+
+
+
 
   const groups = useMemo<RetainerGroup[]>(() => {
     const parents = stages.filter(
