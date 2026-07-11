@@ -307,7 +307,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       };
     });
 
-  }, [stages, byStage, i18n.language, todayIso]);
+  }, [stages, byStage, directByStage, i18n.language, todayIso]);
 
   if (!showFinancials || groups.length === 0) return null;
 
