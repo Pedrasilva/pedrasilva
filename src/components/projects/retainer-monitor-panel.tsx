@@ -15,13 +15,16 @@
  *
  * Nothing is capped or auto-invoiced; overages surface only as warnings.
  */
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { parseISO, format as fmtDate } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { euros } from "@/lib/projects/gantt-utils";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { LogRetainerHoursDialog } from "@/components/projects/log-retainer-hours-dialog";
 import type { StageWithAllocations } from "@/lib/projects/types";
 import type { StageBudgetControl } from "@/lib/projects/use-stage-budget-control";
 
@@ -29,6 +32,50 @@ interface Props {
   stages: StageWithAllocations[];
   byStage: Map<string, StageBudgetControl> | undefined;
   showFinancials: boolean;
+}
+
+interface DirectStageAgg {
+  hours: number;
+  cost: number;
+  sale: number;
+}
+
+/**
+ * Direct pm_time_entries logged against retainer stages (task_id null,
+ * pm_stage_id set). Aggregated per child stage id — merged into the
+ * monthly rows so open-logged hours show up alongside allocation-based
+ * ones without touching use-stage-budget-control.
+ */
+function useDirectRetainerEntries(childIds: string[]) {
+  return useQuery({
+    queryKey: ["retainer-direct-entries", [...childIds].sort().join(",")],
+    enabled: childIds.length > 0,
+    queryFn: async (): Promise<Map<string, DirectStageAgg>> => {
+      const { data } = await supabase
+        .from("pm_time_entries")
+        .select("pm_stage_id, hours, billable, cost_rate_snapshot, sale_rate_snapshot")
+        .in("pm_stage_id", childIds)
+        .is("task_id", null);
+      const m = new Map<string, DirectStageAgg>();
+      for (const e of (data ?? []) as Array<{
+        pm_stage_id: string;
+        hours: number | string;
+        billable: boolean;
+        cost_rate_snapshot: number | string | null;
+        sale_rate_snapshot: number | string | null;
+      }>) {
+        const h = Number(e.hours);
+        const cr = Number(e.cost_rate_snapshot ?? 0);
+        const sr = Number(e.sale_rate_snapshot ?? 0);
+        const cur = m.get(e.pm_stage_id) ?? { hours: 0, cost: 0, sale: 0 };
+        cur.hours += h;
+        cur.cost += h * cr;
+        if (e.billable) cur.sale += h * sr;
+        m.set(e.pm_stage_id, cur);
+      }
+      return m;
+    },
+  });
 }
 
 type MonthStatus = "green" | "amber" | "red" | "future";
