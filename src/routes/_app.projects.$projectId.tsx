@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { ProjectPlannerInspector } from "@/components/projects/project-planner-inspector";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { NewStageDialog } from "@/components/projects/new-stage-dialog";
+import { NewRetainerStageDialog } from "@/components/projects/new-retainer-stage-dialog";
 import {
   useProjectDetail,
   useResources,
