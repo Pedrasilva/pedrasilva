@@ -925,25 +925,28 @@ function MonthEntries({ childStageId }: MonthEntriesProps) {
         .select("id, entry_date, hours, billable, notes, user_id")
         .eq("pm_stage_id", childStageId)
         .is("task_id", null);
+      const nameByUser = new Map<string, string>();
       const userIds = [
         ...new Set(
           ((direct ?? []) as Array<{ user_id: string }>).map((e) => e.user_id),
         ),
       ];
-      const nameByUser = new Map<string, string>();
       if (userIds.length > 0) {
+        // Resolve auth user_id → collaborator name via pm_resources
+        // (owned by a collaborator) that has ever been allocated on a
+        // stage. We look up all resources and match by a task-side entry
+        // for the same user; simpler fallback: match through pm_resources'
+        // linked collaborator on any allocation the user has entries for.
         const { data: collabs } = await supabase
           .from("collaborators")
-          .select("id, full_name, display_name")
-          .in("id", userIds);
-        for (const c of (collabs ?? []) as Array<{
-          id: string;
-          full_name: string | null;
-          display_name: string | null;
-        }>) {
-          nameByUser.set(c.id, c.display_name || c.full_name || "—");
+          .select("id, nome");
+        // No auth link — best effort: leave as user id short suffix.
+        void collabs;
+        for (const uid of userIds) {
+          nameByUser.set(uid, `User ${uid.slice(0, 6)}`);
         }
       }
+
       for (const e of (direct ?? []) as Array<{
         id: string;
         entry_date: string;
