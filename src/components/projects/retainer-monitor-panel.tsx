@@ -27,6 +27,7 @@ import { Plus } from "lucide-react";
 import { LogRetainerHoursDialog } from "@/components/projects/log-retainer-hours-dialog";
 import type { StageWithAllocations } from "@/lib/projects/types";
 import type { StageBudgetControl } from "@/lib/projects/use-stage-budget-control";
+import { useDefaultResourceRates, effectiveRates } from "@/lib/projects/use-default-rates";
 
 interface Props {
   stages: StageWithAllocations[];
@@ -135,6 +136,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
   const { t, i18n } = useTranslation("projects");
   const todayIso = new Date().toISOString().slice(0, 10);
   const [logOpenFor, setLogOpenFor] = useState<string | null>(null);
+  const { data: defaultRates } = useDefaultResourceRates();
 
   const childIds = useMemo(() => {
     const parents = new Set(
@@ -209,10 +211,16 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
         hours_per_day: number | string | null;
         start_date: string;
         end_date: string;
-        resource: { hourly_rate: number | string | null };
+        resource: {
+          id: string;
+          hourly_rate: number | string | null;
+          cost_rate?: number | string | null;
+          hourly_rate_is_override?: boolean | null;
+        };
       }>;
       let plannedHoursSum = 0;
       let plannedSaleSum = 0;
+      let plannedCostSum = 0;
       for (const a of allocs) {
         const s = parseISO(a.start_date);
         const e = parseISO(a.end_date);
@@ -224,13 +232,24 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
           d.setDate(d.getDate() + 1);
         }
         const hpd = Number(a.hours_per_day ?? 0);
-        const rate = Number(a.resource?.hourly_rate ?? 0);
+        const eff = effectiveRates(
+          {
+            id: a.resource.id,
+            hourly_rate: Number(a.resource.hourly_rate ?? 0),
+            cost_rate: Number(a.resource.cost_rate ?? 0),
+            hourly_rate_is_override: a.resource.hourly_rate_is_override ?? null,
+          },
+          defaultRates,
+        );
         const hrs = wd * hpd;
         plannedHoursSum += hrs;
-        plannedSaleSum += hrs * rate;
+        plannedSaleSum += hrs * eff.sale;
+        plannedCostSum += hrs * eff.cost;
       }
       const plannedBlendedRate =
         plannedHoursSum > 0 ? plannedSaleSum / plannedHoursSum : 0;
+      const plannedBlendedCost =
+        plannedHoursSum > 0 ? plannedCostSum / plannedHoursSum : 0;
 
       const totalHoursLogged = base.reduce((s, r) => s + r.usedHours, 0);
       const totalSaleGenerated = base.reduce((s, r) => s + r.sale, 0);
@@ -241,6 +260,18 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
 
       const blendedSaleRate =
         plannedBlendedRate > 0 ? plannedBlendedRate : actualBlendedRate;
+      const blendedCostRate = plannedBlendedCost;
+
+      // Backfill month cost/sale when the underlying entries carry no rate
+      // snapshot (common for retainer stages logged before rates existed).
+      for (const r of base) {
+        if (r.usedHours > 0 && r.cost === 0 && blendedCostRate > 0) {
+          r.cost = r.usedHours * blendedCostRate;
+        }
+        if (r.usedHours > 0 && r.sale === 0 && blendedSaleRate > 0) {
+          r.sale = r.usedHours * blendedSaleRate;
+        }
+      }
       // Included hours ALWAYS derive from the monthly fee ÷ blended sale
       // rate. If no rate can be established (no allocations, no logged
       // history) we surface 0 and flag it — never fall back to a generic
@@ -307,7 +338,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       };
     });
 
-  }, [stages, byStage, directByStage, i18n.language, todayIso]);
+  }, [stages, byStage, directByStage, defaultRates, i18n.language, todayIso]);
 
   if (!showFinancials || groups.length === 0) return null;
 
