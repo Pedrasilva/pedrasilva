@@ -781,11 +781,19 @@ function ProjectDetail() {
                 <ContractBaselineCard projectId={projectId} />
                 {/* Budget control moved to A&P tab */}
 
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-muted-foreground">Retainers</h3>
+                  <NewRetainerStageDialog
+                    projectId={projectId}
+                    nextOrder={stages.length}
+                  />
+                </div>
                 <RetainerMonitorPanel
                   stages={stages}
                   byStage={budgetControl?.byStage}
                   showFinancials={canSeeFinancials}
                 />
+
 
                 <div className="rounded-lg border border-border bg-card">
                   <MilestonesTable
