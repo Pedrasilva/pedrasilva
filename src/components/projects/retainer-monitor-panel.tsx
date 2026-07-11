@@ -431,7 +431,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       };
     });
 
-  }, [stages, byStage, directByStage, resourcePricing, i18n.language, todayIso]);
+  }, [stages, byStage, directByStage, resourcePricing, actualHoursByResource, i18n.language, todayIso]);
 
   if (!showFinancials || groups.length === 0) return null;
 
