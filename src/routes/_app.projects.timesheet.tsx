@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { addDays, addWeeks, format, startOfWeek } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/projects/app-shell";
+import { TimesheetRetainerStages } from "@/components/projects/timesheet-retainer-stages";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
