@@ -369,7 +369,12 @@ function TimesheetPage() {
             adicionar com email correspondente.
           </div>
         ) : (
-          <div className="mt-6 overflow-hidden rounded-lg border border-border bg-card">
+          <>
+          <div className="mt-6">
+            <TimesheetRetainerStages />
+          </div>
+          <div className="mt-4 overflow-hidden rounded-lg border border-border bg-card">
+
             <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-4 py-2">
               <Popover open={addPopoverOpen} onOpenChange={setAddPopoverOpen}>
                 <PopoverTrigger asChild>
