@@ -8691,6 +8691,7 @@ export type Database = {
       }
     }
     Functions: {
+      _restore_project_0410b: { Args: { payload: Json }; Returns: Json }
       allocate_proposal_number: { Args: { p_date?: string }; Returns: string }
       backfill_quote_from_project: {
         Args: { _project_id: string }
