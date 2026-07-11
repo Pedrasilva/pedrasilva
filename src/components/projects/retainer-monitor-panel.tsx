@@ -561,9 +561,22 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                           : r.status === "future"
                             ? t("detail.retainerMonitor.statusFuture")
                             : t("detail.retainerMonitor.statusGreen");
+                    const isExpanded = expandedChildId === r.childId;
                     return (
-                      <tr key={r.childId} className="border-b border-border/60">
-                        <td className="px-2 py-2">{r.month}</td>
+                      <>
+                      <tr
+                        key={r.childId}
+                        className="cursor-pointer border-b border-border/60 hover:bg-muted/40"
+                        onClick={() =>
+                          setExpandedChildId(isExpanded ? null : r.childId)
+                        }
+                      >
+                        <td className="px-2 py-2">
+                          <span className="mr-1 inline-block text-muted-foreground">
+                            {isExpanded ? "▾" : "▸"}
+                          </span>
+                          {r.month}
+                        </td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums">{euros(r.fee)}</td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums">
                           {Math.round(r.usedHours)}h / {Math.round(r.includedHours)}h
@@ -593,9 +606,16 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                           </span>
                         </td>
                       </tr>
+                      {isExpanded && (
+                        <tr key={`${r.childId}-details`} className="border-b border-border/60 bg-muted/20">
+                          <td colSpan={8} className="px-2 py-3">
+                            <MonthEntries childStageId={r.childId} />
+                          </td>
+                        </tr>
+                      )}
+                      </>
                     );
 
-                  })}
                 </tbody>
                 <tfoot>
                   <tr className="border-t-2 border-border text-sm font-semibold">
