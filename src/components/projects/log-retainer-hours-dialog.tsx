@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { format, parseISO, startOfMonth } from "date-fns";
+import { useResourcePricing } from "@/lib/quotes/use-resource-pricing";
 
 interface Props {
   open: boolean;
@@ -46,6 +47,7 @@ export function LogRetainerHoursDialog({
   const { user } = useAuth();
   const { profile } = useProjectsAuth();
   const qc = useQueryClient();
+  const { data: resourcePricing } = useResourcePricing();
 
   const defaultDate = format(new Date(), "yyyy-MM-dd");
   const [entryDate, setEntryDate] = useState(defaultDate);
@@ -61,7 +63,7 @@ export function LogRetainerHoursDialog({
   }, [entryDate, monthlyChildren]);
 
   // Resource rates snapshot for the logged-in user
-  const { data: rates } = useQuery({
+  const { data: storedRates } = useQuery({
     queryKey: ["retainer-log-rates", profile?.resource_id],
     enabled: !!profile?.resource_id,
     queryFn: async () => {
@@ -76,6 +78,16 @@ export function LogRetainerHoursDialog({
       };
     },
   });
+
+  const rates = useMemo(() => {
+    const canonical = profile?.resource_id
+      ? resourcePricing?.get(profile.resource_id)
+      : undefined;
+    return {
+      cost: canonical?.costPerHour ?? storedRates?.cost ?? 0,
+      sale: canonical?.salePerHour ?? storedRates?.sale ?? 0,
+    };
+  }, [profile?.resource_id, resourcePricing, storedRates]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -100,8 +112,8 @@ export function LogRetainerHoursDialog({
         pm_stage_id: stageIdForDate,
         task_id: null,
         source: "retainer",
-        cost_rate_snapshot: rates?.cost ?? null,
-        sale_rate_snapshot: rates?.sale ?? null,
+        cost_rate_snapshot: rates.cost || null,
+        sale_rate_snapshot: rates.sale || null,
       } as never);
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ["retainer-by-resource"] });
@@ -178,7 +190,7 @@ export function LogRetainerHoursDialog({
               placeholder="Site visit, meeting, etc."
             />
           </div>
-          {rates ? (
+          {rates.cost > 0 || rates.sale > 0 ? (
             <p className="text-[11px] text-muted-foreground">
               Rates snapshot: cost €{rates.cost}/h · sale €{rates.sale}/h
             </p>
