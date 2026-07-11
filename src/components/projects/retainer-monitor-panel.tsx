@@ -563,7 +563,8 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                             : t("detail.retainerMonitor.statusGreen");
                     const isExpanded = expandedChildId === r.childId;
                     return (
-                      <>
+                      <Fragment key={r.childId}>
+
                       <tr
                         key={r.childId}
                         className="cursor-pointer border-b border-border/60 hover:bg-muted/40"
