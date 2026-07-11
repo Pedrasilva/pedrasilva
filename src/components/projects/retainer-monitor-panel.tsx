@@ -614,8 +614,10 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                           </td>
                         </tr>
                       )}
-                      </>
+                      </Fragment>
                     );
+                  })}
+
 
                 </tbody>
                 <tfoot>
