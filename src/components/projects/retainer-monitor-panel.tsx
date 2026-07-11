@@ -136,7 +136,9 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
   const { t, i18n } = useTranslation("projects");
   const todayIso = new Date().toISOString().slice(0, 10);
   const [logOpenFor, setLogOpenFor] = useState<string | null>(null);
+  const [expandedChildId, setExpandedChildId] = useState<string | null>(null);
   const { data: resourcePricing } = useResourcePricing();
+
 
   const childIds = useMemo(() => {
     const parents = new Set(
