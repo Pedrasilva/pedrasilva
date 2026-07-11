@@ -79,6 +79,76 @@ function useDirectRetainerEntries(childIds: string[]) {
   });
 }
 
+/**
+ * Actual hours logged per resource across the retainer subtree (parent +
+ * monthly children). Used to weight blended cost/sale rates when planned
+ * allocation hours are 0 (retainer allocations identify who may deliver
+ * rather than reserving daily capacity).
+ *
+ * Two sources merged:
+ *   - task-based entries: task → allocation → resource_id
+ *   - direct entries (task_id null): user_id → collaborators → pm_resources
+ */
+function useActualHoursByResource(stageIds: string[]) {
+  return useQuery({
+    queryKey: ["retainer-actual-hours-by-resource", [...stageIds].sort().join(",")],
+    enabled: stageIds.length > 0,
+    queryFn: async (): Promise<Map<string, number>> => {
+      const m = new Map<string, number>();
+      // Task-based
+      const { data: taskRows } = await supabase
+        .from("pm_time_entries")
+        .select("hours, pm_tasks!inner(pm_allocations!inner(resource_id))")
+        .in("pm_stage_id", stageIds)
+        .not("task_id", "is", null);
+      for (const r of (taskRows ?? []) as Array<{
+        hours: number | string;
+        pm_tasks: { pm_allocations: { resource_id: string } } | null;
+      }>) {
+        const rid = r.pm_tasks?.pm_allocations?.resource_id;
+        if (!rid) continue;
+        m.set(rid, (m.get(rid) ?? 0) + Number(r.hours));
+      }
+      // Direct (user_id → resource)
+      const { data: directRows } = await supabase
+        .from("pm_time_entries")
+        .select("hours, user_id")
+        .in("pm_stage_id", stageIds)
+        .is("task_id", null);
+      const userIds = [
+        ...new Set(
+          (directRows ?? [])
+            .map((r) => (r as { user_id: string | null }).user_id)
+            .filter((u): u is string => !!u),
+        ),
+      ];
+      if (userIds.length > 0) {
+        const { data: resources } = await supabase
+          .from("pm_resources")
+          .select("id, collaborators!inner(user_id)")
+          .in("collaborators.user_id", userIds);
+        const userToResource = new Map<string, string>();
+        for (const r of (resources ?? []) as Array<{
+          id: string;
+          collaborators: { user_id: string } | null;
+        }>) {
+          if (r.collaborators?.user_id) userToResource.set(r.collaborators.user_id, r.id);
+        }
+        for (const r of (directRows ?? []) as Array<{
+          hours: number | string;
+          user_id: string | null;
+        }>) {
+          if (!r.user_id) continue;
+          const rid = userToResource.get(r.user_id);
+          if (!rid) continue;
+          m.set(rid, (m.get(rid) ?? 0) + Number(r.hours));
+        }
+      }
+      return m;
+    },
+  });
+}
+
 type MonthStatus = "green" | "amber" | "red" | "future";
 
 interface MonthRow {
