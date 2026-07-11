@@ -851,3 +851,169 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
     </div>
   );
 }
+
+interface MonthEntriesProps {
+  childStageId: string;
+}
+
+interface EntryRow {
+  id: string;
+  entry_date: string;
+  hours: number;
+  billable: boolean;
+  notes: string | null;
+  resourceName: string;
+}
+
+function MonthEntries({ childStageId }: MonthEntriesProps) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["retainer-month-entries", childStageId],
+    queryFn: async (): Promise<EntryRow[]> => {
+      // Allocations on this child month stage → tasks → time entries.
+      const { data: allocs } = await supabase
+        .from("pm_allocations")
+        .select("id, resource:pm_resources(id, name, full_name)")
+        .eq("stage_id", childStageId);
+      const allocResource = new Map<string, string>();
+      for (const a of (allocs ?? []) as Array<{
+        id: string;
+        resource: { name: string | null; full_name: string | null };
+      }>) {
+        allocResource.set(a.id, a.resource.full_name || a.resource.name || "—");
+      }
+
+      const rows: EntryRow[] = [];
+
+      if (allocResource.size > 0) {
+        const { data: tasks } = await supabase
+          .from("pm_tasks")
+          .select("id, allocation_id")
+          .in("allocation_id", Array.from(allocResource.keys()));
+        const taskAlloc = new Map<string, string>();
+        for (const tk of (tasks ?? []) as Array<{ id: string; allocation_id: string }>) {
+          taskAlloc.set(tk.id, tk.allocation_id);
+        }
+        if (taskAlloc.size > 0) {
+          const { data: ents } = await supabase
+            .from("pm_time_entries")
+            .select("id, entry_date, hours, billable, notes, task_id, user_id")
+            .in("task_id", Array.from(taskAlloc.keys()));
+          for (const e of (ents ?? []) as Array<{
+            id: string;
+            entry_date: string;
+            hours: number | string;
+            billable: boolean;
+            notes: string | null;
+            task_id: string;
+          }>) {
+            const allocId = taskAlloc.get(e.task_id);
+            rows.push({
+              id: e.id,
+              entry_date: e.entry_date,
+              hours: Number(e.hours),
+              billable: e.billable,
+              notes: e.notes,
+              resourceName: (allocId && allocResource.get(allocId)) || "—",
+            });
+          }
+        }
+      }
+
+      // Direct entries logged straight on this child stage (no task).
+      const { data: direct } = await supabase
+        .from("pm_time_entries")
+        .select("id, entry_date, hours, billable, notes, user_id")
+        .eq("pm_stage_id", childStageId)
+        .is("task_id", null);
+      const userIds = [
+        ...new Set(
+          ((direct ?? []) as Array<{ user_id: string }>).map((e) => e.user_id),
+        ),
+      ];
+      const nameByUser = new Map<string, string>();
+      if (userIds.length > 0) {
+        const { data: collabs } = await supabase
+          .from("collaborators")
+          .select("id, full_name, display_name")
+          .in("id", userIds);
+        for (const c of (collabs ?? []) as Array<{
+          id: string;
+          full_name: string | null;
+          display_name: string | null;
+        }>) {
+          nameByUser.set(c.id, c.display_name || c.full_name || "—");
+        }
+      }
+      for (const e of (direct ?? []) as Array<{
+        id: string;
+        entry_date: string;
+        hours: number | string;
+        billable: boolean;
+        notes: string | null;
+        user_id: string;
+      }>) {
+        rows.push({
+          id: e.id,
+          entry_date: e.entry_date,
+          hours: Number(e.hours),
+          billable: e.billable,
+          notes: e.notes,
+          resourceName: nameByUser.get(e.user_id) || "—",
+        });
+      }
+
+      return rows.sort((a, b) => (a.entry_date < b.entry_date ? -1 : 1));
+    },
+  });
+
+  if (isLoading) {
+    return <div className="text-xs text-muted-foreground">Loading…</div>;
+  }
+  if (!data || data.length === 0) {
+    return <div className="text-xs text-muted-foreground">No entries this month.</div>;
+  }
+
+  const byPerson = new Map<string, number>();
+  for (const r of data) {
+    byPerson.set(r.resourceName, (byPerson.get(r.resourceName) ?? 0) + r.hours);
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-2 text-[11px]">
+        {[...byPerson.entries()].map(([name, hrs]) => (
+          <span key={name} className="rounded-full bg-background px-2 py-0.5 font-mono">
+            {name}: <span className="font-semibold">{Math.round(hrs)}h</span>
+          </span>
+        ))}
+      </div>
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="border-b border-border/60 text-left text-muted-foreground">
+            <th className="px-2 py-1 font-medium">Date</th>
+            <th className="px-2 py-1 font-medium">Who</th>
+            <th className="px-2 py-1 text-right font-medium">Hours</th>
+            <th className="px-2 py-1 font-medium">Billable</th>
+            <th className="px-2 py-1 font-medium">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((r) => (
+            <tr key={r.id} className="border-b border-border/40">
+              <td className="px-2 py-1 font-mono tabular-nums">{r.entry_date}</td>
+              <td className="px-2 py-1">{r.resourceName}</td>
+              <td className="px-2 py-1 text-right font-mono tabular-nums">
+                {r.hours.toFixed(2)}
+              </td>
+              <td className="px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+                {r.billable ? "yes" : "no"}
+              </td>
+              <td className="px-2 py-1 text-muted-foreground">{r.notes ?? ""}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
