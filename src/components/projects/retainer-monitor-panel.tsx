@@ -134,6 +134,23 @@ function statusFor(
 export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props) {
   const { t, i18n } = useTranslation("projects");
   const todayIso = new Date().toISOString().slice(0, 10);
+  const [logOpenFor, setLogOpenFor] = useState<string | null>(null);
+
+  const childIds = useMemo(() => {
+    const parents = new Set(
+      stages
+        .filter((s) => (s as { stage_kind?: string }).stage_kind === "retainer_monthly")
+        .map((s) => s.id),
+    );
+    return stages
+      .filter((s) => {
+        const pid = (s as { parent_stage_id?: string | null }).parent_stage_id;
+        return pid && parents.has(pid);
+      })
+      .map((s) => s.id);
+  }, [stages]);
+  const { data: directByStage } = useDirectRetainerEntries(childIds);
+
 
   const groups = useMemo<RetainerGroup[]>(() => {
     const parents = stages.filter(
