@@ -97,6 +97,7 @@ import {
   Receipt,
   Package,
   Activity as ActivityIcon,
+  Repeat,
   ListChecks,
   Mail,
   TrendingUp,
@@ -562,7 +563,7 @@ function ProjectDetail() {
                 Rates / Assets / Attachments / Details are dropped. */}
             <TabBtn icon={ListChecks} label={t("projects:detail.tabs.overview")} active={tab === "overview"} onClick={() => setTab("overview")} />
             <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
-            <TabBtn icon={ActivityIcon} label="A&P" active={tab === "ap"} onClick={() => setTab("ap")} />
+            <TabBtn icon={Repeat} label="Retainer" active={tab === "ap"} onClick={() => setTab("ap")} />
             {/* Materials tab hidden — superseded by Suppliers tab. Data layer kept intact. */}
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
             {/* Billing and Financial tabs hidden per request — kept in code for quick re-enable. */}
@@ -781,18 +782,6 @@ function ProjectDetail() {
                 <ContractBaselineCard projectId={projectId} />
                 {/* Budget control moved to A&P tab */}
 
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-muted-foreground">Retainers</h3>
-                  <NewRetainerStageDialog
-                    projectId={projectId}
-                    nextOrder={stages.length}
-                  />
-                </div>
-                <RetainerMonitorPanel
-                  stages={stages}
-                  byStage={budgetControl?.byStage}
-                  showFinancials={canSeeFinancials}
-                />
 
 
                 <div className="rounded-lg border border-border bg-card">
@@ -815,6 +804,19 @@ function ProjectDetail() {
 
             {tab === "ap" && (
               <div className="mt-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-muted-foreground">Retainers</h3>
+                  <NewRetainerStageDialog
+                    projectId={projectId}
+                    nextOrder={stages.length}
+                  />
+                </div>
+                <RetainerMonitorPanel
+                  stages={stages}
+                  byStage={budgetControl?.byStage}
+                  showFinancials={canSeeFinancials}
+                />
+
                 {budgetControl && canSeeFinancials && (() => {
                   const archStages = stages.filter(
                     (s) => (s as { is_self?: boolean }).is_self !== false,
