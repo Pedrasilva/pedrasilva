@@ -5679,6 +5679,7 @@ export type Database = {
           internal_category: string | null
           leave_type: string | null
           notes: string | null
+          pm_stage_id: string | null
           quote_stage_id: string | null
           sale_rate_snapshot: number | null
           source: string
@@ -5700,6 +5701,7 @@ export type Database = {
           internal_category?: string | null
           leave_type?: string | null
           notes?: string | null
+          pm_stage_id?: string | null
           quote_stage_id?: string | null
           sale_rate_snapshot?: number | null
           source?: string
@@ -5721,6 +5723,7 @@ export type Database = {
           internal_category?: string | null
           leave_type?: string | null
           notes?: string | null
+          pm_stage_id?: string | null
           quote_stage_id?: string | null
           sale_rate_snapshot?: number | null
           source?: string
@@ -5730,6 +5733,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "pm_time_entries_pm_stage_id_fkey"
+            columns: ["pm_stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pm_time_entries_quote_stage_id_fkey"
             columns: ["quote_stage_id"]
@@ -8895,6 +8905,7 @@ export type Database = {
         }[]
       }
       pm_get_my_resource_id: { Args: never; Returns: string }
+      pm_is_retainer_stage: { Args: { _stage_id: string }; Returns: boolean }
       pm_list_user_resource_map: {
         Args: never
         Returns: {
