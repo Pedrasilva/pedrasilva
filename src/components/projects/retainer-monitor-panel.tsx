@@ -79,6 +79,37 @@ function useDirectRetainerEntries(childIds: string[]) {
   });
 }
 
+/**
+ * Actual hours logged per resource across the retainer subtree, from
+ * task-based time entries (task → allocation → resource_id). Used to
+ * weight blended cost/sale rates when planned allocation hours are 0
+ * (retainer allocations identify who may deliver rather than reserving
+ * daily capacity).
+ */
+function useActualHoursByResource(stageIds: string[]) {
+  return useQuery({
+    queryKey: ["retainer-actual-hours-by-resource", [...stageIds].sort().join(",")],
+    enabled: stageIds.length > 0,
+    queryFn: async (): Promise<Map<string, number>> => {
+      const m = new Map<string, number>();
+      const { data } = await supabase
+        .from("pm_time_entries")
+        .select("hours, pm_tasks!inner(pm_allocations!inner(resource_id))")
+        .in("pm_stage_id", stageIds)
+        .not("task_id", "is", null);
+      for (const r of (data ?? []) as Array<{
+        hours: number | string;
+        pm_tasks: { pm_allocations: { resource_id: string } } | null;
+      }>) {
+        const rid = r.pm_tasks?.pm_allocations?.resource_id;
+        if (!rid) continue;
+        m.set(rid, (m.get(rid) ?? 0) + Number(r.hours));
+      }
+      return m;
+    },
+  });
+}
+
 type MonthStatus = "green" | "amber" | "red" | "future";
 
 interface MonthRow {
@@ -154,6 +185,16 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       .map((s) => s.id);
   }, [stages]);
   const { data: directByStage } = useDirectRetainerEntries(childIds);
+
+  const retainerStageIds = useMemo(() => {
+    const parents = stages
+      .filter((s) => (s as { stage_kind?: string }).stage_kind === "retainer_monthly")
+      .map((s) => s.id);
+    return [...parents, ...childIds];
+  }, [stages, childIds]);
+  const { data: actualHoursByResource } = useActualHoursByResource(retainerStageIds);
+
+
 
 
   const groups = useMemo<RetainerGroup[]>(() => {
@@ -254,8 +295,30 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
 
       // Retainer allocations intentionally carry 0 planned hours: they
       // identify who may deliver the monthly service rather than reserving
-      // daily capacity. In that case, use one vote per distinct resource.
+      // daily capacity. Prefer weighting by ACTUAL hours logged per
+      // resource (honest reflection of who delivered), and fall back to
+      // one vote per distinct resource only if no actuals exist yet.
       const distinctResourceIds = [...new Set(allocs.map((a) => a.resource.id))];
+      let actualWeightedSaleRate = 0;
+      let actualWeightedCostRate = 0;
+      if (actualHoursByResource && actualHoursByResource.size > 0) {
+        let hSum = 0;
+        let saleSum = 0;
+        let costSum = 0;
+        for (const rid of distinctResourceIds) {
+          const h = actualHoursByResource.get(rid) ?? 0;
+          const rate = resourcePricing?.get(rid);
+          if (h <= 0 || !rate) continue;
+          hSum += h;
+          saleSum += h * rate.salePerHour;
+          costSum += h * rate.costPerHour;
+        }
+        if (hSum > 0) {
+          actualWeightedSaleRate = saleSum / hSum;
+          actualWeightedCostRate = costSum / hSum;
+        }
+      }
+
       const unweightedRates = distinctResourceIds
         .map((id) => resourcePricing?.get(id))
         .filter((rate): rate is NonNullable<typeof rate> => !!rate);
@@ -280,11 +343,17 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       const blendedSaleRate =
         plannedBlendedRate > 0
           ? plannedBlendedRate
-          : unweightedSaleRate > 0
-            ? unweightedSaleRate
-            : actualBlendedRate;
+          : actualWeightedSaleRate > 0
+            ? actualWeightedSaleRate
+            : unweightedSaleRate > 0
+              ? unweightedSaleRate
+              : actualBlendedRate;
       const blendedCostRate =
-        plannedBlendedCost > 0 ? plannedBlendedCost : unweightedCostRate;
+        plannedBlendedCost > 0
+          ? plannedBlendedCost
+          : actualWeightedCostRate > 0
+            ? actualWeightedCostRate
+            : unweightedCostRate;
 
       // Backfill month cost/sale when the underlying entries carry no rate
       // snapshot (common for retainer stages logged before rates existed).
@@ -362,7 +431,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       };
     });
 
-  }, [stages, byStage, directByStage, resourcePricing, i18n.language, todayIso]);
+  }, [stages, byStage, directByStage, resourcePricing, actualHoursByResource, i18n.language, todayIso]);
 
   if (!showFinancials || groups.length === 0) return null;
 
