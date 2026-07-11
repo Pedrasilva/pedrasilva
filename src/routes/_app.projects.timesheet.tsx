@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { addDays, addWeeks, format, startOfWeek } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/projects/app-shell";
+import { TimesheetRetainerStages } from "@/components/projects/timesheet-retainer-stages";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -369,7 +370,12 @@ function TimesheetPage() {
             adicionar com email correspondente.
           </div>
         ) : (
-          <div className="mt-6 overflow-hidden rounded-lg border border-border bg-card">
+          <>
+          <div className="mt-6">
+            <TimesheetRetainerStages />
+          </div>
+          <div className="mt-4 overflow-hidden rounded-lg border border-border bg-card">
+
             <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-4 py-2">
               <Popover open={addPopoverOpen} onOpenChange={setAddPopoverOpen}>
                 <PopoverTrigger asChild>
@@ -686,6 +692,7 @@ function TimesheetPage() {
               </table>
             </div>
           </div>
+          </>
         )}
       </div>
     </AppShell>

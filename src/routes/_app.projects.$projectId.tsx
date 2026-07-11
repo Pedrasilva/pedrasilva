@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { ProjectPlannerInspector } from "@/components/projects/project-planner-inspector";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { NewStageDialog } from "@/components/projects/new-stage-dialog";
+import { NewRetainerStageDialog } from "@/components/projects/new-retainer-stage-dialog";
 import {
   useProjectDetail,
   useResources,
@@ -780,11 +781,19 @@ function ProjectDetail() {
                 <ContractBaselineCard projectId={projectId} />
                 {/* Budget control moved to A&P tab */}
 
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-muted-foreground">Retainers</h3>
+                  <NewRetainerStageDialog
+                    projectId={projectId}
+                    nextOrder={stages.length}
+                  />
+                </div>
                 <RetainerMonitorPanel
                   stages={stages}
                   byStage={budgetControl?.byStage}
                   showFinancials={canSeeFinancials}
                 />
+
 
                 <div className="rounded-lg border border-border bg-card">
                   <MilestonesTable

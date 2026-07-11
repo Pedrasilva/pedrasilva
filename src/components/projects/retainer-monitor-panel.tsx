@@ -15,13 +15,16 @@
  *
  * Nothing is capped or auto-invoiced; overages surface only as warnings.
  */
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { parseISO, format as fmtDate } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { euros } from "@/lib/projects/gantt-utils";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { LogRetainerHoursDialog } from "@/components/projects/log-retainer-hours-dialog";
 import type { StageWithAllocations } from "@/lib/projects/types";
 import type { StageBudgetControl } from "@/lib/projects/use-stage-budget-control";
 
@@ -29,6 +32,50 @@ interface Props {
   stages: StageWithAllocations[];
   byStage: Map<string, StageBudgetControl> | undefined;
   showFinancials: boolean;
+}
+
+interface DirectStageAgg {
+  hours: number;
+  cost: number;
+  sale: number;
+}
+
+/**
+ * Direct pm_time_entries logged against retainer stages (task_id null,
+ * pm_stage_id set). Aggregated per child stage id — merged into the
+ * monthly rows so open-logged hours show up alongside allocation-based
+ * ones without touching use-stage-budget-control.
+ */
+function useDirectRetainerEntries(childIds: string[]) {
+  return useQuery({
+    queryKey: ["retainer-direct-entries", [...childIds].sort().join(",")],
+    enabled: childIds.length > 0,
+    queryFn: async (): Promise<Map<string, DirectStageAgg>> => {
+      const { data } = await supabase
+        .from("pm_time_entries")
+        .select("pm_stage_id, hours, billable, cost_rate_snapshot, sale_rate_snapshot")
+        .in("pm_stage_id", childIds)
+        .is("task_id", null);
+      const m = new Map<string, DirectStageAgg>();
+      for (const e of (data ?? []) as Array<{
+        pm_stage_id: string;
+        hours: number | string;
+        billable: boolean;
+        cost_rate_snapshot: number | string | null;
+        sale_rate_snapshot: number | string | null;
+      }>) {
+        const h = Number(e.hours);
+        const cr = Number(e.cost_rate_snapshot ?? 0);
+        const sr = Number(e.sale_rate_snapshot ?? 0);
+        const cur = m.get(e.pm_stage_id) ?? { hours: 0, cost: 0, sale: 0 };
+        cur.hours += h;
+        cur.cost += h * cr;
+        if (e.billable) cur.sale += h * sr;
+        m.set(e.pm_stage_id, cur);
+      }
+      return m;
+    },
+  });
 }
 
 type MonthStatus = "green" | "amber" | "red" | "future";
@@ -87,6 +134,23 @@ function statusFor(
 export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props) {
   const { t, i18n } = useTranslation("projects");
   const todayIso = new Date().toISOString().slice(0, 10);
+  const [logOpenFor, setLogOpenFor] = useState<string | null>(null);
+
+  const childIds = useMemo(() => {
+    const parents = new Set(
+      stages
+        .filter((s) => (s as { stage_kind?: string }).stage_kind === "retainer_monthly")
+        .map((s) => s.id),
+    );
+    return stages
+      .filter((s) => {
+        const pid = (s as { parent_stage_id?: string | null }).parent_stage_id;
+        return pid && parents.has(pid);
+      })
+      .map((s) => s.id);
+  }, [stages]);
+  const { data: directByStage } = useDirectRetainerEntries(childIds);
+
 
   const groups = useMemo<RetainerGroup[]>(() => {
     const parents = stages.filter(
@@ -114,11 +178,15 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       );
 
       // Build initial rows w/ used hours + real cost / sale actuals.
+      // Merge two sources: (a) actuals from `use-stage-budget-control`
+      // (allocation/task-chain) and (b) direct pm_time_entries logged
+      // straight against the retainer child stage (open logging, no task).
       const base = children.map((c) => {
         const ctrl = byStage?.get(c.id);
-        const usedHours = Number(ctrl?.actual_hours_logged ?? 0);
-        const cost = Number(ctrl?.actual_cost_consumed ?? 0);
-        const sale = Number(ctrl?.actual_value_generated ?? 0);
+        const direct = directByStage?.get(c.id) ?? { hours: 0, cost: 0, sale: 0 };
+        const usedHours = Number(ctrl?.actual_hours_logged ?? 0) + direct.hours;
+        const cost = Number(ctrl?.actual_cost_consumed ?? 0) + direct.cost;
+        const sale = Number(ctrl?.actual_value_generated ?? 0) + direct.sale;
         return {
           childId: c.id,
           monthDate: c.start_date,
@@ -129,6 +197,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
           isFuture: c.start_date > todayIso,
         };
       });
+
 
       // Blended sale rate: derived from the resources assigned to this
       // retainer (parent-stage allocations). Each allocation carries the
@@ -238,7 +307,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       };
     });
 
-  }, [stages, byStage, i18n.language, todayIso]);
+  }, [stages, byStage, directByStage, i18n.language, todayIso]);
 
   if (!showFinancials || groups.length === 0) return null;
 
@@ -265,7 +334,27 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                 <span className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                   {g.totalMonths} {t("detail.retainerMonitor.months")}
                 </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => setLogOpenFor(g.parentId)}
+                >
+                  <Plus className="mr-1 h-3 w-3" />
+                  Log hours
+                </Button>
+                <LogRetainerHoursDialog
+                  open={logOpenFor === g.parentId}
+                  onOpenChange={(v) => setLogOpenFor(v ? g.parentId : null)}
+                  parentStageName={g.parentName}
+                  monthlyChildren={g.rows.map((r) => ({
+                    id: r.childId,
+                    monthDate: r.monthDate,
+                    month: r.month,
+                  }))}
+                />
               </div>
+
               <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                 <span>
                   {t("detail.retainerMonitor.monthlyFee")}:{" "}

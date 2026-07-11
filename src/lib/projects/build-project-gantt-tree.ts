@@ -26,8 +26,12 @@ export function buildProjectGanttTree(
   projectId: string,
   summaryLabel: string,
 ): { mappedStages: StageWithProject[]; hierarchy: Map<string, GanttHierarchyNode> } {
-  // Filter out retainer-monthly rows — those are edited elsewhere.
-  const regular = stages.filter((s) => (s as { stage_kind?: string }).stage_kind !== "retainer_monthly");
+  // Filter out per-month retainer children (`retainer_month`) — the parent
+  // `retainer_monthly` row spans the full retainer band and is what users
+  // see on the Gantt. Monthly children are only used by the monitor.
+  const regular = stages.filter(
+    (s) => (s as { stage_kind?: string }).stage_kind !== "retainer_month",
+  );
 
   const childrenByParent = new Map<string | null, StageWithAllocations[]>();
   for (const s of regular) {
