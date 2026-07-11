@@ -178,11 +178,15 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       );
 
       // Build initial rows w/ used hours + real cost / sale actuals.
+      // Merge two sources: (a) actuals from `use-stage-budget-control`
+      // (allocation/task-chain) and (b) direct pm_time_entries logged
+      // straight against the retainer child stage (open logging, no task).
       const base = children.map((c) => {
         const ctrl = byStage?.get(c.id);
-        const usedHours = Number(ctrl?.actual_hours_logged ?? 0);
-        const cost = Number(ctrl?.actual_cost_consumed ?? 0);
-        const sale = Number(ctrl?.actual_value_generated ?? 0);
+        const direct = directByStage?.get(c.id) ?? { hours: 0, cost: 0, sale: 0 };
+        const usedHours = Number(ctrl?.actual_hours_logged ?? 0) + direct.hours;
+        const cost = Number(ctrl?.actual_cost_consumed ?? 0) + direct.cost;
+        const sale = Number(ctrl?.actual_value_generated ?? 0) + direct.sale;
         return {
           childId: c.id,
           monthDate: c.start_date,
@@ -193,6 +197,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
           isFuture: c.start_date > todayIso,
         };
       });
+
 
       // Blended sale rate: derived from the resources assigned to this
       // retainer (parent-stage allocations). Each allocation carries the
