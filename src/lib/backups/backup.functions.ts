@@ -55,6 +55,15 @@ export const searchBackup = createServerFn({ method: "POST" })
     return searchAcrossBackup(data.runId, data.search);
   });
 
+export const downloadBackup = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { runId: string }) => d)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { getBackupDownload } = await import("./backup-inspect.server");
+    return getBackupDownload(data.runId);
+  });
+
 export const getBackupConfig = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

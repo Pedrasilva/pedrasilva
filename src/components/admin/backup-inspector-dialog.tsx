@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
@@ -11,10 +12,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Loader2, Search, ArrowLeft } from "lucide-react";
+import { Loader2, Search, ArrowLeft, Download } from "lucide-react";
 import { toast } from "sonner";
 import {
   inspectBackup,
+  downloadBackup,
   previewBackupTable,
   searchBackup,
 } from "@/lib/backups/backup.functions";
@@ -26,6 +28,7 @@ type Props = {
 };
 
 export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
+  const { t } = useTranslation("common");
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [tableSearch, setTableSearch] = useState("");
   const [globalSearch, setGlobalSearch] = useState("");
@@ -33,6 +36,7 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
   const inspectFn = useServerFn(inspectBackup);
   const previewFn = useServerFn(previewBackupTable);
   const searchFn = useServerFn(searchBackup);
+  const downloadFn = useServerFn(downloadBackup);
 
   const summaryQ = useQuery({
     queryKey: ["backup-inspect", runId],
@@ -53,6 +57,25 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const downloadMut = useMutation({
+    mutationFn: () => downloadFn({ data: { runId: runId! } }),
+    onSuccess: ({ base64, fileName: downloadedName, mimeType }) => {
+      const raw = window.atob(base64);
+      const bytes = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i += 1) bytes[i] = raw.charCodeAt(i);
+      const url = URL.createObjectURL(new Blob([bytes], { type: mimeType }));
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = downloadedName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      toast.success(t("admin.backups.downloadSuccess"));
+    },
+    onError: (e: Error) => toast.error(t("admin.backups.downloadError", { error: e.message })),
+  });
+
   const open = !!runId;
 
   return (
@@ -70,10 +93,29 @@ export function BackupInspectorDialog({ runId, fileName, onClose }: Props) {
     >
       <DialogContent className="max-h-[90vh] max-w-5xl overflow-hidden">
         <DialogHeader>
-          <DialogTitle>Inspecionar backup</DialogTitle>
-          <DialogDescription className="truncate font-mono text-xs">
-            {fileName ?? runId}
-          </DialogDescription>
+          <div className="flex items-start justify-between gap-3 pr-8">
+            <div className="min-w-0">
+              <DialogTitle>Inspecionar backup</DialogTitle>
+              <DialogDescription className="truncate font-mono text-xs">
+                {fileName ?? runId}
+              </DialogDescription>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!runId || downloadMut.isPending}
+              onClick={() => downloadMut.mutate()}
+            >
+              {downloadMut.isPending ? (
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-1 h-4 w-4" />
+              )}
+              {downloadMut.isPending
+                ? t("admin.backups.downloading")
+                : t("admin.backups.download")}
+            </Button>
+          </div>
         </DialogHeader>
 
         {summaryQ.isLoading && (

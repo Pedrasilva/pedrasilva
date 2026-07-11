@@ -278,6 +278,12 @@
         }
       }
     },
+    "backups": {
+      "download": "Download",
+      "downloading": "Downloading…",
+      "downloadSuccess": "Backup downloaded.",
+      "downloadError": "Backup download failed: {{error}}"
+    },
     "projectsTools": {
       "title": "Projects admin",
       "subtitle": "Reset and maintenance tools for project test data."

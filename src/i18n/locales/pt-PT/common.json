@@ -278,6 +278,12 @@
         }
       }
     },
+    "backups": {
+      "download": "Descarregar",
+      "downloading": "A descarregar…",
+      "downloadSuccess": "Backup descarregado.",
+      "downloadError": "Falha ao descarregar o backup: {{error}}"
+    },
     "projectsTools": {
       "title": "Administração de Projetos",
       "subtitle": "Ferramentas de reset e manutenção para dados de teste de projetos."

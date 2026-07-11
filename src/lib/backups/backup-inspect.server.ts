@@ -29,10 +29,7 @@ type BackupPayload = {
 const cache = new Map<string, { at: number; payload: BackupPayload }>();
 const TTL_MS = 5 * 60 * 1000;
 
-async function loadBackup(runId: string): Promise<BackupPayload> {
-  const cached = cache.get(runId);
-  if (cached && Date.now() - cached.at < TTL_MS) return cached.payload;
-
+async function getBackupRun(runId: string) {
   const { data: run, error } = await supabaseAdmin
     .from("backup_runs")
     .select("drive_file_id, drive_file_name, status")
@@ -40,7 +37,11 @@ async function loadBackup(runId: string): Promise<BackupPayload> {
     .single();
   if (error || !run) throw new Error(`Backup not found: ${error?.message ?? "unknown"}`);
   if (!run.drive_file_id) throw new Error("This backup has no Drive file (it failed before upload).");
+  return run;
+}
 
+async function downloadBackupBytes(runId: string) {
+  const run = await getBackupRun(runId);
   const res = await fetch(
     `${GATEWAY_BASE}/drive/v3/files/${run.drive_file_id}?alt=media&supportsAllDrives=true`,
     { headers: driveHeaders() },
@@ -49,11 +50,30 @@ async function loadBackup(runId: string): Promise<BackupPayload> {
     const txt = await res.text();
     throw new Error(`Drive download failed [${res.status}]: ${txt.slice(0, 200)}`);
   }
-  const buf = Buffer.from(await res.arrayBuffer());
+  return {
+    bytes: Buffer.from(await res.arrayBuffer()),
+    fileName: run.drive_file_name || `backup-${runId}.json.gz`,
+  };
+}
+
+async function loadBackup(runId: string): Promise<BackupPayload> {
+  const cached = cache.get(runId);
+  if (cached && Date.now() - cached.at < TTL_MS) return cached.payload;
+
+  const { bytes: buf } = await downloadBackupBytes(runId);
   const json = gunzipSync(buf).toString("utf8");
   const payload = JSON.parse(json) as BackupPayload;
   cache.set(runId, { at: Date.now(), payload });
   return payload;
+}
+
+export async function getBackupDownload(runId: string) {
+  const { bytes, fileName } = await downloadBackupBytes(runId);
+  return {
+    fileName,
+    mimeType: "application/gzip",
+    base64: bytes.toString("base64"),
+  };
 }
 
 export async function inspectBackupSummary(runId: string) {
