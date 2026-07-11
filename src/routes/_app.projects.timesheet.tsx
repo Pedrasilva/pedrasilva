@@ -691,6 +691,7 @@ function TimesheetPage() {
               </table>
             </div>
           </div>
+          </>
         )}
       </div>
     </AppShell>
