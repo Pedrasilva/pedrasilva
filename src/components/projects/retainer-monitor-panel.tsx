@@ -295,8 +295,30 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
 
       // Retainer allocations intentionally carry 0 planned hours: they
       // identify who may deliver the monthly service rather than reserving
-      // daily capacity. In that case, use one vote per distinct resource.
+      // daily capacity. Prefer weighting by ACTUAL hours logged per
+      // resource (honest reflection of who delivered), and fall back to
+      // one vote per distinct resource only if no actuals exist yet.
       const distinctResourceIds = [...new Set(allocs.map((a) => a.resource.id))];
+      let actualWeightedSaleRate = 0;
+      let actualWeightedCostRate = 0;
+      if (actualHoursByResource && actualHoursByResource.size > 0) {
+        let hSum = 0;
+        let saleSum = 0;
+        let costSum = 0;
+        for (const rid of distinctResourceIds) {
+          const h = actualHoursByResource.get(rid) ?? 0;
+          const rate = resourcePricing?.get(rid);
+          if (h <= 0 || !rate) continue;
+          hSum += h;
+          saleSum += h * rate.salePerHour;
+          costSum += h * rate.costPerHour;
+        }
+        if (hSum > 0) {
+          actualWeightedSaleRate = saleSum / hSum;
+          actualWeightedCostRate = costSum / hSum;
+        }
+      }
+
       const unweightedRates = distinctResourceIds
         .map((id) => resourcePricing?.get(id))
         .filter((rate): rate is NonNullable<typeof rate> => !!rate);
@@ -321,11 +343,17 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
       const blendedSaleRate =
         plannedBlendedRate > 0
           ? plannedBlendedRate
-          : unweightedSaleRate > 0
-            ? unweightedSaleRate
-            : actualBlendedRate;
+          : actualWeightedSaleRate > 0
+            ? actualWeightedSaleRate
+            : unweightedSaleRate > 0
+              ? unweightedSaleRate
+              : actualBlendedRate;
       const blendedCostRate =
-        plannedBlendedCost > 0 ? plannedBlendedCost : unweightedCostRate;
+        plannedBlendedCost > 0
+          ? plannedBlendedCost
+          : actualWeightedCostRate > 0
+            ? actualWeightedCostRate
+            : unweightedCostRate;
 
       // Backfill month cost/sale when the underlying entries carry no rate
       // snapshot (common for retainer stages logged before rates existed).
