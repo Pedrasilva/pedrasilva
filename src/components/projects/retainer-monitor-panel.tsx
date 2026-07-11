@@ -334,7 +334,27 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                 <span className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                   {g.totalMonths} {t("detail.retainerMonitor.months")}
                 </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => setLogOpenFor(g.parentId)}
+                >
+                  <Plus className="mr-1 h-3 w-3" />
+                  Log hours
+                </Button>
+                <LogRetainerHoursDialog
+                  open={logOpenFor === g.parentId}
+                  onOpenChange={(v) => setLogOpenFor(v ? g.parentId : null)}
+                  parentStageName={g.parentName}
+                  monthlyChildren={g.rows.map((r) => ({
+                    id: r.childId,
+                    monthDate: r.monthDate,
+                    month: r.month,
+                  }))}
+                />
               </div>
+
               <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                 <span>
                   {t("detail.retainerMonitor.monthlyFee")}:{" "}
