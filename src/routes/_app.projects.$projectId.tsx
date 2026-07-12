@@ -310,7 +310,15 @@ function ProjectDetail() {
   const { project, stages } = data;
 
   // ---- Aggregations -----------------------------------------------------
-  const totalBudget = stages.reduce((sum, s) => sum + Number(s.budget), 0);
+  // Exclude retainer month children — their budget is already summed in the
+  // retainer parent (kind='retainer_monthly'), so counting both double-counts.
+  const totalBudget = stages.reduce(
+    (sum, s) =>
+      (s as { stage_kind?: string | null }).stage_kind === "retainer_month"
+        ? sum
+        : sum + Number(s.budget),
+    0,
+  );
 
   const stageCost = (stageId: string) => {
     const s = stages.find((x) => x.id === stageId);
