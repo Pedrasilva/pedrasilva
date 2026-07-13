@@ -605,6 +605,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                   </tr>
 
                 </thead>
+                <tbody>
                   {(() => { let cumCost = 0; return g.rows.map((r) => {
                     if (!r.isFuture) cumCost += r.cost;
                     const cumCostForRow = r.isFuture ? null : cumCost;
