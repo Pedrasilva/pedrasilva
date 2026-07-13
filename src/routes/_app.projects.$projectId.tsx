@@ -389,13 +389,23 @@ function ProjectDetail() {
       saleRate: effectiveSaleRate(a.resource.hourly_rate, a.resource.id, defaultRates, !!a.resource.hourly_rate_is_override),
     }));
     const totPlan = planned.reduce((x, y) => x + y.h, 0);
-    if (totPlan <= 0) return { revenue: 0, cost: 0, profit: 0 };
     let cost = 0;
     let revenue = 0;
-    for (const p of planned) {
-      const w = p.h / totPlan;
-      cost += w * logged * p.costRate;
-      revenue += w * billable * p.saleRate;
+    if (totPlan > 0) {
+      for (const p of planned) {
+        const w = p.h / totPlan;
+        cost += w * logged * p.costRate;
+        revenue += w * billable * p.saleRate;
+      }
+    } else if (planned.length > 0) {
+      // Retainer / zero-planned stages: split logged hours evenly across the
+      // stage's allocations so cost/revenue reflect the blended rate of the
+      // resources assigned, instead of collapsing to €0.
+      const w = 1 / planned.length;
+      for (const p of planned) {
+        cost += w * logged * p.costRate;
+        revenue += w * billable * p.saleRate;
+      }
     }
     return { revenue, cost, profit: revenue - cost };
   };
