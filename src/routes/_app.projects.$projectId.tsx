@@ -1975,19 +1975,21 @@ function InsightsPanel({
     const totPlan = planned.reduce((x, y) => x + y.h, 0);
     const logged = stageLoggedHours(s.id);
     const billable = stageBillableHours(s.id);
-    if (totPlan <= 0) continue;
+    if (logged <= 0 && billable <= 0) continue;
+    if (planned.length === 0) continue;
     for (const p of planned) {
       const agg = byRes.get(p.id);
       if (!agg) continue;
+      // Weight by planned hours when available, otherwise split evenly across
+      // the stage's allocations (retainer / zero-planned stages).
+      const w = totPlan > 0 ? p.h / totPlan : 1 / planned.length;
       if (logged > 0) {
-        const share = (p.h / totPlan) * logged;
+        const share = w * logged;
         agg.loggedHours += share;
-        // Cost from ALL logged hours (billable + non-billable on the project)
         loggedCostByRes.set(p.id, (loggedCostByRes.get(p.id) ?? 0) + share * p.costRate);
       }
       if (billable > 0) {
-        // Revenue only from billable hours
-        const billableShare = (p.h / totPlan) * billable;
+        const billableShare = w * billable;
         billableHoursByRes.set(
           p.id,
           (billableHoursByRes.get(p.id) ?? 0) + billableShare,
