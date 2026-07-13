@@ -657,6 +657,9 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                         <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
                           {r.isFuture ? "—" : euros(r.cost)}
                         </td>
+                        <td className="px-2 py-2 text-right font-mono tabular-nums font-semibold">
+                          {cumCostForRow == null ? "—" : euros(cumCostForRow)}
+                        </td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums">
                           {r.isFuture ? "—" : euros(r.sale)}
                         </td>
