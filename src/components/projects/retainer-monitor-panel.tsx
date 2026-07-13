@@ -684,7 +684,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                       </tr>
                       {isExpanded && (
                         <tr key={`${r.childId}-details`} className="border-b border-border/60 bg-muted/20">
-                          <td colSpan={8} className="px-2 py-3">
+                          <td colSpan={9} className="px-2 py-3">
                             <MonthEntries childStageId={r.childId} />
                           </td>
                         </tr>
@@ -703,6 +703,9 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                       {Math.round(g.totals.usedHours)}h / {Math.round(g.totals.includedHours)}h
                     </td>
                     <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
+                      {euros(g.totals.cost)}
+                    </td>
+                    <td className="px-2 py-2 text-right font-mono tabular-nums font-semibold">
                       {euros(g.totals.cost)}
                     </td>
                     <td className="px-2 py-2 text-right font-mono tabular-nums">
