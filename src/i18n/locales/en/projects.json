@@ -107,6 +107,7 @@
       "feeCol": "Fee",
       "usedHoursCol": "Used / included",
       "costCol": "Cost",
+      "cumulativeCostCol": "Total cost",
       "saleCol": "Sale",
       "varianceCol": "Variance",
       "rollingCol": "Rolling 3M avg",
