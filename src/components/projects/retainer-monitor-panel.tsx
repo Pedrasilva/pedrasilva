@@ -605,8 +605,9 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                   </tr>
 
                 </thead>
-                <tbody>
-                  {g.rows.map((r) => {
+                  {(() => { let cumCost = 0; return g.rows.map((r) => {
+                    if (!r.isFuture) cumCost += r.cost;
+                    const cumCostForRow = r.isFuture ? null : cumCost;
                     const varTone =
                       r.isFuture
                         ? "text-muted-foreground"
