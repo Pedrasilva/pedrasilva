@@ -688,7 +688,6 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                       )}
                       </Fragment>
                     );
-                    );
                   }); })()}
 
 
