@@ -597,6 +597,7 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                     <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.feeCol")}</th>
                     <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.usedHoursCol")}</th>
                     <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.costCol")}</th>
+                    <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.cumulativeCostCol")}</th>
                     <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.saleCol")}</th>
                     <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.varianceCol")}</th>
                     <th className="px-2 py-2 text-right">{t("detail.retainerMonitor.rollingCol")}</th>
@@ -605,7 +606,9 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
 
                 </thead>
                 <tbody>
-                  {g.rows.map((r) => {
+                  {(() => { let cumCost = 0; return g.rows.map((r) => {
+                    if (!r.isFuture) cumCost += r.cost;
+                    const cumCostForRow = r.isFuture ? null : cumCost;
                     const varTone =
                       r.isFuture
                         ? "text-muted-foreground"
@@ -654,6 +657,9 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                         <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
                           {r.isFuture ? "—" : euros(r.cost)}
                         </td>
+                        <td className="px-2 py-2 text-right font-mono tabular-nums font-semibold">
+                          {cumCostForRow == null ? "—" : euros(cumCostForRow)}
+                        </td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums">
                           {r.isFuture ? "—" : euros(r.sale)}
                         </td>
@@ -678,14 +684,14 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                       </tr>
                       {isExpanded && (
                         <tr key={`${r.childId}-details`} className="border-b border-border/60 bg-muted/20">
-                          <td colSpan={8} className="px-2 py-3">
+                          <td colSpan={9} className="px-2 py-3">
                             <MonthEntries childStageId={r.childId} />
                           </td>
                         </tr>
                       )}
                       </Fragment>
                     );
-                  })}
+                  }); })()}
 
 
                 </tbody>
@@ -697,6 +703,9 @@ export function RetainerMonitorPanel({ stages, byStage, showFinancials }: Props)
                       {Math.round(g.totals.usedHours)}h / {Math.round(g.totals.includedHours)}h
                     </td>
                     <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">
+                      {euros(g.totals.cost)}
+                    </td>
+                    <td className="px-2 py-2 text-right font-mono tabular-nums font-semibold">
                       {euros(g.totals.cost)}
                     </td>
                     <td className="px-2 py-2 text-right font-mono tabular-nums">

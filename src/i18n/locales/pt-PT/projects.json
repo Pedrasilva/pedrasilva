@@ -107,6 +107,7 @@
       "feeCol": "Mensalidade",
       "usedHoursCol": "Usadas / incluídas",
       "costCol": "Custo",
+      "cumulativeCostCol": "Custo total",
       "saleCol": "Venda",
       "varianceCol": "Variação",
       "rollingCol": "Média móvel 3M",
