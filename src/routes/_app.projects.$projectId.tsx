@@ -1031,6 +1031,8 @@ function ProjectDetail() {
                 stageBillableHours={stageBillableHours}
                 stageNonBillableHours={stageNonBillableHours}
                 stagePlannedHours={stagePlannedHours}
+                stageCost={stageCost}
+                stageActuals={stageActuals}
                 defaultRates={defaultRates}
                 activities={activities ?? []}
                 historical={hist}
