@@ -2542,6 +2542,27 @@ function InsightsPanel({
   );
 }
 
+function UnapprovedPill({ projectId }: { projectId: string }) {
+  const { data } = useProjectPendingHours(projectId);
+  if (!data || data.total === 0) return null;
+  const totalHours = data.groups.reduce((s, g) => s + g.totalHours, 0);
+  const totalValue = data.groups.reduce((s, g) => s + g.billableAmount, 0);
+  return (
+    <Link
+      to="/projects/$projectId"
+      params={{ projectId }}
+      className="flex items-center justify-between rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs dark:border-amber-500/30 dark:bg-amber-500/10"
+    >
+      <span className="font-medium text-amber-800 dark:text-amber-300">
+        {euros(totalValue)} unapproved · {totalHours.toFixed(1)}h ({data.total} entries)
+      </span>
+      <span className="text-amber-700 hover:underline dark:text-amber-300">
+        Review →
+      </span>
+    </Link>
+  );
+}
+
 function InsightCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-lg border border-border bg-card">
