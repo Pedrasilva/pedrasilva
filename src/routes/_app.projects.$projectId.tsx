@@ -166,6 +166,7 @@ function ProjectDetail() {
   });
 
   const [tab, setTab] = useState<TabKey>("overview");
+  const [insightsScopeStageId, setInsightsScopeStageId] = useState<string | null>(null);
   const baselineQ = useContractBaseline(projectId);
   const sourceQuoteId = baselineQ.data?.header.quote_id ?? null;
   const baselineMultiplier = Number(baselineQ.data?.header.pricing_multiplier ?? 1) || 1;
