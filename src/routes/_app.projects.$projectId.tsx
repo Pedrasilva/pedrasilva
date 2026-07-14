@@ -2218,7 +2218,10 @@ function InsightsPanel({
     string,
     { key: string; label: string; activities: number; hours: number }
   >();
-  for (const a of activities) {
+  const scopedActivities = scopeStageIds
+    ? activities.filter((a) => a.stage_id && scopeStageIds.has(a.stage_id))
+    : activities;
+  for (const a of scopedActivities) {
     const d = parseISO(a.created_at);
     const key = format(d, "yyyy-MM");
     const label = format(d, "MMM yyyy", { locale: pt });
