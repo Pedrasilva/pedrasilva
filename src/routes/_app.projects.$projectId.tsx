@@ -1031,6 +1031,8 @@ function ProjectDetail() {
                 stageBillableHours={stageBillableHours}
                 stageNonBillableHours={stageNonBillableHours}
                 stagePlannedHours={stagePlannedHours}
+                stageCost={stageCost}
+                stageActuals={stageActuals}
                 defaultRates={defaultRates}
                 activities={activities ?? []}
                 historical={hist}
@@ -1883,6 +1885,9 @@ function InsightsPanel({
   stageLoggedHours,
   stageBillableHours,
   stageNonBillableHours,
+  stagePlannedHours,
+  stageCost,
+  stageActuals,
   defaultRates,
   activities,
   historical,
@@ -1903,10 +1908,154 @@ function InsightsPanel({
   stageBillableHours: (id: string) => number;
   stageNonBillableHours: (id: string) => number;
   stagePlannedHours: (id: string) => number;
+  stageCost: (id: string) => number;
+  stageActuals: (id: string) => { revenue: number; cost: number; profit: number };
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   activities: import("@/lib/projects/use-activities").Activity[];
   historical: HistoricalProjectTotals;
 }) {
+  // ---- Scope selector: whole project vs individual stage (+ descendants) ----
+  const [scopeStageId, setScopeStageId] = useState<string | null>(null);
+
+  // Build a flat picker list with an indent per nesting level and Gantt-style
+  // numbering, sorted by depth-first walk on parent_stage_id / sort_order.
+  const stageOptions = useMemo(() => {
+    const byParent = new Map<string | null, Stage[]>();
+    for (const s of stages) {
+      const key = (s as { parent_stage_id?: string | null }).parent_stage_id ?? null;
+      const bucket = byParent.get(key) ?? [];
+      bucket.push(s);
+      byParent.set(key, bucket);
+    }
+    for (const bucket of byParent.values()) {
+      bucket.sort(
+        (a, b) =>
+          Number((a as { sort_order?: number | null }).sort_order ?? 0) -
+          Number((b as { sort_order?: number | null }).sort_order ?? 0),
+      );
+    }
+    const out: { id: string; label: string; depth: number }[] = [];
+    const walk = (parent: string | null, depth: number, prefix: string) => {
+      const children = byParent.get(parent) ?? [];
+      children.forEach((s, i) => {
+        const num = prefix ? `${prefix}.${i + 1}` : `${i + 1}`;
+        out.push({ id: s.id, label: `${num} ${s.name}`, depth });
+        walk(s.id, depth + 1, num);
+      });
+    };
+    walk(null, 0, "");
+    return out;
+  }, [stages]);
+
+  // Resolve a stage + its descendants → the set of stage IDs to aggregate over.
+  const scopeStageIds = useMemo(() => {
+    if (!scopeStageId) return null;
+    const childrenOf = new Map<string, string[]>();
+    for (const s of stages) {
+      const p = (s as { parent_stage_id?: string | null }).parent_stage_id ?? null;
+      if (!p) continue;
+      const arr = childrenOf.get(p) ?? [];
+      arr.push(s.id);
+      childrenOf.set(p, arr);
+    }
+    const out = new Set<string>([scopeStageId]);
+    const queue = [scopeStageId];
+    while (queue.length) {
+      const cur = queue.shift()!;
+      for (const c of childrenOf.get(cur) ?? []) {
+        if (!out.has(c)) {
+          out.add(c);
+          queue.push(c);
+        }
+      }
+    }
+    return out;
+  }, [scopeStageId, stages]);
+
+  // Stage-scoped view of the props. When scopeStageIds is null we keep the
+  // whole-project numbers passed in by the parent (single source of truth).
+  const scoped = useMemo(() => {
+    if (!scopeStageIds) {
+      return {
+        stages,
+        totalBudget,
+        totalPlannedCost,
+        actualRevenue,
+        actualCost,
+        actualProfit,
+        totalLoggedHours,
+        totalPlannedHours,
+        invoicedTotal,
+        historical,
+      };
+    }
+    const inScope = stages.filter((s) => scopeStageIds.has(s.id));
+    const budget = inScope.reduce(
+      (sum, s) =>
+        (s as { stage_kind?: string | null }).stage_kind === "retainer_month"
+          ? sum
+          : sum + Number(s.budget),
+      0,
+    );
+    const plannedCost = inScope.reduce((a, s) => a + stageCost(s.id), 0);
+    const plannedH = inScope.reduce((a, s) => a + stagePlannedHours(s.id), 0);
+    const loggedH = inScope.reduce((a, s) => a + stageLoggedHours(s.id), 0);
+    const act = inScope.reduce(
+      (acc, s) => {
+        const v = stageActuals(s.id);
+        acc.revenue += v.revenue;
+        acc.cost += v.cost;
+        return acc;
+      },
+      { revenue: 0, cost: 0 },
+    );
+    // Imported/historical, invoices and project-level extras are not stage-
+    // scoped in the data model, so they collapse to zero in stage mode.
+    const emptyHist: HistoricalProjectTotals = EMPTY_HISTORICAL_TOTALS;
+    return {
+      stages: inScope,
+      totalBudget: budget,
+      totalPlannedCost: plannedCost,
+      actualRevenue: act.revenue,
+      actualCost: act.cost,
+      actualProfit: act.revenue - act.cost,
+      totalLoggedHours: loggedH,
+      totalPlannedHours: plannedH,
+      invoicedTotal: 0,
+      historical: emptyHist,
+    };
+  }, [
+    scopeStageIds,
+    stages,
+    stageCost,
+    stagePlannedHours,
+    stageLoggedHours,
+    stageActuals,
+    totalBudget,
+    totalPlannedCost,
+    actualRevenue,
+    actualCost,
+    actualProfit,
+    totalLoggedHours,
+    totalPlannedHours,
+    invoicedTotal,
+    historical,
+  ]);
+
+  // From here on, use the scoped values. Aliased so the existing computation
+  // block below stays readable.
+  const scopedStages = scoped.stages;
+  totalBudget = scoped.totalBudget;
+  totalPlannedCost = scoped.totalPlannedCost;
+  actualRevenue = scoped.actualRevenue;
+  actualCost = scoped.actualCost;
+  actualProfit = scoped.actualProfit;
+  totalLoggedHours = scoped.totalLoggedHours;
+  totalPlannedHours = scoped.totalPlannedHours;
+  invoicedTotal = scoped.invoicedTotal;
+  historical = scoped.historical;
+
+
   type ResAgg = {
     id: string;
     name: string;
@@ -1918,7 +2067,7 @@ function InsightsPanel({
     loggedHours: number;
   };
   const byRes = new Map<string, ResAgg>();
-  for (const s of stages) {
+  for (const s of scopedStages) {
     for (const a of s.allocations) {
       const key = a.resource.id;
       const existing =
@@ -1961,7 +2110,7 @@ function InsightsPanel({
   const loggedCostByRes = new Map<string, number>();
   const billableValueByRes = new Map<string, number>();
   const billableHoursByRes = new Map<string, number>();
-  for (const s of stages) {
+  for (const s of scopedStages) {
     const planned = s.allocations.map((a) => ({
       id: a.resource.id,
       h: allocationHours({
@@ -2158,6 +2307,30 @@ function InsightsPanel({
 
   return (
     <div className="mt-4 space-y-4">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-3 py-2">
+        <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Scope
+        </label>
+        <select
+          value={scopeStageId ?? ""}
+          onChange={(e) => setScopeStageId(e.target.value || null)}
+          className="min-w-[240px] rounded-md border border-border bg-background px-2 py-1 text-sm"
+        >
+          <option value="">Whole project</option>
+          {stageOptions.map((o) => (
+            <option key={o.id} value={o.id}>
+              {"\u00A0".repeat(o.depth * 2)}
+              {o.label}
+            </option>
+          ))}
+        </select>
+        {scopeStageId && (
+          <span className="text-[11px] text-muted-foreground">
+            Invoiced, materials, expenses and imported hours are project-wide
+            and don't apply to a single stage.
+          </span>
+        )}
+      </div>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <InsightCard title="Activities vs. Hours">
           <ActivitiesHoursChart data={months} maxAct={maxAct} maxHours={maxHours} />
