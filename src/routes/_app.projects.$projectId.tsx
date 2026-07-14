@@ -1052,6 +1052,14 @@ function ProjectDetail() {
               </div>
             )}
 
+            {tab === "approvals" && isAdmin && (
+              <div className="mt-4">
+                <ApprovalsPanel projectId={projectId} />
+              </div>
+            )}
+
+
+
 
 
             {tab === "insights" && (
