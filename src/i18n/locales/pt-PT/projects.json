@@ -545,7 +545,6 @@
       "color": "Cor",
       "budget": "Orçamento",
       "budgetHint": "Honorário alocado a esta fase. Alimenta o profit e o controlo de desvio.",
-
       "milestone": "Marco",
       "milestoneHint": "Marcador de data única",
       "status": "Estado",
@@ -1293,5 +1292,35 @@
     "toast": {
       "deleted": "Despesa eliminada."
     }
+  },
+  "approvals": {
+    "title": "Aprovações",
+    "subtitle": "Rever, ajustar e aprovar horas registadas neste projecto.",
+    "queueTitle": "Aprovar trabalho",
+    "queueSubtitle": "Projectos com horas por aprovar.",
+    "queueEmpty": "Tudo em dia. Sem horas pendentes.",
+    "empty": "Sem horas pendentes. Está tudo aprovado.",
+    "pending": "Pendente",
+    "pendingEntries": "registos pendentes",
+    "hours": "Horas",
+    "billableAmount": "Valor facturável",
+    "budget": "Orçamento",
+    "date": "Data",
+    "person": "Pessoa",
+    "notes": "Notas",
+    "billable": "Facturável",
+    "rate": "Tarifa €/h",
+    "stage": "Fase",
+    "actions": "Acções",
+    "approve": "Aprovar",
+    "reject": "Rejeitar",
+    "approved": "Registo aprovado",
+    "rejected": "Registo rejeitado",
+    "rejectPrompt": "Motivo da rejeição?",
+    "approveStage": "Aprovar todos",
+    "stageApproved": "Registos da fase aprovados",
+    "unassigned": "Fase por atribuir",
+    "review": "Rever →",
+    "unapproved": "por aprovar"
   }
 }
