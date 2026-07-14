@@ -1903,6 +1903,7 @@ function InsightsPanel({
   defaultRates,
   activities,
   historical,
+  initialScopeStageId,
 }: {
   projectId: string;
   canEdit: boolean;
@@ -1925,9 +1926,14 @@ function InsightsPanel({
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   activities: import("@/lib/projects/use-activities").Activity[];
   historical: HistoricalProjectTotals;
+  initialScopeStageId?: string | null;
 }) {
   // ---- Scope selector: whole project vs individual stage (+ descendants) ----
-  const [scopeStageId, setScopeStageId] = useState<string | null>(null);
+  const [scopeStageId, setScopeStageId] = useState<string | null>(initialScopeStageId ?? null);
+  useEffect(() => {
+    if (initialScopeStageId !== undefined) setScopeStageId(initialScopeStageId);
+  }, [initialScopeStageId]);
+
 
   // Build a flat picker list with an indent per nesting level and Gantt-style
   // numbering, sorted by depth-first walk on parent_stage_id / sort_order.
