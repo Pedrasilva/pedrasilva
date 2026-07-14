@@ -2425,6 +2425,7 @@ function InsightsPanel({
               pct={earnedPct}
               over={earnedValue > forecastValue && forecastValue > 0}
             />
+            <UnapprovedPill projectId={projectId} />
             <BarRow
               label="Planned Value (forecast):"
               value={forecastValue}
