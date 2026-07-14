@@ -188,7 +188,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 type="number"
                 step="0.01"
                 value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
+                onChange={(e) => setAmount(e.target.value)}
                 aria-invalid={!!errMsg("amount")}
               />
               {errMsg("amount") && (
