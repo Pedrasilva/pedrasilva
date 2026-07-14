@@ -8917,6 +8917,16 @@ export type Database = {
           user_id: string
         }[]
       }
+      pm_resource_map_for_users: {
+        Args: { _user_ids: string[] }
+        Returns: {
+          cost_rate: number
+          name: string
+          resource_id: string
+          sale_rate: number
+          user_id: string
+        }[]
+      }
       project_dependency_counts: {
         Args: { _project_id: string }
         Returns: Json
