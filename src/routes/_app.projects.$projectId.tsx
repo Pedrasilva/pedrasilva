@@ -1471,6 +1471,7 @@ function MilestonesTable({
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   canSeeFinancials: boolean;
   onEditPlan?: () => void;
+  onOpenStageInsights?: (stageId: string) => void;
 }) {
   const [expanded, setExpanded] = useState<Set<string>>(
     () => new Set(stages?.map((s) => s.id) ?? []),
