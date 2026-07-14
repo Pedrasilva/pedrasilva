@@ -51,7 +51,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
   const [supplierId, setSupplierId] = useState<string | null>(null);
   // Legacy mirror — keeps free-text vendor name for old rows / exports.
   const [vendor, setVendor] = useState("");
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState<string>("");
   const [incurredAt, setIncurredAt] = useState("");
   const [status, setStatus] = useState<ExpenseStatus>("draft");
   const [paidAt, setPaidAt] = useState("");
