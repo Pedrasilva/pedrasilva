@@ -2539,8 +2539,6 @@ function InsightCard({ title, children }: { title: string; children: React.React
 
 function ActivitiesHoursChart({
   data,
-  maxAct,
-  maxHours,
 }: {
   data: { key: string; label: string; activities: number; hours: number }[];
   maxAct: number;
@@ -2553,92 +2551,73 @@ function ActivitiesHoursChart({
       </div>
     );
   }
-  const w = 100;
-  const h = 220;
-  const padX = 4;
-  const innerW = w - padX * 2;
-  const stepX = data.length > 1 ? innerW / (data.length - 1) : 0;
-  const points = data.map((d, i) => ({
-    x: padX + stepX * i,
-    yH: h - (d.hours / maxHours) * (h - 30),
-    yA: h - (d.activities / maxAct) * (h - 30),
-  }));
-  const areaPath =
-    points.length > 0
-      ? `M ${points[0].x},${h} ` +
-        points.map((p) => `L ${p.x},${p.yH}`).join(" ") +
-        ` L ${points[points.length - 1].x},${h} Z`
-      : "";
-  const linePath =
-    points.length > 0
-      ? `M ${points[0].x},${points[0].yH} ` +
-        points.map((p) => `L ${p.x},${p.yH}`).join(" ")
-      : "";
   return (
-    <div>
-      <svg
-        viewBox={`0 0 ${w} ${h + 24}`}
-        preserveAspectRatio="none"
-        className="h-[240px] w-full"
-      >
-        {[0, 0.25, 0.5, 0.75, 1].map((g) => (
-          <line
-            key={g}
-            x1={padX}
-            x2={w - padX}
-            y1={h - g * (h - 30)}
-            y2={h - g * (h - 30)}
-            stroke="var(--border)"
-            strokeWidth={0.15}
-            strokeDasharray="0.6,0.6"
+    <div className="h-[280px] w-full px-1">
+      <RC.ResponsiveContainer width="100%" height="100%">
+        <RC.ComposedChart data={data} margin={{ top: 10, right: 12, bottom: 20, left: 0 }}>
+          <RC.CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+          <RC.XAxis
+            dataKey="label"
+            tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+            tickLine={false}
+            axisLine={{ stroke: "var(--border)" }}
           />
-        ))}
-        <path d={areaPath} fill="var(--color-budget-spent)" opacity="0.25" />
-        <path
-          d={linePath}
-          fill="none"
-          stroke="var(--color-budget-spent)"
-          strokeWidth={0.6}
-        />
-        {points.map((p, i) => {
-          const barH = h - p.yA;
-          return (
-            <rect
-              key={i}
-              x={p.x - 1.6}
-              y={p.yA}
-              width={3.2}
-              height={barH}
-              fill="var(--primary)"
-              opacity="0.85"
-            />
-          );
-        })}
-        {data.map((d, i) => (
-          <text
-            key={d.key}
-            x={padX + stepX * i}
-            y={h + 18}
-            textAnchor="middle"
-            fontSize="3"
-            fill="var(--muted-foreground)"
-          >
-            {d.label}
-          </text>
-        ))}
-      </svg>
-      <div className="mt-2 flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5">
-          <span className="inline-block h-2 w-2 rounded-sm bg-primary" /> Activities
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span
-            className="inline-block h-2 w-2 rounded-sm"
-            style={{ backgroundColor: "var(--color-budget-spent)" }}
-          />{" "}
-          Hours
-        </span>
-      </div>
+          <RC.YAxis
+            yAxisId="left"
+            tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+            tickLine={false}
+            axisLine={{ stroke: "var(--border)" }}
+            label={{
+              value: "Activities",
+              angle: -90,
+              position: "insideLeft",
+              style: { fill: "var(--muted-foreground)", fontSize: 11 },
+            }}
+            allowDecimals={false}
+          />
+          <RC.YAxis
+            yAxisId="right"
+            orientation="right"
+            tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+            tickLine={false}
+            axisLine={{ stroke: "var(--border)" }}
+            label={{
+              value: "Hours",
+              angle: 90,
+              position: "insideRight",
+              style: { fill: "var(--muted-foreground)", fontSize: 11 },
+            }}
+            allowDecimals={false}
+          />
+          <RC.Tooltip
+            contentStyle={{
+              background: "var(--background)",
+              border: "1px solid var(--border)",
+              borderRadius: 6,
+              fontSize: 12,
+            }}
+          />
+          <RC.Legend wrapperStyle={{ fontSize: 12 }} />
+          <RC.Bar
+            yAxisId="left"
+            dataKey="activities"
+            name="Activities"
+            fill="var(--primary)"
+            barSize={18}
+            radius={[2, 2, 0, 0]}
+          />
+          <RC.Area
+            yAxisId="right"
+            type="monotone"
+            dataKey="hours"
+            name="Hours"
+            stroke="var(--color-budget-spent, #10b981)"
+            fill="var(--color-budget-spent, #10b981)"
+            fillOpacity={0.25}
+            strokeWidth={2}
+          />
+        </RC.ComposedChart>
+      </RC.ResponsiveContainer>
     </div>
   );
 }
