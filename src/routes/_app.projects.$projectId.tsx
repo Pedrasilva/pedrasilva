@@ -210,11 +210,32 @@ function ProjectDetail() {
       for (const s of data.stages)
         for (const a of s.allocations) allocToStage.set(a.id, s.id);
       for (const t of tasks ?? []) taskToAlloc.set(t.id, t.allocation_id);
-      const { data: entries } = await supabase
-        .from("pm_time_entries")
-        .select("task_id, pm_stage_id, entry_date, hours, billable")
-        .eq("project_id", projectId)
-        .eq("entry_type", "project");
+      const taskIds = (tasks ?? []).map((t) => t.id);
+      const stageIds = data.stages.map((s) => s.id);
+      const selectEntries = "id, task_id, pm_stage_id, entry_date, hours, billable";
+      const [taskEntryResult, directEntryResult] = await Promise.all([
+        taskIds.length
+          ? supabase
+              .from("pm_time_entries")
+              .select(selectEntries)
+              .in("task_id", taskIds)
+              .eq("entry_type", "project")
+          : Promise.resolve({ data: [], error: null }),
+        stageIds.length
+          ? supabase
+              .from("pm_time_entries")
+              .select(selectEntries)
+              .in("pm_stage_id", stageIds)
+              .eq("entry_type", "project")
+          : Promise.resolve({ data: [], error: null }),
+      ]);
+      if (taskEntryResult.error) throw taskEntryResult.error;
+      if (directEntryResult.error) throw directEntryResult.error;
+      const entries = Array.from(
+        new Map(
+          [...(taskEntryResult.data ?? []), ...(directEntryResult.data ?? [])].map((entry) => [entry.id, entry]),
+        ).values(),
+      );
       const byStage = new Map<
         string,
         { hours: number; billableHours: number; nonBillableHours: number }
