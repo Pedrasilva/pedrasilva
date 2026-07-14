@@ -1042,6 +1042,7 @@ function ProjectDetail() {
                 defaultRates={defaultRates}
                 activities={activities ?? []}
                 historical={hist}
+                initialScopeStageId={insightsScopeStageId}
               />
             )}
 
