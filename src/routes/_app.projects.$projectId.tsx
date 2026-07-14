@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Fragment, useMemo, useState, type ReactElement } from "react";
+import { Fragment, useEffect, useMemo, useState, type ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -166,6 +166,7 @@ function ProjectDetail() {
   });
 
   const [tab, setTab] = useState<TabKey>("overview");
+  const [insightsScopeStageId, setInsightsScopeStageId] = useState<string | null>(null);
   const baselineQ = useContractBaseline(projectId);
   const sourceQuoteId = baselineQ.data?.header.quote_id ?? null;
   const baselineMultiplier = Number(baselineQ.data?.header.pricing_multiplier ?? 1) || 1;
@@ -815,7 +816,12 @@ function ProjectDetail() {
                     defaultRates={defaultRates}
                     canSeeFinancials={canSeeFinancials}
                     onEditPlan={() => setTab("schedule")}
+                    onOpenStageInsights={(stageId) => {
+                      setInsightsScopeStageId(stageId);
+                      setTab("insights");
+                    }}
                   />
+
                 </div>
               </div>
             )}
@@ -1036,6 +1042,7 @@ function ProjectDetail() {
                 defaultRates={defaultRates}
                 activities={activities ?? []}
                 historical={hist}
+                initialScopeStageId={insightsScopeStageId}
               />
             )}
 
@@ -1448,6 +1455,7 @@ function MilestonesTable({
   defaultRates,
   canSeeFinancials,
   onEditPlan,
+  onOpenStageInsights,
 }: {
   stages: ReturnType<typeof useProjectDetail>["data"] extends infer T
     ? T extends { stages: infer S }
@@ -1464,6 +1472,7 @@ function MilestonesTable({
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   canSeeFinancials: boolean;
   onEditPlan?: () => void;
+  onOpenStageInsights?: (stageId: string) => void;
 }) {
   const [expanded, setExpanded] = useState<Set<string>>(
     () => new Set(stages?.map((s) => s.id) ?? []),
@@ -1708,15 +1717,19 @@ function MilestonesTable({
                             style={{ backgroundColor: s.color }}
                           />
                           <div className="min-w-0">
-                            <div
+                            <button
+                              type="button"
+                              onClick={() => onOpenStageInsights?.(s.id)}
                               className={
                                 depth === 0
-                                  ? "truncate font-semibold text-foreground"
-                                  : "truncate text-foreground"
+                                  ? "truncate font-semibold text-foreground text-left hover:underline"
+                                  : "truncate text-foreground text-left hover:underline"
                               }
+                              title="Open insights for this stage"
                             >
                               {label}. {s.name}
-                            </div>
+                            </button>
+
                             <div className="text-[11px] text-muted-foreground">
                               {hasChildren
                                 ? `${(childrenOf.get(s.id) ?? []).length} sub-fase${(childrenOf.get(s.id) ?? []).length === 1 ? "" : "s"}`
@@ -1891,6 +1904,7 @@ function InsightsPanel({
   defaultRates,
   activities,
   historical,
+  initialScopeStageId,
 }: {
   projectId: string;
   canEdit: boolean;
@@ -1913,9 +1927,14 @@ function InsightsPanel({
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   activities: import("@/lib/projects/use-activities").Activity[];
   historical: HistoricalProjectTotals;
+  initialScopeStageId?: string | null;
 }) {
   // ---- Scope selector: whole project vs individual stage (+ descendants) ----
-  const [scopeStageId, setScopeStageId] = useState<string | null>(null);
+  const [scopeStageId, setScopeStageId] = useState<string | null>(initialScopeStageId ?? null);
+  useEffect(() => {
+    if (initialScopeStageId !== undefined) setScopeStageId(initialScopeStageId);
+  }, [initialScopeStageId]);
+
 
   // Build a flat picker list with an indent per nesting level and Gantt-style
   // numbering, sorted by depth-first walk on parent_stage_id / sort_order.
