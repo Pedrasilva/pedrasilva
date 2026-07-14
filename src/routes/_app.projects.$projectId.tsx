@@ -2110,7 +2110,7 @@ function InsightsPanel({
   const loggedCostByRes = new Map<string, number>();
   const billableValueByRes = new Map<string, number>();
   const billableHoursByRes = new Map<string, number>();
-  for (const s of stages) {
+  for (const s of scopedStages) {
     const planned = s.allocations.map((a) => ({
       id: a.resource.id,
       h: allocationHours({
