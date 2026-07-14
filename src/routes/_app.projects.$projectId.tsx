@@ -1454,6 +1454,7 @@ function MilestonesTable({
   defaultRates,
   canSeeFinancials,
   onEditPlan,
+  onOpenStageInsights,
 }: {
   stages: ReturnType<typeof useProjectDetail>["data"] extends infer T
     ? T extends { stages: infer S }
