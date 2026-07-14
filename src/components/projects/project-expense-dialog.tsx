@@ -51,7 +51,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
   const [supplierId, setSupplierId] = useState<string | null>(null);
   // Legacy mirror — keeps free-text vendor name for old rows / exports.
   const [vendor, setVendor] = useState("");
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState<string>("");
   const [incurredAt, setIncurredAt] = useState("");
   const [status, setStatus] = useState<ExpenseStatus>("draft");
   const [paidAt, setPaidAt] = useState("");
@@ -64,7 +64,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
       setCategory((initial?.category ?? "misc") as ExpenseCategory);
       setSupplierId(initial?.supplier_id ?? null);
       setVendor(initial?.vendor ?? "");
-      setAmount(Number(initial?.purchase_price ?? 0));
+      setAmount(initial?.purchase_price != null ? String(initial.purchase_price) : "");
       setIncurredAt(initial?.incurred_at ?? initial?.expense_date ?? "");
       setStatus((initial?.status ?? "draft") as ExpenseStatus);
       setPaidAt(initial?.paid_at ?? "");
@@ -188,7 +188,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
                 type="number"
                 step="0.01"
                 value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
+                onChange={(e) => setAmount(e.target.value)}
                 aria-invalid={!!errMsg("amount")}
               />
               {errMsg("amount") && (
