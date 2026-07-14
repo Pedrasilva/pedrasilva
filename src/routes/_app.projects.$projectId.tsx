@@ -614,6 +614,9 @@ function ProjectDetail() {
             <TabBtn icon={ListChecks} label={t("projects:detail.tabs.overview")} active={tab === "overview"} onClick={() => setTab("overview")} />
             <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
             <TabBtn icon={Repeat} label="Retainer" active={tab === "ap"} onClick={() => setTab("ap")} />
+            {isAdmin && (
+              <TabBtn icon={CheckCircle2} label={t("projects:approvals.title", { defaultValue: "Approvals" })} active={tab === "approvals"} onClick={() => setTab("approvals")} />
+            )}
             {/* Materials tab hidden — superseded by Suppliers tab. Data layer kept intact. */}
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
             {/* Billing and Financial tabs hidden per request — kept in code for quick re-enable. */}
