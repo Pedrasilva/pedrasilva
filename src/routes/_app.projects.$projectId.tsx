@@ -2012,13 +2012,6 @@ function InsightsPanel({
     // Imported/historical, invoices and project-level extras are not stage-
     // scoped in the data model, so they collapse to zero in stage mode.
     const emptyHist: HistoricalProjectTotals = EMPTY_HISTORICAL_TOTALS;
-      loggedHours: 0,
-      billableHours: 0,
-      amount: 0,
-      cost: 0,
-      rowCount: 0,
-      sources: [],
-    };
     return {
       stages: inScope,
       totalBudget: budget,
