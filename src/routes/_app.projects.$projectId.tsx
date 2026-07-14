@@ -132,6 +132,7 @@ type TabKey =
   | "financial"
   | "insights"
   | "ap"
+  | "approvals"
   | "stream"
   | "planning"
   | "architecture"
