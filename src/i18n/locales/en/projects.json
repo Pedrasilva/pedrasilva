@@ -545,7 +545,6 @@
       "color": "Color",
       "budget": "Budget",
       "budgetHint": "Fee allocated to this stage. Drives profit and over/under tracking.",
-
       "milestone": "Milestone",
       "milestoneHint": "Single-date marker",
       "status": "Status",
@@ -1293,5 +1292,35 @@
     "toast": {
       "deleted": "Expense deleted."
     }
+  },
+  "approvals": {
+    "title": "Approvals",
+    "subtitle": "Review, adjust and approve time logged against this project.",
+    "queueTitle": "Approve work",
+    "queueSubtitle": "Projects with hours awaiting approval.",
+    "queueEmpty": "All caught up. No pending hours.",
+    "empty": "No pending hours. Everything is approved.",
+    "pending": "Pending",
+    "pendingEntries": "pending entries",
+    "hours": "Hours",
+    "billableAmount": "Billable value",
+    "budget": "Budget",
+    "date": "Date",
+    "person": "Person",
+    "notes": "Notes",
+    "billable": "Billable",
+    "rate": "Rate €/h",
+    "stage": "Stage",
+    "actions": "Actions",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approved": "Entry approved",
+    "rejected": "Entry rejected",
+    "rejectPrompt": "Reason for rejection?",
+    "approveStage": "Approve all",
+    "stageApproved": "Stage entries approved",
+    "unassigned": "Unassigned stage",
+    "review": "Review →",
+    "unapproved": "unapproved"
   }
 }

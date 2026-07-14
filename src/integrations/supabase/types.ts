@@ -5667,6 +5667,9 @@ export type Database = {
       }
       pm_time_entries: {
         Row: {
+          approval_status: Database["public"]["Enums"]["pm_time_entry_approval_status"]
+          approved_at: string | null
+          approved_by: string | null
           billable: boolean
           cost_rate_snapshot: number | null
           created_at: string
@@ -5681,6 +5684,8 @@ export type Database = {
           notes: string | null
           pm_stage_id: string | null
           quote_stage_id: string | null
+          rejection_reason: string | null
+          sale_rate_override: number | null
           sale_rate_snapshot: number | null
           source: string
           started_at: string | null
@@ -5689,6 +5694,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          approval_status?: Database["public"]["Enums"]["pm_time_entry_approval_status"]
+          approved_at?: string | null
+          approved_by?: string | null
           billable?: boolean
           cost_rate_snapshot?: number | null
           created_at?: string
@@ -5703,6 +5711,8 @@ export type Database = {
           notes?: string | null
           pm_stage_id?: string | null
           quote_stage_id?: string | null
+          rejection_reason?: string | null
+          sale_rate_override?: number | null
           sale_rate_snapshot?: number | null
           source?: string
           started_at?: string | null
@@ -5711,6 +5721,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          approval_status?: Database["public"]["Enums"]["pm_time_entry_approval_status"]
+          approved_at?: string | null
+          approved_by?: string | null
           billable?: boolean
           cost_rate_snapshot?: number | null
           created_at?: string
@@ -5725,6 +5738,8 @@ export type Database = {
           notes?: string | null
           pm_stage_id?: string | null
           quote_stage_id?: string | null
+          rejection_reason?: string | null
+          sale_rate_override?: number | null
           sale_rate_snapshot?: number | null
           source?: string
           started_at?: string | null
@@ -8904,6 +8919,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      pm_can_approve_hours: { Args: { _user_id: string }; Returns: boolean }
       pm_get_my_resource_id: { Args: never; Returns: string }
       pm_is_retainer_stage: { Args: { _stage_id: string }; Returns: boolean }
       pm_list_user_resource_map: {
@@ -9153,6 +9169,7 @@ export type Database = {
         | "finance"
       pm_sync_status: "live" | "paused" | "diverged"
       pm_task_status: "pending" | "active" | "paused" | "done"
+      pm_time_entry_approval_status: "pending" | "approved" | "rejected"
       pm_time_entry_type: "project" | "internal" | "non_working" | "retainer"
       project_bootstrap_status: "preview" | "applied" | "failed" | "void"
       project_status:
@@ -9547,6 +9564,7 @@ export const Constants = {
       ],
       pm_sync_status: ["live", "paused", "diverged"],
       pm_task_status: ["pending", "active", "paused", "done"],
+      pm_time_entry_approval_status: ["pending", "approved", "rejected"],
       pm_time_entry_type: ["project", "internal", "non_working", "retainer"],
       project_bootstrap_status: ["preview", "applied", "failed", "void"],
       project_status: [

@@ -62,6 +62,8 @@ import { useHistoricalProjectTotals, EMPTY_HISTORICAL_TOTALS, type HistoricalPro
 import { useStageBudgetControl } from "@/lib/projects/use-stage-budget-control";
 import { BudgetControlPanel } from "@/components/projects/budget-control-panel";
 import { RetainerMonitorPanel } from "@/components/projects/retainer-monitor-panel";
+import { ApprovalsPanel } from "@/components/projects/approvals-panel";
+import { useProjectPendingHours } from "@/lib/projects/use-hour-approvals";
 import { CommercialBaselineCard } from "@/components/projects/commercial-baseline-card";
 import { ContractBaselineCard } from "@/components/projects/contract-baseline-card";
 import { ProjectForecastCard } from "@/components/projects/project-forecast-card";
@@ -132,6 +134,7 @@ type TabKey =
   | "financial"
   | "insights"
   | "ap"
+  | "approvals"
   | "stream"
   | "planning"
   | "architecture"
@@ -613,6 +616,9 @@ function ProjectDetail() {
             <TabBtn icon={ListChecks} label={t("projects:detail.tabs.overview")} active={tab === "overview"} onClick={() => setTab("overview")} />
             <TabBtn icon={TrendingUp} label={t("projects:detail.tabs.insights")} active={tab === "insights"} onClick={() => setTab("insights")} />
             <TabBtn icon={Repeat} label="Retainer" active={tab === "ap"} onClick={() => setTab("ap")} />
+            {isAdmin && (
+              <TabBtn icon={CheckCircle2} label={t("projects:approvals.title", { defaultValue: "Approvals" })} active={tab === "approvals"} onClick={() => setTab("approvals")} />
+            )}
             {/* Materials tab hidden — superseded by Suppliers tab. Data layer kept intact. */}
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
             {/* Billing and Financial tabs hidden per request — kept in code for quick re-enable. */}
@@ -1046,6 +1052,14 @@ function ProjectDetail() {
                 )}
               </div>
             )}
+
+            {tab === "approvals" && isAdmin && (
+              <div className="mt-4">
+                <ApprovalsPanel projectId={projectId} />
+              </div>
+            )}
+
+
 
 
 
@@ -2411,6 +2425,7 @@ function InsightsPanel({
               pct={earnedPct}
               over={earnedValue > forecastValue && forecastValue > 0}
             />
+            <UnapprovedPill projectId={projectId} />
             <BarRow
               label="Planned Value (forecast):"
               value={forecastValue}
@@ -2524,6 +2539,27 @@ function InsightsPanel({
       )}
 
     </div>
+  );
+}
+
+function UnapprovedPill({ projectId }: { projectId: string }) {
+  const { data } = useProjectPendingHours(projectId);
+  if (!data || data.total === 0) return null;
+  const totalHours = data.groups.reduce((s, g) => s + g.totalHours, 0);
+  const totalValue = data.groups.reduce((s, g) => s + g.billableAmount, 0);
+  return (
+    <Link
+      to="/projects/$projectId"
+      params={{ projectId }}
+      className="flex items-center justify-between rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs dark:border-amber-500/30 dark:bg-amber-500/10"
+    >
+      <span className="font-medium text-amber-800 dark:text-amber-300">
+        {euros(totalValue)} unapproved · {totalHours.toFixed(1)}h ({data.total} entries)
+      </span>
+      <span className="text-amber-700 hover:underline dark:text-amber-300">
+        Review →
+      </span>
+    </Link>
   );
 }
 

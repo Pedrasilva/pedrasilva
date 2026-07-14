@@ -32,6 +32,7 @@ import { Route as AppProjectsInsightsRouteImport } from './routes/_app.projects.
 import { Route as AppProjectsGanttRouteImport } from './routes/_app.projects.gantt'
 import { Route as AppProjectsForecastRouteImport } from './routes/_app.projects.forecast'
 import { Route as AppProjectsFinancialsRouteImport } from './routes/_app.projects.financials'
+import { Route as AppProjectsApprovalsRouteImport } from './routes/_app.projects.approvals'
 import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
 import { Route as AppHrValorBoRouteImport } from './routes/_app.hr.valor-bo'
 import { Route as AppHrSubsidioAlimentacaoRouteImport } from './routes/_app.hr.subsidio-alimentacao'
@@ -209,6 +210,11 @@ const AppProjectsForecastRoute = AppProjectsForecastRouteImport.update({
 const AppProjectsFinancialsRoute = AppProjectsFinancialsRouteImport.update({
   id: '/projects/financials',
   path: '/projects/financials',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProjectsApprovalsRoute = AppProjectsApprovalsRouteImport.update({
+  id: '/projects/approvals',
+  path: '/projects/approvals',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProjectsProjectIdRoute = AppProjectsProjectIdRouteImport.update({
@@ -584,6 +590,7 @@ export interface FileRoutesByFullPath {
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
+  '/projects/approvals': typeof AppProjectsApprovalsRoute
   '/projects/financials': typeof AppProjectsFinancialsRoute
   '/projects/forecast': typeof AppProjectsForecastRoute
   '/projects/gantt': typeof AppProjectsGanttRoute
@@ -667,6 +674,7 @@ export interface FileRoutesByTo {
   '/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/hr/valor-bo': typeof AppHrValorBoRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
+  '/projects/approvals': typeof AppProjectsApprovalsRoute
   '/projects/financials': typeof AppProjectsFinancialsRoute
   '/projects/forecast': typeof AppProjectsForecastRoute
   '/projects/gantt': typeof AppProjectsGanttRoute
@@ -755,6 +763,7 @@ export interface FileRoutesById {
   '/_app/hr/subsidio-alimentacao': typeof AppHrSubsidioAlimentacaoRoute
   '/_app/hr/valor-bo': typeof AppHrValorBoRoute
   '/_app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
+  '/_app/projects/approvals': typeof AppProjectsApprovalsRoute
   '/_app/projects/financials': typeof AppProjectsFinancialsRoute
   '/_app/projects/forecast': typeof AppProjectsForecastRoute
   '/_app/projects/gantt': typeof AppProjectsGanttRoute
@@ -843,6 +852,7 @@ export interface FileRouteTypes {
     | '/hr/subsidio-alimentacao'
     | '/hr/valor-bo'
     | '/projects/$projectId'
+    | '/projects/approvals'
     | '/projects/financials'
     | '/projects/forecast'
     | '/projects/gantt'
@@ -926,6 +936,7 @@ export interface FileRouteTypes {
     | '/hr/subsidio-alimentacao'
     | '/hr/valor-bo'
     | '/projects/$projectId'
+    | '/projects/approvals'
     | '/projects/financials'
     | '/projects/forecast'
     | '/projects/gantt'
@@ -1013,6 +1024,7 @@ export interface FileRouteTypes {
     | '/_app/hr/subsidio-alimentacao'
     | '/_app/hr/valor-bo'
     | '/_app/projects/$projectId'
+    | '/_app/projects/approvals'
     | '/_app/projects/financials'
     | '/_app/projects/forecast'
     | '/_app/projects/gantt'
@@ -1240,6 +1252,13 @@ declare module '@tanstack/react-router' {
       path: '/projects/financials'
       fullPath: '/projects/financials'
       preLoaderRoute: typeof AppProjectsFinancialsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/approvals': {
+      id: '/_app/projects/approvals'
+      path: '/projects/approvals'
+      fullPath: '/projects/approvals'
+      preLoaderRoute: typeof AppProjectsApprovalsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/projects/$projectId': {
@@ -1874,6 +1893,7 @@ interface AppRouteChildren {
   AppAdminProposalRolesRoute: typeof AppAdminProposalRolesRoute
   AppAdminQuotesTrashRoute: typeof AppAdminQuotesTrashRoute
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRouteWithChildren
+  AppProjectsApprovalsRoute: typeof AppProjectsApprovalsRoute
   AppProjectsFinancialsRoute: typeof AppProjectsFinancialsRoute
   AppProjectsForecastRoute: typeof AppProjectsForecastRoute
   AppProjectsGanttRoute: typeof AppProjectsGanttRoute
@@ -1899,6 +1919,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminProposalRolesRoute: AppAdminProposalRolesRoute,
   AppAdminQuotesTrashRoute: AppAdminQuotesTrashRoute,
   AppProjectsProjectIdRoute: AppProjectsProjectIdRouteWithChildren,
+  AppProjectsApprovalsRoute: AppProjectsApprovalsRoute,
   AppProjectsFinancialsRoute: AppProjectsFinancialsRoute,
   AppProjectsForecastRoute: AppProjectsForecastRoute,
   AppProjectsGanttRoute: AppProjectsGanttRoute,
