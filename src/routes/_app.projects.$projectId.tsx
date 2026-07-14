@@ -189,17 +189,17 @@ function ProjectDetail() {
   const { data: historical } = useHistoricalProjectTotals(projectId);
   const hist = historical ?? EMPTY_HISTORICAL_TOTALS;
 
-  // Real time entries for this project (per stage via allocation→stage), split by billable
+  // Real time entries for this project. Keep the entry month so Insights can
+  // chart hours even when no separate activity/feed item was created.
   const { data: timeRows } = useQuery({
     queryKey: ["pm-project-time", projectId],
     enabled: !!projectId && !!data,
     queryFn: async () => {
       if (!data)
-        return [] as { stage_id: string; hours: number; billableHours: number; nonBillableHours: number }[];
+        return [] as { stage_id: string; month: string; hours: number; billableHours: number; nonBillableHours: number }[];
       const allocIds = data.stages.flatMap((s) =>
         s.allocations.map((a) => a.id),
       );
-      if (allocIds.length === 0) return [];
       // task ids belong to allocations
       const { data: tasks } = await supabase
         .from("pm_tasks")
@@ -211,33 +211,62 @@ function ProjectDetail() {
         for (const a of s.allocations) allocToStage.set(a.id, s.id);
       for (const t of tasks ?? []) taskToAlloc.set(t.id, t.allocation_id);
       const taskIds = (tasks ?? []).map((t) => t.id);
-      if (taskIds.length === 0) return [];
-      const { data: entries } = await supabase
-        .from("pm_time_entries")
-        .select("task_id, hours, billable")
-        .in("task_id", taskIds)
-        .eq("entry_type", "project")
-        .not("task_id", "is", null);
+      const stageIds = data.stages.map((s) => s.id);
+      const selectEntries = "id, task_id, pm_stage_id, entry_date, hours, billable";
+      const [taskEntryResult, directEntryResult] = await Promise.all([
+        taskIds.length
+          ? supabase
+              .from("pm_time_entries")
+              .select(selectEntries)
+              .in("task_id", taskIds)
+              .eq("entry_type", "project")
+          : Promise.resolve({ data: [], error: null }),
+        stageIds.length
+          ? supabase
+              .from("pm_time_entries")
+              .select(selectEntries)
+              .in("pm_stage_id", stageIds)
+              .eq("entry_type", "project")
+          : Promise.resolve({ data: [], error: null }),
+      ]);
+      if (taskEntryResult.error) throw taskEntryResult.error;
+      if (directEntryResult.error) throw directEntryResult.error;
+      const entries = Array.from(
+        new Map(
+          [...(taskEntryResult.data ?? []), ...(directEntryResult.data ?? [])].map((entry) => [entry.id, entry]),
+        ).values(),
+      );
       const byStage = new Map<
         string,
         { hours: number; billableHours: number; nonBillableHours: number }
       >();
       for (const e of (entries ?? []) as Array<{
-        task_id: string;
+        task_id: string | null;
+        pm_stage_id: string | null;
+        entry_date: string;
         hours: number;
         billable: boolean;
       }>) {
-        const allocId = taskToAlloc.get(e.task_id);
-        const stageId = allocId ? allocToStage.get(allocId) : undefined;
+        const allocId = e.task_id ? taskToAlloc.get(e.task_id) : undefined;
+        const stageId = e.pm_stage_id ?? (allocId ? allocToStage.get(allocId) : undefined);
         if (!stageId) continue;
+        const month = e.entry_date.slice(0, 7);
+        const bucketKey = `${stageId}:${month}`;
         const h = Number(e.hours);
-        const cur = byStage.get(stageId) ?? { hours: 0, billableHours: 0, nonBillableHours: 0 };
+        const cur = byStage.get(bucketKey) ?? { hours: 0, billableHours: 0, nonBillableHours: 0 };
         cur.hours += h;
         if (e.billable) cur.billableHours += h;
         else cur.nonBillableHours += h;
-        byStage.set(stageId, cur);
+        byStage.set(bucketKey, cur);
       }
-      return Array.from(byStage, ([stage_id, v]) => ({ stage_id, ...v }));
+      return Array.from(byStage, ([bucketKey, v]) => {
+        const separator = bucketKey.lastIndexOf(":");
+        return {
+          stage_id: bucketKey.slice(0, separator),
+          month: bucketKey.slice(separator + 1),
+          ...v,
+        };
+      });
     },
   });
 
@@ -362,11 +391,11 @@ function ProjectDetail() {
     return budget / avgSaleRate;
   };
   const stageLoggedHours = (stageId: string) =>
-    timeRows?.find((r) => r.stage_id === stageId)?.hours ?? 0;
+    timeRows?.reduce((sum, r) => sum + (r.stage_id === stageId ? r.hours : 0), 0) ?? 0;
   const stageBillableHours = (stageId: string) =>
-    timeRows?.find((r) => r.stage_id === stageId)?.billableHours ?? 0;
+    timeRows?.reduce((sum, r) => sum + (r.stage_id === stageId ? r.billableHours : 0), 0) ?? 0;
   const stageNonBillableHours = (stageId: string) =>
-    timeRows?.find((r) => r.stage_id === stageId)?.nonBillableHours ?? 0;
+    timeRows?.reduce((sum, r) => sum + (r.stage_id === stageId ? r.nonBillableHours : 0), 0) ?? 0;
 
   // ---- Single source of truth: Actuals --------------------------------
   // Distribute a stage's logged hours across allocations proportionally to
@@ -1041,6 +1070,7 @@ function ProjectDetail() {
                 stageActuals={stageActuals}
                 defaultRates={defaultRates}
                 activities={activities ?? []}
+                timeRows={timeRows ?? []}
                 historical={hist}
                 initialScopeStageId={insightsScopeStageId}
               />
@@ -1903,6 +1933,7 @@ function InsightsPanel({
   stageActuals,
   defaultRates,
   activities,
+  timeRows,
   historical,
   initialScopeStageId,
 }: {
@@ -1926,6 +1957,7 @@ function InsightsPanel({
   stageActuals: (id: string) => { revenue: number; cost: number; profit: number };
   defaultRates: ReturnType<typeof useDefaultResourceRates>["data"];
   activities: import("@/lib/projects/use-activities").Activity[];
+  timeRows: { stage_id: string; month: string; hours: number }[];
   historical: HistoricalProjectTotals;
   initialScopeStageId?: string | null;
 }) {
@@ -2232,8 +2264,21 @@ function InsightsPanel({
       hours: 0,
     };
     cur.activities += 1;
-    cur.hours += Number(a.logged_hours ?? 0);
     monthMap.set(key, cur);
+  }
+  const scopedTimeRows = scopeStageIds
+    ? timeRows.filter((row) => scopeStageIds.has(row.stage_id))
+    : timeRows;
+  for (const row of scopedTimeRows) {
+    const d = parseISO(`${row.month}-01`);
+    const cur = monthMap.get(row.month) ?? {
+      key: row.month,
+      label: format(d, "MMM yyyy", { locale: pt }),
+      activities: 0,
+      hours: 0,
+    };
+    cur.hours += Number(row.hours ?? 0);
+    monthMap.set(row.month, cur);
   }
   const months = Array.from(monthMap.values()).sort((a, b) =>
     a.key < b.key ? -1 : 1,
