@@ -62,6 +62,7 @@ import { useHistoricalProjectTotals, EMPTY_HISTORICAL_TOTALS, type HistoricalPro
 import { useStageBudgetControl } from "@/lib/projects/use-stage-budget-control";
 import { BudgetControlPanel } from "@/components/projects/budget-control-panel";
 import { RetainerMonitorPanel } from "@/components/projects/retainer-monitor-panel";
+import { ApprovalsPanel } from "@/components/projects/approvals-panel";
 import { CommercialBaselineCard } from "@/components/projects/commercial-baseline-card";
 import { ContractBaselineCard } from "@/components/projects/contract-baseline-card";
 import { ProjectForecastCard } from "@/components/projects/project-forecast-card";
