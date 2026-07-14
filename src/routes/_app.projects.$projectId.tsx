@@ -1716,15 +1716,19 @@ function MilestonesTable({
                             style={{ backgroundColor: s.color }}
                           />
                           <div className="min-w-0">
-                            <div
+                            <button
+                              type="button"
+                              onClick={() => onOpenStageInsights?.(s.id)}
                               className={
                                 depth === 0
-                                  ? "truncate font-semibold text-foreground"
-                                  : "truncate text-foreground"
+                                  ? "truncate font-semibold text-foreground text-left hover:underline"
+                                  : "truncate text-foreground text-left hover:underline"
                               }
+                              title="Open insights for this stage"
                             >
                               {label}. {s.name}
-                            </div>
+                            </button>
+
                             <div className="text-[11px] text-muted-foreground">
                               {hasChildren
                                 ? `${(childrenOf.get(s.id) ?? []).length} sub-fase${(childrenOf.get(s.id) ?? []).length === 1 ? "" : "s"}`
