@@ -816,7 +816,12 @@ function ProjectDetail() {
                     defaultRates={defaultRates}
                     canSeeFinancials={canSeeFinancials}
                     onEditPlan={() => setTab("schedule")}
+                    onOpenStageInsights={(stageId) => {
+                      setInsightsScopeStageId(stageId);
+                      setTab("insights");
+                    }}
                   />
+
                 </div>
               </div>
             )}
