@@ -2067,7 +2067,7 @@ function InsightsPanel({
     loggedHours: number;
   };
   const byRes = new Map<string, ResAgg>();
-  for (const s of stages) {
+  for (const s of scopedStages) {
     for (const a of s.allocations) {
       const key = a.resource.id;
       const existing =
