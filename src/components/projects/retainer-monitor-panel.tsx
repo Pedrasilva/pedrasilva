@@ -1075,18 +1075,17 @@ function MonthEntries({ childStageId }: MonthEntriesProps) {
         ),
       ];
       if (userIds.length > 0) {
-        // Resolve auth user_id → collaborator name via pm_resources
-        // (owned by a collaborator) that has ever been allocated on a
-        // stage. We look up all resources and match by a task-side entry
-        // for the same user; simpler fallback: match through pm_resources'
-        // linked collaborator on any allocation the user has entries for.
-        const { data: collabs } = await supabase
-          .from("collaborators")
-          .select("id, nome");
-        // No auth link — best effort: leave as user id short suffix.
-        void collabs;
+        const { data: mapRows } = await supabase.rpc("pm_resource_map_for_users", {
+          _user_ids: userIds,
+        });
+        for (const m of (mapRows ?? []) as Array<{
+          user_id: string;
+          name: string | null;
+        }>) {
+          if (m.name) nameByUser.set(m.user_id, m.name);
+        }
         for (const uid of userIds) {
-          nameByUser.set(uid, `User ${uid.slice(0, 6)}`);
+          if (!nameByUser.has(uid)) nameByUser.set(uid, `User ${uid.slice(0, 6)}`);
         }
       }
 
