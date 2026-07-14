@@ -64,7 +64,7 @@ export function ProjectExpenseDialog({ open, onOpenChange, projectId, initial }:
       setCategory((initial?.category ?? "misc") as ExpenseCategory);
       setSupplierId(initial?.supplier_id ?? null);
       setVendor(initial?.vendor ?? "");
-      setAmount(Number(initial?.purchase_price ?? 0));
+      setAmount(initial?.purchase_price != null ? String(initial.purchase_price) : "");
       setIncurredAt(initial?.incurred_at ?? initial?.expense_date ?? "");
       setStatus((initial?.status ?? "draft") as ExpenseStatus);
       setPaidAt(initial?.paid_at ?? "");
