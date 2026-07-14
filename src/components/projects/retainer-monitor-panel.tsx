@@ -770,6 +770,10 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
         string,
         { resourceId: string; name: string; cost: number; sale: number }
       >();
+      const resourceMeta = new Map<
+        string,
+        { name: string; cost: number; sale: number }
+      >();
       for (const a of (allocs ?? []) as Array<{
         id: string;
         resource: {
@@ -780,60 +784,121 @@ function RetainerByResource({ parentStageId }: ByResourceProps) {
           hourly_rate: number | string | null;
         };
       }>) {
-        allocInfo.set(a.id, {
-          resourceId: a.resource.id,
+        const meta = {
           name: a.resource.full_name || a.resource.name || "—",
           cost: Number(a.resource.cost_rate ?? 0),
           sale: Number(a.resource.hourly_rate ?? 0),
-        });
+        };
+        allocInfo.set(a.id, { resourceId: a.resource.id, ...meta });
+        resourceMeta.set(a.resource.id, meta);
       }
-      if (allocInfo.size === 0) return [];
-
-      const { data: tasks } = await supabase
-        .from("pm_tasks")
-        .select("id, allocation_id")
-        .in("allocation_id", Array.from(allocInfo.keys()));
-      const taskAlloc = new Map<string, string>();
-      for (const tk of (tasks ?? []) as Array<{ id: string; allocation_id: string }>) {
-        taskAlloc.set(tk.id, tk.allocation_id);
-      }
-      if (taskAlloc.size === 0) return [];
-
-      const { data: ents } = await supabase
-        .from("pm_time_entries")
-        .select("task_id, hours, billable, cost_rate_snapshot, sale_rate_snapshot")
-        .eq("entry_type", "project")
-        .in("task_id", Array.from(taskAlloc.keys()));
 
       const byRes = new Map<string, ResourceRow>();
-      for (const e of (ents ?? []) as Array<{
-        task_id: string;
-        hours: number | string;
-        billable: boolean;
-        cost_rate_snapshot: number | string | null;
-        sale_rate_snapshot: number | string | null;
-      }>) {
-        const allocId = taskAlloc.get(e.task_id);
-        if (!allocId) continue;
-        const info = allocInfo.get(allocId);
-        if (!info) continue;
-        const h = Number(e.hours);
-        const costRate = e.cost_rate_snapshot != null ? Number(e.cost_rate_snapshot) : info.cost;
-        const saleRate = e.sale_rate_snapshot != null ? Number(e.sale_rate_snapshot) : info.sale;
-        const cur = byRes.get(info.resourceId) ?? {
-          resourceId: info.resourceId,
-          name: info.name,
+      const upsert = (
+        resourceId: string,
+        name: string,
+        h: number,
+        billable: boolean,
+        costRate: number,
+        saleRate: number,
+      ) => {
+        const cur = byRes.get(resourceId) ?? {
+          resourceId,
+          name,
           hours: 0,
           billableHours: 0,
           cost: 0,
           sale: 0,
         };
         cur.hours += h;
-        if (e.billable) cur.billableHours += h;
+        if (billable) cur.billableHours += h;
         cur.cost += h * costRate;
-        if (e.billable) cur.sale += h * saleRate;
-        byRes.set(info.resourceId, cur);
+        if (billable) cur.sale += h * saleRate;
+        byRes.set(resourceId, cur);
+      };
+
+      // (a) Allocation-linked entries (task_id → allocation → resource).
+      const taskAlloc = new Map<string, string>();
+      if (allocInfo.size > 0) {
+        const { data: tasks } = await supabase
+          .from("pm_tasks")
+          .select("id, allocation_id")
+          .in("allocation_id", Array.from(allocInfo.keys()));
+        for (const tk of (tasks ?? []) as Array<{ id: string; allocation_id: string }>) {
+          taskAlloc.set(tk.id, tk.allocation_id);
+        }
+        if (taskAlloc.size > 0) {
+          const { data: ents } = await supabase
+            .from("pm_time_entries")
+            .select("task_id, hours, billable, cost_rate_snapshot, sale_rate_snapshot")
+            .eq("entry_type", "project")
+            .in("task_id", Array.from(taskAlloc.keys()));
+          for (const e of (ents ?? []) as Array<{
+            task_id: string;
+            hours: number | string;
+            billable: boolean;
+            cost_rate_snapshot: number | string | null;
+            sale_rate_snapshot: number | string | null;
+          }>) {
+            const allocId = taskAlloc.get(e.task_id);
+            if (!allocId) continue;
+            const info = allocInfo.get(allocId);
+            if (!info) continue;
+            const h = Number(e.hours);
+            const costRate = e.cost_rate_snapshot != null ? Number(e.cost_rate_snapshot) : info.cost;
+            const saleRate = e.sale_rate_snapshot != null ? Number(e.sale_rate_snapshot) : info.sale;
+            upsert(info.resourceId, info.name, h, e.billable, costRate, saleRate);
+          }
+        }
       }
+
+      // (b) Direct-logged entries (pm_stage_id on retainer stage, task_id null).
+      const { data: directEnts } = await supabase
+        .from("pm_time_entries")
+        .select("user_id, hours, billable, cost_rate_snapshot, sale_rate_snapshot")
+        .in("pm_stage_id", stageIds)
+        .is("task_id", null);
+      const directRows = (directEnts ?? []) as Array<{
+        user_id: string;
+        hours: number | string;
+        billable: boolean;
+        cost_rate_snapshot: number | string | null;
+        sale_rate_snapshot: number | string | null;
+      }>;
+      if (directRows.length > 0) {
+        const userIds = [...new Set(directRows.map((r) => r.user_id))];
+        const { data: mapRows } = await supabase.rpc("pm_resource_map_for_users", {
+          _user_ids: userIds,
+        });
+        const userToResource = new Map<
+          string,
+          { resourceId: string; name: string; cost: number; sale: number }
+        >();
+        for (const m of (mapRows ?? []) as Array<{
+          user_id: string;
+          resource_id: string;
+          name: string | null;
+          cost_rate: number | string | null;
+          sale_rate: number | string | null;
+        }>) {
+          const fromAlloc = resourceMeta.get(m.resource_id);
+          userToResource.set(m.user_id, {
+            resourceId: m.resource_id,
+            name: m.name || fromAlloc?.name || "—",
+            cost: Number(m.cost_rate ?? fromAlloc?.cost ?? 0),
+            sale: Number(m.sale_rate ?? fromAlloc?.sale ?? 0),
+          });
+        }
+        for (const e of directRows) {
+          const info = userToResource.get(e.user_id);
+          if (!info) continue;
+          const h = Number(e.hours);
+          const costRate = e.cost_rate_snapshot != null ? Number(e.cost_rate_snapshot) : info.cost;
+          const saleRate = e.sale_rate_snapshot != null ? Number(e.sale_rate_snapshot) : info.sale;
+          upsert(info.resourceId, info.name, h, e.billable, costRate, saleRate);
+        }
+      }
+
       return Array.from(byRes.values())
         .filter((r) => r.hours > 0)
         .sort((a, b) => b.sale - a.sale);
