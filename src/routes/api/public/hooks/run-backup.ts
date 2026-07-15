@@ -1,13 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { timingSafeEqual } from "node:crypto";
 import { cronTriggerSchema } from "@/lib/backups/backup.functions";
+
+function safeEqual(a: string, b: string) {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  return timingSafeEqual(ab, bb);
+}
 
 export const Route = createFileRoute("/api/public/hooks/run-backup")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apiKey = request.headers.get("apikey") ?? request.headers.get("x-api-key") ?? "";
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY ?? "";
-        if (!expected || apiKey !== expected) {
+        const expected = process.env.BACKUP_HOOK_SECRET ?? "";
+        if (!expected) {
+          return new Response("Backup hook secret not configured", { status: 503 });
+        }
+        const provided =
+          request.headers.get("x-backup-secret") ??
+          request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
+          "";
+        if (!provided || !safeEqual(provided, expected)) {
           return new Response("Unauthorized", { status: 401 });
         }
         let body: unknown = {};
