@@ -8920,6 +8920,7 @@ export type Database = {
         }[]
       }
       pm_can_approve_hours: { Args: { _user_id: string }; Returns: boolean }
+      pm_can_view_projects: { Args: { _user_id: string }; Returns: boolean }
       pm_get_my_resource_id: { Args: never; Returns: string }
       pm_is_retainer_stage: { Args: { _stage_id: string }; Returns: boolean }
       pm_list_user_resource_map: {
