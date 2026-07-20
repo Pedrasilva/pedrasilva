@@ -122,9 +122,10 @@ import {
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
   component: ProjectDetail,
-  validateSearch: (search: Record<string, unknown>) => ({
-    tab: typeof search.tab === "string" ? (search.tab as string) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { tab?: string } => {
+    const tab = typeof search.tab === "string" ? search.tab : undefined;
+    return tab ? { tab } : {};
+  },
 });
 
 type TabKey =
