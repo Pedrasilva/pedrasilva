@@ -173,7 +173,8 @@ function ProjectDetail() {
     label: data?.project?.name ?? "",
   });
 
-  const [tab, setTab] = useState<TabKey>("overview");
+  const search = Route.useSearch();
+  const [tab, setTab] = useState<TabKey>((search?.tab as TabKey) || "overview");
   const [insightsScopeStageId, setInsightsScopeStageId] = useState<string | null>(null);
   const baselineQ = useContractBaseline(projectId);
   const sourceQuoteId = baselineQ.data?.header.quote_id ?? null;
