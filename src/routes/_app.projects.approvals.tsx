@@ -59,7 +59,7 @@ function ProjectsApprovalsQueue() {
                 key={p.id}
                 to="/projects/$projectId"
                 params={{ projectId: p.id }}
-                search={{ tab: "approvals" } as never}
+                search={{ tab: "approvals" }}
                 className="flex items-center justify-between rounded-lg border bg-card p-4 hover:bg-muted/50"
               >
                 <div className="flex items-center gap-3">

@@ -122,6 +122,10 @@ import {
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
   component: ProjectDetail,
+  validateSearch: (search: Record<string, unknown>): { tab?: string } => {
+    const tab = typeof search.tab === "string" ? search.tab : undefined;
+    return tab ? { tab } : {};
+  },
 });
 
 type TabKey =
@@ -169,7 +173,8 @@ function ProjectDetail() {
     label: data?.project?.name ?? "",
   });
 
-  const [tab, setTab] = useState<TabKey>("overview");
+  const search = Route.useSearch();
+  const [tab, setTab] = useState<TabKey>((search?.tab as TabKey) || "overview");
   const [insightsScopeStageId, setInsightsScopeStageId] = useState<string | null>(null);
   const baselineQ = useContractBaseline(projectId);
   const sourceQuoteId = baselineQ.data?.header.quote_id ?? null;
@@ -2551,6 +2556,7 @@ function UnapprovedPill({ projectId }: { projectId: string }) {
     <Link
       to="/projects/$projectId"
       params={{ projectId }}
+      search={{ tab: "approvals" }}
       className="flex items-center justify-between rounded-md border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs dark:border-amber-500/30 dark:bg-amber-500/10"
     >
       <span className="font-medium text-amber-800 dark:text-amber-300">
