@@ -4655,6 +4655,78 @@ export type Database = {
           },
         ]
       }
+      pm_project_notes: {
+        Row: {
+          ai_metadata: Json | null
+          audio_path: string | null
+          author_id: string
+          body: string
+          category: string
+          confidential: boolean
+          created_at: string
+          entities: Json
+          event_date: string | null
+          id: string
+          project_id: string
+          raw_transcript: string | null
+          source: string
+          stage_id: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_metadata?: Json | null
+          audio_path?: string | null
+          author_id?: string
+          body: string
+          category?: string
+          confidential?: boolean
+          created_at?: string
+          entities?: Json
+          event_date?: string | null
+          id?: string
+          project_id: string
+          raw_transcript?: string | null
+          source?: string
+          stage_id?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_metadata?: Json | null
+          audio_path?: string | null
+          author_id?: string
+          body?: string
+          category?: string
+          confidential?: boolean
+          created_at?: string
+          entities?: Json
+          event_date?: string | null
+          id?: string
+          project_id?: string
+          raw_transcript?: string | null
+          source?: string
+          stage_id?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pm_project_notes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "pm_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pm_project_notes_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "pm_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pm_project_rate_overrides: {
         Row: {
           created_at: string
