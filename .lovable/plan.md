@@ -1,54 +1,87 @@
-## Hour approval system
 
-Add an approval workflow for every logged hour (project tasks, retainer, direct-stage). Approvers (admins + the project's manager) review pending entries, adjust billable flag / sale rate / stage, then approve or reject. Unapproved hours stay visible in Insights but are flagged.
+## Goal
 
-### Data model
-Add to `pm_time_entries`:
-- `approval_status` enum(`pending`, `approved`, `rejected`) default `pending`
-- `approved_by` uuid, `approved_at` timestamptz
-- `sale_rate_override` numeric (nullable — overrides `sale_rate_snapshot` when set)
-- `rejection_reason` text (nullable)
+Add a **Notes** tab to every project dashboard where team members log short notes (typed or voice-dictated from phone or desktop). Lovable AI transcribes, auto-classifies, extracts entities, and later answers natural-language questions across a project's note history — building a searchable memory that survives staff turnover.
 
-Existing historical rows: backfill to `approved` so nothing retroactively disappears from earned value.
+## Data model
 
-RLS: add policy so admins + project manager (`pm_projects.manager_id = auth.uid()`) can UPDATE approval fields on any entry belonging to their project. Resource-owner update path stays as-is for editing own hours *only while status = pending*.
+New table `pm_project_notes`:
+- `project_id` → `pm_projects` (cascade)
+- `author_id` → `auth.users` (the person logging the note)
+- `body` (final text — transcribed or typed)
+- `raw_transcript` (original STT output, kept for audit)
+- `category` — enum: `client_request`, `todo`, `issue_risk`, `decision_fact`, `project`, `engineering`, `status`, `other`
+- `confidential` (bool) — set true when the note mentions "confidential" or the toggle is on
+- `entities` (jsonb) — `{ people:[], stages:[], materials:[], dates:[] }` extracted by the model
+- `stage_id` (nullable) — set when a stage is mentioned/selected
+- `event_date` (nullable date) — the date the note refers to, not just created_at
+- `source` — `voice` | `typed`
+- `audio_url` (nullable) — original recording in Storage for replay
+- standard `created_at` / `updated_at`
 
-### Approval surfaces
+Storage bucket `project-note-audio` (private) for raw recordings.
 
-1. **Project → new "Approvals" tab** (visible only to admins / project manager)
-   - Grouped by stage → shows pending entries
-   - Per stage header: stage name + gantt number, budget, hours used vs planned, €used vs budget (matches the reference image)
-   - Per entry row: date, person, task/notes, hours, billable toggle, rate €/h input (defaults to snapshot, editable), stage picker (reassign), amount preview, Approve / Reject buttons
-   - Bulk actions: select rows → approve all / mark all non-billable / apply rate
-   - "Approve stage" button approves every pending entry under it
+**RLS** (matches locked visibility rule):
+- Read: any authenticated user on non-confidential notes; confidential notes only visible to admins and the project lead (`pm_projects.lead_id` or equivalent) and the note's author.
+- Insert: any authenticated user, `author_id = auth.uid()`.
+- Update/Delete: author or admin only.
 
-2. **Insights unapproved indicator**
-   - Add "Unapproved" pill next to Earned Value: `€X unapproved (Yh)` — mirrors the `-€3,937.50 unapproved` line in the reference
-   - Financials rollup: totals include ALL entries but the "Value" row shows `approved / unapproved` split
-   - Chart bars: unapproved portion rendered with a lighter shade / hatched fill
+Grants: `authenticated` (SELECT/INSERT/UPDATE/DELETE), `service_role` (ALL). No `anon`.
 
-3. **Retainer monitor**
-   - Month drill-down gets an "Approve" column per entry (admin/manager only)
-   - Monthly totals show `approved h / pending h` split
+## Server functions (`src/lib/projects/notes.functions.ts`)
 
-4. **Global "Approve work" entry point**
-   - Top-nav Quick menu → "Approve work" opens `/projects/approvals` route listing every project with pending hour counts → click drills into that project's Approvals tab
+All under `requireSupabaseAuth`:
 
-### Files touched (approx.)
-- Migration: enum + columns + RLS + backfill
-- `src/lib/projects/use-approvals.ts` (new) — list pending by project/stage, approve/reject mutations
-- `src/components/projects/approvals-panel.tsx` (new) — stage-grouped table with inline edit
-- `src/routes/_app.projects.$projectId.tsx` — add Approvals tab, wire unapproved pill into Insights totals
-- `src/routes/_app.projects.approvals.tsx` (new) — cross-project queue
-- `src/components/projects/retainer-monitor-panel.tsx` — approve column + split totals
-- `src/lib/projects/use-project-insights.ts` — split approved vs unapproved in earned value / financials
-- i18n keys under `projects.approvals.*` (EN + PT)
+1. `transcribeNote({ audio })` — forwards the uploaded audio to Lovable AI `openai/gpt-4o-mini-transcribe`; returns text.
+2. `classifyNote({ text, projectContext })` — calls `google/gemini-3.5-flash` with a small schema:
+   ```
+   { category, confidential, event_date?, stage_hint?, entities:{people,materials,dates,stages}, title }
+   ```
+   Prompt states: "If the author says the note is confidential, set confidential=true." Categories constrained to the enum above.
+3. `createNote({ projectId, body, rawTranscript?, audioPath?, source, aiMetadata })` — persists the row using the classifier's output; caller can override category before save.
+4. `askProjectNotes({ projectId, question })` — retrieves the project's notes (respecting RLS via the user's client), passes them as context to Gemini, returns an answer with citations back to note IDs. No embeddings in v1 — small note volumes per project make plain context injection sufficient.
 
-### Business rules
-- Approvable actions per entry: toggle billable, override sale rate, reassign stage. Hours themselves are NOT edited during approval (owner edits hours while status=pending; approval locks the entry).
-- Approved entries are read-only for everyone except admins (who can revert to pending).
-- Rejected entries stay visible to the owner with the reason and don't count toward value/cost until re-submitted.
-- Insights `earnedValue` = approved billable hours × rate. Unapproved billable hours tracked separately as `unapprovedValue`.
-- Costs count from all entries regardless of approval (labor cost is incurred either way).
+## UI (new `src/components/projects/notes/`)
 
-Confirm and I'll implement.
+New **Notes** tab in `_app.projects.$projectId.tsx` (added to the existing tab set beside Overview / Retainer / Approvals / Insights).
+
+**Composer card** at the top:
+- Big text area with a mic button.
+- Mic uses `MediaRecorder` → WAV via Web Audio (per `ai-speech-to-text` guidance) → uploads to backend → `transcribeNote` → fills the text area. Works on desktop and mobile browsers (same URL — the "phone as web app" path covers the primary use case).
+- On submit: calls `classifyNote`, shows an inline chip row with the AI's suggested category, confidential flag, stage, event date, and detected entities. User can adjust before saving.
+- Manual "Mark confidential" toggle in addition to keyword detection.
+
+**Timeline** below:
+- Reverse-chronological list grouped by month.
+- Each note shows: author avatar + name, category badge (color-coded), confidential lock icon when applicable, event date if different from created_at, body, entity chips, ▶ button when `audio_url` present.
+- Filters: category, author, stage, date range, confidential-only (admin/lead), free-text search.
+
+**Ask panel** (right side or collapsible drawer):
+- Chat input: "Ask about this project's history".
+- Streams answer from `askProjectNotes`, renders markdown, and each cited note is a clickable link scrolling the timeline to that entry.
+
+**Global surface** (light-touch, admin-only for now):
+- Add "Recent project notes" widget to the existing home feed so leadership sees new confidential/high-priority notes as they land. Same RLS applies automatically.
+
+## Voice-input scope (per user answer)
+
+Phase 1 ships the web-app path only: open the project on your phone, tap mic, dictate. No pairing. Phone-to-desktop pairing is deferred; the timeline and Ask panel work identically once notes exist regardless of source.
+
+## i18n
+
+Two new namespaces `projects.notes.*` in EN and PT-PT (parity checked by existing workflow). All category labels reused from `glossary.crm.*` where they exist; new ones (`todo`, `issueRisk`, `decisionFact`, `engineering`, `status`) added to `glossary` per the memory rule so future modules reuse them.
+
+## Out of scope for v1
+
+- Embedding-based semantic search (add later if note volume per project grows past a few hundred).
+- Editing notes after creation beyond category/confidential toggles by the author.
+- Cross-project search.
+- Push notifications.
+
+## Technical notes
+
+- Audio path uses WAV upload (avoids Safari MP4/webm mismatch) as documented in `ai-speech-to-text`.
+- All AI calls happen server-side via `createServerFn`, never from the browser; `LOVABLE_API_KEY` stays server-only.
+- Model choice: `openai/gpt-4o-mini-transcribe` for STT (cost-efficient), `google/gemini-3.5-flash` for classification and Q&A (fast, cheap, large context — one project's full note history fits easily).
+- Follow existing `_authenticated` route conventions; no new top-level route needed — the tab lives inside the current project page.
+
