@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useProjectNotes, useDeleteProjectNote, type ProjectNote, type NoteCategory } from "@/lib/projects/use-project-notes";
 import { useAuth } from "@/hooks/use-auth";
-import { CollaboratorAvatar } from "@/components/CollaboratorAvatar";
+import { User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const CATEGORY_COLORS: Record<NoteCategory, string> = {
@@ -128,7 +128,9 @@ export function NotesList({ projectId }: Props) {
                   className="rounded-lg border border-border bg-card p-3"
                 >
                   <div className="flex items-start gap-3">
-                    <CollaboratorAvatar userId={n.author_id ?? undefined} size={28} />
+                    <div className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-muted text-muted-foreground">
+                      <User className="h-3.5 w-3.5" />
+                    </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 text-xs">
                         <Badge className={CATEGORY_COLORS[n.category as NoteCategory]} variant="outline">
