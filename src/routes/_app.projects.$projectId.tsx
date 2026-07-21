@@ -146,7 +146,8 @@ type TabKey =
   | "incoming"
   | "outgoing"
   | "paymentSchedule"
-  | "financialSummary";
+  | "financialSummary"
+  | "notes";
 
 
 function ProjectDetail() {
