@@ -9232,6 +9232,16 @@ export type Database = {
       pm_forecast_allocation_source: "manual" | "imported" | "derived"
       pm_invoice_status: "draft" | "sent" | "paid" | "overdue" | "cancelled"
       pm_markup_type: "percent" | "fixed"
+      pm_project_note_category:
+        | "client_request"
+        | "todo"
+        | "issue_risk"
+        | "decision_fact"
+        | "project"
+        | "engineering"
+        | "status"
+        | "other"
+      pm_project_note_source: "voice" | "typed"
       pm_project_status: "active" | "paused" | "archived"
       pm_role:
         | "admin"
@@ -9626,6 +9636,17 @@ export const Constants = {
       pm_forecast_allocation_source: ["manual", "imported", "derived"],
       pm_invoice_status: ["draft", "sent", "paid", "overdue", "cancelled"],
       pm_markup_type: ["percent", "fixed"],
+      pm_project_note_category: [
+        "client_request",
+        "todo",
+        "issue_risk",
+        "decision_fact",
+        "project",
+        "engineering",
+        "status",
+        "other",
+      ],
+      pm_project_note_source: ["voice", "typed"],
       pm_project_status: ["active", "paused", "archived"],
       pm_role: [
         "admin",
