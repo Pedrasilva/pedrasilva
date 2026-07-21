@@ -1322,5 +1322,39 @@
     "unassigned": "Unassigned stage",
     "review": "Review →",
     "unapproved": "unapproved"
+  },
+  "notes": {
+    "tab": "Notes",
+    "composerTitle": "New note",
+    "placeholder": "Type or dictate a note. e.g. 'Client asked to change the roof detail — meeting 21 March'.",
+    "record": "Record",
+    "stop": "Stop",
+    "transcribing": "Transcribing…",
+    "save": "Save note",
+    "saved": "Note saved",
+    "confidential": "Confidential",
+    "voice": "Voice",
+    "suggested": "Suggested:",
+    "aiThinking": "AI classifying…",
+    "empty": "No notes yet — add the first one above.",
+    "loading": "Loading notes…",
+    "searchPlaceholder": "Search notes…",
+    "filterAll": "All",
+    "confirmDelete": "Delete this note?",
+    "eventOn": "event",
+    "askTitle": "Ask this project's history",
+    "askPlaceholder": "e.g. What happened with the roof?",
+    "micError": "Microphone access denied",
+    "emptyRecording": "Recording was empty — try again",
+    "category": {
+      "client_request": "Client request",
+      "todo": "To-do",
+      "issue_risk": "Issue / risk",
+      "decision_fact": "Decision / fact",
+      "project": "Project",
+      "engineering": "Engineering",
+      "status": "Status",
+      "other": "Other"
+    }
   }
 }

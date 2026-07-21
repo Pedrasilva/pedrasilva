@@ -1322,5 +1322,39 @@
     "unassigned": "Fase por atribuir",
     "review": "Rever →",
     "unapproved": "por aprovar"
+  },
+  "notes": {
+    "tab": "Notas",
+    "composerTitle": "Nova nota",
+    "placeholder": "Escreva ou dite uma nota. ex. 'Cliente pediu para alterar o detalhe da cobertura — reunião 21 Março'.",
+    "record": "Gravar",
+    "stop": "Parar",
+    "transcribing": "A transcrever…",
+    "save": "Guardar nota",
+    "saved": "Nota guardada",
+    "confidential": "Confidencial",
+    "voice": "Voz",
+    "suggested": "Sugerido:",
+    "aiThinking": "IA a classificar…",
+    "empty": "Ainda sem notas — adicione a primeira acima.",
+    "loading": "A carregar notas…",
+    "searchPlaceholder": "Pesquisar notas…",
+    "filterAll": "Todas",
+    "confirmDelete": "Apagar esta nota?",
+    "eventOn": "evento",
+    "askTitle": "Perguntar ao histórico do projecto",
+    "askPlaceholder": "ex. O que aconteceu com a cobertura?",
+    "micError": "Acesso ao microfone negado",
+    "emptyRecording": "Gravação vazia — tente novamente",
+    "category": {
+      "client_request": "Pedido do cliente",
+      "todo": "A fazer",
+      "issue_risk": "Problema / risco",
+      "decision_fact": "Decisão / facto",
+      "project": "Projecto",
+      "engineering": "Engenharia",
+      "status": "Estado",
+      "other": "Outro"
+    }
   }
 }

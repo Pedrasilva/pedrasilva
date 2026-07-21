@@ -20,6 +20,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { ProjectPlannerInspector } from "@/components/projects/project-planner-inspector";
 import { ResourcePool } from "@/components/projects/resource-pool";
 import { NewStageDialog } from "@/components/projects/new-stage-dialog";
+import { ProjectNotesTab } from "@/components/projects/notes/project-notes-tab";
 import { NewRetainerStageDialog } from "@/components/projects/new-retainer-stage-dialog";
 import {
   useProjectDetail,
@@ -146,7 +147,8 @@ type TabKey =
   | "incoming"
   | "outgoing"
   | "paymentSchedule"
-  | "financialSummary";
+  | "financialSummary"
+  | "notes";
 
 
 function ProjectDetail() {
@@ -624,6 +626,7 @@ function ProjectDetail() {
             {isAdmin && (
               <TabBtn icon={CheckCircle2} label={t("projects:approvals.title", { defaultValue: "Approvals" })} active={tab === "approvals"} onClick={() => setTab("approvals")} />
             )}
+            <TabBtn icon={FileText} label={t("projects:notes.tab", { defaultValue: "Notes" })} active={tab === "notes"} onClick={() => setTab("notes")} />
             {/* Materials tab hidden — superseded by Suppliers tab. Data layer kept intact. */}
             <TabBtn icon={Receipt} label={t("projects:detail.tabs.expenses")} active={tab === "expenses"} onClick={() => setTab("expenses")} />
             {/* Billing and Financial tabs hidden per request — kept in code for quick re-enable. */}
@@ -1063,6 +1066,11 @@ function ProjectDetail() {
                 <ApprovalsPanel projectId={projectId} />
               </div>
             )}
+
+            {tab === "notes" && (
+              <ProjectNotesTab projectId={projectId} />
+            )}
+
 
 
 
