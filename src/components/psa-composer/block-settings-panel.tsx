@@ -1073,3 +1073,35 @@ export function BlockSettingsPanel({
     </aside>
   );
 }
+
+// ---- Image block settings panel ----
+
+function ImageBlockPanel({
+  block,
+  onPatch,
+}: {
+  block: import("@/lib/psa-proposal/types").PsaProposalBlock;
+  onPatch: (patch: Record<string, unknown>) => void;
+}) {
+  const {
+    useProposalImages,
+    useUploadProposalImage,
+    useSignedProposalImageUrl,
+  } = require("@/lib/psa-proposal/use-proposal-images");
+  return <ImageBlockPanelInner
+    block={block}
+    onPatch={onPatch}
+    hooks={{ useProposalImages, useUploadProposalImage, useSignedProposalImageUrl }}
+  />;
+}
+
+function ImageBlockPanelInner({
+  block,
+  onPatch,
+}: {
+  block: import("@/lib/psa-proposal/types").PsaProposalBlock;
+  onPatch: (patch: Record<string, unknown>) => void;
+  hooks: unknown;
+}) {
+  return <ImageBlockPanelResolved block={block} onPatch={onPatch} />;
+}
