@@ -6604,6 +6604,45 @@ export type Database = {
         }
         Relationships: []
       }
+      psa_image_library: {
+        Row: {
+          bucket: string
+          created_at: string
+          created_by: string | null
+          height: number | null
+          id: string
+          name: string
+          size_hint: string | null
+          storage_path: string
+          updated_at: string
+          width: number | null
+        }
+        Insert: {
+          bucket?: string
+          created_at?: string
+          created_by?: string | null
+          height?: number | null
+          id?: string
+          name: string
+          size_hint?: string | null
+          storage_path: string
+          updated_at?: string
+          width?: number | null
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          created_by?: string | null
+          height?: number | null
+          id?: string
+          name?: string
+          size_hint?: string | null
+          storage_path?: string
+          updated_at?: string
+          width?: number | null
+        }
+        Relationships: []
+      }
       psa_proposal_audit: {
         Row: {
           action: string
@@ -9309,6 +9348,7 @@ export type Database = {
         | "travel_expenses"
         | "gantt_partial"
         | "billable_hourly_rate"
+        | "image"
       psa_contract_relevance:
         | "proposal_only"
         | "contract_relevant"
@@ -9719,6 +9759,7 @@ export const Constants = {
         "travel_expenses",
         "gantt_partial",
         "billable_hourly_rate",
+        "image",
       ],
       psa_contract_relevance: [
         "proposal_only",
