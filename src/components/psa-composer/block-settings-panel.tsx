@@ -758,6 +758,18 @@ export function BlockSettingsPanel({
         );
       })()}
 
+      {block.block_type === "image" && (
+        <ImageBlockPanel
+          block={block}
+          onPatch={(patch) =>
+            update.mutate({
+              id: block.id,
+              patch: { content_rich: { ...(block.content_rich ?? {}), ...patch } },
+            })
+          }
+        />
+      )}
+
       {(block.block_type === "optional_fee_table" || block.block_type === "custom_text") && (
         <div className="space-y-3">
           <div className="space-y-1">
