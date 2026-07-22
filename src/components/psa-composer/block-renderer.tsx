@@ -1358,6 +1358,11 @@ export function BlockBody({
         </div>
       );
 
+    case "image":
+      return <ProposalImageBlock block={block} />;
+
+
+
     case "travel_expenses": {
       const rows = live?.siteTrips ?? [];
       const total = live?.siteTripsTotal ?? 0;
