@@ -359,6 +359,10 @@ function HubPage() {
         </section>
       )}
 
+      {/* SIGNATURE PROJECTS =============================================== */}
+      <SignatureProjectsSection isAdmin={isAdmin} />
+
+
       {/* WIDGETS ========================================================== */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12 lg:py-16">
         <div className="mb-6">
