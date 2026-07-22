@@ -42,6 +42,11 @@ import {
   compareWbsNumbers,
   formatStageLabel,
 } from "@/lib/quotes/stage-numbering";
+import {
+  useProposalImages,
+  useUploadProposalImage,
+  useSignedProposalImageUrl,
+} from "@/lib/psa-proposal/use-proposal-images";
 
 /** Label row with an inline on/off switch controlling section visibility. */
 function SectionLabel({
