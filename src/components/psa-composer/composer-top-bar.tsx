@@ -62,6 +62,7 @@ import { ProposalHistoryDialog } from "./proposal-history-dialog";
 import { ProposalStylePanel } from "./proposal-style-panel";
 import { SendProposalDialog } from "./send-proposal-dialog";
 import { VersionsPanel } from "./versions-panel";
+import { ImportTemplateDialog } from "./import-template-dialog";
 import {
   useNextRevNumber,
   useSetProposalOutcome,
@@ -169,6 +170,7 @@ export function ComposerTopBar({
         </Badge>
       )}
       <div className="ml-auto flex items-center gap-2">
+        {!isReadOnly && <ImportTemplateDialog proposalId={proposal.id} />}
         <VersionsPanel proposal={proposal} />
         <ProposalHistoryDialog proposalId={proposal.id} />
         <Sheet>

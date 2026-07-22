@@ -223,6 +223,25 @@ export function useAddLibraryBlock(proposalId: string | undefined) {
   });
 }
 
+export function useImportTemplateBlocks(proposalId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (templateId: string): Promise<number> => {
+      if (!proposalId) throw new Error("No proposal id");
+      const { data, error } = await sb.rpc("psa_import_template_blocks", {
+        _proposal_id: proposalId,
+        _template_id: templateId,
+      });
+      if (error) throw error;
+      return (data as number) ?? 0;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["psa-proposal-blocks", proposalId] });
+      qc.invalidateQueries({ queryKey: ["psa-proposal", proposalId] });
+    },
+  });
+}
+
 export function useReorderBlocks(proposalId: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
