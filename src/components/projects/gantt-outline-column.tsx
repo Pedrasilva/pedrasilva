@@ -17,7 +17,7 @@
  * onAppendRoot (if provided).
  */
 import { useState, useRef, useEffect, useMemo } from "react";
-import { ChevronDown, ChevronRight, Briefcase, Box, Wrench, Plus, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronRight, Briefcase, Box, Wrench, Plus, ChevronUp, UserCheck } from "lucide-react";
 import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
 import {
   ContextMenu,
@@ -36,7 +36,7 @@ export interface GanttHierarchyNode {
   wbs: string;
   hasChildren: boolean;
   isSummary: boolean;
-  role: "architecture" | "supplier_group" | "supplier_phase";
+  role: "architecture" | "client" | "supplier_group" | "supplier_phase";
   parentId: string | null;
 }
 
@@ -81,6 +81,7 @@ interface Props {
 
 const ICON_BY_ROLE = {
   architecture: Briefcase,
+  client: UserCheck,
   supplier_group: Box,
   supplier_phase: Wrench,
 } as const;

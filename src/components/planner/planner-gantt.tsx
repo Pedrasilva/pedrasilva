@@ -377,12 +377,12 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
     const ordered: S[] = [];
     const hier = new Map<string, GanttHierarchyNode>();
 
-    const roleOf = (s: S): "architecture" | "supplier_group" | "supplier_phase" => {
+    const roleOf = (s: S): "architecture" | "client" | "supplier_group" | "supplier_phase" => {
       // "This is us" overrides supplier role — render as architecture
       // (solid bar, no dashed supplier hatching, no outflow).
       if ((s as { is_self?: boolean | null }).is_self === true) return "architecture";
       const r = (s.stage_role ?? "architecture") as string;
-      if (r === "supplier_group" || r === "supplier_phase") return r;
+      if (r === "supplier_group" || r === "supplier_phase" || r === "client") return r;
       return "architecture";
     };
     const isSupplierRole = (s: S) => {

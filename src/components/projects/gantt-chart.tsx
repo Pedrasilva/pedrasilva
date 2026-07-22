@@ -1395,13 +1395,17 @@ export function GanttChart({
                 ) : (() => {
                   const stageRole = hierarchy?.get(stage.id)?.role ?? "architecture";
                   const isSupplierBar = stageRole === "supplier_group" || stageRole === "supplier_phase";
+                  const isClientBar = stageRole === "client";
                   const supplierFill = stage.color || "#94a3b8";
                   const supplierBg = isSupplierBar
                     ? `repeating-linear-gradient(135deg, ${supplierFill} 0 8px, ${supplierFill}cc 8px 16px)`
                     : undefined;
+                  const clientBg = isClientBar
+                    ? "radial-gradient(circle, #0f172a 1.5px, transparent 2px) 0 0 / 10px 10px, #d1d5db"
+                    : undefined;
                   return (
                   <div className="group absolute" style={{ left: stageX, width: stageW, top: 0, height: STAGE_ROW_H }}>
-                  {!isSupplierBar && (
+                  {!isSupplierBar && !isClientBar && (
                     <div className="absolute left-0 right-0 top-0 h-1.5 overflow-hidden rounded-t-md bg-budget">
                       <div
                         className="h-full transition-all"
@@ -1420,13 +1424,21 @@ export function GanttChart({
                   )}
 
                   <div
-                    className={`absolute left-0 right-0 overflow-hidden ${isSupplierBar ? "rounded-md border-2 border-dashed border-foreground/40" : "top-1.5 bottom-0 rounded-b-md border border-foreground/10"} cursor-grab active:cursor-grabbing`}
+                    className={`absolute left-0 right-0 overflow-hidden ${
+                      isSupplierBar
+                        ? "rounded-md border-2 border-dashed border-foreground/40"
+                        : isClientBar
+                          ? "rounded-md border border-foreground/30"
+                          : "top-1.5 bottom-0 rounded-b-md border border-foreground/10"
+                    } cursor-grab active:cursor-grabbing`}
                     style={{
-                      backgroundColor: isSupplierBar ? undefined : stage.color,
-                      backgroundImage: supplierBg,
+                      backgroundColor: isSupplierBar || isClientBar ? undefined : stage.color,
+                      backgroundImage: supplierBg ?? clientBg,
                       ...(isSupplierBar
                         ? { top: STAGE_ROW_H / 4, height: STAGE_ROW_H / 2 }
-                        : {}),
+                        : isClientBar
+                          ? { top: STAGE_ROW_H * 0.35, height: STAGE_ROW_H * 0.3 }
+                          : {}),
                     }}
                     onPointerDown={(e) =>
                       startDrag(e, {
@@ -1443,7 +1455,7 @@ export function GanttChart({
                       <div className="min-w-0 flex-1">
                         <div className="flex min-w-0 items-center gap-1.5">
                           <span className="truncate text-sm font-semibold leading-tight">{stage.name}</span>
-                          <span className="rounded bg-background/40 px-1 py-px font-mono text-[9px]">
+                          <span className="rounded bg-background/70 px-1 py-px font-mono text-[9px]">
                             {workingDays(sStart, sEnd)}d
                           </span>
                           {isSupplierBar && Number(stage.budget ?? 0) > 0 && (
@@ -1454,7 +1466,7 @@ export function GanttChart({
                         </div>
 
 
-                        {!isSupplierBar && (
+                        {!isSupplierBar && !isClientBar && (
                         <div className="mt-0 flex items-center gap-1.5 text-[10px] leading-tight opacity-80">
                           <span className="font-mono">{euros(totalCost)}</span>
                           <span>/</span>
