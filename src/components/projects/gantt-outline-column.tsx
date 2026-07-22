@@ -81,6 +81,7 @@ interface Props {
 
 const ICON_BY_ROLE = {
   architecture: Briefcase,
+  client: UserCheck,
   supplier_group: Box,
   supplier_phase: Wrench,
 } as const;
