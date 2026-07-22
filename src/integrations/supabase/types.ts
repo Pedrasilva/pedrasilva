@@ -6607,6 +6607,7 @@ export type Database = {
       psa_image_library: {
         Row: {
           bucket: string
+          category: string
           created_at: string
           created_by: string | null
           height: number | null
@@ -6619,6 +6620,7 @@ export type Database = {
         }
         Insert: {
           bucket?: string
+          category?: string
           created_at?: string
           created_by?: string | null
           height?: number | null
@@ -6631,6 +6633,7 @@ export type Database = {
         }
         Update: {
           bucket?: string
+          category?: string
           created_at?: string
           created_by?: string | null
           height?: number | null

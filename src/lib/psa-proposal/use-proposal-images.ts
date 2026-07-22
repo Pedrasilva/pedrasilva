@@ -10,6 +10,13 @@ const sb = supabase as any;
 
 export const PROPOSAL_IMAGE_BUCKET = "proposal-images";
 
+export type PsaImageCategory =
+  | "general"
+  | "residential"
+  | "workplace"
+  | "hospitality"
+  | "team";
+
 export interface PsaImageLibraryEntry {
   id: string;
   name: string;
@@ -18,6 +25,7 @@ export interface PsaImageLibraryEntry {
   size_hint: string | null;
   width: number | null;
   height: number | null;
+  category: PsaImageCategory;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -40,8 +48,12 @@ export function useProposalImages() {
 export function useUploadProposalImage() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (args: { file: File; name?: string }): Promise<PsaImageLibraryEntry> => {
-      const { file, name } = args;
+    mutationFn: async (args: {
+      file: File;
+      name?: string;
+      category?: PsaImageCategory;
+    }): Promise<PsaImageLibraryEntry> => {
+      const { file, name, category } = args;
       const cleanName = (name ?? file.name).replace(/\.[^.]+$/, "");
       const ext = file.name.split(".").pop() ?? "bin";
       const path = `${crypto.randomUUID()}.${ext}`;
@@ -76,12 +88,34 @@ export function useUploadProposalImage() {
           bucket: PROPOSAL_IMAGE_BUCKET,
           width: dims.w,
           height: dims.h,
+          category: category ?? "general",
           created_by: user.user?.id ?? null,
         })
         .select("*")
         .single();
       if (error) throw error;
       return data as PsaImageLibraryEntry;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["psa-image-library"] }),
+  });
+}
+
+export function useUpdateProposalImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (args: {
+      id: string;
+      category?: PsaImageCategory;
+      name?: string;
+    }) => {
+      const patch: Record<string, unknown> = {};
+      if (args.category) patch.category = args.category;
+      if (args.name) patch.name = args.name;
+      const { error } = await sb
+        .from("psa_image_library")
+        .update(patch)
+        .eq("id", args.id);
+      if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["psa-image-library"] }),
   });
