@@ -36,7 +36,7 @@ export interface GanttHierarchyNode {
   wbs: string;
   hasChildren: boolean;
   isSummary: boolean;
-  role: "architecture" | "supplier_group" | "supplier_phase";
+  role: "architecture" | "client" | "supplier_group" | "supplier_phase";
   parentId: string | null;
 }
 
