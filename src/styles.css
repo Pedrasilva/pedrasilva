@@ -1197,3 +1197,37 @@
 }
 
 
+
+/* -----------------------------------------------------------
+   Proposal image block sizing
+   Sizes are fractions of the A4 printable content height (~245mm
+   after margins). The image fills the page width and its height
+   is fixed to the requested fraction so it fills white space
+   predictably in the exported PDF.
+   ----------------------------------------------------------- */
+.proposal-image-block {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 4px;
+}
+.proposal-image-block .proposal-image-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.proposal-image-quarter   { height: 62mm; }
+.proposal-image-third     { height: 82mm; }
+.proposal-image-half      { height: 122mm; }
+.proposal-image-twothirds { height: 165mm; }
+.proposal-image-full      { height: 245mm; }
+
+@media print {
+  .proposal-image-quarter   { height: 62mm; }
+  .proposal-image-third     { height: 82mm; }
+  .proposal-image-half      { height: 122mm; }
+  .proposal-image-twothirds { height: 165mm; }
+  .proposal-image-full      { height: 245mm; }
+}

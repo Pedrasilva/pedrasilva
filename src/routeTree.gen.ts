@@ -50,6 +50,7 @@ import { Route as AppCrmCompaniesRouteImport } from './routes/_app.crm.companies
 import { Route as AppCrmAccountsRouteImport } from './routes/_app.crm.accounts'
 import { Route as AppAdminQuotesTrashRouteImport } from './routes/_app.admin.quotes-trash'
 import { Route as AppAdminProposalRolesRouteImport } from './routes/_app.admin.proposal-roles'
+import { Route as AppAdminProposalImagesRouteImport } from './routes/_app.admin.proposal-images'
 import { Route as AppAdminProjectsRouteImport } from './routes/_app.admin.projects'
 import { Route as AppAdminImportsRouteImport } from './routes/_app.admin.imports'
 import { Route as AppAdminCompanySettingsRouteImport } from './routes/_app.admin.company-settings'
@@ -301,6 +302,11 @@ const AppAdminQuotesTrashRoute = AppAdminQuotesTrashRouteImport.update({
 const AppAdminProposalRolesRoute = AppAdminProposalRolesRouteImport.update({
   id: '/admin/proposal-roles',
   path: '/admin/proposal-roles',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminProposalImagesRoute = AppAdminProposalImagesRouteImport.update({
+  id: '/admin/proposal-images',
+  path: '/admin/proposal-images',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminProjectsRoute = AppAdminProjectsRouteImport.update({
@@ -573,6 +579,7 @@ export interface FileRoutesByFullPath {
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
+  '/admin/proposal-images': typeof AppAdminProposalImagesRoute
   '/admin/proposal-roles': typeof AppAdminProposalRolesRoute
   '/admin/quotes-trash': typeof AppAdminQuotesTrashRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
@@ -657,6 +664,7 @@ export interface FileRoutesByTo {
   '/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/admin/imports': typeof AppAdminImportsRoute
   '/admin/projects': typeof AppAdminProjectsRoute
+  '/admin/proposal-images': typeof AppAdminProposalImagesRoute
   '/admin/proposal-roles': typeof AppAdminProposalRolesRoute
   '/admin/quotes-trash': typeof AppAdminQuotesTrashRoute
   '/crm/accounts': typeof AppCrmAccountsRouteWithChildren
@@ -746,6 +754,7 @@ export interface FileRoutesById {
   '/_app/admin/company-settings': typeof AppAdminCompanySettingsRoute
   '/_app/admin/imports': typeof AppAdminImportsRoute
   '/_app/admin/projects': typeof AppAdminProjectsRoute
+  '/_app/admin/proposal-images': typeof AppAdminProposalImagesRoute
   '/_app/admin/proposal-roles': typeof AppAdminProposalRolesRoute
   '/_app/admin/quotes-trash': typeof AppAdminQuotesTrashRoute
   '/_app/crm/accounts': typeof AppCrmAccountsRouteWithChildren
@@ -835,6 +844,7 @@ export interface FileRouteTypes {
     | '/admin/company-settings'
     | '/admin/imports'
     | '/admin/projects'
+    | '/admin/proposal-images'
     | '/admin/proposal-roles'
     | '/admin/quotes-trash'
     | '/crm/accounts'
@@ -919,6 +929,7 @@ export interface FileRouteTypes {
     | '/admin/company-settings'
     | '/admin/imports'
     | '/admin/projects'
+    | '/admin/proposal-images'
     | '/admin/proposal-roles'
     | '/admin/quotes-trash'
     | '/crm/accounts'
@@ -1007,6 +1018,7 @@ export interface FileRouteTypes {
     | '/_app/admin/company-settings'
     | '/_app/admin/imports'
     | '/_app/admin/projects'
+    | '/_app/admin/proposal-images'
     | '/_app/admin/proposal-roles'
     | '/_app/admin/quotes-trash'
     | '/_app/crm/accounts'
@@ -1378,6 +1390,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/proposal-roles'
       fullPath: '/admin/proposal-roles'
       preLoaderRoute: typeof AppAdminProposalRolesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/proposal-images': {
+      id: '/_app/admin/proposal-images'
+      path: '/admin/proposal-images'
+      fullPath: '/admin/proposal-images'
+      preLoaderRoute: typeof AppAdminProposalImagesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin/projects': {
@@ -1890,6 +1909,7 @@ interface AppRouteChildren {
   AppAdminCompanySettingsRoute: typeof AppAdminCompanySettingsRoute
   AppAdminImportsRoute: typeof AppAdminImportsRoute
   AppAdminProjectsRoute: typeof AppAdminProjectsRoute
+  AppAdminProposalImagesRoute: typeof AppAdminProposalImagesRoute
   AppAdminProposalRolesRoute: typeof AppAdminProposalRolesRoute
   AppAdminQuotesTrashRoute: typeof AppAdminQuotesTrashRoute
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRouteWithChildren
@@ -1916,6 +1936,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminCompanySettingsRoute: AppAdminCompanySettingsRoute,
   AppAdminImportsRoute: AppAdminImportsRoute,
   AppAdminProjectsRoute: AppAdminProjectsRoute,
+  AppAdminProposalImagesRoute: AppAdminProposalImagesRoute,
   AppAdminProposalRolesRoute: AppAdminProposalRolesRoute,
   AppAdminQuotesTrashRoute: AppAdminQuotesTrashRoute,
   AppProjectsProjectIdRoute: AppProjectsProjectIdRouteWithChildren,

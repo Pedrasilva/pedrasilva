@@ -42,6 +42,7 @@ export type PsaBlockType =
   | "acceptance"
   | "custom_text"
   | "page_break"
+  | "image"
   | "appendix_index"
   | "appendix_payment_schedule"
   | "appendix_gantt"

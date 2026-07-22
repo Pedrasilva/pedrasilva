@@ -34,6 +34,53 @@ import {
   PSA_GENERAL_TERMS_HTML_EN,
   PSA_GENERAL_TERMS_HTML_PT,
 } from "@/lib/psa-proposal/general-terms-content";
+import {
+  useProposalImages,
+  useSignedProposalImageUrl,
+} from "@/lib/psa-proposal/use-proposal-images";
+
+const IMAGE_SIZE_TO_CLASS: Record<string, string> = {
+  "1/4": "proposal-image-quarter",
+  "1/3": "proposal-image-third",
+  "1/2": "proposal-image-half",
+  "2/3": "proposal-image-twothirds",
+  "full": "proposal-image-full",
+};
+
+function ProposalImageBlock({ block }: { block: PsaProposalBlock }) {
+  const cr = (block.content_rich ?? {}) as Record<string, unknown>;
+  const imageId = (cr.image_id as string | undefined) ?? null;
+  const size = (cr.size as string | undefined) ?? "1/2";
+  const caption = (cr.caption as string | undefined) ?? "";
+  const images = useProposalImages();
+  const entry = imageId ? images.data?.find((i) => i.id === imageId) : null;
+  const signed = useSignedProposalImageUrl(entry?.storage_path ?? null, entry?.bucket);
+  const sizeClass = IMAGE_SIZE_TO_CLASS[size] ?? IMAGE_SIZE_TO_CLASS["1/2"];
+
+  if (!entry) {
+    return (
+      <div className={`proposal-image-block ${sizeClass} flex items-center justify-center rounded border border-dashed border-zinc-300 bg-zinc-50 text-xs italic text-zinc-400 print:hidden`}>
+        Seleccione uma imagem no painel de definições
+      </div>
+    );
+  }
+  return (
+    <figure className={`proposal-image-block ${sizeClass} m-0`}>
+      {signed.data ? (
+        <img
+          src={signed.data}
+          alt={entry.name}
+          className="proposal-image-img h-full w-full object-cover"
+        />
+      ) : (
+        <div className="h-full w-full bg-zinc-100" />
+      )}
+      {caption && (
+        <figcaption className="mt-1 text-[11px] italic text-zinc-500">{caption}</figcaption>
+      )}
+    </figure>
+  );
+}
 
 
 type Spacing = "tight" | "normal" | "relaxed" | "loose";
@@ -1357,6 +1404,11 @@ export function BlockBody({
           {L.pageBreak}
         </div>
       );
+
+    case "image":
+      return <ProposalImageBlock block={block} />;
+
+
 
     case "travel_expenses": {
       const rows = live?.siteTrips ?? [];

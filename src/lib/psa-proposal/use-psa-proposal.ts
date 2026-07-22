@@ -270,6 +270,7 @@ export const BLOCK_TYPE_LABEL: Record<PsaBlockType, string> = {
   exclusions: "Exclusões",
   acceptance: "Validade e Aceitação",
   custom_text: "Texto Livre",
+  image: "Imagem",
   page_break: "Quebra de Página",
   appendix_index: "Índice de Anexos",
   appendix_payment_schedule: "Anexo — Cronograma de Pagamentos",

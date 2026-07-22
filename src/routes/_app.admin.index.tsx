@@ -106,6 +106,13 @@ const GROUPS: AdminGroup[] = [
           "Junior Architect, Architect, Senior Architect, Partner, Project Lead… Catálogo usado nas fichas e nas propostas. Horas e valor de venda no Quote Builder são apresentados por título.",
         icon: Users,
       },
+      {
+        to: "/admin/proposal-images",
+        label: "Biblioteca de imagens (Propostas)",
+        description:
+          "Imagens partilhadas do atelier usadas no PSA Proposal Composer para preencher espaços em branco no PDF (1/4, 1/3, 1/2, 2/3 ou página inteira).",
+        icon: Upload,
+      },
     ],
   },
   {

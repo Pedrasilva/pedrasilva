@@ -42,6 +42,11 @@ import {
   compareWbsNumbers,
   formatStageLabel,
 } from "@/lib/quotes/stage-numbering";
+import {
+  useProposalImages,
+  useUploadProposalImage,
+  useSignedProposalImageUrl,
+} from "@/lib/psa-proposal/use-proposal-images";
 
 /** Label row with an inline on/off switch controlling section visibility. */
 function SectionLabel({
@@ -758,6 +763,18 @@ export function BlockSettingsPanel({
         );
       })()}
 
+      {block.block_type === "image" && (
+        <ImageBlockPanel
+          block={block}
+          onPatch={(patch) =>
+            update.mutate({
+              id: block.id,
+              patch: { content_rich: { ...(block.content_rich ?? {}), ...patch } },
+            })
+          }
+        />
+      )}
+
       {(block.block_type === "optional_fee_table" || block.block_type === "custom_text") && (
         <div className="space-y-3">
           <div className="space-y-1">
@@ -1061,3 +1078,148 @@ export function BlockSettingsPanel({
     </aside>
   );
 }
+
+// ---- Image block settings panel ----
+
+function ImageBlockPanel({
+  block,
+  onPatch,
+}: {
+  block: PsaProposalBlock;
+  onPatch: (patch: Record<string, unknown>) => void;
+}) {
+  const cr = (block.content_rich ?? {}) as Record<string, unknown>;
+  const imageId = (cr.image_id as string | undefined) ?? null;
+  const size = (cr.size as string | undefined) ?? "1/2";
+  const caption = (cr.caption as string | undefined) ?? "";
+  const images = useProposalImages();
+  const upload = useUploadProposalImage();
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  const selected = imageId ? images.data?.find((i) => i.id === imageId) : null;
+  const selectedSigned = useSignedProposalImageUrl(
+    selected?.storage_path ?? null,
+    selected?.bucket,
+  );
+
+  const handleFile = async (f: File | null | undefined) => {
+    if (!f) return;
+    const entry = await upload.mutateAsync({ file: f });
+    onPatch({ image_id: entry.id });
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="space-y-1">
+        <Label className="text-xs">Tamanho</Label>
+        <Select value={size} onValueChange={(v) => onPatch({ size: v })}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1/4">1/4 de página</SelectItem>
+            <SelectItem value="1/3">1/3 de página</SelectItem>
+            <SelectItem value="1/2">1/2 página</SelectItem>
+            <SelectItem value="2/3">2/3 de página</SelectItem>
+            <SelectItem value="full">Página inteira</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">Legenda (opcional)</Label>
+        <Input
+          value={caption}
+          onChange={(e) => onPatch({ caption: e.target.value })}
+          placeholder="Legenda"
+        />
+      </div>
+
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <Label className="text-xs">Imagem</Label>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fileRef.current?.click()}
+            disabled={upload.isPending}
+          >
+            {upload.isPending ? "A carregar..." : "Carregar nova"}
+          </Button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => handleFile(e.target.files?.[0])}
+          />
+        </div>
+
+        {selected && (
+          <div className="rounded border bg-background p-2 text-[11px]">
+            <div className="mb-1 font-medium">Selecionada: {selected.name}</div>
+            {selectedSigned.data && (
+              <img
+                src={selectedSigned.data}
+                alt={selected.name}
+                className="max-h-32 w-full rounded object-cover"
+              />
+            )}
+          </div>
+        )}
+
+        <div className="mt-2 max-h-72 overflow-auto rounded border">
+          <div className="grid grid-cols-2 gap-1 p-1">
+            {(images.data ?? []).map((img) => (
+              <ImageThumb
+                key={img.id}
+                entry={img}
+                selected={img.id === imageId}
+                onSelect={() => onPatch({ image_id: img.id })}
+              />
+            ))}
+            {!images.data?.length && (
+              <div className="col-span-2 p-3 text-center text-[11px] text-zinc-500">
+                Biblioteca vazia. Carregue a primeira imagem.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ImageThumb({
+  entry,
+  selected,
+  onSelect,
+}: {
+  entry: import("@/lib/psa-proposal/use-proposal-images").PsaImageLibraryEntry;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const signed = useSignedProposalImageUrl(entry.storage_path, entry.bucket);
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      title={entry.name}
+      className={`group relative overflow-hidden rounded border ${selected ? "border-blue-500 ring-2 ring-blue-300" : "border-zinc-200 hover:border-zinc-400"}`}
+    >
+      {signed.data ? (
+        <img
+          src={signed.data}
+          alt={entry.name}
+          className="h-20 w-full object-cover"
+        />
+      ) : (
+        <div className="h-20 w-full bg-zinc-100" />
+      )}
+      <div className="truncate px-1 py-0.5 text-[10px] text-zinc-600">
+        {entry.name}
+      </div>
+    </button>
+  );
+}
+

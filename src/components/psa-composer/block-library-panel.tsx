@@ -115,6 +115,19 @@ export function BlockLibraryPanel({
       sort_hint: 999,
       is_system: false,
     },
+    {
+      id: "image",
+      kind: "image",
+      label: "Imagem",
+      default_title: "Imagem",
+      default_content_rich: { size: "1/2", image_id: null, caption: "" },
+      default_source_type: "manual",
+      default_source_ref: {},
+      default_contract_relevance: "proposal_only",
+      sort_hint: 999,
+      is_system: false,
+    },
+
 
 
     {
