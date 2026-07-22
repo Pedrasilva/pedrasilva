@@ -9062,6 +9062,10 @@ export type Database = {
         Args: { _project_id: string }
         Returns: Json
       }
+      psa_import_template_blocks: {
+        Args: { _proposal_id: string; _template_id: string }
+        Returns: number
+      }
       quote_instantiate_template: {
         Args: {
           _base_start_date?: string
