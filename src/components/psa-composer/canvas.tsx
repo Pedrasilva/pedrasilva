@@ -56,6 +56,7 @@ const INLINE_EDITABLE_TYPES: PsaBlockType[] = [
   "supplier_fee_table",
   "optional_fee_table",
   "travel_expenses",
+  "image",
 ];
 
 
