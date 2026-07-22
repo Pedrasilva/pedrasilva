@@ -263,19 +263,16 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
   const handleReorder = useCallback(
     async (id: string, newPosition: number) => {
       const target = stages.find((s) => s.id === id) as
-        | (typeof stages)[number] & {
-            stage_role?: string | null;
-            parent_stage_id?: string | null;
-          }
+        | (typeof stages)[number] & { parent_stage_id?: string | null }
         | undefined;
       if (!target) return;
-      const role = target.stage_role ?? "architecture";
+      // Group siblings by parent_stage_id ONLY — the outline WBS numbers
+      // children of the same parent regardless of stage_role, so reorder
+      // must operate over the same sibling set to keep positions consistent.
       const parentId = target.parent_stage_id ?? null;
-      const siblings = (stages as typeof stages & Array<{ stage_role?: string | null; parent_stage_id?: string | null }>)
+      const siblings = (stages as typeof stages & Array<{ parent_stage_id?: string | null }>)
         .filter(
-          (s) =>
-            ((s as { stage_role?: string | null }).stage_role ?? "architecture") === role &&
-            ((s as { parent_stage_id?: string | null }).parent_stage_id ?? null) === parentId,
+          (s) => ((s as { parent_stage_id?: string | null }).parent_stage_id ?? null) === parentId,
         )
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       const without = siblings.filter((s) => s.id !== id);
