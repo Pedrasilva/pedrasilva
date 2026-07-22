@@ -62,6 +62,7 @@ import { ProposalHistoryDialog } from "./proposal-history-dialog";
 import { ProposalStylePanel } from "./proposal-style-panel";
 import { SendProposalDialog } from "./send-proposal-dialog";
 import { VersionsPanel } from "./versions-panel";
+import { ImportTemplateDialog } from "./import-template-dialog";
 import {
   useNextRevNumber,
   useSetProposalOutcome,
