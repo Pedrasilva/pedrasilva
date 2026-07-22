@@ -7899,29 +7899,56 @@ export type Database = {
       quote_template_blocks: {
         Row: {
           block_title: string
+          block_type: Database["public"]["Enums"]["psa_block_type"] | null
+          content_rich: Json | null
+          contract_relevance:
+            | Database["public"]["Enums"]["psa_contract_relevance"]
+            | null
           created_at: string
           id: string
           proposal_block_id: string | null
           required: boolean
           sort_order: number
+          source_ref: Json | null
+          source_type:
+            | Database["public"]["Enums"]["psa_block_source_type"]
+            | null
           template_id: string
         }
         Insert: {
           block_title: string
+          block_type?: Database["public"]["Enums"]["psa_block_type"] | null
+          content_rich?: Json | null
+          contract_relevance?:
+            | Database["public"]["Enums"]["psa_contract_relevance"]
+            | null
           created_at?: string
           id?: string
           proposal_block_id?: string | null
           required?: boolean
           sort_order?: number
+          source_ref?: Json | null
+          source_type?:
+            | Database["public"]["Enums"]["psa_block_source_type"]
+            | null
           template_id: string
         }
         Update: {
           block_title?: string
+          block_type?: Database["public"]["Enums"]["psa_block_type"] | null
+          content_rich?: Json | null
+          contract_relevance?:
+            | Database["public"]["Enums"]["psa_contract_relevance"]
+            | null
           created_at?: string
           id?: string
           proposal_block_id?: string | null
           required?: boolean
           sort_order?: number
+          source_ref?: Json | null
+          source_type?:
+            | Database["public"]["Enums"]["psa_block_source_type"]
+            | null
           template_id?: string
         }
         Relationships: [
