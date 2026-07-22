@@ -170,6 +170,7 @@ export function ComposerTopBar({
         </Badge>
       )}
       <div className="ml-auto flex items-center gap-2">
+        {!isReadOnly && <ImportTemplateDialog proposalId={proposal.id} />}
         <VersionsPanel proposal={proposal} />
         <ProposalHistoryDialog proposalId={proposal.id} />
         <Sheet>
