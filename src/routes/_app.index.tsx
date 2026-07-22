@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BirthdayFireworks } from "@/components/BirthdayFireworks";
+import { SignatureProjectsSection } from "@/components/home/signature-projects";
 import type { PermissionKey } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_app/")({
@@ -357,6 +358,10 @@ function HubPage() {
           <FinanceSnapshotBlock />
         </section>
       )}
+
+      {/* SIGNATURE PROJECTS =============================================== */}
+      <SignatureProjectsSection isAdmin={isAdmin} />
+
 
       {/* WIDGETS ========================================================== */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12 lg:py-16">
