@@ -1,0 +1,9 @@
+ALTER TABLE public.quote_stages
+  DROP CONSTRAINT IF EXISTS quote_stages_role_chk;
+
+ALTER TABLE public.quote_stages
+  DROP CONSTRAINT IF EXISTS quote_stages_stage_role_check;
+
+ALTER TABLE public.quote_stages
+  ADD CONSTRAINT quote_stages_stage_role_check
+  CHECK (stage_role IN ('architecture', 'client', 'supplier_group', 'supplier_phase'));
