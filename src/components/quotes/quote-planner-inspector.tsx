@@ -400,6 +400,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               </>
             )}
           </div>
+          )}
 
 
 
