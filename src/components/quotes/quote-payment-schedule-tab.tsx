@@ -166,9 +166,9 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
     queryKey: ["fee-proposal-summary", quoteId],
     enabled: !!quoteId,
     queryFn: async () => {
-      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { eq: (c: string, v: string) => { single: () => Promise<{ data: { pricing_multiplier: number | null; valor: number | null; quote_category: string | null; default_vat_rate: number | null; default_payment_terms: string | null; first_payment_terms: string | null; fee_source_mode: string | null } | null; error: { message: string } | null }> } } } })
+      const { data, error } = await (supabase as unknown as { from: (t: string) => { select: (s: string) => { eq: (c: string, v: string) => { single: () => Promise<{ data: { pricing_multiplier: number | null; valor: number | null; quote_category: string | null; default_vat_rate: number | null; default_payment_terms: string | null; first_payment_terms: string | null; fee_source_mode: string | null; quote_build_settings: Record<string, unknown> | null } | null; error: { message: string } | null }> } } } })
         .from("fee_proposals")
-        .select("pricing_multiplier,valor,quote_category,default_vat_rate,default_payment_terms,first_payment_terms,fee_source_mode")
+        .select("pricing_multiplier,valor,quote_category,default_vat_rate,default_payment_terms,first_payment_terms,fee_source_mode,quote_build_settings")
         .eq("id", quoteId)
         .single();
       if (error) throw new Error(error.message);
@@ -179,6 +179,17 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
   const remove = useDeleteQuotePaymentItem(quoteId);
   const applyGen = useApplyPaymentGenerator(quoteId);
   const items = itemsQ.data ?? [];
+  const quoteBuildSettings = (quoteQ.data?.quote_build_settings ?? {}) as {
+    downPaymentEnabled?: boolean;
+    downPaymentPercent?: number;
+    deductDownPaymentFromStages?: boolean;
+  };
+  const downPaymentDisabled =
+    quoteBuildSettings.downPaymentEnabled === false ||
+    Number(quoteBuildSettings.downPaymentPercent ?? DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentPercent) === 0;
+  const visibleItems = downPaymentDisabled
+    ? items.filter((item) => item.trigger_type !== "project_start")
+    : items;
   const stages = stagesQ.data ?? [];
   const allocations = allocationsQ.data ?? [];
   const externals = externalsQ.data ?? [];
@@ -436,7 +447,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
 
 
 
-  const scheduleTotal = items
+  const scheduleTotal = visibleItems
     .filter((it) => (it.direction ?? "inflow") === "inflow")
     .reduce(
     (sum, it) =>
@@ -476,6 +487,22 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
       DEFAULT_STAGE_MILESTONE_OPTIONS.deductDownPaymentFromStages ?? false,
     paymentTermsDays: "",
   });
+
+  useEffect(() => {
+    if (!quoteQ.data) return;
+    setMilestoneOpts((current) => ({
+      ...current,
+      downPaymentEnabled:
+        quoteBuildSettings.downPaymentEnabled ?? DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentEnabled,
+      downPaymentPercent: String(
+        quoteBuildSettings.downPaymentPercent ?? DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentPercent,
+      ),
+      deductDownPaymentFromStages:
+        quoteBuildSettings.deductDownPaymentFromStages ??
+        DEFAULT_STAGE_MILESTONE_OPTIONS.deductDownPaymentFromStages ??
+        false,
+    }));
+  }, [quoteQ.data]);
 
   const stageRequired =
     draft.trigger_type === "stage_start" || draft.trigger_type === "stage_end";
@@ -631,7 +658,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
   if (compositionOnly || consultantsOnly || incomingOnly || outgoingOnly) {
     return (
       <PaymentScheduleProposalView
-        items={items}
+        items={visibleItems}
         stages={stages}
         totalFee={contractTotal}
         stageFees={stageFees}
@@ -712,7 +739,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
 
       {/* Proposal-style read-only layout (mirrors printed proposal) */}
       <PaymentScheduleProposalView
-        items={items}
+        items={visibleItems}
         stages={stages}
         totalFee={contractTotal}
         stageFees={stageFees}
