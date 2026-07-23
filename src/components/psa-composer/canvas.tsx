@@ -74,6 +74,7 @@ function SortableRow({
   onSelect,
   onPatchContent,
   siblings,
+  forceBreakBefore,
 }: {
   block: PsaProposalBlock;
   chapter: number | null;
@@ -84,6 +85,7 @@ function SortableRow({
   onSelect: () => void;
   onPatchContent: (patch: Record<string, unknown>) => void;
   siblings: PsaProposalBlock[];
+  forceBreakBefore: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: block.id });
@@ -132,6 +134,7 @@ function SortableRow({
       data-page-aligned={pageAligned ? "true" : undefined}
       data-page-align-y={pageAlignY && pageAlignY !== "none" ? pageAlignY : undefined}
       data-page-align-x={pageAlignX && pageAlignX !== "none" ? pageAlignX : undefined}
+      data-smart-break={forceBreakBefore ? "true" : undefined}
       onClick={onSelect}
       className={cn(
         "proposal-print-block group relative mb-4 rounded-md transition print:mb-0 print:rounded-none",
@@ -143,7 +146,7 @@ function SortableRow({
           ? "border-blue-400 ring-1 ring-blue-300 print:ring-0"
           : "hover:border-zinc-200",
         !block.is_visible && "opacity-60 print:hidden",
-        pageBreakBefore && block.is_visible && "proposal-page-break-before",
+        (pageBreakBefore || forceBreakBefore) && block.is_visible && "proposal-page-break-before",
       )}
     >
       <div className="absolute -left-6 top-1 flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 print:hidden">
