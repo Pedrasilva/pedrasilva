@@ -121,6 +121,7 @@ export function useDeleteQuoteStage(quoteId: string) {
       qc.invalidateQueries({ queryKey: ["quote-allocations", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-dependencies", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] });
+      qc.invalidateQueries({ queryKey: ["psa-live-quote", quoteId] });
     },
   });
 }
