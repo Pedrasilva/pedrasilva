@@ -401,8 +401,8 @@ export function ComposerCanvas({
             </button>
           ))}
         </div>
-          </SortableContext>
-        </DndContext>
+
+
 
         {/* PSA running footer — editable via the Style panel. */}
         {showFooter && (
