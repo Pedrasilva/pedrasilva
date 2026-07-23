@@ -1061,6 +1061,8 @@ export function useLiveQuoteSnapshot(
         paymentInvoices,
         paymentInvoicesTotal,
         defaultVatRate,
+        vatExempt,
+
         ...(() => {
           // Build siteTrips with pre-computed costs. Stage duration comes
           // from the stage date range (working days ≈ (end - start) / 30.44).
