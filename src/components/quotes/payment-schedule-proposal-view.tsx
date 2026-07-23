@@ -913,21 +913,21 @@ export function PaymentScheduleProposalView({
         const orderKeys: string[] = [];
         for (const it of inflows) {
           const d = dateFor(it);
-          // Down payments (project_start) get their own invoice on the exact
-          // project-start date so they are not folded into the first month.
+          // One invoice per stage-trigger event (exact planned date +
+          // trigger type). Merging by month silently combined "start of
+          // Stage 2" with "end of Stage 1", hiding the per-stage billing
+          // choices (start / end / split). Items that genuinely share the
+          // same date (e.g. architecture + supplier on the same milestone)
+          // still land in one invoice via the shared date+trigger key.
           const isDownpayment = it.trigger_type === "project_start";
-          const bucket = isDownpayment
+          const key = isDownpayment
             ? `dp:${d}`
-            : d.length >= 7 ? d.slice(0, 7) : d;
-          const key = isDownpayment ? bucket : `m:${bucket}`;
+            : `t:${it.trigger_type}:${d}`;
           let inv = invoiceMap.get(key);
           if (!inv) {
             inv = { key, plannedDate: d, items: [], paymentTerms: it.payment_terms ?? null };
             invoiceMap.set(key, inv);
             orderKeys.push(key);
-          } else if (!isDownpayment && d > inv.plannedDate) {
-            // Use the latest date in the month as the invoice's planned date.
-            inv.plannedDate = d;
           }
           inv.items.push(it);
           if (!inv.paymentTerms && it.payment_terms) inv.paymentTerms = it.payment_terms;
