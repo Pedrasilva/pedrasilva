@@ -22,7 +22,10 @@ export function QuotePublishStep({
   quoteStatus,
   onConvert,
   isConverting,
+  onEditEstimate,
+  onEditContent,
 }: {
+
   quoteId: string;
   estimateReady?: boolean;
   contentReady?: boolean;
