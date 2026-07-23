@@ -727,12 +727,14 @@ export function useLiveQuoteSnapshot(
       const orderKeys: string[] = [];
       for (const it of inflows) {
         const d = dateFor(it);
-        // Down payments (project_start) get their own invoice on the exact
-        // project-start date, not folded into the first month's invoice.
+        // Each distinct billing event gets its own invoice row: down payments,
+        // stage-start, stage-end, split, monthly slices etc. Grouping by month
+        // previously merged e.g. "end of Stage 1" with "start of Stage 2" when
+        // both fell in the same month, hiding the child-level billing choices.
         const isDownpayment = it.trigger_type === "project_start";
         const key = isDownpayment
           ? `dp:${d}`
-          : `m:${d.length >= 7 ? d.slice(0, 7) : d}`;
+          : `t:${it.trigger_type ?? "x"}:${d}`;
         let inv = invoiceMap.get(key);
         if (!inv) {
           inv = { key, plannedDate: d, items: [], paymentTerms: it.payment_terms ?? null };
@@ -744,6 +746,7 @@ export function useLiveQuoteSnapshot(
         inv.items.push(it);
         if (!inv.paymentTerms && it.payment_terms) inv.paymentTerms = it.payment_terms;
       }
+
       orderKeys.sort((a, b) => {
         const da = invoiceMap.get(a)!.plannedDate;
         const db = invoiceMap.get(b)!.plannedDate;
