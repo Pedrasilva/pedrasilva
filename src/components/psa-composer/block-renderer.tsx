@@ -1374,12 +1374,13 @@ export function BlockBody({
         <div>
           <H>{num}{block.title}</H>
           {live?.vatExempt && (
-            <P className="italic text-zinc-600">
+            <p className="mb-2 italic text-sm text-zinc-600">
               {lang === "en"
                 ? "Project and Client outside of the EU and exempt from VAT."
                 : "Projecto e Cliente fora da UE, isentos de IVA."}
-            </P>
+            </p>
           )}
+
           {live?.paymentInvoices?.length ? (
 
             <table className="proposal-print-table w-full border-collapse text-sm">
