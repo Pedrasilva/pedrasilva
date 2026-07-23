@@ -159,26 +159,36 @@ export function computeStageFees(
   const map: Record<string, number> = {};
   for (const s of stages) map[s.id] = 0;
 
-  if (feeSourceMode === "budget") {
-    // Budget mode: leaf fee = stage.budget (typed by the user). Parents are
-    // rolled up downstream via rolledUpBillableFees.
-    const childrenByParent = new Map<string, QuoteStage[]>();
-    for (const s of stages) {
-      const p = (s as unknown as { parent_stage_id?: string | null }).parent_stage_id ?? null;
-      if (!p) continue;
-      const list = childrenByParent.get(p) ?? [];
-      list.push(s);
-      childrenByParent.set(p, list);
-    }
-    for (const s of stages) {
-      const isLeaf = !childrenByParent.has(s.id);
-      if (isLeaf) map[s.id] += Number(s.budget ?? 0) || 0;
-    }
-  } else {
-    for (const a of allocations) {
-      if (!a.stage_id || !(a.stage_id in map)) continue;
-      map[a.stage_id] += quoteAllocationLine(a).revenue * m;
-    }
+  // Per-stage `sale_source` overrides the quote-level default on a leaf.
+  const childrenByParent = new Map<string, QuoteStage[]>();
+  for (const s of stages) {
+    const p = (s as unknown as { parent_stage_id?: string | null }).parent_stage_id ?? null;
+    if (!p) continue;
+    const list = childrenByParent.get(p) ?? [];
+    list.push(s);
+    childrenByParent.set(p, list);
+  }
+  const isLeaf = (id: string) => !childrenByParent.has(id);
+  const leafSource = (s: QuoteStage): FeeSourceMode => {
+    const override = (s as unknown as { sale_source?: string | null }).sale_source;
+    if (override === "budget" || override === "allocation") return override;
+    return feeSourceMode;
+  };
+
+  // Budget contributions from leaves whose (per-stage or default) source is "budget".
+  for (const s of stages) {
+    if (!isLeaf(s.id)) continue;
+    if (leafSource(s) !== "budget") continue;
+    map[s.id] += Number(s.budget ?? 0) || 0;
+  }
+
+  // Allocation contributions to leaves whose source is "allocation".
+  const allocationLeaves = new Set(
+    stages.filter((s) => isLeaf(s.id) && leafSource(s) === "allocation").map((s) => s.id),
+  );
+  for (const a of allocations) {
+    if (!a.stage_id || !allocationLeaves.has(a.stage_id)) continue;
+    map[a.stage_id] += quoteAllocationLine(a).revenue * m;
   }
 
   // External services always count (they are real supplier commitments).

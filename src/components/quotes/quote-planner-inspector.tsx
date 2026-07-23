@@ -38,6 +38,7 @@ import { useDefaultResourceRates, effectiveRates } from "@/lib/projects/use-defa
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
 import { compareWbsNumbers } from "@/lib/quotes/stage-numbering";
+import { quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 
 interface Props {
   quoteId: string;
@@ -675,6 +676,68 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
                         />
                       )}
                     </div>
+                    {!isParent && (() => {
+                      const allocatedRevenue = allocs.reduce(
+                        (sum, a) => sum + quoteAllocationLine(a).revenue,
+                        0,
+                      );
+                      const budgetValue = Number(stage.budget ?? 0) || 0;
+                      const saleSource = ((sx as { sale_source?: string | null }).sale_source ?? "allocation") as "allocation" | "budget";
+                      const fmt = (n: number) =>
+                        new Intl.NumberFormat("pt-PT", {
+                          style: "currency",
+                          currency: "EUR",
+                          maximumFractionDigits: 0,
+                        }).format(n);
+                      return (
+                        <div className="space-y-1 rounded-md border border-dashed border-border bg-muted/30 p-2">
+                          <Label className="text-xs">
+                            {t("workspace.planning.saleSource", { defaultValue: "Sale value source" })}
+                          </Label>
+                          <div className="grid grid-cols-2 gap-2 text-[11px]">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (saleSource === "allocation") return;
+                                upsertStage.mutate({ id: stage.id, sale_source: "allocation" } as Parameters<typeof upsertStage.mutate>[0]);
+                              }}
+                              className={`rounded border p-2 text-left transition ${
+                                saleSource === "allocation"
+                                  ? "border-foreground bg-foreground text-background"
+                                  : "border-border hover:bg-accent"
+                              }`}
+                            >
+                              <div className="text-[10px] uppercase tracking-wide opacity-70">
+                                {t("workspace.planning.allocatedResources", { defaultValue: "Allocated resources" })}
+                              </div>
+                              <div className="mt-0.5 font-semibold tabular-nums">{fmt(allocatedRevenue)}</div>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (saleSource === "budget") return;
+                                upsertStage.mutate({ id: stage.id, sale_source: "budget" } as Parameters<typeof upsertStage.mutate>[0]);
+                              }}
+                              className={`rounded border p-2 text-left transition ${
+                                saleSource === "budget"
+                                  ? "border-foreground bg-foreground text-background"
+                                  : "border-border hover:bg-accent"
+                              }`}
+                            >
+                              <div className="text-[10px] uppercase tracking-wide opacity-70">
+                                {t("workspace.planning.budget", { defaultValue: "Budget" })}
+                              </div>
+                              <div className="mt-0.5 font-semibold tabular-nums">{fmt(budgetValue)}</div>
+                            </button>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground">
+                            {t("workspace.planning.saleSourceHint", {
+                              defaultValue: "Chosen value is used as the sale value across the quote (payment schedule, proposal, rollups).",
+                            })}
+                          </p>
+                        </div>
+                      );
+                    })()}
                     <div className="space-y-1">
                       <Label className="text-xs">
                         {t("workspace.planning.billingModel", { defaultValue: "Billing model" })}
