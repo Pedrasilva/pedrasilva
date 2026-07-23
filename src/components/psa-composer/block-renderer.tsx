@@ -278,6 +278,8 @@ function PhaseSummaryCard({
   if (showFee) rows.push({ label: L.professionalFee, value: feeLabel });
   if (showHours && hoursLabel)
     rows.push({ label: L.teamAllocation, value: hoursLabel });
+  if (showReview)
+    rows.push({ label: L.reviewCyclesIncluded, value: reviewLabel });
   if (showMeetings && meetings != null && meetings > 0)
     rows.push({ label: L.coordinationMeetings, value: String(meetings) });
   if (showCgi && cgiCount != null && cgiCount > 0)
