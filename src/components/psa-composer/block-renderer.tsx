@@ -704,7 +704,7 @@ export function BlockBody({
           const ru = rollupDates(s.id);
           const start = ru.start ?? s.startDate;
           const end = ru.end ?? s.endDate;
-          const duration = daysBetween(start, end) ?? s.durationDays;
+          const duration = daysBetween(start ?? undefined, end ?? undefined) ?? s.durationDays;
           rows.push(
             <tr key={s.id} className="border-b border-zinc-100">
               <td className="py-1" style={pad}>{label}</td>
