@@ -1038,20 +1038,13 @@
     page-break-before: always;
     break-before: page;
   }
-  @page appendix-landscape {
-    size: A3 landscape;
-    margin: 0;
-  }
-  /* The named page must be assigned to the outer block that participates in
-     pagination. Assigning it only to the nested appendix leaves the wrapper
-     on the default A4 page, which clips the right side of the Gantt. */
+  /* Chromium does not reliably export mixed A4/A3 page sizes. Keep Appendix B
+     on its own A4 sheet and rotate the chart so its time axis uses the long
+     edge of the paper without clipping. */
   .print-area .proposal-print-block-gantt-landscape {
-    page: appendix-landscape;
-    width: 420mm;
-    min-height: 297mm;
-    margin-left: calc(var(--psa-margin-left) * -1) !important;
-    padding: var(--psa-margin-top) var(--psa-margin-right) var(--psa-margin-bottom) var(--psa-margin-left);
-    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: calc(var(--psa-page-h) - var(--psa-margin-top) - var(--psa-margin-bottom));
     page-break-before: always;
     break-before: page;
     page-break-after: always;
@@ -1059,18 +1052,22 @@
   }
   .print-area .proposal-print-block-gantt-landscape .proposal-appendix-landscape {
     width: 100%;
-    min-height: calc(297mm - var(--psa-margin-top) - var(--psa-margin-bottom));
+    min-height: 0;
   }
-  /* When printing on a landscape page, undo the on-screen 90° rotation
-     — the paper itself is already landscape. */
   .print-area .proposal-appendix-landscape .proposal-gantt-rotate-outer {
-    height: auto !important;
+    width: 145mm !important;
+    height: 205mm !important;
+    margin: 3mm auto 0;
+    overflow: hidden;
   }
   .print-area .proposal-appendix-landscape .proposal-gantt-rotate-inner {
-    position: static !important;
-    width: 100% !important;
-    height: 100% !important;
-    transform: none !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 205mm !important;
+    height: 145mm !important;
+    transform-origin: top left !important;
+    transform: rotate(-90deg) translate(-100%, 0) !important;
   }
   /* Print: hide the on-screen horizontal preview; only the rotated/print
      chart should appear on paper. */
