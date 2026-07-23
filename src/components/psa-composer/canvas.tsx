@@ -279,9 +279,48 @@ export function ComposerCanvas({
   if (styleSettings?.marginLeft != null) (styleVars as Record<string, string>)["--psa-margin-left"] = `${styleSettings.marginLeft}mm`;
   if (styleSettings?.marginRight != null) (styleVars as Record<string, string>)["--psa-margin-right"] = `${styleSettings.marginRight}mm`;
 
+  // Smart pagination: measure gaps and awkward breaks against the A4 sheet.
+  const docRef = useRef<HTMLDivElement | null>(null);
+  const paginationKey = useMemo(
+    () => blocks.map((b) => `${b.id}:${b.is_visible ? 1 : 0}`).join("|"),
+    [blocks],
+  );
+  const { gaps, forcedBreaks } = useSmartPagination(docRef, paginationKey);
+  const addLibraryBlock = useAddLibraryBlock(proposalId);
+
+  const insertImagePlaceholder = (afterBlockId: string, size: ImageSizeBucket) => {
+    const idx = blocks.findIndex((b) => b.id === afterBlockId);
+    if (idx < 0) return;
+    const after = blocks[idx];
+    const entry: PsaLibraryEntry = {
+      id: "image-gap-placeholder",
+      kind: "image",
+      label: "Imagem",
+      default_title: "Imagem",
+      default_content_rich: { size, image_id: null, caption: "" },
+      default_source_type: "manual",
+      default_source_ref: {},
+      default_contract_relevance: "proposal_only",
+      sort_hint: 999,
+      is_system: false,
+    };
+    addLibraryBlock.mutate(
+      { lib: entry, afterOrder: after.sort_order },
+      {
+        onSuccess: (res) => {
+          toast.success(`Imagem ${size} adicionada — escolha uma imagem`);
+          onSelect(res.id);
+        },
+        onError: (e: unknown) => {
+          toast.error(e instanceof Error ? e.message : "Erro ao adicionar imagem");
+        },
+      },
+    );
+  };
+
   return (
     <div className="print-area">
-      <div className="proposal-print-document" style={styleVars}>
+      <div ref={docRef} className="proposal-print-document" style={styleVars}>
         {/* PSA running header — fixed in print so it repeats per page.
             Content is editable via the Style panel. */}
         {showHeader && (
@@ -324,10 +363,44 @@ export function ComposerCanvas({
                     })
                   }
                   siblings={blocks}
+                  forceBreakBefore={forcedBreaks.has(b.id)}
                 />
               ))}
 
             </div>
+          </SortableContext>
+        </DndContext>
+
+        {/* Smart-pagination overlays — dashed placeholders sitting inside the
+            gap at the bottom of a page. Screen only; the PDF export keeps the
+            natural page break in that spot. */}
+        <div
+          aria-hidden={false}
+          className="pointer-events-none absolute inset-0 print:hidden"
+          style={{ position: "absolute", inset: 0 }}
+        >
+          {gaps.map((g, i) => (
+            <button
+              key={`${g.afterBlockId}-${i}`}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                insertImagePlaceholder(g.afterBlockId, g.size);
+              }}
+              className="pointer-events-auto absolute left-[14mm] right-[14mm] flex flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-amber-400/70 bg-amber-50/40 text-amber-800 transition hover:border-amber-500 hover:bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+              style={{ top: g.top + 4, height: Math.max(24, g.height - 8) }}
+              title={`Sugerido: imagem ${g.size} de página · gap ~${g.gapMm}mm`}
+            >
+              <ImagePlus className="h-5 w-5" />
+              <span className="text-[11px] font-medium uppercase tracking-wider">
+                Adicionar imagem · {g.size} de página
+              </span>
+              <span className="text-[10px] opacity-70">
+                Gap ~{g.gapMm}mm — clique para inserir da biblioteca
+              </span>
+            </button>
+          ))}
+        </div>
           </SortableContext>
         </DndContext>
 
