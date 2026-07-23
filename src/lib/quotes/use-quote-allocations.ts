@@ -78,6 +78,7 @@ export function useUpsertQuoteAllocation(quoteId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quote-allocations", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-financials", quoteId] });
+      qc.invalidateQueries({ queryKey: ["psa-live-quote", quoteId] });
     },
   });
 }
