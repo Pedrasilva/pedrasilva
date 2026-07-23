@@ -120,6 +120,14 @@ function SortableRow({
   const pageBreakBefore = Boolean(
     (block.content_rich as { pageBreakBefore?: boolean } | undefined)?.pageBreakBefore,
   );
+  const contentEnabled =
+    (block.content_rich as { enabled?: boolean } | undefined)?.enabled !== false;
+  const isAppendix =
+    block.block_type === "appendix_index" ||
+    block.block_type === "appendix_payment_schedule" ||
+    block.block_type === "appendix_gantt" ||
+    block.block_type === "appendix_general_terms";
+  const isPrintable = block.is_visible && contentEnabled;
   const pageAlignY = (block.content_rich as { pageAlignY?: string } | undefined)?.pageAlignY;
   const pageAlignX = (block.content_rich as { pageAlignX?: string } | undefined)?.pageAlignX;
   const pageAligned =
@@ -135,6 +143,7 @@ function SortableRow({
       data-page-align-y={pageAlignY && pageAlignY !== "none" ? pageAlignY : undefined}
       data-page-align-x={pageAlignX && pageAlignX !== "none" ? pageAlignX : undefined}
       data-smart-break={forceBreakBefore ? "true" : undefined}
+      data-visible-print={isPrintable ? "true" : "false"}
       onClick={onSelect}
       className={cn(
         "proposal-print-block group relative mb-4 rounded-md transition print:mb-0 print:rounded-none",
@@ -146,8 +155,12 @@ function SortableRow({
           ? "border-blue-400 ring-1 ring-blue-300 print:ring-0"
           : "hover:border-zinc-200",
         !block.is_visible && "opacity-60 print:hidden",
-        pageBreakBefore && block.is_visible && "proposal-page-break-before",
-        forceBreakBefore && block.is_visible && "proposal-smart-break-screen",
+        !contentEnabled && "print:hidden",
+        (pageBreakBefore || isAppendix || block.block_type === "page_break") &&
+          isPrintable &&
+          "proposal-page-break-before",
+        block.block_type === "cover" && isPrintable && "proposal-page-break-after",
+        forceBreakBefore && isPrintable && "proposal-smart-break-screen",
       )}
     >
       <div className="absolute -left-6 top-1 flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 print:hidden">
