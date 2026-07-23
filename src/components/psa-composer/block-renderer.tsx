@@ -1282,17 +1282,26 @@ export function BlockBody({
           );
         }
       };
+      const leafCount = (s: LiveStage): number => {
+        const kids = kidsOf.get(s.id) ?? [];
+        if (kids.length === 0) return 1;
+        return kids.reduce((acc, k) => acc + leafCount(k), 0);
+      };
       for (let i = 0; i < roots.length; i++) {
         const r = roots[i];
         walk(r, 0);
-        const rootTotal = leafSum(r);
-        rows.push(
-          <tr key={`${r.id}-root-total`} className="font-semibold">
-            <td className="pt-6 pb-1">{r.code ? `${r.code} — ${r.name}` : r.name}</td>
-            <td className="pt-6 pb-1" />
-            <td className="pt-6 pb-1 text-right whitespace-nowrap">{formatCurrencyEUR(rootTotal, lang)}</td>
-          </tr>,
-        );
+        // Skip the root total row when the root has a single leaf — the
+        // leaf row already shows the same label and amount.
+        if (leafCount(r) > 1) {
+          const rootTotal = leafSum(r);
+          rows.push(
+            <tr key={`${r.id}-root-total`} className="font-semibold">
+              <td className="pt-6 pb-1">{r.code ? `${r.code} — ${r.name}` : r.name}</td>
+              <td className="pt-6 pb-1" />
+              <td className="pt-6 pb-1 text-right whitespace-nowrap">{formatCurrencyEUR(rootTotal, lang)}</td>
+            </tr>,
+          );
+        }
       }
 
       const optIntroHtml = (block.content_rich?.html as string | undefined) ?? "";
