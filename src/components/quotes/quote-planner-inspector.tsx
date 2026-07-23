@@ -350,6 +350,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               )}
             </div>
           )}
+          {stageRoleNow !== "client" && (
           <div className="space-y-2 rounded-md border bg-muted/20 p-2.5">
             <Label className="text-xs font-medium">
               {t("workspace.planning.supplier", { defaultValue: "Supplier" })}
@@ -399,6 +400,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               </>
             )}
           </div>
+          )}
 
 
 
@@ -582,7 +584,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             </>
             );
           })()}
-          {!(stage as { is_milestone?: boolean }).is_milestone && (
+          {stageRoleNow !== "client" && !(stage as { is_milestone?: boolean }).is_milestone && (
               (() => {
                 const sx = stage as typeof stage & {
                   budget_mode?: string | null;
