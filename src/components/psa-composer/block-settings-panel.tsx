@@ -110,7 +110,9 @@ export function BlockSettingsPanel({
 
   // Always call hooks — pass null when no block to keep order stable.
   const sourceRef = (block?.source_ref ?? {}) as { quote_id?: string; stage_id?: string; parent_stage_id?: string };
-  const effectiveQuoteId = sourceRef.quote_id ?? quoteIdHint ?? "";
+  // Imported templates can carry a quote id from their source proposal.
+  // Only accept a block-level reference when it belongs to this proposal.
+  const effectiveQuoteId = sourceRef.quote_id === quoteIdHint ? sourceRef.quote_id : quoteIdHint ?? "";
   const liveQuery = useLiveQuoteSnapshot(effectiveQuoteId || null);
 
   // Number stages with the WBS/Gantt scheme and sort by that number so the
