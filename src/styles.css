@@ -1013,6 +1013,11 @@
     height: 100% !important;
     transform: none !important;
   }
+  /* Print: hide the on-screen horizontal preview; only the rotated/print
+     chart should appear on paper. */
+  .print-area .proposal-appendix-landscape .proposal-gantt-screen {
+    display: none !important;
+  }
   .print-area .proposal-print-heading {
     page-break-after: avoid;
     break-after: avoid-page;
