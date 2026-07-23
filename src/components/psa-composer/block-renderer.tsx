@@ -966,7 +966,22 @@ export function BlockBody({
     case "fee_table": {
       // Hierarchy: grandparents/parents render as title rows (no fee);
       // only leaves render fee values. Total = sum of leaf fees.
-      const feeStages = selfStages.filter((s) => !s.isMilestone);
+      // Optional stages (and descendants of optional) are excluded — they
+      // belong in the optional_fee_table block, not the base fee summary.
+      const byIdAll = new Map((live?.stages ?? []).map((s) => [s.id, s]));
+      const isOptionalWithAncestors = (s: LiveStage): boolean => {
+        let cur: LiveStage | undefined = s;
+        const seen = new Set<string>();
+        while (cur && !seen.has(cur.id)) {
+          if (cur.isOptional) return true;
+          seen.add(cur.id);
+          cur = cur.parentStageId ? byIdAll.get(cur.parentStageId) : undefined;
+        }
+        return false;
+      };
+      const feeStages = selfStages.filter(
+        (s) => !s.isMilestone && !isOptionalWithAncestors(s),
+      );
       const inSet = new Set(feeStages.map((s) => s.id));
 
       const kidsOf = new Map<string, typeof feeStages>();
