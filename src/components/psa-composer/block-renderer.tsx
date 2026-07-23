@@ -1915,14 +1915,11 @@ export function BlockBody({
         ? Math.max(1, Math.round(totalDays / 30))
         : 1;
 
-      // Auto-orientation: portrait when the schedule is small enough to be
-      // legible on A4 portrait, otherwise A3 landscape.
+      // Auto-orientation: default to A3 landscape — a Gantt chart almost
+      // always reads better with a wide time axis than a squeezed portrait
+      // strip. Users can still override via the block settings.
       const resolvedOrientation: "portrait" | "a3-landscape" =
-        orientationSetting === "auto"
-          ? rows.length <= 10 && totalMonths <= 6
-            ? "portrait"
-            : "a3-landscape"
-          : orientationSetting;
+        orientationSetting === "auto" ? "a3-landscape" : orientationSetting;
 
       // Month & year ticks along the timeline
       const monthTicks: { label: string; leftPct: number; nextLeftPct: number }[] = [];
