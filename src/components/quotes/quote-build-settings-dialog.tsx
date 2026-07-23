@@ -31,6 +31,7 @@ export interface QuoteBuildSettings {
   downPaymentEnabled: boolean;
   downPaymentPercent: number;
   deductDownPaymentFromStages: boolean;
+  vatEnabled: boolean;
 }
 
 function defaults(): QuoteBuildSettings {
@@ -38,6 +39,7 @@ function defaults(): QuoteBuildSettings {
     downPaymentEnabled: DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentEnabled,
     downPaymentPercent: DEFAULT_STAGE_MILESTONE_OPTIONS.downPaymentPercent,
     deductDownPaymentFromStages: !!DEFAULT_STAGE_MILESTONE_OPTIONS.deductDownPaymentFromStages,
+    vatEnabled: true,
   };
 }
 
@@ -54,8 +56,10 @@ function fromRaw(raw: Record<string, unknown> | null | undefined): QuoteBuildSet
     deductDownPaymentFromStages: raw.deductDownPaymentFromStages === undefined
       ? d.deductDownPaymentFromStages
       : Boolean(raw.deductDownPaymentFromStages),
+    vatEnabled: raw.vatEnabled === undefined ? d.vatEnabled : Boolean(raw.vatEnabled),
   };
 }
+
 
 export function QuoteBuildSettingsDialog({
   quoteId,
