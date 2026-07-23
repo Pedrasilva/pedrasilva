@@ -11,7 +11,7 @@
  * Chapter numbers are computed from block order, skipping cover/index/
  * acceptance/page_break.
  */
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -29,13 +29,15 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, EyeOff, Lock } from "lucide-react";
+import { GripVertical, EyeOff, Lock, ImagePlus } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { PsaProposalBlock, PsaBlockType } from "@/lib/psa-proposal/types";
+import type { PsaProposalBlock, PsaBlockType, PsaLibraryEntry } from "@/lib/psa-proposal/types";
 import { BlockBody } from "./block-renderer";
 import { RelevanceBadge } from "./relevance-badge";
 import { useLiveQuoteSnapshot, resolveProposalLang, type ProposalLang } from "@/lib/psa-proposal/live-data";
-import { useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
+import { useAddLibraryBlock, useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
+import { useSmartPagination, type ImageSizeBucket } from "./use-smart-pagination";
 import psaLogo from "@/assets/logotipo-psa.jpg.asset.json";
 
 // Blocks whose primary content is free rich text — editable inline on canvas.
