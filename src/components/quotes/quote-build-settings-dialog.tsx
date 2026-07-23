@@ -179,10 +179,27 @@ export function QuoteBuildSettingsDialog({
             </div>
           </div>
 
+          <div className="rounded-md border p-3 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <Label className="text-sm font-medium">VAT</Label>
+                <p className="text-xs text-muted-foreground">
+                  Turn off for projects outside the EU. A note is added to the
+                  proposal and all VAT amounts are set to €0.
+                </p>
+              </div>
+              <Switch
+                checked={draft.vatEnabled}
+                onCheckedChange={(v) => setDraft({ ...draft, vatEnabled: v })}
+              />
+            </div>
+          </div>
+
           <p className="text-xs text-muted-foreground">
             Changes take effect on the next{" "}
             <span className="font-medium">Update schedule</span> run.
           </p>
+
         </div>
 
         <DialogFooter>
