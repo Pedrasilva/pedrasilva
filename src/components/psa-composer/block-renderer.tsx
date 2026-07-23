@@ -1979,9 +1979,11 @@ export function BlockBody({
         resolvedOrientation === "a3-landscape" ? "260mm" : "240mm";
       // Column widths for WBS / stage name / duration
       const isLandscape = resolvedOrientation === "a3-landscape";
-      const wbsColW = isLandscape ? "6%" : "8%";
-      const nameColW = isLandscape ? "18%" : "24%";
-      const durColW = isLandscape ? "5%" : "6%";
+      // These widths are relative to the outline pane, not the whole chart.
+      // Keep enough room for WBS and duration without stealing the timeline.
+      const wbsColW = isLandscape ? "16%" : "18%";
+      const nameColW = isLandscape ? "70%" : "64%";
+      const durColW = isLandscape ? "14%" : "18%";
       const outlineTotalPct = isLandscape ? 29 : 38;
       const baseFontPx = isLandscape ? 12 : 10;
       const rotateForScreen = isLandscape;
@@ -1998,7 +2000,7 @@ export function BlockBody({
           <div className="flex border-b border-zinc-400" style={{ fontSize: `${baseFontPx - 1}px` }}>
             <div className="flex shrink-0 items-end gap-1 pr-2 uppercase tracking-wide text-zinc-500" style={{ width: `${outlineTotalPct}%` }}>
               <div className="shrink-0 py-1" style={{ width: wbsColW }}>WBS</div>
-              <div className="flex-1 py-1 font-semibold">{L.phase}</div>
+              <div className="shrink-0 py-1 font-semibold" style={{ width: nameColW }}>{L.phase}</div>
               <div className="shrink-0 py-1 text-right" style={{ width: durColW }}>{L.duration}</div>
             </div>
             <div className="relative flex-1">
@@ -2050,10 +2052,10 @@ export function BlockBody({
                     </div>
                     <div
                       className={cn(
-                        "flex-1 truncate",
+                        "shrink-0 truncate",
                         r.isGroup ? "font-semibold uppercase tracking-wide text-zinc-800" : "text-zinc-700",
                       )}
-                      style={{ paddingLeft: `${r.depth * 8}px` }}
+                      style={{ width: nameColW, paddingLeft: `${r.depth * 8}px` }}
                       title={name}
                     >
                       {name}

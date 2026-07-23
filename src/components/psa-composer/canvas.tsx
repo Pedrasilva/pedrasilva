@@ -102,6 +102,15 @@ function SortableRow({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.7 : 1,
+    ...(block.block_type === "appendix_gantt"
+      ? {
+          width: "min(1120px, calc(100vw - 80px))",
+          minWidth: "min(1120px, calc(100vw - 80px))",
+          maxWidth: "none",
+          flex: "none",
+          alignSelf: "flex-start",
+        }
+      : {}),
   };
 
   const pageBreakBefore = Boolean(
@@ -124,6 +133,8 @@ function SortableRow({
       onClick={onSelect}
       className={cn(
         "proposal-print-block group relative mb-4 rounded-md transition print:mb-0 print:rounded-none",
+        block.block_type === "appendix_gantt" &&
+          "proposal-print-block-gantt-landscape",
         // Screen-only chrome: thin selection border, never on print.
         "border border-transparent print:border-0",
         selected
