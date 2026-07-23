@@ -116,8 +116,30 @@ export function QuotePublishStep({
           </CardContent>
         </Card>
       )}
+      {!showConvertCard && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {t("workspace.publish.title")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground">
+            <p>{t("workspace.publish.description")}</p>
+            <p>{t("workspace.publish.placeholderNote")}</p>
+            <div className="flex flex-wrap gap-2 pt-1">
+              <Button size="sm" variant="outline" onClick={onEditContent}>
+                {t("workspace.publish.editContent")}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={onEditEstimate}>
+                {t("workspace.publish.editEstimate")}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       <span className="sr-only">{quoteId}</span>
     </div>
   );
 }
+
 
