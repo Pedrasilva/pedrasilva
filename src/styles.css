@@ -432,6 +432,7 @@
 /* ─── Shared (Preview + Print) ──────────────────────────────────── */
 
 .proposal-print-document {
+  position: relative;
   --psa-page-w: 210mm;
   --psa-page-h: 297mm;
   --psa-margin-x: 14mm;
