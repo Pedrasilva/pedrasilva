@@ -1865,7 +1865,23 @@ export function BlockBody({
       const introTextB = (block.content_rich?.text as string | undefined) ?? "";
 
       // Build hierarchy, skipping stages with no dates ("empty lines")
-      const datedStages = selfStages.filter((s) => s.startDate && s.endDate);
+      // and any optional stages (or descendants of optional) — optional
+      // services are shown in their own fee table, not in the schedule.
+      const isOptionalWithAncestorsB = (s: (typeof selfStages)[number]): boolean => {
+        let cur: (typeof selfStages)[number] | undefined = s;
+        const guard = new Set<string>();
+        while (cur && !guard.has(cur.id)) {
+          guard.add(cur.id);
+          if (cur.isOptional) return true;
+          const pid: string | null | undefined = cur.parentStageId;
+          if (!pid) return false;
+          cur = selfStages.find((x) => x.id === pid);
+        }
+        return false;
+      };
+      const datedStages = selfStages.filter(
+        (s) => s.startDate && s.endDate && !isOptionalWithAncestorsB(s),
+      );
       const inSetB = new Set(datedStages.map((s) => s.id));
       const kidsOfB = new Map<string, typeof datedStages>();
       for (const s of datedStages) {
@@ -1874,6 +1890,29 @@ export function BlockBody({
         const arr = kidsOfB.get(p) ?? [];
         arr.push(s);
         kidsOfB.set(p, arr);
+      }
+      // Roll parent dates up from children so a group bar always spans its
+      // sub-stages, even if the parent's own recorded dates are stale.
+      const rolledDates = new Map<string, { start: string; end: string }>();
+      const rollUp = (s: (typeof datedStages)[number]): { start: string; end: string } => {
+        const cached = rolledDates.get(s.id);
+        if (cached) return cached;
+        const kids = kidsOfB.get(s.id) ?? [];
+        let start = s.startDate as string;
+        let end = s.endDate as string;
+        for (const k of kids) {
+          const kr = rollUp(k);
+          if (kr.start < start) start = kr.start;
+          if (kr.end > end) end = kr.end;
+        }
+        const res = { start, end };
+        rolledDates.set(s.id, res);
+        return res;
+      };
+      for (const s of datedStages) {
+        const r = rollUp(s);
+        (s as { startDate: string }).startDate = r.start;
+        (s as { endDate: string }).endDate = r.end;
       }
       const sortFnB = (a: (typeof datedStages)[number], b: (typeof datedStages)[number]) => {
         const ak = a.startDate ?? "";
