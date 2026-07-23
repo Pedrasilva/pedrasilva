@@ -88,8 +88,13 @@ export function topLevelBillableStages(stages: QuoteStage[]): QuoteStage[] {
     // monthly/retainer model) must break out of a rolled-up parent, or its
     // choice is silently discarded.
     if (kids.some(hasCustomBilling)) return true;
+    // Supplier roots (supplier_group / supplier_phase) with sub-deliverables
+    // must expand so each deliverable bills on its own date — otherwise all
+    // sub-invoices collapse into a single lump sum at the parent's end date.
+    if (isSupplierRole(s) && kids.length > 0) return true;
     return kids.some(subtreeHasFlag);
   };
+
   const out: QuoteStage[] = [];
   const visit = (s: QuoteStage) => {
     const kids = getChildren(s.id, stages);
