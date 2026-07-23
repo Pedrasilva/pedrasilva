@@ -398,7 +398,31 @@
     page-break-inside: avoid;
     break-inside: avoid;
   }
+
+  /* Smart-pagination forced breaks are measured against on-screen geometry
+     only. Do NOT let them push extra pages in the printed PDF, where the
+     browser's own pagination is authoritative. */
+  .proposal-print-document .proposal-smart-break-screen {
+    break-before: auto !important;
+    page-break-before: auto !important;
+  }
+
+  /* An explicit page-break-before on the first visible block would emit a
+     leading blank page. Same for a break-before applied to a block that
+     immediately follows another forced break — collapse those. */
+  .proposal-print-document .proposal-print-block.proposal-page-break-before:first-child,
+  .proposal-print-document .proposal-page-break-before + .proposal-page-break-before {
+    break-before: auto !important;
+    page-break-before: auto !important;
+  }
+
+  /* Blocks hidden from print must not participate in pagination at all —
+     an empty node with a page-break hint still emits a page. */
+  .proposal-print-document .proposal-print-block:not([data-visible-print="false"]):empty {
+    display: none !important;
+  }
 }
+
 
 /* Footer is print/proposal-only — hide on screen, show only when printing. */
 .proposal-footer {
