@@ -21,6 +21,9 @@ import {
   resolveSupplierMarkupPct,
   type SupplierMarkupRow,
 } from "@/lib/quotes/supplier-markup-lookup";
+import { type Collaborator, type Snapshot, computeSnapshot } from "@/lib/salary";
+import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
+import { computeCollaboratorFte, effectiveDailyHours } from "@/lib/hr/fte";
 
 export interface LiveStageResource {
   role: string;
