@@ -86,13 +86,16 @@ function SortableRow({
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: block.id });
   const refQuoteId = (block.source_ref as { quote_id?: string } | undefined)?.quote_id;
+  // A template may contain a quote reference captured from the proposal it
+  // was created from. Never let that stale reference override this proposal.
+  const resolvedQuoteId = refQuoteId === quoteIdHint ? refQuoteId : quoteIdHint;
   const useLive =
     block.source_type === "live_quote" ||
     block.source_type === "mixed" ||
     block.block_type === "stage_item" ||
     block.block_type === "index" ||
     block.block_type === "travel_expenses";
-  const live = useLiveQuoteSnapshot(useLive ? refQuoteId ?? quoteIdHint : null, lang).data;
+  const live = useLiveQuoteSnapshot(useLive ? resolvedQuoteId : null, lang).data;
 
 
   const style = {
@@ -195,10 +198,10 @@ export function ComposerCanvas({
   const firstQuoteRef = useMemo(() => {
     for (const b of blocks) {
       const rid = (b.source_ref as { quote_id?: string } | undefined)?.quote_id;
-      if (rid) return rid;
+      if (rid && rid === quoteIdHint) return rid;
     }
     return null;
-  }, [blocks]);
+  }, [blocks, quoteIdHint]);
   const liveForToc = useLiveQuoteSnapshot(firstQuoteRef ?? quoteIdHint, lang).data;
 
   const { chapterByIndex, toc } = useMemo(() => {
