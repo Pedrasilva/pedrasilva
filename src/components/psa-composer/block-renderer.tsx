@@ -1090,8 +1090,13 @@ export function BlockBody({
         return false;
       };
       const supplierStages = allStages.filter(
-        (s) => !s.isSelf && !s.isMilestone && !isOptionalWithAncestors(s),
+        (s) =>
+          !s.isSelf &&
+          !s.isMilestone &&
+          s.stageRole !== "client" &&
+          !isOptionalWithAncestors(s),
       );
+
 
       const inSet = new Set(supplierStages.map((s) => s.id));
       const kidsOf = new Map<string, LiveStage[]>();
