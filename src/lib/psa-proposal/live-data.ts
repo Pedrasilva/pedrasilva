@@ -777,11 +777,14 @@ export function useLiveQuoteSnapshot(
         const lines = gorder.map((gk) => {
           const { svc, rows } = groups.get(gk)!;
           const net = rows.reduce((s, r) => s + resolveAmount(r), 0);
-          const vatAmt = rows.reduce((s, r) => {
-            const n = resolveAmount(r);
-            const v = Number(r.vat_rate ?? defaultVatRate);
-            return s + (n * v) / 100;
-          }, 0);
+          const vatAmt = vatExempt
+            ? 0
+            : rows.reduce((s, r) => {
+                const n = resolveAmount(r);
+                const v = Number(r.vat_rate ?? defaultVatRate);
+                return s + (n * v) / 100;
+              }, 0);
+
           const head = rows[0];
           const stageNames = Array.from(
             new Set(rows.map((r) => (r.stage_id ? stageById.get(r.stage_id)?.name : null)).filter(Boolean)),
