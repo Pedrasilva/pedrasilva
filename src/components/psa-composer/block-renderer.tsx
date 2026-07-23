@@ -1873,7 +1873,7 @@ export function BlockBody({
         while (cur && !guard.has(cur.id)) {
           guard.add(cur.id);
           if (cur.isOptional) return true;
-          const pid = cur.parentStageId;
+          const pid: string | null | undefined = cur.parentStageId;
           if (!pid) return false;
           cur = selfStages.find((x) => x.id === pid);
         }
