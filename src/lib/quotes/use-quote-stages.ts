@@ -61,6 +61,7 @@ export function useUpsertQuoteStage(quoteId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quote-stages", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-financials", quoteId] });
+      qc.invalidateQueries({ queryKey: ["psa-live-quote", quoteId] });
     },
   });
 }
@@ -120,6 +121,7 @@ export function useDeleteQuoteStage(quoteId: string) {
       qc.invalidateQueries({ queryKey: ["quote-allocations", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-dependencies", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-payment-schedule", quoteId] });
+      qc.invalidateQueries({ queryKey: ["psa-live-quote", quoteId] });
     },
   });
 }
