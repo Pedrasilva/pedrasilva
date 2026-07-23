@@ -2146,26 +2146,29 @@ export function BlockBody({
           {rows.length === 0 ? (
             <Empty>{L.scheduleUnavailable}</Empty>
           ) : rotateForScreen ? (
-            // Rotate the chart 90° so the time axis runs down the long
-            // side of the portrait preview page. The inner element uses
-            // swapped dimensions (page height × page width) and rotates
-            // back into the outer frame.
-            <div
-              className="proposal-gantt-rotate-outer relative w-full overflow-hidden"
-              style={{ height: "240mm" }}
-            >
+            // Screen: keep the chart horizontal so it stays legible in the
+            // composer preview. Print: a rotated copy fills the A3 landscape
+            // sheet (see .proposal-gantt-rotate-* CSS).
+            <>
+              <div className="proposal-gantt-screen w-full">{chartInner}</div>
               <div
-                className="proposal-gantt-rotate-inner absolute left-0 top-0 flex flex-col"
-                style={{
-                  width: "240mm",
-                  height: "170mm",
-                  transformOrigin: "top left",
-                  transform: "rotate(-90deg) translate(-100%, 0)",
-                }}
+                className="proposal-gantt-rotate-outer relative w-full overflow-hidden"
+                style={{ height: "240mm" }}
+                aria-hidden
               >
-                {chartInner}
+                <div
+                  className="proposal-gantt-rotate-inner absolute left-0 top-0 flex flex-col"
+                  style={{
+                    width: "240mm",
+                    height: "170mm",
+                    transformOrigin: "top left",
+                    transform: "rotate(-90deg) translate(-100%, 0)",
+                  }}
+                >
+                  {chartInner}
+                </div>
               </div>
-            </div>
+            </>
           ) : (
             chartInner
           )}
