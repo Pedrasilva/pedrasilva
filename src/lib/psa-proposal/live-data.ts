@@ -706,9 +706,21 @@ export function useLiveQuoteSnapshot(
         return { key: `arch:${root?.id ?? "_"}`, name: root && rootRole !== "supplier_group" && rootRole !== "supplier_phase" ? root.name : L.architectureFallback, isSupplier: false };
       };
 
+      // Honor per-quote build settings: if downpayment is disabled or 0%,
+      // hide any lingering project_start rows from the proposal view even
+      // when the payment schedule hasn't been re-synced yet.
+      const buildSettings = (q.quote_build_settings ?? {}) as {
+        downPaymentEnabled?: boolean;
+        downPaymentPercent?: number;
+      };
+      const dpDisabled =
+        buildSettings.downPaymentEnabled === false ||
+        Number(buildSettings.downPaymentPercent ?? 0) === 0;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const inflows = ((pay ?? []) as any[]).filter(
-        (p) => (p.direction ?? "inflow") === "inflow",
+        (p) =>
+          (p.direction ?? "inflow") === "inflow" &&
+          !(dpDisabled && p.trigger_type === "project_start"),
       );
       type Invoice = { key: string; plannedDate: string; items: any[]; paymentTerms: string | null };
       const invoiceMap = new Map<string, Invoice>();
