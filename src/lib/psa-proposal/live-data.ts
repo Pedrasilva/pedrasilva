@@ -912,6 +912,7 @@ export function useLiveQuoteSnapshot(
               isSelf: s.is_self !== false,
               isMilestone: s.is_milestone === true,
               isOptional: s.is_optional === true,
+              stageRole: (s as { stage_role?: string | null }).stage_role ?? null,
               parentStageId: s.parent_stage_id ?? null,
               sortOrder: s.sort_order ?? null,
               resources: Array.from(
