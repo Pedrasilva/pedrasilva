@@ -7584,6 +7584,7 @@ export type Database = {
           retainer_monthly_amount: number
           retainer_months: number | null
           retainer_review_months: number | null
+          sale_source: string | null
           sort_order: number
           stage_billing_timing: string
           stage_kind: string
@@ -7628,6 +7629,7 @@ export type Database = {
           retainer_monthly_amount?: number
           retainer_months?: number | null
           retainer_review_months?: number | null
+          sale_source?: string | null
           sort_order?: number
           stage_billing_timing?: string
           stage_kind?: string
@@ -7672,6 +7674,7 @@ export type Database = {
           retainer_monthly_amount?: number
           retainer_months?: number | null
           retainer_review_months?: number | null
+          sale_source?: string | null
           sort_order?: number
           stage_billing_timing?: string
           stage_kind?: string
