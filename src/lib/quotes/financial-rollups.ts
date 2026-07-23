@@ -158,18 +158,50 @@ export function rollupQuote({
   }
 
   const m = pricingMultiplier > 0 ? pricingMultiplier : 1;
-  let internalFee =
-    feeSourceMode === "budget"
-      ? sumLeafBudgets(stages) * m
-      : internal.value * m;
+
+  // Determine per-leaf sale source (per-stage override wins, then quote-level).
+  const parents = new Set<string>();
+  for (const s of stages) {
+    const p = (s as { parent_stage_id?: string | null }).parent_stage_id;
+    if (p) parents.add(p);
+  }
+  const leafSource = (s: { id: string; sale_source?: string | null }): "allocation" | "budget" => {
+    const o = (s as { sale_source?: string | null }).sale_source;
+    if (o === "budget" || o === "allocation") return o;
+    return feeSourceMode;
+  };
+  const stageById = new Map(stages.map((s) => [s.id, s]));
+  const budgetLeafIds = new Set<string>();
+  let internalFee = 0;
+  if (stages.length > 0) {
+    for (const s of stages) {
+      if (parents.has(s.id)) continue; // parent, skip
+      if (leafSource(s as { id: string; sale_source?: string | null }) === "budget") {
+        budgetLeafIds.add(s.id);
+        internalFee += (Number(s.budget ?? 0) || 0) * m;
+      }
+    }
+    for (const a of allocations) {
+      const sid = a.stage_id ?? null;
+      if (!sid) continue;
+      const s = stageById.get(sid);
+      if (!s) continue;
+      if (parents.has(sid)) continue;
+      if (budgetLeafIds.has(sid)) continue;
+      internalFee += quoteAllocationLine(a).revenue * m;
+    }
+  } else {
+    internalFee = internal.value * m;
+  }
   const externalFee = external.value * m;
   const totalCost = internal.cost + external.cost;
 
-  if (feeSourceMode === "budget") {
-    internal.value = internalFee / m;
-    internal.budget = internal.value;
-    internal.profit = internal.value - internal.cost;
-  }
+  // Reflect the chosen internal fee back onto the internal row so per-side
+  // cells (Internal Fee / Profit) display the same number.
+  internal.value = internalFee / m;
+  internal.budget = internal.value;
+  internal.profit = internal.value - internal.cost;
+
 
   // Time-based / retainer: derive fee from the saved commercial settings
   // when allocations are empty so the financial summary is not blank.
