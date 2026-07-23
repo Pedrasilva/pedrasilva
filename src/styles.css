@@ -933,7 +933,24 @@
   .proposal-appendix-landscape .proposal-gantt-rotate-outer {
     display: none !important;
   }
+  /* Render the landscape appendix as a landscape "page" on screen so the
+     Gantt has full landscape width to breathe. Breaks out of the parent
+     portrait page container and centers itself. */
+  .proposal-appendix-landscape {
+    width: min(100%, 297mm);
+    max-width: 297mm;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 200mm;
+  }
+  .proposal-appendix-landscape .proposal-gantt-screen {
+    width: 100%;
+    min-height: 180mm;
+    display: flex;
+    flex-direction: column;
+  }
 }
+
 
 /* ─── PRINT (PDF) ───────────────────────────────────────────────── */
 
