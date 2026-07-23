@@ -350,6 +350,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
               )}
             </div>
           )}
+          {stageRoleNow !== "client" && (
           <div className="space-y-2 rounded-md border bg-muted/20 p-2.5">
             <Label className="text-xs font-medium">
               {t("workspace.planning.supplier", { defaultValue: "Supplier" })}
