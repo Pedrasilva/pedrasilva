@@ -728,21 +728,21 @@ export function RichTextEditor({
 
   // Sync external value changes (block switch). Skip when the incoming value
   // is the one we just emitted upward — otherwise setContent resets the
-  // cursor to the end while the user is typing.
+  // cursor to the end while the user is typing. NEVER reset content while
+  // the editor is focused: the parent may re-normalize HTML after a debounced
+  // flush and echo back a slightly different string, which would blow away
+  // the caret on every keystroke.
   useEffect(() => {
     if (!editor) return;
     if (value === lastEmittedRef.current) return;
-    // Don't clobber unsaved edits while focused; flush and re-check.
-    if (editor.isFocused) {
-      flush();
-      if (value === lastEmittedRef.current) return;
-    }
+    if (editor.isFocused) return;
     const current = editor.getHTML();
     if (value !== current) {
       editor.commands.setContent(value || "", { emitUpdate: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, editor]);
+
 
   // Keep the editor DOM class in sync with spacing / lineHeight changes.
   useEffect(() => {
