@@ -584,7 +584,7 @@ export function QuotePlannerInspector({ quoteId, stageId, onClose }: Props) {
             </>
             );
           })()}
-          {!(stage as { is_milestone?: boolean }).is_milestone && (
+          {stageRoleNow !== "client" && !(stage as { is_milestone?: boolean }).is_milestone && (
               (() => {
                 const sx = stage as typeof stage & {
                   budget_mode?: string | null;
