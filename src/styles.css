@@ -930,6 +930,10 @@
 /* On-screen: the rotated Gantt copy is print-only. Hide it in the preview
    so only the horizontal .proposal-gantt-screen version renders. */
 @media screen {
+  .proposal-print-block-gantt-landscape {
+    width: min(1120px, calc(100vw - 80px));
+    max-width: none;
+  }
   .proposal-appendix-landscape .proposal-gantt-rotate-outer {
     display: none !important;
   }
@@ -941,18 +945,20 @@
      A3-landscape sheet gives it. */
   .proposal-appendix-landscape {
     box-sizing: border-box;
-    width: calc(100% + var(--psa-margin-left) + var(--psa-margin-right));
+    width: 100%;
     max-width: none;
-    margin-left: calc(var(--psa-margin-left) * -1);
-    margin-right: calc(var(--psa-margin-right) * -1);
+    margin-left: 0;
+    margin-right: 0;
     padding: 12mm 14mm;
     background: #fafafa;
     border: 1px dashed #cbd5e1;
-    min-height: 200mm;
+    min-height: 0 !important;
+    aspect-ratio: 420 / 297;
   }
   .proposal-appendix-landscape .proposal-gantt-screen {
     width: 100%;
-    min-height: 170mm;
+    min-height: 0;
+    flex: 1;
     display: flex;
     flex-direction: column;
   }
