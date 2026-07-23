@@ -933,23 +933,31 @@
   .proposal-appendix-landscape .proposal-gantt-rotate-outer {
     display: none !important;
   }
-  /* Render the landscape appendix as a landscape "page" on screen so the
-     Gantt has full landscape width to breathe. Breaks out of the parent
-     portrait page container and centers itself. */
+  /* Render the landscape appendix as an actual landscape "page" on screen.
+     The parent .proposal-print-document is A4 portrait with left/right
+     padding of var(--psa-margin-x); we use negative margins so this block
+     escapes that gutter and expands to (almost) the full preview width.
+     Result: the Gantt has the same generous horizontal room the printed
+     A3-landscape sheet gives it. */
   .proposal-appendix-landscape {
-    width: min(100%, 297mm);
-    max-width: 297mm;
-    margin-left: auto;
-    margin-right: auto;
+    box-sizing: border-box;
+    width: calc(100% + var(--psa-margin-left) + var(--psa-margin-right));
+    max-width: none;
+    margin-left: calc(var(--psa-margin-left) * -1);
+    margin-right: calc(var(--psa-margin-right) * -1);
+    padding: 12mm 14mm;
+    background: #fafafa;
+    border: 1px dashed #cbd5e1;
     min-height: 200mm;
   }
   .proposal-appendix-landscape .proposal-gantt-screen {
     width: 100%;
-    min-height: 180mm;
+    min-height: 170mm;
     display: flex;
     flex-direction: column;
   }
 }
+
 
 
 /* ─── PRINT (PDF) ───────────────────────────────────────────────── */
