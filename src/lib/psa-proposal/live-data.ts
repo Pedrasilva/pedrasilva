@@ -881,14 +881,13 @@ export function useLiveQuoteSnapshot(
             const end = s.end_date ? new Date(s.end_date) : null;
             let days: number | null = null;
             if (start && end) {
-              let count = 0;
-              const cur = new Date(start);
-              while (cur <= end) {
-                const d = cur.getDay();
-                if (d !== 0 && d !== 6) count++;
-                cur.setDate(cur.getDate() + 1);
-              }
-              days = Math.max(1, count);
+              // Calendar days (inclusive of start and end) so the value
+              // matches what the Gantt bar shows to the client. Using
+              // workday counts under-reports duration and can flip a
+              // 14-day stage down to "1 wk".
+              const ms = end.getTime() - start.getTime();
+              const calendarDays = Math.floor(ms / (24 * 60 * 60 * 1000)) + 1;
+              days = Math.max(1, calendarDays);
             }
             const rawFee = s.budget ?? null;
             // Only supplier stages (non-self) receive the admin markup.
