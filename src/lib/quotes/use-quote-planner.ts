@@ -163,6 +163,7 @@ export function useUpdateQuoteDependency(quoteId: string) {
       qc.invalidateQueries({ queryKey: ["quote-stages", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-allocations", quoteId] });
       qc.invalidateQueries({ queryKey: ["quote-financials", quoteId] });
+      qc.invalidateQueries({ queryKey: ["psa-live-quote", quoteId] });
     },
   });
 }
