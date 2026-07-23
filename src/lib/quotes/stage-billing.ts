@@ -83,7 +83,12 @@ export function topLevelBillableStages(stages: QuoteStage[]): QuoteStage[] {
   // project even when sub-parents (e.g. Design, Construction) are flagged.
   const subtreeHasFlag = (s: QuoteStage): boolean => {
     if (childrenBillIndependently(s)) return true;
-    return getChildren(s.id, stages).some(subtreeHasFlag);
+    const kids = getChildren(s.id, stages);
+    // A child with a non-default billing setting (start/split timing, or
+    // monthly/retainer model) must break out of a rolled-up parent, or its
+    // choice is silently discarded.
+    if (kids.some(hasCustomBilling)) return true;
+    return kids.some(subtreeHasFlag);
   };
   const out: QuoteStage[] = [];
   const visit = (s: QuoteStage) => {
