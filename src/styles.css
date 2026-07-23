@@ -927,6 +927,14 @@
   }
 }
 
+/* On-screen: the rotated Gantt copy is print-only. Hide it in the preview
+   so only the horizontal .proposal-gantt-screen version renders. */
+@media screen {
+  .proposal-appendix-landscape .proposal-gantt-rotate-outer {
+    display: none !important;
+  }
+}
+
 /* ─── PRINT (PDF) ───────────────────────────────────────────────── */
 
 @media print {
