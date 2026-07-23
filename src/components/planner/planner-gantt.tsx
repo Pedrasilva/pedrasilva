@@ -309,6 +309,11 @@ export function QuoteGantt({ quoteId, dayWidth: dayWidthProp, onAddRetainerPhase
         hourly_rate: Number(a.sale_rate_snapshot),
         sale_rate: Number(a.sale_rate_snapshot),
         cost_rate: Number(a.cost_rate_snapshot),
+        // Force the snapshot rates to be treated as an explicit override so
+        // effectiveSaleRate/effectiveCostRate don't fall back to HR defaults.
+        // Without this the Gantt bar sale value diverges from the contract
+        // detail (which uses sale_rate_snapshot directly).
+        hourly_rate_is_override: true,
       };
       const mapped: AllocationWithResource = {
         id: a.id,
