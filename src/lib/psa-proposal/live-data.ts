@@ -47,10 +47,13 @@ export interface LiveStage {
   isSelf: boolean;
   isMilestone: boolean;
   isOptional: boolean;
+  /** quote_stages.stage_role — e.g. "architecture", "supplier_group", "client". */
+  stageRole: string | null;
   parentStageId: string | null;
   sortOrder: number | null;
   resources: LiveStageResource[];
 }
+
 
 
 export interface LiveQuoteSnapshot {
