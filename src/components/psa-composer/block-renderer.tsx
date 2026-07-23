@@ -631,7 +631,45 @@ export function BlockBody({
         arr.push(s);
         kidsOf.set(p, arr);
       }
-      const startKey = (s: (typeof selfStages)[number]) => s.startDate ?? "";
+
+      // Roll up dates from ALL descendants (including non-self children like
+      // supplier_group / client rows), so a self-parent whose children were
+      // filtered out still shows the true span rather than its stale stored
+      // dates. Only applied when the stage's own dates don't already cover
+      // its descendants.
+      const allStages = live?.stages ?? [];
+      const allKidsOf = new Map<string, LiveStage[]>();
+      for (const s of allStages) {
+        if (!s.parentStageId) continue;
+        const arr = allKidsOf.get(s.parentStageId) ?? [];
+        arr.push(s);
+        allKidsOf.set(s.parentStageId, arr);
+      }
+      const rollupCache = new Map<string, { start?: string; end?: string }>();
+      const rollupDates = (id: string): { start?: string; end?: string } => {
+        const cached = rollupCache.get(id);
+        if (cached) return cached;
+        const self = allStages.find((x) => x.id === id);
+        let start = self?.startDate ?? undefined;
+        let end = self?.endDate ?? undefined;
+        for (const k of allKidsOf.get(id) ?? []) {
+          const r = rollupDates(k.id);
+          if (r.start && (!start || r.start < start)) start = r.start;
+          if (r.end && (!end || r.end > end)) end = r.end;
+        }
+        const out = { start, end };
+        rollupCache.set(id, out);
+        return out;
+      };
+      const daysBetween = (a?: string, b?: string): number | undefined => {
+        if (!a || !b) return undefined;
+        const ms = Date.parse(b) - Date.parse(a);
+        if (Number.isNaN(ms)) return undefined;
+        return Math.max(1, Math.round(ms / 86400000) + 1);
+      };
+
+      const startKey = (s: (typeof selfStages)[number]) =>
+        rollupDates(s.id).start ?? s.startDate ?? "";
       const sortFn = (a: (typeof selfStages)[number], b: (typeof selfStages)[number]) => {
         const ak = startKey(a);
         const bk = startKey(b);
@@ -663,17 +701,22 @@ export function BlockBody({
           );
           for (const k of kids) walk(k, depth + 1);
         } else {
+          const ru = rollupDates(s.id);
+          const start = ru.start ?? s.startDate;
+          const end = ru.end ?? s.endDate;
+          const duration = daysBetween(start, end) ?? s.durationDays;
           rows.push(
             <tr key={s.id} className="border-b border-zinc-100">
               <td className="py-1" style={pad}>{label}</td>
-              <td className="py-1">{formatDatePT(s.startDate, lang)}</td>
-              <td className="py-1">{formatDatePT(s.endDate, lang)}</td>
-              <td className="py-1 text-right">{formatDurationHuman(s.durationDays, lang)}</td>
+              <td className="py-1">{formatDatePT(start, lang)}</td>
+              <td className="py-1">{formatDatePT(end, lang)}</td>
+              <td className="py-1 text-right">{formatDurationHuman(duration, lang)}</td>
             </tr>,
           );
         }
       };
       for (const r of roots) walk(r, 0);
+
 
       const introHtml = (block.content_rich?.html as string | undefined) ?? "";
       const introText = (block.content_rich?.text as string | undefined) ?? "";
