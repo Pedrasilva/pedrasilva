@@ -1031,9 +1031,26 @@
   }
   @page appendix-landscape {
     size: A3 landscape;
+    margin: 0;
   }
-  .print-area .proposal-appendix-landscape {
+  /* The named page must be assigned to the outer block that participates in
+     pagination. Assigning it only to the nested appendix leaves the wrapper
+     on the default A4 page, which clips the right side of the Gantt. */
+  .print-area .proposal-print-block-gantt-landscape {
     page: appendix-landscape;
+    width: 420mm;
+    min-height: 297mm;
+    margin-left: calc(var(--psa-margin-left) * -1) !important;
+    padding: var(--psa-margin-top) var(--psa-margin-right) var(--psa-margin-bottom) var(--psa-margin-left);
+    box-sizing: border-box;
+    page-break-before: always;
+    break-before: page;
+    page-break-after: always;
+    break-after: page;
+  }
+  .print-area .proposal-print-block-gantt-landscape .proposal-appendix-landscape {
+    width: 100%;
+    min-height: calc(297mm - var(--psa-margin-top) - var(--psa-margin-bottom));
   }
   /* When printing on a landscape page, undo the on-screen 90° rotation
      — the paper itself is already landscape. */
