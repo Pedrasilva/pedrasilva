@@ -99,10 +99,10 @@ export interface LiveQuoteSnapshot {
     paymentTerms: string | null;
   }>;
   paymentInvoicesTotal: { net: number; vat: number; total: number };
-  paymentInvoicesTotal: { net: number; vat: number; total: number };
   /** True when the quote's build settings mark it VAT-exempt. */
   vatExempt: boolean;
   defaultVatRate: number;
+
 
   siteTrips: Array<{
     id: string;
