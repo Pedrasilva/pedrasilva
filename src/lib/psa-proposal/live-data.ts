@@ -800,13 +800,21 @@ export function useLiveQuoteSnapshot(
       });
       const billableRates = (
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ((roleRows ?? []) as any[]).map((r) => ({
-          code: String(r.code ?? ""),
-          label_pt: String(r.label_pt ?? r.code ?? ""),
-          label_en: String(r.label_en ?? r.code ?? ""),
-          hourlyRate: Number(r.hourly_rate) || 0,
-          saleRate: saleByCode.get(String(r.code ?? "")) ?? 0,
-        }))
+        ((roleRows ?? []) as any[]).map((r) => {
+          const code = String(r.code ?? "");
+          const cost = Number(r.hourly_rate) || 0;
+          // Default sale rate = cost × 2 (100% markup) using HR/proposal_roles
+          // hourly cost. Per-quote manual override still wins when set.
+          const override = saleByCode.get(code);
+          const saleRate = override != null && override > 0 ? override : cost * 2;
+          return {
+            code,
+            label_pt: String(r.label_pt ?? r.code ?? ""),
+            label_en: String(r.label_en ?? r.code ?? ""),
+            hourlyRate: cost,
+            saleRate,
+          };
+        })
       ).sort((a, b) => b.saleRate - a.saleRate);
 
       // Resolve each resource's role code to its localized display label
