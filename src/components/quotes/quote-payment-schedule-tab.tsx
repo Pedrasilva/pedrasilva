@@ -738,6 +738,18 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
 
 
       {/* Proposal-style read-only layout (mirrors printed proposal) */}
+      <div className="flex items-center justify-end">
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={applyGen.isPending}
+          onClick={syncFromGantt}
+          className="gap-2"
+        >
+          <Wand2 className="h-3.5 w-3.5" />
+          {t("workspace.payment.syncFromGantt", { defaultValue: "Sync from Gantt" })}
+        </Button>
+      </div>
       <PaymentScheduleProposalView
         items={visibleItems}
         stages={stages}
@@ -746,6 +758,7 @@ export function QuotePaymentScheduleTab({ quoteId, compositionOnly = false, cons
         suppliers={suppliers}
         defaultVatRate={defaultVatRate}
       />
+
 
 
       <details className="rounded-md border bg-muted/10">
