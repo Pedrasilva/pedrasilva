@@ -21,6 +21,9 @@ import {
   resolveSupplierMarkupPct,
   type SupplierMarkupRow,
 } from "@/lib/quotes/supplier-markup-lookup";
+import { type Collaborator, type Snapshot, computeSnapshot } from "@/lib/salary";
+import { computePricing, cotaBoPorColabProjecto } from "@/lib/pricing";
+import { computeCollaboratorFte, effectiveDailyHours } from "@/lib/hr/fte";
 
 export interface LiveStageResource {
   role: string;
@@ -798,13 +801,91 @@ export function useLiveQuoteSnapshot(
         if (r?.role_name)
           saleByCode.set(String(r.role_name), Number(r.sale_rate) || 0);
       });
+
+      // Derive per-role cost from HR (collaborators + salary snapshots +
+      // bo_settings) using the same model as HR › Pricing. Group each
+      // collaborator's computed cost/hour by their proposal_role and average.
+      const costByRoleCode = new Map<string, number>();
+      try {
+        const [collabRes, snapRes, boRes] = await Promise.all([
+          supabase.from("collaborators").select("*").is("archived_at", null),
+          supabase.from("salary_snapshots").select("*").eq("is_effective", true),
+          supabase.from("bo_settings").select("*").limit(1).maybeSingle(),
+        ]);
+        const collabs = (collabRes.data ?? []) as Collaborator[];
+        const snapshots = (snapRes.data ?? []) as Snapshot[];
+        const bo = boRes.data as {
+          custos_operacionais_anual?: number;
+          dias_uteis?: number;
+          horas_dia?: number;
+          margem_lucro_pct?: number;
+        } | null;
+        const custosOp = Number(bo?.custos_operacionais_anual ?? 0);
+        const diasUteis = Number(bo?.dias_uteis ?? 220);
+        const horasDia = Number(bo?.horas_dia ?? 8);
+        const margemDefault = Number(bo?.margem_lucro_pct) || 0.5;
+        const projecto = collabs.filter((c) => c.departamento === "Projecto");
+        const backoffice = collabs.filter((c) => c.departamento === "Backoffice");
+        const vbgFor = (c: Collaborator): number => {
+          const s = snapshots.find((sn) => sn.collaborator_id === c.id);
+          return s ? computeSnapshot(s).custoVBG : 0;
+        };
+        const totalBackofficeVbg = backoffice.reduce((a, c) => a + vbgFor(c), 0);
+        const fteTotalProjecto = projecto.reduce(
+          (a, c) => a + computeCollaboratorFte(c.daily_hours, c.days_per_week, horasDia),
+          0,
+        );
+        const cotaBo = cotaBoPorColabProjecto({
+          custosOperacionais: custosOp,
+          custoBackofficeVbg: totalBackofficeVbg,
+          numColabProjecto: projecto.length,
+          fteTotalProjecto,
+        });
+        const roleAgg = new Map<string, { sum: number; n: number }>();
+        for (const c of projecto) {
+          const roleCode =
+            (c.proposal_role as string | null) ||
+            (c.billing_role as string | null) ||
+            "";
+          if (!roleCode) continue;
+          const vbg = vbgFor(c);
+          if (!vbg) continue;
+          const collabHorasDia = effectiveDailyHours(c.daily_hours, horasDia);
+          const fte = computeCollaboratorFte(c.daily_hours, c.days_per_week, horasDia);
+          const chargeability =
+            c.target_chargeability_pct != null
+              ? Number(c.target_chargeability_pct) / 100
+              : undefined;
+          const marginPct = c.margem_lucro_pct_override ?? margemDefault;
+          const p = computePricing({
+            vbgColaborador: vbg,
+            cotaBoAnual: cotaBo * fte,
+            diasUteis,
+            horasDia: collabHorasDia,
+            margemLucroPct: marginPct,
+            chargeabilityPct: chargeability,
+          });
+          const cur = roleAgg.get(roleCode) ?? { sum: 0, n: 0 };
+          cur.sum += p.custoHoraDesperdicio;
+          cur.n += 1;
+          roleAgg.set(roleCode, cur);
+        }
+        for (const [code, { sum, n }] of roleAgg) {
+          if (n > 0) costByRoleCode.set(code, sum / n);
+        }
+      } catch {
+        // HR access may be restricted for some users — fall back silently.
+      }
+
       const billableRates = (
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ((roleRows ?? []) as any[]).map((r) => {
           const code = String(r.code ?? "");
-          const cost = Number(r.hourly_rate) || 0;
-          // Default sale rate = cost × 2 (100% markup) using HR/proposal_roles
-          // hourly cost. Per-quote manual override still wins when set.
+          const catalogCost = Number(r.hourly_rate) || 0;
+          const hrCost = costByRoleCode.get(code) ?? 0;
+          const cost = catalogCost > 0 ? catalogCost : hrCost;
+          // Default sale rate = cost × 2 (100% markup). Per-quote manual
+          // override still wins when set.
           const override = saleByCode.get(code);
           const saleRate = override != null && override > 0 ? override : cost * 2;
           return {
