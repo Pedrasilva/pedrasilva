@@ -46,6 +46,22 @@ function childrenBillIndependently(stage: QuoteStage): boolean {
 }
 
 /**
+ * True when the user has explicitly customized billing on THIS stage
+ * (non-default timing, non-stage billing model, or retainer kind).
+ * Custom billing on a child implies the parent must be expanded so the
+ * child's setting is actually honored — otherwise only the parent's
+ * default timing is applied and the child's start/end/split is silently
+ * ignored.
+ */
+function hasCustomBilling(stage: QuoteStage): boolean {
+  const s = stage as StageLike & { billing_model?: string | null; stage_kind?: string | null };
+  const model = (s.billing_model ?? "stage") as string;
+  const timing = (s.stage_billing_timing ?? "end") as string;
+  const kind = (s.stage_kind ?? "regular") as string;
+  return model !== "stage" || timing !== "end" || kind === "retainer_monthly";
+}
+
+/**
  * Stages that should appear in the payment schedule.
  *
  * Default: each top-level stage (no parent in list) generates one billing
@@ -67,7 +83,12 @@ export function topLevelBillableStages(stages: QuoteStage[]): QuoteStage[] {
   // project even when sub-parents (e.g. Design, Construction) are flagged.
   const subtreeHasFlag = (s: QuoteStage): boolean => {
     if (childrenBillIndependently(s)) return true;
-    return getChildren(s.id, stages).some(subtreeHasFlag);
+    const kids = getChildren(s.id, stages);
+    // A child with a non-default billing setting (start/split timing, or
+    // monthly/retainer model) must break out of a rolled-up parent, or its
+    // choice is silently discarded.
+    if (kids.some(hasCustomBilling)) return true;
+    return kids.some(subtreeHasFlag);
   };
   const out: QuoteStage[] = [];
   const visit = (s: QuoteStage) => {
