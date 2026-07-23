@@ -418,7 +418,8 @@
 
   /* Blocks hidden from print must not participate in pagination at all —
      an empty node with a page-break hint still emits a page. */
-  .proposal-print-document .proposal-print-block:not([data-visible-print="false"]):empty {
+  .proposal-print-document .proposal-print-block[data-visible-print="false"],
+  .proposal-print-document .proposal-print-block:empty {
     display: none !important;
   }
 }
@@ -1059,9 +1060,11 @@
     page-break-after: always;
     break-after: page;
   }
+  /* Appendix breaks live on the outer proposal block. Keeping another break
+     on the nested appendix creates header/footer-only pages in Chromium. */
   .print-area .proposal-appendix {
-    page-break-before: always;
-    break-before: page;
+    page-break-before: auto;
+    break-before: auto;
   }
   /* Chromium does not reliably export mixed A4/A3 page sizes. Keep Appendix B
      on its own A4 sheet and rotate the chart so its time axis uses the long
@@ -1070,8 +1073,6 @@
     width: 100%;
     min-width: 0;
     min-height: calc(var(--psa-page-h) - var(--psa-margin-top) - var(--psa-margin-bottom));
-    page-break-before: always;
-    break-before: page;
     page-break-after: always;
     break-after: page;
   }

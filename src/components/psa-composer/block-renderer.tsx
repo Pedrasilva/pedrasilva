@@ -378,7 +378,7 @@ export function BlockBody({
   switch (block.block_type) {
     case "cover":
       return (
-        <div className="proposal-cover proposal-avoid-break proposal-page-break-after flex flex-col items-center justify-center py-24 text-center">
+        <div className="proposal-cover proposal-avoid-break flex flex-col items-center justify-center py-24 text-center">
           <div className="text-xs tracking-[0.3em] text-zinc-500">
             {L.proposalCover}
           </div>
@@ -1483,7 +1483,7 @@ export function BlockBody({
 
     case "page_break":
       return (
-        <div className="proposal-page-break-before my-8 border-t-2 border-dashed border-zinc-300 text-center text-[10px] uppercase tracking-widest text-zinc-400 print:border-0 print:text-transparent">
+        <div className="my-8 border-t-2 border-dashed border-zinc-300 text-center text-[10px] uppercase tracking-widest text-zinc-400 print:hidden">
           {L.pageBreak}
         </div>
       );
@@ -1716,7 +1716,7 @@ export function BlockBody({
       const introHtmlIdx = (block.content_rich?.html as string | undefined) ?? "";
       const introTextIdx = (block.content_rich?.text as string | undefined) ?? "";
       return (
-        <div className="proposal-appendix proposal-page-break-before">
+        <div className="proposal-appendix">
           <div className="mb-8 text-center">
             <div className="text-xs tracking-[0.4em] text-zinc-500">
               {L.appendicesLabel}
@@ -1779,7 +1779,7 @@ export function BlockBody({
           ? "The following Monthly Payment Schedule illustrates the anticipated invoicing throughout the project based on the proposed programme and resource allocation. Should the programme or scope change, this schedule will be updated accordingly."
           : "O seguinte Cronograma Mensal de Pagamentos ilustra a facturação prevista ao longo do projecto com base no programa proposto e na afectação de recursos. Caso o programa ou o âmbito sejam alterados, este cronograma será actualizado em conformidade.";
       return (
-        <div className="proposal-appendix proposal-page-break-before">
+        <div className="proposal-appendix">
           <div className="mb-4 text-xs uppercase tracking-[0.3em] text-zinc-500">
             {L.appendix} {letter}
           </div>
@@ -2167,7 +2167,7 @@ export function BlockBody({
       return (
         <div
           className={cn(
-            "proposal-appendix proposal-page-break-before flex flex-col",
+            "proposal-appendix flex flex-col",
             resolvedOrientation === "a3-landscape" && "proposal-appendix-landscape",
           )}
           style={{ minHeight: pageMinHeight }}
@@ -2227,7 +2227,7 @@ export function BlockBody({
       const defaultTerms = isEn ? PSA_GENERAL_TERMS_HTML_EN : PSA_GENERAL_TERMS_HTML_PT;
       const body = hasRichContent(introHtmlC, introTextC) ? introHtmlC || introTextC : defaultTerms;
       return (
-        <div className="proposal-appendix proposal-page-break-before">
+        <div className="proposal-appendix">
           <div className="mb-4 text-xs uppercase tracking-[0.3em] text-zinc-500">
             {L.appendix} {letterC}
           </div>
