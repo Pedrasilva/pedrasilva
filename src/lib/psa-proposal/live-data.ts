@@ -47,10 +47,13 @@ export interface LiveStage {
   isSelf: boolean;
   isMilestone: boolean;
   isOptional: boolean;
+  /** quote_stages.stage_role — e.g. "architecture", "supplier_group", "client". */
+  stageRole: string | null;
   parentStageId: string | null;
   sortOrder: number | null;
   resources: LiveStageResource[];
 }
+
 
 
 export interface LiveQuoteSnapshot {
@@ -364,7 +367,7 @@ export function useLiveQuoteSnapshot(
       const { data: stages } = await supabase
         .from("quote_stages")
         .select(
-          "id,name,description,phase_code,start_date,end_date,budget,budget_mode,sort_order,is_self,is_milestone,is_optional,parent_stage_id,supplier_id,supplier_company_id,supplier_placeholder",
+          "id,name,description,phase_code,start_date,end_date,budget,budget_mode,sort_order,is_self,is_milestone,is_optional,stage_role,parent_stage_id,supplier_id,supplier_company_id,supplier_placeholder",
         )
         .eq("quote_id", quoteId!)
         .order("sort_order", { ascending: true, nullsFirst: false })
@@ -909,6 +912,7 @@ export function useLiveQuoteSnapshot(
               isSelf: s.is_self !== false,
               isMilestone: s.is_milestone === true,
               isOptional: s.is_optional === true,
+              stageRole: (s as { stage_role?: string | null }).stage_role ?? null,
               parentStageId: s.parent_stage_id ?? null,
               sortOrder: s.sort_order ?? null,
               resources: Array.from(
