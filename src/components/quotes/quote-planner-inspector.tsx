@@ -38,6 +38,7 @@ import { useDefaultResourceRates, effectiveRates } from "@/lib/projects/use-defa
 import { useQuoteStages } from "@/lib/quotes/use-quote-stages";
 import { QUOTE_DEP_TYPES, type QuoteDepType } from "@/lib/quotes/types";
 import { compareWbsNumbers } from "@/lib/quotes/stage-numbering";
+import { quoteAllocationLine } from "@/lib/quotes/financial-rollups";
 
 interface Props {
   quoteId: string;
