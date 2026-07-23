@@ -99,7 +99,11 @@ export interface LiveQuoteSnapshot {
     paymentTerms: string | null;
   }>;
   paymentInvoicesTotal: { net: number; vat: number; total: number };
+  /** True when the quote's build settings mark it VAT-exempt. */
+  vatExempt: boolean;
   defaultVatRate: number;
+
+
   siteTrips: Array<{
     id: string;
     label: string;
@@ -708,20 +712,31 @@ export function useLiveQuoteSnapshot(
 
       // Honor per-quote build settings: if downpayment is disabled or 0%,
       // hide any lingering project_start rows from the proposal view even
-      // when the payment schedule hasn't been re-synced yet.
+      // when the payment schedule hasn't been re-synced yet. Also honor
+      // the VAT toggle — VAT-exempt proposals zero out all VAT amounts.
       const buildSettings = (q.quote_build_settings ?? {}) as {
         downPaymentEnabled?: boolean;
         downPaymentPercent?: number;
+        vatEnabled?: boolean;
       };
       const dpDisabled =
         buildSettings.downPaymentEnabled === false ||
         Number(buildSettings.downPaymentPercent ?? 0) === 0;
+      const vatExempt = buildSettings.vatEnabled === false;
+      // Client-approval stages have no financial impact — filter their
+      // payment rows out entirely (they show as €0 lines otherwise).
+      const clientStageIds = new Set(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        stageArr.filter((s: any) => s.stage_role === "client").map((s: any) => s.id as string),
+      );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const inflows = ((pay ?? []) as any[]).filter(
         (p) =>
           (p.direction ?? "inflow") === "inflow" &&
-          !(dpDisabled && p.trigger_type === "project_start"),
+          !(dpDisabled && p.trigger_type === "project_start") &&
+          !(p.stage_id && clientStageIds.has(p.stage_id)),
       );
+
       type Invoice = { key: string; plannedDate: string; items: any[]; paymentTerms: string | null };
       const invoiceMap = new Map<string, Invoice>();
       const orderKeys: string[] = [];
@@ -766,11 +781,14 @@ export function useLiveQuoteSnapshot(
         const lines = gorder.map((gk) => {
           const { svc, rows } = groups.get(gk)!;
           const net = rows.reduce((s, r) => s + resolveAmount(r), 0);
-          const vatAmt = rows.reduce((s, r) => {
-            const n = resolveAmount(r);
-            const v = Number(r.vat_rate ?? defaultVatRate);
-            return s + (n * v) / 100;
-          }, 0);
+          const vatAmt = vatExempt
+            ? 0
+            : rows.reduce((s, r) => {
+                const n = resolveAmount(r);
+                const v = Number(r.vat_rate ?? defaultVatRate);
+                return s + (n * v) / 100;
+              }, 0);
+
           const head = rows[0];
           const stageNames = Array.from(
             new Set(rows.map((r) => (r.stage_id ? stageById.get(r.stage_id)?.name : null)).filter(Boolean)),
@@ -1047,6 +1065,8 @@ export function useLiveQuoteSnapshot(
         paymentInvoices,
         paymentInvoicesTotal,
         defaultVatRate,
+        vatExempt,
+
         ...(() => {
           // Build siteTrips with pre-computed costs. Stage duration comes
           // from the stage date range (working days ≈ (end - start) / 30.44).

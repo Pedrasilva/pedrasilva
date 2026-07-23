@@ -1373,7 +1373,16 @@ export function BlockBody({
       return (
         <div>
           <H>{num}{block.title}</H>
+          {live?.vatExempt && (
+            <p className="mb-2 italic text-sm text-zinc-600">
+              {lang === "en"
+                ? "Project and Client outside of the EU and exempt from VAT."
+                : "Projecto e Cliente fora da UE, isentos de IVA."}
+            </p>
+          )}
+
           {live?.paymentInvoices?.length ? (
+
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
@@ -1782,7 +1791,15 @@ export function BlockBody({
               <P>{defaultIntro}</P>
             )}
           </div>
+          {live?.vatExempt && (
+            <p className="mb-3 italic text-sm text-zinc-600">
+              {lang === "en"
+                ? "Project and Client outside of the EU and exempt from VAT."
+                : "Projecto e Cliente fora da UE, isentos de IVA."}
+            </p>
+          )}
           {live?.paymentInvoices?.length ? (
+
             <table className="proposal-print-table w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b border-zinc-300 text-left text-xs tracking-wide text-zinc-500">
