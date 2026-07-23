@@ -932,7 +932,10 @@
 @media screen {
   .proposal-print-block-gantt-landscape {
     width: min(1120px, calc(100vw - 80px));
+    min-width: min(1120px, calc(100vw - 80px));
     max-width: none;
+    flex: none;
+    align-self: flex-start;
   }
   .proposal-appendix-landscape .proposal-gantt-rotate-outer {
     display: none !important;
