@@ -927,6 +927,14 @@
   }
 }
 
+/* On-screen: the rotated Gantt copy is print-only. Hide it in the preview
+   so only the horizontal .proposal-gantt-screen version renders. */
+@media screen {
+  .proposal-appendix-landscape .proposal-gantt-rotate-outer {
+    display: none !important;
+  }
+}
+
 /* ─── PRINT (PDF) ───────────────────────────────────────────────── */
 
 @media print {
@@ -1012,6 +1020,11 @@
     width: 100% !important;
     height: 100% !important;
     transform: none !important;
+  }
+  /* Print: hide the on-screen horizontal preview; only the rotated/print
+     chart should appear on paper. */
+  .print-area .proposal-appendix-landscape .proposal-gantt-screen {
+    display: none !important;
   }
   .print-area .proposal-print-heading {
     page-break-after: avoid;
