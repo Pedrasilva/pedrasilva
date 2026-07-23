@@ -102,6 +102,15 @@ function SortableRow({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.7 : 1,
+    ...(block.block_type === "appendix_gantt"
+      ? {
+          width: "min(1120px, calc(100vw - 80px))",
+          minWidth: "min(1120px, calc(100vw - 80px))",
+          maxWidth: "none",
+          flex: "none",
+          alignSelf: "flex-start",
+        }
+      : {}),
   };
 
   const pageBreakBefore = Boolean(
