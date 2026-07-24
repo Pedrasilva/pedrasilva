@@ -130,7 +130,11 @@ function syncSmartScreenBreaks(
   const containerTop = container.getBoundingClientRect().top;
   for (const node of nodes) {
     if (!node.classList.contains("proposal-smart-break-screen")) continue;
-    const naturalTop = (node.getBoundingClientRect().top - containerTop) / previewScale;
+    const currentSpace = Number.parseFloat(
+      node.style.getPropertyValue("--proposal-smart-break-space"),
+    ) || 0;
+    const naturalTop =
+      (node.getBoundingClientRect().top - containerTop) / previewScale - currentSpace;
     const targetPage = Math.max(1, Math.ceil((naturalTop - marginTop) / pageH));
     const targetTop = targetPage * pageH + marginTop;
     const space = Math.max(0, targetTop - naturalTop);
@@ -205,13 +209,18 @@ export function useSmartPagination(
         const nRect = node.getBoundingClientRect();
         const topRel = (nRect.top - containerTop) / previewScale;
         const bottomRel = (nRect.bottom - containerTop) / previewScale;
+        const smartSpace = Number.parseFloat(
+          node.style.getPropertyValue("--proposal-smart-break-space"),
+        ) || 0;
+        const naturalTopRel = topRel - smartSpace;
+        const naturalBottomRel = bottomRel - smartSpace;
         const id = node.dataset.proposalBlockId ?? "";
 
         // Which page does the block START on?
         // Content on page N spans [marginTop + N*pageH, pageH*(N+1) - marginBottom].
         const startPage = Math.max(
           0,
-          Math.floor((topRel - marginTop) / pageH),
+          Math.floor((naturalTopRel - marginTop) / pageH),
         );
         const pageBottomAbs = (startPage + 1) * pageH - contentBottomOffset;
 
@@ -236,12 +245,12 @@ export function useSmartPagination(
         // If the block starts near the bottom of its page and is tall enough
         // to break badly, suggest a forced break before it. We can't actually
         // move it here; we return a hint the canvas maps to CSS.
-        const roomLeftPx = pageBottomAbs - topRel;
+        const roomLeftPx = pageBottomAbs - naturalTopRel;
         const roomLeftMm = roomLeftPx / mmToPx;
         const blockHeightMm = nRect.height / previewScale / mmToPx;
         const endPage = Math.max(
           startPage,
-          Math.floor((bottomRel - marginTop) / pageH),
+          Math.floor((naturalBottomRel - marginTop) / pageH),
         );
         const computedBreakInside = getComputedStyle(node).breakInside;
         const avoidsBreak =
