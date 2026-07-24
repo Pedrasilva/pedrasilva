@@ -258,8 +258,28 @@ export function useSmartPagination(
           node.matches(
             ".proposal-avoid-break, .proposal-print-block-gantt-landscape, [data-page-aligned='true']",
           );
+        // Print keeps a heading with the content immediately after it. When a
+        // proposal block begins late enough that this opening unit crosses the
+        // page edge, Chromium moves the heading (and therefore the block's
+        // visible start) to the next page. Mirror that specific fragmentation
+        // rule instead of leaving the editor divider between title and body.
+        const firstHeading = node.querySelector<HTMLElement>("h1, h2, h3, h4, h5, h6");
+        const headingRect = firstHeading?.getBoundingClientRect();
+        const headingTopRel = headingRect
+          ? (headingRect.top - containerTop) / previewScale - smartSpace
+          : null;
+        const headingPage = headingTopRel == null
+          ? startPage
+          : Math.max(0, Math.floor((headingTopRel - marginTop) / pageH));
+        const headingPageBottom = (headingPage + 1) * pageH - contentBottomOffset;
+        const headingRoomMm = headingTopRel == null
+          ? Number.POSITIVE_INFINITY
+          : (headingPageBottom - headingTopRel) / mmToPx;
+        const openingUnitNeedsNextPage =
+          endPage > startPage && headingPage === startPage && headingRoomMm < 65;
         if (
           (avoidsBreak && endPage > startPage) ||
+          openingUnitNeedsNextPage ||
           (roomLeftMm > 0 &&
             roomLeftMm < FORCE_BREAK_ROOM_MM &&
             blockHeightMm >= FORCE_BREAK_BLOCK_MIN_MM)
