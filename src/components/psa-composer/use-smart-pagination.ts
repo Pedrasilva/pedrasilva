@@ -268,15 +268,17 @@ export function useSmartPagination(
         const headingTopRel = headingRect
           ? (headingRect.top - containerTop) / previewScale - smartSpace
           : null;
-        const headingPage = headingTopRel == null
-          ? startPage
-          : Math.max(0, Math.floor((headingTopRel - marginTop) / pageH));
-        const headingPageBottom = (headingPage + 1) * pageH - contentBottomOffset;
-        const headingRoomMm = headingTopRel == null
+        const headingPhysicalPage = headingTopRel == null
+          ? Math.max(0, Math.floor(naturalTopRel / pageH))
+          : Math.max(0, Math.floor(headingTopRel / pageH));
+        const headingPhysicalPageBottom = (headingPhysicalPage + 1) * pageH;
+        const headingRoomToDividerMm = headingTopRel == null
           ? Number.POSITIVE_INFINITY
-          : (headingPageBottom - headingTopRel) / mmToPx;
+          : (headingPhysicalPageBottom - headingTopRel) / mmToPx;
         const openingUnitNeedsNextPage =
-          endPage > startPage && headingPage === startPage && headingRoomMm < 65;
+          naturalBottomRel > headingPhysicalPageBottom &&
+          headingRoomToDividerMm > 0 &&
+          headingRoomToDividerMm < 65;
         if (
           (avoidsBreak && endPage > startPage) ||
           openingUnitNeedsNextPage ||
