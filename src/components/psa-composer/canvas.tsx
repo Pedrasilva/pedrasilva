@@ -128,8 +128,13 @@ function SortableRow({
     block.block_type === "appendix_gantt" ||
     block.block_type === "appendix_general_terms";
   const isPrintable = block.is_visible && contentEnabled;
-  const pageAlignY = (block.content_rich as { pageAlignY?: string } | undefined)?.pageAlignY;
-  const pageAlignX = (block.content_rich as { pageAlignX?: string } | undefined)?.pageAlignX;
+  // The index (TOC) block should never stretch to fill a page — its height
+  // must follow its content so no whitespace sits below the last entry.
+  const isIndexBlock = block.block_type === "index";
+  const rawPageAlignY = (block.content_rich as { pageAlignY?: string } | undefined)?.pageAlignY;
+  const rawPageAlignX = (block.content_rich as { pageAlignX?: string } | undefined)?.pageAlignX;
+  const pageAlignY = isIndexBlock ? undefined : rawPageAlignY;
+  const pageAlignX = isIndexBlock ? undefined : rawPageAlignX;
   const pageAligned =
     (pageAlignY && pageAlignY !== "none") || (pageAlignX && pageAlignX !== "none");
 
@@ -160,6 +165,7 @@ function SortableRow({
           isPrintable &&
           "proposal-page-break-before",
         block.block_type === "cover" && isPrintable && "proposal-page-break-after",
+        isIndexBlock && isPrintable && "proposal-page-break-after",
         forceBreakBefore && isPrintable && "proposal-smart-break-screen",
       )}
     >
