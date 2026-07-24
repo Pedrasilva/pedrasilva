@@ -317,7 +317,26 @@ export function ComposerCanvas({
     () => blocks.map((b) => `${b.id}:${b.is_visible ? 1 : 0}`).join("|"),
     [blocks],
   );
-  const { gaps, forcedBreaks } = useSmartPagination(docRef, paginationKey);
+  const { gaps, forcedBreaks, mmToPx } = useSmartPagination(docRef, paginationKey);
+  // Compute page-boundary labels from measured mmToPx and the container height.
+  const [docHeight, setDocHeight] = useState(0);
+  useEffect(() => {
+    const el = docRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setDocHeight(el.scrollHeight));
+    ro.observe(el);
+    setDocHeight(el.scrollHeight);
+    return () => ro.disconnect();
+  }, [paginationKey]);
+  const pageBoundaries = useMemo(() => {
+    if (!mmToPx || mmToPx < 0.1 || docHeight < 100) return [] as { page: number; top: number }[];
+    const pageHpx = 297 * mmToPx;
+    const count = Math.max(1, Math.ceil(docHeight / pageHpx));
+    const out: { page: number; top: number }[] = [];
+    for (let i = 1; i < count; i++) out.push({ page: i + 1, top: i * pageHpx });
+    return out;
+  }, [mmToPx, docHeight]);
+
   const addLibraryBlock = useAddLibraryBlock(proposalId);
 
   const insertImagePlaceholder = (afterBlockId: string, size: ImageSizeBucket) => {
