@@ -949,6 +949,7 @@
   .proposal-print-document .proposal-page-break-before {
     break-before: page;
     page-break-before: always;
+    margin-top: var(--proposal-screen-break-before-space, 0px);
   }
   .proposal-print-document .proposal-page-break-after {
     break-after: page;

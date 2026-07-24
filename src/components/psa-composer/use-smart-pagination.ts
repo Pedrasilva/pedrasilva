@@ -92,12 +92,24 @@ function syncExplicitScreenBreaks(
     container.querySelectorAll<HTMLElement>("[data-proposal-block-id]"),
   ).filter((node) => node.offsetParent !== null);
 
-  for (const node of nodes) node.style.removeProperty("--proposal-screen-break-space");
+  for (const node of nodes) {
+    node.style.removeProperty("--proposal-screen-break-space");
+    node.style.removeProperty("--proposal-screen-break-before-space");
+  }
 
   const containerTop = container.getBoundingClientRect().top;
   for (let index = 0; index < nodes.length; index += 1) {
     const node = nodes[index];
     const next = nodes[index + 1];
+    if (node.classList.contains("proposal-page-break-before")) {
+      const naturalTop = (node.getBoundingClientRect().top - containerTop) / previewScale;
+      const targetPage = Math.max(1, Math.ceil(naturalTop / pageH));
+      const targetTop = targetPage * pageH + marginTop;
+      const space = Math.max(0, targetTop - naturalTop);
+      if (space > 0.5) {
+        node.style.setProperty("--proposal-screen-break-before-space", `${space}px`);
+      }
+    }
     if (!next || !node.classList.contains("proposal-page-break-after")) continue;
 
     const nextTop = (next.getBoundingClientRect().top - containerTop) / previewScale;
