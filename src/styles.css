@@ -953,6 +953,7 @@
   .proposal-print-document .proposal-page-break-after {
     break-after: page;
     page-break-after: always;
+    padding-bottom: var(--proposal-screen-break-space, 0px);
   }
   /* Editor metadata is useful, but must not consume document flow space: the
      PDF hides it, so keeping it in-flow made every later page marker drift. */
