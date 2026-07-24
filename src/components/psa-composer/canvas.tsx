@@ -318,7 +318,8 @@ export function ComposerCanvas({
     [blocks],
   );
   const { gaps, forcedBreaks, mmToPx } = useSmartPagination(docRef, paginationKey);
-  // Compute page-boundary labels from measured mmToPx and the container height.
+  // Compute page starts from the same physical A4 height used by print. Showing
+  // page 1 as well makes the full sheet geometry explicit in the editor.
   const [docHeight, setDocHeight] = useState(0);
   useEffect(() => {
     const el = docRef.current;
@@ -328,12 +329,12 @@ export function ComposerCanvas({
     setDocHeight(el.scrollHeight);
     return () => ro.disconnect();
   }, [paginationKey]);
-  const pageBoundaries = useMemo(() => {
+  const pageMarkers = useMemo(() => {
     if (!mmToPx || mmToPx < 0.1 || docHeight < 100) return [] as { page: number; top: number }[];
     const pageHpx = 297 * mmToPx;
     const count = Math.max(1, Math.ceil(docHeight / pageHpx));
     const out: { page: number; top: number }[] = [];
-    for (let i = 1; i < count; i++) out.push({ page: i + 1, top: i * pageHpx });
+    for (let i = 0; i < count; i++) out.push({ page: i + 1, top: i * pageHpx });
     return out;
   }, [mmToPx, docHeight]);
 
@@ -410,7 +411,7 @@ export function ComposerCanvas({
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
-            <div className="space-y-3 pl-6 print:space-y-0 print:pl-0">
+            <div>
               {blocks.map((b, i) => (
                 <SortableRow
                   key={b.id}
@@ -438,19 +439,22 @@ export function ComposerCanvas({
           </SortableContext>
         </DndContext>
 
-        {/* Page-boundary lines — screen-only markers at each A4 boundary so
-            the user can immediately see where content breaks between pages. */}
+        {/* Page-start lines — screen-only markers at every A4 sheet, including
+            page 1, using the exact physical height used by the print CSS. */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 print:hidden"
         >
-          {pageBoundaries.map((pb) => (
+          {pageMarkers.map((pb) => (
             <div
               key={pb.page}
-              className="absolute left-0 right-0 border-t border-dashed border-sky-300/70"
+              className={cn(
+                "absolute left-0 right-0",
+                pb.page > 1 && "border-t border-dashed border-sky-300/70",
+              )}
               style={{ top: pb.top }}
             >
-              <span className="absolute -top-2 right-2 rounded bg-sky-100 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-sky-700">
+              <span className="absolute right-2 top-1 rounded bg-sky-100 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-sky-700">
                 Página {pb.page}
               </span>
             </div>

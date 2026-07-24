@@ -510,8 +510,8 @@
    get pushed to a new page leaving large white gaps. */
 .proposal-print-document .proposal-print-block li,
 .proposal-print-document .proposal-print-block p {
-  page-break-inside: avoid;
-  break-inside: avoid;
+  orphans: 2;
+  widows: 2;
 }
 
 /* Every heading in the proposal — regardless of block, tag level, or
@@ -893,8 +893,11 @@
 @media screen {
   .proposal-print-document {
     position: relative;
-    width: 100%;
-    max-width: 1200px;
+    /* Keep the editing sheet at the same physical width as the printed A4.
+       A wider responsive sheet wraps paragraphs differently and makes page
+       markers land in places that cannot match the exported PDF. */
+    width: var(--psa-page-w);
+    max-width: 100%;
     min-height: var(--psa-page-h);
     margin: 24px auto;
     padding: var(--psa-margin-top) var(--psa-margin-right) var(--psa-margin-bottom) var(--psa-margin-left);
@@ -950,6 +953,14 @@
   .proposal-print-document .proposal-page-break-after {
     break-after: page;
     page-break-after: always;
+  }
+  /* Editor metadata is useful, but must not consume document flow space: the
+     PDF hides it, so keeping it in-flow made every later page marker drift. */
+  .proposal-print-document .proposal-print-block > .mb-2.print\:hidden {
+    position: absolute;
+    top: -1rem;
+    left: 0;
+    margin: 0;
   }
 }
 
@@ -1035,7 +1046,12 @@
      Only keep short atomic units together (individual paragraphs/list items
      and explicit avoid-break wrappers). Blocks themselves are allowed to
      split so a long block doesn't push a mostly-empty page. */
-  .print-area .proposal-print-document p,
+  .print-area .proposal-print-document p {
+    page-break-inside: auto;
+    break-inside: auto;
+    orphans: 2;
+    widows: 2;
+  }
   .print-area .proposal-print-document li {
     page-break-inside: avoid;
     break-inside: avoid;
