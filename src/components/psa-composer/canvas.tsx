@@ -161,7 +161,7 @@ function SortableRow({
       data-visible-print={isPrintable ? "true" : "false"}
       onClick={onSelect}
       className={cn(
-        "proposal-print-block group relative mb-4 rounded-md transition print:mb-0 print:rounded-none",
+        "proposal-print-block group relative mb-4 rounded-md transition-colors print:mb-0 print:rounded-none",
         block.block_type === "appendix_gantt" &&
           "proposal-print-block-gantt-landscape",
         // Screen-only chrome: thin selection border, never on print.

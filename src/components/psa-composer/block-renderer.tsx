@@ -400,7 +400,7 @@ export function BlockBody({
 
     case "index":
       return (
-        <div className="proposal-avoid-break">
+        <div>
           <H>{L.index}</H>
           {toc && toc.length ? (
             <ol className="space-y-1 text-sm text-zinc-800 list-none ml-0">

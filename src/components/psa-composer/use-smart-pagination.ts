@@ -82,7 +82,12 @@ function cssLengthInPx(element: HTMLElement, property: string, fallbackMm: numbe
   return value;
 }
 
-function syncExplicitScreenBreaks(container: HTMLElement, pageH: number, marginTop: number) {
+function syncExplicitScreenBreaks(
+  container: HTMLElement,
+  pageH: number,
+  marginTop: number,
+  previewScale: number,
+) {
   const nodes = Array.from(
     container.querySelectorAll<HTMLElement>("[data-proposal-block-id]"),
   ).filter((node) => node.offsetParent !== null);
@@ -95,9 +100,16 @@ function syncExplicitScreenBreaks(container: HTMLElement, pageH: number, marginT
     const next = nodes[index + 1];
     if (!next || !node.classList.contains("proposal-page-break-after")) continue;
 
-    const nextTop = next.getBoundingClientRect().top - containerTop;
-    const currentPage = Math.floor(Math.max(0, nextTop - marginTop) / pageH);
-    const targetTop = (currentPage + 1) * pageH + marginTop;
+    const nextTop = (next.getBoundingClientRect().top - containerTop) / previewScale;
+    /* Snap the following block to the earliest page content start at or after
+       its natural position. Using floor + 1 always skipped an extra page when
+       a full-page block (such as the cover) had already placed the next block
+       at the following boundary. */
+    const targetPage = Math.max(
+      1,
+      Math.ceil(Math.max(0, nextTop - marginTop) / pageH),
+    );
+    const targetTop = targetPage * pageH + marginTop;
     const space = Math.max(0, targetTop - nextTop);
     if (space > 0.5) node.style.setProperty("--proposal-screen-break-space", `${space}px`);
   }
@@ -122,8 +134,14 @@ export function useSmartPagination(
 
     const measure = () => {
       const rect = container.getBoundingClientRect();
-      if (rect.width < 100) return;
-      const mmToPx = rect.width / PAGE_W_MM;
+      if (rect.width < 100 || container.offsetWidth < 100) return;
+      /* The composer shell scales the A4 sheet to fit the viewport. Layout
+         values (absolute marker tops, margins and spacer CSS) remain in
+         unscaled CSS pixels, while getBoundingClientRect() is scaled. Keep
+         all pagination arithmetic in layout pixels to avoid feedback loops
+         and page markers drifting away from print. */
+      const previewScale = rect.width / container.offsetWidth;
+      const mmToPx = container.offsetWidth / PAGE_W_MM;
       const pageH = PAGE_H_MM * mmToPx;
       const marginTop = cssLengthInPx(container, "--psa-margin-top", 34, mmToPx);
       const marginBottom = cssLengthInPx(container, "--psa-margin-bottom", 32, mmToPx);
@@ -132,7 +150,7 @@ export function useSmartPagination(
       // CSS paged-media breaks only take effect in print. Mirror explicit
       // break-after rules with an in-flow screen spacer so editor markers and
       // the exported PDF start subsequent blocks on the same physical page.
-      syncExplicitScreenBreaks(container, pageH, marginTop);
+      syncExplicitScreenBreaks(container, pageH, marginTop, previewScale);
 
       const nodes = Array.from(
         container.querySelectorAll<HTMLElement>("[data-proposal-block-id]"),
@@ -155,8 +173,8 @@ export function useSmartPagination(
         if (node.offsetParent === null) continue;
 
         const nRect = node.getBoundingClientRect();
-        const topRel = nRect.top - containerTop;
-        const bottomRel = nRect.bottom - containerTop;
+        const topRel = (nRect.top - containerTop) / previewScale;
+        const bottomRel = (nRect.bottom - containerTop) / previewScale;
         const id = node.dataset.proposalBlockId ?? "";
 
         // Which page does the block START on?
@@ -190,7 +208,7 @@ export function useSmartPagination(
         // move it here; we return a hint the canvas maps to CSS.
         const roomLeftPx = pageBottomAbs - topRel;
         const roomLeftMm = roomLeftPx / mmToPx;
-        const blockHeightMm = nRect.height / mmToPx;
+        const blockHeightMm = nRect.height / previewScale / mmToPx;
         if (
           roomLeftMm > 0 &&
           roomLeftMm < FORCE_BREAK_ROOM_MM &&
