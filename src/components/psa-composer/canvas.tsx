@@ -324,6 +324,21 @@ export function ComposerCanvas({
     const idx = blocks.findIndex((b) => b.id === afterBlockId);
     if (idx < 0) return;
     const after = blocks[idx];
+    // If the preceding block is forcing a page break after itself, disable it
+    // so the newly inserted image actually fills the visible gap instead of
+    // bouncing to the next page.
+    const priorBreakAfter = (after.content_rich as { pageBreakAfter?: boolean } | undefined)
+      ?.pageBreakAfter;
+    const priorIsIndexDefault =
+      after.block_type === "index" && priorBreakAfter === undefined;
+    if (priorBreakAfter === true || priorIsIndexDefault) {
+      update.mutate({
+        id: after.id,
+        patch: {
+          content_rich: { ...(after.content_rich ?? {}), pageBreakAfter: false },
+        },
+      });
+    }
     const entry: PsaLibraryEntry = {
       id: "image-gap-placeholder",
       kind: "image",
@@ -349,6 +364,7 @@ export function ComposerCanvas({
       },
     );
   };
+
 
   return (
     <div className="print-area">
