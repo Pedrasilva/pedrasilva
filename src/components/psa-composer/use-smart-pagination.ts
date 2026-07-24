@@ -92,12 +92,24 @@ function syncExplicitScreenBreaks(
     container.querySelectorAll<HTMLElement>("[data-proposal-block-id]"),
   ).filter((node) => node.offsetParent !== null);
 
-  for (const node of nodes) node.style.removeProperty("--proposal-screen-break-space");
+  for (const node of nodes) {
+    node.style.removeProperty("--proposal-screen-break-space");
+    node.style.removeProperty("--proposal-screen-break-before-space");
+  }
 
   const containerTop = container.getBoundingClientRect().top;
   for (let index = 0; index < nodes.length; index += 1) {
     const node = nodes[index];
     const next = nodes[index + 1];
+    if (node.classList.contains("proposal-page-break-before")) {
+      const naturalTop = (node.getBoundingClientRect().top - containerTop) / previewScale;
+      const targetPage = Math.max(1, Math.ceil(naturalTop / pageH));
+      const targetTop = targetPage * pageH + marginTop;
+      const space = Math.max(0, targetTop - naturalTop);
+      if (space > 0.5) {
+        node.style.setProperty("--proposal-screen-break-before-space", `${space}px`);
+      }
+    }
     if (!next || !node.classList.contains("proposal-page-break-after")) continue;
 
     const nextTop = (next.getBoundingClientRect().top - containerTop) / previewScale;
@@ -112,6 +124,35 @@ function syncExplicitScreenBreaks(
     const targetTop = targetPage * pageH + marginTop;
     const space = Math.max(0, targetTop - nextTop);
     if (space > 0.5) node.style.setProperty("--proposal-screen-break-space", `${space}px`);
+  }
+}
+
+function syncSmartScreenBreaks(
+  container: HTMLElement,
+  pageH: number,
+  marginTop: number,
+  previewScale: number,
+) {
+  const nodes = Array.from(
+    container.querySelectorAll<HTMLElement>("[data-proposal-block-id]"),
+  ).filter((node) => node.offsetParent !== null);
+
+  for (const node of nodes) node.style.removeProperty("--proposal-smart-break-space");
+
+  const containerTop = container.getBoundingClientRect().top;
+  for (const node of nodes) {
+    if (!node.classList.contains("proposal-smart-break-screen")) continue;
+    const currentSpace = Number.parseFloat(
+      node.style.getPropertyValue("--proposal-smart-break-space"),
+    ) || 0;
+    const naturalTop =
+      (node.getBoundingClientRect().top - containerTop) / previewScale - currentSpace;
+    const targetPage = Math.max(1, Math.ceil((naturalTop - marginTop) / pageH));
+    const targetTop = targetPage * pageH + marginTop;
+    const space = Math.max(0, targetTop - naturalTop);
+    if (space > 0.5) {
+      node.style.setProperty("--proposal-smart-break-space", `${space}px`);
+    }
   }
 }
 
@@ -151,6 +192,11 @@ export function useSmartPagination(
       // break-after rules with an in-flow screen spacer so editor markers and
       // the exported PDF start subsequent blocks on the same physical page.
       syncExplicitScreenBreaks(container, pageH, marginTop, previewScale);
+      // A smart break is a screen-only prediction of the browser moving a
+      // heading/section to the next printed page. The class alone does not
+      // create screen pagination, so add the exact outside spacing required
+      // to start that block at the next page's content area.
+      syncSmartScreenBreaks(container, pageH, marginTop, previewScale);
 
       const nodes = Array.from(
         container.querySelectorAll<HTMLElement>("[data-proposal-block-id]"),
@@ -175,13 +221,18 @@ export function useSmartPagination(
         const nRect = node.getBoundingClientRect();
         const topRel = (nRect.top - containerTop) / previewScale;
         const bottomRel = (nRect.bottom - containerTop) / previewScale;
+        const smartSpace = Number.parseFloat(
+          node.style.getPropertyValue("--proposal-smart-break-space"),
+        ) || 0;
+        const naturalTopRel = topRel - smartSpace;
+        const naturalBottomRel = bottomRel - smartSpace;
         const id = node.dataset.proposalBlockId ?? "";
 
         // Which page does the block START on?
         // Content on page N spans [marginTop + N*pageH, pageH*(N+1) - marginBottom].
         const startPage = Math.max(
           0,
-          Math.floor((topRel - marginTop) / pageH),
+          Math.floor((naturalTopRel - marginTop) / pageH),
         );
         const pageBottomAbs = (startPage + 1) * pageH - contentBottomOffset;
 
@@ -206,13 +257,46 @@ export function useSmartPagination(
         // If the block starts near the bottom of its page and is tall enough
         // to break badly, suggest a forced break before it. We can't actually
         // move it here; we return a hint the canvas maps to CSS.
-        const roomLeftPx = pageBottomAbs - topRel;
+        const roomLeftPx = pageBottomAbs - naturalTopRel;
         const roomLeftMm = roomLeftPx / mmToPx;
         const blockHeightMm = nRect.height / previewScale / mmToPx;
+        const endPage = Math.max(
+          startPage,
+          Math.floor((naturalBottomRel - marginTop) / pageH),
+        );
+        const computedBreakInside = getComputedStyle(node).breakInside;
+        const avoidsBreak =
+          computedBreakInside === "avoid" ||
+          node.matches(
+            ".proposal-avoid-break, .proposal-print-block-gantt-landscape, [data-page-aligned='true']",
+          );
+        // Print keeps a heading with the content immediately after it. When a
+        // proposal block begins late enough that this opening unit crosses the
+        // page edge, Chromium moves the heading (and therefore the block's
+        // visible start) to the next page. Mirror that specific fragmentation
+        // rule instead of leaving the editor divider between title and body.
+        const firstHeading = node.querySelector<HTMLElement>("h1, h2, h3, h4, h5, h6");
+        const headingRect = firstHeading?.getBoundingClientRect();
+        const headingTopRel = headingRect
+          ? (headingRect.top - containerTop) / previewScale - smartSpace
+          : null;
+        const headingPhysicalPage = headingTopRel == null
+          ? Math.max(0, Math.floor(naturalTopRel / pageH))
+          : Math.max(0, Math.floor(headingTopRel / pageH));
+        const headingPhysicalPageBottom = (headingPhysicalPage + 1) * pageH;
+        const headingRoomToDividerMm = headingTopRel == null
+          ? Number.POSITIVE_INFINITY
+          : (headingPhysicalPageBottom - headingTopRel) / mmToPx;
+        const openingUnitNeedsNextPage =
+          naturalBottomRel > headingPhysicalPageBottom &&
+          headingRoomToDividerMm > 0 &&
+          headingRoomToDividerMm < 65;
         if (
-          roomLeftMm > 0 &&
-          roomLeftMm < FORCE_BREAK_ROOM_MM &&
-          blockHeightMm >= FORCE_BREAK_BLOCK_MIN_MM
+          (avoidsBreak && endPage > startPage) ||
+          openingUnitNeedsNextPage ||
+          (roomLeftMm > 0 &&
+            roomLeftMm < FORCE_BREAK_ROOM_MM &&
+            blockHeightMm >= FORCE_BREAK_BLOCK_MIN_MM)
         ) {
           forcedBreaks.add(id);
         }
