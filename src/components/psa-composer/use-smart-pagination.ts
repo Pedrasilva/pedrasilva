@@ -96,8 +96,15 @@ function syncExplicitScreenBreaks(container: HTMLElement, pageH: number, marginT
     if (!next || !node.classList.contains("proposal-page-break-after")) continue;
 
     const nextTop = next.getBoundingClientRect().top - containerTop;
-    const currentPage = Math.floor(Math.max(0, nextTop - marginTop) / pageH);
-    const targetTop = (currentPage + 1) * pageH + marginTop;
+    /* Snap the following block to the earliest page content start at or after
+       its natural position. Using floor + 1 always skipped an extra page when
+       a full-page block (such as the cover) had already placed the next block
+       at the following boundary. */
+    const targetPage = Math.max(
+      1,
+      Math.ceil(Math.max(0, nextTop - marginTop) / pageH),
+    );
+    const targetTop = targetPage * pageH + marginTop;
     const space = Math.max(0, targetTop - nextTop);
     if (space > 0.5) node.style.setProperty("--proposal-screen-break-space", `${space}px`);
   }
