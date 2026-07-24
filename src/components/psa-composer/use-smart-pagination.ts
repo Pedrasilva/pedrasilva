@@ -73,14 +73,13 @@ function bucketForGap(gapMm: number): ImageSizeBucket {
 function cssLengthInPx(element: HTMLElement, property: string, fallbackMm: number, mmToPx: number) {
   const raw = getComputedStyle(element).getPropertyValue(property).trim();
   if (!raw) return fallbackMm * mmToPx;
-  const probe = document.createElement("div");
-  probe.style.position = "absolute";
-  probe.style.visibility = "hidden";
-  probe.style.height = raw;
-  element.appendChild(probe);
-  const pixels = probe.getBoundingClientRect().height;
-  probe.remove();
-  return pixels || fallbackMm * mmToPx;
+  const value = Number.parseFloat(raw);
+  if (!Number.isFinite(value)) return fallbackMm * mmToPx;
+  if (raw.endsWith("mm")) return value * mmToPx;
+  if (raw.endsWith("cm")) return value * 10 * mmToPx;
+  if (raw.endsWith("in")) return value * 25.4 * mmToPx;
+  if (raw.endsWith("pt")) return value * (25.4 / 72) * mmToPx;
+  return value;
 }
 
 function syncExplicitScreenBreaks(container: HTMLElement, pageH: number, marginTop: number) {
