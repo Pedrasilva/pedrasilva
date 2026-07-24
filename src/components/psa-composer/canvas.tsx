@@ -38,6 +38,7 @@ import { RelevanceBadge } from "./relevance-badge";
 import { useLiveQuoteSnapshot, resolveProposalLang, type ProposalLang } from "@/lib/psa-proposal/live-data";
 import { useAddLibraryBlock, useUpdateBlock } from "@/lib/psa-proposal/use-psa-proposal";
 import { useSmartPagination, type ImageSizeBucket } from "./use-smart-pagination";
+import { PaginatedPreview } from "./paginated-preview";
 import psaLogo from "@/assets/logotipo-psa.jpg.asset.json";
 
 // Blocks whose primary content is free rich text — editable inline on canvas.
@@ -75,6 +76,7 @@ function SortableRow({
   onPatchContent,
   siblings,
   forceBreakBefore,
+  isFirstPrintable,
 }: {
   block: PsaProposalBlock;
   chapter: number | null;
@@ -86,6 +88,7 @@ function SortableRow({
   onPatchContent: (patch: Record<string, unknown>) => void;
   siblings: PsaProposalBlock[];
   forceBreakBefore: boolean;
+  isFirstPrintable: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: block.id });
@@ -159,6 +162,7 @@ function SortableRow({
       data-page-align-x={pageAlignX && pageAlignX !== "none" ? pageAlignX : undefined}
       data-smart-break={forceBreakBefore ? "true" : undefined}
       data-visible-print={isPrintable ? "true" : "false"}
+      data-first-printable={isFirstPrintable ? "true" : undefined}
       onClick={onSelect}
       className={cn(
         "proposal-print-block group relative mb-4 rounded-md transition-colors print:mb-0 print:rounded-none",
@@ -224,6 +228,7 @@ export function ComposerCanvas({
   quoteIdHint,
   styleSettings,
   language,
+  previewMode = false,
 }: {
   proposalId: string;
   blocks: PsaProposalBlock[];
@@ -233,6 +238,7 @@ export function ComposerCanvas({
   quoteIdHint: string | null;
   styleSettings?: import("@/lib/psa-proposal/types").PsaProposalStyleSettings;
   language?: string | null;
+  previewMode?: boolean;
 }) {
   const lang = resolveProposalLang(language);
   const update = useUpdateBlock(proposalId);
@@ -280,6 +286,16 @@ export function ComposerCanvas({
     }
     return { chapterByIndex: idx, toc: t };
   }, [blocks, liveForToc]);
+
+  const firstPrintableId = useMemo(
+    () =>
+      blocks.find(
+        (block) =>
+          block.is_visible &&
+          (block.content_rich as { enabled?: boolean } | undefined)?.enabled !== false,
+      )?.id ?? null,
+    [blocks],
+  );
 
 
   function handleDragEnd(e: DragEndEvent) {
@@ -388,7 +404,11 @@ export function ComposerCanvas({
 
   return (
     <div className="print-area">
-      <div ref={docRef} className="proposal-print-document" style={styleVars}>
+      <div
+        ref={docRef}
+        className={cn("proposal-print-document", previewMode && "proposal-preview-source")}
+        style={styleVars}
+      >
         {/* PSA running header — fixed in print so it repeats per page.
             Content is editable via the Style panel. */}
         {showHeader && (
@@ -432,6 +452,7 @@ export function ComposerCanvas({
                   }
                   siblings={blocks}
                   forceBreakBefore={forcedBreaks.has(b.id)}
+                  isFirstPrintable={b.id === firstPrintableId}
                 />
               ))}
 
@@ -509,6 +530,12 @@ export function ComposerCanvas({
           </div>
         )}
       </div>
+      {previewMode && (
+        <PaginatedPreview
+          source={docRef.current}
+          invalidateKey={`${paginationKey}:${docHeight}:${JSON.stringify(styleSettings ?? {})}`}
+        />
+      )}
     </div>
   );
 }
