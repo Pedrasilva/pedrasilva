@@ -120,6 +120,17 @@ function SortableRow({
   const pageBreakBefore = Boolean(
     (block.content_rich as { pageBreakBefore?: boolean } | undefined)?.pageBreakBefore,
   );
+  // Index block defaults to page-break-after=true (preserves existing behaviour)
+  // but the user can now turn it off so the next block flows on the same page.
+  const rawPageBreakAfter = (block.content_rich as { pageBreakAfter?: boolean } | undefined)
+    ?.pageBreakAfter;
+  const isIndexBlock = block.block_type === "index";
+  const pageBreakAfter =
+    rawPageBreakAfter !== undefined
+      ? Boolean(rawPageBreakAfter)
+      : isIndexBlock
+        ? true
+        : false;
   const contentEnabled =
     (block.content_rich as { enabled?: boolean } | undefined)?.enabled !== false;
   const isAppendix =
@@ -130,7 +141,6 @@ function SortableRow({
   const isPrintable = block.is_visible && contentEnabled;
   // The index (TOC) block should never stretch to fill a page — its height
   // must follow its content so no whitespace sits below the last entry.
-  const isIndexBlock = block.block_type === "index";
   const rawPageAlignY = (block.content_rich as { pageAlignY?: string } | undefined)?.pageAlignY;
   const rawPageAlignX = (block.content_rich as { pageAlignX?: string } | undefined)?.pageAlignX;
   const pageAlignY = isIndexBlock ? undefined : rawPageAlignY;
@@ -165,10 +175,12 @@ function SortableRow({
           isPrintable &&
           "proposal-page-break-before",
         block.block_type === "cover" && isPrintable && "proposal-page-break-after",
-        isIndexBlock && isPrintable && "proposal-page-break-after",
+        isIndexBlock && isPrintable && pageBreakAfter && "proposal-page-break-after",
+        !isIndexBlock && pageBreakAfter && isPrintable && "proposal-page-break-after",
         forceBreakBefore && isPrintable && "proposal-smart-break-screen",
       )}
     >
+
       <div className="absolute -left-6 top-1 flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 print:hidden">
         <button
           type="button"
