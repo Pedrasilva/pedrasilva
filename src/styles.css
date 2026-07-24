@@ -958,6 +958,12 @@
        while the PDF break never changes the block's own height. */
     margin-bottom: calc(1.5rem + var(--proposal-screen-break-space, 0px));
   }
+  /* Keep the editor's physical page flow aligned with print when smart
+     pagination predicts that the browser will move a section heading to the
+     next page. Margin keeps the selection outline fitted to actual content. */
+  .proposal-print-document .proposal-smart-break-screen {
+    margin-top: var(--proposal-smart-break-space, 0px);
+  }
   /* Editor metadata is useful, but must not consume document flow space: the
      PDF hides it, so keeping it in-flow made every later page marker drift. */
   .proposal-print-document .proposal-print-block > .mb-2.print\:hidden {
@@ -1379,8 +1385,7 @@
     width: auto !important;
   }
 
-  .proposal-paginated-preview .proposal-print-document::before,
-  .proposal-paginated-preview .proposal-print-document [data-smart-break="true"] {
+  .proposal-paginated-preview .proposal-print-document::before {
     display: none !important;
   }
 }

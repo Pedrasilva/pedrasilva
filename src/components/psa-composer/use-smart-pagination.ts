@@ -115,6 +115,31 @@ function syncExplicitScreenBreaks(
   }
 }
 
+function syncSmartScreenBreaks(
+  container: HTMLElement,
+  pageH: number,
+  marginTop: number,
+  previewScale: number,
+) {
+  const nodes = Array.from(
+    container.querySelectorAll<HTMLElement>("[data-proposal-block-id]"),
+  ).filter((node) => node.offsetParent !== null);
+
+  for (const node of nodes) node.style.removeProperty("--proposal-smart-break-space");
+
+  const containerTop = container.getBoundingClientRect().top;
+  for (const node of nodes) {
+    if (!node.classList.contains("proposal-smart-break-screen")) continue;
+    const naturalTop = (node.getBoundingClientRect().top - containerTop) / previewScale;
+    const targetPage = Math.max(1, Math.ceil((naturalTop - marginTop) / pageH));
+    const targetTop = targetPage * pageH + marginTop;
+    const space = Math.max(0, targetTop - naturalTop);
+    if (space > 0.5) {
+      node.style.setProperty("--proposal-smart-break-space", `${space}px`);
+    }
+  }
+}
+
 export function useSmartPagination(
   containerRef: RefObject<HTMLElement | null>,
   /** Bumped by the caller when block list identity changes. */
@@ -151,6 +176,11 @@ export function useSmartPagination(
       // break-after rules with an in-flow screen spacer so editor markers and
       // the exported PDF start subsequent blocks on the same physical page.
       syncExplicitScreenBreaks(container, pageH, marginTop, previewScale);
+      // A smart break is a screen-only prediction of the browser moving a
+      // heading/section to the next printed page. The class alone does not
+      // create screen pagination, so add the exact outside spacing required
+      // to start that block at the next page's content area.
+      syncSmartScreenBreaks(container, pageH, marginTop, previewScale);
 
       const nodes = Array.from(
         container.querySelectorAll<HTMLElement>("[data-proposal-block-id]"),
@@ -209,10 +239,21 @@ export function useSmartPagination(
         const roomLeftPx = pageBottomAbs - topRel;
         const roomLeftMm = roomLeftPx / mmToPx;
         const blockHeightMm = nRect.height / previewScale / mmToPx;
+        const endPage = Math.max(
+          startPage,
+          Math.floor((bottomRel - marginTop) / pageH),
+        );
+        const computedBreakInside = getComputedStyle(node).breakInside;
+        const avoidsBreak =
+          computedBreakInside === "avoid" ||
+          node.matches(
+            ".proposal-avoid-break, .proposal-print-block-gantt-landscape, [data-page-aligned='true']",
+          );
         if (
-          roomLeftMm > 0 &&
-          roomLeftMm < FORCE_BREAK_ROOM_MM &&
-          blockHeightMm >= FORCE_BREAK_BLOCK_MIN_MM
+          (avoidsBreak && endPage > startPage) ||
+          (roomLeftMm > 0 &&
+            roomLeftMm < FORCE_BREAK_ROOM_MM &&
+            blockHeightMm >= FORCE_BREAK_BLOCK_MIN_MM)
         ) {
           forcedBreaks.add(id);
         }

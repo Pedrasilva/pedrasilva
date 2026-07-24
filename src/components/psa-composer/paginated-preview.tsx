@@ -51,6 +51,11 @@ export function PaginatedPreview({
       clone.querySelectorAll<HTMLElement>("[style*='--proposal-screen-break-space']").forEach((node) => {
         node.style.removeProperty("--proposal-screen-break-space");
       });
+      clone.querySelectorAll<HTMLElement>("[data-smart-break='true']").forEach((node) => {
+        node.style.removeProperty("--proposal-smart-break-space");
+        node.classList.remove("proposal-smart-break-screen");
+        node.removeAttribute("data-smart-break");
+      });
       const firstPrintable = clone.querySelector<HTMLElement>(
         '.proposal-print-block[data-first-printable="true"]',
       );
