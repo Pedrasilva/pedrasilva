@@ -438,6 +438,25 @@ export function ComposerCanvas({
           </SortableContext>
         </DndContext>
 
+        {/* Page-boundary lines — screen-only markers at each A4 boundary so
+            the user can immediately see where content breaks between pages. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 print:hidden"
+        >
+          {pageBoundaries.map((pb) => (
+            <div
+              key={pb.page}
+              className="absolute left-0 right-0 border-t border-dashed border-sky-300/70"
+              style={{ top: pb.top }}
+            >
+              <span className="absolute -top-2 right-2 rounded bg-sky-100 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-sky-700">
+                Página {pb.page}
+              </span>
+            </div>
+          ))}
+        </div>
+
         {/* Smart-pagination overlays — dashed placeholders sitting inside the
             gap at the bottom of a page. Screen only; the PDF export keeps the
             natural page break in that spot. */}
@@ -456,18 +475,19 @@ export function ComposerCanvas({
               }}
               className="pointer-events-auto absolute left-[14mm] right-[14mm] flex flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-amber-400/70 bg-amber-50/40 text-amber-800 transition hover:border-amber-500 hover:bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               style={{ top: g.top + 4, height: Math.max(24, g.height - 8) }}
-              title={`Sugerido: imagem ${g.size} de página · gap ~${g.gapMm}mm`}
+              title={`Sugerido: imagem ${g.size} de página · espaço livre ~${g.gapMm}mm`}
             >
               <ImagePlus className="h-5 w-5" />
-              <span className="text-[11px] font-medium uppercase tracking-wider">
-                Adicionar imagem · {g.size} de página
+              <span className="text-[11px] font-semibold uppercase tracking-wider">
+                Espaço livre · {g.gapMm} mm
               </span>
-              <span className="text-[10px] opacity-70">
-                Gap ~{g.gapMm}mm — clique para inserir da biblioteca
+              <span className="text-[10px] opacity-80">
+                Sugestão: imagem {g.size} de página — clique para inserir
               </span>
             </button>
           ))}
         </div>
+
 
 
 
