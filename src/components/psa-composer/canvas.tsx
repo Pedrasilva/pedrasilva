@@ -165,6 +165,7 @@ function SortableRow({
           isPrintable &&
           "proposal-page-break-before",
         block.block_type === "cover" && isPrintable && "proposal-page-break-after",
+        isIndexBlock && isPrintable && "proposal-page-break-after",
         forceBreakBefore && isPrintable && "proposal-smart-break-screen",
       )}
     >
