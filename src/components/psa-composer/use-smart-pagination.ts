@@ -47,9 +47,6 @@ export interface SmartPaginationResult {
 
 const PAGE_H_MM = 297;
 const PAGE_W_MM = 210;
-/** Margins that match the CSS document defaults. Kept in sync deliberately. */
-const MARGIN_TOP_MM = 34;
-const MARGIN_BOTTOM_MM = 32;
 /** Minimum empty band at the end of a page to warrant a placeholder. */
 const MIN_GAP_MM = 25;
 /** Minimum room a block needs at start-of-page before we suggest a break. */
@@ -71,6 +68,40 @@ function bucketForGap(gapMm: number): ImageSizeBucket {
   if (usable >= BUCKET_MM["1/2"]) return "1/2";
   if (usable >= BUCKET_MM["1/3"]) return "1/3";
   return "1/4";
+}
+
+function cssLengthInPx(element: HTMLElement, property: string, fallbackMm: number, mmToPx: number) {
+  const raw = getComputedStyle(element).getPropertyValue(property).trim();
+  if (!raw) return fallbackMm * mmToPx;
+  const probe = document.createElement("div");
+  probe.style.position = "absolute";
+  probe.style.visibility = "hidden";
+  probe.style.height = raw;
+  element.appendChild(probe);
+  const pixels = probe.getBoundingClientRect().height;
+  probe.remove();
+  return pixels || fallbackMm * mmToPx;
+}
+
+function syncExplicitScreenBreaks(container: HTMLElement, pageH: number, marginTop: number) {
+  const nodes = Array.from(
+    container.querySelectorAll<HTMLElement>("[data-proposal-block-id]"),
+  ).filter((node) => node.offsetParent !== null);
+
+  for (const node of nodes) node.style.removeProperty("--proposal-screen-break-space");
+
+  const containerTop = container.getBoundingClientRect().top;
+  for (let index = 0; index < nodes.length; index += 1) {
+    const node = nodes[index];
+    const next = nodes[index + 1];
+    if (!next || !node.classList.contains("proposal-page-break-after")) continue;
+
+    const nextTop = next.getBoundingClientRect().top - containerTop;
+    const currentPage = Math.floor(Math.max(0, nextTop - marginTop) / pageH);
+    const targetTop = (currentPage + 1) * pageH + marginTop;
+    const space = Math.max(0, targetTop - nextTop);
+    if (space > 0.5) node.style.setProperty("--proposal-screen-break-space", `${space}px`);
+  }
 }
 
 export function useSmartPagination(
@@ -95,9 +126,14 @@ export function useSmartPagination(
       if (rect.width < 100) return;
       const mmToPx = rect.width / PAGE_W_MM;
       const pageH = PAGE_H_MM * mmToPx;
-      const marginTop = MARGIN_TOP_MM * mmToPx;
-      const marginBottom = MARGIN_BOTTOM_MM * mmToPx;
+      const marginTop = cssLengthInPx(container, "--psa-margin-top", 34, mmToPx);
+      const marginBottom = cssLengthInPx(container, "--psa-margin-bottom", 32, mmToPx);
       const contentBottomOffset = marginBottom;
+
+      // CSS paged-media breaks only take effect in print. Mirror explicit
+      // break-after rules with an in-flow screen spacer so editor markers and
+      // the exported PDF start subsequent blocks on the same physical page.
+      syncExplicitScreenBreaks(container, pageH, marginTop);
 
       const nodes = Array.from(
         container.querySelectorAll<HTMLElement>("[data-proposal-block-id]"),
