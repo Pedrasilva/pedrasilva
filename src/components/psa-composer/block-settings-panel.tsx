@@ -1002,6 +1002,29 @@ export function BlockSettingsPanel({
           }
         />
       </div>
+      <div className="flex items-center justify-between rounded-md border bg-background p-2">
+        <div className="flex flex-col">
+          <Label className="text-xs">Quebra de página depois</Label>
+          <span className="text-[10px] text-zinc-500">
+            Desligar permite ao próximo bloco (ex.: imagem) preencher o espaço livre nesta página.
+          </span>
+        </div>
+        <Switch
+          checked={
+            ((block.content_rich as { pageBreakAfter?: boolean } | undefined)?.pageBreakAfter) ??
+            (block.block_type === "index")
+          }
+          onCheckedChange={(v) =>
+            update.mutate({
+              id: block.id,
+              patch: {
+                content_rich: { ...(block.content_rich ?? {}), pageBreakAfter: v },
+              },
+            })
+          }
+        />
+      </div>
+
 
       <div className="space-y-2 rounded-md border bg-background p-2">
         <Label className="text-xs font-semibold">Alinhar na página</Label>

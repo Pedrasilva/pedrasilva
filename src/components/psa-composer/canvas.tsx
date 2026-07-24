@@ -11,7 +11,7 @@
  * Chapter numbers are computed from block order, skipping cover/index/
  * acceptance/page_break.
  */
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -120,6 +120,17 @@ function SortableRow({
   const pageBreakBefore = Boolean(
     (block.content_rich as { pageBreakBefore?: boolean } | undefined)?.pageBreakBefore,
   );
+  // Index block defaults to page-break-after=true (preserves existing behaviour)
+  // but the user can now turn it off so the next block flows on the same page.
+  const rawPageBreakAfter = (block.content_rich as { pageBreakAfter?: boolean } | undefined)
+    ?.pageBreakAfter;
+  const isIndexBlock = block.block_type === "index";
+  const pageBreakAfter =
+    rawPageBreakAfter !== undefined
+      ? Boolean(rawPageBreakAfter)
+      : isIndexBlock
+        ? true
+        : false;
   const contentEnabled =
     (block.content_rich as { enabled?: boolean } | undefined)?.enabled !== false;
   const isAppendix =
@@ -130,7 +141,6 @@ function SortableRow({
   const isPrintable = block.is_visible && contentEnabled;
   // The index (TOC) block should never stretch to fill a page — its height
   // must follow its content so no whitespace sits below the last entry.
-  const isIndexBlock = block.block_type === "index";
   const rawPageAlignY = (block.content_rich as { pageAlignY?: string } | undefined)?.pageAlignY;
   const rawPageAlignX = (block.content_rich as { pageAlignX?: string } | undefined)?.pageAlignX;
   const pageAlignY = isIndexBlock ? undefined : rawPageAlignY;
@@ -165,10 +175,12 @@ function SortableRow({
           isPrintable &&
           "proposal-page-break-before",
         block.block_type === "cover" && isPrintable && "proposal-page-break-after",
-        isIndexBlock && isPrintable && "proposal-page-break-after",
+        isIndexBlock && isPrintable && pageBreakAfter && "proposal-page-break-after",
+        !isIndexBlock && pageBreakAfter && isPrintable && "proposal-page-break-after",
         forceBreakBefore && isPrintable && "proposal-smart-break-screen",
       )}
     >
+
       <div className="absolute -left-6 top-1 flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 print:hidden">
         <button
           type="button"
@@ -305,13 +317,47 @@ export function ComposerCanvas({
     () => blocks.map((b) => `${b.id}:${b.is_visible ? 1 : 0}`).join("|"),
     [blocks],
   );
-  const { gaps, forcedBreaks } = useSmartPagination(docRef, paginationKey);
+  const { gaps, forcedBreaks, mmToPx } = useSmartPagination(docRef, paginationKey);
+  // Compute page-boundary labels from measured mmToPx and the container height.
+  const [docHeight, setDocHeight] = useState(0);
+  useEffect(() => {
+    const el = docRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setDocHeight(el.scrollHeight));
+    ro.observe(el);
+    setDocHeight(el.scrollHeight);
+    return () => ro.disconnect();
+  }, [paginationKey]);
+  const pageBoundaries = useMemo(() => {
+    if (!mmToPx || mmToPx < 0.1 || docHeight < 100) return [] as { page: number; top: number }[];
+    const pageHpx = 297 * mmToPx;
+    const count = Math.max(1, Math.ceil(docHeight / pageHpx));
+    const out: { page: number; top: number }[] = [];
+    for (let i = 1; i < count; i++) out.push({ page: i + 1, top: i * pageHpx });
+    return out;
+  }, [mmToPx, docHeight]);
+
   const addLibraryBlock = useAddLibraryBlock(proposalId);
 
   const insertImagePlaceholder = (afterBlockId: string, size: ImageSizeBucket) => {
     const idx = blocks.findIndex((b) => b.id === afterBlockId);
     if (idx < 0) return;
     const after = blocks[idx];
+    // If the preceding block is forcing a page break after itself, disable it
+    // so the newly inserted image actually fills the visible gap instead of
+    // bouncing to the next page.
+    const priorBreakAfter = (after.content_rich as { pageBreakAfter?: boolean } | undefined)
+      ?.pageBreakAfter;
+    const priorIsIndexDefault =
+      after.block_type === "index" && priorBreakAfter === undefined;
+    if (priorBreakAfter === true || priorIsIndexDefault) {
+      update.mutate({
+        id: after.id,
+        patch: {
+          content_rich: { ...(after.content_rich ?? {}), pageBreakAfter: false },
+        },
+      });
+    }
     const entry: PsaLibraryEntry = {
       id: "image-gap-placeholder",
       kind: "image",
@@ -337,6 +383,7 @@ export function ComposerCanvas({
       },
     );
   };
+
 
   return (
     <div className="print-area">
@@ -391,6 +438,25 @@ export function ComposerCanvas({
           </SortableContext>
         </DndContext>
 
+        {/* Page-boundary lines — screen-only markers at each A4 boundary so
+            the user can immediately see where content breaks between pages. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 print:hidden"
+        >
+          {pageBoundaries.map((pb) => (
+            <div
+              key={pb.page}
+              className="absolute left-0 right-0 border-t border-dashed border-sky-300/70"
+              style={{ top: pb.top }}
+            >
+              <span className="absolute -top-2 right-2 rounded bg-sky-100 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-sky-700">
+                Página {pb.page}
+              </span>
+            </div>
+          ))}
+        </div>
+
         {/* Smart-pagination overlays — dashed placeholders sitting inside the
             gap at the bottom of a page. Screen only; the PDF export keeps the
             natural page break in that spot. */}
@@ -409,18 +475,19 @@ export function ComposerCanvas({
               }}
               className="pointer-events-auto absolute left-[14mm] right-[14mm] flex flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-amber-400/70 bg-amber-50/40 text-amber-800 transition hover:border-amber-500 hover:bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               style={{ top: g.top + 4, height: Math.max(24, g.height - 8) }}
-              title={`Sugerido: imagem ${g.size} de página · gap ~${g.gapMm}mm`}
+              title={`Sugerido: imagem ${g.size} de página · espaço livre ~${g.gapMm}mm`}
             >
               <ImagePlus className="h-5 w-5" />
-              <span className="text-[11px] font-medium uppercase tracking-wider">
-                Adicionar imagem · {g.size} de página
+              <span className="text-[11px] font-semibold uppercase tracking-wider">
+                Espaço livre · {g.gapMm} mm
               </span>
-              <span className="text-[10px] opacity-70">
-                Gap ~{g.gapMm}mm — clique para inserir da biblioteca
+              <span className="text-[10px] opacity-80">
+                Sugestão: imagem {g.size} de página — clique para inserir
               </span>
             </button>
           ))}
         </div>
+
 
 
 
