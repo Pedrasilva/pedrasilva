@@ -953,7 +953,10 @@
   .proposal-print-document .proposal-page-break-after {
     break-after: page;
     page-break-after: always;
-    padding-bottom: var(--proposal-screen-break-space, 0px);
+    /* Mirror the printed break outside the block. Padding made the editor's
+       selection box grow by a whole page (especially visible on the index),
+       while the PDF break never changes the block's own height. */
+    margin-bottom: calc(1.5rem + var(--proposal-screen-break-space, 0px));
   }
   /* Editor metadata is useful, but must not consume document flow space: the
      PDF hides it, so keeping it in-flow made every later page marker drift. */
