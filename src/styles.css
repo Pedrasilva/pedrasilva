@@ -1032,6 +1032,12 @@
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
+  /* Paged.js already owns the physical page boxes. Giving its cloned document
+     an A4 min-height reserves a complete empty first fragment before the
+     proposal blocks begin. The normal browser PDF keeps the A4 sheet sizing. */
+  .proposal-paged-source .proposal-print-document {
+    min-height: 0;
+  }
   /* Match the screen preview: same A4 sheet, same content padding, same
      brand-frame coordinates. @page margin: 0 prevents the browser's own
      URL/date/page headers from stealing space or appearing in the PDF. */
@@ -1075,6 +1081,14 @@
   .print-area .proposal-page-break-before {
     page-break-before: always;
     break-before: page;
+  }
+  .print-area .proposal-print-block[data-first-printable="true"] {
+    page-break-before: auto !important;
+    break-before: auto !important;
+  }
+  .print-area .proposal-print-document > div > .proposal-print-block:first-child {
+    page-break-before: auto !important;
+    break-before: auto !important;
   }
   .print-area .proposal-page-break-after {
     page-break-after: always;
@@ -1301,6 +1315,74 @@
 }
 .psa-preview-mode .proposal-print-document {
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+/* The interactive canvas cannot reproduce browser print fragmentation: text
+   can split between lines while fixed letterhead repeats per sheet. Preview
+   mode therefore uses Paged.js to render actual A4 page boxes from the same
+   source DOM and print CSS used by PDF export. */
+@media screen {
+  .psa-preview-mode .proposal-preview-source {
+    position: fixed !important;
+    left: -10000px !important;
+    top: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  .proposal-paginated-preview {
+    width: 100%;
+    padding: 24px 0 48px;
+  }
+
+  .proposal-paginated-preview .pagedjs_pages {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+  }
+
+  .proposal-paginated-preview .pagedjs_page {
+    flex: none;
+    margin: 0 !important;
+    background: white;
+    box-shadow: 0 2px 9px rgba(0, 0, 0, 0.28);
+  }
+
+  .proposal-paginated-preview,
+  .proposal-paginated-preview * {
+    visibility: visible !important;
+  }
+
+  .proposal-paginated-preview .pagedjs_page::after {
+    content: attr(data-page-number);
+    position: absolute;
+    right: 8mm;
+    bottom: 5mm;
+    z-index: 120;
+    font-family: var(--psa-heading-font);
+    font-size: 8pt;
+    color: #64748b;
+  }
+
+  .proposal-paginated-preview .proposal-print-document {
+    width: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .proposal-paginated-preview .proposal-paged-source {
+    position: static !important;
+    width: auto !important;
+  }
+
+  .proposal-paginated-preview .proposal-print-document::before,
+  .proposal-paginated-preview .proposal-print-document [data-smart-break="true"] {
+    display: none !important;
+  }
 }
 
 
