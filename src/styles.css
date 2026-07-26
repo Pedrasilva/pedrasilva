@@ -1402,7 +1402,7 @@
     color: #64748b;
   }
 
-  .proposal-paginated-preview .proposal-print-document {
+  .proposal-paginated-preview .proposal-print-document:not(.proposal-generated-pagebox) {
     width: auto !important;
     min-height: 0 !important;
     margin: 0 !important;
@@ -1410,9 +1410,40 @@
     box-shadow: none !important;
   }
 
+  .proposal-paginated-preview .proposal-generated-pagebox {
+    position: relative;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .proposal-paginated-preview .proposal-generated-pagebox > .proposal-page-header,
+  .proposal-paginated-preview .proposal-generated-pagebox > .proposal-page-footer {
+    position: absolute !important;
+    left: var(--psa-frame-left) !important;
+    right: var(--psa-frame-right) !important;
+    z-index: 100;
+    margin: 0;
+    background: transparent;
+  }
+  .proposal-paginated-preview .proposal-generated-pagebox > .proposal-page-header {
+    top: var(--psa-header-top) !important;
+  }
+  .proposal-paginated-preview .proposal-generated-pagebox > .proposal-page-footer {
+    top: auto !important;
+    bottom: var(--psa-footer-bottom) !important;
+  }
+
   .proposal-paginated-preview .proposal-paged-source {
     position: static !important;
     width: auto !important;
+  }
+
+  .proposal-paginated-preview .proposal-paged-content {
+    width: 100%;
   }
 
   .proposal-paginated-preview .proposal-print-document::before {
@@ -1463,9 +1494,17 @@
     display: block !important;
   }
   .proposal-exporting-paged .proposal-paginated-preview .pagedjs_page {
-    page: proposal-a4;
+    break-after: page !important;
+    page-break-after: always !important;
     margin: 0 !important;
     box-shadow: none !important;
+  }
+  .proposal-exporting-paged .proposal-paginated-preview .pagedjs_page:last-child {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+  .proposal-exporting-paged .proposal-paginated-preview .pagedjs_page::after {
+    display: none !important;
   }
   .proposal-exporting-paged .proposal-paginated-preview .proposal-paged-block-selected {
     box-shadow: none !important;
